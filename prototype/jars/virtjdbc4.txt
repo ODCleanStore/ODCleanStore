@@ -1,0 +1,27 @@
+1. Download virtjdbc4.jar
+
+2a. Import do eclipse projektu
+
+2b. Pouziti v Mavenu:
+
+Instalace do lokalniho repozitare mavenu:
+
+mvn install:install-file -Dfile=<path>\virtjdbc4.jar -DgroupId=cz.odcleanstorage.prototype.imported -DartifactId=virtjdbc4 -Dversion=0.1 -Dpackaging=jar
+
+
+Pridani odkazu do pom souboru v mavenu:
+
+  <dependencies>
+    <dependency>
+      <groupId>cz.odcleanstorage.prototype.imported</groupId>
+	 <artifactId>virtjdbc4</artifactId>
+	 <version>0.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+
+
+
+
+
