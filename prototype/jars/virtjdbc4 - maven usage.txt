@@ -1,8 +1,4 @@
-1. Download virtjdbc4.jar
-
-2a. Import do eclipse projektu
-
-2b. Pouziti v Mavenu:
+Pouziti v Mavenu:
 
 Instalace do lokalniho repozitare mavenu:
 

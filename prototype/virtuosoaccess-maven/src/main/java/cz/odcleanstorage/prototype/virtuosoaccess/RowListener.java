@@ -8,7 +8,7 @@ package cz.odcleanstorage.prototype.virtuosoaccess;
  */
 public interface RowListener {
 	/**
-	 * The operation processes row from ResultSet returned from Sql statement
+	 * The operation processes row from ResultSet returned from Sparql statement
 	 * 
 	 */
 	public void processRow(VirtuosoConnection con, String[] row);

@@ -1,12 +1,15 @@
 package cz.odcleanstorage.prototype.virtuosoaccess;
 
-import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+
+import virtuoso.jdbc4.VirtuosoExtendedString;
+import virtuoso.jdbc4.VirtuosoRdfBox;
+import virtuoso.jdbc4.VirtuosoResultSet;
 
 /**
  * Encapsulates jdbc connections and single threaded basic data operations on Virtuoso database.
@@ -21,9 +24,9 @@ public class VirtuosoConnection
 	private Connection con; 
 	
 	/**
-	 * Creates a new connections to the database. 
+	 * Create a new connections to the database. 
 	 * 
-	 * @param connectString
+	 * @param connectionString
 	 * @param user
 	 * @param password 
 	 * @throws ClassNotFoundException 
@@ -39,6 +42,39 @@ public class VirtuosoConnection
 		con = DriverManager.getConnection(connectionString, user, password);
 		con.setAutoCommit(false);
 	}
+	
+	/**
+	 * Create a new connections to the local database on 1111 port with dba/dba credentials. 
+	 * 
+	 * @throws ClassNotFoundException 
+	 * @throws SQLException 
+	 */
+	public static VirtuosoConnection CreateInitialVirtuosoDbaConnection() throws ClassNotFoundException, SQLException {
+		
+		return new VirtuosoConnection("jdbc:virtuoso://localhost:1111","dba","dba"); 
+	}
+	
+	/**
+	 * Close connection 
+	 * 
+	 * @throws SQLException 
+	 */
+	public void close() {
+		if (con != null) {
+			try {
+				con.close();
+				con = null;
+			}
+			catch(SQLException e) {
+			}
+		}
+	}
+	
+	protected void finalize() throws Throwable
+	{
+	  close();	
+	  super.finalize(); 
+	}
 
 	/**
 	 * Commit changes to the database. 
@@ -49,7 +85,33 @@ public class VirtuosoConnection
 	{
 		con.commit();
 	}
-
+	
+	/**
+	 * Revert changes to the last commit. 
+	 * 
+	 * @throws SQLException 
+	 */
+	public void revert() throws SQLException
+	{
+		con.rollback();
+	}
+	
+	/**
+	 * Read quads for graph. 
+	 * 
+	 * @param forGraph
+	 * @param rowListener
+	 *    
+	 * @return count of rows
+	 *    
+	 * @throws SQLException 
+	 */
+	public long readQuads(String forGraph, RowListener rowListener) throws SQLException
+	{
+		String statement = String.format("SPARQL SELECT ?s ?p ?o %s WHERE { GRAPH %s {?s ?p ?o} }", forGraph, forGraph);
+		return executeStatement(statement, rowListener);
+	}
+	
 	/**
 	 * Insert quad to the database. 
 	 * 
@@ -62,28 +124,24 @@ public class VirtuosoConnection
 	 */
 	public void insertQuad(String subject, String predicate, String object, String graph) throws SQLException
 	{
-    	String stat = "{call DB.DBA.RDF_QUAD_URI('" + graph + "', '" + subject + "', '"  + predicate + "', '"  + object + "')}";
-    	CallableStatement cst = con.prepareCall(stat);
-    	cst.execute();	
+		String statement = String.format("SPARQL INSERT INTO GRAPH %s { %s %s %s }", graph, subject, predicate, object);
+		executeStatement(statement);
 	}
 
 	/**
-	 * Insert rdfXml to the database. 
+	 * Delete quad from the database. 
 	 * 
-	 * @param relativeBase
-	 * @param rdfXml
+	 * @param subject
+	 * @param predicate
+	 * @param object
 	 * @param graph
 	 *    
 	 * @throws SQLException 
 	 */	
-	public void insertRdfXml(String relativeBase, String rdfXml, String graph) throws SQLException
+	public void deleteQuads(String subject, String predicate, String object, String graph) throws SQLException
 	{
-		String stat = relativeBase != null ?
-				"{call DB.DBA.RDF_LOAD_RDFXML('" + rdfXml + "', '" + relativeBase +  "', '" + graph + "')}" :
-				"{call DB.DBA.RDF_LOAD_RDFXML('" + rdfXml + "', '' , '" + graph + "')}" ;
-		
-		CallableStatement cst = con.prepareCall(stat);
-		cst.execute();
+		String statement = String.format("SPARQL DELETE FROM GRAPH %s { %s %s %s }", graph, subject, predicate, object);
+		executeStatement(statement);
 	}
 
 	/**
@@ -106,8 +164,10 @@ public class VirtuosoConnection
 	 *    
 	 * @throws SQLException 
 	 */	
-	public void executeStatement(String statement, RowListener rowListener) throws SQLException
+	public long executeStatement(String statement, RowListener rowListener) throws SQLException
 	{
+		long retCount = 0;
+		
 		Statement stmt = con.createStatement();
 		stmt.execute(statement);
 		ResultSetMetaData data = stmt.getResultSet().getMetaData();
@@ -118,11 +178,36 @@ public class VirtuosoConnection
 			while(rs.next()) {
 				String[] row = new String[data.getColumnCount()];
 				for(int i = 0; i < row.length; i++)	{
-					row[i] = rs.getString(i +1); 
+					
+					String s = rs.getString(i + 1);
+					Object o = ((VirtuosoResultSet)rs).getObject(i + 1);
+
+					if (o instanceof VirtuosoExtendedString) { 
+					    VirtuosoExtendedString vs = (VirtuosoExtendedString) o;
+			                    if (vs.iriType == VirtuosoExtendedString.IRI && (vs.strType & 0x1) == 0x1) {
+			                    	row[i] ="<" + vs.str +">";
+			                    }
+			                    else {
+			                    	row[i] = vs.str;
+			                    }
+					}
+					else if (o instanceof VirtuosoRdfBox) {
+					    VirtuosoRdfBox rb = (VirtuosoRdfBox) o;
+					    row[i] = rb.rb_box.toString();
+					}
+					else if(stmt.getResultSet().wasNull()) {
+					    row[i] = "NULL";
+					}
+					else {
+						row[i] = s;
+					}
 				}
+				retCount++;
 				rowListener.processRow(this, row);
 			}
 			more = stmt.getMoreResults();
 		}
+		
+		return retCount;
 	}
 }
