@@ -28,7 +28,7 @@ public class VirtuosoAccessTest {
 	}
 	
 	@After
-	public void close() throws ClassNotFoundException, SQLException
+	public void close() throws  SQLException
 	{
 		if(con != null) {
 			con.close();
@@ -52,7 +52,7 @@ public class VirtuosoAccessTest {
 	}
 	
 	@Test
-	public void testbasicReadQuads() throws ClassNotFoundException, SQLException
+	public void testbasicReadQuads() throws  SQLException
 	{
 		long count = con.readQuads("<>", new RowListener() { public void processRow(VirtuosoConnection con, String[] quad) {}});
 		assertTrue(count == 0);
@@ -61,7 +61,7 @@ public class VirtuosoAccessTest {
 	}
 	
 	@Test
-	public void testInsertAndReadQuad() throws ClassNotFoundException, SQLException
+	public void testInsertAndReadQuad() throws  SQLException
 	{
 		uri = DataFormat.generateOpenDataTripleGroupsRandomUuidUri();
 		
@@ -74,12 +74,14 @@ public class VirtuosoAccessTest {
 		con.insertQuad(uri, uri, currentDate, uri);
 		count = con.readQuads(uri, new RowListener() { public void processRow(VirtuosoConnection con, String[] quad){}});
 		assertTrue(count == 1);
+		
+		con.commit();
 
 		con.insertQuad("_:A", uri, DataFormat.getW3CDFTCurrent(), uri);
 		count = con.readQuads(uri, new RowListener() { public void processRow(VirtuosoConnection con, String[] quad){}});
 		assertTrue(count == 2);
 		
-		con.insertQuad("_:A", uri, "\"24-12-21^^xsd:Date\"", uri);
+		con.insertQuad("_:A", uri, "\"2012-12-21^^xsd:Date\"", uri);
 		
 		try {
 			con.insertQuad("", "", "", "");
@@ -101,7 +103,7 @@ public class VirtuosoAccessTest {
 	}
 	
 	@Test
-	public void testInsertAndDeleteQuad() throws ClassNotFoundException, SQLException
+	public void testInsertAndDeleteQuad() throws SQLException
 	{
 		uri = DataFormat.generateOpenDataTripleGroupsRandomUuidUri();
 		con.insertQuad(uri, uri, uri, uri);
@@ -114,7 +116,7 @@ public class VirtuosoAccessTest {
 	}
 	
 	@Test
-	public void testRevertAndCommitQuad() throws ClassNotFoundException, SQLException
+	public void testRevertAndCommitQuad() throws SQLException
 	{
 		uri = DataFormat.generateOpenDataTripleGroupsRandomUuidUri();
 		
@@ -142,5 +144,50 @@ public class VirtuosoAccessTest {
 		con.revert();
 		count = con.readQuads(uri, new RowListener() { public void processRow(VirtuosoConnection con, String[] quad){}});
 		assertTrue(count == 0);
+	}
+	
+	public void testAutoCommitInserAndDelete() throws  SQLException
+	{
+		uri = DataFormat.generateOpenDataTripleGroupsRandomUuidUri();
+		
+		con.insertQuad(uri, uri, uri, uri);
+		con.revert();
+		long count = con.readQuads(uri, new RowListener() { public void processRow(VirtuosoConnection con, String[] quad){}});
+		assertTrue(count == 1);
+		
+		con.deleteQuads(uri, uri, uri, uri);
+		con.revert();
+		count = con.readQuads(uri, new RowListener() { public void processRow(VirtuosoConnection con, String[] quad){}});
+		assertTrue(count == 0);
+		
+		con.adjustTransactionLevel("2", false);
+	}
+	
+	@Test
+	public void testRevertAndCommitWithDifferentLogEnableAndAutocommitSettings() throws  SQLException
+	{
+		con.adjustTransactionLevel("3", true);
+		
+		testAutoCommitInserAndDelete();
+		
+		con.adjustTransactionLevel("3", false);
+		
+		testAutoCommitInserAndDelete();
+		
+		con.adjustTransactionLevel("1", true);
+		
+		testAutoCommitInserAndDelete();
+		
+		con.adjustTransactionLevel("1", false);
+		
+		testRevertAndCommitQuad();
+		
+		con.adjustTransactionLevel("0", false);
+		
+		testRevertAndCommitQuad();
+		
+		con.adjustTransactionLevel("0", true);
+		
+		testAutoCommitInserAndDelete();
 	}
 }

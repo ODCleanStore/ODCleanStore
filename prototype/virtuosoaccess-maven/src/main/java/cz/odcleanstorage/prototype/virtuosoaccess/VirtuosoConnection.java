@@ -1,5 +1,6 @@
 package cz.odcleanstorage.prototype.virtuosoaccess;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -40,7 +41,23 @@ public class VirtuosoConnection
 		}
 		
 		con = DriverManager.getConnection(connectionString, user, password);
+		
 		con.setAutoCommit(false);
+	}
+	
+	/**
+	 * Adjust transaction level in Virtuoso and jdbc  
+	 * 
+	 * @param virtusoLogEnableValue - 0 disable log, 1 enable transaction level log, 3 enable statement level log
+	 * @param autoCommitValue
+  	 *
+	 * @throws SQLException 
+	 */
+	public void adjustTransactionLevel(String virtusoLogEnableValue, boolean autoCommitValue) throws SQLException {
+		
+		CallableStatement cst = con.prepareCall(String.format("log_enable(%s)", virtusoLogEnableValue));
+		cst.execute();
+		con.setAutoCommit(autoCommitValue);
 	}
 	
 	/**
