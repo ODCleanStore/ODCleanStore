@@ -1,0 +1,155 @@
+package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import cz.cuni.mff.odcleanstore.conflictresolution.AggregationErrorStrategy;
+import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
+import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
+import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
+import cz.cuni.mff.odcleanstore.graph.Quad;
+import cz.cuni.mff.odcleanstore.graph.TripleItem;
+import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
+
+/**
+ * Base class for aggregation methods that include only triples selected from
+ * conflicting input triples and don't return new triples calculated from
+ * multiple conflicting triples.
+ * 
+ * @author Jan Michelfeit
+ */
+abstract class SelectedValueAggregation extends AggregationMethodBase {
+    /** 
+     * TripleItem distance metric used in quality computation.
+     * @see #computeQuality(Quad, Collection, NamedGraphMetadataMap)
+     */
+    private static /*final*/ DistanceMetric distanceMetricInstance = new DistanceMetricImpl();
+    
+    /**
+     * Aggregates quads in conflictingQuads into one or more result quads and
+     * calculates quality estimate and source information for each of the result
+     * quads. The aggregated triples are selected from conflictingQuads and have
+     * the original source.
+     * 
+     * @param conflictingQuads {@inheritDoc}
+     * @param metadata {@inheritDoc}
+     * @param errorStrategy {@inheritDoc}
+     * @param uriGenerator {@inheritDoc}
+     * @return {@inheritDoc}
+     */
+    @Override
+    public abstract Collection<CRQuad> aggregate(
+            Collection<Quad> conflictingQuads,
+            NamedGraphMetadataMap metadata, 
+            AggregationErrorStrategy errorStrategy,
+            UniqueURIGenerator uriGenerator);
+    
+    /** 
+     * Return the default DistanceMetric instance.
+     * @return TripleItem distance metric that can be used in quality computation.
+     */
+    protected DistanceMetric getDistanceMetric() {
+        return distanceMetricInstance;
+    }
+    
+    /**
+     * {@inheritDoc}.
+     * 
+     * The computed quality depends on quality of the source of result and 
+     * on how different conflicting quads are.
+     * 
+     * The exact formula is 
+     * <pre> q(V,v0) = sourceQuality(v0) * (1 - (SUM OF (sourceQuality(V[i]) * difference(V[i],v0))) / (SUM OF sourceQuality(V[i])))</pre>
+     * (see documentation for explanation).
+     * The time complexity O(n*d) where n is size of conflictingQuads and d is
+     * the complexity of difference calculation.
+     * 
+     * Precondition: resultQuad is expected to be in conflictingQuads.
+     * @param resultQuad {@inheritDoc}
+     * @param conflictingQuads  {@inheritDoc}
+     * @param metadata {@inheritDoc}
+     * @return {@inheritDoc}
+     * @see #getSourceQuality(NamedGraphMetadata)
+     */
+    @Override
+    protected double computeQuality(
+            Quad resultQuad, 
+            Collection<Quad> conflictingQuads, 
+            NamedGraphMetadataMap metadata) {
+        
+        NamedGraphMetadata resultMetadata = metadata.getMetadata(resultQuad.getNamedGraph());
+        double resultQuality = getSourceQuality(resultMetadata);
+        if (resultQuality == 0) {
+            return resultQuality;
+        }
+        
+        // Calculated distance average weighted by respective source qualities
+        DistanceMetric distanceMetric = getDistanceMetric();
+        double distanceAverage = 0;
+        double totalSourceQuality = 0;
+        for (Quad quad : conflictingQuads) {
+            NamedGraphMetadata quadMetadata = metadata.getMetadata(quad.getNamedGraph());
+            double quadQuality = getSourceQuality(quadMetadata);
+            
+            double resultDistance = distanceMetric.distance(
+                    quad.getObject(), resultQuad.getObject());
+            distanceAverage += quadQuality * resultDistance;
+            totalSourceQuality += quadQuality;
+        }
+        
+        // resultQuality cannot be zero (tested before) -> if sum of 
+        // conflictingQuads source qualitites is zero, resultQuality is not 
+        // among them -> precondition broken
+        assert (totalSourceQuality > 0)
+                : "Precondition broken: resultQuad is not present in conflictingQuads";
+
+        distanceAverage /= totalSourceQuality;
+
+        double result = resultQuality * (1 - distanceAverage);
+        return result;
+    }
+
+    /**
+     * Return a set (without duplicates) of named graphs of all quads that
+     * have the selected object as theirs object. Objects are compared 
+     * using equals().
+     * 
+     * @param object the searched triple object 
+     * @param conflictingQuads searched quads
+     * @return set of named graphs
+     */
+    protected Collection<String> sourceNamedGraphsForObject(
+            TripleItem object, Collection<Quad> conflictingQuads) {
+        
+        Set<String> namedGraphs = null;
+        String firstNamedGraph = null;
+        
+        for (Quad quad : conflictingQuads) {
+            if (!object.equals(quad.getObject())) {
+                continue;
+            }
+            
+            String newNamedGraph = quad.getNamedGraph();
+            // Purpose of these if-else branches is to avoid creating HashSet
+            // if not neccessary (only zero or one named graph in the result)
+            if (firstNamedGraph == null) {
+                firstNamedGraph = newNamedGraph;
+            } else if (namedGraphs == null) {
+                namedGraphs = new HashSet<String>();
+                namedGraphs.add(firstNamedGraph);
+                namedGraphs.add(newNamedGraph);
+            } else {
+                namedGraphs.add(newNamedGraph);
+            }
+        }
+        
+        if (firstNamedGraph == null) {
+            return Collections.EMPTY_SET;
+        } else if (namedGraphs == null) {
+            return Collections.singleton(firstNamedGraph);
+        } else {
+            return namedGraphs;
+        }
+    }
+}
