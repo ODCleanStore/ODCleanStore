@@ -3,9 +3,11 @@ package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.graph.Quad;
-import cz.cuni.mff.odcleanstore.graph.TripleItem;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
+
+import com.hp.hpl.jena.graph.Node;
+
+import de.fuberlin.wiwiss.ng4j.Quad;
 
 import java.util.Collection;
 import java.util.Date;
@@ -13,7 +15,7 @@ import java.util.Date;
 /**
  * Aggregation method that returns the quad with the highest (conflict resolution)
  * quality or the newest stored time in case of equality of quality.
- * 
+ *
  * @author Jan Michelfeit
  */
 final class BestAggregation extends SelectedValueAggregation {
@@ -22,12 +24,12 @@ final class BestAggregation extends SelectedValueAggregation {
      * Returns a triple with the highest (conflict resolution quality) or the
      * newest stored time in case of equality of quality.
      * If conflictingQuads are empty, returns an empty collection.
-     * 
+     *
      * {@inheritDoc}
-     * 
+     *
      * The time complexity is quadratic with number of conflicting quads.
      * (for each quad calculates its quality in linear time).
-     * 
+     *
      * @param conflictingQuads {@inheritDoc}
      * @param metadata {@inheritDoc}
      * @param errorStrategy {@inheritDoc}
@@ -56,8 +58,8 @@ final class BestAggregation extends SelectedValueAggregation {
             } else if (quality == bestQuadQuality) {
                 // In case of equality prefer newer date
                 assert bestQuad != null; // quality shouldn't be NEGATIVE_INFINITY
-                Date storedDate = metadata.getMetadata(quad.getNamedGraph()).getStored();
-                Date bestQuadStored = metadata.getMetadata(bestQuad.getNamedGraph()).getStored();
+                Date storedDate = metadata.getMetadata(quad.getGraphName()).getStored();
+                Date bestQuadStored = metadata.getMetadata(bestQuad.getGraphName()).getStored();
                 if (storedDate != null
                         && (bestQuadStored == null || storedDate.after(bestQuadStored))) {
                     bestQuad = quad;
@@ -69,7 +71,7 @@ final class BestAggregation extends SelectedValueAggregation {
         // bestQuad is not null because conflictingQuads is not empty
         assert bestQuad != null;
         // By not cloning quad for resultQuad we rely on quad being immutable
-        Quad resultQuad = new Quad(bestQuad.getTriple(), uriGenerator.nextURI());
+        Quad resultQuad = new Quad(Node.createURI(uriGenerator.nextURI()), bestQuad.getTriple());
         Collection<String> sourceNamedGraphs = sourceNamedGraphsForObject(
                 bestQuad.getObject(),
                 conflictingQuads);
@@ -84,7 +86,7 @@ final class BestAggregation extends SelectedValueAggregation {
      * @return always true
      */
     @Override
-    protected boolean isAggregable(TripleItem value) {
+    protected boolean isAggregable(Node value) {
         return true;
     }
 }

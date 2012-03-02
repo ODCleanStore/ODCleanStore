@@ -4,9 +4,11 @@ import cz.cuni.mff.odcleanstore.conflictresolution.AggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.graph.Quad;
-import cz.cuni.mff.odcleanstore.graph.TripleItem;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
+
+import com.hp.hpl.jena.graph.Node;
+
+import de.fuberlin.wiwiss.ng4j.Quad;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +19,7 @@ import java.util.LinkedList;
 
 /**
  * Base class for all aggregation methods implemented in ODCleanStore.
- * 
+ *
  * @author Jan Michelfeit
  */
 abstract class AggregationMethodBase implements AggregationMethod {
@@ -58,13 +60,12 @@ abstract class AggregationMethodBase implements AggregationMethod {
             UniqueURIGenerator uriGenerator);
 
     /**
-     * Indicates whether a TripleItem instance is valid for this
-     * aggregation method.
-     * @param value a TripleItem for aggregation
+     * Indicates whether a Node is valid for this aggregation method.
+     * @param value a Node for aggregation
      * @return true iff the aggregation can be applied to value
      * @see AggregationErrorStrategy
      */
-    protected abstract boolean isAggregable(TripleItem value);
+    protected abstract boolean isAggregable(Node value);
 
     /**
      * Compute quality estimate of a selected quad taking into consideration

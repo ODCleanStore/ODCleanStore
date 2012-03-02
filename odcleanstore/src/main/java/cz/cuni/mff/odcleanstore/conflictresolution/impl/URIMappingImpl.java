@@ -1,9 +1,9 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.UnexpectedPredicateException;
-import cz.cuni.mff.odcleanstore.graph.Triple;
-import cz.cuni.mff.odcleanstore.graph.URITripleItem;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
+
+import com.hp.hpl.jena.graph.Triple;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,17 +15,17 @@ import java.util.Set;
 import java.util.TreeMap;
 
 /**
- * Data structure that handles mapping of URI resources linked with an owl:sameAs
- * link.
- * Maintains mapping of all subjects and objects URIs in triples passed by addLinks()
+ * Data structure that handles mapping of URI resources linked with a owl:sameAs link
+ * (even transitively).
+ * Maintains a mapping of all subjects and objects URIs in triples passed by addLinks()
  * to a "canonical URI". A canonical URI is single URI selected for each (weakly)
  * connected component of the owl:sameAs links graph. owl:sameAs links for
  * TripleItems other then URITripleItem are ignored.
  * This is the fundamental component of implicit conflict resolution.
- * 
+ *
  * The implementation is based on DFU (disjoint find and union) data structure
  * with path compression.
- * 
+ *
  * @author Jan Michelfeit
  */
 class URIMappingImpl implements URIMapping {
@@ -40,10 +40,10 @@ class URIMappingImpl implements URIMapping {
      * If the value (parent URI) is null, the key is the root of the respective
      * subtree. If uriDFUParent doesn't contain an URI, the meaning is the same
      * as if the parent is null.
-     * 
+     *
      * Ther root of each subtree is the canonical URI for the particular
      * component.
-     * 
+     *
      * Invariant: If an URI present in uriDFUParent is in {@link #preferredURIs},
      * it is eighter the root of a DFU subtree (and thus a canonical URI) or its
      * respective root is from preferredURIs.
@@ -71,7 +71,7 @@ class URIMappingImpl implements URIMapping {
     public URIMappingImpl(Set<String> preferredURIs) {
         this.preferredURIs = (preferredURIs != null)
                 ? preferredURIs
-                : Collections.EMPTY_SET;
+                : Collections.<String>emptySet();
     }
 
     /**
@@ -81,16 +81,14 @@ class URIMappingImpl implements URIMapping {
      *         a predicate different from owl:sameAs
      */
     public void addLinks(Iterator<Triple> sameAsLinks) throws UnexpectedPredicateException {
-
         while (sameAsLinks.hasNext()) {
             Triple triple = sameAsLinks.next();
-            if (!triple.getPredicate().getURI().equals(OWL.sameAs)) {
-                LOG.warn("A triple with predicate {} passed as a sameAs link", 
+            if (!triple.getPredicate().hasURI(OWL.sameAs)) {
+                LOG.warn("A triple with predicate {} passed as a sameAs link",
                         triple.getPredicate().getURI());
                 throw new UnexpectedPredicateException(triple.getPredicate().getURI(), OWL.sameAs);
             }
-            if (!(triple.getSubject() instanceof URITripleItem)
-                    || !(triple.getObject() instanceof URITripleItem)) {
+            if (!triple.getSubject().isURI() || !triple.getObject().isURI()) {
                 // Ignore sameAs links between everything but URI resources
                 continue;
             }

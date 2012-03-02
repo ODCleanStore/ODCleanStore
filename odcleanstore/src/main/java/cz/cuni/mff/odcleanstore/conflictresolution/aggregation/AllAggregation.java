@@ -3,10 +3,12 @@ package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.graph.Quad;
-import cz.cuni.mff.odcleanstore.graph.TripleItem;
-import cz.cuni.mff.odcleanstore.shared.TripleItemComparator;
+import cz.cuni.mff.odcleanstore.shared.NodeComparator;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
+
+import com.hp.hpl.jena.graph.Node;
+
+import de.fuberlin.wiwiss.ng4j.Quad;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,49 +21,45 @@ import java.util.Comparator;
  * Identical triples are aggregated to a single triple with sourceNamedGraphs
  * containg the union of all original named graphs. Otherwise leaves triples
  * as they are and adds a quality estimate.
- * 
+ *
  * @author Jan Michelfeit
  */
 final class AllAggregation extends SelectedValueAggregation {
     /**
-     * A comparator used to sort quads by object and named graph.
+     * Expected number of data sources per quad - used to initialize data sources collections.
      */
-    private static final ObjectNamedGraphComparator OBJECT_NG_COMPARATOR;
+    private static final int EXPECTED_DATA_SOURCES = 2;
 
     /**
-     * Comparator of {@link Quad Quads} comparing first by objects, second
-     * by named graph.
+     * A comparator used to sort quads by object and named graph.
+     */
+    private static final ObjectNamedGraphComparator OBJECT_NG_COMPARATOR =
+            new ObjectNamedGraphComparator();
+
+    /**
+     * Comparator of {@link Quad Quads} comparing first by objects, second by named graph.
      */
     private static class ObjectNamedGraphComparator implements Comparator<Quad> {
         @Override
-        public int compare(Quad o1, Quad o2) {
-            int objectComparison = TripleItemComparator.compare(
-                    o1.getObject(),
-                    o2.getObject());
+        public int compare(Quad q1, Quad q2) {
+            int objectComparison = NodeComparator.compare(q1.getObject(), q2.getObject());
             if (objectComparison != 0) {
                 return objectComparison;
             } else {
-                return o1.getNamedGraph().compareTo(o2.getNamedGraph());
+                return NodeComparator.compare(q1.getGraphName(), q2.getGraphName());
             }
         }
     }
 
     /**
-     * Initialize object comparator.
-     */
-    static {
-        OBJECT_NG_COMPARATOR = new ObjectNamedGraphComparator();
-    }
-
-    /**
      * Returns conflictingQuads unchanged, only wrapped as CRQuads with added
      * quality estimate.
-     * 
+     *
      * {@inheritDoc}
-     * 
+     *
      * The time complexity is quadratic with number of conflicting quads
      * (for each quad calculates its quality in linear time).
-     * 
+     *
      * @param conflictingQuads sdf slkdf jldsafj ůldsakjfůlkdsa jfůlkdsa jfůlkdsjf ůldsjfůlkds
      *        jfůlkdsj fůlkds jflkdsfj ůldsa jfs ldfj
      * @param metadata d fjsd lkfjlkdsf jlds jfl
@@ -85,16 +83,18 @@ final class AllAggregation extends SelectedValueAggregation {
         Arrays.sort(sortedQuads, OBJECT_NG_COMPARATOR);
 
         Quad lastQuad = null; // quad from the previous iteration
-        TripleItem lastObject = null; // lastQuad's object
+        Node lastObject = null; // lastQuad's object
         double lastQuadQuality = Double.NaN;
         ArrayList<String> sourceNamedGraphs = null; // sources for lastQuad
         for (Quad quad : sortedQuads) {
-            TripleItem object = quad.getObject();
-            boolean isNewObject = !object.equals(lastObject);
+            Node object = quad.getObject();
+            boolean isNewObject = !object.equals(lastObject); // intentionally equals()
 
             if (isNewObject && lastQuad != null) {
                 // Add lastQuad to result
-                Quad resultQuad = new Quad(lastQuad.getTriple(), uriGenerator.nextURI());
+                Quad resultQuad = new Quad(
+                        Node.createURI(uriGenerator.nextURI()),
+                        lastQuad.getTriple());
                 result.add(new CRQuad(resultQuad, lastQuadQuality, sourceNamedGraphs));
             }
 
@@ -102,9 +102,8 @@ final class AllAggregation extends SelectedValueAggregation {
                 // A new object
                 lastQuad = quad;
                 lastObject = object;
-                // Set initial capacity to 1 supposing usually there won't be more sources
-                sourceNamedGraphs = new ArrayList<String>(1);
-                sourceNamedGraphs.add(quad.getNamedGraph());
+                sourceNamedGraphs = new ArrayList<String>(EXPECTED_DATA_SOURCES);
+                sourceNamedGraphs.add(quad.getGraphName().getURI());
                 lastQuadQuality = computeQuality(lastQuad, conflictingQuads, metadata);
             } else {
                 // A quad with object identical to that of the previous quad
@@ -112,15 +111,17 @@ final class AllAggregation extends SelectedValueAggregation {
                 assert sourceNamedGraphs != null && sourceNamedGraphs.size() >= 1;
                 String lastNamedGraph = sourceNamedGraphs.get(sourceNamedGraphs.size() - 1);
                 // Avoid duplicities in sourceNamedGraphs:
-                if (!quad.getNamedGraph().equals(lastNamedGraph)) {
-                    sourceNamedGraphs.add(quad.getNamedGraph());
+                if (!quad.getGraphName().equals(lastNamedGraph)) {
+                    sourceNamedGraphs.add(quad.getGraphName().getURI());
                 }
             }
         }
 
         if (lastQuad != null) {
             // Don't forget to add the last quad to result
-            Quad resultQuad = new Quad(lastQuad.getTriple(), uriGenerator.nextURI());
+            Quad resultQuad = new Quad(
+                    Node.createURI(uriGenerator.nextURI()),
+                    lastQuad.getTriple());
             result.add(new CRQuad(resultQuad, lastQuadQuality, sourceNamedGraphs));
         }
         return result;
@@ -132,7 +133,7 @@ final class AllAggregation extends SelectedValueAggregation {
      * @return always true
      */
     @Override
-    protected boolean isAggregable(TripleItem value) {
+    protected boolean isAggregable(Node value) {
         return true;
     }
 }

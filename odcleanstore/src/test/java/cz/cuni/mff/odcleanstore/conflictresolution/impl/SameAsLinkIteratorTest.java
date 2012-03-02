@@ -1,8 +1,9 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
 import cz.cuni.mff.odcleanstore.TestUtils;
-import cz.cuni.mff.odcleanstore.graph.Triple;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
+
+import de.fuberlin.wiwiss.ng4j.Quad;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -11,7 +12,7 @@ import org.junit.Test;
 import java.util.LinkedList;
 
 /**
- * 
+ *
  * @author Jan Michelfeit
  */
 public class SameAsLinkIteratorTest {
@@ -23,13 +24,13 @@ public class SameAsLinkIteratorTest {
 
     @Test
     public void testIterator() {
-        LinkedList<Triple> triples = new LinkedList<Triple>();
+        LinkedList<Quad> triples = new LinkedList<Quad>();
         String uri1 = TestUtils.getUniqueURI();
         String uri2 = TestUtils.getUniqueURI();
 
-        triples.add(TestUtils.createTriple(uri1, OWL.sameAs, TestUtils.getUniqueURI()));
-        triples.add(TestUtils.createTriple());
-        triples.add(TestUtils.createTriple(uri2, OWL.sameAs, TestUtils.getUniqueURI()));
+        triples.add(TestUtils.createQuad(uri1, OWL.sameAs, TestUtils.getUniqueURI()));
+        triples.add(TestUtils.createQuad());
+        triples.add(TestUtils.createQuad(uri2, OWL.sameAs, TestUtils.getUniqueURI()));
 
         SameAsLinkIterator sameAsIterator = new SameAsLinkIterator(triples);
         Assert.assertTrue(sameAsIterator.hasNext());

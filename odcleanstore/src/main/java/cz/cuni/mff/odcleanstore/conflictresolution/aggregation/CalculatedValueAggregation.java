@@ -4,8 +4,9 @@ import cz.cuni.mff.odcleanstore.conflictresolution.AggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.graph.Quad;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
+
+import de.fuberlin.wiwiss.ng4j.Quad;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -17,14 +18,14 @@ import java.util.Set;
  * all the conflicting input quads.
  * Particularly, the source of each aggregated quad is the union of all sources
  * of the input triples.
- * 
+ *
  * @author Jan Michelfeit
  */
 abstract class CalculatedValueAggregation extends AggregationMethodBase {
     /**
      * Calculates result quads from all conflictingQuads. The source of the
      * aggregated triples is thus the union of all sources of the input triples.
-     * 
+     *
      * @param conflictingQuads {@inheritDoc}
      * @param metadata {@inheritDoc}
      * @param errorStrategy {@inheritDoc}
@@ -40,10 +41,10 @@ abstract class CalculatedValueAggregation extends AggregationMethodBase {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * Since the aggregated result is based on all conflicting triples,
      * the quality is calcualted as an average of their respective source qualities.
-     * 
+     *
      * @param resultQuad {@inheritDoc}; can be null
      * @param conflictingQuads {@inheritDoc}; must not be null
      * @param metadata {@inheritDoc}
@@ -60,7 +61,7 @@ abstract class CalculatedValueAggregation extends AggregationMethodBase {
         double sourceQualityAvg = 0;
 
         for (Quad quad : conflictingQuads) {
-            NamedGraphMetadata namedGraphMetadata = metadata.getMetadata(quad.getNamedGraph());
+            NamedGraphMetadata namedGraphMetadata = metadata.getMetadata(quad.getGraphName());
             sourceQualityAvg += getSourceQuality(namedGraphMetadata);
             totalConflictingQuads++;
         }
@@ -80,12 +81,13 @@ abstract class CalculatedValueAggregation extends AggregationMethodBase {
     protected Collection<String> allSourceNamedGraphs(Collection<Quad> conflictingQuads) {
         if (conflictingQuads.size() == 1) {
             // A singleton collection will do for a single quad
-            return Collections.singleton(conflictingQuads.iterator().next().getNamedGraph());
+            return Collections.singleton(
+                    conflictingQuads.iterator().next().getGraphName().getURI());
         }
 
         Set<String> result = new HashSet<String>(conflictingQuads.size());
         for (Quad quad : conflictingQuads) {
-            result.add(quad.getNamedGraph());
+            result.add(quad.getGraphName().getURI());
         }
         return result;
     }

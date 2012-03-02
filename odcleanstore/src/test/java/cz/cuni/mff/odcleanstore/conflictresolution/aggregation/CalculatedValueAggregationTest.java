@@ -5,9 +5,11 @@ import cz.cuni.mff.odcleanstore.conflictresolution.AggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.graph.Quad;
-import cz.cuni.mff.odcleanstore.graph.TripleItem;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
+
+import com.hp.hpl.jena.graph.Node;
+
+import de.fuberlin.wiwiss.ng4j.Quad;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -17,7 +19,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 
 /**
- * 
+ *
  * @author Jan Michelfeit
  */
 public class CalculatedValueAggregationTest {
@@ -37,7 +39,7 @@ public class CalculatedValueAggregationTest {
         }
 
         @Override
-        protected boolean isAggregable(TripleItem value) {
+        protected boolean isAggregable(Node value) {
             throw new UnsupportedOperationException();
         }
     }
@@ -63,7 +65,7 @@ public class CalculatedValueAggregationTest {
         Quad quad = TestUtils.createQuad();
         Collection<Quad> conflictingQuads = Collections.singletonList(quad);
         NamedGraphMetadataMap metadataMap = new NamedGraphMetadataMap();
-        NamedGraphMetadata metadata = new NamedGraphMetadata(quad.getNamedGraph());
+        NamedGraphMetadata metadata = new NamedGraphMetadata(quad.getGraphName().getURI());
         metadata.setScore(score);
         metadata.setPublisherScore(score);
         metadataMap.addMetadata(metadata);
@@ -89,7 +91,7 @@ public class CalculatedValueAggregationTest {
 
         Quad lowerQuad = TestUtils.createQuad();
         NamedGraphMetadata lowerMetadata =
-                new NamedGraphMetadata(lowerQuad.getNamedGraph());
+                new NamedGraphMetadata(lowerQuad.getGraphName().getURI());
         lowerMetadata.setScore(lowerScore);
         lowerMetadata.setPublisherScore(lowerScore);
         metadataMap.addMetadata(lowerMetadata);
@@ -97,7 +99,7 @@ public class CalculatedValueAggregationTest {
 
         Quad higherQuad = TestUtils.createQuad();
         NamedGraphMetadata higherMetadata =
-                new NamedGraphMetadata(higherQuad.getNamedGraph());
+                new NamedGraphMetadata(higherQuad.getGraphName().getURI());
         higherMetadata.setScore(higherScore);
         higherMetadata.setPublisherScore(higherScore);
         metadataMap.addMetadata(higherMetadata);

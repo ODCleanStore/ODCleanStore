@@ -1,6 +1,6 @@
 package cz.cuni.mff.odcleanstore.conflictresolution;
 
-import cz.cuni.mff.odcleanstore.graph.Quad;
+import de.fuberlin.wiwiss.ng4j.Quad;
 
 import java.util.Collection;
 
@@ -8,7 +8,7 @@ import java.util.Collection;
  * An RDF quad enriched with (CR) quality estimate and a list of named graphs
  * the respective triple is derived from.
  * Immutable.
- * 
+ *
  * @author Jan Michelfeit
  */
 public class CRQuad {

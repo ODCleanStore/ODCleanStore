@@ -1,6 +1,6 @@
 package cz.cuni.mff.odcleanstore.conflictresolution;
 
-import cz.cuni.mff.odcleanstore.graph.Triple;
+import com.hp.hpl.jena.graph.Triple;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -8,7 +8,7 @@ import java.util.Set;
 
 /**
  * Encapsulates settings for the conflict resolution process.
- * 
+ *
  * @author Jan Michelfeit
  */
 public class ConflictResolverSpec extends AggregationSpec {

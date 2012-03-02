@@ -10,14 +10,15 @@ import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationMethod;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationMethodFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationNotImplementedException;
-import cz.cuni.mff.odcleanstore.graph.Quad;
-import cz.cuni.mff.odcleanstore.graph.QuadGraph;
-import cz.cuni.mff.odcleanstore.graph.Triple;
-import cz.cuni.mff.odcleanstore.graph.TripleItem;
-import cz.cuni.mff.odcleanstore.graph.URITripleItem;
+import cz.cuni.mff.odcleanstore.data.QuadCollection;
+import cz.cuni.mff.odcleanstore.shared.NodeComparator;
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
-import cz.cuni.mff.odcleanstore.shared.TripleItemComparator;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
+
+import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.Triple;
+
+import de.fuberlin.wiwiss.ng4j.Quad;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,7 @@ import java.util.Map;
 
 /**
  * Default implementation of the conflict resolution process.
- * 
+ *
  * @author Jan Michelfeit
  */
 public class ConflictResolverImpl implements ConflictResolver {
@@ -48,32 +49,29 @@ public class ConflictResolverImpl implements ConflictResolver {
      * Comparator of {@link Quad Quads} comparing first by objects, second
      * by data source in metadata, third by descending stored date in metadata.
      */
-    protected static class ObjectSourceComparator implements Comparator<Quad> {
+    protected static class ObjectSourceStoredComparator implements Comparator<Quad> {
         /** Metadata for named graphs occuring in compared quads. */
         private NamedGraphMetadataMap namedGraphMetadata;
 
         /**
-         * @param metadata metadata for named graphs occuring in compared quads;
-         *        must not be null
+         * @param metadata metadata for named graphs occuring in compared quads; must not be null
          */
-        public ObjectSourceComparator(NamedGraphMetadataMap metadata) {
+        public ObjectSourceStoredComparator(NamedGraphMetadataMap metadata) {
             assert metadata != null;
             this.namedGraphMetadata = metadata;
         }
 
         @Override
-        public int compare(Quad o1, Quad o2) {
+        public int compare(Quad q1, Quad q2) {
             // Compare by object
-            int objectComparison = TripleItemComparator.compare(
-                    o1.getObject(),
-                    o2.getObject());
+            int objectComparison = NodeComparator.compare(q1.getObject(), q2.getObject());
             if (objectComparison != 0) {
                 return objectComparison;
             }
 
             // Get metadata
-            NamedGraphMetadata metadata1 = namedGraphMetadata.getMetadata(o1.getNamedGraph());
-            NamedGraphMetadata metadata2 = namedGraphMetadata.getMetadata(o2.getNamedGraph());
+            NamedGraphMetadata metadata1 = namedGraphMetadata.getMetadata(q1.getGraphName());
+            NamedGraphMetadata metadata2 = namedGraphMetadata.getMetadata(q2.getGraphName());
 
             // Compare by data source
             String dataSource1 = (metadata1 != null) ? metadata1.getDataSource() : null;
@@ -116,24 +114,24 @@ public class ConflictResolverImpl implements ConflictResolver {
 
     /**
      * {@inheritDoc}
-     * 
-     * @param data {@inheritDoc }
+     *
+     * @param quads {@inheritDoc }
      * @return {@inheritDoc }
      * @throws ODCleanStoreException {@inheritDoc}
      */
     @Override
-    public Collection<CRQuad> resolveConflicts(QuadGraph data) throws ODCleanStoreException {
-        LOG.info("Resolving conflicts among {} quads.", data.size());
+    public Collection<CRQuad> resolveConflicts(QuadCollection quads) throws ODCleanStoreException {
+        LOG.info("Resolving conflicts among {} quads.", quads.size());
 
         // Apply owl:sameAs mappings, group quads to conflict clusters
         ResolveQuadCollection quadsToResolve = new ResolveQuadCollection();
-        quadsToResolve.addQuads(data);
+        quadsToResolve.addQuads(quads);
         URIMappingImpl uriMappings = new URIMappingImpl(spec.getPreferredURIs());
-        uriMappings.addLinks(getSameAsLinks(data));
+        uriMappings.addLinks(getSameAsLinks(quads));
         quadsToResolve.applyMapping(uriMappings);
 
         // Gather relevant settings:
-        NamedGraphMetadataMap metadata = getNamedGraphMetadata(data);
+        NamedGraphMetadataMap metadata = getNamedGraphMetadata(quads);
         AggregationErrorStrategy aggregationErrorStrategy = spec.getErrorStrategy();
         UniqueURIGenerator uriGenerator = new SimpleUriGenerator(spec.getNamedGraphPrefix());
 
@@ -141,8 +139,8 @@ public class ConflictResolverImpl implements ConflictResolver {
         // if there are none, there is no need to try to filter them in each
         // conflict cluster.
         boolean hasOldVersions = hasOldVersions(metadata);
-        ObjectSourceComparator filterComparator = hasOldVersions
-                ? new ObjectSourceComparator(metadata)
+        ObjectSourceStoredComparator filterComparator = hasOldVersions
+                ? new ObjectSourceStoredComparator(metadata)
                 : null;
         if (hasOldVersions) {
             LOG.info("Resolved data include named graphs with multiple versions");
@@ -181,41 +179,40 @@ public class ConflictResolverImpl implements ConflictResolver {
      * <li>(2) named graphs A and B have the same data source in metadata,</li>
      * <li>(3) named graph A has an older stored date than named graph B.</li>
      * </ul>
-     * 
+     *
      * Current implementation has O(n log^2 n) time complexity.
-     * 
+     *
      * @param conflictingQuads a cluster of conflicting quads (quads having
      *        the same subject and predicate)
      * @param metadata metadata for named graphs occuring in conflictingQuads
-     * @param objectSourceComparator instance of {@link ObjectSourceComparator} for metadata related
-     *        to conflictingQuads; passed as a parameter,
-     *        so that a new comparator instance doesn't have to be created for
-     *        each cluster of conflicting quads
+     * @param objectSourceStoredComparator instance of {@link ObjectSourceStoredComparator} for
+     *        metadata related to conflictingQuads; passed as a parameter, so that a new comparator
+     *        instance doesn't have to be created for each cluster of conflicting quads
      * @return collection of quads where duplicate old version triples are removed
      */
     private Collection<Quad> filterOldVersions(
             Collection<Quad> conflictingQuads,
             NamedGraphMetadataMap metadata,
-            ObjectSourceComparator objectSourceComparator) {
+            ObjectSourceStoredComparator objectSourceStoredComparator) {
 
         // Sort quads by object, data source and time in *reverse order*.
         // Since for every comparison we search the metadata map in
         // logarithmical time, sorting has time complexity O(n log^2 n)
         LinkedList<Quad> result = new LinkedList<Quad>(conflictingQuads);
-        Collections.sort(result, objectSourceComparator);
+        Collections.sort(result, objectSourceStoredComparator);
 
         // Remove unwanted quads in one pass
-        TripleItem lastObject = null;
-        String lastNamedGraph = null;
+        Node lastObject = null;
+        Node lastNamedGraph = null;
         Iterator<Quad> resultIterator = result.iterator();
         while (resultIterator.hasNext()) {
             boolean removed = false;
             Quad quad = resultIterator.next();
-            if (quad.getObject().equals(lastObject)
-                    && !quad.getNamedGraph().equals(lastNamedGraph)) {
+            if (quad.getObject().sameValueAs(lastObject)
+                    && !quad.getGraphName().sameValueAs(lastNamedGraph)) {
                 // (1) holds
                 NamedGraphMetadata lastMetadata = metadata.getMetadata(lastNamedGraph);
-                NamedGraphMetadata quadMetadata = metadata.getMetadata(quad.getNamedGraph());
+                NamedGraphMetadata quadMetadata = metadata.getMetadata(quad.getGraphName());
                 if (lastMetadata != null
                         && quadMetadata != null
                         && quadMetadata.getDataSource() != null
@@ -227,13 +224,13 @@ public class ConflictResolverImpl implements ConflictResolver {
                     resultIterator.remove();
                     removed = true;
                     LOG.debug("Filtered a triple from an outdated named graph {}.",
-                            quad.getNamedGraph());
+                            quad.getGraphName().getURI());
                 }
             }
 
             if (!removed) {
                 lastObject = quad.getObject();
-                lastNamedGraph = quad.getNamedGraph();
+                lastNamedGraph = quad.getGraphName();
             }
         }
 
@@ -245,7 +242,7 @@ public class ConflictResolverImpl implements ConflictResolver {
      * an update of the other.
      * A named graph is an update of another graph if it has the same data
      * source but a newer stored date.
-     * 
+     *
      * @param metadataMap named graph metadata to analyze
      * @return true iff metadata contain two named graphs where one is
      *         an update of the other
@@ -281,12 +278,12 @@ public class ConflictResolverImpl implements ConflictResolver {
     }
 
     /**
-     * Returns an iterator over owl:sameAs links (expressed as {@link Triple Triples})
+     * Returns an iterator over owl:sameAs links (expressed as {@link Quad Quads})
      * according to {@linkplain ConflictResolverSpec conflict resolution settings}.
      * @param data graph of triples where conflicts are to be resolved
      * @return an iterator over owl:sameAs links
      */
-    private Iterator<Triple> getSameAsLinks(Iterable<? extends Triple> data) {
+    private Iterator<Triple> getSameAsLinks(Iterable<? extends Quad> data) {
         Iterator<Triple> specSameAsLinks = spec.getSameAsLinks();
         if (specSameAsLinks != null) {
             return specSameAsLinks;
@@ -298,13 +295,13 @@ public class ConflictResolverImpl implements ConflictResolver {
     /**
      * Returns named graph metadata from {@linkplain ConflictResolverSpec conflict resolution
      * settings}.
-     * If no metadata are specified, tries to read them from RDF data to resolve
-     * @param data graph of triples where conflicts are to be resolved
+     * If no metadata are specified, tries to read them from RDF data to resolve.
+     * @param data collection of quads where conflicts are to be resolved
      * @return named graphs' metadata
      * @throws ODCleanStoreException thrown when named graph metadata contained
      *         in the input graph are not correctly formated
      */
-    private NamedGraphMetadataMap getNamedGraphMetadata(QuadGraph data)
+    private NamedGraphMetadataMap getNamedGraphMetadata(QuadCollection data)
             throws ODCleanStoreException {
 
         NamedGraphMetadataMap metadata = spec.getNamedGraphMetadata();
@@ -318,10 +315,10 @@ public class ConflictResolverImpl implements ConflictResolver {
     /**
      * Get an AggregationMethod instance for a set of conflicting quads according
      * to {@linkplain ConflictResolverSpec conflict resolution settings}.
-     * 
+     *
      * Implementation note: As an optimization, for collections containing
      * a single quad returns instance of {@link SingleValueAggregation}.
-     * 
+     *
      * @param quads collection of conflicting quads (i.e. having the same
      *        subject and predicate)
      * @return an aggregation method instance selected according to CR settings
@@ -354,7 +351,6 @@ public class ConflictResolverImpl implements ConflictResolver {
     private String getQuadsProperty(Collection<Quad> quads) {
         assert !quads.isEmpty() : "Set of conflicting quads must be nonempty";
         Quad firstQuad = quads.iterator().next();
-        assert firstQuad.getPredicate() instanceof URITripleItem;
         return firstQuad.getPredicate().getURI();
     }
 }

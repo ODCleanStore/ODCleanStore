@@ -1,10 +1,9 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
 import cz.cuni.mff.odcleanstore.TestUtils;
-import cz.cuni.mff.odcleanstore.graph.BlankTripleItem;
-import cz.cuni.mff.odcleanstore.graph.LiteralTripleItem;
-import cz.cuni.mff.odcleanstore.graph.TripleItem;
-import cz.cuni.mff.odcleanstore.graph.URITripleItem;
+
+import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.rdf.model.AnonId;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -18,20 +17,20 @@ public class DistanceMetricImplTest {
 
     @Test
     public void testDifferentTypes() {
-        TripleItem uriTripleItem = new URITripleItem(TestUtils.getUniqueURI());
-        TripleItem literalTripleItem = new LiteralTripleItem("value");
-        TripleItem blankTripleItem = new BlankTripleItem(TestUtils.getUniqueURI());
+        Node uriNode = Node.createURI(TestUtils.getUniqueURI());
+        Node literalNode = Node.createLiteral("value");
+        Node blankNode = Node.createAnon(new AnonId(TestUtils.getUniqueURI()));
 
         DistanceMetricImpl instance = new DistanceMetricImpl();
         double expectedResult = 1.0;
 
-        double result1 = instance.distance(uriTripleItem, literalTripleItem);
+        double result1 = instance.distance(uriNode, literalNode);
         Assert.assertEquals(expectedResult, result1, DELTA);
 
-        double result2 = instance.distance(uriTripleItem, blankTripleItem);
+        double result2 = instance.distance(uriNode, blankNode);
         Assert.assertEquals(expectedResult, result2, DELTA);
 
-        double result3 = instance.distance(literalTripleItem, blankTripleItem);
+        double result3 = instance.distance(literalNode, blankNode);
         Assert.assertEquals(expectedResult, result3, DELTA);
     }
 
@@ -41,15 +40,15 @@ public class DistanceMetricImplTest {
         double expectedResult = 0.0;
 
         String uri = TestUtils.getUniqueURI();
-        TripleItem uriTripleItem1 = new URITripleItem(uri);
-        TripleItem uriTripleItem2 = new URITripleItem(uri);
-        double uriDistance = instance.distance(uriTripleItem1, uriTripleItem2);
+        Node uriNode1 = Node.createURI(uri);
+        Node uriNode2 = Node.createURI(uri);
+        double uriDistance = instance.distance(uriNode1, uriNode2);
         Assert.assertEquals(expectedResult, uriDistance, DELTA);
 
         String literalValue = "value";
-        TripleItem literalTripleItem1 = new LiteralTripleItem(literalValue);
-        TripleItem literalTripleItem2 = new LiteralTripleItem(literalValue);
-        double literalDistance = instance.distance(literalTripleItem1, literalTripleItem2);
+        Node literalNode1 = Node.createLiteral(literalValue);
+        Node literalNode2 = Node.createLiteral(literalValue);
+        double literalDistance = instance.distance(literalNode1, literalNode2);
         Assert.assertEquals(expectedResult, literalDistance, DELTA);
     }
 
@@ -57,18 +56,18 @@ public class DistanceMetricImplTest {
     public void testSymmetry() {
         DistanceMetricImpl instance = new DistanceMetricImpl();
 
-        TripleItem uriTripleItem1 = new URITripleItem(TestUtils.getUniqueURI());
-        TripleItem uriTripleItem2 = new URITripleItem(TestUtils.getUniqueURI());
-        double uriDistance1 = instance.distance(uriTripleItem1, uriTripleItem2);
-        double uriDistance2 = instance.distance(uriTripleItem2, uriTripleItem1);
+        Node uriNode1 = Node.createURI(TestUtils.getUniqueURI());
+        Node uriNode2 = Node.createURI(TestUtils.getUniqueURI());
+        double uriDistance1 = instance.distance(uriNode1, uriNode2);
+        double uriDistance2 = instance.distance(uriNode2, uriNode1);
         Assert.assertEquals(uriDistance1, uriDistance2, DELTA);
 
-        TripleItem literalTripleItem1 = new LiteralTripleItem("value1");
-        TripleItem literalTripleItem2 = new LiteralTripleItem("value1");
+        Node literalNode1 = Node.createLiteral("value1");
+        Node literalNode2 = Node.createLiteral("value1");
         double literalDistance1 =
-                instance.distance(literalTripleItem1, literalTripleItem2);
+                instance.distance(literalNode1, literalNode2);
         double literalDistance2 =
-                instance.distance(literalTripleItem2, literalTripleItem1);
+                instance.distance(literalNode2, literalNode1);
         Assert.assertEquals(literalDistance1, literalDistance2, DELTA);
     }
 
@@ -76,16 +75,16 @@ public class DistanceMetricImplTest {
     public void testDifferentValues() {
         DistanceMetricImpl instance = new DistanceMetricImpl();
 
-        TripleItem uriTripleItem1 = new URITripleItem(TestUtils.getUniqueURI());
-        TripleItem uriTripleItem2 = new URITripleItem(TestUtils.getUniqueURI());
-        double uriDistance = instance.distance(uriTripleItem1, uriTripleItem2);
+        Node uriNode1 = Node.createURI(TestUtils.getUniqueURI());
+        Node uriNode2 = Node.createURI(TestUtils.getUniqueURI());
+        double uriDistance = instance.distance(uriNode1, uriNode2);
         Assert.assertTrue(uriDistance > 0);
         Assert.assertTrue(uriDistance <= 1);
 
-        TripleItem literalTripleItem1 = new LiteralTripleItem("value1");
-        TripleItem literalTripleItem2 = new LiteralTripleItem("value2");
+        Node literalNode1 = Node.createLiteral("value1");
+        Node literalNode2 = Node.createLiteral("value2");
         double literalDistance =
-                instance.distance(literalTripleItem1, literalTripleItem2);
+                instance.distance(literalNode1, literalNode2);
         Assert.assertTrue(literalDistance > 0);
         Assert.assertTrue(literalDistance <= 1);
     }

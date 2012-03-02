@@ -3,9 +3,11 @@ package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.graph.Quad;
-import cz.cuni.mff.odcleanstore.graph.TripleItem;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
+
+import com.hp.hpl.jena.graph.Node;
+
+import de.fuberlin.wiwiss.ng4j.Quad;
 
 import java.util.Collection;
 
@@ -17,9 +19,9 @@ class MinAggregation extends SelectedValueAggregation {
     /**
      * Returns a single quad where the object is the minimum of objects in
      * conflictingQuads.
-     * 
+     *
      * {@inheritDoc}
-     * 
+     *
      * @param conflictingQuads {@inheritDoc}
      * @param metadata {@inheritDoc}
      * @param errorStrategy {@inheritDoc}
@@ -42,7 +44,7 @@ class MinAggregation extends SelectedValueAggregation {
      * @return true iff the value is a numeric literal
      */
     @Override
-    protected boolean isAggregable(TripleItem value) {
+    protected boolean isAggregable(Node value) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 }

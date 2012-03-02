@@ -4,9 +4,11 @@ import cz.cuni.mff.odcleanstore.conflictresolution.AggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.graph.Quad;
-import cz.cuni.mff.odcleanstore.graph.TripleItem;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
+
+import com.hp.hpl.jena.graph.Node;
+
+import de.fuberlin.wiwiss.ng4j.Quad;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +18,7 @@ import java.util.Collections;
 
 /**
  * Aggregation method for single quads.
- * 
+ *
  * Behavior of an aggregation method aggregating a single quad is well-defined:
  * <ul>
  * <li>There is a single source named graph - the quad's named graph,</li>
@@ -25,9 +27,9 @@ import java.util.Collections;
  * Thus result of all aggregations on a single quad is the same.
  * For better effectivity, one can use this class instead of any other
  * aggregation method.
- * 
+ *
  * Usable <i>only</i> for aggregation of a single quad.
- * 
+ *
  * @author Jan Michelfeit
  */
 final class SingleValueAggregation extends AggregationMethodBase {
@@ -36,7 +38,7 @@ final class SingleValueAggregation extends AggregationMethodBase {
     /**
      * Returns the single value from conflictingQuads wrapped as a CRQuad.
      * Argument conflictingQuads must contain exactly one quad.
-     * 
+     *
      * @param conflictingQuads {@inheritDoc}; must contain exactly one quad.
      * @param metadata {@inheritDoc}
      * @param errorStrategy {@inheritDoc}
@@ -62,8 +64,9 @@ final class SingleValueAggregation extends AggregationMethodBase {
 
         Quad firstQuad = conflictingQuads.iterator().next();
         double score = computeQuality(firstQuad, conflictingQuads, metadata);
-        Collection<String> sourceNamedGraphs = Collections.singleton(firstQuad.getNamedGraph());
-        Quad resultQuad = new Quad(firstQuad.getTriple(), uriGenerator.nextURI());
+        Collection<String> sourceNamedGraphs =
+                Collections.singleton(firstQuad.getGraphName().getURI());
+        Quad resultQuad = new Quad(Node.createURI(uriGenerator.nextURI()), firstQuad.getTriple());
         Collection<CRQuad> result = createSingleResultCollection(
                 new CRQuad(resultQuad, score, sourceNamedGraphs));
         return result;
@@ -71,10 +74,10 @@ final class SingleValueAggregation extends AggregationMethodBase {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * Since the aggregated result is based on all conflicting triples,
      * the quality is calcualted as an average of their respective source qualities.
-     * 
+     *
      * @param resultQuad {@inheritDoc}; can be null
      * @param conflictingQuads {@inheritDoc}; must not be null
      * @param metadata {@inheritDoc}
@@ -87,7 +90,7 @@ final class SingleValueAggregation extends AggregationMethodBase {
             Collection<Quad> conflictingQuads,
             NamedGraphMetadataMap metadata) {
 
-        NamedGraphMetadata resultMetadata = metadata.getMetadata(resultQuad.getNamedGraph());
+        NamedGraphMetadata resultMetadata = metadata.getMetadata(resultQuad.getGraphName());
         double resultQuality = getSourceQuality(resultMetadata);
         return resultQuality;
     }
@@ -98,7 +101,7 @@ final class SingleValueAggregation extends AggregationMethodBase {
      * @return always true
      */
     @Override
-    protected boolean isAggregable(TripleItem value) {
+    protected boolean isAggregable(Node value) {
         return true;
     }
 }

@@ -1,12 +1,14 @@
 package cz.cuni.mff.odcleanstore.conflictresolution;
 
+import com.hp.hpl.jena.graph.Node;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
 
 /**
  * Map of metadata for named graphs from the RDF store.
- * 
+ *
  * @author Jan Michelfeit
  */
 public class NamedGraphMetadataMap {
@@ -19,12 +21,12 @@ public class NamedGraphMetadataMap {
     }
 
     /**
-     * Returns metadata for a named graph identified by its URI.
-     * @param namedGraphURI URI of the selected named graph
+     * Returns metadata for a given named graph.
+     * @param namedGraph Node_URI with URI of the selected named graph
      * @return metadata for the selected named graph or null if metadata are unknown
      */
-    public NamedGraphMetadata getMetadata(String namedGraphURI) {
-        return metadataMap.get(namedGraphURI);
+    public NamedGraphMetadata getMetadata(Node namedGraph) {
+        return metadataMap.get(namedGraph.getURI());
     }
 
     /**

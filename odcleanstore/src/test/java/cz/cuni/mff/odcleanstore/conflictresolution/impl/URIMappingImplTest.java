@@ -2,9 +2,10 @@ package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
 import cz.cuni.mff.odcleanstore.TestUtils;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.UnexpectedPredicateException;
-import cz.cuni.mff.odcleanstore.graph.Triple;
-import cz.cuni.mff.odcleanstore.graph.URITripleItem;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
+
+import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.Triple;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -14,18 +15,15 @@ import java.util.Collections;
 import java.util.LinkedList;
 
 /**
- * 
+ *
  * @author Jan Michelfeit
  */
 public class URIMappingImplTest {
-    private URITripleItem sameAsPredicate;
-
-    {
-        sameAsPredicate = new URITripleItem(OWL.sameAs);
-    }
+    private static Node sameAsPredicate;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
+        sameAsPredicate = Node.createURI(OWL.sameAs);
         TestUtils.resetURICounter();
     }
 
@@ -51,13 +49,13 @@ public class URIMappingImplTest {
 
         LinkedList<Triple> sameAsLinks = new LinkedList<Triple>();
         sameAsLinks.add(new Triple(
-                new URITripleItem(uri1),
+                Node.createURI(uri1),
                 sameAsPredicate,
-                new URITripleItem(uri2)));
+                Node.createURI(uri2)));
         sameAsLinks.add(new Triple(
-                new URITripleItem(uri2),
+                Node.createURI(uri2),
                 sameAsPredicate,
-                new URITripleItem(uri3)));
+                Node.createURI(uri3)));
 
         URIMappingImpl uriMapping = new URIMappingImpl();
         uriMapping.addLinks(sameAsLinks.iterator());
@@ -80,17 +78,17 @@ public class URIMappingImplTest {
 
         LinkedList<Triple> sameAsLinks = new LinkedList<Triple>();
         sameAsLinks.add(new Triple(
-                new URITripleItem(uri1),
+                Node.createURI(uri1),
                 sameAsPredicate,
-                new URITripleItem(uri2)));
+                Node.createURI(uri2)));
         sameAsLinks.add(new Triple(
-                new URITripleItem(uri2),
+                Node.createURI(uri2),
                 sameAsPredicate,
-                new URITripleItem(uri3)));
+                Node.createURI(uri3)));
         sameAsLinks.add(new Triple(
-                new URITripleItem(uri3),
+                Node.createURI(uri3),
                 sameAsPredicate,
-                new URITripleItem(uri1)));
+                Node.createURI(uri1)));
 
         URIMappingImpl uriMapping = new URIMappingImpl();
         uriMapping.addLinks(sameAsLinks.iterator());
@@ -111,13 +109,13 @@ public class URIMappingImplTest {
 
         LinkedList<Triple> sameAsLinks = new LinkedList<Triple>();
         sameAsLinks.add(new Triple(
-                new URITripleItem(uri1),
+                Node.createURI(uri1),
                 sameAsPredicate,
-                new URITripleItem(uri2)));
+                Node.createURI(uri2)));
         sameAsLinks.add(new Triple(
-                new URITripleItem(uri2),
+                Node.createURI(uri2),
                 sameAsPredicate,
-                new URITripleItem(uri3)));
+                Node.createURI(uri3)));
 
         String mappedURI1;
 

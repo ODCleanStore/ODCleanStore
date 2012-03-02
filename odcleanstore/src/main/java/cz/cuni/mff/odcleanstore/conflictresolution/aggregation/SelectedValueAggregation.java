@@ -4,9 +4,11 @@ import cz.cuni.mff.odcleanstore.conflictresolution.AggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.graph.Quad;
-import cz.cuni.mff.odcleanstore.graph.TripleItem;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
+
+import com.hp.hpl.jena.graph.Node;
+
+import de.fuberlin.wiwiss.ng4j.Quad;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -17,7 +19,7 @@ import java.util.Set;
  * Base class for aggregation methods that include only triples selected from
  * conflicting input triples and don't return new triples calculated from
  * multiple conflicting triples.
- * 
+ *
  * @author Jan Michelfeit
  */
 abstract class SelectedValueAggregation extends AggregationMethodBase {
@@ -32,7 +34,7 @@ abstract class SelectedValueAggregation extends AggregationMethodBase {
      * calculates quality estimate and source information for each of the result
      * quads. The aggregated triples are selected from conflictingQuads and have
      * the original source.
-     * 
+     *
      * @param conflictingQuads {@inheritDoc}
      * @param metadata {@inheritDoc}
      * @param errorStrategy {@inheritDoc}
@@ -56,20 +58,21 @@ abstract class SelectedValueAggregation extends AggregationMethodBase {
 
     /**
      * {@inheritDoc}.
-     * 
+     *
      * The computed quality depends on quality of the source of result and
      * on how different conflicting quads are.
-     * 
+     *
      * The exact formula is
-     * 
+     *
      * <pre>
-     * q(V,v0) = sourceQuality(v0) * (1 - (SUM OF (sourceQuality(V[i]) * difference(V[i],v0))) / (SUM OF sourceQuality(V[i])))
+     * q(V,v0) = sourceQuality(v0)
+     *   * (1 - (SUM OF (sourceQuality(V[i]) * difference(V[i],v0))) / (SUM OF sourceQuality(V[i])))
      * </pre>
-     * 
+     *
      * (see documentation for explanation).
      * The time complexity O(n*d) where n is size of conflictingQuads and d is
      * the complexity of difference calculation.
-     * 
+     *
      * Precondition: resultQuad is expected to be in conflictingQuads.
      * @param resultQuad {@inheritDoc}
      * @param conflictingQuads {@inheritDoc}
@@ -83,7 +86,7 @@ abstract class SelectedValueAggregation extends AggregationMethodBase {
             Collection<Quad> conflictingQuads,
             NamedGraphMetadataMap metadata) {
 
-        NamedGraphMetadata resultMetadata = metadata.getMetadata(resultQuad.getNamedGraph());
+        NamedGraphMetadata resultMetadata = metadata.getMetadata(resultQuad.getGraphName());
         double resultQuality = getSourceQuality(resultMetadata);
         if (resultQuality == 0) {
             return resultQuality;
@@ -94,7 +97,7 @@ abstract class SelectedValueAggregation extends AggregationMethodBase {
         double distanceAverage = 0;
         double totalSourceQuality = 0;
         for (Quad quad : conflictingQuads) {
-            NamedGraphMetadata quadMetadata = metadata.getMetadata(quad.getNamedGraph());
+            NamedGraphMetadata quadMetadata = metadata.getMetadata(quad.getGraphName());
             double quadQuality = getSourceQuality(quadMetadata);
 
             double resultDistance = distanceMetric.distance(
@@ -106,7 +109,8 @@ abstract class SelectedValueAggregation extends AggregationMethodBase {
         // resultQuality cannot be zero (tested before) -> if sum of
         // conflictingQuads source qualitites is zero, resultQuality is not
         // among them -> precondition broken
-        assert (totalSourceQuality > 0) : "Precondition broken: resultQuad is not present in conflictingQuads";
+        assert (totalSourceQuality > 0)
+            : "Precondition broken: resultQuad is not present in conflictingQuads";
 
         distanceAverage /= totalSourceQuality;
 
@@ -115,16 +119,15 @@ abstract class SelectedValueAggregation extends AggregationMethodBase {
     }
 
     /**
-     * Return a set (without duplicates) of named graphs of all quads that
-     * have the selected object as theirs object. Objects are compared
-     * using equals().
-     * 
+     * Return a set (without duplicates) of named graphs of all quads that have the selected object
+     * as their object.
+     *
      * @param object the searched triple object
      * @param conflictingQuads searched quads
      * @return set of named graphs
      */
     protected Collection<String> sourceNamedGraphsForObject(
-            TripleItem object, Collection<Quad> conflictingQuads) {
+            Node object, Collection<Quad> conflictingQuads) {
 
         Set<String> namedGraphs = null;
         String firstNamedGraph = null;
@@ -134,7 +137,7 @@ abstract class SelectedValueAggregation extends AggregationMethodBase {
                 continue;
             }
 
-            String newNamedGraph = quad.getNamedGraph();
+            String newNamedGraph = quad.getGraphName().getURI();
             // Purpose of these if-else branches is to avoid creating HashSet
             // if not neccessary (only zero or one named graph in the result)
             if (firstNamedGraph == null) {

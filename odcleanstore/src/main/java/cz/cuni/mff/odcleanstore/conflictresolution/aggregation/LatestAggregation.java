@@ -3,9 +3,11 @@ package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.graph.Quad;
-import cz.cuni.mff.odcleanstore.graph.TripleItem;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
+
+import com.hp.hpl.jena.graph.Node;
+
+import de.fuberlin.wiwiss.ng4j.Quad;
 
 import java.util.Collection;
 
@@ -16,9 +18,9 @@ import java.util.Collection;
 class LatestAggregation extends SelectedValueAggregation {
     /**
      * Returns the quad with the latest stored time from conflictingQuads.
-     * 
+     *
      * {@inheritDoc}
-     * 
+     *
      * @param conflictingQuads {@inheritDoc}
      * @param metadata {@inheritDoc}
      * @param errorStrategy {@inheritDoc}
@@ -42,7 +44,7 @@ class LatestAggregation extends SelectedValueAggregation {
      * @return always true
      */
     @Override
-    protected boolean isAggregable(TripleItem value) {
+    protected boolean isAggregable(Node value) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 }

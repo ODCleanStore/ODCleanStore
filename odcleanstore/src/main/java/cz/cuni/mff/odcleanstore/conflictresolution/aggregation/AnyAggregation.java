@@ -3,15 +3,17 @@ package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.graph.Quad;
-import cz.cuni.mff.odcleanstore.graph.TripleItem;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
+
+import com.hp.hpl.jena.graph.Node;
+
+import de.fuberlin.wiwiss.ng4j.Quad;
 
 import java.util.Collection;
 
 /**
  * Aggregation method that returns a single triple selected from input triples.
- * 
+ *
  * @author Jan Michelfeit
  */
 final class AnyAggregation extends SelectedValueAggregation {
@@ -20,9 +22,9 @@ final class AnyAggregation extends SelectedValueAggregation {
      * Returns a single triple selected from input triples wrapped as CRQuad.
      * Returns the first triple from triples to be aggregated.
      * If conflictingQuads are empty, returns an empty collection.
-     * 
+     *
      * {@inheritDoc}
-     * 
+     *
      * @param conflictingQuads {@inheritDoc}
      * @param metadata {@inheritDoc}
      * @param errorStrategy {@inheritDoc}
@@ -45,7 +47,7 @@ final class AnyAggregation extends SelectedValueAggregation {
         Collection<String> sourceNamedGraphs = sourceNamedGraphsForObject(
                 firstQuad.getObject(),
                 conflictingQuads);
-        Quad resultQuad = new Quad(firstQuad.getTriple(), uriGenerator.nextURI());
+        Quad resultQuad = new Quad(Node.createURI(uriGenerator.nextURI()), firstQuad.getTriple());
         Collection<CRQuad> result = createSingleResultCollection(
                 new CRQuad(resultQuad, score, sourceNamedGraphs));
         return result;
@@ -57,7 +59,7 @@ final class AnyAggregation extends SelectedValueAggregation {
      * @return always true
      */
     @Override
-    protected boolean isAggregable(TripleItem value) {
+    protected boolean isAggregable(Node value) {
         return true;
     }
 }

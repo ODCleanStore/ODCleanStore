@@ -6,11 +6,11 @@ import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.graph.Quad;
-import cz.cuni.mff.odcleanstore.graph.QuadGraph;
-import cz.cuni.mff.odcleanstore.graph.Triple;
+import cz.cuni.mff.odcleanstore.data.QuadCollection;
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
+
+import de.fuberlin.wiwiss.ng4j.Quad;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -66,7 +66,7 @@ public class ConflictResolverImplTest {
 
         Calendar date = Calendar.getInstance();
         NamedGraphMetadata otherQuadMetadata =
-                new NamedGraphMetadata(otherQuad.getNamedGraph());
+                new NamedGraphMetadata(otherQuad.getGraphName().getURI());
         // otherQuadMetadata.setScore();
         otherQuadMetadata.setDataSource(TestUtils.getUniqueURI());
         otherQuadMetadata.setStored(date.getTime());
@@ -74,7 +74,7 @@ public class ConflictResolverImplTest {
 
         date.add(Calendar.YEAR, 1);
         NamedGraphMetadata oldVersionMetadata =
-                new NamedGraphMetadata(oldVersionQuad.getNamedGraph());
+                new NamedGraphMetadata(oldVersionQuad.getGraphName().getURI());
         // oldVersionMetadata.setScore();
         oldVersionMetadata.setDataSource(updatedQuadDataSource);
         oldVersionMetadata.setStored(date.getTime());
@@ -82,7 +82,7 @@ public class ConflictResolverImplTest {
 
         date.add(Calendar.YEAR, 1);
         NamedGraphMetadata newVersionMetadata =
-                new NamedGraphMetadata(newVersionQuad.getNamedGraph());
+                new NamedGraphMetadata(newVersionQuad.getGraphName().getURI());
         // newVersionMetadata.setScore();
         newVersionMetadata.setDataSource(updatedQuadDataSource);
         newVersionMetadata.setStored(date.getTime());
@@ -106,21 +106,21 @@ public class ConflictResolverImplTest {
 
         // Test results
         Collection<CRQuad> aggregationResult =
-                instance.resolveConflicts(new QuadGraph(conflictingQuads));
+                instance.resolveConflicts(new QuadCollection(conflictingQuads));
         // Only newVersionQuad and otherQuad, oldVersionQuad is filtered out
         Assert.assertEquals(2, aggregationResult.size());
         double newVersionQuality = Double.NaN;
         double oldVersionQuality = Double.NaN;
         double otherQuadQuality = Double.NaN;
         for (CRQuad crQuad : aggregationResult) {
-            if (crQuad.getSourceNamedGraphURIs().contains(oldVersionQuad.getNamedGraph())) {
+            if (crQuad.getSourceNamedGraphURIs().contains(oldVersionQuad.getGraphName().getURI())) {
                 oldVersionQuality = crQuad.getQuality();
             }
-            if (crQuad.getSourceNamedGraphURIs().contains(newVersionQuad.getNamedGraph())) {
+            if (crQuad.getSourceNamedGraphURIs().contains(newVersionQuad.getGraphName().getURI())) {
                 newVersionQuality = crQuad.getQuality();
                 // TODO sources
             }
-            if (crQuad.getSourceNamedGraphURIs().contains(otherQuad.getNamedGraph())) {
+            if (crQuad.getSourceNamedGraphURIs().contains(otherQuad.getGraphName().getURI())) {
                 otherQuadQuality = crQuad.getQuality();
             }
         }
@@ -137,7 +137,7 @@ public class ConflictResolverImplTest {
                 newVersionQuad.getSubject().getURI(),
                 newVersionQuad.getPredicate().getURI(),
                 newVersionQuad.getObject().getURI(),
-                otherQuad.getNamedGraph());
+                otherQuad.getGraphName().getURI());
         Collection<Quad> conflictingQuads = new LinkedList<Quad>();
         conflictingQuads.add(newVersionQuad);
         conflictingQuads.add(similarQuad);
@@ -147,7 +147,7 @@ public class ConflictResolverImplTest {
 
         // Test results
         Collection<CRQuad> aggregationResult =
-                instance.resolveConflicts(new QuadGraph(conflictingQuads));
+                instance.resolveConflicts(new QuadCollection(conflictingQuads));
         // Neither quad was filtered out
         Assert.assertEquals(2, aggregationResult.size());
     }
@@ -160,7 +160,7 @@ public class ConflictResolverImplTest {
                 newVersionQuad.getSubject().getURI(),
                 newVersionQuad.getPredicate().getURI(),
                 TestUtils.getUniqueURI(),
-                oldVersionQuad.getNamedGraph());
+                oldVersionQuad.getGraphName().getURI());
         Collection<Quad> conflictingQuads = new LinkedList<Quad>();
         conflictingQuads.add(newVersionQuad);
         conflictingQuads.add(oldVersionDiferentObjectQuad);
@@ -170,7 +170,7 @@ public class ConflictResolverImplTest {
 
         // Test results
         Collection<CRQuad> aggregationResult =
-                instance.resolveConflicts(new QuadGraph(conflictingQuads));
+                instance.resolveConflicts(new QuadCollection(conflictingQuads));
         // Neither quad was filtered out
         Assert.assertEquals(2, aggregationResult.size());
     }
@@ -182,14 +182,14 @@ public class ConflictResolverImplTest {
                 newVersionQuad.getSubject().getURI(),
                 newVersionQuad.getPredicate().getURI(),
                 TestUtils.getUniqueURI(),
-                newVersionQuad.getNamedGraph());
-        Collection<Quad> conflictingQuads = new LinkedList<Quad>();
+                newVersionQuad.getGraphName().getURI());
+        Collection<Quad> conflictingQuads = new LinkedList<de.fuberlin.wiwiss.ng4j.Quad>();
         conflictingQuads.add(newVersionQuad);
         conflictingQuads.add(otherQuad);
         conflictingQuads.add(sameNamedGraphQuad);
 
         // Create class instance
-        Collection<Triple> sameAsLinks = Collections.singleton(TestUtils.createTriple(
+        Collection<com.hp.hpl.jena.graph.Triple> sameAsLinks = Collections.singleton(TestUtils.createTriple(
                 newVersionQuad.getObject().getURI(),
                 OWL.sameAs,
                 sameNamedGraphQuad.getObject().getURI()));
@@ -198,7 +198,7 @@ public class ConflictResolverImplTest {
 
         // Test results
         Collection<CRQuad> aggregationResult =
-                instance.resolveConflicts(new QuadGraph(conflictingQuads));
+                instance.resolveConflicts(new QuadCollection(conflictingQuads));
         // Nothing filtered out
         final long expectedQuadCount = 3;
         Assert.assertEquals(expectedQuadCount, aggregationResult.size());
@@ -206,13 +206,13 @@ public class ConflictResolverImplTest {
         double sameNamedGraphQuadQuality = Double.NaN;
         double otherQuadQuality = Double.NaN;
         for (CRQuad crQuad : aggregationResult) {
-            if (crQuad.getSourceNamedGraphURIs().contains(sameNamedGraphQuad.getNamedGraph())) {
+            if (crQuad.getSourceNamedGraphURIs().contains(sameNamedGraphQuad.getGraphName().getURI())) {
                 sameNamedGraphQuadQuality = crQuad.getQuality();
             }
-            if (crQuad.getSourceNamedGraphURIs().contains(newVersionQuad.getNamedGraph())) {
+            if (crQuad.getSourceNamedGraphURIs().contains(newVersionQuad.getGraphName().getURI())) {
                 newVersionQuality = crQuad.getQuality();
             }
-            if (crQuad.getSourceNamedGraphURIs().contains(otherQuad.getNamedGraph())) {
+            if (crQuad.getSourceNamedGraphURIs().contains(otherQuad.getGraphName().getURI())) {
                 otherQuadQuality = crQuad.getQuality();
             }
         }

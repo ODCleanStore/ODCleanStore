@@ -1,51 +1,53 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
-import cz.cuni.mff.odcleanstore.graph.Triple;
-import cz.cuni.mff.odcleanstore.graph.URITripleItem;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
+
+import com.hp.hpl.jena.graph.Triple;
+
+import de.fuberlin.wiwiss.ng4j.Quad;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * Iterator over owl:sameAs triples in a collection of triples.
- * 
+ * Iterator over owl:sameAs quads in a collection of quads.
+ *
  * @author Jan Michelfeit
  */
 class SameAsLinkIterator implements Iterator<Triple> {
 
     /**
-     * Next sameAs triple to be returned or null if there is none.
+     * Next sameAs quad to be returned or null if there is none.
      */
-    private Triple nextSameAsTriple = null;
+    private Quad nextSameAsQuad = null;
 
     /**
-     * Iterator over triples in input graph.
+     * Iterator over quads in input graph.
      */
-    private Iterator<? extends Triple> dataIterator;
+    private Iterator<? extends Quad> dataIterator;
 
     /**
-     * Creates a new instance of iterator over owl:sameAs triples contained in the given data.
-     * @param data triples to be scanned for owl:sameAs triples
+     * Creates a new instance of iterator over owl:sameAs quads contained in the given data.
+     * @param data quads to be scanned for owl:sameAs quads
      */
-    public SameAsLinkIterator(Iterable<? extends Triple> data) {
+    public SameAsLinkIterator(Iterable<? extends Quad> data) {
         dataIterator = data.iterator();
-        nextSameAsTriple = getNextSameAsTriple();
+        nextSameAsQuad = getNextSameAsQuad();
     }
 
     @Override
     public boolean hasNext() {
-        return nextSameAsTriple != null;
+        return nextSameAsQuad != null;
     }
 
     @Override
     public Triple next() {
-        if (nextSameAsTriple == null) {
+        if (nextSameAsQuad == null) {
             throw new NoSuchElementException();
         }
-        Triple result = nextSameAsTriple;
-        nextSameAsTriple = getNextSameAsTriple();
-        return result;
+        Quad result = nextSameAsQuad;
+        nextSameAsQuad = getNextSameAsQuad();
+        return result.getTriple();
     }
 
     @Override
@@ -54,15 +56,13 @@ class SameAsLinkIterator implements Iterator<Triple> {
     }
 
     /**
-     * Returns the next sameAs triple in input triples and moves the internal
-     * iterator.
-     * @return a next sameAs triple or null if there are none
+     * Returns the next sameAs quad in input quads and moves the internal iterator.
+     * @return a next sameAs quad or null if there are none
      */
-    private Triple getNextSameAsTriple() {
+    private Quad getNextSameAsQuad() {
         while (dataIterator.hasNext()) {
-            Triple next = dataIterator.next();
-            assert next.getPredicate() instanceof URITripleItem;
-            if (next.getPredicate().getURI().equals(OWL.sameAs)) {
+            Quad next = dataIterator.next();
+            if (next.getPredicate().hasURI(OWL.sameAs)) {
                 return next;
             }
         }

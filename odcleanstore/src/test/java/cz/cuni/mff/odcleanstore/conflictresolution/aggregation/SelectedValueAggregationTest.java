@@ -5,10 +5,11 @@ import cz.cuni.mff.odcleanstore.conflictresolution.AggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.graph.Quad;
-import cz.cuni.mff.odcleanstore.graph.TripleItem;
-import cz.cuni.mff.odcleanstore.graph.URITripleItem;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
+
+import com.hp.hpl.jena.graph.Node;
+
+import de.fuberlin.wiwiss.ng4j.Quad;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -20,7 +21,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 
 /**
- * 
+ *
  * @author Jan Michelfeit
  */
 public class SelectedValueAggregationTest {
@@ -39,13 +40,13 @@ public class SelectedValueAggregationTest {
         }
 
         @Override
-        protected boolean isAggregable(TripleItem value) {
+        protected boolean isAggregable(Node value) {
             throw new UnsupportedOperationException();
         }
 
         @Override
         public Collection<String> sourceNamedGraphsForObject(
-                TripleItem object, Collection<Quad> conflictingQuads) {
+                Node object, Collection<Quad> conflictingQuads) {
             return super.sourceNamedGraphsForObject(object, conflictingQuads);
         }
 
@@ -73,7 +74,7 @@ public class SelectedValueAggregationTest {
         Quad quad = TestUtils.createQuad();
         Collection<Quad> conflictingQuads = Collections.singletonList(quad);
         NamedGraphMetadataMap metadataMap = new NamedGraphMetadataMap();
-        NamedGraphMetadata metadata = new NamedGraphMetadata(quad.getNamedGraph());
+        NamedGraphMetadata metadata = new NamedGraphMetadata(quad.getGraphName().getURI());
         metadata.setScore(score);
         metadata.setPublisherScore(score);
         metadataMap.addMetadata(metadata);
@@ -99,7 +100,7 @@ public class SelectedValueAggregationTest {
 
         Quad lowerQuad = TestUtils.createQuad();
         NamedGraphMetadata lowerMetadata =
-                new NamedGraphMetadata(lowerQuad.getNamedGraph());
+                new NamedGraphMetadata(lowerQuad.getGraphName().getURI());
         lowerMetadata.setScore(lowerScore);
         lowerMetadata.setPublisherScore(lowerScore);
         metadataMap.addMetadata(lowerMetadata);
@@ -107,7 +108,7 @@ public class SelectedValueAggregationTest {
 
         Quad higherQuad = TestUtils.createQuad();
         NamedGraphMetadata higherMetadata =
-                new NamedGraphMetadata(higherQuad.getNamedGraph());
+                new NamedGraphMetadata(higherQuad.getGraphName().getURI());
         higherMetadata.setScore(higherScore);
         higherMetadata.setPublisherScore(higherScore);
         metadataMap.addMetadata(higherMetadata);
@@ -208,7 +209,7 @@ public class SelectedValueAggregationTest {
 
         SelectedValueAggregation instance = new SelectedValueAggregationImpl();
         Collection<String> actualResult = instance.sourceNamedGraphsForObject(
-                new URITripleItem(testedObjectURI),
+                Node.createURI(testedObjectURI),
                 conflictingQuads);
 
         String[] expectedResult = new String[] { namedGraphA, namedGraphB };

@@ -1,8 +1,9 @@
 package cz.cuni.mff.odcleanstore;
 
-import cz.cuni.mff.odcleanstore.graph.Quad;
-import cz.cuni.mff.odcleanstore.graph.Triple;
-import cz.cuni.mff.odcleanstore.graph.URITripleItem;
+import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.Triple;
+
+import de.fuberlin.wiwiss.ng4j.Quad;
 
 import java.util.Collection;
 
@@ -22,51 +23,49 @@ public final class TestUtils {
     }
 
     public static Triple createTriple() {
-        return new Triple(
-                new URITripleItem(getUniqueURI()),
-                new URITripleItem(getUniqueURI()),
-                new URITripleItem(getUniqueURI()));
+        return Triple.create(
+                Node.createURI(getUniqueURI()),
+                Node.createURI(getUniqueURI()),
+                Node.createURI(getUniqueURI()));
     }
 
     public static Triple createTriple(String subjectURI, String predicateURI, String objectURI) {
-        return new Triple(
-                new URITripleItem(subjectURI),
-                new URITripleItem(predicateURI),
-                new URITripleItem(objectURI));
+        return Triple.create(
+                Node.createURI(subjectURI),
+                Node.createURI(predicateURI),
+                Node.createURI(objectURI));
     }
 
     public static Quad createQuad() {
         return new Quad(
-                new URITripleItem(getUniqueURI()),
-                new URITripleItem(getUniqueURI()),
-                new URITripleItem(getUniqueURI()),
-                getUniqueURI());
+                Node.createURI(getUniqueURI()),
+                Node.createURI(getUniqueURI()),
+                Node.createURI(getUniqueURI()),
+                Node.createURI(getUniqueURI()));
     }
 
     public static Quad createQuad(String subjectURI, String predicateURI, String objectURI) {
         return new Quad(
-                new URITripleItem(subjectURI),
-                new URITripleItem(predicateURI),
-                new URITripleItem(objectURI),
-                getUniqueURI());
+                Node.createURI(getUniqueURI()),
+                Node.createURI(subjectURI),
+                Node.createURI(predicateURI),
+                Node.createURI(objectURI));
     }
 
     public static Quad createQuad(
             String subjectURI, String predicateURI, String objectURI, String namedGraphURI) {
         return new Quad(
-                new URITripleItem(subjectURI),
-                new URITripleItem(predicateURI),
-                new URITripleItem(objectURI),
-                namedGraphURI);
+                Node.createURI(namedGraphURI),
+                Node.createURI(subjectURI),
+                Node.createURI(predicateURI),
+                Node.createURI(objectURI));
     }
 
     public static boolean triplesEqual(Triple triple1, Triple triple2) {
         if (triple1 == null || triple2 == null) {
             return triple1 == triple2;
         }
-        return triple1.getSubject().equals(triple2.getSubject())
-                && triple1.getPredicate().equals(triple2.getPredicate())
-                && triple1.getObject().equals(triple2.getObject());
+        return triple1.equals(triple2);
     }
 
     public static boolean quadsEquals(Quad quad1, Quad quad2) {

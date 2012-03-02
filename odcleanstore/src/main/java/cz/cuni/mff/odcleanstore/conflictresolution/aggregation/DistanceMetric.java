@@ -1,11 +1,12 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
-import cz.cuni.mff.odcleanstore.graph.TripleItem;
+import com.hp.hpl.jena.graph.Node;
+
 
 /**
  * A comparison metric that returns a distance between to TripleItems
  * as a number from interval [0,1].
- * 
+ *
  * @author Jan Michelfeit
  */
 interface DistanceMetric {
@@ -18,5 +19,5 @@ interface DistanceMetric {
      * @param comparedValue second of the compared TripleItems
      * @return a number from interval [0,1]
      */
-    double distance(TripleItem primaryValue, TripleItem comparedValue);
+    double distance(Node primaryValue, Node comparedValue);
 }

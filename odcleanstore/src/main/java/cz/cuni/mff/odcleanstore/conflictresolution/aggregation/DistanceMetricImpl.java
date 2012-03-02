@@ -1,20 +1,18 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
-import cz.cuni.mff.odcleanstore.graph.LiteralTripleItem;
-import cz.cuni.mff.odcleanstore.graph.TripleItem;
-import cz.cuni.mff.odcleanstore.graph.URITripleItem;
+import com.hp.hpl.jena.graph.Node;
 
 /**
  * The default implementation of a distance metric between TripleItems.
  * In all methods value 1 means maximum distance, value 0 means identity.
- * 
+ *
  * @author Jan Michelfeit
  */
 class DistanceMetricImpl implements DistanceMetric {
     /** Distance value for URI resources with different URIs. */
     private static final double DIFFERENT_RESOURCE_DISTANCE = 1;
 
-    /** Distance of {@link TripleItem TripleItems} of different types. */
+    /** Distance of {@link Node Nodes} of different types. */
     private static final double DIFFERENT_TYPE_DISTANCE = 1;
 
     /** Square root of two. */
@@ -28,25 +26,23 @@ class DistanceMetricImpl implements DistanceMetric {
      * @todo
      */
     @Override
-    public double distance(TripleItem primaryValue, TripleItem comparedValue) {
+    public double distance(Node primaryValue, Node comparedValue) {
         if (primaryValue.getClass() != comparedValue.getClass()) {
             return DIFFERENT_TYPE_DISTANCE;
-        } else if (primaryValue instanceof URITripleItem) {
-            return resourceDistance(
-                    (URITripleItem) primaryValue,
-                    (URITripleItem) comparedValue);
-        } else if (primaryValue instanceof LiteralTripleItem) {
+        } else if (primaryValue.isURI()) {
+            return resourceDistance(primaryValue, comparedValue);
+        } else if (primaryValue.isLiteral()) {
             return LevenstheinDistance.computeNormalizedLevenshteinDistance(
-                    ((LiteralTripleItem) primaryValue).getValue(),
-                    ((LiteralTripleItem) comparedValue).getValue());
+                    primaryValue.getLiteralLexicalForm(),
+                    comparedValue.getLiteralLexicalForm());
         }
-        // TODO: blank nodes
+        // TODO: blank nodes etc
         throw new IllegalArgumentException("Unknown type of TripleItem.");
     }
 
     /**
      * Calulates a distance metric between two numbers.
-     * @see #distance(TripleItem, TripleItem)
+     * @see #distance(Node, Node)
      */
     private double numericDistance(double primaryValue, double comparedValue) {
         double result = primaryValue - comparedValue;
@@ -62,9 +58,9 @@ class DistanceMetricImpl implements DistanceMetric {
     }
 
     /**
-     * @todo choose algorithm
+     * @todo choose an algorithm
      *       Calulates a distance metric between two strings.
-     * @see #distance(TripleItem, TripleItem)
+     * @see #distance(Node, Node)
      * @todo length limitation for comparison
      */
     private double stringDistance(String primaryValue, String comparedValue) {
@@ -73,11 +69,12 @@ class DistanceMetricImpl implements DistanceMetric {
     }
 
     /**
-     * Calulates a distance metric between two URI resources.
-     * @see #distance(TripleItem, TripleItem)
+     * Calulates a distance metric between two Node_URI instances.
+     * @see #distance(Node, Node)
      */
-    private double resourceDistance(URITripleItem primaryResource, URITripleItem comparedResource) {
-        if (primaryResource.getURI().equals(comparedResource.getURI())) {
+    private double resourceDistance(Node primaryResource, Node comparedResource) {
+        assert primaryResource.isURI() && comparedResource.isURI();
+        if (primaryResource.sameValueAs(comparedResource)) {
             return 0;
         } else {
             return DIFFERENT_RESOURCE_DISTANCE;

@@ -2,8 +2,11 @@ package cz.cuni.mff.odcleanstore.queryexecution;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.graph.Graph;
-import cz.cuni.mff.odcleanstore.graph.QuadGraph;
+import cz.cuni.mff.odcleanstore.data.QuadCollection;
+
+import com.hp.hpl.jena.graph.Triple;
+
+import java.util.Collection;
 
 /**
  * @author Jan Michelfeit
@@ -15,21 +18,21 @@ public class KeywordQueryExecutor extends QueryExecutor {
     }
 
     /**
-     * 
+     *
      * @param keyword
      * @param constraints
      * @param aggregationSpec
      */
-    public QuadGraph findKeyword(String keyword, QueryConstraintSpec constraints,
+    public QuadCollection findKeyword(String keyword, QueryConstraintSpec constraints,
             AggregationSpec aggregationSpec) {
         return null;
     }
 
-    private QuadGraph getKeywordOccurences() {
+    private QuadCollection getKeywordOccurences() {
         return null;
     }
 
-    private QuadGraph getLabels() {
+    private QuadCollection getLabels() {
         return null;
     }
 
@@ -37,7 +40,10 @@ public class KeywordQueryExecutor extends QueryExecutor {
         return null;
     }
 
-    private Graph getSameAsLinks() {
+    /**
+     * @todo return a different type
+     */
+    private Collection<Triple> getSameAsLinks() {
         return null;
     }
 }

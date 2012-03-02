@@ -3,10 +3,11 @@ package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.graph.LiteralTripleItem;
-import cz.cuni.mff.odcleanstore.graph.Quad;
-import cz.cuni.mff.odcleanstore.graph.TripleItem;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
+
+import com.hp.hpl.jena.graph.Node;
+
+import de.fuberlin.wiwiss.ng4j.Quad;
 
 import java.util.Collection;
 
@@ -24,9 +25,9 @@ final class ConcatAggegation extends CalculatedValueAggregation {
      * representations of object in conflictingQuads.
      * Concatenated values are separated with "{@value #SEPARATOR}".
      * If conflictingQuads is empty, the object is an empty string.
-     * 
+     *
      * {@inheritDoc}
-     * 
+     *
      * @param conflictingQuads {@inheritDoc}
      * @param metadata {@inheritDoc}
      * @param errorStrategy {@inheritDoc}
@@ -47,16 +48,15 @@ final class ConcatAggegation extends CalculatedValueAggregation {
                 resultValue.append(SEPARATOR);
             }
             first = false;
-            // TODO: change toString to lexical value or something
             resultValue.append(quad.getObject().toString());
         }
 
         Quad firstTriple = conflictingQuads.iterator().next();
         Quad resultQuad = new Quad(
+                Node.createURI(uriGenerator.nextURI()),
                 firstTriple.getSubject(),
                 firstTriple.getPredicate(),
-                new LiteralTripleItem(resultValue.toString()),
-                uriGenerator.nextURI());
+                Node.createLiteral(resultValue.toString()));
         double score = computeQuality(null, conflictingQuads, metadata);
         Collection<String> sourceNamedGraphs = allSourceNamedGraphs(conflictingQuads);
         Collection<CRQuad> result = createSingleResultCollection(
@@ -71,7 +71,7 @@ final class ConcatAggegation extends CalculatedValueAggregation {
      * @todo return false for resources??
      */
     @Override
-    protected boolean isAggregable(TripleItem value) {
+    protected boolean isAggregable(Node value) {
         return true;
     }
 }

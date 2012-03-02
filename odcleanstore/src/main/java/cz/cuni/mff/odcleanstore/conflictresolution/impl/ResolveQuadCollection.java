@@ -1,11 +1,12 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
-import cz.cuni.mff.odcleanstore.graph.Quad;
-import cz.cuni.mff.odcleanstore.graph.QuadGraph;
-import cz.cuni.mff.odcleanstore.graph.Triple;
-import cz.cuni.mff.odcleanstore.graph.TripleItem;
-import cz.cuni.mff.odcleanstore.graph.URITripleItem;
-import cz.cuni.mff.odcleanstore.shared.TripleItemComparator;
+import cz.cuni.mff.odcleanstore.data.QuadCollection;
+import cz.cuni.mff.odcleanstore.shared.NodeComparator;
+
+import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.Node_URI;
+
+import de.fuberlin.wiwiss.ng4j.Quad;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,14 +18,15 @@ import java.util.ListIterator;
 /**
  * Quad container that provides access to clusters of conflicting quads with
  * support for URI mapping.
- * 
+ *
  * @author Jan Michelfeit
  */
 class ResolveQuadCollection {
     /**
      * A comparator used to sort quads in conflict clusters.
      */
-    private static final SubjectPropertyComparator CONFLICT_COMPARATOR;
+    private static final SubjectPropertyComparator CONFLICT_COMPARATOR =
+            new SubjectPropertyComparator();
 
     /**
      * Container of quads.
@@ -37,17 +39,18 @@ class ResolveQuadCollection {
     private boolean quadListSorted = false;
 
     /**
-     * Comparator of {@link Triple Triples} comparing firstly by subject and
+     * Comparator of {@link Quad Quads} comparing firstly by subject and
      * secondly by property (object is ignored).
      */
-    private static class SubjectPropertyComparator implements Comparator<Triple> {
+    private static class SubjectPropertyComparator implements Comparator<Quad> {
         @Override
-        public int compare(Triple o1, Triple o2) {
-            int subjectComparison = TripleItemComparator.compare(o1.getSubject(), o2.getSubject());
+        public int compare(Quad triple1, Quad triple2) {
+            int subjectComparison =
+                    NodeComparator.compare(triple1.getSubject(), triple2.getSubject());
             if (subjectComparison != 0) {
                 return subjectComparison;
             } else {
-                return TripleItemComparator.compare(o1.getPredicate(), o2.getPredicate());
+                return NodeComparator.compare(triple1.getPredicate(), triple2.getPredicate());
             }
         }
     };
@@ -55,9 +58,10 @@ class ResolveQuadCollection {
     /**
      * Iterator over clusters of conflicting triples (i.e. those having the
      * same subject and predicate) as collections of quads.
-     * 
+     *
      * The iterator becomes invalid whenever the quad collection contained in
      * {@linkplain ResolveQuadCollection the outer class} changes.
+     * @see Node#sameValueAs(Object)
      */
     private class ConflictingQuadsIterator implements Iterator<Collection<Quad>> {
         /**
@@ -80,14 +84,17 @@ class ResolveQuadCollection {
 
         @Override
         public Collection<Quad> next() {
+            if (!quadListSorted) {
+                throw new IllegalStateException("Iterator invalidated.");
+            }
             int fromIndex = quadIterator.nextIndex();
             Quad first = quadIterator.next();
 
             while (quadIterator.hasNext()) {
                 Quad next = quadIterator.next();
 
-                if (!next.getSubject().equals(first.getSubject())
-                        || !next.getPredicate().equals(first.getPredicate())) {
+                if (!next.getSubject().sameValueAs(first.getSubject())
+                        || !next.getPredicate().sameValueAs(first.getPredicate())) {
                     // We reached the next cluster of conflicting quads
                     // -> return quadIterator so that it points before the first
                     // quad from the next cluster
@@ -105,17 +112,11 @@ class ResolveQuadCollection {
     }
 
     /**
-     * Initialize comparator.
-     */
-    static {
-        CONFLICT_COMPARATOR = new SubjectPropertyComparator();
-    }
-
-    /**
      * Adds quads to the collection.
+     * Invalidates iterator obtained by {@link #listConflictingQuads()}
      * @param quads quads to add
      */
-    public void addQuads(QuadGraph quads) {
+    public void addQuads(QuadCollection quads) {
         quadList.ensureCapacity(quadList.size() + quads.size());
         for (Quad quad : quads) {
             quadList.add(quad);
@@ -133,19 +134,22 @@ class ResolveQuadCollection {
         for (int i = 0; i < quadCount; i++) {
             Quad quad = quadList.get(i);
 
-            TripleItem subject = quad.getSubject();
-            TripleItem subjectMapping = mapTripleItem(subject, mapping);
-            TripleItem predicate = quad.getPredicate();
-            TripleItem predicateMapping = mapTripleItem(predicate, mapping);
-            TripleItem object = quad.getObject();
-            TripleItem objectMapping = mapTripleItem(object, mapping);
+            Node subject = quad.getSubject();
+            Node subjectMapping = mapTripleItem(subject, mapping);
+            Node predicate = quad.getPredicate();
+            Node predicateMapping = mapTripleItem(predicate, mapping);
+            Node object = quad.getObject();
+            Node objectMapping = mapTripleItem(object, mapping);
 
             // Intentionally !=
             if (subject != subjectMapping
                     || predicate != predicateMapping
                     || object != objectMapping) {
-                Quad newQuad = new Quad(subjectMapping, predicateMapping,
-                        objectMapping, quad.getNamedGraph());
+                Quad newQuad = new Quad(
+                        quad.getGraphName(),
+                        subjectMapping,
+                        predicateMapping,
+                        objectMapping);
                 quadList.set(i, newQuad);
                 quadListSorted = false;
             }
@@ -174,19 +178,19 @@ class ResolveQuadCollection {
     }
 
     /**
-     * If mapping contains an URI to map for the passed URITripleItem, returns
-     * an URITripleItem with the mapped URI, otherwise returns tripleItem.
-     * @param tripleItem a TripleItem to apply mapping to
+     * If mapping contains an URI to map for the passed {@link Node_URI}, returns
+     * a Node_URI with the mapped URI, otherwise returns node.
+     * @param node a Node to apply mapping to
      * @param mapping an URI mapping to apply
-     * @return tripleItem with applied URI mapping
+     * @return node with applied URI mapping
      */
-    private TripleItem mapTripleItem(TripleItem tripleItem, URIMapping mapping) {
-        if (tripleItem instanceof URITripleItem) {
-            String mappedURI = mapping.mapURI(tripleItem.getURI());
+    private Node mapTripleItem(Node node, URIMapping mapping) {
+        if (node instanceof Node_URI) {
+            String mappedURI = mapping.mapURI(node.getURI());
             if (mappedURI != null) {
-                return new URITripleItem(mappedURI);
+                return Node.createURI(mappedURI);
             }
         }
-        return tripleItem;
+        return node;
     }
 }

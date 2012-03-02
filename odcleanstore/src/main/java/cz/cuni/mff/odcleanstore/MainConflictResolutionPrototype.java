@@ -5,12 +5,14 @@ import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverSpec;
-import cz.cuni.mff.odcleanstore.graph.Quad;
-import cz.cuni.mff.odcleanstore.graph.QuadGraph;
-import cz.cuni.mff.odcleanstore.graph.Triple;
-import cz.cuni.mff.odcleanstore.graph.URITripleItem;
+import cz.cuni.mff.odcleanstore.data.QuadCollection;
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
+
+import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.Triple;
+
+import de.fuberlin.wiwiss.ng4j.Quad;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -18,7 +20,7 @@ import java.util.LinkedList;
 import java.util.Set;
 
 /**
- * 
+ *
  * @author Jan Michelfeit
  */
 public class MainConflictResolutionPrototype {
@@ -65,18 +67,18 @@ public class MainConflictResolutionPrototype {
         CRSpec.setPreferredURIs(preferredURIs);
 
         // Data
-        QuadGraph graph = new QuadGraph();
-        graph.add(createQuad(subject_1_1, predicate_1, object_1_1_a, createURI("ng_1_1_a")));
-        graph.add(createQuad(subject_1_1_alias, predicate_1, object_1_1_b, createURI("ng_1_1_b")));
-        graph.add(createQuad(subject_1_1, predicate_1, object_1_1_a_alias,
+        QuadCollection quads = new QuadCollection();
+        quads.add(createQuad(subject_1_1, predicate_1, object_1_1_a, createURI("ng_1_1_a")));
+        quads.add(createQuad(subject_1_1_alias, predicate_1, object_1_1_b, createURI("ng_1_1_b")));
+        quads.add(createQuad(subject_1_1, predicate_1, object_1_1_a_alias,
                 createURI("ng_1_1_a_alias")));
-        graph.add(createQuad(subject_1_1, predicate_2, object_1_2, createURI("ng_1_2")));
-        graph.add(createQuad(subject_2, predicate_2, object_2, createURI("ng_2")));
-        graph.add(createQuad(subject_2, predicate_2, object_2_alias, createURI("ng_2")));
+        quads.add(createQuad(subject_1_1, predicate_2, object_1_2, createURI("ng_1_2")));
+        quads.add(createQuad(subject_2, predicate_2, object_2, createURI("ng_2")));
+        quads.add(createQuad(subject_2, predicate_2, object_2_alias, createURI("ng_2")));
 
         // Resolve conflicts
         ConflictResolver cr = ConflictResolverFactory.createResolver(CRSpec);
-        Collection<CRQuad> resolved = cr.resolveConflicts(graph);
+        Collection<CRQuad> resolved = cr.resolveConflicts(quads);
 
         // Print result
         if (print) {
@@ -119,41 +121,33 @@ public class MainConflictResolutionPrototype {
 
     public static Quad createQuad() {
         return new Quad(
-                new URITripleItem(getUniqueURI()),
-                new URITripleItem(getUniqueURI()),
-                new URITripleItem(getUniqueURI()),
-                getUniqueURI());
+                Node.createURI(getUniqueURI()),
+                Node.createURI(getUniqueURI()),
+                Node.createURI(getUniqueURI()),
+                Node.createURI(getUniqueURI()));
     }
 
     public static Quad createQuad(String subjectURI, String predicateURI, String objectURI) {
         return new Quad(
-                new URITripleItem(subjectURI),
-                new URITripleItem(predicateURI),
-                new URITripleItem(objectURI),
-                getUniqueURI());
+                Node.createURI(getUniqueURI()),
+                Node.createURI(subjectURI),
+                Node.createURI(predicateURI),
+                Node.createURI(objectURI));
     }
 
-    public static Quad createQuad(String subjectURI, String predicateURI, String objectURI,
-            String namedGraphURI) {
+    public static Quad createQuad(String subjectURI, String predicateURI,
+            String objectURI, String namedGraphURI) {
         return new Quad(
-                new URITripleItem(subjectURI),
-                new URITripleItem(predicateURI),
-                new URITripleItem(objectURI),
-                namedGraphURI);
+                Node.createURI(namedGraphURI),
+                Node.createURI(subjectURI),
+                Node.createURI(predicateURI),
+                Node.createURI(objectURI));
     }
 
     private static Triple createSameAsTriple(String uri1, String uri2) {
-        return new Triple(
-                new URITripleItem(uri1),
-                new URITripleItem(OWL.sameAs),
-                new URITripleItem(uri2));
+        return Triple.create(
+                Node.createURI(uri1),
+                Node.createURI(OWL.sameAs),
+                Node.createURI(uri2));
     }
-
-    private static Triple createTriple(String subjectURI, String predicateURI, String objectURI) {
-        return new Triple(
-                new URITripleItem(subjectURI),
-                new URITripleItem(predicateURI),
-                new URITripleItem(objectURI));
-    }
-
 }
