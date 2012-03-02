@@ -56,6 +56,7 @@
 
         <property name="basedir" value="${basedir}"/>
     -->
+    <property name="severity" value="warning" />
 
     <!-- Checks that a package-info.java file exists for each package.     -->
     <!-- See http://checkstyle.sf.net/config_javadoc.html#JavadocPackage -->
@@ -136,7 +137,9 @@
         <!-- Checks for imports                              -->
         <!-- See http://checkstyle.sf.net/config_import.html -->
         <module name="AvoidStarImport"/>
-        <module name="IllegalImport"/> <!-- defaults to sun.* packages -->
+        <module name="IllegalImport"> <!-- defaults to sun.* packages -->
+        	<property name="severity" value="error" />
+        </module>
         <module name="RedundantImport"/>
         <module name="UnusedImports"/>
 
@@ -187,7 +190,9 @@
         <module name="EmptyStatement"/>
         <module name="EqualsHashCode"/>
         <!-- <module name="HiddenField"/> -->
-        <module name="IllegalInstantiation"/>
+        <module name="IllegalInstantiation">
+        	<property name="severity" value="error"/>
+        </module>
         <module name="InnerAssignment"/>
         <module name="MagicNumber"/>
         <module name="MissingSwitchDefault"/>
