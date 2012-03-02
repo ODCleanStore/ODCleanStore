@@ -27,5 +27,35 @@
       <artifactId>slf4j-simple</artifactId>
       <version>1.6.4</version>
     </dependency>
+    <dependency>
+      <groupId>com.hp.hpl.jena</groupId>
+      <artifactId>jena</artifactId>
+      <version>2.6.4</version>
+      <exclusions>
+      	<exclusion>
+      		<artifactId>slf4j-log4j12</artifactId>
+      		<groupId>org.slf4j</groupId>
+      	</exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>de.fuberlin.wiwss.ng4j</groupId>
+      <artifactId>ng4j</artifactId>
+      <version>0.9.4-SNAPSHOT</version>
+      <exclusions>
+      	<exclusion>
+      		<artifactId>slf4j-log4j12</artifactId>
+      		<groupId>org.slf4j</groupId>
+      	</exclusion>
+      </exclusions>
+    </dependency>
   </dependencies>
+  
+  <repositories>
+    <repository>
+      <id>melati.org</id>
+      <name>NG4J at melati.org</name>
+      <url>http://melati.org/maven2/</url>
+    </repository>
+  </repositories>
 </project>
