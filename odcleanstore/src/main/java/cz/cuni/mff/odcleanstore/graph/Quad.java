@@ -1,7 +1,5 @@
 package cz.cuni.mff.odcleanstore.graph;
 
-
-
 /**
  * Immutable!
  * @author Jan Michelfeit
@@ -19,15 +17,16 @@ public class Quad extends Triple {
         super(triple.getSubject(), triple.getPredicate(), triple.getObject());
         this.namedGraphURI = namedGraphURI;
     }
-    
+
     public Triple getTriple() {
         return this;
     }
-    
+
     public String getNamedGraph() {
         return namedGraphURI;
     }
 
+    @Override
     public String toString() {
         return super.toString() + " " + namedGraphURI;
     }

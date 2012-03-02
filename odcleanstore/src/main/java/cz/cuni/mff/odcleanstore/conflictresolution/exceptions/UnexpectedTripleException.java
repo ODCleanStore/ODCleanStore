@@ -7,10 +7,10 @@ import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
  * 
  * @author Jan Michelfeit
  */
-public class UnexpectedTripleException extends ODCleanStoreException  {
+public class UnexpectedTripleException extends ODCleanStoreException {
     /**
      * Constructs a new exception with the specified message.
-     * @param  message the detail message
+     * @param message the detail message
      */
     public UnexpectedTripleException(String message) {
         super(message);

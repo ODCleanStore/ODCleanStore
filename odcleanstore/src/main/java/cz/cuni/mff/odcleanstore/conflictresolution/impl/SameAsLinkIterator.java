@@ -1,10 +1,11 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
-import java.util.Iterator;
-import java.util.NoSuchElementException;
 import cz.cuni.mff.odcleanstore.graph.Triple;
 import cz.cuni.mff.odcleanstore.graph.URITripleItem;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
+
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * Iterator over owl:sameAs triples in a collection of triples.
@@ -12,12 +13,12 @@ import cz.cuni.mff.odcleanstore.vocabulary.OWL;
  * @author Jan Michelfeit
  */
 class SameAsLinkIterator implements Iterator<Triple> {
-    
-    /** 
+
+    /**
      * Next sameAs triple to be returned or null if there is none.
      */
     private Triple nextSameAsTriple = null;
-    
+
     /**
      * Iterator over triples in input graph.
      */
@@ -31,7 +32,7 @@ class SameAsLinkIterator implements Iterator<Triple> {
         dataIterator = data.iterator();
         nextSameAsTriple = getNextSameAsTriple();
     }
-    
+
     @Override
     public boolean hasNext() {
         return nextSameAsTriple != null;

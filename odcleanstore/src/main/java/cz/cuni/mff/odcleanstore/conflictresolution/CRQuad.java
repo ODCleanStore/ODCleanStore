@@ -14,10 +14,10 @@ import java.util.Collection;
 public class CRQuad {
     /** Wrapped RDF quad. */
     private Quad quad;
-    
+
     /** Quality estimate of the triple. */
     private double quality;
-    
+
     /** Collection of URIs of named graphs the triple is derived from. */
     private Collection<String> sourceNamedGraphURIs;
 
@@ -32,23 +32,23 @@ public class CRQuad {
         this.sourceNamedGraphURIs = sourceNamedGraphURIs;
     }
 
-    /** 
-     * Return the wrapped quad. 
+    /**
+     * Return the wrapped quad.
      * @return the wrapped quad
      */
     public final Quad getQuad() {
         return quad;
     }
-    
-    /** 
-     * Return quality of the wrapped quad. 
+
+    /**
+     * Return quality of the wrapped quad.
      * @return quality estimate of the quad
      */
     public final double getQuality() {
         return quality;
     }
-    
-    /** 
+
+    /**
      * Collection of URIs of named graphs the triple is derived from.
      * @return a collection of named graph URIs
      */

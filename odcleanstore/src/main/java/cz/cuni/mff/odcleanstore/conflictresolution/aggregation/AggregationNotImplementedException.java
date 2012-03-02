@@ -4,7 +4,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.AggregationType;
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 
 /**
- * Exception to throw when an attempt to create an AggregationMethod of 
+ * Exception to throw when an attempt to create an AggregationMethod of
  * an unknown type is made.
  * @see AggregationType
  * 

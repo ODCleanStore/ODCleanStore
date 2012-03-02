@@ -1,12 +1,13 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
-import java.util.Collection;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.graph.Quad;
 import cz.cuni.mff.odcleanstore.graph.TripleItem;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
+
+import java.util.Collection;
 
 /**
  * Aggregation method that returns a single triple selected from input triples.
@@ -30,19 +31,19 @@ final class AnyAggregation extends SelectedValueAggregation {
      */
     @Override
     public Collection<CRQuad> aggregate(
-            Collection<Quad> conflictingQuads, 
-            NamedGraphMetadataMap metadata, 
+            Collection<Quad> conflictingQuads,
+            NamedGraphMetadataMap metadata,
             AggregationErrorStrategy errorStrategy,
             UniqueURIGenerator uriGenerator) {
-        
+
         if (conflictingQuads.isEmpty()) {
             return createResultCollection();
         }
-        
+
         Quad firstQuad = conflictingQuads.iterator().next();
         double score = computeQuality(firstQuad, conflictingQuads, metadata);
         Collection<String> sourceNamedGraphs = sourceNamedGraphsForObject(
-                firstQuad.getObject(), 
+                firstQuad.getObject(),
                 conflictingQuads);
         Quad resultQuad = new Quad(firstQuad.getTriple(), uriGenerator.nextURI());
         Collection<CRQuad> result = createSingleResultCollection(

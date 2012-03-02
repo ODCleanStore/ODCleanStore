@@ -5,7 +5,7 @@ package cz.cuni.mff.odcleanstore.graph;
  */
 public final class URITripleItem extends TripleItem {
     private String uri;
-    
+
     public URITripleItem(String uri) {
         this.uri = uri;
     }
@@ -31,7 +31,7 @@ public final class URITripleItem extends TripleItem {
     public int hashCode() {
         return uri.hashCode();
     }
-    
+
     @Override
     public String toString() {
         return "<" + getURI() + ">";

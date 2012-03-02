@@ -2,8 +2,8 @@ package cz.cuni.mff.odcleanstore.queryexecution;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.graph.QuadGraph;
 import cz.cuni.mff.odcleanstore.graph.Graph;
+import cz.cuni.mff.odcleanstore.graph.QuadGraph;
 
 /**
  * @author Jan Michelfeit
@@ -20,7 +20,8 @@ public class UriQueryExecutor extends QueryExecutor {
      * @param constraints
      * @param aggregationSpec
      */
-    public QuadGraph findURI(String uri, QueryConstraintSpec constraints, AggregationSpec aggregationSpec) {
+    public QuadGraph findURI(String uri, QueryConstraintSpec constraints,
+            AggregationSpec aggregationSpec) {
         return null;
     }
 

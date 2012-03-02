@@ -13,13 +13,13 @@ import cz.cuni.mff.odcleanstore.graph.URITripleItem;
 class DistanceMetricImpl implements DistanceMetric {
     /** Distance value for URI resources with different URIs. */
     private static final double DIFFERENT_RESOURCE_DISTANCE = 1;
-    
+
     /** Distance of {@link TripleItem TripleItems} of different types. */
     private static final double DIFFERENT_TYPE_DISTANCE = 1;
-    
+
     /** Square root of two. */
     private static final double SQRT_OF_TWO = Math.sqrt(2);
-    
+
     /**
      * {@inheritDoc}
      * @param primaryValue {@inheritDoc }
@@ -46,12 +46,12 @@ class DistanceMetricImpl implements DistanceMetric {
 
     /**
      * Calulates a distance metric between two numbers.
-     * @see #distance(TripleItem, TripleItem) 
+     * @see #distance(TripleItem, TripleItem)
      */
     private double numericDistance(double primaryValue, double comparedValue) {
         double result = primaryValue - comparedValue;
         if (primaryValue != 0) {
-            // "Normalize" result to primaryValue; 
+            // "Normalize" result to primaryValue;
             // for zero leave as is - the important thing is order of the value
             // which for zero is close enough to 1
             result /= primaryValue;
@@ -63,8 +63,8 @@ class DistanceMetricImpl implements DistanceMetric {
 
     /**
      * @todo choose algorithm
-     * Calulates a distance metric between two strings.
-     * @see #distance(TripleItem, TripleItem) 
+     *       Calulates a distance metric between two strings.
+     * @see #distance(TripleItem, TripleItem)
      * @todo length limitation for comparison
      */
     private double stringDistance(String primaryValue, String comparedValue) {
@@ -74,7 +74,7 @@ class DistanceMetricImpl implements DistanceMetric {
 
     /**
      * Calulates a distance metric between two URI resources.
-     * @see #distance(TripleItem, TripleItem) 
+     * @see #distance(TripleItem, TripleItem)
      */
     private double resourceDistance(URITripleItem primaryResource, URITripleItem comparedResource) {
         if (primaryResource.getURI().equals(comparedResource.getURI())) {

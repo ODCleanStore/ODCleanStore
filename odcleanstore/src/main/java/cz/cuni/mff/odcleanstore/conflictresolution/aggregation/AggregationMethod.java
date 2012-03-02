@@ -4,9 +4,9 @@ import cz.cuni.mff.odcleanstore.conflictresolution.AggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.graph.Quad;
+import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 
 import java.util.Collection;
-import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 
 /**
  * A triple/quad aggregation method.
@@ -30,16 +30,16 @@ public interface AggregationMethod {
      * 
      * @param conflictingQuads input quads to be aggregated
      * @param metadata metadata for named graphs occuring in conflictingQuads
-     * @param errorStrategy strategy to be used when the aggregation is not 
-     *      applicable to a quad in conflictingQuads
+     * @param errorStrategy strategy to be used when the aggregation is not
+     *        applicable to a quad in conflictingQuads
      * @param uriGenerator generator of URIs
-     * @return aggregated quads together with quality estimate and source 
-     *      information for each quad
+     * @return aggregated quads together with quality estimate and source
+     *         information for each quad
      * @todo do something with that many parameters
      */
     Collection<CRQuad> aggregate(
             Collection<Quad> conflictingQuads,
-            NamedGraphMetadataMap metadata, 
+            NamedGraphMetadataMap metadata,
             AggregationErrorStrategy errorStrategy,
             UniqueURIGenerator uriGenerator);
 }

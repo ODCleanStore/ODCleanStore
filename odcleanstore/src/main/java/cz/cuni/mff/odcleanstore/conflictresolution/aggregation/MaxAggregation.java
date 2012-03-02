@@ -1,6 +1,5 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
-import java.util.Collection;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
@@ -8,13 +7,15 @@ import cz.cuni.mff.odcleanstore.graph.Quad;
 import cz.cuni.mff.odcleanstore.graph.TripleItem;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 
+import java.util.Collection;
+
 /**
  * @todo
  * @author Jan Michelfeit
  */
 class MaxAggregation extends SelectedValueAggregation {
-    /** 
-     * Returns a single quad where the object is the maximum of objects in 
+    /**
+     * Returns a single quad where the object is the maximum of objects in
      * conflictingQuads.
      * 
      * {@inheritDoc}
@@ -27,14 +28,14 @@ class MaxAggregation extends SelectedValueAggregation {
      */
     @Override
     public Collection<CRQuad> aggregate(
-            Collection<Quad> conflictingQuads, 
+            Collection<Quad> conflictingQuads,
             NamedGraphMetadataMap metadata,
             AggregationErrorStrategy errorStrategy,
             UniqueURIGenerator uriGenerator) {
-        
+
         throw new UnsupportedOperationException("Not supported yet.");
     }
-    
+
     /**
      * {@inheritDoc}
      * @param {@inheritDoc}

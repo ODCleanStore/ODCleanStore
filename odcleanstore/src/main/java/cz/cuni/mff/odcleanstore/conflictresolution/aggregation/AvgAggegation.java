@@ -1,12 +1,13 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
-import java.util.Collection;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.graph.Quad;
 import cz.cuni.mff.odcleanstore.graph.TripleItem;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
+
+import java.util.Collection;
 
 /**
  * Aggregation method that returns an average of input conflicting triples.
@@ -16,8 +17,8 @@ import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
  */
 final class AvgAggegation extends CalculatedValueAggregation {
 
-    /** 
-     * Returns a single quad where the object is the average of objects in 
+    /**
+     * Returns a single quad where the object is the average of objects in
      * conflictingQuads.
      * 
      * {@inheritDoc}
@@ -25,22 +26,22 @@ final class AvgAggegation extends CalculatedValueAggregation {
      * @param conflictingQuads {@inheritDoc}
      * @param metadata {@inheritDoc}
      * @param errorStrategy {@inheritDoc}
-     * @param uriGenerator  {@inheritDoc}
+     * @param uriGenerator {@inheritDoc}
      * @return {@inheritDoc}
      */
     @Override
     public Collection<CRQuad> aggregate(
-            Collection<Quad> conflictingQuads, 
+            Collection<Quad> conflictingQuads,
             NamedGraphMetadataMap metadata,
             AggregationErrorStrategy errorStrategy,
             UniqueURIGenerator uriGenerator) {
-        
+
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     /**
      * @todo
-     * {@inheritDoc}
+     *       {@inheritDoc}
      * @param {@inheritDoc}
      * @return true iff the value is a numeric literal
      */

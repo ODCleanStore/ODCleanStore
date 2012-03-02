@@ -1,17 +1,19 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
 /**
- *
+ * 
  * TODO: only temporary!
  */
 public class LevenstheinDistance {
     private static int minimum(int a, int b, int c) {
         return Math.min(Math.min(a, b), c);
     }
-    
+
     /**
      * Implementation of the Levenshtein distance computation.
-     * From <a href="http://en.wikibooks.org/wiki/Algorithm_implementation/Strings/Levenshtein_distance#Java">Wikipedia</a>.
+     * From <a href=
+     * "http://en.wikibooks.org/wiki/Algorithm_implementation/Strings/Levenshtein_distance#Java"
+     * >Wikipedia</a>.
      * @param str1 The first String.
      * @param str2 The second String.
      * @return The Levenshtein distance.
@@ -20,27 +22,27 @@ public class LevenstheinDistance {
         int[][] distance = new int[str1.length() + 1][str2.length() + 1];
 
         for (int i = 0; i <= str1.length(); i++) {
-                distance[i][0] = i;
+            distance[i][0] = i;
         }
         for (int j = 0; j <= str2.length(); j++) {
-                distance[0][j] = j;
+            distance[0][j] = j;
         }
 
         for (int i = 1; i <= str1.length(); i++) {
-                for (int j = 1; j <= str2.length(); j++) {
-                        distance[i][j] = minimum(
-                                        distance[i - 1][j] + 1,
-                                        distance[i][j - 1] + 1,
-                                        distance[i - 1][j - 1]
-                                                        + ((str1.charAt(i - 1) == str2.charAt(j - 1)) ? 0
-                                                                        : 1));
-                }
+            for (int j = 1; j <= str2.length(); j++) {
+                distance[i][j] = minimum(
+                        distance[i - 1][j] + 1,
+                        distance[i][j - 1] + 1,
+                        distance[i - 1][j - 1]
+                                + ((str1.charAt(i - 1) == str2.charAt(j - 1)) ? 0
+                                        : 1));
+            }
         }
         return distance[str1.length()][str2.length()];
     }
-        
+
     public static double computeNormalizedLevenshteinDistance(CharSequence str1, CharSequence str2) {
-        return (double) computeLevenshteinDistance(str1, str2) 
-                / (double) (str1.length() + str2.length()); 
-    } 
+        return (double) computeLevenshteinDistance(str1, str2)
+                / (double) (str1.length() + str2.length());
+    }
 }

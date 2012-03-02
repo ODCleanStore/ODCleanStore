@@ -1,10 +1,5 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.util.Date;
-import java.util.Map;
-import java.util.TreeMap;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.graph.LiteralTripleItem;
@@ -13,8 +8,15 @@ import cz.cuni.mff.odcleanstore.graph.QuadGraph;
 import cz.cuni.mff.odcleanstore.graph.URITripleItem;
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Class providing static method for loading ODCleanStore named graph metadata
@@ -24,25 +26,25 @@ import org.slf4j.LoggerFactory;
  */
 final class NamedGraphMetadataReader {
     private static final Logger LOG = LoggerFactory.getLogger(NamedGraphMetadataReader.class);
-    
+
     /** Disable constructor for a utility class. */
     private NamedGraphMetadataReader() {
     }
-    
+
     /**
      * Reads named graph metadata from RDF passed as a QuadGraph.
-     * The method relies on the fact that objects for recognized properties from
-     * {@link ODCS} are URITripleItems or LiteralTripleItems depending on 
+     * The method relies on the fact that objects for recognized properties from {@link ODCS} are
+     * URITripleItems or LiteralTripleItems depending on
      * the property.
      * @param graph a graph containing RDF triples describing named graph metadata
      * @return map of metadata for named graphs described in graph
-     * @throws ODCleanStoreException thrown when named graph metadata contained 
-     *      in the input graph are not correctly formated
+     * @throws ODCleanStoreException thrown when named graph metadata contained
+     *         in the input graph are not correctly formated
      */
     public static NamedGraphMetadataMap readFromRDF(QuadGraph graph) throws ODCleanStoreException {
         NamedGraphMetadataMap result = new NamedGraphMetadataMap();
         Map<String, Double> publisherScores = new TreeMap<String, Double>();
-        
+
         for (Quad quad : graph) {
             String predicateURI = quad.getPredicate().getURI();
             if (!predicateURI.startsWith(ODCS.getURI())) {
@@ -52,10 +54,10 @@ final class NamedGraphMetadataReader {
                 continue;
             }
             String subjectURI = quad.getSubject().getURI();
-            
+
             if (predicateURI.equals(ODCS.publisher)) {
                 NamedGraphMetadata metadata = getMetadataObject(subjectURI, result);
-                assert quad.getObject() instanceof URITripleItem; 
+                assert quad.getObject() instanceof URITripleItem;
                 String publisher = quad.getObject().getURI();
                 metadata.setPublisher(publisher);
             } else if (predicateURI.equals(ODCS.stored)) {
@@ -86,7 +88,7 @@ final class NamedGraphMetadataReader {
                     throw new ODCleanStoreException(e);
                 }
             } else if (predicateURI.equals(ODCS.publisherScore)) {
-                assert quad.getObject() instanceof LiteralTripleItem; 
+                assert quad.getObject() instanceof LiteralTripleItem;
                 String scoreValue = ((LiteralTripleItem) quad.getObject()).getValue();
                 try {
                     Double score = Double.parseDouble(scoreValue);
@@ -97,7 +99,7 @@ final class NamedGraphMetadataReader {
                 }
             }
         }
-        
+
         if (!publisherScores.isEmpty()) {
             for (NamedGraphMetadata metadata : result.listMetadata()) {
                 String publisherURI = metadata.getPublisher();
@@ -106,22 +108,22 @@ final class NamedGraphMetadataReader {
                 }
             }
         }
-        
+
         return result;
     }
-    
+
     /**
-     * Returns the respective NamedGraphMetadata object for the selected named 
+     * Returns the respective NamedGraphMetadata object for the selected named
      * graph in metadataMap or creates a new one and adds it to metadataMap.
      * @param namedGraphURI URI of the named graph
      * @param metadataMap searched map of named graph metadata; may be modified
-     *      by a call to this method 
-     * @return NamedGraphMetadata object for the specified named graph URI 
-     *      contained in metadataMap
+     *        by a call to this method
+     * @return NamedGraphMetadata object for the specified named graph URI
+     *         contained in metadataMap
      */
     private static NamedGraphMetadata getMetadataObject(
             String namedGraphURI, NamedGraphMetadataMap metadataMap) {
-        
+
         NamedGraphMetadata metadata = metadataMap.getMetadata(namedGraphURI);
         if (metadata == null) {
             metadata = new NamedGraphMetadata(namedGraphURI);

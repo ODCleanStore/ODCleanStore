@@ -8,7 +8,7 @@ import java.util.Set;
 
 /**
  * Encapsulates settings for the conflict resolution process.
- *
+ * 
  * @author Jan Michelfeit
  */
 public class ConflictResolverSpec extends AggregationSpec {
@@ -19,8 +19,8 @@ public class ConflictResolverSpec extends AggregationSpec {
     private Set<String> preferredURIs;
 
     /**
-     * Collection of owl:sameAs links to be considered during the conflict 
-     * resolution proces. 
+     * Collection of owl:sameAs links to be considered during the conflict
+     * resolution proces.
      * If null, sameAsLinks are to be read from the data to resolve.
      */
     private Iterator<Triple> sameAsLinks;
@@ -32,16 +32,16 @@ public class ConflictResolverSpec extends AggregationSpec {
      * If null, metadata are to be read from the data to resolve.
      */
     private NamedGraphMetadataMap namedGraphMetadata;
-    
+
     /**
      * Initialize default settings.
      */
     {
         sameAsLinks = null;
         namedGraphMetadata = null;
-        preferredURIs = Collections.EMPTY_SET;
+        preferredURIs = Collections.emptySet();
     }
-    
+
     /**
      * Initialize this specification of conflict resolution settings with default
      * values.
@@ -114,7 +114,7 @@ public class ConflictResolverSpec extends AggregationSpec {
 
     /**
      * Return metadata about named graphs where the input triples for the conflict
-     * resolution process come from. The metadata (e.g. quality score) will be 
+     * resolution process come from. The metadata (e.g. quality score) will be
      * considedered during conflict resolution.
      * If the method returns null, metadata are to be read from the data to resolve.
      * @return map of metadata for named graphs or null

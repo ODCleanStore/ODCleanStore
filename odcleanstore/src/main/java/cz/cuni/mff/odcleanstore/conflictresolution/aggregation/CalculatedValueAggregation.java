@@ -1,9 +1,5 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
@@ -11,8 +7,13 @@ import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.graph.Quad;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
- * Base class for aggregation methods where the result is calculated from 
+ * Base class for aggregation methods where the result is calculated from
  * all the conflicting input quads.
  * Particularly, the source of each aggregated quad is the union of all sources
  * of the input triples.
@@ -33,10 +34,10 @@ abstract class CalculatedValueAggregation extends AggregationMethodBase {
     @Override
     public abstract Collection<CRQuad> aggregate(
             Collection<Quad> conflictingQuads,
-            NamedGraphMetadataMap metadata, 
+            NamedGraphMetadataMap metadata,
             AggregationErrorStrategy errorStrategy,
             UniqueURIGenerator uriGenerator);
-    
+
     /**
      * {@inheritDoc}
      * 
@@ -44,35 +45,34 @@ abstract class CalculatedValueAggregation extends AggregationMethodBase {
      * the quality is calcualted as an average of their respective source qualities.
      * 
      * @param resultQuad {@inheritDoc}; can be null
-     * @param conflictingQuads  {@inheritDoc}; must not be null
+     * @param conflictingQuads {@inheritDoc}; must not be null
      * @param metadata {@inheritDoc}
      * @return {@inheritDoc}
      * @see #getSourceQuality(NamedGraphMetadata)
      */
     @Override
     protected double computeQuality(
-            Quad resultQuad, 
+            Quad resultQuad,
             Collection<Quad> conflictingQuads,
             NamedGraphMetadataMap metadata) {
-        
+
         int totalConflictingQuads = 0;
         double sourceQualityAvg = 0;
-        
+
         for (Quad quad : conflictingQuads) {
             NamedGraphMetadata namedGraphMetadata = metadata.getMetadata(quad.getNamedGraph());
             sourceQualityAvg += getSourceQuality(namedGraphMetadata);
             totalConflictingQuads++;
         }
-        
-        assert (totalConflictingQuads > 0)
-                : "Illegal argument: conflictingQuads must not be empty";
-        
+
+        assert (totalConflictingQuads > 0) : "Illegal argument: conflictingQuads must not be empty";
+
         sourceQualityAvg /= totalConflictingQuads;
         return sourceQualityAvg;
     }
-    
+
     /**
-     * Returns a set (without duplicates) of all named graphs of quads in 
+     * Returns a set (without duplicates) of all named graphs of quads in
      * conflictingQuads.
      * @param conflictingQuads A collection of quads
      * @return a set of named graphs of all quads in conflictingQuads
@@ -82,7 +82,7 @@ abstract class CalculatedValueAggregation extends AggregationMethodBase {
             // A singleton collection will do for a single quad
             return Collections.singleton(conflictingQuads.iterator().next().getNamedGraph());
         }
-        
+
         Set<String> result = new HashSet<String>(conflictingQuads.size());
         for (Quad quad : conflictingQuads) {
             result.add(quad.getNamedGraph());

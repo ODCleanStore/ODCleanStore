@@ -19,9 +19,9 @@ public interface ConflictResolver {
      * as a collection of CRQuads.
      * @param data graph of triples where conflicts are to be resolved
      * @return collection of quads derived from the input graph with resolved
-     *      conflicts, quality estimate and source named graph information.
+     *         conflicts, quality estimate and source named graph information.
      * @throws ODCleanStoreException thrown when an error during the conflict
-     *      resolution process occurs
+     *         resolution process occurs
      * @see CRQuad
      */
     Collection<CRQuad> resolveConflicts(QuadGraph data) throws ODCleanStoreException;

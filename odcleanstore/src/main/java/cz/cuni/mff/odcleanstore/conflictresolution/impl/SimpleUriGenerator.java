@@ -7,10 +7,10 @@ import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
  * 
  * @author Jan Michelfeit
  */
-/* package */ class SimpleUriGenerator implements UniqueURIGenerator {
+/* package */class SimpleUriGenerator implements UniqueURIGenerator {
     /** Prefix of generated named graph URIs. */
     private String namedGraphURIPrefix;
-    
+
     /** Counter for generating unique named graph URIs. */
     private int lastNamedGraphId = 0;
 
@@ -21,7 +21,7 @@ import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
     public SimpleUriGenerator(String uriPrefix) {
         this.namedGraphURIPrefix = uriPrefix;
     }
-    
+
     @Override
     public String nextURI() {
         ++lastNamedGraphId;

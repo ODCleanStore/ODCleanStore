@@ -11,7 +11,7 @@ interface URIMapping {
      * If uri has no defined mapping or is mapped to itself, returns null.
      * @param uri an RDF reource URI to map
      * @return the canonical URI (an URI the uri argument maps to) or null if
-     *      the canonical URI is identical to uri
+     *         the canonical URI is identical to uri
      */
     String mapURI(String uri);
 }

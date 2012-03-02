@@ -1,13 +1,14 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
-import java.util.Collection;
-import java.util.Date;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.graph.Quad;
 import cz.cuni.mff.odcleanstore.graph.TripleItem;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
+
+import java.util.Collection;
+import java.util.Date;
 
 /**
  * Aggregation method that returns the quad with the highest (conflict resolution)
@@ -16,9 +17,9 @@ import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
  * @author Jan Michelfeit
  */
 final class BestAggregation extends SelectedValueAggregation {
-    /** 
+    /**
      * Returns a single triple selected from input triples wrapped as CRQuad.
-     * Returns a triple with the highest (conflict resolution quality) or the 
+     * Returns a triple with the highest (conflict resolution quality) or the
      * newest stored time in case of equality of quality.
      * If conflictingQuads are empty, returns an empty collection.
      * 
@@ -35,15 +36,15 @@ final class BestAggregation extends SelectedValueAggregation {
      */
     @Override
     public Collection<CRQuad> aggregate(
-            Collection<Quad> conflictingQuads, 
+            Collection<Quad> conflictingQuads,
             NamedGraphMetadataMap metadata,
             AggregationErrorStrategy errorStrategy,
             UniqueURIGenerator uriGenerator) {
-        
+
         if (conflictingQuads.isEmpty()) {
             return createResultCollection();
         }
-        
+
         Quad bestQuad = null;
         double bestQuadQuality = Double.NEGATIVE_INFINITY;
         for (Quad quad : conflictingQuads) {
@@ -62,15 +63,15 @@ final class BestAggregation extends SelectedValueAggregation {
                     bestQuad = quad;
                     bestQuadQuality = quality;
                 }
-            } 
+            }
         }
-        
+
         // bestQuad is not null because conflictingQuads is not empty
         assert bestQuad != null;
         // By not cloning quad for resultQuad we rely on quad being immutable
         Quad resultQuad = new Quad(bestQuad.getTriple(), uriGenerator.nextURI());
         Collection<String> sourceNamedGraphs = sourceNamedGraphsForObject(
-                bestQuad.getObject(), 
+                bestQuad.getObject(),
                 conflictingQuads);
         Collection<CRQuad> result = createSingleResultCollection(
                 new CRQuad(resultQuad, bestQuadQuality, sourceNamedGraphs));

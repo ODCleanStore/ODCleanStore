@@ -16,7 +16,7 @@ public class ConflictResolverFactory {
     public static ConflictResolver createResolver(ConflictResolverSpec spec) {
         return new ConflictResolverImpl(spec);
     }
-    
+
     /** Hide constructor for a utility class. */
     protected ConflictResolverFactory() {
     }

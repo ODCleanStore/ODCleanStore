@@ -14,27 +14,27 @@ public class NamedGraphMetadata {
 
     /** URI of the data source the named graph was retrieved from. */
     private String dataSource;
-    
+
     /** URI of the publisher of data in the named graph. */
     private String publisher;
-    
+
     /** (Error localization) score of the named graph. */
     private Double score;
-    
+
     /** (Error localization) score of the publisher (see {@link #publisher}). */
     private Double publisherScore;
-    
+
     /** Date the named graph was stored to the RDF store. */
     private Date stored;
 
     /**
-     * Creates a new container of metadata for a named graph with the selected URI. 
+     * Creates a new container of metadata for a named graph with the selected URI.
      * @param namedGraphURI URI of the named graph
      */
     public NamedGraphMetadata(String namedGraphURI) {
         this.namedGraphURI = namedGraphURI;
     }
-    
+
     /**
      * Return URI of the named graph this metadata relate to.
      * @return URI of the named graph this metadata relate to.
@@ -104,8 +104,8 @@ public class NamedGraphMetadata {
 
     /**
      * Set (error localization) score of the publisher.
-     * @param publisherScore score of the publisher of the named graph or null 
-     *      if the score is unknown
+     * @param publisherScore score of the publisher of the named graph or null
+     *        if the score is unknown
      */
     public final void setPublisherScore(Double publisherScore) {
         this.publisherScore = publisherScore;

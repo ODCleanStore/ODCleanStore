@@ -1,6 +1,5 @@
 package cz.cuni.mff.odcleanstore.queryexecution;
 
-
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.graph.QuadGraph;
 
@@ -18,7 +17,8 @@ public class QueryExecution {
      * @param constraints
      * @param aggregationSpec
      */
-    public QuadGraph findKeyword(String keyword, QueryConstraintSpec constraints, AggregationSpec aggregationSpec) {
+    public QuadGraph findKeyword(String keyword, QueryConstraintSpec constraints,
+            AggregationSpec aggregationSpec) {
         return null;
     }
 
@@ -28,7 +28,8 @@ public class QueryExecution {
      * @param constraints
      * @param aggregationSpec
      */
-    public QuadGraph findURI(String uri, QueryConstraintSpec constraints, AggregationSpec aggregationSpec) {
+    public QuadGraph findURI(String uri, QueryConstraintSpec constraints,
+            AggregationSpec aggregationSpec) {
         return null;
     }
 

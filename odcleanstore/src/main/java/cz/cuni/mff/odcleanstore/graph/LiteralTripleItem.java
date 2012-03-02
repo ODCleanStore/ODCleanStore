@@ -6,21 +6,21 @@ package cz.cuni.mff.odcleanstore.graph;
 public final class LiteralTripleItem extends TripleItem {
     private String value;
     private String type;
-    
+
     public LiteralTripleItem(String value) {
         this.value = value;
         this.type = "";
     }
-    
+
     public LiteralTripleItem(String value, String type) {
         this.value = value;
         this.type = type;
     }
-    
+
     public String getValue() {
         return value;
     }
-    
+
     public String geType() {
         return type;
     }
@@ -39,9 +39,9 @@ public final class LiteralTripleItem extends TripleItem {
 
     @Override
     public int hashCode() {
-        return getValue().hashCode(); 
+        return getValue().hashCode();
     }
-    
+
     @Override
     public String toString() {
         return "\"" + getValue() + "\"";

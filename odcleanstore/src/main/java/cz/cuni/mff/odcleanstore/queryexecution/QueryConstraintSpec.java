@@ -11,11 +11,11 @@ import java.util.Date;
 public class QueryConstraintSpec {
     /**
      * Oldest time of accepted triples. Triples with stored time of the respective
-     * named graph strictly older  than this will be ignored. 
+     * named graph strictly older than this will be ignored.
      * Null means accept all triples.
      */
     private Date oldestTime = null;
-    
+
     /**
      * Minimum error localization score of accepted named graphs.
      * Null means accept all graphs.
@@ -27,7 +27,7 @@ public class QueryConstraintSpec {
      */
     public QueryConstraintSpec() {
     }
-    
+
     /**
      * Create instance with the specified constraints.
      * @param oldestTime oldest time of accepted named graphs
@@ -37,7 +37,7 @@ public class QueryConstraintSpec {
         this.oldestTime = oldestTime;
         this.minScore = minScore;
     }
-    
+
     /**
      * Returns the oldest time of accepted named graphs of null if there is no
      * limit.
@@ -46,7 +46,7 @@ public class QueryConstraintSpec {
     public Date getOldestTime() {
         return oldestTime;
     }
-    
+
     /**
      * Sets the oldest time of accepted named graphs. Named graphs with stored
      * time strictly older will be ignord. Null means no limit.
@@ -55,7 +55,7 @@ public class QueryConstraintSpec {
     public void setOldestTime(Date oldestTime) {
         this.oldestTime = oldestTime;
     }
-    
+
     /**
      * Returns the minimum score of accepted named graphs of null if there is no
      * limit.
@@ -64,7 +64,7 @@ public class QueryConstraintSpec {
     public Double getMinScore() {
         return minScore;
     }
-    
+
     /**
      * Sets the minimum score of accepted named graphs of null if there is no
      * limit.
