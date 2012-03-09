@@ -3,6 +3,7 @@ package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.UnexpectedPredicateException;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 
+import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 
 import org.slf4j.Logger;
@@ -20,7 +21,7 @@ import java.util.TreeMap;
  * Maintains a mapping of all subjects and objects URIs in triples passed by addLinks()
  * to a "canonical URI". A canonical URI is single URI selected for each (weakly)
  * connected component of the owl:sameAs links graph. owl:sameAs links for
- * TripleItems other then URITripleItem are ignored.
+ * Nodes other then Node_URI are ignored.
  * This is the fundamental component of implicit conflict resolution.
  *
  * The implementation is based on DFU (disjoint find and union) data structure
@@ -101,17 +102,19 @@ class URIMappingImpl implements URIMapping {
 
     /**
      * {@inheritDoc}
-     * @param uri {@inheritDoc}
+     * @param uriNode {@inheritDoc}
      * @return {@inheritDoc}
      */
     @Override
-    public String mapURI(String uri) {
+    public Node mapURI(Node uriNode) {
+        assert uriNode.isURI();
+        String uri = uriNode.getURI();
         if (!uriDFUParent.containsKey(uri)) {
             return null;
         }
 
         String canonicalURI = dfuRoot(uri);
-        return canonicalURI.equals(uri) ? null : canonicalURI;
+        return canonicalURI.equals(uri) ? null : Node.createURI(canonicalURI);
     }
 
     /**

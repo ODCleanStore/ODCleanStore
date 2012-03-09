@@ -1,8 +1,8 @@
 package cz.cuni.mff.odcleanstore.shared;
 
 /**
- * This should be a superclass of all exceptions arising from ODCleanStore code.
- * 
+ * A base class of all exceptions arising from ODCleanStore code.
+ *
  * @author Jan Michelfeit
  */
 public class ODCleanStoreException extends Exception {

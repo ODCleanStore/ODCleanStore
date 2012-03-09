@@ -1,6 +1,6 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.AggregationErrorStrategy;
+import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
@@ -38,7 +38,7 @@ final class ConcatAggegation extends CalculatedValueAggregation {
     public Collection<CRQuad> aggregate(
             Collection<Quad> conflictingQuads,
             NamedGraphMetadataMap metadata,
-            AggregationErrorStrategy errorStrategy,
+            EnumAggregationErrorStrategy errorStrategy,
             UniqueURIGenerator uriGenerator) {
 
         StringBuilder resultValue = new StringBuilder();

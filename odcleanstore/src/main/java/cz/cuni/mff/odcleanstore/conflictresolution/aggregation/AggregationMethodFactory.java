@@ -1,6 +1,6 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.AggregationType;
+import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationType;
 
 /**
  * Factory class for various quad aggregation methods.
@@ -20,9 +20,9 @@ public class AggregationMethodFactory {
      * @todo singletons? implement the factory as a registry??
      * @throws AggregationNotImplementedException thrown if there is no
      *         AggregationMethod implementation for the selected aggregation type
-     * @see AggregationType
+     * @see EnumAggregationType
      */
-    public static AggregationMethod getAggregation(AggregationType type)
+    public static AggregationMethod getAggregation(EnumAggregationType type)
             throws AggregationNotImplementedException {
         switch (type) {
         case ANY:

@@ -1,6 +1,6 @@
-package cz.cuni.mff.odcleanstore;
+package cz.cuni.mff.odcleanstore.test;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.AggregationType;
+import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationType;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
@@ -30,11 +30,11 @@ public class MainConflictResolutionPrototype {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws ODCleanStoreException {
-        test1(AggregationType.CONCAT, true);
-        test1(AggregationType.ALL, true);
+        test1(EnumAggregationType.CONCAT, true);
+        test1(EnumAggregationType.ALL, true);
     }
 
-    private static void test1(AggregationType aggregationType, boolean print)
+    private static void test1(EnumAggregationType aggregationType, boolean print)
             throws ODCleanStoreException {
         String predicate_1 = createURI("predicate_1");
         String predicate_2 = createURI("predicate_2");

@@ -5,8 +5,9 @@ import java.util.Date;
 /**
  * Metadata for a single named graph in the RDF store.
  * All metadata except for namedGraphURI can be null.
- * 
+ *
  * @author Jan Michelfeit
+ * @todo use Node_URI instead of String?
  */
 public class NamedGraphMetadata {
     /** URI of the named graph for which this objects contains metadata. */
@@ -47,6 +48,7 @@ public class NamedGraphMetadata {
      * Return data source the named graph was retrieved from.
      * Returns null if the data source is unknown
      * @return URI identifying the source of the named graph
+     * @todo return set/collection of String
      */
     public final String getDataSource() {
         return dataSource;

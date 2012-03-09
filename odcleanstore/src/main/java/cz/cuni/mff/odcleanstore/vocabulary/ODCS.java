@@ -24,7 +24,7 @@ public final class ODCS {
 
     /* Vocabulary properties: */
 
-    /* TODO: return something else than a String? As a Resource or a Property? */
+    /* TODO: return Node_URI instead of String? */
 
     /**
      * Property linking a named graph to URI of its data source.

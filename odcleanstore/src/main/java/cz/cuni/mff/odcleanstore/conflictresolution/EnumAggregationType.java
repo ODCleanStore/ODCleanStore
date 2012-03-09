@@ -5,7 +5,7 @@ package cz.cuni.mff.odcleanstore.conflictresolution;
  * 
  * @author Jan Michelfeit
  */
-public enum AggregationType {
+public enum EnumAggregationType {
     /** Select any single value. */
     ANY,
 

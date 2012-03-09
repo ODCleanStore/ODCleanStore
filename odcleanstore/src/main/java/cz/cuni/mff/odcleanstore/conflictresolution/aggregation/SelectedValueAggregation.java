@@ -1,7 +1,7 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.AggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
+import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
@@ -24,7 +24,7 @@ import java.util.Set;
  */
 abstract class SelectedValueAggregation extends AggregationMethodBase {
     /**
-     * TripleItem distance metric used in quality computation.
+     * Node distance metric used in quality computation.
      * @see #computeQuality(Quad, Collection, NamedGraphMetadataMap)
      */
     private static/*final*/DistanceMetric distanceMetricInstance = new DistanceMetricImpl();
@@ -45,12 +45,12 @@ abstract class SelectedValueAggregation extends AggregationMethodBase {
     public abstract Collection<CRQuad> aggregate(
             Collection<Quad> conflictingQuads,
             NamedGraphMetadataMap metadata,
-            AggregationErrorStrategy errorStrategy,
+            EnumAggregationErrorStrategy errorStrategy,
             UniqueURIGenerator uriGenerator);
 
     /**
      * Return the default DistanceMetric instance.
-     * @return TripleItem distance metric that can be used in quality computation.
+     * @return Node distance metric that can be used in quality computation.
      */
     protected DistanceMetric getDistanceMetric() {
         return distanceMetricInstance;

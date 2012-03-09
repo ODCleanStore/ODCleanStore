@@ -1,10 +1,8 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
-import cz.cuni.mff.odcleanstore.data.QuadCollection;
 import cz.cuni.mff.odcleanstore.shared.NodeComparator;
 
 import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Node_URI;
 
 import de.fuberlin.wiwiss.ng4j.Quad;
 
@@ -116,7 +114,7 @@ class ResolveQuadCollection {
      * Invalidates iterator obtained by {@link #listConflictingQuads()}
      * @param quads quads to add
      */
-    public void addQuads(QuadCollection quads) {
+    public void addQuads(Collection<Quad> quads) {
         quadList.ensureCapacity(quadList.size() + quads.size());
         for (Quad quad : quads) {
             quadList.add(quad);
@@ -135,11 +133,11 @@ class ResolveQuadCollection {
             Quad quad = quadList.get(i);
 
             Node subject = quad.getSubject();
-            Node subjectMapping = mapTripleItem(subject, mapping);
+            Node subjectMapping = mapURINode(subject, mapping);
             Node predicate = quad.getPredicate();
-            Node predicateMapping = mapTripleItem(predicate, mapping);
+            Node predicateMapping = mapURINode(predicate, mapping);
             Node object = quad.getObject();
-            Node objectMapping = mapTripleItem(object, mapping);
+            Node objectMapping = mapURINode(object, mapping);
 
             // Intentionally !=
             if (subject != subjectMapping
@@ -178,17 +176,17 @@ class ResolveQuadCollection {
     }
 
     /**
-     * If mapping contains an URI to map for the passed {@link Node_URI}, returns
-     * a Node_URI with the mapped URI, otherwise returns node.
+     * If mapping contains an URI to map for the passed {@link com.hp.hpl.jena.graph.Node_URI},
+     * returns a Node_URI with the mapped URI, otherwise returns node.
      * @param node a Node to apply mapping to
      * @param mapping an URI mapping to apply
      * @return node with applied URI mapping
      */
-    private Node mapTripleItem(Node node, URIMapping mapping) {
-        if (node instanceof Node_URI) {
-            String mappedURI = mapping.mapURI(node.getURI());
+    private Node mapURINode(Node node, URIMapping mapping) {
+        if (node.isURI()) {
+            Node mappedURI = mapping.mapURI(node);
             if (mappedURI != null) {
-                return Node.createURI(mappedURI);
+                return mappedURI;
             }
         }
         return node;

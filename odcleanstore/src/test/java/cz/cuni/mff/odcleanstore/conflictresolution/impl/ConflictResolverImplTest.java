@@ -1,9 +1,9 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
 import cz.cuni.mff.odcleanstore.TestUtils;
-import cz.cuni.mff.odcleanstore.conflictresolution.AggregationType;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverSpec;
+import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationType;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.data.QuadCollection;
@@ -28,7 +28,6 @@ import java.util.LinkedList;
  */
 public class ConflictResolverImplTest {
     private static final double EPSILON = 0.0;
-    private static final int CONFLICTING_QUAD_COUNT = 3;
 
     private static Quad oldVersionQuad;
     private static Quad newVersionQuad;
@@ -89,7 +88,7 @@ public class ConflictResolverImplTest {
         metadata.addMetadata(newVersionMetadata);
 
         spec = new ConflictResolverSpec(TestUtils.getUniqueURI());
-        spec.setDefaultAggregation(AggregationType.NONE);
+        spec.setDefaultAggregation(EnumAggregationType.NONE);
         spec.setNamedGraphMetadata(metadata);
     }
 

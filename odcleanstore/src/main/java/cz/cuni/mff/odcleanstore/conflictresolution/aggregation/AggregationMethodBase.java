@@ -1,7 +1,7 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.AggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
+import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
@@ -56,14 +56,14 @@ abstract class AggregationMethodBase implements AggregationMethod {
     public abstract Collection<CRQuad> aggregate(
             Collection<Quad> conflictingTriples,
             NamedGraphMetadataMap metadata,
-            AggregationErrorStrategy errorStrategy,
+            EnumAggregationErrorStrategy errorStrategy,
             UniqueURIGenerator uriGenerator);
 
     /**
      * Indicates whether a Node is valid for this aggregation method.
      * @param value a Node for aggregation
      * @return true iff the aggregation can be applied to value
-     * @see AggregationErrorStrategy
+     * @see EnumAggregationErrorStrategy
      */
     protected abstract boolean isAggregable(Node value);
 
@@ -73,7 +73,7 @@ abstract class AggregationMethodBase implements AggregationMethod {
      * @param resultQuad the quad for which quality is to be computed
      * @param conflictingQuads other quads conflicting with resultQuad
      *        (for what is meant by conflicting quads see
-     *        {@link AggregationMethod#aggregate(Collection, NamedGraphMetadataMap, AggregationErrorStrategy)
+     *        {@link AggregationMethod#aggregate(Collection, NamedGraphMetadataMap, EnumAggregationErrorStrategy)
      *        aggregate()})
      * @param metadata metadata of source named graphs for resultQuad
      *        and conflictingQuads
@@ -122,7 +122,7 @@ abstract class AggregationMethodBase implements AggregationMethod {
 
     /**
      * Factory method for collections returned by
-     * {@link #aggregate(Collection, NamedGraphMetadataMap, AggregationErrorStrategy) aggregate()}.
+     * {@link #aggregate(Collection, NamedGraphMetadataMap, EnumAggregationErrorStrategy) aggregate()}.
      * @return an empty collection
      */
     protected Collection<CRQuad> createResultCollection() {
@@ -131,7 +131,7 @@ abstract class AggregationMethodBase implements AggregationMethod {
 
     /**
      * Factory method for collections returned by
-     * {@link #aggregate(Collection, NamedGraphMetadataMap, AggregationErrorStrategy) aggregate()}
+     * {@link #aggregate(Collection, NamedGraphMetadataMap, EnumAggregationErrorStrategy) aggregate()}
      * with a single value.
      * @param resultQuad a quad initially added to the result collection
      * @return an collection containing only resultQuad

@@ -13,7 +13,7 @@ import com.hp.hpl.jena.rdf.model.AnonId;
 /**
  * Comparator of two {@link Node Nodes}.
  * The comparison can be used to sort Triples; equal triples are guaranteed to return 0,
- * however the implementation gives no promises about the exact order of TripleItems.
+ * however the implementation gives no promises about the exact order of Nodes.
  *
  * Note: in order to be consistent with equals(), we use {@link Node#equals(Object)} rather than
  * more suitable {@link Node#sameValueAs(Object)}.

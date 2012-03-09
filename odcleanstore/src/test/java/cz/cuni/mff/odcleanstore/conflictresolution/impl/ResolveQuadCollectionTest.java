@@ -3,6 +3,8 @@ package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 import cz.cuni.mff.odcleanstore.TestUtils;
 import cz.cuni.mff.odcleanstore.data.QuadCollection;
 
+import com.hp.hpl.jena.graph.Node;
+
 import de.fuberlin.wiwiss.ng4j.Quad;
 
 import org.junit.Assert;
@@ -20,16 +22,16 @@ import java.util.LinkedList;
 public class ResolveQuadCollectionTest {
 
     private static class SingleUriMapping implements URIMapping {
-        private String what;
-        private String mapTo;
+        private Node what;
+        private Node mapTo;
 
         public SingleUriMapping(String what, String mapTo) {
-            this.what = what;
-            this.mapTo = mapTo;
+            this.what = Node.createURI(what);
+            this.mapTo = Node.createURI(mapTo);
         }
 
         @Override
-        public String mapURI(String uri) {
+        public Node mapURI(Node uri) {
             if (uri.equals(what)) {
                 return mapTo;
             } else {
@@ -139,7 +141,6 @@ public class ResolveQuadCollectionTest {
         Collection<Quad> otherCluster = null;
 
         Iterator<Collection<Quad>> clusterIterator = instance.listConflictingQuads();
-        int clusterCount = 0;
         while (clusterIterator.hasNext()) {
             Collection<Quad> cluster = clusterIterator.next();
             if (cluster.size() == 1) {

@@ -18,22 +18,22 @@ public class NodeComparatorTest {
         int expectedResult = 0;
 
         String uri = TestUtils.getUniqueURI();
-        Node uriTripleItem1 = Node.createURI(uri);
-        Node uriTripleItem2 = Node.createURI(uri);
-        int uriComparison = NodeComparator.compare(uriTripleItem1, uriTripleItem2);
+        Node uriNode1 = Node.createURI(uri);
+        Node uriNode2 = Node.createURI(uri);
+        int uriComparison = NodeComparator.compare(uriNode1, uriNode2);
         Assert.assertEquals(expectedResult, uriComparison);
 
         String literalValue = "value";
-        Node literalTripleItem1 = Node.createLiteral(literalValue);
-        Node literalTripleItem2 = Node.createLiteral(literalValue);
+        Node literalNode1 = Node.createLiteral(literalValue);
+        Node literalNode2 = Node.createLiteral(literalValue);
         int literalComparison = NodeComparator
-                .compare(literalTripleItem1, literalTripleItem2);
+                .compare(literalNode1, literalNode2);
         Assert.assertEquals(expectedResult, literalComparison);
 
         AnonId anonId = new AnonId(TestUtils.getUniqueURI());
-        Node blankTripleItem1 = Node.createAnon(anonId);
-        Node blankTripleItem2 = Node.createAnon(anonId);
-        int blankNodeComparison = NodeComparator.compare(blankTripleItem1, blankTripleItem2);
+        Node blankNode1 = Node.createAnon(anonId);
+        Node blankNode2 = Node.createAnon(anonId);
+        int blankNodeComparison = NodeComparator.compare(blankNode1, blankNode2);
         Assert.assertEquals(expectedResult, blankNodeComparison);
     }
 
@@ -55,20 +55,20 @@ public class NodeComparatorTest {
 
     @Test
     public void testCompareDifferentValues() {
-        Node uriTripleItem1 = Node.createURI(TestUtils.getUniqueURI());
-        Node uriTripleItem2 = Node.createURI(TestUtils.getUniqueURI());
-        int uriResult = NodeComparator.compare(uriTripleItem1, uriTripleItem2);
+        Node uriNode1 = Node.createURI(TestUtils.getUniqueURI());
+        Node uriNode2 = Node.createURI(TestUtils.getUniqueURI());
+        int uriResult = NodeComparator.compare(uriNode1, uriNode2);
         Assert.assertTrue(uriResult != 0);
 
-        Node literalTripleItem1 = Node.createLiteral("value1");
-        Node literalTripleItem2 = Node.createLiteral("value2");
+        Node literalNode1 = Node.createLiteral("value1");
+        Node literalNode2 = Node.createLiteral("value2");
         int literalResult =
-                NodeComparator.compare(literalTripleItem1, literalTripleItem2);
+                NodeComparator.compare(literalNode1, literalNode2);
         Assert.assertTrue(literalResult != 0);
 
-        Node blankTripleItem1 = Node.createAnon(new AnonId(TestUtils.getUniqueURI()));
-        Node blankTripleItem2 = Node.createAnon(new AnonId(TestUtils.getUniqueURI()));
-        int blankNodeResult = NodeComparator.compare(blankTripleItem1, blankTripleItem2);
+        Node blankNode1 = Node.createAnon(new AnonId(TestUtils.getUniqueURI()));
+        Node blankNode2 = Node.createAnon(new AnonId(TestUtils.getUniqueURI()));
+        int blankNodeResult = NodeComparator.compare(blankNode1, blankNode2);
         Assert.assertTrue(blankNodeResult != 0);
     }
 }

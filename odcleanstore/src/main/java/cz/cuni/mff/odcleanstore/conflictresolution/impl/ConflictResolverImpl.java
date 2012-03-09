@@ -1,10 +1,10 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.AggregationErrorStrategy;
-import cz.cuni.mff.odcleanstore.conflictresolution.AggregationType;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverSpec;
+import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
+import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationType;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationMethod;
@@ -132,7 +132,7 @@ public class ConflictResolverImpl implements ConflictResolver {
 
         // Gather relevant settings:
         NamedGraphMetadataMap metadata = getNamedGraphMetadata(quads);
-        AggregationErrorStrategy aggregationErrorStrategy = spec.getErrorStrategy();
+        EnumAggregationErrorStrategy aggregationErrorStrategy = spec.getErrorStrategy();
         UniqueURIGenerator uriGenerator = new SimpleUriGenerator(spec.getNamedGraphPrefix());
 
         // A little optimization - check metadata for occurences of old versions;
@@ -337,7 +337,7 @@ public class ConflictResolverImpl implements ConflictResolver {
             return AggregationMethodFactory.getSingleValueAggregation();
         }
         String clusterProperty = getQuadsProperty(quads);
-        AggregationType propertyAggregation = spec.propertyAggregationType(clusterProperty);
+        EnumAggregationType propertyAggregation = spec.propertyAggregationType(clusterProperty);
         return AggregationMethodFactory.getAggregation(propertyAggregation);
     }
 
@@ -349,7 +349,7 @@ public class ConflictResolverImpl implements ConflictResolver {
      * @return URI of the predicate occuring in the quads
      */
     private String getQuadsProperty(Collection<Quad> quads) {
-        assert !quads.isEmpty() : "Set of conflicting quads must be nonempty";
+        assert !quads.isEmpty() : "Collection of conflicting quads must be nonempty";
         Quad firstQuad = quads.iterator().next();
         return firstQuad.getPredicate().getURI();
     }

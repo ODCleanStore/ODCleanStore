@@ -45,7 +45,7 @@ public class NamedGraphMetadataMap {
      * @param namedGraphMetadata metadata to be set for the named graph;
      *        must not be null
      */
-    public void addMetadata(/*URI namedGraphURI, */NamedGraphMetadata namedGraphMetadata) {
+    public void addMetadata(NamedGraphMetadata namedGraphMetadata) {
         this.metadataMap.put(namedGraphMetadata.getNamedGraphURI(), namedGraphMetadata);
     }
 
@@ -54,14 +54,5 @@ public class NamedGraphMetadataMap {
      */
     public void clear() {
         this.metadataMap.clear();
-    }
-
-    /**
-     * Returns true iff this map contains metadata for the selected named graph.
-     * @param namedGraphURI URI of the named graph
-     * @return true iff the map contains metadata for the selected named graph.
-     */
-    public boolean containsNamedGraph(String namedGraphURI) {
-        return this.metadataMap.containsKey(namedGraphURI);
     }
 }

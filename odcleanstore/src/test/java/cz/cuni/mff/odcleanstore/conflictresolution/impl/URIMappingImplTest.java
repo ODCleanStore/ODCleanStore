@@ -28,15 +28,15 @@ public class URIMappingImplTest {
     }
 
     private String getMappedURI(String uri, URIMapping mapping) {
-        String mappedURI = mapping.mapURI(uri);
-        return (mappedURI == null) ? uri : mappedURI;
+        Node mappedURI = mapping.mapURI(Node.createURI(uri));
+        return (mappedURI == null) ? uri : mappedURI.getURI();
     }
 
     @Test
     public void testEmptyMapping() {
         URIMappingImpl instance = new URIMappingImpl();
         String expResult = null;
-        String result = instance.mapURI(TestUtils.getUniqueURI());
+        Node result = instance.mapURI(Node.createURI(TestUtils.getUniqueURI()));
         Assert.assertEquals(expResult, result);
     }
 
