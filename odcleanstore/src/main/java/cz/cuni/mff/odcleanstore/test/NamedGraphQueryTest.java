@@ -27,7 +27,7 @@ import java.util.Set;
  *
  * @author Jan Michelfeit
  */
-public class URIQueryTest {
+public class NamedGraphQueryTest {
     private static final String SPARQL_QUERY = "SELECT ?graph ?s ?p ?o" +
     		"\n WHERE {" +
     		"\n   GRAPH ?graph { ?s ?p ?o }" +

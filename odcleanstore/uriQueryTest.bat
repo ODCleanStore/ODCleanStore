@@ -1,1 +1,0 @@
-mvn compile exec:java -Dexec.mainClass="cz.cuni.mff.odcleanstore.test.URIQueryTest" -Dexec.args="%1"
