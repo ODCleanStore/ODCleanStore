@@ -1,29 +1,45 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
+import cz.cuni.mff.odcleanstore.shared.EnumLiteralType;
+import cz.cuni.mff.odcleanstore.shared.Utils;
+
 import com.hp.hpl.jena.graph.Node;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
- * The default implementation of a distance metric between TripleItems.
+ * The default implementation of a distance metric between Node instances.
  * In all methods value 1 means maximum distance, value 0 means identity.
  *
  * @author Jan Michelfeit
  */
 class DistanceMetricImpl implements DistanceMetric {
+    private static final Logger LOG = LoggerFactory.getLogger(DistanceMetricImpl.class);
+
+    /** Minimum distance between two {@link Node Nodes} indicating equal nodes. */
+    private static final double MIN_DISTANCE = 0;
+
+    /** Maximum distance between two {@link Node Nodes}. */
+    private static final double MAX_DISTANCE = 1;
+
     /** Distance value for URI resources with different URIs. */
-    private static final double DIFFERENT_RESOURCE_DISTANCE = 1;
+    private static final double DIFFERENT_RESOURCE_DISTANCE = MAX_DISTANCE;
 
     /** Distance of {@link Node Nodes} of different types. */
-    private static final double DIFFERENT_TYPE_DISTANCE = 1;
+    private static final double DIFFERENT_TYPE_DISTANCE = MAX_DISTANCE;
 
-    /** Square root of two. */
-    private static final double SQRT_OF_TWO = Math.sqrt(2);
+    /** Distance of {@link Node Nodes} when an error (e.g. a parse erorr) occurs. */
+    private static final double ERROR_DISTANCE = MAX_DISTANCE;
+
+    ///** Square root of two. */
+    //private static final double SQRT_OF_TWO = Math.sqrt(2);
 
     /**
      * {@inheritDoc}
      * @param primaryValue {@inheritDoc }
      * @param comparedValue {@inheritDoc }
      * @return {@inheritDoc }
-     * @todo
      */
     @Override
     public double distance(Node primaryValue, Node comparedValue) {
@@ -31,18 +47,69 @@ class DistanceMetricImpl implements DistanceMetric {
             return DIFFERENT_TYPE_DISTANCE;
         } else if (primaryValue.isURI()) {
             return resourceDistance(primaryValue, comparedValue);
+        } else if (primaryValue.isBlank()) {
+            return blankNodeDistance(primaryValue, comparedValue);
         } else if (primaryValue.isLiteral()) {
-            return LevenstheinDistance.computeNormalizedLevenshteinDistance(
-                    primaryValue.getLiteralLexicalForm(),
-                    comparedValue.getLiteralLexicalForm());
+            return literalDistance(primaryValue, comparedValue);
+        } else {
+            LOG.warn("Distance cannot be measured on Nodes of type {}",
+                    primaryValue.getClass().getName());
+            return ERROR_DISTANCE;
         }
-        // TODO: blank nodes etc
-        throw new IllegalArgumentException("Unknown type of TripleItem.");
+    }
+
+    /**
+     * Calulates a distance metric between two Node_Literal instances.
+     * @see #distance(Node, Node)
+     * @param primaryNode first of the compared Nodes; this Node may be considered "referential",
+     *        i.e. we measure distance from this value
+     * @param comparedNode second of the compared Nodes
+     * @return a number from interval [0,1]
+     *
+     */
+    private double literalDistance(Node primaryNode, Node comparedNode) {
+        assert primaryNode.isLiteral() && comparedNode.isLiteral();
+
+        EnumLiteralType primaryLiteralType = Utils.getLiteralType(primaryNode);
+        EnumLiteralType comparedLiteralType = Utils.getLiteralType(comparedNode);
+        EnumLiteralType comparisonType = primaryLiteralType == comparedLiteralType
+                ? primaryLiteralType
+                : EnumLiteralType.OTHER;
+
+        switch (comparisonType) {
+        case NUMERIC:
+            // TODO
+            try {
+                double primaryValue = Double.parseDouble(primaryNode.getLiteralLexicalForm());
+                double comparedValue = Double.parseDouble(comparedNode.getLiteralLexicalForm());
+                return numericDistance(primaryValue, comparedValue);
+            } catch (NumberFormatException e) {
+                return ERROR_DISTANCE;
+            }
+        case DATE:
+            // TODO
+        case BOOLEAN:
+            // TODO
+        case STRING:
+        case OTHER:
+            // TODO + check bounds
+            return LevenstheinDistance.computeNormalizedLevenshteinDistance(
+                    primaryNode.getLiteralLexicalForm(),
+                    comparedNode.getLiteralLexicalForm());
+        default:
+            // TODO
+            LOG.error("TODO");
+            throw new IllegalArgumentException();
+        }
     }
 
     /**
      * Calulates a distance metric between two numbers.
      * @see #distance(Node, Node)
+     * @param primaryValue first of the compared values; this v may be considered "referential",
+     *        i.e. we measure distance from this value
+     * @param comparedValue second of the compared values
+     * @return a number from interval [0,1]
      */
     private double numericDistance(double primaryValue, double comparedValue) {
         double result = primaryValue - comparedValue;
@@ -54,31 +121,41 @@ class DistanceMetricImpl implements DistanceMetric {
         }
         result = Math.abs(result);
         // result /= SQRT_OF_TWO;
-        return Math.min(result, 1);
-    }
-
-    /**
-     * @todo choose an algorithm
-     *       Calulates a distance metric between two strings.
-     * @see #distance(Node, Node)
-     * @todo length limitation for comparison
-     */
-    private double stringDistance(String primaryValue, String comparedValue) {
-        return LevenstheinDistance.computeNormalizedLevenshteinDistance(
-                primaryValue, comparedValue);
+        return Math.min(result, MAX_DISTANCE);
     }
 
     /**
      * Calulates a distance metric between two Node_URI instances.
      * @see #distance(Node, Node)
+     * @param primaryValue first of the compared Nodes; this Node may be considered "referential",
+     *        i.e. we measure distance from this value
+     * @param comparedValue second of the compared Nodes
+     * @return a number from interval [0,1]
+     *
      */
-    private double resourceDistance(Node primaryResource, Node comparedResource) {
-        assert primaryResource.isURI() && comparedResource.isURI();
-        if (primaryResource.sameValueAs(comparedResource)) {
-            return 0;
+    private double resourceDistance(Node primaryValue, Node comparedValue) {
+        assert primaryValue.isURI() && comparedValue.isURI();
+        if (primaryValue.sameValueAs(comparedValue)) {
+            return MIN_DISTANCE;
         } else {
             return DIFFERENT_RESOURCE_DISTANCE;
         }
     }
 
+    /**
+     * Calulates a distance metric between two Node_URI instances.
+     * @see #distance(Node, Node)
+     * @param primaryValue first of the compared Nodes; this Node may be considered "referential",
+     *        i.e. we measure distance from this value
+     * @param comparedValue second of the compared Nodes
+     * @return a number from interval [0,1]
+     */
+    private double blankNodeDistance(Node primaryValue, Node comparedValue) {
+        assert primaryValue.isBlank() && comparedValue.isBlank();
+        if (primaryValue.sameValueAs(comparedValue)) {
+            return MIN_DISTANCE;
+        } else {
+            return DIFFERENT_RESOURCE_DISTANCE;
+        }
+    }
 }
