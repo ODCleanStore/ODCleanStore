@@ -104,7 +104,7 @@ class DistanceMetricImpl implements DistanceMetric {
         case STRING:
         case OTHER:
             // TODO + check bounds
-            result = LevenstheinDistance.computeNormalizedLevenshteinDistance(
+            result = LevenstheinDistance.normalizedLevenstheinDistance(
                     primaryNode.getLiteralLexicalForm(),
                     comparedNode.getLiteralLexicalForm());
             break;
@@ -113,7 +113,7 @@ class DistanceMetricImpl implements DistanceMetric {
             LOG.error("TODO");
             throw new IllegalArgumentException();
         }
-        
+
         LOG.debug("Distance between literals {} and {} of type {}: {}",
                 new Object[] { primaryNode, comparedNode, comparedLiteralType, result });
         return result;
