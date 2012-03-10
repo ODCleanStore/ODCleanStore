@@ -1,7 +1,8 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
+import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
+import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 
@@ -10,7 +11,6 @@ import com.hp.hpl.jena.graph.Node;
 import de.fuberlin.wiwiss.ng4j.Quad;
 
 import java.util.Collection;
-import java.util.Date;
 
 /**
  * Aggregation method that returns the quad with the highest (conflict resolution)
@@ -58,10 +58,13 @@ final class BestAggregation extends SelectedValueAggregation {
             } else if (quality == bestQuadQuality) {
                 // In case of equality prefer newer date
                 assert bestQuad != null; // quality shouldn't be NEGATIVE_INFINITY
-                Date storedDate = metadata.getMetadata(quad.getGraphName()).getStored();
-                Date bestQuadStored = metadata.getMetadata(bestQuad.getGraphName()).getStored();
-                if (storedDate != null
-                        && (bestQuadStored == null || storedDate.after(bestQuadStored))) {
+                NamedGraphMetadata quadMetadata = metadata.getMetadata(quad.getGraphName());
+                NamedGraphMetadata bestQuadMetadata = metadata.getMetadata(bestQuad.getGraphName());
+                if (quadMetadata != null
+                        && quadMetadata.getStored() != null
+                        && (bestQuadMetadata == null
+                            || bestQuadMetadata.getStored() == null
+                            || quadMetadata.getStored().after(bestQuadMetadata.getStored()))) {
                     bestQuad = quad;
                     bestQuadQuality = quality;
                 }
