@@ -39,37 +39,37 @@ abstract class CalculatedValueAggregation extends AggregationMethodBase {
             EnumAggregationErrorStrategy errorStrategy,
             UniqueURIGenerator uriGenerator);
 
-    /**
-     * {@inheritDoc}
+   /**
+     * Compute quality estimate of a selected quad taking into consideration
+     * possible conflicting quads and source named graph metadata.
      *
      * Since the aggregated result is based on all conflicting triples,
      * the quality is calcualted as an average of their respective source qualities.
      *
-     * @param resultQuad {@inheritDoc}; can be null
-     * @param conflictingQuads {@inheritDoc}; must not be null
-     * @param metadata {@inheritDoc}
-     * @return {@inheritDoc}
+     * @param resultQuad the quad for which quality is to be computed
+     * @param sourceNamedGraphs URIs of source named graphs containing triples used to calculate 
+     *      the result value; must not be empty
+     * @param metadata metadata of the given source named graphs
+     * @return quality estimate of resultQuad as a number from [0,1]
      * @see #getSourceQuality(NamedGraphMetadata)
      */
-    @Override
     protected double computeQuality(
-            Quad resultQuad,
-            Collection<Quad> conflictingQuads,
+            Quad resultQuad, 
+            Collection<String> sourceNamedGraphs,
             NamedGraphMetadataMap metadata) {
 
-        int totalConflictingQuads = 0;
-        double sourceQualityAvg = 0;
+        int namedGraphCount = 0;
+        double scoreSum = 0;
 
-        for (Quad quad : conflictingQuads) {
-            NamedGraphMetadata namedGraphMetadata = metadata.getMetadata(quad.getGraphName());
-            sourceQualityAvg += getSourceQuality(namedGraphMetadata);
-            totalConflictingQuads++;
+        for (String sourceNamedGraphURI : sourceNamedGraphs) {
+            NamedGraphMetadata namedGraphMetadata = metadata.getMetadata(sourceNamedGraphURI);
+            scoreSum += getSourceQuality(namedGraphMetadata);
+            namedGraphCount++;
         }
 
-        assert (totalConflictingQuads > 0) : "Illegal argument: conflictingQuads must not be empty";
-
-        sourceQualityAvg /= totalConflictingQuads;
-        return sourceQualityAvg;
+        assert (namedGraphCount > 0) : "Illegal argument: conflictingQuads must not be empty";
+        double scoreAverage = scoreSum / namedGraphCount;
+        return scoreAverage;
     }
 
     /**

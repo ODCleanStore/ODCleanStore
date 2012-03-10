@@ -51,27 +51,16 @@ final class ConcatAggegation extends CalculatedValueAggregation {
             resultValue.append(quad.getObject().toString());
         }
 
-        Quad firstTriple = conflictingQuads.iterator().next();
+        Quad firstQuad = conflictingQuads.iterator().next();
         Quad resultQuad = new Quad(
                 Node.createURI(uriGenerator.nextURI()),
-                firstTriple.getSubject(),
-                firstTriple.getPredicate(),
+                firstQuad.getSubject(),
+                firstQuad.getPredicate(),
                 Node.createLiteral(resultValue.toString()));
-        double score = computeQuality(null, conflictingQuads, metadata);
         Collection<String> sourceNamedGraphs = allSourceNamedGraphs(conflictingQuads);
+        double quality = computeQuality(resultQuad, sourceNamedGraphs, metadata);
         Collection<CRQuad> result = createSingleResultCollection(
-                new CRQuad(resultQuad, score, sourceNamedGraphs));
+                new CRQuad(resultQuad, quality, sourceNamedGraphs));
         return result;
-    }
-
-    /**
-     * {@inheritDoc}
-     * @param {@inheritDoc}
-     * @return always true
-     * @todo return false for resources??
-     */
-    @Override
-    protected boolean isAggregable(Node value) {
-        return true;
     }
 }

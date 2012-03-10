@@ -5,7 +5,7 @@ import java.util.TreeMap;
 
 /**
  * Encapsulates settings for aggregation during the conflict resolution process.
- * 
+ *
  * @author Jan Michelfeit
  */
 public class AggregationSpec {
@@ -117,7 +117,9 @@ public class AggregationSpec {
      * @param propertyAggregations aggregation method for properties
      *        as a property URI -> aggregation type map; must not be null
      */
-    public final void setPropertyAggregations(Map<String, EnumAggregationType> propertyAggregations) {
+    public final void setPropertyAggregations(
+            Map<String, EnumAggregationType> propertyAggregations) {
+
         if (propertyAggregations == null) {
             throw new IllegalArgumentException("Aggregation types for properties cannot be null");
         }

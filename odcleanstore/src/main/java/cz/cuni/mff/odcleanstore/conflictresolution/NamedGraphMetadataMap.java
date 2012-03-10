@@ -28,6 +28,15 @@ public class NamedGraphMetadataMap {
     public NamedGraphMetadata getMetadata(Node namedGraph) {
         return metadataMap.get(namedGraph.getURI());
     }
+    
+    /**
+     * Returns metadata for a given named graph URI.
+     * @param namedGraphURI URI of a named graph
+     * @return metadata for the selected named graph or null if metadata are unknown
+     */
+    public NamedGraphMetadata getMetadata(String namedGraphURI) {
+        return metadataMap.get(namedGraphURI);
+    }
 
     /**
      * Returns set of named graph URIs for which there are metadata contained

@@ -82,14 +82,4 @@ final class BestAggregation extends SelectedValueAggregation {
                 new CRQuad(resultQuad, bestQuadQuality, sourceNamedGraphs));
         return result;
     }
-
-    /**
-     * {@inheritDoc}
-     * @param {@inheritDoc}
-     * @return always true
-     */
-    @Override
-    protected boolean isAggregable(Node value) {
-        return true;
-    }
 }

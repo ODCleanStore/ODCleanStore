@@ -52,14 +52,4 @@ final class AnyAggregation extends SelectedValueAggregation {
                 new CRQuad(resultQuad, score, sourceNamedGraphs));
         return result;
     }
-
-    /**
-     * {@inheritDoc}
-     * @param value {@inheritDoc}
-     * @return always true
-     */
-    @Override
-    protected boolean isAggregable(Node value) {
-        return true;
-    }
 }

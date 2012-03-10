@@ -53,7 +53,7 @@ class DistanceMetricImpl implements DistanceMetric {
             return literalDistance(primaryValue, comparedValue);
         } else {
             LOG.warn("Distance cannot be measured on Nodes of type {}",
-                    primaryValue.getClass().getName());
+                    primaryValue.getClass().getSimpleName());
             return ERROR_DISTANCE;
         }
     }
@@ -76,16 +76,27 @@ class DistanceMetricImpl implements DistanceMetric {
                 ? primaryLiteralType
                 : EnumLiteralType.OTHER;
 
+        double result;
         switch (comparisonType) {
         case NUMERIC:
-            // TODO
+            double primaryValue = 0;
+            double comparedValue = 0;
             try {
-                double primaryValue = Double.parseDouble(primaryNode.getLiteralLexicalForm());
-                double comparedValue = Double.parseDouble(comparedNode.getLiteralLexicalForm());
-                return numericDistance(primaryValue, comparedValue);
+                primaryValue = Double.parseDouble(primaryNode.getLiteralLexicalForm());
             } catch (NumberFormatException e) {
-                return ERROR_DISTANCE;
+                LOG.warn("Numeric literal {} is malformed.", primaryNode);
+                result = ERROR_DISTANCE;
+                break;
             }
+            try {
+                comparedValue = Double.parseDouble(comparedNode.getLiteralLexicalForm());
+            } catch (NumberFormatException e) {
+                LOG.warn("Numeric literal {} is malformed.", primaryNode);
+                result = ERROR_DISTANCE;
+                break;
+            }
+            result = numericDistance(primaryValue, comparedValue);
+            break;
         case DATE:
             // TODO
         case BOOLEAN:
@@ -93,14 +104,19 @@ class DistanceMetricImpl implements DistanceMetric {
         case STRING:
         case OTHER:
             // TODO + check bounds
-            return LevenstheinDistance.computeNormalizedLevenshteinDistance(
+            result = LevenstheinDistance.computeNormalizedLevenshteinDistance(
                     primaryNode.getLiteralLexicalForm(),
                     comparedNode.getLiteralLexicalForm());
+            break;
         default:
             // TODO
             LOG.error("TODO");
             throw new IllegalArgumentException();
         }
+        
+        LOG.debug("Distance between literals {} and {} of type {}: {}",
+                new Object[] { primaryNode, comparedNode, comparedLiteralType, result });
+        return result;
     }
 
     /**
@@ -113,11 +129,13 @@ class DistanceMetricImpl implements DistanceMetric {
      */
     private double numericDistance(double primaryValue, double comparedValue) {
         double result = primaryValue - comparedValue;
-        if (primaryValue != 0) {
+        double average = (primaryValue + comparedValue) / 2;
+        if (average != 0) {
+            // TODO: document change to normalization with average
             // "Normalize" result to primaryValue;
             // for zero leave as is - the important thing is order of the value
             // which for zero is close enough to 1
-            result /= primaryValue;
+            result /= average;
         }
         result = Math.abs(result);
         // result /= SQRT_OF_TWO;

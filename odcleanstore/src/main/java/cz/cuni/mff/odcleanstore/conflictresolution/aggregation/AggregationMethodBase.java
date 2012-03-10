@@ -6,8 +6,6 @@ import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 
-import com.hp.hpl.jena.graph.Node;
-
 import de.fuberlin.wiwiss.ng4j.Quad;
 
 import org.slf4j.Logger;
@@ -19,7 +17,7 @@ import java.util.LinkedList;
 
 /**
  * Base class for all aggregation methods implemented in ODCleanStore.
- *
+ * 
  * @author Jan Michelfeit
  */
 abstract class AggregationMethodBase implements AggregationMethod {
@@ -60,31 +58,6 @@ abstract class AggregationMethodBase implements AggregationMethod {
             UniqueURIGenerator uriGenerator);
 
     /**
-     * Indicates whether a Node is valid for this aggregation method.
-     * @param value a Node for aggregation
-     * @return true iff the aggregation can be applied to value
-     * @see EnumAggregationErrorStrategy
-     */
-    protected abstract boolean isAggregable(Node value);
-
-    /**
-     * Compute quality estimate of a selected quad taking into consideration
-     * possible conflicting quads and source named graph metadata.
-     * @param resultQuad the quad for which quality is to be computed
-     * @param conflictingQuads other quads conflicting with resultQuad
-     *        (for what is meant by conflicting quads see
-     *        {@link AggregationMethod#aggregate(Collection, NamedGraphMetadataMap, EnumAggregationErrorStrategy)
-     *        aggregate()})
-     * @param metadata metadata of source named graphs for resultQuad
-     *        and conflictingQuads
-     * @return quality estimate of resultQuad as a number from [0,1]
-     */
-    protected abstract double computeQuality(
-            Quad resultQuad,
-            Collection<Quad> conflictingQuads,
-            NamedGraphMetadataMap metadata);
-
-    /**
      * Calculated quality of a source of a named graph.
      * The quality is calculated as a weighted average of (error localization)
      * score of the named graph and score of its publisher with weights
@@ -121,8 +94,44 @@ abstract class AggregationMethodBase implements AggregationMethod {
     }
 
     /**
+     * Applies the given aggregation error strategy to a quad that cannot be aggregated by the
+     * given aggregation method.
+     * In case of the RETURN_ALL error strategy, the given quad is added to the result.
+     * 
+     * @param nonAggregableQuad the quad that couldn't be aggregated
+     * @param errorStrategy aggregation error strategy to follow
+     * @param result result of aggregation; a new CRQuad may be added to this collection
+     * @param aggregationMethod aggregation class where the aggregation error occured
+     */
+    protected void handleNonAggregableObject(
+            Quad nonAggregableQuad, 
+            EnumAggregationErrorStrategy errorStrategy, 
+            Collection<CRQuad> result,
+            Class<? extends AggregationMethodBase> aggregationMethod) {
+        
+        LOG.debug("Value {} cannot be aggregated with {}.", 
+                nonAggregableQuad.getObject(), aggregationMethod.getSimpleName());
+        
+        switch (errorStrategy) {
+        case RETURN_ALL:
+            result.add(new CRQuad(
+                    nonAggregableQuad,
+                    0, // TODO: compute real quality!
+                    Collections.singleton(nonAggregableQuad.getGraphName().getURI())));
+            break;
+        case IGNORE:
+            // do nothing
+            break;
+        default:
+            LOG.error("Unhandled aggregation error strategy {}.", errorStrategy);
+            throw new RuntimeException("Unhandled error strategy!");
+        }
+    }
+
+    /**
      * Factory method for collections returned by
-     * {@link #aggregate(Collection, NamedGraphMetadataMap, EnumAggregationErrorStrategy) aggregate()}.
+     * {@link #aggregate(Collection, NamedGraphMetadataMap, EnumAggregationErrorStrategy)
+     * aggregate()}.
      * @return an empty collection
      */
     protected Collection<CRQuad> createResultCollection() {
@@ -131,8 +140,8 @@ abstract class AggregationMethodBase implements AggregationMethod {
 
     /**
      * Factory method for collections returned by
-     * {@link #aggregate(Collection, NamedGraphMetadataMap, EnumAggregationErrorStrategy) aggregate()}
-     * with a single value.
+     * {@link #aggregate(Collection, NamedGraphMetadataMap, EnumAggregationErrorStrategy)
+     * aggregate()} with a single value.
      * @param resultQuad a quad initially added to the result collection
      * @return an collection containing only resultQuad
      */

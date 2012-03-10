@@ -10,6 +10,7 @@ import org.junit.Test;
 
 /**
  * Tests of requirements according to specification.
+ * @todo
  * @author Jan Michelfeit
  */
 public class DistanceMetricImplTest {

@@ -19,7 +19,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 
 /**
- *
+ * 
  * @author Jan Michelfeit
  */
 public class CalculatedValueAggregationTest {
@@ -35,11 +35,6 @@ public class CalculatedValueAggregationTest {
                 EnumAggregationErrorStrategy errorStrategy,
                 UniqueURIGenerator uriGenerator) {
 
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        protected boolean isAggregable(Node value) {
             throw new UnsupportedOperationException();
         }
     }
@@ -63,17 +58,14 @@ public class CalculatedValueAggregationTest {
         CalculatedValueAggregation instance = new CalculatedValueAggregationImpl();
 
         Quad quad = TestUtils.createQuad();
-        Collection<Quad> conflictingQuads = Collections.singletonList(quad);
+        Collection<String> sourceNamedGraphs = Collections.singleton(quad.getGraphName().getURI());
         NamedGraphMetadataMap metadataMap = new NamedGraphMetadataMap();
         NamedGraphMetadata metadata = new NamedGraphMetadata(quad.getGraphName().getURI());
         metadata.setScore(score);
         metadata.setPublisherScore(score);
         metadataMap.addMetadata(metadata);
 
-        double computedQuality = instance.computeQuality(
-                quad,
-                conflictingQuads,
-                metadataMap);
+        double computedQuality = instance.computeQuality(quad, sourceNamedGraphs, metadataMap);
         Assert.assertEquals(score, computedQuality, EPSILON);
     }
 
@@ -104,14 +96,15 @@ public class CalculatedValueAggregationTest {
         higherMetadata.setPublisherScore(higherScore);
         metadataMap.addMetadata(higherMetadata);
         conflictingQuads.add(higherQuad);
+        Collection<String> sourceNamedGraphs = instance.allSourceNamedGraphs(conflictingQuads);
 
         double lowerComputedQuality = instance.computeQuality(
                 lowerQuad,
-                conflictingQuads,
+                sourceNamedGraphs,
                 metadataMap);
         double higherComputedQuality = instance.computeQuality(
                 higherQuad,
-                conflictingQuads,
+                sourceNamedGraphs,
                 metadataMap);
 
         // For computed values the result should be the same
@@ -123,13 +116,10 @@ public class CalculatedValueAggregationTest {
         CalculatedValueAggregation instance = new CalculatedValueAggregationImpl();
 
         Quad quad = TestUtils.createQuad();
-        Collection<Quad> conflictingQuads = Collections.singletonList(quad);
+        Collection<String> sourceNamedGraphs = Collections.singleton(quad.getGraphName().getURI());
         NamedGraphMetadataMap metadata = new NamedGraphMetadataMap();
 
-        double computedQuality = instance.computeQuality(
-                quad,
-                conflictingQuads,
-                metadata);
+        double computedQuality = instance.computeQuality(quad, sourceNamedGraphs, metadata);
         Assert.assertEquals(
                 AggregationMethodBase.SCORE_IF_UNKNOWN,
                 computedQuality,

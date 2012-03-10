@@ -40,11 +40,6 @@ public class SelectedValueAggregationTest {
         }
 
         @Override
-        protected boolean isAggregable(Node value) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
         public Collection<String> sourceNamedGraphsForObject(
                 Node object, Collection<Quad> conflictingQuads) {
             return super.sourceNamedGraphsForObject(object, conflictingQuads);

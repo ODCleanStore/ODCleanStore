@@ -55,9 +55,10 @@ abstract class SelectedValueAggregation extends AggregationMethodBase {
     protected DistanceMetric getDistanceMetric() {
         return distanceMetricInstance;
     }
-
+    
     /**
-     * {@inheritDoc}.
+     * Compute quality estimate of a selected quad taking into consideration
+     * possible conflicting quads and source named graph metadata.
      *
      * The computed quality depends on quality of the source of result and
      * on how different conflicting quads are.
@@ -74,13 +75,16 @@ abstract class SelectedValueAggregation extends AggregationMethodBase {
      * the complexity of difference calculation.
      *
      * Precondition: resultQuad is expected to be in conflictingQuads.
-     * @param resultQuad {@inheritDoc}
-     * @param conflictingQuads {@inheritDoc}
-     * @param metadata {@inheritDoc}
-     * @return {@inheritDoc}
+     * @param resultQuad the quad for which quality is to be computed
+     * @param conflictingQuads other quads conflicting with resultQuad
+     *        (for what is meant by conflicting quads see
+     *        {@link AggregationMethod#aggregate(Collection, NamedGraphMetadataMap, EnumAggregationErrorStrategy)
+     *        aggregate()})
+     * @param metadata metadata of source named graphs for resultQuad
+     *        and conflictingQuads
+     * @return quality estimate of resultQuad as a number from [0,1]
      * @see #getSourceQuality(NamedGraphMetadata)
      */
-    @Override
     protected double computeQuality(
             Quad resultQuad,
             Collection<Quad> conflictingQuads,

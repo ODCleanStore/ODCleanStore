@@ -51,14 +51,4 @@ final class NoneAggregation extends SelectedValueAggregation {
         }
         return result;
     }
-
-    /**
-     * {@inheritDoc}
-     * @param {@inheritDoc}
-     * @return always true
-     */
-    @Override
-    protected boolean isAggregable(Node value) {
-        return true;
-    }
 }

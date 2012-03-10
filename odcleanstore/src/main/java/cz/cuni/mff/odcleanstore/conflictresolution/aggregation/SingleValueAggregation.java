@@ -63,7 +63,7 @@ final class SingleValueAggregation extends AggregationMethodBase {
         }
 
         Quad firstQuad = conflictingQuads.iterator().next();
-        double score = computeQuality(firstQuad, conflictingQuads, metadata);
+        double score = computeQuality(firstQuad, metadata);
         Collection<String> sourceNamedGraphs =
                 Collections.singleton(firstQuad.getGraphName().getURI());
         Quad resultQuad = new Quad(Node.createURI(uriGenerator.nextURI()), firstQuad.getTriple());
@@ -73,35 +73,16 @@ final class SingleValueAggregation extends AggregationMethodBase {
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * Since the aggregated result is based on all conflicting triples,
-     * the quality is calcualted as an average of their respective source qualities.
-     *
-     * @param resultQuad {@inheritDoc}; can be null
-     * @param conflictingQuads {@inheritDoc}; must not be null
-     * @param metadata {@inheritDoc}
-     * @return {@inheritDoc}
+     * Compute quality estimate - in case of a single quad return score of the source named graph.
+     * 
+     * @param resultQuad the quad for which quality is to be computed
+     * @param metadata metadata of source named graphs for resultQuad
+     * @return quality estimate of resultQuad as a number from [0,1]
      * @see #getSourceQuality(NamedGraphMetadata)
      */
-    @Override
-    protected double computeQuality(
-            Quad resultQuad,
-            Collection<Quad> conflictingQuads,
-            NamedGraphMetadataMap metadata) {
-
+    protected double computeQuality(Quad resultQuad, NamedGraphMetadataMap metadata) {
         NamedGraphMetadata resultMetadata = metadata.getMetadata(resultQuad.getGraphName());
         double resultQuality = getSourceQuality(resultMetadata);
         return resultQuality;
-    }
-
-    /**
-     * {@inheritDoc}
-     * @param {@inheritDoc}
-     * @return always true
-     */
-    @Override
-    protected boolean isAggregable(Node value) {
-        return true;
     }
 }
