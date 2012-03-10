@@ -1,7 +1,7 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
+import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.shared.NodeComparator;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
@@ -88,7 +88,7 @@ final class AllAggregation extends SelectedValueAggregation {
         ArrayList<String> sourceNamedGraphs = null; // sources for lastQuad
         for (Quad quad : sortedQuads) {
             Node object = quad.getObject();
-            boolean isNewObject = !object.equals(lastObject); // intentionally equals()
+            boolean isNewObject = !object.sameValueAs(lastObject); // intentionally sameValueAs()
 
             if (isNewObject && lastQuad != null) {
                 // Add lastQuad to result

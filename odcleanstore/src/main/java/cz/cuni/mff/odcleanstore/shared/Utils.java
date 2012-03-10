@@ -46,8 +46,10 @@ public final class Utils {
                     : EnumLiteralType.OTHER;
         } else if (datatypeURI.equals(XMLSchema.stringType)) {
             return EnumLiteralType.STRING;
-        } else if (datatypeURI.equals(XMLSchema.decimalType)
+        } else if (datatypeURI.equals(XMLSchema.integerType)
                 || datatypeURI.equals(XMLSchema.intType)
+                || datatypeURI.equals(XMLSchema.longType)
+                || datatypeURI.equals(XMLSchema.decimalType)
                 || datatypeURI.equals(XMLSchema.floatType)
                 || datatypeURI.equals(XMLSchema.doubleType)) {
             return EnumLiteralType.NUMERIC;

@@ -35,6 +35,10 @@ public final class XMLSchema {
 
     public static final String intType = "http://www.w3.org/2001/XMLSchema#int";
 
+    public static final String integerType = "http://www.w3.org/2001/XMLSchema#integer";
+
+    public static final String longType = "http://www.w3.org/2001/XMLSchema#long";
+
     public static final String timeType = "http://www.w3.org/2001/XMLSchema#time";
 
     public static final String dateType = "http://www.w3.org/2001/XMLSchema#date";
