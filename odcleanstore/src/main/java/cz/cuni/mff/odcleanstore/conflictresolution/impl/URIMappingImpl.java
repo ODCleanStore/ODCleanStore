@@ -85,7 +85,7 @@ class URIMappingImpl implements URIMapping {
         while (sameAsLinks.hasNext()) {
             Triple triple = sameAsLinks.next();
             if (!triple.getPredicate().hasURI(OWL.sameAs)) {
-                LOG.warn("A triple with predicate {} passed as a sameAs link",
+                LOG.error("A triple with predicate {} passed as a sameAs link",
                         triple.getPredicate().getURI());
                 throw new UnexpectedPredicateException(triple.getPredicate().getURI(), OWL.sameAs);
             }
@@ -150,9 +150,9 @@ class URIMappingImpl implements URIMapping {
         String root2 = dfuRoot(uri2);
         if (!root1.equals(root2)) {
             if (preferredURIs.contains(root1)) {
-                uriDFUParent.put(uri2, root1);
+                uriDFUParent.put(root2, root1);
             } else {
-                uriDFUParent.put(uri1, root2);
+                uriDFUParent.put(root1, root2);
             }
         }
     }

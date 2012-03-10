@@ -41,21 +41,15 @@ public class URIMappingImplTest {
     }
 
     @Test
-    public void testNonEmptyMapping() throws UnexpectedPredicateException {
+    public void testNonEmptyMapping1() throws UnexpectedPredicateException {
         String uri1 = TestUtils.getUniqueURI();
         String uri2 = TestUtils.getUniqueURI();
         String uri3 = TestUtils.getUniqueURI();
         String uri4 = TestUtils.getUniqueURI();
 
         LinkedList<Triple> sameAsLinks = new LinkedList<Triple>();
-        sameAsLinks.add(new Triple(
-                Node.createURI(uri1),
-                sameAsPredicate,
-                Node.createURI(uri2)));
-        sameAsLinks.add(new Triple(
-                Node.createURI(uri2),
-                sameAsPredicate,
-                Node.createURI(uri3)));
+        sameAsLinks.add(new Triple(Node.createURI(uri1), sameAsPredicate, Node.createURI(uri2)));
+        sameAsLinks.add(new Triple(Node.createURI(uri2), sameAsPredicate, Node.createURI(uri3)));
 
         URIMappingImpl uriMapping = new URIMappingImpl();
         uriMapping.addLinks(sameAsLinks.iterator());
@@ -71,24 +65,40 @@ public class URIMappingImplTest {
     }
 
     @Test
+    public void testNonEmptyMapping2() throws UnexpectedPredicateException {
+        String rootURI = TestUtils.getUniqueURI();
+        String uri1 = TestUtils.getUniqueURI();
+        String uri2 = TestUtils.getUniqueURI();
+        String uri3 = TestUtils.getUniqueURI();
+
+        LinkedList<Triple> sameAsLinks = new LinkedList<Triple>();
+        sameAsLinks.add(new Triple(Node.createURI(rootURI), sameAsPredicate, Node.createURI(uri1)));
+        sameAsLinks.add(new Triple(Node.createURI(rootURI), sameAsPredicate, Node.createURI(uri2)));
+        sameAsLinks.add(new Triple(Node.createURI(rootURI), sameAsPredicate, Node.createURI(uri3)));
+
+        URIMappingImpl uriMapping = new URIMappingImpl();
+        uriMapping.addLinks(sameAsLinks.iterator());
+
+        String rootMappedURI = getMappedURI(rootURI, uriMapping);
+        String mappedURI1 = getMappedURI(uri1, uriMapping);
+        String mappedURI2 = getMappedURI(uri2, uriMapping);
+        String mappedURI3 = getMappedURI(uri3, uriMapping);
+
+        Assert.assertEquals(rootMappedURI, mappedURI1);
+        Assert.assertEquals(rootMappedURI, mappedURI2);
+        Assert.assertEquals(rootMappedURI, mappedURI3);
+    }
+
+    @Test
     public void testCycleMapping() throws UnexpectedPredicateException {
         String uri1 = TestUtils.getUniqueURI();
         String uri2 = TestUtils.getUniqueURI();
         String uri3 = TestUtils.getUniqueURI();
 
         LinkedList<Triple> sameAsLinks = new LinkedList<Triple>();
-        sameAsLinks.add(new Triple(
-                Node.createURI(uri1),
-                sameAsPredicate,
-                Node.createURI(uri2)));
-        sameAsLinks.add(new Triple(
-                Node.createURI(uri2),
-                sameAsPredicate,
-                Node.createURI(uri3)));
-        sameAsLinks.add(new Triple(
-                Node.createURI(uri3),
-                sameAsPredicate,
-                Node.createURI(uri1)));
+        sameAsLinks.add(new Triple(Node.createURI(uri1), sameAsPredicate, Node.createURI(uri2)));
+        sameAsLinks.add(new Triple(Node.createURI(uri2), sameAsPredicate, Node.createURI(uri3)));
+        sameAsLinks.add(new Triple(Node.createURI(uri3), sameAsPredicate, Node.createURI(uri1)));
 
         URIMappingImpl uriMapping = new URIMappingImpl();
         uriMapping.addLinks(sameAsLinks.iterator());
@@ -108,14 +118,8 @@ public class URIMappingImplTest {
         String uri3 = TestUtils.getUniqueURI();
 
         LinkedList<Triple> sameAsLinks = new LinkedList<Triple>();
-        sameAsLinks.add(new Triple(
-                Node.createURI(uri1),
-                sameAsPredicate,
-                Node.createURI(uri2)));
-        sameAsLinks.add(new Triple(
-                Node.createURI(uri2),
-                sameAsPredicate,
-                Node.createURI(uri3)));
+        sameAsLinks.add(new Triple(Node.createURI(uri1), sameAsPredicate, Node.createURI(uri2)));
+        sameAsLinks.add(new Triple(Node.createURI(uri2), sameAsPredicate, Node.createURI(uri3)));
 
         String mappedURI1;
 
