@@ -19,7 +19,7 @@ import java.util.Comparator;
  * Aggregation method that returns all input triples unchanged except for
  * implicit conflict resolution.
  * Identical triples are aggregated to a single triple with sourceNamedGraphs
- * containg the union of all original named graphs. Otherwise leaves triples
+ * containing the union of all original named graphs. Otherwise leaves triples
  * as they are and adds a quality estimate.
  *
  * @author Jan Michelfeit
@@ -60,12 +60,9 @@ final class AllAggregation extends SelectedValueAggregation {
      * The time complexity is quadratic with number of conflicting quads
      * (for each quad calculates its quality in linear time).
      *
-     * @param conflictingQuads sdf slkdf jldsafj ůldsakjfůlkdsa jfůlkdsa jfůlkdsjf ůldsjfůlkds
-     *        jfůlkdsj fůlkds jflkdsfj ůldsa jfs ldfj
-     * @param metadata d fjsd lkfjlkdsf jlds jfl
-     *        ljdsf lsdjf lksjdflkjdsf ldsjf ldskjf
-     * @param errorStrategy skdfjlkds jflkdsjflds fjfdlkdsjf lkds jf
-     *        dslkfjsd lkfjslkfd jfl
+     * @param conflictingQuads {@inheritDoc}
+     * @param metadata {@inheritDoc}
+     * @param errorStrategy {@inheritDoc}
      * @param uriGenerator {@inheritDoc}
      * @return {@inheritDoc}
      */
@@ -96,6 +93,7 @@ final class AllAggregation extends SelectedValueAggregation {
                         Node.createURI(uriGenerator.nextURI()),
                         lastQuad.getTriple());
                 result.add(new CRQuad(resultQuad, lastQuadQuality, sourceNamedGraphs));
+                sourceNamedGraphs = null;
             }
 
             if (isNewObject) {

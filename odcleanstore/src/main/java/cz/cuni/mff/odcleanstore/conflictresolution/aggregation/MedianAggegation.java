@@ -1,7 +1,7 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
+import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.shared.EnumLiteralType;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
@@ -10,30 +10,31 @@ import cz.cuni.mff.odcleanstore.shared.Utils;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.impl.LiteralLabelFactory;
 
+import de.fuberlin.wiwiss.ng4j.Quad;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import de.fuberlin.wiwiss.ng4j.Quad;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
 /**
- * @todo
+ * Aggregation method that returns the median of input conflicting triples.
+ * This aggregation is applicable only to quads with a literal as their object.
+ *
  * @author Jan Michelfeit
  */
 class MedianAggegation extends CalculatedValueAggregation {
     private static final Logger LOG = LoggerFactory.getLogger(MedianAggegation.class);
 
     /**
-     * Returns a single quad where the object is the median of objects in
-     * conflictingQuads.
+     * Returns a single quad where the object is the median of objects in conflictingQuads.
      * The type of comparison (e.g. as numbers, strings, dates) is chosen based on the type of
      * the object of the first quad in conflictingQuads. Only literal objects can be aggregated.
-     * 
+     *
      * {@inheritDoc}
-     * 
+     *
      * @param conflictingQuads {@inheritDoc}
      * @param metadata {@inheritDoc}
      * @param errorStrategy {@inheritDoc}
@@ -59,7 +60,7 @@ class MedianAggegation extends CalculatedValueAggregation {
             }
             return result;
         }
-        
+
         EnumLiteralType comparisonType = Utils.getLiteralType(firstQuad.getObject());
         switch (comparisonType) {
         case NUMERIC:

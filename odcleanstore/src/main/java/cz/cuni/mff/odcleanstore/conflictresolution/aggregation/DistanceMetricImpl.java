@@ -104,7 +104,7 @@ class DistanceMetricImpl implements DistanceMetric {
         case STRING:
         case OTHER:
             // TODO + check bounds
-            result = LevenstheinDistance.normalizedLevenstheinDistance(
+            result = LevenshteinDistance.normalizedLevenshteinDistance(
                     primaryNode.getLiteralLexicalForm(),
                     comparedNode.getLiteralLexicalForm());
             break;

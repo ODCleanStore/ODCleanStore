@@ -1,7 +1,7 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
+import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 
@@ -27,10 +27,10 @@ public interface AggregationMethod {
      * new quads.
      *
      * By conflicting quads we mean quads that have the same subject and predicate,
-     * but not necesserily different objects (i.e. some of them may be identical).
+     * but not necessarily different objects (i.e. some of them may be identical).
      *
      * @param conflictingQuads input quads to be aggregated
-     * @param metadata metadata for named graphs occuring in conflictingQuads
+     * @param metadata metadata for named graphs occurring in conflictingQuads
      * @param errorStrategy strategy to be used when the aggregation is not
      *        applicable to a quad in conflictingQuads
      * @param uriGenerator generator of URIs

@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * Aggregation method that returns an average of input conflicting triples.
+ * Aggregation method that returns the average of input conflicting triples.
  * This aggregation is applicable only to quads with a numeric literal as their object.
  *
  * @author Jan Michelfeit
@@ -42,7 +42,7 @@ final class AvgAggegation extends CalculatedValueAggregation {
             UniqueURIGenerator uriGenerator) {
 
         Collection<CRQuad> result = createResultCollection();
-        
+
         // Compute average value
         double sum = 0;
         double validNumbersCount = 0;
@@ -57,7 +57,7 @@ final class AvgAggegation extends CalculatedValueAggregation {
                 handleNonAggregableObject(quad, errorStrategy, result, this.getClass());
             }
         }
-        
+
         if (validNumbersCount > 0) {
             double averageValue = sum / validNumbersCount;
             Quad firstQuad = conflictingQuads.iterator().next();

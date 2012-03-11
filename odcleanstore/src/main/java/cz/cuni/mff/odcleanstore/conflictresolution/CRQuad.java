@@ -22,11 +22,14 @@ public class CRQuad {
     private Collection<String> sourceNamedGraphURIs;
 
     /**
-     * @param quad an RDF quad to wrap
+     * @param quad an RDF quad to wrap; must not be null
      * @param quality quality estimate of the wrapped quad
-     * @param sourceNamedGraphURIs cllection of named graphs the quad is derived from
+     * @param sourceNamedGraphURIs collection of named graphs the quad is derived from;
+     *        must not be null
      */
     public CRQuad(Quad quad, double quality, Collection<String> sourceNamedGraphURIs) {
+        assert quad != null;
+        assert sourceNamedGraphURIs != null;
         this.quad = quad;
         this.quality = quality;
         this.sourceNamedGraphURIs = sourceNamedGraphURIs;
