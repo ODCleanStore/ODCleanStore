@@ -1,0 +1,37 @@
+<wicket:extend>
+
+<table border="1">
+	
+	<tr>
+		<th rowspan="2" width="19%">Username</th>
+		<th rowspan="2" width="19%">Email address</th>
+		<th rowspan="2" width="19%">Created at</th>
+		<th colspan="4">Roles</th>
+		<th rowspan="2" width="23%">Action</th>
+		</tr>
+	<tr>
+		<th>SRC</th>
+		<th>ONC</th>
+		<th>POC</th>
+		<th>ADM</th>
+		</tr>
+	
+	<tr  wicket:id="accountsListTable">
+		<td wicket:id="username">Vašíèek, Karel</td>
+		<td wicket:id="email">vasicek@seznam.cz</td>
+		<td wicket:id="createdAt">27. 12. 2011, 18:29</td>
+		<td class="centered">&nbsp;</td>
+		<td class="centered">X</td>
+		<td class="centered">&nbsp;</td>
+		<td class="centered">&nbsp;</td>
+		<td class="centered">
+			<input type="submit" value="Deaktivovat" />
+			<input type="submit" value="Resetovat heslo" />
+			<form method="get" class="inline" action="<?php echo $webRoot?>/pages/administration/edit_user_account_roles.php">
+				<input type="submit" value="Upravit práva" />
+			</form>
+			</td>
+		</tr>
+</table>
+
+</wicket:extend>
