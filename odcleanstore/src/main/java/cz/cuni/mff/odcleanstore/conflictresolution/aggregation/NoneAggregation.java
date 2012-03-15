@@ -45,8 +45,12 @@ final class NoneAggregation extends SelectedValueAggregation {
         for (Quad quad : conflictingQuads) {
             Collection<String> sourceNamedGraphs =
                     Collections.singletonList(quad.getGraphName().getURI());
-            double quality = computeQuality(quad, sourceNamedGraphs, conflictingQuads,
-                    metadata, aggregationSpec);
+            double quality = computeQualitySelected(
+                    quad,
+                    sourceNamedGraphs,
+                    conflictingQuads,
+                    metadata,
+                    aggregationSpec);
             Quad resultQuad = new Quad(Node.createURI(uriGenerator.nextURI()), quad.getTriple());
             result.add(new CRQuad(resultQuad, quality, sourceNamedGraphs));
         }

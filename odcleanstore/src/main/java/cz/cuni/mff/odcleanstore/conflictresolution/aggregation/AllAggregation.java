@@ -91,8 +91,12 @@ final class AllAggregation extends SelectedValueAggregation {
                 Quad resultQuad = new Quad(
                         Node.createURI(uriGenerator.nextURI()),
                         lastQuad.getTriple());
-                double quadQuality = computeQuality(lastQuad, sourceNamedGraphs, conflictingQuads,
-                        metadata, aggregationSpec);
+                double quadQuality = computeQualitySelected(
+                        lastQuad,
+                        sourceNamedGraphs,
+                        conflictingQuads,
+                        metadata,
+                        aggregationSpec);
                 result.add(new CRQuad(resultQuad, quadQuality, sourceNamedGraphs));
                 sourceNamedGraphs = null;
             }
@@ -120,8 +124,12 @@ final class AllAggregation extends SelectedValueAggregation {
             Quad resultQuad = new Quad(
                     Node.createURI(uriGenerator.nextURI()),
                     lastQuad.getTriple());
-            double quadQuality = computeQuality(lastQuad, sourceNamedGraphs, conflictingQuads,
-                    metadata, aggregationSpec);
+            double quadQuality = computeQualitySelected(
+                    lastQuad,
+                    sourceNamedGraphs,
+                    conflictingQuads,
+                    metadata,
+                    aggregationSpec);
             result.add(new CRQuad(resultQuad, quadQuality, sourceNamedGraphs));
         }
         return result;

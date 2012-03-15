@@ -46,7 +46,7 @@ final class AnyAggregation extends SelectedValueAggregation {
         Collection<String> sourceNamedGraphs = sourceNamedGraphsForObject(
                 firstQuad.getObject(),
                 conflictingQuads);
-        double quality = computeQuality(firstQuad, sourceNamedGraphs, conflictingQuads,
+        double quality = computeQualitySelected(firstQuad, sourceNamedGraphs, conflictingQuads,
                 metadata, aggregationSpec);
         Quad resultQuad = new Quad(Node.createURI(uriGenerator.nextURI()), firstQuad.getTriple());
         Collection<CRQuad> result = createSingleResultCollection(

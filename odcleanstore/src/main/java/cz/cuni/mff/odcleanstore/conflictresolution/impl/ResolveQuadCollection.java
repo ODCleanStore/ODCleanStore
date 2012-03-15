@@ -19,7 +19,7 @@ import java.util.ListIterator;
  *
  * @author Jan Michelfeit
  */
-class ResolveQuadCollection {
+/*package*/class ResolveQuadCollection {
     /**
      * A comparator used to sort quads in conflict clusters.
      */

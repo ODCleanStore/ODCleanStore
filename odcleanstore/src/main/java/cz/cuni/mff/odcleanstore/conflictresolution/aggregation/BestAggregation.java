@@ -55,7 +55,7 @@ final class BestAggregation extends SelectedValueAggregation {
             Collection<String> sourceNamedGraphs = sourceNamedGraphsForObject(
                     quad.getObject(),
                     conflictingQuads);
-            double quality = computeQuality(quad, sourceNamedGraphs, conflictingQuads,
+            double quality = computeQualitySelected(quad, sourceNamedGraphs, conflictingQuads,
                     metadata, aggregationSpec);
             if (quality > bestQuadQuality) {
                 // Prefer higher quality

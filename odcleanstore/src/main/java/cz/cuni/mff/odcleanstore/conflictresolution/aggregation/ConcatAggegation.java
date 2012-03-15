@@ -60,11 +60,13 @@ final class ConcatAggegation extends CalculatedValueAggregation {
                 Node.createLiteral(resultValue.toString()));
         Collection<String> sourceNamedGraphs = allSourceNamedGraphs(conflictingQuads);
 
-        // Passing singleton collection as conflicting values disables
-        // decreasing of score with difference of conflicting values, which doesn't make
-        // sense for the CONCAT aggregation
-        double quality = computeQuality(resultQuad, sourceNamedGraphs,
-                Collections.singleton(resultQuad), metadata, aggregationSpec);
+        double quality = computeQuality(
+                resultQuad,
+                sourceNamedGraphs,
+                Collections.<String>emptySet(), // agree bonus doesn't make sense here
+                Collections.singleton(resultQuad), // difference penalty doesn't make sense here
+                metadata,
+                aggregationSpec);
 
         Collection<CRQuad> result = createSingleResultCollection(
                 new CRQuad(resultQuad, quality, sourceNamedGraphs));

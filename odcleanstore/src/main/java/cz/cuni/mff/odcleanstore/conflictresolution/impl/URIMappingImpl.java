@@ -29,7 +29,7 @@ import java.util.TreeMap;
  *
  * @author Jan Michelfeit
  */
-class URIMappingImpl implements URIMapping {
+/*package*/class URIMappingImpl implements URIMapping {
     private static final Logger LOG = LoggerFactory.getLogger(URIMappingImpl.class);
 
     /** Set of URIs preferred as canonical URIs. */
@@ -120,7 +120,7 @@ class URIMappingImpl implements URIMapping {
     /**
      * Returns the URI at the root of a subtree in DFU for the argument, i.e.
      * the respective canonical URI.
-     * For uri not contained in DFU returns the uri itself.
+     * For URI not contained in DFU returns the URI itself.
      * @param uri an RDF resource URI
      * @return a canonical URI
      */

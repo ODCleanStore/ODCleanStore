@@ -25,7 +25,7 @@ import java.util.TreeMap;
  *
  * @author Jan Michelfeit
  */
-final class NamedGraphMetadataReader {
+/*package*/final class NamedGraphMetadataReader {
     private static final Logger LOG = LoggerFactory.getLogger(NamedGraphMetadataReader.class);
 
     /** Disable constructor for a utility class. */

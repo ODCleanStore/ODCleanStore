@@ -14,7 +14,7 @@ import java.util.NoSuchElementException;
  *
  * @author Jan Michelfeit
  */
-class SameAsLinkIterator implements Iterator<Triple> {
+/*package*/class SameAsLinkIterator implements Iterator<Triple> {
 
     /**
      * Next sameAs quad to be returned or null if there is none.

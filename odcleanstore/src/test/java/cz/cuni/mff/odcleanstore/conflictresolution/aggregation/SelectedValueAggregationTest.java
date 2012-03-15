@@ -74,7 +74,7 @@ public class SelectedValueAggregationTest {
         metadata.setPublisherScore(score);
         metadataMap.addMetadata(metadata);
 
-        double computedQuality = instance.computeQuality(
+        double computedQuality = instance.computeQualitySelected(
                 quad,
                 instance.sourceNamedGraphsForObject(quad.getObject(), conflictingQuads),
                 conflictingQuads,
@@ -111,13 +111,13 @@ public class SelectedValueAggregationTest {
         metadataMap.addMetadata(higherMetadata);
         conflictingQuads.add(higherQuad);
 
-        double lowerComputedQuality = instance.computeQuality(
+        double lowerComputedQuality = instance.computeQualitySelected(
                 lowerQuad,
                 instance.sourceNamedGraphsForObject(lowerQuad.getObject(), conflictingQuads),
                 conflictingQuads,
                 metadataMap,
                 new AggregationSpec());
-        double higherComputedQuality = instance.computeQuality(
+        double higherComputedQuality = instance.computeQualitySelected(
                 higherQuad,
                 instance.sourceNamedGraphsForObject(higherQuad.getObject(), conflictingQuads),
                 conflictingQuads,
@@ -153,13 +153,13 @@ public class SelectedValueAggregationTest {
         NamedGraphMetadataMap metadataMap = new NamedGraphMetadataMap();
         SelectedValueAggregation instance = new SelectedValueAggregationImpl();
 
-        double calculatedValueDouble = instance.computeQuality(
+        double calculatedValueDouble = instance.computeQualitySelected(
                 doubleQuad1,
                 instance.sourceNamedGraphsForObject(doubleQuad1.getObject(), conflictingQuads),
                 conflictingQuads,
                 metadataMap,
                 new AggregationSpec());
-        double calculatedValueSingle = instance.computeQuality(
+        double calculatedValueSingle = instance.computeQualitySelected(
                 singleQuad,
                 instance.sourceNamedGraphsForObject(singleQuad.getObject(), conflictingQuads),
                 conflictingQuads,
@@ -176,7 +176,7 @@ public class SelectedValueAggregationTest {
         Collection<Quad> conflictingQuads = Collections.singletonList(quad);
         NamedGraphMetadataMap metadata = new NamedGraphMetadataMap();
 
-        double computedQuality = instance.computeQuality(
+        double computedQuality = instance.computeQualitySelected(
                 quad,
                 instance.sourceNamedGraphsForObject(quad.getObject(), conflictingQuads),
                 conflictingQuads,
@@ -214,7 +214,7 @@ public class SelectedValueAggregationTest {
         conflictingQuads.add(TestUtils.createQuad(
                 subjectURI, predicateURI, TestUtils.getUniqueURI()));
 
-        SelectedValueAggregation instance = new SelectedValueAggregationImpl();
+        AggregationMethodBase instance = new SelectedValueAggregationImpl();
         Collection<String> actualResult = instance.sourceNamedGraphsForObject(
                 Node.createURI(testedObjectURI),
                 conflictingQuads);

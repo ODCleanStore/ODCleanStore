@@ -6,14 +6,10 @@ import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 
-import com.hp.hpl.jena.graph.Node;
 
 import de.fuberlin.wiwiss.ng4j.Quad;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Base class for aggregation methods that include only triples selected from
@@ -68,44 +64,34 @@ abstract class SelectedValueAggregation extends AggregationMethodBase {
     }
 
     /**
-     * Return a set (without duplicates) of named graphs of all quads that have the selected object
-     * as their object.
+     * @see #computeQuality(Quad, Collection, Collection, Collection, NamedGraphMetadataMap, AggregationSpec)
      *
-     * @param object the searched triple object
-     * @param conflictingQuads searched quads
-     * @return set of named graphs
+     * In case of values selected from input quads, parameters sourceNamedGraphs and
+     * agreeNamedGraphs of computeQuality() are identical. This is a utility function that
+     * wraps this fact.
+     *
+     * @param resultQuad the quad for which quality is to be computed
+     * @param conflictingQuads other quads conflicting with resultQuad
+     *        (for what is meant by conflicting quads see AggregationMethod#aggregate())
+     * @param sourceNamedGraphs URIs of source named graphs containing triples used to calculate
+     *        the result value; must not be empty
+     * @param metadata metadata of source named graphs for resultQuad
+     *        and conflictingQuads
+     * @param aggregationSpec aggregation and quality calculation settings
+     * @return quality estimate of resultQuad as a number from [0,1]
      */
-    protected Collection<String> sourceNamedGraphsForObject(
-            Node object, Collection<Quad> conflictingQuads) {
-
-        Set<String> namedGraphs = null;
-        String firstNamedGraph = null;
-
-        for (Quad quad : conflictingQuads) {
-            if (!object.equals(quad.getObject())) {
-                continue;
-            }
-
-            String newNamedGraph = quad.getGraphName().getURI();
-            // Purpose of these if-else branches is to avoid creating HashSet
-            // if not necessary (only zero or one named graph in the result)
-            if (firstNamedGraph == null) {
-                firstNamedGraph = newNamedGraph;
-            } else if (namedGraphs == null) {
-                namedGraphs = new HashSet<String>();
-                namedGraphs.add(firstNamedGraph);
-                namedGraphs.add(newNamedGraph);
-            } else {
-                namedGraphs.add(newNamedGraph);
-            }
-        }
-
-        if (firstNamedGraph == null) {
-            return Collections.emptySet();
-        } else if (namedGraphs == null) {
-            return Collections.singleton(firstNamedGraph);
-        } else {
-            return namedGraphs;
-        }
+    protected double computeQualitySelected(
+            Quad resultQuad,
+            Collection<String> sourceNamedGraphs,
+            Collection<Quad> conflictingQuads,
+            NamedGraphMetadataMap metadata,
+            AggregationSpec aggregationSpec) {
+        return computeQuality(
+                resultQuad,
+                sourceNamedGraphs,
+                sourceNamedGraphs,
+                conflictingQuads,
+                metadata,
+                aggregationSpec);
     }
 }

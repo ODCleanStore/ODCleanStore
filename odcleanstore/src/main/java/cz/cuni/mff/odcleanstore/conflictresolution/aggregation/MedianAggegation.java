@@ -122,8 +122,14 @@ class MedianAggegation extends CalculatedValueAggregation {
                     firstQuad.getSubject(),
                     firstQuad.getPredicate(),
                     Node.createLiteral(LiteralLabelFactory.create(medianValue)));
-            double quality = computeQuality(resultQuad, sourceNamedGraphs, conflictingQuads,
-                    metadata, aggregationSpec);
+
+            double quality = computeQuality(
+                    resultQuad,
+                    sourceNamedGraphs,
+                    Collections.<String>emptySet(), // disable agree bonus
+                    conflictingQuads,
+                    metadata,
+                    aggregationSpec);
             result.add(new CRQuad(resultQuad, quality, sourceNamedGraphs));
             return result;
         }
@@ -168,8 +174,13 @@ class MedianAggegation extends CalculatedValueAggregation {
                     firstQuad.getSubject(),
                     firstQuad.getPredicate(),
                     Node.createLiteral(LiteralLabelFactory.create(medianValue)));
-            double quality = computeQuality(resultQuad, sourceNamedGraphs, conflictingQuads,
-                    metadata, aggregationSpec);
+            double quality = computeQuality(
+                    resultQuad,
+                    sourceNamedGraphs,
+                    Collections.<String>emptySet(), // TODO ?disable agree bonus
+                    conflictingQuads,
+                    metadata,
+                    aggregationSpec);
             result.add(new CRQuad(resultQuad, quality, sourceNamedGraphs));
             return result;
         }

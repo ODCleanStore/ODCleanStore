@@ -7,6 +7,8 @@ import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 
+import com.hp.hpl.jena.graph.Node;
+
 import de.fuberlin.wiwiss.ng4j.Quad;
 
 import org.slf4j.Logger;
@@ -14,7 +16,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Set;
 
 /**
  * Base class for all aggregation methods implemented in ODCleanStore.
@@ -126,7 +130,7 @@ abstract class AggregationMethodBase implements AggregationMethod {
      *
      * @param resultQuad the quad for which quality is to be computed
      * @param sourceNamedGraphs URIs of source named graphs containing triples used to calculate
-     *      the result value; must not be empty
+     *        the result value; must not be empty
      * @param metadata metadata of the given source named graphs
      * @return quality estimate of resultQuad as a number from [0,1]
      * @see #getSourceQuality(NamedGraphMetadata)
@@ -161,7 +165,7 @@ abstract class AggregationMethodBase implements AggregationMethod {
      * O(n*d + s) where n is the size of conflictingQuads, d is the complexity of difference
      * calculation, and s is the size of sourceNamedGraphs.
      *
-     * (Actually + O(log k), where k is size of aggregationSpec.getPropertiesMultivalue().)
+     * (Actually + O(log k), where k is the size of aggregationSpec.getPropertiesMultivalue().)
      *
      * Precondition: resultQuad is expected to be in conflictingQuads.
      * @param resultQuad the quad for which quality is to be computed
@@ -169,17 +173,21 @@ abstract class AggregationMethodBase implements AggregationMethod {
      *        (for what is meant by conflicting quads see AggregationMethod#aggregate())
      * @param sourceNamedGraphs URIs of source named graphs containing triples used to calculate
      *        the result value; must not be empty
+     * @param agreeNamedGraphs URIs of named graphs that contain exactly the value given in
+     *        resultQuad; this may be the same set as sourceNamedGraphs or a completely different
+     *        set (e.g. in case of calculated values).
      * @param metadata metadata of source named graphs for resultQuad
      *        and conflictingQuads
      * @param aggregationSpec aggregation and quality calculation settings
      * @return quality estimate of resultQuad as a number from [0,1]
      * @see #getSourceQuality(NamedGraphMetadata)
      * @see #AGREE_COEFFICIENT
-     * @todo check correctness
+     * @todo check correctness, rozdelit na tri funkce??
      */
     protected double computeQuality(
             Quad resultQuad,
             Collection<String> sourceNamedGraphs,
+            Collection<String> agreeNamedGraphs,
             Collection<Quad> conflictingQuads,
             NamedGraphMetadataMap metadata,
             AggregationSpec aggregationSpec) {
@@ -192,9 +200,9 @@ abstract class AggregationMethodBase implements AggregationMethod {
         }
 
         // Consider conflicting values
-        boolean isPropertyMultiple =
+        boolean isPropertyMultivalue =
                 aggregationSpec.isPropertyMultivalue(resultQuad.getPredicate().getURI());
-        if (!isPropertyMultiple && conflictingQuads.size() > 1) {
+        if (!isPropertyMultivalue && conflictingQuads.size() > 1) {
             // NOTE: condition conflictingQuads.size() > 1 is an optimization that relies on
             // the fact that distance(x,x) = 0 and that resultQuad is in conflictingQuads
 
@@ -216,7 +224,7 @@ abstract class AggregationMethodBase implements AggregationMethod {
             // conflictingQuads source qualities is zero, resultQuality is not
             // among them -> precondition broken
             assert (totalSourceQuality > 0)
-                : "Precondition broken: resultQuad is not present in conflictingQuads";
+                    : "Precondition broken: resultQuad is not present in conflictingQuads";
 
             distanceAverage /= totalSourceQuality;
 
@@ -225,20 +233,20 @@ abstract class AggregationMethodBase implements AggregationMethod {
 
         // Increase score if multiple sources agree on the result value
         double sourceScoreSum = 0;
-        if (sourceNamedGraphs.size() > 1) {
+        if (agreeNamedGraphs.size() > 1) {
             // IMPORTANT NOTE: the condition (sourceNamedGraphs.size() > 1) is an optimization that
             // relies on the fact the for (sourceNamedGraphs.size() == 1) the condition
             // (basicQuality == sourceScoreSum) holds
-            for (String sourceNamedGraphURI : sourceNamedGraphs) {
+            for (String sourceNamedGraphURI : agreeNamedGraphs) {
                 NamedGraphMetadata namedGraphMetadata = metadata.getMetadata(sourceNamedGraphURI);
                 sourceScoreSum += getSourceQuality(namedGraphMetadata);
             }
-            double aggreeQualityCoef = (sourceScoreSum - basicQuality) / AGREE_COEFFICIENT;
+            double agreeQualityCoef = (sourceScoreSum - basicQuality) / AGREE_COEFFICIENT;
             // agreeQualityCoef is non-negative thanks to invariant in computeBasicQuality()
-            if (aggreeQualityCoef > 1) {
-                aggreeQualityCoef = 1;
+            if (agreeQualityCoef > 1) {
+                agreeQualityCoef = 1;
             }
-            resultQuality += (1 - resultQuality) * aggreeQualityCoef;
+            resultQuality += (1 - resultQuality) * agreeQualityCoef;
         }
 
         // Return result
@@ -278,6 +286,48 @@ abstract class AggregationMethodBase implements AggregationMethod {
         default:
             LOG.error("Unhandled aggregation error strategy {}.", errorStrategy);
             throw new RuntimeException("Unhandled error strategy!");
+        }
+    }
+
+    /**
+     * Return a set (without duplicates) of named graphs of all quads that have the selected object
+     * as their object.
+     *
+     * @param object the searched triple object
+     * @param conflictingQuads searched quads
+     * @return set of named graphs
+     */
+    protected Collection<String> sourceNamedGraphsForObject(
+            Node object, Collection<Quad> conflictingQuads) {
+
+        Set<String> namedGraphs = null;
+        String firstNamedGraph = null;
+
+        for (Quad quad : conflictingQuads) {
+            if (!object.equals(quad.getObject())) {
+                continue;
+            }
+
+            String newNamedGraph = quad.getGraphName().getURI();
+            // Purpose of these if-else branches is to avoid creating HashSet
+            // if not necessary (only zero or one named graph in the result)
+            if (firstNamedGraph == null) {
+                firstNamedGraph = newNamedGraph;
+            } else if (namedGraphs == null) {
+                namedGraphs = new HashSet<String>();
+                namedGraphs.add(firstNamedGraph);
+                namedGraphs.add(newNamedGraph);
+            } else {
+                namedGraphs.add(newNamedGraph);
+            }
+        }
+
+        if (firstNamedGraph == null) {
+            return Collections.emptySet();
+        } else if (namedGraphs == null) {
+            return Collections.singleton(firstNamedGraph);
+        } else {
+            return namedGraphs;
         }
     }
 

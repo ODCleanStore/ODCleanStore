@@ -66,6 +66,7 @@ public class CalculatedValueAggregationTest {
         double computedQuality = instance.computeQuality(
                 quad,
                 sourceNamedGraphs,
+                Collections.<String>emptySet(),
                 Collections.singleton(quad),
                 metadataMap,
                 new AggregationSpec());
@@ -104,12 +105,14 @@ public class CalculatedValueAggregationTest {
         double lowerComputedQuality = instance.computeQuality(
                 lowerQuad,
                 sourceNamedGraphs,
+                Collections.<String>emptySet(),
                 Collections.singleton(lowerQuad),
                 metadataMap,
                 new AggregationSpec());
         double higherComputedQuality = instance.computeQuality(
                 higherQuad,
                 sourceNamedGraphs,
+                Collections.<String>emptySet(),
                 Collections.singleton(higherQuad),
                 metadataMap,
                 new AggregationSpec());
@@ -129,6 +132,7 @@ public class CalculatedValueAggregationTest {
         double computedQuality = instance.computeQuality(
                 quad,
                 sourceNamedGraphs,
+                Collections.<String>emptySet(),
                 Collections.singleton(quad),
                 metadata,
                 new AggregationSpec());
