@@ -1,7 +1,7 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
+import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
-import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 import cz.cuni.mff.odcleanstore.shared.Utils;
@@ -30,16 +30,19 @@ final class AvgAggegation extends CalculatedValueAggregation {
      *
      * @param conflictingQuads {@inheritDoc}
      * @param metadata {@inheritDoc}
-     * @param errorStrategy {@inheritDoc}
      * @param uriGenerator {@inheritDoc}
+     * @param aggregationSpec {@inheritDoc}
      * @return {@inheritDoc}
+     *
+     * @TODO: IMPORTANT: in conflictingQuads passed to computeQuality filter out quads
+     *      that were handled by handleNonAggregableObject
      */
     @Override
     public Collection<CRQuad> aggregate(
             Collection<Quad> conflictingQuads,
             NamedGraphMetadataMap metadata,
-            EnumAggregationErrorStrategy errorStrategy,
-            UniqueURIGenerator uriGenerator) {
+            UniqueURIGenerator uriGenerator,
+            AggregationSpec aggregationSpec) {
 
         Collection<CRQuad> result = createResultCollection();
 
@@ -54,7 +57,7 @@ final class AvgAggegation extends CalculatedValueAggregation {
                 validNumbersCount++;
                 sourceNamedGraphs.add(quad.getGraphName().getURI());
             } else {
-                handleNonAggregableObject(quad, errorStrategy, result, this.getClass());
+                handleNonAggregableObject(quad, result, aggregationSpec, this.getClass());
             }
         }
 
@@ -66,7 +69,8 @@ final class AvgAggegation extends CalculatedValueAggregation {
                     firstQuad.getSubject(),
                     firstQuad.getPredicate(),
                     Node.createLiteral(LiteralLabelFactory.create(averageValue)));
-            double quality = computeQuality(resultQuad, sourceNamedGraphs, metadata);
+            double quality = computeQuality(resultQuad, sourceNamedGraphs, conflictingQuads,
+                    metadata, aggregationSpec);
             result.add(new CRQuad(resultQuad, quality, sourceNamedGraphs));
         }
 

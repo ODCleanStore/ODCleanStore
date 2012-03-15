@@ -1,6 +1,6 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
+import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
@@ -29,23 +29,24 @@ final class NoneAggregation extends SelectedValueAggregation {
      *
      * @param conflictingQuads {@inheritDoc}
      * @param metadata {@inheritDoc}
-     * @param errorStrategy {@inheritDoc}
      * @param uriGenerator {@inheritDoc}
+     * @param aggregationSpec {@inheritDoc}
      * @return {@inheritDoc}
      */
     @Override
     public Collection<CRQuad> aggregate(
             Collection<Quad> conflictingQuads,
             NamedGraphMetadataMap metadata,
-            EnumAggregationErrorStrategy errorStrategy,
-            UniqueURIGenerator uriGenerator) {
+            UniqueURIGenerator uriGenerator,
+            AggregationSpec aggregationSpec) {
 
         Collection<CRQuad> result = createResultCollection();
 
         for (Quad quad : conflictingQuads) {
-            double quality = computeQuality(quad, conflictingQuads, metadata);
             Collection<String> sourceNamedGraphs =
                     Collections.singletonList(quad.getGraphName().getURI());
+            double quality = computeQuality(quad, sourceNamedGraphs, conflictingQuads,
+                    metadata, aggregationSpec);
             Quad resultQuad = new Quad(Node.createURI(uriGenerator.nextURI()), quad.getTriple());
             result.add(new CRQuad(resultQuad, quality, sourceNamedGraphs));
         }

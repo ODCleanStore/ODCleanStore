@@ -1,7 +1,7 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
+import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
-import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 
@@ -21,16 +21,16 @@ class LatestAggregation extends SelectedValueAggregation {
      *
      * @param conflictingQuads {@inheritDoc}
      * @param metadata {@inheritDoc}
-     * @param errorStrategy {@inheritDoc}
      * @param uriGenerator {@inheritDoc}
+     * @param aggregationSpec {@inheritDoc}
      * @return {@inheritDoc}
      */
     @Override
     public Collection<CRQuad> aggregate(
             Collection<Quad> conflictingQuads,
             NamedGraphMetadataMap metadata,
-            EnumAggregationErrorStrategy errorStrategy,
-            UniqueURIGenerator uriGenerator) {
+            UniqueURIGenerator uriGenerator,
+            AggregationSpec aggregationSpec) {
 
         throw new UnsupportedOperationException("Not supported yet.");
         // in case of equality return the triple with highest score

@@ -1,13 +1,11 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
 import cz.cuni.mff.odcleanstore.TestUtils;
-import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
+import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
-
-import com.hp.hpl.jena.graph.Node;
 
 import de.fuberlin.wiwiss.ng4j.Quad;
 
@@ -19,7 +17,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 
 /**
- * 
+ *
  * @author Jan Michelfeit
  */
 public class CalculatedValueAggregationTest {
@@ -32,8 +30,8 @@ public class CalculatedValueAggregationTest {
         public Collection<CRQuad> aggregate(
                 Collection<Quad> conflictingQuads,
                 NamedGraphMetadataMap metadata,
-                EnumAggregationErrorStrategy errorStrategy,
-                UniqueURIGenerator uriGenerator) {
+                UniqueURIGenerator uriGenerator,
+                AggregationSpec aggregationSpec) {
 
             throw new UnsupportedOperationException();
         }
@@ -65,7 +63,12 @@ public class CalculatedValueAggregationTest {
         metadata.setPublisherScore(score);
         metadataMap.addMetadata(metadata);
 
-        double computedQuality = instance.computeQuality(quad, sourceNamedGraphs, metadataMap);
+        double computedQuality = instance.computeQuality(
+                quad,
+                sourceNamedGraphs,
+                Collections.singleton(quad),
+                metadataMap,
+                new AggregationSpec());
         Assert.assertEquals(score, computedQuality, EPSILON);
     }
 
@@ -101,11 +104,15 @@ public class CalculatedValueAggregationTest {
         double lowerComputedQuality = instance.computeQuality(
                 lowerQuad,
                 sourceNamedGraphs,
-                metadataMap);
+                Collections.singleton(lowerQuad),
+                metadataMap,
+                new AggregationSpec());
         double higherComputedQuality = instance.computeQuality(
                 higherQuad,
                 sourceNamedGraphs,
-                metadataMap);
+                Collections.singleton(higherQuad),
+                metadataMap,
+                new AggregationSpec());
 
         // For computed values the result should be the same
         Assert.assertTrue(lowerComputedQuality == higherComputedQuality);
@@ -119,7 +126,12 @@ public class CalculatedValueAggregationTest {
         Collection<String> sourceNamedGraphs = Collections.singleton(quad.getGraphName().getURI());
         NamedGraphMetadataMap metadata = new NamedGraphMetadataMap();
 
-        double computedQuality = instance.computeQuality(quad, sourceNamedGraphs, metadata);
+        double computedQuality = instance.computeQuality(
+                quad,
+                sourceNamedGraphs,
+                Collections.singleton(quad),
+                metadata,
+                new AggregationSpec());
         Assert.assertEquals(
                 AggregationMethodBase.SCORE_IF_UNKNOWN,
                 computedQuality,

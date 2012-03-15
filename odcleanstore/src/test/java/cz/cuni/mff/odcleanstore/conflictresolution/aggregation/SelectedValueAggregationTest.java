@@ -1,8 +1,8 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
 import cz.cuni.mff.odcleanstore.TestUtils;
+import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
-import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
@@ -21,7 +21,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 
 /**
- *
+ * @TODO is it up to date?
  * @author Jan Michelfeit
  */
 public class SelectedValueAggregationTest {
@@ -30,12 +30,12 @@ public class SelectedValueAggregationTest {
     private static final double DEFAULT_SCORE = Math.PI - Math.floor(Math.PI); // 0.14...
 
     public class SelectedValueAggregationImpl extends SelectedValueAggregation {
-        @Override
-        public Collection<CRQuad> aggregate(
-                Collection<Quad> conflictingQuads,
-                NamedGraphMetadataMap metadata,
-                EnumAggregationErrorStrategy errorStrategy,
-                UniqueURIGenerator uriGenerator) {
+       @Override
+       public Collection<CRQuad> aggregate(
+               Collection<Quad> conflictingQuads,
+               NamedGraphMetadataMap metadata,
+               UniqueURIGenerator uriGenerator,
+               AggregationSpec aggregationSpec) {
             throw new UnsupportedOperationException();
         }
 
@@ -76,8 +76,10 @@ public class SelectedValueAggregationTest {
 
         double computedQuality = instance.computeQuality(
                 quad,
+                instance.sourceNamedGraphsForObject(quad.getObject(), conflictingQuads),
                 conflictingQuads,
-                metadataMap);
+                metadataMap,
+                new AggregationSpec());
         Assert.assertEquals(score, computedQuality, EPSILON);
     }
 
@@ -111,12 +113,16 @@ public class SelectedValueAggregationTest {
 
         double lowerComputedQuality = instance.computeQuality(
                 lowerQuad,
+                instance.sourceNamedGraphsForObject(lowerQuad.getObject(), conflictingQuads),
                 conflictingQuads,
-                metadataMap);
+                metadataMap,
+                new AggregationSpec());
         double higherComputedQuality = instance.computeQuality(
                 higherQuad,
+                instance.sourceNamedGraphsForObject(higherQuad.getObject(), conflictingQuads),
                 conflictingQuads,
-                metadataMap);
+                metadataMap,
+                new AggregationSpec());
         Assert.assertTrue(lowerComputedQuality < higherComputedQuality);
     }
 
@@ -149,12 +155,16 @@ public class SelectedValueAggregationTest {
 
         double calculatedValueDouble = instance.computeQuality(
                 doubleQuad1,
+                instance.sourceNamedGraphsForObject(doubleQuad1.getObject(), conflictingQuads),
                 conflictingQuads,
-                metadataMap);
+                metadataMap,
+                new AggregationSpec());
         double calculatedValueSingle = instance.computeQuality(
                 singleQuad,
+                instance.sourceNamedGraphsForObject(singleQuad.getObject(), conflictingQuads),
                 conflictingQuads,
-                metadataMap);
+                metadataMap,
+                new AggregationSpec());
         Assert.assertTrue(calculatedValueSingle < calculatedValueDouble);
     }
 
@@ -168,8 +178,10 @@ public class SelectedValueAggregationTest {
 
         double computedQuality = instance.computeQuality(
                 quad,
+                instance.sourceNamedGraphsForObject(quad.getObject(), conflictingQuads),
                 conflictingQuads,
-                metadata);
+                metadata,
+                new AggregationSpec());
         Assert.assertEquals(
                 AggregationMethodBase.SCORE_IF_UNKNOWN,
                 computedQuality,

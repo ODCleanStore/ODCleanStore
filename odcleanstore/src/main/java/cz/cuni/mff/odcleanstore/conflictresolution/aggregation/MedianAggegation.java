@@ -1,7 +1,7 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
+import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
-import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.shared.EnumLiteralType;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
@@ -37,16 +37,19 @@ class MedianAggegation extends CalculatedValueAggregation {
      *
      * @param conflictingQuads {@inheritDoc}
      * @param metadata {@inheritDoc}
-     * @param errorStrategy {@inheritDoc}
      * @param uriGenerator {@inheritDoc}
+     * @param aggregationSpec {@inheritDoc}
      * @return {@inheritDoc}
+     *
+     * @TODO: IMPORTANT: in conflictingQuads passed to computeQuality filter out quads
+     *      that were handled by handleNonAggregableObject
      */
     @Override
     public Collection<CRQuad> aggregate(
             Collection<Quad> conflictingQuads,
             NamedGraphMetadataMap metadata,
-            EnumAggregationErrorStrategy errorStrategy,
-            UniqueURIGenerator uriGenerator) {
+            UniqueURIGenerator uriGenerator,
+            AggregationSpec aggregationSpec) {
 
         Collection<CRQuad> result = createResultCollection();
         if (conflictingQuads.isEmpty()) {
@@ -56,7 +59,7 @@ class MedianAggegation extends CalculatedValueAggregation {
         Quad firstQuad = conflictingQuads.iterator().next();
         if (!firstQuad.getObject().isLiteral()) {
             for (Quad quad : conflictingQuads) {
-                handleNonAggregableObject(quad, errorStrategy, result, this.getClass());
+                handleNonAggregableObject(quad, result, aggregationSpec, this.getClass());
             }
             return result;
         }
@@ -64,14 +67,14 @@ class MedianAggegation extends CalculatedValueAggregation {
         EnumLiteralType comparisonType = Utils.getLiteralType(firstQuad.getObject());
         switch (comparisonType) {
         case NUMERIC:
-            return aggregateNumeric(conflictingQuads, metadata, errorStrategy, uriGenerator);
+            return aggregateNumeric(conflictingQuads, metadata, uriGenerator, aggregationSpec);
         case DATE:
             // TODO
         case BOOLEAN:
             // TODO
         case STRING:
         case OTHER:
-            return aggregateString(conflictingQuads, metadata, errorStrategy, uriGenerator);
+            return aggregateString(conflictingQuads, metadata, uriGenerator, aggregationSpec);
         default:
             LOG.error("Unhandled type of literal {} in {}.",
                     comparisonType.name(), this.getClass().getSimpleName());
@@ -83,15 +86,15 @@ class MedianAggegation extends CalculatedValueAggregation {
      * @see #aggregate()
      * @param conflictingQuads see {@link #aggregate()}
      * @param metadata see {@link #aggregate()}
-     * @param errorStrategy see {@link #aggregate()}
+     * @param aggregationSpec see {@link #aggregate()}
      * @param uriGenerator see {@link #aggregate()}
      * @return see {@link #aggregate()}
      */
     private Collection<CRQuad> aggregateNumeric(
             Collection<Quad> conflictingQuads,
             NamedGraphMetadataMap metadata,
-            EnumAggregationErrorStrategy errorStrategy,
-            UniqueURIGenerator uriGenerator) {
+            UniqueURIGenerator uriGenerator,
+            AggregationSpec aggregationSpec) {
 
         Collection<CRQuad> result = createResultCollection();
         ArrayList<Double> objects = new ArrayList<Double>();
@@ -103,7 +106,7 @@ class MedianAggegation extends CalculatedValueAggregation {
                 objects.add(numberValue);
                 sourceNamedGraphs.add(quad.getGraphName().getURI());
             } else {
-                handleNonAggregableObject(quad, errorStrategy, result, this.getClass());
+                handleNonAggregableObject(quad, result, aggregationSpec, this.getClass());
             }
         }
 
@@ -119,7 +122,8 @@ class MedianAggegation extends CalculatedValueAggregation {
                     firstQuad.getSubject(),
                     firstQuad.getPredicate(),
                     Node.createLiteral(LiteralLabelFactory.create(medianValue)));
-            double quality = computeQuality(resultQuad, sourceNamedGraphs, metadata);
+            double quality = computeQuality(resultQuad, sourceNamedGraphs, conflictingQuads,
+                    metadata, aggregationSpec);
             result.add(new CRQuad(resultQuad, quality, sourceNamedGraphs));
             return result;
         }
@@ -129,15 +133,15 @@ class MedianAggegation extends CalculatedValueAggregation {
      * @see #aggregate()
      * @param conflictingQuads see {@link #aggregate()}
      * @param metadata see {@link #aggregate()}
-     * @param errorStrategy see {@link #aggregate()}
+     * @param aggregationSpec see {@link #aggregate()}
      * @param uriGenerator see {@link #aggregate()}
      * @return see {@link #aggregate()}
      */
     private Collection<CRQuad> aggregateString(
             Collection<Quad> conflictingQuads,
             NamedGraphMetadataMap metadata,
-            EnumAggregationErrorStrategy errorStrategy,
-            UniqueURIGenerator uriGenerator) {
+            UniqueURIGenerator uriGenerator,
+            AggregationSpec aggregationSpec) {
 
         Collection<CRQuad> result = createResultCollection();
         ArrayList<String> objects = new ArrayList<String>();
@@ -148,7 +152,7 @@ class MedianAggegation extends CalculatedValueAggregation {
                 objects.add(quad.getObject().getLiteralLexicalForm());
                 sourceNamedGraphs.add(quad.getGraphName().getURI());
             } else {
-                handleNonAggregableObject(quad, errorStrategy, result, this.getClass());
+                handleNonAggregableObject(quad, result, aggregationSpec, this.getClass());
             }
         }
 
@@ -164,7 +168,8 @@ class MedianAggegation extends CalculatedValueAggregation {
                     firstQuad.getSubject(),
                     firstQuad.getPredicate(),
                     Node.createLiteral(LiteralLabelFactory.create(medianValue)));
-            double quality = computeQuality(resultQuad, sourceNamedGraphs, metadata);
+            double quality = computeQuality(resultQuad, sourceNamedGraphs, conflictingQuads,
+                    metadata, aggregationSpec);
             result.add(new CRQuad(resultQuad, quality, sourceNamedGraphs));
             return result;
         }

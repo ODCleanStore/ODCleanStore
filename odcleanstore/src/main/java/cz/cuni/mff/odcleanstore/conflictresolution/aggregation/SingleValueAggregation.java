@@ -1,6 +1,6 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
+import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
@@ -41,8 +41,8 @@ final class SingleValueAggregation extends AggregationMethodBase {
      *
      * @param conflictingQuads {@inheritDoc}; must contain exactly one quad.
      * @param metadata {@inheritDoc}
-     * @param errorStrategy {@inheritDoc}
      * @param uriGenerator {@inheritDoc}
+     * @param aggregationSpec {@inheritDoc}
      * @return {@inheritDoc}
      * @throw IllegalArgumentException thrown when conflictingQuads doesn't
      *        contain exactly one quad
@@ -51,9 +51,8 @@ final class SingleValueAggregation extends AggregationMethodBase {
     public Collection<CRQuad> aggregate(
             Collection<Quad> conflictingQuads,
             NamedGraphMetadataMap metadata,
-            EnumAggregationErrorStrategy errorStrategy,
-            UniqueURIGenerator uriGenerator) {
-
+            UniqueURIGenerator uriGenerator,
+            AggregationSpec aggregationSpec) {
         if (conflictingQuads.size() != 1) {
             LOG.error("{} quads given to SingleValueAggregation.", conflictingQuads.size());
             throw new IllegalArgumentException(
@@ -63,24 +62,26 @@ final class SingleValueAggregation extends AggregationMethodBase {
         }
 
         Quad firstQuad = conflictingQuads.iterator().next();
-        double score = computeQuality(firstQuad, metadata);
         Collection<String> sourceNamedGraphs =
                 Collections.singleton(firstQuad.getGraphName().getURI());
+        double quality = computeBasicQuality(firstQuad, sourceNamedGraphs, metadata);
         Quad resultQuad = new Quad(Node.createURI(uriGenerator.nextURI()), firstQuad.getTriple());
         Collection<CRQuad> result = createSingleResultCollection(
-                new CRQuad(resultQuad, score, sourceNamedGraphs));
+                new CRQuad(resultQuad, quality, sourceNamedGraphs));
         return result;
     }
 
     /**
-     * Compute quality estimate - in case of a single quad return score of the source named graph.
-     * 
-     * @param resultQuad the quad for which quality is to be computed
-     * @param metadata metadata of source named graphs for resultQuad
-     * @return quality estimate of resultQuad as a number from [0,1]
-     * @see #getSourceQuality(NamedGraphMetadata)
+     * {@inheritDoc}
+     *
+     * In case of a single quad the whole quality is hte score of the source named graph.
      */
-    protected double computeQuality(Quad resultQuad, NamedGraphMetadataMap metadata) {
+    @Override
+    protected double computeBasicQuality(
+            Quad resultQuad,
+            Collection<String> sourceNamedGraphs,
+            NamedGraphMetadataMap metadata) {
+
         NamedGraphMetadata resultMetadata = metadata.getMetadata(resultQuad.getGraphName());
         double resultQuality = getSourceQuality(resultMetadata);
         return resultQuality;

@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
+import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
@@ -17,11 +18,26 @@ import java.util.LinkedList;
 
 /**
  * Base class for all aggregation methods implemented in ODCleanStore.
- * 
+ *
  * @author Jan Michelfeit
  */
 abstract class AggregationMethodBase implements AggregationMethod {
     private static final Logger LOG = LoggerFactory.getLogger(AggregationMethodBase.class);
+
+    /**
+     * Node distance metric used in quality computation.
+     * @see #computeQuality(Quad, Collection, NamedGraphMetadataMap)
+     */
+    private static/*final*/DistanceMetric distanceMetricInstance = new DistanceMetricImpl();
+
+    /**
+     * Coefficient used in formula computed at {@link #computeQuality()}.
+     * The coefficient determines how multiple source named graphs that exactly agree on
+     * the result value increase quality. Value N of the coefficient means that (N+1) sources
+     * with score 1 that agree on the result increase the result quality to 1.
+     * @todo determine best value
+     */
+    public static final double AGREE_COEFFICIENT = 4;
 
     /**
      * Default score of a named graph or a publisher used if the respective
@@ -54,8 +70,16 @@ abstract class AggregationMethodBase implements AggregationMethod {
     public abstract Collection<CRQuad> aggregate(
             Collection<Quad> conflictingTriples,
             NamedGraphMetadataMap metadata,
-            EnumAggregationErrorStrategy errorStrategy,
-            UniqueURIGenerator uriGenerator);
+            UniqueURIGenerator uriGenerator,
+            AggregationSpec aggregationSpec);
+
+    /**
+     * Return the default DistanceMetric instance.
+     * @return Node distance metric that can be used in quality computation.
+     */
+    protected DistanceMetric getDistanceMetric() {
+        return distanceMetricInstance;
+    }
 
     /**
      * Calculated quality of a source of a named graph.
@@ -94,24 +118,153 @@ abstract class AggregationMethodBase implements AggregationMethod {
     }
 
     /**
+     * Compute quality estimate of the selected quad not taking into consideration
+     * possible conflicting quads or other advanced quality factors.
+     *
+     * Invariant: the result is <= sum of scores of sourceNamedGraphs
+     * (see {@link #computeQuality()}).
+     *
+     * @param resultQuad the quad for which quality is to be computed
+     * @param sourceNamedGraphs URIs of source named graphs containing triples used to calculate
+     *      the result value; must not be empty
+     * @param metadata metadata of the given source named graphs
+     * @return quality estimate of resultQuad as a number from [0,1]
+     * @see #getSourceQuality(NamedGraphMetadata)
+     */
+    protected abstract double computeBasicQuality(
+            Quad resultQuad,
+            Collection<String> sourceNamedGraphs,
+            NamedGraphMetadataMap metadata);
+
+    /**
+     * Compute quality estimate of a selected quad taking into consideration
+     * possible conflicting quads, source named graph metadata and aggregation settings.
+     *
+     * The exact formula is
+     *
+     * <pre>
+     * q1(V,v0) = computeBasicQuality(v0) *
+     *   * (1 - (SUM OF (sourceQuality(V[i]) * difference(V[i],v0))) / (SUM OF sourceQuality(V[i])))
+     * q(V,v0) = q1(V,v0) + (1-q1(V,v0)) *
+     *   * min(1, (-computeBasicQuality(v0) + (SUM OF sourceNamedGraphs scores)) /AGREE_COEFFICIENT)
+     * </pre>
+     *
+     * if the multivalue attribute for resultQuad's predicate is false, otherwise
+     *
+     * <pre>
+     * q1(V,v0) = computeBasicQuality(v0)
+     * q(V,v0) = (the same as above)
+     * </pre>
+     *
+     * (see documentation for explanation).
+     * The time complexity for multivalue properties is O(s), for non-multivalue properties
+     * O(n*d + s) where n is the size of conflictingQuads, d is the complexity of difference
+     * calculation, and s is the size of sourceNamedGraphs.
+     *
+     * (Actually + O(log k), where k is size of aggregationSpec.getPropertiesMultivalue().)
+     *
+     * Precondition: resultQuad is expected to be in conflictingQuads.
+     * @param resultQuad the quad for which quality is to be computed
+     * @param conflictingQuads other quads conflicting with resultQuad
+     *        (for what is meant by conflicting quads see AggregationMethod#aggregate())
+     * @param sourceNamedGraphs URIs of source named graphs containing triples used to calculate
+     *        the result value; must not be empty
+     * @param metadata metadata of source named graphs for resultQuad
+     *        and conflictingQuads
+     * @param aggregationSpec aggregation and quality calculation settings
+     * @return quality estimate of resultQuad as a number from [0,1]
+     * @see #getSourceQuality(NamedGraphMetadata)
+     * @see #AGREE_COEFFICIENT
+     * @todo check correctness
+     */
+    protected double computeQuality(
+            Quad resultQuad,
+            Collection<String> sourceNamedGraphs,
+            Collection<Quad> conflictingQuads,
+            NamedGraphMetadataMap metadata,
+            AggregationSpec aggregationSpec) {
+
+        // Compute basic score based on sourceNamedGraphs' scores
+        double basicQuality = computeBasicQuality(resultQuad, sourceNamedGraphs, metadata);
+        double resultQuality = basicQuality;
+        if (resultQuality == 0) {
+            return resultQuality; // BUNO
+        }
+
+        // Consider conflicting values
+        boolean isPropertyMultiple =
+                aggregationSpec.isPropertyMultivalue(resultQuad.getPredicate().getURI());
+        if (!isPropertyMultiple && conflictingQuads.size() > 1) {
+            // NOTE: condition conflictingQuads.size() > 1 is an optimization that relies on
+            // the fact that distance(x,x) = 0 and that resultQuad is in conflictingQuads
+
+            // Calculated distance average weighted by the respective source qualities
+            DistanceMetric distanceMetric = getDistanceMetric();
+            double distanceAverage = 0;
+            double totalSourceQuality = 0;
+            for (Quad quad : conflictingQuads) {
+                NamedGraphMetadata quadMetadata = metadata.getMetadata(quad.getGraphName());
+                double quadQuality = getSourceQuality(quadMetadata);
+
+                double resultDistance = distanceMetric.distance(
+                        quad.getObject(), resultQuad.getObject());
+                distanceAverage += quadQuality * resultDistance;
+                totalSourceQuality += quadQuality;
+            }
+
+            // resultQuality cannot be zero (tested before) -> if sum of
+            // conflictingQuads source qualities is zero, resultQuality is not
+            // among them -> precondition broken
+            assert (totalSourceQuality > 0)
+                : "Precondition broken: resultQuad is not present in conflictingQuads";
+
+            distanceAverage /= totalSourceQuality;
+
+            resultQuality = resultQuality * (1 - distanceAverage);
+        }
+
+        // Increase score if multiple sources agree on the result value
+        double sourceScoreSum = 0;
+        if (sourceNamedGraphs.size() > 1) {
+            // IMPORTANT NOTE: the condition (sourceNamedGraphs.size() > 1) is an optimization that
+            // relies on the fact the for (sourceNamedGraphs.size() == 1) the condition
+            // (basicQuality == sourceScoreSum) holds
+            for (String sourceNamedGraphURI : sourceNamedGraphs) {
+                NamedGraphMetadata namedGraphMetadata = metadata.getMetadata(sourceNamedGraphURI);
+                sourceScoreSum += getSourceQuality(namedGraphMetadata);
+            }
+            double aggreeQualityCoef = (sourceScoreSum - basicQuality) / AGREE_COEFFICIENT;
+            // agreeQualityCoef is non-negative thanks to invariant in computeBasicQuality()
+            if (aggreeQualityCoef > 1) {
+                aggreeQualityCoef = 1;
+            }
+            resultQuality += (1 - resultQuality) * aggreeQualityCoef;
+        }
+
+        // Return result
+        return resultQuality;
+    }
+
+    /**
      * Applies the given aggregation error strategy to a quad that cannot be aggregated by the
      * given aggregation method.
      * In case of the RETURN_ALL error strategy, the given quad is added to the result.
-     * 
+     *
      * @param nonAggregableQuad the quad that couldn't be aggregated
-     * @param errorStrategy aggregation error strategy to follow
+     * @param aggregationSpec aggregation settings
      * @param result result of aggregation; a new CRQuad may be added to this collection
-     * @param aggregationMethod aggregation class where the aggregation error occured
+     * @param aggregationMethod aggregation class where the aggregation error occurred
      */
     protected void handleNonAggregableObject(
-            Quad nonAggregableQuad, 
-            EnumAggregationErrorStrategy errorStrategy, 
+            Quad nonAggregableQuad,
             Collection<CRQuad> result,
+            AggregationSpec aggregationSpec,
             Class<? extends AggregationMethodBase> aggregationMethod) {
-        
-        LOG.debug("Value {} cannot be aggregated with {}.", 
+
+        LOG.debug("Value {} cannot be aggregated with {}.",
                 nonAggregableQuad.getObject(), aggregationMethod.getSimpleName());
-        
+
+        EnumAggregationErrorStrategy errorStrategy = aggregationSpec.getErrorStrategy();
         switch (errorStrategy) {
         case RETURN_ALL:
             result.add(new CRQuad(

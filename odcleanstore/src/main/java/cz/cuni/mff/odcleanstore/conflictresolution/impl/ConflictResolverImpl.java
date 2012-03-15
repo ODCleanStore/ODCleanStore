@@ -3,7 +3,6 @@ package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverSpec;
-import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationType;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
@@ -132,7 +131,6 @@ public class ConflictResolverImpl implements ConflictResolver {
 
         // Gather relevant settings:
         NamedGraphMetadataMap metadata = getNamedGraphMetadata(quads);
-        EnumAggregationErrorStrategy aggregationErrorStrategy = spec.getErrorStrategy();
         UniqueURIGenerator uriGenerator = new SimpleUriGenerator(spec.getNamedGraphPrefix());
 
         // A little optimization - check metadata for occurrences of old versions;
@@ -161,8 +159,8 @@ public class ConflictResolverImpl implements ConflictResolver {
             Collection<CRQuad> aggregatedQuads = aggregator.aggregate(
                     conflictCluster,
                     metadata,
-                    aggregationErrorStrategy,
-                    uriGenerator);
+                    uriGenerator,
+                    spec);
 
             // Add resolved quads to result
             result.addAll(aggregatedQuads);

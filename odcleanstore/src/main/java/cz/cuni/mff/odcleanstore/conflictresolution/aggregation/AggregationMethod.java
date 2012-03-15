@@ -1,7 +1,7 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
+import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
-import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 
@@ -21,8 +21,7 @@ public interface AggregationMethod {
      * quads.
      *
      * The aggregation can be based on values in the input quads, their respective
-     * named graph metadata (passed in #metadata) and the selected aggregation
-     * error strategy (see {@link EnumAggregationErrorStrategy}).
+     * named graph metadata (passed in #metadata) and the given aggregation settings
      * The result quads may include some of the input quads or contain completely
      * new quads.
      *
@@ -31,15 +30,14 @@ public interface AggregationMethod {
      *
      * @param conflictingQuads input quads to be aggregated
      * @param metadata metadata for named graphs occurring in conflictingQuads
-     * @param errorStrategy strategy to be used when the aggregation is not
-     *        applicable to a quad in conflictingQuads
      * @param uriGenerator generator of URIs
+     * @param aggregationSpec aggregation and quality calculation settings
      * @return aggregated quads together with quality estimate and source
      *         information for each quad
      */
     Collection<CRQuad> aggregate(
             Collection<Quad> conflictingQuads,
             NamedGraphMetadataMap metadata,
-            EnumAggregationErrorStrategy errorStrategy,
-            UniqueURIGenerator uriGenerator);
+            UniqueURIGenerator uriGenerator,
+            AggregationSpec aggregationSpec);
 }

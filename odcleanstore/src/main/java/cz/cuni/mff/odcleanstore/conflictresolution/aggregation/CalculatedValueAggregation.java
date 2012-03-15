@@ -1,6 +1,6 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
+import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
@@ -28,33 +28,26 @@ abstract class CalculatedValueAggregation extends AggregationMethodBase {
      *
      * @param conflictingQuads {@inheritDoc}
      * @param metadata {@inheritDoc}
-     * @param errorStrategy {@inheritDoc}
      * @param uriGenerator {@inheritDoc}
+     * @param aggregationSpec {@inheritDoc}
      * @return {@inheritDoc}
      */
     @Override
     public abstract Collection<CRQuad> aggregate(
             Collection<Quad> conflictingQuads,
             NamedGraphMetadataMap metadata,
-            EnumAggregationErrorStrategy errorStrategy,
-            UniqueURIGenerator uriGenerator);
+            UniqueURIGenerator uriGenerator,
+            AggregationSpec aggregationSpec);
 
-   /**
-     * Compute quality estimate of a selected quad taking into consideration
-     * possible conflicting quads and source named graph metadata.
+    /**
+     * {@inheritDoc}
      *
      * Since the aggregated result is based on all conflicting triples,
-     * the quality is calcualted as an average of their respective source qualities.
-     *
-     * @param resultQuad the quad for which quality is to be computed
-     * @param sourceNamedGraphs URIs of source named graphs containing triples used to calculate 
-     *      the result value; must not be empty
-     * @param metadata metadata of the given source named graphs
-     * @return quality estimate of resultQuad as a number from [0,1]
-     * @see #getSourceQuality(NamedGraphMetadata)
+     * the quality is the average score of source named graphs.
      */
-    protected double computeQuality(
-            Quad resultQuad, 
+    @Override
+    protected double computeBasicQuality(
+            Quad resultQuad,
             Collection<String> sourceNamedGraphs,
             NamedGraphMetadataMap metadata) {
 
@@ -67,7 +60,7 @@ abstract class CalculatedValueAggregation extends AggregationMethodBase {
             namedGraphCount++;
         }
 
-        assert (namedGraphCount > 0) : "Illegal argument: conflictingQuads must not be empty";
+        assert (namedGraphCount > 0) : "Illegal argument: sourceNamedGraphs must not be empty";
         double scoreAverage = scoreSum / namedGraphCount;
         return scoreAverage;
     }

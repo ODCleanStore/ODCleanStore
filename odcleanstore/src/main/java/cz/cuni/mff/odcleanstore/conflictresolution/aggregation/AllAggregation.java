@@ -1,7 +1,7 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
+import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
-import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.shared.NodeComparator;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
@@ -62,16 +62,16 @@ final class AllAggregation extends SelectedValueAggregation {
      *
      * @param conflictingQuads {@inheritDoc}
      * @param metadata {@inheritDoc}
-     * @param errorStrategy {@inheritDoc}
      * @param uriGenerator {@inheritDoc}
+     * @param aggregationSpec {@inheritDoc}
      * @return {@inheritDoc}
      */
     @Override
     public Collection<CRQuad> aggregate(
             Collection<Quad> conflictingQuads,
             NamedGraphMetadataMap metadata,
-            EnumAggregationErrorStrategy errorStrategy,
-            UniqueURIGenerator uriGenerator) {
+            UniqueURIGenerator uriGenerator,
+            AggregationSpec aggregationSpec) {
 
         Collection<CRQuad> result = createResultCollection();
 
@@ -81,7 +81,6 @@ final class AllAggregation extends SelectedValueAggregation {
 
         Quad lastQuad = null; // quad from the previous iteration
         Node lastObject = null; // lastQuad's object
-        double lastQuadQuality = Double.NaN;
         ArrayList<String> sourceNamedGraphs = null; // sources for lastQuad
         for (Quad quad : sortedQuads) {
             Node object = quad.getObject();
@@ -92,7 +91,9 @@ final class AllAggregation extends SelectedValueAggregation {
                 Quad resultQuad = new Quad(
                         Node.createURI(uriGenerator.nextURI()),
                         lastQuad.getTriple());
-                result.add(new CRQuad(resultQuad, lastQuadQuality, sourceNamedGraphs));
+                double quadQuality = computeQuality(lastQuad, sourceNamedGraphs, conflictingQuads,
+                        metadata, aggregationSpec);
+                result.add(new CRQuad(resultQuad, quadQuality, sourceNamedGraphs));
                 sourceNamedGraphs = null;
             }
 
@@ -102,7 +103,6 @@ final class AllAggregation extends SelectedValueAggregation {
                 lastObject = object;
                 sourceNamedGraphs = new ArrayList<String>(EXPECTED_DATA_SOURCES);
                 sourceNamedGraphs.add(quad.getGraphName().getURI());
-                lastQuadQuality = computeQuality(lastQuad, conflictingQuads, metadata);
             } else {
                 // A quad with object identical to that of the previous quad
                 assert lastQuad != null && lastObject != null;
@@ -120,7 +120,9 @@ final class AllAggregation extends SelectedValueAggregation {
             Quad resultQuad = new Quad(
                     Node.createURI(uriGenerator.nextURI()),
                     lastQuad.getTriple());
-            result.add(new CRQuad(resultQuad, lastQuadQuality, sourceNamedGraphs));
+            double quadQuality = computeQuality(lastQuad, sourceNamedGraphs, conflictingQuads,
+                    metadata, aggregationSpec);
+            result.add(new CRQuad(resultQuad, quadQuality, sourceNamedGraphs));
         }
         return result;
     }
