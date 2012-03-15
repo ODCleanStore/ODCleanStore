@@ -28,7 +28,7 @@ public class KeywordQueryExecutor extends QueryExecutor {
         return null;
     }
 
-    private QuadCollection getKeywordOccurences() {
+    private QuadCollection getKeywordOccurrences() {
         return null;
     }
 

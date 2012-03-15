@@ -28,7 +28,7 @@ public class UriQueryExecutor extends QueryExecutor {
         return null;
     }
 
-    private QuadCollection getURIOccurences() {
+    private QuadCollection getURIOccurrences() {
         return null;
     }
 

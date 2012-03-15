@@ -50,11 +50,11 @@ public class ConflictResolverImpl implements ConflictResolver {
      * by data source in metadata, third by descending stored date in metadata.
      */
     protected static class ObjectSourceStoredComparator implements Comparator<Quad> {
-        /** Metadata for named graphs occuring in compared quads. */
+        /** Metadata for named graphs occurring in compared quads. */
         private NamedGraphMetadataMap namedGraphMetadata;
 
         /**
-         * @param metadata metadata for named graphs occuring in compared quads; must not be null
+         * @param metadata metadata for named graphs occurring in compared quads; must not be null
          */
         public ObjectSourceStoredComparator(NamedGraphMetadataMap metadata) {
             assert metadata != null;
@@ -135,7 +135,7 @@ public class ConflictResolverImpl implements ConflictResolver {
         EnumAggregationErrorStrategy aggregationErrorStrategy = spec.getErrorStrategy();
         UniqueURIGenerator uriGenerator = new SimpleUriGenerator(spec.getNamedGraphPrefix());
 
-        // A little optimization - check metadata for occurences of old versions;
+        // A little optimization - check metadata for occurrences of old versions;
         // if there are none, there is no need to try to filter them in each
         // conflict cluster.
         boolean hasOldVersions = hasOldVersions(metadata);
@@ -150,7 +150,7 @@ public class ConflictResolverImpl implements ConflictResolver {
         Collection<CRQuad> result = createResultCollection();
         Iterator<Collection<Quad>> conflictIterator = quadsToResolve.listConflictingQuads();
         while (conflictIterator.hasNext()) {
-            // Process next set of conflicting quads independently
+            // Process the next set of conflicting quads independently
             Collection<Quad> conflictCluster = conflictIterator.next();
 
             if (hasOldVersions) {
@@ -177,14 +177,17 @@ public class ConflictResolverImpl implements ConflictResolver {
      * <ul>
      * <li>(1) it is identical to another triple from a different named graph B,</li>
      * <li>(2) named graphs A and B have the same data source in metadata,</li>
-     * <li>(3) named graph A has an older stored date than named graph B.</li>
+     * <li>(3) named graph A has an older stored date than named graph B,</li>
+     * <li>(4) named graphs A and B were inserted by the same user.</li>
      * </ul>
+     *
+     * @todo (4)
      *
      * Current implementation has O(n log^2 n) time complexity.
      *
      * @param conflictingQuads a cluster of conflicting quads (quads having
      *        the same subject and predicate)
-     * @param metadata metadata for named graphs occuring in conflictingQuads
+     * @param metadata metadata for named graphs occurring in conflictingQuads
      * @param objectSourceStoredComparator instance of {@link ObjectSourceStoredComparator} for
      *        metadata related to conflictingQuads; passed as a parameter, so that a new comparator
      *        instance doesn't have to be created for each cluster of conflicting quads
@@ -197,7 +200,7 @@ public class ConflictResolverImpl implements ConflictResolver {
 
         // Sort quads by object, data source and time in *reverse order*.
         // Since for every comparison we search the metadata map in
-        // logarithmical time, sorting has time complexity O(n log^2 n)
+        // logarithmic time, sorting has time complexity O(n log^2 n)
         LinkedList<Quad> result = new LinkedList<Quad>(conflictingQuads);
         Collections.sort(result, objectSourceStoredComparator);
 
@@ -258,7 +261,7 @@ public class ConflictResolverImpl implements ConflictResolver {
 
             if (dataSourceDates.containsKey(dataSource)
                     && !dataSourceDates.get(dataSource).equals(metadata.getStored())) {
-                // Occurence of named graphs sharing a common data source
+                // Occurrence of named graphs sharing a common data source
                 // with a different stored date
                 return true;
             } else if (dataSource != null && metadata.getStored() != null) {
@@ -346,7 +349,7 @@ public class ConflictResolverImpl implements ConflictResolver {
      * Asserts that all quads in the collection have the same predicate.
      * @param quads collection of conflicting quads (i.e. having the same
      *        subject and predicate)
-     * @return URI of the predicate occuring in the quads
+     * @return URI of the predicate occurring in the quads
      */
     private String getQuadsProperty(Collection<Quad> quads) {
         assert !quads.isEmpty() : "Collection of conflicting quads must be nonempty";
