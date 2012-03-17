@@ -40,6 +40,11 @@ public class ConflictResolverImpl implements ConflictResolver {
     private static final Logger LOG = LoggerFactory.getLogger(ConflictResolverImpl.class);
 
     /**
+     * An AggregationMethod factory.
+     */
+    private AggregationMethodFactory aggregationFactory = new AggregationMethodFactory();
+
+    /**
      * Settings for the conflict resolution process.
      */
     private final ConflictResolverSpec spec;
@@ -335,11 +340,11 @@ public class ConflictResolverImpl implements ConflictResolver {
             // A little optimization: behavior of all aggregation method on
             // a single quad is supposed to be the same, so we can use an
             // instance optimized for single values
-            return AggregationMethodFactory.getSingleValueAggregation();
+            return aggregationFactory.getSingleValueAggregation();
         }
         String clusterProperty = getQuadsProperty(quads);
         EnumAggregationType propertyAggregation = spec.propertyAggregationType(clusterProperty);
-        return AggregationMethodFactory.getAggregation(propertyAggregation);
+        return aggregationFactory.getAggregation(propertyAggregation);
     }
 
     /**
