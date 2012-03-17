@@ -23,6 +23,8 @@ import java.util.Collections;
  * Aggregation method that returns the median of input conflicting triples.
  * This aggregation is applicable only to quads with a literal as their object.
  *
+ * "Agree bonus" in quality calculation is not applied for this aggregation.
+ *
  * @author Jan Michelfeit
  */
 class MedianAggegation extends CalculatedValueAggregation {
@@ -177,7 +179,7 @@ class MedianAggegation extends CalculatedValueAggregation {
             double quality = computeQuality(
                     resultQuad,
                     sourceNamedGraphs,
-                    Collections.<String>emptySet(), // TODO ?disable agree bonus
+                    Collections.<String>emptySet(),
                     conflictingQuads,
                     metadata,
                     aggregationSpec);

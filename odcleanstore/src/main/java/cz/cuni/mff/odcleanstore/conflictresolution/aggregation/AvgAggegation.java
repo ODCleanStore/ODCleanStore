@@ -19,6 +19,8 @@ import java.util.Collections;
  * Aggregation method that returns the average of input conflicting triples.
  * This aggregation is applicable only to quads with a numeric literal as their object.
  *
+ * "Agree bonus" in quality calculation is not applied for this aggregation.
+ *
  * @author Jan Michelfeit
  */
 final class AvgAggegation extends CalculatedValueAggregation {
@@ -34,9 +36,6 @@ final class AvgAggegation extends CalculatedValueAggregation {
      * @param uriGenerator {@inheritDoc}
      * @param aggregationSpec {@inheritDoc}
      * @return {@inheritDoc}
-     *
-     * @TODO: IMPORTANT: in conflictingQuads passed to computeQuality filter out quads
-     *      that were handled by handleNonAggregableObject
      */
     @Override
     public Collection<CRQuad> aggregate(
@@ -46,11 +45,13 @@ final class AvgAggegation extends CalculatedValueAggregation {
             AggregationSpec aggregationSpec) {
 
         Collection<CRQuad> result = createResultCollection();
+        Collection<Quad> nonAggregableQuads = null;
 
         // Compute average value
         double sum = 0;
         double validNumbersCount = 0;
         Collection<String> sourceNamedGraphs = new ArrayList<String>();
+
         for (Quad quad : conflictingQuads) {
             double numberValue = Utils.tryConvertToDouble(quad.getObject());
             if (!Double.isNaN(numberValue)) {
@@ -58,11 +59,25 @@ final class AvgAggegation extends CalculatedValueAggregation {
                 validNumbersCount++;
                 sourceNamedGraphs.add(quad.getGraphName().getURI());
             } else {
+                if (nonAggregableQuads == null) {
+                    nonAggregableQuads = new ArrayList<Quad>();
+                }
                 handleNonAggregableObject(quad, result, aggregationSpec, this.getClass());
+                nonAggregableQuads.add(quad);
             }
         }
 
         if (validNumbersCount > 0) {
+            // Get list of quads that were really aggregated;
+            // optimized for the case of few non-aggregable quads
+            Collection<Quad> aggregableQuads;
+            if (nonAggregableQuads == null) {
+                aggregableQuads = conflictingQuads;
+            } else {
+                aggregableQuads = new ArrayList<Quad>(conflictingQuads);
+                aggregableQuads.removeAll(nonAggregableQuads);
+            }
+
             double averageValue = sum / validNumbersCount;
             Quad firstQuad = conflictingQuads.iterator().next();
             Quad resultQuad = new Quad(
@@ -73,9 +88,9 @@ final class AvgAggegation extends CalculatedValueAggregation {
             double quality = computeQuality(
                     resultQuad,
                     sourceNamedGraphs,
-                    Collections.<String>emptySet(), // TODO ?disable agree bonus
+                    Collections.<String>emptySet(),
                     //sourceNamedGraphsForObject(resultQuad.getObject(), conflictingQuads),
-                    conflictingQuads,
+                    aggregableQuads,
                     metadata,
                     aggregationSpec);
             result.add(new CRQuad(resultQuad, quality, sourceNamedGraphs));

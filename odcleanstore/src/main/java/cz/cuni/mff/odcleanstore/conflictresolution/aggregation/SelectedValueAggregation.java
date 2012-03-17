@@ -6,7 +6,6 @@ import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 
-
 import de.fuberlin.wiwiss.ng4j.Quad;
 
 import java.util.Collection;
@@ -64,7 +63,7 @@ abstract class SelectedValueAggregation extends AggregationMethodBase {
     }
 
     /**
-     * @see #computeQuality(Quad, Collection, Collection, Collection, NamedGraphMetadataMap, AggregationSpec)
+     * @see #computeQuality(Quad,Collection,Collection,Collection,NamedGraphMetadataMap,AggregationSpec)
      *
      * In case of values selected from input quads, parameters sourceNamedGraphs and
      * agreeNamedGraphs of computeQuality() are identical. This is a utility function that

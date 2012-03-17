@@ -13,13 +13,13 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
- * @todo
+ * Aggregation method that returns the concatenation of all conflicting values.
  * @author Jan Michelfeit
  */
 
 final class ConcatAggegation extends CalculatedValueAggregation {
     /** Separator of concatenated values. */
-    public static final String SEPARATOR = ", ";
+    public static final String SEPARATOR = "; ";
 
     /**
      * Returns a single quad where the object is concatenation of string

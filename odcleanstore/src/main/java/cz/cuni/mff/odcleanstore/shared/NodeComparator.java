@@ -110,14 +110,16 @@ public final class NodeComparator {
             return 0;
         } else if (n1.getClass() != n2.getClass()) {
             // compare by classes somehow, e.g. by class names
+            // TODO: optimize
             return n1.getClass().getName().compareTo(n2.getClass().getName());
         } else {
             // A little optimization: for all but literal nodes comparison using toString() method
             // behaves exactly like using ComparisonVisitor; literals are compared by their lexical
             // form in the first place. Removing the following if-else block doesn't change the
-            // behavior of the algorithm but we can avoid creating unneccessary ComparisonVisitor
+            // behavior of the algorithm but we can avoid creating unnecessary ComparisonVisitor
             // instances.
             if (n1 instanceof Node_Literal) {
+                // TODO: optimize based on type? compare labels?
                 int lexicalComparison =
                         n1.getLiteralLexicalForm().compareTo(n2.getLiteralLexicalForm());
                 if (lexicalComparison != 0) {

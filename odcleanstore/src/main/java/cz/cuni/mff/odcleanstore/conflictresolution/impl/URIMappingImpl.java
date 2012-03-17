@@ -90,7 +90,8 @@ import java.util.TreeMap;
                 throw new UnexpectedPredicateException(triple.getPredicate().getURI(), OWL.sameAs);
             }
             if (!triple.getSubject().isURI() || !triple.getObject().isURI()) {
-                // Ignore sameAs links between everything but URI resources
+                // Ignore sameAs links between everything but URI resources; see owl:sameAs syntax
+                // at see http://www.w3.org/TR/2004/REC-owl-semantics-20040210/syntax.html
                 continue;
             }
 

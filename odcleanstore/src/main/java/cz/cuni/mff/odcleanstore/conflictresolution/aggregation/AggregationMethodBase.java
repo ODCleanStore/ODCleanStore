@@ -183,6 +183,7 @@ abstract class AggregationMethodBase implements AggregationMethod {
      * @see #getSourceQuality(NamedGraphMetadata)
      * @see #AGREE_COEFFICIENT
      * @todo check correctness, rozdelit na tri funkce??
+     * @todo optimize
      */
     protected double computeQuality(
             Quad resultQuad,
