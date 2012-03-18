@@ -1,31 +1,38 @@
 package cz.cuni.mff.odcleanstore.webfrontend;
 
-import java.util.Date;
+
+import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 
 import org.apache.wicket.protocol.http.WebApplication;
 
-import cz.cuni.mff.odcleanstore.webfrontend.dao.User;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  * Web Frontend Application object.
  * 
  */
-public class WicketApplication extends WebApplication {
-
-	public static final User[] users = {
-			new User("karelv", "vasicek@seznam.cz", new Date()),
-			new User("hp", "hp@gmail.com", new Date()),
-			new User("knovak", "knovak@gmail.com", new Date()) };
-
+public class WicketApplication extends WebApplication 
+{
+	private ApplicationContext ctx;
+	
 	@Override
-	public Class<HomePage> getHomePage() {
+	public Class<HomePage> getHomePage() 
+	{
 		return HomePage.class;
 	}
 
 	@Override
-	public void init() {
+	public void init() 
+	{
 		super.init();
-
-		// configuration is to be added here
+		
+		ctx = new ClassPathXmlApplicationContext("./config/bean_locations.xml");
+	}
+	
+	public Dao<User> getUserDao()
+	{
+		return (Dao<User>) ctx.getBean("userDao");
 	}
 }

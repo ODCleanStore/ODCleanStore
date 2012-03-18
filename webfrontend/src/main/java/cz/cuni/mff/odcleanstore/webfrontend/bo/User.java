@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -24,6 +25,7 @@ public class User implements Serializable
 	private Long id;
 	private String username;
 	private String email;
+	private Date createdAt;
 
 	/**
 	 * 
@@ -82,6 +84,25 @@ public class User implements Serializable
 	public void setEmail(String email)
 	{
 		this.email = email;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	@Column(name = "createdAt", nullable = false)
+	public Date getCreatedAt() 
+	{
+		return createdAt;
+	}
+
+	/**
+	 * 
+	 * @param createdAt
+	 */
+	public void setCreatedAt(Date createdAt) 
+	{
+		this.createdAt = createdAt;
 	}
 	
 	/**
