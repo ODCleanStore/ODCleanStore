@@ -116,7 +116,7 @@ public class AggregationSpec {
      */
     public final void setErrorStrategy(EnumAggregationErrorStrategy errorStrategy) {
         if (errorStrategy == null) {
-            throw new IllegalArgumentException("Aggregation error strategy must be null");
+            throw new IllegalArgumentException("Aggregation error strategy must not be null");
         }
         this.errorStrategy = errorStrategy;
     }

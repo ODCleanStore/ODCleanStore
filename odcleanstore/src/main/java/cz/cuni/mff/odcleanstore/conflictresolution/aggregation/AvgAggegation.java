@@ -13,7 +13,6 @@ import de.fuberlin.wiwiss.ng4j.Quad;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 
 /**
  * Aggregation method that returns the average of input conflicting triples.
@@ -85,10 +84,9 @@ final class AvgAggegation extends CalculatedValueAggregation {
                     firstQuad.getSubject(),
                     firstQuad.getPredicate(),
                     Node.createLiteral(LiteralLabelFactory.create(averageValue)));
-            double quality = computeQuality(
+            double quality = computeQualityNoAgree(
                     resultQuad,
                     sourceNamedGraphs,
-                    Collections.<String>emptySet(),
                     //sourceNamedGraphsForObject(resultQuad.getObject(), conflictingQuads),
                     aggregableQuads,
                     metadata,

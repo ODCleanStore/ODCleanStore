@@ -66,6 +66,38 @@ abstract class CalculatedValueAggregation extends AggregationMethodBase {
     }
 
     /**
+     * @see #computeQuality(Quad,Collection,Collection,Collection,NamedGraphMetadataMap,AggregationSpec)
+     *
+     * For some calculated values, multiple sources agreeing on the same value is rather by
+     * coincidence and the quality shouldn't be increased. This methods wraps computeQuality()
+     * disabling the agree bonus.
+     *
+     * @param resultQuad the quad for which quality is to be computed
+     * @param conflictingQuads other quads conflicting with resultQuad
+     *        (for what is meant by conflicting quads see AggregationMethod#aggregate())
+     * @param sourceNamedGraphs URIs of source named graphs containing triples used to calculate
+     *        the result value; must not be empty
+     * @param metadata metadata of source named graphs for resultQuad
+     *        and conflictingQuads
+     * @param aggregationSpec aggregation and quality calculation settings
+     * @return quality estimate of resultQuad as a number from [0,1]
+     */
+    protected double computeQualityNoAgree(
+            Quad resultQuad,
+            Collection<String> sourceNamedGraphs,
+            Collection<Quad> conflictingQuads,
+            NamedGraphMetadataMap metadata,
+            AggregationSpec aggregationSpec) {
+        return computeQuality(
+                resultQuad,
+                sourceNamedGraphs,
+                Collections.<String>emptySet(),
+                conflictingQuads,
+                metadata,
+                aggregationSpec);
+    }
+
+    /**
      * Returns a set (without duplicates) of all named graphs of quads in
      * conflictingQuads.
      * @param conflictingQuads A collection of quads

@@ -60,10 +60,9 @@ final class ConcatAggegation extends CalculatedValueAggregation {
                 Node.createLiteral(resultValue.toString()));
         Collection<String> sourceNamedGraphs = allSourceNamedGraphs(conflictingQuads);
 
-        double quality = computeQuality(
+        double quality = computeQualityNoAgree(
                 resultQuad,
                 sourceNamedGraphs,
-                Collections.<String>emptySet(), // agree bonus doesn't make sense here
                 Collections.singleton(resultQuad), // difference penalty doesn't make sense here
                 metadata,
                 aggregationSpec);

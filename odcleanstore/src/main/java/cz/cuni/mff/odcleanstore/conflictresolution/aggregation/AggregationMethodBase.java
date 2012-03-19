@@ -160,7 +160,7 @@ abstract class AggregationMethodBase implements AggregationMethod {
      * q(V,v0) = (the same as above)
      * </pre>
      *
-     * (see documentation for explanation).
+     * (see the documentation for explanation).
      * The time complexity for multivalue properties is O(s), for non-multivalue properties
      * O(n*d + s) where n is the size of conflictingQuads, d is the complexity of difference
      * calculation, and s is the size of sourceNamedGraphs.
@@ -168,22 +168,22 @@ abstract class AggregationMethodBase implements AggregationMethod {
      * (Actually + O(log k), where k is the size of aggregationSpec.getPropertiesMultivalue().)
      *
      * Precondition: resultQuad is expected to be in conflictingQuads.
+     *
      * @param resultQuad the quad for which quality is to be computed
      * @param conflictingQuads other quads conflicting with resultQuad
-     *        (for what is meant by conflicting quads see AggregationMethod#aggregate())
+     *        (for what is meant by conflicting quads see AggregationMethod#aggregate());
+     *        see preconditions
      * @param sourceNamedGraphs URIs of source named graphs containing triples used to calculate
      *        the result value; must not be empty
      * @param agreeNamedGraphs URIs of named graphs that contain exactly the value given in
      *        resultQuad; this may be the same set as sourceNamedGraphs or a completely different
-     *        set (e.g. in case of calculated values).
+     *        set (e.g. in case of calculated values)
      * @param metadata metadata of source named graphs for resultQuad
      *        and conflictingQuads
      * @param aggregationSpec aggregation and quality calculation settings
      * @return quality estimate of resultQuad as a number from [0,1]
      * @see #getSourceQuality(NamedGraphMetadata)
      * @see #AGREE_COEFFICIENT
-     * @todo check correctness, rozdelit na tri funkce??
-     * @todo optimize
      */
     protected double computeQuality(
             Quad resultQuad,
@@ -196,9 +196,11 @@ abstract class AggregationMethodBase implements AggregationMethod {
         // Compute basic score based on sourceNamedGraphs' scores
         double basicQuality = computeBasicQuality(resultQuad, sourceNamedGraphs, metadata);
         double resultQuality = basicQuality;
-        if (resultQuality == 0) {
-            return resultQuality; // BUNO
-        }
+
+        // Usually, the quality is positive, skip the check
+        //if (resultQuality == 0) {
+        //    return resultQuality; // BUNO
+        //}
 
         // Consider conflicting values
         boolean isPropertyMultivalue =
@@ -233,11 +235,11 @@ abstract class AggregationMethodBase implements AggregationMethod {
         }
 
         // Increase score if multiple sources agree on the result value
-        double sourceScoreSum = 0;
         if (agreeNamedGraphs.size() > 1) {
-            // IMPORTANT NOTE: the condition (sourceNamedGraphs.size() > 1) is an optimization that
+            // IMPORTANT NOTE: the condition (agreeNamedGraphs.size() > 1) is an optimization that
             // relies on the fact the for (sourceNamedGraphs.size() == 1) the condition
             // (basicQuality == sourceScoreSum) holds
+            double sourceScoreSum = 0;
             for (String sourceNamedGraphURI : agreeNamedGraphs) {
                 NamedGraphMetadata namedGraphMetadata = metadata.getMetadata(sourceNamedGraphURI);
                 sourceScoreSum += getSourceQuality(namedGraphMetadata);
@@ -246,6 +248,8 @@ abstract class AggregationMethodBase implements AggregationMethod {
             // agreeQualityCoef is non-negative thanks to invariant in computeBasicQuality()
             if (agreeQualityCoef > 1) {
                 agreeQualityCoef = 1;
+            } else if (agreeQualityCoef < 0) {
+                agreeQualityCoef = 0;
             }
             resultQuality += (1 - resultQuality) * agreeQualityCoef;
         }

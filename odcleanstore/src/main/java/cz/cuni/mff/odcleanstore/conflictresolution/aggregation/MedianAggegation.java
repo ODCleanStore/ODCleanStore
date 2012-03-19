@@ -176,10 +176,9 @@ class MedianAggegation extends CalculatedValueAggregation {
                     firstQuad.getSubject(),
                     firstQuad.getPredicate(),
                     Node.createLiteral(LiteralLabelFactory.create(medianValue)));
-            double quality = computeQuality(
+            double quality = computeQualityNoAgree(
                     resultQuad,
                     sourceNamedGraphs,
-                    Collections.<String>emptySet(),
                     conflictingQuads,
                     metadata,
                     aggregationSpec);
