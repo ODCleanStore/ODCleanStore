@@ -24,14 +24,27 @@ public class CalculatedValueAggregationTest {
     private static final double EPSILON = 0.0;
     private static final int CONFLICTING_QUAD_COUNT = 3;
     private static final double DEFAULT_SCORE = Math.PI - Math.floor(Math.PI); // 0.14...
+    private static final String URI_PREFIX  = "http://example.com/test/";
+
+    private static final UniqueURIGenerator URI_GENERATOR = new UniqueURIGenerator() {
+        private int lastNamedGraphId = 0;
+        @Override
+        public String nextURI() {
+            ++lastNamedGraphId;
+            return URI_PREFIX + lastNamedGraphId;
+        }
+    };
 
     public class CalculatedValueAggregationImpl extends CalculatedValueAggregation {
+        public CalculatedValueAggregationImpl(
+                AggregationSpec aggregationSpec,
+                UniqueURIGenerator uriGenerator) {
+            super(aggregationSpec, uriGenerator);
+        }
+
         @Override
         public Collection<CRQuad> aggregate(
-                Collection<Quad> conflictingQuads,
-                NamedGraphMetadataMap metadata,
-                UniqueURIGenerator uriGenerator,
-                AggregationSpec aggregationSpec) {
+                Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
 
             throw new UnsupportedOperationException();
         }
@@ -53,7 +66,8 @@ public class CalculatedValueAggregationTest {
     public void testQualitySingleValue() {
         final double score = DEFAULT_SCORE;
 
-        CalculatedValueAggregation instance = new CalculatedValueAggregationImpl();
+        CalculatedValueAggregation instance =
+                new CalculatedValueAggregationImpl(new AggregationSpec(), URI_GENERATOR);
 
         Quad quad = TestUtils.createQuad();
         Collection<String> sourceNamedGraphs = Collections.singleton(quad.getGraphName().getURI());
@@ -68,8 +82,7 @@ public class CalculatedValueAggregationTest {
                 sourceNamedGraphs,
                 Collections.<String>emptySet(),
                 Collections.singleton(quad),
-                metadataMap,
-                new AggregationSpec());
+                metadataMap);
         Assert.assertEquals(score, computedQuality, EPSILON);
     }
 
@@ -80,7 +93,8 @@ public class CalculatedValueAggregationTest {
         final double lowerScore = DEFAULT_SCORE / 2;
         final double higherScore = DEFAULT_SCORE;
 
-        CalculatedValueAggregation instance = new CalculatedValueAggregationImpl();
+        CalculatedValueAggregation instance =
+                new CalculatedValueAggregationImpl(new AggregationSpec(), URI_GENERATOR);
 
         Collection<Quad> conflictingQuads = generateQuadCollection();
         NamedGraphMetadataMap metadataMap = new NamedGraphMetadataMap();
@@ -107,15 +121,13 @@ public class CalculatedValueAggregationTest {
                 sourceNamedGraphs,
                 Collections.<String>emptySet(),
                 Collections.singleton(lowerQuad),
-                metadataMap,
-                new AggregationSpec());
+                metadataMap);
         double higherComputedQuality = instance.computeQuality(
                 higherQuad,
                 sourceNamedGraphs,
                 Collections.<String>emptySet(),
                 Collections.singleton(higherQuad),
-                metadataMap,
-                new AggregationSpec());
+                metadataMap);
 
         // For computed values the result should be the same
         Assert.assertTrue(lowerComputedQuality == higherComputedQuality);
@@ -123,7 +135,8 @@ public class CalculatedValueAggregationTest {
 
     @Test
     public void testQualityEmptyMetadata() {
-        CalculatedValueAggregation instance = new CalculatedValueAggregationImpl();
+        CalculatedValueAggregation instance =
+                new CalculatedValueAggregationImpl(new AggregationSpec(), URI_GENERATOR);
 
         Quad quad = TestUtils.createQuad();
         Collection<String> sourceNamedGraphs = Collections.singleton(quad.getGraphName().getURI());
@@ -134,8 +147,7 @@ public class CalculatedValueAggregationTest {
                 sourceNamedGraphs,
                 Collections.<String>emptySet(),
                 Collections.singleton(quad),
-                metadata,
-                new AggregationSpec());
+                metadata);
         Assert.assertEquals(
                 AggregationMethodBase.SCORE_IF_UNKNOWN,
                 computedQuality,

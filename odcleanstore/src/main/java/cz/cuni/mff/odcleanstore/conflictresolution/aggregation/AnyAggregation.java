@@ -17,6 +17,16 @@ import java.util.Collection;
  * @author Jan Michelfeit
  */
 final class AnyAggregation extends SelectedValueAggregation {
+    /**
+     * Creates a new instance with given settings.
+     * @param aggregationSpec aggregation and quality calculation settings
+     * @param uriGenerator generator of URIs
+     */
+    public AnyAggregation(
+            AggregationSpec aggregationSpec,
+            UniqueURIGenerator uriGenerator) {
+        super(aggregationSpec, uriGenerator);
+    }
 
     /**
      * Returns a single triple selected from input triples wrapped as CRQuad.
@@ -27,16 +37,11 @@ final class AnyAggregation extends SelectedValueAggregation {
      *
      * @param conflictingQuads {@inheritDoc}
      * @param metadata {@inheritDoc}
-     * @param uriGenerator {@inheritDoc}
-     * @param aggregationSpec {@inheritDoc}
      * @return {@inheritDoc}
      */
     @Override
     public Collection<CRQuad> aggregate(
-            Collection<Quad> conflictingQuads,
-            NamedGraphMetadataMap metadata,
-            UniqueURIGenerator uriGenerator,
-            AggregationSpec aggregationSpec) {
+            Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
 
         if (conflictingQuads.isEmpty()) {
             return createResultCollection();
@@ -46,8 +51,11 @@ final class AnyAggregation extends SelectedValueAggregation {
         Collection<String> sourceNamedGraphs = sourceNamedGraphsForObject(
                 firstQuad.getObject(),
                 conflictingQuads);
-        double quality = computeQualitySelected(firstQuad, sourceNamedGraphs, conflictingQuads,
-                metadata, aggregationSpec);
+        double quality = computeQualitySelected(
+                firstQuad,
+                sourceNamedGraphs,
+                conflictingQuads,
+                metadata);
         Quad resultQuad = new Quad(Node.createURI(uriGenerator.nextURI()), firstQuad.getTriple());
         Collection<CRQuad> result = createSingleResultCollection(
                 new CRQuad(resultQuad, quality, sourceNamedGraphs));

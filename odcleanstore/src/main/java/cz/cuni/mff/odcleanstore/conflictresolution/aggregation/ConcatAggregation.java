@@ -17,9 +17,20 @@ import java.util.Collections;
  * @author Jan Michelfeit
  */
 
-final class ConcatAggegation extends CalculatedValueAggregation {
+final class ConcatAggregation extends CalculatedValueAggregation {
     /** Separator of concatenated values. */
     public static final String SEPARATOR = "; ";
+
+    /**
+     * Creates a new instance with given settings.
+     * @param aggregationSpec aggregation and quality calculation settings
+     * @param uriGenerator generator of URIs
+     */
+    public ConcatAggregation(
+            AggregationSpec aggregationSpec,
+            UniqueURIGenerator uriGenerator) {
+        super(aggregationSpec, uriGenerator);
+    }
 
     /**
      * Returns a single quad where the object is concatenation of string
@@ -31,16 +42,11 @@ final class ConcatAggegation extends CalculatedValueAggregation {
      *
      * @param conflictingQuads {@inheritDoc}
      * @param metadata {@inheritDoc}
-     * @param uriGenerator {@inheritDoc}
-     * @param aggregationSpec {@inheritDoc}
      * @return {@inheritDoc}
      */
     @Override
     public Collection<CRQuad> aggregate(
-            Collection<Quad> conflictingQuads,
-            NamedGraphMetadataMap metadata,
-            UniqueURIGenerator uriGenerator,
-            AggregationSpec aggregationSpec) {
+            Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
 
         StringBuilder resultValue = new StringBuilder();
         boolean first = true;
@@ -64,8 +70,7 @@ final class ConcatAggegation extends CalculatedValueAggregation {
                 resultQuad,
                 sourceNamedGraphs,
                 Collections.singleton(resultQuad), // difference penalty doesn't make sense here
-                metadata,
-                aggregationSpec);
+                metadata);
 
         Collection<CRQuad> result = createSingleResultCollection(
                 new CRQuad(resultQuad, quality, sourceNamedGraphs));

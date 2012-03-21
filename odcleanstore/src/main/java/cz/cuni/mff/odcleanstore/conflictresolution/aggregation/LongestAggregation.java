@@ -15,6 +15,17 @@ import java.util.Collection;
  */
 class LongestAggregation extends SelectedValueAggregation {
     /**
+     * Creates a new instance with given settings.
+     * @param aggregationSpec aggregation and quality calculation settings
+     * @param uriGenerator generator of URIs
+     */
+    public LongestAggregation(
+            AggregationSpec aggregationSpec,
+            UniqueURIGenerator uriGenerator) {
+        super(aggregationSpec, uriGenerator);
+    }
+
+    /**
      * Returns a single quad where the object is the longest value from objects
      * in conflictingQuads.
      *
@@ -22,16 +33,11 @@ class LongestAggregation extends SelectedValueAggregation {
      *
      * @param conflictingQuads {@inheritDoc}
      * @param metadata {@inheritDoc}
-     * @param uriGenerator {@inheritDoc}
-     * @param aggregationSpec {@inheritDoc}
      * @return {@inheritDoc}
      */
     @Override
     public Collection<CRQuad> aggregate(
-            Collection<Quad> conflictingQuads,
-            NamedGraphMetadataMap metadata,
-            UniqueURIGenerator uriGenerator,
-            AggregationSpec aggregationSpec) {
+            Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
 
         throw new UnsupportedOperationException("Not supported yet.");
     }

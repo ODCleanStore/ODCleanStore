@@ -22,7 +22,18 @@ import java.util.Collection;
  *
  * @author Jan Michelfeit
  */
-final class AvgAggegation extends CalculatedValueAggregation {
+final class AvgAggregation extends CalculatedValueAggregation {
+    /**
+     * Creates a new instance with given settings.
+     * @param aggregationSpec aggregation and quality calculation settings
+     * @param uriGenerator generator of URIs
+     */
+    public AvgAggregation(
+            AggregationSpec aggregationSpec,
+            UniqueURIGenerator uriGenerator) {
+        super(aggregationSpec, uriGenerator);
+    }
+
     /**
      * Returns a single quad where the object is the average of objects in
      * conflictingQuads.
@@ -32,16 +43,11 @@ final class AvgAggegation extends CalculatedValueAggregation {
      *
      * @param conflictingQuads {@inheritDoc}
      * @param metadata {@inheritDoc}
-     * @param uriGenerator {@inheritDoc}
-     * @param aggregationSpec {@inheritDoc}
      * @return {@inheritDoc}
      */
     @Override
     public Collection<CRQuad> aggregate(
-            Collection<Quad> conflictingQuads,
-            NamedGraphMetadataMap metadata,
-            UniqueURIGenerator uriGenerator,
-            AggregationSpec aggregationSpec) {
+            Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
 
         Collection<CRQuad> result = createResultCollection();
         Collection<Quad> nonAggregableQuads = null;
@@ -86,11 +92,10 @@ final class AvgAggegation extends CalculatedValueAggregation {
                     Node.createLiteral(LiteralLabelFactory.create(averageValue)));
             double quality = computeQualityNoAgree(
                     resultQuad,
+                    // sourceNamedGraphsForObject(resultQuad.getObject(), conflictingQuads)
                     sourceNamedGraphs,
-                    //sourceNamedGraphsForObject(resultQuad.getObject(), conflictingQuads),
                     aggregableQuads,
-                    metadata,
-                    aggregationSpec);
+                    metadata);
             result.add(new CRQuad(resultQuad, quality, sourceNamedGraphs));
         }
 

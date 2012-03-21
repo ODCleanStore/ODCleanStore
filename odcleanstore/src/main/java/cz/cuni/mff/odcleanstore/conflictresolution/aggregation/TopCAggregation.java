@@ -15,23 +15,29 @@ import java.util.Collection;
  */
 final class TopCAggregation extends SelectedValueAggregation {
     /**
+     * Creates a new instance with given settings.
+     * @param aggregationSpec aggregation and quality calculation settings
+     * @param uriGenerator generator of URIs
+     */
+    public TopCAggregation(
+            AggregationSpec aggregationSpec,
+            UniqueURIGenerator uriGenerator) {
+        super(aggregationSpec, uriGenerator);
+    }
+
+    /**
      * Returns C quads with highest quality where C is cardinality of the quad's
      * predicate.
      *
      * {@inheritDoc}
      *
      * @param conflictingQuads {@inheritDoc}
-     * @param metadata {@inheritDoc}
-     * @param uriGenerator {@inheritDoc}
-     * @param aggregationSpec {@inheritDoc}
+     * @param metadata metadata for named graphs occurring in conflictingQuads
      * @return {@inheritDoc}
      */
     @Override
     public Collection<CRQuad> aggregate(
-            Collection<Quad> conflictingQuads,
-            NamedGraphMetadataMap metadata,
-            UniqueURIGenerator uriGenerator,
-            AggregationSpec aggregationSpec) {
+            Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
 
         throw new UnsupportedOperationException("Not supported yet.");
     }

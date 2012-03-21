@@ -31,6 +31,17 @@ class MedianAggegation extends CalculatedValueAggregation {
     private static final Logger LOG = LoggerFactory.getLogger(MedianAggegation.class);
 
     /**
+     * Creates a new instance with given settings.
+     * @param aggregationSpec aggregation and quality calculation settings
+     * @param uriGenerator generator of URIs
+     */
+    public MedianAggegation(
+            AggregationSpec aggregationSpec,
+            UniqueURIGenerator uriGenerator) {
+        super(aggregationSpec, uriGenerator);
+    }
+
+    /**
      * Returns a single quad where the object is the median of objects in conflictingQuads.
      * The type of comparison (e.g. as numbers, strings, dates) is chosen based on the type of
      * the object of the first quad in conflictingQuads. Only literal objects can be aggregated.
@@ -39,8 +50,6 @@ class MedianAggegation extends CalculatedValueAggregation {
      *
      * @param conflictingQuads {@inheritDoc}
      * @param metadata {@inheritDoc}
-     * @param uriGenerator {@inheritDoc}
-     * @param aggregationSpec {@inheritDoc}
      * @return {@inheritDoc}
      *
      * @TODO: IMPORTANT: in conflictingQuads passed to computeQuality filter out quads
@@ -48,10 +57,7 @@ class MedianAggegation extends CalculatedValueAggregation {
      */
     @Override
     public Collection<CRQuad> aggregate(
-            Collection<Quad> conflictingQuads,
-            NamedGraphMetadataMap metadata,
-            UniqueURIGenerator uriGenerator,
-            AggregationSpec aggregationSpec) {
+            Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
 
         Collection<CRQuad> result = createResultCollection();
         if (conflictingQuads.isEmpty()) {
@@ -125,13 +131,11 @@ class MedianAggegation extends CalculatedValueAggregation {
                     firstQuad.getPredicate(),
                     Node.createLiteral(LiteralLabelFactory.create(medianValue)));
 
-            double quality = computeQuality(
+            double quality = computeQualityNoAgree(
                     resultQuad,
                     sourceNamedGraphs,
-                    Collections.<String>emptySet(), // disable agree bonus
                     conflictingQuads,
-                    metadata,
-                    aggregationSpec);
+                    metadata);
             result.add(new CRQuad(resultQuad, quality, sourceNamedGraphs));
             return result;
         }
@@ -180,8 +184,7 @@ class MedianAggegation extends CalculatedValueAggregation {
                     resultQuad,
                     sourceNamedGraphs,
                     conflictingQuads,
-                    metadata,
-                    aggregationSpec);
+                    metadata);
             result.add(new CRQuad(resultQuad, quality, sourceNamedGraphs));
             return result;
         }

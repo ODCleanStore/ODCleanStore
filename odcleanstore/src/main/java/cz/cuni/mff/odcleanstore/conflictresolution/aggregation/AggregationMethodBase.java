@@ -67,15 +67,38 @@ abstract class AggregationMethodBase implements AggregationMethod {
      */
     protected static final double PUBLISHER_SCORE_WEIGHT = 0.2;
 
+    // CHECKSTYLE:OFF
+    /**
+     * Generator of unique URIs.
+     */
+    protected final UniqueURIGenerator uriGenerator;
+
+    /**
+     * Aggregation and quality calculation settings.
+     */
+    protected final AggregationSpec aggregationSpec;
+
+    // CHECKSTYLE:ON
+
+    /**
+     * Creates a new instance with given settings.
+     * @param aggregationSpec aggregation and quality calculation settings
+     * @param uriGenerator generator of URIs
+     */
+    public AggregationMethodBase(
+            AggregationSpec aggregationSpec,
+            UniqueURIGenerator uriGenerator) {
+
+        this.uriGenerator = uriGenerator;
+        this.aggregationSpec = aggregationSpec;
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
     public abstract Collection<CRQuad> aggregate(
-            Collection<Quad> conflictingTriples,
-            NamedGraphMetadataMap metadata,
-            UniqueURIGenerator uriGenerator,
-            AggregationSpec aggregationSpec);
+            Collection<Quad> conflictingTriples, NamedGraphMetadataMap metadata);
 
     /**
      * Return the default DistanceMetric instance.
@@ -170,17 +193,16 @@ abstract class AggregationMethodBase implements AggregationMethod {
      * Precondition: resultQuad is expected to be in conflictingQuads.
      *
      * @param resultQuad the quad for which quality is to be computed
-     * @param conflictingQuads other quads conflicting with resultQuad
-     *        (for what is meant by conflicting quads see AggregationMethod#aggregate());
-     *        see preconditions
      * @param sourceNamedGraphs URIs of source named graphs containing triples used to calculate
      *        the result value; must not be empty
      * @param agreeNamedGraphs URIs of named graphs that contain exactly the value given in
      *        resultQuad; this may be the same set as sourceNamedGraphs or a completely different
      *        set (e.g. in case of calculated values)
+     * @param conflictingQuads other quads conflicting with resultQuad
+     *        (for what is meant by conflicting quads see AggregationMethod#aggregate());
+     *        see preconditions
      * @param metadata metadata of source named graphs for resultQuad
      *        and conflictingQuads
-     * @param aggregationSpec aggregation and quality calculation settings
      * @return quality estimate of resultQuad as a number from [0,1]
      * @see #getSourceQuality(NamedGraphMetadata)
      * @see #AGREE_COEFFICIENT
@@ -190,8 +212,7 @@ abstract class AggregationMethodBase implements AggregationMethod {
             Collection<String> sourceNamedGraphs,
             Collection<String> agreeNamedGraphs,
             Collection<Quad> conflictingQuads,
-            NamedGraphMetadataMap metadata,
-            AggregationSpec aggregationSpec) {
+            NamedGraphMetadataMap metadata) {
 
         // Compute basic score based on sourceNamedGraphs' scores
         double basicQuality = computeBasicQuality(resultQuad, sourceNamedGraphs, metadata);

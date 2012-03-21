@@ -36,23 +36,30 @@ final class SingleValueAggregation extends AggregationMethodBase {
     private static final Logger LOG = LoggerFactory.getLogger(SingleValueAggregation.class);
 
     /**
+     * Creates a new instance with given settings.
+     * @param aggregationSpec aggregation and quality calculation settings
+     * @param uriGenerator generator of URIs
+     */
+    public SingleValueAggregation(
+            AggregationSpec aggregationSpec,
+            UniqueURIGenerator uriGenerator) {
+        super(aggregationSpec, uriGenerator);
+    }
+
+    /**
      * Returns the single value from conflictingQuads wrapped as a CRQuad.
      * Argument conflictingQuads must contain exactly one quad.
      *
      * @param conflictingQuads {@inheritDoc}; must contain exactly one quad.
-     * @param metadata {@inheritDoc}
-     * @param uriGenerator {@inheritDoc}
-     * @param aggregationSpec {@inheritDoc}
+     * @param metadata metadata for named graphs occurring in conflictingQuads
      * @return {@inheritDoc}
      * @throw IllegalArgumentException thrown when conflictingQuads doesn't
      *        contain exactly one quad
      */
     @Override
     public Collection<CRQuad> aggregate(
-            Collection<Quad> conflictingQuads,
-            NamedGraphMetadataMap metadata,
-            UniqueURIGenerator uriGenerator,
-            AggregationSpec aggregationSpec) {
+            Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
+
         if (conflictingQuads.size() != 1) {
             LOG.error("{} quads given to SingleValueAggregation.", conflictingQuads.size());
             throw new IllegalArgumentException(

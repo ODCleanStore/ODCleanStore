@@ -15,6 +15,15 @@ import java.util.Collection;
  */
 class MinAggregation extends SelectedValueAggregation {
     /**
+     * Creates a new instance with given settings.
+     * @param aggregationSpec aggregation and quality calculation settings
+     * @param uriGenerator generator of URIs
+     */
+    public MinAggregation(AggregationSpec aggregationSpec, UniqueURIGenerator uriGenerator) {
+        super(aggregationSpec, uriGenerator);
+    }
+
+    /**
      * Returns a single quad where the object is the minimum of objects in
      * conflictingQuads.
      *
@@ -22,16 +31,11 @@ class MinAggregation extends SelectedValueAggregation {
      *
      * @param conflictingQuads {@inheritDoc}
      * @param metadata {@inheritDoc}
-     * @param uriGenerator {@inheritDoc}
-     * @param aggregationSpec {@inheritDoc}
      * @return {@inheritDoc}
      */
     @Override
     public Collection<CRQuad> aggregate(
-            Collection<Quad> conflictingQuads,
-            NamedGraphMetadataMap metadata,
-            UniqueURIGenerator uriGenerator,
-            AggregationSpec aggregationSpec) {
+            Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
 
         throw new UnsupportedOperationException("Not supported yet.");
     }

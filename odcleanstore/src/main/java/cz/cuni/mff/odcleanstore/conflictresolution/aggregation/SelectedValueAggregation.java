@@ -19,23 +19,29 @@ import java.util.Collection;
  */
 abstract class SelectedValueAggregation extends AggregationMethodBase {
     /**
+     * Creates a new instance with given settings.
+     * @param aggregationSpec aggregation and quality calculation settings
+     * @param uriGenerator generator of URIs
+     */
+    public SelectedValueAggregation(
+            AggregationSpec aggregationSpec,
+            UniqueURIGenerator uriGenerator) {
+        super(aggregationSpec, uriGenerator);
+    }
+
+    /**
      * Aggregates quads in conflictingQuads into one or more result quads and
      * calculates quality estimate and source information for each of the result
      * quads. The aggregated triples are selected from conflictingQuads and have
      * the original source.
      *
      * @param conflictingQuads {@inheritDoc}
-     * @param metadata {@inheritDoc}
-     * @param uriGenerator {@inheritDoc}
-     * @param aggregationSpec {@inheritDoc}
+     * @param metadata metadata {@inheritDoc}
      * @return {@inheritDoc}
      */
     @Override
     public abstract Collection<CRQuad> aggregate(
-            Collection<Quad> conflictingQuads,
-            NamedGraphMetadataMap metadata,
-            UniqueURIGenerator uriGenerator,
-            AggregationSpec aggregationSpec);
+            Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata);
 
     /**
      * {@inheritDoc}
@@ -63,7 +69,7 @@ abstract class SelectedValueAggregation extends AggregationMethodBase {
     }
 
     /**
-     * @see #computeQuality(Quad,Collection,Collection,Collection,NamedGraphMetadataMap,AggregationSpec)
+     * @see #computeQuality(Quad,Collection,Collection,Collection,NamedGraphMetadataMap)
      *
      * In case of values selected from input quads, parameters sourceNamedGraphs and
      * agreeNamedGraphs of computeQuality() are identical. This is a utility function that
@@ -76,21 +82,18 @@ abstract class SelectedValueAggregation extends AggregationMethodBase {
      *        the result value; must not be empty
      * @param metadata metadata of source named graphs for resultQuad
      *        and conflictingQuads
-     * @param aggregationSpec aggregation and quality calculation settings
      * @return quality estimate of resultQuad as a number from [0,1]
      */
     protected double computeQualitySelected(
             Quad resultQuad,
             Collection<String> sourceNamedGraphs,
             Collection<Quad> conflictingQuads,
-            NamedGraphMetadataMap metadata,
-            AggregationSpec aggregationSpec) {
+            NamedGraphMetadataMap metadata) {
         return computeQuality(
                 resultQuad,
                 sourceNamedGraphs,
                 sourceNamedGraphs,
                 conflictingQuads,
-                metadata,
-                aggregationSpec);
+                metadata);
     }
 }

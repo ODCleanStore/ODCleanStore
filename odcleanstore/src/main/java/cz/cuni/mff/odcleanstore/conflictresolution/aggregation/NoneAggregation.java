@@ -20,6 +20,17 @@ import java.util.Collections;
  */
 final class NoneAggregation extends SelectedValueAggregation {
     /**
+     * Creates a new instance with given settings.
+     * @param aggregationSpec aggregation and quality calculation settings
+     * @param uriGenerator generator of URIs
+     */
+    public NoneAggregation(
+            AggregationSpec aggregationSpec,
+            UniqueURIGenerator uriGenerator) {
+        super(aggregationSpec, uriGenerator);
+    }
+
+    /**
      * Returns conflictingQuads unchanged, only wrapped as CRQuads with added
      * quality estimate.
      *
@@ -29,16 +40,11 @@ final class NoneAggregation extends SelectedValueAggregation {
      *
      * @param conflictingQuads {@inheritDoc}
      * @param metadata {@inheritDoc}
-     * @param uriGenerator {@inheritDoc}
-     * @param aggregationSpec {@inheritDoc}
      * @return {@inheritDoc}
      */
     @Override
     public Collection<CRQuad> aggregate(
-            Collection<Quad> conflictingQuads,
-            NamedGraphMetadataMap metadata,
-            UniqueURIGenerator uriGenerator,
-            AggregationSpec aggregationSpec) {
+            Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
 
         Collection<CRQuad> result = createResultCollection();
 
@@ -49,8 +55,7 @@ final class NoneAggregation extends SelectedValueAggregation {
                     quad,
                     sourceNamedGraphs,
                     conflictingQuads,
-                    metadata,
-                    aggregationSpec);
+                    metadata);
             Quad resultQuad = new Quad(Node.createURI(uriGenerator.nextURI()), quad.getTriple());
             result.add(new CRQuad(resultQuad, quality, sourceNamedGraphs));
         }

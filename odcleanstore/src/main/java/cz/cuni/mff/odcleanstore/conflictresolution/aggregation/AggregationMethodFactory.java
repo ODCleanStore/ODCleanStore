@@ -1,12 +1,17 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
+import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationType;
+import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Factory class for various quad aggregation methods.
+ * The factory is implemented as a registry storing and reusing created instances.
+ * This relies on the fact that aggregations do not maintain any internal state except for
+ * constructor arguments.
  *
  * @author Jan Michelfeit
  */
@@ -23,9 +28,26 @@ public class AggregationMethodFactory {
     private AggregationMethod singleValueAggregation;
 
     /**
-     * Creates an instance of this class.
+     * Generator of URIs passed to newly created aggregations.
      */
-    public AggregationMethodFactory() {
+    private UniqueURIGenerator uriGenerator;
+
+    /**
+     * Aggregation settings passed to newly created aggregations.
+     */
+    private AggregationSpec aggregationSpec;
+
+    /**
+     * Creates a new factory with the given settings for creating new aggregations.
+     * @param uriGenerator generator of URIs
+     * @param aggregationSpec aggregation and quality calculation settings
+     */
+    public AggregationMethodFactory(
+            UniqueURIGenerator uriGenerator,
+            AggregationSpec aggregationSpec) {
+
+        this.uriGenerator = uriGenerator;
+        this.aggregationSpec = aggregationSpec;
         this.singleValueAggregation = createSingleValueAggregation();
     }
 
@@ -69,35 +91,35 @@ public class AggregationMethodFactory {
      * @throws AggregationNotImplementedException thrown if there is no
      *         AggregationMethod implementation for the selected aggregation type
      */
-    protected static AggregationMethod createAggregation(EnumAggregationType type)
+    protected AggregationMethod createAggregation(EnumAggregationType type)
             throws AggregationNotImplementedException {
         switch (type) {
         case ANY:
-            return new AnyAggregation();
+            return new AnyAggregation(aggregationSpec, uriGenerator);
         case ALL:
-            return new AllAggregation();
+            return new AllAggregation(aggregationSpec, uriGenerator);
         case BEST:
-            return new BestAggregation();
+            return new BestAggregation(aggregationSpec, uriGenerator);
         case LATEST:
-            return new LatestAggregation();
+            return new LatestAggregation(aggregationSpec, uriGenerator);
         case TOPC:
-            return new TopCAggregation();
+            return new TopCAggregation(aggregationSpec, uriGenerator);
         case MIN:
-            return new MinAggregation();
+            return new MinAggregation(aggregationSpec, uriGenerator);
         case MAX:
-            return new MaxAggregation();
+            return new MaxAggregation(aggregationSpec, uriGenerator);
         case AVG:
-            return new AvgAggegation();
+            return new AvgAggregation(aggregationSpec, uriGenerator);
         case MEDIAN:
-            return new MedianAggegation();
+            return new MedianAggegation(aggregationSpec, uriGenerator);
         case CONCAT:
-            return new ConcatAggegation();
+            return new ConcatAggregation(aggregationSpec, uriGenerator);
         case SHORTEST:
-            return new ShortestAggregation();
+            return new ShortestAggregation(aggregationSpec, uriGenerator);
         case LONGEST:
-            return new LongestAggregation();
+            return new LongestAggregation(aggregationSpec, uriGenerator);
         case NONE:
-            return new NoneAggregation();
+            return new NoneAggregation(aggregationSpec, uriGenerator);
         default:
             if (type == null) {
                 throw new IllegalArgumentException("Cannot create AggregationMethod of null type");
@@ -112,7 +134,7 @@ public class AggregationMethodFactory {
      * @see #getSingleValueAggregation()
      * @return a new instance of AggregationMethod
      */
-    protected static AggregationMethod createSingleValueAggregation() {
-        return new SingleValueAggregation();
+    protected AggregationMethod createSingleValueAggregation() {
+        return new SingleValueAggregation(aggregationSpec, uriGenerator);
     }
 }

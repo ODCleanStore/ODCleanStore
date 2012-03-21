@@ -23,21 +23,27 @@ import java.util.Set;
  */
 abstract class CalculatedValueAggregation extends AggregationMethodBase {
     /**
+     * Creates a new instance with given settings.
+     * @param aggregationSpec aggregation and quality calculation settings
+     * @param uriGenerator generator of URIs
+     */
+    public CalculatedValueAggregation(
+            AggregationSpec aggregationSpec,
+            UniqueURIGenerator uriGenerator) {
+        super(aggregationSpec, uriGenerator);
+    }
+
+    /**
      * Calculates result quads from all conflictingQuads. The source of the
      * aggregated triples is thus the union of all sources of the input triples.
      *
      * @param conflictingQuads {@inheritDoc}
      * @param metadata {@inheritDoc}
-     * @param uriGenerator {@inheritDoc}
-     * @param aggregationSpec {@inheritDoc}
      * @return {@inheritDoc}
      */
     @Override
     public abstract Collection<CRQuad> aggregate(
-            Collection<Quad> conflictingQuads,
-            NamedGraphMetadataMap metadata,
-            UniqueURIGenerator uriGenerator,
-            AggregationSpec aggregationSpec);
+            Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata);
 
     /**
      * {@inheritDoc}
@@ -66,7 +72,7 @@ abstract class CalculatedValueAggregation extends AggregationMethodBase {
     }
 
     /**
-     * @see #computeQuality(Quad,Collection,Collection,Collection,NamedGraphMetadataMap,AggregationSpec)
+     * @see #computeQuality(Quad,Collection,Collection,Collection,NamedGraphMetadataMap)
      *
      * For some calculated values, multiple sources agreeing on the same value is rather by
      * coincidence and the quality shouldn't be increased. This methods wraps computeQuality()
@@ -79,22 +85,19 @@ abstract class CalculatedValueAggregation extends AggregationMethodBase {
      *        the result value; must not be empty
      * @param metadata metadata of source named graphs for resultQuad
      *        and conflictingQuads
-     * @param aggregationSpec aggregation and quality calculation settings
      * @return quality estimate of resultQuad as a number from [0,1]
      */
     protected double computeQualityNoAgree(
             Quad resultQuad,
             Collection<String> sourceNamedGraphs,
             Collection<Quad> conflictingQuads,
-            NamedGraphMetadataMap metadata,
-            AggregationSpec aggregationSpec) {
+            NamedGraphMetadataMap metadata) {
         return computeQuality(
                 resultQuad,
                 sourceNamedGraphs,
                 Collections.<String>emptySet(),
                 conflictingQuads,
-                metadata,
-                aggregationSpec);
+                metadata);
     }
 
     /**

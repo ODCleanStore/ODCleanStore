@@ -20,6 +20,17 @@ import java.util.Collection;
  */
 final class BestAggregation extends SelectedValueAggregation {
     /**
+     * Creates a new instance with given settings.
+     * @param aggregationSpec aggregation and quality calculation settings
+     * @param uriGenerator generator of URIs
+     */
+    public BestAggregation(
+            AggregationSpec aggregationSpec,
+            UniqueURIGenerator uriGenerator) {
+        super(aggregationSpec, uriGenerator);
+    }
+
+    /**
      * Returns a single triple selected from input triples wrapped as CRQuad.
      * Returns a triple with the highest (conflict resolution quality) or the
      * newest stored time in case of equality of quality.
@@ -32,16 +43,11 @@ final class BestAggregation extends SelectedValueAggregation {
      *
      * @param conflictingQuads {@inheritDoc}
      * @param metadata {@inheritDoc}
-     * @param uriGenerator {@inheritDoc}
-     * @param aggregationSpec {@inheritDoc}
      * @return {@inheritDoc}
      */
     @Override
     public Collection<CRQuad> aggregate(
-            Collection<Quad> conflictingQuads,
-            NamedGraphMetadataMap metadata,
-            UniqueURIGenerator uriGenerator,
-            AggregationSpec aggregationSpec) {
+            Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
 
         if (conflictingQuads.isEmpty()) {
             return createResultCollection();
@@ -55,8 +61,11 @@ final class BestAggregation extends SelectedValueAggregation {
             Collection<String> sourceNamedGraphs = sourceNamedGraphsForObject(
                     quad.getObject(),
                     conflictingQuads);
-            double quality = computeQualitySelected(quad, sourceNamedGraphs, conflictingQuads,
-                    metadata, aggregationSpec);
+            double quality = computeQualitySelected(
+                    quad,
+                    sourceNamedGraphs,
+                    conflictingQuads,
+                    metadata);
             if (quality > bestQuadQuality) {
                 // Prefer higher quality
                 bestQuad = quad;

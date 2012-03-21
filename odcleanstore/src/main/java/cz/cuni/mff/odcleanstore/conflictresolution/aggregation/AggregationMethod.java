@@ -1,9 +1,7 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 
 import de.fuberlin.wiwiss.ng4j.Quad;
 
@@ -29,15 +27,9 @@ public interface AggregationMethod {
      * but not necessarily different objects (i.e. some of them may be identical).
      *
      * @param conflictingQuads input quads to be aggregated
-     * @param metadata metadata for named graphs occurring in conflictingQuads
-     * @param uriGenerator generator of URIs
-     * @param aggregationSpec aggregation and quality calculation settings
+     * @param metadata metadata for named graphs containing the quads being resolved
      * @return aggregated quads together with quality estimate and source
      *         information for each quad
      */
-    Collection<CRQuad> aggregate(
-            Collection<Quad> conflictingQuads,
-            NamedGraphMetadataMap metadata,
-            UniqueURIGenerator uriGenerator,
-            AggregationSpec aggregationSpec);
+    Collection<CRQuad> aggregate(Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata);
 }

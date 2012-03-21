@@ -42,7 +42,7 @@ public class ConflictResolverImpl implements ConflictResolver {
     /**
      * An AggregationMethod factory.
      */
-    private AggregationMethodFactory aggregationFactory = new AggregationMethodFactory();
+    private AggregationMethodFactory aggregationFactory;
 
     /**
      * Settings for the conflict resolution process.
@@ -114,6 +114,8 @@ public class ConflictResolverImpl implements ConflictResolver {
      */
     public ConflictResolverImpl(ConflictResolverSpec spec) {
         this.spec = spec;
+        UniqueURIGenerator uriGenerator = new SimpleUriGenerator(spec.getNamedGraphPrefix());
+        this.aggregationFactory = new AggregationMethodFactory(uriGenerator, spec);
     }
 
     /**
@@ -134,9 +136,8 @@ public class ConflictResolverImpl implements ConflictResolver {
         uriMappings.addLinks(getSameAsLinks(quads));
         quadsToResolve.applyMapping(uriMappings);
 
-        // Gather relevant settings:
+        // Get metadata:
         NamedGraphMetadataMap metadata = getNamedGraphMetadata(quads);
-        UniqueURIGenerator uriGenerator = new SimpleUriGenerator(spec.getNamedGraphPrefix());
 
         // A little optimization - check metadata for occurrences of old versions;
         // if there are none, there is no need to try to filter them in each
@@ -161,11 +162,7 @@ public class ConflictResolverImpl implements ConflictResolver {
             }
 
             AggregationMethod aggregator = getAggregator(conflictCluster);
-            Collection<CRQuad> aggregatedQuads = aggregator.aggregate(
-                    conflictCluster,
-                    metadata,
-                    uriGenerator,
-                    spec);
+            Collection<CRQuad> aggregatedQuads = aggregator.aggregate(conflictCluster, metadata);
 
             // Add resolved quads to result
             result.addAll(aggregatedQuads);
@@ -186,7 +183,7 @@ public class ConflictResolverImpl implements ConflictResolver {
      *
      * @todo (4)
      *
-     * Current implementation has O(n log^2 n) time complexity.
+     *       Current implementation has O(n log^2 n) time complexity.
      *
      * @param conflictingQuads a cluster of conflicting quads (quads having
      *        the same subject and predicate)

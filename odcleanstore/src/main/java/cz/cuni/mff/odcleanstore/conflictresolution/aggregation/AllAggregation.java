@@ -52,6 +52,17 @@ final class AllAggregation extends SelectedValueAggregation {
     }
 
     /**
+     * Creates a new instance with given settings.
+     * @param aggregationSpec aggregation and quality calculation settings
+     * @param uriGenerator generator of URIs
+     */
+    public AllAggregation(
+            AggregationSpec aggregationSpec,
+            UniqueURIGenerator uriGenerator) {
+        super(aggregationSpec, uriGenerator);
+    }
+
+    /**
      * Returns conflictingQuads unchanged, only wrapped as CRQuads with added
      * quality estimate.
      *
@@ -62,16 +73,11 @@ final class AllAggregation extends SelectedValueAggregation {
      *
      * @param conflictingQuads {@inheritDoc}
      * @param metadata {@inheritDoc}
-     * @param uriGenerator {@inheritDoc}
-     * @param aggregationSpec {@inheritDoc}
      * @return {@inheritDoc}
      */
     @Override
     public Collection<CRQuad> aggregate(
-            Collection<Quad> conflictingQuads,
-            NamedGraphMetadataMap metadata,
-            UniqueURIGenerator uriGenerator,
-            AggregationSpec aggregationSpec) {
+            Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
 
         Collection<CRQuad> result = createResultCollection();
 
@@ -95,8 +101,7 @@ final class AllAggregation extends SelectedValueAggregation {
                         lastQuad,
                         sourceNamedGraphs,
                         conflictingQuads,
-                        metadata,
-                        aggregationSpec);
+                        metadata);
                 result.add(new CRQuad(resultQuad, quadQuality, sourceNamedGraphs));
                 sourceNamedGraphs = null;
             }
@@ -128,8 +133,7 @@ final class AllAggregation extends SelectedValueAggregation {
                     lastQuad,
                     sourceNamedGraphs,
                     conflictingQuads,
-                    metadata,
-                    aggregationSpec);
+                    metadata);
             result.add(new CRQuad(resultQuad, quadQuality, sourceNamedGraphs));
         }
         return result;
