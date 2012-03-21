@@ -23,6 +23,7 @@ public final class XMLSchema {
 
     /* Vocabulary properties: */
 
+    // CHECKSTYLE:OFF
     public static final String stringType = "http://www.w3.org/2001/XMLSchema#string";
 
     public static final String booleanType = "http://www.w3.org/2001/XMLSchema#boolean";
@@ -42,4 +43,5 @@ public final class XMLSchema {
     public static final String timeType = "http://www.w3.org/2001/XMLSchema#time";
 
     public static final String dateType = "http://www.w3.org/2001/XMLSchema#date";
+    // CHECKSTYLE:ON
 }

@@ -88,6 +88,8 @@
        <property name="maximum" value="0"/>
        <property name="message" value="Line has trailing spaces."/>
     </module>-->
+    
+    <module name="SuppressionCommentFilter"/>
 
     <module name="TreeWalker">
 
@@ -101,7 +103,8 @@
         	<property name="excludeScope" value="private"/>
         </module>
         <module name="JavadocStyle"/>
-
+        
+    	<module name="FileContentsHolder"/>
 
         <!-- Checks for Naming Conventions.                  -->
         <!-- See http://checkstyle.sf.net/config_naming.html -->
@@ -215,9 +218,9 @@
         <!-- See http://checkstyle.sf.net/config_misc.html -->
         <module name="ArrayTypeStyle"/>
         <!--<module name="FinalParameters"/>-->
-        <module name="TodoComment">
+        <!--<module name="TodoComment">
 		    <property name="format" value="todo:|TODO:|@todo"/>
-		</module>
+		</module>-->
         <module name="UpperEll"/>
 
     </module>

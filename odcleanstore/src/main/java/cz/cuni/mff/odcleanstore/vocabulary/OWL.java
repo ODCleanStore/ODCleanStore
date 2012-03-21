@@ -2,7 +2,7 @@ package cz.cuni.mff.odcleanstore.vocabulary;
 
 /**
  * Vocabulary definitions for OWL.
- * 
+ *
  * @author Jan Michelfeit
  */
 public final class OWL {
@@ -23,6 +23,7 @@ public final class OWL {
 
     /* Vocabulary properties: */
 
+    // CHECKSTYLE:OFF
     public static final String sameAs = "http://www.w3.org/2002/07/owl#sameAs";
 
     public static final String maxCardinality = "http://www.w3.org/2002/07/owl#maxCardinality";
@@ -30,5 +31,5 @@ public final class OWL {
     public static final String minCardinality = "http://www.w3.org/2002/07/owl#minCardinality";
 
     public static final String cardinality = "http://www.w3.org/2002/07/owl#cardinality";
-
+    // CHECKSTYLE:ON
 }

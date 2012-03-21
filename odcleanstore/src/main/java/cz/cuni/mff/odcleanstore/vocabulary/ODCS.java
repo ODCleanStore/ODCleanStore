@@ -7,11 +7,11 @@ package cz.cuni.mff.odcleanstore.vocabulary;
  * @author Jan Michelfeit
  */
 public final class ODCS {
-    /** The namespaspace of the vocabulary as a string. */
+    /** The namespace of the vocabulary as a string. */
     private static final String NS = "http://opendata.cz/infrastructure/odcleanstore/";
 
     /**
-     * Returns the namespaspace of the vocabulary.
+     * Returns the namespace of the vocabulary.
      * @return namespace of the vocabulary as a string
      */
     public static String getURI() {
@@ -26,6 +26,7 @@ public final class ODCS {
 
     /* TODO: return Node_URI instead of String? */
 
+    // CHECKSTYLE:OFF
     /**
      * Property linking a named graph to URI of its data source.
      */
@@ -56,4 +57,6 @@ public final class ODCS {
      * Property linking a named graph to its conflict resolution quality estimate.
      */
     public static final String quality = "http://opendata.cz/infrastructure/odcleanstore/quality";
+
+    // CHECKSTYLE:ON
 }
