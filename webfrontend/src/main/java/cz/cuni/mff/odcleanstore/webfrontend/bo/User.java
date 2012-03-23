@@ -1,58 +1,55 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo;
 
-import java.io.Serializable;
 import java.util.Date;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
- * The User BO. Serves directly as a Hibernate entity.
+ * The User BO.
  * 
  * @author Dusan Rychnovsky (dusan.rychnovsky@gmail.com)
  *
  */
-@Entity
-@Table(name = "users", catalog = "odcleanstore")
-public class User implements Serializable
+public class User
 {
-	private static final long serialVersionUID = 1L;
-
-	private Long id;
+	private Integer id;
+	
 	private String username;
 	private String email;
 	private Date createdAt;
+	
+	private Set<Role> roles;
 
+	/**
+	 * 
+	 * @param id
+	 * @param username
+	 * @param email
+	 * @param date
+	 */
+	public User(Integer id, String username, String email, Date date)
+	{
+		this.id = id;
+		this.username = username;
+		this.email = email;
+		this.createdAt = date;
+		
+		roles = new HashSet<Role>(0);
+	}
+	
 	/**
 	 * 
 	 * @return
 	 */
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id", unique = true, nullable = false)
-	public Long getId()
+	public Integer getId()
 	{
 		return id;
 	}
 	
 	/**
 	 * 
-	 * @param id
-	 */
-	public void setId(Long id)
-	{
-		this.id = id;
-	}
-	
-	/**
-	 * 
 	 * @return
 	 */
-	@Column(name = "username", unique = true, nullable = false, length = 255)
 	public String getUsername()
 	{
 		return username;
@@ -60,18 +57,8 @@ public class User implements Serializable
 	
 	/**
 	 * 
-	 * @param username
-	 */
-	public void setUsername(String username)
-	{
-		this.username = username;
-	}
-
-	/**
-	 * 
 	 * @return
 	 */
-	@Column(name = "email", unique = true, nullable = false, length = 255)
 	public String getEmail()
 	{
 		return email;
@@ -79,18 +66,8 @@ public class User implements Serializable
 	
 	/**
 	 * 
-	 * @param email
-	 */
-	public void setEmail(String email)
-	{
-		this.email = email;
-	}
-	
-	/**
-	 * 
 	 * @return
 	 */
-	@Column(name = "createdAt", nullable = false)
 	public Date getCreatedAt() 
 	{
 		return createdAt;
@@ -98,20 +75,28 @@ public class User implements Serializable
 
 	/**
 	 * 
-	 * @param createdAt
+	 * @return
 	 */
-	public void setCreatedAt(Date createdAt) 
+	public Set<Role> getRoles()
 	{
-		this.createdAt = createdAt;
+		return roles;
 	}
 	
 	/**
 	 * 
-	 * @return
+	 * @param role
 	 */
-	@Override
-	public String toString()
+	public void addRole(Role role)
 	{
-		return "USER: [" + id + "; " + username + "; " + email + "];";
+		roles.add(role);
+	}
+	
+	/**
+	 * 
+	 * @param role
+	 */
+	public void removeRole(Role role)
+	{
+		roles.remove(role);
 	}
 }

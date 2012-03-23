@@ -2,39 +2,32 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao;
 
 import java.util.List;
 
+import javax.sql.DataSource;
+import org.springframework.jdbc.core.JdbcTemplate;
+
 /**
  * Generic DAO interface.
  * 
  * @author Dusan Rychnovsky (dusan.rychnovsky@gmail.com)
  *
  */
-public interface Dao<T> 
+public abstract class Dao<T> 
 {
-	/**
-	 * Save the given entity to the database.
-	 * 
-	 * @param item
-	 */
-	public void save(T item);
-
-	/**
-	 * Update the given entity in the database.
-	 * 
-	 * @param item
-	 */
-	public void update(T item);
+	protected JdbcTemplate jdbcTemplate;
 	
 	/**
-	 * Delete the given entity from the database.
 	 * 
-	 * @param item
+	 * @param dataSource
 	 */
-	public void delete(T item);
+	public void setDataSource(DataSource dataSource)
+	{
+		this.jdbcTemplate = new JdbcTemplate(dataSource);
+	}
 	
 	/**
 	 * Find all entities in the database.
 	 * 
 	 * @return
 	 */
-	public List<T> findAll();
+	public abstract List<T> loadAll();
 }

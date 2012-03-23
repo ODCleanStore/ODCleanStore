@@ -34,7 +34,7 @@ public class WicketApplication extends WebApplication
 	{
 		super.init();
 		
-		ctx = new ClassPathXmlApplicationContext("./config/bean_locations.xml");
+		ctx = new ClassPathXmlApplicationContext("./config/spring.xml");
 		daoLookupFactory = new DaoLookupFactory();
 	}
 
