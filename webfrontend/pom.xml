@@ -26,6 +26,19 @@
 			<artifactId>wicket-core</artifactId>
 			<version>${wicket.version}</version>
 		</dependency>
+		<dependency>
+			  <groupId>org.apache.wicket</groupId>
+			  <artifactId>wicket-spring</artifactId>
+			  <version>${wicket.version}</version>
+			  <!-- exclude spring framework that wicket pulls in -->
+			  <exclusions>
+				<exclusion>
+				  <groupId>org.springframework</groupId>
+				  <artifactId>spring</artifactId>
+				</exclusion>
+			  </exclusions>
+			</dependency>
+	
 		<!-- OPTIONAL DEPENDENCY
 		<dependency>
 			<groupId>org.apache.wicket</groupId>

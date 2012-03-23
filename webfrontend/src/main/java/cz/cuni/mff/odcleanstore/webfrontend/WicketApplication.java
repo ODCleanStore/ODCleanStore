@@ -1,10 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend;
 
-
-import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
-
 import org.apache.wicket.protocol.http.WebApplication;
+import org.apache.wicket.spring.ISpringContextLocator;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -15,7 +12,16 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  */
 public class WicketApplication extends WebApplication 
 {
+	static ISpringContextLocator CTX_LOCATOR = new ISpringContextLocator() 
+	{	
+		public ApplicationContext getSpringContext() 
+		{
+			return ((WicketApplication) WicketApplication.get()).ctx;
+		}
+	};
+	
 	private ApplicationContext ctx;
+	private DaoLookupFactory daoLookupFactory;
 	
 	@Override
 	public Class<HomePage> getHomePage() 
@@ -29,10 +35,11 @@ public class WicketApplication extends WebApplication
 		super.init();
 		
 		ctx = new ClassPathXmlApplicationContext("./config/bean_locations.xml");
+		daoLookupFactory = new DaoLookupFactory();
 	}
-	
-	public Dao<User> getUserDao()
+
+	public DaoLookupFactory getDaoLookupFactory()
 	{
-		return (Dao<User>) ctx.getBean("userDao");
+		return daoLookupFactory;
 	}
 }

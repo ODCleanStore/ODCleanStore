@@ -1,7 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.administration;
 
 import cz.cuni.mff.odcleanstore.webfrontend.FrontendPage;
-import cz.cuni.mff.odcleanstore.webfrontend.WicketApplication;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 
@@ -23,8 +22,12 @@ public class AccountsListPage extends FrontendPage {
 			"List all user accounts"
 		);
 
-		userDao = ((WicketApplication) WicketApplication.get()).getUserDao();
+		// 1. Get the User DAO bean.
+		//
+		userDao = getApp().getDaoLookupFactory().getUserDao();
 		
+		// 2. Construct the component hierarchy.
+		//
 		add(new ListView<User>("accountsListTable", userDao.findAll()) 
 		{
 			private static final long serialVersionUID = 1L;
