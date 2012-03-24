@@ -2,7 +2,11 @@ package cz.cuni.mff.odcleanstore.shared;
 
 import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 
+import com.hp.hpl.jena.datatypes.DatatypeFormatException;
 import com.hp.hpl.jena.graph.Node;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.regex.Pattern;
 
@@ -12,17 +16,27 @@ import java.util.regex.Pattern;
  * @author Jan Michelfeit
  */
 public final class Utils {
+    private static final Logger LOG = LoggerFactory.getLogger(Utils.class);
     private static final Pattern NUMERIC_PATTERN = Pattern.compile("^[+-]?[0-9]*\\.?[0-9]+$");
 
     /**
      * Checks if the given literal node can be converted to a number even though it is not
-     * neccessarily typed as a numeric literal.
+     * necessarily typed as a numeric literal.
      * @param node a literal node
      * @return true iff the literal value can be converted to string
      */
     private static boolean isUntypedNumericLiteral(Node node)  {
         assert node.isLiteral();
-        Object literalValue = node.getLiteralValue();
+        Object literalValue = null;
+        try {
+            literalValue = node.getLiteralValue();
+        } catch (DatatypeFormatException e) {
+            // TODO!!
+            LOG.warn("Literal lexical form {} does not match the stated datatype {}.",
+                    node.getLiteralLexicalForm(), node.getLiteralDatatype());
+            return false;
+        }
+        //literalValue = node.getLiteralLexicalForm();
         if (!(literalValue instanceof String)) {
             return false;
         }
@@ -79,7 +93,13 @@ public final class Utils {
             // TODO: optimize, perhaps omit the test?
             return Double.NaN;
         } else if (node.getLiteralValue() instanceof Number) {
-            return ((Number) node.getLiteralValue()).doubleValue();
+            try {
+                return ((Number) node.getLiteralValue()).doubleValue();
+            } catch (DatatypeFormatException e) {
+                LOG.warn("Literal lexical form {} does not match the stated datatype {}.",
+                        node.getLiteralLexicalForm(), node.getLiteralDatatype());
+                return Double.NaN;
+            }
         } else {
             try {
                 return Double.parseDouble(node.getLiteralLexicalForm());
