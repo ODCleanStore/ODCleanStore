@@ -12,9 +12,9 @@ import java.security.Permission;
  * 
  * @author Petr Jerman <petr.jerman@centrum.cz>
  */
-public class SecurityManagerImpl extends SecurityManager {
+public class EngineSecurityManager extends SecurityManager {
 
-	// FIXME Not all methods overriden - not full security garanted
+	// FIXME All deprecated methods must be overridden !!!
 
 	private final static String SETSECURITYMANAGER = "setSecurityManager";
 

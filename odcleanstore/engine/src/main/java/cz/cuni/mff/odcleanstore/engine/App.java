@@ -3,6 +3,10 @@
  */
 package cz.cuni.mff.odcleanstore.engine;
 
+/**
+ * 
+ * @author Petr Jerman <petr.jerman@centrum.cz>
+ */
 public class App {
 
 	private static App app = null;

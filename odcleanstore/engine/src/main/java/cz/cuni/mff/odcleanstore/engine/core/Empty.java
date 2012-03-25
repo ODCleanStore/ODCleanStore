@@ -6,8 +6,8 @@ package cz.cuni.mff.odcleanstore.engine.core;
 import java.util.Iterator;
 
 /**
- * @author jermanp
  * 
+ * @author Petr Jerman <petr.jerman@centrum.cz>
  */
 public class Empty {
 

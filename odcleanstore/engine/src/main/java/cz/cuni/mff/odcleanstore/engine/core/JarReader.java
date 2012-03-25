@@ -8,16 +8,14 @@ import java.util.*;
 import java.util.jar.*;
 
 /**
- * @author jermanp
+ * JarFile reader.
  * 
+ * @author Petr Jerman <petr.jerman@centrum.cz>
  */
 public class JarReader {
 
 	private JarFile jarFile;
 
-	/**
-	 * @param jarFileName
-	 */
 	public JarReader(String jarFileName) {
 		try {
 			jarFile = new JarFile(jarFileName);
