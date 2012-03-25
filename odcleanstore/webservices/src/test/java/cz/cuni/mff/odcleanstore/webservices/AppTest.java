@@ -1,7 +1,7 @@
 /**
  * 
  */
-package cz.cuni.mff.odcleanstore.engine;
+package cz.cuni.mff.odcleanstore.webservices;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
