@@ -25,7 +25,9 @@ public class UserDao extends Dao<User>
 {
 	/**
 	 * 
+	 * @return
 	 */
+	@Override
 	public List<User> loadAll() 
 	{
 		List<Map<String, Object>> usersRows = jdbcTemplate.queryForList(
@@ -62,6 +64,26 @@ public class UserDao extends Dao<User>
 		}
 		
 		return new LinkedList<User>(users.values());
+	}
+
+	/**
+	 * 
+	 * @param item
+	 */
+	@Override
+	public void insert(User item) 
+	{
+		
+		// TODO: SQL injection alert
+		// TODO: might throw DataAccessException
+		jdbcTemplate.execute(
+			"INSERT INTO `users` (`username`, `email`, `createdAt`) " +
+			"VALUES ('" + 
+				item.getUsername() + "', '" + 
+				item.getEmail() + "', '" + 
+				dateToMySQLTimestamp(item.getCreatedAt()) + 
+			"')"
+		);
 	}
 }
 

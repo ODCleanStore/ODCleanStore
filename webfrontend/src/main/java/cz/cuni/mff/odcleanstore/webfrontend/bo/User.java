@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -29,12 +30,20 @@ public class User
 	 */
 	public User(Integer id, String username, String email, Date date)
 	{
+		this();
+		
 		this.id = id;
 		this.username = username;
 		this.email = email;
 		this.createdAt = date;
-		
-		roles = new HashSet<Role>(0);
+	}
+	
+	/**
+	 * 
+	 */
+	public User()
+	{
+		roles = new HashSet<Role>();
 	}
 	
 	/**
@@ -57,11 +66,29 @@ public class User
 	
 	/**
 	 * 
+	 * @param username
+	 */
+	public void setUsername(String username)
+	{
+		this.username = username;
+	}
+	
+	/**
+	 * 
 	 * @return
 	 */
 	public String getEmail()
 	{
 		return email;
+	}
+	
+	/**
+	 * 
+	 * @param email
+	 */
+	public void setEmail(String email)
+	{
+		this.email = email;
 	}
 	
 	/**
@@ -73,6 +100,24 @@ public class User
 		return createdAt;
 	}
 
+	/**
+	 * 
+	 * @param createAt
+	 */
+	public void setCreatedAt(Date createdAt)
+	{
+		this.createdAt = createdAt;
+	}
+	
+	/**
+	 * 
+	 */
+	public void setCreatedAtToNow()
+	{
+		Calendar calendar = Calendar.getInstance();
+		this.createdAt = calendar.getTime();
+	}
+	
 	/**
 	 * 
 	 * @return

@@ -11,10 +11,10 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
 
-public class AccountsListPage extends FrontendPage {
-
+public class AccountsListPage extends FrontendPage 
+{
 	private static final long serialVersionUID = 1L;
-
+	
 	private Dao<User> userDao;
 	
 	public AccountsListPage() 
