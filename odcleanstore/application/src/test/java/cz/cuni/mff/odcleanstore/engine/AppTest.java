@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.application;
+package cz.cuni.mff.odcleanstore.engine;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package cz.cuni.mff.odcleanstore.application.core;
+package cz.cuni.mff.odcleanstore.engine.core;
 
 import java.io.*;
 import java.util.*;
