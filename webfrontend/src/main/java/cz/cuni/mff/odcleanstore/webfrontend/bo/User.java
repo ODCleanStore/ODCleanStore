@@ -128,6 +128,24 @@ public class User
 	}
 	
 	/**
+	 * Returns true iff the represented user-account has the role given by 
+	 * the role-name assigned.
+	 * 
+	 * @param roleName
+	 * @return
+	 */
+	public boolean hasRoleAssigned(String roleName)
+	{
+		for (Role role : roles)
+		{
+			if (roleName.equals(role.getName()))
+				return true;
+		}
+		
+		return false;
+	}
+	
+	/**
 	 * 
 	 * @param role
 	 */

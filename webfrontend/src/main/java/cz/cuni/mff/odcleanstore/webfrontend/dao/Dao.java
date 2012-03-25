@@ -27,6 +27,7 @@ public abstract class Dao<T>
 	}
 	
 	/**
+	 * Insert the given item into the database.
 	 * 
 	 * @param item
 	 */
@@ -38,6 +39,14 @@ public abstract class Dao<T>
 	 * @return
 	 */
 	public abstract List<T> loadAll();
+	
+	/**
+	 * Find the entity with the given id in the database.
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public abstract T load(int id);
 	
 	/**
 	 * Converts the given Date instance to a MySQL-friendly timestamp value.

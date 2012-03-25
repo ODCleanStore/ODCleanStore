@@ -7,6 +7,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -37,7 +38,7 @@ public class AccountsListPage extends FrontendPage
 			@Override
 			protected void populateItem(ListItem<User> item) 
 			{
-				User user = item.getModelObject();
+				final User user = item.getModelObject();
 				item.setModel(new CompoundPropertyModel<User>(user));
 
 				item.add(new Label("username"));
@@ -46,6 +47,17 @@ public class AccountsListPage extends FrontendPage
 				
 				for (NAME roleName : Role.NAME.values())
 					item.add(createRoleLabel(user, roleName.toString()));
+				
+				item.add(new Link("editPermissionsLink")
+				{
+					@Override
+					public void onClick() 
+					{
+						setResponsePage(
+							new EditAccountPermissionsPage(user.getId())
+						);
+					}
+				});
 			}
 		});
 	}
@@ -61,11 +73,8 @@ public class AccountsListPage extends FrontendPage
 	 */
 	private Label createRoleLabel(User user, String roleName)
 	{	
-		for (Role role : user.getRoles())
-		{
-			if (roleName.equals(role.getName()))
-				return new Label("role" + roleName, "X");
-		}
+		if (user.hasRoleAssigned(roleName))
+			return new Label("role" + roleName, "X");
 		
 		Label label = new Label("role" + roleName, "&nbsp;");
 		label.setEscapeModelStrings(false);

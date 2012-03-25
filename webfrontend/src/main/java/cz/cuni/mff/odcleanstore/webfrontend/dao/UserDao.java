@@ -34,6 +34,72 @@ public class UserDao extends Dao<User>
 			"SELECT * FROM `users`"
 		);
 		
+		List<Map<String, Object>> rolesRows = jdbcTemplate.queryForList(
+			"SELECT * FROM `users_roles` JOIN `roles` " +
+			"ON (`roles`.`id` = `users_roles`.`role_id`)"
+		);
+		
+		return addRolesToUsers(usersRows, rolesRows);
+	}
+
+	/**
+	 * 
+	 * @param item
+	 */
+	@Override
+	public void insert(User item) 
+	{
+		// TODO: SQL injection alert
+		// TODO: might throw DataAccessException
+		jdbcTemplate.execute(
+			"INSERT INTO `users` (`username`, `email`, `createdAt`) " +
+			"VALUES ('" + 
+				item.getUsername() + "', '" + 
+				item.getEmail() + "', '" + 
+				dateToMySQLTimestamp(item.getCreatedAt()) + 
+			"')"
+		);
+	}
+
+	/**
+	 * 
+	 * @param id
+	 */
+	@Override
+	public User load(int id) 
+	{
+		List<Map<String, Object>> usersRows = jdbcTemplate.queryForList(
+			"SELECT * FROM `users` WHERE `id` = " + id
+		);
+		
+		
+		
+		List<Map<String, Object>> rolesRows = jdbcTemplate.queryForList(
+			"SELECT * FROM `users_roles` JOIN `roles` " +
+			"ON (`roles`.`id` = `users_roles`.`role_id`)"
+		);
+		
+		List<User> users = addRolesToUsers(usersRows, rolesRows);
+
+		if (!users.isEmpty()) 
+			return users.get(0);
+		
+		return null;
+	}
+	
+	/**
+	 * Parses the given users-rows and roles-rows into a list of User instances
+	 * with properly set Role instances.
+	 * 
+	 * @param usersRows
+	 * @param rolesRows
+	 * @return
+	 */
+	private List<User> addRolesToUsers(
+		List<Map<String, Object>> usersRows, List<Map<String, Object>> rolesRows)
+	{
+		// construct users from row-list
+		//
 		HashMap<Integer, User> users = new HashMap<Integer, User>();
 		for (Map<String, Object> row : usersRows)
 		{
@@ -47,11 +113,8 @@ public class UserDao extends Dao<User>
 			users.put(user.getId(), user);
 		}
 		
-		List<Map<String, Object>> rolesRows = jdbcTemplate.queryForList(
-			"SELECT * FROM `users_roles` JOIN `roles` " +
-			"ON (`roles`.`id` = `users_roles`.`role_id`)"
-		);
-		
+		// add roles to users
+		//
 		for (Map<String, Object> items : rolesRows)
 		{
 			Role role = new Role (
@@ -59,31 +122,13 @@ public class UserDao extends Dao<User>
 				(String) items.get("label"),
 				(String) items.get("description")
 			);
-			
-			users.get((Integer) items.get("user_id")).addRole(role);
+
+			User user = users.get((Integer) items.get("user_id"));
+			if (user != null)
+				user.addRole(role);
 		}
 		
 		return new LinkedList<User>(users.values());
-	}
-
-	/**
-	 * 
-	 * @param item
-	 */
-	@Override
-	public void insert(User item) 
-	{
-		
-		// TODO: SQL injection alert
-		// TODO: might throw DataAccessException
-		jdbcTemplate.execute(
-			"INSERT INTO `users` (`username`, `email`, `createdAt`) " +
-			"VALUES ('" + 
-				item.getUsername() + "', '" + 
-				item.getEmail() + "', '" + 
-				dateToMySQLTimestamp(item.getCreatedAt()) + 
-			"')"
-		);
 	}
 }
 
