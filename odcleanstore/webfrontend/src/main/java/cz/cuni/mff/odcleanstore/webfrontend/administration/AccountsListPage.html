@@ -1,0 +1,45 @@
+<wicket:extend>
+
+<wicket:link>
+<div>
+	<a class="placedright" href="NewAccountPage.html">Create a new account</a>
+	<div class="clear">&nbsp;</div>
+</div>
+</wicket:link>
+
+<table border="1">
+	
+	<tr>
+		<th rowspan="2" width="19%">Username</th>
+		<th rowspan="2" width="19%">Email address</th>
+		<th rowspan="2" width="19%">Created at</th>
+		<th colspan="4">Roles</th>
+		<th rowspan="2" width="23%">Action</th>
+	</tr>
+	<tr>
+		<th>SRC</th>
+		<th>ONC</th>
+		<th>POC</th>
+		<th>ADM</th>
+	</tr>
+	
+	<tr  wicket:id="accountsListTable">
+	
+		<td wicket:id="username">Vašíèek, Karel</td>
+		<td wicket:id="email">vasicek@seznam.cz</td>
+		<td wicket:id="createdAt">27. 12. 2011, 18:29</td>
+		
+		<td wicket:id="roleSCR" class="centered">X</td>
+		<td wicket:id="roleONC" class="centered">&nbsp;</td>
+		<td wicket:id="rolePOC" class="centered">&nbsp;</td>
+		<td wicket:id="roleADM" class="centered">&nbsp;</td>
+		
+		<td class="centered">
+			<input type="submit" value="Deaktivovat" />
+			<input type="submit" value="Resetovat heslo" />
+			<a href="#" wicket:id="editPermissionsLink">Edit permissions</a>
+		</td>
+	</tr>
+</table>
+
+</wicket:extend>

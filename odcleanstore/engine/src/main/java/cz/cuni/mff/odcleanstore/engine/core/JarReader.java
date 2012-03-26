@@ -13,24 +13,23 @@ import java.util.jar.*;
  * @author Petr Jerman <petr.jerman@centrum.cz>
  */
 public class JarReader {
-
-	private JarFile jarFile;
+	private JarFile _jarFile;
 
 	public JarReader(String jarFileName) {
 		try {
-			jarFile = new JarFile(jarFileName);
+			_jarFile = new JarFile(jarFileName);
 		} catch (IOException e) {
-			jarFile = null;
+			_jarFile = null;
 		}
 	}
 
 	public Iterable<String> getEntryNames() {
-		return jarFile == null ? Empty.ITERABLE_STRING : new Iterable<String>() {
+		return _jarFile == null ? Empty.ITERABLE_STRING : new Iterable<String>() {
 
 			public Iterator<String> iterator() {
 				return new Iterator<String>() {
 
-					private Enumeration<JarEntry> jarEntries = jarFile.entries();
+					private Enumeration<JarEntry> jarEntries = _jarFile.entries();
 
 					public boolean hasNext() {
 						return jarEntries.hasMoreElements();
@@ -49,11 +48,36 @@ public class JarReader {
 	}
 
 	public JarEntry getEntry(String name) {
-		return jarFile == null ? null : jarFile.getJarEntry(name);
+		return _jarFile == null ? null : _jarFile.getJarEntry(name);
 	}
 
 	public JarEntry getClassEntry(String classFullName) {
-		return jarFile == null || classFullName == null ? null : jarFile.getJarEntry(classFullName.replace(
-				".", "/") + ".class");
+		return _jarFile == null || classFullName == null ? null : _jarFile.getJarEntry(classFullName
+				.replace(".", "/") + ".class");
+	}
+
+	public byte[] getClassBytes(String classFullName) {
+		try {
+			BufferedInputStream jarBuf = new BufferedInputStream(
+					_jarFile.getInputStream(getClassEntry(classFullName)));
+			ByteArrayOutputStream jarOut = new ByteArrayOutputStream();
+
+			int b;
+			while ((b = jarBuf.read()) != -1)
+				jarOut.write(b);
+
+			return jarOut.toByteArray();
+		} catch (IOException e) {
+			return null;
+		}
+	}
+
+	public String getMainClassName() {
+		try {
+			return _jarFile.getManifest().getMainAttributes().getValue("Main-Class");
+
+		} catch (IOException e) {
+			return null;
+		}
 	}
 }

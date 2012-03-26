@@ -16,18 +16,23 @@ public class EngineSecurityManager extends SecurityManager {
 
 	// FIXME All deprecated methods must be overridden !!!
 
-	private final static String SETSECURITYMANAGER = "setSecurityManager";
+	private final static String SECURITYEXCEPTIONMESSAGE = "acces denied";
+	private final static String SETSECURITYMANAGERPERMISSIONNAME = "setSecurityManager";
 
-	/**
-	 * Build security message for SecurityException.
-	 * 
-	 * @param name
-	 *            Runtime permission name
-	 * 
-	 * @return Composed message
-	 */
-	private String buildSecurityExceptionMessage(String name) {
-		return String.format("access denied (java.lang.RuntimePermission %s)", name);
+	// FIXME Replace Strings in PRIVILEGEDCLASSNAMES !!!
+
+	private final static String[] PRIVILEGEDCLASSNAMES = { "java.lang.ClassLoader",
+			"cz.cuni.mff.odcleanstore.engine.core.CustomModuleRunner$CustomModuleClassLoader",
+			"cz.cuni.mff.odcleanstore.engine.core.CustomModuleRunner$ThreadRunner" };
+
+	private SecurityManager _originalSecurityManager;
+
+	public EngineSecurityManager() {
+
+		// TODO add exception handling
+
+		_originalSecurityManager = System.getSecurityManager();
+		System.setSecurityManager(this);
 	}
 
 	/*
@@ -37,15 +42,18 @@ public class EngineSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public void checkPermission(Permission perm) {
+		checkCustomModuleAccessForPrivilegedClasses(true);
 
 		if (perm instanceof RuntimePermission) {
 			String name = perm.getName();
-			if (name.equals(SETSECURITYMANAGER)) {
-				throw new SecurityException(buildSecurityExceptionMessage(SETSECURITYMANAGER));
+			if (name.equals(SETSECURITYMANAGERPERMISSIONNAME)) {
+				throw new SecurityException(SECURITYEXCEPTIONMESSAGE);
 			}
 		}
 
-		// super.checkPermission(perm);
+		if (_originalSecurityManager != null) {
+			_originalSecurityManager.checkPermission(perm);
+		}
 	}
 
 	/*
@@ -55,7 +63,11 @@ public class EngineSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public void checkPermission(Permission perm, Object context) {
-		// super.checkPermission(perm, context);
+		checkCustomModuleAccessForPrivilegedClasses(true);
+
+		if (_originalSecurityManager != null) {
+			_originalSecurityManager.checkPermission(perm, context);
+		}
 	}
 
 	/*
@@ -65,7 +77,11 @@ public class EngineSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public void checkAccept(String host, int port) {
-		// super.checkAccept(host, port);
+		checkCustomModuleAccess(true);
+
+		if (_originalSecurityManager != null) {
+			_originalSecurityManager.checkAccept(host, port);
+		}
 	}
 
 	/*
@@ -75,7 +91,11 @@ public class EngineSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public void checkAccess(Thread t) {
-		// super.checkAccess(t);
+		checkCustomModuleAccess(true);
+
+		if (_originalSecurityManager != null) {
+			_originalSecurityManager.checkAccess(t);
+		}
 	}
 
 	/*
@@ -85,7 +105,11 @@ public class EngineSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public void checkAccess(ThreadGroup g) {
-		// super.checkAccess(g);
+		checkCustomModuleAccess(true);
+
+		if (_originalSecurityManager != null) {
+			_originalSecurityManager.checkAccess(g);
+		}
 	}
 
 	/*
@@ -95,7 +119,11 @@ public class EngineSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public void checkAwtEventQueueAccess() {
-		// super.checkAwtEventQueueAccess();
+		checkCustomModuleAccess(true);
+
+		if (_originalSecurityManager != null) {
+			_originalSecurityManager.checkAwtEventQueueAccess();
+		}
 	}
 
 	/*
@@ -105,7 +133,11 @@ public class EngineSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public void checkConnect(String host, int port, Object context) {
-		// super.checkConnect(host, port, context);
+		checkCustomModuleAccess(true);
+
+		if (_originalSecurityManager != null) {
+			_originalSecurityManager.checkConnect(host, port, context);
+		}
 	}
 
 	/*
@@ -115,7 +147,11 @@ public class EngineSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public void checkConnect(String host, int port) {
-		// super.checkConnect(host, port);
+		checkCustomModuleAccess(true);
+
+		if (_originalSecurityManager != null) {
+			_originalSecurityManager.checkConnect(host, port);
+		}
 	}
 
 	/*
@@ -125,7 +161,11 @@ public class EngineSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public void checkCreateClassLoader() {
-		// super.checkCreateClassLoader();
+		checkCustomModuleAccess(true);
+
+		if (_originalSecurityManager != null) {
+			_originalSecurityManager.checkCreateClassLoader();
+		}
 	}
 
 	/*
@@ -135,7 +175,11 @@ public class EngineSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public void checkDelete(String file) {
-		// super.checkDelete(file);
+		checkCustomModuleAccess(true);
+
+		if (_originalSecurityManager != null) {
+			_originalSecurityManager.checkDelete(file);
+		}
 	}
 
 	/*
@@ -145,7 +189,11 @@ public class EngineSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public void checkExec(String cmd) {
-		// super.checkExec(cmd);
+		checkCustomModuleAccess(true);
+
+		if (_originalSecurityManager != null) {
+			_originalSecurityManager.checkExec(cmd);
+		}
 	}
 
 	/*
@@ -155,7 +203,11 @@ public class EngineSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public void checkExit(int status) {
-		// super.checkExit(status);
+		checkCustomModuleAccess(true);
+
+		if (_originalSecurityManager != null) {
+			_originalSecurityManager.checkExit(status);
+		}
 	}
 
 	/*
@@ -165,7 +217,11 @@ public class EngineSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public void checkLink(String lib) {
-		// super.checkLink(lib);
+		checkCustomModuleAccess(true);
+
+		if (_originalSecurityManager != null) {
+			_originalSecurityManager.checkLink(lib);
+		}
 	}
 
 	/*
@@ -175,7 +231,11 @@ public class EngineSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public void checkListen(int port) {
-		// super.checkListen(port);
+		checkCustomModuleAccess(true);
+
+		if (_originalSecurityManager != null) {
+			_originalSecurityManager.checkListen(port);
+		}
 	}
 
 	/*
@@ -185,7 +245,11 @@ public class EngineSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public void checkMemberAccess(Class<?> clazz, int which) {
-		// super.checkMemberAccess(clazz, which);
+		checkCustomModuleAccessForPrivilegedClasses(true);
+
+		if (_originalSecurityManager != null) {
+			_originalSecurityManager.checkMemberAccess(clazz, which);
+		}
 	}
 
 	/*
@@ -193,10 +257,15 @@ public class EngineSecurityManager extends SecurityManager {
 	 * 
 	 * @see java.lang.SecurityManager#checkMulticast(java.net.InetAddress, byte)
 	 */
-	// @SuppressWarnings("deprecation")
+
+	@Deprecated
 	@Override
 	public void checkMulticast(InetAddress maddr, byte ttl) {
-		// super.checkMulticast(maddr, ttl);
+		checkCustomModuleAccess(true);
+
+		if (_originalSecurityManager != null) {
+			_originalSecurityManager.checkMulticast(maddr, ttl);
+		}
 	}
 
 	/*
@@ -206,7 +275,11 @@ public class EngineSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public void checkMulticast(InetAddress maddr) {
-		// super.checkMulticast(maddr);
+		checkCustomModuleAccess(true);
+
+		if (_originalSecurityManager != null) {
+			_originalSecurityManager.checkMulticast(maddr);
+		}
 	}
 
 	/*
@@ -216,7 +289,11 @@ public class EngineSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public void checkPackageAccess(String pkg) {
-		// super.checkPackageAccess(pkg);
+		checkCustomModuleAccessForPrivilegedClasses(true);
+
+		if (_originalSecurityManager != null) {
+			_originalSecurityManager.checkPackageAccess(pkg);
+		}
 	}
 
 	/*
@@ -226,7 +303,11 @@ public class EngineSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public void checkPackageDefinition(String pkg) {
-		// super.checkPackageDefinition(pkg);
+		checkCustomModuleAccess(true);
+
+		if (_originalSecurityManager != null) {
+			_originalSecurityManager.checkPackageDefinition(pkg);
+		}
 	}
 
 	/*
@@ -236,7 +317,11 @@ public class EngineSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public void checkPrintJobAccess() {
-		// super.checkPrintJobAccess();
+		checkCustomModuleAccess(true);
+
+		if (_originalSecurityManager != null) {
+			_originalSecurityManager.checkPrintJobAccess();
+		}
 	}
 
 	/*
@@ -246,7 +331,11 @@ public class EngineSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public void checkPropertiesAccess() {
-		// super.checkPropertiesAccess();
+		checkCustomModuleAccessForPrivilegedClasses(true);
+
+		if (_originalSecurityManager != null) {
+			_originalSecurityManager.checkPropertiesAccess();
+		}
 	}
 
 	/*
@@ -256,7 +345,11 @@ public class EngineSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public void checkPropertyAccess(String key) {
-		// super.checkPropertyAccess(key);
+		checkCustomModuleAccessForPrivilegedClasses(true);
+
+		if (_originalSecurityManager != null) {
+			_originalSecurityManager.checkPropertyAccess(key);
+		}
 	}
 
 	/*
@@ -266,7 +359,11 @@ public class EngineSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public void checkRead(FileDescriptor fd) {
-		// super.checkRead(fd);
+		checkCustomModuleAccessForPrivilegedClasses(true);
+
+		if (_originalSecurityManager != null) {
+			_originalSecurityManager.checkRead(fd);
+		}
 	}
 
 	/*
@@ -276,7 +373,11 @@ public class EngineSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public void checkRead(String file, Object context) {
-		// super.checkRead(file, context);
+		checkCustomModuleAccessForPrivilegedClasses(true);
+
+		if (_originalSecurityManager != null) {
+			_originalSecurityManager.checkRead(file, context);
+		}
 	}
 
 	/*
@@ -286,7 +387,11 @@ public class EngineSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public void checkRead(String file) {
-		// super.checkRead(file);
+		checkCustomModuleAccessForPrivilegedClasses(true);
+
+		if (_originalSecurityManager != null) {
+			_originalSecurityManager.checkRead(file);
+		}
 	}
 
 	/*
@@ -296,7 +401,11 @@ public class EngineSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public void checkSecurityAccess(String target) {
-		// super.checkSecurityAccess(target);
+		checkCustomModuleAccess(true);
+
+		if (_originalSecurityManager != null) {
+			_originalSecurityManager.checkSecurityAccess(target);
+		}
 	}
 
 	/*
@@ -306,7 +415,11 @@ public class EngineSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public void checkSetFactory() {
-		// super.checkSetFactory();
+		checkCustomModuleAccess(true);
+
+		if (_originalSecurityManager != null) {
+			_originalSecurityManager.checkSetFactory();
+		}
 	}
 
 	/*
@@ -316,7 +429,11 @@ public class EngineSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public void checkSystemClipboardAccess() {
-		// super.checkSystemClipboardAccess();
+		checkCustomModuleAccess(true);
+
+		if (_originalSecurityManager != null) {
+			_originalSecurityManager.checkSystemClipboardAccess();
+		}
 	}
 
 	/*
@@ -326,8 +443,14 @@ public class EngineSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public boolean checkTopLevelWindow(Object window) {
+		if (!checkCustomModuleAccess(false))
+			return false;
+
+		if (_originalSecurityManager != null) {
+			return _originalSecurityManager.checkTopLevelWindow(window);
+		}
+
 		return true;
-		// return //super.checkTopLevelWindow(window);
 	}
 
 	/*
@@ -337,7 +460,11 @@ public class EngineSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public void checkWrite(FileDescriptor fd) {
-		// super.checkWrite(fd);
+		checkCustomModuleAccess(true);
+
+		if (_originalSecurityManager != null) {
+			_originalSecurityManager.checkWrite(fd);
+		}
 	}
 
 	/*
@@ -347,6 +474,35 @@ public class EngineSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public void checkWrite(String file) {
-		// super.checkWrite(file);
+		checkCustomModuleAccess(true);
+
+		if (_originalSecurityManager != null) {
+			_originalSecurityManager.checkWrite(file);
+		}
+	}
+
+	private boolean checkCustomModuleAccess(boolean throwSecurityException) {
+		if (CustomModuleRunner.isInCustomModuleThread()) {
+			if (throwSecurityException) {
+				throw new SecurityException(SECURITYEXCEPTIONMESSAGE);
+			} else {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	private boolean checkCustomModuleAccessForPrivilegedClasses(boolean throwSecurityException) {
+		for (StackTraceElement ste : Thread.currentThread().getStackTrace()) {
+			String className = ste.getClassName();
+			for (String privilegedClassName : PRIVILEGEDCLASSNAMES) {
+				if (privilegedClassName.equals(className)) {
+					return true;
+				}
+			}
+		}
+
+		return checkCustomModuleAccess(throwSecurityException);
 	}
 }
