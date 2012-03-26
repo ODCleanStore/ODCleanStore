@@ -67,7 +67,8 @@ class MedianAggegation extends CalculatedValueAggregation {
         Quad firstQuad = conflictingQuads.iterator().next();
         if (!firstQuad.getObject().isLiteral()) {
             for (Quad quad : conflictingQuads) {
-                handleNonAggregableObject(quad, result, aggregationSpec, this.getClass());
+                handleNonAggregableObject(
+                        quad, conflictingQuads, metadata, result, this.getClass());
             }
             return result;
         }
@@ -114,7 +115,8 @@ class MedianAggegation extends CalculatedValueAggregation {
                 objects.add(numberValue);
                 sourceNamedGraphs.add(quad.getGraphName().getURI());
             } else {
-                handleNonAggregableObject(quad, result, aggregationSpec, this.getClass());
+                handleNonAggregableObject(
+                        quad, conflictingQuads, metadata, result, this.getClass());
             }
         }
 
@@ -164,7 +166,8 @@ class MedianAggegation extends CalculatedValueAggregation {
                 objects.add(quad.getObject().getLiteralLexicalForm());
                 sourceNamedGraphs.add(quad.getGraphName().getURI());
             } else {
-                handleNonAggregableObject(quad, result, aggregationSpec, this.getClass());
+                handleNonAggregableObject(
+                        quad, conflictingQuads, metadata, result, this.getClass());
             }
         }
 
