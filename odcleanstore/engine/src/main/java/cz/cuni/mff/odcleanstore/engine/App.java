@@ -5,24 +5,23 @@ package cz.cuni.mff.odcleanstore.engine;
 
 import cz.cuni.mff.odcleanstore.engine.core.EngineSecurityManager;
 
-// FIXME Exception handling is intentionally omitted in first phase of prototype !!! 
+// FIXME Exception handling is intentionally omitted in first phase of prototype in all engine module !!! 
 
 /**
  * 
  * @author Petr Jerman <petr.jerman@centrum.cz>
  */
 public class App {
-
-	private static App app = null;
+	private static App _app = null;
 
 	public static App currentApp() {
-		return app;
+		return _app;
 	}
 
 	public static void main(String[] args) {
 		try {
-			app = new App();
-			app.main();
+			_app = new App();
+			_app.main();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -31,7 +30,7 @@ public class App {
 	private App() {
 	}
 
-	private void main() {
+	private void main() throws InterruptedException {
 
 		// TODO Add init basic logging mechanism
 
@@ -68,7 +67,7 @@ public class App {
 
 		// TODO Add choice by config file
 
-		System.setSecurityManager(new EngineSecurityManager());
+		new EngineSecurityManager();
 		return true;
 	}
 }
