@@ -21,6 +21,7 @@
 			<version>3.8.1</version>
 			<scope>test</scope>
 		</dependency>
+		<!-- HONZA START -->
 		<dependency>
 			<groupId>cz.cuni.mff.odcleanstore</groupId>
 			<artifactId>webservices</artifactId>
@@ -36,6 +37,7 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+	<!-- HONZA END -->
 
 	<distributionManagement>
 		<repository>
