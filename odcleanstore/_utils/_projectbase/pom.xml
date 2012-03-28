@@ -2,15 +2,20 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>common</artifactId>
-	<packaging>jar</packaging>
-	<name>odcleanstore - common</name>
-
+	<artifactId>_pj-workgroup</artifactId>
+	<packaging>pom</packaging>
+	
 	<parent>
 		<groupId>cz.cuni.mff.odcleanstore</groupId>
 		<artifactId>_project-base</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
-		<relativePath>../_utils/_project-base</relativePath>
+		<relativePath>../_project-base</relativePath>
 	</parent>
-
+	
+	<modules>
+		<module>../../common</module>
+		<module>../../engine</module>
+		<module>../../webservices</module>
+	</modules>
+	
 </project>

@@ -2,33 +2,25 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>cz.cuni.mff.odcleanstore</groupId>
 	<artifactId>engine</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
+	<name>odcleanstore - engine</name>
 
-	<name>odcleanstorage - engine</name>
-	<url>http://maven.apache.org</url>
-
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
+	<parent>
+		<groupId>cz.cuni.mff.odcleanstore</groupId>
+		<artifactId>_project-base</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../_utils/_project-base</relativePath>
+	</parent>
 
 	<dependencies>
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>3.8.1</version>
-			<scope>test</scope>
+			<groupId>cz.cuni.mff.odcleanstore</groupId>
+			<artifactId>common</artifactId>
 		</dependency>
-		<!-- HONZA START -->
 		<dependency>
 			<groupId>cz.cuni.mff.odcleanstore</groupId>
 			<artifactId>webservices</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>cz.cuni.mff.odcleanstore</groupId>
-			<artifactId>common</artifactId>
 		</dependency>
 	</dependencies>
 
@@ -36,74 +28,15 @@
 		<dependencies>
 			<dependency>
 				<groupId>cz.cuni.mff.odcleanstore</groupId>
-				<artifactId>webservices</artifactId>
+				<artifactId>common</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>cz.cuni.mff.odcleanstore</groupId>
-				<artifactId>common</artifactId>
+				<artifactId>webservices</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-	<!-- HONZA END -->
 
-	<distributionManagement>
-		<repository>
-			<id>odcleanstore</id>
-			<url>http://gd.projekty.ms.mff.cuni.cz:9123/nexus/content/repositories/releases/</url>
-		</repository>
-
-		<snapshotRepository>
-			<id>odcleanstore</id>
-			<url>http://gd.projekty.ms.mff.cuni.cz:9123/nexus/content/repositories/snapshots/</url>
-		</snapshotRepository>
-	</distributionManagement>
-
-	<repositories>
-		<repository>
-			<id>odcleanstore</id>
-			<url>http://gd.projekty.ms.mff.cuni.cz:9123/nexus/content/groups/public/</url>
-		</repository>
-	</repositories>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.1</version>
-				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.8.1</version>
-				<executions>
-					<execution>
-						<id>attach-javadocs</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.3.1</version>
-				<configuration>
-					<archive>
-						<manifest>
-							<!-- <addClasspath>true</addClasspath> <classpathPrefix>lib/</classpathPrefix> -->
-							<mainClass>cz.cuni.mff.odcleanstore.engine.App</mainClass>
-						</manifest>
-					</archive>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 </project>
