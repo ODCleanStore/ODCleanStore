@@ -1,11 +1,17 @@
 /**
  * 
  */
-package cz.cuni.mff.odcleanstore.engine.core;
+package cz.cuni.mff.odcleanstore.common.sysutil;
 
-import java.io.*;
-import java.util.*;
-import java.util.jar.*;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+
+import cz.cuni.mff.odcleanstorage.common.Empty;
 
 /**
  * JarFile reader.
@@ -52,14 +58,13 @@ public class JarReader {
 	}
 
 	public JarEntry getClassEntry(String classFullName) {
-		return _jarFile == null || classFullName == null ? null : _jarFile.getJarEntry(classFullName
-				.replace(".", "/") + ".class");
+		return _jarFile == null || classFullName == null ? null : _jarFile.getJarEntry(classFullName.replace(".", "/")
+				+ ".class");
 	}
 
 	public byte[] getClassBytes(String classFullName) {
 		try {
-			BufferedInputStream jarBuf = new BufferedInputStream(
-					_jarFile.getInputStream(getClassEntry(classFullName)));
+			BufferedInputStream jarBuf = new BufferedInputStream(_jarFile.getInputStream(getClassEntry(classFullName)));
 			ByteArrayOutputStream jarOut = new ByteArrayOutputStream();
 
 			int b;

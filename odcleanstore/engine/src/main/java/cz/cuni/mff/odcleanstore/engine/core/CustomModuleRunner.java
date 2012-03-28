@@ -6,6 +6,8 @@ package cz.cuni.mff.odcleanstore.engine.core;
 import java.security.CodeSource;
 import java.security.SecureClassLoader;
 
+import cz.cuni.mff.odcleanstore.common.sysutil.JarReader;
+
 /**
  * Odcleanstore custom module loader and runner.
  * 

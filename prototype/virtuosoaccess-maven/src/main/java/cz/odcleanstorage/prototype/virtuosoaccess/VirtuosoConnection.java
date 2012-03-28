@@ -8,9 +8,9 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import virtuoso.jdbc4.VirtuosoExtendedString;
-import virtuoso.jdbc4.VirtuosoRdfBox;
-import virtuoso.jdbc4.VirtuosoResultSet;
+import virtuoso.jdbc3.VirtuosoExtendedString;
+import virtuoso.jdbc3.VirtuosoRdfBox;
+import virtuoso.jdbc3.VirtuosoResultSet;
 
 /**
  * Encapsulates jdbc connections and single threaded basic data operations on Virtuoso database.

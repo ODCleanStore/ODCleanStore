@@ -1,7 +1,7 @@
 /**
  * 
  */
-package cz.cuni.mff.odcleanstore.engine.core;
+package cz.cuni.mff.odcleanstorage.common;
 
 import java.util.Iterator;
 

@@ -3,11 +3,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>cz.cuni.mff.odcleanstore</groupId>
-	<artifactId>webservices</artifactId>
+	<artifactId>common</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>odcleanstorage - webservices</name>
+	<name>odcleanstore - common</name>
 	<url>http://maven.apache.org</url>
 
 	<properties>
@@ -21,21 +21,7 @@
 			<version>3.8.1</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>cz.cuni.mff.odcleanstore</groupId>
-			<artifactId>common</artifactId>
-		</dependency>
 	</dependencies>
-
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>cz.cuni.mff.odcleanstore</groupId>
-				<artifactId>common</artifactId>
-				<version>0.0.1-SNAPSHOT</version>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
 
 	<distributionManagement>
 		<repository>
@@ -88,7 +74,6 @@
 					<archive>
 						<manifest>
 							<!-- <addClasspath>true</addClasspath> <classpathPrefix>lib/</classpathPrefix> -->
-							<mainClass>cz.cuni.mff.odcleanstore.webservices.App</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
