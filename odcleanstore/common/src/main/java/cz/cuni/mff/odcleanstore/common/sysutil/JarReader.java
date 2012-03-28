@@ -10,8 +10,7 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-
-import cz.cuni.mff.odcleanstorage.common.Empty;
+import java.util.zip.ZipException;
 
 /**
  * JarFile reader.
@@ -19,18 +18,28 @@ import cz.cuni.mff.odcleanstorage.common.Empty;
  * @author Petr Jerman <petr.jerman@centrum.cz>
  */
 public class JarReader {
-	private JarFile _jarFile;
 
-	public JarReader(String jarFileName) {
-		try {
-			_jarFile = new JarFile(jarFileName);
-		} catch (IOException e) {
-			_jarFile = null;
-		}
+	private final JarFile _jarFile;
+
+	/**
+	 * Construct JarReader object from file name.
+	 * 
+	 * @param jarFileName
+	 *            File name of jar archive file.
+	 * @throws IOException
+	 * @throws SecurityException
+	 */
+	public JarReader(String jarFileName) throws IOException {
+		_jarFile = new JarFile(jarFileName);
 	}
 
+	/**
+	 * Gets all entry names in jar archive.
+	 * 
+	 * @return Iterable object of names.
+	 */
 	public Iterable<String> getEntryNames() {
-		return _jarFile == null ? Empty.ITERABLE_STRING : new Iterable<String>() {
+		return new Iterable<String>() {
 
 			public Iterator<String> iterator() {
 				return new Iterator<String>() {
@@ -53,36 +62,52 @@ public class JarReader {
 		};
 	}
 
-	public JarEntry getEntry(String name) {
-		return _jarFile == null ? null : _jarFile.getJarEntry(name);
+	/**
+	 * Gets Name of main runnable class in jar archive if exists or null.
+	 * 
+	 * @return Name of MainClass if exists or null.
+	 * @throws IOException
+	 * @throws IllegalStateException
+	 */
+	public String getMainClassName() throws IOException {
+		return _jarFile.getManifest().getMainAttributes().getValue("Main-Class");
 	}
 
-	public JarEntry getClassEntry(String classFullName) {
-		return _jarFile == null || classFullName == null ? null : _jarFile.getJarEntry(classFullName.replace(".", "/")
-				+ ".class");
-	}
-
-	public byte[] getClassBytes(String classFullName) {
-		try {
-			BufferedInputStream jarBuf = new BufferedInputStream(_jarFile.getInputStream(getClassEntry(classFullName)));
-			ByteArrayOutputStream jarOut = new ByteArrayOutputStream();
-
-			int b;
-			while ((b = jarBuf.read()) != -1)
-				jarOut.write(b);
-
-			return jarOut.toByteArray();
-		} catch (IOException e) {
+	/**
+	 * Get bytecode of class from full class name if exists or null.
+	 * 
+	 * @param classFullName
+	 *            Full name of class.
+	 * @return Bytecode of class if exists or null.
+	 * @throws ZipException
+	 * @throws IOException
+	 * @throws IllegalStateException
+	 * @throws SecurityException
+	 */
+	public byte[] getClassBytes(String classFullName) throws ZipException, IOException {
+		JarEntry jarEntry = getClassEntry(classFullName);
+		if (jarEntry == null)
 			return null;
-		}
+
+		BufferedInputStream jarBuf = new BufferedInputStream(_jarFile.getInputStream(jarEntry));
+		ByteArrayOutputStream jarOut = new ByteArrayOutputStream();
+
+		int b;
+		while ((b = jarBuf.read()) != -1)
+			jarOut.write(b);
+
+		return jarOut.toByteArray();
 	}
 
-	public String getMainClassName() {
-		try {
-			return _jarFile.getManifest().getMainAttributes().getValue("Main-Class");
-
-		} catch (IOException e) {
-			return null;
-		}
+	/**
+	 * Gets JarEntry from full class name if exists or null.
+	 * 
+	 * @param classFullName
+	 *            Full class name.
+	 * @return JarEntry for full class name if exist or null.
+	 * @throws IllegalStateException
+	 */
+	private JarEntry getClassEntry(String classFullName) {
+		return classFullName == null ? null : _jarFile.getJarEntry(classFullName.replace(".", "/") + ".class");
 	}
 }
