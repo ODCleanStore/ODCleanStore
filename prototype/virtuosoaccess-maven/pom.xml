@@ -1,28 +1,32 @@
-<project
- xmlns="http://maven.apache.org/POM/4.0.0"
- xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
- xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-  <modelVersion>4.0.0</modelVersion>
+	<modelVersion>4.0.0</modelVersion>
 
-  <groupId>cz.odcleanstorage.prototype</groupId>
-  <artifactId>virtuosoaccess-maven</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-  <name>Virtuoso Access Prototype</name>
+	<groupId>cz.odcleanstorage.prototype</groupId>
+	<artifactId>virtuosoaccess-maven</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>Virtuoso Access Prototype</name>
 
-  <dependencies>
-    <dependency>
-      <groupId>cz.odcleanstorage.prototype.imported</groupId>
-	 <artifactId>virtjdbc4</artifactId>
-	 <version>0.1</version>
-      <scope>test</scope>
+	<dependencies>
+		<dependency>
+			<groupId>com.openlinksw</groupId>
+			<artifactId>virtjdbc</artifactId>
+			<version>3</version>
     </dependency>
-    <dependency>
-    	<groupId>junit</groupId>
-    	<artifactId>junit</artifactId>
-    	<version>4.8.2</version>
-    	<scope>test</scope>
-    </dependency>
-  </dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.2</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<repositories>
+		<repository>
+			<id>odcleanstore</id>
+			<url>http://gd.projekty.ms.mff.cuni.cz:9123/nexus/content/groups/public/</url>
+		</repository>
+	</repositories>
 
 </project>

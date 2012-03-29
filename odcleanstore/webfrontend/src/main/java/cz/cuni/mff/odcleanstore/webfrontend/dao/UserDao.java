@@ -10,6 +10,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
@@ -23,6 +24,26 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
  */
 public class UserDao extends Dao<User>
 {
+	public User load(String username, String password)
+	{
+		List<Map<String, Object>> usersRows = jdbcTemplate.queryForList(
+			"SELECT * FROM `users` WHERE `username` = '" + username +
+			"' AND `password` = '" + password + "';"
+		);
+		
+		List<Map<String, Object>> rolesRows = jdbcTemplate.queryForList(
+			"SELECT * FROM `users_roles` JOIN `roles` " +
+			"ON (`roles`.`id` = `users_roles`.`role_id`)"
+		);
+		
+		List<User> users = addRolesToUsers(usersRows, rolesRows);
+
+		if (!users.isEmpty()) 
+			return users.get(0);
+		
+		return null;
+	}
+	
 	/**
 	 * 
 	 * @return
@@ -129,6 +150,25 @@ public class UserDao extends Dao<User>
 		}
 		
 		return new LinkedList<User>(users.values());
+	}
+
+	@Override
+	public void update(User item) 
+	{
+		// TODO: only updates roles for now
+		// TODO: to be done in a transaction
+		
+		jdbcTemplate.execute(
+			"DELETE FROM `users_roles` WHERE `user_id` = " + item.getId()
+		);
+		
+		for (Role role : item.getRoles())
+		{
+			jdbcTemplate.execute(
+				"INSERT INTO `users_roles` VALUES (" + 
+				item.getId() + ", " + role.getId() + ");"
+			);
+		}
 	}
 }
 

@@ -3,8 +3,11 @@
  */
 package cz.cuni.mff.odcleanstore.engine.core;
 
+import java.io.IOException;
 import java.security.CodeSource;
 import java.security.SecureClassLoader;
+
+import cz.cuni.mff.odcleanstore.common.sysutil.JarReader;
 
 /**
  * Odcleanstore custom module loader and runner.
@@ -81,12 +84,12 @@ public class CustomModuleRunner {
 	private class CustomModuleClassLoader extends SecureClassLoader {
 		private JarReader _jarReader;
 
-		public CustomModuleClassLoader() {
+		public CustomModuleClassLoader() throws IOException {
 			super(CustomModuleRunner.this.getClass().getClassLoader());
 			_jarReader = new JarReader(_jarName);
 		}
 
-		public String getMainClassName() {
+		public String getMainClassName() throws IOException {
 			return _jarReader.getMainClassName();
 		}
 

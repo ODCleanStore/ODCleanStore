@@ -6,12 +6,14 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.Role.NAME;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
 
+@AuthorizeInstantiation({ "ADM" })
 public class AccountsListPage extends FrontendPage 
 {
 	private static final long serialVersionUID = 1L;
@@ -39,6 +41,7 @@ public class AccountsListPage extends FrontendPage
 			protected void populateItem(ListItem<User> item) 
 			{
 				final User user = item.getModelObject();
+				
 				item.setModel(new CompoundPropertyModel<User>(user));
 
 				item.add(new Label("username"));
