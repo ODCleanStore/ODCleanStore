@@ -1,7 +1,7 @@
 /**
  * 
  */
-package cz.cuni.mff.odcleanstore.common;
+package cz.cuni.mff.odcleanstore.utils;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -22,7 +22,7 @@ public class FormatHelper {
 	 * 
 	 * @param date
 	 *            The time value to be formatted into a W3CDTF format.
-	 * @Returns The formatted string.
+	 * @return The formatted string.
 	 */
 	public static String getW3CDTF(Date date) {
 		return "\"" + SIMPLEDATEFORMAT_W3CDTF.format(date) + "\"";
@@ -31,7 +31,7 @@ public class FormatHelper {
 	/**
 	 * Get current date in W3CDTF format.
 	 * 
-	 * @Returns The formatted string.
+	 * @return The formatted string.
 	 */
 	public static String getW3CDTFCurrent() {
 		return getW3CDTF(new Date());
