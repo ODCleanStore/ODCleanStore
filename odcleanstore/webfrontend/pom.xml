@@ -27,6 +27,11 @@
 			<version>${wicket.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.wicket</groupId>
+			<artifactId>wicket-auth-roles</artifactId>
+			<version>1.5.5</version>
+		</dependency>
+		<dependency>
 			  <groupId>org.apache.wicket</groupId>
 			  <artifactId>wicket-spring</artifactId>
 			  <version>${wicket.version}</version>

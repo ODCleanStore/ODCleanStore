@@ -24,6 +24,26 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
  */
 public class UserDao extends Dao<User>
 {
+	public User load(String username, String password)
+	{
+		List<Map<String, Object>> usersRows = jdbcTemplate.queryForList(
+			"SELECT * FROM `users` WHERE `username` = '" + username +
+			"' AND `password` = '" + password + "';"
+		);
+		
+		List<Map<String, Object>> rolesRows = jdbcTemplate.queryForList(
+			"SELECT * FROM `users_roles` JOIN `roles` " +
+			"ON (`roles`.`id` = `users_roles`.`role_id`)"
+		);
+		
+		List<User> users = addRolesToUsers(usersRows, rolesRows);
+
+		if (!users.isEmpty()) 
+			return users.get(0);
+		
+		return null;
+	}
+	
 	/**
 	 * 
 	 * @return

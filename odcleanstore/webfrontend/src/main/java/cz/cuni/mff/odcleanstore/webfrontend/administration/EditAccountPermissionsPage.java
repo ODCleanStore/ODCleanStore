@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.CheckBox;
@@ -19,6 +20,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role.NAME;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 
+@AuthorizeInstantiation({ "ADM" })
 public class EditAccountPermissionsPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
