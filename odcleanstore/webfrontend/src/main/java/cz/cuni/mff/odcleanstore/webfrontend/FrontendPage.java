@@ -6,7 +6,6 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
 
 public abstract class FrontendPage extends WebPage 
 {
-
 	private static final long serialVersionUID = 1L;
 
 	public FrontendPage(String pageCrumbs, String pageTitle)

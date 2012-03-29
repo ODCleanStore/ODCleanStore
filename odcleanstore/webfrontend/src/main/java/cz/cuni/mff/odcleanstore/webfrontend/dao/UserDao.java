@@ -10,6 +10,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
@@ -129,6 +130,25 @@ public class UserDao extends Dao<User>
 		}
 		
 		return new LinkedList<User>(users.values());
+	}
+
+	@Override
+	public void update(User item) 
+	{
+		// TODO: only updates roles for now
+		// TODO: to be done in a transaction
+		
+		jdbcTemplate.execute(
+			"DELETE FROM `users_roles` WHERE `user_id` = " + item.getId()
+		);
+		
+		for (Role role : item.getRoles())
+		{
+			jdbcTemplate.execute(
+				"INSERT INTO `users_roles` VALUES (" + 
+				item.getId() + ", " + role.getId() + ");"
+			);
+		}
 	}
 }
 

@@ -39,6 +39,7 @@ public class AccountsListPage extends FrontendPage
 			protected void populateItem(ListItem<User> item) 
 			{
 				final User user = item.getModelObject();
+				
 				item.setModel(new CompoundPropertyModel<User>(user));
 
 				item.add(new Label("username"));
