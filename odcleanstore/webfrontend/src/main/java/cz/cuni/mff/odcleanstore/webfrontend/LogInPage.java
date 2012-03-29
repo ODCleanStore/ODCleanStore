@@ -53,10 +53,9 @@ class LogInForm extends Form
 			return;
 		}
 		
-		getSession().info("User successfuly authenticated.");
 		WicketSession.get().setUser(user);
 		
-		// if (!continueToOriginalDestination())
+		getSession().info("User successfuly logged in.");
 		setResponsePage(getApplication().getHomePage());
 	}
 }

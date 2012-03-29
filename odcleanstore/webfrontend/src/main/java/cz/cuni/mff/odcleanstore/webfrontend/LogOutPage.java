@@ -17,6 +17,8 @@ public class LogOutPage extends WebPage
 		Class<? extends Page> pageClass = getResponsePageClass(pageClassName);
 		
 		getSession().invalidate();
+		
+		getSession().info("User successfuly logged out.");
 		setResponsePage(pageClass);
 	}
 	
