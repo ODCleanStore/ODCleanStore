@@ -14,7 +14,7 @@ public class LogInPage extends FrontendPage
 {
 	public LogInPage() 
 	{
-		super("Home > SignIn", "Sign in");
+		super("Home > LogIn", "Log in");
 		
 		UserDao userDao = (UserDao) getApp().getDaoLookupFactory().getUserDao();
 		add(new LogInForm("logInForm", userDao));
@@ -56,7 +56,7 @@ class LogInForm extends Form
 		getSession().info("User successfuly authenticated.");
 		WicketSession.get().setUser(user);
 		
-		if (!continueToOriginalDestination())
-			setResponsePage(getApplication().getHomePage());
+		// if (!continueToOriginalDestination())
+		setResponsePage(getApplication().getHomePage());
 	}
 }

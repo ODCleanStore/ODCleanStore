@@ -55,4 +55,18 @@ public class WicketSession extends AuthenticatedWebSession
 		
 		this.roles = roleNames.toArray(new String[roleNames.size()]);
 	}
+	
+	public boolean isAuthenticated()
+	{
+		return user != null;
+	}
+	
+	@Override
+	public void invalidate()
+	{
+		user = null;
+		roles = new String[] { };
+		
+		super.invalidate();
+	}
 }
