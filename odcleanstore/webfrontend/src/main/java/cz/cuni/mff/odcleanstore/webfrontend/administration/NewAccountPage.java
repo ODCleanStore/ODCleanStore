@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.administration;
 
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -8,6 +9,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 
+@AuthorizeInstantiation({ "ADM" })
 public class NewAccountPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;

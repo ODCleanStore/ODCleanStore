@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
@@ -11,7 +12,7 @@ import java.util.Set;
  * @author Dusan Rychnovsky (dusan.rychnovsky@gmail.com)
  *
  */
-public class User
+public class User implements Serializable
 {
 	private Integer id;
 	
@@ -161,5 +162,13 @@ public class User
 	public void removeRole(Role role)
 	{
 		roles.remove(role);
+	}
+	
+	/**
+	 * 
+	 */
+	public void removeAllRoles()
+	{
+		roles.clear();
 	}
 }

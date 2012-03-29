@@ -1,5 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo;
 
+import java.io.Serializable;
+
 /**
  * The Role BO.
  * 
@@ -7,7 +9,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo;
  *
  */
 
-public class Role
+public class Role implements Serializable
 {
 	public enum NAME { SCR, ONC, POC, ADM };
 	
@@ -28,6 +30,15 @@ public class Role
 		this.description = description;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
+	public Integer getId()
+	{
+		return id;
+	}
+	
 	/**
 	 * 
 	 * @return

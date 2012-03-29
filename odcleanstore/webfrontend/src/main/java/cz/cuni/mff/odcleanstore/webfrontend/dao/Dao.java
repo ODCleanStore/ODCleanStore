@@ -13,7 +13,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * @author Dusan Rychnovsky (dusan.rychnovsky@gmail.com)
  *
  */
-public abstract class Dao<T> 
+public abstract class Dao<T>
 {
 	protected JdbcTemplate jdbcTemplate;
 	
@@ -32,6 +32,13 @@ public abstract class Dao<T>
 	 * @param item
 	 */
 	public abstract void insert(T item);
+	
+	/**
+	 * Updates the given entity in the database.
+	 * 
+	 * @param item
+	 */
+	public abstract void update(T item);
 	
 	/**
 	 * Find all entities in the database.

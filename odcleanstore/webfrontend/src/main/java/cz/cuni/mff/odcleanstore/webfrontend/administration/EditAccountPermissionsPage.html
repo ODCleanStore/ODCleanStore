@@ -2,7 +2,7 @@
 
 <wicket:link>
 <div>
-	<a class="placedright" href="NewAccountPage.html">Back to a list of all accounts</a>
+	<a class="placedright" href="AccountsListPage.html">Back to a list of all accounts</a>
 	<div class="clear">&nbsp;</div>
 </div>
 </wicket:link>
@@ -19,7 +19,7 @@
 
 <h2>Permissions</h2>
 
-<form>
+<form wicket:id="editPermissionsForm">
 	<table border="1">
 		<tr>
 			<th>Role name</th>
@@ -44,7 +44,7 @@
 	</table>
 
 	<input type="submit" class="placedright" value="Uložit" />
-	<input type="submit" class="placedright" value="Resetovat" />
+	<input wicket:id="resetButton" type="submit" class="placedright" value="Reset" />
 	
 	<div class="clear"></div>
 </form>
