@@ -9,6 +9,8 @@ public class PasswordHandling
 	public static final String DEFAULT_CHARSET = 
 		"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.!?:";
 	
+	public static final int DEFAULT_LENGTH = 12;
+	
 	public static String generateRandomPassword(String charset, int length)
 	{
 		Random rnd = new Random();

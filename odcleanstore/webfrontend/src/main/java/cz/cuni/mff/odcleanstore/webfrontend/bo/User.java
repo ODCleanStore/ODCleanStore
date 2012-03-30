@@ -18,6 +18,8 @@ public class User implements Serializable
 	
 	private String username;
 	private String email;
+	private String password;
+	
 	private Date createdAt;
 	
 	private Set<Role> roles;
@@ -90,6 +92,24 @@ public class User implements Serializable
 	public void setEmail(String email)
 	{
 		this.email = email;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String getPassword() 
+	{
+		return password;
+	}
+
+	/**
+	 * 
+	 * @param password
+	 */
+	public void setPassword(String password) 
+	{
+		this.password = password;
 	}
 	
 	/**

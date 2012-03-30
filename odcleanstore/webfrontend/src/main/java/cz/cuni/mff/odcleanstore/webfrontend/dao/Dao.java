@@ -1,5 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Date;
@@ -63,15 +65,7 @@ public abstract class Dao<T>
 	 */
 	protected String dateToMySQLTimestamp(Date date)
 	{
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(date);
-		
-		return
-			calendar.get(Calendar.YEAR) + "-" +
-			calendar.get(Calendar.MONTH) + "-" +
-			calendar.get(Calendar.DAY_OF_MONTH) + " " +
-			calendar.get(Calendar.HOUR_OF_DAY) + ":" +
-			calendar.get(Calendar.MINUTE) + ":" +
-			calendar.get(Calendar.SECOND);
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		return dateFormat.format(date);
 	}
 }

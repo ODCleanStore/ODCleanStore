@@ -1,5 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend;
 
+import java.security.NoSuchAlgorithmException;
+
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.TextField;
@@ -9,6 +11,7 @@ import org.apache.wicket.model.IModel;
 import cz.cuni.mff.odcleanstore.webfrontend.administration.AccountsListPage;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao;
+import cz.cuni.mff.odcleanstore.webfrontend.util.PasswordHandling;
 
 public class LogInPage extends FrontendPage
 {
@@ -43,7 +46,22 @@ class LogInForm extends Form
 	@Override
 	public void onSubmit()
 	{
-		User user = userDao.load(username, password);
+		User user;
+		
+		try 
+		{
+			user = userDao.load(
+				username, 
+				PasswordHandling.calculateMD5Hash(password)
+			);
+		}
+		catch (NoSuchAlgorithmException ex) 
+		{
+			getSession().error("Could not authenticate the user.");
+			setResponsePage(getApplication().getHomePage());
+			
+			return;
+		}
 		
 		if (user == null)
 		{
