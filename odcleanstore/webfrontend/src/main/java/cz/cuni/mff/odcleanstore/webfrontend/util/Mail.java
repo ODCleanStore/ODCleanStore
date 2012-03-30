@@ -49,7 +49,7 @@ public class Mail
 	}
 	
 	/**
-	 * Sends the represented message through the given mail-server.
+	 * Sends the represented message through the given custom mail-server.
 	 * 
 	 * This code snippet originates from a StackOverflow thread 
 	 * (http://stackoverflow.com/questions/2423760/how-can-i-send-email-from-a-wicket-application)
@@ -57,22 +57,76 @@ public class Mail
 	 * @throws MessagingException 
 	 * @throws AddressException 
 	 */
-	private void send(String mailServer) throws AddressException, MessagingException
+	public void send(String mailServer) throws AddressException, MessagingException
 	{
-		// Setup mail server 
+		// Setup mail server
         Properties props = System.getProperties(); 
         props.put("mail.smtp.host", mailServer); 
 
         // Get a mail session 
         Session session = Session.getDefaultInstance(props, null); 
 
-        // Define a new mail message 
-        Message message = new MimeMessage(session); 
-        message.setFrom(new InternetAddress(from)); 
-        message.addRecipient(Message.RecipientType.TO, new InternetAddress(to)); 
-        message.setSubject(subject); 
+		// Create the message to be send
+		Message message = createMessage(session);
+		
+        // Send the message 
+        Transport.send(message); 
+	}
+	
+	/**
+	 * Sends the represented message through Gmail SMTP server using the given
+	 * Gmail account credentials.
+	 * 
+	 * This code snippet originates from a blog post
+	 * (http://technology-for-human.blogspot.com/2011/08/sending-emails-using-java-mail-and.html)
+	 * 
+	 * @param gmailAddress
+	 * @param gmailPassword
+	 * @throws MessagingException
+	 */
+	public void sendThroughGmail(String gmailAddress, String gmailPassword) 
+		throws MessagingException
+	{
+		// Setup mail server
+		Properties props = new Properties();
+		
+		props.put("mail.transport.protocol", "smtps");
+		props.put("mail.smtps.host", "smtp.gmail.com");
+		props.put("mail.smtps.auth", "true");
 
-        // Create a message part to represent the body text 
+        // Get a mail session 
+		Session session = Session.getInstance(props);
+		session.setDebug(false);
+
+		// Create the message to be send
+		Message message = createMessage(session);
+		
+		// Send the message
+		Transport transportSSL = session.getTransport();
+		transportSSL.connect("smtp.gmail.com", 465, gmailAddress, gmailPassword);
+		transportSSL.sendMessage(message, message.getAllRecipients());
+		transportSSL.close();
+	}
+	
+	/**
+	 * Creates a {@link javax.mail.Message} object encapsulating the represented
+	 * message.
+	 * 
+	 * @param session
+	 * @return
+	 * @throws AddressException
+	 * @throws MessagingException
+	 */
+	private Message createMessage(Session session) 
+		throws AddressException, MessagingException
+	{
+		// Define a new mail message 
+		Message message = new MimeMessage(session);
+		message.setFrom(new InternetAddress(from));
+		message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+		message.setSubject(subject);
+		
+		// Create a message part to represent the body text 
         BodyPart messageBodyPart = new MimeBodyPart(); 
         messageBodyPart.setText(messageBody); 
 
@@ -87,11 +141,19 @@ public class Mail
 
         // Put all message parts in the message 
         message.setContent(multipart); 
-
-        // Send the message 
-        Transport.send(message); 
+        
+        return message;
 	}
 	
+	/**
+	 * Processes the given array of file-paths and adds them as message
+	 * attachements.
+	 * 
+	 * @param attachments
+	 * @param multipart
+	 * @throws MessagingException
+	 * @throws AddressException
+	 */
 	private void addAtachments(ArrayList<String> attachments, Multipart multipart) 
 		throws MessagingException, AddressException 
 	{ 
