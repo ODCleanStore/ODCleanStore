@@ -18,6 +18,15 @@
 			<groupId>cz.cuni.mff.odcleanstore</groupId>
 			<artifactId>common</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>cz.cuni.mff.odcleanstore</groupId>
+			<artifactId>components</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>cz.cuni.mff.odcleanstore</groupId>
+			<artifactId>utils</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<dependencyManagement>
@@ -25,6 +34,16 @@
 			<dependency>
 				<groupId>cz.cuni.mff.odcleanstore</groupId>
 				<artifactId>common</artifactId>
+				<version>0.0.1-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>cz.cuni.mff.odcleanstore</groupId>
+				<artifactId>components</artifactId>
+				<version>0.0.1-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>cz.cuni.mff.odcleanstore</groupId>
+				<artifactId>utils</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
 		</dependencies>
@@ -44,14 +63,15 @@
 					</execution>
 				</executions>
 				<configuration>
-					<sei>cz.cuni.mff.odcleanstore.webservices.ScrapperWebService</sei>
+					<sei>cz.cuni.mff.odcleanstore.webservices.Scraper</sei>
 				</configuration>
-				
+
 			</plugin>
 		</plugins>
 		<pluginManagement>
 			<plugins>
-				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
