@@ -3,9 +3,9 @@
  */
 package cz.cuni.mff.odcleanstore.webservices.scraper;
 
-import javax.jws.WebService;
 import javax.jws.WebParam;
 import javax.jws.WebResult;
+import javax.jws.WebService;
 
 import cz.cuni.mff.odcleanstore.components.Result;
 import cz.cuni.mff.odcleanstore.components.Triple;
@@ -21,9 +21,8 @@ import cz.cuni.mff.odcleanstore.components.extractor.InputFromExtractorMetadata;
 public class Scraper implements InputFromExtractor {
 
 	/**
-	 * 
-	 * @see cz.cuni.mff.odcleanstore.components.extractor.InputFromExtractor#InsertOnce(cz.cuni.mff.odcleanstore.components
-	 *      .extractor.InputFromExtractorMetadata, cz.cuni.mff.odcleanstore.components.Triple[])
+	 * @see cz.cuni.mff.odcleanstore.components.extractor.InputFromExtractor#InsertOnce(cz.cuni.mff.odcleanstore.components.extractor.InputFromExtractorMetadata,
+	 *      cz.cuni.mff.odcleanstore.components.Triple[])
 	 */
 	@Override
 	@WebResult(name = "InputFromExctractorResult")
@@ -33,9 +32,8 @@ public class Scraper implements InputFromExtractor {
 	}
 
 	/**
-	 * 
-	 * @see cz.cuni.mff.odcleanstore.components.extractor.InputFromExtractor#BeginTransaction(cz.cuni.mff.odcleanstore.components
-	 *      .extractor.InputFromExtractorMetadata, cz.cuni.mff.odcleanstore.components.Triple[])
+	 * @see cz.cuni.mff.odcleanstore.components.extractor.InputFromExtractor#BeginTransaction(cz.cuni.mff.odcleanstore.components.extractor.InputFromExtractorMetadata,
+	 *      cz.cuni.mff.odcleanstore.components.Triple[])
 	 */
 	@Override
 	@WebResult(name = "InputFromExctractorResult")
