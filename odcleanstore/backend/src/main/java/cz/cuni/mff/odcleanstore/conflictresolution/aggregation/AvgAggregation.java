@@ -67,7 +67,8 @@ final class AvgAggregation extends CalculatedValueAggregation {
                 if (nonAggregableQuads == null) {
                     nonAggregableQuads = new ArrayList<Quad>();
                 }
-                handleNonAggregableObject(quad, result, aggregationSpec, this.getClass());
+                handleNonAggregableObject(
+                        quad, conflictingQuads, metadata, result, this.getClass());
                 nonAggregableQuads.add(quad);
             }
         }

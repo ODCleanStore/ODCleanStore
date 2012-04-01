@@ -26,11 +26,13 @@ public final class LevenshteinDistance {
      * K-bounded Levenshtein distance with threshold {@link MAX_DISTANCE} (maximum allowed
      * distance).
      *
-     * @todo algorithm taken from
-     *       https://github.com/jmcejuela/Levenshtein-MySQL-UDF/blob/master/levenshtein.c#L269
+     * Algorithnm was adapted from
+     * https://github.com/jmcejuela/Levenshtein-MySQL-UDF/blob/master/levenshtein.c#L269
+     * with kind permission of its author Juan Miguel Cejuela
      *
-     *       Time O(MAX_DISTANCE * L) where L = min(s1.length(), s2.length());
-     *       space O(MAX_DISTANCE), constant.
+     * Time O(MAX_DISTANCE * L) where L = min(s1.length(), s2.length());
+     * space O(MAX_DISTANCE), constant.
+     * 
      * @param s1 the first string to compare
      * @param s2 the second string to compare
      * @return levenshtein distance between s1 and s2, or {@link #MAX_DISTANCE} if the distance is

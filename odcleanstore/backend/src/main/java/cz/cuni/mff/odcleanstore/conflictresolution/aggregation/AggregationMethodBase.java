@@ -285,14 +285,17 @@ abstract class AggregationMethodBase implements AggregationMethod {
      * In case of the RETURN_ALL error strategy, the given quad is added to the result.
      *
      * @param nonAggregableQuad the quad that couldn't be aggregated
-     * @param aggregationSpec aggregation settings
+     * @param conflictingQuads other quads conflicting with nonAggregableQuad; see
+     *        {@link #computeQuality(Quad,Collection,Collection,Collection,NamedGraphMetadataMap)}
+     * @param metadata metadata of source named graphs for nonAggregableQuad and conflictingQuads
      * @param result result of aggregation; a new CRQuad may be added to this collection
      * @param aggregationMethod aggregation class where the aggregation error occurred
      */
     protected void handleNonAggregableObject(
             Quad nonAggregableQuad,
+            Collection<Quad> conflictingQuads,
+            NamedGraphMetadataMap metadata,
             Collection<CRQuad> result,
-            AggregationSpec aggregationSpec,
             Class<? extends AggregationMethodBase> aggregationMethod) {
 
         LOG.debug("Value {} cannot be aggregated with {}.",
@@ -301,9 +304,18 @@ abstract class AggregationMethodBase implements AggregationMethod {
         EnumAggregationErrorStrategy errorStrategy = aggregationSpec.getErrorStrategy();
         switch (errorStrategy) {
         case RETURN_ALL:
+            Collection<String> sourceNamedGraphs = sourceNamedGraphsForObject(
+                    nonAggregableQuad.getObject(),
+                    conflictingQuads);
+            double quality = computeQuality(
+                    nonAggregableQuad,
+                    sourceNamedGraphs,
+                    sourceNamedGraphs,
+                    conflictingQuads,
+                    metadata);
             result.add(new CRQuad(
                     nonAggregableQuad,
-                    0, // TODO: compute real quality!
+                    quality,
                     Collections.singleton(nonAggregableQuad.getGraphName().getURI())));
             break;
         case IGNORE:
