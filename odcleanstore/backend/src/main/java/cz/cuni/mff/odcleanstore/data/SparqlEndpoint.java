@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.shared;
+package cz.cuni.mff.odcleanstore.data;
 
 /**
  * SPARQL endpoint representation. Username and password are optional.
