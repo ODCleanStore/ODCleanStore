@@ -9,7 +9,7 @@ import javax.jws.WebService;
 
 import cz.cuni.mff.odcleanstore.components.Result;
 import cz.cuni.mff.odcleanstore.components.Triple;
-import cz.cuni.mff.odcleanstore.components.extractor.InputFromExctractorResult;
+import cz.cuni.mff.odcleanstore.components.extractor.InputFromExtractorResult;
 import cz.cuni.mff.odcleanstore.components.extractor.InputFromExtractor;
 import cz.cuni.mff.odcleanstore.components.extractor.InputFromExtractorMetadata;
 
@@ -26,9 +26,9 @@ public class Scraper implements InputFromExtractor {
 	 */
 	@Override
 	@WebResult(name = "InputFromExctractorResult")
-	public InputFromExctractorResult InsertOnce(@WebParam(name = "metadata") InputFromExtractorMetadata metadata,
+	public InputFromExtractorResult InsertOnce(@WebParam(name = "metadata") InputFromExtractorMetadata metadata,
 			@WebParam(name = "triples") Triple[] triples) {
-		return new InputFromExctractorResult(Result.OK);
+		return new InputFromExtractorResult(Result.OK);
 	}
 
 	/**
@@ -37,9 +37,9 @@ public class Scraper implements InputFromExtractor {
 	 */
 	@Override
 	@WebResult(name = "InputFromExctractorResult")
-	public InputFromExctractorResult BeginTransaction(@WebParam(name = "metadata") InputFromExtractorMetadata metadata,
+	public InputFromExtractorResult BeginTransaction(@WebParam(name = "metadata") InputFromExtractorMetadata metadata,
 			@WebParam(name = "triples") Triple[] triples) {
-		return new InputFromExctractorResult(Result.ERROR);
+		return new InputFromExtractorResult(Result.ERROR);
 	}
 
 	/**
@@ -49,9 +49,9 @@ public class Scraper implements InputFromExtractor {
 	 */
 	@Override
 	@WebResult(name = "InputFromExctractorResult")
-	public InputFromExctractorResult MoreData(@WebParam(name = "transactionuuid") String transactionuuid,
+	public InputFromExtractorResult MoreData(@WebParam(name = "transactionuuid") String transactionuuid,
 			@WebParam(name = "triples") Triple[] triples) {
-		return new InputFromExctractorResult(Result.ERROR);
+		return new InputFromExtractorResult(Result.ERROR);
 	}
 
 	/**
@@ -60,7 +60,7 @@ public class Scraper implements InputFromExtractor {
 	 */
 	@Override
 	@WebResult(name = "InputFromExctractorResult")
-	public InputFromExctractorResult Commit(@WebParam(name = "transactionuuid") String transactionuuid) {
-		return new InputFromExctractorResult(Result.ERROR);
+	public InputFromExtractorResult Commit(@WebParam(name = "transactionuuid") String transactionuuid) {
+		return new InputFromExtractorResult(Result.ERROR);
 	}
 }

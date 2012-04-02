@@ -18,8 +18,6 @@ public class App {
 	public static void main(String[] args) {
 
 		try {
-			
-
 			Component component = new Component();
 			component.getServers().add(Protocol.HTTP, 8087);
 			component.getDefaultHost().attach(new cz.cuni.mff.odcleanstore.webservices.user.Root());
