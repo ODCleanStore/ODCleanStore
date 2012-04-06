@@ -56,4 +56,18 @@ public class Role implements Serializable
 	{
 		return description;
 	}
+	
+	@Override
+	public boolean equals(Object other)
+	{
+		if (!(other instanceof Role))
+			return false;
+		
+		Role otherRole = (Role) other;
+		
+		return
+			(this.id == otherRole.id) &&
+			this.name.equals(otherRole.name) &&
+			this.description.equals(otherRole.description);
+	}
 }

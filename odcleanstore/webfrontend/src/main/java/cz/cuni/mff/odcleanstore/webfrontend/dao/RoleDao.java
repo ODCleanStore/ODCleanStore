@@ -16,9 +16,9 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 
 /**
- * Hibernate-based User DAO implementation.
+ * A manual (JDBC-template based) Role DAO implementation.
  * 
- * @author Dusan Rychnovsky (dusan.rychnovsky@gmail.com)
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
 public class RoleDao extends Dao<Role>
@@ -30,21 +30,24 @@ public class RoleDao extends Dao<Role>
 	@Override
 	public List<Role> loadAll() 
 	{
-		return jdbcTemplate.query(
-			"SELECT * FROM `roles`", 
-			new RoleRowMapper()
-		);
+		String query = "SELECT * FROM `roles`";
+		return jdbcTemplate.query(query, new RoleRowMapper());
 	}
 
+	/**
+	 * 
+	 * @param id
+	 * @return
+	 */
 	@Override
 	public Role load(int id) 
 	{
-		List<Role> roles = jdbcTemplate.query(
-			"SELECT * FROM `roles` WHERE `id` = " + id, 
-			new RoleRowMapper()
-		);
+		String query = "SELECT * FROM `roles` WHERE `id` = ?";
+		Object[] args = { id };
 		
-		if (roles.isEmpty())
+		List<Role> roles = jdbcTemplate.query(query, args, new RoleRowMapper());
+		
+		if (roles.isEmpty()) 
 			return null;
 		
 		return roles.get(0);
@@ -68,6 +71,13 @@ public class RoleDao extends Dao<Role>
 
 }
 
+/**
+ * 
+ * Maps rows returned by JDBC-template query method to Role objects.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 class RoleRowMapper implements ParameterizedRowMapper
 {
 	public Object mapRow(ResultSet rs, int rowNum) throws SQLException 

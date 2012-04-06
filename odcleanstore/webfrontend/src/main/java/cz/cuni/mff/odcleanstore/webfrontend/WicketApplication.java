@@ -3,7 +3,6 @@ package cz.cuni.mff.odcleanstore.webfrontend;
 import org.apache.wicket.authroles.authentication.AbstractAuthenticatedWebSession;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebApplication;
 import org.apache.wicket.markup.html.WebPage;
-import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.spring.ISpringContextLocator;
 
 import org.springframework.context.ApplicationContext;
@@ -23,7 +22,10 @@ public class WicketApplication extends AuthenticatedWebApplication
 		}
 	};
 	
+	/** Spring context */
 	private ApplicationContext ctx;
+	
+	/** A factory to lookup Spring beans */
 	private DaoLookupFactory daoLookupFactory;
 	
 	@Override
@@ -41,6 +43,10 @@ public class WicketApplication extends AuthenticatedWebApplication
 		daoLookupFactory = new DaoLookupFactory();
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public DaoLookupFactory getDaoLookupFactory()
 	{
 		return daoLookupFactory;

@@ -70,18 +70,21 @@ public class UserDao extends Dao<User>
 	@Override
 	public void insert(User item) 
 	{
-		// TODO: SQL injection alert
+		String query = 
+			"INSERT INTO `users` (`username`, `password`, `email`, `createdAt`) " +
+			"VALUES (?, ?, ?, ?)";
+		
+		Object[] args =
+		{
+			item.getUsername(),
+			item.getPassword(),
+			item.getEmail(),
+			dateToMySQLTimestamp(item.getCreatedAt())
+		};
+		
 		// TODO: might throw DataAccessException
 		// TODO: check that username/email is unique
-		jdbcTemplate.execute(
-			"INSERT INTO `users` (`username`, `password`, `email`, `createdAt`) " +
-			"VALUES ('" + 
-				item.getUsername() + "', '" + 
-				item.getPassword() + "', '" +
-				item.getEmail() + "', '" + 
-				dateToMySQLTimestamp(item.getCreatedAt()) + 
-			"')"
-		);
+		jdbcTemplate.update(query, args);
 	}
 
 	/**

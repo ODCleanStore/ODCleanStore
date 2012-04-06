@@ -2,7 +2,6 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Date;
 
