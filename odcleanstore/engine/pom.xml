@@ -12,25 +12,16 @@
 		<version>0.0.1-SNAPSHOT</version>
 		<relativePath>../_utils/_project-base</relativePath>
 	</parent>
-
+	
 	<dependencies>
-		<dependency>
-			<groupId>cz.cuni.mff.odcleanstore</groupId>
-			<artifactId>common</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>cz.cuni.mff.odcleanstore</groupId>
 			<artifactId>webservices</artifactId>
 		</dependency>
 	</dependencies>
-
+	
 	<dependencyManagement>
 		<dependencies>
-			<dependency>
-				<groupId>cz.cuni.mff.odcleanstore</groupId>
-				<artifactId>common</artifactId>
-				<version>0.0.1-SNAPSHOT</version>
-			</dependency>
 			<dependency>
 				<groupId>cz.cuni.mff.odcleanstore</groupId>
 				<artifactId>webservices</artifactId>
@@ -38,5 +29,4 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-
 </project>

@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.security.CodeSource;
 import java.security.SecureClassLoader;
 
-import cz.cuni.mff.odcleanstore.common.sysutil.JarReader;
 
 /**
  * Odcleanstore custom module loader and runner.

@@ -16,7 +16,7 @@ public interface InputFromExtractor {
 	 * @param triples
 	 * @return InputFromExctractorResult
 	 */
-	public InputFromExctractorResult InsertOnce(InputFromExtractorMetadata metadata, Triple[] triples);
+	public InputFromExtractorResult InsertOnce(InputFromExtractorMetadata metadata, Triple[] triples);
 	
 	/**
 	 * 
@@ -24,7 +24,7 @@ public interface InputFromExtractor {
 	 * @param triples
 	 * @return InputFromExctractorResult
 	 */
-	public InputFromExctractorResult BeginTransaction(InputFromExtractorMetadata metadata, Triple[] triples);
+	public InputFromExtractorResult BeginTransaction(InputFromExtractorMetadata metadata, Triple[] triples);
 	
 	/**
 	 * 
@@ -32,12 +32,12 @@ public interface InputFromExtractor {
 	 * @param triples
 	 * @return InputFromExctractorResult
 	 */
-	public InputFromExctractorResult MoreData(String transactionuuid, Triple[] triples);
+	public InputFromExtractorResult MoreData(String transactionuuid, Triple[] triples);
 	
 	/**
 	 * 
 	 * @param transactionuuid
 	 * @return InputFromExctractorResult
 	 */
-	public InputFromExctractorResult Commit(String transactionuuid); 
+	public InputFromExtractorResult Commit(String transactionuuid); 
 }

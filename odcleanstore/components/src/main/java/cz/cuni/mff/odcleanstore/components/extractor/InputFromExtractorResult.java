@@ -9,15 +9,15 @@ import cz.cuni.mff.odcleanstore.components.Result;
  * @author jermanp
  * 
  */
-public class InputFromExctractorResult {
+public class InputFromExtractorResult {
 	public Result result;
 	public String description;
 	public String transactionuuid;
 
-	public InputFromExctractorResult() {
+	public InputFromExtractorResult() {
 	}
 
-	public InputFromExctractorResult(Result result) {
+	public InputFromExtractorResult(Result result) {
 		this.result = result;
 	}
 }

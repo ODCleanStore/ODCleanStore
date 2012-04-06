@@ -1,7 +1,7 @@
 /**
  * 
  */
-package cz.cuni.mff.odcleanstore.common.sysutil;
+package cz.cuni.mff.odcleanstore.engine.core;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;

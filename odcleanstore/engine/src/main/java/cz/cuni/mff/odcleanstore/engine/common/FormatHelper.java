@@ -1,7 +1,7 @@
 /**
  * 
  */
-package cz.cuni.mff.odcleanstore.utils;
+package cz.cuni.mff.odcleanstore.engine.common;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
