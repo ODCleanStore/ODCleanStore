@@ -14,19 +14,25 @@
 	</parent>
 
 	<repositories>
-      <repository>
-        <id>odcleanstore</id>
-        <url>http://gd.projekty.ms.mff.cuni.cz:9123/nexus/content/groups/public/</url>
-      </repository>
-    </repositories>
-	
+		<repository>
+			<id>odcleanstore</id>
+			<url>http://gd.projekty.ms.mff.cuni.cz:9123/nexus/content/groups/public/</url>
+		</repository>
+	</repositories>
+
 	<dependencies>
 		<dependency>
 			<groupId>cz.cuni.mff.odcleanstore</groupId>
 			<artifactId>webservices</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.openlinksw</groupId>
+			<artifactId>virtjdbc</artifactId>
+			<version>3</version>
+		</dependency>
+
 	</dependencies>
-	
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
