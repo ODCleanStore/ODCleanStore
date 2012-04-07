@@ -31,6 +31,10 @@
 			<artifactId>components</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>cz.cuni.mff.odcleanstore</groupId>
+			<artifactId>odcleanstore-backend</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.openlinksw</groupId>
 			<artifactId>virtjdbc</artifactId>
 			<version>3</version>
@@ -47,6 +51,11 @@
 			<dependency>
 				<groupId>cz.cuni.mff.odcleanstore</groupId>
 				<artifactId>components</artifactId>
+				<version>0.0.1-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>cz.cuni.mff.odcleanstore</groupId>
+				<artifactId>odcleanstore-backend</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
 		</dependencies>

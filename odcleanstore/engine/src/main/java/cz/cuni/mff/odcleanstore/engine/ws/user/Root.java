@@ -8,8 +8,7 @@ import org.restlet.Restlet;
 import org.restlet.routing.Router;
 
 /**
- * @author jermanp
- * 
+ * @author Petr Jerman <petr.jerman@centrum.cz>
  */
 public class Root extends Application {
 
@@ -19,12 +18,8 @@ public class Root extends Application {
 	@Override
 	public synchronized Restlet createInboundRoot() {
 
-		// Create a router Restlet that routes each call to a new instance of HelloWorldResource.
 		Router router = new Router(getContext());
-
-		// Defines only one route
-		router.attach("/hello", HelloWorldResource.class);
-
+		router.attach("/qe/keyword", KeywordQueryExecutorResource.class);
 		return router;
 	}
 }

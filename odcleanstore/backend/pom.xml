@@ -15,10 +15,6 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>cz.cuni.mff.odcleanstore</groupId>
-			<artifactId>common</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 		</dependency>
