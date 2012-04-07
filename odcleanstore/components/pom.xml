@@ -12,5 +12,12 @@
 		<version>0.0.1-SNAPSHOT</version>
 		<relativePath>../_utils/_project-base</relativePath>
 	</parent>
-
+	
+	<repositories>
+      <repository>
+        <id>odcleanstore</id>
+        <url>http://gd.projekty.ms.mff.cuni.cz:9123/nexus/content/groups/public/</url>
+      </repository>
+    </repositories>
+    
 </project>
