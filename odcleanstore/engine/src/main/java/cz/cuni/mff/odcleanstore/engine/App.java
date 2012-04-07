@@ -3,7 +3,14 @@
  */
 package cz.cuni.mff.odcleanstore.engine;
 
+import javax.xml.ws.Endpoint;
+
+import org.restlet.Component;
+import org.restlet.data.Protocol;
+
 import cz.cuni.mff.odcleanstore.engine.core.EngineSecurityManager;
+import cz.cuni.mff.odcleanstore.engine.ws.scraper.Scraper;
+import cz.cuni.mff.odcleanstore.engine.ws.user.Root;
 
 // FIXME Exception handling is intentionally omitted in first phase of prototype in all engine module !!! 
 
@@ -30,7 +37,7 @@ public class App {
 	private App() {
 	}
 
-	private void main() throws InterruptedException {
+	private void main() throws InterruptedException, Exception {
 
 		// TODO Add init basic logging mechanism
 
@@ -44,8 +51,10 @@ public class App {
 
 		// TODO Detect runtime environment - NT Service, Daemon, Java application or JavaAppServer and run
 		// appropriate code with full logging mechanism initialized
+		
+		startWebServices();
 
-		System.out.println("Odcleanstorage started and properly terminated");
+		System.out.println("Odcleanstore engine properly started");
 	}
 
 	private boolean checkJavaVersion() {
@@ -69,5 +78,14 @@ public class App {
 
 		new EngineSecurityManager();
 		return true;
+	}
+	
+	private void startWebServices() throws Exception {
+		Component component = new Component();
+		component.getServers().add(Protocol.HTTP, 8087);
+		component.getDefaultHost().attach(new Root());
+		component.start();
+		
+		Endpoint.publish("http://localhost:8088/odcleanstore/scraper", new Scraper());
 	}
 }

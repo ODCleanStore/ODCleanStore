@@ -18,28 +18,93 @@
 			<id>odcleanstore</id>
 			<url>http://gd.projekty.ms.mff.cuni.cz:9123/nexus/content/groups/public/</url>
 		</repository>
+		<repository>
+			<id>maven-restlet</id>
+			<name>Public online Restlet repository</name>
+			<url>http://maven.restlet.org</url>
+		</repository>
 	</repositories>
 
 	<dependencies>
 		<dependency>
 			<groupId>cz.cuni.mff.odcleanstore</groupId>
-			<artifactId>webservices</artifactId>
+			<artifactId>components</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.openlinksw</groupId>
 			<artifactId>virtjdbc</artifactId>
 			<version>3</version>
 		</dependency>
-
+		<dependency>
+			<groupId>org.restlet.jse</groupId>
+			<artifactId>org.restlet</artifactId>
+			<version>2.0.0</version>
+		</dependency>
 	</dependencies>
 
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
 				<groupId>cz.cuni.mff.odcleanstore</groupId>
-				<artifactId>webservices</artifactId>
+				<artifactId>components</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.jvnet.jax-ws-commons</groupId>
+				<artifactId>jaxws-maven-plugin</artifactId>
+				<version>2.1</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>wsgen</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<sei>cz.cuni.mff.odcleanstore.engine.ws.scraper.Scraper</sei>
+				</configuration>
+			</plugin>
+		</plugins>
+		<pluginManagement>
+			<plugins>
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.jvnet.jax-ws-commons
+										</groupId>
+										<artifactId>
+											jaxws-maven-plugin
+										</artifactId>
+										<versionRange>
+											[2.1,)
+										</versionRange>
+										<goals>
+											<goal>wsgen</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
 </project>

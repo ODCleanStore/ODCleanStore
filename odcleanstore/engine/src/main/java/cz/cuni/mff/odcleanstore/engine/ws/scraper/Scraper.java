@@ -1,7 +1,7 @@
 /**
  * 
  */
-package cz.cuni.mff.odcleanstore.webservices.scraper;
+package cz.cuni.mff.odcleanstore.engine.ws.scraper;
 
 import javax.jws.WebParam;
 import javax.jws.WebResult;

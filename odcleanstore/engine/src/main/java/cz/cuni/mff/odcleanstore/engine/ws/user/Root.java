@@ -1,7 +1,7 @@
 /**
  * 
  */
-package cz.cuni.mff.odcleanstore.webservices.user;
+package cz.cuni.mff.odcleanstore.engine.ws.user;
 
 import org.restlet.Application;
 import org.restlet.Restlet;
