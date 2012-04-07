@@ -1,11 +1,11 @@
 /**
  * 
  */
-package cz.cuni.mff.odcleanstore.components;
+package cz.cuni.mff.odcleanstore.engine.ws.scraper.ifaces;
 
 /**
- * @author jermanp
  * 
+ * @author Petr Jerman <petr.jerman@centrum.cz>
  */
 public class Triple {
 	public String subject;

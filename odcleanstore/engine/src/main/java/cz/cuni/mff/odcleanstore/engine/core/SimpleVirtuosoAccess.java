@@ -17,7 +17,7 @@ import java.sql.Statement;
  */
 public class SimpleVirtuosoAccess {
 
-	private static boolean isDriverInitialized = false;
+	private static boolean _isDriverInitialized = false;
 
 	/**
 	 * Create a new connections to the local database on 1111 port with dba credentials.
@@ -30,7 +30,7 @@ public class SimpleVirtuosoAccess {
 		return new SimpleVirtuosoAccess("jdbc:virtuoso://localhost:1111", "dba", "dba");
 	}
 
-	private Connection con;
+	private Connection _con;
 
 	/**
 	 * Create a new connections to the database.
@@ -43,12 +43,12 @@ public class SimpleVirtuosoAccess {
 	 */
 	public SimpleVirtuosoAccess(String connectionString, String user, String password) throws ClassNotFoundException,
 			SQLException {
-		if (!isDriverInitialized) {
+		if (!_isDriverInitialized) {
 			Class.forName("virtuoso.jdbc3.Driver");
-			isDriverInitialized = true;
+			_isDriverInitialized = true;
 		}
 
-		con = DriverManager.getConnection(connectionString, user, password);
+		_con = DriverManager.getConnection(connectionString, user, password);
 
 		adjustTransactionLevel("1", false);
 	}
@@ -74,7 +74,7 @@ public class SimpleVirtuosoAccess {
 	 * @throws SQLException
 	 */
 	public void commit() throws SQLException {
-		con.commit();
+		_con.commit();
 	}
 
 	/**
@@ -83,7 +83,7 @@ public class SimpleVirtuosoAccess {
 	 * @throws SQLException
 	 */
 	public void revert() throws SQLException {
-		con.rollback();
+		_con.rollback();
 	}
 
 	/**
@@ -91,10 +91,10 @@ public class SimpleVirtuosoAccess {
 	 * 
 	 */
 	public void close() {
-		if (con != null) {
+		if (_con != null) {
 			try {
-				con.close();
-				con = null;
+				_con.close();
+				_con = null;
 			} catch (SQLException e) {
 			}
 		}
@@ -120,7 +120,7 @@ public class SimpleVirtuosoAccess {
 	 * @throws SQLException
 	 */
 	private void executeStatement(String statement) throws SQLException {
-		Statement stmt = con.createStatement();
+		Statement stmt = _con.createStatement();
 		stmt.execute(statement);
 	}
 
@@ -135,8 +135,8 @@ public class SimpleVirtuosoAccess {
 	 */
 	private void adjustTransactionLevel(String virtusoLogEnableValue, boolean autoCommitValue) throws SQLException {
 
-		CallableStatement cst = con.prepareCall(String.format("log_enable(%s)", virtusoLogEnableValue));
+		CallableStatement cst = _con.prepareCall(String.format("log_enable(%s)", virtusoLogEnableValue));
 		cst.execute();
-		con.setAutoCommit(autoCommitValue);
+		_con.setAutoCommit(autoCommitValue);
 	}
 }
