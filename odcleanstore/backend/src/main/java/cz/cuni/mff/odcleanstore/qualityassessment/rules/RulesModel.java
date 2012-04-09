@@ -3,11 +3,11 @@ package cz.cuni.mff.odcleanstore.qualityassessment.rules;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import cz.cuni.mff.odcleanstore.data.SqlEndpoint;
+import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
 
 public class RulesModel {
 	
-	public RulesModel (SqlEndpoint endpoint) {
+	public RulesModel (SparqlEndpoint endpoint) {
 		//TODO: ESTABLISH CONNECTION
 	}
 	

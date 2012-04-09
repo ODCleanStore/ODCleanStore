@@ -9,7 +9,7 @@ import com.hp.hpl.jena.query.QueryFactory;
 import virtuoso.jena.driver.VirtGraph;
 import virtuoso.jena.driver.VirtuosoQueryExecution;
 import virtuoso.jena.driver.VirtuosoQueryExecutionFactory;
-import cz.cuni.mff.odcleanstore.data.SqlEndpoint;
+import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.Rule;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.RulesModel;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
@@ -72,7 +72,7 @@ abstract class CommonAssessment {
 		 * TODO: ENRICH TRANSFORMATION CONTEXT WITH OTHER RESOURCES - SPECIFICALLY SQL ENDPOINT
 		 * TO ALLOW QUALITY ASSESSMENT TO READ RULES FROM
 		 */
-		RulesModel model = new RulesModel(new SqlEndpoint());
+		RulesModel model = new RulesModel(new SparqlEndpoint());
 		
 		rules = model.getAllRules();
 	}
