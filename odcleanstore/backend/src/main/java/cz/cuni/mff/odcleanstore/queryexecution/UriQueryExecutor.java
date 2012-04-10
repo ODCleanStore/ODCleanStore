@@ -11,12 +11,7 @@ import java.util.Collection;
 /**
  * @author Jan Michelfeit
  */
-public class UriQueryExecutor extends QueryExecutor {
-
-    public UriQueryExecutor(QueryConstraintSpec queryConstraints) {
-        super(queryConstraints);
-    }
-
+/*package*/class UriQueryExecutor extends QueryExecutor {
     /**
      *
      * @param uri
