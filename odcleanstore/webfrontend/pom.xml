@@ -20,6 +20,12 @@
 	
 	<dependencies>
 	
+		<dependency>
+			<groupId>com.openlinksw.virtuoso</groupId>
+			<artifactId>virtjdbc</artifactId>
+			<version>4</version>
+		</dependency>
+		
 		<!--  WICKET DEPENDENCIES -->
 		<dependency>
 			<groupId>org.apache.wicket</groupId>
