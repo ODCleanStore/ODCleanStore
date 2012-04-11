@@ -18,7 +18,7 @@ public class QueryExecution {
      * @param constraints
      * @param aggregationSpec
      */
-    public NamedGraphSet findKeyword(String keyword, QueryConstraintSpec constraints,
+    public static NamedGraphSet findKeyword(String keyword, QueryConstraintSpec constraints,
             AggregationSpec aggregationSpec) {
         return null;
     }
@@ -29,7 +29,7 @@ public class QueryExecution {
      * @param constraints
      * @param aggregationSpec
      */
-    public NamedGraphSet findURI(String uri, QueryConstraintSpec constraints,
+    public static NamedGraphSet findURI(String uri, QueryConstraintSpec constraints,
             AggregationSpec aggregationSpec) {
         return null;
     }

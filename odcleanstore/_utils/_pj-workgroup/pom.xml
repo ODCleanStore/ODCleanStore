@@ -15,7 +15,6 @@
   <modules>
     <module>../../components</module>
     <module>../../engine</module>
-    <module>../../webservices</module>
   </modules>
 
 </project>

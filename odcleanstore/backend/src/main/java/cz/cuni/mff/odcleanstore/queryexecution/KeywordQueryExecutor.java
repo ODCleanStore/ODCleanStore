@@ -11,11 +11,7 @@ import java.util.Collection;
 /**
  * @author Jan Michelfeit
  */
-public class KeywordQueryExecutor extends QueryExecutor {
-
-    public KeywordQueryExecutor(QueryConstraintSpec queryConstraints) {
-        super(queryConstraints);
-    }
+/*package*/class KeywordQueryExecutor extends QueryExecutor {
 
     /**
      *
