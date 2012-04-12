@@ -28,10 +28,6 @@
 	<dependencies>
 		<dependency>
 			<groupId>cz.cuni.mff.odcleanstore</groupId>
-			<artifactId>components</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>cz.cuni.mff.odcleanstore</groupId>
 			<artifactId>odcleanstore-backend</artifactId>
 		</dependency>
 		<dependency>
@@ -48,11 +44,6 @@
 
 	<dependencyManagement>
 		<dependencies>
-			<dependency>
-				<groupId>cz.cuni.mff.odcleanstore</groupId>
-				<artifactId>components</artifactId>
-				<version>0.0.1-SNAPSHOT</version>
-			</dependency>
 			<dependency>
 				<groupId>cz.cuni.mff.odcleanstore</groupId>
 				<artifactId>odcleanstore-backend</artifactId>
