@@ -9,8 +9,8 @@ package cz.cuni.mff.odcleanstore.engine.ws.scraper.ifaces;
  */
 public enum InsertResultStatus {
 	OK,
-	MESSAGETOOLENGTH,
-	SERVICETEMPORARYBUSY,
-	SESSIONABORTED,
-	UNSPECIFIEDERROR
+	SERVICE_BUSY,
+	BAD_CREDENTIALS,
+	DUPLICATED_UUID,
+	OTHER_ERROR
 }

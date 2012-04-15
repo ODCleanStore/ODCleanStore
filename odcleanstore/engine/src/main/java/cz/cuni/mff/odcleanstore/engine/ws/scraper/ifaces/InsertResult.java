@@ -9,12 +9,11 @@ package cz.cuni.mff.odcleanstore.engine.ws.scraper.ifaces;
  */
 public class InsertResult {
 	public InsertResultStatus status;
-	public String graphName;
 
 	public InsertResult() {
 	}
 
-	public InsertResult(InsertResultStatus status, String graphName) {
+	public InsertResult(InsertResultStatus status) {
 		this.status = status;
 	}
 }
