@@ -4,12 +4,11 @@
 package cz.cuni.mff.odcleanstore.engine.ws.scraper;
 
 import javax.jws.WebParam;
-import javax.jws.WebResult;
 import javax.jws.WebService;
 
 import cz.cuni.mff.odcleanstore.engine.ws.scraper.ifaces.IScraper;
-import cz.cuni.mff.odcleanstore.engine.ws.scraper.ifaces.InsertResult;
-import cz.cuni.mff.odcleanstore.engine.ws.scraper.ifaces.InsertResultStatus;
+import cz.cuni.mff.odcleanstore.engine.ws.scraper.ifaces.InsertException;
+import cz.cuni.mff.odcleanstore.engine.ws.scraper.ifaces.InsertExceptionStatus;
 import cz.cuni.mff.odcleanstore.engine.ws.scraper.ifaces.Metadata;
 
 /**
@@ -20,10 +19,9 @@ import cz.cuni.mff.odcleanstore.engine.ws.scraper.ifaces.Metadata;
 public class Scraper implements IScraper {
 
 	@Override
-	@WebResult(name = "InsertResult")
-	public InsertResult insert(@WebParam(name = "user") String user, @WebParam(name = "password") String password,
-			@WebParam(name = "metadata") Metadata metadata, @WebParam(name = "rdfXmlPayload") String rdfXmlPayload) {
-		return new InsertResult(InsertResultStatus.OTHER_ERROR);
+	public void insert(@WebParam(name = "user") String user, @WebParam(name = "password") String password,
+			@WebParam(name = "metadata") Metadata metadata, @WebParam(name = "rdfXmlPayload") String rdfXmlPayload)
+			throws InsertException {
+		throw new InsertException(InsertExceptionStatus.OTHER_ERROR);
 	}
-
 }

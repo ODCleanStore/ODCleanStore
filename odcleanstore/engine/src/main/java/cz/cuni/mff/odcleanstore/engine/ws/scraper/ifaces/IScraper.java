@@ -14,7 +14,7 @@ public interface IScraper {
 	 * @param password
 	 * @param metadata
 	 * @param rdfXmlPayload
-	 * @return InsertResult
+	 * @throws InsertException 
 	 */
-	public InsertResult insert(String user, String password, Metadata metadata, String rdfXmlPayload);
+	public void insert(String user, String password, Metadata metadata, String rdfXmlPayload) throws InsertException;
 }

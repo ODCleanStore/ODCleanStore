@@ -4,7 +4,6 @@
 package cz.cuni.mff.odcleanstore.engine.ws.user;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.Writer;
 
 import org.restlet.data.CharacterSet;
