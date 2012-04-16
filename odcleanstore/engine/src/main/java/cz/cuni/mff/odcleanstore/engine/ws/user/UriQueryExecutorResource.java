@@ -21,16 +21,14 @@ import de.fuberlin.wiwiss.ng4j.NamedGraphSet;
  * @author jermanp
  * 
  */
-public class KeywordQueryExecutorResource extends QueryExecutorResourceBase {
+public class UriQueryExecutorResource extends QueryExecutorResourceBase {
 
-	@Override
 	protected Representation execute(Form form) {
 		try {
 
-			String keyword = form.getFirst("find").getValue();
+			String uri = form.getFirst("find").getValue();
 
-			final NamedGraphSet result = QueryExecution.findKeyword(keyword, new QueryConstraintSpec(),
-					new AggregationSpec());
+			final NamedGraphSet result = QueryExecution.findURI(uri, new QueryConstraintSpec(), new AggregationSpec());
 
 			if (result == null)
 				return return404();

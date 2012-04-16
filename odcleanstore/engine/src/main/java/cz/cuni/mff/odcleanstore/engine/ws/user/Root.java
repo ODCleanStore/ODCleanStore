@@ -19,7 +19,8 @@ public class Root extends Application {
 	public synchronized Restlet createInboundRoot() {
 
 		Router router = new Router(getContext());
-		router.attach("/qe/keyword", KeywordQueryExecutorResource.class);
+		router.attach("/keyword", KeywordQueryExecutorResource.class);
+		router.attach("/uri", UriQueryExecutorResource.class);
 		return router;
 	}
 }
