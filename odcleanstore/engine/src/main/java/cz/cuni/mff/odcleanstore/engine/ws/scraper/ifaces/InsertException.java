@@ -9,7 +9,8 @@ public class InsertException extends Exception {
 	public static final InsertException NOT_AUTHORIZED = new InsertException("Not authorized", 3, "Not authorized");
 	public static final InsertException DUPLICATED_UUID = new InsertException("Duplicated uuid", 4, "Duplicated uuid");
 	public static final InsertException UUID_BAD_FORMAT = new InsertException("Uuid bad format", 5, "Uuid bad format");
-	public static final InsertException OTHER_ERROR = new InsertException("Other error", 6, "Other error");
+	public static final InsertException OTHER_ERROR = new InsertException("Other error", 7, "Other error");
+	public static final InsertException FATAL_ERROR = new InsertException("Fatal error", 8, "Fatal error");
 
 	private int id;
 	private String moreInfo;

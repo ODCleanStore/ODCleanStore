@@ -146,7 +146,9 @@ public class SimpleVirtuosoAccess {
 	/**
 	 * Load rdfxml file.
 	 * 
-	 * @param graph
+	 * @param fileName
+	 * @param baseURI
+	 * @param graphName  
 	 * 
 	 * @throws SQLException
 	 */
