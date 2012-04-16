@@ -8,7 +8,6 @@ import javax.xml.ws.Endpoint;
 import org.restlet.Component;
 import org.restlet.data.Protocol;
 
-import cz.cuni.mff.odcleanstore.engine.core.EngineSecurityManager;
 import cz.cuni.mff.odcleanstore.engine.ws.scraper.Scraper;
 import cz.cuni.mff.odcleanstore.engine.ws.user.Root;
 
@@ -39,19 +38,9 @@ public class App {
 
 	private void main() throws InterruptedException, Exception {
 
-		// TODO Add init basic logging mechanism
-
 		if (!checkJavaVersion())
 			return;
 
-		// TODO Add reading config file
-
-		if (!checkAndSetEngineSecurity())
-			return;
-
-		// TODO Detect runtime environment - NT Service, Daemon, Java application or JavaAppServer and run
-		// appropriate code with full logging mechanism initialized
-		
 		startWebServices();
 
 		System.out.println("Odcleanstore engine properly started");
@@ -72,20 +61,12 @@ public class App {
 		return Double.parseDouble(version.substring(0, pos - 1)) >= 1.6;
 	}
 
-	private boolean checkAndSetEngineSecurity() {
-
-		// TODO Add choice by config file
-
-		new EngineSecurityManager();
-		return true;
-	}
-	
 	private void startWebServices() throws Exception {
 		Component component = new Component();
 		component.getServers().add(Protocol.HTTP, 8087);
 		component.getDefaultHost().attach(new Root());
 		component.start();
-		
+
 		Endpoint.publish("http://localhost:8088/odcleanstore/scraper", new Scraper());
 	}
 }
