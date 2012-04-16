@@ -54,36 +54,19 @@ public class SimpleVirtuosoAccess {
 	}
 
 	/**
-	 * Insert quad to the database.
+	 * Adjust transaction level in Virtuoso and jdbc
 	 * 
-	 * @param subject
-	 * @param predicate
-	 * @param object
-	 * @param graph
+	 * @param virtusoLogEnableValue
+	 *            - 0 disable log, 1 enable transaction level log, 3 enable statement level log
+	 * @param autoCommitValue
 	 * 
 	 * @throws SQLException
 	 */
-	public void insertQuad(String subject, String predicate, String object, String graph) throws SQLException {
-		String statement = String.format("SPARQL INSERT INTO GRAPH %s { %s %s %s }", graph, subject, predicate, object);
-		executeStatement(statement);
-	}
+	private void adjustTransactionLevel(String virtusoLogEnableValue, boolean autoCommitValue) throws SQLException {
 
-	/**
-	 * Commit changes to the database.
-	 * 
-	 * @throws SQLException
-	 */
-	public void commit() throws SQLException {
-		_con.commit();
-	}
-
-	/**
-	 * Revert changes to the last commit.
-	 * 
-	 * @throws SQLException
-	 */
-	public void revert() throws SQLException {
-		_con.rollback();
+		CallableStatement cst = _con.prepareCall(String.format("log_enable(%s)", virtusoLogEnableValue));
+		cst.execute();
+		_con.setAutoCommit(autoCommitValue);
 	}
 
 	/**
@@ -101,15 +84,24 @@ public class SimpleVirtuosoAccess {
 	}
 
 	/**
-	 * Overridden finalize method close connection.
+	 * Commit changes to the database.
+	 * 
+	 * @throws SQLException
 	 */
-	@Override
-	protected void finalize() {
-		try {
-			close();
-			super.finalize();
-		} catch (Throwable e) {
-		}
+	public void commit() throws SQLException {
+		_con.commit();
+	}
+
+	/**
+	 * Delete graph from the database.
+	 * 
+	 * @param graphName
+	 * 
+	 * @throws SQLException
+	 */
+	public void deleteGraphs(String graphName) throws SQLException {
+		String statement = String.format("SPARQL CLEAR GRAPH %s", graphName);
+		executeStatement(statement);
 	}
 
 	/**
@@ -125,18 +117,52 @@ public class SimpleVirtuosoAccess {
 	}
 
 	/**
-	 * Adjust transaction level in Virtuoso and jdbc
+	 * Overridden finalize method close connection.
+	 */
+	@Override
+	protected void finalize() {
+		try {
+			close();
+			super.finalize();
+		} catch (Throwable e) {
+		}
+	}
+
+	/**
+	 * Insert quad to the database.
 	 * 
-	 * @param virtusoLogEnableValue
-	 *            - 0 disable log, 1 enable transaction level log, 3 enable statement level log
-	 * @param autoCommitValue
+	 * @param subject
+	 * @param predicate
+	 * @param object
+	 * @param graph
 	 * 
 	 * @throws SQLException
 	 */
-	private void adjustTransactionLevel(String virtusoLogEnableValue, boolean autoCommitValue) throws SQLException {
+	public void insertQuad(String subject, String predicate, String object, String graph) throws SQLException {
+		String statement = String.format("SPARQL INSERT INTO GRAPH %s { %s %s %s }", graph, subject, predicate, object);
+		executeStatement(statement);
+	}
 
-		CallableStatement cst = _con.prepareCall(String.format("log_enable(%s)", virtusoLogEnableValue));
-		cst.execute();
-		_con.setAutoCommit(autoCommitValue);
+	/**
+	 * Load rdfxml file.
+	 * 
+	 * @param graph
+	 * 
+	 * @throws SQLException
+	 */
+	public void loadRdfXmlFile(String fileName, String baseURI, String graphName) throws SQLException {
+		// TODO not tested
+		String statement = String.format("SPARQL DB.DBA.RDF_LOAD_RDFXML(file_to_string_output('%s'), '%s', '%s')",
+				fileName, baseURI, graphName);
+		executeStatement(statement);
+	}
+
+	/**
+	 * Revert changes to the last commit.
+	 * 
+	 * @throws SQLException
+	 */
+	public void revert() throws SQLException {
+		_con.rollback();
 	}
 }
