@@ -54,22 +54,6 @@ public class SimpleVirtuosoAccess {
 	}
 
 	/**
-	 * Adjust transaction level in Virtuoso and jdbc
-	 * 
-	 * @param virtusoLogEnableValue
-	 *            - 0 disable log, 1 enable transaction level log, 3 enable statement level log
-	 * @param autoCommitValue
-	 * 
-	 * @throws SQLException
-	 */
-	private void adjustTransactionLevel(String virtusoLogEnableValue, boolean autoCommitValue) throws SQLException {
-
-		CallableStatement cst = _con.prepareCall(String.format("log_enable(%s)", virtusoLogEnableValue));
-		cst.execute();
-		_con.setAutoCommit(autoCommitValue);
-	}
-
-	/**
 	 * Close connection
 	 * 
 	 */
@@ -102,30 +86,6 @@ public class SimpleVirtuosoAccess {
 	public void deleteGraphs(String graphName) throws SQLException {
 		String statement = String.format("SPARQL CLEAR GRAPH %s", graphName);
 		executeStatement(statement);
-	}
-
-	/**
-	 * Execute Sql and Sparql statement.
-	 * 
-	 * @param statement
-	 * 
-	 * @throws SQLException
-	 */
-	private void executeStatement(String statement) throws SQLException {
-		Statement stmt = _con.createStatement();
-		stmt.execute(statement);
-	}
-
-	/**
-	 * Overridden finalize method close connection.
-	 */
-	@Override
-	protected void finalize() {
-		try {
-			close();
-			super.finalize();
-		} catch (Throwable e) {
-		}
 	}
 
 	/**
@@ -166,5 +126,45 @@ public class SimpleVirtuosoAccess {
 	 */
 	public void revert() throws SQLException {
 		_con.rollback();
+	}
+
+	/**
+	 * Adjust transaction level in Virtuoso and jdbc
+	 * 
+	 * @param virtusoLogEnableValue
+	 *            - 0 disable log, 1 enable transaction level log, 3 enable statement level log
+	 * @param autoCommitValue
+	 * 
+	 * @throws SQLException
+	 */
+	private void adjustTransactionLevel(String virtusoLogEnableValue, boolean autoCommitValue) throws SQLException {
+
+		CallableStatement cst = _con.prepareCall(String.format("log_enable(%s)", virtusoLogEnableValue));
+		cst.execute();
+		_con.setAutoCommit(autoCommitValue);
+	}
+
+	/**
+	 * Execute Sql and Sparql statement.
+	 * 
+	 * @param statement
+	 * 
+	 * @throws SQLException
+	 */
+	private void executeStatement(String statement) throws SQLException {
+		Statement stmt = _con.createStatement();
+		stmt.execute(statement);
+	}
+
+	/**
+	 * Overridden finalize method close connection.
+	 */
+	@Override
+	protected void finalize() {
+		try {
+			close();
+			super.finalize();
+		} catch (Throwable e) {
+		}
 	}
 }
