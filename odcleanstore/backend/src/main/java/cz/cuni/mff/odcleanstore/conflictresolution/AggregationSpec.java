@@ -53,6 +53,7 @@ public class AggregationSpec {
      *        as a property URI -> aggregation type map; cannot be null
      * @param errorStrategy strategy to use when an aggregation cannot be
      *        applied to a value; cannot be null
+     * @param defaultMultivalue the default multivalue setting for quality computation;
      * @param propertyMultivalue indicates whether decrease score of a value in presence
      *        of different conflicting values (false) or not (true) for each property;
      *        map of property URI -> multivalue setting for the property
@@ -61,45 +62,26 @@ public class AggregationSpec {
             EnumAggregationType defaultAggregation,
             Map<String, EnumAggregationType> propertyAggregations,
             EnumAggregationErrorStrategy errorStrategy,
+            boolean defaultMultivalue,
             Map<String, Boolean> propertyMultivalue) {
 
         setDefaultAggregation(defaultAggregation);
         setPropertyAggregations(propertyAggregations);
         setErrorStrategy(errorStrategy);
+        setDefaultMultivalue(defaultMultivalue);
+        setPropertyMultivalue(propertyMultivalue);
     }
 
     /**
-     * Create instance with all settings specified by parameters.
-     * @param defaultAggregation aggregation method for properties not included
-     *        in propertyAggregations; cannot be null
-     * @param propertyAggregations aggregation method for properties
-     *        as a property URI -> aggregation type map; cannot be null
-     * @param errorStrategy strategy to use when an aggregation cannot be
-     *        applied to a value; cannot be null
+     * Creates a (shallow) copy of the given AggregationSpec.
+     * @param spec aggregation settings to use
      */
-    public AggregationSpec(
-            EnumAggregationType defaultAggregation,
-            Map<String, EnumAggregationType> propertyAggregations,
-            EnumAggregationErrorStrategy errorStrategy) {
-
-        setDefaultAggregation(defaultAggregation);
-        setPropertyAggregations(propertyAggregations);
-        setErrorStrategy(errorStrategy);
-    }
-
-    /**
-     * Create instance with a default aggregation error strategy.
-     * @param defaultAggregation aggregation method for properties not included
-     *        in propertyAggregations
-     * @param propertyAggregations aggregation method for properties
-     *        as a property URI -> aggregation type map
-     */
-    public AggregationSpec(
-            EnumAggregationType defaultAggregation,
-            Map<String, EnumAggregationType> propertyAggregations) {
-
-        setDefaultAggregation(defaultAggregation);
-        setPropertyAggregations(propertyAggregations);
+    public AggregationSpec(AggregationSpec spec) {
+        setDefaultAggregation(spec.getDefaultAggregation());
+        setPropertyAggregations(spec.getPropertyAggregations());
+        setErrorStrategy(spec.getErrorStrategy());
+        setDefaultMultivalue(spec.getDefaultMultivalue());
+        setPropertyMultivalue(spec.getPropertyMultivalue());
     }
 
     /**

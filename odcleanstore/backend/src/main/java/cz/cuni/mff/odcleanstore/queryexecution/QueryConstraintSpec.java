@@ -4,8 +4,7 @@ import java.util.Date;
 
 /**
  * Encapsulates constraints on user queries over the RDF database.
- * 
- * @todo replace Date by Calendar?
+ *
  * @author Jan Michelfeit
  */
 public class QueryConstraintSpec {
@@ -20,7 +19,7 @@ public class QueryConstraintSpec {
      * Minimum error localization score of accepted named graphs.
      * Null means accept all graphs.
      */
-    private Double minScore = null;
+    private Double minScore = 0.0;
 
     /**
      * Create instance with no contraints.
@@ -69,6 +68,7 @@ public class QueryConstraintSpec {
      * Sets the minimum score of accepted named graphs of null if there is no
      * limit.
      * @param minScore minimum score of accepted named graphs or null
+     * @todo must be in [0,1]
      */
     public void setMinScore(Double minScore) {
         this.minScore = minScore;

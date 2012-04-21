@@ -5,6 +5,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.data.QuadCollection;
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
+import cz.cuni.mff.odcleanstore.vocabulary.W3P;
 
 import com.hp.hpl.jena.graph.Node_URI;
 
@@ -55,11 +56,11 @@ import java.util.TreeMap;
             }
             Node_URI subject = (Node_URI) quad.getSubject();
 
-            if (predicateURI.equals(ODCS.publisher)) {
+            if (predicateURI.equals(W3P.publishedBy)) {
                 NamedGraphMetadata metadata = getMetadataObject(subject, result);
                 String publisher = quad.getObject().getURI();
                 metadata.setPublisher(publisher);
-            } else if (predicateURI.equals(ODCS.stored)) {
+            } else if (predicateURI.equals(W3P.insertedAt)) {
                 NamedGraphMetadata metadata = getMetadataObject(subject, result);
                 String storedValue = quad.getObject().getLiteralLexicalForm();
                 try {
@@ -70,7 +71,7 @@ import java.util.TreeMap;
                             storedValue);
                     throw new ODCleanStoreException(e);
                 }
-            } else if (predicateURI.equals(ODCS.dataSource)) {
+            } else if (predicateURI.equals(W3P.source)) {
                 NamedGraphMetadata metadata = getMetadataObject(subject, result);
                 String dataSourceString = quad.getObject().getURI();
                 metadata.setDataSource(dataSourceString);

@@ -53,6 +53,17 @@ public class ConflictResolverSpec extends AggregationSpec {
     }
 
     /**
+     * Initialize this specification of conflict resolution settings with the given aggregation
+     * settings.
+     * @param namedGraphURIPrefix prefix of named graphs where resolved triples are placed
+     * @param aggregationSpec aggregation settings to use
+     */
+    public ConflictResolverSpec(String namedGraphURIPrefix, AggregationSpec aggregationSpec) {
+        super(aggregationSpec);
+        setNamedGraphURIPrefix(namedGraphURIPrefix);
+    }
+
+    /**
      * Return the prefix of named graphs where resolved triples are placed for
      * this specification.
      * @return the named graph URI prefix
