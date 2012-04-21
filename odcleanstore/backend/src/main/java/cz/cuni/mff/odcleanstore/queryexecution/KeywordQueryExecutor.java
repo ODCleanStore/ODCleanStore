@@ -6,20 +6,28 @@ import cz.cuni.mff.odcleanstore.data.QuadCollection;
 
 import com.hp.hpl.jena.graph.Triple;
 
+import de.fuberlin.wiwiss.ng4j.NamedGraphSet;
+
 import java.util.Collection;
 
 /**
+ * Executes the keyword search query.
+ * Triples that contain the given keywords (separated by whitespace) in the object of the triple
+ * of type literal are returned.
+ *
  * @author Jan Michelfeit
  */
-/*package*/class KeywordQueryExecutor extends QueryExecutor {
+/*package*/class KeywordQueryExecutor extends QueryExecutorBase {
 
     /**
+     * Executes the keyword search query.
      *
-     * @param keyword
-     * @param constraints
-     * @param aggregationSpec
+     * @param keywords searched keywords (separated by whitespace)
+     * @param constraints constraints on triples returned in the result
+     * @param aggregationSpec aggregation settings for conflict resolution
+     * @return result of the query as RDF quads
      */
-    public QuadCollection findKeyword(String keyword, QueryConstraintSpec constraints,
+    public NamedGraphSet findKeyword(String keywords, QueryConstraintSpec constraints,
             AggregationSpec aggregationSpec) {
         return null;
     }
