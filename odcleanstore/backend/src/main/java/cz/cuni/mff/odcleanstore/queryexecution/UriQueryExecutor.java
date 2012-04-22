@@ -13,13 +13,23 @@ import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 import cz.cuni.mff.odcleanstore.vocabulary.W3P;
 
+import com.hp.hpl.jena.datatypes.RDFDatatype;
+import com.hp.hpl.jena.datatypes.TypeMapper;
+import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
+import com.hp.hpl.jena.graph.impl.LiteralLabel;
+import com.hp.hpl.jena.graph.impl.LiteralLabelFactory;
+import com.hp.hpl.jena.vocabulary.XSD;
 
+import de.fuberlin.wiwiss.ng4j.NamedGraph;
 import de.fuberlin.wiwiss.ng4j.NamedGraphSet;
 import de.fuberlin.wiwiss.ng4j.Quad;
 import de.fuberlin.wiwiss.ng4j.impl.NamedGraphSetImpl;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -39,7 +49,7 @@ import java.util.Locale;
     // TODO UNION je nutny kvuly sameAs ve Virtuosu
     private static final String URI_OCCURENCES_QUERY = "SPARQL"
             + "\n DEFINE input:same-as \"yes\""
-            + "\n SELECT DISTINCT ?graph ?s ?p ?o ?insertedAt"
+            + "\n SELECT DISTINCT ?graph ?s ?p ?o"
             + "\n WHERE {"
             + "\n   {"
             + "\n     GRAPH ?graph {"
@@ -67,40 +77,56 @@ import java.util.Locale;
             + "\n }"
             + "\n LIMIT %3$d";
 
+    // TODO: limit by time & score
     private static final String METADATA_QUERY = "SPARQL"
             + "\n DEFINE input:same-as \"yes\""
-            + "\n SELECT DISTINCT ?graph ?source ?score ?insertedAt ?publishedBy ?publisherScore"
+            + "\n SELECT ?graph ?source ?score ?insertedAt ?publishedBy ?publisherScore"
             + "\n WHERE {"
             + "\n   {"
-            + "\n     GRAPH ?graph {"
-            + "\n       ?s ?p ?o."
-            + "\n       FILTER (?s = <%1$s>)"
+            + "\n     SELECT DISTINCT ?graph"
+            + "\n     WHERE {"
+            + "\n       {"
+            + "\n         GRAPH ?graph {"
+            + "\n            ?s ?p ?o."
+            + "\n            FILTER (?s = <%1$s>)"
+            + "\n            FILTER (?p != <" + OWL.sameAs + ">)"
+            + "\n         }"
+            + "\n       }"
+            + "\n       UNION"
+            + "\n       {"
+            + "\n         GRAPH ?graph {"
+            + "\n            ?s ?p ?o."
+            + "\n            FILTER (?o = <%1$s>)"
+            + "\n            FILTER (?p != <" + OWL.sameAs + ">)"
+            + "\n         }"
+            + "\n       }"
+            + "\n       UNION"
+            + "\n       {"
+            + "\n         ?s ?p ?o"
+            + "\n         FILTER (?s = <%1$s>)"
+            + "\n         GRAPH ?graph {"
+            + "\n            ?o ?labelProp ?label"
+            + "\n            FILTER (?labelProp IN (%4$s))"
+            + "\n         }"
+            + "\n       }"
+            + "\n       UNION"
+            + "\n       {"
+            + "\n         ?s ?p ?o"
+            + "\n         FILTER (?o = <%1$s>)"
+            + "\n         GRAPH ?graph {"
+            + "\n            ?s ?labelProp ?label"
+            + "\n            FILTER (?labelProp IN (%4$s))"
+            + "\n         }"
+            + "\n       }"
             + "\n     }"
-            + "\n     OPTIONAL { ?graph <" + W3P.source + "> ?source }"
-            + "\n     OPTIONAL { ?graph <" + ODCS.score + "> ?score }"
-            + "\n     OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }"
-            + "\n     OPTIONAL { ?graph <" + W3P.publishedBy + "> ?publishedBy }"
-            + "\n     OPTIONAL { ?graph <" + W3P.publishedBy + "> ?publishedBy. "
-            + "\n       ?publishedBy <" + ODCS.publisherScore + "> ?publisherScore }"
-            + "\n     FILTER(!bound(?meta_quality) || ?meta_quality > %2$f) ."
-            + "\n     FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
             + "\n   }"
-            + "\n   UNION"
-            + "\n   {"
-            + "\n     GRAPH ?graph {"
-            + "\n       ?s ?p ?o."
-            + "\n       FILTER (?o = <%1$s>)"
-            + "\n       FILTER (?p != <" + OWL.sameAs + ">)"
-            + "\n     }"
-            + "\n     OPTIONAL { ?graph <" + W3P.source + "> ?source }"
-            + "\n     OPTIONAL { ?graph <" + ODCS.score + "> ?score }"
-            + "\n     OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }" // TODO: really optional?
-            + "\n     OPTIONAL { ?graph <" + W3P.publishedBy + "> ?publishedBy }"
-            + "\n     OPTIONAL { ?graph <" + W3P.publishedBy + "> ?publishedBy. "
-            + "\n       ?publishedBy <" + ODCS.publisherScore + "> ?publisherScore }"
-            + "\n     FILTER(!bound(?meta_quality) || ?meta_quality > %2$f) ."
-            + "\n     FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
-            + "\n   }"
+            + "\n   OPTIONAL { ?graph <" + W3P.source + "> ?source }"
+            + "\n   OPTIONAL { ?graph <" + ODCS.score + "> ?score }"
+            + "\n   OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }"
+            + "\n   OPTIONAL { ?graph <" + W3P.publishedBy + "> ?publishedBy }"
+            + "\n   OPTIONAL { ?graph <" + W3P.publishedBy + "> ?publishedBy. "
+            + "\n     ?publishedBy <" + ODCS.publisherScore + "> ?publisherScore }"
+            + "\n   FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
             + "\n }"
             + "\n LIMIT %3$d";
 
@@ -111,28 +137,69 @@ import java.util.Locale;
             + "\n   {"
             + "\n     <%1$s> ?p1 ?r1"
             + "\n     FILTER (isURI(?r1))"
-            + "\n     FILTER (p1 != <" + OWL.sameAs + ">)"
+            + "\n     FILTER (?p1 != <" + OWL.sameAs + ">)"
             + "\n     <%1$s> ?p2 ?r2"
             + "\n     FILTER (isURI(?r2))"
-            + "\n     FILTER (p2 != <" + OWL.sameAs + ">)"
+            + "\n     FILTER (?p2 != <" + OWL.sameAs + ">)"
             + "\n     ?r1 <" + OWL.sameAs + "> ?r2"
             + "\n     FILTER (?r1 < ?r2)"
+            + "\n     FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
             + "\n   }"
             + "\n   UNION"
             + "\n   {"
             + "\n     ?r1 ?p1 <%1$s>"
             + "\n     FILTER (isURI(?r1))"
-            + "\n     FILTER (p1 != <" + OWL.sameAs + ">)"
+            + "\n     FILTER (?p1 != <" + OWL.sameAs + ">)"
             + "\n     ?r2 ?p2 <%1$s>"
             + "\n     FILTER (isURI(?r2))"
-            + "\n     FILTER (p2 != <" + OWL.sameAs + ">)"
+            + "\n     FILTER (?p2 != <" + OWL.sameAs + ">)"
             + "\n     ?r1 <" + OWL.sameAs + "> ?r2"
             + "\n     FILTER (?r1 < ?r2)"
+            + "\n     FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
+            + "\n   }"
+            + "\n }"
+            + "\n GROUP BY ?r1 ?r2"
+            + "\n LIMIT %3$d";
+
+    // TODO: limit by time and quality too?
+    private static final String LABELS_QUERY = "SPARQL"
+            + "\n DEFINE input:same-as \"yes\""
+            + "\n SELECT DISTINCT ?graph ?r ?labelProp ?label"
+            + "\n WHERE {"
+            + "\n   {"
+            + "\n     ?s ?p ?r"
+            + "\n     FILTER (?s = <%1$s>)"
+            + "\n     GRAPH ?graph {"
+            + "\n       ?r ?labelProp ?label"
+            + "\n       FILTER (?labelProp IN (%4$s))"
+            + "\n     }"
+            + "\n     FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
+            + "\n   }"
+            + "\n   UNION"
+            + "\n   {"
+            + "\n     ?r ?p ?o"
+            + "\n     FILTER (?o = <%1$s>)"
+            + "\n     GRAPH ?graph {"
+            + "\n       ?r ?labelProp ?label"
+            + "\n       FILTER (?labelProp IN (%4$s))"
+            + "\n     }"
+            + "\n     FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
             + "\n   }"
             + "\n }"
             + "\n LIMIT %3$d";
 
+    private static final String LABEL_PROPERTIES_LIST;
 
+    static {
+        assert (LABEL_PROPERTIES.length > 0);
+        StringBuilder sb = new StringBuilder();
+        for (String property : LABEL_PROPERTIES) {
+            sb.append('<');
+            sb.append(property);
+            sb.append(">, ");
+        }
+        LABEL_PROPERTIES_LIST = sb.substring(0, sb.length() - 2);
+    }
 
     /**
      * Executes the URI search query.
@@ -143,29 +210,37 @@ import java.util.Locale;
      * @return result of the query as RDF quads
      */
     public NamedGraphSet findURI(String uri, QueryConstraintSpec constraints,
-            AggregationSpec aggregationSpec) throws ODCleanStoreException {
+            AggregationSpec aggregationSpec) throws ODCleanStoreException, URISyntaxException {
 
-        // TODO: uri must not be empty or null, must match '<' ([^<>"{}|^`\]-[#x00-#x20])* '>'
+        // Check that the URI is valid (must not be empty or null, should match '<' ([^<>"{}|^`\]-[#x00-#x20])* '>' )
+        try {
+            new URI(uri);
+        } catch (URISyntaxException e) {
+            throw e; // rethrow
+        }
 
+        // Get the quads relevant for the query
         QuadCollection quads = getURIOccurrences(uri, constraints);
+        quads.addAll(getLabels(uri, constraints));
 
         // Gather all settings for Conflict Resolution
         ConflictResolverSpec crSpec = new ConflictResolverSpec(RESULT_GRAPH_PREFIX, aggregationSpec);
         crSpec.setPreferredURIs(Collections.singleton(uri));
-        crSpec.setSameAsLinks(getSameAsLinks(uri, constraints));
-        crSpec.setNamedGraphMetadata(getMetadata(uri, constraints));
+        // crSpec.setSameAsLinks(getSameAsLinks(uri, constraints)); // TODO
+        NamedGraphMetadataMap metadata = getMetadata(uri, constraints);
+        crSpec.setNamedGraphMetadata(metadata);
 
         // Apply conflict resolution
         ConflictResolver conflictResolver = ConflictResolverFactory.createResolver(crSpec);
         Collection<CRQuad> resolvedQuads = conflictResolver.resolveConflicts(quads);
 
-        return convertToNGSet(resolvedQuads);
+        // Format and return result
+        return convertToNGSet(resolvedQuads, metadata);
     }
 
     private QuadCollection getURIOccurrences(String uri, QueryConstraintSpec constraints) throws ODCleanStoreException {
         // Prepare the query
-        String query =
-                String.format(Locale.ROOT, URI_OCCURENCES_QUERY, uri, constraints.getMinScore(), DEFAULT_LIMIT);
+        String query = String.format(Locale.ROOT, URI_OCCURENCES_QUERY, uri, constraints.getMinScore(), DEFAULT_LIMIT);
         WrappedResultSet resultSet = executeQuery(query);
 
         QuadCollection quads = new QuadCollection();
@@ -185,15 +260,35 @@ import java.util.Locale;
         return quads;
     }
 
-    private QuadCollection getLabels() {
-        return null;
+    private QuadCollection getLabels(String uri, QueryConstraintSpec constraints) throws ODCleanStoreException {
+        // Prepare the query
+        String query = String.format(Locale.ROOT, LABELS_QUERY, uri, constraints.getMinScore(), DEFAULT_LIMIT,
+                LABEL_PROPERTIES_LIST);
+        WrappedResultSet resultSet = executeQuery(query);
+
+        QuadCollection quads = new QuadCollection();
+        try {
+            while (resultSet.next()) {
+                Quad quad = new Quad(
+                        resultSet.getNode("graph"),
+                        resultSet.getNode("r"), // TODO: number indeces?
+                        resultSet.getNode("labelProp"),
+                        resultSet.getNode("label"));
+                quads.add(quad);
+            }
+        } catch (SQLException e) {
+            throw new QueryException(e);
+        }
+
+        return quads;
     }
 
     private NamedGraphMetadataMap getMetadata(String uri, QueryConstraintSpec constraints)
             throws ODCleanStoreException {
 
         // Execute the query
-        String query = String.format(Locale.ROOT, METADATA_QUERY, uri, constraints.getMinScore(), DEFAULT_LIMIT);
+        String query = String.format(Locale.ROOT, METADATA_QUERY, uri, constraints.getMinScore(), DEFAULT_LIMIT,
+                LABEL_PROPERTIES_LIST);
         WrappedResultSet resultSet = executeQuery(query);
 
         // Build the result
@@ -226,60 +321,73 @@ import java.util.Locale;
         return metadata;
     }
 
-    /**
-     * @todo return a different type
-     */
     private Iterator<Triple> getSameAsLinks(String uri, QueryConstraintSpec constraints) throws ODCleanStoreException {
         // Execute the query
         String query = String.format(Locale.ROOT, SAME_AS_QUERY, uri, constraints.getMinScore(), DEFAULT_LIMIT);
         final WrappedResultSet resultSet = executeQuery(query);
 
         // Build the result
-        Iterator<Triple> sameAsIterator = new Iterator<Triple>() {
-
-            Triple nextTriple;
-
-            {
-                nextTriple = getNextTriple();
+        ArrayList<Triple> sameAsLinks = new ArrayList<Triple>();
+        try {
+            while (resultSet.next()) {
+                sameAsLinks.add(new Triple(resultSet.getNode(1), SAME_AS_NODE, resultSet.getNode(2)));
             }
+        } catch (SQLException e) {
+            throw new QueryException(e);
+        }
 
-            @Override
-            public boolean hasNext() {
-                return nextTriple != null;
-            }
-
-            @Override
-            public Triple next() {
-                Triple result = nextTriple;
-                nextTriple = getNextTriple();
-                return result;
-            }
-
-            private Triple getNextTriple() {
-                if (resultSet.next()) {
-                    return new Triple(resultSet.getNode(1), SAME_AS_NODE, resultSet.getNode(2));
-                } else {
-                    return null;
-                }
-            }
-
-            @Override
-            public void remove() {
-                throw new UnsupportedOperationException("Remove not supported for this iterator");
-            }
-
-        };
-
-        return sameAsIterator;
+        return sameAsLinks.iterator();
     }
 
-    private NamedGraphSet convertToNGSet(Collection<CRQuad> crQuads) {
+    private NamedGraphSet convertToNGSet(Collection<CRQuad> crQuads, NamedGraphMetadataMap metadata) {
         NamedGraphSet result = new NamedGraphSetImpl();
 
-        // TODO: add metadata
+        // TODO: optimize?
         for (CRQuad crQuad : crQuads) {
             result.addQuad(crQuad.getQuad());
         }
+
+
+        // Metadata
+        NamedGraph metadataGraph = createMetadataGraph();
+        for (NamedGraphMetadata graphMetadata : metadata.listMetadata()) {
+            Node namedGraphURI = Node.createURI(graphMetadata.getNamedGraphURI());
+            String dataSource = graphMetadata.getDataSource();
+            if (dataSource != null) {
+                // TODO: avoid creating new Nodes for properties
+                metadataGraph.add(
+                        new Triple(namedGraphURI, Node.createURI(W3P.source), Node.createURI(dataSource)));
+            }
+
+            Double score = graphMetadata.getScore();
+            if (score != null) {
+                LiteralLabel literal = LiteralLabelFactory.create(score);
+                metadataGraph.add(
+                        new Triple(namedGraphURI, Node.createURI(ODCS.score), Node.createLiteral(literal)));
+            }
+
+            Date storedAt = graphMetadata.getStored();
+            if (storedAt != null) {
+                RDFDatatype datatype = TypeMapper.getInstance().getSafeTypeByName(XSD.dateTime.getURI());
+                LiteralLabel literal = LiteralLabelFactory.create(storedAt, null, datatype);
+                metadataGraph.add(
+                        new Triple(namedGraphURI, Node.createURI(W3P.insertedAt), Node.createLiteral(literal)));
+            }
+
+            String publisher = graphMetadata.getPublisher(); // TODO: rename publisher to publishedBy
+            if (publisher != null) {
+                metadataGraph.add(
+                        new Triple(namedGraphURI, Node.createURI(W3P.publishedBy), Node.createURI(publisher)));
+            }
+
+            Double publisherScore = graphMetadata.getPublisherScore();
+            if (publisherScore != null) {
+                LiteralLabel literal = LiteralLabelFactory.create(publisherScore);
+                metadataGraph.add(
+                        new Triple(namedGraphURI, Node.createURI(ODCS.publisherScore), Node.createLiteral(literal)));
+            }
+        }
+        result.addGraph(metadataGraph);
 
         return result;
     }

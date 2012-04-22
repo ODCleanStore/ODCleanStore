@@ -5,6 +5,8 @@ import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 
 import de.fuberlin.wiwiss.ng4j.NamedGraphSet;
 
+import java.net.URISyntaxException;
+
 /**
  * Access point of the Query Execution component.
  * Provides access to methods provided by each QueryExecutor.
@@ -18,10 +20,10 @@ import de.fuberlin.wiwiss.ng4j.NamedGraphSet;
  * @author Jan Michelfeit
  */
 public final class QueryExecution {
-    /** Instance of {@link UriQueryExecutor} */
+    /** Instance of {@link UriQueryExecutor}. */
     private static UriQueryExecutor uriQueryExecutor;
 
-    /** Instance of {@link KeywordQueryExecutor} */
+    /** Instance of {@link KeywordQueryExecutor}. */
     private static KeywordQueryExecutor keywordQueryExecutor;
 
     /*
@@ -64,9 +66,10 @@ public final class QueryExecution {
      * @param aggregationSpec aggregation settings for conflict resolution
      * @return result of the query as RDF quads
      * @throws ODCleanStoreException exception
+     * @throws URISyntaxException thrown when uri is not a valid URI
      */
     public static NamedGraphSet findURI(String uri, QueryConstraintSpec constraints,
-            AggregationSpec aggregationSpec) throws ODCleanStoreException {
+            AggregationSpec aggregationSpec) throws ODCleanStoreException, URISyntaxException {
         return uriQueryExecutor.findURI(uri, constraints, aggregationSpec);
     }
 
