@@ -1,13 +1,14 @@
 /**
  * 
  */
-package cz.cuni.mff.odcleanstore.engine.core;
+package cz.cuni.mff.odcleanstore.engine.common;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+
 
 /**
  * Encapsulates jdbc connections and single threaded basic data operations on Virtuoso database.
@@ -58,6 +59,7 @@ public class SimpleVirtuosoAccess {
 	 * 
 	 */
 	public void close() {
+		
 		if (_con != null) {
 			try {
 				_con.close();
@@ -113,7 +115,6 @@ public class SimpleVirtuosoAccess {
 	 * @throws SQLException
 	 */
 	public void loadRdfXmlFile(String fileName, String baseURI, String graphName) throws SQLException {
-		// TODO not tested
 		String statement = String.format("SPARQL DB.DBA.RDF_LOAD_RDFXML(file_to_string_output('%s'), '%s', '%s')",
 				fileName, baseURI, graphName);
 		executeStatement(statement);

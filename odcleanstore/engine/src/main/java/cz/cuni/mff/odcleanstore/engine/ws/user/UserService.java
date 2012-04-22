@@ -6,35 +6,37 @@ package cz.cuni.mff.odcleanstore.engine.ws.user;
 import org.restlet.Component;
 import org.restlet.data.Protocol;
 
-import cz.cuni.mff.odcleanstore.engine.Module;
-import cz.cuni.mff.odcleanstore.engine.ModuleState;
+import cz.cuni.mff.odcleanstore.engine.Engine;
+import cz.cuni.mff.odcleanstore.engine.Service;
+import cz.cuni.mff.odcleanstore.engine.common.ModuleState;
 
 /**
  * @author jermanp
  * 
  */
-public class UserService extends Module {
+public class UserService extends Service implements Runnable {
 
-	public UserService(Module parent) {
-		super(parent);
+	public UserService(Engine engine) {
+		super(engine);
 	}
 
 	private Component _component;
 
 	@Override
-	public void run() {
+	public final void run() {
 		try {
-			if (get_moduleState() != ModuleState.NEW) {
+			if (getModuleState() != ModuleState.NEW) {
 				return;
 			}
-			set_moduleState(ModuleState.INITIALIZING);
+
+			setModuleState(ModuleState.INITIALIZING);
 			_component = new Component();
-			_component.getServers().add(Protocol.HTTP, 8087);
+			_component.getServers().add(Protocol.HTTP, Engine.USER_SERVICE_PORT);
 			_component.getDefaultHost().attach(new Root());
 			_component.start();
-			set_moduleState(ModuleState.RUNNING);
+			setModuleState(ModuleState.RUNNING);
 		} catch (Exception e) {
-			set_moduleState(ModuleState.CRASHED);
+			setModuleState(ModuleState.CRASHED);
 		}
 	}
 }

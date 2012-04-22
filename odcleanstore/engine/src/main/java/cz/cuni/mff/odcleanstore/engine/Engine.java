@@ -5,6 +5,10 @@ package cz.cuni.mff.odcleanstore.engine;
 
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
+import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
+import cz.cuni.mff.odcleanstore.engine.common.Module;
+import cz.cuni.mff.odcleanstore.engine.common.ModuleState;
+import cz.cuni.mff.odcleanstore.engine.common.Utils;
 import cz.cuni.mff.odcleanstore.engine.pipeline.PipelineService;
 import cz.cuni.mff.odcleanstore.engine.ws.scraper.ScraperService;
 import cz.cuni.mff.odcleanstore.engine.ws.user.UserService;
@@ -13,13 +17,20 @@ import cz.cuni.mff.odcleanstore.engine.ws.user.UserService;
  * @author jermanp
  * 
  */
-public class Engine extends Module {
+public final class Engine extends Module {
 
-	private static Engine _engine = null;
-
+	public static final String DATA_PREFIX = "http://d/";
+	public static final String METADATA_PREFIX = "http://m/";
+	public static final SparqlEndpoint DIRTY_DATABASE_ENDPOINT = Utils.createSparqlEndpoint("","",""); 
+	public static final SparqlEndpoint CLEAN_DATABASE_ENDPOINT = Utils.createSparqlEndpoint("","","");
+	public static final String SCRAPER_ENDPOINT_URL = "http://localhost:8088/odcleanstore/scraper";
+	public static final int USER_SERVICE_PORT = 8087;
+	public static final String USER_SERVICE_KEYWORD_PATH = "keyword";
+	public static final String USER_SERVICE_URI_PATH = "uri";
+	
 	public static void main(String[] args) {
-			_engine = new Engine();
-			_engine.run();
+		_engine = new Engine();
+		_engine.run();
 	}
 
 	private ScheduledThreadPoolExecutor _executor;
@@ -28,23 +39,9 @@ public class Engine extends Module {
 	private ScraperService _scraperService;
 	private UserService _userService;
 
-	private Engine() {
-		super(null);
-	}
+	private static Engine _engine;
 
-	@Override
-	public void run() {
-		try {
-			if (get_moduleState() != ModuleState.NEW) {
-				return;
-			}
-			set_moduleState(ModuleState.INITIALIZING);
-			init();
-			set_moduleState(ModuleState.RUNNING);
-			startServices();
-		} catch (Exception e) {
-			set_moduleState(ModuleState.CRASHED);
-		}
+	private Engine() {
 	}
 
 	private void checkJavaVersion() throws EngineException {
@@ -66,13 +63,41 @@ public class Engine extends Module {
 		_executor = new ScheduledThreadPoolExecutor(1);
 
 		_scraperService = new ScraperService(this);
-		_userService = new UserService(this);
 		_pipelineService = new PipelineService(this);
+		_userService = new UserService(this);
 	}
 
-	private void startServices() throws InterruptedException {
+	private void run() {
+		try {
+			setModuleState(ModuleState.INITIALIZING);
+			init();
+			setModuleState(ModuleState.RUNNING);
+			startServices();
+		} catch (Exception e) {
+			setModuleState(ModuleState.CRASHED);
+		}
+	}
+
+	private void startServices() {
 		_executor.execute(_scraperService);
-		_executor.execute(_userService);
 		_executor.execute(_pipelineService);
+		_executor.execute(_userService);
+	}
+
+
+
+	static PipelineService getPipelineService() {
+		return _engine._pipelineService;
+	}
+
+	static ScraperService getScraperService() {
+		return _engine._scraperService;
+	}
+
+	static UserService getUserService() {
+		return _engine._userService;
+	}
+
+	static void onServiceStateChanged(Service service) {
 	}
 }

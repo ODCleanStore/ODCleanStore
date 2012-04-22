@@ -1,42 +1,45 @@
 package cz.cuni.mff.odcleanstore.engine.pipeline;
 
 import java.io.File;
-import java.io.InputStream;
 
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
+import cz.cuni.mff.odcleanstore.engine.Engine;
+import cz.cuni.mff.odcleanstore.engine.common.Utils;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 
-public class TransformationContextImpl implements  TransformationContext {
+public class TransformationContextImpl implements TransformationContext {
+
+	private String _configuration;
+	private String _path;
+
+	TransformationContextImpl(String configuration, String path) {
+		_configuration = configuration;
+		_path = path;
+	}
 
 	@Override
 	public SparqlEndpoint getDirtyDatabaseEndpoint() {
-		// TODO Auto-generated method stub
-		return null;
+		return Utils.createSparqlEndpoint(Engine.DIRTY_DATABASE_ENDPOINT);
 	}
 
 	@Override
 	public SparqlEndpoint getCleanDatabaseEndpoint() {
-		// TODO Auto-generated method stub
-		return null;
+		return Utils.createSparqlEndpoint(Engine.CLEAN_DATABASE_ENDPOINT);
 	}
 
 	@Override
-	public InputStream getTransformerConfiguration() {
-		// TODO Auto-generated method stub
-		return null;
+	public String getTransformerConfiguration() {
+		return _configuration;
 	}
 
 	@Override
 	public File getTransformerDirectory() {
-		// TODO Auto-generated method stub
-		return null;
+		return new File(_path);
 	}
 
 	@Override
 	public EnumTransformationType getTransformationType() {
-		// TODO Auto-generated method stub
-		return null;
+		return EnumTransformationType.NEW;
 	}
-
 }

@@ -7,6 +7,8 @@ import org.restlet.Application;
 import org.restlet.Restlet;
 import org.restlet.routing.Router;
 
+import cz.cuni.mff.odcleanstore.engine.Engine;
+
 /**
  * @author Petr Jerman <petr.jerman@centrum.cz>
  */
@@ -19,8 +21,8 @@ public class Root extends Application {
 	public synchronized Restlet createInboundRoot() {
 
 		Router router = new Router(getContext());
-		router.attach("/keyword", KeywordQueryExecutorResource.class);
-		router.attach("/uri", UriQueryExecutorResource.class);
+		router.attach("/" + Engine.USER_SERVICE_KEYWORD_PATH, KeywordQueryExecutorResource.class);
+		router.attach("/" + Engine.USER_SERVICE_URI_PATH, UriQueryExecutorResource.class);
 		return router;
 	}
 }

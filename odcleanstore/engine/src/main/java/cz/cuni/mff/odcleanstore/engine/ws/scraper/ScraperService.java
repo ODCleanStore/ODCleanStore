@@ -3,33 +3,36 @@
  */
 package cz.cuni.mff.odcleanstore.engine.ws.scraper;
 
-
 import javax.xml.ws.Endpoint;
 
-import cz.cuni.mff.odcleanstore.engine.Module;
-import cz.cuni.mff.odcleanstore.engine.ModuleState;
+import cz.cuni.mff.odcleanstore.engine.Engine;
+import cz.cuni.mff.odcleanstore.engine.Service;
+import cz.cuni.mff.odcleanstore.engine.common.ModuleState;
 
 /**
  * 
  * @author Petr Jerman <petr.jerman@centrum.cz>
  */
-public class ScraperService extends Module {
+public final class ScraperService extends Service implements Runnable {
 
-	public ScraperService(Module parent) {
-		super(parent);
+	// private ImportingInputGraphStates _importedInputGraphStates;
+
+	public ScraperService(Engine engine) {
+		super(engine);
 	}
 
 	@Override
-	public void run() {
+	public final void run() {
 		try {
-			if (get_moduleState() != ModuleState.NEW) {
+			if (getModuleState() != ModuleState.NEW) {
 				return;
-			}			
-			set_moduleState(ModuleState.INITIALIZING);
-			Endpoint.publish("http://localhost:8088/odcleanstore/scraper", new Scraper());
-			set_moduleState(ModuleState.RUNNING);
+			}
+			setModuleState(ModuleState.INITIALIZING);
+			// _importedInputGraphStates = new ImportingInputGraphStates();
+			Endpoint.publish(Engine.SCRAPER_ENDPOINT_URL, new Scraper());
+			setModuleState(ModuleState.RUNNING);
 		} catch (Exception e) {
-			set_moduleState(ModuleState.CRASHED);
+			setModuleState(ModuleState.CRASHED);
 		}
 	}
 }
