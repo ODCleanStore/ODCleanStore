@@ -1,6 +1,8 @@
 package cz.cuni.mff.odcleanstore.queryexecution;
 
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
+import cz.cuni.mff.odcleanstore.vocabulary.OWL;
+import cz.cuni.mff.odcleanstore.vocabulary.RDFS;
 
 import com.hp.hpl.jena.graph.Node;
 
@@ -29,6 +31,9 @@ import java.sql.Statement;
     protected static final String PASSWORD = "dba";
     protected static final long DEFAULT_LIMIT = 200;
     protected static final String RESULT_GRAPH_PREFIX = "http://odcs.mff.cuni.cz/results/";
+
+    protected static final String[] LABEL_PROPERTIES = new String[] { RDFS.label };
+    protected  static final Node SAME_AS_NODE = Node.createURI(OWL.sameAs);
 
     protected static class WrappedResultSet {
         Statement statement;

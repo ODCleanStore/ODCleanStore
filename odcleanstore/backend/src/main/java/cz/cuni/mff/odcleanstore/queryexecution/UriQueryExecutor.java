@@ -23,6 +23,7 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Locale;
 
 /**
@@ -63,8 +64,8 @@ import java.util.Locale;
             + "\n     FILTER(!bound(?score) || ?score > %2$f) ."
             + "\n     FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
             + "\n   }"
-            + "\n }";
-    // + "\n LIMIT %3$d";
+            + "\n }"
+            + "\n LIMIT %3$d";
 
     private static final String METADATA_QUERY = "SPARQL"
             + "\n DEFINE input:same-as \"yes\""
@@ -84,7 +85,7 @@ import java.util.Locale;
             + "\n     FILTER(!bound(?meta_quality) || ?meta_quality > %2$f) ."
             + "\n     FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
             + "\n   }"
-            + "\n   UNION" // TODO: je nutny UNION?
+            + "\n   UNION"
             + "\n   {"
             + "\n     GRAPH ?graph {"
             + "\n       ?s ?p ?o."
@@ -102,6 +103,36 @@ import java.util.Locale;
             + "\n   }"
             + "\n }"
             + "\n LIMIT %3$d";
+
+    private static final String SAME_AS_QUERY = "SPARQL"
+            + "\n DEFINE input:same-as \"yes\""
+            + "\n SELECT ?r1 ?r2"
+            + "\n WHERE {"
+            + "\n   {"
+            + "\n     <%1$s> ?p1 ?r1"
+            + "\n     FILTER (isURI(?r1))"
+            + "\n     FILTER (p1 != <" + OWL.sameAs + ">)"
+            + "\n     <%1$s> ?p2 ?r2"
+            + "\n     FILTER (isURI(?r2))"
+            + "\n     FILTER (p2 != <" + OWL.sameAs + ">)"
+            + "\n     ?r1 <" + OWL.sameAs + "> ?r2"
+            + "\n     FILTER (?r1 < ?r2)"
+            + "\n   }"
+            + "\n   UNION"
+            + "\n   {"
+            + "\n     ?r1 ?p1 <%1$s>"
+            + "\n     FILTER (isURI(?r1))"
+            + "\n     FILTER (p1 != <" + OWL.sameAs + ">)"
+            + "\n     ?r2 ?p2 <%1$s>"
+            + "\n     FILTER (isURI(?r2))"
+            + "\n     FILTER (p2 != <" + OWL.sameAs + ">)"
+            + "\n     ?r1 <" + OWL.sameAs + "> ?r2"
+            + "\n     FILTER (?r1 < ?r2)"
+            + "\n   }"
+            + "\n }"
+            + "\n LIMIT %3$d";
+
+
 
     /**
      * Executes the URI search query.
@@ -121,7 +152,7 @@ import java.util.Locale;
         // Gather all settings for Conflict Resolution
         ConflictResolverSpec crSpec = new ConflictResolverSpec(RESULT_GRAPH_PREFIX, aggregationSpec);
         crSpec.setPreferredURIs(Collections.singleton(uri));
-        // crSpec.setSameAsLinks(sameAsLinks);
+        crSpec.setSameAsLinks(getSameAsLinks(uri, constraints));
         crSpec.setNamedGraphMetadata(getMetadata(uri, constraints));
 
         // Apply conflict resolution
@@ -198,8 +229,48 @@ import java.util.Locale;
     /**
      * @todo return a different type
      */
-    private Collection<Triple> getSameAsLinks() {
-        return null;
+    private Iterator<Triple> getSameAsLinks(String uri, QueryConstraintSpec constraints) throws ODCleanStoreException {
+        // Execute the query
+        String query = String.format(Locale.ROOT, SAME_AS_QUERY, uri, constraints.getMinScore(), DEFAULT_LIMIT);
+        final WrappedResultSet resultSet = executeQuery(query);
+
+        // Build the result
+        Iterator<Triple> sameAsIterator = new Iterator<Triple>() {
+
+            Triple nextTriple;
+
+            {
+                nextTriple = getNextTriple();
+            }
+
+            @Override
+            public boolean hasNext() {
+                return nextTriple != null;
+            }
+
+            @Override
+            public Triple next() {
+                Triple result = nextTriple;
+                nextTriple = getNextTriple();
+                return result;
+            }
+
+            private Triple getNextTriple() {
+                if (resultSet.next()) {
+                    return new Triple(resultSet.getNode(1), SAME_AS_NODE, resultSet.getNode(2));
+                } else {
+                    return null;
+                }
+            }
+
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException("Remove not supported for this iterator");
+            }
+
+        };
+
+        return sameAsIterator;
     }
 
     private NamedGraphSet convertToNGSet(Collection<CRQuad> crQuads) {
