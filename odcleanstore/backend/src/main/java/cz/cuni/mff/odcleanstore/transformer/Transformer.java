@@ -1,7 +1,5 @@
 package cz.cuni.mff.odcleanstore.transformer;
 
-import javax.xml.transform.TransformerException;
-
 /**
  * Interface of a custom transformer.
  *
