@@ -1,16 +1,20 @@
-package cz.cuni.mff.odcleanstore.shared;
+/**
+ *
+ */
+package cz.cuni.mff.odcleanstore.transformer;
+
+import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 
 /**
- * A base class of all exceptions arising from ODCleanStore code.
- *
+ * Exception thrown by Transformers during a named graph processing.
  * @author Jan Michelfeit
  */
-public class ODCleanStoreException extends Exception {
+public class TransformerException extends ODCleanStoreException {
     /**
      * Constructs a new exception with the given cause.
      * @param cause the cause
      */
-    public ODCleanStoreException(Throwable cause) {
+    public TransformerException(Throwable cause) {
         super(cause);
     }
 
@@ -19,7 +23,7 @@ public class ODCleanStoreException extends Exception {
      * @param message the detail message
      * @param cause the cause
      */
-    public ODCleanStoreException(String message, Throwable cause) {
+    public TransformerException(String message, Throwable cause) {
         super(message, cause);
     }
 
@@ -27,7 +31,7 @@ public class ODCleanStoreException extends Exception {
      * Constructs a new exception with the given message.
      * @param message the detail message
      */
-    public ODCleanStoreException(String message) {
+    public TransformerException(String message) {
         super(message);
     }
 }

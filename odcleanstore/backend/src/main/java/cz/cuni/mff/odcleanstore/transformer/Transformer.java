@@ -1,5 +1,7 @@
 package cz.cuni.mff.odcleanstore.transformer;
 
+import javax.xml.transform.TransformerException;
+
 /**
  * Interface of a custom transformer.
  *
@@ -16,13 +18,23 @@ public interface Transformer {
      * Transforms a new graph in the dirty database.
      * @param inputGraph holder for the transformed graph.
      * @param context context of the transformation
+     * @throws TransformerException exception
      */
-    void transformNewGraph(TransformedGraph inputGraph, TransformationContext context);
+    void transformNewGraph(TransformedGraph inputGraph, TransformationContext context) throws TransformerException;
 
     /**
      * Transforms an existing graph in the clean database.
      * @param inputGraph holder for the transformed graph.
      * @param context context of the transformation
+     * @throws TransformerException exception
      */
-    void transformExistingGraph(TransformedGraph inputGraph, TransformationContext context);
+    void transformExistingGraph(TransformedGraph inputGraph, TransformationContext context)
+            throws TransformerException;
+
+    /**
+     * Called when the instance of the transformer is no longer needed.
+     * This method is suitable for releasing resources etc.
+     * @throws TransformerException exception
+     */
+    void shutdown() throws TransformerException;
 }
