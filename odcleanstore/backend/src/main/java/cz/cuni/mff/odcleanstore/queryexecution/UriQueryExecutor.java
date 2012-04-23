@@ -18,6 +18,9 @@ import com.hp.hpl.jena.graph.Triple;
 import de.fuberlin.wiwiss.ng4j.NamedGraphSet;
 import de.fuberlin.wiwiss.ng4j.Quad;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
@@ -36,6 +39,7 @@ import java.util.Locale;
  * @author Jan Michelfeit
  */
 /*package*/class UriQueryExecutor extends QueryExecutorBase {
+    private static final Logger LOG = LoggerFactory.getLogger(UriQueryExecutor.class);
 
     // TODO: count(*) AS ?cardinality
     // TODO: use time
@@ -51,7 +55,7 @@ import java.util.Locale;
             //+ "\n       FILTER (?p != <" + OWL.sameAs + ">)" // TODO: ?
             + "\n     }"
             + "\n     OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }"
-            + "\n     OPTIONAL { ?graph <" + ODCS.score + ">  ?meta_score }"
+            + "\n     OPTIONAL { ?graph <" + ODCS.score + ">  ?meta_score }" // TODO: non-optional if given?
             + "\n     FILTER(!bound(?score) || ?score > %2$f) ."
             + "\n     FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
             + "\n   }"
@@ -71,6 +75,7 @@ import java.util.Locale;
             + "\n LIMIT %3$d";
 
     // TODO: limit by time & score
+    // TODO: omit metadata for additional labels?
     private static final String METADATA_QUERY = "SPARQL"
             + "\n DEFINE input:same-as \"yes\""
             + "\n SELECT ?graph ?source ?score ?insertedAt ?publishedBy ?publisherScore"
@@ -105,9 +110,27 @@ import java.util.Locale;
             + "\n       UNION"
             + "\n       {"
             + "\n         ?s ?p ?o"
+            + "\n         FILTER (?s = <%1$s>)"
+            + "\n         GRAPH ?graph {"
+            + "\n            ?p ?labelProp ?label"
+            + "\n            FILTER (?labelProp IN (%4$s))"
+            + "\n         }"
+            + "\n       }"
+            + "\n       UNION"
+            + "\n       {"
+            + "\n         ?s ?p ?o"
             + "\n         FILTER (?o = <%1$s>)"
             + "\n         GRAPH ?graph {"
             + "\n            ?s ?labelProp ?label"
+            + "\n            FILTER (?labelProp IN (%4$s))"
+            + "\n         }"
+            + "\n       }"
+            + "\n       UNION"
+            + "\n       {"
+            + "\n         ?s ?p ?o"
+            + "\n         FILTER (?o = <%1$s>)"
+            + "\n         GRAPH ?graph {"
+            + "\n            ?p ?labelProp ?label"
             + "\n            FILTER (?labelProp IN (%4$s))"
             + "\n         }"
             + "\n       }"
@@ -170,7 +193,27 @@ import java.util.Locale;
             + "\n   }"
             + "\n   UNION"
             + "\n   {"
+            + "\n     ?s ?r ?o"
+            + "\n     FILTER (?s = <%1$s>)"
+            + "\n     GRAPH ?graph {"
+            + "\n       ?r ?labelProp ?label"
+            + "\n       FILTER (?labelProp IN (%4$s))"
+            + "\n     }"
+            + "\n     FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
+            + "\n   }"
+            + "\n   UNION"
+            + "\n   {"
             + "\n     ?r ?p ?o"
+            + "\n     FILTER (?o = <%1$s>)"
+            + "\n     GRAPH ?graph {"
+            + "\n       ?r ?labelProp ?label"
+            + "\n       FILTER (?labelProp IN (%4$s))"
+            + "\n     }"
+            + "\n     FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
+            + "\n   }"
+            + "\n   UNION"
+            + "\n   {"
+            + "\n     ?s ?r ?o"
             + "\n     FILTER (?o = <%1$s>)"
             + "\n     GRAPH ?graph {"
             + "\n       ?r ?labelProp ?label"
@@ -205,6 +248,7 @@ import java.util.Locale;
     public NamedGraphSet findURI(String uri, QueryConstraintSpec constraints,
             AggregationSpec aggregationSpec) throws ODCleanStoreException, URISyntaxException {
 
+        long startTime = System.currentTimeMillis();
         // Check that the URI is valid (must not be empty or null, should match '<' ([^<>"{}|^`\]-[#x00-#x20])* '>' )
         try {
             new URI(uri);
@@ -214,6 +258,7 @@ import java.util.Locale;
 
         // Get the quads relevant for the query
         Collection<Quad> quads = getURIOccurrences(uri, constraints);
+        quads = new QuadCollection();
         quads.addAll(getLabels(uri, constraints));
 
         // Gather all settings for Conflict Resolution
@@ -227,11 +272,15 @@ import java.util.Locale;
         ConflictResolver conflictResolver = ConflictResolverFactory.createResolver(crSpec);
         Collection<CRQuad> resolvedQuads = conflictResolver.resolveConflicts(quads);
 
+        LOG.debug("Query Execution: findURI() in {} ms", System.currentTimeMillis() - startTime);
         // Format and return result
         return convertToNGSet(resolvedQuads, metadata);
     }
 
-    private Collection<Quad> getURIOccurrences(String uri, QueryConstraintSpec constraints) throws ODCleanStoreException {
+    private Collection<Quad> getURIOccurrences(String uri, QueryConstraintSpec constraints)
+            throws ODCleanStoreException {
+
+        long startTime = System.currentTimeMillis();
         // Prepare the query
         String query = String.format(Locale.ROOT, URI_OCCURENCES_QUERY, uri, constraints.getMinScore(), DEFAULT_LIMIT);
         WrappedResultSet resultSet = executeQuery(query);
@@ -250,10 +299,13 @@ import java.util.Locale;
             throw new QueryException(e);
         }
 
+        LOG.debug("Query Execution: getURIOccurrences() in {} ms", System.currentTimeMillis() - startTime);
         return quads;
     }
 
     private Collection<Quad> getLabels(String uri, QueryConstraintSpec constraints) throws ODCleanStoreException {
+
+        long startTime = System.currentTimeMillis();
         // Prepare the query
         String query = String.format(Locale.ROOT, LABELS_QUERY, uri, constraints.getMinScore(), DEFAULT_LIMIT,
                 LABEL_PROPERTIES_LIST);
@@ -273,12 +325,14 @@ import java.util.Locale;
             throw new QueryException(e);
         }
 
+        LOG.debug("Query Execution: getLabels() in {} ms", System.currentTimeMillis() - startTime);
         return quads;
     }
 
     private NamedGraphMetadataMap getMetadata(String uri, QueryConstraintSpec constraints)
             throws ODCleanStoreException {
 
+        long startTime = System.currentTimeMillis();
         // Execute the query
         String query = String.format(Locale.ROOT, METADATA_QUERY, uri, constraints.getMinScore(), DEFAULT_LIMIT,
                 LABEL_PROPERTIES_LIST);
@@ -311,10 +365,12 @@ import java.util.Locale;
             throw new QueryException(e);
         }
 
+        LOG.debug("Query Execution: getMetadata() in {} ms", System.currentTimeMillis() - startTime);
         return metadata;
     }
 
     private Iterator<Triple> getSameAsLinks(String uri, QueryConstraintSpec constraints) throws ODCleanStoreException {
+        long startTime = System.currentTimeMillis();
         // Execute the query
         String query = String.format(Locale.ROOT, SAME_AS_QUERY, uri, constraints.getMinScore(), DEFAULT_LIMIT);
         final WrappedResultSet resultSet = executeQuery(query);
@@ -329,6 +385,7 @@ import java.util.Locale;
             throw new QueryException(e);
         }
 
+        LOG.debug("Query Execution: getSameAsLinks() in %f ms", System.currentTimeMillis() - startTime);
         return sameAsLinks.iterator();
     }
 }
