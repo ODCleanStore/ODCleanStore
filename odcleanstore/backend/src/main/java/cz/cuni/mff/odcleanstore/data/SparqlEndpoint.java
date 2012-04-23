@@ -11,9 +11,13 @@ public class SparqlEndpoint {
 	/* The URI of the SPARQL endpoint. */
 	private String uri;
 	/* User name required for authentication. */
-	private String username;
+	private String username = null;
 	/* Password required for authentication */
-	private String password;
+	private String password = null;
+
+	public SparqlEndpoint(String uri) {
+        this.uri = uri;
+    }
 
 	public SparqlEndpoint(String uri, String username, String password) {
 	    this.uri = uri;
