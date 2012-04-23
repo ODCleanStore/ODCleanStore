@@ -8,7 +8,6 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
 import cz.cuni.mff.odcleanstore.engine.common.Module;
 import cz.cuni.mff.odcleanstore.engine.common.ModuleState;
-import cz.cuni.mff.odcleanstore.engine.common.Utils;
 import cz.cuni.mff.odcleanstore.engine.pipeline.PipelineService;
 import cz.cuni.mff.odcleanstore.engine.ws.scraper.ScraperService;
 import cz.cuni.mff.odcleanstore.engine.ws.user.UserService;
