@@ -13,18 +13,10 @@ import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 import cz.cuni.mff.odcleanstore.vocabulary.W3P;
 
-import com.hp.hpl.jena.datatypes.RDFDatatype;
-import com.hp.hpl.jena.datatypes.TypeMapper;
-import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.graph.impl.LiteralLabel;
-import com.hp.hpl.jena.graph.impl.LiteralLabelFactory;
-import com.hp.hpl.jena.vocabulary.XSD;
 
-import de.fuberlin.wiwiss.ng4j.NamedGraph;
 import de.fuberlin.wiwiss.ng4j.NamedGraphSet;
 import de.fuberlin.wiwiss.ng4j.Quad;
-import de.fuberlin.wiwiss.ng4j.impl.NamedGraphSetImpl;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -40,6 +32,7 @@ import java.util.Locale;
  * Executes the URI search query.
  * Triples that contain the given URI as their subject or object are returned.
  *
+ * TODO: sameAs links between objects and between properties
  * @author Jan Michelfeit
  */
 /*package*/class UriQueryExecutor extends QueryExecutorBase {
@@ -330,7 +323,7 @@ import java.util.Locale;
         ArrayList<Triple> sameAsLinks = new ArrayList<Triple>();
         try {
             while (resultSet.next()) {
-                sameAsLinks.add(new Triple(resultSet.getNode(1), SAME_AS_NODE, resultSet.getNode(2)));
+                sameAsLinks.add(new Triple(resultSet.getNode(1), SAME_AS_PROPERTY, resultSet.getNode(2)));
             }
         } catch (SQLException e) {
             throw new QueryException(e);
@@ -338,58 +331,4 @@ import java.util.Locale;
 
         return sameAsLinks.iterator();
     }
-
-    private NamedGraphSet convertToNGSet(Collection<CRQuad> crQuads, NamedGraphMetadataMap metadata) {
-        NamedGraphSet result = new NamedGraphSetImpl();
-
-        // TODO: optimize?
-        for (CRQuad crQuad : crQuads) {
-            result.addQuad(crQuad.getQuad());
-        }
-
-
-        // Metadata
-        NamedGraph metadataGraph = createMetadataGraph();
-        for (NamedGraphMetadata graphMetadata : metadata.listMetadata()) {
-            Node namedGraphURI = Node.createURI(graphMetadata.getNamedGraphURI());
-            String dataSource = graphMetadata.getDataSource();
-            if (dataSource != null) {
-                // TODO: avoid creating new Nodes for properties
-                metadataGraph.add(
-                        new Triple(namedGraphURI, Node.createURI(W3P.source), Node.createURI(dataSource)));
-            }
-
-            Double score = graphMetadata.getScore();
-            if (score != null) {
-                LiteralLabel literal = LiteralLabelFactory.create(score);
-                metadataGraph.add(
-                        new Triple(namedGraphURI, Node.createURI(ODCS.score), Node.createLiteral(literal)));
-            }
-
-            Date storedAt = graphMetadata.getStored();
-            if (storedAt != null) {
-                RDFDatatype datatype = TypeMapper.getInstance().getSafeTypeByName(XSD.dateTime.getURI());
-                LiteralLabel literal = LiteralLabelFactory.create(storedAt, null, datatype);
-                metadataGraph.add(
-                        new Triple(namedGraphURI, Node.createURI(W3P.insertedAt), Node.createLiteral(literal)));
-            }
-
-            String publisher = graphMetadata.getPublisher(); // TODO: rename publisher to publishedBy
-            if (publisher != null) {
-                metadataGraph.add(
-                        new Triple(namedGraphURI, Node.createURI(W3P.publishedBy), Node.createURI(publisher)));
-            }
-
-            Double publisherScore = graphMetadata.getPublisherScore();
-            if (publisherScore != null) {
-                LiteralLabel literal = LiteralLabelFactory.create(publisherScore);
-                metadataGraph.add(
-                        new Triple(namedGraphURI, Node.createURI(ODCS.publisherScore), Node.createLiteral(literal)));
-            }
-        }
-        result.addGraph(metadataGraph);
-
-        return result;
-    }
-
 }
