@@ -55,7 +55,7 @@ import java.util.Locale;
             + "\n     GRAPH ?graph {"
             + "\n       ?s ?p ?o."
             + "\n       FILTER (?s = <%1$s>)"
-            + "\n       FILTER (?p != <" + OWL.sameAs + ">)" // TODO: ?
+            //+ "\n       FILTER (?p != <" + OWL.sameAs + ">)" // TODO: ?
             + "\n     }"
             + "\n     OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }"
             + "\n     OPTIONAL { ?graph <" + ODCS.score + ">  ?meta_score }"
@@ -67,7 +67,7 @@ import java.util.Locale;
             + "\n     GRAPH ?graph {"
             + "\n       ?s ?p ?o."
             + "\n       FILTER (?o = <%1$s>)"
-            + "\n       FILTER (?p != <" + OWL.sameAs + ">)"
+            //+ "\n       FILTER (?p != <" + OWL.sameAs + ">)"
             + "\n     }"
             + "\n     OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }"
             + "\n     OPTIONAL { ?graph <" + ODCS.score + ">  ?score }"

@@ -22,7 +22,7 @@ import com.hp.hpl.jena.rdf.model.AnonId;
  */
 public final class NodeComparator {
     /**
-     * Implemenation of the Visitor pattern that compares a node given in the constructor to the
+     * Implementation of the Visitor pattern that compares a node given in the constructor to the
      * visited node.
      */
     private static class ComparisonVisitor implements NodeVisitor {
