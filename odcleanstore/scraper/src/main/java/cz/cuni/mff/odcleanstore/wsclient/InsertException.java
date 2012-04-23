@@ -15,15 +15,10 @@ public final class InsertException extends Exception {
 	private static final long serialVersionUID = 1L;
 
 	private int _id;
-	private String _message;
 	private String _moreInfo;
 
 	public int getId() {
 		return _id;
-	}
-
-	public String getMessage() {
-		return _message;
 	}
 
 	public String getMoreInfo() {
@@ -31,8 +26,8 @@ public final class InsertException extends Exception {
 	}
 
 	InsertException(int id, String message, String moreInfo) {
+		super(message);
 		_id = id;
-		_message = message;
 		_moreInfo = moreInfo;
 	}
 }
