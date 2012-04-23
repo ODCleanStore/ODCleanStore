@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.queryexecution;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
+import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 
 import de.fuberlin.wiwiss.ng4j.NamedGraphSet;
@@ -19,24 +20,20 @@ import java.net.URISyntaxException;
  *
  * @author Jan Michelfeit
  */
-public final class QueryExecution {
+public class QueryExecution {
     /** Instance of {@link UriQueryExecutor}. */
-    private static UriQueryExecutor uriQueryExecutor;
+    private UriQueryExecutor uriQueryExecutor;
 
     /** Instance of {@link KeywordQueryExecutor}. */
-    private static KeywordQueryExecutor keywordQueryExecutor;
+    private KeywordQueryExecutor keywordQueryExecutor;
 
-    /*
-     * Static initialization - load instances of query executors.
+    /**
+     * Creates a new instance of QueryExecution.
+     * @param sparqlEndpoint connection settings for the SPARQL endpoint that will be queried
      */
-    static
-    {
-        uriQueryExecutor = new UriQueryExecutor();
-        keywordQueryExecutor = new KeywordQueryExecutor();
-    }
-
-    /** Disable constructor for a utility class. */
-    private QueryExecution() {
+    public QueryExecution(SparqlEndpoint sparqlEndpoint) {
+        this.uriQueryExecutor = new UriQueryExecutor(sparqlEndpoint);
+        this.keywordQueryExecutor = new KeywordQueryExecutor(sparqlEndpoint);
     }
 
     /**
@@ -52,7 +49,7 @@ public final class QueryExecution {
      *
      * @todo
      */
-    public static NamedGraphSet findKeyword(String keywords, QueryConstraintSpec constraints,
+    public NamedGraphSet findKeyword(String keywords, QueryConstraintSpec constraints,
             AggregationSpec aggregationSpec) throws ODCleanStoreException {
         return keywordQueryExecutor.findKeyword(keywords, constraints, aggregationSpec);
     }
@@ -68,7 +65,7 @@ public final class QueryExecution {
      * @throws ODCleanStoreException exception
      * @throws URISyntaxException thrown when uri is not a valid URI
      */
-    public static NamedGraphSet findURI(String uri, QueryConstraintSpec constraints,
+    public NamedGraphSet findURI(String uri, QueryConstraintSpec constraints,
             AggregationSpec aggregationSpec) throws ODCleanStoreException, URISyntaxException {
         return uriQueryExecutor.findURI(uri, constraints, aggregationSpec);
     }

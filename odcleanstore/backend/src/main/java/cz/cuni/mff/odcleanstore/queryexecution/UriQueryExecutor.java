@@ -8,6 +8,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.data.QuadCollection;
+import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
@@ -223,6 +224,14 @@ import java.util.Locale;
             + "\n   }"
             + "\n }"
             + "\n LIMIT %3$d";
+
+    /**
+     * Creates a new instance of UriQueryExecutor.
+     * @param sparqlEndpoint connection settings for the SPARQL endpoint that will be queried
+     */
+    public UriQueryExecutor(SparqlEndpoint sparqlEndpoint) {
+        super(sparqlEndpoint);
+    }
 
     /**
      * Executes the URI search query.

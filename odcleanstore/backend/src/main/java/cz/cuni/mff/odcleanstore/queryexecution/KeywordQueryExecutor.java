@@ -7,6 +7,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.data.QuadCollection;
+import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 
 import com.hp.hpl.jena.graph.Triple;
@@ -35,6 +36,14 @@ import java.util.Iterator;
     private static final String METADATA_QUERY = "";
     private static final String SAME_AS_QUERY = "";
     private static final String LABELS_QUERY = "";
+
+    /**
+     * Creates a new instance of KeywordQueryExecutor.
+     * @param sparqlEndpoint connection settings for the SPARQL endpoint that will be queried
+     */
+    public KeywordQueryExecutor(SparqlEndpoint sparqlEndpoint) {
+        super(sparqlEndpoint);
+    }
 
     /**
      * Executes the keyword search query.

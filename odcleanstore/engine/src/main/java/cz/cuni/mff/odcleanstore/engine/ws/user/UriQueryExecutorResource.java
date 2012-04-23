@@ -13,6 +13,7 @@ import org.restlet.representation.Representation;
 import org.restlet.representation.WriterRepresentation;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
+import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryConstraintSpec;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecution;
 import de.fuberlin.wiwiss.ng4j.NamedGraphSet;
@@ -28,7 +29,8 @@ public class UriQueryExecutorResource extends QueryExecutorResourceBase {
 
 			String uri = form.getFirst("find").getValue();
 
-			final NamedGraphSet result = QueryExecution.findURI(uri, new QueryConstraintSpec(), new AggregationSpec());
+			QueryExecution queryExecution = new QueryExecution(Engine.CLEAN_DATABASE_ENDPOINT);
+			final NamedGraphSet result = queryExecution.findURI(uri, new QueryConstraintSpec(), new AggregationSpec());
 
 			if (result == null)
 				return return404();

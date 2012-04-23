@@ -3,6 +3,7 @@ package cz.cuni.mff.odcleanstore.queryexecution;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
+import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
@@ -44,9 +45,6 @@ import java.util.Date;
 
     // TODO: remove
     protected static final String NG_PREFIX_FILTER = "http://odcs.mff.cuni.cz/namedGraph/qe-test/";
-    protected static final String CONNECTION_STRING = "jdbc:virtuoso://localhost:1111";
-    protected static final String USER = "dba";
-    protected static final String PASSWORD = "dba";
     protected static final long DEFAULT_LIMIT = 200;
     protected static final String RESULT_GRAPH_PREFIX = "http://odcs.mff.cuni.cz/results/";
     protected static final String METADATA_GRAPH = "http://odcs.mff.cuni.cz/metadata/";
@@ -68,14 +66,28 @@ import java.util.Date;
         LABEL_PROPERTIES_LIST = sb.substring(0, sb.length() - 2);
     }
 
-    protected static WrappedResultSet executeQuery(String query) throws ODCleanStoreException {
+    /** Connection settings for the SPARQL endpoint that will be queried. */
+    protected final SparqlEndpoint sparqlEndpoint;
+
+    /**
+     * Creates a new instance of QueryExecutorBase.
+     * @param sparqlEndpoint connection settings for the SPARQL endpoint that will be queried
+     */
+    protected QueryExecutorBase(SparqlEndpoint sparqlEndpoint) {
+        this.sparqlEndpoint = sparqlEndpoint;
+    }
+
+    protected WrappedResultSet executeQuery(String query) throws ODCleanStoreException {
         try {
             Class.forName("virtuoso.jdbc3.Driver"); // TODO: move
         } catch (ClassNotFoundException e) {
             throw new ODCleanStoreException("Couldn't load Virtuoso jdbc driver", e);
         }
         try {
-            Connection connection = DriverManager.getConnection(CONNECTION_STRING, USER, PASSWORD); // TODO: keep
+            Connection connection = DriverManager.getConnection(
+                    sparqlEndpoint.getUri(),
+                    sparqlEndpoint.getUsername(),
+                    sparqlEndpoint.getPassword()); // TODO: keep
             Statement statement = connection.createStatement();
             statement.execute(query);
 

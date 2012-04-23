@@ -13,6 +13,7 @@ import org.restlet.representation.Representation;
 import org.restlet.representation.WriterRepresentation;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
+import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryConstraintSpec;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecution;
 import de.fuberlin.wiwiss.ng4j.NamedGraphSet;
@@ -29,7 +30,8 @@ public class KeywordQueryExecutorResource extends QueryExecutorResourceBase {
 
 			String keyword = form.getFirst("find").getValue();
 
-			final NamedGraphSet result = QueryExecution.findKeyword(keyword, new QueryConstraintSpec(),
+			QueryExecution queryExecution = new QueryExecution(Engine.CLEAN_DATABASE_ENDPOINT);
+			final NamedGraphSet result = queryExecution.findKeyword(keyword, new QueryConstraintSpec(),
 					new AggregationSpec());
 
 			if (result == null)
