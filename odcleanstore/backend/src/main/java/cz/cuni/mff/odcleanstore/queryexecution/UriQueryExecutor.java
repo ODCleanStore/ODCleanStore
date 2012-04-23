@@ -213,7 +213,7 @@ import java.util.Locale;
         }
 
         // Get the quads relevant for the query
-        QuadCollection quads = getURIOccurrences(uri, constraints);
+        Collection<Quad> quads = getURIOccurrences(uri, constraints);
         quads.addAll(getLabels(uri, constraints));
 
         // Gather all settings for Conflict Resolution
@@ -231,7 +231,7 @@ import java.util.Locale;
         return convertToNGSet(resolvedQuads, metadata);
     }
 
-    private QuadCollection getURIOccurrences(String uri, QueryConstraintSpec constraints) throws ODCleanStoreException {
+    private Collection<Quad> getURIOccurrences(String uri, QueryConstraintSpec constraints) throws ODCleanStoreException {
         // Prepare the query
         String query = String.format(Locale.ROOT, URI_OCCURENCES_QUERY, uri, constraints.getMinScore(), DEFAULT_LIMIT);
         WrappedResultSet resultSet = executeQuery(query);
@@ -253,7 +253,7 @@ import java.util.Locale;
         return quads;
     }
 
-    private QuadCollection getLabels(String uri, QueryConstraintSpec constraints) throws ODCleanStoreException {
+    private Collection<Quad> getLabels(String uri, QueryConstraintSpec constraints) throws ODCleanStoreException {
         // Prepare the query
         String query = String.format(Locale.ROOT, LABELS_QUERY, uri, constraints.getMinScore(), DEFAULT_LIMIT,
                 LABEL_PROPERTIES_LIST);

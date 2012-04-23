@@ -2,7 +2,6 @@ package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.data.QuadCollection;
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.W3P;
@@ -16,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
@@ -34,14 +34,14 @@ import java.util.TreeMap;
     }
 
     /**
-     * Reads named graph metadata from RDF passed as {@link QuadCollection}.
+     * Reads named graph metadata from RDF passed as a collection of {@link Quad Quads}.
      *
      * @param data a collection of quads describing named graph metadata
      * @return map of metadata for named graphs described in data
      * @throws ODCleanStoreException thrown when named graph metadata contained in the input data
      *         are not correctly formated
      */
-    public static NamedGraphMetadataMap readFromRDF(QuadCollection data)
+    public static NamedGraphMetadataMap readFromRDF(Collection<Quad> data)
             throws ODCleanStoreException {
         NamedGraphMetadataMap result = new NamedGraphMetadataMap();
         Map<String, Double> publisherScores = new TreeMap<String, Double>();

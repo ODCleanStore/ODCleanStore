@@ -2,11 +2,11 @@ package cz.cuni.mff.odcleanstore.queryexecution;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.data.QuadCollection;
 
 import com.hp.hpl.jena.graph.Triple;
 
 import de.fuberlin.wiwiss.ng4j.NamedGraphSet;
+import de.fuberlin.wiwiss.ng4j.Quad;
 
 import java.util.Collection;
 
@@ -32,11 +32,11 @@ import java.util.Collection;
         return null;
     }
 
-    private QuadCollection getKeywordOccurrences() {
+    private Collection<Quad> getKeywordOccurrences() {
         return null;
     }
 
-    private QuadCollection getLabels() {
+    private Collection<Quad> getLabels() {
         return null;
     }
 

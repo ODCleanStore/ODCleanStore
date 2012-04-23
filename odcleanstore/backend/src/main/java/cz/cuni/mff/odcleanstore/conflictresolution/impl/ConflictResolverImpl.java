@@ -9,7 +9,6 @@ import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationMethod;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationMethodFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationNotImplementedException;
-import cz.cuni.mff.odcleanstore.data.QuadCollection;
 import cz.cuni.mff.odcleanstore.shared.NodeComparator;
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
@@ -126,7 +125,7 @@ public class ConflictResolverImpl implements ConflictResolver {
      * @throws ODCleanStoreException {@inheritDoc}
      */
     @Override
-    public Collection<CRQuad> resolveConflicts(QuadCollection quads) throws ODCleanStoreException {
+    public Collection<CRQuad> resolveConflicts(Collection<Quad> quads) throws ODCleanStoreException {
         LOG.info("Resolving conflicts among {} quads.", quads.size());
 
         // Apply owl:sameAs mappings, group quads to conflict clusters
@@ -304,7 +303,7 @@ public class ConflictResolverImpl implements ConflictResolver {
      * @throws ODCleanStoreException thrown when named graph metadata contained
      *         in the input graph are not correctly formated
      */
-    private NamedGraphMetadataMap getNamedGraphMetadata(QuadCollection data)
+    private NamedGraphMetadataMap getNamedGraphMetadata(Collection<Quad> data)
             throws ODCleanStoreException {
 
         NamedGraphMetadataMap metadata = spec.getNamedGraphMetadata();
