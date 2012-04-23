@@ -254,7 +254,6 @@ import java.util.Locale;
 
         // Get the quads relevant for the query
         Collection<Quad> quads = getURIOccurrences(uri, constraints);
-        quads = new QuadCollection();
         quads.addAll(getLabels(uri, constraints));
 
         // Gather all settings for Conflict Resolution
