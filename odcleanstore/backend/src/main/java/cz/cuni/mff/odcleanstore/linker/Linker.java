@@ -2,6 +2,7 @@ package cz.cuni.mff.odcleanstore.linker;
 
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.Transformer;
+import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 
 /**
  * Linking component.
@@ -23,7 +24,7 @@ public interface Linker extends Transformer {
 	 * @param context provides linkage rules IDs in TransformerConfiguration
 	 * 		and directory for storing temporary files
 	 */
-	public void linkCleanDatabase(TransformationContext context);
+	public void linkCleanDatabase(TransformationContext context) throws TransformerException;
 	
 	public void linkByConfigFiles(TransformationContext context);
 }
