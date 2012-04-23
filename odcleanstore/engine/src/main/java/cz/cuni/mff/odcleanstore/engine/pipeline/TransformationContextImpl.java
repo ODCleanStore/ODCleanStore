@@ -20,12 +20,12 @@ public class TransformationContextImpl implements TransformationContext {
 
 	@Override
 	public SparqlEndpoint getDirtyDatabaseEndpoint() {
-		return Utils.createSparqlEndpoint(Engine.DIRTY_DATABASE_ENDPOINT);
+		return Engine.DIRTY_DATABASE_ENDPOINT;
 	}
 
 	@Override
 	public SparqlEndpoint getCleanDatabaseEndpoint() {
-		return Utils.createSparqlEndpoint(Engine.CLEAN_DATABASE_ENDPOINT);
+		return Engine.CLEAN_DATABASE_ENDPOINT;
 	}
 
 	@Override

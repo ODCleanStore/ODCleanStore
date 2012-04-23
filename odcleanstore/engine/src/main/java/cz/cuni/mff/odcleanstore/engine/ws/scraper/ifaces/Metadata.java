@@ -11,6 +11,6 @@ public class Metadata {
 	public String uuid;
 	public String[] publishedBy;
 	public String[] source;
-	public String[] licence;
+	public String[] license;
 	public String rdfXmlProvenance;
 }

@@ -21,8 +21,8 @@ public final class Engine extends Module {
 
 	public static final String DATA_PREFIX = "http://d/";
 	public static final String METADATA_PREFIX = "http://m/";
-	public static final SparqlEndpoint DIRTY_DATABASE_ENDPOINT = Utils.createSparqlEndpoint("","",""); 
-	public static final SparqlEndpoint CLEAN_DATABASE_ENDPOINT = Utils.createSparqlEndpoint("","","");
+	public static final SparqlEndpoint DIRTY_DATABASE_ENDPOINT = new SparqlEndpoint("","",""); 
+	public static final SparqlEndpoint CLEAN_DATABASE_ENDPOINT = new SparqlEndpoint("","","");
 	public static final String SCRAPER_ENDPOINT_URL = "http://localhost:8088/odcleanstore/scraper";
 	public static final int USER_SERVICE_PORT = 8087;
 	public static final String USER_SERVICE_KEYWORD_PATH = "keyword";
@@ -71,7 +71,7 @@ public final class Engine extends Module {
 		try {
 			setModuleState(ModuleState.INITIALIZING);
 			init();
-			setModuleState(ModuleState.RUNNING);
+			setModuleState(ModuleState.RUNNING); // TODO: JM: nemelo by byt az po startServices()?
 			startServices();
 		} catch (Exception e) {
 			setModuleState(ModuleState.CRASHED);
