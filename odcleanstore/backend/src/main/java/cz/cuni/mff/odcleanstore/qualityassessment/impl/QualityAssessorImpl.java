@@ -25,4 +25,8 @@ public class QualityAssessorImpl implements QualityAssessor {
 		
 		state.assessQuality(inputGraph, context);
 	}
+	
+	@Override
+    public void shutdown() {
+    }
 }

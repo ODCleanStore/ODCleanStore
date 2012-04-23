@@ -61,6 +61,10 @@ public class LinkerImpl implements Linker {
 		// TODO Auto-generated method stub
 		
 	}
+	
+	@Override
+    public void shutdown() {
+    }
 
 	@Override
 	public void linkCleanDatabase(TransformationContext context) {
