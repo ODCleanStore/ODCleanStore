@@ -52,9 +52,21 @@ import java.util.Date;
     protected static final String METADATA_GRAPH = "http://odcs.mff.cuni.cz/metadata/";
 
     protected static final String[] LABEL_PROPERTIES = new String[] { RDFS.label };
+    protected static final String LABEL_PROPERTIES_LIST;
     protected  static final Node SAME_AS_PROPERTY = Node.createURI(OWL.sameAs); // TODO
     protected  static final Node QUALITY_PROPERTY = Node.createURI(ODCS.quality);
     protected  static final Node SOURCE_PROPERTY = Node.createURI(W3P.source);
+
+    static {
+        assert (LABEL_PROPERTIES.length > 0);
+        StringBuilder sb = new StringBuilder();
+        for (String property : LABEL_PROPERTIES) {
+            sb.append('<');
+            sb.append(property);
+            sb.append(">, ");
+        }
+        LABEL_PROPERTIES_LIST = sb.substring(0, sb.length() - 2);
+    }
 
     protected static WrappedResultSet executeQuery(String query) throws ODCleanStoreException {
         try {

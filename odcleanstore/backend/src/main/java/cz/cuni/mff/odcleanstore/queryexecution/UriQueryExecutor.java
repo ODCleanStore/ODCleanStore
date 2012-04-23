@@ -224,19 +224,6 @@ import java.util.Locale;
             + "\n }"
             + "\n LIMIT %3$d";
 
-    private static final String LABEL_PROPERTIES_LIST;
-
-    static {
-        assert (LABEL_PROPERTIES.length > 0);
-        StringBuilder sb = new StringBuilder();
-        for (String property : LABEL_PROPERTIES) {
-            sb.append('<');
-            sb.append(property);
-            sb.append(">, ");
-        }
-        LABEL_PROPERTIES_LIST = sb.substring(0, sb.length() - 2);
-    }
-
     /**
      * Executes the URI search query.
      *
@@ -248,7 +235,7 @@ import java.util.Locale;
     public NamedGraphSet findURI(String uri, QueryConstraintSpec constraints,
             AggregationSpec aggregationSpec) throws ODCleanStoreException, URISyntaxException {
 
-        long startTime = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis(); // TODO: only if LOG.isDebugEnabled()
         // Check that the URI is valid (must not be empty or null, should match '<' ([^<>"{}|^`\]-[#x00-#x20])* '>' )
         try {
             new URI(uri);
@@ -295,6 +282,7 @@ import java.util.Locale;
                         resultSet.getNode(4));
                 quads.add(quad);
             }
+            resultSet.close();
         } catch (SQLException e) {
             throw new QueryException(e);
         }
@@ -321,6 +309,7 @@ import java.util.Locale;
                         resultSet.getNode("label"));
                 quads.add(quad);
             }
+            resultSet.close();
         } catch (SQLException e) {
             throw new QueryException(e);
         }
@@ -361,6 +350,7 @@ import java.util.Locale;
 
                 metadata.addMetadata(graphMetadata);
             }
+            resultSet.close();
         } catch (SQLException e) {
             throw new QueryException(e);
         }
@@ -381,6 +371,7 @@ import java.util.Locale;
             while (resultSet.next()) {
                 sameAsLinks.add(new Triple(resultSet.getNode(1), SAME_AS_PROPERTY, resultSet.getNode(2)));
             }
+            resultSet.close();
         } catch (SQLException e) {
             throw new QueryException(e);
         }
