@@ -34,19 +34,8 @@ public class UriQueryExecutorResource extends QueryExecutorResourceBase {
 
 			if (result == null)
 				return return404();
-
-			WriterRepresentation representation = new WriterRepresentation(MediaType.APPLICATION_RDF_TRIG) {
-
-				@Override
-				public void write(Writer writer) throws IOException {
-					// TODO: baseURI ?
-					result.write(writer, "TRIG", "" /* baseURI */);
-				};
-			};
-
-			representation.setCharacterSet(CharacterSet.UTF_8);
-			return representation;
-
+			
+			return getFormatter().format(result);
 		} catch (Exception e) {
 			return return404();
 		}

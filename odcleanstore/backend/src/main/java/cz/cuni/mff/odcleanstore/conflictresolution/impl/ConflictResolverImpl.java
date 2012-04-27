@@ -310,7 +310,7 @@ public class ConflictResolverImpl implements ConflictResolver {
         if (metadata != null) {
             return metadata;
         } else {
-            return NamedGraphMetadataReader.readFromRDF(data);
+            return NamedGraphMetadataReader.readFromRDF(data.iterator());
         }
     }
 

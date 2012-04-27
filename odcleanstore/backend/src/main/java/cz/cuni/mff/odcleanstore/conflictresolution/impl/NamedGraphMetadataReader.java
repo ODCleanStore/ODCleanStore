@@ -15,8 +15,8 @@ import org.slf4j.LoggerFactory;
 
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -24,9 +24,11 @@ import java.util.TreeMap;
  * Class providing static method for loading ODCleanStore named graph metadata
  * directly from the format they are stored in the RDF database.
  *
+ * TODO: typed literals
+ *
  * @author Jan Michelfeit
  */
-/*package*/final class NamedGraphMetadataReader {
+public final class NamedGraphMetadataReader {
     private static final Logger LOG = LoggerFactory.getLogger(NamedGraphMetadataReader.class);
 
     /** Disable constructor for a utility class. */
@@ -36,21 +38,20 @@ import java.util.TreeMap;
     /**
      * Reads named graph metadata from RDF passed as a collection of {@link Quad Quads}.
      *
-     * @param data a collection of quads describing named graph metadata
+     * @param data quads describing named graph metadata
      * @return map of metadata for named graphs described in data
      * @throws ODCleanStoreException thrown when named graph metadata contained in the input data
      *         are not correctly formated
      */
-    public static NamedGraphMetadataMap readFromRDF(Collection<Quad> data)
+    public static NamedGraphMetadataMap readFromRDF(Iterator<Quad> data)
             throws ODCleanStoreException {
         NamedGraphMetadataMap result = new NamedGraphMetadataMap();
         Map<String, Double> publisherScores = new TreeMap<String, Double>();
 
-        for (Quad quad : data) {
+        while (data.hasNext()) {
+            Quad quad = data.next();
             String predicateURI = quad.getPredicate().getURI();
-            if (!predicateURI.startsWith(ODCS.getURI())) {
-                continue;
-            } else if (!quad.getSubject().isURI()) {
+            if (!quad.getSubject().isURI()) {
                 // All recognized ODCS properties relate to an URI
                 continue;
             }
@@ -62,6 +63,7 @@ import java.util.TreeMap;
                 metadata.setPublisher(publisher);
             } else if (predicateURI.equals(W3P.insertedAt)) {
                 NamedGraphMetadata metadata = getMetadataObject(subject, result);
+
                 String storedValue = quad.getObject().getLiteralLexicalForm();
                 try {
                     Date stored = DateFormat.getDateInstance().parse(storedValue);
@@ -69,7 +71,7 @@ import java.util.TreeMap;
                 } catch (ParseException e) {
                     LOG.warn("Named graph stored date must be a valid date string, {} given",
                             storedValue);
-                    throw new ODCleanStoreException(e);
+                    //throw new ODCleanStoreException(e); // TODO
                 }
             } else if (predicateURI.equals(W3P.source)) {
                 NamedGraphMetadata metadata = getMetadataObject(subject, result);

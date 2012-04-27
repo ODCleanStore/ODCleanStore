@@ -21,6 +21,9 @@ import java.net.URISyntaxException;
  * @author Jan Michelfeit
  */
 public class QueryExecution {
+    /** TODO */
+    public static final String METADATA_GRAPH = "http://odcs.mff.cuni.cz/metadata/";
+
     /** Instance of {@link UriQueryExecutor}. */
     private UriQueryExecutor uriQueryExecutor;
 

@@ -14,6 +14,11 @@ import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 import org.restlet.resource.ServerResource;
 
+import cz.cuni.mff.odcleanstore.engine.ws.user.output.DebugFormatter;
+import cz.cuni.mff.odcleanstore.engine.ws.user.output.HTMLFormatter;
+import cz.cuni.mff.odcleanstore.engine.ws.user.output.QueryResultFormatter;
+import cz.cuni.mff.odcleanstore.engine.ws.user.output.TriGFormatter;
+
 /**
  * @author jermanp
  * 
@@ -33,6 +38,16 @@ public abstract class QueryExecutorResourceBase extends ServerResource {
 	}
 
 	protected abstract Representation execute(Form form);
+	
+	/**
+	 * Returns an appropriate formatter of the result.
+	 * @return formatter of query result
+	 * TODO: choose a formatter according to user preferences (URL query variable, Accept request header)
+	 */
+	protected QueryResultFormatter getFormatter() {
+		//return new TriGFormatter(); 
+		return new DebugFormatter();
+	}
 
 	protected Representation return404() {
 		setStatus(Status.CLIENT_ERROR_NOT_FOUND);
