@@ -26,11 +26,9 @@ import org.slf4j.LoggerFactory;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.Locale;
 
 /**
@@ -43,98 +41,138 @@ import java.util.Locale;
 /*package*/class UriQueryExecutor extends QueryExecutorBase {
     private static final Logger LOG = LoggerFactory.getLogger(UriQueryExecutor.class);
 
-    // TODO: count(*) AS ?cardinality
     // TODO: use time
-    // TODO UNION je nutny kvuly sameAs ve Virtuosu
+    // UNION je nutny kvuli spravnemu fungovani owl:sameAs inference pro hledane URI ve Virtuosu
+    // poddotaz je nutny kvuli prekladu subjectu/objectu na jejich jediny owl:sameAs ekvivalent
+    // pri pouziti poddotazu tento preklad provede Virtuoso samo - diky tomu neni nutne ziskavat linky z databaze
+    // explicitne a predavat je do ConflictResolverSpec
     private static final String URI_OCCURENCES_QUERY = "SPARQL"
             + "\n DEFINE input:same-as \"yes\""
-            + "\n SELECT DISTINCT ?graph ?s ?p ?o"
+            + "\n SELECT ?graph ?s ?p ?o"
             + "\n WHERE {"
             + "\n   {"
-            + "\n     GRAPH ?graph {"
-            + "\n       ?s ?p ?o."
-            + "\n       FILTER (?s = <%1$s>)"
-            //+ "\n       FILTER (?p != <" + OWL.sameAs + ">)" // TODO: ?
+            + "\n     SELECT DISTINCT ?graph ?s ?p ?o"
+            + "\n     WHERE {"
+            + "\n       {"
+            + "\n         GRAPH ?graph {"
+            + "\n           ?s ?p ?o."
+            + "\n           FILTER (?s = <%1$s>)"
+            //+ "\n           FILTER (?p != <" + OWL.sameAs + ">)" // TODO: asi opravdu vyfiltrovat?
+            + "\n         }"
+            + "\n         OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }"
+            + "\n         OPTIONAL { ?graph <" + ODCS.score + ">  ?meta_score }" // TODO: non-optional if given?
+            + "\n         FILTER(!bound(?score) || ?score > %2$f) ."
+            + "\n         FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
+            + "\n       }"
+            + "\n       UNION"
+            + "\n       {"
+            + "\n         GRAPH ?graph {"
+            + "\n           ?s ?p ?o."
+            + "\n           FILTER (?o = <%1$s>)"
+            //+ "\n           FILTER (?p != <" + OWL.sameAs + ">)"
+            + "\n         }"
+            + "\n         OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }"
+            + "\n         OPTIONAL { ?graph <" + ODCS.score + ">  ?score }"
+            + "\n         FILTER(!bound(?score) || ?score > %2$f) ."
+            + "\n         FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
+            + "\n       }"
             + "\n     }"
-            + "\n     OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }"
-            + "\n     OPTIONAL { ?graph <" + ODCS.score + ">  ?meta_score }" // TODO: non-optional if given?
-            + "\n     FILTER(!bound(?score) || ?score > %2$f) ."
-            + "\n     FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
-            + "\n   }"
-            + "\n   UNION"
-            + "\n   {"
-            + "\n     GRAPH ?graph {"
-            + "\n       ?s ?p ?o."
-            + "\n       FILTER (?o = <%1$s>)"
-            //+ "\n       FILTER (?p != <" + OWL.sameAs + ">)"
-            + "\n     }"
-            + "\n     OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }"
-            + "\n     OPTIONAL { ?graph <" + ODCS.score + ">  ?score }"
-            + "\n     FILTER(!bound(?score) || ?score > %2$f) ."
-            + "\n     FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
             + "\n   }"
             + "\n }"
             + "\n LIMIT %3$d";
 
     // TODO: limit by time & score
     // TODO: omit metadata for additional labels?
+    // TODO: pridat do dotazu vnitrni limity?
+    // metadata i pro labels
+    // source se povazuje za povinny
     private static final String METADATA_QUERY = "SPARQL"
             + "\n DEFINE input:same-as \"yes\""
-            + "\n SELECT ?graph ?source ?score ?insertedAt ?publishedBy ?publisherScore"
+            + "\n SELECT DISTINCT ?graph ?source ?score ?insertedAt ?publishedBy ?publisherScore"
             + "\n WHERE {"
             + "\n   {"
-            + "\n     SELECT DISTINCT ?graph"
-            + "\n     WHERE {"
-            + "\n       {"
-            + "\n         GRAPH ?graph {"
-            + "\n            ?s ?p ?o."
-            + "\n            FILTER (?s = <%1$s>)"
-            + "\n            FILTER (?p != <" + OWL.sameAs + ">)"
+            + "\n     {"
+            + "\n       SELECT DISTINCT ?graph" // TODO: remove DISTINCT??
+            + "\n       WHERE {"
+            + "\n         {"
+            + "\n           GRAPH ?graph {"
+            + "\n              ?s ?p ?o."
+            + "\n              FILTER (?s = <%1$s>)"
+            + "\n              FILTER (?p != <" + OWL.sameAs + ">)"
+            + "\n           }"
+            + "\n         }"
+            + "\n         UNION"
+            + "\n         {"
+            + "\n           GRAPH ?graph {"
+            + "\n              ?s ?p ?o."
+            + "\n              FILTER (?o = <%1$s>)"
+            + "\n              FILTER (?p != <" + OWL.sameAs + ">)"
+            + "\n           }"
             + "\n         }"
             + "\n       }"
-            + "\n       UNION"
-            + "\n       {"
-            + "\n         GRAPH ?graph {"
-            + "\n            ?s ?p ?o."
-            + "\n            FILTER (?o = <%1$s>)"
-            + "\n            FILTER (?p != <" + OWL.sameAs + ">)"
+            + "\n     }"
+            + "\n     UNION"
+            + "\n     {"
+            + "\n       SELECT DISTINCT ?graph"
+            + "\n       WHERE {"
+            + "\n         {"
+            + "\n           SELECT DISTINCT ?g"
+            + "\n           WHERE {"
+            + "\n             {"
+            + "\n               GRAPH ?g {" // TODO: remove with regex
+            + "\n                 ?s ?p ?r."
+            + "\n                 FILTER (?s = <%1$s>)"
+            //+ "\n                 FILTER (?p != <" + OWL.sameAs + ">)" // TODO: ?
+            + "\n               }"
+            + "\n               OPTIONAL { ?g <" + W3P.insertedAt + "> ?insertedAt }"
+            + "\n               OPTIONAL { ?g <" + ODCS.score + ">  ?meta_score }" // TODO: non-optional if given?
+            + "\n               FILTER(!bound(?score) || ?score > %2$f) ."
+            + "\n               FILTER regex(?g, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
+            + "\n               FILTER (!isLITERAL(?r))"
+            + "\n             }"
+            + "\n             UNION"
+            + "\n             {"
+            + "\n               GRAPH ?g {"
+            + "\n                 ?s ?r ?o."
+            + "\n                 FILTER (?s = <%1$s>)"
+            //+ "\n                 FILTER (?p != <" + OWL.sameAs + ">)" // TODO: ?
+            + "\n               }"
+            + "\n               OPTIONAL { ?g <" + W3P.insertedAt + "> ?insertedAt }"
+            + "\n               OPTIONAL { ?g <" + ODCS.score + ">  ?meta_score }" // TODO: non-optional if given?
+            + "\n               FILTER(!bound(?score) || ?score > %2$f) ."
+            + "\n               FILTER regex(?g, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
+            + "\n             }"
+            + "\n             UNION"
+            + "\n             {"
+            + "\n               GRAPH ?g {"
+            + "\n                 ?r ?p ?o."
+            + "\n                 FILTER (?o = <%1$s>)"
+            //+ "\n                 FILTER (?p != <" + OWL.sameAs + ">)"
+            + "\n               }"
+            + "\n               OPTIONAL { ?g <" + W3P.insertedAt + "> ?insertedAt }"
+            + "\n               OPTIONAL { ?g <" + ODCS.score + ">  ?score }"
+            + "\n               FILTER(!bound(?score) || ?score > %2$f) ."
+            + "\n               FILTER regex(?g, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
+            + "\n             }"
+            + "\n             UNION"
+            + "\n             {"
+            + "\n               GRAPH ?g {"
+            + "\n                 ?s ?r ?o."
+            + "\n                 FILTER (?o = <%1$s>)"
+            //+ "\n                 FILTER (?p != <" + OWL.sameAs + ">)"
+            + "\n               }"
+            + "\n               OPTIONAL { ?g <" + W3P.insertedAt + "> ?insertedAt }"
+            + "\n               OPTIONAL { ?g <" + ODCS.score + ">  ?score }"
+            + "\n               FILTER(!bound(?score) || ?score > %2$f) ."
+            + "\n               FILTER regex(?g, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
+            + "\n             }"
+            + "\n           }"
             + "\n         }"
-            + "\n       }"
-            + "\n       UNION"
-            + "\n       {"
-            + "\n         ?s ?p ?o"
-            + "\n         FILTER (?s = <%1$s>)"
             + "\n         GRAPH ?graph {"
-            + "\n            ?o ?labelProp ?label"
-            + "\n            FILTER (?labelProp IN (%4$s))"
+            + "\n           ?r ?labelProp ?label"
             + "\n         }"
-            + "\n       }"
-            + "\n       UNION"
-            + "\n       {"
-            + "\n         ?s ?p ?o"
-            + "\n         FILTER (?s = <%1$s>)"
-            + "\n         GRAPH ?graph {"
-            + "\n            ?p ?labelProp ?label"
-            + "\n            FILTER (?labelProp IN (%4$s))"
-            + "\n         }"
-            + "\n       }"
-            + "\n       UNION"
-            + "\n       {"
-            + "\n         ?s ?p ?o"
-            + "\n         FILTER (?o = <%1$s>)"
-            + "\n         GRAPH ?graph {"
-            + "\n            ?s ?labelProp ?label"
-            + "\n            FILTER (?labelProp IN (%4$s))"
-            + "\n         }"
-            + "\n       }"
-            + "\n       UNION"
-            + "\n       {"
-            + "\n         ?s ?p ?o"
-            + "\n         FILTER (?o = <%1$s>)"
-            + "\n         GRAPH ?graph {"
-            + "\n            ?p ?labelProp ?label"
-            + "\n            FILTER (?labelProp IN (%4$s))"
-            + "\n         }"
+            + "\n         FILTER (?labelProp IN (%4$s))"
+            + "\n         FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")"
             + "\n       }"
             + "\n     }"
             + "\n   }"
@@ -145,86 +183,137 @@ import java.util.Locale;
             + "\n   OPTIONAL { ?graph <" + W3P.publishedBy + "> ?publishedBy. "
             + "\n     ?publishedBy <" + ODCS.publisherScore + "> ?publisherScore }"
             + "\n   FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
+            + "\n   FILTER (bound(?source))"
             + "\n }"
             + "\n LIMIT %3$d";
 
-    private static final String SAME_AS_QUERY = "SPARQL"
+    private static final String LABELS_QUERY = "SPARQL"
             + "\n DEFINE input:same-as \"yes\""
-            + "\n SELECT ?r1 ?r2"
+            + "\n SELECT ?labelGraph ?r ?labelProp ?label WHERE {{"
+            + "\n SELECT DISTINCT ?labelGraph ?r ?labelProp ?label"
             + "\n WHERE {"
             + "\n   {"
-            + "\n     <%1$s> ?p1 ?r1"
-            + "\n     FILTER (isURI(?r1))"
-            + "\n     FILTER (?p1 != <" + OWL.sameAs + ">)"
-            + "\n     <%1$s> ?p2 ?r2"
-            + "\n     FILTER (isURI(?r2))"
-            + "\n     FILTER (?p2 != <" + OWL.sameAs + ">)"
-            + "\n     ?r1 <" + OWL.sameAs + "> ?r2"
-            + "\n     FILTER (?r1 < ?r2)"
-            + "\n     FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
+            + "\n     SELECT DISTINCT ?graph ?r"
+            + "\n     WHERE {"
+            + "\n       {"
+            + "\n         GRAPH ?graph {" // TODO: remove with regex
+            + "\n           ?s ?p ?r."
+            + "\n           FILTER (?s = <%1$s>)"
+            //+ "\n           FILTER (?p != <" + OWL.sameAs + ">)" // TODO: ?
+            + "\n         }"
+            + "\n         OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }"
+            + "\n         OPTIONAL { ?graph <" + ODCS.score + ">  ?meta_score }" // TODO: non-optional if given?
+            + "\n         FILTER(!bound(?score) || ?score > %2$f) ."
+            + "\n         FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
+            + "\n         FILTER (!isLITERAL(?r))"
+            + "\n       }"
+            + "\n       UNION"
+            + "\n       {"
+            + "\n         GRAPH ?graph {"
+            + "\n           ?s ?r ?o."
+            + "\n           FILTER (?s = <%1$s>)"
+            //+ "\n           FILTER (?p != <" + OWL.sameAs + ">)" // TODO: ?
+            + "\n         }"
+            + "\n         OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }"
+            + "\n         OPTIONAL { ?graph <" + ODCS.score + ">  ?meta_score }" // TODO: non-optional if given?
+            + "\n         FILTER(!bound(?score) || ?score > %2$f) ."
+            + "\n         FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
+            + "\n       }"
+            + "\n       UNION"
+            + "\n       {"
+            + "\n         GRAPH ?graph {"
+            + "\n           ?r ?p ?o."
+            + "\n           FILTER (?o = <%1$s>)"
+            //+ "\n           FILTER (?p != <" + OWL.sameAs + ">)"
+            + "\n         }"
+            + "\n         OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }"
+            + "\n         OPTIONAL { ?graph <" + ODCS.score + ">  ?score }"
+            + "\n         FILTER(!bound(?score) || ?score > %2$f) ."
+            + "\n         FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
+            + "\n       }"
+            + "\n       UNION"
+            + "\n       {"
+            + "\n         GRAPH ?graph {"
+            + "\n           ?s ?r ?o."
+            + "\n           FILTER (?o = <%1$s>)"
+            //+ "\n           FILTER (?p != <" + OWL.sameAs + ">)"
+            + "\n         }"
+            + "\n         OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }"
+            + "\n         OPTIONAL { ?graph <" + ODCS.score + ">  ?score }"
+            + "\n         FILTER(!bound(?score) || ?score > %2$f) ."
+            + "\n         FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
+            + "\n       }"
+            + "\n     }"
             + "\n   }"
-            + "\n   UNION"
-            + "\n   {"
-            + "\n     ?r1 ?p1 <%1$s>"
-            + "\n     FILTER (isURI(?r1))"
-            + "\n     FILTER (?p1 != <" + OWL.sameAs + ">)"
-            + "\n     ?r2 ?p2 <%1$s>"
-            + "\n     FILTER (isURI(?r2))"
-            + "\n     FILTER (?p2 != <" + OWL.sameAs + ">)"
-            + "\n     ?r1 <" + OWL.sameAs + "> ?r2"
-            + "\n     FILTER (?r1 < ?r2)"
-            + "\n     FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
+            + "\n   GRAPH ?labelGraph {"
+            + "\n     ?r ?labelProp ?label"
             + "\n   }"
+            + "\n   FILTER (?labelProp IN (%4$s))"
+            + "\n   FILTER regex(?labelGraph, \"^" + NG_PREFIX_FILTER + "\")"
             + "\n }"
-            + "\n GROUP BY ?r1 ?r2"
+            + "\n }}"
             + "\n LIMIT %3$d";
 
     // TODO: limit by time and quality too?
-    private static final String LABELS_QUERY = "SPARQL"
+    // dela to same co LABELS_QUERY, ale je approx. 30 times slower
+    private static final String LABELS_QUERY2 = "SPARQL"
             + "\n DEFINE input:same-as \"yes\""
-            + "\n SELECT DISTINCT ?graph ?r ?labelProp ?label"
+            + "\n SELECT DISTINCT ?labelGraph ?r ?labelProp ?label"
             + "\n WHERE {"
             + "\n   {"
             + "\n     ?s ?p ?r"
             + "\n     FILTER (?s = <%1$s>)"
-            + "\n     GRAPH ?graph {"
+            + "\n     GRAPH ?labelGraph {"
             + "\n       ?r ?labelProp ?label"
             + "\n       FILTER (?labelProp IN (%4$s))"
             + "\n     }"
-            + "\n     FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
+            + "\n     OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }"
+            + "\n     OPTIONAL { ?graph <" + ODCS.score + ">  ?score }"
+            + "\n     FILTER(!bound(?score) || ?score > %2$f) ."
+            + "\n     FILTER regex(?labelGraph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
             + "\n   }"
             + "\n   UNION"
             + "\n   {"
             + "\n     ?s ?r ?o"
             + "\n     FILTER (?s = <%1$s>)"
-            + "\n     GRAPH ?graph {"
+            + "\n     GRAPH ?labelGraph {"
             + "\n       ?r ?labelProp ?label"
             + "\n       FILTER (?labelProp IN (%4$s))"
             + "\n     }"
-            + "\n     FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
+            + "\n     OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }"
+            + "\n     OPTIONAL { ?graph <" + ODCS.score + ">  ?score }"
+            + "\n     FILTER(!bound(?score) || ?score > %2$f) ."
+            + "\n     FILTER regex(?labelGraph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
             + "\n   }"
             + "\n   UNION"
             + "\n   {"
             + "\n     ?r ?p ?o"
             + "\n     FILTER (?o = <%1$s>)"
-            + "\n     GRAPH ?graph {"
+            + "\n     GRAPH ?labelGraph {"
             + "\n       ?r ?labelProp ?label"
             + "\n       FILTER (?labelProp IN (%4$s))"
             + "\n     }"
-            + "\n     FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
+            + "\n     OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }"
+            + "\n     OPTIONAL { ?graph <" + ODCS.score + ">  ?score }"
+            + "\n     FILTER(!bound(?score) || ?score > %2$f) ."
+            + "\n     FILTER regex(?labelGraph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
             + "\n   }"
             + "\n   UNION"
             + "\n   {"
             + "\n     ?s ?r ?o"
             + "\n     FILTER (?o = <%1$s>)"
-            + "\n     GRAPH ?graph {"
+            + "\n     GRAPH ?labelGraph {"
             + "\n       ?r ?labelProp ?label"
             + "\n       FILTER (?labelProp IN (%4$s))"
             + "\n     }"
-            + "\n     FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
+            + "\n     OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }"
+            + "\n     OPTIONAL { ?graph <" + ODCS.score + ">  ?score }"
+            + "\n     FILTER(!bound(?score) || ?score > %2$f) ."
+            + "\n     FILTER regex(?labelGraph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
             + "\n   }"
             + "\n }"
             + "\n LIMIT %3$d";
+
 
     /**
      * Creates a new instance of UriQueryExecutor.
@@ -260,7 +349,8 @@ import java.util.Locale;
         // Gather all settings for Conflict Resolution
         ConflictResolverSpec crSpec = new ConflictResolverSpec(RESULT_GRAPH_PREFIX, aggregationSpec);
         crSpec.setPreferredURIs(Collections.singleton(uri));
-        // crSpec.setSameAsLinks(getSameAsLinks(uri, constraints)); // TODO
+        // ... no need for sameAs links - see URI_OCCURENCES_QUERY
+        crSpec.setSameAsLinks(Collections.<Triple>emptySet().iterator());
         NamedGraphMetadataMap metadata = getMetadata(uri, constraints);
         crSpec.setNamedGraphMetadata(metadata);
 
@@ -280,6 +370,7 @@ import java.util.Locale;
         // Prepare the query
         String query = String.format(Locale.ROOT, URI_OCCURENCES_QUERY, uri, constraints.getMinScore(), DEFAULT_LIMIT);
         WrappedResultSet resultSet = executeQuery(query);
+        LOG.debug("Query Execution: getURIOccurences() query took {} ms", System.currentTimeMillis() - startTime);
 
         QuadCollection quads = new QuadCollection();
         try {
@@ -307,12 +398,13 @@ import java.util.Locale;
         String query = String.format(Locale.ROOT, LABELS_QUERY, uri, constraints.getMinScore(), DEFAULT_LIMIT,
                 LABEL_PROPERTIES_LIST);
         WrappedResultSet resultSet = executeQuery(query);
+        LOG.debug("Query Execution: getLabels() query took {} ms", System.currentTimeMillis() - startTime);
 
         QuadCollection quads = new QuadCollection();
         try {
             while (resultSet.next()) {
                 Quad quad = new Quad(
-                        resultSet.getNode("graph"),
+                        resultSet.getNode("labelGraph"),
                         resultSet.getNode("r"), // TODO: number indeces?
                         resultSet.getNode("labelProp"),
                         resultSet.getNode("label"));
@@ -327,6 +419,7 @@ import java.util.Locale;
         return quads;
     }
 
+
     private NamedGraphMetadataMap getMetadata(String uri, QueryConstraintSpec constraints)
             throws ODCleanStoreException {
 
@@ -335,6 +428,7 @@ import java.util.Locale;
         String query = String.format(Locale.ROOT, METADATA_QUERY, uri, constraints.getMinScore(), DEFAULT_LIMIT,
                 LABEL_PROPERTIES_LIST);
         WrappedResultSet resultSet = executeQuery(query);
+        LOG.debug("Query Execution: getMetadata() query took {} ms", System.currentTimeMillis() - startTime);
 
         // Build the result
         NamedGraphMetadataMap metadata = new NamedGraphMetadataMap();
@@ -366,26 +460,5 @@ import java.util.Locale;
 
         LOG.debug("Query Execution: getMetadata() in {} ms", System.currentTimeMillis() - startTime);
         return metadata;
-    }
-
-    private Iterator<Triple> getSameAsLinks(String uri, QueryConstraintSpec constraints) throws ODCleanStoreException {
-        long startTime = System.currentTimeMillis();
-        // Execute the query
-        String query = String.format(Locale.ROOT, SAME_AS_QUERY, uri, constraints.getMinScore(), DEFAULT_LIMIT);
-        final WrappedResultSet resultSet = executeQuery(query);
-
-        // Build the result
-        ArrayList<Triple> sameAsLinks = new ArrayList<Triple>();
-        try {
-            while (resultSet.next()) {
-                sameAsLinks.add(new Triple(resultSet.getNode(1), SAME_AS_PROPERTY, resultSet.getNode(2)));
-            }
-            resultSet.close();
-        } catch (SQLException e) {
-            throw new QueryException(e);
-        }
-
-        LOG.debug("Query Execution: getSameAsLinks() in %f ms", System.currentTimeMillis() - startTime);
-        return sameAsLinks.iterator();
     }
 }
