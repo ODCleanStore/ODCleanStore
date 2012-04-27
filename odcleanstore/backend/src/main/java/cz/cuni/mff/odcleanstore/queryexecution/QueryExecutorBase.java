@@ -4,6 +4,8 @@ import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
+import cz.cuni.mff.odcleanstore.queryexecution.exceptions.ConnectionException;
+import cz.cuni.mff.odcleanstore.queryexecution.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
@@ -47,13 +49,12 @@ import java.util.Date;
     protected static final String NG_PREFIX_FILTER = "http://odcs.mff.cuni.cz/namedGraph/qe-test/";
     protected static final long DEFAULT_LIMIT = 200;
     protected static final String RESULT_GRAPH_PREFIX = "http://odcs.mff.cuni.cz/results/";
-    protected static final String METADATA_GRAPH = "http://odcs.mff.cuni.cz/metadata/";
 
     protected static final String[] LABEL_PROPERTIES = new String[] { RDFS.label };
     protected static final String LABEL_PROPERTIES_LIST;
-    protected  static final Node SAME_AS_PROPERTY = Node.createURI(OWL.sameAs); // TODO
-    protected  static final Node QUALITY_PROPERTY = Node.createURI(ODCS.quality);
-    protected  static final Node SOURCE_PROPERTY = Node.createURI(W3P.source);
+    protected static final Node SAME_AS_PROPERTY = Node.createURI(OWL.sameAs); // TODO
+    protected static final Node QUALITY_PROPERTY = Node.createURI(ODCS.quality);
+    protected static final Node SOURCE_PROPERTY = Node.createURI(W3P.source);
 
     static {
         assert (LABEL_PROPERTIES.length > 0);
@@ -69,6 +70,8 @@ import java.util.Date;
     /** Connection settings for the SPARQL endpoint that will be queried. */
     protected final SparqlEndpoint sparqlEndpoint;
 
+    private Connection connection;
+
     /**
      * Creates a new instance of QueryExecutorBase.
      * @param sparqlEndpoint connection settings for the SPARQL endpoint that will be queried
@@ -77,20 +80,33 @@ import java.util.Date;
         this.sparqlEndpoint = sparqlEndpoint;
     }
 
-    protected WrappedResultSet executeQuery(String query) throws ODCleanStoreException {
+    private Connection getConnection() throws ODCleanStoreException {
+        if (connection == null) {
+            connection = createConnection();
+        }
+        return connection;
+    }
+
+    private Connection createConnection() throws ODCleanStoreException {
         try {
-            Class.forName("virtuoso.jdbc3.Driver"); // TODO: move
+            Class.forName("virtuoso.jdbc3.Driver");
         } catch (ClassNotFoundException e) {
-            throw new ODCleanStoreException("Couldn't load Virtuoso jdbc driver", e);
+            throw new ConnectionException("Couldn't load Virtuoso jdbc driver", e);
         }
         try {
-            Connection connection = DriverManager.getConnection(
+            return DriverManager.getConnection(
                     sparqlEndpoint.getUri(),
                     sparqlEndpoint.getUsername(),
-                    sparqlEndpoint.getPassword()); // TODO: keep
-            Statement statement = connection.createStatement();
-            statement.execute(query);
+                    sparqlEndpoint.getPassword());
+        } catch (SQLException e) {
+            throw new ConnectionException(e);
+        }
+    }
 
+    protected WrappedResultSet executeQuery(String query) throws ODCleanStoreException {
+        try {
+            Statement statement = getConnection().createStatement();
+            statement.execute(query);
             return new WrappedResultSet(statement);
         } catch (SQLException e) {
             throw new QueryException(e);
@@ -98,7 +114,7 @@ import java.util.Date;
     }
 
     protected NamedGraph createMetadataGraph() {
-        return new NamedGraphImpl(METADATA_GRAPH, Factory.createGraphMem(ReificationStyle.Standard));
+        return new NamedGraphImpl(QueryExecution.METADATA_GRAPH, Factory.createGraphMem(ReificationStyle.Standard));
     }
 
     protected NamedGraphSet convertToNGSet(Collection<CRQuad> crQuads, NamedGraphMetadataMap metadata) {
