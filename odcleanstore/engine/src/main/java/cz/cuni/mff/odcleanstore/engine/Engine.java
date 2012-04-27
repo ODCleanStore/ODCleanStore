@@ -20,8 +20,12 @@ public final class Engine extends Module {
 
 	public static final String DATA_PREFIX = "http://d/";
 	public static final String METADATA_PREFIX = "http://m/";
-	public static final SparqlEndpoint DIRTY_DATABASE_ENDPOINT = new SparqlEndpoint("","",""); 
-	public static final SparqlEndpoint CLEAN_DATABASE_ENDPOINT = new SparqlEndpoint("","","");
+	private static final String SPARQL_CONNECTION_STRING = "jdbc:virtuoso://localhost:1111";
+	private static final String SPARQL_USER = "dba";
+	private static final String SPARQL_PASSWORD = "dba";
+	public static final SparqlEndpoint DIRTY_DATABASE_ENDPOINT = new SparqlEndpoint("", "", "");
+	public static final SparqlEndpoint CLEAN_DATABASE_ENDPOINT = 
+			new SparqlEndpoint(SPARQL_CONNECTION_STRING, SPARQL_USER, SPARQL_PASSWORD);
 	public static final String SCRAPER_ENDPOINT_URL = "http://localhost:8088/odcleanstore/scraper";
 	public static final int USER_SERVICE_PORT = 8087;
 	public static final String USER_SERVICE_KEYWORD_PATH = "keyword";
