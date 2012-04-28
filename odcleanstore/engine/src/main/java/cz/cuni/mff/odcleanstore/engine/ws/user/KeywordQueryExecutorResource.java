@@ -3,17 +3,17 @@
  */
 package cz.cuni.mff.odcleanstore.engine.ws.user;
 
+import java.io.IOException;
+import java.io.Writer;
+
 import org.restlet.data.CharacterSet;
 import org.restlet.data.Form;
-import org.restlet.data.Language;
 import org.restlet.data.MediaType;
 import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.Get;
-import org.restlet.resource.Post;
-import org.restlet.resource.ServerResource;
+import org.restlet.representation.WriterRepresentation;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
+import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryConstraintSpec;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecution;
 import de.fuberlin.wiwiss.ng4j.NamedGraphSet;
@@ -22,34 +22,24 @@ import de.fuberlin.wiwiss.ng4j.NamedGraphSet;
  * @author jermanp
  * 
  */
-public class KeywordQueryExecutorResource extends ServerResource {
+public class KeywordQueryExecutorResource extends QueryExecutorResourceBase {
 
-	@Get
-	public StringRepresentation executeGet() {
-		Form form = this.getQuery();
-		return execute(form);
-	}
-
-	@Post
-	public StringRepresentation executePost(Representation entity) {
-		Form form = new Form(entity);
-		return execute(form);
-	}
-
-	private StringRepresentation execute(Form form) {
+	@Override
+	protected Representation execute(Form form) {
 		try {
-			String keyword = form.getFirst("keyword").getValue();
-			
-			NamedGraphSet result = QueryExecution.findKeyword(keyword, new QueryConstraintSpec(), new AggregationSpec());
-			
-			//result.write(myOutputStream, "TRIG", baseURI)
-			
-			// TODO: replace by result.write():
-			StringBuilder sb = new StringBuilder();
 
-			return new StringRepresentation(sb.toString(), MediaType.APPLICATION_RDF_TRIG, Language.ALL, CharacterSet.UTF_8);
+			String keyword = form.getFirst("find").getValue();
+
+			QueryExecution queryExecution = new QueryExecution(Engine.CLEAN_DATABASE_ENDPOINT);
+			final NamedGraphSet result = queryExecution.findKeyword(keyword, new QueryConstraintSpec(),
+					new AggregationSpec());
+
+			if (result == null)
+				return return404();
+
+			return getFormatter().format(result);
 		} catch (Exception e) {
-			return new StringRepresentation("NENY TEDKA", MediaType.TEXT_PLAIN, Language.ALL, CharacterSet.UTF_8);
+			return return404();
 		}
 	}
 }

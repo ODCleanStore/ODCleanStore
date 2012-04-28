@@ -3,7 +3,6 @@ package cz.cuni.mff.odcleanstore.transformer;
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
 
 import java.io.File;
-import java.io.InputStream;
 
 /**
  * Context for a custom transformer.
@@ -28,10 +27,9 @@ public interface TransformationContext {
 
     /**
      * Configuration file for the Transformer (obtained from ODCS database).
-     * TODO: return String instead of InputStream?
      * @return configuration as an InputStream
      */
-    InputStream getTransformerConfiguration();
+    String getTransformerConfiguration();
 
     /**
      * Returns reference to a directory reserved for the Transformer's needs.

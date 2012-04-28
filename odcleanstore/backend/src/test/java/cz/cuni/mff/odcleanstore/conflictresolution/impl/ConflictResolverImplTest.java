@@ -198,8 +198,8 @@ public class ConflictResolverImplTest {
         // Test results
         Collection<CRQuad> aggregationResult =
                 instance.resolveConflicts(new QuadCollection(conflictingQuads));
-        // Nothing filtered out
-        final long expectedQuadCount = 3;
+        // Nothing filtered out because of versions, but CR removes duplicates
+        final long expectedQuadCount = 2;
         Assert.assertEquals(expectedQuadCount, aggregationResult.size());
         double newVersionQuality = Double.NaN;
         double sameNamedGraphQuadQuality = Double.NaN;
@@ -216,8 +216,5 @@ public class ConflictResolverImplTest {
             }
         }
         Assert.assertEquals(newVersionQuality, sameNamedGraphQuadQuality, EPSILON);
-        // newVersionQuad and sameNamedGraphQuad agree on the same value thus
-        // they should have higher quality
-        Assert.assertTrue(otherQuadQuality < newVersionQuality);
     }
 }

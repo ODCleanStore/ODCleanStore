@@ -7,7 +7,7 @@ package cz.cuni.mff.odcleanstore.shared;
  */
 public class ODCleanStoreException extends Exception {
     /**
-     * Constructs a new exception with the specified cause.
+     * Constructs a new exception with the given cause.
      * @param cause the cause
      */
     public ODCleanStoreException(Throwable cause) {
@@ -15,7 +15,7 @@ public class ODCleanStoreException extends Exception {
     }
 
     /**
-     * Constructs a new exception with the specified message and cause.
+     * Constructs a new exception with the given message and cause.
      * @param message the detail message
      * @param cause the cause
      */
@@ -24,7 +24,7 @@ public class ODCleanStoreException extends Exception {
     }
 
     /**
-     * Constructs a new exception with the specified message.
+     * Constructs a new exception with the given message.
      * @param message the detail message
      */
     public ODCleanStoreException(String message) {

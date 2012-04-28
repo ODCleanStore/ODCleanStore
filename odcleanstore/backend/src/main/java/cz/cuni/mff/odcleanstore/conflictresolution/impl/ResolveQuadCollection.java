@@ -1,14 +1,14 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
-import cz.cuni.mff.odcleanstore.shared.NodeComparator;
+import cz.cuni.mff.odcleanstore.shared.QuadComparator;
 
 import com.hp.hpl.jena.graph.Node;
 
 import de.fuberlin.wiwiss.ng4j.Quad;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.ListIterator;
@@ -23,8 +23,7 @@ import java.util.ListIterator;
     /**
      * A comparator used to sort quads in conflict clusters.
      */
-    private static final SubjectPropertyComparator CONFLICT_COMPARATOR =
-            new SubjectPropertyComparator();
+    private static final Comparator<Quad> CONFLICT_COMPARATOR = new QuadComparator();
 
     /**
      * Container of quads.
@@ -35,23 +34,6 @@ import java.util.ListIterator;
      * Indicates whether {@link #quadList} is sorted.
      */
     private boolean quadListSorted = false;
-
-    /**
-     * Comparator of {@link Quad Quads} comparing firstly by subject and
-     * secondly by property (object is ignored).
-     */
-    private static class SubjectPropertyComparator implements Comparator<Quad> {
-        @Override
-        public int compare(Quad triple1, Quad triple2) {
-            int subjectComparison =
-                    NodeComparator.compare(triple1.getSubject(), triple2.getSubject());
-            if (subjectComparison != 0) {
-                return subjectComparison;
-            } else {
-                return NodeComparator.compare(triple1.getPredicate(), triple2.getPredicate());
-            }
-        }
-    };
 
     /**
      * Iterator over clusters of conflicting triples (i.e. those having the
@@ -166,11 +148,35 @@ import java.util.ListIterator;
     }
 
     /**
-     * Sort containted quads using {@link SubjectPropertyComparator}.
+     * Sort contained quads using {@link SubjectPropertyComparator} and remove duplicates.
      */
     private void sortQuadList() {
         if (!quadListSorted) {
-            Collections.sort(quadList, CONFLICT_COMPARATOR);
+            // Sort quads - this is what Java sort does internally anyway
+            Quad[] quadArray = quadList.toArray(new Quad[quadList.size()]);
+            Arrays.sort(quadArray, CONFLICT_COMPARATOR);
+
+            // Copy to the sorted array to the original list, leaving out duplicates
+            ListIterator<Quad> listIt = quadList.listIterator();
+            int i;
+            for (i = 0; i < quadArray.length - 1; i++) {
+                if (!quadArray[i].equals(quadArray[i+1])) {
+                    listIt.next();
+                    listIt.set(quadArray[i]);
+                }
+            }
+            if (i < quadArray.length) {
+                // Add the last element
+                listIt.next();
+                listIt.set(quadArray[i]);
+            }
+
+            // Remove the excess items in reverse order (to avoid shifting the rest of the list)
+            int newSize = listIt.nextIndex();
+            for (int j = quadList.size() - 1; j >= newSize; j--) {
+                quadList.remove(j);
+            }
+
             quadListSorted = true;
         }
     }

@@ -49,6 +49,10 @@ public interface TransformedGraph {
 
     /**
      * Register an additional graph attached to the main transformed graph.
+     * IMPORTANT NOTE: This method must be called BEFORE inserting any triples into the new named graph
+     * (in order to ensure consistency after failure of the transformation).
+     * Transformer must not edit any data in the dirty database except for the given transformed graph
+     * and metadata graph and newly created graphs registered by this method.
      * @param attachedGraphName URI of the attached named graph
      */
     void addAttachedGraph(String attachedGraphName);

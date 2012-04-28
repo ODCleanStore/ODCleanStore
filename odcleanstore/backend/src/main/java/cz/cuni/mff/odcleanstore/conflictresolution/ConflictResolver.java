@@ -1,7 +1,8 @@
 package cz.cuni.mff.odcleanstore.conflictresolution;
 
-import cz.cuni.mff.odcleanstore.data.QuadCollection;
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
+
+import de.fuberlin.wiwiss.ng4j.Quad;
 
 import java.util.Collection;
 
@@ -24,5 +25,5 @@ public interface ConflictResolver {
      *         resolution process occurs
      * @see CRQuad
      */
-    Collection<CRQuad> resolveConflicts(QuadCollection quads) throws ODCleanStoreException;
+    Collection<CRQuad> resolveConflicts(Collection<Quad> quads) throws ODCleanStoreException;
 }

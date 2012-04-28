@@ -1,6 +1,8 @@
 package cz.cuni.mff.odcleanstore.linker;
 
-import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
+import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
+import cz.cuni.mff.odcleanstore.transformer.Transformer;
+import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 
 /**
  * Linking component.
@@ -10,19 +12,19 @@ import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
  * 
  * @author Tomas Soukup
  */
-public interface Linker {
+public interface Linker extends Transformer {
 	/**
-	 * Generates links between data two datasources specified by given SPARQL endpoints.
-	 * Stores them using target endpoint. Uses The Silk Link Discovery Framework.
-	 * Performes following steps:
+	 * Generates links between all entities in clean database. 
+	 * Uses The Silk Link Discovery Framework.
+	 * Performs following steps:
 	 * <ul><li>Loads valid linkage rules from database.</li>
 	 * <li>Creates configuration XML file in Silk-LSL.</li>
 	 * <li>Calls Silk engine providing the created configuration</li></ul>
 	 * 
-	 * @param firstSource SPARQL endpoint to the first datasource to interlink
-	 * @param secondSource SPARQL endpoint to the first datasource to interlink
-	 * @param target generated links are stored into datasource specified by this SPARQL endpoint 
+	 * @param context provides linkage rules IDs in TransformerConfiguration
+	 * 		and directory for storing temporary files
 	 */
-	public void generateLinks(SparqlEndpoint firstSource, 
-			SparqlEndpoint secondSource, SparqlEndpoint target);
+	public void linkCleanDatabase(TransformationContext context) throws TransformerException;
+	
+	public void linkByConfigFiles(TransformationContext context);
 }

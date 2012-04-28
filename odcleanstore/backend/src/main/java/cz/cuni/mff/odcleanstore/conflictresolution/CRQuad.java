@@ -58,4 +58,14 @@ public class CRQuad {
     public final Collection<String> getSourceNamedGraphURIs() {
         return sourceNamedGraphURIs;
     }
+
+
+    /**
+     * Return a human-readable string "graphname { s p o . } quality".
+     * @return human-readable representation of this CRQuad
+     */
+    @Override
+    public String toString() {
+        return quad.toString() + " " + Double.toString(quality);
+    }
 }

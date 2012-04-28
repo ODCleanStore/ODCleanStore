@@ -6,11 +6,11 @@ package cz.cuni.mff.odcleanstore.vocabulary;
  * @author Jan Michelfeit
  */
 public final class OWL {
-    /** The namespaspace of the vocabulary as a string. */
+    /** The namespace of the vocabulary as a string. */
     private static final String NS = "http://www.w3.org/2002/07/owl#";
 
     /**
-     * Returns the namespaspace of the vocabulary.
+     * Returns the namespace of the vocabulary.
      * @return namespace of the vocabulary as a string
      */
     public static String getURI() {

@@ -313,8 +313,9 @@ abstract class AggregationMethodBase implements AggregationMethod {
                     sourceNamedGraphs,
                     conflictingQuads,
                     metadata);
+            Quad resultQuad = new Quad(Node.createURI(uriGenerator.nextURI()), nonAggregableQuad.getTriple());
             result.add(new CRQuad(
-                    nonAggregableQuad,
+                    resultQuad,
                     quality,
                     Collections.singleton(nonAggregableQuad.getGraphName().getURI())));
             break;

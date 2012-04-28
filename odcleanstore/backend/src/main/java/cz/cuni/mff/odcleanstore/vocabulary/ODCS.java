@@ -27,21 +27,6 @@ public final class ODCS {
     /* TODO: return Node_URI instead of String? */
 
     // CHECKSTYLE:OFF
-    /**
-     * Property linking a named graph to URI of its data source.
-     */
-    public static final String dataSource = "http://opendata.cz/infrastructure/odcleanstore/dataSource";
-
-    /**
-     * Property linking a named graph to the date it was stored.
-     */
-    public static final String stored = "http://opendata.cz/infrastructure/odcleanstore/stored";
-
-    /**
-     * Property linking a named graph to the publisher of the source data
-     * (not neccessarily their creator).
-     */
-    public static final String publisher = "http://opendata.cz/infrastructure/odcleanstore/publisher";
 
     /**
      * Property linking a named graph to its error localization score.
