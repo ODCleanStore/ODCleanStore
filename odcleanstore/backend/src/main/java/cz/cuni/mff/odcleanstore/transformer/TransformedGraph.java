@@ -54,13 +54,15 @@ public interface TransformedGraph {
      * Transformer must not edit any data in the dirty database except for the given transformed graph
      * and metadata graph and newly created graphs registered by this method.
      * @param attachedGraphName URI of the attached named graph
+     * @throws TransformerException 
      */
-    void addAttachedGraph(String attachedGraphName);
+    void addAttachedGraph(String attachedGraphName) throws TransformerException;
 
     /**
      * Marks the whole transformed graph (and the respective attached graphs) for deletion.
+     * @throws TransformerException 
      */
-    void deleteGraph();
+    void deleteGraph() throws TransformerException;
 
     /**
      * Returns true iff the transformed graph has been marked for deletion.
