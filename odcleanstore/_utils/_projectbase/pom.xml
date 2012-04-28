@@ -39,6 +39,10 @@
         <id>odcleanstore</id>
         <url>http://gd.projekty.ms.mff.cuni.cz:9123/nexus/content/groups/public/</url>
       </repository>
+      <repository>
+        <id>odcleanstore-thirdpary</id>
+        <url>http://gd.projekty.ms.mff.cuni.cz:9123/nexus/content/repositories/thirdparty/</url>
+      </repository>
     </repositories>
 
     <build>
