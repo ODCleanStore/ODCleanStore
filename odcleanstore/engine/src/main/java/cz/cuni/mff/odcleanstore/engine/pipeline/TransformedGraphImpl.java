@@ -8,7 +8,7 @@ import java.util.LinkedList;
 
 import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
-import cz.cuni.mff.odcleanstore.transformer.TransformerException;
+import cz.cuni.mff.odcleanstore.transformer.TransformedGraphException;
 
 /**
  * @author jermanp
@@ -51,7 +51,7 @@ public final class TransformedGraphImpl implements TransformedGraph {
 	}
 
 	@Override
-	public synchronized void addAttachedGraph(String attachedGraphName) throws TransformerException {
+	public synchronized void addAttachedGraph(String attachedGraphName) throws TransformedGraphException {
 		if (_isDeleted != true) {
 			_workingInputGraphState.addAttachedGraphName(this, attachedGraphName);
 			_attachedGraphNames.add(attachedGraphName);
@@ -59,7 +59,7 @@ public final class TransformedGraphImpl implements TransformedGraph {
 	}
 
 	@Override
-	public synchronized void deleteGraph() throws TransformerException {
+	public synchronized void deleteGraph() throws TransformedGraphException {
 		if (_isDeleted != true) {
 			_workingInputGraphState.delete(this);
 			_attachedGraphNames.clear();

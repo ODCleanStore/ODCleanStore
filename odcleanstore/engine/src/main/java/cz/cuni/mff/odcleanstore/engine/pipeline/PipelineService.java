@@ -15,13 +15,13 @@ public final class PipelineService extends Service implements Runnable {
 
 	@Override
 	public void run() {
-		if (getModuleState() != ModuleState.NEW) {
-			return;
-		}
-
-		setModuleState(ModuleState.INITIALIZING);
-		WorkingInputGraphStatus wis = new WorkingInputGraphStatus(this);
 		try {
+			if (getModuleState() != ModuleState.NEW) {
+				return;
+			}
+			
+			setModuleState(ModuleState.INITIALIZING);
+			WorkingInputGraphStatus wis = new WorkingInputGraphStatus(this);
 			Collection<String> graphsForRecoveryUuids = wis.getWorkingTransformedGraphUuids();
 			if (!graphsForRecoveryUuids.isEmpty()) {
 				setModuleState(ModuleState.RECOVERY);
@@ -30,7 +30,7 @@ public final class PipelineService extends Service implements Runnable {
 			setModuleState(ModuleState.RUNNING);
 			runPipeline();
 			setModuleState(ModuleState.STOPPED);
-		} catch (TransformerException e) {
+		} catch (Exception e) {
 			setModuleState(ModuleState.CRASHED);
 		}
 	}
