@@ -4,7 +4,7 @@
 
 	<artifactId>components</artifactId>
 	<packaging>jar</packaging>
-	<name>odcleanstore - components</name>
+	<name>ODCleanStore - Components</name>
 
 	<parent>
 		<groupId>cz.cuni.mff.odcleanstore</groupId>

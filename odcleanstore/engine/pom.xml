@@ -4,7 +4,7 @@
 
 	<artifactId>engine</artifactId>
 	<packaging>jar</packaging>
-	<name>odcleanstore - engine</name>
+	<name>ODCleanStore - Engine</name>
 
 	<parent>
 		<groupId>cz.cuni.mff.odcleanstore</groupId>

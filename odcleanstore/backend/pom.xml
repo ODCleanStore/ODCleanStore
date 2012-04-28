@@ -4,7 +4,7 @@
 
 	<artifactId>odcleanstore-backend</artifactId>
 	<packaging>jar</packaging>
-	<name>ODCleanStore - backend</name>
+	<name>ODCleanStore - Backend</name>
 
 	<parent>
 		<groupId>cz.cuni.mff.odcleanstore</groupId>
