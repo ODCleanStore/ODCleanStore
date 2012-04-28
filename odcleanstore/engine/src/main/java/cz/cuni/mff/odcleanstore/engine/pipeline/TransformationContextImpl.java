@@ -12,7 +12,10 @@ public class TransformationContextImpl implements TransformationContext {
 	private String _configuration;
 	private String _path;
 
-	TransformationContextImpl(String configuration, String path) {
+	TransformationContextImpl(PipelineService pipelineService, String configuration, String path) {
+		if (pipelineService == null) {
+			throw new IllegalArgumentException();
+		}
 		_configuration = configuration;
 		_path = path;
 	}

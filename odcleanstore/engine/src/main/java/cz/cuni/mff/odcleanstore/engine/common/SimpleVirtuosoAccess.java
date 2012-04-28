@@ -6,9 +6,12 @@ package cz.cuni.mff.odcleanstore.engine.common;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-
+import java.util.Collection;
+import java.util.LinkedList;
 
 /**
  * Encapsulates jdbc connections and single threaded basic data operations on Virtuoso database.
@@ -42,8 +45,7 @@ public class SimpleVirtuosoAccess {
 	 * @throws ClassNotFoundException
 	 * @throws SQLException
 	 */
-	public SimpleVirtuosoAccess(String connectionString, String user, String password) throws ClassNotFoundException,
-			SQLException {
+	public SimpleVirtuosoAccess(String connectionString, String user, String password) throws ClassNotFoundException, SQLException {
 		if (!_isDriverInitialized) {
 			Class.forName("virtuoso.jdbc3.Driver");
 			_isDriverInitialized = true;
@@ -59,7 +61,7 @@ public class SimpleVirtuosoAccess {
 	 * 
 	 */
 	public void close() {
-		
+
 		if (_con != null) {
 			try {
 				_con.close();
@@ -110,14 +112,43 @@ public class SimpleVirtuosoAccess {
 	 * 
 	 * @param fileName
 	 * @param baseURI
-	 * @param graphName  
+	 * @param graphName
 	 * 
 	 * @throws SQLException
 	 */
 	public void loadRdfXmlFile(String fileName, String baseURI, String graphName) throws SQLException {
-		String statement = String.format("SPARQL DB.DBA.RDF_LOAD_RDFXML(file_to_string_output('%s'), '%s', '%s')",
-				fileName, baseURI, graphName);
+		String statement = String.format("SPARQL DB.DBA.RDF_LOAD_RDFXML(file_to_string_output('%s'), '%s', '%s')", fileName, baseURI, graphName);
 		executeStatement(statement);
+	}
+
+	/**
+	 * Execute Sql statement with processing returned rows.
+	 * 
+	 * @param statement
+	 * 
+	 * @throws SQLException
+	 */
+	public Collection<String[]> executeSqlStatement(String statement) throws SQLException {
+		LinkedList<String[]> retVal = new LinkedList<String[]>();
+
+		Statement stmt = _con.createStatement();
+		stmt.execute(statement);
+		ResultSetMetaData data = stmt.getResultSet().getMetaData();
+
+		boolean more = true;
+		while (more) {
+			ResultSet rs = stmt.getResultSet();
+			while (rs.next()) {
+				String[] row = new String[data.getColumnCount()];
+				for (int i = 0; i < row.length; i++) {
+					row[i] = rs.getString(i + 1);
+				}
+				retVal.add(row);
+			}
+			more = stmt.getMoreResults();
+		}
+
+		return retVal;
 	}
 
 	/**

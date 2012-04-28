@@ -18,31 +18,36 @@ import cz.cuni.mff.odcleanstore.engine.ws.user.UserService;
  */
 public final class Engine extends Module {
 
+	private static final String SPARQL_CONNECTION_STRING = "jdbc:virtuoso://localhost:1111";
+	private static final String SPARQL_PASSWORD = "dba";
+	private static final String SPARQL_USER = "dba";
+
+	public static final SparqlEndpoint CLEAN_DATABASE_ENDPOINT = new SparqlEndpoint(SPARQL_CONNECTION_STRING, SPARQL_USER, SPARQL_PASSWORD);
+	public static final SparqlEndpoint DIRTY_DATABASE_ENDPOINT = new SparqlEndpoint("", "", "");
+
 	public static final String DATA_PREFIX = "http://d/";
 	public static final String METADATA_PREFIX = "http://m/";
-	private static final String SPARQL_CONNECTION_STRING = "jdbc:virtuoso://localhost:1111";
-	private static final String SPARQL_USER = "dba";
-	private static final String SPARQL_PASSWORD = "dba";
-	public static final SparqlEndpoint DIRTY_DATABASE_ENDPOINT = new SparqlEndpoint("", "", "");
-	public static final SparqlEndpoint CLEAN_DATABASE_ENDPOINT = 
-			new SparqlEndpoint(SPARQL_CONNECTION_STRING, SPARQL_USER, SPARQL_PASSWORD);
+
 	public static final String SCRAPER_ENDPOINT_URL = "http://localhost:8088/odcleanstore/scraper";
+
 	public static final int USER_SERVICE_PORT = 8087;
 	public static final String USER_SERVICE_KEYWORD_PATH = "keyword";
 	public static final String USER_SERVICE_URI_PATH = "uri";
-	
+
+	private static Engine _engine;
+
 	public static void main(String[] args) {
-		_engine = new Engine();
-		_engine.run();
+		if (_engine == null) {
+			_engine = new Engine();
+			_engine.run();
+		}
 	}
 
 	private ScheduledThreadPoolExecutor _executor;
-
+	
 	private PipelineService _pipelineService;
 	private ScraperService _scraperService;
 	private UserService _userService;
-
-	private static Engine _engine;
 
 	private Engine() {
 	}
@@ -74,7 +79,7 @@ public final class Engine extends Module {
 		try {
 			setModuleState(ModuleState.INITIALIZING);
 			init();
-			setModuleState(ModuleState.RUNNING); // TODO: JM: nemelo by byt az po startServices()?
+			setModuleState(ModuleState.RUNNING);
 			startServices();
 		} catch (Exception e) {
 			setModuleState(ModuleState.CRASHED);
@@ -87,20 +92,6 @@ public final class Engine extends Module {
 		_executor.execute(_userService);
 	}
 
-
-
-	static PipelineService getPipelineService() {
-		return _engine._pipelineService;
-	}
-
-	static ScraperService getScraperService() {
-		return _engine._scraperService;
-	}
-
-	static UserService getUserService() {
-		return _engine._userService;
-	}
-
-	static void onServiceStateChanged(Service service) {
+	void onServiceStateChanged(Service service) {
 	}
 }

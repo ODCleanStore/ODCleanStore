@@ -8,6 +8,4 @@ package cz.cuni.mff.odcleanstore.engine.common;
  * 
  */
 public class Utils {
-
-	
 }

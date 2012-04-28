@@ -1,8 +1,11 @@
 package cz.cuni.mff.odcleanstore.engine.pipeline;
 
+import java.util.Collection;
+
 import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.Service;
 import cz.cuni.mff.odcleanstore.engine.common.ModuleState;
+import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 
 public final class PipelineService extends Service implements Runnable {
 
@@ -12,16 +15,31 @@ public final class PipelineService extends Service implements Runnable {
 
 	@Override
 	public void run() {
-		// _workingInputGraphState = new WorkingInputGraphState();
-		setModuleState(ModuleState.STOPPED);
+		if (getModuleState() != ModuleState.NEW) {
+			return;
+		}
+
+		setModuleState(ModuleState.INITIALIZING);
+		WorkingInputGraphStatus wis = new WorkingInputGraphStatus(this);
+		try {
+			Collection<String> graphsForRecoveryUuids = wis.getWorkingTransformedGraphUuids();
+			if (!graphsForRecoveryUuids.isEmpty()) {
+				setModuleState(ModuleState.RECOVERY);
+				recovery(graphsForRecoveryUuids);
+			}
+			setModuleState(ModuleState.RUNNING);
+			runPipeline();
+			setModuleState(ModuleState.STOPPED);
+		} catch (TransformerException e) {
+			setModuleState(ModuleState.CRASHED);
+		}
 	}
 
-	static WorkingInputGraphState getWorkingInputGraphState(TransformedGraphImpl transformedGraphImpl) {
-		PipelineService service = Service.getPipelineService();
-		return service != null && service._currentTransformedGraphImpl == transformedGraphImpl ? service._workingInputGraphState
-				: null;
+	private void recovery(Collection<String> graphsForRecoveryUuids) {
+
 	}
 
-	private WorkingInputGraphState _workingInputGraphState;
-	private TransformedGraphImpl _currentTransformedGraphImpl;
+	private void runPipeline() {
+
+	}
 }
