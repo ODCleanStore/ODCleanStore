@@ -183,7 +183,7 @@ public class SimpleVirtuosoAccess {
 	 * 
 	 * @throws SQLException
 	 */
-	private void executeStatement(String statement) throws SQLException {
+	public void executeStatement(String statement) throws SQLException {
 		Statement stmt = _con.createStatement();
 		stmt.execute(statement);
 	}
