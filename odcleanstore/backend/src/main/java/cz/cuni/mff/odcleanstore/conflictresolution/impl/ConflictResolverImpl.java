@@ -9,6 +9,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationMethod;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationMethodFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationNotImplementedException;
+import cz.cuni.mff.odcleanstore.shared.NodeComparator;
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 
