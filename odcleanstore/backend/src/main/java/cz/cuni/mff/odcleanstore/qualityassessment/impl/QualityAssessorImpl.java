@@ -6,24 +6,18 @@ import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 
 public class QualityAssessorImpl implements QualityAssessor {
 	
-	private CommonAssessment state;
-
 	@Override
 	public void transformNewGraph(TransformedGraph inputGraph,
 			TransformationContext context) {
 
-		state = new DirtyStoreAssessment();
-		
-		state.assessQuality(inputGraph, context);
+		new DirtyStoreAssessment().assessQuality(inputGraph, context);
 	}
 
 	@Override
 	public void transformExistingGraph(TransformedGraph inputGraph,
 			TransformationContext context) {
 		
-		state = new CleanStoreAssessment();
-		
-		state.assessQuality(inputGraph, context);
+		new CleanStoreAssessment().assessQuality(inputGraph, context);
 	}
 	
 	@Override

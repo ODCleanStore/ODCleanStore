@@ -19,7 +19,7 @@ public class RulesModel {
 		
 		try {
 			Class.forName("virtuoso.jdbc3.Driver");
-		
+			
 			Connection con = DriverManager.getConnection(this.endpoint.getUri(), this.endpoint.getUsername(), this.endpoint.getPassword());
 			
 			Statement st = con.createStatement();
@@ -44,13 +44,9 @@ public class RulesModel {
 				//System.out.println(id + "\n" + filter + "\n" + coefficient + "\n" + description);
 			}
 		} catch (Exception e) {
-			System.out.println("Exception: " + e.getMessage());
+			System.out.println("Exception: " + e);
 		}
 		
 		return rules;
-	}
-	
-	public static void main (String[] args) {
-		new RulesModel(new SparqlEndpoint("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba")).getAllRules();
 	}
 }

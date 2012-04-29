@@ -6,8 +6,8 @@ import cz.cuni.mff.odcleanstore.qualityassessment.rules.RulesModel;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.query.QueryFactory;
+import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.Triple;
 
 import virtuoso.jena.driver.VirtGraph;
 import virtuoso.jena.driver.VirtuosoQueryExecution;
@@ -25,17 +25,16 @@ abstract class CommonAssessment {
 	protected VirtGraph metadataGraph;
 
 	protected Collection<Rule> rules;
+	
+	protected Float score = 1.0f;
+	protected String trace = "";
 
 	protected void assessQuality(TransformedGraph inputGraph,
 			TransformationContext context) {
 
 		this.inputGraph = inputGraph;
 		this.context = context;
-
-		/**
-		 * These can be situated in different places so it is left for the implementation
-		 * to decide where the data is loaded from.
-		 */
+		
 		loadGraph();
 		loadMetadataGraph();
 
@@ -46,11 +45,6 @@ abstract class CommonAssessment {
 		loadRules();
 
 		/**
-		 * Always start with initial score.
-		 */
-		resetScore();
-
-		/**
 		 * Applying rules is defined generally for all occasions with current concept.
 		 *
 		 * But DirtyStoreAssessment extension might decide to stop applying rules when the score
@@ -59,27 +53,33 @@ abstract class CommonAssessment {
 		 */
 		applyRules();
 
-		/**
-		 * The metadata graph needs to be visible in its current form to all subsequent transformers
-		 */
-		storeMetadataGraph();
+		storeResults();
+	}
+	
+	protected void loadGraph() {
+		SparqlEndpoint endpoint = getEndpoint();
+		
+		graph = new VirtGraph(inputGraph.getGraphName(),
+				endpoint.getUri(),
+				endpoint.getUsername(),
+				endpoint.getPassword());
+	}
+	
+	protected void loadMetadataGraph() {
+		SparqlEndpoint endpoint = getEndpoint();
+		
+		metadataGraph = new VirtGraph(inputGraph.getMetadataGraphName(),
+				endpoint.getUri(),
+				endpoint.getUsername(),
+				endpoint.getPassword());
 	}
 
-	abstract protected void loadGraph();
-	abstract protected void loadMetadataGraph();
+	abstract protected SparqlEndpoint getEndpoint();
 
 	protected void loadRules() {
-		/**
-		 * TODO: ENRICH TRANSFORMATION CONTEXT WITH OTHER RESOURCES - SPECIFICALLY SQL ENDPOINT
-		 * TO ALLOW QUALITY ASSESSMENT TO READ RULES FROM
-		 */
-		RulesModel model = new RulesModel(new SparqlEndpoint("", "", ""));
+		RulesModel model = new RulesModel(getEndpoint());
 
 		rules = model.getAllRules();
-	}
-
-	protected void resetScore() {
-		//TODO: CLEAR SCORE
 	}
 
 	protected void applyRules() {
@@ -87,14 +87,14 @@ abstract class CommonAssessment {
 		Iterator<Rule> iterator = rules.iterator();
 
 		while (iterator.hasNext()) {
-			applyRule(iterator.next());
+			Rule rule = iterator.next();
+
+			applyRule(rule);
 		}
 	}
 
 	protected void applyRule(Rule rule) {
-		Query query = QueryFactory.create(rule.toString());
-
-		VirtuosoQueryExecution execution = VirtuosoQueryExecutionFactory.create(query, graph);
+		VirtuosoQueryExecution execution = VirtuosoQueryExecutionFactory.create(rule.toString(), graph);
 
 		/**
 		 * See if the graph matches the rules filter
@@ -109,12 +109,52 @@ abstract class CommonAssessment {
 	}
 
 	protected void logComment(String comment) {
-		//TODO: ADD COMMENT TO GRAPH METADATA
+		trace += comment + "\n";
 	}
 
 	protected void addCoefficient(Float coefficient) {
-		//TODO: AGGREGATE WITH PREVIOUS SCORE
+		score *= coefficient;
 	}
+	
+	protected void storeResults() {
+		Node graphURI = Node.createURI(inputGraph.getGraphName());
+		Node scoreProperty = Node.createURI("odcs:score");
+		Node scoreValue = Node.createLiteral(score.toString());
+		Node commentProperty = Node.createURI("rdfs:comment");
+		Node commentValue = Node.createLiteral(trace);
+		
+		Iterator<Triple> i;
 
-	abstract protected void storeMetadataGraph();
+		/**
+		 * Drop the old score
+		 */
+		i = metadataGraph.find(graphURI, scoreProperty, Node.ANY);
+		
+		while (i.hasNext()) {
+			Triple triple = i.next();
+			
+			metadataGraph.remove(triple);
+		}
+
+		/**
+		 * Write the new score
+		 */
+		metadataGraph.add(new Triple(graphURI, scoreProperty, scoreValue));
+		
+		/**
+		 * Drop the old trace
+		 */
+		i = metadataGraph.find(graphURI, commentProperty, Node.ANY);
+		
+		while (i.hasNext()) {
+			Triple triple = i.next();
+			
+			metadataGraph.remove(triple);
+		}
+		
+		/**
+		 * Add the new trace
+		 */
+		metadataGraph.add(new Triple(graphURI, commentProperty, commentValue));
+	}
 }
