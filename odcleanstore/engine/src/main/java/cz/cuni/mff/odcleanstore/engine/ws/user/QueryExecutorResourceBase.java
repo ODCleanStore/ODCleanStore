@@ -14,10 +14,8 @@ import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 import org.restlet.resource.ServerResource;
 
-import cz.cuni.mff.odcleanstore.engine.ws.user.output.DebugFormatter;
 import cz.cuni.mff.odcleanstore.engine.ws.user.output.HTMLFormatter;
 import cz.cuni.mff.odcleanstore.engine.ws.user.output.QueryResultFormatter;
-import cz.cuni.mff.odcleanstore.engine.ws.user.output.TriGFormatter;
 
 /**
  * @author jermanp
@@ -46,7 +44,7 @@ public abstract class QueryExecutorResourceBase extends ServerResource {
 	 */
 	protected QueryResultFormatter getFormatter() {
 		//return new TriGFormatter(); 
-		return new DebugFormatter();
+		return new HTMLFormatter();
 	}
 
 	protected Representation return404() {

@@ -12,7 +12,6 @@ import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 
 import com.hp.hpl.jena.graph.Triple;
 
-import de.fuberlin.wiwiss.ng4j.NamedGraphSet;
 import de.fuberlin.wiwiss.ng4j.Quad;
 
 import org.slf4j.Logger;
@@ -53,7 +52,7 @@ import java.util.Iterator;
      * @param aggregationSpec aggregation settings for conflict resolution
      * @return result of the query as RDF quads
      */
-    public NamedGraphSet findKeyword(String keywords, QueryConstraintSpec constraints,
+    public QueryResult findKeyword(String keywords, QueryConstraintSpec constraints,
             AggregationSpec aggregationSpec) throws ODCleanStoreException {
 
         long startTime = System.currentTimeMillis();
@@ -76,7 +75,7 @@ import java.util.Iterator;
 
         LOG.debug("Query Execution: findKeyword() in {} ms", System.currentTimeMillis() - startTime);
         // Format and return result
-        return convertToNGSet(resolvedQuads, metadata);
+        return new QueryResult(resolvedQuads, metadata, EnumQueryType.KEYWORD, constraints, aggregationSpec);
     }
 
     private Collection<Quad> getKeywordOccurrences(String keywords, QueryConstraintSpec constraints)

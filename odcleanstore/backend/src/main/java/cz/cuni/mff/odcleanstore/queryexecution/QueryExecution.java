@@ -4,8 +4,6 @@ import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 
-import de.fuberlin.wiwiss.ng4j.NamedGraphSet;
-
 import java.net.URISyntaxException;
 
 /**
@@ -21,9 +19,6 @@ import java.net.URISyntaxException;
  * @author Jan Michelfeit
  */
 public class QueryExecution {
-    /** TODO */
-    public static final String METADATA_GRAPH = "http://odcs.mff.cuni.cz/metadata/";
-
     /** Instance of {@link UriQueryExecutor}. */
     private UriQueryExecutor uriQueryExecutor;
 
@@ -52,7 +47,7 @@ public class QueryExecution {
      *
      * @todo
      */
-    public NamedGraphSet findKeyword(String keywords, QueryConstraintSpec constraints,
+    public QueryResult findKeyword(String keywords, QueryConstraintSpec constraints,
             AggregationSpec aggregationSpec) throws ODCleanStoreException {
         return keywordQueryExecutor.findKeyword(keywords, constraints, aggregationSpec);
     }
@@ -68,7 +63,7 @@ public class QueryExecution {
      * @throws ODCleanStoreException exception
      * @throws URISyntaxException thrown when uri is not a valid URI
      */
-    public NamedGraphSet findURI(String uri, QueryConstraintSpec constraints,
+    public QueryResult findURI(String uri, QueryConstraintSpec constraints,
             AggregationSpec aggregationSpec) throws ODCleanStoreException, URISyntaxException {
         return uriQueryExecutor.findURI(uri, constraints, aggregationSpec);
     }

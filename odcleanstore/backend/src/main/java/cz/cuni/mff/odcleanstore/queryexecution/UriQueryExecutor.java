@@ -17,7 +17,6 @@ import cz.cuni.mff.odcleanstore.vocabulary.W3P;
 
 import com.hp.hpl.jena.graph.Triple;
 
-import de.fuberlin.wiwiss.ng4j.NamedGraphSet;
 import de.fuberlin.wiwiss.ng4j.Quad;
 
 import org.slf4j.Logger;
@@ -331,9 +330,10 @@ import java.util.Locale;
      * @param aggregationSpec aggregation settings for conflict resolution
      * @return result of the query as RDF quads
      */
-    public NamedGraphSet findURI(String uri, QueryConstraintSpec constraints,
+    public QueryResult findURI(String uri, QueryConstraintSpec constraints,
             AggregationSpec aggregationSpec) throws ODCleanStoreException, URISyntaxException {
 
+        LOG.info("URI query for <{}>", uri);
         long startTime = System.currentTimeMillis(); // TODO: only if LOG.isDebugEnabled()
         // Check that the URI is valid (must not be empty or null, should match '<' ([^<>"{}|^`\]-[#x00-#x20])* '>' )
         try {
@@ -358,9 +358,14 @@ import java.util.Locale;
         ConflictResolver conflictResolver = ConflictResolverFactory.createResolver(crSpec);
         Collection<CRQuad> resolvedQuads = conflictResolver.resolveConflicts(quads);
 
-        LOG.debug("Query Execution: findURI() in {} ms", System.currentTimeMillis() - startTime);
+        long executionTime = System.currentTimeMillis() - startTime;
+        LOG.debug("Query Execution: findURI() in {} ms", executionTime);
         // Format and return result
-        return convertToNGSet(resolvedQuads, metadata);
+        QueryResult queryResult =
+                new QueryResult(resolvedQuads, metadata, EnumQueryType.URI, constraints, aggregationSpec);
+        queryResult.setExecutionTime(executionTime);
+        return queryResult;
+
     }
 
     private Collection<Quad> getURIOccurrences(String uri, QueryConstraintSpec constraints)

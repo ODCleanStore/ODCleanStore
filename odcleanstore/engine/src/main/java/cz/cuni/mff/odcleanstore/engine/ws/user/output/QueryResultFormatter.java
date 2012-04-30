@@ -2,7 +2,7 @@ package cz.cuni.mff.odcleanstore.engine.ws.user.output;
 
 import org.restlet.representation.Representation;
 
-import de.fuberlin.wiwiss.ng4j.NamedGraphSet;
+import cz.cuni.mff.odcleanstore.queryexecution.QueryResult;
 
 /**
  * Formats a result of a query and returns it as an instance of {@link Representation}.
@@ -12,7 +12,7 @@ public interface QueryResultFormatter {
 	/**
 	 * Returns a formatted representation of a query result. 
 	 * @param result query result 
-	 * @return formatted representation
+	 * @return representation of the formatted output
 	 */
-	Representation format(NamedGraphSet result);
+	Representation format(QueryResult result);
 }

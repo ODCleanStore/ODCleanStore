@@ -1,0 +1,28 @@
+package cz.cuni.mff.odcleanstore.engine.ws.user.output;
+
+/**
+ * An abstract base class for query result formatters.
+ * @author Jan Michelfeit
+ */
+public abstract class ResultFormatterBase implements QueryResultFormatter {
+	/** Number of milliseconds in a second */
+	private static final double SECOND_MS = 1000.0;
+	
+	/**
+	 * Format execution time to a readable string.
+	 * @param executionTime query execution time in milliseconds 
+	 * @return formatted execution time
+	 */
+	protected String formatExecutionTime(long executionTime) {
+		return String.format("%.3f s", executionTime / SECOND_MS);
+	}
+	
+	/**
+	 * Format a score/quality to a readable string.
+	 * @param score score or quality
+	 * @return formatted score
+	 */
+	protected String formatScore(double score) {
+		return String.format("%.5f", score); 
+	}
+}
