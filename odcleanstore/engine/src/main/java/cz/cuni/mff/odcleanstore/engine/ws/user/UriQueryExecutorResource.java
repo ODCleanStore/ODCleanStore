@@ -3,14 +3,8 @@
  */
 package cz.cuni.mff.odcleanstore.engine.ws.user;
 
-import java.io.IOException;
-import java.io.Writer;
-
-import org.restlet.data.CharacterSet;
 import org.restlet.data.Form;
-import org.restlet.data.MediaType;
 import org.restlet.representation.Representation;
-import org.restlet.representation.WriterRepresentation;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.engine.Engine;

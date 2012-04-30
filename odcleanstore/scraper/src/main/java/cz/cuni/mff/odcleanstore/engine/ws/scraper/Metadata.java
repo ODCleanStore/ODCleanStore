@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "metadata", propOrder = { "uuid", "publishedBy", "source", "license", "rdfXmlProvenance" })
+@XmlType(name = "metadata", propOrder = { "uuid", "publishedBy", "source", "license", "dataBaseUrl", "provenanceBaseUrl", "rdfXmlProvenance" })
 public class Metadata {
 
 	protected String uuid;
@@ -18,6 +18,8 @@ public class Metadata {
 	protected List<String> source;
 	@XmlElement(nillable = true)
 	protected List<String> license;
+	protected String dataBaseUrl;
+	protected String provenanceBaseUrl;
 	protected String rdfXmlProvenance;
 
 	public String getUuid() {
@@ -49,6 +51,22 @@ public class Metadata {
 		return this.license;
 	}
 
+	public String getDataBaseUrl() {
+		return dataBaseUrl;
+	}
+
+	public void setDataBaseUrl(String value) {
+		this.dataBaseUrl = value;
+	}
+
+	public String getProvenanceBaseUrl() {
+		return provenanceBaseUrl;
+	}
+
+	public void setProvenanceBaseUrl(String value) {
+		this.provenanceBaseUrl = value;
+	}
+
 	public String getRdfXmlProvenance() {
 		return rdfXmlProvenance;
 	}
@@ -56,5 +74,4 @@ public class Metadata {
 	public void setRdfXmlProvenance(String value) {
 		this.rdfXmlProvenance = value;
 	}
-
 }

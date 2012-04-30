@@ -24,6 +24,8 @@ public final class OdcsService {
 		wsMetadata.getPublishedBy().addAll(metadata.getPublishedBy());
 		wsMetadata.getSource().addAll(metadata.getSource());
 		wsMetadata.getLicense().addAll(metadata.getLicense());
+		wsMetadata.setDataBaseUrl(metadata.getDataBaseUrl());
+		wsMetadata.setProvenanceBaseUrl(metadata.getProvenanceBaseUrl());
 		wsMetadata.setRdfXmlProvenance(metadata.getRdfXmlProvenance());
 
 		try {

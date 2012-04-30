@@ -3,7 +3,6 @@ package cz.cuni.mff.odcleanstore.engine.ws.user.output;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -16,7 +15,6 @@ import org.restlet.representation.WriterRepresentation;
 import com.hp.hpl.jena.graph.Node;
 
 import cz.cuni.mff.odcleanstore.shared.NodeComparator;
-
 import de.fuberlin.wiwiss.ng4j.NamedGraphSet;
 import de.fuberlin.wiwiss.ng4j.Quad;
 

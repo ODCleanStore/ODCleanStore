@@ -13,6 +13,12 @@ import java.sql.Statement;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import cz.cuni.mff.odcleanstore.engine.Engine;
+
+import virtuoso.jdbc3.VirtuosoExtendedString;
+import virtuoso.jdbc3.VirtuosoRdfBox;
+import virtuoso.jdbc3.VirtuosoResultSet;
+
 /**
  * Encapsulates jdbc connections and single threaded basic data operations on Virtuoso database.
  * 
@@ -29,9 +35,14 @@ public class SimpleVirtuosoAccess {
 	 * @throws ClassNotFoundException
 	 * @throws SQLException
 	 */
-	public static SimpleVirtuosoAccess CreateDefaultDbaConnection() throws ClassNotFoundException, SQLException {
+	public static SimpleVirtuosoAccess createCleanDBConnection() throws ClassNotFoundException, SQLException {
 
-		return new SimpleVirtuosoAccess("jdbc:virtuoso://localhost:1111", "dba", "dba");
+		return new SimpleVirtuosoAccess(Engine.CLEAN_DATABASE_ENDPOINT.getUri(), Engine.CLEAN_DATABASE_ENDPOINT.getUsername(), Engine.CLEAN_DATABASE_ENDPOINT.getPassword());
+	}
+
+	public static SimpleVirtuosoAccess createDirtyDBConnection() throws ClassNotFoundException, SQLException {
+
+		return new SimpleVirtuosoAccess(Engine.DIRTY_DATABASE_ENDPOINT.getUri(), Engine.DIRTY_DATABASE_ENDPOINT.getUsername(), Engine.DIRTY_DATABASE_ENDPOINT.getPassword());
 	}
 
 	private Connection _con;
@@ -108,17 +119,32 @@ public class SimpleVirtuosoAccess {
 	}
 
 	/**
-	 * Load rdfxml file.
+	 * Insert rdfXml to the database.
 	 * 
-	 * @param fileName
-	 * @param baseURI
-	 * @param graphName
+	 * @param relativeBase
+	 * @param rdfXml
+	 * @param graph
 	 * 
 	 * @throws SQLException
 	 */
-	public void loadRdfXmlFile(String fileName, String baseURI, String graphName) throws SQLException {
-		String statement = String.format("SPARQL DB.DBA.RDF_LOAD_RDFXML(file_to_string_output('%s'), '%s', '%s')", fileName, baseURI, graphName);
-		executeStatement(statement);
+	public void insertRdfXml(String relativeBase, String rdfXml, String graph) throws SQLException {
+		String stat = relativeBase != null ? "{call DB.DBA.RDF_LOAD_RDFXML('" + rdfXml + "', '" + relativeBase + "', '" + graph + "')}" : "{call DB.DBA.RDF_LOAD_RDFXML('" + rdfXml + "', '' , '"
+				+ graph + "')}";
+
+		CallableStatement cst = _con.prepareCall(stat);
+		cst.execute();
+	}
+
+	/**
+	 * Execute Sql and Sparql statement.
+	 * 
+	 * @param statement
+	 * 
+	 * @throws SQLException
+	 */
+	public void executeStatement(String statement) throws SQLException {
+		Statement stmt = _con.createStatement();
+		stmt.execute(statement);
 	}
 
 	/**
@@ -128,24 +154,103 @@ public class SimpleVirtuosoAccess {
 	 * 
 	 * @throws SQLException
 	 */
-	public Collection<String[]> executeSqlStatement(String statement) throws SQLException {
+	public Collection<String[]> getRowFromSqlStatement(String statement) throws SQLException {
+		LinkedList<String[]> retVal = new LinkedList<String[]>();
+
+		Statement stmt = _con.createStatement();
+		stmt.execute(statement);
+		if (stmt.getResultSet() != null) {
+			ResultSetMetaData data = stmt.getResultSet().getMetaData();
+			boolean more = true;
+			while (more) {
+				ResultSet rs = stmt.getResultSet();
+				while (rs.next()) {
+					String[] row = new String[data.getColumnCount()];
+					for (int i = 0; i < row.length; i++) {
+						row[i] = rs.getString(i + 1);
+					}
+					retVal.add(row);
+				}
+				more = stmt.getMoreResults();
+			}
+		}
+
+		return retVal;
+	}
+
+	/**
+	 * Execute Sql statement with processing rows by rowListener.
+	 * 
+	 * @param statement
+	 * 
+	 * @throws SQLException
+	 */
+	public void processSqlStatementRows(String statement, RowListener rowListener) throws SQLException {
+		Statement stmt = _con.createStatement();
+		stmt.execute(statement);
+		if (stmt.getResultSet() != null) {
+			ResultSetMetaData data = stmt.getResultSet().getMetaData();
+			boolean more = true;
+			while (more) {
+				ResultSet rs = stmt.getResultSet();
+				while (rs.next()) {
+					rowListener.processRow(rs, data);
+				}
+				more = stmt.getMoreResults();
+			}
+		}
+	}
+
+	/**
+	 * Execute Sql and Sparql statement with processing returned rows.
+	 * 
+	 * @param statement
+	 * 
+	 * @throws SQLException
+	 */
+	public Collection<String[]> getRowFromSparqlStatement(String statement) throws SQLException {
 		LinkedList<String[]> retVal = new LinkedList<String[]>();
 
 		Statement stmt = _con.createStatement();
 		stmt.execute(statement);
 		ResultSetMetaData data = stmt.getResultSet().getMetaData();
 
-		boolean more = true;
-		while (more) {
-			ResultSet rs = stmt.getResultSet();
-			while (rs.next()) {
-				String[] row = new String[data.getColumnCount()];
-				for (int i = 0; i < row.length; i++) {
-					row[i] = rs.getString(i + 1);
+		if (stmt.getResultSet() != null) {
+			boolean more = true;
+			while (more) {
+				ResultSet rs = stmt.getResultSet();
+				while (rs.next()) {
+					String[] row = new String[data.getColumnCount()];
+					for (int i = 0; i < row.length; i++) {
+
+						String s = rs.getString(i + 1);
+						Object o = ((VirtuosoResultSet) rs).getObject(i + 1);
+
+						if (o instanceof VirtuosoExtendedString) {
+							VirtuosoExtendedString vs = (VirtuosoExtendedString) o;
+							if (vs.iriType == VirtuosoExtendedString.IRI && (vs.strType & 0x1) == 0x1) {
+								row[i] = "<" + vs.str + ">";
+							} else {
+
+								if (vs.str.startsWith("nodeID://")) {
+									row[i] = "_:" + vs.str.substring(9, vs.str.length() -1);
+								} else {
+									row[i] = "'" + vs.str + "'";
+								}
+							}
+						} else if (o instanceof VirtuosoRdfBox) {
+							VirtuosoRdfBox rb = (VirtuosoRdfBox) o;
+							row[i] = "'" + rb.rb_box.toString() + "'";
+						} else if (stmt.getResultSet().wasNull()) {
+							row[i] = "NULL";
+						} else {
+							row[i] = s;
+						}
+					}
+					retVal.add(row);
 				}
-				retVal.add(row);
+				more = stmt.getMoreResults();
 			}
-			more = stmt.getMoreResults();
 		}
 
 		return retVal;
@@ -174,18 +279,6 @@ public class SimpleVirtuosoAccess {
 		CallableStatement cst = _con.prepareCall(String.format("log_enable(%s)", virtusoLogEnableValue));
 		cst.execute();
 		_con.setAutoCommit(autoCommitValue);
-	}
-
-	/**
-	 * Execute Sql and Sparql statement.
-	 * 
-	 * @param statement
-	 * 
-	 * @throws SQLException
-	 */
-	public void executeStatement(String statement) throws SQLException {
-		Statement stmt = _con.createStatement();
-		stmt.execute(statement);
 	}
 
 	/**

@@ -3,6 +3,9 @@
  */
 package cz.cuni.mff.odcleanstore.engine.ws.scraper;
 
+import java.io.File;
+import java.util.Collection;
+
 import javax.xml.ws.Endpoint;
 
 import cz.cuni.mff.odcleanstore.engine.Engine;
@@ -15,24 +18,36 @@ import cz.cuni.mff.odcleanstore.engine.common.ModuleState;
  */
 public final class ScraperService extends Service implements Runnable {
 
-	// private ImportingInputGraphStates _importedInputGraphStates;
-
 	public ScraperService(Engine engine) {
 		super(engine);
 	}
 
 	@Override
-	public final void run() {
+	public void run() {
 		try {
-			if (getModuleState() != ModuleState.NEW) {
-				return;
+			synchronized (this) {
+				if (getModuleState() != ModuleState.NEW) {
+					return;
+				}
+				setModuleState(ModuleState.INITIALIZING);
 			}
-			setModuleState(ModuleState.INITIALIZING);
-			// _importedInputGraphStates = new ImportingInputGraphStates();
+
+			setModuleState(ModuleState.RECOVERY);
+			recovery();
 			Endpoint.publish(Engine.SCRAPER_ENDPOINT_URL, new Scraper());
 			setModuleState(ModuleState.RUNNING);
 		} catch (Exception e) {
 			setModuleState(ModuleState.CRASHED);
 		}
+	}
+
+	private void recovery() throws Exception {
+		ImportingInputGraphStates importedInputGraphStates = new ImportingInputGraphStates();
+		Collection<String> importingGraphUuids = importedInputGraphStates.getAllImportingGraphUuids();
+		for (String uuid : importingGraphUuids) {
+			File inputFile = new File(Engine.SCRAPER_INPUT_DIR + uuid + ".dat");
+			inputFile.delete();
+		}
+		importedInputGraphStates.deleteAllImportingGraphUuids();
 	}
 }
