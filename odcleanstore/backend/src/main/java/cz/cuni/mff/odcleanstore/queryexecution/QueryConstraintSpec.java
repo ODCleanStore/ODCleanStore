@@ -11,18 +11,18 @@ public class QueryConstraintSpec {
     /**
      * Oldest time of accepted triples. Triples with stored time of the respective
      * named graph strictly older than this will be ignored.
-     * Null means accept all triples.
+     * Null means accept all triples (even those not having a stored time).
      */
     private Date oldestTime = null;
 
     /**
      * Minimum error localization score of accepted named graphs.
-     * Null means accept all graphs.
+     * Null means accept all graphs (even those not having a score).
      */
-    private Double minScore = 0.0;
+    private Double minScore = null;
 
     /**
-     * Create instance with no contraints.
+     * Create instance with no constraints.
      */
     public QueryConstraintSpec() {
     }

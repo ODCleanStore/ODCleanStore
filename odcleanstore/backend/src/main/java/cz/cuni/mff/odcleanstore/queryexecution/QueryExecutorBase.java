@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.queryexecution;
 
+import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
 import cz.cuni.mff.odcleanstore.queryexecution.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.queryexecution.exceptions.QueryException;
@@ -12,25 +13,30 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
- * The base class of query executors - classes that handle each type of query over the clean
- * database.
+ * The base class of query executors.
  *
- * Each query executor loads triples relevant for the query from the clean database, applies
- * conflict resolution to it and converts the result to plain RDF quads.
+ * Each query executor loads triples relevant for the query and metadata from the clean database, applies
+ * conflict resolution to it and returns a holder of thr result quads and metadata.
  *
  * @author Jan Michelfeit
  */
 /*package*/abstract class QueryExecutorBase {
-
     // TODO: remove
-    protected static final String NG_PREFIX_FILTER = "http://odcs.mff.cuni.cz/namedGraph/qe-test/";
-    protected static final long DEFAULT_LIMIT = 200;
+    protected static final String GRAPH_PREFIX_FILTER = "http://odcs.mff.cuni.cz/namedGraph/qe-test/";
+    /**
+     * Maximum number of triples returned by each database query (the overall result size may be larger).
+     * TODO: get from global configuration.
+     */
+    protected static final long MAX_LIMIT = 200;
+
+    /** Prefix named graphs where the resulting triples are placed. TODO: get from global configuration. */
     protected static final String RESULT_GRAPH_PREFIX = "http://odcs.mff.cuni.cz/results/";
 
+    /** Properties designating a human-readable label. */
     protected static final String[] LABEL_PROPERTIES = new String[] { RDFS.label };
+
+    /** List of {@link #LABEL_PROPERTIES} formatted to a string for use in a SPARQL query. */
     protected static final String LABEL_PROPERTIES_LIST;
-
-
 
     static {
         assert (LABEL_PROPERTIES.length > 0);
@@ -44,26 +50,34 @@ import java.sql.Statement;
     }
 
     /** Connection settings for the SPARQL endpoint that will be queried. */
-    protected final SparqlEndpoint sparqlEndpoint;
+    private final SparqlEndpoint sparqlEndpoint;
 
-    private Connection connection;
+    /** Constraints on triples returned in the result. */
+    protected final QueryConstraintSpec constraints;
+
+    /** Aggregation settings for conflict resolution. */
+    protected final AggregationSpec aggregationSpec;
 
     /**
      * Creates a new instance of QueryExecutorBase.
      * @param sparqlEndpoint connection settings for the SPARQL endpoint that will be queried
+     * @param constraints constraints on triples returned in the result
+     * @param aggregationSpec aggregation settings for conflict resolution
      */
-    protected QueryExecutorBase(SparqlEndpoint sparqlEndpoint) {
+    protected QueryExecutorBase(SparqlEndpoint sparqlEndpoint, QueryConstraintSpec constraints,
+            AggregationSpec aggregationSpec) {
         this.sparqlEndpoint = sparqlEndpoint;
+        this.constraints = constraints;
+        this.aggregationSpec = aggregationSpec;
+
     }
 
-    private Connection getConnection() throws ODCleanStoreException {
-        if (connection == null) {
-            connection = createConnection();
-        }
-        return connection;
-    }
-
-    private Connection createConnection() throws ODCleanStoreException {
+    /**
+     * Create a new database connection.
+     * @return a new database connection
+     * @throws ODCleanStoreException the connection cannot be created.
+     */
+    protected Connection createConnection() throws ConnectionException {
         try {
             Class.forName("virtuoso.jdbc3.Driver");
         } catch (ClassNotFoundException e) {
@@ -79,17 +93,20 @@ import java.sql.Statement;
         }
     }
 
-    protected WrappedResultSet executeQuery(String query) throws ODCleanStoreException {
+    /**
+     * Executes an SQL query and returns a wrapper for the result.
+     * @param connection connection used to execute the query
+     * @param query SQL/SPARQL query
+     * @return the result of the query
+     * @throws ODCleanStoreException query error
+     */
+    protected static WrappedResultSet executeQuery(Connection connection, String query) throws QueryException {
         try {
-            Statement statement = getConnection().createStatement();
+            Statement statement = connection.createStatement();
             statement.execute(query);
             return new WrappedResultSet(statement);
         } catch (SQLException e) {
             throw new QueryException(e);
         }
     }
-
-
-
-
 }

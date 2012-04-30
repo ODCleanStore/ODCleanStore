@@ -14,6 +14,9 @@ import cz.cuni.mff.odcleanstore.queryexecution.QueryResult;
 
 /**
  * Returns a representation of a query result in a user-friendly HTML document.
+ * 
+ * TODO: process labels?
+ * 
  * @author Jan Michelfeit
  */
 public class HTMLFormatter extends ResultFormatterBase {

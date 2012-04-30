@@ -26,6 +26,8 @@ import java.util.Iterator;
  * Triples that contain the given keywords (separated by whitespace) in the object of the triple
  * of type literal are returned.
  *
+ * This class is not thread-safe.
+ *
  * @author Jan Michelfeit
  */
 /*package*/class KeywordQueryExecutor extends QueryExecutorBase {
@@ -39,21 +41,21 @@ import java.util.Iterator;
     /**
      * Creates a new instance of KeywordQueryExecutor.
      * @param sparqlEndpoint connection settings for the SPARQL endpoint that will be queried
+     * @param constraints constraints on triples returned in the result
+     * @param aggregationSpec aggregation settings for conflict resolution
      */
-    public KeywordQueryExecutor(SparqlEndpoint sparqlEndpoint) {
-        super(sparqlEndpoint);
+    public KeywordQueryExecutor(SparqlEndpoint sparqlEndpoint, QueryConstraintSpec constraints,
+            AggregationSpec aggregationSpec) {
+        super(sparqlEndpoint, constraints, aggregationSpec);
     }
 
     /**
      * Executes the keyword search query.
      *
      * @param keywords searched keywords (separated by whitespace)
-     * @param constraints constraints on triples returned in the result
-     * @param aggregationSpec aggregation settings for conflict resolution
      * @return result of the query as RDF quads
      */
-    public QueryResult findKeyword(String keywords, QueryConstraintSpec constraints,
-            AggregationSpec aggregationSpec) throws ODCleanStoreException {
+    public QueryResult findKeyword(String keywords) throws ODCleanStoreException {
 
         long startTime = System.currentTimeMillis();
         // TODO: escaping
