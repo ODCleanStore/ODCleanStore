@@ -7,7 +7,7 @@ import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 import java.net.URISyntaxException;
 
 /**
- * Access point of the Query Execution component.
+ * Access point (facade) of the Query Execution component.
  * Provides access to methods provided by each QueryExecutor.
  *
  * The purpose of Query Execution is to load triples relevant for the given query from the clean
@@ -15,8 +15,6 @@ import java.net.URISyntaxException;
  * to plain quads and return the result.
  *
  * Methods of this class are thread-safe.
- *
- * TODO: merge with default AggregationSpec
  *
  * @author Jan Michelfeit
  */

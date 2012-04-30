@@ -2,15 +2,7 @@ package cz.cuni.mff.odcleanstore.queryexecution;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
-import cz.cuni.mff.odcleanstore.queryexecution.exceptions.ConnectionException;
-import cz.cuni.mff.odcleanstore.queryexecution.exceptions.QueryException;
-import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 import cz.cuni.mff.odcleanstore.vocabulary.RDFS;
-
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
 
 /**
  * The base class of query executors.
@@ -21,15 +13,24 @@ import java.sql.Statement;
  * @author Jan Michelfeit
  */
 /*package*/abstract class QueryExecutorBase {
-    // TODO: remove
+    /**
+     * (Debug) Only named graph having URI starting with this prefix can be included in query result.
+     * If the value is null, there is now restriction on named graph URIs.
+     * This constant is only for debugging purposes and should be null in production environment.
+     * TODO: set to null
+     */
     protected static final String GRAPH_PREFIX_FILTER = "http://odcs.mff.cuni.cz/namedGraph/qe-test/";
+
     /**
      * Maximum number of triples returned by each database query (the overall result size may be larger).
      * TODO: get from global configuration.
      */
-    protected static final long MAX_LIMIT = 200;
+    protected static final long MAX_LIMIT = 500;
 
-    /** Prefix named graphs where the resulting triples are placed. TODO: get from global configuration. */
+    /**
+     * Prefix of named graphs where the resulting triples are placed.
+     * TODO: get from global configuration.
+     */
     protected static final String RESULT_GRAPH_PREFIX = "http://odcs.mff.cuni.cz/results/";
 
     /** Properties designating a human-readable label. */
@@ -49,14 +50,16 @@ import java.sql.Statement;
         LABEL_PROPERTIES_LIST = sb.substring(0, sb.length() - 2);
     }
 
+    // CHECKSTYLE:OFF
     /** Connection settings for the SPARQL endpoint that will be queried. */
-    private final SparqlEndpoint sparqlEndpoint;
+    protected final SparqlEndpoint sparqlEndpoint;
 
     /** Constraints on triples returned in the result. */
     protected final QueryConstraintSpec constraints;
 
     /** Aggregation settings for conflict resolution. */
     protected final AggregationSpec aggregationSpec;
+    // CHECKSTYLE:ON
 
     /**
      * Creates a new instance of QueryExecutorBase.
@@ -70,43 +73,5 @@ import java.sql.Statement;
         this.constraints = constraints;
         this.aggregationSpec = aggregationSpec;
 
-    }
-
-    /**
-     * Create a new database connection.
-     * @return a new database connection
-     * @throws ODCleanStoreException the connection cannot be created.
-     */
-    protected Connection createConnection() throws ConnectionException {
-        try {
-            Class.forName("virtuoso.jdbc3.Driver");
-        } catch (ClassNotFoundException e) {
-            throw new ConnectionException("Couldn't load Virtuoso jdbc driver", e);
-        }
-        try {
-            return DriverManager.getConnection(
-                    sparqlEndpoint.getUri(),
-                    sparqlEndpoint.getUsername(),
-                    sparqlEndpoint.getPassword());
-        } catch (SQLException e) {
-            throw new ConnectionException(e);
-        }
-    }
-
-    /**
-     * Executes an SQL query and returns a wrapper for the result.
-     * @param connection connection used to execute the query
-     * @param query SQL/SPARQL query
-     * @return the result of the query
-     * @throws ODCleanStoreException query error
-     */
-    protected static WrappedResultSet executeQuery(Connection connection, String query) throws QueryException {
-        try {
-            Statement statement = connection.createStatement();
-            statement.execute(query);
-            return new WrappedResultSet(statement);
-        } catch (SQLException e) {
-            throw new QueryException(e);
-        }
     }
 }

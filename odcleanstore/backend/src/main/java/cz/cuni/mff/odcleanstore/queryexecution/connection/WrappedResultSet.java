@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.queryexecution;
+package cz.cuni.mff.odcleanstore.queryexecution.connection;
 
 import com.hp.hpl.jena.graph.Node;
 
@@ -13,7 +13,7 @@ import java.sql.Statement;
  * This wrapper should be used only for results obtained from the Virtuoso JDBC driver.
  * @author Jan Michelfeit
  */
-/*package*/class WrappedResultSet {
+public class WrappedResultSet {
     /** The wrapped SQL statement. */
     private Statement statement;
 
@@ -30,7 +30,7 @@ import java.sql.Statement;
      * Create a new instance.
      * @param wrappedStatement the statement to wrap
      */
-    public WrappedResultSet(Statement wrappedStatement) {
+    /*package*/WrappedResultSet(Statement wrappedStatement) {
         this.statement = wrappedStatement;
     }
 
@@ -80,12 +80,25 @@ import java.sql.Statement;
     }
 
     /**
+     * Close the wrapped statement without throwing an exception.
+     */
+    public void closeQuietly() {
+        // CHECKSTYLE:OFF
+        try {
+            statement.close();
+        } catch (SQLException e) {
+            // ignore
+        }
+        // CHECKSTYLE:ON
+    }
+
+    /**
      * Retrieves the value of the designated column in the current row of this ResultSet object as a Node.
      * @param columnLabel the label for the column (the name of the column or the name specified with the SQL AS clause)
      * @return the column value; if the value is SQL NULL, the value returned is null
      * @throws SQLException exception
      */
-    Node getNode(String columnLabel) throws SQLException {
+    public Node getNode(String columnLabel) throws SQLException {
         return objectToNode(resultSet.getObject(columnLabel));
     }
 
@@ -95,7 +108,7 @@ import java.sql.Statement;
      * @return the column value; if the value is SQL NULL, the value returned is null
      * @throws SQLException exception
      */
-    Node getNode(int columnIndex) throws SQLException {
+    public Node getNode(int columnIndex) throws SQLException {
         return objectToNode(resultSet.getObject(columnIndex));
     }
 

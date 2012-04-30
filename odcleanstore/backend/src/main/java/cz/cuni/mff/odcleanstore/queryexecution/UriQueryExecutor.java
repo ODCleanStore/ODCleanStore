@@ -9,6 +9,8 @@ import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.data.QuadCollection;
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
+import cz.cuni.mff.odcleanstore.queryexecution.connection.VirtuosoConnectionWrapper;
+import cz.cuni.mff.odcleanstore.queryexecution.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.queryexecution.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.queryexecution.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
@@ -26,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Collection;
@@ -285,7 +286,7 @@ import java.util.Locale;
     /**
      * Database connection.
      */
-    private Connection connection;
+    private VirtuosoConnectionWrapper connection;
 
     /**
      * Creates a new instance of UriQueryExecutor.
@@ -304,12 +305,12 @@ import java.util.Locale;
      * @param uri searched URI
      * @return query result holder
      * @throws URISyntaxException the given URI is not a valid URI
-     * @throws ODCleanStoreException exception
+     * @throws ODCleanStoreException database error
      */
     public QueryResult findURI(String uri) throws ODCleanStoreException, URISyntaxException {
-
         LOG.info("URI query for <{}>", uri);
-        long startTime = System.currentTimeMillis(); // TODO: only if LOG.isDebugEnabled()
+        long startTime = System.currentTimeMillis();
+
         // Check that the URI is valid (must not be empty or null, should match '<' ([^<>"{}|^`\]-[#x00-#x20])* '>' )
         try {
             new URI(uri);
@@ -350,9 +351,9 @@ import java.util.Locale;
      * @return database connection
      * @throws ConnectionException database connection error
      */
-    private Connection getConnection() throws ConnectionException {
+    private VirtuosoConnectionWrapper getConnection() throws ConnectionException {
         if (connection == null) {
-            connection = createConnection();
+            connection = VirtuosoConnectionWrapper.createConnection(sparqlEndpoint);
         }
         return connection;
     }
@@ -363,12 +364,8 @@ import java.util.Locale;
      */
     private void closeConnection() throws ConnectionException {
         if (connection != null) {
-            try {
-                connection.close();
-                connection = null;
-            } catch (SQLException e) {
-                throw new ConnectionException(e);
-            }
+            connection.close();
+            connection = null;
         }
     }
 
@@ -451,13 +448,12 @@ import java.util.Locale;
     private Collection<Quad> getURIOccurrences(String uri) throws ODCleanStoreException {
         long startTime = System.currentTimeMillis();
 
-        // Prepare the query
         String query = String.format(URI_OCCURENCES_QUERY, uri, getGraphFilterClause(), MAX_LIMIT);
-        WrappedResultSet resultSet = executeQuery(getConnection(), query);
+        WrappedResultSet resultSet = getConnection().executeSelect(query);
         LOG.debug("Query Execution: getURIOccurences() query took {} ms", System.currentTimeMillis() - startTime);
 
-        QuadCollection quads = new QuadCollection();
         try {
+            QuadCollection quads = new QuadCollection();
             while (resultSet.next()) {
                 // CHECKSTYLE:OFF
                 Quad quad = new Quad(
@@ -468,13 +464,14 @@ import java.util.Locale;
                 quads.add(quad);
                 // CHECKSTYLE:ON
             }
-            resultSet.close();
+
+            LOG.debug("Query Execution: getURIOccurrences() in {} ms", System.currentTimeMillis() - startTime);
+            return quads;
         } catch (SQLException e) {
             throw new QueryException(e);
+        } finally {
+            resultSet.closeQuietly();
         }
-
-        LOG.debug("Query Execution: getURIOccurrences() in {} ms", System.currentTimeMillis() - startTime);
-        return quads;
     }
 
     /**
@@ -484,31 +481,31 @@ import java.util.Locale;
      * @throws ODCleanStoreException query error
      */
     private Collection<Quad> getLabels(String uri) throws ODCleanStoreException {
-
         long startTime = System.currentTimeMillis();
-        // Prepare the query
+
         String query = String.format(Locale.ROOT, LABELS_QUERY, uri, getGraphFilterClause(), LABEL_PROPERTIES_LIST,
                 getGraphPrefixFilter("labelGraph"), MAX_LIMIT);
-        WrappedResultSet resultSet = executeQuery(getConnection(), query);
+        WrappedResultSet resultSet = getConnection().executeSelect(query);
         LOG.debug("Query Execution: getLabels() query took {} ms", System.currentTimeMillis() - startTime);
 
-        QuadCollection quads = new QuadCollection();
         try {
+            QuadCollection quads = new QuadCollection();
             while (resultSet.next()) {
                 Quad quad = new Quad(
                         resultSet.getNode("labelGraph"),
-                        resultSet.getNode("r"), // TODO: number indeces?
+                        resultSet.getNode("r"),
                         resultSet.getNode("labelProp"),
                         resultSet.getNode("label"));
                 quads.add(quad);
             }
-            resultSet.close();
+
+            LOG.debug("Query Execution: getLabels() in {} ms", System.currentTimeMillis() - startTime);
+            return quads;
         } catch (SQLException e) {
             throw new QueryException(e);
+        } finally {
+            resultSet.closeQuietly();
         }
-
-        LOG.debug("Query Execution: getLabels() in {} ms", System.currentTimeMillis() - startTime);
-        return quads;
     }
 
     /**
@@ -523,14 +520,14 @@ import java.util.Locale;
         long startTime = System.currentTimeMillis();
         // Execute the query
         String query = String.format(Locale.ROOT, METADATA_QUERY, uri, getGraphFilterClause(),
-                LABEL_PROPERTIES_LIST, getGraphPrefixFilter("resGraph"),  MAX_LIMIT);
+                LABEL_PROPERTIES_LIST, getGraphPrefixFilter("resGraph"), MAX_LIMIT);
 
-        WrappedResultSet resultSet = executeQuery(getConnection(), query);
+        WrappedResultSet resultSet = getConnection().executeSelect(query);
         LOG.debug("Query Execution: getMetadata() query took {} ms", System.currentTimeMillis() - startTime);
 
         // Build the result
-        NamedGraphMetadataMap metadata = new NamedGraphMetadataMap();
         try {
+            NamedGraphMetadataMap metadata = new NamedGraphMetadataMap();
             while (resultSet.next()) {
                 NamedGraphMetadata graphMetadata = new NamedGraphMetadata(resultSet.getString("resGraph"));
 
@@ -551,12 +548,12 @@ import java.util.Locale;
 
                 metadata.addMetadata(graphMetadata);
             }
-            resultSet.close();
+            LOG.debug("Query Execution: getMetadata() in {} ms", System.currentTimeMillis() - startTime);
+            return metadata;
         } catch (SQLException e) {
             throw new QueryException(e);
+        } finally {
+            resultSet.closeQuietly();
         }
-
-        LOG.debug("Query Execution: getMetadata() in {} ms", System.currentTimeMillis() - startTime);
-        return metadata;
     }
 }

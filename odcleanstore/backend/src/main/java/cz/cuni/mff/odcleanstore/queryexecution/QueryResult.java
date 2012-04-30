@@ -7,7 +7,8 @@ import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import java.util.Collection;
 
 /**
- * TODO .
+ * Query result holder.
+ * Provides access to all important information about query result such as the result quads, metadata or query settings.
  * @author Jan Michelfeit
  */
 public class QueryResult {

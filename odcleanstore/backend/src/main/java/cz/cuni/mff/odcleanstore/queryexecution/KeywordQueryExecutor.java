@@ -2,24 +2,17 @@ package cz.cuni.mff.odcleanstore.queryexecution;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
-import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
-import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
-import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.data.QuadCollection;
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
+import cz.cuni.mff.odcleanstore.queryexecution.connection.VirtuosoConnectionWrapper;
+import cz.cuni.mff.odcleanstore.queryexecution.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
-
-import com.hp.hpl.jena.graph.Triple;
-
-import de.fuberlin.wiwiss.ng4j.Quad;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.Collections;
 
 /**
  * Executes the keyword search query.
@@ -33,10 +26,10 @@ import java.util.Iterator;
 /*package*/class KeywordQueryExecutor extends QueryExecutorBase {
     private static final Logger LOG = LoggerFactory.getLogger(KeywordQueryExecutor.class);
 
-    private static final String KW_OCCURENCES_QUERY = "";
-    private static final String METADATA_QUERY = "";
-    private static final String SAME_AS_QUERY = "";
-    private static final String LABELS_QUERY = "";
+    /**
+     * Database connection.
+     */
+    private VirtuosoConnectionWrapper connection;
 
     /**
      * Creates a new instance of KeywordQueryExecutor.
@@ -53,68 +46,64 @@ import java.util.Iterator;
      * Executes the keyword search query.
      *
      * @param keywords searched keywords (separated by whitespace)
-     * @return result of the query as RDF quads
+     * @return query result holder
+     * @throws ODCleanStoreException database error
      */
     public QueryResult findKeyword(String keywords) throws ODCleanStoreException {
-
+        LOG.info("Keyword query for {}", keywords);
         long startTime = System.currentTimeMillis();
         // TODO: escaping
 
-        // Get the quads relevant for the query
-        Collection<Quad> quads = getKeywordOccurrences(keywords, constraints);
-        quads = new QuadCollection();
-        quads.addAll(getLabels(keywords, constraints));
+        try {
+            return createResult(Collections.<CRQuad>emptyList(), new NamedGraphMetadataMap(),
+                    System.currentTimeMillis() - startTime);
+        } finally {
+            closeConnection();
+        }
+    }
 
-        // Gather all settings for Conflict Resolution
-        ConflictResolverSpec crSpec = new ConflictResolverSpec(RESULT_GRAPH_PREFIX, aggregationSpec);
-        // crSpec.setSameAsLinks(getSameAsLinks(keywords, constraints)); // TODO
-        NamedGraphMetadataMap metadata = getMetadata(keywords, constraints);
-        crSpec.setNamedGraphMetadata(metadata);
+    /**
+     * Returns a database connection.
+     * The connection is shared within this instance until it is closed.
+     * @return database connection
+     * @throws ConnectionException database connection error
+     */
+    /*private VirtuosoConnectionWrapper getConnection() throws ConnectionException {
+        if (connection == null) {
+            connection = VirtuosoConnectionWrapper.createConnection(sparqlEndpoint);
+        }
+        return connection;
+    }*/
 
-        // Apply conflict resolution
-        ConflictResolver conflictResolver = ConflictResolverFactory.createResolver(crSpec);
-        Collection<CRQuad> resolvedQuads = conflictResolver.resolveConflicts(quads);
+    /**
+     * Closes an opened database connection, if any.
+     * @throws ConnectionException database connection error
+     */
+    private void closeConnection() throws ConnectionException {
+        if (connection != null) {
+            connection.close();
+            connection = null;
+        }
+    }
 
-        LOG.debug("Query Execution: findKeyword() in {} ms", System.currentTimeMillis() - startTime);
+    /**
+     * Creates an object holding the results of the query.
+     * @param resultQuads result of the query as {@link CRQuad CRQuads}
+     * @param metadata provenance metadata for resultQuads
+     * @param executionTime query execution time in ms
+     * @return query result holder
+     */
+    private QueryResult createResult(
+            Collection<CRQuad> resultQuads,
+            NamedGraphMetadataMap metadata,
+            long executionTime) {
+
+        LOG.debug("Query Execution: findKeyword() in {} ms", executionTime);
         // Format and return result
-        return new QueryResult(resolvedQuads, metadata, EnumQueryType.KEYWORD, constraints, aggregationSpec);
-    }
-
-    private Collection<Quad> getKeywordOccurrences(String keywords, QueryConstraintSpec constraints)
-            throws ODCleanStoreException {
-
-        long startTime = System.currentTimeMillis();
-        QuadCollection quads = new QuadCollection();
-
-        LOG.debug("Query Execution: getKeywordOccurrences() in {} ms", System.currentTimeMillis() - startTime);
-        return quads;
-    }
-
-    private Collection<Quad> getLabels(String keywords, QueryConstraintSpec constraints) throws ODCleanStoreException {
-        long startTime = System.currentTimeMillis();
-        QuadCollection quads = new QuadCollection();
-        LOG.debug("Query Execution: getLabels() in {} ms", System.currentTimeMillis() - startTime);
-        return quads;
-    }
-
-    private NamedGraphMetadataMap getMetadata(String keywords, QueryConstraintSpec constraints)
-            throws ODCleanStoreException {
-
-        long startTime = System.currentTimeMillis();
-        NamedGraphMetadataMap metadata = new NamedGraphMetadataMap();
-
-        LOG.debug("Query Execution: getMetadata() in {} ms", System.currentTimeMillis() - startTime);
-        return metadata;
-    }
-
-    private Iterator<Triple> getSameAsLinks(String keywords, QueryConstraintSpec constraints) throws ODCleanStoreException {
-        long startTime = System.currentTimeMillis();
-
-        // Build the result
-        ArrayList<Triple> sameAsLinks = new ArrayList<Triple>();
-
-        LOG.debug("Query Execution: getSameAsLinks() in %f ms", System.currentTimeMillis() - startTime);
-        return sameAsLinks.iterator();
+        QueryResult queryResult = new QueryResult(resultQuads, metadata, EnumQueryType.KEYWORD, constraints,
+                aggregationSpec);
+        queryResult.setExecutionTime(executionTime);
+        return queryResult;
     }
 }
 
