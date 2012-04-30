@@ -253,67 +253,6 @@ import java.util.Locale;
             + "\n }}"
             + "\n LIMIT %3$d";
 
-    // TODO: limit by time and quality too?
-    // dela to same co LABELS_QUERY, ale je approx. 30 times slower
-    private static final String LABELS_QUERY2 = "SPARQL"
-            + "\n DEFINE input:same-as \"yes\""
-            + "\n SELECT DISTINCT ?labelGraph ?r ?labelProp ?label"
-            + "\n WHERE {"
-            + "\n   {"
-            + "\n     ?s ?p ?r"
-            + "\n     FILTER (?s = <%1$s>)"
-            + "\n     GRAPH ?labelGraph {"
-            + "\n       ?r ?labelProp ?label"
-            + "\n       FILTER (?labelProp IN (%4$s))"
-            + "\n     }"
-            + "\n     OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }"
-            + "\n     OPTIONAL { ?graph <" + ODCS.score + ">  ?score }"
-            + "\n     FILTER(!bound(?score) || ?score > %2$f) ."
-            + "\n     FILTER regex(?labelGraph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
-            + "\n   }"
-            + "\n   UNION"
-            + "\n   {"
-            + "\n     ?s ?r ?o"
-            + "\n     FILTER (?s = <%1$s>)"
-            + "\n     GRAPH ?labelGraph {"
-            + "\n       ?r ?labelProp ?label"
-            + "\n       FILTER (?labelProp IN (%4$s))"
-            + "\n     }"
-            + "\n     OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }"
-            + "\n     OPTIONAL { ?graph <" + ODCS.score + ">  ?score }"
-            + "\n     FILTER(!bound(?score) || ?score > %2$f) ."
-            + "\n     FILTER regex(?labelGraph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
-            + "\n   }"
-            + "\n   UNION"
-            + "\n   {"
-            + "\n     ?r ?p ?o"
-            + "\n     FILTER (?o = <%1$s>)"
-            + "\n     GRAPH ?labelGraph {"
-            + "\n       ?r ?labelProp ?label"
-            + "\n       FILTER (?labelProp IN (%4$s))"
-            + "\n     }"
-            + "\n     OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }"
-            + "\n     OPTIONAL { ?graph <" + ODCS.score + ">  ?score }"
-            + "\n     FILTER(!bound(?score) || ?score > %2$f) ."
-            + "\n     FILTER regex(?labelGraph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
-            + "\n   }"
-            + "\n   UNION"
-            + "\n   {"
-            + "\n     ?s ?r ?o"
-            + "\n     FILTER (?o = <%1$s>)"
-            + "\n     GRAPH ?labelGraph {"
-            + "\n       ?r ?labelProp ?label"
-            + "\n       FILTER (?labelProp IN (%4$s))"
-            + "\n     }"
-            + "\n     OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }"
-            + "\n     OPTIONAL { ?graph <" + ODCS.score + ">  ?score }"
-            + "\n     FILTER(!bound(?score) || ?score > %2$f) ."
-            + "\n     FILTER regex(?labelGraph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
-            + "\n   }"
-            + "\n }"
-            + "\n LIMIT %3$d";
-
-
     /**
      * Creates a new instance of UriQueryExecutor.
      * @param sparqlEndpoint connection settings for the SPARQL endpoint that will be queried
@@ -328,7 +267,9 @@ import java.util.Locale;
      * @param uri searched URI
      * @param constraints constraints on triples returned in the result
      * @param aggregationSpec aggregation settings for conflict resolution
-     * @return result of the query as RDF quads
+     * @return query result holder
+     * @throws URISyntaxException the given URI is not a valid URI
+     * @throws ODCleanStoreException exception
      */
     public QueryResult findURI(String uri, QueryConstraintSpec constraints,
             AggregationSpec aggregationSpec) throws ODCleanStoreException, URISyntaxException {
@@ -344,6 +285,10 @@ import java.util.Locale;
 
         // Get the quads relevant for the query
         Collection<Quad> quads = getURIOccurrences(uri, constraints);
+        if (quads.isEmpty()) {
+            return createResult(Collections.<CRQuad>emptyList(), new NamedGraphMetadataMap(), constraints,
+                    aggregationSpec, System.currentTimeMillis() - startTime);
+        }
         quads.addAll(getLabels(uri, constraints));
 
         // Gather all settings for Conflict Resolution
@@ -358,14 +303,33 @@ import java.util.Locale;
         ConflictResolver conflictResolver = ConflictResolverFactory.createResolver(crSpec);
         Collection<CRQuad> resolvedQuads = conflictResolver.resolveConflicts(quads);
 
-        long executionTime = System.currentTimeMillis() - startTime;
+        return createResult(resolvedQuads, metadata, constraints, aggregationSpec,
+                System.currentTimeMillis() - startTime);
+    }
+
+
+
+    /**
+     * Creates an object holding the results of the query.
+     * @param resultQuads result of the query as {@link CRQuad CRQuads}
+     * @param metadata provenance metadata for resultQuads
+     * @param queryConstraints constraints on triples returned in the result
+     * @param aggregationSpec aggregation settings used during conflict resolution
+     * @param executionTime query execution time in ms
+     * @return query result holder
+     */
+    private QueryResult createResult(
+            Collection<CRQuad> resultQuads,
+            NamedGraphMetadataMap metadata,
+            QueryConstraintSpec queryConstraints,
+            AggregationSpec aggregationSpec,
+            long executionTime) {
         LOG.debug("Query Execution: findURI() in {} ms", executionTime);
         // Format and return result
-        QueryResult queryResult =
-                new QueryResult(resolvedQuads, metadata, EnumQueryType.URI, constraints, aggregationSpec);
+        QueryResult queryResult = new QueryResult(resultQuads, metadata,
+                EnumQueryType.URI, queryConstraints, aggregationSpec);
         queryResult.setExecutionTime(executionTime);
         return queryResult;
-
     }
 
     private Collection<Quad> getURIOccurrences(String uri, QueryConstraintSpec constraints)
