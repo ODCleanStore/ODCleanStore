@@ -19,6 +19,12 @@ import java.sql.Statement;
  */
 public final class VirtuosoConnectionWrapper {
     /**
+     * Query timeout in seconds.
+     * TODO: get from global configuration
+     */
+    public static final int QUERY_TIMEOUT = 30;
+
+    /**
      * Create a new connection and return its wrapper.
      * @param sparqlEndpoint connection settings for the SPARQL endpoint
      * @return wrapper of the newly created connection
@@ -63,6 +69,7 @@ public final class VirtuosoConnectionWrapper {
     public WrappedResultSet executeSelect(String query) throws QueryException {
         try {
             Statement statement = connection.createStatement();
+            statement.setQueryTimeout(QUERY_TIMEOUT);
             statement.execute(query);
             return new WrappedResultSet(statement);
         } catch (SQLException e) {

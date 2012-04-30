@@ -7,7 +7,6 @@ import java.util.Date;
  * All metadata except for namedGraphURI can be null.
  *
  * @author Jan Michelfeit
- * @todo use Node_URI instead of String?
  */
 public class NamedGraphMetadata {
     /** URI of the named graph for which this objects contains metadata. */

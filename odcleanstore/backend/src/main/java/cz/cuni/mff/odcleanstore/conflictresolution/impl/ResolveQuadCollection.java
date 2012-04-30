@@ -160,7 +160,7 @@ import java.util.ListIterator;
             ListIterator<Quad> listIt = quadList.listIterator();
             int i;
             for (i = 0; i < quadArray.length - 1; i++) {
-                if (!quadArray[i].equals(quadArray[i+1])) {
+                if (!quadArray[i].equals(quadArray[i + 1])) {
                     listIt.next();
                     listIt.set(quadArray[i]);
                 }
