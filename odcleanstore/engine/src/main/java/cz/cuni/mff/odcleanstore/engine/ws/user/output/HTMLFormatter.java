@@ -110,7 +110,7 @@ public class HTMLFormatter extends ResultFormatterBase {
 				}
 				writer.write("</td><td>");
 				if (metadata.getStored() != null) {
-					writer.write(metadata.getStored().toString());
+					writer.write(formatDate(metadata.getStored()));
 				}
 				writer.write("</td><td>");
 				if (metadata.getScore() != null) {

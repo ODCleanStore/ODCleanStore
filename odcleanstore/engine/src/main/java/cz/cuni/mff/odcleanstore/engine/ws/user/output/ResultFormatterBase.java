@@ -1,5 +1,7 @@
 package cz.cuni.mff.odcleanstore.engine.ws.user.output;
 
+import java.util.Date;
+
 /**
  * An abstract base class for query result formatters.
  * @author Jan Michelfeit
@@ -24,5 +26,15 @@ public abstract class ResultFormatterBase implements QueryResultFormatter {
 	 */
 	protected String formatScore(double score) {
 		return String.format("%.5f", score); 
+	}
+	
+	/**
+	 * Format a date a readable string.
+	 * Note: If implementation changes, don't forget to keep it thread-safe.
+	 * @param date date
+	 * @return formatted date
+	 */
+	protected String formatDate(Date date) {
+		return date.toString();
 	}
 }

@@ -34,17 +34,17 @@ import java.util.Locale;
  * Executes the URI search query.
  * Triples that contain the given URI as their subject or object are returned.
  *
- * TODO: sameAs links between objects and between properties
  * @author Jan Michelfeit
  */
 /*package*/class UriQueryExecutor extends QueryExecutorBase {
     private static final Logger LOG = LoggerFactory.getLogger(UriQueryExecutor.class);
 
-    // TODO: use time
-    // UNION je nutny kvuli spravnemu fungovani owl:sameAs inference pro hledane URI ve Virtuosu
-    // poddotaz je nutny kvuli prekladu subjectu/objectu na jejich jediny owl:sameAs ekvivalent
-    // pri pouziti poddotazu tento preklad provede Virtuoso samo - diky tomu neni nutne ziskavat linky z databaze
-    // explicitne a predavat je do ConflictResolverSpec
+    /**
+     * SPARQL query that gets the main result quads.
+     * Use of UNION instead of a more complex filter is to make owl:sameAs inference in Virtuoso work.
+     * The subquery is necessary to make Virtuoso translate subjects/objects to a single owl:sameAs equivalent.
+     * This way we don't need to obtain sameAs links (passed to ConflictResolverSpec) from the database explicitly.
+     */
     private static final String URI_OCCURENCES_QUERY = "SPARQL"
             + "\n DEFINE input:same-as \"yes\""
             + "\n SELECT ?graph ?s ?p ?o"
@@ -56,11 +56,11 @@ import java.util.Locale;
             + "\n         GRAPH ?graph {"
             + "\n           ?s ?p ?o."
             + "\n           FILTER (?s = <%1$s>)"
-            //+ "\n           FILTER (?p != <" + OWL.sameAs + ">)" // TODO: asi opravdu vyfiltrovat?
+            + "\n           FILTER (?p != <" + OWL.sameAs + ">)"
             + "\n         }"
-            + "\n         OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }"
-            + "\n         OPTIONAL { ?graph <" + ODCS.score + ">  ?meta_score }" // TODO: non-optional if given?
-            + "\n         FILTER(!bound(?score) || ?score > %2$f) ."
+            + "\n         OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }"  // TODO: only if necessary
+            + "\n         OPTIONAL { ?graph <" + ODCS.score + ">  ?score }" // TODO: only if necessary
+            + "\n         FILTER(!bound(?score) || ?score > %2$f) ."  // TODO: non-optional if given
             + "\n         FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
             + "\n       }"
             + "\n       UNION"
@@ -68,12 +68,12 @@ import java.util.Locale;
             + "\n         GRAPH ?graph {"
             + "\n           ?s ?p ?o."
             + "\n           FILTER (?o = <%1$s>)"
-            //+ "\n           FILTER (?p != <" + OWL.sameAs + ">)"
+            + "\n           FILTER (?p != <" + OWL.sameAs + ">)"
             + "\n         }"
             + "\n         OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }"
             + "\n         OPTIONAL { ?graph <" + ODCS.score + ">  ?score }"
             + "\n         FILTER(!bound(?score) || ?score > %2$f) ."
-            + "\n         FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
+            + "\n         FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")"
             + "\n       }"
             + "\n     }"
             + "\n   }"
@@ -83,8 +83,12 @@ import java.util.Locale;
     // TODO: limit by time & score
     // TODO: omit metadata for additional labels?
     // TODO: pridat do dotazu vnitrni limity?
-    // metadata i pro labels
     // source se povazuje za povinny
+    /**
+     * SPARQL query that gets metadata for named graphs containing result quads.
+     * Source is the only required value, others can be null.
+     * For the reason why UNIONs and subqueries are used, see {@link #URI_OCCURENCES_QUERY}.
+     */
     private static final String METADATA_QUERY = "SPARQL"
             + "\n DEFINE input:same-as \"yes\""
             + "\n SELECT DISTINCT ?graph ?source ?score ?insertedAt ?publishedBy ?publisherScore"
@@ -259,6 +263,7 @@ import java.util.Locale;
      */
     public UriQueryExecutor(SparqlEndpoint sparqlEndpoint) {
         super(sparqlEndpoint);
+        String s = new java.sql.Timestamp(239239898L).toString();
     }
 
     /**

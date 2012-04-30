@@ -55,7 +55,7 @@ public class DebugFormatter extends ResultFormatterBase {
 					}
 					if (metadata.getStored() != null) {
 						writer.write("\tInserted at: ");
-						writer.write(metadata.getStored().toString());
+						writer.write(formatDate(metadata.getStored()));
 						writer.write('\n');
 					}
 					if (metadata.getScore() != null) {
