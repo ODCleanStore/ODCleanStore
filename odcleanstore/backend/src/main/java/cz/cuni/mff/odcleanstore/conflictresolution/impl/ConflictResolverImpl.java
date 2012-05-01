@@ -32,6 +32,7 @@ import java.util.Map;
 
 /**
  * Default implementation of the conflict resolution process.
+ * Non-static methods are not thread-safe (shared {@link #aggregationFactory}).
  *
  * @author Jan Michelfeit
  */
@@ -210,8 +211,7 @@ public class ConflictResolverImpl implements ConflictResolver {
         while (resultIterator.hasNext()) {
             boolean removed = false;
             Quad quad = resultIterator.next();
-            if (quad.getObject().sameValueAs(lastObject)
-                    && !quad.getGraphName().sameValueAs(lastNamedGraph)) {
+            if (quad.getObject().sameValueAs(lastObject) && !quad.getGraphName().sameValueAs(lastNamedGraph)) {
                 // (1) holds
                 NamedGraphMetadata lastMetadata = metadata.getMetadata(lastNamedGraph);
                 NamedGraphMetadata quadMetadata = metadata.getMetadata(quad.getGraphName());
@@ -225,8 +225,7 @@ public class ConflictResolverImpl implements ConflictResolver {
                     // (2) and (3) holds
                     resultIterator.remove();
                     removed = true;
-                    LOG.debug("Filtered a triple from an outdated named graph {}.",
-                            quad.getGraphName().getURI());
+                    LOG.debug("Filtered a triple from an outdated named graph {}.", quad.getGraphName().getURI());
                 }
             }
 
@@ -251,8 +250,7 @@ public class ConflictResolverImpl implements ConflictResolver {
      */
     private boolean hasOldVersions(NamedGraphMetadataMap metadataMap) {
         Collection<NamedGraphMetadata> metadataCollection = metadataMap.listMetadata();
-        Map<String, Date> dataSourceDates =
-                new HashMap<String, Date>(metadataCollection.size());
+        Map<String, Date> dataSourceDates = new HashMap<String, Date>(metadataCollection.size());
 
         for (NamedGraphMetadata metadata : metadataCollection) {
             assert metadata != null;
@@ -303,9 +301,7 @@ public class ConflictResolverImpl implements ConflictResolver {
      * @throws ODCleanStoreException thrown when named graph metadata contained
      *         in the input graph are not correctly formated
      */
-    private NamedGraphMetadataMap getNamedGraphMetadata(Collection<Quad> data)
-            throws ODCleanStoreException {
-
+    private NamedGraphMetadataMap getNamedGraphMetadata(Collection<Quad> data) throws ODCleanStoreException {
         NamedGraphMetadataMap metadata = spec.getNamedGraphMetadata();
         if (metadata != null) {
             return metadata;

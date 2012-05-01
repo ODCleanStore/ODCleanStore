@@ -19,8 +19,8 @@ public class AggregationMethodFactory {
     /**
      * Registry of already created aggregation methods.
      */
-    private Map<EnumAggregationType, AggregationMethod> methodRegistry
-            = new HashMap<EnumAggregationType, AggregationMethod>();
+    private Map<EnumAggregationType, AggregationMethod> methodRegistry =
+            new HashMap<EnumAggregationType, AggregationMethod>();
 
     /**
      * Instance of a single value aggregation.
@@ -42,10 +42,7 @@ public class AggregationMethodFactory {
      * @param uriGenerator generator of URIs
      * @param aggregationSpec aggregation and quality calculation settings
      */
-    public AggregationMethodFactory(
-            UniqueURIGenerator uriGenerator,
-            AggregationSpec aggregationSpec) {
-
+    public AggregationMethodFactory(UniqueURIGenerator uriGenerator, AggregationSpec aggregationSpec) {
         this.uriGenerator = uriGenerator;
         this.aggregationSpec = aggregationSpec;
         this.singleValueAggregation = createSingleValueAggregation();
@@ -59,8 +56,7 @@ public class AggregationMethodFactory {
      *         AggregationMethod implementation for the selected aggregation type
      * @see EnumAggregationType
      */
-    public AggregationMethod getAggregation(EnumAggregationType type)
-            throws AggregationNotImplementedException {
+    public AggregationMethod getAggregation(EnumAggregationType type) throws AggregationNotImplementedException {
         AggregationMethod result = methodRegistry.get(type);
         if (result == null) {
             result = createAggregation(type);
@@ -91,8 +87,7 @@ public class AggregationMethodFactory {
      * @throws AggregationNotImplementedException thrown if there is no
      *         AggregationMethod implementation for the selected aggregation type
      */
-    protected AggregationMethod createAggregation(EnumAggregationType type)
-            throws AggregationNotImplementedException {
+    protected AggregationMethod createAggregation(EnumAggregationType type) throws AggregationNotImplementedException {
         switch (type) {
         case ANY:
             return new AnyAggregation(aggregationSpec, uriGenerator);

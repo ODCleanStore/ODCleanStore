@@ -27,9 +27,7 @@ abstract class CalculatedValueAggregation extends AggregationMethodBase {
      * @param aggregationSpec aggregation and quality calculation settings
      * @param uriGenerator generator of URIs
      */
-    public CalculatedValueAggregation(
-            AggregationSpec aggregationSpec,
-            UniqueURIGenerator uriGenerator) {
+    public CalculatedValueAggregation(AggregationSpec aggregationSpec, UniqueURIGenerator uriGenerator) {
         super(aggregationSpec, uriGenerator);
     }
 
@@ -42,8 +40,7 @@ abstract class CalculatedValueAggregation extends AggregationMethodBase {
      * @return {@inheritDoc}
      */
     @Override
-    public abstract Collection<CRQuad> aggregate(
-            Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata);
+    public abstract Collection<CRQuad> aggregate(Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata);
 
     /**
      * {@inheritDoc}
@@ -74,9 +71,9 @@ abstract class CalculatedValueAggregation extends AggregationMethodBase {
     /**
      * @see #computeQuality(Quad,Collection,Collection,Collection,NamedGraphMetadataMap)
      *
-     * For some calculated values, multiple sources agreeing on the same value is rather by
-     * coincidence and the quality shouldn't be increased. This methods wraps computeQuality()
-     * disabling the agree bonus.
+     *      For some calculated values, multiple sources agreeing on the same value is rather by
+     *      coincidence and the quality shouldn't be increased. This methods wraps computeQuality()
+     *      disabling the agree bonus.
      *
      * @param resultQuad the quad for which quality is to be computed
      * @param conflictingQuads other quads conflicting with resultQuad
@@ -109,8 +106,7 @@ abstract class CalculatedValueAggregation extends AggregationMethodBase {
     protected Collection<String> allSourceNamedGraphs(Collection<Quad> conflictingQuads) {
         if (conflictingQuads.size() == 1) {
             // A singleton collection will do for a single quad
-            return Collections.singleton(
-                    conflictingQuads.iterator().next().getGraphName().getURI());
+            return Collections.singleton(conflictingQuads.iterator().next().getGraphName().getURI());
         }
 
         Set<String> result = new HashSet<String>(conflictingQuads.size());
