@@ -1,193 +1,247 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Date;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.rowmappers.RoleRowMapper;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.rowmappers.RolesAssignedToUsersRowMapping;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.rowmappers.UserRowMapper;
+import cz.cuni.mff.odcleanstore.util.Pair;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import javax.sql.DataSource;
+import org.apache.log4j.Logger;
 
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
-
-import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
+import com.mysql.jdbc.PreparedStatement;
 
 /**
- * Hibernate-based User DAO implementation.
+ * The User DAO.
  * 
- * @author Dusan Rychnovsky (dusan.rychnovsky@gmail.com)
+ * TODO: Implement Exceptions handling.
+ * TODO: Implement transactions.
+ * 
+ * TODO: Consider the idea that a Dao can lookup another dao and query it for raw objects.
+ * TODO: Also consider creating a Dao for the ROLES_TO_USERS_ASSIGNMENT table.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
 public class UserDao extends Dao<User>
 {
-	public User load(String username, String password)
-	{
-		List<Map<String, Object>> usersRows = jdbcTemplate.queryForList(
-			"SELECT * FROM `users` WHERE `username` = '" + username +
-			"' AND `password` = '" + password + "';"
-		);
-		
-		List<Map<String, Object>> rolesRows = jdbcTemplate.queryForList(
-			"SELECT * FROM `users_roles` JOIN `roles` " +
-			"ON (`roles`.`id` = `users_roles`.`role_id`)"
-		);
-		
-		List<User> users = addRolesToUsers(usersRows, rolesRows);
-
-		if (!users.isEmpty()) 
-			return users.get(0);
-		
-		return null;
-	}
+	private static Logger logger = Logger.getLogger(UserDao.class);
 	
-	/**
-	 * 
-	 * @return
-	 */
 	@Override
-	public List<User> loadAll() 
-	{
-		List<Map<String, Object>> usersRows = jdbcTemplate.queryForList(
-			"SELECT * FROM `users`"
-		);
+	public void delete(User item) {
+		// TODO Auto-generated method stub
 		
-		List<Map<String, Object>> rolesRows = jdbcTemplate.queryForList(
-			"SELECT * FROM `users_roles` JOIN `roles` " +
-			"ON (`roles`.`id` = `users_roles`.`role_id`)"
-		);
-		
-		return addRolesToUsers(usersRows, rolesRows);
 	}
 
-	/**
-	 * 
-	 * @param item
-	 */
 	@Override
-	public void insert(User item) 
-	{
-		String query = 
-			"INSERT INTO `users` (`username`, `password`, `email`, `createdAt`) " +
-			"VALUES (?, ?, ?, ?)";
+	public void save(User item) {
+		// TODO Auto-generated method stub
 		
-		Object[] args =
-		{
-			item.getUsername(),
-			item.getPassword(),
-			item.getEmail(),
-			dateToMySQLTimestamp(item.getCreatedAt())
-		};
-		
-		// TODO: might throw DataAccessException
-		// TODO: check that username/email is unique
-		jdbcTemplate.update(query, args);
-	}
-
-	/**
-	 * 
-	 * @param id
-	 */
-	@Override
-	public User load(int id) 
-	{
-		List<Map<String, Object>> usersRows = jdbcTemplate.queryForList(
-			"SELECT * FROM `users` WHERE `id` = " + id
-		);
-		
-		
-		
-		List<Map<String, Object>> rolesRows = jdbcTemplate.queryForList(
-			"SELECT * FROM `users_roles` JOIN `roles` " +
-			"ON (`roles`.`id` = `users_roles`.`role_id`)"
-		);
-		
-		List<User> users = addRolesToUsers(usersRows, rolesRows);
-
-		if (!users.isEmpty()) 
-			return users.get(0);
-		
-		return null;
-	}
-	
-	/**
-	 * Parses the given users-rows and roles-rows into a list of User instances
-	 * with properly set Role instances.
-	 * 
-	 * @param usersRows
-	 * @param rolesRows
-	 * @return
-	 */
-	private List<User> addRolesToUsers(
-		List<Map<String, Object>> usersRows, List<Map<String, Object>> rolesRows)
-	{
-		// construct users from row-list
-		//
-		HashMap<Integer, User> users = new HashMap<Integer, User>();
-		for (Map<String, Object> row : usersRows)
-		{
-			User user = new User(
-				(Integer) row.get("id"),
-				(String) row.get("username"),
-				(String) row.get("email"),
-				(Date) row.get("createdAt")
-			);
-			
-			users.put(user.getId(), user);
-		}
-		
-		// add roles to users
-		//
-		for (Map<String, Object> items : rolesRows)
-		{
-			Role role = new Role (
-				(Integer) items.get("id"),
-				(String) items.get("label"),
-				(String) items.get("description")
-			);
-
-			User user = users.get((Integer) items.get("user_id"));
-			if (user != null)
-				user.addRole(role);
-		}
-		
-		return new LinkedList<User>(users.values());
 	}
 
 	@Override
 	public void update(User item) 
 	{
-		// TODO: only updates roles for now
-		// TODO: to be done in a transaction
+		logger.debug("Updating user: " + item.getId());
 		
-		jdbcTemplate.execute(
-			"DELETE FROM `users_roles` WHERE `user_id` = " + item.getId()
+		updateUserProperties(item);
+		clearRolesMappingForUser(item);
+		addAllRolesToRolesMappingForUser(item);
+	}
+
+	@Override
+	public List<User> loadAll() 
+	{
+		logger.debug("Loading all registered users.");
+		
+		Map<Long, User> usersMapping = fetchAllUsers();
+		Map<Long, Role> rolesMapping = fetchAllRoles();
+
+		List<Pair<Long, Long>> assignedRoles = fetchRolesToUsersMapping();
+		
+		// assign rules to users according to the assignment
+		//
+		for (Pair<Long, Long> assignment : assignedRoles)
+		{
+			User targetUser = usersMapping.get(assignment.getFirst());
+			Role targetRole = rolesMapping.get(assignment.getSecond());
+			
+			targetUser.addRole(targetRole);
+		}
+		
+		logger.debug("Registered users successfuly loaded.");
+		return new LinkedList<User>(usersMapping.values());
+	}
+
+	@Override
+	public User load(Long id) 
+	{
+		logger.debug("Loading registered user: " + id);
+		
+		User user = fetchUserForId(id);
+		Map<Long, Role> rolesMapping = fetchAllRoles();
+		
+		List<Pair<Long, Long>> assignedRoles = fetchRolesToUsersMappingForUserId(id);
+		
+		for (Pair<Long, Long> assignment : assignedRoles)
+		{
+			assert assignment.getFirst() == id;
+			
+			Role targetRole = rolesMapping.get(assignment.getSecond());
+			user.addRole(targetRole);
+		}
+
+		return user;
+	}
+	
+	private User fetchUserForId(Long id)
+	{
+		Object[] arguments =
+		{
+			id
+		};
+		
+		List<User> resultList = jdbcTemplate.query(
+			"SELECT * FROM DB.FRONTEND.USERS WHERE id = ?", 
+			arguments,
+			new UserRowMapper()
 		);
 		
-		for (Role role : item.getRoles())
+		// TODO: if (resultList.size() != 1) ....
+		return resultList.get(0);
+	}
+	
+	private Map<Long, User> fetchAllUsers()
+	{
+		logger.debug("Fetching user rows.");
+		
+		// fetch all users
+		//
+		List<User> registeredUsers = jdbcTemplate.query
+		(
+			"SELECT * FROM DB.FRONTEND.USERS",
+			new UserRowMapper()
+		);
+		
+		// convert fetched users to a map
+		//
+		Map<Long, User> mapping = new HashMap<Long, User>();
+		
+		for (User user : registeredUsers)
+			mapping.put(user.getId(), user);
+		
+		return mapping;
+	}
+	
+	private Map<Long, Role> fetchAllRoles()
+	{
+		logger.debug("Fetching role rows.");
+		
+		// fetch all roles
+		//
+		List<Role> registeredRoles = jdbcTemplate.query
+		(
+			"SELECT * FROM DB.FRONTEND.ROLES", 
+			new RoleRowMapper()
+		);
+		
+		// convert fetched roles to a map
+		//
+		Map<Long, Role> mapping = new HashMap<Long, Role>();
+		
+		for (Role role : registeredRoles)
+			mapping.put(role.getId(), role);
+		
+		return mapping;
+	}
+	
+	private List<Pair<Long, Long>> fetchRolesToUsersMapping()
+	{
+		logger.debug("Fetching user-to-role mapping");
+		
+		return jdbcTemplate.query
+		(
+			"SELECT * FROM DB.FRONTEND.ROLES_ASSIGNED_TO_USERS", 
+			new RolesAssignedToUsersRowMapping()
+		);
+	}
+	
+	private List<Pair<Long, Long>> fetchRolesToUsersMappingForUserId(Long id)
+	{
+		logger.debug("Fetching user-to-role mapping for user: " + id);
+		
+		Object[] arguments =
 		{
-			jdbcTemplate.execute(
-				"INSERT INTO `users_roles` VALUES (" + 
-				item.getId() + ", " + role.getId() + ");"
+			id
+		};
+		
+		return jdbcTemplate.query
+		(
+			"SELECT * FROM DB.FRONTEND.ROLES_ASSIGNED_TO_USERS WHERE userId = ?",
+			arguments,
+			new RolesAssignedToUsersRowMapping()
+		);
+	}
+	
+	private void updateUserProperties(User user)
+	{
+		logger.debug("Updating user properties for user: " + user.getId());
+		
+		String query = 
+			"UPDATE DB.FRONTEND.USERS " +
+			"SET username = ?, email = ?, firstname = ?, surname = ? " +
+			"WHERE id = ?";
+		
+		Object[] arguments =
+		{
+			user.getUsername(),
+			user.getEmail(),
+			user.getFirstname(),
+			user.getSurname(),
+			user.getId()
+		};
+		
+		jdbcTemplate.update(query, arguments);
+	}
+	
+	private void clearRolesMappingForUser(User user)
+	{
+		logger.debug("Clearing roles-to-users mapping for user: " + user.getId());
+		
+		Object[] arguments = 
+		{
+			user.getId()	
+		};
+		
+		jdbcTemplate.update(
+			"DELETE FROM DB.FRONTEND.ROLES_ASSIGNED_TO_USERS WHERE userId = ?", 
+			arguments
+		);
+	}
+	
+	private void addAllRolesToRolesMappingForUser(User user)
+	{
+		// TODO: zvazit, zda by se vyplatilo toto provest v jednom SQL statementu
+	
+		logger.debug("Adding configured roles to roles-to-users mapping for user: " + user.getId());
+		
+		for (Role role : user.getRoles())
+		{
+			Object[] arguments =
+			{
+				user.getId(),
+				role.getId()
+			};
+			
+			jdbcTemplate.update(
+				"INSERT INTO DB.FRONTEND.ROLES_ASSIGNED_TO_USERS VALUES (?, ?)", 
+				arguments
 			);
 		}
 	}
 }
-
-/*
-class UserRowMapper implements ParameterizedRowMapper
-{
-	public Object mapRow(ResultSet rs, int rowNum) throws SQLException 
-	{
-		return new User(
-			rs.getLong("id"),
-			rs.getString("username"),
-			rs.getString("email"),
-			rs.getDate("createdAt")
-		);
-	}
-}
-*/

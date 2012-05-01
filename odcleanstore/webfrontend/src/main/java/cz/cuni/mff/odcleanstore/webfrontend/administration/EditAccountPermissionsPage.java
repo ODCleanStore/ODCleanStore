@@ -1,10 +1,11 @@
 package cz.cuni.mff.odcleanstore.webfrontend.administration;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.CheckBox;
@@ -13,61 +14,65 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
-import cz.cuni.mff.odcleanstore.webfrontend.DaoLookupFactory;
 import cz.cuni.mff.odcleanstore.webfrontend.FrontendPage;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.Role.NAME;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.RoleDao;
 
-@AuthorizeInstantiation({ "ADM" })
 public class EditAccountPermissionsPage extends FrontendPage
 {
-	private static final long serialVersionUID = 1L;
+	private static Logger logger = Logger.getLogger(EditAccountPermissionsPage.class);
 	
 	private Dao<User> userDao;
 	private Dao<Role> roleDao;
 	
-	private HashMap<Role.NAME, Boolean> rolesSettings;
+	private Map<Role, Boolean> currentRolesSettings;
 	
-	public EditAccountPermissionsPage(final int userId) 
+	public EditAccountPermissionsPage(final Long userId) 
 	{
 		super(
 			"Home > Administration > User accounts > Edit roles", 
 			"Edit user account roles"
 		);
-
-		// 1. Get the DAO beans.
-		//
-		DaoLookupFactory daoLookupFactory = getApp().getDaoLookupFactory();
 		
+		// prepare DAO objects
+		//
 		userDao = daoLookupFactory.getUserDao();
 		roleDao = daoLookupFactory.getRoleDao();
 		
-		// 2. Load the target User instance.
+		// prepare the target User instance
+		//
 		final User user = userDao.load(userId);
-
-		// 3. Construct the component hierarchy.
+		
+		// register page components
 		//
 		setDefaultModel(new CompoundPropertyModel<User>(user));
 		
 		add(new Label("username"));
 		add(new Label("email"));
+		add(new Label("firstname"));
+		add(new Label("surname"));
 		
-		Form<User> editPermissionsForm = new Form<User>("editPermissionsForm")
+		addEditPermissionsForm(user);
+	}
+	
+	private void addEditPermissionsForm(final User user)
+	{
+		Form<User> form = new Form<User>("editPermissionsForm")
 		{
-			private static final long serialVersionUID = 1L;
-
 			@Override
 			protected void onSubmit()
 			{
+				// TODO: obalit transakci
+				
 				user.removeAllRoles();
 				
 				List<Role> roles = roleDao.loadAll();
 				for (Role role : roles)
 				{
-					Role.NAME roleName = Role.NAME.valueOf(role.getName());
-					if (rolesSettings.get(roleName))
+					if (currentRolesSettings.get(role))
 						user.addRole(role);
 				}
 				
@@ -78,49 +83,68 @@ public class EditAccountPermissionsPage extends FrontendPage
 			}
 		};
 		
-		add(editPermissionsForm);
+		addRolesCheckBoxes(form, user);
+
+		addResetButton(form, user);
+
+		add(form);
+	}
+	
+	private void addRolesCheckBoxes(Form<User> form, User user)
+	{
+		prepareRolesSettings(user);
 		
-		rolesSettings = new HashMap<Role.NAME, Boolean>();
-		clearRolesSettings(user);
+		for (final Role role : Role.standardRoles)
+			addRoleCheckBox(form, role);
+	}
+	
+	private void prepareRolesSettings(User user)
+	{
+		currentRolesSettings = new HashMap<Role, Boolean>();
 		
-		for (final NAME roleName : Role.NAME.values())
-		{
-			IModel model = new Model<Boolean>()
-			{ 
-				@Override
-				public Boolean getObject()
-				{
-					return rolesSettings.get(roleName);
-				}
-				
-				@Override
-				public void setObject(Boolean value)
-				{
-					rolesSettings.put(roleName, value);
-				}
-			};
+		Set<Role> assignedRoles = user.getRoles();
+		for (Role role : Role.standardRoles)
+			currentRolesSettings.put(role, assignedRoles.contains(role));
+	}
+	
+	private void addRoleCheckBox(Form<User> form, final Role role)
+	{
+		IModel model = new Model<Boolean>()
+		{ 
+			@Override
+			public Boolean getObject()
+			{
+				return currentRolesSettings.get(role);
+			}
 			
-			editPermissionsForm.add(new CheckBox("role" + roleName, model));
-		}
+			@Override
+			public void setObject(Boolean value)
+			{
+				currentRolesSettings.put(role, value);
+			}
+		};
+
+		String roleLabel = "role" + role.getLabel();
 		
+		form.add(new CheckBox(roleLabel, model));
+	}
+	
+	private void addResetButton(Form<User> form, final User user)
+	{
 		Button resetButton = new Button("resetButton")
 		{
 			@Override
 			public void onSubmit()
 			{
 				setResponsePage(
-					new EditAccountPermissionsPage(userId)
+					new EditAccountPermissionsPage(user.getId())
 				);
 			}
 		};
+
 		resetButton.setDefaultFormProcessing(false);
 		
-		editPermissionsForm.add(resetButton);
+		form.add(resetButton);
 	}
-	
-	private void clearRolesSettings(User user)
-	{
-		for (Role.NAME roleName : Role.NAME.values())
-			rolesSettings.put(roleName, user.hasRoleAssigned(roleName.toString()));
-	}
+
 }
