@@ -3,9 +3,13 @@
  */
 package cz.cuni.mff.odcleanstore.engine.pipeline;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
+import com.hp.hpl.jena.rdf.model.Model;
+
+import virtuoso.jena.driver.VirtModel;
+
+import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.common.SimpleVirtuosoAccess;
 
 /**
@@ -57,26 +61,12 @@ final class WorkingInputGraph {
 	}
 
 	void copyGraphsFromDirtyDBToCleanDB(Collection<String> graphNames) throws Exception {
-		SimpleVirtuosoAccess sva = null;
-		ArrayList<String[]> triples = new ArrayList<String[]>();
-		try {
-			sva = SimpleVirtuosoAccess.createDirtyDBConnection();
-			for(String graphName : graphNames) {
-				graphName = "<" + graphName + ">";
-				String statement = String.format("SPARQL SELECT ?s ?p ?o %s WHERE { GRAPH %s {?s ?p ?o} }", graphName, graphName);
-				triples.addAll(sva.getRowFromSparqlStatement(statement));
-			}
-			sva.close();
-			
-			sva = SimpleVirtuosoAccess.createCleanDBConnection();
-			for (String[] triple : triples) {
-				sva.insertQuad(triple[0], triple[1], triple[2], triple[3]);
-			}
-			sva.commit();
-
-		} finally {
-			if (sva != null) {
-				sva.close();
-			}
-		}	}
+		for (String graphName : graphNames) {
+			Model srcModel = VirtModel
+					.openDatabaseModel(graphName, Engine.DIRTY_DATABASE_ENDPOINT.getUri(), Engine.DIRTY_DATABASE_ENDPOINT.getUsername(), Engine.DIRTY_DATABASE_ENDPOINT.getPassword());
+			Model dstModel = VirtModel
+					.openDatabaseModel(graphName, Engine.CLEAN_DATABASE_ENDPOINT.getUri(), Engine.CLEAN_DATABASE_ENDPOINT.getUsername(), Engine.CLEAN_DATABASE_ENDPOINT.getPassword());
+			dstModel.add(srcModel);
+		}
+	}
 }

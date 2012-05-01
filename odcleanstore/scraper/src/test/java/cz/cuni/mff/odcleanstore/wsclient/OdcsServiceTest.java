@@ -14,7 +14,7 @@ public class OdcsServiceTest {
 
 		metadata.setDataBaseUrl("prd");
 		metadata.setProvenanceBaseUrl("prd");
-		metadata.setUuid("c13039ed-195f-48ec-b756-07d24656dc9f8");
+		metadata.setUuid("fa714b5e-1572-4317-b9ea-dd22a91787da6");
 		metadata.setRdfXmlProvenance(null);
 
 		metadata.getPublishedBy().add("gogo");
