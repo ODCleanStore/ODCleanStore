@@ -56,7 +56,7 @@ public final class TransformedGraphImpl implements TransformedGraph {
 
 	@Override
 	public String getGraphName() {
-		return "<" + Engine.DATA_PREFIX + getGraphId() + ">";
+		return Engine.DATA_PREFIX + getGraphId();
 	}
 
 	@Override
@@ -66,7 +66,7 @@ public final class TransformedGraphImpl implements TransformedGraph {
 
 	@Override
 	public String getMetadataGraphName() {
-		return "<" + Engine.METADATA_PREFIX + getGraphId()  + ">";
+		return Engine.METADATA_PREFIX + getGraphId();
 	}
 
 	@Override

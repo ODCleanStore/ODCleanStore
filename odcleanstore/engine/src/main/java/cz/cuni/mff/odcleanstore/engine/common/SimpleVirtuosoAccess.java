@@ -15,10 +15,6 @@ import java.util.LinkedList;
 
 import cz.cuni.mff.odcleanstore.engine.Engine;
 
-import virtuoso.jdbc3.VirtuosoExtendedString;
-import virtuoso.jdbc3.VirtuosoRdfBox;
-import virtuoso.jdbc3.VirtuosoResultSet;
-
 /**
  * Encapsulates jdbc connections and single threaded basic data operations on Virtuoso database.
  * 
@@ -199,61 +195,6 @@ public class SimpleVirtuosoAccess {
 				more = stmt.getMoreResults();
 			}
 		}
-	}
-
-	/**
-	 * Execute Sql and Sparql statement with processing returned rows.
-	 * 
-	 * @param statement
-	 * 
-	 * @throws SQLException
-	 */
-	public Collection<String[]> getRowFromSparqlStatement(String statement) throws SQLException {
-		LinkedList<String[]> retVal = new LinkedList<String[]>();
-
-		Statement stmt = _con.createStatement();
-		stmt.execute(statement);
-		ResultSetMetaData data = stmt.getResultSet().getMetaData();
-
-		if (stmt.getResultSet() != null) {
-			boolean more = true;
-			while (more) {
-				ResultSet rs = stmt.getResultSet();
-				while (rs.next()) {
-					String[] row = new String[data.getColumnCount()];
-					for (int i = 0; i < row.length; i++) {
-
-						String s = rs.getString(i + 1);
-						Object o = ((VirtuosoResultSet) rs).getObject(i + 1);
-
-						if (o instanceof VirtuosoExtendedString) {
-							VirtuosoExtendedString vs = (VirtuosoExtendedString) o;
-							if (vs.iriType == VirtuosoExtendedString.IRI && (vs.strType & 0x1) == 0x1) {
-								row[i] = "<" + vs.str + ">";
-							} else {
-
-								if (vs.str.startsWith("nodeID://")) {
-									row[i] = "_:" + vs.str.substring(9, vs.str.length() -1);
-								} else {
-									row[i] = "'" + vs.str + "'";
-								}
-							}
-						} else if (o instanceof VirtuosoRdfBox) {
-							VirtuosoRdfBox rb = (VirtuosoRdfBox) o;
-							row[i] = "'" + rb.rb_box.toString() + "'";
-						} else if (stmt.getResultSet().wasNull()) {
-							row[i] = "NULL";
-						} else {
-							row[i] = s;
-						}
-					}
-					retVal.add(row);
-				}
-				more = stmt.getMoreResults();
-			}
-		}
-
-		return retVal;
 	}
 
 	/**

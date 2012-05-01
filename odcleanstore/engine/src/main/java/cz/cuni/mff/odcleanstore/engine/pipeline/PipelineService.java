@@ -32,12 +32,17 @@ public final class PipelineService extends Service implements Runnable {
 			fromInputWSLocks.notify();
 		}
 	}
-	
-	private void waitForInput() {
+
+	private String waitForInput() {
 		synchronized (fromInputWSLocks) {
 			try {
-				fromInputWSLocks.wait();
-			} catch (InterruptedException e) {
+				String uuid;
+				for (uuid = _workingInputGraphStatus.getNextProcessingGraphUuid(); uuid == null; uuid = _workingInputGraphStatus.getNextProcessingGraphUuid()) {
+					fromInputWSLocks.wait();
+				}
+				return uuid;
+			} catch (Exception e) {
+				return null;
 			}
 		}
 	}
@@ -104,38 +109,36 @@ public final class PipelineService extends Service implements Runnable {
 	}
 
 	private void runPipeline() throws Exception {
-		while (true) {
-			TransformedGraphImpl transformedGraphImpl = null;
-			String uuid = _workingInputGraphStatus.getNextProcessingGraphUuid();
-			while (uuid != null) {
-				try {
-					Collection<TransformerCommand> TransformerCommands = TransformerCommand.getActualPlan("DB.FRONTEND");
-					loadData(uuid);
 
-					for (TransformerCommand transformerCommand : TransformerCommands) {
-						transformedGraphImpl = transformedGraphImpl == null ? new TransformedGraphImpl(_workingInputGraphStatus, uuid) : new TransformedGraphImpl(transformedGraphImpl);
-						processTransformer(transformerCommand, transformedGraphImpl);
-						if (transformedGraphImpl.isDeleted()) {
-							break;
-						}
+		TransformedGraphImpl transformedGraphImpl = null;
+		String uuid = null;
 
+		while ((uuid = waitForInput()) != null) {
+			try {
+				Collection<TransformerCommand> TransformerCommands = TransformerCommand.getActualPlan("DB.FRONTEND");
+				loadData(uuid);
+
+				for (TransformerCommand transformerCommand : TransformerCommands) {
+					transformedGraphImpl = transformedGraphImpl == null ? new TransformedGraphImpl(_workingInputGraphStatus, uuid) : new TransformedGraphImpl(transformedGraphImpl);
+					processTransformer(transformerCommand, transformedGraphImpl);
+					if (transformedGraphImpl.isDeleted()) {
+						break;
 					}
-				} catch (Exception e) {
-					_workingInputGraphStatus.setWorkingTransformedGraph(null);
-					_workingInputGraphStatus.setState(uuid, InputGraphState.DIRTY);
-					throw e;
-				}
 
-				if (transformedGraphImpl.isDeleted()) {
-					processDeletingState(uuid);
-				} else {
-					_workingInputGraphStatus.setState(uuid, InputGraphState.PROCESSED);
-					processProcessedState(uuid);
-					processPropagatedState(uuid);
 				}
-				uuid = _workingInputGraphStatus.getNextProcessingGraphUuid();
+			} catch (Exception e) {
+				_workingInputGraphStatus.setWorkingTransformedGraph(null);
+				_workingInputGraphStatus.setState(uuid, InputGraphState.DIRTY);
+				throw e;
 			}
-			waitForInput();
+
+			if (transformedGraphImpl.isDeleted()) {
+				processDeletingState(uuid);
+			} else {
+				_workingInputGraphStatus.setState(uuid, InputGraphState.PROCESSED);
+				processProcessedState(uuid);
+				processPropagatedState(uuid);
+			}
 		}
 	}
 
