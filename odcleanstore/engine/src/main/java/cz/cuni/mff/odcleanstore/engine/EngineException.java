@@ -22,4 +22,8 @@ public class EngineException extends ODCleanStoreException {
 	EngineException(String message) {
 		super(message);
 	}
+
+	public EngineException(Throwable cause) {
+		super(cause);
+	}
 }

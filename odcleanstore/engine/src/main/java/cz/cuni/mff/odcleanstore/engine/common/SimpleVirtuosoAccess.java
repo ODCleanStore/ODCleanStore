@@ -94,7 +94,7 @@ public class SimpleVirtuosoAccess {
 	 * 
 	 * @throws SQLException
 	 */
-	public void deleteGraphs(String graphName) throws SQLException {
+	public void deleteGraph(String graphName) throws SQLException {
 		String statement = String.format("SPARQL CLEAR GRAPH %s", graphName);
 		executeStatement(statement);
 	}
@@ -124,8 +124,9 @@ public class SimpleVirtuosoAccess {
 	 * @throws SQLException
 	 */
 	public void insertRdfXml(String relativeBase, String rdfXml, String graph) throws SQLException {
-		String stat = relativeBase != null ? "{call DB.DBA.RDF_LOAD_RDFXML('" + rdfXml + "', '" + relativeBase + "', '" + graph + "')}" : "{call DB.DBA.RDF_LOAD_RDFXML('" + rdfXml + "', '' , '"
-				+ graph + "')}";
+		String stat = relativeBase != null ?
+				"{call DB.DBA.RDF_LOAD_RDFXML('" + rdfXml + "', '" + relativeBase + "', '" + graph + "')}" :
+				"{call DB.DBA.RDF_LOAD_RDFXML('" + rdfXml + "', '' , '"	+ graph + "')}";
 
 		CallableStatement cst = _con.prepareCall(stat);
 		cst.execute();

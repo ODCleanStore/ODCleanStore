@@ -11,6 +11,8 @@ import java.util.UUID;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 
+import org.apache.log4j.Logger;
+
 import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
 import cz.cuni.mff.odcleanstore.engine.ws.scraper.ifaces.IScraper;
@@ -24,12 +26,15 @@ import cz.cuni.mff.odcleanstore.engine.ws.scraper.ifaces.Metadata;
 @WebService
 public class Scraper implements IScraper {
 
+	private static final Logger LOG = Logger.getLogger(Scraper.class);
+
 	private static ImportingInputGraphStates _importedInputGraphStates = new ImportingInputGraphStates();
 
 	@Override
 	public void insert(@WebParam(name = "user") String user, @WebParam(name = "password") String password, @WebParam(name = "metadata") Metadata metadata,
 			@WebParam(name = "rdfXmlPayload") String rdfXmlPayload) throws InsertException {
 
+		LOG.info("Scraper webservice starts processing for input");
 		try {
 			if (user == null || password == null || !user.equals("scraper") || !password.equals("reparcs")) {
 				throw InsertException.BAD_CREDENTIALS;
@@ -40,7 +45,7 @@ public class Scraper implements IScraper {
 			}
 
 			checkUuid(metadata.uuid);
-			checkUries(metadata.publishedBy, 1,"publishedBy");
+			checkUries(metadata.publishedBy, 1, "publishedBy");
 			checkUries(metadata.source, 1, "source");
 			checkUries(metadata.license, 0, "license");
 			checkUri(metadata.dataBaseUrl, "dataBaseUrl");
@@ -54,14 +59,19 @@ public class Scraper implements IScraper {
 			saveFiles(metadata, rdfXmlPayload);
 			_importedInputGraphStates.commitImportSession(sessionUuid);
 			Engine.signalToPipelineService();
+			LOG.info(String.format("Scraper webservice ends processing for input graph %s",metadata.uuid));
 
 		} catch (InsertException e) {
+			LOG.warn(String.format("Scraper webservice - insert exception %s : %s", e.getMessage(), e.getMoreInfo()));
 			throw e;
 		} catch (ImportingInputGraphStates.ServiceBusyException e) {
+			LOG.warn(String.format("Scraper webservice - insert exception %s : %s", InsertException.SERVICE_BUSY.getMessage(), InsertException.SERVICE_BUSY.getMoreInfo()));
 			throw InsertException.SERVICE_BUSY;
 		} catch (ImportingInputGraphStates.DuplicatedUuid e) {
+			LOG.warn(String.format("Scraper webservice - insert exception %s : %s", InsertException.DUPLICATED_UUID.getMessage(), InsertException.DUPLICATED_UUID.getMoreInfo()));
 			throw InsertException.DUPLICATED_UUID;
 		} catch (Exception e) {
+			LOG.warn(String.format("Scraper webservice - insert exception %s : %s", InsertException.FATAL_ERROR.getMessage(), InsertException.FATAL_ERROR.getMoreInfo()));
 			throw InsertException.FATAL_ERROR;
 		}
 	}
@@ -91,12 +101,12 @@ public class Scraper implements IScraper {
 
 	private void checkUries(String[] uries, int minCardinality, String moreInsertExceptionInfo) throws InsertException {
 		int count = 0;
-		
+
 		if (uries == null) {
 			if (minCardinality > 0) {
-			throw new InsertException(String.format(" %s - cardinality must be %d minimal", moreInsertExceptionInfo, minCardinality));
+				throw new InsertException(String.format(" %s - cardinality must be %d minimal", moreInsertExceptionInfo, minCardinality));
 			} else {
-				return; 
+				return;
 			}
 		}
 
