@@ -67,7 +67,6 @@ abstract class AggregationMethodBase implements AggregationMethod {
      */
     protected static final double PUBLISHER_SCORE_WEIGHT = 0.2;
 
-    // CHECKSTYLE:OFF
     /**
      * Generator of unique URIs.
      */
@@ -77,8 +76,6 @@ abstract class AggregationMethodBase implements AggregationMethod {
      * Aggregation and quality calculation settings.
      */
     protected final AggregationSpec aggregationSpec;
-
-    // CHECKSTYLE:ON
 
     /**
      * Creates a new instance with given settings.

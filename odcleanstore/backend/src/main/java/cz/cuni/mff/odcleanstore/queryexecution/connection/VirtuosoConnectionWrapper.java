@@ -83,10 +83,25 @@ public final class VirtuosoConnectionWrapper {
      */
     public void close() throws ConnectionException {
         try {
-            connection.close();
-            connection = null;
+            if (connection != null) {
+                connection.close();
+                connection = null;
+            }
         } catch (SQLException e) {
             throw new ConnectionException(e);
+        }
+    }
+
+    /**
+     * Close connection on finalize().
+     */
+    @Override
+    protected void finalize() {
+        try {
+            close();
+            super.finalize();
+        } catch (Throwable e) {
+            // do nothing
         }
     }
 }

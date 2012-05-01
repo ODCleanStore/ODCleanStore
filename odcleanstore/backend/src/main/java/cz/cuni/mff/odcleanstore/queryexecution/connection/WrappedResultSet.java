@@ -83,13 +83,11 @@ public class WrappedResultSet {
      * Close the wrapped statement without throwing an exception.
      */
     public void closeQuietly() {
-        // CHECKSTYLE:OFF
         try {
             statement.close();
         } catch (SQLException e) {
             // ignore
         }
-        // CHECKSTYLE:ON
     }
 
     /**

@@ -50,7 +50,6 @@ import cz.cuni.mff.odcleanstore.vocabulary.RDFS;
         LABEL_PROPERTIES_LIST = sb.substring(0, sb.length() - 2);
     }
 
-    // CHECKSTYLE:OFF
     /** Connection settings for the SPARQL endpoint that will be queried. */
     protected final SparqlEndpoint sparqlEndpoint;
 
@@ -59,7 +58,6 @@ import cz.cuni.mff.odcleanstore.vocabulary.RDFS;
 
     /** Aggregation settings for conflict resolution. */
     protected final AggregationSpec aggregationSpec;
-    // CHECKSTYLE:ON
 
     /**
      * Creates a new instance of QueryExecutorBase.
@@ -72,6 +70,5 @@ import cz.cuni.mff.odcleanstore.vocabulary.RDFS;
         this.sparqlEndpoint = sparqlEndpoint;
         this.constraints = constraints;
         this.aggregationSpec = aggregationSpec;
-
     }
 }
