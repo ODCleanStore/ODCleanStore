@@ -48,14 +48,14 @@ public class DebugFormatter extends ResultFormatterBase {
 				for (NamedGraphMetadata metadata : result.getMetadata().listMetadata()) {
 					writer.write(metadata.getNamedGraphURI());
 					writer.write('\n');
-					if (metadata.getDataSource() != null) {
+					if (metadata.getSource() != null) {
 						writer.write("\tSource: ");
-						writer.write(metadata.getDataSource());
+						writer.write(metadata.getSource());
 						writer.write('\n');
 					}
-					if (metadata.getStored() != null) {
+					if (metadata.getInsertedAt() != null) {
 						writer.write("\tInserted at: ");
-						writer.write(formatDate(metadata.getStored()));
+						writer.write(formatDate(metadata.getInsertedAt()));
 						writer.write('\n');
 					}
 					if (metadata.getScore() != null) {

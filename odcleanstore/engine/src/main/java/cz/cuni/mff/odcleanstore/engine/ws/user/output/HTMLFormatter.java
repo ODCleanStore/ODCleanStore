@@ -103,21 +103,25 @@ public class HTMLFormatter extends ResultFormatterBase {
 		 */
 		private void writeMetadata(Writer writer) throws IOException {
 			writer.write(" Source graphs:\n <table border=\"1\">\n");
-			writer.write("  <tr><th>Named graph</th><th>Data source</th><th>Inserted at</th><th>Graph score</th></tr>");
+			writer.write("  <tr><th>Named graph</th><th>Data source</th><th>Inserted at</th><th>Graph score</th><th>License</th></tr>");
 			for (NamedGraphMetadata metadata : queryResult.getMetadata().listMetadata()) {
 				writer.write("  <tr><td>");
 				writer.write(metadata.getNamedGraphURI());
 				writer.write("</td><td>");
-				if (metadata.getDataSource() != null) {
-					writer.write(metadata.getDataSource());
+				if (metadata.getSource() != null) {
+					writer.write(metadata.getSource());
 				}
 				writer.write("</td><td>");
-				if (metadata.getStored() != null) {
-					writer.write(formatDate(metadata.getStored()));
+				if (metadata.getInsertedAt() != null) {
+					writer.write(formatDate(metadata.getInsertedAt()));
 				}
 				writer.write("</td><td>");
 				if (metadata.getScore() != null) {
 					writer.write(metadata.getScore().toString());
+				}
+				writer.write("</td><td>");
+				if (metadata.getLicence() != null) {
+					writer.write(metadata.getLicence());
 				}
 				writer.write("</td></tr>\n");					
 			}

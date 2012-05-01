@@ -24,6 +24,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryResult;
+import cz.cuni.mff.odcleanstore.vocabulary.DC;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.W3P;
 import de.fuberlin.wiwiss.ng4j.NamedGraph;
@@ -49,6 +50,8 @@ public class TriGFormatter extends ResultFormatterBase {
     private static final Node INSERTED_AT_PROPERTY = Node.createURI(W3P.insertedAt);
     /** {@ W3P#publishedBy} as a {@link Node}. */
     private static final Node PUBLISHED_BY_PROPERTY = Node.createURI(W3P.publishedBy);
+    /** {@ DC#license} as a {@link Node}. */
+    private static final Node LICENSE_PROPERTY = Node.createURI(DC.license);
     
 	/** URI of named graph where metadata are placed. TODO: load from global configuration */
     public static final String METADATA_GRAPH = "http://odcs.mff.cuni.cz/metadata/";
@@ -95,7 +98,7 @@ public class TriGFormatter extends ResultFormatterBase {
         // Metadata
         for (NamedGraphMetadata graphMetadata : metadata.listMetadata()) {
             Node namedGraphURI = Node.createURI(graphMetadata.getNamedGraphURI());
-            String dataSource = graphMetadata.getDataSource();
+            String dataSource = graphMetadata.getSource();
             if (dataSource != null) {
                 metadataGraph.add(new Triple(namedGraphURI, SOURCE_PROPERTY, Node.createURI(dataSource)));
             }
@@ -106,16 +109,21 @@ public class TriGFormatter extends ResultFormatterBase {
                 metadataGraph.add(new Triple(namedGraphURI, SCORE_PROPERTY, Node.createLiteral(literal)));
             }
 
-            Date storedAt = graphMetadata.getStored();
+            Date storedAt = graphMetadata.getInsertedAt();
             if (storedAt != null) {
                 RDFDatatype datatype = TypeMapper.getInstance().getSafeTypeByName(XSD.dateTime.getURI());
                 LiteralLabel literal = LiteralLabelFactory.create(storedAt, null, datatype);
                 metadataGraph.add(new Triple(namedGraphURI, INSERTED_AT_PROPERTY, Node.createLiteral(literal)));
             }
 
-            String publisher = graphMetadata.getPublisher(); // TODO: rename publisher to publishedBy
+            String publisher = graphMetadata.getPublisher();
             if (publisher != null) {
                 metadataGraph.add(new Triple(namedGraphURI, PUBLISHED_BY_PROPERTY, Node.createURI(publisher)));
+            }
+            
+            String license = graphMetadata.getLicence();
+            if (license != null) {
+            	metadataGraph.add(new Triple(namedGraphURI, LICENSE_PROPERTY, Node.createURI(license)));
             }
 
             Double publisherScore = graphMetadata.getPublisherScore();

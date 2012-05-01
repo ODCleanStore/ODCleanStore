@@ -14,6 +14,7 @@ import cz.cuni.mff.odcleanstore.queryexecution.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.queryexecution.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.queryexecution.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
+import cz.cuni.mff.odcleanstore.vocabulary.DC;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 import cz.cuni.mff.odcleanstore.vocabulary.W3P;
@@ -124,7 +125,8 @@ import java.util.Locale;
      */
     private static final String METADATA_QUERY = "SPARQL"
             + "\n DEFINE input:same-as \"yes\""
-            + "\n SELECT DISTINCT ?resGraph ?source ?score ?insertedAt ?publishedBy ?publisherScore"
+            + "\n SELECT DISTINCT"
+            + "\n   ?resGraph ?source ?score ?insertedAt ?insertedBy ?license ?publishedBy ?publisherScore"
             + "\n WHERE {"
             + "\n   {"
             + "\n     {"
@@ -205,6 +207,8 @@ import java.util.Locale;
             + "\n   OPTIONAL { ?resGraph <" + W3P.source + "> ?source }"
             + "\n   OPTIONAL { ?resGraph <" + ODCS.score + "> ?score }"
             + "\n   OPTIONAL { ?resGraph <" + W3P.insertedAt + "> ?insertedAt }"
+            + "\n   OPTIONAL { ?resGraph <" + W3P.insertedBy + "> ?insertedBy }"
+            + "\n   OPTIONAL { ?resGraph <" + DC.license + "> ?license }"
             + "\n   OPTIONAL { ?resGraph <" + W3P.publishedBy + "> ?publishedBy }"
             + "\n   OPTIONAL { ?resGraph <" + W3P.publishedBy + "> ?publishedBy. "
             + "\n     ?publishedBy <" + ODCS.publisherScore + "> ?publisherScore }"
@@ -532,13 +536,19 @@ import java.util.Locale;
                 NamedGraphMetadata graphMetadata = new NamedGraphMetadata(resultSet.getString("resGraph"));
 
                 String source = resultSet.getString("source");
-                graphMetadata.setDataSource(source);
+                graphMetadata.getSource(source);
 
                 Double score = resultSet.getDouble("score");
                 graphMetadata.setScore(score);
 
                 Date insertedAt = resultSet.getJavaDate("insertedAt");
-                graphMetadata.setStored(insertedAt);
+                graphMetadata.setInsertedAt(insertedAt);
+
+                String insertedBy = resultSet.getString("insertedBy");
+                graphMetadata.setInsertedBy(insertedBy);
+
+                String license = resultSet.getString("license");
+                graphMetadata.setLicence(license);
 
                 String publishedBy = resultSet.getString("publishedBy");
                 graphMetadata.setPublisher(publishedBy);

@@ -78,8 +78,8 @@ public class ConflictResolverImpl implements ConflictResolver {
             NamedGraphMetadata metadata2 = namedGraphMetadata.getMetadata(q2.getGraphName());
 
             // Compare by data source
-            String dataSource1 = (metadata1 != null) ? metadata1.getDataSource() : null;
-            String dataSource2 = (metadata2 != null) ? metadata2.getDataSource() : null;
+            String dataSource1 = (metadata1 != null) ? metadata1.getSource() : null;
+            String dataSource2 = (metadata2 != null) ? metadata2.getSource() : null;
             if (dataSource1 == null && dataSource2 == null) {
                 return 0;
             } else if (dataSource1 == null) {
@@ -93,8 +93,8 @@ public class ConflictResolverImpl implements ConflictResolver {
             }
 
             // Compare by stored time in *descending order*
-            Date stored1 = (metadata1 != null) ? metadata1.getStored() : null;
-            Date stored2 = (metadata2 != null) ? metadata2.getStored() : null;
+            Date stored1 = (metadata1 != null) ? metadata1.getInsertedAt() : null;
+            Date stored2 = (metadata2 != null) ? metadata2.getInsertedAt() : null;
             if (stored1 == null || stored2 == null) {
                 if (stored1 == stored2) { // intentionally == - comparing to null
                     return 0;
@@ -217,11 +217,11 @@ public class ConflictResolverImpl implements ConflictResolver {
                 NamedGraphMetadata quadMetadata = metadata.getMetadata(quad.getGraphName());
                 if (lastMetadata != null
                         && quadMetadata != null
-                        && quadMetadata.getDataSource() != null
-                        && quadMetadata.getDataSource().equals(lastMetadata.getDataSource())
-                        && quadMetadata.getStored() != null
-                        && lastMetadata.getStored() != null
-                        && quadMetadata.getStored().before(lastMetadata.getStored())) {
+                        && quadMetadata.getSource() != null
+                        && quadMetadata.getSource().equals(lastMetadata.getSource())
+                        && quadMetadata.getInsertedAt() != null
+                        && lastMetadata.getInsertedAt() != null
+                        && quadMetadata.getInsertedAt().before(lastMetadata.getInsertedAt())) {
                     // (2) and (3) holds
                     resultIterator.remove();
                     removed = true;
@@ -254,15 +254,15 @@ public class ConflictResolverImpl implements ConflictResolver {
 
         for (NamedGraphMetadata metadata : metadataCollection) {
             assert metadata != null;
-            String dataSource = metadata.getDataSource();
+            String dataSource = metadata.getSource();
 
             if (dataSourceDates.containsKey(dataSource)
-                    && !dataSourceDates.get(dataSource).equals(metadata.getStored())) {
+                    && !dataSourceDates.get(dataSource).equals(metadata.getInsertedAt())) {
                 // Occurrence of named graphs sharing a common data source
                 // with a different stored date
                 return true;
-            } else if (dataSource != null && metadata.getStored() != null) {
-                dataSourceDates.put(dataSource, metadata.getStored());
+            } else if (dataSource != null && metadata.getInsertedAt() != null) {
+                dataSourceDates.put(dataSource, metadata.getInsertedAt());
             }
         }
         return false;

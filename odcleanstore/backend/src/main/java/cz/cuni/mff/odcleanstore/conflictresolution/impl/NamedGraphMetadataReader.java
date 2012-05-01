@@ -2,6 +2,7 @@ package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
+import cz.cuni.mff.odcleanstore.vocabulary.DC;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.W3P;
 
@@ -63,14 +64,14 @@ public final class NamedGraphMetadataReader {
                 try {
                     String storedValue = quad.getObject().getLiteralLexicalForm();
                     Date stored = DateFormat.getDateInstance().parse(storedValue);
-                    metadata.setStored(stored);
+                    metadata.setInsertedAt(stored);
                 } catch (Exception e) {
                     LOG.warn("Named graph stored date must be a valid date string, {} given", quad.getObject());
                 }
             } else if (predicateURI.equals(W3P.source)) {
                 NamedGraphMetadata metadata = getMetadataObject(subject, result);
                 if (quad.getObject().isURI()) {
-                    metadata.setDataSource(quad.getObject().getURI());
+                    metadata.getSource(quad.getObject().getURI());
                 } else {
                     LOG.warn("Invalid provenance metadata - unexpected value '{}' of <{}>",
                             quad.getObject(), W3P.source);
@@ -95,6 +96,12 @@ public final class NamedGraphMetadataReader {
                     LOG.warn("Invalid provenance metadata - Publisher score must be a number, {} given",
                             quad.getObject());
                 }
+            } else if (predicateURI.equals(DC.license)) {
+                NamedGraphMetadata metadata = getMetadataObject(subject, result);
+                metadata.setLicence(quad.getObject().toString());
+            } else if (predicateURI.equals(W3P.insertedBy)) {
+                NamedGraphMetadata metadata = getMetadataObject(subject, result);
+                metadata.setInsertedBy(quad.getObject().toString());
             }
         }
 

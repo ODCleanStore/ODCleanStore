@@ -13,7 +13,7 @@ public class NamedGraphMetadata {
     private String namedGraphURI;
 
     /** URI of the data source the named graph was retrieved from. */
-    private String dataSource;
+    private String source;
 
     /** URI of the publisher of data in the named graph. */
     private String publisher;
@@ -25,7 +25,13 @@ public class NamedGraphMetadata {
     private Double publisherScore;
 
     /** Date the named graph was stored to the RDF store. */
-    private Date stored;
+    private Date insertedAt;
+
+    /** The user that inserted the named graph. */
+    private String insertedBy;
+
+    /** The license of the data. */
+    private String license;
 
     /**
      * Creates a new container of metadata for a named graph with the selected URI.
@@ -49,21 +55,21 @@ public class NamedGraphMetadata {
      * @return URI identifying the source of the named graph
      * @todo return set/collection of String
      */
-    public final String getDataSource() {
-        return dataSource;
+    public final String getSource() {
+        return source;
     }
 
     /**
      * Set data source the named graph was retrieved from.
-     * @param dataSource URI of the data source
+     * @param source URI of the data source
      */
-    public final void setDataSource(String dataSource) {
-        this.dataSource = dataSource;
+    public final void getSource(String source) {
+        this.source = source;
     }
 
     /**
      * Return String identifying the publisher of data in the named graph.
-     * Returns null if the publihser is unknown.
+     * Returns null if the publisher is unknown.
      * @return URI of the publisher or null
      */
     public final String getPublisher() {
@@ -116,15 +122,43 @@ public class NamedGraphMetadata {
      * Return date the named graph was stored to the RDF store.
      * @return date the named graph was stored on or null if the date is unknown
      */
-    public final Date getStored() {
-        return stored;
+    public final Date getInsertedAt() {
+        return insertedAt;
     }
 
     /**
      * Set Date the named graph was stored to the RDF store in these metadata.
      * @param stored date the named graph was stored on or null if the date is unknown
      */
-    public final void setStored(Date stored) {
-        this.stored = stored;
+    public final void setInsertedAt(Date stored) {
+        this.insertedAt = stored;
+    }
+
+    /**
+     * @return the user that inserted the graph
+     */
+    public String getInsertedBy() {
+        return insertedBy;
+    }
+
+    /**
+     * @param insertedBy the user that inserted the graph
+     */
+    public void setInsertedBy(String insertedBy) {
+        this.insertedBy = insertedBy;
+    }
+
+    /**
+     * @return license of named graph data
+     */
+    public String getLicence() {
+        return license;
+    }
+
+    /**
+     * @param license of named graph data
+     */
+    public void setLicence(String license) {
+        this.license = license;
     }
 }

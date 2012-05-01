@@ -72,10 +72,10 @@ final class BestAggregation extends SelectedValueAggregation {
                 assert bestQuad != null; // quality shouldn't be NEGATIVE_INFINITY
                 NamedGraphMetadata quadMetadata = metadata.getMetadata(quad.getGraphName());
                 NamedGraphMetadata bestQuadMetadata = metadata.getMetadata(bestQuad.getGraphName());
-                if (quadMetadata != null && quadMetadata.getStored() != null
+                if (quadMetadata != null && quadMetadata.getInsertedAt() != null
                         && (bestQuadMetadata == null
-                                || bestQuadMetadata.getStored() == null
-                                || quadMetadata.getStored().after(bestQuadMetadata.getStored()))) {
+                                || bestQuadMetadata.getInsertedAt() == null
+                                || quadMetadata.getInsertedAt().after(bestQuadMetadata.getInsertedAt()))) {
                     bestQuad = quad;
                     bestQuadQuality = quality;
                 }
