@@ -1,8 +1,5 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo;
 
-import java.io.Serializable;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -12,39 +9,42 @@ import java.util.Set;
  * @author Dusan Rychnovsky (dusan.rychnovsky@gmail.com)
  *
  */
-public class User implements Serializable
+public class User extends BusinessObject
 {
-	private Integer id;
+	private static final long serialVersionUID = 1L;
 	
 	private String username;
 	private String email;
-	private String password;
-	
-	private Date createdAt;
+	private String passwordHash;
+	private String salt;
+	private String firstname;
+	private String surname;
 	
 	private Set<Role> roles;
-
+	
 	/**
 	 * 
 	 * @param id
 	 * @param username
 	 * @param email
-	 * @param date
+	 * @param firstname
+	 * @param surname
 	 */
-	public User(Integer id, String username, String email, Date date)
+	public User(Long id, String username, String email, String firstname, String surname)
 	{
 		this();
 		
 		this.id = id;
 		this.username = username;
 		this.email = email;
-		this.createdAt = date;
+		this.firstname = firstname;
+		this.surname = surname;
 	}
 	
 	/**
 	 * 
 	 */
-	public User()
+	public User() 
 	{
 		roles = new HashSet<Role>();
 	}
@@ -53,90 +53,36 @@ public class User implements Serializable
 	 * 
 	 * @return
 	 */
-	public Integer getId()
-	{
-		return id;
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public String getUsername()
+	public String getUsername() 
 	{
 		return username;
 	}
 	
 	/**
 	 * 
-	 * @param username
-	 */
-	public void setUsername(String username)
-	{
-		this.username = username;
-	}
-	
-	/**
-	 * 
 	 * @return
 	 */
-	public String getEmail()
+	public String getEmail() 
 	{
 		return email;
 	}
-	
-	/**
-	 * 
-	 * @param email
-	 */
-	public void setEmail(String email)
-	{
-		this.email = email;
-	}
-	
+
 	/**
 	 * 
 	 * @return
 	 */
-	public String getPassword() 
+	public String getFirstname() 
 	{
-		return password;
+		return firstname;
 	}
 
-	/**
-	 * 
-	 * @param password
-	 */
-	public void setPassword(String password) 
-	{
-		this.password = password;
-	}
-	
 	/**
 	 * 
 	 * @return
 	 */
-	public Date getCreatedAt() 
+	public String getSurname() 
 	{
-		return createdAt;
-	}
-
-	/**
-	 * 
-	 * @param createAt
-	 */
-	public void setCreatedAt(Date createdAt)
-	{
-		this.createdAt = createdAt;
-	}
-	
-	/**
-	 * 
-	 */
-	public void setCreatedAtToNow()
-	{
-		Calendar calendar = Calendar.getInstance();
-		this.createdAt = calendar.getTime();
+		return surname;
 	}
 	
 	/**
@@ -145,25 +91,7 @@ public class User implements Serializable
 	 */
 	public Set<Role> getRoles()
 	{
-		return roles;
-	}
-	
-	/**
-	 * Returns true iff the represented user-account has the role given by 
-	 * the role-name assigned.
-	 * 
-	 * @param roleName
-	 * @return
-	 */
-	public boolean hasRoleAssigned(String roleName)
-	{
-		for (Role role : roles)
-		{
-			if (roleName.equals(role.getName()))
-				return true;
-		}
-		
-		return false;
+		return this.roles;
 	}
 	
 	/**
@@ -172,16 +100,7 @@ public class User implements Serializable
 	 */
 	public void addRole(Role role)
 	{
-		roles.add(role);
-	}
-	
-	/**
-	 * 
-	 * @param role
-	 */
-	public void removeRole(Role role)
-	{
-		roles.remove(role);
+		this.roles.add(role);
 	}
 	
 	/**
@@ -189,6 +108,16 @@ public class User implements Serializable
 	 */
 	public void removeAllRoles()
 	{
-		roles.clear();
+		this.roles.clear();
+	}
+	
+	/**
+	 * 
+	 * @param role
+	 * @return
+	 */
+	public boolean hasAssignedRole(Role role)
+	{
+		return this.roles.contains(role);
 	}
 }

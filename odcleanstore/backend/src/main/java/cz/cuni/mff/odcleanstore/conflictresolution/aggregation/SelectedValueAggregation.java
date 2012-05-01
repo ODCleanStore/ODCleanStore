@@ -23,9 +23,7 @@ abstract class SelectedValueAggregation extends AggregationMethodBase {
      * @param aggregationSpec aggregation and quality calculation settings
      * @param uriGenerator generator of URIs
      */
-    public SelectedValueAggregation(
-            AggregationSpec aggregationSpec,
-            UniqueURIGenerator uriGenerator) {
+    public SelectedValueAggregation(AggregationSpec aggregationSpec, UniqueURIGenerator uriGenerator) {
         super(aggregationSpec, uriGenerator);
     }
 
@@ -40,8 +38,7 @@ abstract class SelectedValueAggregation extends AggregationMethodBase {
      * @return {@inheritDoc}
      */
     @Override
-    public abstract Collection<CRQuad> aggregate(
-            Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata);
+    public abstract Collection<CRQuad> aggregate(Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata);
 
     /**
      * {@inheritDoc}
@@ -54,8 +51,7 @@ abstract class SelectedValueAggregation extends AggregationMethodBase {
             Collection<String> sourceNamedGraphs,
             NamedGraphMetadataMap metadata) {
 
-        assert (sourceNamedGraphs.size() > 0)
-                : "Illegal argument: sourceNamedGraphs must not be empty";
+        assert (sourceNamedGraphs.size() > 0) : "Illegal argument: sourceNamedGraphs must not be empty";
 
         double maximumQuality = 0;
         for (String sourceNamedGraphURI : sourceNamedGraphs) {
@@ -71,9 +67,9 @@ abstract class SelectedValueAggregation extends AggregationMethodBase {
     /**
      * @see #computeQuality(Quad,Collection,Collection,Collection,NamedGraphMetadataMap)
      *
-     * In case of values selected from input quads, parameters sourceNamedGraphs and
-     * agreeNamedGraphs of computeQuality() are identical. This is a utility function that
-     * wraps this fact.
+     *      In case of values selected from input quads, parameters sourceNamedGraphs and
+     *      agreeNamedGraphs of computeQuality() are identical. This is a utility function that
+     *      wraps this fact.
      *
      * @param resultQuad the quad for which quality is to be computed
      * @param conflictingQuads other quads conflicting with resultQuad

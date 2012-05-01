@@ -33,8 +33,7 @@ final class AllAggregation extends SelectedValueAggregation {
     /**
      * A comparator used to sort quads by object and named graph.
      */
-    private static final ObjectNamedGraphComparator OBJECT_NG_COMPARATOR =
-            new ObjectNamedGraphComparator();
+    private static final ObjectNamedGraphComparator OBJECT_NG_COMPARATOR = new ObjectNamedGraphComparator();
 
     /**
      * Comparator of {@link Quad Quads} comparing first by objects, second by named graph.
@@ -56,9 +55,7 @@ final class AllAggregation extends SelectedValueAggregation {
      * @param aggregationSpec aggregation and quality calculation settings
      * @param uriGenerator generator of URIs
      */
-    public AllAggregation(
-            AggregationSpec aggregationSpec,
-            UniqueURIGenerator uriGenerator) {
+    public AllAggregation(AggregationSpec aggregationSpec, UniqueURIGenerator uriGenerator) {
         super(aggregationSpec, uriGenerator);
     }
 
@@ -76,8 +73,7 @@ final class AllAggregation extends SelectedValueAggregation {
      * @return {@inheritDoc}
      */
     @Override
-    public Collection<CRQuad> aggregate(
-            Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
+    public Collection<CRQuad> aggregate(Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
 
         Collection<CRQuad> result = createResultCollection();
 

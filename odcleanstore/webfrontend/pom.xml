@@ -6,11 +6,17 @@
 	<modelVersion>4.0.0</modelVersion>
 	
 	<groupId>cz.cuni.mff.odcleanstore</groupId>
-	<artifactId>webfrontend</artifactId>
+	<artifactId>${artifactPrefix}webfrontend</artifactId>
 	<packaging>war</packaging>
 	<version>1.0-SNAPSHOT</version>
 	
-	<name>ODCleanStore Web Frontend</name>
+	<parent>
+		<groupId>cz.cuni.mff.odcleanstore</groupId>
+		<artifactId>odcs</artifactId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
+	
+	<name>ODCleanStore - Web Frontend</name>
 	<description></description>
 	
 	<properties>
@@ -19,7 +25,7 @@
 	</properties>
 	
 	<dependencies>
-	
+
 		<dependency>
 			<groupId>com.openlinksw.virtuoso</groupId>
 			<artifactId>virtjdbc</artifactId>
@@ -114,6 +120,7 @@
 
 	</dependencies>
 
+    
 	<build>
 		<resources>
 			<resource>
@@ -275,6 +282,12 @@
 				<enabled>true</enabled>
 			</snapshots>
 		</repository>
+		
+		<repository>
+			<id>JBoss repository</id>
+			<url>http://repository.jboss.org/nexus/content/groups/public/</url>
+		</repository>
+		
 	</repositories>
 
 </project>

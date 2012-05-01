@@ -6,6 +6,8 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.apache.log4j.Logger;
+
 import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.InputGraphState;
 import cz.cuni.mff.odcleanstore.engine.Service;
@@ -18,6 +20,8 @@ import cz.cuni.mff.odcleanstore.vocabulary.W3P;
 
 public final class PipelineService extends Service implements Runnable {
 
+	private static final Logger LOG = Logger.getLogger(PipelineService.class);
+	
 	private WorkingInputGraphStatus _workingInputGraphStatus;
 	private WorkingInputGraph _workingInputGraph;
 
@@ -56,6 +60,7 @@ public final class PipelineService extends Service implements Runnable {
 						return;
 					}
 					setModuleState(ModuleState.INITIALIZING);
+					LOG.info("PipelineService initializing");
 				}
 
 				_workingInputGraphStatus = new WorkingInputGraphStatus("DB.FRONTEND");
@@ -64,14 +69,19 @@ public final class PipelineService extends Service implements Runnable {
 				String graphsForRecoveryUuid = _workingInputGraphStatus.getWorkingTransformedGraphUuid();
 				if (graphsForRecoveryUuid != null) {
 					setModuleState(ModuleState.RECOVERY);
+					LOG.info("PipelineService starts recovery");
 					recovery(graphsForRecoveryUuid);
 				}
 				setModuleState(ModuleState.RUNNING);
+				LOG.info("PipelineService running");
 				runPipeline();
 				setModuleState(ModuleState.STOPPED);
+				LOG.info("PipelineService stopped");
 			} catch (Exception e) {
 				_workingInputGraphStatus.setWorkingTransformedGraph(null);
 				setModuleState(ModuleState.CRASHED);
+				String message = String.format("PipelineService crashed - %s", e.getMessage());
+				LOG.error(message);
 			}
 		}
 	}
@@ -88,14 +98,17 @@ public final class PipelineService extends Service implements Runnable {
 
 			_workingInputGraphStatus.deleteWorkingAttachedGraphNames();
 			_workingInputGraphStatus.setState(uuid, InputGraphState.IMPORTED);
+			LOG.info("PipelineService ends recovery from interrupted processing");
 			break;
 		case PROCESSED:
 			processProcessedState(uuid);
 		case PROPAGATED:
 			processPropagatedState(uuid);
+			LOG.info("PipelineService ends recovery from interrupted copying graph from dirty to clean database instance");
 			break;
 		case DELETING:
 			processDeletingState(uuid);
+			LOG.info("PipelineService ends recovery from interrupted deleting graph");
 			break;
 		case DIRTY:
 			_workingInputGraph.deleteGraphsFromDirtyDB(_workingInputGraphStatus.getWorkingAttachedGraphNames());
@@ -104,6 +117,7 @@ public final class PipelineService extends Service implements Runnable {
 
 			_workingInputGraphStatus.deleteWorkingAttachedGraphNames();
 			_workingInputGraphStatus.setState(uuid, InputGraphState.WRONG);
+			LOG.info("PipelineService ends recovery from crashed pipeline proccesing");
 			break;
 		}
 	}
@@ -115,9 +129,10 @@ public final class PipelineService extends Service implements Runnable {
 
 		while ((uuid = waitForInput()) != null) {
 			try {
+				LOG.info(String.format("PipelineService starts processing graph %s", uuid));
 				Collection<TransformerCommand> TransformerCommands = TransformerCommand.getActualPlan("DB.FRONTEND");
 				loadData(uuid);
-
+				LOG.info(String.format("PipelineService ends data loading for graph %s", uuid));
 				for (TransformerCommand transformerCommand : TransformerCommands) {
 					transformedGraphImpl = transformedGraphImpl == null ? new TransformedGraphImpl(_workingInputGraphStatus, uuid) : new TransformedGraphImpl(transformedGraphImpl);
 					processTransformer(transformerCommand, transformedGraphImpl);
@@ -132,7 +147,7 @@ public final class PipelineService extends Service implements Runnable {
 				throw e;
 			}
 
-			if (transformedGraphImpl.isDeleted()) {
+			if (transformedGraphImpl != null && transformedGraphImpl.isDeleted()) {
 				processDeletingState(uuid);
 			} else {
 				_workingInputGraphStatus.setState(uuid, InputGraphState.PROCESSED);
@@ -180,7 +195,9 @@ public final class PipelineService extends Service implements Runnable {
 					sva.insertQuad("<" + Engine.DATA_PREFIX + uuid + ">", "<" + DC.license + ">", "<" + license + ">", "<" + Engine.METADATA_PREFIX + uuid + ">");
 				}
 			}
-
+			if (metadata.rdfXmlProvenance != null) {
+				sva.insertRdfXml(metadata.provenanceBaseUrl, metadata.rdfXmlProvenance, Engine.METADATA_PREFIX + uuid);
+			}
 			sva.insertRdfXml(metadata.dataBaseUrl, rdfXmlPayload, Engine.DATA_PREFIX + uuid);
 			sva.commit();
 		} finally {
@@ -207,10 +224,12 @@ public final class PipelineService extends Service implements Runnable {
 			TransformationContextImpl context = new TransformationContextImpl(transformerCommand.getConfiguration(), transformerCommand.getWorkDirPath());
 
 			_workingInputGraphStatus.setWorkingTransformedGraph(transformedGraphImpl);
-			transformer.transformNewGraph(transformedGraphImpl, context);
+			// transformer.transformNewGraph(transformedGraphImpl, context);
+			LOG.info(String.format("PipelineService ends proccesing %s transformer on graph %s", transformerCommand.getFullClassName(), transformedGraphImpl.getGraphId()));
 			_workingInputGraphStatus.setWorkingTransformedGraph(null);
 		} else {
 			// throw new PipelineException("Prototype - Unknown transformer");
+			LOG.warn(String.format("PipelineService - unknown transformer %s ignored", transformerCommand.getFullClassName()));
 		}
 	}
 
@@ -220,6 +239,7 @@ public final class PipelineService extends Service implements Runnable {
 		_workingInputGraph.deleteGraphFromDirtyDB(Engine.METADATA_PREFIX + uuid);
 
 		_workingInputGraphStatus.deleteGraphAndWorkingAttachedGraphNames(uuid);
+		LOG.info(String.format("PipelineService ends deleting graph %s", uuid));
 	}
 
 	private void processProcessedState(String uuid) throws Exception {
@@ -245,5 +265,6 @@ public final class PipelineService extends Service implements Runnable {
 
 		_workingInputGraphStatus.deleteWorkingAttachedGraphNames();
 		_workingInputGraphStatus.setState(uuid, InputGraphState.FINISHED);
+		LOG.info(String.format("PipelineService has finished graph %s", uuid));
 	}
 }

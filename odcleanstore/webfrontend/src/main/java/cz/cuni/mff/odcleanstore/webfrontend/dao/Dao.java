@@ -1,20 +1,19 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.List;
-import java.util.Date;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessObject;
 
 import javax.sql.DataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import java.util.List;
+
 /**
  * Generic DAO interface.
  * 
- * @author Dusan Rychnovsky (dusan.rychnovsky@gmail.com)
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
-public abstract class Dao<T>
+public abstract class Dao<T extends BusinessObject>
 {
 	protected JdbcTemplate jdbcTemplate;
 	
@@ -28,43 +27,38 @@ public abstract class Dao<T>
 	}
 	
 	/**
-	 * Insert the given item into the database.
+	 * Deletes the given item in the database.
 	 * 
 	 * @param item
 	 */
-	public abstract void insert(T item);
+	public abstract void delete(T item);
 	
 	/**
-	 * Updates the given entity in the database.
+	 * Saves the given item in the database.
+	 * 
+	 * @param item
+	 */
+	public abstract void save(T item);
+	
+	/**
+	 * Updates the given item in the database.
 	 * 
 	 * @param item
 	 */
 	public abstract void update(T item);
 	
 	/**
-	 * Find all entities in the database.
+	 * Finds all entities in the database.
 	 * 
 	 * @return
 	 */
 	public abstract List<T> loadAll();
 	
 	/**
-	 * Find the entity with the given id in the database.
+	 * Finds the entity with the given id in the database.
 	 * 
 	 * @param id
 	 * @return
 	 */
-	public abstract T load(int id);
-	
-	/**
-	 * Converts the given Date instance to a MySQL-friendly timestamp value.
-	 * 
-	 * @param date
-	 * @return
-	 */
-	protected String dateToMySQLTimestamp(Date date)
-	{
-		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		return dateFormat.format(date);
-	}
+	public abstract T load(Long id);
 }

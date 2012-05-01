@@ -24,9 +24,7 @@ final class BestAggregation extends SelectedValueAggregation {
      * @param aggregationSpec aggregation and quality calculation settings
      * @param uriGenerator generator of URIs
      */
-    public BestAggregation(
-            AggregationSpec aggregationSpec,
-            UniqueURIGenerator uriGenerator) {
+    public BestAggregation(AggregationSpec aggregationSpec, UniqueURIGenerator uriGenerator) {
         super(aggregationSpec, uriGenerator);
     }
 
@@ -46,8 +44,7 @@ final class BestAggregation extends SelectedValueAggregation {
      * @return {@inheritDoc}
      */
     @Override
-    public Collection<CRQuad> aggregate(
-            Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
+    public Collection<CRQuad> aggregate(Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
 
         if (conflictingQuads.isEmpty()) {
             return createResultCollection();
@@ -75,11 +72,10 @@ final class BestAggregation extends SelectedValueAggregation {
                 assert bestQuad != null; // quality shouldn't be NEGATIVE_INFINITY
                 NamedGraphMetadata quadMetadata = metadata.getMetadata(quad.getGraphName());
                 NamedGraphMetadata bestQuadMetadata = metadata.getMetadata(bestQuad.getGraphName());
-                if (quadMetadata != null
-                        && quadMetadata.getStored() != null
+                if (quadMetadata != null && quadMetadata.getStored() != null
                         && (bestQuadMetadata == null
-                            || bestQuadMetadata.getStored() == null
-                            || quadMetadata.getStored().after(bestQuadMetadata.getStored()))) {
+                                || bestQuadMetadata.getStored() == null
+                                || quadMetadata.getStored().after(bestQuadMetadata.getStored()))) {
                     bestQuad = quad;
                     bestQuadQuality = quality;
                 }

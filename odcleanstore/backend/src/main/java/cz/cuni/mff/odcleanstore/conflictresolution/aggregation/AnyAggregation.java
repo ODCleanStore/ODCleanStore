@@ -22,9 +22,7 @@ final class AnyAggregation extends SelectedValueAggregation {
      * @param aggregationSpec aggregation and quality calculation settings
      * @param uriGenerator generator of URIs
      */
-    public AnyAggregation(
-            AggregationSpec aggregationSpec,
-            UniqueURIGenerator uriGenerator) {
+    public AnyAggregation(AggregationSpec aggregationSpec, UniqueURIGenerator uriGenerator) {
         super(aggregationSpec, uriGenerator);
     }
 
@@ -40,8 +38,7 @@ final class AnyAggregation extends SelectedValueAggregation {
      * @return {@inheritDoc}
      */
     @Override
-    public Collection<CRQuad> aggregate(
-            Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
+    public Collection<CRQuad> aggregate(Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
 
         if (conflictingQuads.isEmpty()) {
             return createResultCollection();
