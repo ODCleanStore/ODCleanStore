@@ -147,7 +147,7 @@ public final class PipelineService extends Service implements Runnable {
 				throw e;
 			}
 
-			if (transformedGraphImpl.isDeleted()) {
+			if (transformedGraphImpl != null && transformedGraphImpl.isDeleted()) {
 				processDeletingState(uuid);
 			} else {
 				_workingInputGraphStatus.setState(uuid, InputGraphState.PROCESSED);
