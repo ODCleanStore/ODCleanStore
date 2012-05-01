@@ -16,6 +16,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -27,10 +28,10 @@ import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 
 public class ConfigBuilder {
 	
-	private static final String CONFIG_FILENAME = "linkConfig.xml";
+	private static final String CONFIG_FILENAME = ".xml";
 	
-	private static final String CONFIG_DIRTY_SOURCE_ID = "dirtyDB";
-	private static final String CONFIG_CLEAN_SOURCE_ID = "cleanDB";
+	private static final String CONFIG_SOURCE_A_ID = "sourceA";
+	private static final String CONFIG_SOURCE_B_ID = "sourceB";
 	
 	private static final String CONFIG_XML_ROOT = "Silk";
 	private static final String CONFIG_XML_PREFIXES = "Prefixes";
@@ -45,6 +46,12 @@ public class ConfigBuilder {
 	private static final String CONFIG_XML_ENDPOINT_URI = "endpointURI";
 	private static final String CONFIG_XML_GRAPH = "graph";
 	private static final String CONFIG_XML_LINKAGE_RULES = "Interlinks";
+	private static final String CONFIG_XML_SOURCE_DATASET = "SourceDataset";
+	private static final String CONFIG_XML_TARGET_DATASET = "TargetDataset";
+	private static final String CONFIG_XML_DATASOURCE = "dataSource";
+	private static final String CONFIG_XML_OUTPUT = "Output";
+	private static final String CONFIG_XML_TYPE = "type";
+	private static final String CONFIG_XML_FILE = "file";
 	
 	public static File createLinkConfigFile(List<String> rawRules, List<RDFprefix> prefixes, 
 			TransformedGraph inputGraph, TransformationContext context) throws TransformerException {
@@ -53,7 +60,7 @@ public class ConfigBuilder {
 		File configFile;
 		try {
 			configDoc = createConfigDoc(rawRules, prefixes, inputGraph, context);
-			configFile = storeConfigDoc(configDoc, context.getTransformerDirectory());
+			configFile = storeConfigDoc(configDoc, context.getTransformerDirectory(), inputGraph.getGraphId());
 		} catch (Exception e) {
 			throw new TransformerException(e);
 		}
@@ -71,7 +78,7 @@ public class ConfigBuilder {
 		root.appendChild(createPrefixes(configDoc, prefixes));
 		root.appendChild(createSources(configDoc, context.getDirtyDatabaseEndpoint(), 
 				context.getCleanDatabaseEndpoint(), inputGraph.getGraphName()));
-		root.appendChild(createLinkageRules(configDoc, rawRules, context, builder));			
+		root.appendChild(createLinkageRules(configDoc, rawRules, context, inputGraph.getGraphId(), builder));			
 		
 		return configDoc;
 	}
@@ -94,11 +101,11 @@ public class ConfigBuilder {
 		Element sourcesElement = doc.createElement(CONFIG_XML_SOURCES);
 		
 		Element sourceElement = createSource(doc, dirtyEndpoint, graphName);
-		sourceElement.setAttribute(CONFIG_XML_ID, CONFIG_DIRTY_SOURCE_ID);
+		sourceElement.setAttribute(CONFIG_XML_ID, CONFIG_SOURCE_A_ID);
 		sourcesElement.appendChild(sourceElement);
 		
 		sourceElement = createSource(doc, cleanEndpoint, null);
-		sourceElement.setAttribute(CONFIG_XML_ID, CONFIG_CLEAN_SOURCE_ID);
+		sourceElement.setAttribute(CONFIG_XML_ID, CONFIG_SOURCE_B_ID);
 		sourcesElement.appendChild(sourceElement);
 		
 		return sourcesElement;
@@ -123,22 +130,49 @@ public class ConfigBuilder {
 	}
 	
 	private static Element createLinkageRules(Document doc, List<String> rawRules, TransformationContext context, 
-			DocumentBuilder builder) throws SAXException, IOException {
+			String graphId, DocumentBuilder builder) throws SAXException, IOException {
 		Element rulesElement = doc.createElement(CONFIG_XML_LINKAGE_RULES);
 		
 		for (String rawRule:rawRules) {
 			Element ruleElement = builder.parse(new InputSource(new StringReader(rawRule))).getDocumentElement();
+			normalizeDatasets(ruleElement);
+			updateFileNames(ruleElement, graphId);
 			rulesElement.appendChild(ruleElement);
 		}
 		
-		//TODO synchronize dataSource IDs between rules and sources
-		
 		return rulesElement;
 	}
+	
+	private static void normalizeDatasets(Element ruleElement) {
+		Element sourceElement = (Element)ruleElement.getElementsByTagName(CONFIG_XML_SOURCE_DATASET).item(0);
+		sourceElement.setAttribute(CONFIG_XML_DATASOURCE, CONFIG_SOURCE_A_ID);
+		Element targetElement = (Element)ruleElement.getElementsByTagName(CONFIG_XML_TARGET_DATASET).item(0);
+		targetElement.setAttribute(CONFIG_XML_DATASOURCE, CONFIG_SOURCE_B_ID);
+	}
+	
+	private static void updateFileNames(Element ruleElement, String graphId) {
+		NodeList outputList = ruleElement.getElementsByTagName(CONFIG_XML_OUTPUT);
+		for (int i = 0; i < outputList.getLength(); ++i) {
+			Element outputElement = (Element)outputList.item(i);
+			String type = outputElement.getAttribute(CONFIG_XML_TYPE);
+			if (CONFIG_XML_FILE.equals(type)) {
+				NodeList paramList = outputElement.getElementsByTagName(CONFIG_XML_PARAMETER);
+				for (int j = 0; j < paramList.getLength(); j++) {
+					Element paramElement = (Element)paramList.item(j);
+					String name = paramElement.getAttribute(CONFIG_XML_NAME);
+					if (CONFIG_XML_FILE.equals(name)) {
+						String value = paramElement.getAttribute(CONFIG_XML_VALUE);
+						value = graphId.concat(value);
+						paramElement.setAttribute(CONFIG_XML_VALUE, value);
+					}
+				}
+			}
+		}
+	}
 
-	private static File storeConfigDoc(Document configDoc, File targetDirectory) 
+	private static File storeConfigDoc(Document configDoc, File targetDirectory, String graphId) 
 			throws TransformerFactoryConfigurationError, javax.xml.transform.TransformerException {
-		File configFile = new File(targetDirectory, CONFIG_FILENAME);
+		File configFile = new File(targetDirectory, graphId + CONFIG_FILENAME);
 		
 		Transformer transformer;
 		
