@@ -31,7 +31,7 @@ public final class Engine extends Module {
 	public static final String DATA_PREFIX = "http://opendata.cz/infrastructure/odcleanstore/";
 	public static final String METADATA_PREFIX = "http://opendata.cz/infrastructure/odcleanstore/metadata/";
 
-	public static final String SCRAPER_INPUT_DIR = "C:/odcs/ScraperInput/";
+	public static final String SCRAPER_INPUT_DIR = "engineScraperInput/";
 
 	public static final String SCRAPER_ENDPOINT_URL = "http://localhost:8088/odcleanstore/scraper";
 	public static final int USER_SERVICE_PORT = 8087;
@@ -100,6 +100,7 @@ public final class Engine extends Module {
 	}
 
 	private void init() throws EngineException {
+						
 		checkJavaVersion();
 		checkRequired();
 
