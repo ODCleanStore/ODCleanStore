@@ -4,39 +4,30 @@ import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 
-import de.fuberlin.wiwiss.ng4j.NamedGraphSet;
-
 import java.net.URISyntaxException;
 
 /**
- * Access point of the Query Execution component.
+ * Access point (facade) of the Query Execution component.
  * Provides access to methods provided by each QueryExecutor.
  *
  * The purpose of Query Execution is to load triples relevant for the given query from the clean
  * database, apply conflict resolution to it, converts the result (collection of CRQuads)
  * to plain quads and return the result.
  *
- * @todo merge with default AggregationSpec
+ * Methods of this class are thread-safe.
  *
  * @author Jan Michelfeit
  */
 public class QueryExecution {
-    /** TODO */
-    public static final String METADATA_GRAPH = "http://odcs.mff.cuni.cz/metadata/";
-
-    /** Instance of {@link UriQueryExecutor}. */
-    private UriQueryExecutor uriQueryExecutor;
-
-    /** Instance of {@link KeywordQueryExecutor}. */
-    private KeywordQueryExecutor keywordQueryExecutor;
+    /** Connection settings for the SPARQL endpoint that will be queried. */
+    private final SparqlEndpoint sparqlEndpoint;
 
     /**
      * Creates a new instance of QueryExecution.
      * @param sparqlEndpoint connection settings for the SPARQL endpoint that will be queried
      */
     public QueryExecution(SparqlEndpoint sparqlEndpoint) {
-        this.uriQueryExecutor = new UriQueryExecutor(sparqlEndpoint);
-        this.keywordQueryExecutor = new KeywordQueryExecutor(sparqlEndpoint);
+        this.sparqlEndpoint = sparqlEndpoint;
     }
 
     /**
@@ -52,9 +43,9 @@ public class QueryExecution {
      *
      * @todo
      */
-    public NamedGraphSet findKeyword(String keywords, QueryConstraintSpec constraints,
+    public QueryResult findKeyword(String keywords, QueryConstraintSpec constraints,
             AggregationSpec aggregationSpec) throws ODCleanStoreException {
-        return keywordQueryExecutor.findKeyword(keywords, constraints, aggregationSpec);
+        return new KeywordQueryExecutor(sparqlEndpoint, constraints, aggregationSpec).findKeyword(keywords);
     }
 
     /**
@@ -68,10 +59,8 @@ public class QueryExecution {
      * @throws ODCleanStoreException exception
      * @throws URISyntaxException thrown when uri is not a valid URI
      */
-    public NamedGraphSet findURI(String uri, QueryConstraintSpec constraints,
+    public QueryResult findURI(String uri, QueryConstraintSpec constraints,
             AggregationSpec aggregationSpec) throws ODCleanStoreException, URISyntaxException {
-        return uriQueryExecutor.findURI(uri, constraints, aggregationSpec);
+        return new UriQueryExecutor(sparqlEndpoint, constraints, aggregationSpec).findURI(uri);
     }
-
-
 }

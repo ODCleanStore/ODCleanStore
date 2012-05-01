@@ -9,15 +9,18 @@ import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.data.QuadCollection;
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
+import cz.cuni.mff.odcleanstore.queryexecution.connection.VirtuosoConnectionWrapper;
+import cz.cuni.mff.odcleanstore.queryexecution.connection.WrappedResultSet;
+import cz.cuni.mff.odcleanstore.queryexecution.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.queryexecution.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 import cz.cuni.mff.odcleanstore.vocabulary.W3P;
+import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 
 import com.hp.hpl.jena.graph.Triple;
 
-import de.fuberlin.wiwiss.ng4j.NamedGraphSet;
 import de.fuberlin.wiwiss.ng4j.Quad;
 
 import org.slf4j.Logger;
@@ -26,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -35,17 +39,48 @@ import java.util.Locale;
  * Executes the URI search query.
  * Triples that contain the given URI as their subject or object are returned.
  *
- * TODO: sameAs links between objects and between properties
+ * This class is not thread-safe.
+ *
  * @author Jan Michelfeit
  */
 /*package*/class UriQueryExecutor extends QueryExecutorBase {
     private static final Logger LOG = LoggerFactory.getLogger(UriQueryExecutor.class);
 
-    // TODO: use time
-    // UNION je nutny kvuli spravnemu fungovani owl:sameAs inference pro hledane URI ve Virtuosu
-    // poddotaz je nutny kvuli prekladu subjectu/objectu na jejich jediny owl:sameAs ekvivalent
-    // pri pouziti poddotazu tento preklad provede Virtuoso samo - diky tomu neni nutne ziskavat linky z databaze
-    // explicitne a predavat je do ConflictResolverSpec
+    /**
+     * SPARQL snippet restricting result to ?graph having at least the given score.
+     * Even though the score must be present, the pattern wouldn't work without OPTIONAL
+     * (probably due to Virtuoso inference processing).
+     * Must be formatted with the score as an argument.
+     */
+    private static final String SCORE_FILTER_CLAUSE = " OPTIONAL { ?graph <" + ODCS.score + "> ?_score }"
+            + " FILTER(?_score >= %f)";
+
+    /**
+     * SPARQL snippet restricting result to ?graph having at least the given inserted at date.
+     * Even though the score must be present, the pattern wouldn't work without OPTIONAL
+     * (probably due to Virtuoso inference processing).
+     * Must be formatted with the date given as an argument.
+     */
+    private static final String INSERTED_AT_FILTER_CLAUSE = " OPTIONAL { ?graph <" + W3P.insertedAt + "> ?_insertedAt }"
+            + " FILTER(?_insertedAt >= \"%s\"^^<" + XMLSchema.dateTimeType + ">)";
+
+    /**
+     * SPARQL snippet restricting a variable to start with the given string.
+     * Must be formatted with a string argument.
+     */
+    private static final String PREFIX_FILTER_CLAUSE = " FILTER regex(?%s, \"^%s\")";
+
+    /**
+     * SPARQL query that gets the main result quads.
+     * Use of UNION instead of a more complex filter is to make owl:sameAs inference in Virtuoso work.
+     * The subquery is necessary to make Virtuoso translate subjects/objects to a single owl:sameAs equivalent.
+     * This way we don't need to obtain sameAs links (passed to ConflictResolverSpec) from the database explicitly.
+     *
+     * The query must be formatted with three arguments: URI, graph filter clause, limit
+     *
+     * TODO: it seemed to perform faster with OPTIONAL clauses for time and score - check it
+     * TODO: explore using REDUCED instead of DISTINCT
+     */
     private static final String URI_OCCURENCES_QUERY = "SPARQL"
             + "\n DEFINE input:same-as \"yes\""
             + "\n SELECT ?graph ?s ?p ?o"
@@ -57,42 +92,43 @@ import java.util.Locale;
             + "\n         GRAPH ?graph {"
             + "\n           ?s ?p ?o."
             + "\n           FILTER (?s = <%1$s>)"
-            //+ "\n           FILTER (?p != <" + OWL.sameAs + ">)" // TODO: asi opravdu vyfiltrovat?
+            + "\n           FILTER (?p != <" + OWL.sameAs + ">)"
             + "\n         }"
-            + "\n         OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }"
-            + "\n         OPTIONAL { ?graph <" + ODCS.score + ">  ?meta_score }" // TODO: non-optional if given?
-            + "\n         FILTER(!bound(?score) || ?score > %2$f) ."
-            + "\n         FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
+            + "\n         %2$s"
             + "\n       }"
             + "\n       UNION"
             + "\n       {"
             + "\n         GRAPH ?graph {"
             + "\n           ?s ?p ?o."
             + "\n           FILTER (?o = <%1$s>)"
-            //+ "\n           FILTER (?p != <" + OWL.sameAs + ">)"
+            + "\n           FILTER (?p != <" + OWL.sameAs + ">)"
             + "\n         }"
-            + "\n         OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }"
-            + "\n         OPTIONAL { ?graph <" + ODCS.score + ">  ?score }"
-            + "\n         FILTER(!bound(?score) || ?score > %2$f) ."
-            + "\n         FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
+            + "\n         %2$s"
             + "\n       }"
             + "\n     }"
+            + "\n     LIMIT %3$d"
             + "\n   }"
-            + "\n }"
-            + "\n LIMIT %3$d";
+            + "\n }";
 
-    // TODO: limit by time & score
-    // TODO: omit metadata for additional labels?
-    // TODO: pridat do dotazu vnitrni limity?
-    // metadata i pro labels
-    // source se povazuje za povinny
+    /**
+     * SPARQL query that gets metadata for named graphs containing result quads.
+     * Source is the only required value, others can be null.
+     * For the reason why UNIONs and subqueries are used, see {@link #URI_OCCURENCES_QUERY}.
+     *
+     * OPTIONAL clauses for fetching ?graph properties are necessary (probably due to Virtuoso inference processing).
+     *
+     * Must be formatted with arguments: URI, graph filter clause, label properties, resGraph prefix filter, limit
+     *
+     * TODO: omit metadata for additional labels?
+     * TODO: reuse uri query and label query?
+     */
     private static final String METADATA_QUERY = "SPARQL"
             + "\n DEFINE input:same-as \"yes\""
-            + "\n SELECT DISTINCT ?graph ?source ?score ?insertedAt ?publishedBy ?publisherScore"
+            + "\n SELECT DISTINCT ?resGraph ?source ?score ?insertedAt ?publishedBy ?publisherScore"
             + "\n WHERE {"
             + "\n   {"
             + "\n     {"
-            + "\n       SELECT DISTINCT ?graph" // TODO: remove DISTINCT??
+            + "\n       SELECT DISTINCT ?graph as ?resGraph"
             + "\n       WHERE {"
             + "\n         {"
             + "\n           GRAPH ?graph {"
@@ -100,6 +136,7 @@ import java.util.Locale;
             + "\n              FILTER (?s = <%1$s>)"
             + "\n              FILTER (?p != <" + OWL.sameAs + ">)"
             + "\n           }"
+            + "\n           %2$s"
             + "\n         }"
             + "\n         UNION"
             + "\n         {"
@@ -108,85 +145,84 @@ import java.util.Locale;
             + "\n              FILTER (?o = <%1$s>)"
             + "\n              FILTER (?p != <" + OWL.sameAs + ">)"
             + "\n           }"
+            + "\n           %2$s"
             + "\n         }"
             + "\n       }"
+            + "\n       LIMIT %5$d"
             + "\n     }"
             + "\n     UNION"
             + "\n     {"
-            + "\n       SELECT DISTINCT ?graph"
+            + "\n       SELECT DISTINCT ?resGraph"
             + "\n       WHERE {"
             + "\n         {"
-            + "\n           SELECT DISTINCT ?g"
+            + "\n           SELECT DISTINCT ?r"
             + "\n           WHERE {"
             + "\n             {"
-            + "\n               GRAPH ?g {" // TODO: remove with regex
+            + "\n               GRAPH ?graph {"
             + "\n                 ?s ?p ?r."
             + "\n                 FILTER (?s = <%1$s>)"
-            //+ "\n                 FILTER (?p != <" + OWL.sameAs + ">)" // TODO: ?
             + "\n               }"
-            + "\n               OPTIONAL { ?g <" + W3P.insertedAt + "> ?insertedAt }"
-            + "\n               OPTIONAL { ?g <" + ODCS.score + ">  ?meta_score }" // TODO: non-optional if given?
-            + "\n               FILTER(!bound(?score) || ?score > %2$f) ."
-            + "\n               FILTER regex(?g, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
-            + "\n               FILTER (!isLITERAL(?r))"
+            + "\n               %2$s"
+            + "\n               FILTER (!isLITERAL(?r) && ?p != <" + OWL.sameAs + ">)"
             + "\n             }"
             + "\n             UNION"
             + "\n             {"
-            + "\n               GRAPH ?g {"
+            + "\n               GRAPH ?graph {"
             + "\n                 ?s ?r ?o."
             + "\n                 FILTER (?s = <%1$s>)"
-            //+ "\n                 FILTER (?p != <" + OWL.sameAs + ">)" // TODO: ?
             + "\n               }"
-            + "\n               OPTIONAL { ?g <" + W3P.insertedAt + "> ?insertedAt }"
-            + "\n               OPTIONAL { ?g <" + ODCS.score + ">  ?meta_score }" // TODO: non-optional if given?
-            + "\n               FILTER(!bound(?score) || ?score > %2$f) ."
-            + "\n               FILTER regex(?g, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
+            + "\n               %2$s"
             + "\n             }"
             + "\n             UNION"
             + "\n             {"
-            + "\n               GRAPH ?g {"
+            + "\n               GRAPH ?graph {"
             + "\n                 ?r ?p ?o."
             + "\n                 FILTER (?o = <%1$s>)"
-            //+ "\n                 FILTER (?p != <" + OWL.sameAs + ">)"
             + "\n               }"
-            + "\n               OPTIONAL { ?g <" + W3P.insertedAt + "> ?insertedAt }"
-            + "\n               OPTIONAL { ?g <" + ODCS.score + ">  ?score }"
-            + "\n               FILTER(!bound(?score) || ?score > %2$f) ."
-            + "\n               FILTER regex(?g, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
+            + "\n               %2$s"
+            + "\n               FILTER (?p != <" + OWL.sameAs + ">)"
             + "\n             }"
             + "\n             UNION"
             + "\n             {"
-            + "\n               GRAPH ?g {"
+            + "\n               GRAPH ?graph {"
             + "\n                 ?s ?r ?o."
             + "\n                 FILTER (?o = <%1$s>)"
-            //+ "\n                 FILTER (?p != <" + OWL.sameAs + ">)"
             + "\n               }"
-            + "\n               OPTIONAL { ?g <" + W3P.insertedAt + "> ?insertedAt }"
-            + "\n               OPTIONAL { ?g <" + ODCS.score + ">  ?score }"
-            + "\n               FILTER(!bound(?score) || ?score > %2$f) ."
-            + "\n               FILTER regex(?g, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
+            + "\n               %2$s"
             + "\n             }"
+            + "\n             FILTER(?r != <%1$s>)"
             + "\n           }"
+            + "\n           LIMIT %5$d"
             + "\n         }"
-            + "\n         GRAPH ?graph {"
+            + "\n         GRAPH ?resGraph {"
             + "\n           ?r ?labelProp ?label"
             + "\n         }"
-            + "\n         FILTER (?labelProp IN (%4$s))"
-            + "\n         FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")"
+            + "\n         FILTER (?labelProp IN (%3$s))"
             + "\n       }"
+            + "\n       LIMIT %5$d"
             + "\n     }"
             + "\n   }"
-            + "\n   OPTIONAL { ?graph <" + W3P.source + "> ?source }"
-            + "\n   OPTIONAL { ?graph <" + ODCS.score + "> ?score }"
-            + "\n   OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }"
-            + "\n   OPTIONAL { ?graph <" + W3P.publishedBy + "> ?publishedBy }"
-            + "\n   OPTIONAL { ?graph <" + W3P.publishedBy + "> ?publishedBy. "
+            + "\n   OPTIONAL { ?resGraph <" + W3P.source + "> ?source }"
+            + "\n   OPTIONAL { ?resGraph <" + ODCS.score + "> ?score }"
+            + "\n   OPTIONAL { ?resGraph <" + W3P.insertedAt + "> ?insertedAt }"
+            + "\n   OPTIONAL { ?resGraph <" + W3P.publishedBy + "> ?publishedBy }"
+            + "\n   OPTIONAL { ?resGraph <" + W3P.publishedBy + "> ?publishedBy. "
             + "\n     ?publishedBy <" + ODCS.publisherScore + "> ?publisherScore }"
-            + "\n   FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
+            + "\n   %4$s"
             + "\n   FILTER (bound(?source))"
             + "\n }"
-            + "\n LIMIT %3$d";
+            + "\n LIMIT %5$d";
 
+    /**
+     * SPARQL query for retrieving labels of resources contained in the result, except for the searched URI
+     * (we get that by {@link #URI_OCCURENCES_QUERY}).
+     *
+     * For the reason why UNIONs and subqueries are used, see {@link #URI_OCCURENCES_QUERY}.
+     *
+     * Must be formatted with arguments: URI, graph filter clause, label properties, ?labelGraph prefix filter, limit.
+     *
+     * @see QueryExecutorBase#LABEL_PROPERTIES
+     */
     private static final String LABELS_QUERY = "SPARQL"
             + "\n DEFINE input:same-as \"yes\""
             + "\n SELECT ?labelGraph ?r ?labelProp ?label WHERE {{"
@@ -196,145 +232,85 @@ import java.util.Locale;
             + "\n     SELECT DISTINCT ?graph ?r"
             + "\n     WHERE {"
             + "\n       {"
-            + "\n         GRAPH ?graph {" // TODO: remove with regex
+            + "\n         GRAPH ?graph {"
             + "\n           ?s ?p ?r."
             + "\n           FILTER (?s = <%1$s>)"
-            //+ "\n           FILTER (?p != <" + OWL.sameAs + ">)" // TODO: ?
             + "\n         }"
-            + "\n         OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }"
-            + "\n         OPTIONAL { ?graph <" + ODCS.score + ">  ?meta_score }" // TODO: non-optional if given?
-            + "\n         FILTER(!bound(?score) || ?score > %2$f) ."
-            + "\n         FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
-            + "\n         FILTER (!isLITERAL(?r))"
+            + "\n         %2$s"
+            + "\n         FILTER (!isLITERAL(?r) && ?p != <" + OWL.sameAs + ">)"
             + "\n       }"
             + "\n       UNION"
             + "\n       {"
             + "\n         GRAPH ?graph {"
             + "\n           ?s ?r ?o."
             + "\n           FILTER (?s = <%1$s>)"
-            //+ "\n           FILTER (?p != <" + OWL.sameAs + ">)" // TODO: ?
             + "\n         }"
-            + "\n         OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }"
-            + "\n         OPTIONAL { ?graph <" + ODCS.score + ">  ?meta_score }" // TODO: non-optional if given?
-            + "\n         FILTER(!bound(?score) || ?score > %2$f) ."
-            + "\n         FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
+            + "\n         %2$s"
             + "\n       }"
             + "\n       UNION"
             + "\n       {"
             + "\n         GRAPH ?graph {"
             + "\n           ?r ?p ?o."
             + "\n           FILTER (?o = <%1$s>)"
-            //+ "\n           FILTER (?p != <" + OWL.sameAs + ">)"
             + "\n         }"
-            + "\n         OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }"
-            + "\n         OPTIONAL { ?graph <" + ODCS.score + ">  ?score }"
-            + "\n         FILTER(!bound(?score) || ?score > %2$f) ."
-            + "\n         FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
+            + "\n         %2$s"
+            + "\n         FILTER (?p != <" + OWL.sameAs + ">)"
             + "\n       }"
             + "\n       UNION"
             + "\n       {"
             + "\n         GRAPH ?graph {"
             + "\n           ?s ?r ?o."
             + "\n           FILTER (?o = <%1$s>)"
-            //+ "\n           FILTER (?p != <" + OWL.sameAs + ">)"
             + "\n         }"
-            + "\n         OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }"
-            + "\n         OPTIONAL { ?graph <" + ODCS.score + ">  ?score }"
-            + "\n         FILTER(!bound(?score) || ?score > %2$f) ."
-            + "\n         FILTER regex(?graph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
+            + "\n         %2$s"
             + "\n       }"
+            + "\n       FILTER(?r != <%1$s>)"
             + "\n     }"
+            + "\n     LIMIT %5$d"
             + "\n   }"
             + "\n   GRAPH ?labelGraph {"
             + "\n     ?r ?labelProp ?label"
             + "\n   }"
-            + "\n   FILTER (?labelProp IN (%4$s))"
-            + "\n   FILTER regex(?labelGraph, \"^" + NG_PREFIX_FILTER + "\")"
+            + "\n   FILTER (?labelProp IN (%3$s))"
+            + "\n   %4$s"
             + "\n }"
-            + "\n }}"
-            + "\n LIMIT %3$d";
+            + "\n LIMIT %5$d"
+            + "\n }}";
 
-    // TODO: limit by time and quality too?
-    // dela to same co LABELS_QUERY, ale je approx. 30 times slower
-    private static final String LABELS_QUERY2 = "SPARQL"
-            + "\n DEFINE input:same-as \"yes\""
-            + "\n SELECT DISTINCT ?labelGraph ?r ?labelProp ?label"
-            + "\n WHERE {"
-            + "\n   {"
-            + "\n     ?s ?p ?r"
-            + "\n     FILTER (?s = <%1$s>)"
-            + "\n     GRAPH ?labelGraph {"
-            + "\n       ?r ?labelProp ?label"
-            + "\n       FILTER (?labelProp IN (%4$s))"
-            + "\n     }"
-            + "\n     OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }"
-            + "\n     OPTIONAL { ?graph <" + ODCS.score + ">  ?score }"
-            + "\n     FILTER(!bound(?score) || ?score > %2$f) ."
-            + "\n     FILTER regex(?labelGraph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
-            + "\n   }"
-            + "\n   UNION"
-            + "\n   {"
-            + "\n     ?s ?r ?o"
-            + "\n     FILTER (?s = <%1$s>)"
-            + "\n     GRAPH ?labelGraph {"
-            + "\n       ?r ?labelProp ?label"
-            + "\n       FILTER (?labelProp IN (%4$s))"
-            + "\n     }"
-            + "\n     OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }"
-            + "\n     OPTIONAL { ?graph <" + ODCS.score + ">  ?score }"
-            + "\n     FILTER(!bound(?score) || ?score > %2$f) ."
-            + "\n     FILTER regex(?labelGraph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
-            + "\n   }"
-            + "\n   UNION"
-            + "\n   {"
-            + "\n     ?r ?p ?o"
-            + "\n     FILTER (?o = <%1$s>)"
-            + "\n     GRAPH ?labelGraph {"
-            + "\n       ?r ?labelProp ?label"
-            + "\n       FILTER (?labelProp IN (%4$s))"
-            + "\n     }"
-            + "\n     OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }"
-            + "\n     OPTIONAL { ?graph <" + ODCS.score + ">  ?score }"
-            + "\n     FILTER(!bound(?score) || ?score > %2$f) ."
-            + "\n     FILTER regex(?labelGraph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
-            + "\n   }"
-            + "\n   UNION"
-            + "\n   {"
-            + "\n     ?s ?r ?o"
-            + "\n     FILTER (?o = <%1$s>)"
-            + "\n     GRAPH ?labelGraph {"
-            + "\n       ?r ?labelProp ?label"
-            + "\n       FILTER (?labelProp IN (%4$s))"
-            + "\n     }"
-            + "\n     OPTIONAL { ?graph <" + W3P.insertedAt + "> ?insertedAt }"
-            + "\n     OPTIONAL { ?graph <" + ODCS.score + ">  ?score }"
-            + "\n     FILTER(!bound(?score) || ?score > %2$f) ."
-            + "\n     FILTER regex(?labelGraph, \"^" + NG_PREFIX_FILTER + "\")" // TODO: remove
-            + "\n   }"
-            + "\n }"
-            + "\n LIMIT %3$d";
+    /**
+     * Cached graph filter SPARQL snippet.
+     * Depends only on settings immutable during the instance lifetime and thus can be cached.
+     */
+    private CharSequence graphFilterClause;
 
+    /**
+     * Database connection.
+     */
+    private VirtuosoConnectionWrapper connection;
 
     /**
      * Creates a new instance of UriQueryExecutor.
      * @param sparqlEndpoint connection settings for the SPARQL endpoint that will be queried
+     * @param constraints constraints on triples returned in the result
+     * @param aggregationSpec aggregation settings for conflict resolution
      */
-    public UriQueryExecutor(SparqlEndpoint sparqlEndpoint) {
-        super(sparqlEndpoint);
+    public UriQueryExecutor(SparqlEndpoint sparqlEndpoint, QueryConstraintSpec constraints,
+            AggregationSpec aggregationSpec) {
+        super(sparqlEndpoint, constraints, aggregationSpec);
     }
 
     /**
      * Executes the URI search query.
      *
      * @param uri searched URI
-     * @param constraints constraints on triples returned in the result
-     * @param aggregationSpec aggregation settings for conflict resolution
-     * @return result of the query as RDF quads
+     * @return query result holder
+     * @throws URISyntaxException the given URI is not a valid URI
+     * @throws ODCleanStoreException database error
      */
-    public NamedGraphSet findURI(String uri, QueryConstraintSpec constraints,
-            AggregationSpec aggregationSpec) throws ODCleanStoreException, URISyntaxException {
+    public QueryResult findURI(String uri) throws ODCleanStoreException, URISyntaxException {
+        LOG.info("URI query for <{}>", uri);
+        long startTime = System.currentTimeMillis();
 
-        long startTime = System.currentTimeMillis(); // TODO: only if LOG.isDebugEnabled()
         // Check that the URI is valid (must not be empty or null, should match '<' ([^<>"{}|^`\]-[#x00-#x20])* '>' )
         try {
             new URI(uri);
@@ -342,99 +318,218 @@ import java.util.Locale;
             throw e; // rethrow
         }
 
-        // Get the quads relevant for the query
-        Collection<Quad> quads = getURIOccurrences(uri, constraints);
-        quads.addAll(getLabels(uri, constraints));
+        try {
+            // Get the quads relevant for the query
+            Collection<Quad> quads = getURIOccurrences(uri);
+            if (quads.isEmpty()) {
+                return createResult(Collections.<CRQuad>emptyList(), new NamedGraphMetadataMap(),
+                        System.currentTimeMillis() - startTime);
+            }
+            quads.addAll(getLabels(uri));
 
-        // Gather all settings for Conflict Resolution
-        ConflictResolverSpec crSpec = new ConflictResolverSpec(RESULT_GRAPH_PREFIX, aggregationSpec);
-        crSpec.setPreferredURIs(Collections.singleton(uri));
-        // ... no need for sameAs links - see URI_OCCURENCES_QUERY
-        crSpec.setSameAsLinks(Collections.<Triple>emptySet().iterator());
-        NamedGraphMetadataMap metadata = getMetadata(uri, constraints);
-        crSpec.setNamedGraphMetadata(metadata);
+            // Gather all settings for Conflict Resolution
+            ConflictResolverSpec crSpec = new ConflictResolverSpec(RESULT_GRAPH_PREFIX, aggregationSpec);
+            crSpec.setPreferredURIs(Collections.singleton(uri));
+            // ... no need for sameAs links - see URI_OCCURENCES_QUERY
+            crSpec.setSameAsLinks(Collections.<Triple>emptySet().iterator());
+            NamedGraphMetadataMap metadata = getMetadata(uri);
+            crSpec.setNamedGraphMetadata(metadata);
 
-        // Apply conflict resolution
-        ConflictResolver conflictResolver = ConflictResolverFactory.createResolver(crSpec);
-        Collection<CRQuad> resolvedQuads = conflictResolver.resolveConflicts(quads);
+            // Apply conflict resolution
+            ConflictResolver conflictResolver = ConflictResolverFactory.createResolver(crSpec);
+            Collection<CRQuad> resolvedQuads = conflictResolver.resolveConflicts(quads);
 
-        LOG.debug("Query Execution: findURI() in {} ms", System.currentTimeMillis() - startTime);
-        // Format and return result
-        return convertToNGSet(resolvedQuads, metadata);
+            return createResult(resolvedQuads, metadata, System.currentTimeMillis() - startTime);
+        } finally {
+            closeConnection();
+        }
     }
 
-    private Collection<Quad> getURIOccurrences(String uri, QueryConstraintSpec constraints)
-            throws ODCleanStoreException {
+    /**
+     * Returns a database connection.
+     * The connection is shared within this instance until it is closed.
+     * @return database connection
+     * @throws ConnectionException database connection error
+     */
+    private VirtuosoConnectionWrapper getConnection() throws ConnectionException {
+        if (connection == null) {
+            connection = VirtuosoConnectionWrapper.createConnection(sparqlEndpoint);
+        }
+        return connection;
+    }
 
+    /**
+     * Closes an opened database connection, if any.
+     * @throws ConnectionException database connection error
+     */
+    private void closeConnection() throws ConnectionException {
+        if (connection != null) {
+            connection.close();
+            connection = null;
+        }
+    }
+
+    /**
+     * Returns a SPARQL query snippet restricting results to ?graph variable containing a named graph URI to
+     * current query constraints. The value is cached.
+     * @return SPARQL query snippet
+     */
+    private CharSequence getGraphFilterClause() {
+        if (graphFilterClause == null) {
+            graphFilterClause = buildGraphFilterClause(constraints);
+        }
+        return graphFilterClause;
+    }
+
+    /**
+     * @see {@link #getGraphFilterClause()}
+     * @param constraints constraints on triples returned in the result
+     * @return SPARQL query snippet
+     */
+    private static CharSequence buildGraphFilterClause(QueryConstraintSpec constraints) {
+        if (constraints.getMinScore() == null && constraints.getOldestTime() == null && GRAPH_PREFIX_FILTER == null) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        if (constraints.getMinScore() != null) {
+            sb.append(String.format(Locale.ROOT, SCORE_FILTER_CLAUSE, constraints.getMinScore()));
+        }
+        if (constraints.getOldestTime() != null) {
+            java.sql.Timestamp oldestTime = new Timestamp(constraints.getOldestTime().getTime());
+            sb.append(String.format(Locale.ROOT, INSERTED_AT_FILTER_CLAUSE, oldestTime.toString()));
+        }
+        if (GRAPH_PREFIX_FILTER != null) {
+            sb.append(getGraphPrefixFilter("graph"));
+        }
+        return sb;
+    }
+
+    /**
+     * Returns a SPARQL snippet restricting a named graph URI referenced by the given variable to GRAPH_PREFIX_FILTER.
+     * Returns an empty string if GRAPH_PREFIX_FILTER is null.
+     * @see #GRAPH_PREFIX_FILTER
+     * @param graphVariable SPARQL variable name
+     * @return SPARQL query snippet
+     */
+    private static String getGraphPrefixFilter(String graphVariable) {
+        if (GRAPH_PREFIX_FILTER == null) {
+            return "";
+        } else {
+            return String.format(Locale.ROOT, PREFIX_FILTER_CLAUSE, graphVariable, GRAPH_PREFIX_FILTER);
+        }
+    }
+
+    /**
+     * Creates an object holding the results of the query.
+     * @param resultQuads result of the query as {@link CRQuad CRQuads}
+     * @param metadata provenance metadata for resultQuads
+     * @param executionTime query execution time in ms
+     * @return query result holder
+     */
+    private QueryResult createResult(
+            Collection<CRQuad> resultQuads,
+            NamedGraphMetadataMap metadata,
+            long executionTime) {
+
+        LOG.debug("Query Execution: findURI() in {} ms", executionTime);
+        // Format and return result
+        QueryResult queryResult = new QueryResult(resultQuads, metadata, EnumQueryType.URI, constraints,
+                aggregationSpec);
+        queryResult.setExecutionTime(executionTime);
+        return queryResult;
+    }
+
+    /**
+     * Return a collection of quads relevant for the query (without metadata or any additional quads).
+     * @param uri searched URI
+     * @return retrieved quads
+     * @throws ODCleanStoreException query error
+     */
+    private Collection<Quad> getURIOccurrences(String uri) throws ODCleanStoreException {
         long startTime = System.currentTimeMillis();
-        // Prepare the query
-        String query = String.format(Locale.ROOT, URI_OCCURENCES_QUERY, uri, constraints.getMinScore(), DEFAULT_LIMIT);
-        WrappedResultSet resultSet = executeQuery(query);
+
+        String query = String.format(URI_OCCURENCES_QUERY, uri, getGraphFilterClause(), MAX_LIMIT);
+        WrappedResultSet resultSet = getConnection().executeSelect(query);
         LOG.debug("Query Execution: getURIOccurences() query took {} ms", System.currentTimeMillis() - startTime);
 
-        QuadCollection quads = new QuadCollection();
         try {
+            QuadCollection quads = new QuadCollection();
             while (resultSet.next()) {
+                // CHECKSTYLE:OFF
                 Quad quad = new Quad(
                         resultSet.getNode(1),
                         resultSet.getNode(2),
                         resultSet.getNode(3),
                         resultSet.getNode(4));
                 quads.add(quad);
+                // CHECKSTYLE:ON
             }
-            resultSet.close();
+
+            LOG.debug("Query Execution: getURIOccurrences() in {} ms", System.currentTimeMillis() - startTime);
+            return quads;
         } catch (SQLException e) {
             throw new QueryException(e);
+        } finally {
+            resultSet.closeQuietly();
         }
-
-        LOG.debug("Query Execution: getURIOccurrences() in {} ms", System.currentTimeMillis() - startTime);
-        return quads;
     }
 
-    private Collection<Quad> getLabels(String uri, QueryConstraintSpec constraints) throws ODCleanStoreException {
-
+    /**
+     * Return labels of resources returned by {{@link #getURIOccurrences(String)}} as quads.
+     * @param uri searched URI
+     * @return labels as quads
+     * @throws ODCleanStoreException query error
+     */
+    private Collection<Quad> getLabels(String uri) throws ODCleanStoreException {
         long startTime = System.currentTimeMillis();
-        // Prepare the query
-        String query = String.format(Locale.ROOT, LABELS_QUERY, uri, constraints.getMinScore(), DEFAULT_LIMIT,
-                LABEL_PROPERTIES_LIST);
-        WrappedResultSet resultSet = executeQuery(query);
+
+        String query = String.format(Locale.ROOT, LABELS_QUERY, uri, getGraphFilterClause(), LABEL_PROPERTIES_LIST,
+                getGraphPrefixFilter("labelGraph"), MAX_LIMIT);
+        WrappedResultSet resultSet = getConnection().executeSelect(query);
         LOG.debug("Query Execution: getLabels() query took {} ms", System.currentTimeMillis() - startTime);
 
-        QuadCollection quads = new QuadCollection();
         try {
+            QuadCollection quads = new QuadCollection();
             while (resultSet.next()) {
                 Quad quad = new Quad(
                         resultSet.getNode("labelGraph"),
-                        resultSet.getNode("r"), // TODO: number indeces?
+                        resultSet.getNode("r"),
                         resultSet.getNode("labelProp"),
                         resultSet.getNode("label"));
                 quads.add(quad);
             }
-            resultSet.close();
+
+            LOG.debug("Query Execution: getLabels() in {} ms", System.currentTimeMillis() - startTime);
+            return quads;
         } catch (SQLException e) {
             throw new QueryException(e);
+        } finally {
+            resultSet.closeQuietly();
         }
-
-        LOG.debug("Query Execution: getLabels() in {} ms", System.currentTimeMillis() - startTime);
-        return quads;
     }
 
-
-    private NamedGraphMetadataMap getMetadata(String uri, QueryConstraintSpec constraints)
+    /**
+     * Return metadata for named graphs containing quads returned in the result.
+     * @param uri searched URI
+     * @return metadata of result named graphs
+     * @throws ODCleanStoreException query error
+     */
+    private NamedGraphMetadataMap getMetadata(String uri)
             throws ODCleanStoreException {
 
         long startTime = System.currentTimeMillis();
         // Execute the query
-        String query = String.format(Locale.ROOT, METADATA_QUERY, uri, constraints.getMinScore(), DEFAULT_LIMIT,
-                LABEL_PROPERTIES_LIST);
-        WrappedResultSet resultSet = executeQuery(query);
+        String query = String.format(Locale.ROOT, METADATA_QUERY, uri, getGraphFilterClause(),
+                LABEL_PROPERTIES_LIST, getGraphPrefixFilter("resGraph"), MAX_LIMIT);
+
+        WrappedResultSet resultSet = getConnection().executeSelect(query);
         LOG.debug("Query Execution: getMetadata() query took {} ms", System.currentTimeMillis() - startTime);
 
         // Build the result
-        NamedGraphMetadataMap metadata = new NamedGraphMetadataMap();
         try {
+            NamedGraphMetadataMap metadata = new NamedGraphMetadataMap();
             while (resultSet.next()) {
-                NamedGraphMetadata graphMetadata = new NamedGraphMetadata(resultSet.getString("graph"));
+                NamedGraphMetadata graphMetadata = new NamedGraphMetadata(resultSet.getString("resGraph"));
 
                 String source = resultSet.getString("source");
                 graphMetadata.setDataSource(source);
@@ -453,12 +548,12 @@ import java.util.Locale;
 
                 metadata.addMetadata(graphMetadata);
             }
-            resultSet.close();
+            LOG.debug("Query Execution: getMetadata() in {} ms", System.currentTimeMillis() - startTime);
+            return metadata;
         } catch (SQLException e) {
             throw new QueryException(e);
+        } finally {
+            resultSet.closeQuietly();
         }
-
-        LOG.debug("Query Execution: getMetadata() in {} ms", System.currentTimeMillis() - startTime);
-        return metadata;
     }
 }

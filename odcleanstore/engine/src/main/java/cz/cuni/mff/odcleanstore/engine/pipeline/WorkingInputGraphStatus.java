@@ -1,35 +1,134 @@
 package cz.cuni.mff.odcleanstore.engine.pipeline;
 
-import java.sql.SQLException;
 import java.util.Collection;
-import java.util.LinkedList;
 
 import cz.cuni.mff.odcleanstore.engine.InputGraphState;
 import cz.cuni.mff.odcleanstore.engine.common.SimpleVirtuosoAccess;
 import cz.cuni.mff.odcleanstore.engine.common.Utils;
-import cz.cuni.mff.odcleanstore.transformer.TransformedGraphException;
 
 final class WorkingInputGraphStatus {
 
-	private static final String NOT_WORKING_TRANSFORMER = "Operation is permitted only for working transformer";
+	private String _dbSchemaPrefix;
 
 	private TransformedGraphImpl _workingTransformedGraphImpl;
 
-	WorkingInputGraphStatus(PipelineService pipelineService) {
-		if (pipelineService == null) {
-			throw new IllegalArgumentException();
+	WorkingInputGraphStatus(String dbSchemaPrefix) throws Exception {
+		_dbSchemaPrefix = dbSchemaPrefix;
+	}
+
+	String getWorkingTransformedGraphUuid() throws Exception {
+		SimpleVirtuosoAccess sva = null;
+		try {
+			sva = SimpleVirtuosoAccess.createCleanDBConnection();
+			Collection<String[]> rows;
+			String sqlStatement = String.format("Select uuid from %s.EN_INPUT_GRAPHS" + " WHERE state='PROCESSING' OR state='PROCESSED' OR state ='PROPAGATED' OR state ='DELETING' OR state ='DIRTY'",
+					_dbSchemaPrefix);
+			rows = sva.getRowFromSqlStatement(sqlStatement);
+			return Utils.selectScalar(rows);
+		} finally {
+			if (sva != null) {
+				sva.close();
+			}
+		}
+	}
+	
+	Collection<String> getWorkingAttachedGraphNames() throws Exception {
+		SimpleVirtuosoAccess sva = null;
+		try {
+			sva = SimpleVirtuosoAccess.createCleanDBConnection();
+			Collection<String[]> rows;
+			String sqlStatement = String.format("Select name from %s.EN_WORKING_ADDED_GRAPHS", _dbSchemaPrefix);
+			rows = sva.getRowFromSqlStatement(sqlStatement);
+			return Utils.selectColumn(rows, 0);
+		} finally {
+			if (sva != null) {
+				sva.close();
+			}
+		}
+	}
+	
+	void deleteWorkingAttachedGraphNames() throws Exception {
+		SimpleVirtuosoAccess sva = null;
+		try {
+			sva = SimpleVirtuosoAccess.createCleanDBConnection();
+			String sqlStatement = String.format("Delete from %s.EN_WORKING_ADDED_GRAPHS", _dbSchemaPrefix);
+			sva.executeStatement(sqlStatement);
+			sva.commit();
+		} finally {
+			if (sva != null) {
+				sva.close();
+			}
 		}
 	}
 
-	synchronized Collection<String> getWorkingTransformedGraphUuids() throws TransformedGraphException {
+	void deleteGraphAndWorkingAttachedGraphNames(String uuid) throws Exception {
 		SimpleVirtuosoAccess sva = null;
 		try {
-			sva = SimpleVirtuosoAccess.CreateDefaultDbaConnection();
-			Collection<String[]> rows = sva.executeSqlStatement("Select uuid from DB.FRONTEND.EN_INPUT_GRAPHS"
-					+ " WHERE state='PROCESSING' OR state='PROCESSED' OR state ='PROPAGATED' OR state ='DELETING' OR state ='DIRTY'");
-			return Utils.selectColumn(rows, 0);
-		} catch (Exception e) {
-			throw new TransformedGraphException(e);
+			sva = SimpleVirtuosoAccess.createCleanDBConnection();
+			String sqlStatement = String.format("Delete from %s.EN_WORKING_ADDED_GRAPHS", _dbSchemaPrefix);
+			sva.executeStatement(sqlStatement);
+			sqlStatement = String.format("Delete from %s.EN_INPUT_GRAPHS WHERE uuid='%s'", _dbSchemaPrefix, uuid);
+			sva.executeStatement(sqlStatement);
+			sva.commit();
+		} finally {
+			if (sva != null) {
+				sva.close();
+			}
+		}
+	}
+
+	InputGraphState getState(String uuid) throws Exception {
+		SimpleVirtuosoAccess sva = null;
+		try {
+			sva = SimpleVirtuosoAccess.createCleanDBConnection();
+			String sqlStatement = String.format("Select state from %s.EN_INPUT_GRAPHS WHERE uuid='%s'", _dbSchemaPrefix, uuid);
+			Collection<String[]> rows = sva.getRowFromSqlStatement(sqlStatement);
+			return InputGraphState.valueOf(Utils.selectScalar(rows));
+		} finally {
+			if (sva != null) {
+				sva.close();
+			}
+		}
+	}
+
+	void setState(String uuid, InputGraphState newState) throws Exception {
+		SimpleVirtuosoAccess sva = null;
+		try {
+			sva = SimpleVirtuosoAccess.createCleanDBConnection();
+			String sqlStatement = String.format("Update %s.EN_INPUT_GRAPHS SET state='%S' WHERE uuid='%s'", _dbSchemaPrefix, newState.toString(), uuid);
+			sva.getRowFromSqlStatement(sqlStatement);
+			sva.commit();
+		} finally {
+			if (sva != null) {
+				sva.close();
+			}
+		}
+	}
+
+	String getNextProcessingGraphUuid() throws Exception {
+		SimpleVirtuosoAccess sva = null;
+		String uuid = null;
+		try {
+			sva = SimpleVirtuosoAccess.createCleanDBConnection();
+			Collection<String[]> rows;
+			String sqlStatement = String.format("Select uuid from %s.EN_INPUT_GRAPHS WHERE state='PROCESSING'", _dbSchemaPrefix);
+			rows = sva.getRowFromSqlStatement(sqlStatement);
+			uuid = Utils.selectScalar(rows);
+			if (uuid != null) {
+				return uuid;
+			}
+
+			sqlStatement = String.format("Select uuid from %s.EN_INPUT_GRAPHS WHERE state='IMPORTED'", _dbSchemaPrefix, uuid);
+			rows = sva.getRowFromSqlStatement(sqlStatement);
+			uuid = Utils.selectScalar(rows);
+			if (uuid != null) {
+				sqlStatement = String.format("Update %s.EN_INPUT_GRAPHS SET state='%S' WHERE uuid='%s'", _dbSchemaPrefix, InputGraphState.PROCESSING, uuid);
+				sva.getRowFromSqlStatement(sqlStatement);
+				sva.commit();
+				return uuid;
+			}
+
+			return null;
 		} finally {
 			if (sva != null) {
 				sva.close();
@@ -41,46 +140,17 @@ final class WorkingInputGraphStatus {
 		_workingTransformedGraphImpl = transformedGraphImpl;
 	}
 
-	synchronized InputGraphState getState(TransformedGraphImpl transformedGraphImpl) throws TransformedGraphException {
-		if (transformedGraphImpl != _workingTransformedGraphImpl) {
-			throw new TransformedGraphException(NOT_WORKING_TRANSFORMER);
+	synchronized void addAttachedGraphName(TransformedGraphImpl transformedGraphImpl, String attachedGraphName) throws Exception {
+		if (transformedGraphImpl == null || transformedGraphImpl != _workingTransformedGraphImpl) {
+			throw new NotWorkingTransformerException();
 		}
 
 		SimpleVirtuosoAccess sva = null;
 		try {
-			sva = SimpleVirtuosoAccess.CreateDefaultDbaConnection();
-			String sqlstatement = String.format("Select state from DB.FRONTEND.EN_INPUT_GRAPHS WHERE uuid= %0", transformedGraphImpl.getGraphId());
-			Collection<String[]> rows = sva.executeSqlStatement(sqlstatement);
-			
-			// Utils.selectColumn(rows, 0);
-
-		} catch (Exception e) {
-			throw new TransformedGraphException(e);
-		} finally {
-			if (sva != null) {
-				sva.close();
-			}
-		}
-		return InputGraphState.WRONG;
-	}
-
-	synchronized boolean convertToState(TransformedGraphImpl transformedGraphImpl, InputGraphState newState) {
-		return false;
-	}
-
-	synchronized Collection<String> getAttachedGraphNames(TransformedGraphImpl transformedGraphImpl) throws TransformedGraphException {
-		if (transformedGraphImpl != _workingTransformedGraphImpl) {
-			throw new TransformedGraphException(NOT_WORKING_TRANSFORMER);
-		}
-
-		SimpleVirtuosoAccess sva = null;
-		try {
-			sva = SimpleVirtuosoAccess.CreateDefaultDbaConnection();
-			Collection<String[]> rows = sva.executeSqlStatement("Select name from DB.FRONTEND.EN_WORKING_ADDED_GRAPHS");
-			return Utils.selectColumn(rows, 0);
-
-		} catch (Exception e) {
-			throw new TransformedGraphException(e);
+			sva = SimpleVirtuosoAccess.createCleanDBConnection();
+			String sqlStatement = String.format("Insert into %s.EN_WORKING_ADDED_GRAPHS(name) VALUES('%s')", _dbSchemaPrefix, attachedGraphName);
+			sva.executeStatement(sqlStatement);
+			sva.commit();
 		} finally {
 			if (sva != null) {
 				sva.close();
@@ -88,25 +158,15 @@ final class WorkingInputGraphStatus {
 		}
 	}
 
-	synchronized void addAttachedGraphName(TransformedGraphImpl transformedGraphImpl, String attachedGraphName) throws TransformedGraphException {
-		if (transformedGraphImpl != _workingTransformedGraphImpl) {
-			throw new TransformedGraphException(NOT_WORKING_TRANSFORMER);
+	synchronized void deleteGraph(TransformedGraphImpl transformedGraphImpl) throws Exception {
+		if (transformedGraphImpl == null || transformedGraphImpl != _workingTransformedGraphImpl) {
+			throw new NotWorkingTransformerException();
 		}
 
-		SimpleVirtuosoAccess sva = null;
-		try {
-			sva = SimpleVirtuosoAccess.CreateDefaultDbaConnection();
-			Collection<String[]> rows = sva.executeSqlStatement("Select name from DB.FRONTEND.EN_WORKING_ADDED_GRAPHS");
-
-		} catch (Exception e) {
-			throw new TransformedGraphException(e);
-		} finally {
-			if (sva != null) {
-				sva.close();
-			}
-		}		
+		setState(transformedGraphImpl.getGraphId(), InputGraphState.DELETING);
 	}
 
-	synchronized void delete(TransformedGraphImpl transformedGraphImpl) throws TransformedGraphException {
+	static class NotWorkingTransformerException extends Exception {
+		private static final long serialVersionUID = 1L;
 	}
 }

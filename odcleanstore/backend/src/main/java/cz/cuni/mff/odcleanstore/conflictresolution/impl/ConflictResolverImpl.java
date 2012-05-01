@@ -156,7 +156,7 @@ public class ConflictResolverImpl implements ConflictResolver {
             // Process the next set of conflicting quads independently
             Collection<Quad> conflictCluster = conflictIterator.next();
 
-            if (hasOldVersions) {
+            if (hasOldVersions && conflictCluster.size() > 1) {
                 conflictCluster = filterOldVersions(conflictCluster, metadata, filterComparator);
             }
 

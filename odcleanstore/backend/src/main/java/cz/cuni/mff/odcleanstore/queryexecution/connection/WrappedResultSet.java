@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.queryexecution;
+package cz.cuni.mff.odcleanstore.queryexecution.connection;
 
 import com.hp.hpl.jena.graph.Node;
 
@@ -8,19 +8,38 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
- * TODO
+ * Wrapper of {@link java.sql.ResultSet} that extends support for null values, conversion to {@link Node} and Date and
+ * large results split to multiple result sets.
+ * This wrapper should be used only for results obtained from the Virtuoso JDBC driver.
  * @author Jan Michelfeit
  */
-/*package*/ class WrappedResultSet {
-    Statement statement;
-    java.sql.ResultSet resultSet;
-    boolean resultSetPrefetched = false;
-    boolean more = true;
+public class WrappedResultSet {
+    /** The wrapped SQL statement. */
+    private Statement statement;
 
-    public WrappedResultSet(Statement wrappedStatement) {
+    /** The current result set. */
+    private java.sql.ResultSet resultSet;
+
+    /** True iff the current result set is prefetched in {@link #resultSet}. */
+    private boolean resultSetPrefetched = false;
+
+    /** True iff there are more result sets available. */
+    private boolean more = true;
+
+    /**
+     * Create a new instance.
+     * @param wrappedStatement the statement to wrap
+     */
+    /*package*/WrappedResultSet(Statement wrappedStatement) {
         this.statement = wrappedStatement;
     }
 
+    /**
+     * Moves the cursor forward one row from its current position.
+     * The current result set can be then obtained by {@link #getCurrentResultSet()}.
+     * @return true if the new current row is valid; false if there are no more rows
+     * @throws SQLException exception
+     */
     public boolean next() throws SQLException {
         while (more) {
             if (!resultSetPrefetched) {
@@ -36,66 +55,158 @@ import java.sql.Statement;
         return false;
     }
 
+    /**
+     * Retrieves the current result as a ResultSet object.
+     * @return the current result as a ResultSet object
+     */
     public java.sql.ResultSet getCurrentResultSet() {
         return resultSetPrefetched ? resultSet : null;
     }
 
+    /**
+     * Returns the wrapped SQL statement.
+     * @return the wrapped SQL statement.
+     */
     public Statement getWrappedStatement() {
         return statement;
     }
 
+    /**
+     * Close the wrapped statement.
+     * @throws SQLException exception
+     */
     public void close() throws SQLException {
         statement.close();
     }
 
-    Node getNode(String columnLabel) throws SQLException {
+    /**
+     * Close the wrapped statement without throwing an exception.
+     */
+    public void closeQuietly() {
+        // CHECKSTYLE:OFF
+        try {
+            statement.close();
+        } catch (SQLException e) {
+            // ignore
+        }
+        // CHECKSTYLE:ON
+    }
+
+    /**
+     * Retrieves the value of the designated column in the current row of this ResultSet object as a Node.
+     * @param columnLabel the label for the column (the name of the column or the name specified with the SQL AS clause)
+     * @return the column value; if the value is SQL NULL, the value returned is null
+     * @throws SQLException exception
+     */
+    public Node getNode(String columnLabel) throws SQLException {
         return objectToNode(resultSet.getObject(columnLabel));
     }
 
-    Node getNode(int columnIndex) throws SQLException {
+    /**
+     * Retrieves the value of the designated column in the current row of this ResultSet object as a Node.
+     * @param columnIndex the first column is 1, the second is 2, ...
+     * @return the column value; if the value is SQL NULL, the value returned is null
+     * @throws SQLException exception
+     */
+    public Node getNode(int columnIndex) throws SQLException {
         return objectToNode(resultSet.getObject(columnIndex));
     }
 
+    /**
+     * Retrieves the value of the designated column in the current row of this ResultSet object as a String.
+     * @param columnLabel the label for the column (the name of the column or the name specified with the SQL AS clause)
+     * @return the column value; if the value is SQL NULL, the value returned is null
+     * @throws SQLException exception
+     */
     public String getString(String columnLabel) throws SQLException {
         return resultSet.getString(columnLabel);
     }
 
+    /**
+     * Retrieves the value of the designated column in the current row of this ResultSet object as a String.
+     * @param columnIndex the first column is 1, the second is 2, ...
+     * @return the column value; if the value is SQL NULL, the value returned is null
+     * @throws SQLException exception
+     */
     public String getString(int columnIndex) throws SQLException {
         return resultSet.getString(columnIndex);
     }
 
+    /**
+     * Retrieves the value of the designated column in the current row of this ResultSet object as a double.
+     * @param columnLabel the label for the column (the name of the column or the name specified with the SQL AS clause)
+     * @return the column value; if the value is SQL NULL, the value returned is null
+     * @throws SQLException exception
+     */
     public Double getDouble(String columnLabel) throws SQLException {
         double value = resultSet.getDouble(columnLabel);
         return resultSet.wasNull() ? null : value;
     }
 
+    /**
+     * Retrieves the value of the designated column in the current row of this ResultSet object as a double.
+     * @param columnIndex the first column is 1, the second is 2, ...
+     * @return the column value; if the value is SQL NULL, the value returned is null
+     * @throws SQLException exception
+     */
     public Double getDouble(int columnIndex) throws SQLException {
         double value = resultSet.getDouble(columnIndex);
         return resultSet.wasNull() ? null : value;
     }
 
+    /**
+     * Retrieves the value of the designated column in the current row of this ResultSet object as a java
+     * {@link java.util.Date}.
+     * @param columnLabel the label for the column (the name of the column or the name specified with the SQL AS clause)
+     * @return the column value; if the value is SQL NULL, the value returned is null
+     * @throws SQLException the object cannot be converted to Date
+     */
     public java.util.Date getJavaDate(String columnLabel) throws SQLException {
         return objectToDate(resultSet.getObject(columnLabel));
     }
 
-    public  java.util.Date getJavaDate(int columnIndex) throws SQLException {
+    /**
+     * Retrieves the value of the designated column in the current row of this ResultSet object as a java
+     * {@link java.util.Date}.
+     * @param columnIndex the first column is 1, the second is 2, ...
+     * @return the column value; if the value is SQL NULL, the value returned is null
+     * @throws SQLException the object cannot be converted to Date
+     */
+    public java.util.Date getJavaDate(int columnIndex) throws SQLException {
         return objectToDate(resultSet.getObject(columnIndex));
     }
 
-    private static java.util.Date objectToDate(Object o) throws SQLException{
+    /**
+     * Converts a value object to Java {@link java.util.Date}.
+     * @param o the converted object
+     * @return a date or null if the given object is null
+     * @throws SQLException the object cannot be converted to Date
+     */
+    private static java.util.Date objectToDate(Object o) throws SQLException {
         if (o == null) {
             return null;
-        }
-        else if (o instanceof java.util.Date) {
+        } else if (o instanceof java.util.Date) {
             return (java.util.Date) o;
         } else {
             throw new SQLException("Cannot convert value \"%s\" to java.util.Date", o.toString());
         }
     }
 
+    /**
+     * Converts a value object to a {@link Node} instance.
+     * The current implementation uses Virtuoso Jena provider.
+     *
+     * @param o the converted object
+     * @return a node instance
+     * @throws SQLException exception
+     */
     private static Node objectToNode(Object o) throws SQLException {
         return VirtGraph.Object2Node(o);
 
+        // The following code is (almost) what VirtGraph.Object2Node(o) does
+        // Since currently VirtGraph.Object2Node() is the only dependency on the Virtuoso Jena provider,
+        // the following code can replace the dependency completely. However, it appears that using the original
+        // implementation is slightly faster.
         /*
          Object o = ((VirtuosoResultSet)rs).getObject(column);
 
@@ -164,7 +275,7 @@ import java.sql.Statement;
         }
         else if (o instanceof java.sql.Timestamp) {
             final String dateTimeType = "http://www.w3.org/2001/XMLSchema#dateTime";
-            // TODO: there is some conversion in VirtGraph.Timestamp2String()
+            // NOTE: in original implementation, there is a conversion in VirtGraph.Timestamp2String()
             RDFDatatype datatype = TypeMapper.getInstance().getSafeTypeByName(dateTimeType);
             LiteralLabel literal = LiteralLabelFactory.create(o.toString(), null, datatype);
             return Node.createLiteral(literal);

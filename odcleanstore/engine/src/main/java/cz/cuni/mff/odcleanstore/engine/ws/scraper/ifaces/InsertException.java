@@ -11,7 +11,14 @@ public class InsertException extends Exception {
 	public static final InsertException UUID_BAD_FORMAT = new InsertException("Uuid bad format", 5, "Uuid bad format");
 	public static final InsertException OTHER_ERROR = new InsertException("Other error", 7, "Other error");
 	public static final InsertException FATAL_ERROR = new InsertException("Fatal error", 8, "Fatal error");
-
+	
+	// public static final InsertException METADATA_ERROR = new InsertException("Metadata error", 9, "Metadata error");
+	public InsertException(String moreInfo) {
+		super("Metadata error");
+		this.id = 9;
+		this.moreInfo = moreInfo;
+	}
+	
 	private int id;
 	private String moreInfo;
 

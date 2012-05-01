@@ -43,5 +43,7 @@ public final class XMLSchema {
     public static final String timeType = "http://www.w3.org/2001/XMLSchema#time";
 
     public static final String dateType = "http://www.w3.org/2001/XMLSchema#date";
+
+    public static final String dateTimeType = "http://www.w3.org/2001/XMLSchema#dateTime";
     // CHECKSTYLE:ON
 }

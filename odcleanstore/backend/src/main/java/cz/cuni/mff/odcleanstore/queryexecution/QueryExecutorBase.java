@@ -1,60 +1,43 @@
 package cz.cuni.mff.odcleanstore.queryexecution;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
-import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
-import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
+import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
-import cz.cuni.mff.odcleanstore.queryexecution.exceptions.ConnectionException;
-import cz.cuni.mff.odcleanstore.queryexecution.exceptions.QueryException;
-import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
-import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
-import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 import cz.cuni.mff.odcleanstore.vocabulary.RDFS;
-import cz.cuni.mff.odcleanstore.vocabulary.W3P;
-
-import com.hp.hpl.jena.datatypes.RDFDatatype;
-import com.hp.hpl.jena.datatypes.TypeMapper;
-import com.hp.hpl.jena.graph.Factory;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.graph.impl.LiteralLabel;
-import com.hp.hpl.jena.graph.impl.LiteralLabelFactory;
-import com.hp.hpl.jena.shared.ReificationStyle;
-import com.hp.hpl.jena.vocabulary.XSD;
-
-import de.fuberlin.wiwiss.ng4j.NamedGraph;
-import de.fuberlin.wiwiss.ng4j.NamedGraphSet;
-import de.fuberlin.wiwiss.ng4j.impl.NamedGraphImpl;
-import de.fuberlin.wiwiss.ng4j.impl.NamedGraphSetImpl;
-
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Collection;
-import java.util.Date;
 
 /**
- * The base class of query executors - classes that handle each type of query over the clean
- * database.
+ * The base class of query executors.
  *
- * Each query executor loads triples relevant for the query from the clean database, applies
- * conflict resolution to it and converts the result to plain RDF quads.
+ * Each query executor loads triples relevant for the query and metadata from the clean database, applies
+ * conflict resolution to it and returns a holder of thr result quads and metadata.
  *
  * @author Jan Michelfeit
  */
 /*package*/abstract class QueryExecutorBase {
+    /**
+     * (Debug) Only named graph having URI starting with this prefix can be included in query result.
+     * If the value is null, there is now restriction on named graph URIs.
+     * This constant is only for debugging purposes and should be null in production environment.
+     * TODO: set to null
+     */
+    protected static final String GRAPH_PREFIX_FILTER = "http://odcs.mff.cuni.cz/namedGraph/qe-test/";
 
-    // TODO: remove
-    protected static final String NG_PREFIX_FILTER = "http://odcs.mff.cuni.cz/namedGraph/qe-test/";
-    protected static final long DEFAULT_LIMIT = 200;
+    /**
+     * Maximum number of triples returned by each database query (the overall result size may be larger).
+     * TODO: get from global configuration.
+     */
+    protected static final long MAX_LIMIT = 500;
+
+    /**
+     * Prefix of named graphs where the resulting triples are placed.
+     * TODO: get from global configuration.
+     */
     protected static final String RESULT_GRAPH_PREFIX = "http://odcs.mff.cuni.cz/results/";
 
+    /** Properties designating a human-readable label. */
     protected static final String[] LABEL_PROPERTIES = new String[] { RDFS.label };
+
+    /** List of {@link #LABEL_PROPERTIES} formatted to a string for use in a SPARQL query. */
     protected static final String LABEL_PROPERTIES_LIST;
-    protected static final Node SAME_AS_PROPERTY = Node.createURI(OWL.sameAs); // TODO
-    protected static final Node QUALITY_PROPERTY = Node.createURI(ODCS.quality);
-    protected static final Node SOURCE_PROPERTY = Node.createURI(W3P.source);
 
     static {
         assert (LABEL_PROPERTIES.length > 0);
@@ -67,117 +50,28 @@ import java.util.Date;
         LABEL_PROPERTIES_LIST = sb.substring(0, sb.length() - 2);
     }
 
+    // CHECKSTYLE:OFF
     /** Connection settings for the SPARQL endpoint that will be queried. */
     protected final SparqlEndpoint sparqlEndpoint;
 
-    private Connection connection;
+    /** Constraints on triples returned in the result. */
+    protected final QueryConstraintSpec constraints;
+
+    /** Aggregation settings for conflict resolution. */
+    protected final AggregationSpec aggregationSpec;
+    // CHECKSTYLE:ON
 
     /**
      * Creates a new instance of QueryExecutorBase.
      * @param sparqlEndpoint connection settings for the SPARQL endpoint that will be queried
+     * @param constraints constraints on triples returned in the result
+     * @param aggregationSpec aggregation settings for conflict resolution
      */
-    protected QueryExecutorBase(SparqlEndpoint sparqlEndpoint) {
+    protected QueryExecutorBase(SparqlEndpoint sparqlEndpoint, QueryConstraintSpec constraints,
+            AggregationSpec aggregationSpec) {
         this.sparqlEndpoint = sparqlEndpoint;
+        this.constraints = constraints;
+        this.aggregationSpec = aggregationSpec;
+
     }
-
-    private Connection getConnection() throws ODCleanStoreException {
-        if (connection == null) {
-            connection = createConnection();
-        }
-        return connection;
-    }
-
-    private Connection createConnection() throws ODCleanStoreException {
-        try {
-            Class.forName("virtuoso.jdbc3.Driver");
-        } catch (ClassNotFoundException e) {
-            throw new ConnectionException("Couldn't load Virtuoso jdbc driver", e);
-        }
-        try {
-            return DriverManager.getConnection(
-                    sparqlEndpoint.getUri(),
-                    sparqlEndpoint.getUsername(),
-                    sparqlEndpoint.getPassword());
-        } catch (SQLException e) {
-            throw new ConnectionException(e);
-        }
-    }
-
-    protected WrappedResultSet executeQuery(String query) throws ODCleanStoreException {
-        try {
-            Statement statement = getConnection().createStatement();
-            statement.execute(query);
-            return new WrappedResultSet(statement);
-        } catch (SQLException e) {
-            throw new QueryException(e);
-        }
-    }
-
-    protected NamedGraph createMetadataGraph() {
-        return new NamedGraphImpl(QueryExecution.METADATA_GRAPH, Factory.createGraphMem(ReificationStyle.Standard));
-    }
-
-    protected NamedGraphSet convertToNGSet(Collection<CRQuad> crQuads, NamedGraphMetadataMap metadata) {
-        NamedGraphSet result = new NamedGraphSetImpl();
-        NamedGraph metadataGraph = createMetadataGraph();
-
-        // TODO: optimize?
-        for (CRQuad crQuad : crQuads) {
-            result.addQuad(crQuad.getQuad());
-            metadataGraph.add(new Triple(
-                    crQuad.getQuad().getGraphName(),
-                    QUALITY_PROPERTY,
-                    Node.createLiteral(LiteralLabelFactory.create(crQuad.getQuality()))));
-            for (String sourceNamedGraph : crQuad.getSourceNamedGraphURIs()) {
-                metadataGraph.add(new Triple(
-                        crQuad.getQuad().getGraphName(),
-                        SOURCE_PROPERTY,
-                        Node.createURI(sourceNamedGraph)));
-            }
-        }
-
-        // Metadata
-        for (NamedGraphMetadata graphMetadata : metadata.listMetadata()) {
-            Node namedGraphURI = Node.createURI(graphMetadata.getNamedGraphURI());
-            String dataSource = graphMetadata.getDataSource();
-            if (dataSource != null) {
-                // TODO: avoid creating new Nodes for properties
-                metadataGraph.add(
-                        new Triple(namedGraphURI, Node.createURI(W3P.source), Node.createURI(dataSource)));
-            }
-
-            Double score = graphMetadata.getScore();
-            if (score != null) {
-                LiteralLabel literal = LiteralLabelFactory.create(score);
-                metadataGraph.add(
-                        new Triple(namedGraphURI, Node.createURI(ODCS.score), Node.createLiteral(literal)));
-            }
-
-            Date storedAt = graphMetadata.getStored();
-            if (storedAt != null) {
-                RDFDatatype datatype = TypeMapper.getInstance().getSafeTypeByName(XSD.dateTime.getURI());
-                LiteralLabel literal = LiteralLabelFactory.create(storedAt, null, datatype);
-                metadataGraph.add(
-                        new Triple(namedGraphURI, Node.createURI(W3P.insertedAt), Node.createLiteral(literal)));
-            }
-
-            String publisher = graphMetadata.getPublisher(); // TODO: rename publisher to publishedBy
-            if (publisher != null) {
-                metadataGraph.add(
-                        new Triple(namedGraphURI, Node.createURI(W3P.publishedBy), Node.createURI(publisher)));
-            }
-
-            Double publisherScore = graphMetadata.getPublisherScore();
-            if (publisherScore != null) {
-                LiteralLabel literal = LiteralLabelFactory.create(publisherScore);
-                metadataGraph.add(
-                        new Triple(namedGraphURI, Node.createURI(ODCS.publisherScore), Node.createLiteral(literal)));
-            }
-        }
-        result.addGraph(metadataGraph);
-
-        return result;
-    }
-
-
 }

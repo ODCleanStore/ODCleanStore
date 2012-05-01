@@ -18,21 +18,25 @@ import cz.cuni.mff.odcleanstore.engine.ws.user.UserService;
  */
 public final class Engine extends Module {
 
-	private static final String SPARQL_CONNECTION_STRING = "jdbc:virtuoso://localhost:1111";
+	// parameters 
+	private static final String CLEAN_DATABASE_CONNECTION_STRING = "jdbc:virtuoso://localhost:1111";
+	private static final String DIRTY_DATABASE_CONNECTION_STRING = "jdbc:virtuoso://localhost:1112";
 	private static final String SPARQL_PASSWORD = "dba";
 	private static final String SPARQL_USER = "dba";
-
-	public static final SparqlEndpoint CLEAN_DATABASE_ENDPOINT = new SparqlEndpoint(SPARQL_CONNECTION_STRING, SPARQL_USER, SPARQL_PASSWORD);
-	public static final SparqlEndpoint DIRTY_DATABASE_ENDPOINT = new SparqlEndpoint("", "", "");
-
-	public static final String DATA_PREFIX = "http://d/";
-	public static final String METADATA_PREFIX = "http://m/";
-
+	
+	public static final String DATA_PREFIX = "http://opendata.cz/infrastructure/odcleanstore/";
+	public static final String METADATA_PREFIX = "http://opendata.cz/infrastructure/odcleanstore/metadata/";
+	
+	public static final String SCRAPER_INPUT_DIR = "C:/Dev/ScraperInput/";
+	
 	public static final String SCRAPER_ENDPOINT_URL = "http://localhost:8088/odcleanstore/scraper";
-
 	public static final int USER_SERVICE_PORT = 8087;
 	public static final String USER_SERVICE_KEYWORD_PATH = "keyword";
 	public static final String USER_SERVICE_URI_PATH = "uri";
+	// end parameters
+	
+	public static final SparqlEndpoint CLEAN_DATABASE_ENDPOINT = new SparqlEndpoint(CLEAN_DATABASE_CONNECTION_STRING, SPARQL_USER, SPARQL_PASSWORD);
+	public static final SparqlEndpoint DIRTY_DATABASE_ENDPOINT = new SparqlEndpoint(DIRTY_DATABASE_CONNECTION_STRING, SPARQL_USER, SPARQL_PASSWORD);
 
 	private static Engine _engine;
 
@@ -44,7 +48,7 @@ public final class Engine extends Module {
 	}
 
 	private ScheduledThreadPoolExecutor _executor;
-	
+
 	private PipelineService _pipelineService;
 	private ScraperService _scraperService;
 	private UserService _userService;
@@ -68,11 +72,11 @@ public final class Engine extends Module {
 	private void init() throws EngineException {
 		checkJavaVersion();
 
-		_executor = new ScheduledThreadPoolExecutor(1);
+		_executor = new ScheduledThreadPoolExecutor(3);
 
+		_userService = new UserService(this);
 		_scraperService = new ScraperService(this);
 		_pipelineService = new PipelineService(this);
-		_userService = new UserService(this);
 	}
 
 	private void run() {
@@ -87,11 +91,17 @@ public final class Engine extends Module {
 	}
 
 	private void startServices() {
+		_executor.execute(_userService);
 		_executor.execute(_scraperService);
 		_executor.execute(_pipelineService);
-		_executor.execute(_userService);
 	}
 
 	void onServiceStateChanged(Service service) {
+	}
+
+	public static void signalToPipelineService() {
+		if (_engine != null && _engine._pipelineService != null) {
+			_engine._pipelineService.signalInput();
+		}
 	}
 }
