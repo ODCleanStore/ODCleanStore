@@ -1,10 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend;
 
-import org.apache.wicket.authroles.authentication.AbstractAuthenticatedWebSession;
-import org.apache.wicket.authroles.authentication.AuthenticatedWebApplication;
-import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.spring.ISpringContextLocator;
-
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -12,8 +9,10 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  * Web Frontend Application object.
  * 
  */
-public class WicketApplication extends AuthenticatedWebApplication 
+public class WicketApplication extends WebApplication 
 {
+	private static final String SPRING_CONFIG_LOCATION = "./config/spring.xml";
+	
 	static ISpringContextLocator CTX_LOCATOR = new ISpringContextLocator() 
 	{	
 		public ApplicationContext getSpringContext() 
@@ -21,7 +20,7 @@ public class WicketApplication extends AuthenticatedWebApplication
 			return ((WicketApplication) WicketApplication.get()).ctx;
 		}
 	};
-	
+
 	/** Spring context */
 	private ApplicationContext ctx;
 	
@@ -39,10 +38,10 @@ public class WicketApplication extends AuthenticatedWebApplication
 	{
 		super.init();
 		
-		ctx = new ClassPathXmlApplicationContext("./config/spring.xml");
+		ctx = new ClassPathXmlApplicationContext(SPRING_CONFIG_LOCATION);
 		daoLookupFactory = new DaoLookupFactory();
 	}
-
+	
 	/**
 	 * 
 	 * @return
@@ -50,17 +49,5 @@ public class WicketApplication extends AuthenticatedWebApplication
 	public DaoLookupFactory getDaoLookupFactory()
 	{
 		return daoLookupFactory;
-	}
-
-	@Override
-	protected Class<? extends AbstractAuthenticatedWebSession> getWebSessionClass() 
-	{
-		return WicketSession.class;
-	}
-
-	@Override
-	protected Class<? extends WebPage> getSignInPageClass() 
-	{
-		return LogInPage.class;
 	}
 }

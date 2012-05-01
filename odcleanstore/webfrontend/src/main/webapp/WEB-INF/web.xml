@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	version="2.5">
 
-	<display-name>ODCleanStore Web Frontend</display-name>
+	<display-name>ODCleanStore - Web Frontend</display-name>
 
 	<filter>
         <filter-name>wicket.webfrontend</filter-name>
@@ -22,5 +22,5 @@
 		<filter-name>wicket.webfrontend</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
-	
+
 </web-app>

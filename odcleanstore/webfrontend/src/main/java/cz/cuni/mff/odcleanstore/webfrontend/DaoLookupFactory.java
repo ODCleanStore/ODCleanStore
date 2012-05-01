@@ -10,7 +10,7 @@ import org.apache.wicket.proxy.LazyInitProxyFactory;
 import org.apache.wicket.spring.SpringBeanLocator;
 
 /**
- * A factory to lookup Spring beans.
+ * A factory to lookup DAO Spring beans.
  *  
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
@@ -35,7 +35,7 @@ public class DaoLookupFactory
 	/**
 	 * 
 	 * @return
-	 */
+	*/
 	public Dao<Role> getRoleDao()
 	{
 		if (roleDao == null)
@@ -43,7 +43,6 @@ public class DaoLookupFactory
 		
 		return roleDao;
 	}
-	
 
 	/**
 	 * Helper method to create a proxy of the bean. This is needed not to

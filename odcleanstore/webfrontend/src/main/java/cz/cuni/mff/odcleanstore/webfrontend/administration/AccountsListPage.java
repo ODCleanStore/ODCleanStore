@@ -2,22 +2,21 @@ package cz.cuni.mff.odcleanstore.webfrontend.administration;
 
 import cz.cuni.mff.odcleanstore.webfrontend.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.Role.NAME;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 
-import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
 
-@AuthorizeInstantiation({ "ADM" })
-public class AccountsListPage extends FrontendPage 
+import java.util.List;
+
+public class AccountsListPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
-	
+
 	private Dao<User> userDao;
 	
 	public AccountsListPage() 
@@ -26,14 +25,21 @@ public class AccountsListPage extends FrontendPage
 			"Home > Administration > User accounts > List",
 			"List all user accounts"
 		);
-
-		// 1. Get the User DAO bean.
-		//
-		userDao = getApp().getDaoLookupFactory().getUserDao();
 		
-		// 2. Construct the component hierarchy.
+		// prepare DAO objects
 		//
-		add(new ListView<User>("accountsListTable", userDao.loadAll()) 
+		userDao = daoLookupFactory.getUserDao();
+		
+		// register page components
+		//
+		addUserListView();
+	}
+
+	private void addUserListView()
+	{
+		List<User> allUserAccounts = userDao.loadAll();
+		
+		ListView<User> listView = new ListView<User>("accountsListTable", allUserAccounts)
 		{
 			private static final long serialVersionUID = 1L;
 
@@ -43,16 +49,19 @@ public class AccountsListPage extends FrontendPage
 				final User user = item.getModelObject();
 				
 				item.setModel(new CompoundPropertyModel<User>(user));
-
+				
 				item.add(new Label("username"));
 				item.add(new Label("email"));
-				item.add(new Label("createdAt"));
+				item.add(new Label("firstname"));
+				item.add(new Label("surname"));
 				
-				for (NAME roleName : Role.NAME.values())
-					item.add(createRoleLabel(user, roleName.toString()));
+				for (Role role : Role.standardRoles)
+					item.add(createRoleLabel(user, role));
 				
 				item.add(new Link("editPermissionsLink")
 				{
+					private static final long serialVersionUID = 1L;
+
 					@Override
 					public void onClick() 
 					{
@@ -62,7 +71,9 @@ public class AccountsListPage extends FrontendPage
 					}
 				});
 			}
-		});
+		};
+		
+		add(listView);
 	}
 	
 	/**
@@ -74,12 +85,14 @@ public class AccountsListPage extends FrontendPage
 	 * @param roleName
 	 * @return
 	 */
-	private Label createRoleLabel(User user, String roleName)
+	private Label createRoleLabel(User user, Role role)
 	{	
-		if (user.hasRoleAssigned(roleName))
-			return new Label("role" + roleName, "X");
+		String roleLabel = "role" + role.getLabel();
 		
-		Label label = new Label("role" + roleName, "&nbsp;");
+		if (user.hasAssignedRole(role))
+			return new Label(roleLabel, "X");
+		
+		Label label = new Label(roleLabel, "&nbsp;");
 		label.setEscapeModelStrings(false);
 		
 		return label;

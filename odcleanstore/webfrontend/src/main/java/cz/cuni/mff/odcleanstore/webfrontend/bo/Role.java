@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo;
 
-import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * The Role BO.
@@ -9,24 +10,47 @@ import java.io.Serializable;
  *
  */
 
-public class Role implements Serializable
+public class Role extends BusinessObject
 {
-	public enum NAME { SCR, ONC, POC, ADM };
+	/** an enumeration of standard frontend roles */
+	public static List<Role> standardRoles;
 	
-	private Integer id;
-	private String name;
+	static 
+	{
+		standardRoles = new LinkedList<Role>();
+		
+		standardRoles.add(new Role("SCR", "Scraper"));
+		standardRoles.add(new Role("ONC", "Ontology Creator"));
+		standardRoles.add(new Role("POC", "Policy Creator"));
+		standardRoles.add(new Role("ADM", "Administrator"));
+	}
+	
+	private static final long serialVersionUID = 1L;
+	
+	private String label;
 	private String description;
 	
 	/**
 	 * 
 	 * @param id
-	 * @param name
+	 * @param label
 	 * @param description
 	 */
-	public Role(Integer id, String name, String description)
+	public Role(Long id, String label, String description)
 	{
+		this(label, description);
+		
 		this.id = id;
-		this.name = name;
+	}
+	
+	/**
+	 * 
+	 * @param label
+	 * @param description
+	 */
+	public Role(String label, String description)
+	{
+		this.label = label;
 		this.description = description;
 	}
 
@@ -34,18 +58,9 @@ public class Role implements Serializable
 	 * 
 	 * @return
 	 */
-	public Integer getId()
+	public String getLabel() 
 	{
-		return id;
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public String getName() 
-	{
-		return name;
+		return label;
 	}
 
 	/**
@@ -56,7 +71,7 @@ public class Role implements Serializable
 	{
 		return description;
 	}
-	
+
 	@Override
 	public boolean equals(Object other)
 	{
@@ -65,9 +80,12 @@ public class Role implements Serializable
 		
 		Role otherRole = (Role) other;
 		
-		return
-			(this.id == otherRole.id) &&
-			this.name.equals(otherRole.name) &&
-			this.description.equals(otherRole.description);
+		return label.equals(otherRole.label);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return label.length();
 	}
 }

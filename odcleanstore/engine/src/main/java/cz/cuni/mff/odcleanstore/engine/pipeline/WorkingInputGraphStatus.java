@@ -9,7 +9,6 @@ import cz.cuni.mff.odcleanstore.engine.common.Utils;
 final class WorkingInputGraphStatus {
 
 	private String _dbSchemaPrefix;
-
 	private TransformedGraphImpl _workingTransformedGraphImpl;
 
 	WorkingInputGraphStatus(String dbSchemaPrefix) throws Exception {
