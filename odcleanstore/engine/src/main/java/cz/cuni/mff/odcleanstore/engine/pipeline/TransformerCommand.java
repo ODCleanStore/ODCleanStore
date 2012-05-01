@@ -41,17 +41,21 @@ public final class TransformerCommand {
 	private TransformerCommand() {
 	}
 
-	static Collection<TransformerCommand> getActualPlan(String dbSchemaPrefix) throws Exception {
+	static Collection<TransformerCommand> getActualPlan(String dbSchemaPrefix)
+			throws Exception {
 		SimpleVirtuosoAccess sva = null;
 		try {
 			final ArrayList<TransformerCommand> commands = new ArrayList<TransformerCommand>();
 
 			sva = SimpleVirtuosoAccess.createCleanDBConnection();
-			String sqlStatement = String.format("Select id, jarPath, fullClassName, workDirPath, configuration from %s.REGISTERED_TRANSFORMERS WHERE active<>0 ORDER BY priority", dbSchemaPrefix);
+			String sqlStatement = String
+					.format("Select id, jarPath, fullClassName, workDirPath, configuration from %s.REGISTERED_TRANSFORMERS WHERE active<>0 ORDER BY priority",
+							dbSchemaPrefix);
 			sva.processSqlStatementRows(sqlStatement, new RowListener() {
 
 				@Override
-				public void processRow(ResultSet rs, ResultSetMetaData metaData) throws SQLException {
+				public void processRow(ResultSet rs, ResultSetMetaData metaData)
+						throws SQLException {
 					TransformerCommand tc = new TransformerCommand();
 					tc._id = rs.getInt("id");
 					tc._jarPath = rs.getString("jarPath");
@@ -59,8 +63,12 @@ public final class TransformerCommand {
 					tc._fullClassName = rs.getString("fullClassName");
 
 					Blob configuration = rs.getBlob("configuration");
-					tc._configuration = new String(configuration.getBytes(1, (int) configuration.length()));
-
+					if (configuration != null) {
+						byte[] cbytes = configuration.getBytes(1, (int) configuration.length());
+						if (cbytes != null) {
+							tc._configuration = new String(cbytes);
+						}
+					}
 					commands.add(tc);
 				}
 			});

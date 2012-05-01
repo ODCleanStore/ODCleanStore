@@ -14,7 +14,6 @@ import cz.cuni.mff.odcleanstore.engine.common.Module;
 import cz.cuni.mff.odcleanstore.engine.common.ModuleState;
 import cz.cuni.mff.odcleanstore.engine.pipeline.PipelineService;
 import cz.cuni.mff.odcleanstore.engine.ws.scraper.ScraperService;
-import cz.cuni.mff.odcleanstore.engine.ws.scraper.ifaces.InsertException;
 import cz.cuni.mff.odcleanstore.engine.ws.user.UserService;
 
 /**
@@ -32,7 +31,7 @@ public final class Engine extends Module {
 	public static final String DATA_PREFIX = "http://opendata.cz/infrastructure/odcleanstore/";
 	public static final String METADATA_PREFIX = "http://opendata.cz/infrastructure/odcleanstore/metadata/";
 
-	public static final String SCRAPER_INPUT_DIR = "C:/Dev/ScraperInput/";
+	public static final String SCRAPER_INPUT_DIR = "C:/odcs/ScraperInput/";
 
 	public static final String SCRAPER_ENDPOINT_URL = "http://localhost:8088/odcleanstore/scraper";
 	public static final int USER_SERVICE_PORT = 8087;

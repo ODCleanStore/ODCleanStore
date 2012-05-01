@@ -147,7 +147,7 @@ public final class PipelineService extends Service implements Runnable {
 				throw e;
 			}
 
-			if (transformedGraphImpl.isDeleted()) {
+			if (transformedGraphImpl != null && transformedGraphImpl.isDeleted()) {
 				processDeletingState(uuid);
 			} else {
 				_workingInputGraphStatus.setState(uuid, InputGraphState.PROCESSED);
@@ -224,7 +224,7 @@ public final class PipelineService extends Service implements Runnable {
 			TransformationContextImpl context = new TransformationContextImpl(transformerCommand.getConfiguration(), transformerCommand.getWorkDirPath());
 
 			_workingInputGraphStatus.setWorkingTransformedGraph(transformedGraphImpl);
-			transformer.transformNewGraph(transformedGraphImpl, context);
+			// transformer.transformNewGraph(transformedGraphImpl, context);
 			LOG.info(String.format("PipelineService ends proccesing %s transformer on graph %s", transformerCommand.getFullClassName(), transformedGraphImpl.getGraphId()));
 			_workingInputGraphStatus.setWorkingTransformedGraph(null);
 		} else {
