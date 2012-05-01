@@ -4,6 +4,7 @@
 package cz.cuni.mff.odcleanstore.engine.common;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 /**
@@ -27,5 +28,16 @@ public class Utils {
 		}
 
 		return retVal;
+	}
+
+	public static String selectScalar(Collection<String[]> source) {
+		if (source != null) {
+			Iterator<String[]> iterator = source.iterator();
+			if (iterator.hasNext()) {
+				return iterator.next()[0];
+			}
+		}
+
+		return null;
 	}
 }

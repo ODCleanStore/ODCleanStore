@@ -14,7 +14,7 @@ import cz.cuni.mff.odcleanstore.engine.common.ModuleState;
  * @author jermanp
  * 
  */
-public class UserService extends Service implements Runnable {
+public final class UserService extends Service implements Runnable {
 
 	public UserService(Engine engine) {
 		super(engine);
@@ -23,10 +23,13 @@ public class UserService extends Service implements Runnable {
 	private Component _component;
 
 	@Override
-	public final void run() {
+	public void run() {
 		try {
-			if (getModuleState() != ModuleState.NEW) {
-				return;
+			synchronized (this) {
+				if (getModuleState() != ModuleState.NEW) {
+					return;
+				}
+				setModuleState(ModuleState.INITIALIZING);
 			}
 
 			setModuleState(ModuleState.INITIALIZING);

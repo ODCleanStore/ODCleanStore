@@ -9,6 +9,8 @@ public final class Metadata {
 	private List<String> _publishedBy;
 	private List<String> _source;
 	private List<String> _license;
+	private String _dataBaseUrl;
+	private String _provenanceBaseUrl;
 	private String _rdfXmlProvenance;
 
 	public String getUuid() {
@@ -46,5 +48,21 @@ public final class Metadata {
 
 	public void setRdfXmlProvenance(String value) {
 		this._rdfXmlProvenance = value;
+	}
+
+	public String getDataBaseUrl() {
+		return _dataBaseUrl;
+	}
+
+	public void setDataBaseUrl(String value) {
+		this._dataBaseUrl = value;
+	}
+
+	public String getProvenanceBaseUrl() {
+		return _provenanceBaseUrl;
+	}
+
+	public void setProvenanceBaseUrl(String value) {
+		this._provenanceBaseUrl = value;
 	}
 }
