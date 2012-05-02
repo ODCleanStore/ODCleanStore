@@ -3,7 +3,6 @@ package cz.cuni.mff.odcleanstore.vocabulary;
 /**
  * Vocabulary definitions of ODCleanStore-specific properties and classes.
  *
- * @todo update according to Glossary
  * @author Jan Michelfeit
  */
 public final class ODCS {
@@ -23,8 +22,6 @@ public final class ODCS {
     }
 
     /* Vocabulary properties: */
-
-    /* TODO: return Node_URI instead of String? */
 
     // CHECKSTYLE:OFF
 

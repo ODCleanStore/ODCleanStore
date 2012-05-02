@@ -31,10 +31,13 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * Executes the URI search query.
@@ -75,9 +78,10 @@ import java.util.Locale;
      * SPARQL query that gets the main result quads.
      * Use of UNION instead of a more complex filter is to make owl:sameAs inference in Virtuoso work.
      * The subquery is necessary to make Virtuoso translate subjects/objects to a single owl:sameAs equivalent.
-     * This way we don't need to obtain sameAs links (passed to ConflictResolverSpec) from the database explicitly.
+     * This way we don't need to obtain owl:sameAs links for subjects/objects (passed to ConflictResolverSpec) from
+     *  the database explicitly.
      *
-     * The query must be formatted with three arguments: URI, graph filter clause, limit
+     * The query must be formatted with these arguments: URI, graph filter clause, limit
      *
      * TODO: it seemed to perform faster with OPTIONAL clauses for time and score - check it
      * TODO: explore using REDUCED instead of DISTINCT
@@ -110,6 +114,46 @@ import java.util.Locale;
             + "\n     LIMIT %3$d"
             + "\n   }"
             + "\n }";
+
+    /**
+     * SPARQL query that gets relevant owl:sameAs links for conflict resolution of the result quads.
+     * Returns only links for properties explicitly listed in aggregation settings.
+     * @see #URI_OCCURENCES_QUERY
+     *
+     * The query must be formatted with these arguments: URI, graph filter clause,
+     * list of properties (separated by ','), limit
+     */
+    private static final String SAME_AS_LINKS_QUERY = "SPARQL"
+            + "\n DEFINE input:same-as \"yes\""
+            + "\n SELECT DISTINCT ?p ?linked"
+            + "\n WHERE {"
+            + "\n   {"
+            + "\n     SELECT DISTINCT ?graph ?s ?p ?o"
+            + "\n     WHERE {"
+            + "\n       {"
+            + "\n         GRAPH ?graph {"
+            + "\n           ?s ?p ?o."
+            + "\n           FILTER (?s = <%1$s>)"
+            + "\n           FILTER (?p != <" + OWL.sameAs + ">)"
+            + "\n         }"
+            + "\n         %2$s"
+            + "\n       }"
+            + "\n       UNION"
+            + "\n       {"
+            + "\n         GRAPH ?graph {"
+            + "\n           ?s ?p ?o."
+            + "\n           FILTER (?o = <%1$s>)"
+            + "\n           FILTER (?p != <" + OWL.sameAs + ">)"
+            + "\n         }"
+            + "\n         %2$s"
+            + "\n       }"
+            + "\n     }"
+            + "\n     LIMIT %4$d"
+            + "\n   }"
+            + "\n   ?linked owl:sameAs ?p."
+            + "\n   FILTER (?linked IN (%3$s))"
+            + "\n }"
+            + "\n LIMIT %4$d";
 
     /**
      * SPARQL query that gets metadata for named graphs containing result quads.
@@ -333,9 +377,8 @@ import java.util.Locale;
 
             // Gather all settings for Conflict Resolution
             ConflictResolverSpec crSpec = new ConflictResolverSpec(RESULT_GRAPH_PREFIX, aggregationSpec);
-            crSpec.setPreferredURIs(Collections.singleton(uri));
-            // ... no need for sameAs links - see URI_OCCURENCES_QUERY
-            crSpec.setSameAsLinks(Collections.<Triple>emptySet().iterator());
+            crSpec.setPreferredURIs(getPreferredURIs(uri));
+            crSpec.setSameAsLinks(getSameAsLinks(uri).iterator());
             NamedGraphMetadataMap metadata = getMetadata(uri);
             crSpec.setNamedGraphMetadata(metadata);
 
@@ -347,6 +390,29 @@ import java.util.Locale;
         } finally {
             closeConnection();
         }
+    }
+
+    /**
+     * Returns preferred URIs for the result.
+     * These include the searched URI and properties explicitly listed in aggregation settings.
+     * @param uri searched URI
+     * @return preferred URIs
+     */
+    private Set<String> getPreferredURIs(String uri) {
+        Set<String> aggregationProperties = aggregationSpec.getPropertyAggregations() == null
+                ? Collections.<String>emptySet()
+                : aggregationSpec.getPropertyAggregations().keySet();
+        Set<String> multivalueProperties = aggregationSpec.getPropertyMultivalue() == null
+                ? Collections.<String>emptySet()
+                : aggregationSpec.getPropertyMultivalue().keySet();
+        if (aggregationProperties.isEmpty() && multivalueProperties.isEmpty()) {
+            return Collections.singleton(uri);
+        }
+        Set<String> preferredURIs = new HashSet<String>(aggregationProperties.size() + multivalueProperties.size() + 1);
+        preferredURIs.add(uri);
+        preferredURIs.addAll(aggregationProperties);
+        preferredURIs.addAll(multivalueProperties);
+        return preferredURIs;
     }
 
     /**
@@ -471,6 +537,72 @@ import java.util.Locale;
 
             LOG.debug("Query Execution: getURIOccurrences() in {} ms", System.currentTimeMillis() - startTime);
             return quads;
+        } catch (SQLException e) {
+            throw new QueryException(e);
+        } finally {
+            resultSet.closeQuietly();
+        }
+    }
+
+    /**
+     * Returns owl:sameAs links relevant for conflict resolution for this query.
+     * Returns only links for properties explicitly listed in aggregation settings;
+     * other links (e.g. between subjects/objects in the result) are resolved by Virtuoso.
+     * @see #URI_OCCURENCES_QUERY
+     * @param uri searched URI
+     * @return collection of relevant owl:sameAs links
+     * @throws ODCleanStoreException query error
+     */
+    private Collection<Triple> getSameAsLinks(String uri) throws ODCleanStoreException {
+        Set<String> aggregationProperties = aggregationSpec.getPropertyAggregations() == null
+                ? Collections.<String>emptySet()
+                : aggregationSpec.getPropertyAggregations().keySet();
+        Set<String> multivalueProperties = aggregationSpec.getPropertyMultivalue() == null
+                ? Collections.<String>emptySet()
+                : aggregationSpec.getPropertyMultivalue().keySet();
+        if (aggregationProperties.isEmpty() && multivalueProperties.isEmpty()) {
+            // Nothing to get sameAs links for
+            return Collections.<Triple>emptySet();
+        }
+
+        long startTime = System.currentTimeMillis();
+
+        // Build query
+        final String separator = ", ";
+        StringBuilder properties = new StringBuilder();
+        for (String property : aggregationProperties) {
+            properties.append('<');
+            properties.append(property);
+            properties.append('>');
+            properties.append(separator);
+        }
+        for (String property : multivalueProperties) {
+            properties.append('<');
+            properties.append(property);
+            properties.append('>');
+            properties.append(separator);
+        }
+        assert properties.length() >= separator.length(); // there is at least one property
+        properties.setLength(properties.length() - separator.length()); // trim the last separator
+        String query = String.format(SAME_AS_LINKS_QUERY, uri, getGraphFilterClause(), properties, MAX_LIMIT);
+
+        // Execute query
+        WrappedResultSet resultSet = getConnection().executeSelect(query);
+        LOG.debug("Query Execution: getSameAsLinks() query took {} ms", System.currentTimeMillis() - startTime);
+
+        // Create sameAs triples
+        try {
+            Collection<Triple> sameAsTriples = new ArrayList<Triple>();
+            while (resultSet.next()) {
+                Triple triple = Triple.create(
+                        resultSet.getNode(1),
+                        SAME_AS_PROPERTY,
+                        resultSet.getNode(2));
+                sameAsTriples.add(triple);
+            }
+
+            LOG.debug("Query Execution: getSameAsLinks() in {} ms", System.currentTimeMillis() - startTime);
+            return sameAsTriples;
         } catch (SQLException e) {
             throw new QueryException(e);
         } finally {

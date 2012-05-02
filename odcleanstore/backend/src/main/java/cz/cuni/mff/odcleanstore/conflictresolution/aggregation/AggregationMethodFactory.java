@@ -9,7 +9,7 @@ import java.util.Map;
 
 /**
  * Factory class for various quad aggregation methods.
- * The factory is implemented as a registry storing and reusing created instances.
+ * The factory is implemented as a registry (flyweight) storing and reusing created instances.
  * This relies on the fact that aggregations do not maintain any internal state except for
  * constructor arguments.
  *

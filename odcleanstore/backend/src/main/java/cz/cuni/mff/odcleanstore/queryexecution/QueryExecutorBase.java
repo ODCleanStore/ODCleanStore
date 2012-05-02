@@ -2,7 +2,10 @@ package cz.cuni.mff.odcleanstore.queryexecution;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
+import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 import cz.cuni.mff.odcleanstore.vocabulary.RDFS;
+
+import com.hp.hpl.jena.graph.Node;
 
 /**
  * The base class of query executors.
@@ -32,6 +35,11 @@ import cz.cuni.mff.odcleanstore.vocabulary.RDFS;
      * TODO: get from global configuration.
      */
     protected static final String RESULT_GRAPH_PREFIX = "http://odcs.mff.cuni.cz/results/";
+
+    /**
+     * A {@link Node} representing the owl:sameAs predicate.
+     */
+    protected static final Node SAME_AS_PROPERTY = Node.createURI(OWL.sameAs);
 
     /** Properties designating a human-readable label. */
     protected static final String[] LABEL_PROPERTIES = new String[] { RDFS.label };

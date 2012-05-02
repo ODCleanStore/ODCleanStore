@@ -322,12 +322,8 @@ public class ConflictResolverImpl implements ConflictResolver {
      * @return an aggregation method instance selected according to CR settings
      * @throws AggregationNotImplementedException thrown if there is no
      *         AggregationMethod implementation for the selected aggregation type
-     * @todo consider sameAs links?
-     * @todo caching?
      */
-    private AggregationMethod getAggregator(Collection<Quad> quads)
-            throws AggregationNotImplementedException {
-
+    private AggregationMethod getAggregator(Collection<Quad> quads) throws AggregationNotImplementedException {
         if (quads.size() == 1) {
             // A little optimization: behavior of all aggregation method on
             // a single quad is supposed to be the same, so we can use an
