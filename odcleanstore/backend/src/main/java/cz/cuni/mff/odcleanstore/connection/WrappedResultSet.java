@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.queryexecution.connection;
+package cz.cuni.mff.odcleanstore.connection;
 
 import com.hp.hpl.jena.graph.Node;
 

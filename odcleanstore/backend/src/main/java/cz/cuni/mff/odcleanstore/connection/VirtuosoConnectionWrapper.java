@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.queryexecution.connection;
+package cz.cuni.mff.odcleanstore.connection;
 
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
 import cz.cuni.mff.odcleanstore.queryexecution.exceptions.ConnectionException;
