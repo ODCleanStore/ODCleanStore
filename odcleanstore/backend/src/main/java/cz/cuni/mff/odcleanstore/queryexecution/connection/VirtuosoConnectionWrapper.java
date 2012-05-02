@@ -4,6 +4,7 @@ import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
 import cz.cuni.mff.odcleanstore.queryexecution.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.queryexecution.exceptions.QueryException;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -105,6 +106,74 @@ public final class VirtuosoConnectionWrapper {
                     // Do nothing
                 }
             }
+        }
+    }
+
+    /**
+     * Executes an INSERT/UPDATE/DELETE or DDL SQL/SPARQL query.
+     * @param query SQL/SPARQL query
+     * @return either (1) the row count for SQL Data Manipulation Language (DML) statements or
+     *         (2) 0 for SQL statements that return nothing
+     * @throws QueryException query error
+     */
+    public int executeUpdate(String query) throws QueryException {
+        try {
+            Statement statement = connection.createStatement();
+            statement.setQueryTimeout(QUERY_TIMEOUT);
+            return statement.executeUpdate(query);
+        } catch (SQLException e) {
+            throw new QueryException(e);
+        }
+    }
+
+    /**
+     * Executes a general SQL/SPARQL query.
+     * @param query SQL/SPARQL query
+     * @throws QueryException query error
+     */
+    public void execute(String query) throws QueryException {
+        try {
+            Statement statement = connection.createStatement();
+            statement.setQueryTimeout(QUERY_TIMEOUT);
+            statement.execute(query);
+        } catch (SQLException e) {
+            throw new QueryException(e);
+        }
+    }
+
+    /**
+     * Commit changes to the database.
+     * @throws SQLException if a database access error occurs, this method is called while participating in a
+     *         distributed transaction, if this method is called on a closed connection or this Connection object is in
+     *         auto-commit mode
+     */
+    public void commit() throws SQLException {
+        connection.commit();
+    }
+
+    /**
+     * Revert changes to the last commit.
+     * @throws SQLException if a database access error occurs, this method is called while participating in a
+     *         distributed transaction, if this method is called on a closed conection or this Connection object is in
+     *         auto-commit mode
+     */
+    public void rollback() throws SQLException {
+        connection.rollback();
+    }
+
+    /**
+     * Adjust transaction logging level and auto commit.
+     * @param logLevel Virtuoso transaction logging level
+     * @param autoCommit enable/disable auto commit
+     * @throws ConnectionException database error
+     */
+    public void adjustTransactionLevel(EnumLogLevel logLevel, boolean autoCommit) throws ConnectionException {
+        try {
+            CallableStatement statement = connection.prepareCall(String.format("log_enable(%d)", logLevel.getBits()));
+            statement.execute();
+            connection.setAutoCommit(autoCommit);
+        } catch (SQLException e) {
+            throw new ConnectionException(e);
         }
     }
 
