@@ -6,6 +6,7 @@ import cz.cuni.mff.odcleanstore.queryexecution.exceptions.QueryException;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -26,6 +27,7 @@ public final class VirtuosoConnectionWrapper {
 
     /**
      * Create a new connection and return its wrapper.
+     * Should be used only for connection to a Virtuoso instance.
      * @param sparqlEndpoint connection settings for the SPARQL endpoint
      * @return wrapper of the newly created connection
      * @throws ConnectionException database connection error
@@ -61,7 +63,6 @@ public final class VirtuosoConnectionWrapper {
 
     /**
      * Executes an SQL/SPARQL SELECT query and returns a wrapper for the result.
-     * Should be used only with the Virtuoso JDBC driver.
      * @param query SQL/SPARQL query
      * @return the result of the query
      * @throws QueryException query error
@@ -74,6 +75,36 @@ public final class VirtuosoConnectionWrapper {
             return new WrappedResultSet(statement);
         } catch (SQLException e) {
             throw new QueryException(e);
+        }
+    }
+
+    /**
+     * Executes a SPARQL ASK query and returns the result.
+     * @param query SQL/SPARQL query
+     * @return the result of the query
+     * @throws QueryException query error
+     */
+    public boolean executeAsk(String query) throws QueryException {
+        ResultSet resultSet = null;
+        try {
+            Statement statement = connection.createStatement();
+            statement.setQueryTimeout(QUERY_TIMEOUT);
+            statement.execute(query);
+            resultSet = statement.getResultSet();
+            if (!resultSet.next()) {
+                return false;
+            }
+            return (resultSet.getInt(1) == 1);
+        } catch (SQLException e) {
+            throw new QueryException(e);
+        } finally {
+            if (resultSet != null) {
+                try {
+                    resultSet.close();
+                } catch (SQLException e) {
+                    // Do nothing
+                }
+            }
         }
     }
 
