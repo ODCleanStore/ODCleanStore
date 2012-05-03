@@ -3,29 +3,38 @@ package cz.cuni.mff.odcleanstore.qualityassessment;
 import java.io.File;
 import java.util.Collection;
 
+import org.apache.commons.logging.Log;
+
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraphException;
+import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 
 public class QualityAssessorPresentation {
 	public static void main (String[] args) {
 		try {
 			Class.forName("virtuoso.jdbc3.Driver");
-			
-			final SparqlEndpoint endpoint = new SparqlEndpoint("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba");
-			
-			QualityAssessor qa = QualityAssessorFactory.createAssessor();
-			
-			for (int id = 1; id < 1843; ++id)
-			{
-				TransformedGraph graph = getTransformedGraph(id);
-				TransformationContext context = getTransformationContext(endpoint);
-				
-				qa.transformNewGraph(graph, context);
-			}
 		} catch (Exception e) {
+			System.out.println("DRIVER DID NOT LOAD");
+		}
+		
+		final SparqlEndpoint endpoint = new SparqlEndpoint("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba");
+		
+		QualityAssessor qa = QualityAssessorFactory.createAssessor();
+		
+		for (int id = 1; id < 1844; ++id)
+		{
+			TransformedGraph graph = getTransformedGraph(id);
+			TransformationContext context = getTransformationContext(endpoint);
+			
+			try {
+				qa.transformNewGraph(graph, context);
+			} catch (Exception e) {
+				System.out.println(e.getMessage());
+				break;
+			}
 		}
 	}
 	

@@ -1,88 +1,91 @@
 package cz.cuni.mff.odcleanstore.qualityassessment.impl;
 
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
+import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
+import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.Rule;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.RulesModel;
+import cz.cuni.mff.odcleanstore.queryexecution.exceptions.ConnectionException;
+import cz.cuni.mff.odcleanstore.queryexecution.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-
-import virtuoso.jena.driver.VirtGraph;
-import virtuoso.jena.driver.VirtuosoQueryExecution;
-import virtuoso.jena.driver.VirtuosoQueryExecutionFactory;
-
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Iterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 abstract class CommonAssessment {
+	protected static final Logger LOG = LoggerFactory.getLogger(CommonAssessment.class);
 
 	protected TransformedGraph inputGraph;
 	protected TransformationContext context;
-
-	protected VirtGraph graph;
-	protected VirtGraph metadataGraph;
 
 	protected Collection<Rule> rules;
 	
 	protected Float score = 1.0f;
 	protected String trace = "";
+	protected Integer violations = 0;
+	
+	protected VirtuosoConnectionWrapper connection;
+	
+	private VirtuosoConnectionWrapper getConnection () throws ConnectionException {
+        if (connection == null) {
+            connection = VirtuosoConnectionWrapper.createConnection(getEndpoint());
+        }
+        return connection;
+	}
+	
+    private void closeConnection() throws ConnectionException {
+        if (connection != null) {
+            connection.close();
+            connection = null;
+        }
+    }
 
 	protected void assessQuality(TransformedGraph inputGraph,
-			TransformationContext context) {
+			TransformationContext context) throws QualityAssessmentException {
 
 		this.inputGraph = inputGraph;
 		this.context = context;
-		
-		loadGraph();
-		loadMetadataGraph();
 
-		/**
-		 * These will be the same in all scenarios most of the time. Only if it is needed
-		 * the implementation can override this behavior.
-		 */
-		loadRules();
+		try
+		{
+			loadRules();
+			applyRules();
 
-		/**
-		 * Applying rules is defined generally for all occasions with current concept.
-		 *
-		 * But DirtyStoreAssessment extension might decide to stop applying rules when the score
-		 * reaches a really low value and instead of further evaluation the score is explicitly
-		 * set to zero for example.
-		 */
-		applyRules();
-
-		storeResults();
-	}
-	
-	protected void loadGraph() {
-		SparqlEndpoint endpoint = getEndpoint();
+			storeResults();
+		} catch (QualityAssessmentException e) {
+			throw e;
+		} finally {
+			try {
+				closeConnection();
+			} catch (ConnectionException e) {
+				// do nothing
+			}
+		}
 		
-		graph = new VirtGraph(inputGraph.getGraphName(),
-				endpoint.getUri(),
-				endpoint.getUsername(),
-				endpoint.getPassword());
-	}
-	
-	protected void loadMetadataGraph() {
-		SparqlEndpoint endpoint = getEndpoint();
-		
-		metadataGraph = new VirtGraph(inputGraph.getMetadataGraphName(),
-				endpoint.getUri(),
-				endpoint.getUsername(),
-				endpoint.getPassword());
+		LOG.info(String.format("Quality Assessment done for graph %s, %d rules tested, %d violations, score %f", inputGraph.getGraphName(), rules.size(), violations, score));
 	}
 
 	abstract protected SparqlEndpoint getEndpoint();
 
-	protected void loadRules() {
-		RulesModel model = new RulesModel(getEndpoint());
+	protected void loadRules() throws QualityAssessmentException {
+		RulesModel model = new RulesModel(context.getCleanDatabaseEndpoint());
 
-		rules = model.getAllRules();
+		String domain = null;
+		
+		if (domain == null) {
+			rules = model.getUnrestrictedRules();
+		} else {
+			rules = model.getRulesForDomain(domain);
+		}
 	}
 
-	protected void applyRules() {
+	protected void applyRules() throws QualityAssessmentException {
 
 		Iterator<Rule> iterator = rules.iterator();
 
@@ -93,18 +96,40 @@ abstract class CommonAssessment {
 		}
 	}
 
-	protected void applyRule(Rule rule) {
-		VirtuosoQueryExecution execution = VirtuosoQueryExecutionFactory.create(rule.toString(), graph);
-
+	protected void applyRule(Rule rule) throws QualityAssessmentException {
+		String query = rule.toString(inputGraph.getGraphName());
+		
+		WrappedResultSet results = null;
+		
 		/**
 		 * See if the graph matches the rules filter
 		 */
-		if (execution.execSelect().hasNext()) {
+		try
+		{
 			/**
-			 * If so, change the graph's score accordingly
+			 * Unfortunately it does not suffice to use SPARQL ASK as long as we
+			 * want to use GROUP BY, HAVING
 			 */
-			addCoefficient(rule.getCoefficient());
-			logComment(rule.getComment());
+			results = getConnection().executeSelect(query);
+			
+			if (results.next()) {
+				/**
+				 * If so, change the graph's score accordingly
+				 */
+				addCoefficient(rule.getCoefficient());
+				logComment(rule.getComment());
+				++violations;
+			}
+		} catch (ConnectionException e) {
+			throw new QualityAssessmentException(e.getMessage());
+		} catch (QueryException e) {
+			throw new QualityAssessmentException(e.getMessage());
+		} catch (SQLException e) {
+			throw new QualityAssessmentException(e.getMessage());
+		} finally {
+			if (results != null) {
+				results.closeQuietly();
+			}
 		}
 	}
 
@@ -116,45 +141,41 @@ abstract class CommonAssessment {
 		score *= coefficient;
 	}
 	
-	protected void storeResults() {
-		Node graphURI = Node.createURI(inputGraph.getGraphName());
-		Node scoreProperty = Node.createURI("odcs:score");
-		Node scoreValue = Node.createLiteral(score.toString());
-		Node commentProperty = Node.createURI("rdfs:comment");
-		Node commentValue = Node.createLiteral(trace);
+	protected void storeResults() throws QualityAssessmentException {
+		final String graph = inputGraph.getGraphName();
+		final String metadataGraph = inputGraph.getMetadataGraphName();
 		
-		Iterator<Triple> i;
+		/**
+		 * TODO: ESCAPE PROPERLY
+		 */
+		String escapedTrace;
+		escapedTrace = trace.replaceAll("'", "");
+		escapedTrace = escapedTrace.replaceAll("\n", " --- ");
+		
+		final String dropOldScore = "SPARQL DELETE FROM <" + metadataGraph + "> {<" + graph + "> <" + ODCS.score + "> ?s} WHERE {<" + graph + "> <" + ODCS.score + "> ?s}";
+		final String dropOldScoreTrace = "SPARQL DELETE FROM <" + metadataGraph + "> {<" + graph + "> <" + ODCS.scoreTrace + "> ?s} WHERE {<" + graph + "> <" + ODCS.scoreTrace + "> ?s}";
+		final String storeNewScore = "SPARQL INSERT DATA INTO <" + metadataGraph + "> {<" + graph + "> <" + ODCS.score + "> \"" + score + "\"^^xsd:double}";
+		final String storeNewScoreTrace = "SPARQL INSERT DATA INTO <" + metadataGraph + "> {<" + graph + "> <" + ODCS.scoreTrace + "> '" + escapedTrace + "'^^xsd:string}";
 
-		/**
-		 * Drop the old score
-		 */
-		i = metadataGraph.find(graphURI, scoreProperty, Node.ANY);
+		/*
+		System.err.println(dropOldScore);
+		System.err.println(dropOldScoreTrace);
+		System.err.println(storeNewScore);
+		System.err.println(storeNewScoreTrace);
+		*/
 		
-		while (i.hasNext()) {
-			Triple triple = i.next();
-			
-			metadataGraph.remove(triple);
+		/**
+		 * See if the graph matches the rules filter
+		 */
+		try {
+			getConnection().executeUpdate(dropOldScore);
+			getConnection().executeUpdate(dropOldScoreTrace);
+			getConnection().executeUpdate(storeNewScore);
+			getConnection().executeUpdate(storeNewScoreTrace);
+		} catch (ConnectionException e) {
+			throw new QualityAssessmentException(e.getMessage());
+		} catch (QueryException e) {
+			throw new QualityAssessmentException(e.getMessage());
 		}
-
-		/**
-		 * Write the new score
-		 */
-		metadataGraph.add(new Triple(graphURI, scoreProperty, scoreValue));
-		
-		/**
-		 * Drop the old trace
-		 */
-		i = metadataGraph.find(graphURI, commentProperty, Node.ANY);
-		
-		while (i.hasNext()) {
-			Triple triple = i.next();
-			
-			metadataGraph.remove(triple);
-		}
-		
-		/**
-		 * Add the new trace
-		 */
-		metadataGraph.add(new Triple(graphURI, commentProperty, commentValue));
 	}
 }
