@@ -671,26 +671,30 @@ import java.util.Set;
             while (resultSet.next()) {
                 NamedGraphMetadata graphMetadata = new NamedGraphMetadata(resultSet.getString("resGraph"));
 
-                String source = resultSet.getString("source");
-                graphMetadata.getSource(source);
+                try {
+                    String source = resultSet.getString("source");
+                    graphMetadata.getSource(source);
 
-                Double score = resultSet.getDouble("score");
-                graphMetadata.setScore(score);
+                    Double score = resultSet.getDouble("score");
+                    graphMetadata.setScore(score);
 
-                Date insertedAt = resultSet.getJavaDate("insertedAt");
-                graphMetadata.setInsertedAt(insertedAt);
+                    Date insertedAt = resultSet.getJavaDate("insertedAt");
+                    graphMetadata.setInsertedAt(insertedAt);
 
-                String insertedBy = resultSet.getString("insertedBy");
-                graphMetadata.setInsertedBy(insertedBy);
+                    String insertedBy = resultSet.getString("insertedBy");
+                    graphMetadata.setInsertedBy(insertedBy);
 
-                String license = resultSet.getString("license");
-                graphMetadata.setLicence(license);
+                    String license = resultSet.getString("license");
+                    graphMetadata.setLicence(license);
 
-                String publishedBy = resultSet.getString("publishedBy");
-                graphMetadata.setPublisher(publishedBy);
+                    String publishedBy = resultSet.getString("publishedBy");
+                    graphMetadata.setPublisher(publishedBy);
 
-                Double publisherScore = resultSet.getDouble("publisherScore");
-                graphMetadata.setPublisherScore(publisherScore);
+                    Double publisherScore = resultSet.getDouble("publisherScore");
+                    graphMetadata.setPublisherScore(publisherScore);
+                } catch (SQLException e) {
+                    LOG.warn("Query Execution: invalid metadata for graph {}", graphMetadata.getNamedGraphURI());
+                }
 
                 metadata.addMetadata(graphMetadata);
             }
