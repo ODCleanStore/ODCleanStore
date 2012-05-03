@@ -25,9 +25,19 @@ public final class NodeComparator {
      * Implementation of the Visitor pattern that compares a node given in the constructor to the
      * visited node.
      */
+    @SuppressWarnings("unused")
     private static class ComparisonVisitor implements NodeVisitor {
         /** A node being compared to the visited node. */
         private Node comparedNode;
+
+        /**
+         * Converts null string to "".
+         * @param s string
+         * @return s or the empty string
+         */
+        private static String nullStringAsEmpty(String s) {
+            return (s == null) ? "" : s;
+        }
 
         /**
          * Initializes ComparisonVisitor with a compared node.
@@ -35,15 +45,6 @@ public final class NodeComparator {
          */
         public ComparisonVisitor(Node comparedNode) {
             this.comparedNode = comparedNode;
-        }
-
-        /**
-         * Converts null string to "".
-         * @param s string
-         * @return s or the empty string
-         */
-        private String nullStringAsEmpty(String s) {
-            return (s == null) ? "" : s;
         }
 
         @Override
@@ -75,7 +76,7 @@ public final class NodeComparator {
                 return dataTypeComparison;
             }
 
-            // langage() is guaranteed not to be null
+            // language() is guaranteed not to be null
             return comparedLiteral.language().compareToIgnoreCase(otherLiteral.language());
         }
 
@@ -110,7 +111,6 @@ public final class NodeComparator {
             return 0;
         } else if (n1.getClass() != n2.getClass()) {
             // compare by classes somehow, e.g. by class names
-            // TODO: optimize
             return n1.getClass().getName().compareTo(n2.getClass().getName());
         } else {
             // A little optimization: for all but literal nodes comparison using toString() method
@@ -119,18 +119,32 @@ public final class NodeComparator {
             // behavior of the algorithm but we can avoid creating unnecessary ComparisonVisitor
             // instances.
             if (n1 instanceof Node_Literal) {
-                // TODO: optimize based on type? compare labels?
-                int lexicalComparison =
-                        n1.getLiteralLexicalForm().compareTo(n2.getLiteralLexicalForm());
+                LiteralLabel literal1 = n1.getLiteral();
+                LiteralLabel literal2 = n2.getLiteral();
+                int lexicalComparison = literal1.getLexicalForm().compareTo(literal2.getLexicalForm());
                 if (lexicalComparison != 0) {
                     return lexicalComparison;
                 }
+                String dataType1 = literal1.getDatatypeURI();
+                String dataType2 = literal2.getDatatypeURI();
+                if (dataType1 == null) {
+                    dataType1 = "";
+                }
+                if (dataType2 == null) {
+                    dataType2 = "";
+                }
+                int dataTypeComparison = dataType1.compareTo(dataType2);
+                if (dataTypeComparison != 0) {
+                    return dataTypeComparison;
+                }
+                // language() is guaranteed not to be null
+                return literal1.language().compareToIgnoreCase(literal2.language());
             } else {
                 return n1.toString().compareTo(n2.toString());
             }
 
-            ComparisonVisitor comparisonVisitor = new ComparisonVisitor(n1);
-            return (Integer) n2.visitWith(comparisonVisitor);
+            /*ComparisonVisitor comparisonVisitor = new ComparisonVisitor(n1);
+            return (Integer) n2.visitWith(comparisonVisitor);*/
         }
     }
 

@@ -358,6 +358,7 @@ import java.util.Set;
     public QueryResult findURI(String uri) throws ODCleanStoreException, URISyntaxException {
         LOG.info("URI query for <{}>", uri);
         long startTime = System.currentTimeMillis();
+        checkValidSettings();
 
         // Check that the URI is valid (must not be empty or null, should match '<' ([^<>"{}|^`\]-[#x00-#x20])* '>' )
         try {

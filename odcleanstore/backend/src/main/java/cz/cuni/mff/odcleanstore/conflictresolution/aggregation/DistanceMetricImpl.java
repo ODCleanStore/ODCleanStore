@@ -4,6 +4,7 @@ import cz.cuni.mff.odcleanstore.shared.EnumLiteralType;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 
 import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.impl.LiteralLabel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,14 +53,13 @@ class DistanceMetricImpl implements DistanceMetric {
         } else if (primaryValue.isLiteral()) {
             return literalDistance(primaryValue, comparedValue);
         } else {
-            LOG.warn("Distance cannot be measured on Nodes of type {}",
-                    primaryValue.getClass().getSimpleName());
+            LOG.warn("Distance cannot be measured on Nodes of type {}", primaryValue.getClass().getSimpleName());
             return ERROR_DISTANCE;
         }
     }
 
     /**
-     * Calulates a distance metric between two Node_Literal instances.
+     * Calculates a distance metric between two Node_Literal instances.
      * @see #distance(Node, Node)
      * @param primaryNode first of the compared Nodes; this Node may be considered "referential",
      *        i.e. we measure distance from this value
@@ -75,52 +75,49 @@ class DistanceMetricImpl implements DistanceMetric {
         EnumLiteralType comparisonType = primaryLiteralType == comparedLiteralType
                 ? primaryLiteralType
                 : EnumLiteralType.OTHER;
+        LiteralLabel primaryLiteral = primaryNode.getLiteral();
+        LiteralLabel comparedLiteral = comparedNode.getLiteral();
 
         double result;
         switch (comparisonType) {
         case NUMERIC:
-            double primaryValue = 0;
-            double comparedValue = 0;
-            try {
-                primaryValue = Double.parseDouble(primaryNode.getLiteralLexicalForm());
-            } catch (NumberFormatException e) {
-                LOG.warn("Numeric literal {} is malformed.", primaryNode);
-                result = ERROR_DISTANCE;
-                break;
+            double primaryValue = Utils.convertToDoubleSilent(primaryLiteral);
+            if (Double.isNaN(primaryValue)) {
+                LOG.warn("Numeric literal {} is malformed.", primaryLiteral);
+                return ERROR_DISTANCE;
             }
-            try {
-                comparedValue = Double.parseDouble(comparedNode.getLiteralLexicalForm());
-            } catch (NumberFormatException e) {
-                LOG.warn("Numeric literal {} is malformed.", primaryNode);
-                result = ERROR_DISTANCE;
-                break;
+            double comparedValue = Utils.convertToDoubleSilent(comparedLiteral);
+            if (Double.isNaN(comparedValue)) {
+                LOG.warn("Numeric literal {} is malformed.", comparedLiteral);
+                return ERROR_DISTANCE;
             }
             result = numericDistance(primaryValue, comparedValue);
             break;
         case DATE:
             // TODO
         case BOOLEAN:
-            // TODO
+            result = (Utils.convertToBoolean(primaryLiteral) == Utils.convertToBoolean(comparedLiteral))
+                    ? MIN_DISTANCE
+                    : MAX_DISTANCE;
+            break;
         case STRING:
         case OTHER:
-            // TODO + check bounds
             result = LevenshteinDistance.normalizedLevenshteinDistance(
-                    primaryNode.getLiteralLexicalForm(),
-                    comparedNode.getLiteralLexicalForm());
+                    primaryLiteral.getLexicalForm(),
+                    comparedLiteral.getLexicalForm());
             break;
         default:
-            // TODO
-            LOG.error("TODO");
-            throw new IllegalArgumentException();
+            LOG.error("Unhandled literal type for comparison {}.", comparisonType);
+            throw new RuntimeException("Unhandled literal type for comparison");
         }
 
-        LOG.debug("Distance between literals {} and {} of type {}: {}",
-                new Object[] { primaryNode, comparedNode, comparedLiteralType, result });
+        /*LOG.debug("Distance between numeric literals {} and {}: {}",
+                new Object[] { primaryNode, comparedNode, result });*/
         return result;
     }
 
     /**
-     * Calulates a distance metric between two numbers.
+     * Calculates a distance metric between two numbers.
      * @see #distance(Node, Node)
      * @param primaryValue first of the compared values; this v may be considered "referential",
      *        i.e. we measure distance from this value
@@ -143,7 +140,7 @@ class DistanceMetricImpl implements DistanceMetric {
     }
 
     /**
-     * Calulates a distance metric between two Node_URI instances.
+     * Calculates a distance metric between two Node_URI instances.
      * @see #distance(Node, Node)
      * @param primaryValue first of the compared Nodes; this Node may be considered "referential",
      *        i.e. we measure distance from this value
@@ -161,7 +158,7 @@ class DistanceMetricImpl implements DistanceMetric {
     }
 
     /**
-     * Calulates a distance metric between two Node_URI instances.
+     * Calculates a distance metric between two Node_URI instances.
      * @see #distance(Node, Node)
      * @param primaryValue first of the compared Nodes; this Node may be considered "referential",
      *        i.e. we measure distance from this value

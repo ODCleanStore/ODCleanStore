@@ -2,6 +2,7 @@ package cz.cuni.mff.odcleanstore.queryexecution;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
+import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 import cz.cuni.mff.odcleanstore.vocabulary.RDFS;
 
@@ -29,6 +30,13 @@ import com.hp.hpl.jena.graph.Node;
      * TODO: get from global configuration.
      */
     protected static final long MAX_LIMIT = 500;
+
+    /**
+     * Maximum number of properties with explicit aggregation settings.
+     * This limit is imposed because all of them might be listed in a query.
+     * @see UriQueryExecutor#getSameAsLinks()
+     */
+    protected static final long MAX_PROPERTY_SETTINGS_SIZE = 500;
 
     /**
      * Prefix of named graphs where the resulting triples are placed.
@@ -78,5 +86,22 @@ import com.hp.hpl.jena.graph.Node;
         this.sparqlEndpoint = sparqlEndpoint;
         this.constraints = constraints;
         this.aggregationSpec = aggregationSpec;
+    }
+
+    /**
+     * Check whether aggregation settings and query constraints are valid.
+     * For now, checks only compliance with {@link #MAX_PROPERTY_SETTINGS_SIZE}.
+     * @throws ODCleanStoreException aggregation settings or query constraints are invalid
+     */
+    protected void checkValidSettings() throws ODCleanStoreException {
+        int settingsPropertyCount = aggregationSpec.getPropertyAggregations() == null
+                ? 0
+                : aggregationSpec.getPropertyAggregations().size();
+        settingsPropertyCount += aggregationSpec.getPropertyMultivalue() == null
+                ? 0
+                : aggregationSpec.getPropertyMultivalue().size();
+        if (settingsPropertyCount > MAX_PROPERTY_SETTINGS_SIZE) {
+            throw new ODCleanStoreException("Too many explicit property settings.");
+        }
     }
 }

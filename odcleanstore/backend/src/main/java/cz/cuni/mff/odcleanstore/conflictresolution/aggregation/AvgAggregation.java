@@ -28,9 +28,7 @@ final class AvgAggregation extends CalculatedValueAggregation {
      * @param aggregationSpec aggregation and quality calculation settings
      * @param uriGenerator generator of URIs
      */
-    public AvgAggregation(
-            AggregationSpec aggregationSpec,
-            UniqueURIGenerator uriGenerator) {
+    public AvgAggregation(AggregationSpec aggregationSpec, UniqueURIGenerator uriGenerator) {
         super(aggregationSpec, uriGenerator);
     }
 
@@ -46,9 +44,7 @@ final class AvgAggregation extends CalculatedValueAggregation {
      * @return {@inheritDoc}
      */
     @Override
-    public Collection<CRQuad> aggregate(
-            Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
-
+    public Collection<CRQuad> aggregate(Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
         Collection<CRQuad> result = createResultCollection();
         Collection<Quad> nonAggregableQuads = null;
 
@@ -58,7 +54,7 @@ final class AvgAggregation extends CalculatedValueAggregation {
         Collection<String> sourceNamedGraphs = new ArrayList<String>();
 
         for (Quad quad : conflictingQuads) {
-            double numberValue = Utils.tryConvertToDouble(quad.getObject());
+            double numberValue = Utils.convertToDoubleSilent(quad.getObject());
             if (!Double.isNaN(numberValue)) {
                 sum += numberValue;
                 validNumbersCount++;
@@ -67,8 +63,7 @@ final class AvgAggregation extends CalculatedValueAggregation {
                 if (nonAggregableQuads == null) {
                     nonAggregableQuads = new ArrayList<Quad>();
                 }
-                handleNonAggregableObject(
-                        quad, conflictingQuads, metadata, result, this.getClass());
+                handleNonAggregableObject(quad, conflictingQuads, metadata, result, this.getClass());
                 nonAggregableQuads.add(quad);
             }
         }

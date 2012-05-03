@@ -128,6 +128,7 @@ public class ConflictResolverImpl implements ConflictResolver {
     @Override
     public Collection<CRQuad> resolveConflicts(Collection<Quad> quads) throws ODCleanStoreException {
         LOG.info("Resolving conflicts among {} quads.", quads.size());
+        long startTime = System.currentTimeMillis();
 
         // Apply owl:sameAs mappings, group quads to conflict clusters
         ResolveQuadCollection quadsToResolve = new ResolveQuadCollection();
@@ -167,6 +168,8 @@ public class ConflictResolverImpl implements ConflictResolver {
             // Add resolved quads to result
             result.addAll(aggregatedQuads);
         }
+
+        LOG.debug("Conflict resolution executed in {} ms", System.currentTimeMillis() - startTime);
         return result;
     }
 
