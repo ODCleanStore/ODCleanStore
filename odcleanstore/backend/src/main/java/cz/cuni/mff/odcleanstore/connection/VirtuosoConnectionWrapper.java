@@ -1,8 +1,8 @@
 package cz.cuni.mff.odcleanstore.connection;
 
+import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
+import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
-import cz.cuni.mff.odcleanstore.queryexecution.exceptions.ConnectionException;
-import cz.cuni.mff.odcleanstore.queryexecution.exceptions.QueryException;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;

@@ -1,7 +1,7 @@
 /**
  *
  */
-package cz.cuni.mff.odcleanstore.queryexecution.exceptions;
+package cz.cuni.mff.odcleanstore.connection.exceptions;
 
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 

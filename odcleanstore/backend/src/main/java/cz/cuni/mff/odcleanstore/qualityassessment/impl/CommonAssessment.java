@@ -2,12 +2,12 @@ package cz.cuni.mff.odcleanstore.qualityassessment.impl;
 
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
+import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
+import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
 import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.Rule;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.RulesModel;
-import cz.cuni.mff.odcleanstore.queryexecution.exceptions.ConnectionException;
-import cz.cuni.mff.odcleanstore.queryexecution.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
