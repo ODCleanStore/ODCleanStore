@@ -23,7 +23,7 @@ import com.hp.hpl.jena.graph.Node;
      * This constant is only for debugging purposes and should be null in production environment.
      * TODO: set to null
      */
-    protected static final String GRAPH_PREFIX_FILTER = "http://odcs.mff.cuni.cz/namedGraph/qe-test/";
+    protected static final String GRAPH_PREFIX_FILTER = null; //"http://odcs.mff.cuni.cz/namedGraph/qe-test/";
 
     /**
      * Maximum number of triples returned by each database query (the overall result size may be larger).

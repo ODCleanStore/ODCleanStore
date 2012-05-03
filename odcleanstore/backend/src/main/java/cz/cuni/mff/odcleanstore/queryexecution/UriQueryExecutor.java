@@ -357,6 +357,9 @@ import java.util.Set;
      */
     public QueryResult findURI(String uri) throws ODCleanStoreException, URISyntaxException {
         LOG.info("URI query for <{}>", uri);
+        if (GRAPH_PREFIX_FILTER != null) {
+            LOG.warn("Query is limited to named graph starting with '{}'", GRAPH_PREFIX_FILTER);
+        }
         long startTime = System.currentTimeMillis();
         checkValidSettings();
 
