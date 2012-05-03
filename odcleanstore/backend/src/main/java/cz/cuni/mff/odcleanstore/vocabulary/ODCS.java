@@ -26,9 +26,14 @@ public final class ODCS {
     // CHECKSTYLE:OFF
 
     /**
-     * Property linking a named graph to its error localization score.
+     * Property linking a named graph to its quality assessment score.
      */
     public static final String score = "http://opendata.cz/infrastructure/odcleanstore/score";
+    
+    /**
+     * Property linking a named graph to its quality assessment score trace.
+     */
+    public static final String scoreTrace = "http://opendata.cz/infrastructure/odcleanstore/scoreTrace";
 
     /**
      * Property linking a publisher to her aggregated score.

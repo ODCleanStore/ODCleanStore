@@ -17,8 +17,8 @@ public class Rule {
 		return id;
 	}
 	
-	public String toString() {
-		return "SELECT * WHERE " + this.filter;
+	public String toString(String graphName) {
+		return "SPARQL SELECT * FROM <" + graphName + "> WHERE " + this.filter;
 	}
 	
 	public Float getCoefficient() {
