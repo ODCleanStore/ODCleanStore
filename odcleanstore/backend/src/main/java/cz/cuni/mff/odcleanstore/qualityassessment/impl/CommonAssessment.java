@@ -25,20 +25,20 @@ abstract class CommonAssessment {
 	protected TransformationContext context;
 
 	protected Collection<Rule> rules;
-	
+
 	protected Float score = 1.0f;
 	protected String trace = "";
 	protected Integer violations = 0;
-	
+
 	protected VirtuosoConnectionWrapper connection;
-	
+
 	private VirtuosoConnectionWrapper getConnection () throws ConnectionException {
         if (connection == null) {
             connection = VirtuosoConnectionWrapper.createConnection(getEndpoint());
         }
         return connection;
 	}
-	
+
     private void closeConnection() throws ConnectionException {
         if (connection != null) {
             connection.close();
@@ -67,7 +67,7 @@ abstract class CommonAssessment {
 				// do nothing
 			}
 		}
-		
+
 		LOG.info(String.format("Quality Assessment done for graph %s, %d rules tested, %d violations, score %f", inputGraph.getGraphName(), rules.size(), violations, score));
 	}
 
@@ -77,7 +77,7 @@ abstract class CommonAssessment {
 		RulesModel model = new RulesModel(context.getCleanDatabaseEndpoint());
 
 		String domain = null;
-		
+
 		if (domain == null) {
 			rules = model.getUnrestrictedRules();
 		} else {
@@ -98,9 +98,9 @@ abstract class CommonAssessment {
 
 	protected void applyRule(Rule rule) throws QualityAssessmentException {
 		String query = rule.toString(inputGraph.getGraphName());
-		
+
 		WrappedResultSet results = null;
-		
+
 		/**
 		 * See if the graph matches the rules filter
 		 */
@@ -111,7 +111,7 @@ abstract class CommonAssessment {
 			 * want to use GROUP BY, HAVING
 			 */
 			results = getConnection().executeSelect(query);
-			
+
 			if (results.next()) {
 				/**
 				 * If so, change the graph's score accordingly
@@ -140,18 +140,18 @@ abstract class CommonAssessment {
 	protected void addCoefficient(Float coefficient) {
 		score *= coefficient;
 	}
-	
+
 	protected void storeResults() throws QualityAssessmentException {
 		final String graph = inputGraph.getGraphName();
 		final String metadataGraph = inputGraph.getMetadataGraphName();
-		
+
 		/**
 		 * TODO: ESCAPE PROPERLY
 		 */
 		String escapedTrace;
 		escapedTrace = trace.replaceAll("'", "");
 		escapedTrace = escapedTrace.replaceAll("\n", " --- ");
-		
+
 		final String dropOldScore = "SPARQL DELETE FROM <" + metadataGraph + "> {<" + graph + "> <" + ODCS.score + "> ?s} WHERE {<" + graph + "> <" + ODCS.score + "> ?s}";
 		final String dropOldScoreTrace = "SPARQL DELETE FROM <" + metadataGraph + "> {<" + graph + "> <" + ODCS.scoreTrace + "> ?s} WHERE {<" + graph + "> <" + ODCS.scoreTrace + "> ?s}";
 		final String storeNewScore = "SPARQL INSERT DATA INTO <" + metadataGraph + "> {<" + graph + "> <" + ODCS.score + "> \"" + score + "\"^^xsd:double}";
@@ -163,15 +163,15 @@ abstract class CommonAssessment {
 		System.err.println(storeNewScore);
 		System.err.println(storeNewScoreTrace);
 		*/
-		
+
 		/**
 		 * See if the graph matches the rules filter
 		 */
 		try {
-			getConnection().executeUpdate(dropOldScore);
-			getConnection().executeUpdate(dropOldScoreTrace);
-			getConnection().executeUpdate(storeNewScore);
-			getConnection().executeUpdate(storeNewScoreTrace);
+			getConnection().execute(dropOldScore);
+			getConnection().execute(dropOldScoreTrace);
+			getConnection().execute(storeNewScore);
+			getConnection().execute(storeNewScoreTrace);
 		} catch (ConnectionException e) {
 			throw new QualityAssessmentException(e.getMessage());
 		} catch (QueryException e) {

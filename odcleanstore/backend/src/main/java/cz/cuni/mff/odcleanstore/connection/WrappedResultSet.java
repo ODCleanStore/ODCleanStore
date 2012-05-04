@@ -131,6 +131,28 @@ public class WrappedResultSet {
     }
 
     /**
+     * Retrieves the value of the designated column in the current row of this ResultSet object as a String.
+     * @param columnLabel the label for the column (the name of the column or the name specified with the SQL AS clause)
+     * @return the column value; if the value is SQL NULL, the value returned is null
+     * @throws SQLException exception
+     */
+    public Integer getInt(String columnLabel) throws SQLException {
+        int value = resultSet.getInt(columnLabel);
+        return resultSet.wasNull() ? null : value;
+    }
+
+    /**
+     * Retrieves the value of the designated column in the current row of this ResultSet object as a String.
+     * @param columnIndex the first column is 1, the second is 2, ...
+     * @return the column value; if the value is SQL NULL, the value returned is null
+     * @throws SQLException exception
+     */
+    public Integer getInt(int columnIndex) throws SQLException {
+        int value = resultSet.getInt(columnIndex);
+        return resultSet.wasNull() ? null : value;
+    }
+
+    /**
      * Retrieves the value of the designated column in the current row of this ResultSet object as a double.
      * @param columnLabel the label for the column (the name of the column or the name specified with the SQL AS clause)
      * @return the column value; if the value is SQL NULL, the value returned is null

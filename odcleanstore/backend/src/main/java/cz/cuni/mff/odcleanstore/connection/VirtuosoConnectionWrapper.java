@@ -110,23 +110,6 @@ public final class VirtuosoConnectionWrapper {
     }
 
     /**
-     * Executes an INSERT/UPDATE/DELETE or DDL SQL/SPARQL query.
-     * @param query SQL/SPARQL query
-     * @return either (1) the row count for SQL Data Manipulation Language (DML) statements or
-     *         (2) 0 for SQL statements that return nothing
-     * @throws QueryException query error
-     */
-    public int executeUpdate(String query) throws QueryException {
-        try {
-            Statement statement = connection.createStatement();
-            statement.setQueryTimeout(QUERY_TIMEOUT);
-            return statement.executeUpdate(query);
-        } catch (SQLException e) {
-            throw new QueryException(e);
-        }
-    }
-
-    /**
      * Executes a general SQL/SPARQL query.
      * @param query SQL/SPARQL query
      * @throws QueryException query error
