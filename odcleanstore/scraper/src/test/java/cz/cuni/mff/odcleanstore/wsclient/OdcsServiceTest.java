@@ -8,7 +8,7 @@ public class OdcsServiceTest {
 
 	@Test
 	public void testOdcsService() throws IOException, InsertException {
-		OdcsService sc = new OdcsService("http://localhost:8088/odcleanstore/scraper");
+		/*OdcsService sc = new OdcsService("http://localhost:8088/odcleanstore/scraper");
 
 		Metadata metadata = new Metadata();
 
@@ -65,6 +65,6 @@ public class OdcsServiceTest {
 				+ "<rdf:Description rdf:about=\"http://example.com\">" + "  <sindicevocab:date>2012-04-30T15:09:57+01:00</sindicevocab:date>"
 				+ "  <sindicevocab:size rdf:datatype=\"http://www.w3.org/2001/XMLSchema#int\">54</sindicevocab:size>" + "</rdf:Description> " + "</rdf:RDF>";
 
-		sc.insert("scraper", "reparcs", metadata, payload);
+		sc.insert("scraper", "reparcs", metadata, payload);*/
 	}
 }
