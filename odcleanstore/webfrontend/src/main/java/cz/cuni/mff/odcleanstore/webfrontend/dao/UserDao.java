@@ -33,15 +33,33 @@ public class UserDao extends Dao<User>
 	private static Logger logger = Logger.getLogger(UserDao.class);
 	
 	@Override
-	public void delete(User item) {
+	public void delete(User item) 
+	{
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void save(User item) {
-		// TODO Auto-generated method stub
+	public void save(User item) 
+	{
+		logger.debug("Saving new user.");
 		
+		String query = 
+			"INSERT INTO DB.FRONTEND.USERS " +
+			"(username, email, passwordHash, salt, firstname, surname) " +
+			"VALUES (?, ?, ?, ?, ?, ?)";
+		
+		Object[] arguments =
+		{
+			item.getUsername(),
+			item.getEmail(),
+			item.getPasswordHash(),
+			item.getSalt(),
+			item.getFirstname(),
+			item.getSurname()
+		};
+		
+		jdbcTemplate.update(query, arguments);
 	}
 
 	@Override

@@ -6,6 +6,9 @@ import java.util.Properties;
 import javax.mail.*;
 import javax.mail.internet.*;
 import javax.activation.*; 
+
+import org.apache.log4j.Logger;
+
 import java.io.*;
 
 /**
@@ -16,6 +19,8 @@ import java.io.*;
  */
 public class Mail 
 {
+	private static Logger logger = Logger.getLogger(Mail.class);
+	
 	private String from;
 	private String to;
 	private String subject;
@@ -87,6 +92,9 @@ public class Mail
 	public void sendThroughGmail(String gmailAddress, String gmailPassword) 
 		throws MessagingException
 	{
+		logger.debug("Sending email through GMail account: " + gmailAddress);
+		logger.debug("Mail recipient: " + to);
+		
 		// Setup mail server
 		Properties props = new Properties();
 		

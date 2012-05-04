@@ -9,9 +9,10 @@ public class PasswordHandling
 	public static final String DEFAULT_CHARSET = 
 		"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.!?:";
 	
-	public static final int DEFAULT_LENGTH = 12;
+	public static final int DEFAULT_PASSWORD_LENGTH = 12;
+	public static final int DEFAULT_SALT_LENGTH = 64;
 	
-	public static String generateRandomPassword(String charset, int length)
+	public static String generateRandomString(String charset, int length)
 	{
 		Random rnd = new Random();
 		
@@ -25,8 +26,10 @@ public class PasswordHandling
 		return new String(password);
 	}
 	
-	public static String calculateMD5Hash(String password) throws NoSuchAlgorithmException
+	public static String calculateHash(String password) throws NoSuchAlgorithmException
 	{
+		// TODO: make this function polymorphic against various hash calculation methods
+		
 		MessageDigest algorithm = MessageDigest.getInstance("MD5");
 		
 		algorithm.reset();

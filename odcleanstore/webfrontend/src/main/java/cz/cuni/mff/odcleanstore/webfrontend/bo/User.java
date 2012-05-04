@@ -69,6 +69,42 @@ public class User extends BusinessObject
 
 	/**
 	 * 
+	 * @param passwordHash
+	 */
+	public void setPasswordHash(String passwordHash)
+	{
+		this.passwordHash = passwordHash;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String getPasswordHash()
+	{
+		return this.passwordHash;
+	}
+	
+	/**
+	 * 
+	 * @param salt
+	 */
+	public void setSalt(String salt)
+	{
+		this.salt = salt;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String getSalt()
+	{
+		return this.salt;
+	}
+	
+	/**
+	 * 
 	 * @return
 	 */
 	public String getFirstname() 

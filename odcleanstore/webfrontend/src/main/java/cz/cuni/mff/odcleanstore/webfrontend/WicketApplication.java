@@ -5,6 +5,8 @@ import org.apache.wicket.spring.ISpringContextLocator;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import cz.cuni.mff.odcleanstore.webfrontend.configuration.Configuration;
+
 /**
  * Web Frontend Application object.
  * 
@@ -27,6 +29,10 @@ public class WicketApplication extends WebApplication
 	/** A factory to lookup Spring beans */
 	private DaoLookupFactory daoLookupFactory;
 	
+	/** Application configuration */
+	private Configuration configuration;
+	
+	
 	@Override
 	public Class<HomePage> getHomePage() 
 	{
@@ -40,6 +46,7 @@ public class WicketApplication extends WebApplication
 		
 		ctx = new ClassPathXmlApplicationContext(SPRING_CONFIG_LOCATION);
 		daoLookupFactory = new DaoLookupFactory();
+		configuration = (Configuration) ctx.getBean("appConfig");
 	}
 	
 	/**
@@ -49,5 +56,10 @@ public class WicketApplication extends WebApplication
 	public DaoLookupFactory getDaoLookupFactory()
 	{
 		return daoLookupFactory;
+	}
+	
+	public Configuration getConfiguration()
+	{
+		return configuration;
 	}
 }
