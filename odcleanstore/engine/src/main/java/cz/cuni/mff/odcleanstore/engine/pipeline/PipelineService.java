@@ -81,6 +81,7 @@ public final class PipelineService extends Service implements Runnable {
 				_workingInputGraphStatus.setWorkingTransformedGraph(null);
 				setModuleState(ModuleState.CRASHED);
 				String message = String.format("PipelineService crashed - %s", e.getMessage());
+				e.printStackTrace();
 				LOG.error(message);
 			}
 		}
