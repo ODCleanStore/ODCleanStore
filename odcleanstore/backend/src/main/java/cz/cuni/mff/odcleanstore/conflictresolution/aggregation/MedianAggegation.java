@@ -89,6 +89,8 @@ class MedianAggegation extends CalculatedValueAggregation {
             return numericAggregation;
         case DATE:
             // TODO
+        case TIME:
+            // TODO
         case BOOLEAN:
             if (booleanAggregation == null) {
                 booleanAggregation = new BooleanMedianAggregation();

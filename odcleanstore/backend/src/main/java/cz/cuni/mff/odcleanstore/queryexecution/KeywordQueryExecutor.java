@@ -359,8 +359,10 @@ import java.util.regex.Pattern;
      * Returns an expression that equals the whole keywordsQuery considering a possible type of the literal.
      * If the query looks like a numeric literal or xsd:dateTime literal, returns a typed literal, otherwise returns
      * a quoted string (with quotes inside the query filtered out).
+     *
      * If the searched string is not a typed literal, it should still be included in the result by the bif:contains
-     * match.
+     * match. The exact match cannot be str(?o) = "..." due to lower performance.
+     *
      * @see http://www.w3.org/TR/rdf-sparql-query/#operandDataTypes
      * @param keywordsQuery the keyword query
      * @return a literal value equal to the given keyword, considering type

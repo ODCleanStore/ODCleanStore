@@ -2,9 +2,14 @@ package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
 import cz.cuni.mff.odcleanstore.shared.EnumLiteralType;
 import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 
+import com.hp.hpl.jena.datatypes.RDFDatatype;
+import com.hp.hpl.jena.datatypes.TypeMapper;
+import com.hp.hpl.jena.datatypes.xsd.XSDDateTime;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.impl.LiteralLabel;
+import com.hp.hpl.jena.shared.JenaException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +20,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Jan Michelfeit
  */
-class DistanceMetricImpl implements DistanceMetric {
+/*package*/ public class DistanceMetricImpl implements DistanceMetric {
     private static final Logger LOG = LoggerFactory.getLogger(DistanceMetricImpl.class);
 
     /** Minimum distance between two {@link Node Nodes} indicating equal nodes. */
@@ -24,14 +29,26 @@ class DistanceMetricImpl implements DistanceMetric {
     /** Maximum distance between two {@link Node Nodes}. */
     private static final double MAX_DISTANCE = 1;
 
+    /**
+     * Difference between two dates when their distance is equal to MAX_DISTANCE in seconds.
+     * TODO: to configuration?
+     */
+    private static final long MAX_DATE_DIFFERENCE = 366 * 24 * 60 * 60; // cca 1 year in seconds
+
     /** Distance value for URI resources with different URIs. */
     private static final double DIFFERENT_RESOURCE_DISTANCE = MAX_DISTANCE;
 
     /** Distance of {@link Node Nodes} of different types. */
     private static final double DIFFERENT_TYPE_DISTANCE = MAX_DISTANCE;
 
-    /** Distance of {@link Node Nodes} when an error (e.g. a parse erorr) occurs. */
+    /** Distance of {@link Node Nodes} when an error (e.g. a parse error) occurs. */
     private static final double ERROR_DISTANCE = MAX_DISTANCE;
+
+    /** Number of seconds in a day. */
+    private static final int SECONDS_IN_DAY = 24 * 60 * 60;
+
+    /** Number of milliseconds in a second. */
+    private static final int MILLIS_IN_SECOND = 1000;
 
     ///** Square root of two. */
     //private static final double SQRT_OF_TWO = Math.sqrt(2);
@@ -81,20 +98,24 @@ class DistanceMetricImpl implements DistanceMetric {
         double result;
         switch (comparisonType) {
         case NUMERIC:
-            double primaryValue = Utils.convertToDoubleSilent(primaryLiteral);
-            if (Double.isNaN(primaryValue)) {
+            double primaryValueDouble = Utils.convertToDoubleSilent(primaryLiteral);
+            if (Double.isNaN(primaryValueDouble)) {
                 LOG.warn("Numeric literal {} is malformed.", primaryLiteral);
                 return ERROR_DISTANCE;
             }
-            double comparedValue = Utils.convertToDoubleSilent(comparedLiteral);
-            if (Double.isNaN(comparedValue)) {
+            double comparedValueDouble = Utils.convertToDoubleSilent(comparedLiteral);
+            if (Double.isNaN(comparedValueDouble)) {
                 LOG.warn("Numeric literal {} is malformed.", comparedLiteral);
                 return ERROR_DISTANCE;
             }
-            result = numericDistance(primaryValue, comparedValue);
+            result = numericDistance(primaryValueDouble, comparedValueDouble);
+            break;
+        case TIME:
+            result = timeDistance(primaryLiteral, comparedLiteral);
             break;
         case DATE:
-            // TODO
+            result = dateDistance(primaryLiteral, comparedLiteral);
+            break;
         case BOOLEAN:
             result = (Utils.convertToBoolean(primaryLiteral) == Utils.convertToBoolean(comparedLiteral))
                     ? MIN_DISTANCE
@@ -137,6 +158,101 @@ class DistanceMetricImpl implements DistanceMetric {
         result = Math.abs(result);
         // result /= SQRT_OF_TWO;
         return Math.min(result, MAX_DISTANCE);
+    }
+
+    /**
+     * Returns the value of a literal as an XSDDateTime instance if possible, otherwise return null.
+     * @param literal a literal representing date/time
+     * @return the value of the literal as XSDDateTime or null
+     */
+    private XSDDateTime getDateTimeValue(LiteralLabel literal) {
+        if (literal.isWellFormed() && literal.getValue() instanceof XSDDateTime) {
+            return (XSDDateTime) literal.getValue();
+        } else if (literal.getDatatypeURI() != null) {
+            try {
+                RDFDatatype datatype = TypeMapper.getInstance().getSafeTypeByName(literal.getDatatypeURI());
+                Object value = datatype.parse(literal.getLexicalForm());
+                if (value instanceof XSDDateTime) {
+                    return (XSDDateTime) value;
+                }
+            } catch (JenaException e) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Calculates a distance metric between two time values.
+     * The maximum distance is reached with difference of one day.
+     * If value types are incompatible or conversion fails, {@value #ERROR_DISTANCE} is returned.
+     * @see #distance(Node, Node)
+     * @param primaryValue first of the compared values
+     * @param comparedValue second of the compared values
+     * @return a number from interval [0,1]
+     */
+    private double timeDistance(LiteralLabel primaryValue, LiteralLabel comparedValue) {
+        String primaryDatatypeURI = primaryValue.getDatatypeURI();
+        String comparedDatatypeURI = comparedValue.getDatatypeURI();
+        if (XMLSchema.timeType.equals(primaryDatatypeURI) && XMLSchema.timeType.equals(comparedDatatypeURI)) {
+            try {
+                XSDDateTime primaryValueTime = getDateTimeValue(primaryValue);
+                XSDDateTime comparedValueTime = getDateTimeValue(comparedValue);
+                if (primaryValueTime == null || comparedValueTime == null) {
+                    LOG.warn("Time value '{}' or '{}' is malformed.", primaryValue, comparedValue);
+                    return ERROR_DISTANCE;
+                }
+                double difference = Math.abs(primaryValueTime.getTimePart() - comparedValueTime.getTimePart());
+                double result = difference / SECONDS_IN_DAY;
+                assert MIN_DISTANCE <= result && result <= MAX_DISTANCE;
+                return result;
+            } catch (JenaException e) {
+                LOG.warn("Time value '{}' or '{}' is malformed.", primaryValue, comparedValue);
+                return ERROR_DISTANCE;
+            }
+        } else {
+            LOG.warn("Time literals '{}' and '{}' have incompatible types.", primaryValue, comparedValue);
+            return ERROR_DISTANCE;
+        }
+    }
+
+    /**
+     * Calculates a distance metric between two dates.
+     * The maximum distance is reached with {@value #MAX_DATE_DIFFERENCE}.
+     * If value types are incompatible or conversion fails, {@value #ERROR_DISTANCE} is returned.
+     * @see #distance(Node, Node)
+     * @param primaryValue first of the compared values
+     * @param comparedValue second of the compared values
+     * @return a number from interval [0,1]
+     */
+    private double dateDistance(LiteralLabel primaryValue, LiteralLabel comparedValue) {
+        String primaryDatatypeURI = primaryValue.getDatatypeURI();
+        String comparedDatatypeURI = comparedValue.getDatatypeURI();
+        // CHECKSTYLE:OFF
+        if ((XMLSchema.dateTimeType.equals(primaryDatatypeURI) || XMLSchema.dateType.equals(primaryDatatypeURI))
+                && (XMLSchema.dateTimeType.equals(comparedDatatypeURI) || XMLSchema.dateType.equals(comparedDatatypeURI))) {
+            // CHECKSTYLE:ON
+            try {
+                XSDDateTime primaryValueTime = getDateTimeValue(primaryValue);
+                XSDDateTime comparedValueTime = getDateTimeValue(comparedValue);
+                if (primaryValueTime == null || comparedValueTime == null) {
+                    LOG.warn("Date value '{}' or '{}' is malformed.", primaryValue, comparedValue);
+                    return ERROR_DISTANCE;
+                }
+                double differenceInSeconds = Math.abs(primaryValueTime.asCalendar().getTimeInMillis()
+                        - comparedValueTime.asCalendar().getTimeInMillis()) / MILLIS_IN_SECOND;
+                double result = (MAX_DISTANCE - MIN_DISTANCE) * differenceInSeconds / MAX_DATE_DIFFERENCE;
+                result = Math.min(result, MAX_DISTANCE);
+                assert MIN_DISTANCE <= result && result <= MAX_DISTANCE;
+                return result;
+            } catch (JenaException e) {
+                LOG.warn("Date value '{}' or '{}' is malformed.", primaryValue, comparedValue);
+                return ERROR_DISTANCE;
+            }
+        } else {
+            LOG.warn("Date literals '{}' and '{}' have incompatible types.", primaryValue, comparedValue);
+            return ERROR_DISTANCE;
+        }
     }
 
     /**

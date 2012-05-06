@@ -15,6 +15,9 @@ public enum EnumLiteralType {
     /** Date type. */
     DATE,
 
+    /** Time type. */
+    TIME,
+
     /** Boolean type. */
     BOOLEAN,
 

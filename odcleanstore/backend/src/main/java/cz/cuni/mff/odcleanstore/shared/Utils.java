@@ -52,14 +52,16 @@ public final class Utils {
             return EnumLiteralType.NUMERIC;
         } else if (literal.isWellFormed() && literal.getDatatype() instanceof XSDAbstractDateTimeType) {
             // Optimization, test not necessary
-            return EnumLiteralType.DATE;
+            return datatypeURI.equals(XMLSchema.timeType) ? EnumLiteralType.TIME : EnumLiteralType.DATE;
         } else if (datatypeURI.equals(XMLSchema.booleanType)) {
             return EnumLiteralType.BOOLEAN;
         } else if (datatypeURI.equals(XMLSchema.stringType)) {
             return EnumLiteralType.STRING;
-        } else if (datatypeURI.equals(XMLSchema.dateType)
-                || datatypeURI.equals(XMLSchema.timeType)) {
+        } else if (datatypeURI.equals(XMLSchema.dateTimeType)
+                || datatypeURI.equals(XMLSchema.dateType)) {
             return EnumLiteralType.DATE;
+        } else if (datatypeURI.equals(XMLSchema.timeType)) {
+            return EnumLiteralType.TIME;
         } else if (datatypeURI.equals(XMLSchema.integerType)
                 || datatypeURI.equals(XMLSchema.intType)
                 || datatypeURI.equals(XMLSchema.longType)

@@ -161,7 +161,7 @@ public class HTMLFormatter extends ResultFormatterBase {
 				writer.write("<a href=\"/");
 				writer.write(Engine.USER_SERVICE_KEYWORD_PATH);
 				writer.write("?find=");
-				writer.write(URLEncoder.encode('"' + node.getLiteralLexicalForm() + '"', "UTF-8"));
+				writer.write(URLEncoder.encode(node.getLiteralLexicalForm(), "UTF-8"));
 				writer.write("&amp;at=");
 				writer.write(queryResult.getAggregationSpec().getDefaultAggregation().name());
 				writer.write("\">");
