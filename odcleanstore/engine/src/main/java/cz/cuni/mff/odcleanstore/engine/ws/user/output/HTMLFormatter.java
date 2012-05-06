@@ -2,14 +2,18 @@ package cz.cuni.mff.odcleanstore.engine.ws.user.output;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.net.URLEncoder;
 
 import org.restlet.data.CharacterSet;
 import org.restlet.data.MediaType;
 import org.restlet.representation.Representation;
 import org.restlet.representation.WriterRepresentation;
 
+import com.hp.hpl.jena.graph.Node;
+
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
+import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryResult;
 
 /**
@@ -75,11 +79,11 @@ public class HTMLFormatter extends ResultFormatterBase {
 			writer.write("  <tr><th>Subject</th><th>Predicate</th><th>Object</th><th>Quality</th><th>Source named graphs</th></tr>\n");
 			for (CRQuad crQuad : queryResult.getResultQuads()) {
 				writer.write("  <tr><td>");
-				writer.write(crQuad.getQuad().getSubject().toString());
+				writeNode(writer, crQuad.getQuad().getSubject());
 				writer.write("</td><td>");
 				writer.write(crQuad.getQuad().getPredicate().toString());
 				writer.write("</td><td>");
-				writer.write(crQuad.getQuad().getObject().toString());
+				writeNode(writer, crQuad.getQuad().getObject());
 				writer.write("</td><td>");
 				writer.write(String.format("%.5f", crQuad.getQuality()));
 				writer.write("</td><td>");
@@ -137,6 +141,36 @@ public class HTMLFormatter extends ResultFormatterBase {
 			writer.write("\n</body>\n</html>");
 		}
 		
+		/**
+		 * Write a single node.
+		 * @param writer output writer
+		 * @throws IOException if an I/O error occurs
+		 */
+		private void writeNode(Writer writer, Node node) throws IOException {
+			if (node.isURI()) {
+				writer.write("<a href=\"/");
+				writer.write(Engine.USER_SERVICE_URI_PATH);
+				writer.write("?find=");
+				writer.write(URLEncoder.encode(node.getURI(), "UTF-8"));
+				writer.write("&amp;at=");
+				writer.write(queryResult.getAggregationSpec().getDefaultAggregation().name());
+				writer.write("\">");
+				writer.write(node.toString());
+				writer.write("</a>");
+			} else if (node.isLiteral()) {
+				writer.write("<a href=\"/");
+				writer.write(Engine.USER_SERVICE_KEYWORD_PATH);
+				writer.write("?find=");
+				writer.write(URLEncoder.encode('"' + node.getLiteralLexicalForm() + '"', "UTF-8"));
+				writer.write("&amp;at=");
+				writer.write(queryResult.getAggregationSpec().getDefaultAggregation().name());
+				writer.write("\">");
+				writer.write(node.toString());
+				writer.write("</a>");
+			} else {
+				writer.write(node.toString());
+			}
+		}
 	}
 	
 	@Override
