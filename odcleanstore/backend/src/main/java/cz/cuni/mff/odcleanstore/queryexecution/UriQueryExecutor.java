@@ -5,20 +5,15 @@ import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverSpec;
-import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
-import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
-import cz.cuni.mff.odcleanstore.data.QuadCollection;
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 import cz.cuni.mff.odcleanstore.vocabulary.DC;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 import cz.cuni.mff.odcleanstore.vocabulary.W3P;
-import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 
 import com.hp.hpl.jena.graph.Triple;
 
@@ -30,11 +25,9 @@ import org.slf4j.LoggerFactory;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
@@ -51,37 +44,13 @@ import java.util.Set;
     private static final Logger LOG = LoggerFactory.getLogger(UriQueryExecutor.class);
 
     /**
-     * SPARQL snippet restricting result to ?graph having at least the given score.
-     * Even though the score must be present, the pattern wouldn't work without OPTIONAL
-     * (probably due to Virtuoso inference processing).
-     * Must be formatted with the score as an argument.
-     */
-    private static final String SCORE_FILTER_CLAUSE = " OPTIONAL { ?graph <" + ODCS.score + "> ?_score }"
-            + " FILTER(?_score >= %f)";
-
-    /**
-     * SPARQL snippet restricting result to ?graph having at least the given inserted at date.
-     * Even though the score must be present, the pattern wouldn't work without OPTIONAL
-     * (probably due to Virtuoso inference processing).
-     * Must be formatted with the date given as an argument.
-     */
-    private static final String INSERTED_AT_FILTER_CLAUSE = " OPTIONAL { ?graph <" + W3P.insertedAt + "> ?_insertedAt }"
-            + " FILTER(?_insertedAt >= \"%s\"^^<" + XMLSchema.dateTimeType + ">)";
-
-    /**
-     * SPARQL snippet restricting a variable to start with the given string.
-     * Must be formatted with a string argument.
-     */
-    private static final String PREFIX_FILTER_CLAUSE = " FILTER regex(?%s, \"^%s\")";
-
-    /**
      * SPARQL query that gets the main result quads.
      * Use of UNION instead of a more complex filter is to make owl:sameAs inference in Virtuoso work.
      * The subquery is necessary to make Virtuoso translate subjects/objects to a single owl:sameAs equivalent.
      * This way we don't need to obtain owl:sameAs links for subjects/objects (passed to ConflictResolverSpec) from
-     *  the database explicitly.
+     * the database explicitly.
      *
-     * The query must be formatted with these arguments: URI, graph filter clause, limit
+     * The query must be formatted with these arguments: (1) URI, (2) graph filter clause, (3) limit
      *
      * TODO: it seemed to perform faster with OPTIONAL clauses for time and score - check it
      * TODO: explore using REDUCED instead of DISTINCT
@@ -120,8 +89,8 @@ import java.util.Set;
      * Returns only links for properties explicitly listed in aggregation settings.
      * @see #URI_OCCURENCES_QUERY
      *
-     * The query must be formatted with these arguments: URI, graph filter clause,
-     * list of properties (separated by ','), limit
+     *      The query must be formatted with these arguments: (1) URI, (2) graph filter clause,
+     *      (3) list of properties (separated by ','), (4) limit
      */
     private static final String SAME_AS_LINKS_QUERY = "SPARQL"
             + "\n DEFINE input:same-as \"yes\""
@@ -162,7 +131,8 @@ import java.util.Set;
      *
      * OPTIONAL clauses for fetching ?graph properties are necessary (probably due to Virtuoso inference processing).
      *
-     * Must be formatted with arguments: URI, graph filter clause, label properties, resGraph prefix filter, limit
+     * Must be formatted with arguments: (1) URI, (2) graph filter clause, (3) label properties, (4) resGraph prefix
+     * filter, (5) limit
      *
      * TODO: omit metadata for additional labels?
      * TODO: reuse uri query and label query?
@@ -267,7 +237,8 @@ import java.util.Set;
      *
      * For the reason why UNIONs and subqueries are used, see {@link #URI_OCCURENCES_QUERY}.
      *
-     * Must be formatted with arguments: URI, graph filter clause, label properties, ?labelGraph prefix filter, limit.
+     * Must be formatted with arguments: (1) URI, (2) graph filter clause, (3) label properties, (4) ?labelGraph prefix
+     * filter, (5) limit.
      *
      * @see QueryExecutorBase#LABEL_PROPERTIES
      */
@@ -326,17 +297,6 @@ import java.util.Set;
             + "\n }}";
 
     /**
-     * Cached graph filter SPARQL snippet.
-     * Depends only on settings immutable during the instance lifetime and thus can be cached.
-     */
-    private CharSequence graphFilterClause;
-
-    /**
-     * Database connection.
-     */
-    private VirtuosoConnectionWrapper connection;
-
-    /**
      * Creates a new instance of UriQueryExecutor.
      * @param sparqlEndpoint connection settings for the SPARQL endpoint that will be queried
      * @param constraints constraints on triples returned in the result
@@ -357,9 +317,6 @@ import java.util.Set;
      */
     public QueryResult findURI(String uri) throws ODCleanStoreException, URISyntaxException {
         LOG.info("URI query for <{}>", uri);
-        if (GRAPH_PREFIX_FILTER != null) {
-            LOG.warn("Query is limited to named graph starting with '{}'", GRAPH_PREFIX_FILTER);
-        }
         long startTime = System.currentTimeMillis();
         checkValidSettings();
 
@@ -420,80 +377,6 @@ import java.util.Set;
     }
 
     /**
-     * Returns a database connection.
-     * The connection is shared within this instance until it is closed.
-     * @return database connection
-     * @throws ConnectionException database connection error
-     */
-    private VirtuosoConnectionWrapper getConnection() throws ConnectionException {
-        if (connection == null) {
-            connection = VirtuosoConnectionWrapper.createConnection(sparqlEndpoint);
-        }
-        return connection;
-    }
-
-    /**
-     * Closes an opened database connection, if any.
-     * @throws ConnectionException database connection error
-     */
-    private void closeConnection() throws ConnectionException {
-        if (connection != null) {
-            connection.close();
-            connection = null;
-        }
-    }
-
-    /**
-     * Returns a SPARQL query snippet restricting results to ?graph variable containing a named graph URI to
-     * current query constraints. The value is cached.
-     * @return SPARQL query snippet
-     */
-    private CharSequence getGraphFilterClause() {
-        if (graphFilterClause == null) {
-            graphFilterClause = buildGraphFilterClause(constraints);
-        }
-        return graphFilterClause;
-    }
-
-    /**
-     * @see {@link #getGraphFilterClause()}
-     * @param constraints constraints on triples returned in the result
-     * @return SPARQL query snippet
-     */
-    private static CharSequence buildGraphFilterClause(QueryConstraintSpec constraints) {
-        if (constraints.getMinScore() == null && constraints.getOldestTime() == null && GRAPH_PREFIX_FILTER == null) {
-            return "";
-        }
-        StringBuilder sb = new StringBuilder();
-        if (constraints.getMinScore() != null) {
-            sb.append(String.format(Locale.ROOT, SCORE_FILTER_CLAUSE, constraints.getMinScore()));
-        }
-        if (constraints.getOldestTime() != null) {
-            java.sql.Timestamp oldestTime = new Timestamp(constraints.getOldestTime().getTime());
-            sb.append(String.format(Locale.ROOT, INSERTED_AT_FILTER_CLAUSE, oldestTime.toString()));
-        }
-        if (GRAPH_PREFIX_FILTER != null) {
-            sb.append(getGraphPrefixFilter("graph"));
-        }
-        return sb;
-    }
-
-    /**
-     * Returns a SPARQL snippet restricting a named graph URI referenced by the given variable to GRAPH_PREFIX_FILTER.
-     * Returns an empty string if GRAPH_PREFIX_FILTER is null.
-     * @see #GRAPH_PREFIX_FILTER
-     * @param graphVariable SPARQL variable name
-     * @return SPARQL query snippet
-     */
-    private static String getGraphPrefixFilter(String graphVariable) {
-        if (GRAPH_PREFIX_FILTER == null) {
-            return "";
-        } else {
-            return String.format(Locale.ROOT, PREFIX_FILTER_CLAUSE, graphVariable, GRAPH_PREFIX_FILTER);
-        }
-    }
-
-    /**
      * Creates an object holding the results of the query.
      * @param resultQuads result of the query as {@link CRQuad CRQuads}
      * @param metadata provenance metadata for resultQuads
@@ -520,44 +403,44 @@ import java.util.Set;
      * @throws ODCleanStoreException query error
      */
     private Collection<Quad> getURIOccurrences(String uri) throws ODCleanStoreException {
-        long startTime = System.currentTimeMillis();
-
         String query = String.format(URI_OCCURENCES_QUERY, uri, getGraphFilterClause(), MAX_LIMIT);
-        WrappedResultSet resultSet = getConnection().executeSelect(query);
-        LOG.debug("Query Execution: getURIOccurences() query took {} ms", System.currentTimeMillis() - startTime);
+        return getQuadsFromQuery(query, "getURIOccurrences()");
+    }
 
-        try {
-            QuadCollection quads = new QuadCollection();
-            while (resultSet.next()) {
-                // CHECKSTYLE:OFF
-                Quad quad = new Quad(
-                        resultSet.getNode(1),
-                        resultSet.getNode(2),
-                        resultSet.getNode(3),
-                        resultSet.getNode(4));
-                quads.add(quad);
-                // CHECKSTYLE:ON
-            }
+    /**
+     * Return labels of resources returned by {{@link #getURIOccurrences(String)} as quads.
+     * @param uri searched URI
+     * @return labels as quads
+     * @throws ODCleanStoreException query error
+     */
+    private Collection<Quad> getLabels(String uri) throws ODCleanStoreException {
+        String query = String.format(Locale.ROOT, LABELS_QUERY, uri, getGraphFilterClause(), LABEL_PROPERTIES_LIST,
+                getGraphPrefixFilter("labelGraph"), MAX_LIMIT);
+        return getQuadsFromQuery(query, "getLabels()");
+    }
 
-            LOG.debug("Query Execution: getURIOccurrences() in {} ms", System.currentTimeMillis() - startTime);
-            return quads;
-        } catch (SQLException e) {
-            throw new QueryException(e);
-        } finally {
-            resultSet.closeQuietly();
-        }
+    /**
+     * Return metadata for named graphs containing quads returned in the result.
+     * @param uri searched URI
+     * @return metadata of result named graphs
+     * @throws ODCleanStoreException query error
+     */
+    private NamedGraphMetadataMap getMetadata(String uri) throws ODCleanStoreException {
+        String query = String.format(Locale.ROOT, METADATA_QUERY, uri, getGraphFilterClause(),
+                LABEL_PROPERTIES_LIST, getGraphPrefixFilter("resGraph"), MAX_LIMIT);
+        return getMetadataFromQuery(query, "getMetadata()");
     }
 
     /**
      * Returns owl:sameAs links relevant for conflict resolution for this query.
      * Returns only links for properties explicitly listed in aggregation settings;
      * other links (e.g. between subjects/objects in the result) are resolved by Virtuoso.
-     * @see #URI_OCCURENCES_QUERY
-     * @param uri searched URI
+     * @see #KEYWORD_OCCURENCES_QUERY
+     * @param keywords searched keywords (separated by whitespace)
      * @return collection of relevant owl:sameAs links
      * @throws ODCleanStoreException query error
      */
-    private Collection<Triple> getSameAsLinks(String uri) throws ODCleanStoreException {
+    private Collection<Triple> getSameAsLinks(String keywords) throws ODCleanStoreException {
         Set<String> aggregationProperties = aggregationSpec.getPropertyAggregations() == null
                 ? Collections.<String>emptySet()
                 : aggregationSpec.getPropertyAggregations().keySet();
@@ -588,7 +471,7 @@ import java.util.Set;
         }
         assert properties.length() >= separator.length(); // there is at least one property
         properties.setLength(properties.length() - separator.length()); // trim the last separator
-        String query = String.format(SAME_AS_LINKS_QUERY, uri, getGraphFilterClause(), properties, MAX_LIMIT);
+        String query = String.format(SAME_AS_LINKS_QUERY, keywords, getGraphFilterClause(), properties, MAX_LIMIT);
 
         // Execute query
         WrappedResultSet resultSet = getConnection().executeSelect(query);
@@ -607,99 +490,6 @@ import java.util.Set;
 
             LOG.debug("Query Execution: getSameAsLinks() in {} ms", System.currentTimeMillis() - startTime);
             return sameAsTriples;
-        } catch (SQLException e) {
-            throw new QueryException(e);
-        } finally {
-            resultSet.closeQuietly();
-        }
-    }
-
-    /**
-     * Return labels of resources returned by {{@link #getURIOccurrences(String)}} as quads.
-     * @param uri searched URI
-     * @return labels as quads
-     * @throws ODCleanStoreException query error
-     */
-    private Collection<Quad> getLabels(String uri) throws ODCleanStoreException {
-        long startTime = System.currentTimeMillis();
-
-        String query = String.format(Locale.ROOT, LABELS_QUERY, uri, getGraphFilterClause(), LABEL_PROPERTIES_LIST,
-                getGraphPrefixFilter("labelGraph"), MAX_LIMIT);
-        WrappedResultSet resultSet = getConnection().executeSelect(query);
-        LOG.debug("Query Execution: getLabels() query took {} ms", System.currentTimeMillis() - startTime);
-
-        try {
-            QuadCollection quads = new QuadCollection();
-            while (resultSet.next()) {
-                Quad quad = new Quad(
-                        resultSet.getNode("labelGraph"),
-                        resultSet.getNode("r"),
-                        resultSet.getNode("labelProp"),
-                        resultSet.getNode("label"));
-                quads.add(quad);
-            }
-
-            LOG.debug("Query Execution: getLabels() in {} ms", System.currentTimeMillis() - startTime);
-            return quads;
-        } catch (SQLException e) {
-            throw new QueryException(e);
-        } finally {
-            resultSet.closeQuietly();
-        }
-    }
-
-    /**
-     * Return metadata for named graphs containing quads returned in the result.
-     * @param uri searched URI
-     * @return metadata of result named graphs
-     * @throws ODCleanStoreException query error
-     */
-    private NamedGraphMetadataMap getMetadata(String uri)
-            throws ODCleanStoreException {
-
-        long startTime = System.currentTimeMillis();
-        // Execute the query
-        String query = String.format(Locale.ROOT, METADATA_QUERY, uri, getGraphFilterClause(),
-                LABEL_PROPERTIES_LIST, getGraphPrefixFilter("resGraph"), MAX_LIMIT);
-
-        WrappedResultSet resultSet = getConnection().executeSelect(query);
-        LOG.debug("Query Execution: getMetadata() query took {} ms", System.currentTimeMillis() - startTime);
-
-        // Build the result
-        try {
-            NamedGraphMetadataMap metadata = new NamedGraphMetadataMap();
-            while (resultSet.next()) {
-                NamedGraphMetadata graphMetadata = new NamedGraphMetadata(resultSet.getString("resGraph"));
-
-                try {
-                    String source = resultSet.getString("source");
-                    graphMetadata.getSource(source);
-
-                    Double score = resultSet.getDouble("score");
-                    graphMetadata.setScore(score);
-
-                    Date insertedAt = resultSet.getJavaDate("insertedAt");
-                    graphMetadata.setInsertedAt(insertedAt);
-
-                    String insertedBy = resultSet.getString("insertedBy");
-                    graphMetadata.setInsertedBy(insertedBy);
-
-                    String license = resultSet.getString("license");
-                    graphMetadata.setLicence(license);
-
-                    String publishedBy = resultSet.getString("publishedBy");
-                    graphMetadata.setPublisher(publishedBy);
-
-                    Double publisherScore = resultSet.getDouble("publisherScore");
-                    graphMetadata.setPublisherScore(publisherScore);
-                } catch (SQLException e) {
-                    LOG.warn("Query Execution: invalid metadata for graph {}", graphMetadata.getNamedGraphURI());
-                }
-
-                metadata.addMetadata(graphMetadata);
-            }
-            LOG.debug("Query Execution: getMetadata() in {} ms", System.currentTimeMillis() - startTime);
-            return metadata;
         } catch (SQLException e) {
             throw new QueryException(e);
         } finally {
