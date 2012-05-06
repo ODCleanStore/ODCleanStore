@@ -1,56 +1,39 @@
 package cz.cuni.mff.odcleanstore.linker.impl;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import cz.cuni.mff.odcleanstore.data.RDFprefix;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
+import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
+import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
+import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
 
 public class LinkerDao {
 	
 	private static LinkerDao dao;
-	private static Connection connection;
+	private static VirtuosoConnectionWrapper connection;
 	
-	private LinkerDao(SparqlEndpoint endpoint) throws SQLException {
-		connection = DriverManager.getConnection(endpoint.getUri(), endpoint.getUsername(), endpoint.getPassword());
+	private LinkerDao(SparqlEndpoint endpoint) throws ConnectionException {
+		connection = VirtuosoConnectionWrapper.createConnection(endpoint);
 	}
 	
-	public static LinkerDao getInstance(SparqlEndpoint endpoint) throws SQLException {
+	public static LinkerDao getInstance(SparqlEndpoint endpoint) throws ConnectionException {
 		if (dao == null) {
 			return new LinkerDao(endpoint);
 		}
 		return dao;
 	}
 	
-	public List<String> loadRules(String[] groups) throws SQLException {
+	public List<String> loadRules(String[] groups) throws QueryException, SQLException {
 		List<String> ruleList = new ArrayList<String>();
-		Statement stmt = null;
-		ResultSet resultSet = null;
-		try {
-			stmt = connection.createStatement();
-			resultSet = stmt.executeQuery("select definition from OI_RULES where groupId in " + createInPart(groups));
-			while (resultSet.next()) {
-				ruleList.add(resultSet.getString("definition"));
-			}
-		} catch (SQLException e) {
-			throw e;
-		} finally {
-			if (stmt != null) {
-				try {
-					stmt.close();
-				} catch (SQLException e) {}
-			}
-			if (resultSet != null) {
-				try {
-					resultSet.close();
-				} catch (SQLException e) {}
-			}
+		WrappedResultSet resultSet = connection.executeSelect("select blob_to_string(definition) from DB.FRONTEND.OI_RULES where groupId in "
+																+ createInPart(groups));
+		while (resultSet.next()) {
+			ruleList.add(resultSet.getString(1));
 		}
+		resultSet.closeQuietly();
 		
 		return ruleList;
 	}
@@ -61,33 +44,5 @@ public class LinkerDao {
 			result += group + ",";
 		}
 		return result.substring(0, result.length()-1) + ")";
-	}
-	
-	public List<RDFprefix> loadPrefixes() throws SQLException {
-		List<RDFprefix> prefixList = new ArrayList<RDFprefix>();
-		Statement stmt = null;
-		ResultSet resultSet = null;
-		try {
-			stmt = connection.createStatement();
-			resultSet = stmt.executeQuery("select * from DB.DBA.SYS_XML_PERSISTENT_NS_DECL");
-			while (resultSet.next()) {
-				RDFprefix prefix = new RDFprefix(resultSet.getString("NS_PREFIX"), resultSet.getString("NS_URL"));
-				prefixList.add(prefix);
-			}
-		} catch (SQLException e) {
-			throw e;
-		} finally {
-			if (stmt != null) {
-				try {
-					stmt.close();
-				} catch (SQLException e) {}
-			}
-			if (resultSet != null) {
-				try {
-					resultSet.close();
-				} catch (SQLException e) {}
-			}
-		}
-		return prefixList;
 	}
 }

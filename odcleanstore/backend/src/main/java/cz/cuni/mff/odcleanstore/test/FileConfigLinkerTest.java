@@ -28,7 +28,7 @@ public class FileConfigLinkerTest {
         }
 		File transformerDirectory = new File(args[0]);
 		Linker linker = new LinkerImpl();
-		TransformationContext context = new TransformationContextTestImpl(transformerDirectory);
+		TransformationContext context = new TransformationContextTestImpl(transformerDirectory, null, null);
 		linker.linkByConfigFiles(context);
 	}
 }

@@ -16,33 +16,34 @@ import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 
 public class TransformationContextTestImpl implements TransformationContext {
 	
-	private File transformerDirectory;
+	private File directory;
+	private String config;
+	private SparqlEndpoint endpoint;
 	
-	TransformationContextTestImpl(File transformerDirectory) {
-		this.transformerDirectory = transformerDirectory;
+	TransformationContextTestImpl(File directory, String config, SparqlEndpoint endpoint) {
+		this.directory = directory;
+		this.config = config;
+		this.endpoint = endpoint;
 	}
 	
 	@Override
 	public SparqlEndpoint getDirtyDatabaseEndpoint() {
-		// TODO Auto-generated method stub
-		return null;
+		return endpoint;
 	}
 
 	@Override
 	public SparqlEndpoint getCleanDatabaseEndpoint() {
-		// TODO Auto-generated method stub
-		return null;
+		return endpoint;
 	}
 
 	@Override
 	public String getTransformerConfiguration() {
-		// TODO Auto-generated method stub
-		return null;
+		return config;
 	}
 
 	@Override
 	public File getTransformerDirectory() {
-		return transformerDirectory;
+		return directory;
 	}
 
 	@Override
