@@ -11,13 +11,18 @@ public class UserRowMapper implements ParameterizedRowMapper<User>
 {
 	public User mapRow(ResultSet rs, int rowNum) throws SQLException 
 	{
-		return new User(
+		User user = new User(
 			rs.getLong("id"),
 			rs.getString("username"),
 			rs.getString("email"),
 			rs.getString("firstname"),
 			rs.getString("surname")
 		);
+		
+		user.setPasswordHash(rs.getString("passwordHash"));
+		user.setSalt(rs.getString("salt"));
+		
+		return user;
 	}
 }
 

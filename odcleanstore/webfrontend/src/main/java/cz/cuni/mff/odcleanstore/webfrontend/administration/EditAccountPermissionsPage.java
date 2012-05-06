@@ -20,7 +20,9 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.RoleDao;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 
+@AuthorizeInstantiation({ "ADM" })
 public class EditAccountPermissionsPage extends FrontendPage
 {
 	private static Logger logger = Logger.getLogger(EditAccountPermissionsPage.class);

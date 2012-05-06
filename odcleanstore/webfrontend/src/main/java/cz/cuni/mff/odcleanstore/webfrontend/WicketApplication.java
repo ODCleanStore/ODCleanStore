@@ -1,5 +1,8 @@
 package cz.cuni.mff.odcleanstore.webfrontend;
 
+import org.apache.wicket.authroles.authentication.AbstractAuthenticatedWebSession;
+import org.apache.wicket.authroles.authentication.AuthenticatedWebApplication;
+import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.spring.ISpringContextLocator;
 import org.springframework.context.ApplicationContext;
@@ -11,7 +14,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.configuration.Configuration;
  * Web Frontend Application object.
  * 
  */
-public class WicketApplication extends WebApplication 
+public class WicketApplication extends AuthenticatedWebApplication 
 {
 	private static final String SPRING_CONFIG_LOCATION = "./config/spring.xml";
 	
@@ -39,6 +42,18 @@ public class WicketApplication extends WebApplication
 		return HomePage.class;
 	}
 
+	@Override
+	protected Class<? extends AbstractAuthenticatedWebSession> getWebSessionClass() 
+	{
+		return WicketSession.class;
+	}
+
+	@Override
+	protected Class<? extends WebPage> getSignInPageClass() 
+	{
+		return LogInPage.class;
+	}
+	
 	@Override
 	public void init() 
 	{

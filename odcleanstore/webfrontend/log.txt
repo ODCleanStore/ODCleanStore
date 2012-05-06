@@ -1,91 +1,53 @@
-DEBUG - 01. 05. 12, 15:31:53,740 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Loading all registered users.
-DEBUG - 01. 05. 12, 15:31:53,741 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user rows.
-DEBUG - 01. 05. 12, 15:31:53,839 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching role rows.
-DEBUG - 01. 05. 12, 15:31:53,844 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user-to-role mapping
-DEBUG - 01. 05. 12, 15:31:53,847 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Registered users successfuly loaded.
-DEBUG - 01. 05. 12, 15:31:55,352 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Loading registered user: 1
-DEBUG - 01. 05. 12, 15:31:55,406 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching role rows.
-DEBUG - 01. 05. 12, 15:31:55,410 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user-to-role mapping for user: 1
-DEBUG - 01. 05. 12, 15:31:59,689 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Updating user: 1
-DEBUG - 01. 05. 12, 15:31:59,690 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Updating user properties for user: 1
-DEBUG - 01. 05. 12, 15:32:57,907 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Loading all registered users.
-DEBUG - 01. 05. 12, 15:32:57,924 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user rows.
-DEBUG - 01. 05. 12, 15:32:58,038 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching role rows.
-DEBUG - 01. 05. 12, 15:32:58,042 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user-to-role mapping
-DEBUG - 01. 05. 12, 15:32:58,045 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Registered users successfuly loaded.
-DEBUG - 01. 05. 12, 15:33:00,449 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Loading registered user: 1
-DEBUG - 01. 05. 12, 15:33:00,458 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching role rows.
-DEBUG - 01. 05. 12, 15:33:00,460 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user-to-role mapping for user: 1
-DEBUG - 01. 05. 12, 15:33:03,817 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Updating user: 1
-DEBUG - 01. 05. 12, 15:33:03,818 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Updating user properties for user: 1
-DEBUG - 01. 05. 12, 15:33:03,880 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Clearing roles-to-users mapping for user: 1
-DEBUG - 01. 05. 12, 15:33:45,576 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Loading all registered users.
-DEBUG - 01. 05. 12, 15:33:45,577 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user rows.
-DEBUG - 01. 05. 12, 15:33:45,657 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching role rows.
-DEBUG - 01. 05. 12, 15:33:45,662 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user-to-role mapping
-DEBUG - 01. 05. 12, 15:33:45,665 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Registered users successfuly loaded.
-DEBUG - 01. 05. 12, 15:33:47,065 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Loading registered user: 1
-DEBUG - 01. 05. 12, 15:33:47,081 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching role rows.
-DEBUG - 01. 05. 12, 15:33:47,082 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user-to-role mapping for user: 1
-DEBUG - 01. 05. 12, 15:33:51,997 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Updating user: 1
-DEBUG - 01. 05. 12, 15:33:51,998 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Updating user properties for user: 1
-DEBUG - 01. 05. 12, 15:33:52,003 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Clearing roles-to-users mapping for user: 1
-DEBUG - 01. 05. 12, 15:33:52,005 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Adding configured roles to roles-to-users mapping for user: 1
-DEBUG - 01. 05. 12, 15:33:52,111 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Loading all registered users.
-DEBUG - 01. 05. 12, 15:33:52,113 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user rows.
-DEBUG - 01. 05. 12, 15:33:52,116 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching role rows.
-DEBUG - 01. 05. 12, 15:33:52,120 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user-to-role mapping
-DEBUG - 01. 05. 12, 15:33:52,122 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Registered users successfuly loaded.
-DEBUG - 01. 05. 12, 15:33:58,046 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Loading all registered users.
-DEBUG - 01. 05. 12, 15:33:58,046 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user rows.
-DEBUG - 01. 05. 12, 15:33:58,049 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching role rows.
-DEBUG - 01. 05. 12, 15:33:58,052 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user-to-role mapping
-DEBUG - 01. 05. 12, 15:33:58,054 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Registered users successfuly loaded.
-DEBUG - 01. 05. 12, 15:33:59,726 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Loading registered user: 1
-DEBUG - 01. 05. 12, 15:33:59,729 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching role rows.
-DEBUG - 01. 05. 12, 15:33:59,730 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user-to-role mapping for user: 1
-DEBUG - 01. 05. 12, 15:34:02,674 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Updating user: 1
-DEBUG - 01. 05. 12, 15:34:02,675 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Updating user properties for user: 1
-DEBUG - 01. 05. 12, 15:34:02,680 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Clearing roles-to-users mapping for user: 1
-DEBUG - 01. 05. 12, 15:34:02,700 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Adding configured roles to roles-to-users mapping for user: 1
-DEBUG - 01. 05. 12, 15:34:02,789 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Loading all registered users.
-DEBUG - 01. 05. 12, 15:34:02,790 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user rows.
-DEBUG - 01. 05. 12, 15:34:02,794 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching role rows.
-DEBUG - 01. 05. 12, 15:34:02,805 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user-to-role mapping
-DEBUG - 01. 05. 12, 15:34:02,806 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Registered users successfuly loaded.
-DEBUG - 01. 05. 12, 15:34:03,924 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Loading registered user: 2
-DEBUG - 01. 05. 12, 15:34:03,953 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching role rows.
-DEBUG - 01. 05. 12, 15:34:03,955 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user-to-role mapping for user: 2
-DEBUG - 01. 05. 12, 15:34:06,461 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Updating user: 2
-DEBUG - 01. 05. 12, 15:34:06,462 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Updating user properties for user: 2
-DEBUG - 01. 05. 12, 15:34:06,477 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Clearing roles-to-users mapping for user: 2
-DEBUG - 01. 05. 12, 15:34:06,506 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Adding configured roles to roles-to-users mapping for user: 2
-DEBUG - 01. 05. 12, 15:34:06,636 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Loading all registered users.
-DEBUG - 01. 05. 12, 15:34:06,637 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user rows.
-DEBUG - 01. 05. 12, 15:34:06,641 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching role rows.
-DEBUG - 01. 05. 12, 15:34:06,646 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user-to-role mapping
-DEBUG - 01. 05. 12, 15:34:06,649 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Registered users successfuly loaded.
-DEBUG - 01. 05. 12, 15:34:07,867 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Loading registered user: 2
-DEBUG - 01. 05. 12, 15:34:07,869 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching role rows.
-DEBUG - 01. 05. 12, 15:34:07,870 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user-to-role mapping for user: 2
-DEBUG - 01. 05. 12, 15:34:10,037 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Updating user: 2
-DEBUG - 01. 05. 12, 15:34:10,038 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Updating user properties for user: 2
-DEBUG - 01. 05. 12, 15:34:10,052 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Clearing roles-to-users mapping for user: 2
-DEBUG - 01. 05. 12, 15:34:10,057 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Adding configured roles to roles-to-users mapping for user: 2
-DEBUG - 01. 05. 12, 15:34:10,211 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Loading all registered users.
-DEBUG - 01. 05. 12, 15:34:10,211 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user rows.
-DEBUG - 01. 05. 12, 15:34:10,214 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching role rows.
-DEBUG - 01. 05. 12, 15:34:10,219 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user-to-role mapping
-DEBUG - 01. 05. 12, 15:34:10,222 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Registered users successfuly loaded.
-DEBUG - 01. 05. 12, 15:34:13,774 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Loading registered user: 1
-DEBUG - 01. 05. 12, 15:34:13,781 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching role rows.
-DEBUG - 01. 05. 12, 15:34:13,784 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user-to-role mapping for user: 1
-DEBUG - 01. 05. 12, 15:34:16,028 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Updating user: 1
-DEBUG - 01. 05. 12, 15:34:16,028 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Updating user properties for user: 1
-DEBUG - 01. 05. 12, 15:34:16,032 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Clearing roles-to-users mapping for user: 1
-DEBUG - 01. 05. 12, 15:34:16,034 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Adding configured roles to roles-to-users mapping for user: 1
-DEBUG - 01. 05. 12, 15:34:16,120 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Loading all registered users.
-DEBUG - 01. 05. 12, 15:34:16,121 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user rows.
-DEBUG - 01. 05. 12, 15:34:16,126 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching role rows.
-DEBUG - 01. 05. 12, 15:34:16,129 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user-to-role mapping
-DEBUG - 01. 05. 12, 15:34:16,132 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Registered users successfuly loaded.
+DEBUG - 06. 05. 12, 15:23:54,205 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching role rows.
+DEBUG - 06. 05. 12, 15:23:54,212 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user-to-role mapping for user: 4
+DEBUG - 06. 05. 12, 15:24:39,089 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching role rows.
+DEBUG - 06. 05. 12, 15:24:39,095 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user-to-role mapping for user: 4
+DEBUG - 06. 05. 12, 15:25:41,650 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching role rows.
+DEBUG - 06. 05. 12, 15:25:41,663 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user-to-role mapping for user: 4
+DEBUG - 06. 05. 12, 15:25:41,675 - cz.cuni.mff.odcleanstore.webfrontend.LogInForm - calculated hash: 0ca0eb4170be964e15a9ff6c1d02e831
+DEBUG - 06. 05. 12, 15:25:41,678 - cz.cuni.mff.odcleanstore.webfrontend.LogInForm - stored hash: f33b354b1a67af018bf7725049ad1036
+DEBUG - 06. 05. 12, 15:25:46,234 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching role rows.
+DEBUG - 06. 05. 12, 15:25:46,236 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user-to-role mapping for user: 4
+DEBUG - 06. 05. 12, 15:30:25,056 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching role rows.
+DEBUG - 06. 05. 12, 15:30:25,059 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user-to-role mapping for user: 1
+DEBUG - 06. 05. 12, 15:30:25,063 - cz.cuni.mff.odcleanstore.webfrontend.LogInForm - calculated hash: c320fb1f8540af628e9e458642afbd03
+DEBUG - 06. 05. 12, 15:30:25,063 - cz.cuni.mff.odcleanstore.webfrontend.LogInForm - stored hash: f33b354b1a67af018bf7725049ad1036
+DEBUG - 06. 05. 12, 15:30:30,684 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching role rows.
+DEBUG - 06. 05. 12, 15:30:30,689 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user-to-role mapping for user: 1
+DEBUG - 06. 05. 12, 15:30:30,692 - cz.cuni.mff.odcleanstore.webfrontend.LogInForm - calculated hash: c320fb1f8540af628e9e458642afbd03
+DEBUG - 06. 05. 12, 15:30:30,693 - cz.cuni.mff.odcleanstore.webfrontend.LogInForm - stored hash: f33b354b1a67af018bf7725049ad1036
+DEBUG - 06. 05. 12, 15:31:05,199 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching role rows.
+DEBUG - 06. 05. 12, 15:31:05,216 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user-to-role mapping for user: 1
+DEBUG - 06. 05. 12, 15:31:11,521 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching role rows.
+DEBUG - 06. 05. 12, 15:31:11,524 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user-to-role mapping for user: 1
+DEBUG - 06. 05. 12, 15:31:18,243 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Loading all registered users.
+DEBUG - 06. 05. 12, 15:31:18,243 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user rows.
+DEBUG - 06. 05. 12, 15:31:18,246 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching role rows.
+DEBUG - 06. 05. 12, 15:31:18,250 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user-to-role mapping
+DEBUG - 06. 05. 12, 15:31:18,349 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Registered users successfuly loaded.
+DEBUG - 06. 05. 12, 15:31:22,233 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Loading registered user: 2
+DEBUG - 06. 05. 12, 15:31:22,236 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching role rows.
+DEBUG - 06. 05. 12, 15:31:22,237 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user-to-role mapping for user: 2
+DEBUG - 06. 05. 12, 15:31:26,376 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Updating user: 2
+DEBUG - 06. 05. 12, 15:31:26,377 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Updating user properties for user: 2
+DEBUG - 06. 05. 12, 15:31:26,383 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Clearing roles-to-users mapping for user: 2
+DEBUG - 06. 05. 12, 15:31:26,384 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Adding configured roles to roles-to-users mapping for user: 2
+DEBUG - 06. 05. 12, 15:31:26,479 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Loading all registered users.
+DEBUG - 06. 05. 12, 15:31:26,480 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user rows.
+DEBUG - 06. 05. 12, 15:31:26,483 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching role rows.
+DEBUG - 06. 05. 12, 15:31:26,486 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user-to-role mapping
+DEBUG - 06. 05. 12, 15:31:26,489 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Registered users successfuly loaded.
+DEBUG - 06. 05. 12, 15:31:30,470 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Loading registered user: 2
+DEBUG - 06. 05. 12, 15:31:30,473 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching role rows.
+DEBUG - 06. 05. 12, 15:31:30,476 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user-to-role mapping for user: 2
+DEBUG - 06. 05. 12, 15:31:34,309 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Updating user: 2
+DEBUG - 06. 05. 12, 15:31:34,310 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Updating user properties for user: 2
+DEBUG - 06. 05. 12, 15:31:34,317 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Clearing roles-to-users mapping for user: 2
+DEBUG - 06. 05. 12, 15:31:34,319 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Adding configured roles to roles-to-users mapping for user: 2
+DEBUG - 06. 05. 12, 15:31:34,414 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Loading all registered users.
+DEBUG - 06. 05. 12, 15:31:34,415 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user rows.
+DEBUG - 06. 05. 12, 15:31:34,419 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching role rows.
+DEBUG - 06. 05. 12, 15:31:34,423 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user-to-role mapping
+DEBUG - 06. 05. 12, 15:31:34,426 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Registered users successfuly loaded.
+DEBUG - 06. 05. 12, 15:31:42,472 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching role rows.
+DEBUG - 06. 05. 12, 15:31:42,475 - cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao - Fetching user-to-role mapping for user: 2

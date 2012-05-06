@@ -117,6 +117,29 @@ public class UserDao extends Dao<User>
 		return user;
 	}
 	
+	public User loadForUsername(String username)
+	{
+		User user = fetchUserForUsername(username);
+		if (user == null)
+			return null;
+		
+		Long userId = user.getId();
+		
+		Map<Long, Role> rolesMapping = fetchAllRoles();
+		
+		List<Pair<Long, Long>> assignedRoles = fetchRolesToUsersMappingForUserId(userId);
+		
+		for (Pair<Long, Long> assignment : assignedRoles)
+		{
+			assert assignment.getFirst() == userId;
+			
+			Role targetRole = rolesMapping.get(assignment.getSecond());
+			user.addRole(targetRole);
+		}
+
+		return user;
+	}
+	
 	private User fetchUserForId(Long id)
 	{
 		Object[] arguments =
@@ -131,6 +154,29 @@ public class UserDao extends Dao<User>
 		);
 		
 		// TODO: if (resultList.size() != 1) ....
+		return resultList.get(0);
+	}
+	
+	private User fetchUserForUsername(String username)
+	{
+		String query =
+			"SELECT * FROM DB.FRONTEND.USERS " +
+			"WHERE username = ?";
+		
+		Object[] arguments =
+		{
+			username
+		};
+
+		List<User> resultList = jdbcTemplate.query(
+			query, 
+			arguments, 
+			new UserRowMapper()
+		);
+
+		if (resultList.isEmpty())
+			return null;
+		
 		return resultList.get(0);
 	}
 	

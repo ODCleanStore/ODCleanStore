@@ -52,6 +52,7 @@ public class ConfigBuilder {
 	private static final String CONFIG_XML_OUTPUT = "Output";
 	private static final String CONFIG_XML_TYPE = "type";
 	private static final String CONFIG_XML_FILE = "file";
+	private static final String CONFIG_XML_SPARQL_ENDPOINT = "sparqlEndpoint";
 	
 	public static File createLinkConfigFile(List<String> rawRules, List<RDFprefix> prefixes, 
 			TransformedGraph inputGraph, TransformationContext context) throws TransformerException {
@@ -75,6 +76,7 @@ public class ConfigBuilder {
 		DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 		Document configDoc = builder.newDocument();
 		Element root = configDoc.createElement(CONFIG_XML_ROOT);
+		configDoc.appendChild(root);
 		root.appendChild(createPrefixes(configDoc, prefixes));
 		root.appendChild(createSources(configDoc, context.getDirtyDatabaseEndpoint(), 
 				context.getCleanDatabaseEndpoint(), inputGraph.getGraphName()));
@@ -113,6 +115,7 @@ public class ConfigBuilder {
 	
 	private static Element createSource(Document doc, SparqlEndpoint endpoint, String graphName) {
 		Element sourceElement = doc.createElement(CONFIG_XML_SOURCE);
+		sourceElement.setAttribute(CONFIG_XML_TYPE, CONFIG_XML_SPARQL_ENDPOINT);
 		
 		Element parameterElement = doc.createElement(CONFIG_XML_PARAMETER);
 		parameterElement.setAttribute(CONFIG_XML_NAME, CONFIG_XML_ENDPOINT_URI);
@@ -137,7 +140,7 @@ public class ConfigBuilder {
 			Element ruleElement = builder.parse(new InputSource(new StringReader(rawRule))).getDocumentElement();
 			normalizeDatasets(ruleElement);
 			updateFileNames(ruleElement, graphId);
-			rulesElement.appendChild(ruleElement);
+			rulesElement.appendChild(doc.importNode(ruleElement, true));
 		}
 		
 		return rulesElement;
@@ -161,13 +164,19 @@ public class ConfigBuilder {
 					Element paramElement = (Element)paramList.item(j);
 					String name = paramElement.getAttribute(CONFIG_XML_NAME);
 					if (CONFIG_XML_FILE.equals(name)) {
-						String value = paramElement.getAttribute(CONFIG_XML_VALUE);
-						value = graphId.concat(value);
-						paramElement.setAttribute(CONFIG_XML_VALUE, value);
+						String newName = updateFileName(paramElement.getAttribute(CONFIG_XML_VALUE), graphId);
+						paramElement.setAttribute(CONFIG_XML_VALUE, newName);
 					}
 				}
 			}
 		}
+	}
+	
+	private static String updateFileName(String name, String graphId) {
+		int dotIndex = name.lastIndexOf(".");
+		String firstPart = name.substring(0, dotIndex);
+		String thirdPart = name.substring(dotIndex);
+		return firstPart + graphId + thirdPart;
 	}
 
 	private static File storeConfigDoc(Document configDoc, File targetDirectory, String graphId) 
