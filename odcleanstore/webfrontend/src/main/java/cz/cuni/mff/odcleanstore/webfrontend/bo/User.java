@@ -1,6 +1,8 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo;
 
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -128,6 +130,16 @@ public class User extends BusinessObject
 	public Set<Role> getRoles()
 	{
 		return this.roles;
+	}
+	
+	public String[] getRoleLabels()
+	{
+		List<String> labels = new LinkedList<String>();
+		
+		for (Role role : this.roles)
+			labels.add(role.getLabel());
+		
+		return labels.toArray(new String[labels.size()]);
 	}
 	
 	/**

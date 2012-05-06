@@ -17,14 +17,14 @@ import org.apache.wicket.spring.SpringBeanLocator;
  */
 public class DaoLookupFactory 
 {
-	private Dao<User> userDao;
-	private Dao<Role> roleDao;
+	private UserDao userDao;
+	private RoleDao roleDao;
 	
 	/**
 	 * 
 	 * @return
 	 */
-	public Dao<User> getUserDao()
+	public UserDao getUserDao()
 	{
 		if (userDao == null)
 			userDao = createProxy("userDao", UserDao.class);
@@ -36,7 +36,7 @@ public class DaoLookupFactory
 	 * 
 	 * @return
 	*/
-	public Dao<Role> getRoleDao()
+	public RoleDao getRoleDao()
 	{
 		if (roleDao == null)
 			roleDao = createProxy("roleDao", RoleDao.class);

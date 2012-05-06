@@ -12,7 +12,9 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
 
 import java.util.List;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 
+@AuthorizeInstantiation({ "ADM" })
 public class AccountsListPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;

@@ -26,14 +26,20 @@ public class PasswordHandling
 		return new String(password);
 	}
 	
-	public static String calculateHash(String password) throws NoSuchAlgorithmException
+	public static String calculatePasswordHash(String password, String salt) 
+		throws NoSuchAlgorithmException
+	{
+		return calculateHash(password + salt);
+	}
+	
+	public static String calculateHash(String pattern) throws NoSuchAlgorithmException
 	{
 		// TODO: make this function polymorphic against various hash calculation methods
 		
 		MessageDigest algorithm = MessageDigest.getInstance("MD5");
 		
 		algorithm.reset();
-		algorithm.update(password.getBytes());
+		algorithm.update(pattern.getBytes());
 		
 		byte[] hash = algorithm.digest();
 

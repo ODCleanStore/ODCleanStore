@@ -17,7 +17,9 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.util.Mail;
 import cz.cuni.mff.odcleanstore.webfrontend.util.NewAccountMail;
 import cz.cuni.mff.odcleanstore.webfrontend.util.PasswordHandling;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 
+@AuthorizeInstantiation({ "ADM" })
 public class NewAccountPage extends FrontendPage
 {
 	private static Logger logger = Logger.getLogger(NewAccountPage.class);
@@ -122,8 +124,7 @@ public class NewAccountPage extends FrontendPage
 		String passwordHash;
 		try 
 		{
-			String pattern = password + salt;
-			passwordHash = PasswordHandling.calculateHash(pattern);
+			passwordHash = PasswordHandling.calculatePasswordHash(password, salt);
 		}
 		catch (NoSuchAlgorithmException ex)
 		{
