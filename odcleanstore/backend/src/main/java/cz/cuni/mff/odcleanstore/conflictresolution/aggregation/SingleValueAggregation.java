@@ -32,7 +32,7 @@ import java.util.Collections;
  *
  * @author Jan Michelfeit
  */
-final class SingleValueAggregation extends AggregationMethodBase {
+/*package*/final class SingleValueAggregation extends AggregationMethodBase {
     private static final Logger LOG = LoggerFactory.getLogger(SingleValueAggregation.class);
 
     /**

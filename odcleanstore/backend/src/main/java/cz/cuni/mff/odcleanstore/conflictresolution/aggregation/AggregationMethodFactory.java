@@ -99,10 +99,10 @@ public class AggregationMethodFactory {
             return new LatestAggregation(aggregationSpec, uriGenerator);
         case TOPC:
             return new TopCAggregation(aggregationSpec, uriGenerator);
-        case MIN:
-            return new MinAggregation(aggregationSpec, uriGenerator);
         case MAX:
             return new MaxAggregation(aggregationSpec, uriGenerator);
+        case MIN:
+            return new MinAggregation(aggregationSpec, uriGenerator);
         case AVG:
             return new AvgAggregation(aggregationSpec, uriGenerator);
         case MEDIAN:

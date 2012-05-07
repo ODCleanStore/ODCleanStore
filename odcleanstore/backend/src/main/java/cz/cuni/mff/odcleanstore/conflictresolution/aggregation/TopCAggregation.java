@@ -13,7 +13,7 @@ import java.util.Collection;
  * @todo
  * @author Jan Michelfeit
  */
-final class TopCAggregation extends SelectedValueAggregation {
+/*package*/final class TopCAggregation extends SelectedValueAggregation {
     /**
      * Creates a new instance with given settings.
      * @param aggregationSpec aggregation and quality calculation settings

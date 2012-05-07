@@ -21,7 +21,7 @@ import java.util.Set;
  *
  * @author Jan Michelfeit
  */
-abstract class CalculatedValueAggregation extends AggregationMethodBase {
+/*package*/abstract class CalculatedValueAggregation extends AggregationMethodBase {
     /**
      * Creates a new instance with given settings.
      * @param aggregationSpec aggregation and quality calculation settings

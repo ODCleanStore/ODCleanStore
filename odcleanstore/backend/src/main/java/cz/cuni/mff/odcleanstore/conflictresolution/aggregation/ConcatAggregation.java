@@ -17,7 +17,7 @@ import java.util.Collections;
  * @author Jan Michelfeit
  */
 
-final class ConcatAggregation extends CalculatedValueAggregation {
+/*package*/final class ConcatAggregation extends CalculatedValueAggregation {
     /** Separator of concatenated values. */
     public static final String SEPARATOR = "; ";
 

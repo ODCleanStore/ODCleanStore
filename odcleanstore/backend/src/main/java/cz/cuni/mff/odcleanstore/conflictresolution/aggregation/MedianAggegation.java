@@ -3,9 +3,10 @@ package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
+import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.AggregationUtils;
+import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.TimeComparator;
 import cz.cuni.mff.odcleanstore.shared.EnumLiteralType;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
-import cz.cuni.mff.odcleanstore.shared.Utils;
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.impl.LiteralLabelFactory;
@@ -16,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -25,12 +27,15 @@ import java.util.Collections;
  *
  * "Agree bonus" in quality calculation is not applied for this aggregation.
  *
+ * TODO: refactor
  * @author Jan Michelfeit
  */
-class MedianAggegation extends CalculatedValueAggregation {
+/*package*/final class MedianAggegation extends CalculatedValueAggregation {
     private static final Logger LOG = LoggerFactory.getLogger(MedianAggegation.class);
 
     private NumericMedianAggregation numericAggregation = null;
+    private DateMedianAggregation dateAggregation = null;
+    private TimeMedianAggregation timeAggregation = null;
     private StringMedianAggregation stringAggregation = null;
     private BooleanMedianAggregation booleanAggregation = null;
 
@@ -56,22 +61,16 @@ class MedianAggegation extends CalculatedValueAggregation {
      */
     @Override
     public Collection<CRQuad> aggregate(Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
-        Collection<CRQuad> result = createResultCollection();
-        if (conflictingQuads.isEmpty()) {
-            return result;
-        }
-
-        Quad firstQuad = conflictingQuads.iterator().next();
-        if (!firstQuad.getObject().isLiteral()) {
-            // We need the first object to be a literal because we use it to detect the comparison type
+        EnumLiteralType comparisonType = AggregationUtils.getComparisonType(conflictingQuads);
+        if (comparisonType == null) {
+            Collection<CRQuad> result = createResultCollection();
             for (Quad quad : conflictingQuads) {
                 handleNonAggregableObject(quad, conflictingQuads, metadata, result, this.getClass());
             }
             return result;
+        } else {
+            return getAggregationImpl(comparisonType).aggregate(conflictingQuads, metadata);
         }
-
-        EnumLiteralType comparisonType = Utils.getLiteralType(firstQuad.getObject());
-        return getAggregationImpl(comparisonType).aggregate(conflictingQuads, metadata);
     }
 
     /**
@@ -88,9 +87,15 @@ class MedianAggegation extends CalculatedValueAggregation {
             }
             return numericAggregation;
         case DATE:
-            // TODO
+            if (dateAggregation == null) {
+                dateAggregation = new DateMedianAggregation();
+            }
+            return dateAggregation;
         case TIME:
-            // TODO
+            if (timeAggregation == null) {
+                timeAggregation = new TimeMedianAggregation();
+            }
+            return timeAggregation;
         case BOOLEAN:
             if (booleanAggregation == null) {
                 booleanAggregation = new BooleanMedianAggregation();
@@ -183,7 +188,7 @@ class MedianAggegation extends CalculatedValueAggregation {
     private final class NumericMedianAggregation extends MedianAggregationImpl<Double> {
         @Override
         protected Double getValue(Node object) {
-            Double numberValue = Utils.convertToDoubleSilent(object);
+            Double numberValue = AggregationUtils.convertToDoubleSilent(object);
             return numberValue.isNaN() ? null : numberValue;
         }
 
@@ -215,13 +220,43 @@ class MedianAggegation extends CalculatedValueAggregation {
         @Override
         protected Boolean getValue(Node object) {
             return object.isLiteral()
-                    ? Utils.convertToBoolean(object.getLiteral())
+                    ? AggregationUtils.convertToBoolean(object.getLiteral())
                     : null;
         }
 
         @Override
         protected void sortValues(ArrayList<Boolean> values) {
             Collections.sort(values);
+        }
+    }
+
+    /**
+     * Implementation of median aggregation for date values.
+     */
+    private final class DateMedianAggregation extends MedianAggregationImpl<Calendar> {
+        @Override
+        protected Calendar getValue(Node object) {
+            return AggregationUtils.convertToCalendarSilent(object);
+        }
+
+        @Override
+        protected void sortValues(ArrayList<Calendar> values) {
+            Collections.sort(values);
+        }
+    }
+
+    /**
+     * Implementation of median aggregation for time values.
+     */
+    private final class TimeMedianAggregation extends MedianAggregationImpl<Calendar> {
+        @Override
+        protected Calendar getValue(Node object) {
+            return AggregationUtils.convertToCalendarSilent(object);
+        }
+
+        @Override
+        protected void sortValues(ArrayList<Calendar> values) {
+            Collections.sort(values, TimeComparator.getInstance());
         }
     }
 }

@@ -12,6 +12,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationNotImp
 import cz.cuni.mff.odcleanstore.shared.NodeComparator;
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
+import cz.cuni.mff.odcleanstore.shared.Utils;
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
@@ -80,14 +81,7 @@ public class ConflictResolverImpl implements ConflictResolver {
             // Compare by data source
             String dataSource1 = (metadata1 != null) ? metadata1.getSource() : null;
             String dataSource2 = (metadata2 != null) ? metadata2.getSource() : null;
-            if (dataSource1 == null && dataSource2 == null) {
-                return 0;
-            } else if (dataSource1 == null) {
-                return -1;
-            } else if (dataSource2 == null) {
-                return 1;
-            }
-            int dataSourceComparison = dataSource1.compareTo(dataSource2);
+            int dataSourceComparison = Utils.nullProofCompare(dataSource1, dataSource2);
             if (dataSourceComparison != 0) {
                 return dataSourceComparison;
             }
@@ -95,16 +89,7 @@ public class ConflictResolverImpl implements ConflictResolver {
             // Compare by stored time in *descending order*
             Date stored1 = (metadata1 != null) ? metadata1.getInsertedAt() : null;
             Date stored2 = (metadata2 != null) ? metadata2.getInsertedAt() : null;
-            if (stored1 == null || stored2 == null) {
-                if (stored1 == stored2) { // intentionally == - comparing to null
-                    return 0;
-                } else if (stored1 == null) {
-                    return 1;
-                } else if (stored2 == null) {
-                    return -1;
-                }
-            }
-            return stored2.compareTo(stored1);
+            return Utils.nullProofCompare(stored2, stored1); // switched arguments
         }
     }
 

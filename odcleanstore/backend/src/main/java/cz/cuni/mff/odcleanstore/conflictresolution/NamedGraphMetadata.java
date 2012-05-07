@@ -63,7 +63,7 @@ public class NamedGraphMetadata {
      * Set data source the named graph was retrieved from.
      * @param source URI of the data source
      */
-    public final void getSource(String source) {
+    public final void setSource(String source) {
         this.source = source;
     }
 

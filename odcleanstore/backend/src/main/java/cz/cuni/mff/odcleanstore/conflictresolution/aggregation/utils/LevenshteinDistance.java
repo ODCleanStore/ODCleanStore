@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
+package cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils;
 
 /**
  * Implementation of the Levenshtein distance between to strings.

@@ -302,7 +302,7 @@ import java.util.Locale;
 
                 try {
                     String source = resultSet.getString("source");
-                    graphMetadata.getSource(source);
+                    graphMetadata.setSource(source);
 
                     Double score = resultSet.getDouble("score");
                     graphMetadata.setScore(score);

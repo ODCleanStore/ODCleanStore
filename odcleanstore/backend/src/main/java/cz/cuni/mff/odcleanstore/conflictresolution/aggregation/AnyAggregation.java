@@ -16,7 +16,7 @@ import java.util.Collection;
  *
  * @author Jan Michelfeit
  */
-final class AnyAggregation extends SelectedValueAggregation {
+/*package*/final class AnyAggregation extends SelectedValueAggregation {
     /**
      * Creates a new instance with given settings.
      * @param aggregationSpec aggregation and quality calculation settings

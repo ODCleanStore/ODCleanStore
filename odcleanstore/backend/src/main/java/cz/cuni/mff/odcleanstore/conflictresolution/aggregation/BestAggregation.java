@@ -3,8 +3,8 @@ package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
+import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.AggregationUtils;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
-import cz.cuni.mff.odcleanstore.shared.Utils;
 
 import com.hp.hpl.jena.graph.Node;
 
@@ -72,7 +72,7 @@ import java.util.Collection;
                 double quality = computeQualitySelected(lastQuad, sourceNamedGraphs, conflictingQuads, metadata);
                 assert quality != Double.NEGATIVE_INFINITY; // bestQuad won't be null in compareByInsertedAt()
                 if (quality > bestQuadQuality
-                        || (quality == bestQuadQuality && Utils.compareByInsertedAt(lastQuad, bestQuad, metadata) > 0)) {
+                        || (quality == bestQuadQuality && AggregationUtils.compareByInsertedAt(lastQuad, bestQuad, metadata) > 0)) {
                     bestQuad = lastQuad;
                     bestQuadQuality = quality;
                 }
@@ -100,11 +100,13 @@ import java.util.Collection;
             // Don't forget to check the last quad
             double quality = computeQualitySelected(lastQuad, sourceNamedGraphs, conflictingQuads, metadata);
             assert quality != Double.NEGATIVE_INFINITY; // bestQuad won't be null in compareByInsertedAt()
+            // CHECKSTYLE:OFF
             if (quality > bestQuadQuality
-                    || (quality == bestQuadQuality && Utils.compareByInsertedAt(lastQuad, bestQuad, metadata) > 0)) {
+                    || (quality == bestQuadQuality && AggregationUtils.compareByInsertedAt(lastQuad, bestQuad, metadata) > 0)) {
                 bestQuad = lastQuad;
                 bestQuadQuality = quality;
             }
+            // CHECKSTYLE:ON
         }
 
         // bestQuad is not null because conflictingQuads is not empty

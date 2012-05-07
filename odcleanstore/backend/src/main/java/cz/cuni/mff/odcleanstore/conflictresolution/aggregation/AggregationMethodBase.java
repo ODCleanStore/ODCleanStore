@@ -26,7 +26,7 @@ import java.util.Set;
  *
  * @author Jan Michelfeit
  */
-abstract class AggregationMethodBase implements AggregationMethod {
+/*package*/abstract class AggregationMethodBase implements AggregationMethod {
     private static final Logger LOG = LoggerFactory.getLogger(AggregationMethodBase.class);
 
     /**

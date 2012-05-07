@@ -1,11 +1,10 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
+import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.AggregationUtils;
+import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.LevenshteinDistance;
 import cz.cuni.mff.odcleanstore.shared.EnumLiteralType;
-import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 
-import com.hp.hpl.jena.datatypes.RDFDatatype;
-import com.hp.hpl.jena.datatypes.TypeMapper;
 import com.hp.hpl.jena.datatypes.xsd.XSDDateTime;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.impl.LiteralLabel;
@@ -20,7 +19,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Jan Michelfeit
  */
-/*package*/ public class DistanceMetricImpl implements DistanceMetric {
+/*package*/class DistanceMetricImpl implements DistanceMetric {
     private static final Logger LOG = LoggerFactory.getLogger(DistanceMetricImpl.class);
 
     /** Minimum distance between two {@link Node Nodes} indicating equal nodes. */
@@ -50,8 +49,8 @@ import org.slf4j.LoggerFactory;
     /** Number of milliseconds in a second. */
     private static final int MILLIS_IN_SECOND = 1000;
 
-    ///** Square root of two. */
-    //private static final double SQRT_OF_TWO = Math.sqrt(2);
+    // /** Square root of two. */
+    // private static final double SQRT_OF_TWO = Math.sqrt(2);
 
     /**
      * {@inheritDoc}
@@ -87,8 +86,8 @@ import org.slf4j.LoggerFactory;
     private double literalDistance(Node primaryNode, Node comparedNode) {
         assert primaryNode.isLiteral() && comparedNode.isLiteral();
 
-        EnumLiteralType primaryLiteralType = Utils.getLiteralType(primaryNode);
-        EnumLiteralType comparedLiteralType = Utils.getLiteralType(comparedNode);
+        EnumLiteralType primaryLiteralType = AggregationUtils.getLiteralType(primaryNode);
+        EnumLiteralType comparedLiteralType = AggregationUtils.getLiteralType(comparedNode);
         EnumLiteralType comparisonType = primaryLiteralType == comparedLiteralType
                 ? primaryLiteralType
                 : EnumLiteralType.OTHER;
@@ -98,12 +97,12 @@ import org.slf4j.LoggerFactory;
         double result;
         switch (comparisonType) {
         case NUMERIC:
-            double primaryValueDouble = Utils.convertToDoubleSilent(primaryLiteral);
+            double primaryValueDouble = AggregationUtils.convertToDoubleSilent(primaryLiteral);
             if (Double.isNaN(primaryValueDouble)) {
                 LOG.warn("Numeric literal {} is malformed.", primaryLiteral);
                 return ERROR_DISTANCE;
             }
-            double comparedValueDouble = Utils.convertToDoubleSilent(comparedLiteral);
+            double comparedValueDouble = AggregationUtils.convertToDoubleSilent(comparedLiteral);
             if (Double.isNaN(comparedValueDouble)) {
                 LOG.warn("Numeric literal {} is malformed.", comparedLiteral);
                 return ERROR_DISTANCE;
@@ -117,9 +116,9 @@ import org.slf4j.LoggerFactory;
             result = dateDistance(primaryLiteral, comparedLiteral);
             break;
         case BOOLEAN:
-            result = (Utils.convertToBoolean(primaryLiteral) == Utils.convertToBoolean(comparedLiteral))
-                    ? MIN_DISTANCE
-                    : MAX_DISTANCE;
+            boolean primaryValueBool = AggregationUtils.convertToBoolean(primaryLiteral);
+            boolean comparedValueBool = AggregationUtils.convertToBoolean(comparedLiteral);
+            result = primaryValueBool == comparedValueBool ? MIN_DISTANCE : MAX_DISTANCE;
             break;
         case STRING:
         case OTHER:
@@ -161,28 +160,6 @@ import org.slf4j.LoggerFactory;
     }
 
     /**
-     * Returns the value of a literal as an XSDDateTime instance if possible, otherwise return null.
-     * @param literal a literal representing date/time
-     * @return the value of the literal as XSDDateTime or null
-     */
-    private XSDDateTime getDateTimeValue(LiteralLabel literal) {
-        if (literal.isWellFormed() && literal.getValue() instanceof XSDDateTime) {
-            return (XSDDateTime) literal.getValue();
-        } else if (literal.getDatatypeURI() != null) {
-            try {
-                RDFDatatype datatype = TypeMapper.getInstance().getSafeTypeByName(literal.getDatatypeURI());
-                Object value = datatype.parse(literal.getLexicalForm());
-                if (value instanceof XSDDateTime) {
-                    return (XSDDateTime) value;
-                }
-            } catch (JenaException e) {
-                return null;
-            }
-        }
-        return null;
-    }
-
-    /**
      * Calculates a distance metric between two time values.
      * The maximum distance is reached with difference of one day.
      * If value types are incompatible or conversion fails, {@value #ERROR_DISTANCE} is returned.
@@ -196,8 +173,8 @@ import org.slf4j.LoggerFactory;
         String comparedDatatypeURI = comparedValue.getDatatypeURI();
         if (XMLSchema.timeType.equals(primaryDatatypeURI) && XMLSchema.timeType.equals(comparedDatatypeURI)) {
             try {
-                XSDDateTime primaryValueTime = getDateTimeValue(primaryValue);
-                XSDDateTime comparedValueTime = getDateTimeValue(comparedValue);
+                XSDDateTime primaryValueTime = AggregationUtils.getDateTimeValue(primaryValue);
+                XSDDateTime comparedValueTime = AggregationUtils.getDateTimeValue(comparedValue);
                 if (primaryValueTime == null || comparedValueTime == null) {
                     LOG.warn("Time value '{}' or '{}' is malformed.", primaryValue, comparedValue);
                     return ERROR_DISTANCE;
@@ -233,8 +210,8 @@ import org.slf4j.LoggerFactory;
                 && (XMLSchema.dateTimeType.equals(comparedDatatypeURI) || XMLSchema.dateType.equals(comparedDatatypeURI))) {
             // CHECKSTYLE:ON
             try {
-                XSDDateTime primaryValueTime = getDateTimeValue(primaryValue);
-                XSDDateTime comparedValueTime = getDateTimeValue(comparedValue);
+                XSDDateTime primaryValueTime = AggregationUtils.getDateTimeValue(primaryValue);
+                XSDDateTime comparedValueTime = AggregationUtils.getDateTimeValue(comparedValue);
                 if (primaryValueTime == null || comparedValueTime == null) {
                     LOG.warn("Date value '{}' or '{}' is malformed.", primaryValue, comparedValue);
                     return ERROR_DISTANCE;

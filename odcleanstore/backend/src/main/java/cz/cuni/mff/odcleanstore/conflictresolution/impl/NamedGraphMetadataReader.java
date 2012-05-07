@@ -71,7 +71,7 @@ public final class NamedGraphMetadataReader {
             } else if (predicateURI.equals(W3P.source)) {
                 NamedGraphMetadata metadata = getMetadataObject(subject, result);
                 if (quad.getObject().isURI()) {
-                    metadata.getSource(quad.getObject().getURI());
+                    metadata.setSource(quad.getObject().getURI());
                 } else {
                     LOG.warn("Invalid provenance metadata - unexpected value '{}' of <{}>",
                             quad.getObject(), W3P.source);
