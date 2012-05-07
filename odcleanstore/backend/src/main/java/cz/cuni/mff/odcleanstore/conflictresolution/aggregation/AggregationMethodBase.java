@@ -325,14 +325,12 @@ abstract class AggregationMethodBase implements AggregationMethod {
      * @param conflictingQuads searched quads
      * @return set of named graphs
      */
-    protected Collection<String> sourceNamedGraphsForObject(
-            Node object, Collection<Quad> conflictingQuads) {
-
+    protected Collection<String> sourceNamedGraphsForObject(Node object, Collection<Quad> conflictingQuads) {
         Set<String> namedGraphs = null;
         String firstNamedGraph = null;
 
         for (Quad quad : conflictingQuads) {
-            if (!object.equals(quad.getObject())) {
+            if (!object.sameValueAs(quad.getObject())) { // intentionally sameValueAs()
                 continue;
             }
 
@@ -361,8 +359,7 @@ abstract class AggregationMethodBase implements AggregationMethod {
 
     /**
      * Factory method for collections returned by
-     * {@link #aggregate(Collection, NamedGraphMetadataMap, EnumAggregationErrorStrategy)
-     * aggregate()}.
+     * {@link #aggregate(Collection, NamedGraphMetadataMap, EnumAggregationErrorStrategy) aggregate()}.
      * @return an empty collection
      */
     protected Collection<CRQuad> createResultCollection() {
