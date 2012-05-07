@@ -10,14 +10,31 @@ import java.util.TreeMap;
  */
 public class AggregationSpec {
     /**
+     * The default multivalue setting used when no value (or null) is set by {@link #setDefaultMultivalue(boolean)}.
+     */
+    public static final boolean IMPLICIT_MULTIVALUE = false;
+
+    /**
+     * The default aggregation method used when no value (or null) is set by
+     * {@link #setDefaultAggregation(EnumAggregationType)}.
+     */
+    public static final EnumAggregationType IMPLICIT_AGGREGATION = EnumAggregationType.ALL;
+
+    /**
+     * The default aggregation error strategy used when no value (or null) is set by
+     * {@link #setErrorStrategy(EnumAggregationErrorStrategy)}.
+     */
+    public static final EnumAggregationErrorStrategy IMPLICIT_ERROR_STRATEGY = EnumAggregationErrorStrategy.RETURN_ALL;
+
+    /**
      * Type of strategy to use when an aggregation cannot be applied to a value.
      */
-    private EnumAggregationErrorStrategy errorStrategy = EnumAggregationErrorStrategy.RETURN_ALL;
+    private EnumAggregationErrorStrategy errorStrategy = null;
 
     /**
      * Type of aggregation method for properties not included in #aggregationMethods.
      */
-    private EnumAggregationType defaultAggregation = EnumAggregationType.ALL;
+    private EnumAggregationType defaultAggregation = null;
 
     /**
      * Map of property URI -> selected aggregation method.
@@ -28,7 +45,7 @@ public class AggregationSpec {
      * The multivalue setting for quality computation.
      * If set to true, differences with other conflicting values don't decrease the quality.
      */
-    private boolean defaultMultivalue = false;
+    private Boolean defaultMultivalue = null;
 
     /**
      * Map of property URI -> multivalue setting for the property.
@@ -62,7 +79,7 @@ public class AggregationSpec {
             EnumAggregationType defaultAggregation,
             Map<String, EnumAggregationType> propertyAggregations,
             EnumAggregationErrorStrategy errorStrategy,
-            boolean defaultMultivalue,
+            Boolean defaultMultivalue,
             Map<String, Boolean> propertyMultivalue) {
 
         setDefaultAggregation(defaultAggregation);
@@ -73,20 +90,21 @@ public class AggregationSpec {
     }
 
     /**
-     * Creates a (shallow) copy of the given AggregationSpec.
+     * Creates a (deep) copy of the given AggregationSpec.
      * @param spec aggregation settings to use
      */
     public AggregationSpec(AggregationSpec spec) {
         setDefaultAggregation(spec.getDefaultAggregation());
-        setPropertyAggregations(spec.getPropertyAggregations());
+        setPropertyAggregations(new TreeMap<String, EnumAggregationType>(spec.getPropertyAggregations()));
         setErrorStrategy(spec.getErrorStrategy());
         setDefaultMultivalue(spec.getDefaultMultivalue());
-        setPropertyMultivalue(spec.getPropertyMultivalue());
+        setPropertyMultivalue(new TreeMap<String, Boolean>(spec.getPropertyMultivalue()));
     }
 
     /**
      * Return aggregation error strategy.
-     * @return the aggregation error strategy
+     * @return the aggregation error strategy or null, if no strategy is set
+     * @see #getEffectiveErrorStrategy()
      */
     public final EnumAggregationErrorStrategy getErrorStrategy() {
         return errorStrategy;
@@ -94,12 +112,10 @@ public class AggregationSpec {
 
     /**
      * Set aggregation error strategy.
-     * @param errorStrategy the new aggregation error strategy; must not be null
+     * @param errorStrategy the new aggregation error strategy;
+     *        if null, the implicit value {@value #IMPLICIT_ERROR_STRATEGY} will be effective
      */
     public final void setErrorStrategy(EnumAggregationErrorStrategy errorStrategy) {
-        if (errorStrategy == null) {
-            throw new IllegalArgumentException("Aggregation error strategy must not be null");
-        }
         this.errorStrategy = errorStrategy;
     }
 
@@ -114,12 +130,10 @@ public class AggregationSpec {
 
     /**
      * Set aggregation method for properties without an explicitly set method.
-     * @param defaultAggregation the new default aggregation type; must not be null
+     * @param defaultAggregation the new default aggregation type;
+     *        if null, the implicit value {@value #IMPLICIT_AGGREGATION} will be effective
      */
     public final void setDefaultAggregation(EnumAggregationType defaultAggregation) {
-        if (defaultAggregation == null) {
-            throw new IllegalArgumentException("Aggregation type cannot be null");
-        }
         this.defaultAggregation = defaultAggregation;
     }
 
@@ -136,9 +150,7 @@ public class AggregationSpec {
      * @param propertyAggregations aggregation method for properties
      *        as a property URI -> aggregation type map; must not be null
      */
-    public final void setPropertyAggregations(
-            Map<String, EnumAggregationType> propertyAggregations) {
-
+    public final void setPropertyAggregations(Map<String, EnumAggregationType> propertyAggregations) {
         if (propertyAggregations == null) {
             throw new IllegalArgumentException("Aggregation types for properties cannot be null");
         }
@@ -152,19 +164,19 @@ public class AggregationSpec {
      * The default value can be overridden by {@link #setPropertyAggregations(Map)}.
      * @return the default multivalue setting
      */
-    public final boolean getDefaultMultivalue() {
+    public final Boolean getDefaultMultivalue() {
         return defaultMultivalue;
     }
 
     /**
      * Sets the default value of the multivalue setting.
      * @see #getDefaultMultivalue()
-     * @param defaultMultivalue default value of the multivalue setting
+     * @param defaultMultivalue default value of the multivalue setting; null means use the default value
+     *        {@value #IMPLICIT_MULTIVALUE}.
      */
-    public final void setDefaultMultivalue(boolean defaultMultivalue) {
+    public final void setDefaultMultivalue(Boolean defaultMultivalue) {
         this.defaultMultivalue = defaultMultivalue;
     }
-
 
     /**
      * Returns explicit multivalue settings for predicates.
@@ -188,6 +200,16 @@ public class AggregationSpec {
     }
 
     /**
+     * Returns the effective aggregation error strategy, i.e. the error strategy set by
+     * {@link #setErrorStrategy(EnumAggregationErrorStrategy)} is not null, return this value, otherwise return
+     * {@value #IMPLICIT_ERROR_STRATEGY}.
+     * @return the effective aggregation error strategy
+     */
+    public final EnumAggregationErrorStrategy getEffectiveErrorStrategy() {
+        return errorStrategy == null ? IMPLICIT_ERROR_STRATEGY : errorStrategy;
+    }
+
+    /**
      * Return aggregation method for a selected property.
      * @param propertyURI the URI of a property
      * @return the effective aggregation type for the property
@@ -195,7 +217,7 @@ public class AggregationSpec {
     public EnumAggregationType propertyAggregationType(String propertyURI) {
         EnumAggregationType result = this.propertyAggregations.get(propertyURI);
         if (result == null) {
-            result = defaultAggregation;
+            result = defaultAggregation == null ? IMPLICIT_AGGREGATION : defaultAggregation;
         }
         return result;
     }
@@ -209,7 +231,7 @@ public class AggregationSpec {
     public boolean isPropertyMultivalue(String propertyURI) {
         Boolean result = this.propertyMultivalue.get(propertyURI);
         if (result == null) {
-            result = defaultMultivalue;
+            result = defaultMultivalue == null ? IMPLICIT_MULTIVALUE : defaultMultivalue;
         }
         return result;
     }

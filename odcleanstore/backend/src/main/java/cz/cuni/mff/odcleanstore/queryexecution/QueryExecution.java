@@ -45,7 +45,9 @@ public class QueryExecution {
      */
     public QueryResult findKeyword(String keywords, QueryConstraintSpec constraints,
             AggregationSpec aggregationSpec) throws ODCleanStoreException {
-        return new KeywordQueryExecutor(sparqlEndpoint, constraints, aggregationSpec).findKeyword(keywords);
+
+        AggregationSpec effectiveAggregationSpec = mergeAggregationSettings(getDefaultConfiguration(), aggregationSpec);
+        return new KeywordQueryExecutor(sparqlEndpoint, constraints, effectiveAggregationSpec).findKeyword(keywords);
     }
 
     /**
@@ -61,6 +63,38 @@ public class QueryExecution {
      */
     public QueryResult findURI(String uri, QueryConstraintSpec constraints,
             AggregationSpec aggregationSpec) throws ODCleanStoreException, URISyntaxException {
-        return new UriQueryExecutor(sparqlEndpoint, constraints, aggregationSpec).findURI(uri);
+
+        AggregationSpec effectiveAggregationSpec = mergeAggregationSettings(getDefaultConfiguration(), aggregationSpec);
+        return new UriQueryExecutor(sparqlEndpoint, constraints, effectiveAggregationSpec).findURI(uri);
+    }
+
+    /**
+     * Merge the given aggregation settings specific for this query (addedSettings) with the default settings
+     * (baseSettings). Query specific settings override the default values.
+     * @param baseSettings default aggregation settings
+     * @param addedSettings query specific settings
+     * @return merged aggregation settings
+     */
+    private AggregationSpec mergeAggregationSettings(AggregationSpec baseSettings, AggregationSpec addedSettings) {
+        AggregationSpec result = new AggregationSpec(baseSettings);
+        if (addedSettings.getDefaultAggregation() != null) {
+            result.setDefaultAggregation(addedSettings.getDefaultAggregation());
+        }
+        if (addedSettings.getDefaultMultivalue() != null) {
+            result.setDefaultMultivalue(addedSettings.getDefaultMultivalue());
+        }
+        if (addedSettings.getErrorStrategy() != null) {
+            result.setErrorStrategy(addedSettings.getErrorStrategy());
+        }
+        result.getPropertyAggregations().putAll(addedSettings.getPropertyAggregations());
+        result.getPropertyMultivalue().putAll(addedSettings.getPropertyMultivalue());
+        return result;
+    }
+
+    /** TODO. */
+    private static final AggregationSpec DEFAULT_CONFIGURATION = new AggregationSpec();
+    /** TODO. @return TODO */
+    private AggregationSpec getDefaultConfiguration() {
+        return DEFAULT_CONFIGURATION;
     }
 }

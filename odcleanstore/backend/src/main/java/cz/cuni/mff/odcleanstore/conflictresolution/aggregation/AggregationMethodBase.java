@@ -290,7 +290,7 @@ import java.util.Set;
         LOG.debug("Value {} cannot be aggregated with {}.",
                 nonAggregableQuad.getObject(), aggregationMethod.getSimpleName());
 
-        EnumAggregationErrorStrategy errorStrategy = aggregationSpec.getErrorStrategy();
+        EnumAggregationErrorStrategy errorStrategy = aggregationSpec.getEffectiveErrorStrategy();
         switch (errorStrategy) {
         case RETURN_ALL:
             Collection<String> sourceNamedGraphs = sourceNamedGraphsForObject(

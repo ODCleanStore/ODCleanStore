@@ -19,15 +19,14 @@ public class ConflictResolverSpec extends AggregationSpec {
     private Set<String> preferredURIs;
 
     /**
-     * Collection of owl:sameAs links to be considered during the conflict
-     * resolution proces.
+     * Collection of owl:sameAs links to be considered during the conflict resolution process.
      * If null, sameAsLinks are to be read from the data to resolve.
      */
     private Iterator<Triple> sameAsLinks;
 
     /**
      * Metadata about named graphs where the input triples for the conflict resolution
-     * process come from. The metadata (e.g. quality score) will be considedered
+     * process come from. The metadata (e.g. quality score) will be considered
      * during conflict resolution.
      * If null, metadata are to be read from the data to resolve.
      */
@@ -105,8 +104,7 @@ public class ConflictResolverSpec extends AggregationSpec {
     }
 
     /**
-     * Return owl:sameAs links to be considered during the conflict resolution
-     * proces for this specification.
+     * Return owl:sameAs links to be considered during the conflict resolution process for this specification.
      * @return collection of triples with owl:sameAs predicate or null
      */
     public final Iterator<Triple> getSameAsLinks() {
@@ -115,7 +113,7 @@ public class ConflictResolverSpec extends AggregationSpec {
 
     /**
      * Set collection of owl:sameAs links to be considered during the conflict resolution
-     * proces proces for this specification.
+     * process for this specification.
      * If set to null, sameAsLinks are to be read from the data to resolve.
      * @param sameAsLinks a collection of triples with owl:sameAs predicate or null
      */
@@ -126,7 +124,7 @@ public class ConflictResolverSpec extends AggregationSpec {
     /**
      * Return metadata about named graphs where the input triples for the conflict
      * resolution process come from. The metadata (e.g. quality score) will be
-     * considedered during conflict resolution.
+     * considered during conflict resolution.
      * If the method returns null, metadata are to be read from the data to resolve.
      * @return map of metadata for named graphs or null
      */

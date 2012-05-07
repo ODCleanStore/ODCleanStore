@@ -26,9 +26,7 @@ import java.util.Collections;
      * @param aggregationSpec aggregation and quality calculation settings
      * @param uriGenerator generator of URIs
      */
-    public ConcatAggregation(
-            AggregationSpec aggregationSpec,
-            UniqueURIGenerator uriGenerator) {
+    public ConcatAggregation(AggregationSpec aggregationSpec, UniqueURIGenerator uriGenerator) {
         super(aggregationSpec, uriGenerator);
     }
 
@@ -45,9 +43,7 @@ import java.util.Collections;
      * @return {@inheritDoc}
      */
     @Override
-    public Collection<CRQuad> aggregate(
-            Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
-
+    public Collection<CRQuad> aggregate(Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
         StringBuilder resultValue = new StringBuilder();
         boolean first = true;
         for (Quad quad : conflictingQuads) {
@@ -55,7 +51,9 @@ import java.util.Collections;
                 resultValue.append(SEPARATOR);
             }
             first = false;
-            resultValue.append(quad.getObject().toString());
+            Node object = quad.getObject();
+            String stringRepresenation = object.isLiteral() ? object.getLiteralLexicalForm() : object.toString();
+            resultValue.append(stringRepresenation);
         }
 
         Quad firstQuad = conflictingQuads.iterator().next();
@@ -72,8 +70,7 @@ import java.util.Collections;
                 Collections.singleton(resultQuad), // difference penalty doesn't make sense here
                 metadata);
 
-        Collection<CRQuad> result = createSingleResultCollection(
-                new CRQuad(resultQuad, quality, sourceNamedGraphs));
+        Collection<CRQuad> result = createSingleResultCollection(new CRQuad(resultQuad, quality, sourceNamedGraphs));
         return result;
     }
 }
