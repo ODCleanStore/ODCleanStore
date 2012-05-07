@@ -11,7 +11,9 @@ import org.restlet.representation.WriterRepresentation;
 
 import com.hp.hpl.jena.graph.Node;
 
+import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
+import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationType;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryResult;
@@ -75,7 +77,7 @@ public class HTMLFormatter extends ResultFormatterBase {
 		 * @throws IOException if an I/O error occurs
 		 */
 		private void writeResultQuads(Writer writer) throws IOException {
-			writer.write(" <table border=\"1\">\n");
+			writer.write(" <table border=\"1\" cellspacing=\"0\" cellpadding=\"2\">\n");
 			writer.write("  <tr><th>Subject</th><th>Predicate</th><th>Object</th><th>Quality</th><th>Source named graphs</th></tr>\n");
 			for (CRQuad crQuad : queryResult.getResultQuads()) {
 				writer.write("  <tr><td>");
@@ -106,7 +108,7 @@ public class HTMLFormatter extends ResultFormatterBase {
 		 * @throws IOException if an I/O error occurs
 		 */
 		private void writeMetadata(Writer writer) throws IOException {
-			writer.write(" Source graphs:\n <table border=\"1\">\n");
+			writer.write(" Source graphs:\n <table border=\"1\" cellspacing=\"0\" cellpadding=\"2\">\n");
 			writer.write("  <tr><th>Named graph</th><th>Data source</th><th>Inserted at</th><th>Graph score</th><th>License</th></tr>");
 			for (NamedGraphMetadata metadata : queryResult.getMetadata().listMetadata()) {
 				writer.write("  <tr><td>");
@@ -153,7 +155,7 @@ public class HTMLFormatter extends ResultFormatterBase {
 				writer.write("?find=");
 				writer.write(URLEncoder.encode(node.getURI(), "UTF-8"));
 				writer.write("&amp;at=");
-				writer.write(queryResult.getAggregationSpec().getDefaultAggregation().name());
+				writer.write(getAggregationType().name());
 				writer.write("\">");
 				writer.write(node.toString());
 				writer.write("</a>");
@@ -163,13 +165,23 @@ public class HTMLFormatter extends ResultFormatterBase {
 				writer.write("?find=");
 				writer.write(URLEncoder.encode(node.getLiteralLexicalForm(), "UTF-8"));
 				writer.write("&amp;at=");
-				writer.write(queryResult.getAggregationSpec().getDefaultAggregation().name());
+				writer.write(getAggregationType().name());
 				writer.write("\">");
 				writer.write(node.toString());
 				writer.write("</a>");
 			} else {
 				writer.write(node.toString());
 			}
+		}
+		
+		/**
+		 * Returns the effective default aggregation type for the query.
+		 * @return aggregation type
+		 */
+		private EnumAggregationType getAggregationType() {
+			return queryResult.getAggregationSpec().getDefaultAggregation() == null
+					? AggregationSpec.IMPLICIT_AGGREGATION
+					: queryResult.getAggregationSpec().getDefaultAggregation();
 		}
 	}
 	
