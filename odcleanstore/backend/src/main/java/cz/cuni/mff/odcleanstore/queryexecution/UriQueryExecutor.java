@@ -95,7 +95,7 @@ import java.util.Set;
      *      The query must be formatted with these arguments: (1) URI, (2) graph filter clause,
      *      (3) list of properties (separated by ','), (4) limit
      */
-    private static final String SAME_AS_LINKS_QUERY = "SPARQL"
+    /*private static final String SAME_AS_LINKS_QUERY = "SPARQL"
             + "\n DEFINE input:same-as \"yes\""
             + "\n SELECT DISTINCT ?p ?linked"
             + "\n WHERE {"
@@ -125,7 +125,24 @@ import java.util.Set;
             + "\n   ?linked owl:sameAs ?p."
             + "\n   FILTER (?linked IN (%3$s))"
             + "\n }"
+            + "\n LIMIT %4$d";*/
+    // TODO: quick fix, remake
+    private static final String SAME_AS_LINKS_QUERY = "SPARQL"
+            + "\n SELECT ?p ?linked"
+            + "\n WHERE {"
+            + "\n   {"
+            + "\n     SELECT ?p ?linked"
+            + "\n     WHERE {"
+            + "\n       { ?o owl:sameAs ?linked }"
+            + "\n       UNION "
+            + "\n       { ?linked owl:sameAs ?p }"
+            + "\n     }"
+            + "\n   }"
+            + "\n   OPTION ( TRANSITIVE, t_in (?p), t_out (?linked), t_distinct, t_min (1) )"
+            + "\n   FILTER (?p = <%1$s>) ."
+            + "\n }"
             + "\n LIMIT %4$d";
+
 
     /**
      * SPARQL query that gets metadata for named graphs containing result quads.
@@ -452,10 +469,10 @@ import java.util.Set;
         Set<String> multivalueProperties = aggregationSpec.getPropertyMultivalue() == null
                 ? Collections.<String>emptySet()
                 : aggregationSpec.getPropertyMultivalue().keySet();
-        if (aggregationProperties.isEmpty() && multivalueProperties.isEmpty()) {
+        /*if (aggregationProperties.isEmpty() && multivalueProperties.isEmpty()) {
             // Nothing to get sameAs links for
             return Collections.<Triple>emptySet();
-        }
+        }*/
 
         long startTime = System.currentTimeMillis();
 
@@ -474,8 +491,8 @@ import java.util.Set;
             properties.append('>');
             properties.append(separator);
         }
-        assert properties.length() >= separator.length(); // there is at least one property
-        properties.setLength(properties.length() - separator.length()); // trim the last separator
+        /*assert properties.length() >= separator.length(); // there is at least one property
+        properties.setLength(properties.length() - separator.length()); // trim the last separator*/
         String query = String.format(SAME_AS_LINKS_QUERY, keywords, getGraphFilterClause(), properties, MAX_LIMIT);
 
         // Execute query
