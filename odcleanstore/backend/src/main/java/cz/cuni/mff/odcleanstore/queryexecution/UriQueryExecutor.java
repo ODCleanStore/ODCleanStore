@@ -43,6 +43,9 @@ import java.util.Set;
 /*package*/class UriQueryExecutor extends QueryExecutorBase {
     private static final Logger LOG = LoggerFactory.getLogger(UriQueryExecutor.class);
 
+    /** Maximum allowed length of the query. */
+    public static final int MAX_URI_LENGTH = 1024;
+
     /**
      * SPARQL query that gets the main result quads.
      * Use of UNION instead of a more complex filter is to make owl:sameAs inference in Virtuoso work.
@@ -312,19 +315,21 @@ import java.util.Set;
      *
      * @param uri searched URI
      * @return query result holder
-     * @throws URISyntaxException the given URI is not a valid URI
-     * @throws ODCleanStoreException database error
+     * @throws ODCleanStoreException database error or the query was invalid
      */
-    public QueryResult findURI(String uri) throws ODCleanStoreException, URISyntaxException {
+    public QueryResult findURI(String uri) throws ODCleanStoreException {
         LOG.info("URI query for <{}>", uri);
         long startTime = System.currentTimeMillis();
         checkValidSettings();
 
         // Check that the URI is valid (must not be empty or null, should match '<' ([^<>"{}|^`\]-[#x00-#x20])* '>' )
+        if (uri.length() > MAX_URI_LENGTH) {
+            throw new QueryException("The requested URI is longer than " + MAX_URI_LENGTH + " characters.");
+        }
         try {
             new URI(uri);
         } catch (URISyntaxException e) {
-            throw e; // rethrow
+            throw new QueryFormatException(e); // rethrow
         }
 
         try {

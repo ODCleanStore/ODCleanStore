@@ -4,8 +4,6 @@ import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 
-import java.net.URISyntaxException;
-
 /**
  * Access point (facade) of the Query Execution component.
  * Provides access to methods provided by each QueryExecutor.
@@ -59,10 +57,9 @@ public class QueryExecution {
      * @param aggregationSpec aggregation settings for conflict resolution
      * @return result of the query as RDF quads
      * @throws ODCleanStoreException exception
-     * @throws URISyntaxException thrown when uri is not a valid URI
      */
     public QueryResult findURI(String uri, QueryConstraintSpec constraints,
-            AggregationSpec aggregationSpec) throws ODCleanStoreException, URISyntaxException {
+            AggregationSpec aggregationSpec) throws ODCleanStoreException {
 
         AggregationSpec effectiveAggregationSpec = mergeAggregationSettings(getDefaultConfiguration(), aggregationSpec);
         return new UriQueryExecutor(sparqlEndpoint, constraints, effectiveAggregationSpec).findURI(uri);

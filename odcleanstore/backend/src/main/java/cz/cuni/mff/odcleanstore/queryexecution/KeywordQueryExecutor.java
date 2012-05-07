@@ -44,6 +44,9 @@ import java.util.regex.Pattern;
 /*package*/class KeywordQueryExecutor extends QueryExecutorBase {
     private static final Logger LOG = LoggerFactory.getLogger(KeywordQueryExecutor.class);
 
+    /** Maximum allowed length of the query. */
+    public static final int MAX_QUERY_LENGTH = 1024;
+
     /**
      * SPARQL query that gets the main result quads.
      * Use of UNION instead of a more complex filter is to make owl:sameAs inference in Virtuoso work.
@@ -402,6 +405,10 @@ import java.util.regex.Pattern;
         LOG.info("Keyword query for '{}'", keywordsQuery);
         long startTime = System.currentTimeMillis();
         checkValidSettings();
+
+        if (keywordsQuery.length() > MAX_QUERY_LENGTH) {
+            throw new QueryException("The requested keyword query is longer than " + MAX_QUERY_LENGTH + " characters.");
+        }
 
         String containsMatchExpr = buildContainsMatchExpr(keywordsQuery);
         String exactMatchExpr = buildExactMatchExpr(keywordsQuery);
