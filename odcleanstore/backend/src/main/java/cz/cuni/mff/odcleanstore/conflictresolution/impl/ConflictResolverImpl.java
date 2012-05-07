@@ -169,9 +169,7 @@ public class ConflictResolverImpl implements ConflictResolver {
      * <li>(4) named graphs A and B were inserted by the same user.</li>
      * </ul>
      *
-     * @todo (4)
-     *
-     *       Current implementation has O(n log^2 n) time complexity.
+     * The current implementation has O(n log^2 n) time complexity.
      *
      * @param conflictingQuads a cluster of conflicting quads (quads having
      *        the same subject and predicate)
@@ -206,11 +204,12 @@ public class ConflictResolverImpl implements ConflictResolver {
                 if (lastMetadata != null
                         && quadMetadata != null
                         && quadMetadata.getSource() != null
-                        && quadMetadata.getSource().equals(lastMetadata.getSource())
+                        && quadMetadata.getSource().equals(lastMetadata.getSource()) // (2) holds
                         && quadMetadata.getInsertedAt() != null
                         && lastMetadata.getInsertedAt() != null
-                        && quadMetadata.getInsertedAt().before(lastMetadata.getInsertedAt())) {
-                    // (2) and (3) holds
+                        && quadMetadata.getInsertedAt().before(lastMetadata.getInsertedAt()) // (3) holds
+                        && quadMetadata.getInsertedBy() != null
+                        && quadMetadata.getInsertedBy().equals(lastMetadata.getInsertedBy())) { // (4) holds
                     resultIterator.remove();
                     removed = true;
                     LOG.debug("Filtered a triple from an outdated named graph {}.", quad.getGraphName().getURI());
