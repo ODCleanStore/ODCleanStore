@@ -3,7 +3,6 @@ package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.shared.NodeComparator;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 
 import com.hp.hpl.jena.graph.Node;
@@ -13,7 +12,6 @@ import de.fuberlin.wiwiss.ng4j.Quad;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Comparator;
 
 /**
  * Aggregation method that returns all input triples unchanged except for
@@ -24,31 +22,11 @@ import java.util.Comparator;
  *
  * @author Jan Michelfeit
  */
-final class AllAggregation extends SelectedValueAggregation {
+/*package*/final class AllAggregation extends SelectedValueAggregation {
     /**
      * Expected number of data sources per quad - used to initialize data sources collections.
      */
     private static final int EXPECTED_DATA_SOURCES = 2;
-
-    /**
-     * A comparator used to sort quads by object and named graph.
-     */
-    private static final ObjectNamedGraphComparator OBJECT_NG_COMPARATOR = new ObjectNamedGraphComparator();
-
-    /**
-     * Comparator of {@link Quad Quads} comparing first by objects, second by named graph.
-     */
-    private static class ObjectNamedGraphComparator implements Comparator<Quad> {
-        @Override
-        public int compare(Quad q1, Quad q2) {
-            int objectComparison = NodeComparator.compare(q1.getObject(), q2.getObject());
-            if (objectComparison != 0) {
-                return objectComparison;
-            } else {
-                return NodeComparator.compare(q1.getGraphName(), q2.getGraphName());
-            }
-        }
-    }
 
     /**
      * Creates a new instance with given settings.
@@ -60,8 +38,8 @@ final class AllAggregation extends SelectedValueAggregation {
     }
 
     /**
-     * Returns conflictingQuads unchanged, only wrapped as CRQuads with added
-     * quality estimate.
+     * Returns all conflicting quads with quads having the same object aggregated, wrapped as CRQuad.
+     * If conflictingQuads are empty, returns an empty collection.
      *
      * {@inheritDoc}
      *
@@ -74,7 +52,6 @@ final class AllAggregation extends SelectedValueAggregation {
      */
     @Override
     public Collection<CRQuad> aggregate(Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
-
         Collection<CRQuad> result = createResultCollection();
 
         // Sort quads by object so that we can detect identical triples

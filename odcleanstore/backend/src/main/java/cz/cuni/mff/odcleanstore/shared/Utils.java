@@ -1,5 +1,7 @@
 package cz.cuni.mff.odcleanstore.shared;
 
+import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
+import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 
 import com.hp.hpl.jena.datatypes.DatatypeFormatException;
@@ -7,6 +9,9 @@ import com.hp.hpl.jena.datatypes.xsd.impl.XSDAbstractDateTimeType;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.impl.LiteralLabel;
 
+import de.fuberlin.wiwiss.ng4j.Quad;
+
+import java.util.Date;
 import java.util.regex.Pattern;
 
 /**
@@ -128,6 +133,24 @@ public final class Utils {
      */
     public static boolean isNullOrEmpty(String s) {
         return s == null || s.length() == 0;
+    }
+
+    public static int compareByInsertedAt(Quad quad1, Quad quad2, NamedGraphMetadataMap metadata) {
+        NamedGraphMetadata metadata1 = metadata.getMetadata(quad1.getGraphName());
+        NamedGraphMetadata metadata2 = metadata.getMetadata(quad2.getGraphName());
+        Date insertedAt1 = metadata1 != null ? metadata1.getInsertedAt() : null;
+        Date insertedAt2 = metadata1 != null ? metadata2.getInsertedAt() : null;
+        if (insertedAt1 != null && insertedAt2 != null) {
+            return insertedAt1.compareTo(insertedAt2);
+        }
+        else if (insertedAt1 != null) {
+            return 1;
+        } else if (insertedAt2 != null) {
+            return -1;
+        } else {
+            assert insertedAt1 == null && insertedAt2 == null;
+            return 0;
+        }
     }
 
     /** Disable constructor for a utility class. */
