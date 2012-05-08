@@ -28,10 +28,20 @@
 		</repository>
 	</repositories>
 
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>cz.cuni.mff.odcleanstore</groupId>
+				<artifactId>${artifactPrefix}backend</artifactId>
+				<version>0.0.1-SNAPSHOT</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	
 	<dependencies>
 		<dependency>
 			<groupId>cz.cuni.mff.odcleanstore</groupId>
-			<artifactId>odcleanstore-backend</artifactId>
+			<artifactId>${artifactPrefix}backend</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.openlinksw</groupId>
@@ -49,16 +59,6 @@
 			<version>2.1-RC4</version>
 		</dependency>
 	</dependencies>
-
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>cz.cuni.mff.odcleanstore</groupId>
-				<artifactId>odcleanstore-backend</artifactId>
-				<version>0.0.1-SNAPSHOT</version>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
 
 	<build>
 		<plugins>
