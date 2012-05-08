@@ -15,6 +15,13 @@ import java.sql.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Rules Model.
+ *
+ * Facilitates changes and queries for quality assessment rules.
+ *
+ * @author Jakub Daniel
+ */
 public class RulesModel {
 	private static final Logger LOG = LoggerFactory.getLogger(RulesModel.class);
 
@@ -24,6 +31,12 @@ public class RulesModel {
 		this.endpoint = endpoint;
 	}
 	
+	/**
+	 * Get rules applicable to any graph.
+	 *
+         * @return a collection of all rules that are not restricted to graphs coming from
+	 * a particular publisher
+         */
 	public Collection<Rule> getUnrestrictedRules() throws QualityAssessmentException {
 		Collection<Rule> rules = new ArrayList<Rule>();
 		
@@ -34,6 +47,9 @@ public class RulesModel {
 			connection = VirtuosoConnectionWrapper.createConnection(endpoint);
 			results = connection.executeSelect("SELECT * FROM DB.FRONTEND.EL_RULES");
 			
+			/**
+			 * Fill the collection with rule instances for all records in database.
+			 */
 			while (results.next()) {
 				ResultSet result = results.getCurrentResultSet();
 				
@@ -71,7 +87,18 @@ public class RulesModel {
 		return rules;
 	}
 	
+	/**
+         * Get rules applicable to graphs coming from a particular publisher.
+	 *
+	 * @return a collection of rules applicable to a graph coming from a particular publisher.
+         */
 	public Collection<Rule> getRulesForDomain (String domain) throws QualityAssessmentException {
+
+		/**
+		 * TODO: When there is possibility to restrict rules to a certain publisher, select those rules
+		 * restricted to the publisher and also rules applicable to any graph and return the union of
+		 * the two collections.
+		 */
 		return getUnrestrictedRules();
 	}
 }
