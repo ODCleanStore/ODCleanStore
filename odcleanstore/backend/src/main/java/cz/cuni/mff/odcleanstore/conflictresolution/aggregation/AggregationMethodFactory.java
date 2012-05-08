@@ -97,6 +97,8 @@ public class AggregationMethodFactory {
             return new BestAggregation(aggregationSpec, uriGenerator);
         case LATEST:
             return new LatestAggregation(aggregationSpec, uriGenerator);
+        case BEST_SOURCE:
+            return new BestSourceAggregation(aggregationSpec, uriGenerator);
         case TOPC:
             return new TopCAggregation(aggregationSpec, uriGenerator);
         case MAX:
