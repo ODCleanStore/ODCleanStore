@@ -64,11 +64,31 @@ public class HTMLFormatter extends ResultFormatterBase {
 					+ "\n</head>"
 					+ "\n<body>"
 					+ "\n");
-			if (queryResult.getExecutionTime() != null) {
-				writer.write(" <p>Query executed in ");
-				writer.write(formatExecutionTime(queryResult.getExecutionTime()));
-				writer.write(".</p>\n");
+			writer.write(" <p>");
+			if (queryResult.getQuery() != null) {
+				switch (queryResult.getQueryType()) {
+				case KEYWORD:
+					writer.write("Keyword query for <code>");
+					writer.write(queryResult.getQuery());
+					writer.write("</code>.");
+					break;
+				case URI:
+					writer.write("URI query for &lt;");
+					writer.write(queryResult.getQuery());
+					writer.write("&gt;.");
+					break;
+				default:
+					writer.write("Query <code>");
+					writer.write(queryResult.getQuery());
+					writer.write("</code>.");
+				}
 			}
+			if (queryResult.getExecutionTime() != null) {
+				writer.write(" Query executed in ");
+				writer.write(formatExecutionTime(queryResult.getExecutionTime()));
+				writer.write('.');
+			}
+			writer.write("</p>\n");
 		}
 
 		/**
