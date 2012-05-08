@@ -62,6 +62,8 @@ public class ConflictResolverImplTest {
     public void beforeTest() {
         metadata = new NamedGraphMetadataMap();
         updatedQuadDataSource = TestUtils.getUniqueURI();
+        String insertedBy = TestUtils.getUniqueURI();
+
 
         Calendar date = Calendar.getInstance();
         NamedGraphMetadata otherQuadMetadata =
@@ -69,6 +71,7 @@ public class ConflictResolverImplTest {
         // otherQuadMetadata.setScore();
         otherQuadMetadata.setSource(TestUtils.getUniqueURI());
         otherQuadMetadata.setInsertedAt(date.getTime());
+        otherQuadMetadata.setInsertedBy(insertedBy);
         metadata.addMetadata(otherQuadMetadata);
 
         date.add(Calendar.YEAR, 1);
@@ -77,6 +80,7 @@ public class ConflictResolverImplTest {
         // oldVersionMetadata.setScore();
         oldVersionMetadata.setSource(updatedQuadDataSource);
         oldVersionMetadata.setInsertedAt(date.getTime());
+        oldVersionMetadata.setInsertedBy(insertedBy);
         metadata.addMetadata(oldVersionMetadata);
 
         date.add(Calendar.YEAR, 1);
@@ -85,6 +89,7 @@ public class ConflictResolverImplTest {
         // newVersionMetadata.setScore();
         newVersionMetadata.setSource(updatedQuadDataSource);
         newVersionMetadata.setInsertedAt(date.getTime());
+        newVersionMetadata.setInsertedBy(insertedBy);
         metadata.addMetadata(newVersionMetadata);
 
         spec = new ConflictResolverSpec(TestUtils.getUniqueURI());
