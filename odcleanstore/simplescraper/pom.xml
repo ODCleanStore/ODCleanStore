@@ -19,13 +19,6 @@
 
 	<name>ODCleanStore - Simple Scraper</name>
 	<description>TO BE ADDED</description>
-	
-	<repositories>
-		<repository>
-			<id>odcleanstore</id>
-			<url>http://gd.projekty.ms.mff.cuni.cz:9123/nexus/content/groups/public/</url>
-		</repository>
-	</repositories>
 
 	<dependencies>
 		<dependency>

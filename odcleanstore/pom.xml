@@ -25,4 +25,11 @@
         <artifactPrefix>odcs-</artifactPrefix>
     </properties>
 
+	<repositories>
+		<repository>
+			<id>odcleanstore</id>
+			<url>http://gd.projekty.ms.mff.cuni.cz:9123/nexus/content/groups/public/</url>
+		</repository>
+	</repositories>
+	
 </project>
