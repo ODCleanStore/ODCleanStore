@@ -198,7 +198,7 @@ public final class AggregationUtils {
         NamedGraphMetadata metadata1 = metadata.getMetadata(quad1.getGraphName());
         NamedGraphMetadata metadata2 = metadata.getMetadata(quad2.getGraphName());
         Date insertedAt1 = metadata1 != null ? metadata1.getInsertedAt() : null;
-        Date insertedAt2 = metadata1 != null ? metadata2.getInsertedAt() : null;
+        Date insertedAt2 = metadata2 != null ? metadata2.getInsertedAt() : null;
         return Utils.nullProofCompare(insertedAt1, insertedAt2);
     }
 
