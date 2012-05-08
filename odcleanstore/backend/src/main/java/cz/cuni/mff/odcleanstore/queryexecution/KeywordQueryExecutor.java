@@ -249,8 +249,15 @@ import java.util.regex.Pattern;
      * Pattern matching characters removed from the searched keyword for bif:contains match.
      * Must remove single quotes but doesn't remove double quotes since they are used to denote phrases with whitespace.
      * @see #getContainsMatchExpr(String)
+     * @see #CONTAINS_FILTER_PATTERN2
      */
-    private static final Pattern CONTAINS_FILTER_PATTERN = Pattern.compile("[\\x00-\\x09\\x0E-\\x1F'`]+");
+    private static final Pattern CONTAINS_FILTER_PATTERN1 = Pattern.compile("[\\x00-\\x09\\x0E-\\x1F'`]+");
+
+    /**
+     * Second stage of {@link #CONTAINS_FILTER_PATTERN1}.
+     * @see #CONTAINS_FILTER_PATTERN1.
+     */
+    private static final Pattern CONTAINS_FILTER_PATTERN2 = Pattern.compile("(?<![^\\s\"]{4,})[*]");
 
     /**
      * Pattern matching one keyword in the input query.
@@ -275,31 +282,66 @@ import java.util.regex.Pattern;
     private static final Pattern NUMERIC_PATTERN = Pattern.compile("^[+-]?[0-9]*\\.?[0-9]+$");
 
     /**
+     * Parse the query string to a list of keywords. Double quotes enclosing a phrase are retained.
+     * @param keywordsQuery the keyword query
+     * @return list of keywords parsed from the query
+     */
+    private static Collection<String> parseContainsKeywords(String keywordsQuery) {
+        String filteredKeywordsQuery = CONTAINS_FILTER_PATTERN1.matcher(keywordsQuery).replaceAll("");
+        filteredKeywordsQuery = CONTAINS_FILTER_PATTERN2.matcher(filteredKeywordsQuery).replaceAll("");
+        Matcher keywordMatcher = CONTAINS_KEYWORD_PATTERN.matcher(filteredKeywordsQuery);
+        final int expectedKeywords = 2;
+        ArrayList<String> keywords = new ArrayList<String>(expectedKeywords);
+        while (keywordMatcher.find()) {
+            String keyword = keywordMatcher.group().trim();
+            keywords.add(keyword);
+        }
+        return keywords;
+    }
+
+    /**
+     * Builds the canonical representation of a query.
+     * The result is a concatenation of all parsed keywords by a single space.
+     * @param keywords parsed keywords (see {@link #parseContainsKeywords(String)})
+     * @return string representation of the query
+     */
+    private static String buildCanonicalQuery(Collection<String> keywords) {
+        if (keywords.isEmpty()) {
+            return "";
+        }
+        StringBuilder result = new StringBuilder();
+        for (String keyword : keywords) {
+            result.append(keyword);
+            result.append(' ');
+        }
+        return result.substring(0, result.length() - 1).toString();
+    }
+
+    /**
      * Builds an expression that matches the given keyword(s) in a bif:contains pattern.
      * Returns an empty string if no valid keyword is in keywordsQuery.
      * The result is an expression matching a conjunction of all keywords in keywordsQuery which can be either enclosed
      * in double quotes and/or separated by whitespace.
      *
-     * TODO: possible tests: "abc def \"efg\" hij", "abc\"def\"efg", "abc\"def", "a'bc", "\"abc
+     * TODO: possible tests: "abc def \"efg\" hij", "abc\"def\"efg", "abc\"def", "a'bc", "\"abc, "abcd*", "abc*",
+     * "ab'c*", "ab\"c*"
      *
-     * @param keywordsQuery the keyword query
+     * @param keywords parsed keywords (see {@link #parseContainsKeywords(String)})
      * @return an expression that matches the given keyword(s) in a bif:contains pattern
      */
-    private static String buildContainsMatchExpr(String keywordsQuery) {
-        String filteredKeywordsQuery = CONTAINS_FILTER_PATTERN.matcher(keywordsQuery).replaceAll("");
-        Matcher keywordMatcher = CONTAINS_KEYWORD_PATTERN.matcher(filteredKeywordsQuery);
-
+    private static String buildContainsMatchExpr(Collection<String> keywords) {
+        if (keywords.isEmpty()) {
+            return "";
+        }
         StringBuilder expr = new StringBuilder();
         expr.append('\'');
         boolean hasMatch = false;
-        while (keywordMatcher.find()) {
+        for (String keyword : keywords) {
             if (!hasMatch) {
                 hasMatch = true;
             } else {
                 expr.append(" AND ");
             }
-
-            String keyword = keywordMatcher.group().trim();
             if (keyword.startsWith("\"")) {
                 assert keyword.length() > 2;
                 expr.append(keyword);
@@ -311,7 +353,7 @@ import java.util.regex.Pattern;
             }
         }
         expr.append('\'');
-        return hasMatch ? expr.toString() : "";
+        return expr.toString();
     }
 
     /**
@@ -366,18 +408,20 @@ import java.util.regex.Pattern;
             throw new QueryException("The requested keyword query is longer than " + MAX_QUERY_LENGTH + " characters.");
         }
 
-        String containsMatchExpr = buildContainsMatchExpr(keywordsQuery);
+        Collection<String> parsedKeywords = parseContainsKeywords(keywordsQuery);
+        String canonicalQuery = buildCanonicalQuery(parsedKeywords);
+        String containsMatchExpr = buildContainsMatchExpr(parsedKeywords);
         String exactMatchExpr = buildExactMatchExpr(keywordsQuery);
         if (containsMatchExpr.isEmpty() || exactMatchExpr.isEmpty()) {
             // No valid keywords
-            return createResult(Collections.<CRQuad>emptyList(), new NamedGraphMetadataMap(),
+            return createResult(Collections.<CRQuad>emptyList(), new NamedGraphMetadataMap(), canonicalQuery,
                     System.currentTimeMillis() - startTime);
         }
         try {
             // Get the quads relevant for the query
             Collection<Quad> quads = getKeywordOccurrences(containsMatchExpr, exactMatchExpr);
             if (quads.isEmpty()) {
-                return createResult(Collections.<CRQuad>emptyList(), new NamedGraphMetadataMap(),
+                return createResult(Collections.<CRQuad>emptyList(), new NamedGraphMetadataMap(), canonicalQuery,
                         System.currentTimeMillis() - startTime);
             }
             quads.addAll(getLabels(containsMatchExpr, exactMatchExpr));
@@ -393,7 +437,7 @@ import java.util.regex.Pattern;
             ConflictResolver conflictResolver = ConflictResolverFactory.createResolver(crSpec);
             Collection<CRQuad> resolvedQuads = conflictResolver.resolveConflicts(quads);
 
-            return createResult(resolvedQuads, metadata, System.currentTimeMillis() - startTime);
+            return createResult(resolvedQuads, metadata, canonicalQuery, System.currentTimeMillis() - startTime);
         } finally {
             closeConnection();
         }
@@ -424,17 +468,19 @@ import java.util.regex.Pattern;
      * Creates an object holding the results of the query.
      * @param resultQuads result of the query as {@link CRQuad CRQuads}
      * @param metadata provenance metadata for resultQuads
+     * @param query the keyword query (as parsed)
      * @param executionTime query execution time in ms
      * @return query result holder
      */
     private QueryResult createResult(
             Collection<CRQuad> resultQuads,
             NamedGraphMetadataMap metadata,
+            String query,
             long executionTime) {
 
         LOG.debug("Query Execution: findKeyword() in {} ms", executionTime);
         // Format and return result
-        QueryResult queryResult = new QueryResult(resultQuads, metadata, EnumQueryType.KEYWORD, constraints,
+        QueryResult queryResult = new QueryResult(resultQuads, metadata, query, EnumQueryType.KEYWORD, constraints,
                 aggregationSpec);
         queryResult.setExecutionTime(executionTime);
         return queryResult;

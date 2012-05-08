@@ -293,7 +293,7 @@ import java.util.Set;
             // Get the quads relevant for the query
             Collection<Quad> quads = getURIOccurrences(uri);
             if (quads.isEmpty()) {
-                return createResult(Collections.<CRQuad>emptyList(), new NamedGraphMetadataMap(),
+                return createResult(Collections.<CRQuad>emptyList(), new NamedGraphMetadataMap(), uri,
                         System.currentTimeMillis() - startTime);
             }
             quads.addAll(getLabels(uri));
@@ -309,7 +309,7 @@ import java.util.Set;
             ConflictResolver conflictResolver = ConflictResolverFactory.createResolver(crSpec);
             Collection<CRQuad> resolvedQuads = conflictResolver.resolveConflicts(quads);
 
-            return createResult(resolvedQuads, metadata, System.currentTimeMillis() - startTime);
+            return createResult(resolvedQuads, metadata, uri, System.currentTimeMillis() - startTime);
         } finally {
             closeConnection();
         }
@@ -342,17 +342,19 @@ import java.util.Set;
      * Creates an object holding the results of the query.
      * @param resultQuads result of the query as {@link CRQuad CRQuads}
      * @param metadata provenance metadata for resultQuads
+     * @param query the queried URI
      * @param executionTime query execution time in ms
      * @return query result holder
      */
     private QueryResult createResult(
             Collection<CRQuad> resultQuads,
             NamedGraphMetadataMap metadata,
+            String query,
             long executionTime) {
 
         LOG.debug("Query Execution: findURI() in {} ms", executionTime);
         // Format and return result
-        QueryResult queryResult = new QueryResult(resultQuads, metadata, EnumQueryType.URI, constraints,
+        QueryResult queryResult = new QueryResult(resultQuads, metadata, query, EnumQueryType.URI, constraints,
                 aggregationSpec);
         queryResult.setExecutionTime(executionTime);
         return queryResult;

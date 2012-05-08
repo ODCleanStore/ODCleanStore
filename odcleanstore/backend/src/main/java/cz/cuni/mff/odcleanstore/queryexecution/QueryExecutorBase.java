@@ -24,6 +24,8 @@ import de.fuberlin.wiwiss.ng4j.Quad;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Collection;
@@ -252,18 +254,33 @@ import java.util.Locale;
     /**
      * Check whether aggregation settings and query constraints are valid.
      * For now, checks only compliance with {@link #MAX_PROPERTY_SETTINGS_SIZE}.
-     * @throws ODCleanStoreException aggregation settings or query constraints are invalid
+     * @throws QueryFormatException aggregation settings or query constraints are invalid
      */
-    protected void checkValidSettings() throws ODCleanStoreException {
-        int settingsPropertyCount = aggregationSpec.getPropertyAggregations() == null
-                ? 0
-                : aggregationSpec.getPropertyAggregations().size();
-        settingsPropertyCount += aggregationSpec.getPropertyMultivalue() == null
-                ? 0
-                : aggregationSpec.getPropertyMultivalue().size();
-        if (settingsPropertyCount > MAX_PROPERTY_SETTINGS_SIZE) {
-            throw new ODCleanStoreException("Too many explicit property settings.");
+    protected void checkValidSettings() throws QueryFormatException {
+        // Check that settings contain valid URIs
+        for (String property : aggregationSpec.getPropertyAggregations().keySet()) {
+            try {
+                new URI(property);
+            } catch (URISyntaxException e) {
+                throw new QueryFormatException("'" + property + "' is not a valid URI.", e);
+            }
         }
+        for (String property : aggregationSpec.getPropertyMultivalue().keySet()) {
+            try {
+                new URI(property);
+            } catch (URISyntaxException e) {
+                throw new QueryFormatException("'" + property + "' is not a valid URI.", e);
+            }
+        }
+
+        // Check that the size of settings is reasonable - the query size may depend on it
+        int settingsPropertyCount = aggregationSpec.getPropertyAggregations().size()
+                + aggregationSpec.getPropertyMultivalue().size();
+        if (settingsPropertyCount > MAX_PROPERTY_SETTINGS_SIZE) {
+            throw new QueryFormatException("Too many explicit property settings.");
+        }
+
+        // Log a warning if using this debug option
         if (GRAPH_PREFIX_FILTER != null) {
             LOG.warn("Query is limited to named graph starting with '{}'", GRAPH_PREFIX_FILTER);
         }

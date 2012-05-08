@@ -18,6 +18,9 @@ public class QueryResult {
     /** Provenance metadata for {@link #resultQuads}. */
     private NamedGraphMetadataMap metadata;
 
+    /** The query string. */
+    private String query;
+
     /** Type of the query. */
     private EnumQueryType queryType;
 
@@ -34,6 +37,7 @@ public class QueryResult {
      * Initializes a new instance.
      * @param resultQuads result of the query as {@link CRQuad CRQuads}
      * @param metadata provenance metadata for resultQuads
+     * @param query the query string
      * @param queryType type of the query
      * @param queryConstraints constraints on triples returned in the result
      * @param aggregationSpec aggregation settings used during conflict resolution
@@ -41,12 +45,14 @@ public class QueryResult {
     public QueryResult(
             Collection<CRQuad> resultQuads,
             NamedGraphMetadataMap metadata,
+            String query,
             EnumQueryType queryType,
             QueryConstraintSpec queryConstraints,
             AggregationSpec aggregationSpec) {
 
         this.resultQuads = resultQuads;
         this.metadata = metadata;
+        this.query = query;
         this.queryType = queryType;
         this.queryConstraints = queryConstraints;
         this.aggregationSpec = aggregationSpec;
@@ -67,6 +73,15 @@ public class QueryResult {
     public NamedGraphMetadataMap getMetadata() {
         return metadata;
     }
+
+    /**
+     * Returns the query string.
+     * @return the query string
+     */
+    public String getQuery() {
+        return query;
+    }
+
 
     /**
      * Returns type of the query.
