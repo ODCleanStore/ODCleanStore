@@ -54,6 +54,8 @@ public class ConfigBuilder {
 	private static final String CONFIG_XML_FILE = "file";
 	private static final String CONFIG_XML_SPARQL_ENDPOINT = "sparqlEndpoint";
 	
+	private static final String TEMP_ENDPOINT = "http://localhost:8890/sparql";
+	
 	public static File createLinkConfigFile(List<String> rawRules, List<RDFprefix> prefixes, 
 			TransformedGraph inputGraph, TransformationContext context) throws TransformerException {
 		
@@ -119,7 +121,9 @@ public class ConfigBuilder {
 		
 		Element parameterElement = doc.createElement(CONFIG_XML_PARAMETER);
 		parameterElement.setAttribute(CONFIG_XML_NAME, CONFIG_XML_ENDPOINT_URI);
-		parameterElement.setAttribute(CONFIG_XML_VALUE, endpoint.getUri());
+		// TODO uncomment when sparql endpoint can be obtained
+		//parameterElement.setAttribute(CONFIG_XML_VALUE, endpoint.getUri());
+		parameterElement.setAttribute(CONFIG_XML_VALUE, TEMP_ENDPOINT);
 		sourceElement.appendChild(parameterElement);
 		
 		if (graphName != null) {
