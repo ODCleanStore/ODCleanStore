@@ -21,12 +21,10 @@ public class KeywordQueryExecutorResource extends QueryExecutorResourceBase {
 	@Override
 	protected Representation execute(Form form) {
 		try {
-
 			String keyword = form.getFirst("find").getValue();
-
+			AggregationSpec aggregationSpec = getAggregationSpec(form);
 			QueryExecution queryExecution = new QueryExecution(Engine.CLEAN_DATABASE_ENDPOINT);
-			final QueryResult result = queryExecution.findKeyword(keyword, new QueryConstraintSpec(),
-					new AggregationSpec());
+			final QueryResult result = queryExecution.findKeyword(keyword, new QueryConstraintSpec(), aggregationSpec);
 
 			if (result == null)
 				return return404();
