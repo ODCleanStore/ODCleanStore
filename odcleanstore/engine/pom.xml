@@ -48,13 +48,6 @@
 			<artifactId>org.restlet.ext.slf4j</artifactId>
 			<version>2.1-RC4</version>
 		</dependency>
-		<!-- TODO: move to parent pom -->
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.8.2</version>
-			<scope>test</scope>
-		</dependency>
 	</dependencies>
 
 	<dependencyManagement>
