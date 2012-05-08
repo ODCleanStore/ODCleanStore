@@ -6,7 +6,6 @@ import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
@@ -24,7 +23,6 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -88,63 +86,6 @@ import java.util.Set;
             + "\n }";
 
     /**
-     * SPARQL query that gets relevant owl:sameAs links for conflict resolution of the result quads.
-     * Returns only links for properties explicitly listed in aggregation settings.
-     * @see #URI_OCCURENCES_QUERY
-     *
-     *      The query must be formatted with these arguments: (1) URI, (2) graph filter clause,
-     *      (3) list of properties (separated by ','), (4) limit
-     */
-    /*private static final String SAME_AS_LINKS_QUERY = "SPARQL"
-            + "\n DEFINE input:same-as \"yes\""
-            + "\n SELECT DISTINCT ?p ?linked"
-            + "\n WHERE {"
-            + "\n   {"
-            + "\n     SELECT DISTINCT ?graph ?s ?p ?o"
-            + "\n     WHERE {"
-            + "\n       {"
-            + "\n         GRAPH ?graph {"
-            + "\n           ?s ?p ?o."
-            + "\n           FILTER (?s = <%1$s>)"
-            + "\n           FILTER (?p != <" + OWL.sameAs + ">)"
-            + "\n         }"
-            + "\n         %2$s"
-            + "\n       }"
-            + "\n       UNION"
-            + "\n       {"
-            + "\n         GRAPH ?graph {"
-            + "\n           ?s ?p ?o."
-            + "\n           FILTER (?o = <%1$s>)"
-            + "\n           FILTER (?p != <" + OWL.sameAs + ">)"
-            + "\n         }"
-            + "\n         %2$s"
-            + "\n       }"
-            + "\n     }"
-            + "\n     LIMIT %4$d"
-            + "\n   }"
-            + "\n   ?linked owl:sameAs ?p."
-            + "\n   FILTER (?linked IN (%3$s))"
-            + "\n }"
-            + "\n LIMIT %4$d";*/
-    // TODO: quick fix, remake
-    private static final String SAME_AS_LINKS_QUERY = "SPARQL"
-            + "\n SELECT ?p ?linked"
-            + "\n WHERE {"
-            + "\n   {"
-            + "\n     SELECT ?p ?linked"
-            + "\n     WHERE {"
-            + "\n       { ?o owl:sameAs ?linked }"
-            + "\n       UNION "
-            + "\n       { ?linked owl:sameAs ?p }"
-            + "\n     }"
-            + "\n   }"
-            + "\n   OPTION ( TRANSITIVE, t_in (?p), t_out (?linked), t_distinct, t_min (1) )"
-            + "\n   FILTER (?p = <%1$s>) ."
-            + "\n }"
-            + "\n LIMIT %4$d";
-
-
-    /**
      * SPARQL query that gets metadata for named graphs containing result quads.
      * Source is the only required value, others can be null.
      * For the reason why UNIONs and subqueries are used, see {@link #URI_OCCURENCES_QUERY}.
@@ -155,7 +96,6 @@ import java.util.Set;
      * filter, (5) limit
      *
      * TODO: omit metadata for additional labels?
-     * TODO: reuse uri query and label query?
      */
     private static final String METADATA_QUERY = "SPARQL"
             + "\n DEFINE input:same-as \"yes\""
@@ -455,67 +395,27 @@ import java.util.Set;
 
     /**
      * Returns owl:sameAs links relevant for conflict resolution for this query.
-     * Returns only links for properties explicitly listed in aggregation settings;
+     * Returns only links for the searched URI and properties explicitly listed in aggregation settings;
      * other links (e.g. between subjects/objects in the result) are resolved by Virtuoso.
-     * @see #KEYWORD_OCCURENCES_QUERY
-     * @param keywords searched keywords (separated by whitespace)
+     * @see #URI_OCCURENCES_QUERY
+     * @param uri searched URI
      * @return collection of relevant owl:sameAs links
      * @throws ODCleanStoreException query error
      */
-    private Collection<Triple> getSameAsLinks(String keywords) throws ODCleanStoreException {
-        Set<String> aggregationProperties = aggregationSpec.getPropertyAggregations() == null
-                ? Collections.<String>emptySet()
-                : aggregationSpec.getPropertyAggregations().keySet();
-        Set<String> multivalueProperties = aggregationSpec.getPropertyMultivalue() == null
-                ? Collections.<String>emptySet()
-                : aggregationSpec.getPropertyMultivalue().keySet();
-        /*if (aggregationProperties.isEmpty() && multivalueProperties.isEmpty()) {
-            // Nothing to get sameAs links for
-            return Collections.<Triple>emptySet();
-        }*/
-
+    private Collection<Triple> getSameAsLinks(String uri) throws ODCleanStoreException {
         long startTime = System.currentTimeMillis();
-
-        // Build query
-        final String separator = ", ";
-        StringBuilder properties = new StringBuilder();
-        for (String property : aggregationProperties) {
-            properties.append('<');
-            properties.append(property);
-            properties.append('>');
-            properties.append(separator);
+        Collection<Triple> sameAsTriples = new ArrayList<Triple>();
+        addSameAsLinksForURI(uri, sameAsTriples);
+        assert aggregationSpec.getPropertyAggregations() != null;
+        for (String property : aggregationSpec.getPropertyAggregations().keySet()) {
+            addSameAsLinksForURI(property, sameAsTriples);
         }
-        for (String property : multivalueProperties) {
-            properties.append('<');
-            properties.append(property);
-            properties.append('>');
-            properties.append(separator);
+        assert aggregationSpec.getPropertyMultivalue() != null;
+        for (String property : aggregationSpec.getPropertyMultivalue().keySet()) {
+            addSameAsLinksForURI(property, sameAsTriples);
         }
-        /*assert properties.length() >= separator.length(); // there is at least one property
-        properties.setLength(properties.length() - separator.length()); // trim the last separator*/
-        String query = String.format(SAME_AS_LINKS_QUERY, keywords, getGraphFilterClause(), properties, MAX_LIMIT);
-
-        // Execute query
-        WrappedResultSet resultSet = getConnection().executeSelect(query);
-        LOG.debug("Query Execution: getSameAsLinks() query took {} ms", System.currentTimeMillis() - startTime);
-
-        // Create sameAs triples
-        try {
-            Collection<Triple> sameAsTriples = new ArrayList<Triple>();
-            while (resultSet.next()) {
-                Triple triple = Triple.create(
-                        resultSet.getNode(1),
-                        SAME_AS_PROPERTY,
-                        resultSet.getNode(2));
-                sameAsTriples.add(triple);
-            }
-
-            LOG.debug("Query Execution: getSameAsLinks() in {} ms", System.currentTimeMillis() - startTime);
-            return sameAsTriples;
-        } catch (SQLException e) {
-            throw new QueryException(e);
-        } finally {
-            resultSet.closeQuietly();
-        }
+        LOG.debug("Query Execution: getSameAsLinks() in {} ms ({} links)",
+                System.currentTimeMillis() - startTime, sameAsTriples.size());
+        return sameAsTriples;
     }
 }

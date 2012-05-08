@@ -6,7 +6,6 @@ import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
@@ -22,7 +21,6 @@ import de.fuberlin.wiwiss.ng4j.Quad;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -89,45 +87,6 @@ import java.util.regex.Pattern;
     // + "\n ORDER BY DESC(IF(bif:isnull(?sc), 100000, ?sc))";
 
     /**
-     * SPARQL query that gets relevant owl:sameAs links for conflict resolution of the result quads.
-     * Returns only links for properties explicitly listed in aggregation settings.
-     *
-     * The query must be formatted with these arguments: (1) bif:contains match expressionURI, (2) exact match
-     * expression, (3) graph filter clause, (4) list of properties (separated by ','), (5) limit.
-     *
-     * @see #URI_OCCURENCES_QUERY
-     */
-    private static final String SAME_AS_LINKS_QUERY = "SPARQL"
-            + "\n DEFINE input:same-as \"yes\""
-            + "\n SELECT DISTINCT ?p ?linked"
-            + "\n WHERE {"
-            + "\n   {"
-            + "\n     SELECT DISTINCT ?graph ?s ?p ?o"
-            + "\n     WHERE {"
-            + "\n       {"
-            + "\n         GRAPH ?graph {"
-            + "\n           ?s ?p ?o."
-            + "\n           ?o bif:contains %1$s"
-            // + "\n           OPTION (score ?sc)"
-            + "\n         }"
-            + "\n       }"
-            + "\n       UNION"
-            + "\n       {"
-            + "\n         GRAPH ?graph {"
-            + "\n           ?s ?p ?o."
-            + "\n           FILTER (?o = %2$s)"
-            + "\n         }"
-            + "\n       }"
-            + "\n       %3$s"
-            + "\n     }"
-            + "\n     LIMIT %5$d"
-            + "\n   }"
-            + "\n   ?linked owl:sameAs ?p."
-            + "\n   FILTER (?linked IN (%4$s))"
-            + "\n }"
-            + "\n LIMIT %5$d";
-
-    /**
      * SPARQL query that gets metadata for named graphs containing result quads.
      * Source is the only required value, others can be null.
      * For the reason why UNIONs and subqueries are used, see {@link #URI_OCCURENCES_QUERY}.
@@ -136,9 +95,6 @@ import java.util.regex.Pattern;
      *
      * Must be formatted with arguments: (1) bif:contains match expressionURI, (2) exact match
      * expression, (3) graph filter clause, (4) label properties, (5) resGraph prefix filter, (6) limit
-     *
-     * TODO: omit metadata for additional labels?
-     * TODO: reuse uri query and label query?
      */
     private static final String METADATA_QUERY = "SPARQL"
             + "\n DEFINE input:same-as \"yes\""
@@ -429,7 +385,7 @@ import java.util.regex.Pattern;
             // Gather all settings for Conflict Resolution
             ConflictResolverSpec crSpec = new ConflictResolverSpec(RESULT_GRAPH_PREFIX, aggregationSpec);
             crSpec.setPreferredURIs(getPreferredURIs());
-            crSpec.setSameAsLinks(getSameAsLinks(containsMatchExpr, exactMatchExpr).iterator());
+            crSpec.setSameAsLinks(getSameAsLinks().iterator());
             NamedGraphMetadataMap metadata = getMetadata(containsMatchExpr, exactMatchExpr);
             crSpec.setNamedGraphMetadata(metadata);
 
@@ -529,68 +485,22 @@ import java.util.regex.Pattern;
      * Returns owl:sameAs links relevant for conflict resolution for this query.
      * Returns only links for properties explicitly listed in aggregation settings;
      * other links (e.g. between subjects/objects in the result) are resolved by Virtuoso.
-     * @param containsMatchExpr an expression for bif:matches matching the searched keyword(s)
-     * @param exactMatchExpr a value matching the searched keyword for equality
      * @see #KEYWORD_OCCURENCES_QUERY
      * @return collection of relevant owl:sameAs links
      * @throws ODCleanStoreException query error
      */
-    private Collection<Triple> getSameAsLinks(String containsMatchExpr, String exactMatchExpr)
-            throws ODCleanStoreException {
-        Set<String> aggregationProperties = aggregationSpec.getPropertyAggregations() == null
-                ? Collections.<String>emptySet()
-                : aggregationSpec.getPropertyAggregations().keySet();
-        Set<String> multivalueProperties = aggregationSpec.getPropertyMultivalue() == null
-                ? Collections.<String>emptySet()
-                : aggregationSpec.getPropertyMultivalue().keySet();
-        if (aggregationProperties.isEmpty() && multivalueProperties.isEmpty()) {
-            // Nothing to get sameAs links for
-            return Collections.<Triple>emptySet();
-        }
-
+    private Collection<Triple> getSameAsLinks() throws ODCleanStoreException {
         long startTime = System.currentTimeMillis();
-
-        // Build query
-        final String separator = ", ";
-        StringBuilder properties = new StringBuilder();
-        for (String property : aggregationProperties) {
-            properties.append('<');
-            properties.append(property);
-            properties.append('>');
-            properties.append(separator);
+        Collection<Triple> sameAsTriples = new ArrayList<Triple>();
+        assert aggregationSpec.getPropertyAggregations() != null;
+        for (String property : aggregationSpec.getPropertyAggregations().keySet()) {
+            addSameAsLinksForURI(property, sameAsTriples);
         }
-        for (String property : multivalueProperties) {
-            properties.append('<');
-            properties.append(property);
-            properties.append('>');
-            properties.append(separator);
+        assert aggregationSpec.getPropertyMultivalue() != null;
+        for (String property : aggregationSpec.getPropertyMultivalue().keySet()) {
+            addSameAsLinksForURI(property, sameAsTriples);
         }
-        assert properties.length() >= separator.length(); // there is at least one property
-        properties.setLength(properties.length() - separator.length()); // trim the last separator
-        String query = String.format(SAME_AS_LINKS_QUERY, containsMatchExpr, exactMatchExpr, getGraphFilterClause(),
-                properties, MAX_LIMIT);
-
-        // Execute query
-        WrappedResultSet resultSet = getConnection().executeSelect(query);
-        LOG.debug("Query Execution: getSameAsLinks() query took {} ms", System.currentTimeMillis() - startTime);
-
-        // Create sameAs triples
-        try {
-            Collection<Triple> sameAsTriples = new ArrayList<Triple>();
-            while (resultSet.next()) {
-                Triple triple = Triple.create(
-                        resultSet.getNode(1),
-                        SAME_AS_PROPERTY,
-                        resultSet.getNode(2));
-                sameAsTriples.add(triple);
-            }
-
-            LOG.debug("Query Execution: getSameAsLinks() in {} ms", System.currentTimeMillis() - startTime);
-            return sameAsTriples;
-        } catch (SQLException e) {
-            throw new QueryException(e);
-        } finally {
-            resultSet.closeQuietly();
-        }
+        LOG.debug("Query Execution: {} in {} ms", "getSameAsLinks()", System.currentTimeMillis() - startTime);
+        return sameAsTriples;
     }
 }

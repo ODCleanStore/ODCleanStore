@@ -17,6 +17,7 @@ import cz.cuni.mff.odcleanstore.vocabulary.W3P;
 import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 
 import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.Triple;
 
 import de.fuberlin.wiwiss.ng4j.Quad;
 
@@ -64,6 +65,12 @@ import java.util.Locale;
     private static final long MAX_PROPERTY_SETTINGS_SIZE = 500;
 
     /**
+     * Maximum length of owl:sameAs path considered when searching for synonyms of a URI.
+     * @see UriQueryExecutor#addSameAsLinksForURI(String, Collection)
+     */
+    private static final int MAX_SAMEAS_PATH_LENGTH = 30;
+
+    /**
      * Prefix of named graphs where the resulting triples are placed.
      * TODO: get from global configuration.
      */
@@ -104,6 +111,27 @@ import java.util.Locale;
      * Must be formatted with a string argument.
      */
     private static final String PREFIX_FILTER_CLAUSE = " FILTER regex(?%s, \"^%s\")";
+
+    /**
+     * SPARQL query for retrieving all synonyms (i.e. resources connected by an owl:sameAs path) of a given URI.
+     * Must be formatted with arguments: (1) URI, (2) maximum length of owl:sameAs path considered, (3) limit.
+     * @see #MAX_SAMEAS_PATH_LENGTH
+     */
+    private static final String URI_SYNONYMS_QUERY = "SPARQL"
+                + "\n SELECT ?r ?syn"
+                + "\n WHERE {"
+                + "\n   {"
+                + "\n     SELECT ?r ?syn"
+                + "\n     WHERE {"
+                + "\n       { ?r owl:sameAs ?syn }"
+                + "\n       UNION"
+                + "\n       { ?syn owl:sameAs ?r }"
+                + "\n     }"
+                + "\n   }"
+                + "\n   OPTION (TRANSITIVE, t_in(?r), t_out(?syn), t_distinct, t_min(1), t_max(%2$d))"
+                + "\n   FILTER (?r = <%1$s>)"
+                + "\n }"
+                + "\n LIMIT %3$d";
 
     static {
         assert (LABEL_PROPERTIES.length > 0);
@@ -329,6 +357,35 @@ import java.util.Locale;
             }
             LOG.debug("Query Execution: {} in {} ms", debugName, System.currentTimeMillis() - startTime);
             return metadata;
+        } catch (SQLException e) {
+            throw new QueryException(e);
+        } finally {
+            resultSet.closeQuietly();
+        }
+    }
+
+    /**
+     * Retrieves owl:sameAs links of the given URI to all resources that are a synonym
+     * (i.e. connected by a owl:sameAs path) of the given URI. The result is added to the second argument as
+     * triples having the owl:sameAs predicate.  The maximum length of the owl:sameAs path is given by
+     *  {@link #MAX_SAMEAS_PATH_LENGTH} ({@value #MAX_SAMEAS_PATH_LENGTH}).
+     * @param uri URI for which we search for owl:sameAs synonyms
+     * @param triples the resulting triples are added to this collection as
+     * @throws QueryException database query error
+     * @throws ConnectionException database connection error
+     */
+    protected void addSameAsLinksForURI(String uri, Collection<Triple> triples)
+            throws QueryException, ConnectionException {
+
+        long startTime = System.currentTimeMillis();
+        String query = String.format(URI_SYNONYMS_QUERY, uri, MAX_SAMEAS_PATH_LENGTH, MAX_LIMIT);
+        WrappedResultSet resultSet = getConnection().executeSelect(query);
+        LOG.debug("Query Execution: getURISynonyms() query took {} ms", System.currentTimeMillis() - startTime);
+        try {
+            while (resultSet.next()) {
+                Triple triple = Triple.create(resultSet.getNode(1), SAME_AS_PROPERTY, resultSet.getNode(2));
+                triples.add(triple);
+            }
         } catch (SQLException e) {
             throw new QueryException(e);
         } finally {

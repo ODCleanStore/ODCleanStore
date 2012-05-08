@@ -138,7 +138,7 @@ public class AggregationSpec {
     }
 
     /**
-     * Get aggregation methods explicitly set for properties.
+     * Get aggregation methods explicitly set for properties. Never null.
      * @return map of aggregation types for properties
      */
     public final Map<String, EnumAggregationType> getPropertyAggregations() {
@@ -179,7 +179,7 @@ public class AggregationSpec {
     }
 
     /**
-     * Returns explicit multivalue settings for predicates.
+     * Returns explicit multivalue settings for predicates. Never null.
      * @see #getDefaultMultivalue()
      * @return map of property URI -> the multivalue setting for the property
      */
