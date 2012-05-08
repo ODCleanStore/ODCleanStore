@@ -1,17 +1,23 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" ?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	
 	<modelVersion>4.0.0</modelVersion>
-
-	<artifactId>odcleanstore-backend</artifactId>
+	
+	<groupId>cz.cuni.mff.odcleanstore</groupId>
+	<artifactId>${artifactPrefix}backend</artifactId>
+	<version>1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
-	<name>ODCleanStore - Backend</name>
 
 	<parent>
 		<groupId>cz.cuni.mff.odcleanstore</groupId>
-		<artifactId>_project-base</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
-		<relativePath>../_utils/_project-base</relativePath>
+		<artifactId>odcs</artifactId>
+		<version>1.0-SNAPSHOT</version>
 	</parent>
+
+	<name>ODCleanStore - Backend</name>
 
 	<dependencies>
 		<dependency>
