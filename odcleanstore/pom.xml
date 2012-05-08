@@ -23,6 +23,8 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		
+		<!-- to be used as artefact-name prefix in all module artefacts -->
         <artifactPrefix>odcs-</artifactPrefix>
     </properties>
 
@@ -50,6 +52,9 @@
 	
 	<build>
 		<plugins>
+			<!--
+				A plugin to set the Java compiler version to 1.6.
+			-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -59,6 +64,11 @@
 					<target>1.6</target>
 				</configuration>
 			</plugin>
+			
+			<!--
+				A plugin to allow javadoc generation.
+				Use the "mvn javadoc:javadoc" command to generate javadoc documentation.
+			-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
@@ -76,6 +86,9 @@
 	</build>
 		
 	<dependencies>
+		<!--
+			Dependencies to allow unit testing.
+		-->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
