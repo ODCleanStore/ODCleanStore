@@ -174,7 +174,7 @@ public class HTMLFormatter extends ResultFormatterBase {
 				writer.write(Engine.USER_SERVICE_URI_PATH);
 				writer.write("?find=");
 				writer.write(URLEncoder.encode(node.getURI(), "UTF-8"));
-				writer.write("&amp;at=");
+				writer.write("&amp;aggregation=");
 				writer.write(getAggregationType().name());
 				writer.write("\">");
 				writer.write(node.toString());
@@ -184,7 +184,7 @@ public class HTMLFormatter extends ResultFormatterBase {
 				writer.write(Engine.USER_SERVICE_KEYWORD_PATH);
 				writer.write("?find=");
 				writer.write(URLEncoder.encode(node.getLiteralLexicalForm(), "UTF-8"));
-				writer.write("&amp;at=");
+				writer.write("&amp;aggregation=");
 				writer.write(getAggregationType().name());
 				writer.write("\">");
 				writer.write(node.toString());
