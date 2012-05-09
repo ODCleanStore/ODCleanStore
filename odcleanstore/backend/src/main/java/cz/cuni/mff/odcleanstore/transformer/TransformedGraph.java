@@ -34,12 +34,6 @@ public interface TransformedGraph {
     String getMetadataGraphName();
 
     /**
-     * Returns a model of the named graph containing (provenance) metadata about the transformed
-     * graph.
-     */
-    //Model getMetadataModel();
-
-    /**
      * Returns a collection of graphs attached to the transformed graph registered by
      * {@link #addAttachedGraph(String)} method.
      * Contents of the attached graphs may be changed by the Transformer.
@@ -54,13 +48,13 @@ public interface TransformedGraph {
      * Transformer must not edit any data in the dirty database except for the given transformed graph
      * and metadata graph and newly created graphs registered by this method.
      * @param attachedGraphName URI of the attached named graph
-     * @throws TransformedGraphException 
+     * @throws TransformedGraphException
      */
     void addAttachedGraph(String attachedGraphName) throws TransformedGraphException;
 
     /**
      * Marks the whole transformed graph (and the respective attached graphs) for deletion.
-     * @throws TransformedGraphException 
+     * @throws TransformedGraphException
      */
     void deleteGraph() throws TransformedGraphException;
 
