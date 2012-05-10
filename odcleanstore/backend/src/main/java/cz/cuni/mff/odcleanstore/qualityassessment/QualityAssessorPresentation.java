@@ -24,6 +24,11 @@ public class QualityAssessorPresentation {
 			System.out.println("DRIVER DID NOT LOAD");
 		}
 		
+		// DO SOMETHING LIKE:
+		//INSERT DATA INTO <http://opendata.cz/data/metadata> {<http://opendata.cz/data/namedGraph/1843> <http://purl.org/provenance#publishedBy> <http://opendata.cz>}
+		//INSERT INTO DB.FRONTEND.DATA_DOMAINS (id, uri) VALUES (0, 'http://opendata.cz')
+		//INSERT INTO DB.FRONTEND.EL_RULES_TO_DOMAINS_RESTRICTIONS (ruleId, domainId) VALUES (4, 0)
+		
 		final SparqlEndpoint endpoint = new SparqlEndpoint("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba");
 		
 		QualityAssessor qa = QualityAssessorFactory.createAssessor();

@@ -7,6 +7,7 @@ import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -73,6 +74,29 @@ public final class VirtuosoConnectionWrapper {
             Statement statement = connection.createStatement();
             statement.setQueryTimeout(QUERY_TIMEOUT);
             statement.execute(query);
+            return new WrappedResultSet(statement);
+        } catch (SQLException e) {
+            throw new QueryException(e);
+        }
+    }
+    
+    /**
+     * Executes an SQL/SPARQL SELECT query and returns a wrapper for the result.
+     * @param query SQL/SPARQL query
+     * @param objects query bindings
+     * @return the result of the query
+     * @throws QueryException query error
+     */
+    public WrappedResultSet executeSelect(String query, Object... objects) throws QueryException {
+        try {
+            PreparedStatement statement = connection.prepareStatement(query);
+            
+            for (int i = 0; i < objects.length; ++i) {
+            	statement.setObject(i + 1, objects[i]);
+            }
+            
+            statement.setQueryTimeout(QUERY_TIMEOUT);
+            statement.execute();
             return new WrappedResultSet(statement);
         } catch (SQLException e) {
             throw new QueryException(e);
