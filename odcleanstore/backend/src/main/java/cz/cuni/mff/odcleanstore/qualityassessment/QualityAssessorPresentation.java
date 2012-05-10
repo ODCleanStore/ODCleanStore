@@ -12,6 +12,10 @@ import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraphException;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 
+/**
+ * This is a shortcut for using QA without the need of engine.
+ * It is here just for debugging connection to virtuoso.
+ */
 public class QualityAssessorPresentation {
 	public static void main (String[] args) {
 		try {

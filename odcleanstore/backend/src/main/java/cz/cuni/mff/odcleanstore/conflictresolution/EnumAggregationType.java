@@ -18,6 +18,9 @@ public enum EnumAggregationType {
     /** Select newest value. */
     LATEST,
 
+    /** Select value with the highest calculated quality of its source. */
+    BEST_SOURCE,
+
     /** Select C best values, C is cardinality of the respective property. */
     TOPC,
 

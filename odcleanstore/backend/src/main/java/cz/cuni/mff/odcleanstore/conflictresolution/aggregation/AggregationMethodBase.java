@@ -111,7 +111,7 @@ import java.util.Set;
      * @return quality of source of the named graph as a value from [0,1]
      * @see #SCORE_IF_UNKNOWN
      */
-    protected double getSourceQuality(NamedGraphMetadata metadata) {
+    protected static final double getSourceQuality(NamedGraphMetadata metadata) {
         // Weighted average of metadata.getScore() and metadata.getPublisherScore()
         if (metadata == null) {
             LOG.debug("No metadata given for source quality computation, using default scores.");

@@ -23,12 +23,6 @@ public class NumericLiteralComparator implements AggregationComparator {
     public int compare(Quad quad1, Quad quad2, NamedGraphMetadataMap metadata) {
         double value1 = AggregationUtils.convertToDoubleSilent(quad1.getObject().getLiteral());
         double value2 = AggregationUtils.convertToDoubleSilent(quad2.getObject().getLiteral());
-        if (value1 == value2) {
-            return 0;
-        } else if (value1 > value2) {
-            return 1;
-        } else {
-            return -1;
-        }
+        return Double.compare(value1, value2);
     }
 }

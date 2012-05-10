@@ -18,6 +18,12 @@ import java.util.Iterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * A common base for assessment processes.
+ *
+ * The assessment itself is independent of the database where the graph resides.
+ * There is a difference in computing aggregate score for publishers (TODO).
+ */
 abstract class CommonAssessment {
 	protected static final Logger LOG = LoggerFactory.getLogger(CommonAssessment.class);
 
@@ -33,19 +39,23 @@ abstract class CommonAssessment {
 	protected VirtuosoConnectionWrapper connection;
 
 	private VirtuosoConnectionWrapper getConnection () throws ConnectionException {
-        if (connection == null) {
-            connection = VirtuosoConnectionWrapper.createConnection(getEndpoint());
-        }
-        return connection;
+        	if (connection == null) {
+        		connection = VirtuosoConnectionWrapper.createConnection(getEndpoint());
+       		}
+		return connection;
 	}
 
-    private void closeConnection() throws ConnectionException {
-        if (connection != null) {
-            connection.close();
-            connection = null;
-        }
-    }
+	private void closeConnection() throws ConnectionException {
+        	if (connection != null) {
+			connection.close();
+			connection = null;
+        	}
+	}
 
+	/**
+	 * To assess the quality it is necessary to load all relevant rules, apply them
+	 * and then store the results.
+	 */
 	protected void assessQuality(TransformedGraph inputGraph,
 			TransformationContext context) throws QualityAssessmentException {
 
@@ -71,11 +81,21 @@ abstract class CommonAssessment {
 		LOG.info(String.format("Quality Assessment done for graph %s, %d rules tested, %d violations, score %f", inputGraph.getGraphName(), rules.size(), violations, score));
 	}
 
+	/**
+	 * Let the concrete implementation decide on what endpoint to choose (Clean/Dirty)
+	 */
 	abstract protected SparqlEndpoint getEndpoint();
 
+	/**
+	 * Analyze the graph (presence of publishedBy property). Choose
+	 * all rules that can surely be applied.
+	 */
 	protected void loadRules() throws QualityAssessmentException {
 		RulesModel model = new RulesModel(context.getCleanDatabaseEndpoint());
 
+		/**
+		 * TODO: Find info about publisher.
+		 */
 		String domain = null;
 
 		if (domain == null) {
@@ -85,6 +105,9 @@ abstract class CommonAssessment {
 		}
 	}
 
+	/**
+	 * Find out what rules are violated and change the score and trace accordingly.
+	 */
 	protected void applyRules() throws QualityAssessmentException {
 
 		Iterator<Rule> iterator = rules.iterator();
@@ -96,6 +119,9 @@ abstract class CommonAssessment {
 		}
 	}
 
+	/**
+	 *
+	 */
 	protected void applyRule(Rule rule) throws QualityAssessmentException {
 		String query = rule.toString(inputGraph.getGraphName());
 
@@ -107,7 +133,7 @@ abstract class CommonAssessment {
 		try
 		{
 			/**
-			 * Unfortunately it does not suffice to use SPARQL ASK as long as we
+			 * DEBUG: Unfortunately it does not suffice to use SPARQL ASK as long as we
 			 * want to use GROUP BY, HAVING
 			 */
 			results = getConnection().executeSelect(query);
@@ -121,10 +147,13 @@ abstract class CommonAssessment {
 				++violations;
 			}
 		} catch (ConnectionException e) {
+			//LOG.fatal(e.getMessage());
 			throw new QualityAssessmentException(e.getMessage());
 		} catch (QueryException e) {
+			//LOG.warning(e.getMessage());
 			throw new QualityAssessmentException(e.getMessage());
 		} catch (SQLException e) {
+			//...
 			throw new QualityAssessmentException(e.getMessage());
 		} finally {
 			if (results != null) {
@@ -146,7 +175,7 @@ abstract class CommonAssessment {
 		final String metadataGraph = inputGraph.getMetadataGraphName();
 
 		/**
-		 * TODO: ESCAPE PROPERLY
+		 * TODO: ESCAPE PROPERLY (preparedStatement does not work well with SPARQL, maybe that will change with SESAME)
 		 */
 		String escapedTrace;
 		escapedTrace = trace.replaceAll("'", "");
@@ -165,7 +194,8 @@ abstract class CommonAssessment {
 		*/
 
 		/**
-		 * See if the graph matches the rules filter
+		 * First delete old values for this particular graph in the metadata graph.
+		 * Then store the newly obtained values.
 		 */
 		try {
 			getConnection().execute(dropOldScore);
@@ -173,6 +203,7 @@ abstract class CommonAssessment {
 			getConnection().execute(storeNewScore);
 			getConnection().execute(storeNewScoreTrace);
 		} catch (ConnectionException e) {
+			//LOG.fatal(e.getMessage());
 			throw new QualityAssessmentException(e.getMessage());
 		} catch (QueryException e) {
 			throw new QualityAssessmentException(e.getMessage());
