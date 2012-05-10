@@ -3,6 +3,7 @@ package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.AggregationUtils;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.LevenshteinDistance;
 import cz.cuni.mff.odcleanstore.shared.EnumLiteralType;
+import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDateTime;
@@ -31,8 +32,9 @@ import org.slf4j.LoggerFactory;
     /**
      * Difference between two dates when their distance is equal to MAX_DISTANCE in seconds.
      * TODO: to configuration?
+     * Cca 1 year in seconds.
      */
-    private static final long MAX_DATE_DIFFERENCE = 366 * 24 * 60 * 60; // cca 1 year in seconds
+    private static final long MAX_DATE_DIFFERENCE = 366 * Utils.DAY_HOURS * Utils.TIME_UNIT_60 * Utils.TIME_UNIT_60;
 
     /** Distance value for URI resources with different URIs. */
     private static final double DIFFERENT_RESOURCE_DISTANCE = MAX_DISTANCE;

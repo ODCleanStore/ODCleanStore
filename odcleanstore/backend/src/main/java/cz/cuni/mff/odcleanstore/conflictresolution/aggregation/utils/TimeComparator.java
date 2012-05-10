@@ -1,5 +1,7 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils;
 
+import cz.cuni.mff.odcleanstore.shared.Utils;
+
 import java.util.Calendar;
 import java.util.Comparator;
 
@@ -9,7 +11,8 @@ import java.util.Comparator;
  * @author Jan Michelfeit
  */
 public final class TimeComparator implements Comparator<Calendar> {
-    private static final long MILLIS_IN_DAY = 24 * 60 * 60 * 1000;
+    private static final long MILLIS_IN_DAY =
+            Utils.DAY_HOURS * Utils.TIME_UNIT_60 * Utils.TIME_UNIT_60 * Utils.MILLISECONDS;
 
     private static final TimeComparator INSTANCE = new TimeComparator();
 

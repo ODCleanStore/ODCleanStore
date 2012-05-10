@@ -10,6 +10,7 @@ import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.data.QuadCollection;
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
+import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 import cz.cuni.mff.odcleanstore.vocabulary.RDFS;
@@ -24,8 +25,6 @@ import de.fuberlin.wiwiss.ng4j.Quad;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Collection;
@@ -259,17 +258,13 @@ import java.util.Locale;
     protected void checkValidSettings() throws QueryFormatException {
         // Check that settings contain valid URIs
         for (String property : aggregationSpec.getPropertyAggregations().keySet()) {
-            try {
-                new URI(property);
-            } catch (URISyntaxException e) {
-                throw new QueryFormatException("'" + property + "' is not a valid URI.", e);
+            if (!Utils.isValidIRI(property)) {
+                throw new QueryFormatException("'" + property + "' is not a valid URI.");
             }
         }
         for (String property : aggregationSpec.getPropertyMultivalue().keySet()) {
-            try {
-                new URI(property);
-            } catch (URISyntaxException e) {
-                throw new QueryFormatException("'" + property + "' is not a valid URI.", e);
+            if (!Utils.isValidIRI(property)) {
+                throw new QueryFormatException("'" + property + "' is not a valid URI.");
             }
         }
 
