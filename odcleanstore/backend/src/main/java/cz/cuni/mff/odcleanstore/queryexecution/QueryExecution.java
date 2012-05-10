@@ -20,12 +20,15 @@ public class QueryExecution {
     /** Connection settings for the SPARQL endpoint that will be queried. */
     private final SparqlEndpoint sparqlEndpoint;
 
+    private PrefixMappingCache prefixMappingCache;
+
     /**
      * Creates a new instance of QueryExecution.
      * @param sparqlEndpoint connection settings for the SPARQL endpoint that will be queried
      */
     public QueryExecution(SparqlEndpoint sparqlEndpoint) {
         this.sparqlEndpoint = sparqlEndpoint;
+        this.prefixMappingCache = new PrefixMappingCache(sparqlEndpoint);
     }
 
     /**
@@ -63,6 +66,10 @@ public class QueryExecution {
 
         AggregationSpec effectiveAggregationSpec = mergeAggregationSettings(getDefaultConfiguration(), aggregationSpec);
         return new UriQueryExecutor(sparqlEndpoint, constraints, effectiveAggregationSpec).findURI(uri);
+    }
+
+    private PrefixMapping getPrefixMapping() throws ODCleanStoreException {
+        return prefixMappingCache.getPrefixMapping();
     }
 
     /**

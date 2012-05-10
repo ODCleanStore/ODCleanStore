@@ -9,6 +9,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
+import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.vocabulary.DC;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
@@ -21,8 +22,6 @@ import de.fuberlin.wiwiss.ng4j.Quad;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -270,7 +269,7 @@ import java.util.Set;
     /**
      * Executes the URI search query.
      *
-     * @param uri searched URI
+     * @param uri searched URI; must be an absolute URI, not a prefixed name
      * @return query result holder
      * @throws ODCleanStoreException database error or the query was invalid
      */
@@ -282,11 +281,8 @@ import java.util.Set;
         // Check that the URI is valid (must not be empty or null, should match '<' ([^<>"{}|^`\]-[#x00-#x20])* '>' )
         if (uri.length() > MAX_URI_LENGTH) {
             throw new QueryException("The requested URI is longer than " + MAX_URI_LENGTH + " characters.");
-        }
-        try {
-            new URI(uri);
-        } catch (URISyntaxException e) {
-            throw new QueryFormatException(e); // rethrow
+        } else if (!Utils.isValidIRI(uri)) {
+            throw new QueryFormatException("'" + uri + "' is not a valid URI.");
         }
 
         try {
