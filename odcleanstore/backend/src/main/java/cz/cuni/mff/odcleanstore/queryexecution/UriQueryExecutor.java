@@ -259,7 +259,8 @@ import java.util.Set;
      * Creates a new instance of UriQueryExecutor.
      * @param sparqlEndpoint connection settings for the SPARQL endpoint that will be queried
      * @param constraints constraints on triples returned in the result
-     * @param aggregationSpec aggregation settings for conflict resolution
+     * @param aggregationSpec aggregation settings for conflict resolution;
+     *        property names must not contain prefixed names
      */
     public UriQueryExecutor(SparqlEndpoint sparqlEndpoint, QueryConstraintSpec constraints,
             AggregationSpec aggregationSpec) {
