@@ -79,7 +79,7 @@ public final class VirtuosoConnectionWrapper {
             throw new QueryException(e);
         }
     }
-    
+
     /**
      * Executes an SQL/SPARQL SELECT query and returns a wrapper for the result.
      * @param query SQL/SPARQL query
@@ -90,11 +90,11 @@ public final class VirtuosoConnectionWrapper {
     public WrappedResultSet executeSelect(String query, Object... objects) throws QueryException {
         try {
             PreparedStatement statement = connection.prepareStatement(query);
-            
+
             for (int i = 0; i < objects.length; ++i) {
-            	statement.setObject(i + 1, objects[i]);
+                statement.setObject(i + 1, objects[i]);
             }
-            
+
             statement.setQueryTimeout(QUERY_TIMEOUT);
             statement.execute();
             return new WrappedResultSet(statement);
