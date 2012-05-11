@@ -1,17 +1,18 @@
-package cz.cuni.mff.odcleanstore.queryexecution;
+package cz.cuni.mff.odcleanstore.connection.exceptions;
 
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 
+
 /**
- * Exception thrown when a query is invalid.
+ * Exception thrown when a database error occurs.
  * @author Jan Michelfeit
  */
-public class QueryFormatException extends ODCleanStoreException {
+public abstract class DatabaseException extends ODCleanStoreException {
     /**
      * Creates a new exception.
      * @param cause cause
      */
-    public QueryFormatException(Throwable cause) {
+    public DatabaseException(Throwable cause) {
         super(cause);
     }
 
@@ -20,7 +21,7 @@ public class QueryFormatException extends ODCleanStoreException {
      * @param message message
      * @param cause cause
      */
-    public QueryFormatException(String message, Throwable cause) {
+    public DatabaseException(String message, Throwable cause) {
         super(message, cause);
     }
 
@@ -28,7 +29,7 @@ public class QueryFormatException extends ODCleanStoreException {
      * Creates a new exception.
      * @param message message
      */
-    public QueryFormatException(String message) {
+    public DatabaseException(String message) {
         super(message);
     }
 }

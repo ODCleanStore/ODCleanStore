@@ -26,13 +26,24 @@ import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 
-public class ConfigBuilder {
-	
-	private static final String CONFIG_FILENAME = ".xml";
-	
+/**
+ * Class for creating linkage configuration file in Silk-LSL.
+ * 
+ * @author Tomas Soukup
+ */
+public class ConfigBuilder {	
+	/**
+	 * suffix of configuration file
+	 */
+	private static final String CONFIG_FILENAME = ".xml";	
+	/**
+	 * Data sources names
+	 */
 	private static final String CONFIG_SOURCE_A_ID = "sourceA";
 	private static final String CONFIG_SOURCE_B_ID = "sourceB";
-	
+	/**
+	 * Silk-LSL element and attribute names
+	 */
 	private static final String CONFIG_XML_ROOT = "Silk";
 	private static final String CONFIG_XML_PREFIXES = "Prefixes";
 	private static final String CONFIG_XML_PREFIX = "Prefix";
@@ -56,6 +67,18 @@ public class ConfigBuilder {
 	
 	private static final String TEMP_ENDPOINT = "http://localhost:8890/sparql";
 	
+	/**
+	 * Creates linkage configuration file.
+	 * 
+	 * File contains RDF prefix definitions, source datasets and linkage rules.
+	 * 
+	 * @param rawRules list of XML fragments containing linkage rules
+	 * @param prefixes list of RDF prefix definitions
+	 * @param inputGraph graph to interlink
+	 * @param context transformation context
+	 * @return file containing linkage configuration
+	 * @throws TransformerException when anything fails
+	 */
 	public static File createLinkConfigFile(List<String> rawRules, List<RDFprefix> prefixes, 
 			TransformedGraph inputGraph, TransformationContext context) throws TransformerException {
 		
@@ -71,6 +94,18 @@ public class ConfigBuilder {
 		return configFile;
 	}
 	
+	/**
+	 * Creates XML document containing linkage configuration.
+	 * 
+	 * @param rawRules list of XML fragments containing linkage rules
+	 * @param prefixes list of RDF prefix definitions
+	 * @param inputGraph graph to interlink
+	 * @param context transformation context
+	 * @return document containing linkage configuration
+	 * @throws ParserConfigurationException
+	 * @throws SAXException
+	 * @throws IOException
+	 */
 	private static Document createConfigDoc(List<String> rawRules, List<RDFprefix> prefixes,
 			TransformedGraph inputGraph, TransformationContext context)
 			throws ParserConfigurationException, SAXException, IOException {
@@ -87,6 +122,13 @@ public class ConfigBuilder {
 		return configDoc;
 	}
 	
+	/**
+	 * Creates XML element containing RDF prefixes definition.
+	 * 
+	 * @param doc configuration XML document
+	 * @param prefixes list of RDF prefixes
+	 * @return XML element containing prefixes definition
+	 */
 	private static Element createPrefixes(Document doc, List<RDFprefix> prefixes) {
 		Element prefixesElement = doc.createElement(CONFIG_XML_PREFIXES);
 		
@@ -101,6 +143,15 @@ public class ConfigBuilder {
 		return prefixesElement;
 	}
 	
+	/**
+	 * Creates XML element containing data sources definition.
+	 * 
+	 * @param doc configuration XML document
+	 * @param dirtyEndpoint SPARQL endpoint to the dirty DB
+	 * @param cleanEndpoint SPARQL endpoint to the clean DB
+	 * @param graphName name of the graph in dirty DB to be interlinked
+	 * @return
+	 */
 	private static Element createSources(Document doc, SparqlEndpoint dirtyEndpoint, SparqlEndpoint cleanEndpoint, String graphName) {
 		Element sourcesElement = doc.createElement(CONFIG_XML_SOURCES);
 		
@@ -115,6 +166,13 @@ public class ConfigBuilder {
 		return sourcesElement;
 	}
 	
+	/**
+	 * Creates XML element containg one data source definition
+	 * @param doc configuration XML document
+	 * @param endpoint SPARQL endpoint to the data source
+	 * @param graphName graph name to be interlinked or null when no graph is specified
+	 * @return
+	 */
 	private static Element createSource(Document doc, SparqlEndpoint endpoint, String graphName) {
 		Element sourceElement = doc.createElement(CONFIG_XML_SOURCE);
 		sourceElement.setAttribute(CONFIG_XML_TYPE, CONFIG_XML_SPARQL_ENDPOINT);
@@ -136,6 +194,18 @@ public class ConfigBuilder {
 		return sourceElement;
 	}
 	
+	/**
+	 * Creates XML element containing linkage rules.
+	 * 
+	 * @param doc
+	 * @param rawRules list of XML fragments containing linkage rules
+	 * @param context transformation context
+	 * @param graphId unique ID of the interlinked graph - used for unique filenames
+	 * @param builder XML document builder
+	 * @return element containing linkage rules
+	 * @throws SAXException
+	 * @throws IOException
+	 */
 	private static Element createLinkageRules(Document doc, List<String> rawRules, TransformationContext context, 
 			String graphId, DocumentBuilder builder) throws SAXException, IOException {
 		Element rulesElement = doc.createElement(CONFIG_XML_LINKAGE_RULES);
@@ -150,6 +220,11 @@ public class ConfigBuilder {
 		return rulesElement;
 	}
 	
+	/**
+	 * Normalizes dataset names so they correspond with dataset definition.
+	 * 
+	 * @param ruleElement XML element containing linkage rule
+	 */
 	private static void normalizeDatasets(Element ruleElement) {
 		Element sourceElement = (Element)ruleElement.getElementsByTagName(CONFIG_XML_SOURCE_DATASET).item(0);
 		sourceElement.setAttribute(CONFIG_XML_DATASOURCE, CONFIG_SOURCE_A_ID);
@@ -157,6 +232,13 @@ public class ConfigBuilder {
 		targetElement.setAttribute(CONFIG_XML_DATASOURCE, CONFIG_SOURCE_B_ID);
 	}
 	
+	
+	/**
+	 * Adds uniqe identifier to the output file names to avoid concurrency conflicts.
+	 * 
+	 * @param ruleElement XML element containing linkage rule
+	 * @param graphId unique ID of the interlinked graph - used for unique filenames
+	 */
 	private static void updateFileNames(Element ruleElement, String graphId) {
 		NodeList outputList = ruleElement.getElementsByTagName(CONFIG_XML_OUTPUT);
 		for (int i = 0; i < outputList.getLength(); ++i) {
@@ -176,20 +258,39 @@ public class ConfigBuilder {
 		}
 	}
 	
+	/**
+	 * Creates unique file name from original name and unique graph ID.
+	 * 
+	 * @param name original file name
+	 * @param graphId unique graph ID
+	 * @return unique file name
+	 */
 	private static String updateFileName(String name, String graphId) {
 		int dotIndex = name.lastIndexOf(".");
 		String firstPart = name.substring(0, dotIndex);
 		String thirdPart = name.substring(dotIndex);
 		return firstPart + graphId + thirdPart;
 	}
+	
 
+	/**
+	 * Stores XML document into a file.
+	 * 
+	 * Uses graphID to create a uniqe file name.
+	 * Stores the file into a directory designated by transformer context
+	 * 
+	 * @param configDoc XML document containing linkage configuration
+	 * @param targetDirectory a directory to store the file to
+	 * @param graphId unique graph ID
+	 * @return stored file
+	 * @throws TransformerFactoryConfigurationError
+	 * @throws javax.xml.transform.TransformerException
+	 */
 	private static File storeConfigDoc(Document configDoc, File targetDirectory, String graphId) 
 			throws TransformerFactoryConfigurationError, javax.xml.transform.TransformerException {
 		File configFile = new File(targetDirectory, graphId + CONFIG_FILENAME);
 		
-		Transformer transformer;
-		
-		transformer = TransformerFactory.newInstance().newTransformer();
+		Transformer transformer = TransformerFactory.newInstance().newTransformer();
 		DOMSource source = new DOMSource(configDoc);
 		StreamResult result = new StreamResult(configFile);
 			

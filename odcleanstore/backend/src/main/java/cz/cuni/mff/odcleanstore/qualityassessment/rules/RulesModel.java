@@ -6,7 +6,7 @@ import java.util.Collection;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
-import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
+import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
 import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
 
@@ -31,13 +31,11 @@ public class RulesModel {
 		this.endpoint = endpoint;
 	}
 	
-	/**
-	 * Get rules applicable to any graph.
-	 *
-         * @return a collection of all rules that are not restricted to graphs coming from
-	 * a particular publisher
-         */
-	public Collection<Rule> getUnrestrictedRules() throws QualityAssessmentException {
+	private Collection<Rule> queryRules (String query) throws QualityAssessmentException {
+		return queryRules(query, new Object[0]);
+	}
+	
+	private Collection<Rule> queryRules (String query, Object... objects) throws QualityAssessmentException {
 		Collection<Rule> rules = new ArrayList<Rule>();
 		
 		VirtuosoConnectionWrapper connection = null;
@@ -45,7 +43,7 @@ public class RulesModel {
 		
 		try {
 			connection = VirtuosoConnectionWrapper.createConnection(endpoint);
-			results = connection.executeSelect("SELECT * FROM DB.FRONTEND.EL_RULES");
+			results = connection.executeSelect(query, objects);
 			
 			/**
 			 * Fill the collection with rule instances for all records in database.
@@ -65,9 +63,7 @@ public class RulesModel {
 				
 				rules.add(new Rule(id, filter, coefficient, description));
 			}
-		} catch (ConnectionException e) {
-			throw new QualityAssessmentException(e.getMessage());
-		} catch (QueryException e) {
+		} catch (DatabaseException e) {
 			throw new QualityAssessmentException(e.getMessage());
 		} catch (SQLException e) {
 			throw new QualityAssessmentException(e.getMessage());
@@ -88,17 +84,29 @@ public class RulesModel {
 	}
 	
 	/**
+	 * Get rules applicable to any graph.
+	 *
+         * @return a collection of all rules that are not restricted to graphs coming from
+	 * a particular publisher
+         */
+	public Collection<Rule> getUnrestrictedRules() throws QualityAssessmentException {
+		return queryRules("SELECT * FROM DB.FRONTEND.EL_RULES WHERE id NOT IN (SELECT ruleId FROM DB.FRONTEND.EL_RULES_TO_DOMAINS_RESTRICTIONS)");
+	}
+	
+	/**
          * Get rules applicable to graphs coming from a particular publisher.
 	 *
 	 * @return a collection of rules applicable to a graph coming from a particular publisher.
          */
-	public Collection<Rule> getRulesForDomain (String domain) throws QualityAssessmentException {
-
-		/**
-		 * TODO: When there is possibility to restrict rules to a certain publisher, select those rules
-		 * restricted to the publisher and also rules applicable to any graph and return the union of
-		 * the two collections.
-		 */
-		return getUnrestrictedRules();
+	public Collection<Rule> getRulesForPublisher (String publisher) throws QualityAssessmentException {
+		
+		Collection<Rule> publisherSpecific = queryRules("SELECT * FROM " +
+					"DB.FRONTEND.EL_RULES AS rule JOIN " +
+					"DB.FRONTEND.EL_RULES_TO_DOMAINS_RESTRICTIONS AS restriction ON rule.id = restriction.ruleId JOIN " +
+					"DB.FRONTEND.DATA_DOMAINS AS domain ON restriction.domainId = domain.id WHERE uri = ?", publisher);
+		
+		publisherSpecific.addAll(getUnrestrictedRules());
+		
+		return publisherSpecific;
 	}
 }

@@ -6,7 +6,7 @@ package cz.cuni.mff.odcleanstore.conflictresolution.exceptions;
  *
  * @author Jan Michelfeit
  */
-public class UnexpectedPredicateException extends UnexpectedTripleException {
+public class UnexpectedPredicateException extends ConflictResolutionException {
     /**
      *  Initialize exception.
      *  @param actualPredicate predicate given

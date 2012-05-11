@@ -15,4 +15,11 @@ import com.hp.hpl.jena.graph.Node;
      *         identical to URI
      */
     Node mapURI(Node uri);
+
+    /**
+     * Returns the canonical URI for the given URI.
+     * @param uri the URI to map
+     * @return the mapped URI
+     */
+    String getCanonicalURI(String uri);
 }

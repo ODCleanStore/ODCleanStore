@@ -14,7 +14,8 @@ import cz.cuni.mff.odcleanstore.transformer.TransformerException;
  */
 public interface Linker extends Transformer {
 	/**
-	 * Generates links between all entities in clean database. 
+	 * Generates links between all entities in clean database.
+	 *  
 	 * Uses The Silk Link Discovery Framework.
 	 * Performs following steps:
 	 * <ul><li>Loads valid linkage rules from database.</li>
@@ -25,6 +26,13 @@ public interface Linker extends Transformer {
 	 * 		and directory for storing temporary files
 	 */
 	public void linkCleanDatabase(TransformationContext context) throws TransformerException;
-	
+	/**
+	 * Generates links using configuration files.
+	 *  
+	 * Uses The Silk Link Discovery Framework.
+	 * Uses all XML files in directory obtained from context as configuration files for Silk.
+	 * 
+	 * @param context provides directory for storing temporary files in TransformerConfiguration
+	 */
 	public void linkByConfigFiles(TransformationContext context);
 }

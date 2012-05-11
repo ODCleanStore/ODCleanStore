@@ -3,7 +3,7 @@ package cz.cuni.mff.odcleanstore.qualityassessment.impl;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
-import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
+import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
 import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.Rule;
@@ -11,6 +11,7 @@ import cz.cuni.mff.odcleanstore.qualityassessment.rules.RulesModel;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
+import cz.cuni.mff.odcleanstore.vocabulary.W3P;
 
 import java.sql.SQLException;
 import java.util.Collection;
@@ -85,6 +86,41 @@ abstract class CommonAssessment {
 	 * Let the concrete implementation decide on what endpoint to choose (Clean/Dirty)
 	 */
 	abstract protected SparqlEndpoint getEndpoint();
+	
+	/**
+	 * Extract a URI of the graphs publisher if possible
+	 *  
+	 * @return URI of the publisher of the input graph
+	 */
+	protected String getGraphPublisher () throws QualityAssessmentException {
+		final String graph = inputGraph.getGraphName();
+		final String metadataGraph = inputGraph.getMetadataGraphName();
+		
+		final String query = "SPARQL SELECT ?publisher FROM <" + metadataGraph + "> WHERE {<" + graph + "> <" + W3P.publishedBy + "> ?publisher}";
+		WrappedResultSet results = null;
+		String publisher = null;
+
+		try
+		{
+			results = getConnection().executeSelect(query);
+
+			if (results.next()) {
+				publisher = results.getString("publisher");
+			}
+		} catch (DatabaseException e) {
+			//LOG.fatal(e.getMessage());
+			throw new QualityAssessmentException(e.getMessage());
+		} catch (SQLException e) {
+			//...
+			throw new QualityAssessmentException(e.getMessage());
+		} finally {
+			if (results != null) {
+				results.closeQuietly();
+			}
+		}
+		
+		return publisher;
+	}
 
 	/**
 	 * Analyze the graph (presence of publishedBy property). Choose
@@ -93,15 +129,12 @@ abstract class CommonAssessment {
 	protected void loadRules() throws QualityAssessmentException {
 		RulesModel model = new RulesModel(context.getCleanDatabaseEndpoint());
 
-		/**
-		 * TODO: Find info about publisher.
-		 */
-		String domain = null;
+		String publisher = getGraphPublisher();
 
-		if (domain == null) {
+		if (publisher == null) {
 			rules = model.getUnrestrictedRules();
 		} else {
-			rules = model.getRulesForDomain(domain);
+			rules = model.getRulesForPublisher(publisher);
 		}
 	}
 
@@ -146,11 +179,8 @@ abstract class CommonAssessment {
 				logComment(rule.getComment());
 				++violations;
 			}
-		} catch (ConnectionException e) {
+		} catch (DatabaseException e) {
 			//LOG.fatal(e.getMessage());
-			throw new QualityAssessmentException(e.getMessage());
-		} catch (QueryException e) {
-			//LOG.warning(e.getMessage());
 			throw new QualityAssessmentException(e.getMessage());
 		} catch (SQLException e) {
 			//...
@@ -202,10 +232,8 @@ abstract class CommonAssessment {
 			getConnection().execute(dropOldScoreTrace);
 			getConnection().execute(storeNewScore);
 			getConnection().execute(storeNewScoreTrace);
-		} catch (ConnectionException e) {
+		} catch (DatabaseException e) {
 			//LOG.fatal(e.getMessage());
-			throw new QualityAssessmentException(e.getMessage());
-		} catch (QueryException e) {
 			throw new QualityAssessmentException(e.getMessage());
 		}
 	}

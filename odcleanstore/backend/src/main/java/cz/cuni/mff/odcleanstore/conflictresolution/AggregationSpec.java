@@ -90,18 +90,6 @@ public class AggregationSpec {
     }
 
     /**
-     * Creates a (deep) copy of the given AggregationSpec.
-     * @param spec aggregation settings to use
-     */
-    public AggregationSpec(AggregationSpec spec) {
-        setDefaultAggregation(spec.getDefaultAggregation());
-        setPropertyAggregations(new TreeMap<String, EnumAggregationType>(spec.getPropertyAggregations()));
-        setErrorStrategy(spec.getErrorStrategy());
-        setDefaultMultivalue(spec.getDefaultMultivalue());
-        setPropertyMultivalue(new TreeMap<String, Boolean>(spec.getPropertyMultivalue()));
-    }
-
-    /**
      * Return aggregation error strategy.
      * @return the aggregation error strategy or null, if no strategy is set
      * @see #getEffectiveErrorStrategy()

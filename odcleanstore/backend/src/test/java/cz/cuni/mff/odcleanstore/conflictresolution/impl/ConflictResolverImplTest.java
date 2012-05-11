@@ -93,7 +93,7 @@ public class ConflictResolverImplTest {
         metadata.addMetadata(newVersionMetadata);
 
         spec = new ConflictResolverSpec(TestUtils.getUniqueURI());
-        spec.setDefaultAggregation(EnumAggregationType.NONE);
+        spec.getAggregationSpec().setDefaultAggregation(EnumAggregationType.NONE);
         spec.setNamedGraphMetadata(metadata);
     }
 

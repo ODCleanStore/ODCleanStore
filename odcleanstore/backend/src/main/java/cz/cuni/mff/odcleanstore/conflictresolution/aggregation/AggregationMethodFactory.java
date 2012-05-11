@@ -19,23 +19,23 @@ public class AggregationMethodFactory {
     /**
      * Registry of already created aggregation methods.
      */
-    private Map<EnumAggregationType, AggregationMethod> methodRegistry =
+    private final Map<EnumAggregationType, AggregationMethod> methodRegistry =
             new HashMap<EnumAggregationType, AggregationMethod>();
 
     /**
      * Instance of a single value aggregation.
      */
-    private AggregationMethod singleValueAggregation;
+    private final AggregationMethod singleValueAggregation;
 
     /**
      * Generator of URIs passed to newly created aggregations.
      */
-    private UniqueURIGenerator uriGenerator;
+    private final UniqueURIGenerator uriGenerator;
 
     /**
      * Aggregation settings passed to newly created aggregations.
      */
-    private AggregationSpec aggregationSpec;
+    private final AggregationSpec aggregationSpec;
 
     /**
      * Creates a new factory with the given settings for creating new aggregations.
@@ -63,6 +63,19 @@ public class AggregationMethodFactory {
             methodRegistry.put(type, result);
         }
         return result;
+    }
+
+    /**
+     * Returns an appropriate instance of AggregationMethod for the given property according to
+     * aggregation settings given in the constructor.
+     * @param propertyURI URI of a property
+     * @return an aggregation method
+     * @throws AggregationNotImplementedException thrown if there is no
+     *         AggregationMethod implementation for the selected aggregation type
+     */
+    public AggregationMethod getAggregation(String propertyURI) throws AggregationNotImplementedException {
+        EnumAggregationType aggregationType = aggregationSpec.propertyAggregationType(propertyURI);
+        return getAggregation(aggregationType);
     }
 
     /**

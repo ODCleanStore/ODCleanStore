@@ -6,9 +6,9 @@ import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
+import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
+import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
-import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 import cz.cuni.mff.odcleanstore.vocabulary.DC;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.W3P;
@@ -387,10 +387,11 @@ import java.util.regex.Pattern;
      * @param constraints constraints on triples returned in the result
      * @param aggregationSpec aggregation settings for conflict resolution;
      *        property names must not contain prefixed names
+     * @param defaultAggregationSpec default aggregation settings for conflict resolution
      */
     public KeywordQueryExecutor(SparqlEndpoint sparqlEndpoint, QueryConstraintSpec constraints,
-            AggregationSpec aggregationSpec) {
-        super(sparqlEndpoint, constraints, aggregationSpec);
+            AggregationSpec aggregationSpec, AggregationSpec defaultAggregationSpec) {
+        super(sparqlEndpoint, constraints, aggregationSpec, defaultAggregationSpec);
     }
 
     /**
@@ -398,15 +399,16 @@ import java.util.regex.Pattern;
      *
      * @param keywordsQuery searched keywords (separated by whitespace)
      * @return query result holder
-     * @throws ODCleanStoreException database error
+     * @throws QueryExecutionException invalid query or database error
      */
-    public QueryResult findKeyword(String keywordsQuery) throws ODCleanStoreException {
+    public QueryResult findKeyword(String keywordsQuery) throws QueryExecutionException {
         LOG.info("Keyword query for '{}'", keywordsQuery);
         long startTime = System.currentTimeMillis();
         checkValidSettings();
 
         if (keywordsQuery.length() > MAX_QUERY_LENGTH) {
-            throw new QueryException("The requested keyword query is longer than " + MAX_QUERY_LENGTH + " characters.");
+            throw new QueryExecutionException(EnumQueryError.QUERY_TOO_LONG,
+                    "The requested keyword query is longer than " + MAX_QUERY_LENGTH + " characters.");
         }
 
         Collection<String> parsedKeywords = parseContainsKeywords(keywordsQuery);
@@ -428,7 +430,8 @@ import java.util.regex.Pattern;
             quads.addAll(getLabels(containsMatchExpr, exactMatchExpr));
 
             // Gather all settings for Conflict Resolution
-            ConflictResolverSpec crSpec = new ConflictResolverSpec(RESULT_GRAPH_PREFIX, aggregationSpec);
+            ConflictResolverSpec crSpec =
+                    new ConflictResolverSpec(RESULT_GRAPH_PREFIX, aggregationSpec, defaultAggregationSpec);
             crSpec.setPreferredURIs(getPreferredURIs());
             crSpec.setSameAsLinks(getSameAsLinks().iterator());
             NamedGraphMetadataMap metadata = getMetadata(containsMatchExpr, exactMatchExpr);
@@ -439,8 +442,12 @@ import java.util.regex.Pattern;
             Collection<CRQuad> resolvedQuads = conflictResolver.resolveConflicts(quads);
 
             return createResult(resolvedQuads, metadata, canonicalQuery, System.currentTimeMillis() - startTime);
+        } catch (ConflictResolutionException e) {
+            throw new QueryExecutionException(EnumQueryError.CONFLICT_RESOLUTION_ERROR, e);
+        } catch (DatabaseException e) {
+            throw new QueryExecutionException(EnumQueryError.DATABASE_ERROR, e);
         } finally {
-            closeConnection();
+            closeConnectionQuietly();
         }
     }
 
@@ -492,10 +499,10 @@ import java.util.regex.Pattern;
      * @param containsMatchExpr an expression for bif:matches matching the searched keyword(s)
      * @param exactMatchExpr a value matching the searched keyword for equality
      * @return retrieved quads
-     * @throws ODCleanStoreException query error
+     * @throws DatabaseException query error
      */
     private Collection<Quad> getKeywordOccurrences(String containsMatchExpr, String exactMatchExpr)
-            throws ODCleanStoreException {
+            throws DatabaseException {
         String query = String.format(KEYWORD_OCCURENCES_QUERY, containsMatchExpr, exactMatchExpr,
                 getGraphFilterClause(), MAX_LIMIT);
         return getQuadsFromQuery(query, "getKeywordOccurrences()");
@@ -506,9 +513,9 @@ import java.util.regex.Pattern;
      * @param containsMatchExpr an expression for bif:matches matching the searched keyword(s)
      * @param exactMatchExpr a value matching the searched keyword for equality
      * @return labels as quads
-     * @throws ODCleanStoreException query error
+     * @throws DatabaseException query error
      */
-    private Collection<Quad> getLabels(String containsMatchExpr, String exactMatchExpr) throws ODCleanStoreException {
+    private Collection<Quad> getLabels(String containsMatchExpr, String exactMatchExpr) throws DatabaseException {
         String query = String.format(Locale.ROOT, LABELS_QUERY, containsMatchExpr, exactMatchExpr,
                 getGraphFilterClause(), LABEL_PROPERTIES_LIST, getGraphPrefixFilter("labelGraph"), MAX_LIMIT);
         return getQuadsFromQuery(query, "getLabels()");
@@ -519,10 +526,10 @@ import java.util.regex.Pattern;
      * @param containsMatchExpr an expression for bif:matches matching the searched keyword(s)
      * @param exactMatchExpr a value matching the searched keyword for equality
      * @return metadata of result named graphs
-     * @throws ODCleanStoreException query error
+     * @throws DatabaseException query error
      */
     private NamedGraphMetadataMap getMetadata(String containsMatchExpr, String exactMatchExpr)
-            throws ODCleanStoreException {
+            throws DatabaseException {
         String query = String.format(Locale.ROOT, METADATA_QUERY, containsMatchExpr, exactMatchExpr,
                 getGraphFilterClause(), LABEL_PROPERTIES_LIST, getGraphPrefixFilter("resGraph"), MAX_LIMIT);
         return getMetadataFromQuery(query, "getMetadata()");
@@ -534,9 +541,9 @@ import java.util.regex.Pattern;
      * other links (e.g. between subjects/objects in the result) are resolved by Virtuoso.
      * @see #KEYWORD_OCCURENCES_QUERY
      * @return collection of relevant owl:sameAs links
-     * @throws ODCleanStoreException query error
+     * @throws DatabaseException query error
      */
-    private Collection<Triple> getSameAsLinks() throws ODCleanStoreException {
+    private Collection<Triple> getSameAsLinks() throws DatabaseException {
         long startTime = System.currentTimeMillis();
         Collection<Triple> sameAsTriples = new ArrayList<Triple>();
         assert aggregationSpec.getPropertyAggregations() != null;
