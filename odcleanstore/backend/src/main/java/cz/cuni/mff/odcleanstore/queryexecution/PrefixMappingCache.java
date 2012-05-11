@@ -11,28 +11,56 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Provides access to a PrefixMapping, caching its value for the given lifetime.
+ * This class is thread-safe.
+ * @author Jan Michelfeit
+ */
 /*package*/class PrefixMappingCache {
+    /** Lifetime of the cached PrefixMapping in milliseconds. */
     public static final long CACHE_LIFETIME = 10 * Utils.TIME_UNIT_60 * Utils.MILLISECONDS; // 10 min
 
-    private SparqlEndpoint connection;
-    private PrefixMapping prefixMapping;
-    private long lastRefreshTime = -1;
+    /** Database connection settings. */
+    private final SparqlEndpoint connection;
 
+    /** The cached PrefixMapping. */
+    private PrefixMapping prefixMapping;
+
+    /** Last time the cached value was refreshed from the database. -1 means never. */
+    private volatile long lastRefreshTime = -1;
+
+    /**
+     * Create a new instance.
+     * @param connection connection settings
+     */
     public PrefixMappingCache(SparqlEndpoint connection) {
         this.connection = connection;
     }
 
+    /**
+     * Return the prefix mapping.
+     * @return instance of {@link PrefixMapping}
+     * @throws ODCleanStoreException database error
+     */
     public PrefixMapping getPrefixMapping() throws ODCleanStoreException {
-        assert CACHE_LIFETIME > 0;
-        long currentTime = System.currentTimeMillis();
-        if (currentTime - lastRefreshTime > CACHE_LIFETIME) {
-            prefixMapping = loadMapping();
-            lastRefreshTime = currentTime;
+        assert CACHE_LIFETIME > 0; // avoids prefixMapping being null
+        if (System.currentTimeMillis() - lastRefreshTime > CACHE_LIFETIME) {
+            // CHECKSTYLE:OFF
+            synchronized (this) {
+                if (System.currentTimeMillis() - lastRefreshTime > CACHE_LIFETIME) {
+                    refreshMapping();
+                }
+            }
+            // CHECKSTYLE:ON
         }
         return prefixMapping;
     }
 
-    private PrefixMapping loadMapping() throws ODCleanStoreException {
+    /**
+     * Loads the current prefix mappings from the database and updates last refresh time.
+     * @throws ODCleanStoreException database error
+     */
+    private synchronized void refreshMapping() throws ODCleanStoreException {
         List<RDFprefix> prefixList = null;
         try {
             prefixList = RDFPrefixesLoader.loadPrefixes(connection);
@@ -43,6 +71,7 @@ import java.util.Map;
         for (RDFprefix prefix : prefixList) {
             prefixMap.put(prefix.getPrefixId(), prefix.getNamespace());
         }
-        return new PrefixMapping(prefixMap);
+        prefixMapping = new PrefixMapping(prefixMap);
+        lastRefreshTime = System.currentTimeMillis();
     }
 }

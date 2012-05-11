@@ -4,7 +4,7 @@ import java.util.Map;
 
 /**
  * Represents a mapping of namespace prefixes to their corresponding URIs.
- * Immutable.
+ * Immutable, thread-safe.
  * @author Jan Michelfeit
  */
 public class PrefixMapping {

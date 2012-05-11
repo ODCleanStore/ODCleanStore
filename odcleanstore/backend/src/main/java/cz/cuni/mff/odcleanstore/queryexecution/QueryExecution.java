@@ -20,7 +20,7 @@ public class QueryExecution {
     /** Connection settings for the SPARQL endpoint that will be queried. */
     private final SparqlEndpoint sparqlEndpoint;
 
-    private PrefixMappingCache prefixMappingCache;
+    private final PrefixMappingCache prefixMappingCache;
 
     /**
      * Creates a new instance of QueryExecution.
