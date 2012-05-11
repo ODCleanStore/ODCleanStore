@@ -1,18 +1,18 @@
-/**
- *
- */
 package cz.cuni.mff.odcleanstore.connection.exceptions;
 
+import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
+
+
 /**
- * Exception thrown when a connection to the database cannot be established.
+ * Exception thrown when a database error occurs.
  * @author Jan Michelfeit
  */
-public class ConnectionException extends DatabaseException {
+public abstract class DatabaseException extends ODCleanStoreException {
     /**
      * Creates a new exception.
      * @param cause cause
      */
-    public ConnectionException(Throwable cause) {
+    public DatabaseException(Throwable cause) {
         super(cause);
     }
 
@@ -21,7 +21,7 @@ public class ConnectionException extends DatabaseException {
      * @param message message
      * @param cause cause
      */
-    public ConnectionException(String message, Throwable cause) {
+    public DatabaseException(String message, Throwable cause) {
         super(message, cause);
     }
 
@@ -29,7 +29,7 @@ public class ConnectionException extends DatabaseException {
      * Creates a new exception.
      * @param message message
      */
-    public ConnectionException(String message) {
+    public DatabaseException(String message) {
         super(message);
     }
 }

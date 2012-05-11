@@ -3,7 +3,7 @@ package cz.cuni.mff.odcleanstore.qualityassessment.impl;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
-import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
+import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
 import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.Rule;
@@ -107,11 +107,8 @@ abstract class CommonAssessment {
 			if (results.next()) {
 				publisher = results.getString("publisher");
 			}
-		} catch (ConnectionException e) {
+		} catch (DatabaseException e) {
 			//LOG.fatal(e.getMessage());
-			throw new QualityAssessmentException(e.getMessage());
-		} catch (QueryException e) {
-			//LOG.warning(e.getMessage());
 			throw new QualityAssessmentException(e.getMessage());
 		} catch (SQLException e) {
 			//...
@@ -182,11 +179,8 @@ abstract class CommonAssessment {
 				logComment(rule.getComment());
 				++violations;
 			}
-		} catch (ConnectionException e) {
+		} catch (DatabaseException e) {
 			//LOG.fatal(e.getMessage());
-			throw new QualityAssessmentException(e.getMessage());
-		} catch (QueryException e) {
-			//LOG.warning(e.getMessage());
 			throw new QualityAssessmentException(e.getMessage());
 		} catch (SQLException e) {
 			//...
@@ -238,10 +232,8 @@ abstract class CommonAssessment {
 			getConnection().execute(dropOldScoreTrace);
 			getConnection().execute(storeNewScore);
 			getConnection().execute(storeNewScoreTrace);
-		} catch (ConnectionException e) {
+		} catch (DatabaseException e) {
 			//LOG.fatal(e.getMessage());
-			throw new QualityAssessmentException(e.getMessage());
-		} catch (QueryException e) {
 			throw new QualityAssessmentException(e.getMessage());
 		}
 	}

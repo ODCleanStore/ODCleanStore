@@ -4,7 +4,7 @@ import java.io.File;
 import java.sql.SQLException;
 import java.util.List;
 
-import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
+import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.data.RDFprefix;
 import cz.cuni.mff.odcleanstore.linker.Linker;
@@ -61,9 +61,7 @@ public class LinkerImpl implements Linker {
 				configFile.delete();
 			} catch (SQLException e) {
 				throw new TransformerException(e);
-			} catch (ConnectionException e) {
-				throw new TransformerException(e);
-			} catch (QueryException e) {
+			} catch (DatabaseException e) {
 				throw new TransformerException(e);
 			} catch (TransformedGraphException e) {
 				throw new TransformerException(e);

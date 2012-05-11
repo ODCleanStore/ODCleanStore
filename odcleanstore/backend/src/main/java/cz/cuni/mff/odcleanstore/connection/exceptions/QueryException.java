@@ -3,13 +3,11 @@
  */
 package cz.cuni.mff.odcleanstore.connection.exceptions;
 
-import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
-
 /**
  * Exception thrown when a query over the database fails.
  * @author Jan Michelfeit
  */
-public class QueryException extends ODCleanStoreException {
+public class QueryException extends DatabaseException {
     /**
      * Creates a new exception.
      * @param cause cause
