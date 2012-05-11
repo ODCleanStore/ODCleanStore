@@ -198,20 +198,25 @@ import java.util.Locale;
      */
     private CharSequence graphFilterClause;
 
-    /** Aggregation settings for conflict resolution. */
+    /** Aggregation settings for conflict resolution. Overrides {@link #defaultAggregationSpec}. */
     protected final AggregationSpec aggregationSpec;
+
+    /** Default aggregation settings for conflict resolution. */
+    protected final AggregationSpec defaultAggregationSpec;
 
     /**
      * Creates a new instance of QueryExecutorBase.
      * @param sparqlEndpoint connection settings for the SPARQL endpoint that will be queried
      * @param constraints constraints on triples returned in the result
-     * @param aggregationSpec aggregation settings for conflict resolution
+     * @param aggregationSpec aggregation settings for conflict resolution; overrides defaultAggregationSpec
+     * @param defaultAggregationSpec default aggregation settings for conflict resolution
      */
     protected QueryExecutorBase(SparqlEndpoint sparqlEndpoint, QueryConstraintSpec constraints,
-            AggregationSpec aggregationSpec) {
+            AggregationSpec aggregationSpec, AggregationSpec defaultAggregationSpec) {
         this.sparqlEndpoint = sparqlEndpoint;
         this.constraints = constraints;
         this.aggregationSpec = aggregationSpec;
+        this.defaultAggregationSpec = defaultAggregationSpec;
     }
 
     /**

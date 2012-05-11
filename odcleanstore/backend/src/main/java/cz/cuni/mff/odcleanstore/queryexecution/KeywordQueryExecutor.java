@@ -386,10 +386,11 @@ import java.util.regex.Pattern;
      * @param sparqlEndpoint connection settings for the SPARQL endpoint that will be queried
      * @param constraints constraints on triples returned in the result
      * @param aggregationSpec aggregation settings for conflict resolution
+     * @param defaultAggregationSpec default aggregation settings for conflict resolution
      */
     public KeywordQueryExecutor(SparqlEndpoint sparqlEndpoint, QueryConstraintSpec constraints,
-            AggregationSpec aggregationSpec) {
-        super(sparqlEndpoint, constraints, aggregationSpec);
+            AggregationSpec aggregationSpec, AggregationSpec defaultAggregationSpec) {
+        super(sparqlEndpoint, constraints, aggregationSpec, defaultAggregationSpec);
     }
 
     /**
@@ -428,7 +429,8 @@ import java.util.regex.Pattern;
             quads.addAll(getLabels(containsMatchExpr, exactMatchExpr));
 
             // Gather all settings for Conflict Resolution
-            ConflictResolverSpec crSpec = new ConflictResolverSpec(RESULT_GRAPH_PREFIX, aggregationSpec);
+            ConflictResolverSpec crSpec =
+                    new ConflictResolverSpec(RESULT_GRAPH_PREFIX, aggregationSpec, defaultAggregationSpec);
             crSpec.setPreferredURIs(getPreferredURIs());
             crSpec.setSameAsLinks(getSameAsLinks().iterator());
             NamedGraphMetadataMap metadata = getMetadata(containsMatchExpr, exactMatchExpr);

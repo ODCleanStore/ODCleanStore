@@ -260,10 +260,11 @@ import java.util.Set;
      * @param sparqlEndpoint connection settings for the SPARQL endpoint that will be queried
      * @param constraints constraints on triples returned in the result
      * @param aggregationSpec aggregation settings for conflict resolution
+     * @param defaultAggregationSpec default aggregation settings for conflict resolution
      */
     public UriQueryExecutor(SparqlEndpoint sparqlEndpoint, QueryConstraintSpec constraints,
-            AggregationSpec aggregationSpec) {
-        super(sparqlEndpoint, constraints, aggregationSpec);
+            AggregationSpec aggregationSpec, AggregationSpec defaultAggregationSpec) {
+        super(sparqlEndpoint, constraints, aggregationSpec, defaultAggregationSpec);
     }
 
     /**
@@ -297,7 +298,8 @@ import java.util.Set;
             quads.addAll(getLabels(uri));
 
             // Gather all settings for Conflict Resolution
-            ConflictResolverSpec crSpec = new ConflictResolverSpec(RESULT_GRAPH_PREFIX, aggregationSpec);
+            ConflictResolverSpec crSpec =
+                    new ConflictResolverSpec(RESULT_GRAPH_PREFIX, aggregationSpec, defaultAggregationSpec);
             crSpec.setPreferredURIs(getPreferredURIs(uri));
             crSpec.setSameAsLinks(getSameAsLinks(uri).iterator());
             NamedGraphMetadataMap metadata = getMetadata(uri);

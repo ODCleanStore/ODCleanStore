@@ -38,6 +38,15 @@ public class ResolveQuadCollectionTest {
                 return null;
             }
         }
+
+        @Override
+        public String getCanonicalURI(String uri) {
+            if (uri.equals(what.getURI())) {
+                return mapTo.getURI();
+            } else {
+                return uri;
+            }
+        }
     }
 
     @BeforeClass
