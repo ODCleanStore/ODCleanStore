@@ -15,7 +15,7 @@
 	
 	<modules>
 		<module>backend</module>
-		<module>scraper</module>
+		<module>inputclient</module>
 		<module>engine</module>
 		<module>webfrontend</module>
 		<module>simplescraper</module>
