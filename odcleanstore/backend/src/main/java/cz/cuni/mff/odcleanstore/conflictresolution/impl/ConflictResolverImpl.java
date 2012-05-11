@@ -9,8 +9,8 @@ import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationMethod;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationMethodFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationNotImplementedException;
+import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
 import cz.cuni.mff.odcleanstore.shared.NodeComparator;
-import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 
@@ -108,10 +108,10 @@ public class ConflictResolverImpl implements ConflictResolver {
      *
      * @param quads {@inheritDoc }
      * @return {@inheritDoc }
-     * @throws ODCleanStoreException {@inheritDoc}
+     * @throws ConflictResolutionException {@inheritDoc}
      */
     @Override
-    public Collection<CRQuad> resolveConflicts(Collection<Quad> quads) throws ODCleanStoreException {
+    public Collection<CRQuad> resolveConflicts(Collection<Quad> quads) throws ConflictResolutionException {
         LOG.info("Resolving conflicts among {} quads.", quads.size());
         long startTime = System.currentTimeMillis();
 
@@ -285,10 +285,8 @@ public class ConflictResolverImpl implements ConflictResolver {
      * If no metadata are specified, tries to read them from RDF data to resolve.
      * @param data collection of quads where conflicts are to be resolved
      * @return named graphs' metadata
-     * @throws ODCleanStoreException thrown when named graph metadata contained
-     *         in the input graph are not correctly formated
      */
-    private NamedGraphMetadataMap getNamedGraphMetadata(Collection<Quad> data) throws ODCleanStoreException {
+    private NamedGraphMetadataMap getNamedGraphMetadata(Collection<Quad> data) {
         NamedGraphMetadataMap metadata = spec.getNamedGraphMetadata();
         if (metadata != null) {
             return metadata;

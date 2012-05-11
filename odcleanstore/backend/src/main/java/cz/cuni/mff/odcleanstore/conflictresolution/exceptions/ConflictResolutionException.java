@@ -1,17 +1,17 @@
-package cz.cuni.mff.odcleanstore.queryexecution;
+package cz.cuni.mff.odcleanstore.conflictresolution.exceptions;
 
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 
 /**
- * Exception thrown when a query is invalid.
+ * Exception during Conflict Resolution.
  * @author Jan Michelfeit
  */
-public class QueryFormatException extends ODCleanStoreException {
+public class ConflictResolutionException extends ODCleanStoreException {
     /**
      * Creates a new exception.
      * @param cause cause
      */
-    public QueryFormatException(Throwable cause) {
+    public ConflictResolutionException(Throwable cause) {
         super(cause);
     }
 
@@ -20,7 +20,7 @@ public class QueryFormatException extends ODCleanStoreException {
      * @param message message
      * @param cause cause
      */
-    public QueryFormatException(String message, Throwable cause) {
+    public ConflictResolutionException(String message, Throwable cause) {
         super(message, cause);
     }
 
@@ -28,7 +28,7 @@ public class QueryFormatException extends ODCleanStoreException {
      * Creates a new exception.
      * @param message message
      */
-    public QueryFormatException(String message) {
+    public ConflictResolutionException(String message) {
         super(message);
     }
 }

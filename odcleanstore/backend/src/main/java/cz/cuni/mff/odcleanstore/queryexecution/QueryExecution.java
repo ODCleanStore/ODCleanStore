@@ -2,7 +2,6 @@ package cz.cuni.mff.odcleanstore.queryexecution;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
-import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 
 /**
  * Access point (facade) of the Query Execution component.
@@ -37,12 +36,10 @@ public class QueryExecution {
      * @param constraints constraints on triples returned in the result
      * @param aggregationSpec aggregation settings for conflict resolution
      * @return result of the query as RDF quads
-     * @throws ODCleanStoreException exception
-     *
-     * @todo
+     * @throws QueryExecutionException exception
      */
-    public QueryResult findKeyword(String keywords, QueryConstraintSpec constraints,
-            AggregationSpec aggregationSpec) throws ODCleanStoreException {
+    public QueryResult findKeyword(String keywords, QueryConstraintSpec constraints, AggregationSpec aggregationSpec)
+            throws QueryExecutionException {
 
         AggregationSpec effectiveAggregationSpec = mergeAggregationSettings(getDefaultConfiguration(), aggregationSpec);
         return new KeywordQueryExecutor(sparqlEndpoint, constraints, effectiveAggregationSpec).findKeyword(keywords);
@@ -56,10 +53,10 @@ public class QueryExecution {
      * @param constraints constraints on triples returned in the result
      * @param aggregationSpec aggregation settings for conflict resolution
      * @return result of the query as RDF quads
-     * @throws ODCleanStoreException exception
+     * @throws QueryExecutionException exception
      */
-    public QueryResult findURI(String uri, QueryConstraintSpec constraints,
-            AggregationSpec aggregationSpec) throws ODCleanStoreException {
+    public QueryResult findURI(String uri, QueryConstraintSpec constraints, AggregationSpec aggregationSpec)
+            throws QueryExecutionException {
 
         AggregationSpec effectiveAggregationSpec = mergeAggregationSettings(getDefaultConfiguration(), aggregationSpec);
         return new UriQueryExecutor(sparqlEndpoint, constraints, effectiveAggregationSpec).findURI(uri);
