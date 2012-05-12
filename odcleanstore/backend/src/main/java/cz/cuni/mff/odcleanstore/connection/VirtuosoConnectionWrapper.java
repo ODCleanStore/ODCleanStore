@@ -147,6 +147,27 @@ public final class VirtuosoConnectionWrapper {
             throw new QueryException(e);
         }
     }
+    
+    /**
+     * Executes a general SQL/SPARQL query.
+     * @param query SQL/SPARQL query
+     * @param objects query bindings
+     * @throws QueryException query error
+     */
+    public void execute(String query, Object... objects) throws QueryException {
+        try {
+            PreparedStatement statement = connection.prepareStatement(query);
+            
+            for (int i = 0; i < objects.length; ++i) {
+            	statement.setObject(i + 1, objects[i]);
+            }
+            
+            statement.setQueryTimeout(QUERY_TIMEOUT);
+            statement.execute();
+        } catch (SQLException e) {
+            throw new QueryException(e);
+        }
+    }
 
     /**
      * Commit changes to the database.

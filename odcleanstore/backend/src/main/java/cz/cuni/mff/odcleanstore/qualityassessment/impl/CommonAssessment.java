@@ -14,8 +14,11 @@ import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.W3P;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +37,7 @@ abstract class CommonAssessment {
 	protected Collection<Rule> rules;
 
 	protected Float score = 1.0f;
-	protected String trace = "";
+	protected List<String> trace = new ArrayList<String>();
 	protected Integer violations = 0;
 
 	protected VirtuosoConnectionWrapper connection;
@@ -199,7 +202,7 @@ abstract class CommonAssessment {
 	}
 
 	protected void logComment(String comment) {
-		trace += comment + "\n";
+		trace.add(comment);
 	}
 
 	protected void addCoefficient(Float coefficient) {
@@ -210,17 +213,9 @@ abstract class CommonAssessment {
 		final String graph = inputGraph.getGraphName();
 		final String metadataGraph = inputGraph.getMetadataGraphName();
 
-		/**
-		 * TODO: ESCAPE PROPERLY (preparedStatement does not work well with SPARQL, maybe that will change with SESAME)
-		 */
-		String escapedTrace;
-		escapedTrace = trace.replaceAll("'", "");
-		escapedTrace = escapedTrace.replaceAll("\n", " --- ");
-
 		final String dropOldScore = "SPARQL DELETE FROM <" + metadataGraph + "> {<" + graph + "> <" + ODCS.score + "> ?s} WHERE {<" + graph + "> <" + ODCS.score + "> ?s}";
 		final String dropOldScoreTrace = "SPARQL DELETE FROM <" + metadataGraph + "> {<" + graph + "> <" + ODCS.scoreTrace + "> ?s} WHERE {<" + graph + "> <" + ODCS.scoreTrace + "> ?s}";
 		final String storeNewScore = "SPARQL INSERT DATA INTO <" + metadataGraph + "> {<" + graph + "> <" + ODCS.score + "> \"" + score + "\"^^xsd:double}";
-		final String storeNewScoreTrace = "SPARQL INSERT DATA INTO <" + metadataGraph + "> {<" + graph + "> <" + ODCS.scoreTrace + "> '" + escapedTrace + "'^^xsd:string}";
 
 		/*
 		System.err.println(dropOldScore);
@@ -237,7 +232,18 @@ abstract class CommonAssessment {
 			getConnection().execute(dropOldScore);
 			getConnection().execute(dropOldScoreTrace);
 			getConnection().execute(storeNewScore);
-			getConnection().execute(storeNewScoreTrace);
+			
+			Iterator<String> iterator = trace.iterator();
+			
+			while (iterator.hasNext()) {
+				String escapedTrace = iterator.next();
+				
+				escapedTrace = escapedTrace.replaceAll("'", "\\\\'");
+				
+				final String storeNewScoreTrace = "SPARQL INSERT DATA INTO <" + metadataGraph + "> {<" + graph + "> <" + ODCS.scoreTrace + "> '" + escapedTrace + "'^^xsd:string}";
+				
+				getConnection().execute(storeNewScoreTrace);
+			}
 		} catch (ConnectionException e) {
 			//LOG.fatal(e.getMessage());
 			throw new QualityAssessmentException(e.getMessage());

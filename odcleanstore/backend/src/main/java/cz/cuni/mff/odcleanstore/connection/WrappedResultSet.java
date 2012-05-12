@@ -4,6 +4,7 @@ import com.hp.hpl.jena.graph.Node;
 
 import virtuoso.jena.driver.VirtGraph;
 
+import java.sql.Blob;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -194,6 +195,36 @@ public class WrappedResultSet {
      */
     public java.util.Date getJavaDate(int columnIndex) throws SQLException {
         return objectToDate(resultSet.getObject(columnIndex));
+    }
+    
+    /**
+     * Retrieves the value of the designated column in the current row of this ResultSet object as a java
+     * {@link java.util.String}.
+     * @param columnIndex the first column is 1, the second is 2, ...
+     * @return the column value; if the value is SQL NULL, the value returned is null
+     * @throws SQLException the object cannot be converted to Date
+     */
+    public String getNString(int columnIndex) throws SQLException {
+    	/* getNString throws AbstractMethodError :( its somehow broken (virt_jdbc3) */
+    	Blob blob = resultSet.getBlob(columnIndex);
+        String value = new String(blob.getBytes(1, (int)blob.length()));
+        return resultSet.wasNull() ? null : value;
+
+    }
+    
+    /**
+     * Retrieves the value of the designated column in the current row of this ResultSet object as a java
+     * {@link java.util.String}.
+     * @param columnLabel the label for the column (the name of the column or the name specified with the SQL AS clause)
+     * @return the column value; if the value is SQL NULL, the value returned is null
+     * @throws SQLException the object cannot be converted to Date
+     */
+    public String getNString(String columnLabel) throws SQLException {
+    	/* getNString throws AbstractMethodError :( its somehow broken (virt_jdbc3) */
+    	Blob blob = resultSet.getBlob(columnLabel);
+        String value = new String(blob.getBytes(1, (int)blob.length()));
+        return resultSet.wasNull() ? null : value;
+
     }
 
     /**
