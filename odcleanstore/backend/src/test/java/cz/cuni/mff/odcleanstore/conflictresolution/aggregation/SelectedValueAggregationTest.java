@@ -15,7 +15,6 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -39,7 +38,7 @@ public class SelectedValueAggregationTest {
         }
     };
 
-    public class SelectedValueAggregationImpl extends SelectedValueAggregation {
+    private class SelectedValueAggregationImpl extends SelectedValueAggregation {
         public SelectedValueAggregationImpl(AggregationSpec aggregationSpec,
                 UniqueURIGenerator uriGenerator) {
             super(aggregationSpec, uriGenerator);
@@ -198,43 +197,4 @@ public class SelectedValueAggregationTest {
                 EPSILON);
     }
 
-    @Test
-    public void testSourceNamedGraphsForObject() {
-        Collection<Quad> conflictingQuads = new LinkedList<Quad>();
-        String subjectURI = TestUtils.getUniqueURI();
-        String predicateURI = TestUtils.getUniqueURI();
-        String testedObjectURI = TestUtils.getUniqueURI();
-        String namedGraphA = TestUtils.getUniqueURI();
-        String namedGraphB = TestUtils.getUniqueURI();
-
-        Quad quadA1 = TestUtils.createQuad(subjectURI, predicateURI,
-                testedObjectURI, namedGraphA);
-        Quad quadA2 = TestUtils.createQuad(subjectURI, predicateURI,
-                testedObjectURI, namedGraphA);
-        Quad quadB = TestUtils.createQuad(subjectURI, predicateURI,
-                testedObjectURI, namedGraphB);
-
-        conflictingQuads.add(quadA1);
-        conflictingQuads.add(TestUtils.createQuad(
-                subjectURI, predicateURI, TestUtils.getUniqueURI()));
-        conflictingQuads.add(quadA2);
-        conflictingQuads.add(TestUtils.createQuad(
-                subjectURI, predicateURI, TestUtils.getUniqueURI()));
-        conflictingQuads.add(quadB);
-        conflictingQuads.add(TestUtils.createQuad(
-                subjectURI, predicateURI, TestUtils.getUniqueURI()));
-
-        AggregationMethodBase instance =
-                new SelectedValueAggregationImpl(new AggregationSpec(), URI_GENERATOR);
-        Collection<String> actualResult = instance.sourceNamedGraphsForObject(
-                Node.createURI(testedObjectURI),
-                conflictingQuads);
-
-        String[] expectedResult = new String[] { namedGraphA, namedGraphB };
-        Arrays.sort(expectedResult);
-        String[] actualResultArray = actualResult.toArray(new String[0]);
-        Arrays.sort(actualResultArray);
-
-        Assert.assertArrayEquals(expectedResult, actualResultArray);
-    }
 }

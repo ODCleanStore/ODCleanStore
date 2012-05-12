@@ -81,7 +81,7 @@ import java.util.Collections;
     /**
      * {@inheritDoc}
      *
-     * In case of a single quad the whole quality is hte score of the source named graph.
+     * In case of a single quad the whole quality is the score of the source named graph.
      */
     @Override
     protected double computeBasicQuality(

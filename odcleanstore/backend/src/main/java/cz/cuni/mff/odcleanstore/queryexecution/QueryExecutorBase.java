@@ -396,7 +396,6 @@ import java.util.Locale;
      * @throws DatabaseException database error
      */
     protected void addSameAsLinksForURI(String uri, Collection<Triple> triples) throws DatabaseException {
-
         long startTime = System.currentTimeMillis();
         String query = String.format(URI_SYNONYMS_QUERY, uri, MAX_SAMEAS_PATH_LENGTH, MAX_LIMIT);
         WrappedResultSet resultSet = getConnection().executeSelect(query);

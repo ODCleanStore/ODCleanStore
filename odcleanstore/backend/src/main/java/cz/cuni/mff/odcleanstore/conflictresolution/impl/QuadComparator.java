@@ -1,4 +1,6 @@
-package cz.cuni.mff.odcleanstore.shared;
+package cz.cuni.mff.odcleanstore.conflictresolution.impl;
+
+import cz.cuni.mff.odcleanstore.shared.NodeComparator;
 
 import de.fuberlin.wiwiss.ng4j.Quad;
 
@@ -10,7 +12,7 @@ import java.util.Comparator;
  *
  * @author Jan Michelfeit
  */
-public class QuadComparator implements Comparator<Quad> {
+/*package*/class QuadComparator implements Comparator<Quad> {
     @Override
     public int compare(Quad quad1, Quad quad2) {
         int comparison = NodeComparator.compare(quad1.getSubject(), quad2.getSubject());

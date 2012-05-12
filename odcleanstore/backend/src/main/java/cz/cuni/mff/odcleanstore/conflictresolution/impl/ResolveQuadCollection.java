@@ -1,6 +1,5 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
-import cz.cuni.mff.odcleanstore.shared.QuadComparator;
 
 import com.hp.hpl.jena.graph.Node;
 

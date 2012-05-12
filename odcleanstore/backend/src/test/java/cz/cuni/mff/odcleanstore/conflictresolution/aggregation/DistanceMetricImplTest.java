@@ -21,7 +21,6 @@ public class DistanceMetricImplTest {
     private static final double DELTA = 0.0;
     private static final double MAX_DISTANCE = 1.0;
     private static final double MIN_DISTANCE = 0.0;
-    private static final double ERROR_DISTANCE = 1.0;
 
     @Test
     public void testDifferentTypes() {

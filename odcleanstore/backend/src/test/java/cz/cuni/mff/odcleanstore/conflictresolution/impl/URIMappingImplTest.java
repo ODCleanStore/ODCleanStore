@@ -27,9 +27,12 @@ public class URIMappingImplTest {
         TestUtils.resetURICounter();
     }
 
-    private String getMappedURI(String uri, URIMapping mapping) {
+    private String getAndTestMappedURI(String uri, URIMapping mapping) {
         Node mappedURI = mapping.mapURI(Node.createURI(uri));
-        return (mappedURI == null) ? uri : mappedURI.getURI();
+        String mappedByNode = (mappedURI == null) ? uri : mappedURI.getURI();
+        String canonicalURI = mapping.getCanonicalURI(uri);
+        Assert.assertEquals(mappedByNode, canonicalURI);
+        return canonicalURI;
     }
 
     @Test
@@ -54,10 +57,10 @@ public class URIMappingImplTest {
         URIMappingImpl uriMapping = new URIMappingImpl();
         uriMapping.addLinks(sameAsLinks.iterator());
 
-        String mappedURI1 = getMappedURI(uri1, uriMapping);
-        String mappedURI2 = getMappedURI(uri2, uriMapping);
-        String mappedURI3 = getMappedURI(uri3, uriMapping);
-        String mappedURI4 = getMappedURI(uri4, uriMapping);
+        String mappedURI1 = getAndTestMappedURI(uri1, uriMapping);
+        String mappedURI2 = getAndTestMappedURI(uri2, uriMapping);
+        String mappedURI3 = getAndTestMappedURI(uri3, uriMapping);
+        String mappedURI4 = getAndTestMappedURI(uri4, uriMapping);
 
         Assert.assertEquals(mappedURI1, mappedURI2);
         Assert.assertEquals(mappedURI1, mappedURI3);
@@ -79,10 +82,10 @@ public class URIMappingImplTest {
         URIMappingImpl uriMapping = new URIMappingImpl();
         uriMapping.addLinks(sameAsLinks.iterator());
 
-        String rootMappedURI = getMappedURI(rootURI, uriMapping);
-        String mappedURI1 = getMappedURI(uri1, uriMapping);
-        String mappedURI2 = getMappedURI(uri2, uriMapping);
-        String mappedURI3 = getMappedURI(uri3, uriMapping);
+        String rootMappedURI = getAndTestMappedURI(rootURI, uriMapping);
+        String mappedURI1 = getAndTestMappedURI(uri1, uriMapping);
+        String mappedURI2 = getAndTestMappedURI(uri2, uriMapping);
+        String mappedURI3 = getAndTestMappedURI(uri3, uriMapping);
 
         Assert.assertEquals(rootMappedURI, mappedURI1);
         Assert.assertEquals(rootMappedURI, mappedURI2);
@@ -103,9 +106,9 @@ public class URIMappingImplTest {
         URIMappingImpl uriMapping = new URIMappingImpl();
         uriMapping.addLinks(sameAsLinks.iterator());
 
-        String mappedURI1 = getMappedURI(uri1, uriMapping);
-        String mappedURI2 = getMappedURI(uri2, uriMapping);
-        String mappedURI3 = getMappedURI(uri3, uriMapping);
+        String mappedURI1 = getAndTestMappedURI(uri1, uriMapping);
+        String mappedURI2 = getAndTestMappedURI(uri2, uriMapping);
+        String mappedURI3 = getAndTestMappedURI(uri3, uriMapping);
 
         Assert.assertEquals(mappedURI1, mappedURI2);
         Assert.assertEquals(mappedURI1, mappedURI3);
@@ -125,17 +128,17 @@ public class URIMappingImplTest {
 
         URIMappingImpl mappingPreferring1 = new URIMappingImpl(Collections.singleton(uri1));
         mappingPreferring1.addLinks(sameAsLinks.iterator());
-        mappedURI1 = getMappedURI(uri1, mappingPreferring1);
+        mappedURI1 = getAndTestMappedURI(uri1, mappingPreferring1);
         Assert.assertEquals(uri1, mappedURI1);
 
         URIMappingImpl mappingPreferring2 = new URIMappingImpl(Collections.singleton(uri2));
         mappingPreferring2.addLinks(sameAsLinks.iterator());
-        mappedURI1 = getMappedURI(uri1, mappingPreferring2);
+        mappedURI1 = getAndTestMappedURI(uri1, mappingPreferring2);
         Assert.assertEquals(uri2, mappedURI1);
 
         URIMappingImpl mappingPreferring3 = new URIMappingImpl(Collections.singleton(uri3));
         mappingPreferring3.addLinks(sameAsLinks.iterator());
-        mappedURI1 = getMappedURI(uri1, mappingPreferring3);
+        mappedURI1 = getAndTestMappedURI(uri1, mappingPreferring3);
         Assert.assertEquals(uri3, mappedURI1);
     }
 }
