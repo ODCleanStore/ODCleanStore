@@ -2,7 +2,6 @@ package cz.cuni.mff.odcleanstore.queryexecution;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
-import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 
 /**
  * Access point (facade) of the Query Execution component.
@@ -37,15 +36,14 @@ public class QueryExecution {
      * @param constraints constraints on triples returned in the result
      * @param aggregationSpec aggregation settings for conflict resolution
      * @return result of the query as RDF quads
-     * @throws ODCleanStoreException exception
-     *
-     * @todo
+     * @throws QueryExecutionException exception
      */
-    public QueryResult findKeyword(String keywords, QueryConstraintSpec constraints,
-            AggregationSpec aggregationSpec) throws ODCleanStoreException {
+    public QueryResult findKeyword(String keywords, QueryConstraintSpec constraints, AggregationSpec aggregationSpec)
+            throws QueryExecutionException {
 
-        AggregationSpec effectiveAggregationSpec = mergeAggregationSettings(getDefaultConfiguration(), aggregationSpec);
-        return new KeywordQueryExecutor(sparqlEndpoint, constraints, effectiveAggregationSpec).findKeyword(keywords);
+        KeywordQueryExecutor queryExecutor =
+                new KeywordQueryExecutor(sparqlEndpoint, constraints, aggregationSpec, getDefaultConfiguration());
+        return queryExecutor.findKeyword(keywords);
     }
 
     /**
@@ -56,36 +54,14 @@ public class QueryExecution {
      * @param constraints constraints on triples returned in the result
      * @param aggregationSpec aggregation settings for conflict resolution
      * @return result of the query as RDF quads
-     * @throws ODCleanStoreException exception
+     * @throws QueryExecutionException exception
      */
-    public QueryResult findURI(String uri, QueryConstraintSpec constraints,
-            AggregationSpec aggregationSpec) throws ODCleanStoreException {
+    public QueryResult findURI(String uri, QueryConstraintSpec constraints, AggregationSpec aggregationSpec)
+            throws QueryExecutionException {
 
-        AggregationSpec effectiveAggregationSpec = mergeAggregationSettings(getDefaultConfiguration(), aggregationSpec);
-        return new UriQueryExecutor(sparqlEndpoint, constraints, effectiveAggregationSpec).findURI(uri);
-    }
-
-    /**
-     * Merge the given aggregation settings specific for this query (addedSettings) with the default settings
-     * (baseSettings). Query specific settings override the default values.
-     * @param baseSettings default aggregation settings
-     * @param addedSettings query specific settings
-     * @return merged aggregation settings
-     */
-    private AggregationSpec mergeAggregationSettings(AggregationSpec baseSettings, AggregationSpec addedSettings) {
-        AggregationSpec result = new AggregationSpec(baseSettings);
-        if (addedSettings.getDefaultAggregation() != null) {
-            result.setDefaultAggregation(addedSettings.getDefaultAggregation());
-        }
-        if (addedSettings.getDefaultMultivalue() != null) {
-            result.setDefaultMultivalue(addedSettings.getDefaultMultivalue());
-        }
-        if (addedSettings.getErrorStrategy() != null) {
-            result.setErrorStrategy(addedSettings.getErrorStrategy());
-        }
-        result.getPropertyAggregations().putAll(addedSettings.getPropertyAggregations());
-        result.getPropertyMultivalue().putAll(addedSettings.getPropertyMultivalue());
-        return result;
+        UriQueryExecutor queryExecutor =
+                new UriQueryExecutor(sparqlEndpoint, constraints, aggregationSpec, getDefaultConfiguration());
+        return queryExecutor.findURI(uri);
     }
 
     /** TODO. */

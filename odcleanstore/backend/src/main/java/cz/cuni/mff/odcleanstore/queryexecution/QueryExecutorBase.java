@@ -6,10 +6,11 @@ import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
+import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.data.QuadCollection;
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
-import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
+import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 import cz.cuni.mff.odcleanstore.vocabulary.RDFS;
@@ -24,8 +25,6 @@ import de.fuberlin.wiwiss.ng4j.Quad;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Collection;
@@ -199,20 +198,25 @@ import java.util.Locale;
      */
     private CharSequence graphFilterClause;
 
-    /** Aggregation settings for conflict resolution. */
+    /** Aggregation settings for conflict resolution. Overrides {@link #defaultAggregationSpec}. */
     protected final AggregationSpec aggregationSpec;
+
+    /** Default aggregation settings for conflict resolution. */
+    protected final AggregationSpec defaultAggregationSpec;
 
     /**
      * Creates a new instance of QueryExecutorBase.
      * @param sparqlEndpoint connection settings for the SPARQL endpoint that will be queried
      * @param constraints constraints on triples returned in the result
-     * @param aggregationSpec aggregation settings for conflict resolution
+     * @param aggregationSpec aggregation settings for conflict resolution; overrides defaultAggregationSpec
+     * @param defaultAggregationSpec default aggregation settings for conflict resolution
      */
     protected QueryExecutorBase(SparqlEndpoint sparqlEndpoint, QueryConstraintSpec constraints,
-            AggregationSpec aggregationSpec) {
+            AggregationSpec aggregationSpec, AggregationSpec defaultAggregationSpec) {
         this.sparqlEndpoint = sparqlEndpoint;
         this.constraints = constraints;
         this.aggregationSpec = aggregationSpec;
+        this.defaultAggregationSpec = defaultAggregationSpec;
     }
 
     /**
@@ -230,12 +234,15 @@ import java.util.Locale;
 
     /**
      * Closes an opened database connection, if any.
-     * @throws ConnectionException database connection error
      */
-    protected void closeConnection() throws ConnectionException {
+    protected void closeConnectionQuietly() {
         if (connection != null) {
-            connection.close();
-            connection = null;
+            try {
+                connection.close();
+                connection = null;
+            } catch (ConnectionException e) {
+                // do nothing
+            }
         }
     }
 
@@ -254,22 +261,20 @@ import java.util.Locale;
     /**
      * Check whether aggregation settings and query constraints are valid.
      * For now, checks only compliance with {@link #MAX_PROPERTY_SETTINGS_SIZE}.
-     * @throws QueryFormatException aggregation settings or query constraints are invalid
+     * @throws QueryExecutionException aggregation settings or query constraints are invalid
      */
-    protected void checkValidSettings() throws QueryFormatException {
+    protected void checkValidSettings() throws QueryExecutionException {
         // Check that settings contain valid URIs
         for (String property : aggregationSpec.getPropertyAggregations().keySet()) {
-            try {
-                new URI(property);
-            } catch (URISyntaxException e) {
-                throw new QueryFormatException("'" + property + "' is not a valid URI.", e);
+            if (!Utils.isValidIRI(property)) {
+                throw new QueryExecutionException(EnumQueryError.AGGREGATION_SETTINGS_INVALID,
+                        "'" + property + "' is not a valid URI.");
             }
         }
         for (String property : aggregationSpec.getPropertyMultivalue().keySet()) {
-            try {
-                new URI(property);
-            } catch (URISyntaxException e) {
-                throw new QueryFormatException("'" + property + "' is not a valid URI.", e);
+            if (!Utils.isValidIRI(property)) {
+                throw new QueryExecutionException(EnumQueryError.AGGREGATION_SETTINGS_INVALID,
+                        "'" + property + "' is not a valid URI.");
             }
         }
 
@@ -277,7 +282,7 @@ import java.util.Locale;
         int settingsPropertyCount = aggregationSpec.getPropertyAggregations().size()
                 + aggregationSpec.getPropertyMultivalue().size();
         if (settingsPropertyCount > MAX_PROPERTY_SETTINGS_SIZE) {
-            throw new QueryFormatException("Too many explicit property settings.");
+            throw new QueryExecutionException(EnumQueryError.QUERY_TOO_LONG, "Too many explicit property settings.");
         }
 
         // Log a warning if using this debug option
@@ -294,9 +299,9 @@ import java.util.Locale;
      *        property, object (exactly in this order).
      * @param debugName named of the query used for debug log
      * @return result of the query as a collection of quads
-     * @throws ODCleanStoreException database query error
+     * @throws DatabaseException database error
      */
-    protected Collection<Quad> getQuadsFromQuery(String sparqlQuery, String debugName) throws ODCleanStoreException {
+    protected Collection<Quad> getQuadsFromQuery(String sparqlQuery, String debugName) throws DatabaseException {
         long startTime = System.currentTimeMillis();
         WrappedResultSet resultSet = getConnection().executeSelect(sparqlQuery);
         LOG.debug("Query Execution: {} query took {} ms", debugName, System.currentTimeMillis() - startTime);
@@ -331,10 +336,10 @@ import java.util.Locale;
      *        insertedAt, insertedBy, license, publishedBy, publisherScore
      * @param debugName named of the query used for debug log
      * @return map of named graph metadata
-     * @throws ODCleanStoreException database query error
+     * @throws DatabaseException database error
      */
     protected NamedGraphMetadataMap getMetadataFromQuery(String sparqlQuery, String debugName)
-            throws ODCleanStoreException {
+            throws DatabaseException {
         long startTime = System.currentTimeMillis();
         WrappedResultSet resultSet = getConnection().executeSelect(sparqlQuery);
         LOG.debug("Query Execution: {} query took {} ms", debugName, System.currentTimeMillis() - startTime);
@@ -388,11 +393,9 @@ import java.util.Locale;
      *  {@link #MAX_SAMEAS_PATH_LENGTH} ({@value #MAX_SAMEAS_PATH_LENGTH}).
      * @param uri URI for which we search for owl:sameAs synonyms
      * @param triples the resulting triples are added to this collection as
-     * @throws QueryException database query error
-     * @throws ConnectionException database connection error
+     * @throws DatabaseException database error
      */
-    protected void addSameAsLinksForURI(String uri, Collection<Triple> triples)
-            throws QueryException, ConnectionException {
+    protected void addSameAsLinksForURI(String uri, Collection<Triple> triples) throws DatabaseException {
 
         long startTime = System.currentTimeMillis();
         String query = String.format(URI_SYNONYMS_QUERY, uri, MAX_SAMEAS_PATH_LENGTH, MAX_LIMIT);

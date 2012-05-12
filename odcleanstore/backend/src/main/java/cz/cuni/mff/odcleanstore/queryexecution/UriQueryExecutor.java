@@ -6,9 +6,10 @@ import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
+import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
+import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
-import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
+import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.vocabulary.DC;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
@@ -21,8 +22,6 @@ import de.fuberlin.wiwiss.ng4j.Quad;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -261,10 +260,11 @@ import java.util.Set;
      * @param sparqlEndpoint connection settings for the SPARQL endpoint that will be queried
      * @param constraints constraints on triples returned in the result
      * @param aggregationSpec aggregation settings for conflict resolution
+     * @param defaultAggregationSpec default aggregation settings for conflict resolution
      */
     public UriQueryExecutor(SparqlEndpoint sparqlEndpoint, QueryConstraintSpec constraints,
-            AggregationSpec aggregationSpec) {
-        super(sparqlEndpoint, constraints, aggregationSpec);
+            AggregationSpec aggregationSpec, AggregationSpec defaultAggregationSpec) {
+        super(sparqlEndpoint, constraints, aggregationSpec, defaultAggregationSpec);
     }
 
     /**
@@ -272,21 +272,20 @@ import java.util.Set;
      *
      * @param uri searched URI
      * @return query result holder
-     * @throws ODCleanStoreException database error or the query was invalid
+     * @throws QueryExecutionException database error or the query was invalid
      */
-    public QueryResult findURI(String uri) throws ODCleanStoreException {
+    public QueryResult findURI(String uri) throws QueryExecutionException {
         LOG.info("URI query for <{}>", uri);
         long startTime = System.currentTimeMillis();
         checkValidSettings();
 
         // Check that the URI is valid (must not be empty or null, should match '<' ([^<>"{}|^`\]-[#x00-#x20])* '>' )
         if (uri.length() > MAX_URI_LENGTH) {
-            throw new QueryException("The requested URI is longer than " + MAX_URI_LENGTH + " characters.");
+            throw new QueryExecutionException(EnumQueryError.QUERY_TOO_LONG,
+                    "The requested URI is longer than " + MAX_URI_LENGTH + " characters.");
         }
-        try {
-            new URI(uri);
-        } catch (URISyntaxException e) {
-            throw new QueryFormatException(e); // rethrow
+        if (!Utils.isValidIRI(uri)) {
+            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, "The query is not a valid URI.");
         }
 
         try {
@@ -299,7 +298,8 @@ import java.util.Set;
             quads.addAll(getLabels(uri));
 
             // Gather all settings for Conflict Resolution
-            ConflictResolverSpec crSpec = new ConflictResolverSpec(RESULT_GRAPH_PREFIX, aggregationSpec);
+            ConflictResolverSpec crSpec =
+                    new ConflictResolverSpec(RESULT_GRAPH_PREFIX, aggregationSpec, defaultAggregationSpec);
             crSpec.setPreferredURIs(getPreferredURIs(uri));
             crSpec.setSameAsLinks(getSameAsLinks(uri).iterator());
             NamedGraphMetadataMap metadata = getMetadata(uri);
@@ -310,8 +310,12 @@ import java.util.Set;
             Collection<CRQuad> resolvedQuads = conflictResolver.resolveConflicts(quads);
 
             return createResult(resolvedQuads, metadata, uri, System.currentTimeMillis() - startTime);
+        } catch (ConflictResolutionException e) {
+            throw new QueryExecutionException(EnumQueryError.CONFLICT_RESOLUTION_ERROR, e);
+        } catch (DatabaseException e) {
+           throw new QueryExecutionException(EnumQueryError.DATABASE_ERROR, e);
         } finally {
-            closeConnection();
+            closeConnectionQuietly();
         }
     }
 
@@ -364,9 +368,9 @@ import java.util.Set;
      * Return a collection of quads relevant for the query (without metadata or any additional quads).
      * @param uri searched URI
      * @return retrieved quads
-     * @throws ODCleanStoreException query error
+     * @throws DatabaseException query error
      */
-    private Collection<Quad> getURIOccurrences(String uri) throws ODCleanStoreException {
+    private Collection<Quad> getURIOccurrences(String uri) throws DatabaseException {
         String query = String.format(URI_OCCURENCES_QUERY, uri, getGraphFilterClause(), MAX_LIMIT);
         return getQuadsFromQuery(query, "getURIOccurrences()");
     }
@@ -375,9 +379,9 @@ import java.util.Set;
      * Return labels of resources returned by {{@link #getURIOccurrences(String)} as quads.
      * @param uri searched URI
      * @return labels as quads
-     * @throws ODCleanStoreException query error
+     * @throws DatabaseException query error
      */
-    private Collection<Quad> getLabels(String uri) throws ODCleanStoreException {
+    private Collection<Quad> getLabels(String uri) throws DatabaseException {
         String query = String.format(Locale.ROOT, LABELS_QUERY, uri, getGraphFilterClause(), LABEL_PROPERTIES_LIST,
                 getGraphPrefixFilter("labelGraph"), MAX_LIMIT);
         return getQuadsFromQuery(query, "getLabels()");
@@ -387,9 +391,9 @@ import java.util.Set;
      * Return metadata for named graphs containing quads returned in the result.
      * @param uri searched URI
      * @return metadata of result named graphs
-     * @throws ODCleanStoreException query error
+     * @throws DatabaseException query error
      */
-    private NamedGraphMetadataMap getMetadata(String uri) throws ODCleanStoreException {
+    private NamedGraphMetadataMap getMetadata(String uri) throws DatabaseException {
         String query = String.format(Locale.ROOT, METADATA_QUERY, uri, getGraphFilterClause(),
                 LABEL_PROPERTIES_LIST, getGraphPrefixFilter("resGraph"), MAX_LIMIT);
         return getMetadataFromQuery(query, "getMetadata()");
@@ -402,9 +406,9 @@ import java.util.Set;
      * @see #URI_OCCURENCES_QUERY
      * @param uri searched URI
      * @return collection of relevant owl:sameAs links
-     * @throws ODCleanStoreException query error
+     * @throws DatabaseException query error
      */
-    private Collection<Triple> getSameAsLinks(String uri) throws ODCleanStoreException {
+    private Collection<Triple> getSameAsLinks(String uri) throws DatabaseException {
         long startTime = System.currentTimeMillis();
         Collection<Triple> sameAsTriples = new ArrayList<Triple>();
         addSameAsLinksForURI(uri, sameAsTriples);

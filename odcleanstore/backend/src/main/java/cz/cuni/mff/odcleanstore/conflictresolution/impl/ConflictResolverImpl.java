@@ -1,16 +1,16 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
+import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverSpec;
-import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationType;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationMethod;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationMethodFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationNotImplementedException;
+import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
 import cz.cuni.mff.odcleanstore.shared.NodeComparator;
-import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 
@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Default implementation of the conflict resolution process.
@@ -41,14 +42,9 @@ public class ConflictResolverImpl implements ConflictResolver {
     private static final Logger LOG = LoggerFactory.getLogger(ConflictResolverImpl.class);
 
     /**
-     * An AggregationMethod factory.
-     */
-    private AggregationMethodFactory aggregationFactory;
-
-    /**
      * Settings for the conflict resolution process.
      */
-    private final ConflictResolverSpec spec;
+    private final ConflictResolverSpec crSpec;
 
     /**
      * Comparator of {@link Quad Quads} comparing first by objects, second
@@ -95,12 +91,10 @@ public class ConflictResolverImpl implements ConflictResolver {
 
     /**
      * Creates a new instance of conflict resolver for settings passed in spec.
-     * @param spec settings for the conflict resolution process
+     * @param crSpec settings for the conflict resolution process
      */
-    public ConflictResolverImpl(ConflictResolverSpec spec) {
-        this.spec = spec;
-        UniqueURIGenerator uriGenerator = new SimpleUriGenerator(spec.getNamedGraphPrefix());
-        this.aggregationFactory = new AggregationMethodFactory(uriGenerator, spec);
+    public ConflictResolverImpl(ConflictResolverSpec crSpec) {
+        this.crSpec = crSpec;
     }
 
     /**
@@ -108,18 +102,23 @@ public class ConflictResolverImpl implements ConflictResolver {
      *
      * @param quads {@inheritDoc }
      * @return {@inheritDoc }
-     * @throws ODCleanStoreException {@inheritDoc}
+     * @throws ConflictResolutionException {@inheritDoc}
      */
     @Override
-    public Collection<CRQuad> resolveConflicts(Collection<Quad> quads) throws ODCleanStoreException {
+    public Collection<CRQuad> resolveConflicts(Collection<Quad> quads) throws ConflictResolutionException {
         LOG.info("Resolving conflicts among {} quads.", quads.size());
         long startTime = System.currentTimeMillis();
 
-        // Apply owl:sameAs mappings, group quads to conflict clusters
+        // Prepare owl:sameAs mappings
+        URIMappingImpl uriMappings = new URIMappingImpl(crSpec.getPreferredURIs());
+        uriMappings.addLinks(getSameAsLinks(quads));
+
+        // Prepare effective aggregation settings based on main settings, default settings and owl:sameAs mappings
+        AggregationSpec effectiveAggregationSpec = getEffectiveAggregationSpec(uriMappings);
+
+        // Apply owl:sameAs mappings to quads, group quads to conflict clusters
         ResolveQuadCollection quadsToResolve = new ResolveQuadCollection();
         quadsToResolve.addQuads(quads);
-        URIMappingImpl uriMappings = new URIMappingImpl(spec.getPreferredURIs());
-        uriMappings.addLinks(getSameAsLinks(quads));
         quadsToResolve.applyMapping(uriMappings);
 
         // Get metadata:
@@ -137,6 +136,7 @@ public class ConflictResolverImpl implements ConflictResolver {
         }
 
         // Resolve conflicts:
+        AggregationMethodFactory aggregationFactory = getAggregationMethodFactory(effectiveAggregationSpec);
         Collection<CRQuad> result = createResultCollection();
         Iterator<Collection<Quad>> conflictIterator = quadsToResolve.listConflictingQuads();
         while (conflictIterator.hasNext()) {
@@ -147,7 +147,7 @@ public class ConflictResolverImpl implements ConflictResolver {
                 conflictCluster = filterOldVersions(conflictCluster, metadata, filterComparator);
             }
 
-            AggregationMethod aggregator = getAggregator(conflictCluster);
+            AggregationMethod aggregator = getAggregator(conflictCluster, aggregationFactory);
             Collection<CRQuad> aggregatedQuads = aggregator.aggregate(conflictCluster, metadata);
 
             // Add resolved quads to result
@@ -156,6 +156,62 @@ public class ConflictResolverImpl implements ConflictResolver {
 
         LOG.debug("Conflict resolution executed in {} ms", System.currentTimeMillis() - startTime);
         return result;
+    }
+
+    /**
+     * Return effective aggregation settings with URIs translated according to the given URI mapping.
+     * The result is default settings ({@link ConflictResolverSpec#getDefaultAggregationSpec()}) overridden by
+     * main settings ({@link ConflictResolverSpec#getAggregationSpec()}) with translation of property URIs.
+     * @param uriMappings URI mapping to apply
+     * @return effective aggregation settings
+     */
+    private AggregationSpec getEffectiveAggregationSpec(URIMapping uriMappings) {
+        AggregationSpec result = new AggregationSpec();
+        AggregationSpec mainSettings = crSpec.getAggregationSpec();
+        AggregationSpec defaultSettings = crSpec.getDefaultAggregationSpec();
+
+        result.setDefaultAggregation(mainSettings.getDefaultAggregation() != null
+                ? mainSettings.getDefaultAggregation()
+                : defaultSettings.getDefaultAggregation());
+        result.setDefaultMultivalue(mainSettings.getDefaultMultivalue() != null
+                ? mainSettings.getDefaultMultivalue()
+                : defaultSettings.getDefaultMultivalue());
+        result.setErrorStrategy(mainSettings.getErrorStrategy() != null
+                ? mainSettings.getErrorStrategy()
+                : defaultSettings.getErrorStrategy());
+
+        mergePropertySettings(result.getPropertyAggregations(), defaultSettings.getPropertyAggregations(), uriMappings);
+        mergePropertySettings(result.getPropertyAggregations(), mainSettings.getPropertyAggregations(), uriMappings);
+
+        mergePropertySettings(result.getPropertyMultivalue(), mainSettings.getPropertyMultivalue(), uriMappings);
+        mergePropertySettings(result.getPropertyMultivalue(), mainSettings.getPropertyMultivalue(), uriMappings);
+        return result;
+    }
+
+    /**
+     * Merge map containing settings for properties while applying the given URI mapping to property names.
+     * @param baseSettings the map that is merge to; this argument is modified
+     * @param addedSettings the map we are merging into baseSettings; addedSettings override baseSettings
+     * @param uriMappings URI mapping to apply
+     * @param <T> type of values in the merged maps
+     */
+    private <T> void mergePropertySettings(Map<String, T> baseSettings, Map<String, T> addedSettings,
+            URIMapping uriMappings) {
+
+        for (Entry<String, T> entry : addedSettings.entrySet()) {
+            String mappedURI = uriMappings.getCanonicalURI(entry.getKey());
+            baseSettings.put(mappedURI, entry.getValue());
+        }
+    }
+
+    /**
+     * Return a new instance of AggregationMethodFactory for the current CR settings.
+     * @param effectiveAggregationSpec aggregation settings to use
+     * @return instance of AggregationMethodFactory
+     */
+    private AggregationMethodFactory getAggregationMethodFactory(AggregationSpec effectiveAggregationSpec) {
+        UniqueURIGenerator uriGenerator = new SimpleUriGenerator(crSpec.getNamedGraphPrefix());
+        return new AggregationMethodFactory(uriGenerator, effectiveAggregationSpec);
     }
 
     /**
@@ -271,7 +327,7 @@ public class ConflictResolverImpl implements ConflictResolver {
      * @return an iterator over owl:sameAs links
      */
     private Iterator<Triple> getSameAsLinks(Iterable<? extends Quad> data) {
-        Iterator<Triple> specSameAsLinks = spec.getSameAsLinks();
+        Iterator<Triple> specSameAsLinks = crSpec.getSameAsLinks();
         if (specSameAsLinks != null) {
             return specSameAsLinks;
         } else {
@@ -285,11 +341,9 @@ public class ConflictResolverImpl implements ConflictResolver {
      * If no metadata are specified, tries to read them from RDF data to resolve.
      * @param data collection of quads where conflicts are to be resolved
      * @return named graphs' metadata
-     * @throws ODCleanStoreException thrown when named graph metadata contained
-     *         in the input graph are not correctly formated
      */
-    private NamedGraphMetadataMap getNamedGraphMetadata(Collection<Quad> data) throws ODCleanStoreException {
-        NamedGraphMetadataMap metadata = spec.getNamedGraphMetadata();
+    private NamedGraphMetadataMap getNamedGraphMetadata(Collection<Quad> data) {
+        NamedGraphMetadataMap metadata = crSpec.getNamedGraphMetadata();
         if (metadata != null) {
             return metadata;
         } else {
@@ -306,11 +360,14 @@ public class ConflictResolverImpl implements ConflictResolver {
      *
      * @param quads collection of conflicting quads (i.e. having the same
      *        subject and predicate)
+     * @param aggregationFactory factory for AggregationMethod
      * @return an aggregation method instance selected according to CR settings
      * @throws AggregationNotImplementedException thrown if there is no
      *         AggregationMethod implementation for the selected aggregation type
      */
-    private AggregationMethod getAggregator(Collection<Quad> quads) throws AggregationNotImplementedException {
+    private AggregationMethod getAggregator(Collection<Quad> quads, AggregationMethodFactory aggregationFactory)
+            throws AggregationNotImplementedException {
+
         if (quads.size() == 1) {
             // A little optimization: behavior of all aggregation method on
             // a single quad is supposed to be the same, so we can use an
@@ -318,8 +375,7 @@ public class ConflictResolverImpl implements ConflictResolver {
             return aggregationFactory.getSingleValueAggregation();
         }
         String clusterProperty = getQuadsProperty(quads);
-        EnumAggregationType propertyAggregation = spec.propertyAggregationType(clusterProperty);
-        return aggregationFactory.getAggregation(propertyAggregation);
+        return aggregationFactory.getAggregation(clusterProperty);
     }
 
     /**

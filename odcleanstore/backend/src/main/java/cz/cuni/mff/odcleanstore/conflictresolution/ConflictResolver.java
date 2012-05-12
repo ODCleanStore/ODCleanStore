@@ -1,6 +1,6 @@
 package cz.cuni.mff.odcleanstore.conflictresolution;
 
-import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
+import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
 
 import de.fuberlin.wiwiss.ng4j.Quad;
 
@@ -21,9 +21,9 @@ public interface ConflictResolver {
      * @param quads collection of quads where conflicts are to be resolved
      * @return collection of quads derived from the input quads with resolved
      *         conflicts, quality estimate and source named graph information.
-     * @throws ODCleanStoreException thrown when an error during the conflict
+     * @throws ConflictResolutionException thrown when an error during the conflict
      *         resolution process occurs
      * @see CRQuad
      */
-    Collection<CRQuad> resolveConflicts(Collection<Quad> quads) throws ODCleanStoreException;
+    Collection<CRQuad> resolveConflicts(Collection<Quad> quads) throws ConflictResolutionException;
 }

@@ -6,7 +6,7 @@ import java.util.Collection;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
-import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
+import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
 import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
 
@@ -63,9 +63,7 @@ public class RulesModel {
 				
 				rules.add(new Rule(id, filter, coefficient, description));
 			}
-		} catch (ConnectionException e) {
-			throw new QualityAssessmentException(e.getMessage());
-		} catch (QueryException e) {
+		} catch (DatabaseException e) {
 			throw new QualityAssessmentException(e.getMessage());
 		} catch (SQLException e) {
 			throw new QualityAssessmentException(e.getMessage());
