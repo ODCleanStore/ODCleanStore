@@ -4,6 +4,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
@@ -16,7 +19,7 @@ import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
  * @author Tomas Soukup
  */
 public class LinkerDao {
-	
+	private static final Logger LOG = LoggerFactory.getLogger(LinkerDao.class);
 	/**
 	 * singleton instance
 	 */
@@ -34,6 +37,7 @@ public class LinkerDao {
 	 * @throws ConnectionException
 	 */
 	private LinkerDao(SparqlEndpoint endpoint) throws ConnectionException {
+		LOG.info("Connecting to DB on: " + endpoint.getUri());
 		connection = VirtuosoConnectionWrapper.createConnection(endpoint);
 	}
 	
@@ -68,7 +72,7 @@ public class LinkerDao {
 			ruleList.add(resultSet.getString(1));
 		}
 		resultSet.closeQuietly();
-		
+		LOG.info("Loaded {} linkage rules.", ruleList.size());
 		return ruleList;
 	}
 	

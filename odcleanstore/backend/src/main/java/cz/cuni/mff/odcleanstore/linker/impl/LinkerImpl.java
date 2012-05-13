@@ -4,6 +4,9 @@ import java.io.File;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.data.RDFprefix;
@@ -21,11 +24,11 @@ import de.fuberlin.wiwiss.silk.Silk;
  * @author Tomas Soukup
  */
 public class LinkerImpl implements Linker {
-	
+	private static final Logger LOG = LoggerFactory.getLogger(LinkerImpl.class);
 	/** 
 	 * URI of graph to store generated links to 
 	 */
-	private static final String LINKS_GRAPH_NAME = "http://odcs.cz/generatedLinks";
+	private static final String LINKS_GRAPH_NAME = "http://odcs.mff.cuni.cz/namedGraph/generatedLinks";
 	
 	 /**
      * {@inheritDoc}
@@ -40,6 +43,7 @@ public class LinkerImpl implements Linker {
      */
 	@Override
 	public void transformNewGraph(TransformedGraph inputGraph, TransformationContext context) throws TransformerException {
+		LOG.info("Linking new graph: {}", inputGraph.getGraphName());
 		String config = context.getTransformerConfiguration();
 		if (config == null || config.isEmpty()) {
 			linkByConfigFiles(context);
@@ -55,8 +59,10 @@ public class LinkerImpl implements Linker {
 				configFile = ConfigBuilder.createLinkConfigFile(rawRules, prefixes, inputGraph, context);
 				
 				inputGraph.addAttachedGraph(LINKS_GRAPH_NAME);
-			
+				
+				LOG.info("Calling Silk with temporary configuration file: {}", configFile.getAbsolutePath());
 				Silk.executeFile(configFile, null, Silk.DefaultThreads(), true);
+				LOG.info("Linking finished.");
 				
 				configFile.delete();
 			} catch (SQLException e) {
@@ -108,7 +114,9 @@ public class LinkerImpl implements Linker {
 		File[] files = context.getTransformerDirectory().listFiles();
 		for (File file:files) {
 			if (file.getName().endsWith(".xml")) {
+				LOG.info("Calling Silk with configuration file: {}", file.getAbsolutePath());
 				Silk.executeFile(file, null, Silk.DefaultThreads(), true);
+				LOG.info("Linking finished.");
 			}
 		}
 	}
@@ -124,7 +132,7 @@ public class LinkerImpl implements Linker {
 	 */
 	private List<String> loadRules(String transformerConfiguration, LinkerDao dao ) 
 			throws SQLException, QueryException {
-		
+		LOG.info("Loading rule groups: {}", transformerConfiguration);
 		String[] ruleGroupArray = transformerConfiguration.split(",");
 
 		return dao.loadRules(ruleGroupArray);
