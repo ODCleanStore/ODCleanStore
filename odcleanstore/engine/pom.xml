@@ -1,23 +1,26 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" ?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	
 	<modelVersion>4.0.0</modelVersion>
-
-	<artifactId>engine</artifactId>
+	
+	<groupId>cz.cuni.mff.odcleanstore</groupId>
+	<artifactId>odcs-engine</artifactId>
+	<version>1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
-	<name>ODCleanStore - Engine</name>
 
 	<parent>
 		<groupId>cz.cuni.mff.odcleanstore</groupId>
-		<artifactId>_project-base</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
-		<relativePath>../_utils/_project-base</relativePath>
+		<artifactId>odcs</artifactId>
+		<version>1.0-SNAPSHOT</version>
 	</parent>
 
+	<name>ODCleanStore - Engine</name>
+	<description>TO BE ADDED</description>
+	
 	<repositories>
-		<repository>
-			<id>odcleanstore</id>
-			<url>http://gd.projekty.ms.mff.cuni.cz:9123/nexus/content/groups/public/</url>
-		</repository>
 		<repository>
 			<id>maven-restlet</id>
 			<name>Public online Restlet repository</name>
@@ -25,10 +28,21 @@
 		</repository>
 	</repositories>
 
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>cz.cuni.mff.odcleanstore</groupId>
+				<artifactId>${artifactPrefix}backend</artifactId>
+				<version>1.0-SNAPSHOT</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	
 	<dependencies>
 		<dependency>
 			<groupId>cz.cuni.mff.odcleanstore</groupId>
-			<artifactId>odcleanstore-backend</artifactId>
+			<artifactId>${artifactPrefix}backend</artifactId>
+			<version>1.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.openlinksw</groupId>
@@ -45,24 +59,7 @@
 			<artifactId>org.restlet.ext.slf4j</artifactId>
 			<version>2.1-RC4</version>
 		</dependency>
-		<!-- TODO: move to parent pom -->
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.8.2</version>
-			<scope>test</scope>
-		</dependency>
 	</dependencies>
-
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>cz.cuni.mff.odcleanstore</groupId>
-				<artifactId>odcleanstore-backend</artifactId>
-				<version>0.0.1-SNAPSHOT</version>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
 
 	<build>
 		<plugins>
