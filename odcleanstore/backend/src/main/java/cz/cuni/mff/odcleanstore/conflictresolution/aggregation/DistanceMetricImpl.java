@@ -1,8 +1,8 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.AggregationUtils;
+import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.EnumLiteralType;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.LevenshteinDistance;
-import cz.cuni.mff.odcleanstore.shared.EnumLiteralType;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 

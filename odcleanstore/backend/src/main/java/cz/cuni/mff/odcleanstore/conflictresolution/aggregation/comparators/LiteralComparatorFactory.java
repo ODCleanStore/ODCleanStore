@@ -1,6 +1,6 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation.comparators;
 
-import cz.cuni.mff.odcleanstore.shared.EnumLiteralType;
+import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.EnumLiteralType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,6 +1,5 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
-import cz.cuni.mff.odcleanstore.shared.NodeComparator;
 
 import de.fuberlin.wiwiss.ng4j.Quad;
 
