@@ -28,7 +28,7 @@ public class LinkerImpl implements Linker {
 	/** 
 	 * URI of graph to store generated links to 
 	 */
-	private static final String LINKS_GRAPH_NAME = "http://odcs.cz/generatedLinks";
+	private static final String LINKS_GRAPH_NAME = "http://odcs.mff.cuni.cz/namedGraph/generatedLinks";
 	
 	 /**
      * {@inheritDoc}
