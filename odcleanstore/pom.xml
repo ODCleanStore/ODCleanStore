@@ -23,9 +23,6 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		
-		<!-- to be used as artefact-name prefix in all module artefacts -->
-        <artifactPrefix>odcs-</artifactPrefix>
     </properties>
 
 	<repositories>
