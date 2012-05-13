@@ -14,6 +14,8 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -31,7 +33,8 @@ import cz.cuni.mff.odcleanstore.transformer.TransformerException;
  * 
  * @author Tomas Soukup
  */
-public class ConfigBuilder {	
+public class ConfigBuilder {
+	private static final Logger LOG = LoggerFactory.getLogger(ConfigBuilder.class);
 	/**
 	 * suffix of configuration file
 	 */
@@ -81,12 +84,14 @@ public class ConfigBuilder {
 	 */
 	public static File createLinkConfigFile(List<String> rawRules, List<RDFprefix> prefixes, 
 			TransformedGraph inputGraph, TransformationContext context) throws TransformerException {
-		
+		LOG.info("Creating link configuration file.");
 		Document configDoc;
 		File configFile;
 		try {
 			configDoc = createConfigDoc(rawRules, prefixes, inputGraph, context);
+			LOG.info("Created link configuration document.");
 			configFile = storeConfigDoc(configDoc, context.getTransformerDirectory(), inputGraph.getGraphId());
+			LOG.info("Stored link configuration to temporary file {}", configFile.getAbsolutePath());
 		} catch (Exception e) {
 			throw new TransformerException(e);
 		}

@@ -12,13 +12,16 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Common class for loading RDF prefixes from Virtuoso DB.
  *
  * @author tomas.soukup
  */
 public class RDFPrefixesLoader {
-
+	private static final Logger LOG = LoggerFactory.getLogger(RDFPrefixesLoader.class);
 	/**
 	 * Loads RDF prefixes from Virtuoso DB.
 	 *
@@ -27,7 +30,7 @@ public class RDFPrefixesLoader {
 	 * @throws DatabaseException database error occured
 	 */
 	public static List<RDFprefix> loadPrefixes(SparqlEndpoint endpoint) throws DatabaseException {
-
+		LOG.info("Loading RDF prefixes from: {}", endpoint.getUri());
 		VirtuosoConnectionWrapper connection = null;
 		List<RDFprefix> prefixList = new ArrayList<RDFprefix>();
 		try {
@@ -47,6 +50,7 @@ public class RDFPrefixesLoader {
 				// do nothing
 			}
 		}
+		LOG.info("Loaded {} prefixes.", prefixList.size());
 		return prefixList;
 	}
 }
