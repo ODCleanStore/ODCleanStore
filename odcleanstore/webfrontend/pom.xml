@@ -1,14 +1,15 @@
+<?xml version="1.0" ?>
 <project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
 	xmlns="http://maven.apache.org/POM/4.0.0" 
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	
 	<modelVersion>4.0.0</modelVersion>
 	
 	<groupId>cz.cuni.mff.odcleanstore</groupId>
 	<artifactId>${artifactPrefix}webfrontend</artifactId>
-	<packaging>war</packaging>
 	<version>1.0-SNAPSHOT</version>
+	<packaging>war</packaging>
 	
 	<parent>
 		<groupId>cz.cuni.mff.odcleanstore</groupId>
@@ -17,7 +18,7 @@
 	</parent>
 	
 	<name>ODCleanStore - Web Frontend</name>
-	<description></description>
+	<description>TO BE ADDED</description>
 	
 	<properties>
 		<wicket.version>1.5.4</wicket.version>
@@ -92,22 +93,6 @@
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 			<version>1.2.16</version>
-		</dependency>
-
-		<!--  JUNIT DEPENDENCY FOR TESTING -->
-		
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.8.1</version>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-all</artifactId>
-			<version>1.9.0</version>
-			<scope>test</scope>
 		</dependency>
   
 		<!--  JETTY DEPENDENCIES FOR TESTING  -->
@@ -270,24 +255,5 @@
 			</plugins>
 		</pluginManagement>
 	</build>
-
-	<repositories>
-		<repository>
-			<id>Apache Nexus</id>
-			<url>https://repository.apache.org/content/repositories/snapshots/</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-		
-		<repository>
-			<id>JBoss repository</id>
-			<url>http://repository.jboss.org/nexus/content/groups/public/</url>
-		</repository>
-		
-	</repositories>
 
 </project>
