@@ -14,9 +14,8 @@ DROP TABLE DB.FRONTEND.OI_RULES;
 DROP TABLE DB.FRONTEND.OI_RULES_GROUPS;
 
 DROP TABLE DB.FRONTEND.CR_SETTINGS;
-DROP TABLE DB.FRONTEND.CR_PROPERTY_AGGREGATIONS;
-DROP TABLE DB.FRONTEND.CR_AGGREGATION_TYPES;
 DROP TABLE DB.FRONTEND.CR_PROPERTIES;
+DROP TABLE DB.FRONTEND.CR_AGGREGATION_TYPES;
 
 /*
 	===========================================================================
@@ -154,11 +153,14 @@ CREATE TABLE DB.FRONTEND.OI_RULES
 */
 CREATE TABLE DB.FRONTEND.CR_SETTINGS
 (
-	id INTEGER NOT NULL IDENTITY PRIMARY KEY,
-	name NVARCHAR(255) NOT NULL,
+	name NVARCHAR(255) NOT NULL PRIMARY KEY,
 	value NVARCHAR(255) NOT NULL,
 	description LONG NVARCHAR
 );
+
+INSERT INTO DB.FRONTEND.CR_SETTINGS (name, value, description) VALUES ('DEFAULT_AGGREGATION', 'ALL', 'Default aggregation method');
+INSERT INTO DB.FRONTEND.CR_SETTINGS (name, value, description) VALUES ('DEFAULT_MULTIVALUE', '0', 'Default multivalue setting');
+INSERT INTO DB.FRONTEND.CR_SETTINGS (name, value, description) VALUES ('ERROR_STRATEGY', 'RETURN_ALL', 'Default aggregation error strategy');
 
 CREATE TABLE DB.FRONTEND.CR_AGGREGATION_TYPES
 (
@@ -167,18 +169,28 @@ CREATE TABLE DB.FRONTEND.CR_AGGREGATION_TYPES
 	description LONG NVARCHAR	
 );
 
+INSERT INTO DB.FRONTEND.CR_AGGREGATION_TYPES (label, description) VALUES ('ANY', 'Selects any single value');
+INSERT INTO DB.FRONTEND.CR_AGGREGATION_TYPES (label, description) VALUES ('ALL', 'Selects all values');
+INSERT INTO DB.FRONTEND.CR_AGGREGATION_TYPES (label, description) VALUES ('BEST', 'Selects the value with highest aggregated quality');
+INSERT INTO DB.FRONTEND.CR_AGGREGATION_TYPES (label, description) VALUES ('LATEST', 'Selects the newest value');
+INSERT INTO DB.FRONTEND.CR_AGGREGATION_TYPES (label, description) VALUES ('BEST_SOURCE', 'Selects the value with the highest score of its named graph');
+INSERT INTO DB.FRONTEND.CR_AGGREGATION_TYPES (label, description) VALUES ('MAX', 'Selects maximum value');
+INSERT INTO DB.FRONTEND.CR_AGGREGATION_TYPES (label, description) VALUES ('MIN', 'Selects minimum value');
+INSERT INTO DB.FRONTEND.CR_AGGREGATION_TYPES (label, description) VALUES ('SHORTEST', 'Selects the shortest value');
+INSERT INTO DB.FRONTEND.CR_AGGREGATION_TYPES (label, description) VALUES ('LONGEST', 'Selects the longest value');
+INSERT INTO DB.FRONTEND.CR_AGGREGATION_TYPES (label, description) VALUES ('AVG', 'Computes average value');
+INSERT INTO DB.FRONTEND.CR_AGGREGATION_TYPES (label, description) VALUES ('MEDIAN', 'Selects the median');
+INSERT INTO DB.FRONTEND.CR_AGGREGATION_TYPES (label, description) VALUES ('CONCAT', 'Returns all values concatenated');
+INSERT INTO DB.FRONTEND.CR_AGGREGATION_TYPES (label, description) VALUES ('NONE', 'Selects all values without grouping of the same values');
+
 CREATE TABLE DB.FRONTEND.CR_PROPERTIES
 (
 	id INTEGER NOT NULL IDENTITY PRIMARY KEY,
 	property NVARCHAR(1024) UNIQUE NOT NULL,
-	multivalue SMALLINT NOT NULL DEFAULT 1
-);
-
-CREATE TABLE DB.FRONTEND.CR_PROPERTY_AGGREGATIONS
-(
-	propertyId INTEGER NOT NULL PRIMARY KEY,
-	aggregationTypeId INTEGER NOT NULL,
-
-	FOREIGN KEY (propertyId) REFERENCES DB.FRONTEND.CR_PROPERTIES(id),
+	multivalue SMALLINT NULL DEFAULT 1,
+	aggregationTypeId INTEGER NULL,
+	
 	FOREIGN KEY (aggregationTypeId) REFERENCES DB.FRONTEND.CR_AGGREGATION_TYPES(id)
 );
+
+INSERT INTO DB.FRONTEND.CR_PROPERTIES (property, multivalue, aggregationTypeId) VALUES ('http://www.w3.org/1999/02/22-rdf-syntax-ns#type', 1, NULL);

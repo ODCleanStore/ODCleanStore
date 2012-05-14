@@ -87,7 +87,7 @@ public class ConflictResolverSpec {
             AggregationSpec defaultAggregationSpec) {
         setNamedGraphURIPrefix(namedGraphURIPrefix);
         this.aggregationSpec = aggregationSpec;
-        this.defaultAggregationSpec = aggregationSpec;
+        this.defaultAggregationSpec = defaultAggregationSpec;
     }
 
     /**
