@@ -28,7 +28,7 @@ public class LinkerImpl implements Linker {
 	/** 
 	 * URI of graph to store generated links to 
 	 */
-	private static final String LINKS_GRAPH_NAME = "http://odcs.mff.cuni.cz/namedGraph/generatedLinks";
+	private static final String LINKS_GRAPH_NAME = "http://odcs.mff.cuni.cz/namedGraph/generatedLinks/";
 	
 	 /**
      * {@inheritDoc}
@@ -46,6 +46,7 @@ public class LinkerImpl implements Linker {
 		LOG.info("Linking new graph: {}", inputGraph.getGraphName());
 		String config = context.getTransformerConfiguration();
 		if (config == null || config.isEmpty()) {
+			LOG.info("No configuration specified, using XML files in directory {}", context.getTransformerDirectory().getAbsolutePath());
 			linkByConfigFiles(context);
 		} else {
 			LinkerDao dao;
@@ -55,10 +56,11 @@ public class LinkerImpl implements Linker {
 				dao = LinkerDao.getInstance(context.getCleanDatabaseEndpoint());
 				List<String> rawRules = loadRules(context.getTransformerConfiguration(), dao);
 				List<RDFprefix> prefixes = RDFPrefixesLoader.loadPrefixes(context.getCleanDatabaseEndpoint());
-			
-				configFile = ConfigBuilder.createLinkConfigFile(rawRules, prefixes, inputGraph, context);
 				
-				inputGraph.addAttachedGraph(LINKS_GRAPH_NAME);
+				String linksGraphName = LINKS_GRAPH_NAME + inputGraph.getGraphId();
+				configFile = ConfigBuilder.createLinkConfigFile(rawRules, prefixes, inputGraph, context, linksGraphName);
+				
+				inputGraph.addAttachedGraph(linksGraphName);
 				
 				LOG.info("Calling Silk with temporary configuration file: {}", configFile.getAbsolutePath());
 				Silk.executeFile(configFile, null, Silk.DefaultThreads(), true);
@@ -112,6 +114,7 @@ public class LinkerImpl implements Linker {
 	@Override
 	public void linkByConfigFiles(TransformationContext context) {
 		File[] files = context.getTransformerDirectory().listFiles();
+		LOG.info("{} configuration files found", files.length);
 		for (File file:files) {
 			if (file.getName().endsWith(".xml")) {
 				LOG.info("Calling Silk with configuration file: {}", file.getAbsolutePath());
