@@ -9,13 +9,6 @@ import java.util.Collection;
  */
 public interface TransformedGraph {
     /**
-     * TODO
-     * Returns an editable model of the transformed graph.
-     * (jenom pokud to pujde udelat)
-     */
-    //Model getModel();
-
-    /**
      * Returns URI of the transformed named graph.
      * @return named graph URI
      */
