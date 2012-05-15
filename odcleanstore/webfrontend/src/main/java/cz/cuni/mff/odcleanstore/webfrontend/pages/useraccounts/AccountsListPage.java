@@ -1,9 +1,9 @@
-package cz.cuni.mff.odcleanstore.webfrontend.administration;
+package cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts;
 
-import cz.cuni.mff.odcleanstore.webfrontend.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
@@ -24,7 +24,7 @@ public class AccountsListPage extends FrontendPage
 	public AccountsListPage() 
 	{
 		super(
-			"Home > Administration > User accounts > List",
+			"Home > User accounts > List",
 			"List all user accounts"
 		);
 		

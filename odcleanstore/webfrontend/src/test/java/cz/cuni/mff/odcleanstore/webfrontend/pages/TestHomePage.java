@@ -1,11 +1,10 @@
-package cz.cuni.mff.odcleanstore;
+package cz.cuni.mff.odcleanstore.webfrontend.pages;
+
+import cz.cuni.mff.odcleanstore.webfrontend.core.WicketApplication;
 
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.Before;
 import org.junit.Test;
-
-import cz.cuni.mff.odcleanstore.webfrontend.HomePage;
-import cz.cuni.mff.odcleanstore.webfrontend.WicketApplication;
 
 /**
  * Simple test using the WicketTester

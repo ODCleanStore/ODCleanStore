@@ -10,7 +10,7 @@
         <filter-class>org.apache.wicket.protocol.http.WicketFilter</filter-class>
         <init-param>
             <param-name>applicationClassName</param-name>
-			<param-value>cz.cuni.mff.odcleanstore.webfrontend.WicketApplication</param-value>
+			<param-value>cz.cuni.mff.odcleanstore.webfrontend.core.WicketApplication</param-value>
 			<!--
             <param-name>applicationFactoryClassName</param-name>
             <param-value>org.apache.wicket.spring.SpringWebApplicationFactory</param-value>

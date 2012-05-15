@@ -1,9 +1,12 @@
-package cz.cuni.mff.odcleanstore.webfrontend;
+package cz.cuni.mff.odcleanstore.webfrontend.pages;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
+
+import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
+import cz.cuni.mff.odcleanstore.webfrontend.core.WicketApplication;
 
 /**
  * An abstract base class for all WebFrontend page components, except for

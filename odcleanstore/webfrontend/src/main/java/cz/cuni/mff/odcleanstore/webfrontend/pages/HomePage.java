@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.webfrontend;
+package cz.cuni.mff.odcleanstore.webfrontend.pages;
 
 /**
  * WebFrontend home page component.

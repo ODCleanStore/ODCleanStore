@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.webfrontend.administration;
+package cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts;
 
 import java.security.NoSuchAlgorithmException;
 
@@ -10,10 +10,10 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
-import cz.cuni.mff.odcleanstore.webfrontend.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.configuration.Configuration;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.util.Mail;
 import cz.cuni.mff.odcleanstore.webfrontend.util.NewAccountMail;
 import cz.cuni.mff.odcleanstore.webfrontend.util.PasswordHandling;
@@ -29,7 +29,7 @@ public class NewAccountPage extends FrontendPage
 	public NewAccountPage() 
 	{
 		super(
-			"Home > Administration > User accounts > Create", 
+			"Home > User accounts > Create", 
 			"Create a new user account"
 		);
 
