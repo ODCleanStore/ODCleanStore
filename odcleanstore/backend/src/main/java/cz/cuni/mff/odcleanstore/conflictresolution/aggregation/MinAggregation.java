@@ -4,7 +4,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.comparators.AggregationComparator;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.comparators.LiteralComparatorFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.AggregationUtils;
-import cz.cuni.mff.odcleanstore.shared.EnumLiteralType;
+import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.EnumLiteralType;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 
 import de.fuberlin.wiwiss.ng4j.Quad;

@@ -208,16 +208,12 @@ public class ConflictResolverImplTest {
         Assert.assertEquals(expectedQuadCount, aggregationResult.size());
         double newVersionQuality = Double.NaN;
         double sameNamedGraphQuadQuality = Double.NaN;
-        double otherQuadQuality = Double.NaN;
         for (CRQuad crQuad : aggregationResult) {
             if (crQuad.getSourceNamedGraphURIs().contains(sameNamedGraphQuad.getGraphName().getURI())) {
                 sameNamedGraphQuadQuality = crQuad.getQuality();
             }
             if (crQuad.getSourceNamedGraphURIs().contains(newVersionQuad.getGraphName().getURI())) {
                 newVersionQuality = crQuad.getQuality();
-            }
-            if (crQuad.getSourceNamedGraphURIs().contains(otherQuad.getGraphName().getURI())) {
-                otherQuadQuality = crQuad.getQuality();
             }
         }
         Assert.assertEquals(newVersionQuality, sameNamedGraphQuadQuality, EPSILON);

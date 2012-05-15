@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.shared;
+package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.NodeVisitor;

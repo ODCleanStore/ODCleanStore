@@ -2,8 +2,8 @@ package cz.cuni.mff.odcleanstore.conflictresolution.aggregation.comparators;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.AggregationUtils;
+import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.EnumLiteralType;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.TimeComparator;
-import cz.cuni.mff.odcleanstore.shared.EnumLiteralType;
 
 import com.hp.hpl.jena.graph.Node;
 

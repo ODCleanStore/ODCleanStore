@@ -7,6 +7,7 @@ package cz.cuni.mff.odcleanstore.queryexecution;
 public enum EnumQueryError {
     QUERY_TOO_LONG,
     INVALID_QUERY_FORMAT,
+    DEFAULT_AGGREGATION_SETTINGS_INVALID,
     AGGREGATION_SETTINGS_INVALID,
     DATABASE_ERROR,
     CONFLICT_RESOLUTION_ERROR

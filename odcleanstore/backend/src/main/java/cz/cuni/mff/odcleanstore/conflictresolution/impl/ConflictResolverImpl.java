@@ -10,7 +10,6 @@ import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationMethod
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationMethodFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationNotImplementedException;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
-import cz.cuni.mff.odcleanstore.shared.NodeComparator;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 
@@ -183,7 +182,7 @@ public class ConflictResolverImpl implements ConflictResolver {
         mergePropertySettings(result.getPropertyAggregations(), defaultSettings.getPropertyAggregations(), uriMappings);
         mergePropertySettings(result.getPropertyAggregations(), mainSettings.getPropertyAggregations(), uriMappings);
 
-        mergePropertySettings(result.getPropertyMultivalue(), mainSettings.getPropertyMultivalue(), uriMappings);
+        mergePropertySettings(result.getPropertyMultivalue(), defaultSettings.getPropertyMultivalue(), uriMappings);
         mergePropertySettings(result.getPropertyMultivalue(), mainSettings.getPropertyMultivalue(), uriMappings);
         return result;
     }

@@ -2,7 +2,6 @@ package cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.shared.EnumLiteralType;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 

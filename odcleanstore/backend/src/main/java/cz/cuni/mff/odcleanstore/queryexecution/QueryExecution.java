@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.queryexecution;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
+import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
 
 /**
@@ -18,6 +19,9 @@ import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
 public class QueryExecution {
     /** Connection settings for the SPARQL endpoint that will be queried. */
     private final SparqlEndpoint sparqlEndpoint;
+
+    /** Default aggregation settings for conflict resolution (loaded from database). */
+    private AggregationSpec defaultConfiguration;
 
     /**
      * Creates a new instance of QueryExecution.
@@ -64,10 +68,20 @@ public class QueryExecution {
         return queryExecutor.findURI(uri);
     }
 
-    /** TODO. */
-    private static final AggregationSpec DEFAULT_CONFIGURATION = new AggregationSpec();
-    /** TODO. @return TODO */
-    private AggregationSpec getDefaultConfiguration() {
-        return DEFAULT_CONFIGURATION;
+    /**
+     * Returns the default aggregation settings for conflict resolution.
+     * @return aggregation settings
+     * @throws QueryExecutionException invalid settings in the database or a database error
+     */
+    private AggregationSpec getDefaultConfiguration() throws QueryExecutionException {
+        if (defaultConfiguration == null) {
+            try {
+                // This may get executed by multiple threads, but that doesn't matter
+                defaultConfiguration = new QueryExecutionConfigLoader(sparqlEndpoint).getDefaultSettings();
+            } catch (DatabaseException e) {
+                throw new QueryExecutionException(EnumQueryError.DATABASE_ERROR, e);
+            }
+        }
+        return defaultConfiguration;
     }
 }

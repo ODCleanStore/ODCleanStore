@@ -1,6 +1,7 @@
-package cz.cuni.mff.odcleanstore.shared;
+package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
 import cz.cuni.mff.odcleanstore.TestUtils;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.NodeComparator;
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.rdf.model.AnonId;
