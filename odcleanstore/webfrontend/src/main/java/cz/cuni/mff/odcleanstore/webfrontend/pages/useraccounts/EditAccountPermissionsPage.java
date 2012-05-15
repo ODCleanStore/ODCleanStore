@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.webfrontend.administration;
+package cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts;
 
 import java.util.List;
 import java.util.Map;
@@ -14,12 +14,13 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
-import cz.cuni.mff.odcleanstore.webfrontend.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.RoleDao;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 
 @AuthorizeInstantiation({ "ADM" })
@@ -35,7 +36,7 @@ public class EditAccountPermissionsPage extends FrontendPage
 	public EditAccountPermissionsPage(final Long userId) 
 	{
 		super(
-			"Home > Administration > User accounts > Edit roles", 
+			"Home > User accounts > Edit roles", 
 			"Edit user account roles"
 		);
 		

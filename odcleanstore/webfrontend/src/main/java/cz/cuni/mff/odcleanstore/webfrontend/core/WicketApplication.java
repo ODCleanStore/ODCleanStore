@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.webfrontend;
+package cz.cuni.mff.odcleanstore.webfrontend.core;
 
 import org.apache.wicket.authroles.authentication.AbstractAuthenticatedWebSession;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebApplication;
@@ -9,6 +9,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import cz.cuni.mff.odcleanstore.webfrontend.configuration.Configuration;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.HomePage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LogInPage;
 
 /**
  * Web Frontend Application object.

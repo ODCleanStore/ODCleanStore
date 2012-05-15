@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.webfrontend;
+package cz.cuni.mff.odcleanstore.webfrontend.pages;
 
 import org.apache.wicket.Page;
 import org.apache.wicket.markup.html.WebPage;
