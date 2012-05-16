@@ -13,6 +13,74 @@
 
 	<name>ODCleanStore</name>
 	
+	<description>TODO</description>
+	<url>http://sourceforge.net/p/odcleanstore/home/Home/</url>
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	<scm>
+		<url>http://sourceforge.net/p/odcleanstore/code/</url>
+		<connection>scm:git://git.code.sf.net/p/odcleanstore/code</connection>
+		<developerConnection>scm:ssh://git.code.sf.net/p/odcleanstore/code</developerConnection>
+	</scm>
+	<developers>
+		<developer>
+			<id>jm</id>
+			<name>Jan Michelfeit</name>
+			<!--<email></email>-->
+			<roles>
+				<role>developer</role>
+			</roles>
+		</developer>
+		<developer>
+			<id>dr</id>
+			<name>Dušan Rychnovský</name>
+			<!--<email></email>-->
+			<roles>
+				<role>developer</role>
+			</roles>
+		</developer>
+		<developer>
+			<id>pj</id>
+			<name>Petr Jerman</name>
+			<!--<email></email>-->
+			<roles>
+				<role>developer</role>
+			</roles>
+		</developer>
+		<developer>
+			<id>jd</id>
+			<name>Jakub Daniel</name>
+			<!--<email></email>-->
+			<roles>
+				<role>developer</role>
+			</roles>
+		</developer>
+		<developer>
+			<id>ts</id>
+			<name>Tomáš Soukup</name>
+			<!--<email></email>-->
+			<roles>
+				<role>developer</role>
+			</roles>
+		</developer>
+	</developers>
+	<contributors>
+		<contributor>
+			<name>Tomáš Knap</name>
+			<email>knap@ksi.mff.cuni.cz</email>
+			<roles>
+				<role>project supervisor</role>
+			</roles>
+			<url>http://www.ksi.mff.cuni.cz/~knap</url>
+			<organization>Faculty of Mathematics and Physics, Charles University in Prague</organization>
+		</contributor>
+	</contributors>
+	
 	<modules>
 		<module>backend</module>
 		<module>inputclient</module>
