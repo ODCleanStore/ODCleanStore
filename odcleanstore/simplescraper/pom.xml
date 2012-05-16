@@ -23,8 +23,8 @@
 	<dependencies>
 		<dependency>
 			<groupId>cz.cuni.mff.odcleanstore</groupId>
-			<artifactId>odcs-scraper</artifactId>
-				<version>0.1-SNAPSHOT</version>
+			<artifactId>odcs-inputclient</artifactId>
+			<version>0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 
@@ -32,7 +32,7 @@
 		<dependencies>
 			<dependency>
 				<groupId>cz.cuni.mff.odcleanstore</groupId>
-				<artifactId>odcs-scraper</artifactId>
+				<artifactId>odcs-inputclient</artifactId>
 				<version>0.1-SNAPSHOT</version>
 			</dependency>
 		</dependencies>
