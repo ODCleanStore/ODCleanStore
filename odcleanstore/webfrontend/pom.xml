@@ -8,17 +8,17 @@
 	
 	<groupId>cz.cuni.mff.odcleanstore</groupId>
 	<artifactId>odcs-webfrontend</artifactId>
-	<version>1.0-SNAPSHOT</version>
+	<version>0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
 	
 	<parent>
 		<groupId>cz.cuni.mff.odcleanstore</groupId>
 		<artifactId>odcs</artifactId>
-		<version>1.0-SNAPSHOT</version>
+		<version>0.1-SNAPSHOT</version>
 	</parent>
 	
 	<name>ODCleanStore - Web Frontend</name>
-	<description>TO BE ADDED</description>
+	<description>Web interface for administration of ODCleanStore</description>
 	
 	<properties>
 		<wicket.version>1.5.4</wicket.version>
