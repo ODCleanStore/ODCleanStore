@@ -46,10 +46,7 @@ import org.slf4j.LoggerFactory;
     private static final double ERROR_DISTANCE = MAX_DISTANCE;
 
     /** Number of seconds in a day. */
-    private static final int SECONDS_IN_DAY = 24 * 60 * 60;
-
-    /** Number of milliseconds in a second. */
-    private static final int MILLIS_IN_SECOND = 1000;
+    private static final int SECONDS_IN_DAY = (int) (Utils.DAY_HOURS * Utils.TIME_UNIT_60 * Utils.TIME_UNIT_60);
 
     // /** Square root of two. */
     // private static final double SQRT_OF_TWO = Math.sqrt(2);
@@ -219,7 +216,7 @@ import org.slf4j.LoggerFactory;
                     return ERROR_DISTANCE;
                 }
                 double differenceInSeconds = Math.abs(primaryValueTime.asCalendar().getTimeInMillis()
-                        - comparedValueTime.asCalendar().getTimeInMillis()) / MILLIS_IN_SECOND;
+                        - comparedValueTime.asCalendar().getTimeInMillis()) / Utils.MILLISECONDS;
                 double result = (MAX_DISTANCE - MIN_DISTANCE) * differenceInSeconds / MAX_DATE_DIFFERENCE;
                 result = Math.min(result, MAX_DISTANCE);
                 assert MIN_DISTANCE <= result && result <= MAX_DISTANCE;
