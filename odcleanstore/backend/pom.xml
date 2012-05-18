@@ -11,9 +11,9 @@
 	<version>0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
   
-  <properties>
-    <odcs-core-version>1.0-SNAPSHOT</odcs-core-version>
-  </properties>
+	<properties>
+		<odcs-core-version>0.1-SNAPSHOT</odcs-core-version>
+	</properties>
 
 	<parent>
 		<groupId>cz.cuni.mff.odcleanstore</groupId>
@@ -24,7 +24,7 @@
 	<name>ODCleanStore - Backend</name>
 	
 	<dependencies>
-    <dependency>
+		<dependency>
 			<groupId>cz.cuni.mff.odcleanstore</groupId>
 			<artifactId>odcs-core</artifactId>
 			<version>${odcs-core-version}</version>
@@ -57,16 +57,6 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>com.openlinksw</groupId>
-			<artifactId>virt_jena</artifactId>
-			<version>2.6.2</version>
-		</dependency>
-		<dependency>
-			<groupId>com.openlinksw</groupId>
-			<artifactId>virtjdbc</artifactId>
-			<version>3</version>
-		</dependency>
-    <dependency>
 			<groupId>de.fuberlin.wiwiss.silk</groupId>
 			<artifactId>silk-singlemachine</artifactId>
 			<version>2.5.3</version>
