@@ -48,7 +48,7 @@ public class ConflictResolutionConfigTest {
         Mockito.when(properties.getProperty(GROUP_NAME + ".publisher_score_weight")).thenReturn("0.2");
         Mockito.when(properties.getProperty(GROUP_NAME + ".max_date_difference")).thenReturn("31622400");
 
-        ConflictResolutionConfig crConfig = ConflictResolutionConfig.load(properties);
+        ConflictResolutionConfig.load(properties);
     }
 
     @Test(expected = IllegalParameterFormatException.class)
@@ -61,7 +61,7 @@ public class ConflictResolutionConfigTest {
         Mockito.when(properties.getProperty(GROUP_NAME + ".publisher_score_weight")).thenReturn("0.2");
         Mockito.when(properties.getProperty(GROUP_NAME + ".max_date_difference")).thenReturn("31622400");
 
-        ConflictResolutionConfig crConfig = ConflictResolutionConfig.load(properties);
+        ConflictResolutionConfig.load(properties);
     }
 
     @Test(expected = IllegalParameterFormatException.class)
@@ -74,6 +74,6 @@ public class ConflictResolutionConfigTest {
         Mockito.when(properties.getProperty(GROUP_NAME + ".publisher_score_weight")).thenReturn("0.2");
         Mockito.when(properties.getProperty(GROUP_NAME + ".max_date_difference")).thenReturn("316.22400");
 
-        ConflictResolutionConfig crConfig = ConflictResolutionConfig.load(properties);
+        ConflictResolutionConfig.load(properties);
     }
 }
