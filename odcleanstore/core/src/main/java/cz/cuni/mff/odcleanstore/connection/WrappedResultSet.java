@@ -196,7 +196,7 @@ public class WrappedResultSet {
     public java.util.Date getJavaDate(int columnIndex) throws SQLException {
         return objectToDate(resultSet.getObject(columnIndex));
     }
-    
+
     /**
      * Retrieves the value of the designated column in the current row of this ResultSet object as a java
      * {@link java.util.String}.
@@ -205,13 +205,13 @@ public class WrappedResultSet {
      * @throws SQLException the object cannot be converted to Date
      */
     public String getNString(int columnIndex) throws SQLException {
-    	/* getNString throws AbstractMethodError :( its somehow broken (virt_jdbc3) */
-    	Blob blob = resultSet.getBlob(columnIndex);
-        String value = new String(blob.getBytes(1, (int)blob.length()));
+        /* getNString throws AbstractMethodError :( its somehow broken (virt_jdbc3) */
+        Blob blob = resultSet.getBlob(columnIndex);
+        String value = new String(blob.getBytes(1, (int) blob.length()));
         return resultSet.wasNull() ? null : value;
 
     }
-    
+
     /**
      * Retrieves the value of the designated column in the current row of this ResultSet object as a java
      * {@link java.util.String}.
@@ -220,9 +220,9 @@ public class WrappedResultSet {
      * @throws SQLException the object cannot be converted to Date
      */
     public String getNString(String columnLabel) throws SQLException {
-    	/* getNString throws AbstractMethodError :( its somehow broken (virt_jdbc3) */
-    	Blob blob = resultSet.getBlob(columnLabel);
-        String value = new String(blob.getBytes(1, (int)blob.length()));
+        /* getNString throws AbstractMethodError :( its somehow broken (virt_jdbc3) */
+        Blob blob = resultSet.getBlob(columnLabel);
+        String value = new String(blob.getBytes(1, (int) blob.length()));
         return resultSet.wasNull() ? null : value;
 
     }
