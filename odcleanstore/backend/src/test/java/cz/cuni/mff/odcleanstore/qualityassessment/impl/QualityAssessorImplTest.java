@@ -145,7 +145,7 @@ public class QualityAssessorImplTest extends TestCase {
 	}
 	
 	private void backupRulesRestrictions() throws Exception {
-		WrappedResultSet rulesRestrictions = connection.executeSelect("SELECT * FROM DB.FRONTEND.EL_RULES_TO_DOMAINS_RESTRICTIONS");
+		WrappedResultSet rulesRestrictions = connection.executeSelect("SELECT * FROM DB.FRONTEND.QA_RULES_TO_DOMAINS_RESTRICTIONS");
 		
 		rulesRestrictionsBackup = new ArrayList<Object[]>();
 		
@@ -174,7 +174,7 @@ public class QualityAssessorImplTest extends TestCase {
 	}
 	
 	private void backupRules() throws Exception {
-		WrappedResultSet rules = connection.executeSelect("SELECT * FROM DB.FRONTEND.EL_RULES");
+		WrappedResultSet rules = connection.executeSelect("SELECT * FROM DB.FRONTEND.QA_RULES");
 		
 		rulesBackup = new ArrayList<Object[]>();
 		
@@ -182,7 +182,7 @@ public class QualityAssessorImplTest extends TestCase {
 			Object[] domain = {
 					rules.getInt("id"),
 					rules.getNString("filter"),
-					rules.getDouble("coeficient"),
+					rules.getDouble("coefficient"),
 					rules.getNString("description")
 			};
 
@@ -191,7 +191,7 @@ public class QualityAssessorImplTest extends TestCase {
 	}
 	
 	private void dropRulesRestrictions() throws Exception {
-		connection.execute("DELETE FROM DB.FRONTEND.EL_RULES_TO_DOMAINS_RESTRICTIONS");
+		connection.execute("DELETE FROM DB.FRONTEND.QA_RULES_TO_DOMAINS_RESTRICTIONS");
 	}
 	
 	private void dropDomains() throws Exception {
@@ -199,7 +199,7 @@ public class QualityAssessorImplTest extends TestCase {
 	}
 	
 	private void dropRules() throws Exception {
-		connection.execute("DELETE FROM DB.FRONTEND.EL_RULES");
+		connection.execute("DELETE FROM DB.FRONTEND.QA_RULES");
 	}
 	
 	private void loadTestingDomains() throws Exception {
@@ -210,13 +210,13 @@ public class QualityAssessorImplTest extends TestCase {
 	
 	private void loadTestingRules() throws Exception {
 		for (int i = 0; i < rules.length; ++i) {
-			connection.execute("INSERT INTO DB.FRONTEND.EL_RULES (id, filter, coeficient, description) VALUES (?, ?, ?, ?)", rules[i]);
+			connection.execute("INSERT INTO DB.FRONTEND.QA_RULES (id, filter, coefficient, description) VALUES (?, ?, ?, ?)", rules[i]);
 		}
 	}
 	
 	private void loadTestingRulesRestrictions() throws Exception {
 		for (int i = 0; i < rulesRestrictions.length; ++i) {
-			connection.execute("INSERT INTO DB.FRONTEND.EL_RULES_TO_DOMAINS_RESTRICTIONS (ruleId, domainId) VALUES (?, ?)", rulesRestrictions[i]);
+			connection.execute("INSERT INTO DB.FRONTEND.QA_RULES_TO_DOMAINS_RESTRICTIONS (ruleId, domainId) VALUES (?, ?)", rulesRestrictions[i]);
 		}
 	}
 	
@@ -232,7 +232,7 @@ public class QualityAssessorImplTest extends TestCase {
 		Iterator<Object[]> objects = rulesBackup.iterator();
 		
 		while (objects.hasNext()) {
-			connection.execute("INSERT INTO DB.FRONTEND.EL_RULES (id, filter, coeficient, description) VALUES (?, ?, ?, ?)", objects.next());
+			connection.execute("INSERT INTO DB.FRONTEND.QA_RULES (id, filter, coefficient, description) VALUES (?, ?, ?, ?)", objects.next());
 		}
 	}
 	
@@ -240,7 +240,7 @@ public class QualityAssessorImplTest extends TestCase {
 		Iterator<Object[]> objects = rulesRestrictionsBackup.iterator();
 		
 		while (objects.hasNext()) {
-			connection.execute("INSERT INTO DB.FRONTEND.EL_RULES_TO_DOMAINS_RESTRICTIONS (ruleId, domainId) VALUES (?, ?)", objects.next());
+			connection.execute("INSERT INTO DB.FRONTEND.QA_RULES_TO_DOMAINS_RESTRICTIONS (ruleId, domainId) VALUES (?, ?)", objects.next());
 		}
 	}
 	

@@ -56,7 +56,7 @@ public class RulesModel {
 				Blob filterBlob = result.getBlob("filter");
 				String filter = new String(filterBlob.getBytes(1, (int)filterBlob.length()));
 				
-				Float coefficient = result.getFloat("coeficient"); //SPELLING MISTAKE IN THE DB TABLE
+				Float coefficient = result.getFloat("coefficient");
 				
 				Blob descriptionBlob = result.getBlob("description");
 				String description = new String(descriptionBlob.getBytes(1, (int)descriptionBlob.length()));
@@ -90,7 +90,7 @@ public class RulesModel {
 	 * a particular publisher
          */
 	public Collection<Rule> getUnrestrictedRules() throws QualityAssessmentException {
-		return queryRules("SELECT * FROM DB.FRONTEND.EL_RULES WHERE id NOT IN (SELECT ruleId FROM DB.FRONTEND.EL_RULES_TO_DOMAINS_RESTRICTIONS)");
+		return queryRules("SELECT * FROM DB.FRONTEND.QA_RULES WHERE id NOT IN (SELECT ruleId FROM DB.FRONTEND.QA_RULES_TO_DOMAINS_RESTRICTIONS)");
 	}
 	
 	/**
@@ -101,8 +101,8 @@ public class RulesModel {
 	public Collection<Rule> getRulesForPublisher (String publisher) throws QualityAssessmentException {
 		
 		Collection<Rule> publisherSpecific = queryRules("SELECT * FROM " +
-					"DB.FRONTEND.EL_RULES AS rule JOIN " +
-					"DB.FRONTEND.EL_RULES_TO_DOMAINS_RESTRICTIONS AS restriction ON rule.id = restriction.ruleId JOIN " +
+					"DB.FRONTEND.QA_RULES AS rule JOIN " +
+					"DB.FRONTEND.QA_RULES_TO_DOMAINS_RESTRICTIONS AS restriction ON rule.id = restriction.ruleId JOIN " +
 					"DB.FRONTEND.DATA_DOMAINS AS domain ON restriction.domainId = domain.id WHERE uri = ?", publisher);
 		
 		publisherSpecific.addAll(getUnrestrictedRules());

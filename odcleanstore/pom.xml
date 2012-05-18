@@ -82,6 +82,7 @@
 	</contributors>
 	
 	<modules>
+    <module>core</module>
 		<module>backend</module>
 		<module>inputclient</module>
 		<module>engine</module>
