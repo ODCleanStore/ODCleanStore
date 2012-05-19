@@ -18,7 +18,7 @@ import cz.cuni.mff.odcleanstore.TestUtils;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
-import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
+import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
 import cz.cuni.mff.odcleanstore.qualityassessment.QualityAssessor;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
@@ -86,7 +86,7 @@ class TestInstance {
 }
 
 public class QualityAssessorImplTest extends TestCase {
-	private SparqlEndpoint sparqlEndpoint;
+	private ConnectionCredentials sparqlEndpoint;
 	private VirtuosoConnectionWrapper connection;
 	
 	private TestInstance[] tests = new TestInstance[] {
@@ -138,7 +138,7 @@ public class QualityAssessorImplTest extends TestCase {
 	public QualityAssessorImplTest (String name) throws ConnectionException {
 		super(name);
 		
-		sparqlEndpoint = new SparqlEndpoint("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba");
+		sparqlEndpoint = new ConnectionCredentials("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba");
 		connection = VirtuosoConnectionWrapper.createConnection(sparqlEndpoint);
 		
 		metadataGraphName = TestUtils.getUniqueURI();
@@ -356,12 +356,12 @@ public class QualityAssessorImplTest extends TestCase {
 		return new TransformationContext() {
 
 			@Override
-			public SparqlEndpoint getDirtyDatabaseEndpoint() {
+			public ConnectionCredentials getDirtyDatabaseCredentials() {
 				return sparqlEndpoint;
 			}
 
 			@Override
-			public SparqlEndpoint getCleanDatabaseEndpoint() {
+			public ConnectionCredentials getCleanDatabaseCredentials() {
 				return sparqlEndpoint;
 			}
 

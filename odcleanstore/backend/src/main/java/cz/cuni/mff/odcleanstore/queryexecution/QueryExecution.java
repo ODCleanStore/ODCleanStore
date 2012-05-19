@@ -2,7 +2,7 @@ package cz.cuni.mff.odcleanstore.queryexecution;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
-import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
+import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
 
 /**
  * Access point (facade) of the Query Execution component.
@@ -18,7 +18,7 @@ import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
  */
 public class QueryExecution {
     /** Connection settings for the SPARQL endpoint that will be queried. */
-    private final SparqlEndpoint sparqlEndpoint;
+    private final ConnectionCredentials sparqlEndpoint;
 
     /** Default aggregation settings for conflict resolution (loaded from database). */
     private AggregationSpec defaultConfiguration;
@@ -27,7 +27,7 @@ public class QueryExecution {
      * Creates a new instance of QueryExecution.
      * @param sparqlEndpoint connection settings for the SPARQL endpoint that will be queried
      */
-    public QueryExecution(SparqlEndpoint sparqlEndpoint) {
+    public QueryExecution(ConnectionCredentials sparqlEndpoint) {
         this.sparqlEndpoint = sparqlEndpoint;
     }
 

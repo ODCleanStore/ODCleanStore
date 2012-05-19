@@ -52,10 +52,9 @@ public class LinkerImpl implements Linker {
 			LinkerDao dao;
 			File configFile = null;
 			try {
-				// TODO get SparqlEndpoint AND JDBC connection
-				dao = LinkerDao.getInstance(context.getCleanDatabaseEndpoint());
+				dao = LinkerDao.getInstance(context.getCleanDatabaseCredentials());
 				List<String> rawRules = loadRules(context.getTransformerConfiguration(), dao);
-				List<RDFprefix> prefixes = RDFPrefixesLoader.loadPrefixes(context.getCleanDatabaseEndpoint());
+				List<RDFprefix> prefixes = RDFPrefixesLoader.loadPrefixes(context.getCleanDatabaseCredentials());
 				
 				String linksGraphName = LINKS_GRAPH_NAME + inputGraph.getGraphId();
 				configFile = ConfigBuilder.createLinkConfigFile(rawRules, prefixes, inputGraph, context, linksGraphName);
