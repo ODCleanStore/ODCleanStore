@@ -22,10 +22,11 @@ import java.util.Set;
 
 /**
  * Base class for all aggregation methods implemented in ODCleanStore.
+ * All subclasses should be stateless (see {@link AggregationMethodFactory}).
  *
  * @author Jan Michelfeit
  */
-abstract class AggregationMethodBase implements AggregationMethod {
+/*package*/abstract class AggregationMethodBase implements AggregationMethod {
     private static final Logger LOG = LoggerFactory.getLogger(AggregationMethodBase.class);
 
     /**
@@ -67,7 +68,6 @@ abstract class AggregationMethodBase implements AggregationMethod {
      */
     protected static final double PUBLISHER_SCORE_WEIGHT = 0.2;
 
-    // CHECKSTYLE:OFF
     /**
      * Generator of unique URIs.
      */
@@ -78,17 +78,12 @@ abstract class AggregationMethodBase implements AggregationMethod {
      */
     protected final AggregationSpec aggregationSpec;
 
-    // CHECKSTYLE:ON
-
     /**
      * Creates a new instance with given settings.
      * @param aggregationSpec aggregation and quality calculation settings
      * @param uriGenerator generator of URIs
      */
-    public AggregationMethodBase(
-            AggregationSpec aggregationSpec,
-            UniqueURIGenerator uriGenerator) {
-
+    public AggregationMethodBase(AggregationSpec aggregationSpec, UniqueURIGenerator uriGenerator) {
         this.uriGenerator = uriGenerator;
         this.aggregationSpec = aggregationSpec;
     }
@@ -97,8 +92,7 @@ abstract class AggregationMethodBase implements AggregationMethod {
      * {@inheritDoc}
      */
     @Override
-    public abstract Collection<CRQuad> aggregate(
-            Collection<Quad> conflictingTriples, NamedGraphMetadataMap metadata);
+    public abstract Collection<CRQuad> aggregate(Collection<Quad> conflictingTriples, NamedGraphMetadataMap metadata);
 
     /**
      * Return the default DistanceMetric instance.
@@ -117,7 +111,7 @@ abstract class AggregationMethodBase implements AggregationMethod {
      * @return quality of source of the named graph as a value from [0,1]
      * @see #SCORE_IF_UNKNOWN
      */
-    protected double getSourceQuality(NamedGraphMetadata metadata) {
+    protected static final double getSourceQuality(NamedGraphMetadata metadata) {
         // Weighted average of metadata.getScore() and metadata.getPublisherScore()
         if (metadata == null) {
             LOG.debug("No metadata given for source quality computation, using default scores.");
@@ -126,20 +120,18 @@ abstract class AggregationMethodBase implements AggregationMethod {
 
         Double namedGraphScore = metadata.getScore();
         if (namedGraphScore == null) {
-            LOG.debug("No score for named graph {}, using default score.",
-                    metadata.getNamedGraphURI());
+            LOG.debug("No score for named graph {}, using default score.", metadata.getNamedGraphURI());
             namedGraphScore = SCORE_IF_UNKNOWN;
         }
 
         Double publisherScore = metadata.getPublisherScore();
         if (publisherScore == null) {
-            LOG.debug("No score for the publisher of named graph {}, using default score.",
+            LOG.debug("No score for the publisher of named graph {}, using named graph score.",
                     metadata.getNamedGraphURI());
-            publisherScore = SCORE_IF_UNKNOWN;
+            publisherScore = namedGraphScore;
         }
 
-        double quality = namedGraphScore * NAMED_GRAPH_SCORE_WEIGHT
-                + publisherScore * PUBLISHER_SCORE_WEIGHT;
+        double quality = namedGraphScore * NAMED_GRAPH_SCORE_WEIGHT + publisherScore * PUBLISHER_SCORE_WEIGHT;
         quality /= NAMED_GRAPH_SCORE_WEIGHT + PUBLISHER_SCORE_WEIGHT;
         return quality;
     }
@@ -219,13 +211,12 @@ abstract class AggregationMethodBase implements AggregationMethod {
         double resultQuality = basicQuality;
 
         // Usually, the quality is positive, skip the check
-        //if (resultQuality == 0) {
-        //    return resultQuality; // BUNO
-        //}
+        // if (resultQuality == 0) {
+        // return resultQuality; // BUNO
+        // }
 
         // Consider conflicting values
-        boolean isPropertyMultivalue =
-                aggregationSpec.isPropertyMultivalue(resultQuad.getPredicate().getURI());
+        boolean isPropertyMultivalue = aggregationSpec.isPropertyMultivalue(resultQuad.getPredicate().getURI());
         if (!isPropertyMultivalue && conflictingQuads.size() > 1) {
             // NOTE: condition conflictingQuads.size() > 1 is an optimization that relies on
             // the fact that distance(x,x) = 0 and that resultQuad is in conflictingQuads
@@ -238,8 +229,7 @@ abstract class AggregationMethodBase implements AggregationMethod {
                 NamedGraphMetadata quadMetadata = metadata.getMetadata(quad.getGraphName());
                 double quadQuality = getSourceQuality(quadMetadata);
 
-                double resultDistance = distanceMetric.distance(
-                        quad.getObject(), resultQuad.getObject());
+                double resultDistance = distanceMetric.distance(quad.getObject(), resultQuad.getObject());
                 distanceAverage += quadQuality * resultDistance;
                 totalSourceQuality += quadQuality;
             }
@@ -247,8 +237,7 @@ abstract class AggregationMethodBase implements AggregationMethod {
             // resultQuality cannot be zero (tested before) -> if sum of
             // conflictingQuads source qualities is zero, resultQuality is not
             // among them -> precondition broken
-            assert (totalSourceQuality > 0)
-                    : "Precondition broken: resultQuad is not present in conflictingQuads";
+            assert (totalSourceQuality > 0) : "Precondition broken: resultQuad is not present in conflictingQuads";
 
             distanceAverage /= totalSourceQuality;
 
@@ -301,7 +290,7 @@ abstract class AggregationMethodBase implements AggregationMethod {
         LOG.debug("Value {} cannot be aggregated with {}.",
                 nonAggregableQuad.getObject(), aggregationMethod.getSimpleName());
 
-        EnumAggregationErrorStrategy errorStrategy = aggregationSpec.getErrorStrategy();
+        EnumAggregationErrorStrategy errorStrategy = aggregationSpec.getEffectiveErrorStrategy();
         switch (errorStrategy) {
         case RETURN_ALL:
             Collection<String> sourceNamedGraphs = sourceNamedGraphsForObject(
@@ -313,8 +302,9 @@ abstract class AggregationMethodBase implements AggregationMethod {
                     sourceNamedGraphs,
                     conflictingQuads,
                     metadata);
+            Quad resultQuad = new Quad(Node.createURI(uriGenerator.nextURI()), nonAggregableQuad.getTriple());
             result.add(new CRQuad(
-                    nonAggregableQuad,
+                    resultQuad,
                     quality,
                     Collections.singleton(nonAggregableQuad.getGraphName().getURI())));
             break;
@@ -335,14 +325,12 @@ abstract class AggregationMethodBase implements AggregationMethod {
      * @param conflictingQuads searched quads
      * @return set of named graphs
      */
-    protected Collection<String> sourceNamedGraphsForObject(
-            Node object, Collection<Quad> conflictingQuads) {
-
+    protected Collection<String> sourceNamedGraphsForObject(Node object, Collection<Quad> conflictingQuads) {
         Set<String> namedGraphs = null;
         String firstNamedGraph = null;
 
         for (Quad quad : conflictingQuads) {
-            if (!object.equals(quad.getObject())) {
+            if (!object.sameValueAs(quad.getObject())) { // intentionally sameValueAs()
                 continue;
             }
 
@@ -371,8 +359,7 @@ abstract class AggregationMethodBase implements AggregationMethod {
 
     /**
      * Factory method for collections returned by
-     * {@link #aggregate(Collection, NamedGraphMetadataMap, EnumAggregationErrorStrategy)
-     * aggregate()}.
+     * {@link #aggregate(Collection, NamedGraphMetadataMap, EnumAggregationErrorStrategy) aggregate()}.
      * @return an empty collection
      */
     protected Collection<CRQuad> createResultCollection() {

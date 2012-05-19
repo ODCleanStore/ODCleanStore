@@ -101,11 +101,14 @@ import java.util.TreeMap;
         }
     }
 
-    /**
-     * {@inheritDoc}
-     * @param uriNode {@inheritDoc}
-     * @return {@inheritDoc}
-     */
+    @Override
+    public String getCanonicalURI(String uri) {
+        if (!uriDFUParent.containsKey(uri)) {
+            return uri;
+        }
+        return dfuRoot(uri);
+    }
+
     @Override
     public Node mapURI(Node uriNode) {
         assert uriNode.isURI();

@@ -1,0 +1,62 @@
+<wicket:extend>
+
+<wicket:link>
+<div>
+	<a class="placedright" href="AccountsListPage.html">Back to a list of all accounts</a>
+	<div class="clear">&nbsp;</div>
+</div>
+</wicket:link>
+
+<div class="datalistitem">
+	<strong class="block">Username:</strong>
+	<span wicket:id="username">[username]</span>
+</div>
+
+<div class="datalistitem">
+	<strong class="block">Email:</strong>
+	<span wicket:id="email">[email]</span>
+</div>
+
+<div class="datalistitem">
+	<strong class="block">Firstname:</strong>
+	<span wicket:id="firstname">[firstname]</span>
+</div>
+
+<div class="datalistitem">
+	<strong class="block">Surname:</strong>
+	<span wicket:id="surname">[surname]</span>
+</div>
+
+<h2>Permissions</h2>
+
+<form wicket:id="editPermissionsForm">
+	<table border="1">
+		<tr>
+			<th>Role name</th>
+			<th>Is assigned</th>
+		</tr>
+		<tr>
+			<td>SCR</td>
+			<td><input wicket:id="roleSCR" type="checkbox" /></td>
+		</tr>
+		<tr>
+			<td>ONC</td>
+			<td><input wicket:id="roleONC" type="checkbox" /></td>
+		</tr>
+		<tr>
+			<td>POC</td>
+			<td><input wicket:id="rolePOC" type="checkbox" /></td>
+		</tr>
+		<tr>
+			<td>ADM</td>
+			<td><input wicket:id="roleADM" type="checkbox" /></td>
+		</tr>
+	</table>
+
+	<input type="submit" class="placedright" value="Submit" />
+	<input wicket:id="resetButton" type="submit" class="placedright" value="Reset" />
+	
+	<div class="clear"></div>
+</form>
+
+</wicket:extend>

@@ -2,7 +2,7 @@ package cz.cuni.mff.odcleanstore.conflictresolution;
 
 /**
  * Type of aggregation method.
- * 
+ *
  * @author Jan Michelfeit
  */
 public enum EnumAggregationType {
@@ -18,14 +18,17 @@ public enum EnumAggregationType {
     /** Select newest value. */
     LATEST,
 
+    /** Select value with the highest calculated quality of its source. */
+    BEST_SOURCE,
+
     /** Select C best values, C is cardinality of the respective property. */
     TOPC,
 
-    /** Select minimum. */
-    MIN,
-
     /** Select maximum. */
     MAX,
+
+    /** Select minimum. */
+    MIN,
 
     /** Compute average. */
     AVG,

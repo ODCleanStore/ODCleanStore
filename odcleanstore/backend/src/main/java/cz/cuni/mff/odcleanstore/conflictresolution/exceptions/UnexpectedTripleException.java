@@ -1,13 +1,12 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.exceptions;
 
-import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 
 /**
  * Exception to throw when an unexpected triple is used.
- * 
+ *
  * @author Jan Michelfeit
  */
-public class UnexpectedTripleException extends ODCleanStoreException {
+public class UnexpectedTripleException extends ConflictResolutionException {
     /**
      * Constructs a new exception with the specified message.
      * @param message the detail message

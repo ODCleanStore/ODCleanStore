@@ -9,7 +9,7 @@ import java.util.Map;
 
 /**
  * Factory class for various quad aggregation methods.
- * The factory is implemented as a registry storing and reusing created instances.
+ * The factory is implemented as a registry (flyweight) storing and reusing created instances.
  * This relies on the fact that aggregations do not maintain any internal state except for
  * constructor arguments.
  *
@@ -19,33 +19,30 @@ public class AggregationMethodFactory {
     /**
      * Registry of already created aggregation methods.
      */
-    private Map<EnumAggregationType, AggregationMethod> methodRegistry
-            = new HashMap<EnumAggregationType, AggregationMethod>();
+    private final Map<EnumAggregationType, AggregationMethod> methodRegistry =
+            new HashMap<EnumAggregationType, AggregationMethod>();
 
     /**
      * Instance of a single value aggregation.
      */
-    private AggregationMethod singleValueAggregation;
+    private final AggregationMethod singleValueAggregation;
 
     /**
      * Generator of URIs passed to newly created aggregations.
      */
-    private UniqueURIGenerator uriGenerator;
+    private final UniqueURIGenerator uriGenerator;
 
     /**
      * Aggregation settings passed to newly created aggregations.
      */
-    private AggregationSpec aggregationSpec;
+    private final AggregationSpec aggregationSpec;
 
     /**
      * Creates a new factory with the given settings for creating new aggregations.
      * @param uriGenerator generator of URIs
      * @param aggregationSpec aggregation and quality calculation settings
      */
-    public AggregationMethodFactory(
-            UniqueURIGenerator uriGenerator,
-            AggregationSpec aggregationSpec) {
-
+    public AggregationMethodFactory(UniqueURIGenerator uriGenerator, AggregationSpec aggregationSpec) {
         this.uriGenerator = uriGenerator;
         this.aggregationSpec = aggregationSpec;
         this.singleValueAggregation = createSingleValueAggregation();
@@ -59,14 +56,26 @@ public class AggregationMethodFactory {
      *         AggregationMethod implementation for the selected aggregation type
      * @see EnumAggregationType
      */
-    public AggregationMethod getAggregation(EnumAggregationType type)
-            throws AggregationNotImplementedException {
+    public AggregationMethod getAggregation(EnumAggregationType type) throws AggregationNotImplementedException {
         AggregationMethod result = methodRegistry.get(type);
         if (result == null) {
             result = createAggregation(type);
             methodRegistry.put(type, result);
         }
         return result;
+    }
+
+    /**
+     * Returns an appropriate instance of AggregationMethod for the given property according to
+     * aggregation settings given in the constructor.
+     * @param propertyURI URI of a property
+     * @return an aggregation method
+     * @throws AggregationNotImplementedException thrown if there is no
+     *         AggregationMethod implementation for the selected aggregation type
+     */
+    public AggregationMethod getAggregation(String propertyURI) throws AggregationNotImplementedException {
+        EnumAggregationType aggregationType = aggregationSpec.propertyAggregationType(propertyURI);
+        return getAggregation(aggregationType);
     }
 
     /**
@@ -91,8 +100,7 @@ public class AggregationMethodFactory {
      * @throws AggregationNotImplementedException thrown if there is no
      *         AggregationMethod implementation for the selected aggregation type
      */
-    protected AggregationMethod createAggregation(EnumAggregationType type)
-            throws AggregationNotImplementedException {
+    protected AggregationMethod createAggregation(EnumAggregationType type) throws AggregationNotImplementedException {
         switch (type) {
         case ANY:
             return new AnyAggregation(aggregationSpec, uriGenerator);
@@ -102,12 +110,14 @@ public class AggregationMethodFactory {
             return new BestAggregation(aggregationSpec, uriGenerator);
         case LATEST:
             return new LatestAggregation(aggregationSpec, uriGenerator);
+        case BEST_SOURCE:
+            return new BestSourceAggregation(aggregationSpec, uriGenerator);
         case TOPC:
             return new TopCAggregation(aggregationSpec, uriGenerator);
-        case MIN:
-            return new MinAggregation(aggregationSpec, uriGenerator);
         case MAX:
             return new MaxAggregation(aggregationSpec, uriGenerator);
+        case MIN:
+            return new MinAggregation(aggregationSpec, uriGenerator);
         case AVG:
             return new AvgAggregation(aggregationSpec, uriGenerator);
         case MEDIAN:

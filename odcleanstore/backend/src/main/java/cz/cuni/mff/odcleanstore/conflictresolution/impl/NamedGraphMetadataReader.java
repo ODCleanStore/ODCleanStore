@@ -2,9 +2,9 @@ package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.data.QuadCollection;
-import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
+import cz.cuni.mff.odcleanstore.vocabulary.DC;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
+import cz.cuni.mff.odcleanstore.vocabulary.W3P;
 
 import com.hp.hpl.jena.graph.Node_URI;
 
@@ -14,8 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -25,7 +25,7 @@ import java.util.TreeMap;
  *
  * @author Jan Michelfeit
  */
-/*package*/final class NamedGraphMetadataReader {
+public final class NamedGraphMetadataReader {
     private static final Logger LOG = LoggerFactory.getLogger(NamedGraphMetadataReader.class);
 
     /** Disable constructor for a utility class. */
@@ -33,67 +33,75 @@ import java.util.TreeMap;
     }
 
     /**
-     * Reads named graph metadata from RDF passed as {@link QuadCollection}.
+     * Reads named graph metadata from RDF passed as a collection of {@link Quad Quads}.
      *
-     * @param data a collection of quads describing named graph metadata
+     * @param data quads describing named graph metadata
      * @return map of metadata for named graphs described in data
-     * @throws ODCleanStoreException thrown when named graph metadata contained in the input data
-     *         are not correctly formated
      */
-    public static NamedGraphMetadataMap readFromRDF(QuadCollection data)
-            throws ODCleanStoreException {
+    public static NamedGraphMetadataMap readFromRDF(Iterator<Quad> data) {
         NamedGraphMetadataMap result = new NamedGraphMetadataMap();
         Map<String, Double> publisherScores = new TreeMap<String, Double>();
 
-        for (Quad quad : data) {
+        while (data.hasNext()) {
+            Quad quad = data.next();
             String predicateURI = quad.getPredicate().getURI();
-            if (!predicateURI.startsWith(ODCS.getURI())) {
-                continue;
-            } else if (!quad.getSubject().isURI()) {
-                // All recognized ODCS properties relate to an URI
+            if (!quad.getSubject().isURI()) {
                 continue;
             }
             Node_URI subject = (Node_URI) quad.getSubject();
 
-            if (predicateURI.equals(ODCS.publisher)) {
+            if (predicateURI.equals(W3P.publishedBy)) {
                 NamedGraphMetadata metadata = getMetadataObject(subject, result);
-                String publisher = quad.getObject().getURI();
-                metadata.setPublisher(publisher);
-            } else if (predicateURI.equals(ODCS.stored)) {
-                NamedGraphMetadata metadata = getMetadataObject(subject, result);
-                String storedValue = quad.getObject().getLiteralLexicalForm();
-                try {
-                    Date stored = DateFormat.getDateInstance().parse(storedValue);
-                    metadata.setStored(stored);
-                } catch (ParseException e) {
-                    LOG.warn("Named graph stored date must be a valid date string, {} given",
-                            storedValue);
-                    throw new ODCleanStoreException(e);
+                if (quad.getObject().isURI()) {
+                    metadata.setPublisher(quad.getObject().getURI());
+                } else {
+                    LOG.warn("Invalid provenance metadata - unexpected value '{}' of <{}>",
+                            quad.getObject(), W3P.publishedBy);
                 }
-            } else if (predicateURI.equals(ODCS.dataSource)) {
+            } else if (predicateURI.equals(W3P.insertedAt)) {
                 NamedGraphMetadata metadata = getMetadataObject(subject, result);
-                String dataSourceString = quad.getObject().getURI();
-                metadata.setDataSource(dataSourceString);
+
+                try {
+                    String storedValue = quad.getObject().getLiteralLexicalForm();
+                    Date stored = DateFormat.getDateInstance().parse(storedValue);
+                    metadata.setInsertedAt(stored);
+                } catch (Exception e) {
+                    LOG.warn("Named graph stored date must be a valid date string, {} given", quad.getObject());
+                }
+            } else if (predicateURI.equals(W3P.source)) {
+                NamedGraphMetadata metadata = getMetadataObject(subject, result);
+                if (quad.getObject().isURI()) {
+                    metadata.setSource(quad.getObject().getURI());
+                } else {
+                    LOG.warn("Invalid provenance metadata - unexpected value '{}' of <{}>",
+                            quad.getObject(), W3P.source);
+                }
             } else if (predicateURI.equals(ODCS.score)) {
                 NamedGraphMetadata metadata = getMetadataObject(subject, result);
-                String scoreValue = quad.getObject().getLiteralLexicalForm();
                 try {
+                    String scoreValue = quad.getObject().getLiteralLexicalForm();
                     Double score = Double.parseDouble(scoreValue);
                     metadata.setScore(score);
-                } catch (NumberFormatException e) {
-                    LOG.warn("Named graph score must be a number, {} given", scoreValue);
-                    throw new ODCleanStoreException(e);
+                } catch (Exception e) {
+                    LOG.warn("Invalid provenance metadata - Named graph score must be a number, {} given",
+                            quad.getObject());
                 }
             } else if (predicateURI.equals(ODCS.publisherScore)) {
                 assert quad.getObject().isLiteral();
-                String scoreValue = quad.getObject().getLiteralLexicalForm();
                 try {
+                    String scoreValue = quad.getObject().getLiteralLexicalForm();
                     Double score = Double.parseDouble(scoreValue);
                     publisherScores.put(subject.getURI(), score);
-                } catch (NumberFormatException e) {
-                    LOG.warn("Publisher score must be a number, {} given", scoreValue);
-                    throw new ODCleanStoreException(e);
+                } catch (Exception e) {
+                    LOG.warn("Invalid provenance metadata - Publisher score must be a number, {} given",
+                            quad.getObject());
                 }
+            } else if (predicateURI.equals(DC.license)) {
+                NamedGraphMetadata metadata = getMetadataObject(subject, result);
+                metadata.setLicence(quad.getObject().toString());
+            } else if (predicateURI.equals(W3P.insertedBy)) {
+                NamedGraphMetadata metadata = getMetadataObject(subject, result);
+                metadata.setInsertedBy(quad.getObject().toString());
             }
         }
 

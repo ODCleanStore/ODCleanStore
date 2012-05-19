@@ -4,11 +4,13 @@ import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.NodeComparator;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 
 import de.fuberlin.wiwiss.ng4j.Quad;
 
 import java.util.Collection;
+import java.util.Comparator;
 
 /**
  * Base class for aggregation methods that include only triples selected from
@@ -17,15 +19,33 @@ import java.util.Collection;
  *
  * @author Jan Michelfeit
  */
-abstract class SelectedValueAggregation extends AggregationMethodBase {
+/*package*/abstract class SelectedValueAggregation extends AggregationMethodBase {
+    /**
+     * A comparator used to sort quads by object and named graph.
+     */
+    protected static final ObjectNamedGraphComparator OBJECT_NG_COMPARATOR = new ObjectNamedGraphComparator();
+
+    /**
+     * Comparator of {@link Quad Quads} comparing first by objects, second by named graph.
+     */
+    protected static class ObjectNamedGraphComparator implements Comparator<Quad> {
+        @Override
+        public int compare(Quad q1, Quad q2) {
+            int objectComparison = NodeComparator.compare(q1.getObject(), q2.getObject());
+            if (objectComparison != 0) {
+                return objectComparison;
+            } else {
+                return NodeComparator.compare(q1.getGraphName(), q2.getGraphName());
+            }
+        }
+    }
+
     /**
      * Creates a new instance with given settings.
      * @param aggregationSpec aggregation and quality calculation settings
      * @param uriGenerator generator of URIs
      */
-    public SelectedValueAggregation(
-            AggregationSpec aggregationSpec,
-            UniqueURIGenerator uriGenerator) {
+    public SelectedValueAggregation(AggregationSpec aggregationSpec, UniqueURIGenerator uriGenerator) {
         super(aggregationSpec, uriGenerator);
     }
 
@@ -40,8 +60,7 @@ abstract class SelectedValueAggregation extends AggregationMethodBase {
      * @return {@inheritDoc}
      */
     @Override
-    public abstract Collection<CRQuad> aggregate(
-            Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata);
+    public abstract Collection<CRQuad> aggregate(Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata);
 
     /**
      * {@inheritDoc}
@@ -54,8 +73,7 @@ abstract class SelectedValueAggregation extends AggregationMethodBase {
             Collection<String> sourceNamedGraphs,
             NamedGraphMetadataMap metadata) {
 
-        assert (sourceNamedGraphs.size() > 0)
-                : "Illegal argument: sourceNamedGraphs must not be empty";
+        assert (sourceNamedGraphs.size() > 0) : "Illegal argument: sourceNamedGraphs must not be empty";
 
         double maximumQuality = 0;
         for (String sourceNamedGraphURI : sourceNamedGraphs) {
@@ -71,9 +89,9 @@ abstract class SelectedValueAggregation extends AggregationMethodBase {
     /**
      * @see #computeQuality(Quad,Collection,Collection,Collection,NamedGraphMetadataMap)
      *
-     * In case of values selected from input quads, parameters sourceNamedGraphs and
-     * agreeNamedGraphs of computeQuality() are identical. This is a utility function that
-     * wraps this fact.
+     *      In case of values selected from input quads, parameters sourceNamedGraphs and
+     *      agreeNamedGraphs of computeQuality() are identical. This is a utility function that
+     *      wraps this fact.
      *
      * @param resultQuad the quad for which quality is to be computed
      * @param conflictingQuads other quads conflicting with resultQuad

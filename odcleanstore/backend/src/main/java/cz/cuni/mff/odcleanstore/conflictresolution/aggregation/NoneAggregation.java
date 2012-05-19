@@ -18,15 +18,13 @@ import java.util.Collections;
  *
  * @author Jan Michelfeit
  */
-final class NoneAggregation extends SelectedValueAggregation {
+/*package*/final class NoneAggregation extends SelectedValueAggregation {
     /**
      * Creates a new instance with given settings.
      * @param aggregationSpec aggregation and quality calculation settings
      * @param uriGenerator generator of URIs
      */
-    public NoneAggregation(
-            AggregationSpec aggregationSpec,
-            UniqueURIGenerator uriGenerator) {
+    public NoneAggregation(AggregationSpec aggregationSpec, UniqueURIGenerator uriGenerator) {
         super(aggregationSpec, uriGenerator);
     }
 

@@ -32,7 +32,7 @@ import java.util.Collections;
  *
  * @author Jan Michelfeit
  */
-final class SingleValueAggregation extends AggregationMethodBase {
+/*package*/final class SingleValueAggregation extends AggregationMethodBase {
     private static final Logger LOG = LoggerFactory.getLogger(SingleValueAggregation.class);
 
     /**
@@ -81,7 +81,7 @@ final class SingleValueAggregation extends AggregationMethodBase {
     /**
      * {@inheritDoc}
      *
-     * In case of a single quad the whole quality is hte score of the source named graph.
+     * In case of a single quad the whole quality is the score of the source named graph.
      */
     @Override
     protected double computeBasicQuality(

@@ -1,18 +1,17 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
+import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverSpec;
-import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationType;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationMethod;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationMethodFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationNotImplementedException;
-import cz.cuni.mff.odcleanstore.data.QuadCollection;
-import cz.cuni.mff.odcleanstore.shared.NodeComparator;
-import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
+import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
+import cz.cuni.mff.odcleanstore.shared.Utils;
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
@@ -30,9 +29,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Default implementation of the conflict resolution process.
+ * Non-static methods are not thread-safe (shared {@link #aggregationFactory}).
  *
  * @author Jan Michelfeit
  */
@@ -40,14 +41,9 @@ public class ConflictResolverImpl implements ConflictResolver {
     private static final Logger LOG = LoggerFactory.getLogger(ConflictResolverImpl.class);
 
     /**
-     * An AggregationMethod factory.
-     */
-    private AggregationMethodFactory aggregationFactory;
-
-    /**
      * Settings for the conflict resolution process.
      */
-    private final ConflictResolverSpec spec;
+    private final ConflictResolverSpec crSpec;
 
     /**
      * Comparator of {@link Quad Quads} comparing first by objects, second
@@ -78,44 +74,26 @@ public class ConflictResolverImpl implements ConflictResolver {
             NamedGraphMetadata metadata2 = namedGraphMetadata.getMetadata(q2.getGraphName());
 
             // Compare by data source
-            String dataSource1 = (metadata1 != null) ? metadata1.getDataSource() : null;
-            String dataSource2 = (metadata2 != null) ? metadata2.getDataSource() : null;
-            if (dataSource1 == null && dataSource2 == null) {
-                return 0;
-            } else if (dataSource1 == null) {
-                return -1;
-            } else if (dataSource2 == null) {
-                return 1;
-            }
-            int dataSourceComparison = dataSource1.compareTo(dataSource2);
+            String dataSource1 = (metadata1 != null) ? metadata1.getSource() : null;
+            String dataSource2 = (metadata2 != null) ? metadata2.getSource() : null;
+            int dataSourceComparison = Utils.nullProofCompare(dataSource1, dataSource2);
             if (dataSourceComparison != 0) {
                 return dataSourceComparison;
             }
 
             // Compare by stored time in *descending order*
-            Date stored1 = (metadata1 != null) ? metadata1.getStored() : null;
-            Date stored2 = (metadata2 != null) ? metadata2.getStored() : null;
-            if (stored1 == null || stored2 == null) {
-                if (stored1 == stored2) { // intentionally == - comparing to null
-                    return 0;
-                } else if (stored1 == null) {
-                    return 1;
-                } else if (stored2 == null) {
-                    return -1;
-                }
-            }
-            return stored2.compareTo(stored1);
+            Date stored1 = (metadata1 != null) ? metadata1.getInsertedAt() : null;
+            Date stored2 = (metadata2 != null) ? metadata2.getInsertedAt() : null;
+            return Utils.nullProofCompare(stored2, stored1); // switched arguments
         }
     }
 
     /**
      * Creates a new instance of conflict resolver for settings passed in spec.
-     * @param spec settings for the conflict resolution process
+     * @param crSpec settings for the conflict resolution process
      */
-    public ConflictResolverImpl(ConflictResolverSpec spec) {
-        this.spec = spec;
-        UniqueURIGenerator uriGenerator = new SimpleUriGenerator(spec.getNamedGraphPrefix());
-        this.aggregationFactory = new AggregationMethodFactory(uriGenerator, spec);
+    public ConflictResolverImpl(ConflictResolverSpec crSpec) {
+        this.crSpec = crSpec;
     }
 
     /**
@@ -123,17 +101,23 @@ public class ConflictResolverImpl implements ConflictResolver {
      *
      * @param quads {@inheritDoc }
      * @return {@inheritDoc }
-     * @throws ODCleanStoreException {@inheritDoc}
+     * @throws ConflictResolutionException {@inheritDoc}
      */
     @Override
-    public Collection<CRQuad> resolveConflicts(QuadCollection quads) throws ODCleanStoreException {
+    public Collection<CRQuad> resolveConflicts(Collection<Quad> quads) throws ConflictResolutionException {
         LOG.info("Resolving conflicts among {} quads.", quads.size());
+        long startTime = System.currentTimeMillis();
 
-        // Apply owl:sameAs mappings, group quads to conflict clusters
+        // Prepare owl:sameAs mappings
+        URIMappingImpl uriMappings = new URIMappingImpl(crSpec.getPreferredURIs());
+        uriMappings.addLinks(getSameAsLinks(quads));
+
+        // Prepare effective aggregation settings based on main settings, default settings and owl:sameAs mappings
+        AggregationSpec effectiveAggregationSpec = getEffectiveAggregationSpec(uriMappings);
+
+        // Apply owl:sameAs mappings to quads, group quads to conflict clusters
         ResolveQuadCollection quadsToResolve = new ResolveQuadCollection();
         quadsToResolve.addQuads(quads);
-        URIMappingImpl uriMappings = new URIMappingImpl(spec.getPreferredURIs());
-        uriMappings.addLinks(getSameAsLinks(quads));
         quadsToResolve.applyMapping(uriMappings);
 
         // Get metadata:
@@ -151,23 +135,82 @@ public class ConflictResolverImpl implements ConflictResolver {
         }
 
         // Resolve conflicts:
+        AggregationMethodFactory aggregationFactory = getAggregationMethodFactory(effectiveAggregationSpec);
         Collection<CRQuad> result = createResultCollection();
         Iterator<Collection<Quad>> conflictIterator = quadsToResolve.listConflictingQuads();
         while (conflictIterator.hasNext()) {
             // Process the next set of conflicting quads independently
             Collection<Quad> conflictCluster = conflictIterator.next();
 
-            if (hasOldVersions) {
+            if (hasOldVersions && conflictCluster.size() > 1) {
                 conflictCluster = filterOldVersions(conflictCluster, metadata, filterComparator);
             }
 
-            AggregationMethod aggregator = getAggregator(conflictCluster);
+            AggregationMethod aggregator = getAggregator(conflictCluster, aggregationFactory);
             Collection<CRQuad> aggregatedQuads = aggregator.aggregate(conflictCluster, metadata);
 
             // Add resolved quads to result
             result.addAll(aggregatedQuads);
         }
+
+        LOG.debug("Conflict resolution executed in {} ms", System.currentTimeMillis() - startTime);
         return result;
+    }
+
+    /**
+     * Return effective aggregation settings with URIs translated according to the given URI mapping.
+     * The result is default settings ({@link ConflictResolverSpec#getDefaultAggregationSpec()}) overridden by
+     * main settings ({@link ConflictResolverSpec#getAggregationSpec()}) with translation of property URIs.
+     * @param uriMappings URI mapping to apply
+     * @return effective aggregation settings
+     */
+    private AggregationSpec getEffectiveAggregationSpec(URIMapping uriMappings) {
+        AggregationSpec result = new AggregationSpec();
+        AggregationSpec mainSettings = crSpec.getAggregationSpec();
+        AggregationSpec defaultSettings = crSpec.getDefaultAggregationSpec();
+
+        result.setDefaultAggregation(mainSettings.getDefaultAggregation() != null
+                ? mainSettings.getDefaultAggregation()
+                : defaultSettings.getDefaultAggregation());
+        result.setDefaultMultivalue(mainSettings.getDefaultMultivalue() != null
+                ? mainSettings.getDefaultMultivalue()
+                : defaultSettings.getDefaultMultivalue());
+        result.setErrorStrategy(mainSettings.getErrorStrategy() != null
+                ? mainSettings.getErrorStrategy()
+                : defaultSettings.getErrorStrategy());
+
+        mergePropertySettings(result.getPropertyAggregations(), defaultSettings.getPropertyAggregations(), uriMappings);
+        mergePropertySettings(result.getPropertyAggregations(), mainSettings.getPropertyAggregations(), uriMappings);
+
+        mergePropertySettings(result.getPropertyMultivalue(), defaultSettings.getPropertyMultivalue(), uriMappings);
+        mergePropertySettings(result.getPropertyMultivalue(), mainSettings.getPropertyMultivalue(), uriMappings);
+        return result;
+    }
+
+    /**
+     * Merge map containing settings for properties while applying the given URI mapping to property names.
+     * @param baseSettings the map that is merge to; this argument is modified
+     * @param addedSettings the map we are merging into baseSettings; addedSettings override baseSettings
+     * @param uriMappings URI mapping to apply
+     * @param <T> type of values in the merged maps
+     */
+    private <T> void mergePropertySettings(Map<String, T> baseSettings, Map<String, T> addedSettings,
+            URIMapping uriMappings) {
+
+        for (Entry<String, T> entry : addedSettings.entrySet()) {
+            String mappedURI = uriMappings.getCanonicalURI(entry.getKey());
+            baseSettings.put(mappedURI, entry.getValue());
+        }
+    }
+
+    /**
+     * Return a new instance of AggregationMethodFactory for the current CR settings.
+     * @param effectiveAggregationSpec aggregation settings to use
+     * @return instance of AggregationMethodFactory
+     */
+    private AggregationMethodFactory getAggregationMethodFactory(AggregationSpec effectiveAggregationSpec) {
+        UniqueURIGenerator uriGenerator = new SimpleUriGenerator(crSpec.getNamedGraphPrefix());
+        return new AggregationMethodFactory(uriGenerator, effectiveAggregationSpec);
     }
 
     /**
@@ -181,9 +224,7 @@ public class ConflictResolverImpl implements ConflictResolver {
      * <li>(4) named graphs A and B were inserted by the same user.</li>
      * </ul>
      *
-     * @todo (4)
-     *
-     *       Current implementation has O(n log^2 n) time complexity.
+     * The current implementation has O(n log^2 n) time complexity.
      *
      * @param conflictingQuads a cluster of conflicting quads (quads having
      *        the same subject and predicate)
@@ -211,23 +252,22 @@ public class ConflictResolverImpl implements ConflictResolver {
         while (resultIterator.hasNext()) {
             boolean removed = false;
             Quad quad = resultIterator.next();
-            if (quad.getObject().sameValueAs(lastObject)
-                    && !quad.getGraphName().sameValueAs(lastNamedGraph)) {
+            if (quad.getObject().sameValueAs(lastObject) && !quad.getGraphName().sameValueAs(lastNamedGraph)) {
                 // (1) holds
                 NamedGraphMetadata lastMetadata = metadata.getMetadata(lastNamedGraph);
                 NamedGraphMetadata quadMetadata = metadata.getMetadata(quad.getGraphName());
                 if (lastMetadata != null
                         && quadMetadata != null
-                        && quadMetadata.getDataSource() != null
-                        && quadMetadata.getDataSource().equals(lastMetadata.getDataSource())
-                        && quadMetadata.getStored() != null
-                        && lastMetadata.getStored() != null
-                        && quadMetadata.getStored().before(lastMetadata.getStored())) {
-                    // (2) and (3) holds
+                        && quadMetadata.getSource() != null
+                        && quadMetadata.getSource().equals(lastMetadata.getSource()) // (2) holds
+                        && quadMetadata.getInsertedAt() != null
+                        && lastMetadata.getInsertedAt() != null
+                        && quadMetadata.getInsertedAt().before(lastMetadata.getInsertedAt()) // (3) holds
+                        && quadMetadata.getInsertedBy() != null
+                        && quadMetadata.getInsertedBy().equals(lastMetadata.getInsertedBy())) { // (4) holds
                     resultIterator.remove();
                     removed = true;
-                    LOG.debug("Filtered a triple from an outdated named graph {}.",
-                            quad.getGraphName().getURI());
+                    LOG.debug("Filtered a triple from an outdated named graph {}.", quad.getGraphName().getURI());
                 }
             }
 
@@ -252,20 +292,19 @@ public class ConflictResolverImpl implements ConflictResolver {
      */
     private boolean hasOldVersions(NamedGraphMetadataMap metadataMap) {
         Collection<NamedGraphMetadata> metadataCollection = metadataMap.listMetadata();
-        Map<String, Date> dataSourceDates =
-                new HashMap<String, Date>(metadataCollection.size());
+        Map<String, Date> dataSourceDates = new HashMap<String, Date>(metadataCollection.size());
 
         for (NamedGraphMetadata metadata : metadataCollection) {
             assert metadata != null;
-            String dataSource = metadata.getDataSource();
+            String dataSource = metadata.getSource();
 
             if (dataSourceDates.containsKey(dataSource)
-                    && !dataSourceDates.get(dataSource).equals(metadata.getStored())) {
+                    && !dataSourceDates.get(dataSource).equals(metadata.getInsertedAt())) {
                 // Occurrence of named graphs sharing a common data source
                 // with a different stored date
                 return true;
-            } else if (dataSource != null && metadata.getStored() != null) {
-                dataSourceDates.put(dataSource, metadata.getStored());
+            } else if (dataSource != null && metadata.getInsertedAt() != null) {
+                dataSourceDates.put(dataSource, metadata.getInsertedAt());
             }
         }
         return false;
@@ -287,7 +326,7 @@ public class ConflictResolverImpl implements ConflictResolver {
      * @return an iterator over owl:sameAs links
      */
     private Iterator<Triple> getSameAsLinks(Iterable<? extends Quad> data) {
-        Iterator<Triple> specSameAsLinks = spec.getSameAsLinks();
+        Iterator<Triple> specSameAsLinks = crSpec.getSameAsLinks();
         if (specSameAsLinks != null) {
             return specSameAsLinks;
         } else {
@@ -301,17 +340,13 @@ public class ConflictResolverImpl implements ConflictResolver {
      * If no metadata are specified, tries to read them from RDF data to resolve.
      * @param data collection of quads where conflicts are to be resolved
      * @return named graphs' metadata
-     * @throws ODCleanStoreException thrown when named graph metadata contained
-     *         in the input graph are not correctly formated
      */
-    private NamedGraphMetadataMap getNamedGraphMetadata(QuadCollection data)
-            throws ODCleanStoreException {
-
-        NamedGraphMetadataMap metadata = spec.getNamedGraphMetadata();
+    private NamedGraphMetadataMap getNamedGraphMetadata(Collection<Quad> data) {
+        NamedGraphMetadataMap metadata = crSpec.getNamedGraphMetadata();
         if (metadata != null) {
             return metadata;
         } else {
-            return NamedGraphMetadataReader.readFromRDF(data);
+            return NamedGraphMetadataReader.readFromRDF(data.iterator());
         }
     }
 
@@ -324,13 +359,12 @@ public class ConflictResolverImpl implements ConflictResolver {
      *
      * @param quads collection of conflicting quads (i.e. having the same
      *        subject and predicate)
+     * @param aggregationFactory factory for AggregationMethod
      * @return an aggregation method instance selected according to CR settings
      * @throws AggregationNotImplementedException thrown if there is no
      *         AggregationMethod implementation for the selected aggregation type
-     * @todo consider sameAs links?
-     * @todo caching?
      */
-    private AggregationMethod getAggregator(Collection<Quad> quads)
+    private AggregationMethod getAggregator(Collection<Quad> quads, AggregationMethodFactory aggregationFactory)
             throws AggregationNotImplementedException {
 
         if (quads.size() == 1) {
@@ -340,8 +374,7 @@ public class ConflictResolverImpl implements ConflictResolver {
             return aggregationFactory.getSingleValueAggregation();
         }
         String clusterProperty = getQuadsProperty(quads);
-        EnumAggregationType propertyAggregation = spec.propertyAggregationType(clusterProperty);
-        return aggregationFactory.getAggregation(propertyAggregation);
+        return aggregationFactory.getAggregation(clusterProperty);
     }
 
     /**

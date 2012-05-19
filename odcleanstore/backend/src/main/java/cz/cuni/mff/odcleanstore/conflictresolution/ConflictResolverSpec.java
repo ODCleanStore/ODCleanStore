@@ -11,7 +11,7 @@ import java.util.Set;
  *
  * @author Jan Michelfeit
  */
-public class ConflictResolverSpec extends AggregationSpec {
+public class ConflictResolverSpec {
     /** Prefix of URIs of named graphs where resolved triples are placed. */
     private String namedGraphURIPrefix;
 
@@ -19,19 +19,32 @@ public class ConflictResolverSpec extends AggregationSpec {
     private Set<String> preferredURIs;
 
     /**
-     * Collection of owl:sameAs links to be considered during the conflict
-     * resolution proces.
+     * Collection of owl:sameAs links to be considered during the conflict resolution process.
      * If null, sameAsLinks are to be read from the data to resolve.
      */
     private Iterator<Triple> sameAsLinks;
 
     /**
      * Metadata about named graphs where the input triples for the conflict resolution
-     * process come from. The metadata (e.g. quality score) will be considedered
+     * process come from. The metadata (e.g. quality score) will be considered
      * during conflict resolution.
      * If null, metadata are to be read from the data to resolve.
      */
     private NamedGraphMetadataMap namedGraphMetadata;
+
+    /**
+     * Aggregation settings. These settings have priority over {@link #defaultAggregationSpec}.
+     * @see #defaultAggregationSpec
+     * @param aggregationSpec aggregation settings to use
+     */
+    private AggregationSpec aggregationSpec;
+
+    /**
+     * Default aggregation settings.
+     * @see #aggregationSpec
+     * @param aggregationSpec aggregation settings to use
+     */
+    private AggregationSpec defaultAggregationSpec;
 
     /**
      * Initialize default settings.
@@ -48,8 +61,33 @@ public class ConflictResolverSpec extends AggregationSpec {
      * @param namedGraphURIPrefix prefix of named graphs where resolved triples are placed
      */
     public ConflictResolverSpec(String namedGraphURIPrefix) {
-        super();
+        this(namedGraphURIPrefix, new AggregationSpec(), new AggregationSpec());
+    }
+
+    /* /**
+     * Initialize this specification of conflict resolution settings with the given aggregation
+     * settings.
+     * @param namedGraphURIPrefix prefix of named graphs where resolved triples are placed
+     * @param aggregationSpec aggregation settings to use
+     * /
+    public ConflictResolverSpec(String namedGraphURIPrefix, AggregationSpec aggregationSpec) {
+        this(namedGraphURIPrefix, aggregationSpec, new AggregationSpec());
+    }*/
+
+    /**
+     * Initialize this specification of conflict resolution settings with the given aggregation
+     * settings.
+     * Two kinds of AggregationSpec are required because two instances cannot be merged without
+     * translation of URIs to the same owl:sameAs equivalent, which is done only in Conflict Resolution.
+     * @param namedGraphURIPrefix prefix of named graphs where resolved triples are placed
+     * @param aggregationSpec aggregation settings to use; overrides defaultAggregationSpec
+     * @param defaultAggregationSpec aggregation settings; overridden by aggregationSpec
+     */
+    public ConflictResolverSpec(String namedGraphURIPrefix, AggregationSpec aggregationSpec,
+            AggregationSpec defaultAggregationSpec) {
         setNamedGraphURIPrefix(namedGraphURIPrefix);
+        this.aggregationSpec = aggregationSpec;
+        this.defaultAggregationSpec = defaultAggregationSpec;
     }
 
     /**
@@ -94,8 +132,7 @@ public class ConflictResolverSpec extends AggregationSpec {
     }
 
     /**
-     * Return owl:sameAs links to be considered during the conflict resolution
-     * proces for this specification.
+     * Return owl:sameAs links to be considered during the conflict resolution process for this specification.
      * @return collection of triples with owl:sameAs predicate or null
      */
     public final Iterator<Triple> getSameAsLinks() {
@@ -104,7 +141,7 @@ public class ConflictResolverSpec extends AggregationSpec {
 
     /**
      * Set collection of owl:sameAs links to be considered during the conflict resolution
-     * proces proces for this specification.
+     * process for this specification.
      * If set to null, sameAsLinks are to be read from the data to resolve.
      * @param sameAsLinks a collection of triples with owl:sameAs predicate or null
      */
@@ -115,7 +152,7 @@ public class ConflictResolverSpec extends AggregationSpec {
     /**
      * Return metadata about named graphs where the input triples for the conflict
      * resolution process come from. The metadata (e.g. quality score) will be
-     * considedered during conflict resolution.
+     * considered during conflict resolution.
      * If the method returns null, metadata are to be read from the data to resolve.
      * @return map of metadata for named graphs or null
      */
@@ -131,5 +168,41 @@ public class ConflictResolverSpec extends AggregationSpec {
      */
     public final void setNamedGraphMetadata(NamedGraphMetadataMap namedGraphMetadata) {
         this.namedGraphMetadata = namedGraphMetadata;
+    }
+
+    /**
+     * Returns aggregation settings.
+     * These settings have priority over those set by {@link #setDefaultAggregationSpec(AggregationSpec)}.
+     * @return aggregation settings
+     */
+    public final AggregationSpec getAggregationSpec() {
+        return aggregationSpec;
+    }
+
+    /**
+     * Sets aggregation settings.
+     * These settings have priority over those set by {@link #setDefaultAggregationSpec(AggregationSpec)}.
+     * @param aggregationSpec aggregation settings
+     */
+    public final void setAggregationSpec(AggregationSpec aggregationSpec) {
+        this.aggregationSpec = aggregationSpec;
+    }
+
+    /**
+     * Returns default aggregation settings.
+     * @see #getAggregationSpec()
+     * @return the aggregationSpec aggregation settings
+     */
+    public final AggregationSpec getDefaultAggregationSpec() {
+        return defaultAggregationSpec;
+    }
+
+    /**
+     * Returns default aggregation settings.
+     * @see #setAggregationSpec()
+     * @param defaultAggregationSpec aggregation settings
+     */
+    public final void setDefaultAggregationSpec(AggregationSpec defaultAggregationSpec) {
+        this.defaultAggregationSpec = defaultAggregationSpec;
     }
 }

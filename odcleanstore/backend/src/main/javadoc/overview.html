@@ -1,0 +1,26 @@
+<html><body>
+The backend components of <a href="http://sourceforge.net/p/odcleanstore/wiki/Home/">ODCleanStore</a>.
+This artifact contains transformers for processing of incoming graphs and components for queries over the clean database.
+
+<p>
+ The interface of all transformers is defined in package {@link cz.cuni.mff.odcleanstore.transformer transformer}. Several transformers are integrated in ODCleanStore:
+ <ul>
+  <li>{@link cz.cuni.mff.odcleanstore.qualityassessment Quality Assessment} - computes score of incoming named graphs based on user-defined rules</li>
+  <li>{@link cz.cuni.mff.odcleanstore.linker Object Identification &amp; Linkage} - interlinks resources which represent the same real-world entity.</li>
+ </ul>
+</p>
+
+<p>
+ Components for queries over the clean database include:
+ <ul>
+  <li>{@link cz.cuni.mff.odcleanstore.queryexecution Query Execution} - retrives triples &amp; metadata relevant for a given query from the clean database</li>
+  <li>{@link cz.cuni.mff.odcleanstore.conflictresolution Conflict Resolution} - resolves conflict in data from multiple (possibly conflicting) sources and adds quality of the result and provenance information</li>
+ </ul>
+</p>
+
+@author Jakub Daniel
+@author Petr Jerman
+@author Jan Michelfeit
+@author Dušan Rychnovský
+@author Tomáš Soukup
+</body></html>

@@ -1,8 +1,8 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
-import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
-import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
+import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.comparators.AggregationComparator;
+import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.comparators.LexicalLengthComparator;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 
 import de.fuberlin.wiwiss.ng4j.Quad;
@@ -10,35 +10,24 @@ import de.fuberlin.wiwiss.ng4j.Quad;
 import java.util.Collection;
 
 /**
- * @todo
+ *  * Aggregation method that returns the quad with the longest lexical form of the object.
+ * This aggregation is applicable to quads with a literal as their object.
  * @author Jan Michelfeit
  */
-class LongestAggregation extends SelectedValueAggregation {
+class LongestAggregation extends BestSelectedAggregation {
+    private static final AggregationComparator AGGREGATION_COMPARATOR = new LexicalLengthComparator();
+
     /**
      * Creates a new instance with given settings.
      * @param aggregationSpec aggregation and quality calculation settings
      * @param uriGenerator generator of URIs
      */
-    public LongestAggregation(
-            AggregationSpec aggregationSpec,
-            UniqueURIGenerator uriGenerator) {
+    public LongestAggregation(AggregationSpec aggregationSpec, UniqueURIGenerator uriGenerator) {
         super(aggregationSpec, uriGenerator);
     }
 
-    /**
-     * Returns a single quad where the object is the longest value from objects
-     * in conflictingQuads.
-     *
-     * {@inheritDoc}
-     *
-     * @param conflictingQuads {@inheritDoc}
-     * @param metadata {@inheritDoc}
-     * @return {@inheritDoc}
-     */
     @Override
-    public Collection<CRQuad> aggregate(
-            Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
-
-        throw new UnsupportedOperationException("Not supported yet.");
+    protected AggregationComparator getComparator(Collection<Quad> conflictingQuads) {
+        return AGGREGATION_COMPARATOR;
     }
 }

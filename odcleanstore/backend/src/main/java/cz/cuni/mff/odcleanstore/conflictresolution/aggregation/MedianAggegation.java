@@ -3,9 +3,10 @@ package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.shared.EnumLiteralType;
+import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.AggregationUtils;
+import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.EnumLiteralType;
+import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.TimeComparator;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
-import cz.cuni.mff.odcleanstore.shared.Utils;
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.impl.LiteralLabelFactory;
@@ -16,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -25,19 +27,24 @@ import java.util.Collections;
  *
  * "Agree bonus" in quality calculation is not applied for this aggregation.
  *
+ * TODO: refactor
  * @author Jan Michelfeit
  */
-class MedianAggegation extends CalculatedValueAggregation {
+/*package*/final class MedianAggegation extends CalculatedValueAggregation {
     private static final Logger LOG = LoggerFactory.getLogger(MedianAggegation.class);
+
+    private NumericMedianAggregation numericAggregation = null;
+    private DateMedianAggregation dateAggregation = null;
+    private TimeMedianAggregation timeAggregation = null;
+    private StringMedianAggregation stringAggregation = null;
+    private BooleanMedianAggregation booleanAggregation = null;
 
     /**
      * Creates a new instance with given settings.
      * @param aggregationSpec aggregation and quality calculation settings
      * @param uriGenerator generator of URIs
      */
-    public MedianAggegation(
-            AggregationSpec aggregationSpec,
-            UniqueURIGenerator uriGenerator) {
+    public MedianAggegation(AggregationSpec aggregationSpec, UniqueURIGenerator uriGenerator) {
         super(aggregationSpec, uriGenerator);
     }
 
@@ -51,145 +58,205 @@ class MedianAggegation extends CalculatedValueAggregation {
      * @param conflictingQuads {@inheritDoc}
      * @param metadata {@inheritDoc}
      * @return {@inheritDoc}
-     *
-     * @TODO: IMPORTANT: in conflictingQuads passed to computeQuality filter out quads
-     *      that were handled by handleNonAggregableObject
      */
     @Override
-    public Collection<CRQuad> aggregate(
-            Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
-
-        Collection<CRQuad> result = createResultCollection();
-        if (conflictingQuads.isEmpty()) {
-            return result;
-        }
-
-        Quad firstQuad = conflictingQuads.iterator().next();
-        if (!firstQuad.getObject().isLiteral()) {
+    public Collection<CRQuad> aggregate(Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
+        EnumLiteralType comparisonType = AggregationUtils.getComparisonType(conflictingQuads);
+        if (comparisonType == null) {
+            Collection<CRQuad> result = createResultCollection();
             for (Quad quad : conflictingQuads) {
-                handleNonAggregableObject(
-                        quad, conflictingQuads, metadata, result, this.getClass());
+                handleNonAggregableObject(quad, conflictingQuads, metadata, result, this.getClass());
             }
             return result;
+        } else {
+            return getAggregationImpl(comparisonType).aggregate(conflictingQuads, metadata);
         }
+    }
 
-        EnumLiteralType comparisonType = Utils.getLiteralType(firstQuad.getObject());
+    /**
+     * Choose and return the appropriate aggregation implementation for the given comparison type.
+     * Instances for each implementation types are cached.
+     * @param comparisonType type of comparison for sorting values
+     * @return actual implementation of median aggregation for the given comparison type
+     */
+    private MedianAggregationImpl<?> getAggregationImpl(EnumLiteralType comparisonType) {
         switch (comparisonType) {
         case NUMERIC:
-            return aggregateNumeric(conflictingQuads, metadata, uriGenerator, aggregationSpec);
+            if (numericAggregation == null) {
+                numericAggregation = new NumericMedianAggregation();
+            }
+            return numericAggregation;
         case DATE:
-            // TODO
+            if (dateAggregation == null) {
+                dateAggregation = new DateMedianAggregation();
+            }
+            return dateAggregation;
+        case TIME:
+            if (timeAggregation == null) {
+                timeAggregation = new TimeMedianAggregation();
+            }
+            return timeAggregation;
         case BOOLEAN:
-            // TODO
+            if (booleanAggregation == null) {
+                booleanAggregation = new BooleanMedianAggregation();
+            }
+            return booleanAggregation;
         case STRING:
         case OTHER:
-            return aggregateString(conflictingQuads, metadata, uriGenerator, aggregationSpec);
+            if (stringAggregation == null) {
+                stringAggregation = new StringMedianAggregation();
+            }
+            return stringAggregation;
         default:
-            LOG.error("Unhandled type of literal {} in {}.",
-                    comparisonType.name(), this.getClass().getSimpleName());
+            LOG.error("Unhandled type of literal {} in {}.", comparisonType.name(), this.getClass().getSimpleName());
             throw new RuntimeException("Unhandled type of literal");
         }
     }
 
     /**
-     * @see #aggregate()
-     * @param conflictingQuads see {@link #aggregate()}
-     * @param metadata see {@link #aggregate()}
-     * @param aggregationSpec see {@link #aggregate()}
-     * @param uriGenerator see {@link #aggregate()}
-     * @return see {@link #aggregate()}
+     * Base class for implementations of the median aggregation for various types of literals.
+     * @param <T> type of aggregated (object) values
      */
-    private Collection<CRQuad> aggregateNumeric(
-            Collection<Quad> conflictingQuads,
-            NamedGraphMetadataMap metadata,
-            UniqueURIGenerator uriGenerator,
-            AggregationSpec aggregationSpec) {
+    private abstract class MedianAggregationImpl<T> {
+        /**
+         * Return the value of an object node converted to the given type, or null if the object is non-aggregable
+         * for this type of aggregation.
+         * @param object object of an aggregated quad
+         * @return object value converted to T or null if the object is non-aggregable
+         */
+        protected abstract T getValue(Node object);
 
-        Collection<CRQuad> result = createResultCollection();
-        ArrayList<Double> objects = new ArrayList<Double>();
-        Collection<String> sourceNamedGraphs = new ArrayList<String>();
+        /**
+         * Sort values in the given list.
+         * @param values a list to sort
+         */
+        protected abstract void sortValues(ArrayList<T> values);
 
-        for (Quad quad : conflictingQuads) {
-            double numberValue = Utils.tryConvertToDouble(quad.getObject());
-            if (!Double.isNaN(numberValue)) {
-                objects.add(numberValue);
-                sourceNamedGraphs.add(quad.getGraphName().getURI());
-            } else {
-                handleNonAggregableObject(
-                        quad, conflictingQuads, metadata, result, this.getClass());
+        /**
+         * Implementation of {@link MedianAggegation#aggregate(Collection, NamedGraphMetadataMap)} for a specific
+         * comparison type.
+         * @param conflictingQuads see {@link MedianAggegation#aggregate(Collection, NamedGraphMetadataMap)}
+         * @param metadata see {@link MedianAggegation#aggregate(Collection, NamedGraphMetadataMap)}
+         * @return see {@link MedianAggegation#aggregate(Collection, NamedGraphMetadataMap)}
+         */
+        public final Collection<CRQuad> aggregate(Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
+            Collection<CRQuad> result = createResultCollection();
+            ArrayList<T> objects = new ArrayList<T>(conflictingQuads.size());
+            Collection<Quad> aggregableQuads = new ArrayList<Quad>(conflictingQuads.size());
+            Collection<String> sourceNamedGraphs = new ArrayList<String>();
+
+            // Get aggregable quads and their objects converted to double
+            for (Quad quad : conflictingQuads) {
+                T value = getValue(quad.getObject());
+                if (value != null) {
+                    objects.add(value);
+                    sourceNamedGraphs.add(quad.getGraphName().getURI());
+                    aggregableQuads.add(quad);
+                } else {
+                    handleNonAggregableObject(quad, conflictingQuads, metadata, result, MedianAggegation.class);
+                }
             }
-        }
 
-        if (sourceNamedGraphs.isEmpty()) {
-            return result;
-        } else {
-            Collections.sort(objects);
-            int medianPosition = objects.size() / 2;
-            Double medianValue = objects.get(medianPosition);
-            Quad firstQuad = conflictingQuads.iterator().next();
-            Quad resultQuad = new Quad(
-                    Node.createURI(uriGenerator.nextURI()),
-                    firstQuad.getSubject(),
-                    firstQuad.getPredicate(),
-                    Node.createLiteral(LiteralLabelFactory.create(medianValue)));
+            // Create result
+            if (aggregableQuads.isEmpty()) {
+                return result;
+            } else {
+                sortValues(objects);
+                int medianPosition = objects.size() / 2;
+                T medianValue = objects.get(medianPosition);
+                Quad firstQuad = aggregableQuads.iterator().next();
+                Quad resultQuad = new Quad(
+                        Node.createURI(uriGenerator.nextURI()),
+                        firstQuad.getSubject(),
+                        firstQuad.getPredicate(),
+                        Node.createLiteral(LiteralLabelFactory.create(medianValue)));
 
-            double quality = computeQualityNoAgree(
-                    resultQuad,
-                    sourceNamedGraphs,
-                    conflictingQuads,
-                    metadata);
-            result.add(new CRQuad(resultQuad, quality, sourceNamedGraphs));
-            return result;
+                double quality = computeQualityNoAgree(
+                        resultQuad,
+                        sourceNamedGraphs,
+                        aggregableQuads,
+                        metadata);
+                result.add(new CRQuad(resultQuad, quality, sourceNamedGraphs));
+                return result;
+            }
         }
     }
 
     /**
-     * @see #aggregate()
-     * @param conflictingQuads see {@link #aggregate()}
-     * @param metadata see {@link #aggregate()}
-     * @param aggregationSpec see {@link #aggregate()}
-     * @param uriGenerator see {@link #aggregate()}
-     * @return see {@link #aggregate()}
+     * Implementation of median aggregation for numeric values.
      */
-    private Collection<CRQuad> aggregateString(
-            Collection<Quad> conflictingQuads,
-            NamedGraphMetadataMap metadata,
-            UniqueURIGenerator uriGenerator,
-            AggregationSpec aggregationSpec) {
-
-        Collection<CRQuad> result = createResultCollection();
-        ArrayList<String> objects = new ArrayList<String>();
-        Collection<String> sourceNamedGraphs = new ArrayList<String>();
-
-        for (Quad quad : conflictingQuads) {
-            if (quad.getObject().isLiteral()) {
-                objects.add(quad.getObject().getLiteralLexicalForm());
-                sourceNamedGraphs.add(quad.getGraphName().getURI());
-            } else {
-                handleNonAggregableObject(
-                        quad, conflictingQuads, metadata, result, this.getClass());
-            }
+    private final class NumericMedianAggregation extends MedianAggregationImpl<Double> {
+        @Override
+        protected Double getValue(Node object) {
+            Double numberValue = AggregationUtils.convertToDoubleSilent(object);
+            return numberValue.isNaN() ? null : numberValue;
         }
 
-        if (sourceNamedGraphs.isEmpty()) {
-            return result;
-        } else {
-            Collections.sort(objects, String.CASE_INSENSITIVE_ORDER);
-            int medianPosition = objects.size() / 2;
-            String medianValue = objects.get(medianPosition);
-            Quad firstQuad = conflictingQuads.iterator().next();
-            Quad resultQuad = new Quad(
-                    Node.createURI(uriGenerator.nextURI()),
-                    firstQuad.getSubject(),
-                    firstQuad.getPredicate(),
-                    Node.createLiteral(LiteralLabelFactory.create(medianValue)));
-            double quality = computeQualityNoAgree(
-                    resultQuad,
-                    sourceNamedGraphs,
-                    conflictingQuads,
-                    metadata);
-            result.add(new CRQuad(resultQuad, quality, sourceNamedGraphs));
-            return result;
+        @Override
+        protected void sortValues(ArrayList<Double> values) {
+            Collections.sort(values);
+        }
+    }
+
+    /**
+     * Implementation of median aggregation for string values.
+     */
+    private final class StringMedianAggregation extends MedianAggregationImpl<String> {
+        @Override
+        protected String getValue(Node object) {
+            return object.isLiteral() ? object.getLiteralLexicalForm() : null;
+        }
+
+        @Override
+        protected void sortValues(ArrayList<String> values) {
+            Collections.sort(values, String.CASE_INSENSITIVE_ORDER);
+        }
+    }
+
+    /**
+     * Implementation of median aggregation for boolean values.
+     */
+    private final class BooleanMedianAggregation extends MedianAggregationImpl<Boolean> {
+        @Override
+        protected Boolean getValue(Node object) {
+            return object.isLiteral()
+                    ? AggregationUtils.convertToBoolean(object.getLiteral())
+                    : null;
+        }
+
+        @Override
+        protected void sortValues(ArrayList<Boolean> values) {
+            Collections.sort(values);
+        }
+    }
+
+    /**
+     * Implementation of median aggregation for date values.
+     */
+    private final class DateMedianAggregation extends MedianAggregationImpl<Calendar> {
+        @Override
+        protected Calendar getValue(Node object) {
+            return AggregationUtils.convertToCalendarSilent(object);
+        }
+
+        @Override
+        protected void sortValues(ArrayList<Calendar> values) {
+            Collections.sort(values);
+        }
+    }
+
+    /**
+     * Implementation of median aggregation for time values.
+     */
+    private final class TimeMedianAggregation extends MedianAggregationImpl<Calendar> {
+        @Override
+        protected Calendar getValue(Node object) {
+            return AggregationUtils.convertToCalendarSilent(object);
+        }
+
+        @Override
+        protected void sortValues(ArrayList<Calendar> values) {
+            Collections.sort(values, TimeComparator.getInstance());
         }
     }
 }

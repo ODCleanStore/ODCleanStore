@@ -1,9 +1,15 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
-import cz.cuni.mff.odcleanstore.shared.EnumLiteralType;
+import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.AggregationUtils;
+import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.EnumLiteralType;
+import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.LevenshteinDistance;
 import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 
+import com.hp.hpl.jena.datatypes.xsd.XSDDateTime;
 import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.impl.LiteralLabel;
+import com.hp.hpl.jena.shared.JenaException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +20,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Jan Michelfeit
  */
-class DistanceMetricImpl implements DistanceMetric {
+/*package*/class DistanceMetricImpl implements DistanceMetric {
     private static final Logger LOG = LoggerFactory.getLogger(DistanceMetricImpl.class);
 
     /** Minimum distance between two {@link Node Nodes} indicating equal nodes. */
@@ -23,17 +29,27 @@ class DistanceMetricImpl implements DistanceMetric {
     /** Maximum distance between two {@link Node Nodes}. */
     private static final double MAX_DISTANCE = 1;
 
+    /**
+     * Difference between two dates when their distance is equal to MAX_DISTANCE in seconds.
+     * TODO: to configuration?
+     * Cca 1 year in seconds.
+     */
+    private static final long MAX_DATE_DIFFERENCE = 366 * Utils.DAY_HOURS * Utils.TIME_UNIT_60 * Utils.TIME_UNIT_60;
+
     /** Distance value for URI resources with different URIs. */
     private static final double DIFFERENT_RESOURCE_DISTANCE = MAX_DISTANCE;
 
     /** Distance of {@link Node Nodes} of different types. */
     private static final double DIFFERENT_TYPE_DISTANCE = MAX_DISTANCE;
 
-    /** Distance of {@link Node Nodes} when an error (e.g. a parse erorr) occurs. */
+    /** Distance of {@link Node Nodes} when an error (e.g. a parse error) occurs. */
     private static final double ERROR_DISTANCE = MAX_DISTANCE;
 
-    ///** Square root of two. */
-    //private static final double SQRT_OF_TWO = Math.sqrt(2);
+    /** Number of seconds in a day. */
+    private static final int SECONDS_IN_DAY = (int) (Utils.DAY_HOURS * Utils.TIME_UNIT_60 * Utils.TIME_UNIT_60);
+
+    // /** Square root of two. */
+    // private static final double SQRT_OF_TWO = Math.sqrt(2);
 
     /**
      * {@inheritDoc}
@@ -52,14 +68,13 @@ class DistanceMetricImpl implements DistanceMetric {
         } else if (primaryValue.isLiteral()) {
             return literalDistance(primaryValue, comparedValue);
         } else {
-            LOG.warn("Distance cannot be measured on Nodes of type {}",
-                    primaryValue.getClass().getSimpleName());
+            LOG.warn("Distance cannot be measured on Nodes of type {}", primaryValue.getClass().getSimpleName());
             return ERROR_DISTANCE;
         }
     }
 
     /**
-     * Calulates a distance metric between two Node_Literal instances.
+     * Calculates a distance metric between two Node_Literal instances.
      * @see #distance(Node, Node)
      * @param primaryNode first of the compared Nodes; this Node may be considered "referential",
      *        i.e. we measure distance from this value
@@ -70,57 +85,58 @@ class DistanceMetricImpl implements DistanceMetric {
     private double literalDistance(Node primaryNode, Node comparedNode) {
         assert primaryNode.isLiteral() && comparedNode.isLiteral();
 
-        EnumLiteralType primaryLiteralType = Utils.getLiteralType(primaryNode);
-        EnumLiteralType comparedLiteralType = Utils.getLiteralType(comparedNode);
+        EnumLiteralType primaryLiteralType = AggregationUtils.getLiteralType(primaryNode);
+        EnumLiteralType comparedLiteralType = AggregationUtils.getLiteralType(comparedNode);
         EnumLiteralType comparisonType = primaryLiteralType == comparedLiteralType
                 ? primaryLiteralType
                 : EnumLiteralType.OTHER;
+        LiteralLabel primaryLiteral = primaryNode.getLiteral();
+        LiteralLabel comparedLiteral = comparedNode.getLiteral();
 
         double result;
         switch (comparisonType) {
         case NUMERIC:
-            double primaryValue = 0;
-            double comparedValue = 0;
-            try {
-                primaryValue = Double.parseDouble(primaryNode.getLiteralLexicalForm());
-            } catch (NumberFormatException e) {
-                LOG.warn("Numeric literal {} is malformed.", primaryNode);
-                result = ERROR_DISTANCE;
-                break;
+            double primaryValueDouble = AggregationUtils.convertToDoubleSilent(primaryLiteral);
+            if (Double.isNaN(primaryValueDouble)) {
+                LOG.warn("Numeric literal {} is malformed.", primaryLiteral);
+                return ERROR_DISTANCE;
             }
-            try {
-                comparedValue = Double.parseDouble(comparedNode.getLiteralLexicalForm());
-            } catch (NumberFormatException e) {
-                LOG.warn("Numeric literal {} is malformed.", primaryNode);
-                result = ERROR_DISTANCE;
-                break;
+            double comparedValueDouble = AggregationUtils.convertToDoubleSilent(comparedLiteral);
+            if (Double.isNaN(comparedValueDouble)) {
+                LOG.warn("Numeric literal {} is malformed.", comparedLiteral);
+                return ERROR_DISTANCE;
             }
-            result = numericDistance(primaryValue, comparedValue);
+            result = numericDistance(primaryValueDouble, comparedValueDouble);
+            break;
+        case TIME:
+            result = timeDistance(primaryLiteral, comparedLiteral);
             break;
         case DATE:
-            // TODO
+            result = dateDistance(primaryLiteral, comparedLiteral);
+            break;
         case BOOLEAN:
-            // TODO
+            boolean primaryValueBool = AggregationUtils.convertToBoolean(primaryLiteral);
+            boolean comparedValueBool = AggregationUtils.convertToBoolean(comparedLiteral);
+            result = primaryValueBool == comparedValueBool ? MIN_DISTANCE : MAX_DISTANCE;
+            break;
         case STRING:
         case OTHER:
-            // TODO + check bounds
             result = LevenshteinDistance.normalizedLevenshteinDistance(
-                    primaryNode.getLiteralLexicalForm(),
-                    comparedNode.getLiteralLexicalForm());
+                    primaryLiteral.getLexicalForm(),
+                    comparedLiteral.getLexicalForm());
             break;
         default:
-            // TODO
-            LOG.error("TODO");
-            throw new IllegalArgumentException();
+            LOG.error("Unhandled literal type for comparison {}.", comparisonType);
+            throw new RuntimeException("Unhandled literal type for comparison");
         }
 
-        LOG.debug("Distance between literals {} and {} of type {}: {}",
-                new Object[] { primaryNode, comparedNode, comparedLiteralType, result });
+        /*LOG.debug("Distance between numeric literals {} and {}: {}",
+                new Object[] { primaryNode, comparedNode, result });*/
         return result;
     }
 
     /**
-     * Calulates a distance metric between two numbers.
+     * Calculates a distance metric between two numbers.
      * @see #distance(Node, Node)
      * @param primaryValue first of the compared values; this v may be considered "referential",
      *        i.e. we measure distance from this value
@@ -143,7 +159,80 @@ class DistanceMetricImpl implements DistanceMetric {
     }
 
     /**
-     * Calulates a distance metric between two Node_URI instances.
+     * Calculates a distance metric between two time values.
+     * The maximum distance is reached with difference of one day.
+     * If value types are incompatible or conversion fails, {@value #ERROR_DISTANCE} is returned.
+     * @see #distance(Node, Node)
+     * @param primaryValue first of the compared values
+     * @param comparedValue second of the compared values
+     * @return a number from interval [0,1]
+     */
+    private double timeDistance(LiteralLabel primaryValue, LiteralLabel comparedValue) {
+        String primaryDatatypeURI = primaryValue.getDatatypeURI();
+        String comparedDatatypeURI = comparedValue.getDatatypeURI();
+        if (XMLSchema.timeType.equals(primaryDatatypeURI) && XMLSchema.timeType.equals(comparedDatatypeURI)) {
+            try {
+                XSDDateTime primaryValueTime = AggregationUtils.getDateTimeValue(primaryValue);
+                XSDDateTime comparedValueTime = AggregationUtils.getDateTimeValue(comparedValue);
+                if (primaryValueTime == null || comparedValueTime == null) {
+                    LOG.warn("Time value '{}' or '{}' is malformed.", primaryValue, comparedValue);
+                    return ERROR_DISTANCE;
+                }
+                double difference = Math.abs(primaryValueTime.getTimePart() - comparedValueTime.getTimePart());
+                double result = difference / SECONDS_IN_DAY;
+                assert MIN_DISTANCE <= result && result <= MAX_DISTANCE;
+                return result;
+            } catch (JenaException e) {
+                LOG.warn("Time value '{}' or '{}' is malformed.", primaryValue, comparedValue);
+                return ERROR_DISTANCE;
+            }
+        } else {
+            LOG.warn("Time literals '{}' and '{}' have incompatible types.", primaryValue, comparedValue);
+            return ERROR_DISTANCE;
+        }
+    }
+
+    /**
+     * Calculates a distance metric between two dates.
+     * The maximum distance is reached with {@value #MAX_DATE_DIFFERENCE}.
+     * If value types are incompatible or conversion fails, {@value #ERROR_DISTANCE} is returned.
+     * @see #distance(Node, Node)
+     * @param primaryValue first of the compared values
+     * @param comparedValue second of the compared values
+     * @return a number from interval [0,1]
+     */
+    private double dateDistance(LiteralLabel primaryValue, LiteralLabel comparedValue) {
+        String primaryDatatypeURI = primaryValue.getDatatypeURI();
+        String comparedDatatypeURI = comparedValue.getDatatypeURI();
+        // CHECKSTYLE:OFF
+        if ((XMLSchema.dateTimeType.equals(primaryDatatypeURI) || XMLSchema.dateType.equals(primaryDatatypeURI))
+                && (XMLSchema.dateTimeType.equals(comparedDatatypeURI) || XMLSchema.dateType.equals(comparedDatatypeURI))) {
+            // CHECKSTYLE:ON
+            try {
+                XSDDateTime primaryValueTime = AggregationUtils.getDateTimeValue(primaryValue);
+                XSDDateTime comparedValueTime = AggregationUtils.getDateTimeValue(comparedValue);
+                if (primaryValueTime == null || comparedValueTime == null) {
+                    LOG.warn("Date value '{}' or '{}' is malformed.", primaryValue, comparedValue);
+                    return ERROR_DISTANCE;
+                }
+                double differenceInSeconds = Math.abs(primaryValueTime.asCalendar().getTimeInMillis()
+                        - comparedValueTime.asCalendar().getTimeInMillis()) / Utils.MILLISECONDS;
+                double result = (MAX_DISTANCE - MIN_DISTANCE) * differenceInSeconds / MAX_DATE_DIFFERENCE;
+                result = Math.min(result, MAX_DISTANCE);
+                assert MIN_DISTANCE <= result && result <= MAX_DISTANCE;
+                return result;
+            } catch (JenaException e) {
+                LOG.warn("Date value '{}' or '{}' is malformed.", primaryValue, comparedValue);
+                return ERROR_DISTANCE;
+            }
+        } else {
+            LOG.warn("Date literals '{}' and '{}' have incompatible types.", primaryValue, comparedValue);
+            return ERROR_DISTANCE;
+        }
+    }
+
+    /**
+     * Calculates a distance metric between two Node_URI instances.
      * @see #distance(Node, Node)
      * @param primaryValue first of the compared Nodes; this Node may be considered "referential",
      *        i.e. we measure distance from this value
@@ -161,7 +250,7 @@ class DistanceMetricImpl implements DistanceMetric {
     }
 
     /**
-     * Calulates a distance metric between two Node_URI instances.
+     * Calculates a distance metric between two Node_URI instances.
      * @see #distance(Node, Node)
      * @param primaryValue first of the compared Nodes; this Node may be considered "referential",
      *        i.e. we measure distance from this value

@@ -3,8 +3,8 @@ package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
+import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.AggregationUtils;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
-import cz.cuni.mff.odcleanstore.shared.Utils;
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.impl.LiteralLabelFactory;
@@ -22,15 +22,13 @@ import java.util.Collection;
  *
  * @author Jan Michelfeit
  */
-final class AvgAggregation extends CalculatedValueAggregation {
+/*package*/final class AvgAggregation extends CalculatedValueAggregation {
     /**
      * Creates a new instance with given settings.
      * @param aggregationSpec aggregation and quality calculation settings
      * @param uriGenerator generator of URIs
      */
-    public AvgAggregation(
-            AggregationSpec aggregationSpec,
-            UniqueURIGenerator uriGenerator) {
+    public AvgAggregation(AggregationSpec aggregationSpec, UniqueURIGenerator uriGenerator) {
         super(aggregationSpec, uriGenerator);
     }
 
@@ -46,9 +44,7 @@ final class AvgAggregation extends CalculatedValueAggregation {
      * @return {@inheritDoc}
      */
     @Override
-    public Collection<CRQuad> aggregate(
-            Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
-
+    public Collection<CRQuad> aggregate(Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
         Collection<CRQuad> result = createResultCollection();
         Collection<Quad> nonAggregableQuads = null;
 
@@ -58,7 +54,7 @@ final class AvgAggregation extends CalculatedValueAggregation {
         Collection<String> sourceNamedGraphs = new ArrayList<String>();
 
         for (Quad quad : conflictingQuads) {
-            double numberValue = Utils.tryConvertToDouble(quad.getObject());
+            double numberValue = AggregationUtils.convertToDoubleSilent(quad.getObject());
             if (!Double.isNaN(numberValue)) {
                 sum += numberValue;
                 validNumbersCount++;
@@ -67,8 +63,7 @@ final class AvgAggregation extends CalculatedValueAggregation {
                 if (nonAggregableQuads == null) {
                     nonAggregableQuads = new ArrayList<Quad>();
                 }
-                handleNonAggregableObject(
-                        quad, conflictingQuads, metadata, result, this.getClass());
+                handleNonAggregableObject(quad, conflictingQuads, metadata, result, this.getClass());
                 nonAggregableQuads.add(quad);
             }
         }

@@ -8,7 +8,7 @@ import com.hp.hpl.jena.graph.Node;
  *
  * @author Jan Michelfeit
  */
-interface DistanceMetric {
+/*package*/interface DistanceMetric {
     /**
      * Computes distance between two Nodes as a number from [0,1].
      * Value 1 means maximum distance, value 0 means identity.

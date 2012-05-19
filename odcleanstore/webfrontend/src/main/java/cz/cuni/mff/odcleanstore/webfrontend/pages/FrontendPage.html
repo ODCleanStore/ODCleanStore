@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<link rel="stylesheet" href="/css/layout.css" type="text/css" media="screen" />
+	<title>ODCleanStore Web Frontend</title>
+</head>
+
+<body>
+	<div id="container">
+
+		<div id="header">
+			<strong>Open Data Clean Store - Web frontend</strong>
+		</div id="header">
+
+		<div id="menu">
+			<wicket:link>
+			<ul>
+				<li><a href="HomePage.html">Home</a></li>
+				<li><a href="useraccounts/UserAccountsPage.html">User accounts management</a></li>
+			</ul>
+			</wicket:link> 
+		</div>
+
+		<div id="content">
+			<div id="top">
+				<span wicket:id="pageCrumbs" id="crumbs">Crubms</span>
+				<span wicket:id="userPanel" id="user"></span>
+				<div class="clear">&nbsp;</div>
+			</div>
+			<div id="center">
+				<h1 wicket:id="pageTitle">Headline</h1>
+				
+				<div wicket:id="feedback"></div>
+				
+				<wicket:child />
+			</div>
+		</div>
+		<div id="footer" class="clear">&nbsp;</div>
+	</div>
+</body>
+</html>
