@@ -6,7 +6,7 @@ package cz.cuni.mff.odcleanstore.data;
  *
  * @author Tomas Soukup
  */
-public class SparqlEndpoint {
+public class ConnectionCredentials {
 
     /** The URI of the SPARQL endpoint. */
     private String uri;
@@ -21,7 +21,7 @@ public class SparqlEndpoint {
      * Create a new instance with the given SPARQL endpoint URI.
      * @param uri URI of the SPARQL endpoint
      */
-    public SparqlEndpoint(String uri) {
+    public ConnectionCredentials(String uri) {
         this.uri = uri;
     }
 
@@ -31,7 +31,7 @@ public class SparqlEndpoint {
      * @param username SPARQL endpoint username
      * @param password SPARQL endpoint password
      */
-    public SparqlEndpoint(String uri, String username, String password) {
+    public ConnectionCredentials(String uri, String username, String password) {
         this.uri = uri;
         this.username = username;
         this.password = password;

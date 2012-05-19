@@ -6,7 +6,7 @@ import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.data.RDFprefix;
-import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
+import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ public class RDFPrefixesLoader {
 	 * @return list of loaded prefixes
 	 * @throws DatabaseException database error occured
 	 */
-	public static List<RDFprefix> loadPrefixes(SparqlEndpoint endpoint) throws DatabaseException {
+	public static List<RDFprefix> loadPrefixes(ConnectionCredentials endpoint) throws DatabaseException {
 		LOG.info("Loading RDF prefixes from: {}", endpoint.getUri());
 		VirtuosoConnectionWrapper connection = null;
 		List<RDFprefix> prefixList = new ArrayList<RDFprefix>();

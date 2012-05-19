@@ -2,7 +2,7 @@ package cz.cuni.mff.odcleanstore.engine.pipeline;
 
 import java.io.File;
 
-import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
+import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
 import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
@@ -18,12 +18,12 @@ public class TransformationContextImpl implements TransformationContext {
 	}
 
 	@Override
-	public SparqlEndpoint getDirtyDatabaseEndpoint() {
+	public ConnectionCredentials getDirtyDatabaseCredentials() {
 		return Engine.DIRTY_DATABASE_ENDPOINT;
 	}
 
 	@Override
-	public SparqlEndpoint getCleanDatabaseEndpoint() {
+	public ConnectionCredentials getCleanDatabaseCredentials() {
 		return Engine.CLEAN_DATABASE_ENDPOINT;
 	}
 

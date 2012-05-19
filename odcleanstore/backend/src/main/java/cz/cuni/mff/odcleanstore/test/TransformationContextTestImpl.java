@@ -2,7 +2,7 @@ package cz.cuni.mff.odcleanstore.test;
 
 import java.io.File;
 
-import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
+import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 
@@ -18,21 +18,21 @@ public class TransformationContextTestImpl implements TransformationContext {
 	
 	private File directory;
 	private String config;
-	private SparqlEndpoint endpoint;
+	private ConnectionCredentials endpoint;
 	
-	TransformationContextTestImpl(File directory, String config, SparqlEndpoint endpoint) {
+	TransformationContextTestImpl(File directory, String config, ConnectionCredentials endpoint) {
 		this.directory = directory;
 		this.config = config;
 		this.endpoint = endpoint;
 	}
 	
 	@Override
-	public SparqlEndpoint getDirtyDatabaseEndpoint() {
+	public ConnectionCredentials getDirtyDatabaseCredentials() {
 		return endpoint;
 	}
 
 	@Override
-	public SparqlEndpoint getCleanDatabaseEndpoint() {
+	public ConnectionCredentials getCleanDatabaseCredentials() {
 		return endpoint;
 	}
 

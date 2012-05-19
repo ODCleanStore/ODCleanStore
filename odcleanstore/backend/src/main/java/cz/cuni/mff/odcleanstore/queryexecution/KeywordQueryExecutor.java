@@ -8,7 +8,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
-import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
+import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
 import cz.cuni.mff.odcleanstore.vocabulary.DC;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.W3P;
@@ -388,7 +388,7 @@ import java.util.regex.Pattern;
      * @param aggregationSpec aggregation settings for conflict resolution
      * @param defaultAggregationSpec default aggregation settings for conflict resolution
      */
-    public KeywordQueryExecutor(SparqlEndpoint sparqlEndpoint, QueryConstraintSpec constraints,
+    public KeywordQueryExecutor(ConnectionCredentials sparqlEndpoint, QueryConstraintSpec constraints,
             AggregationSpec aggregationSpec, AggregationSpec defaultAggregationSpec) {
         super(sparqlEndpoint, constraints, aggregationSpec, defaultAggregationSpec);
     }

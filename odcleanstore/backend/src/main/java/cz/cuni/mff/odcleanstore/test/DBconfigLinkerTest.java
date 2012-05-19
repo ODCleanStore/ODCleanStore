@@ -2,7 +2,7 @@ package cz.cuni.mff.odcleanstore.test;
 
 import java.io.File;
 
-import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
+import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
 import cz.cuni.mff.odcleanstore.linker.Linker;
 import cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
@@ -32,7 +32,7 @@ public class DBconfigLinkerTest {
         }
 		File transformerDirectory = new File(args[0]);
 		Linker linker = new LinkerImpl();
-		SparqlEndpoint endpoint = new SparqlEndpoint("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba");
+		ConnectionCredentials endpoint = new ConnectionCredentials("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba");
 		TransformationContext context = new TransformationContextTestImpl(transformerDirectory,"1",endpoint);
 		TransformedGraph inputGraph = new TransformedGraphTestImpl("http://opendata.cz/data/namedGraph/1");
 		linker.transformNewGraph(inputGraph, context);
