@@ -1,8 +1,7 @@
 <?xml version="1.0" ?>
 <project
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-	xmlns="http://maven.apache.org/POM/4.0.0" 
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -10,7 +9,7 @@
 	<artifactId>odcs-core</artifactId>
 	<version>0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
-  
+
 	<parent>
 		<groupId>cz.cuni.mff.odcleanstore</groupId>
 		<artifactId>odcs</artifactId>
@@ -20,6 +19,11 @@
 	<name>ODCleanStore - Core</name>
 
 	<dependencies>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.6.4</version>
+		</dependency>
 		<dependency>
 			<groupId>de.fuberlin.wiwss.ng4j</groupId>
 			<artifactId>ng4j</artifactId>
@@ -42,7 +46,7 @@
 			<version>3</version>
 		</dependency>
 	</dependencies>
-  
+
 	<build>
 		<plugins>
 			<plugin>
@@ -81,7 +85,8 @@
 		</plugins>
 		<pluginManagement>
 			<plugins>
-				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself. -->
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
 				<!-- TODO: move to parent pom -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
