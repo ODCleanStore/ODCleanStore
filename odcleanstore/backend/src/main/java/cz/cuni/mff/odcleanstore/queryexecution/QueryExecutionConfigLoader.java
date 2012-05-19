@@ -7,7 +7,7 @@ import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
-import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
+import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,13 +27,13 @@ import java.sql.SQLException;
     private static final String ERROR_STRATEGY_KEY = "ERROR_STRATEGY";
 
     /** Database connection settings. */
-    private final SparqlEndpoint sparqlEndpoint;
+    private final ConnectionCredentials sparqlEndpoint;
 
     /**
      * Creates a new instance.
      * @param sparqlEndpoint database connection settings
      */
-    public QueryExecutionConfigLoader(SparqlEndpoint sparqlEndpoint) {
+    public QueryExecutionConfigLoader(ConnectionCredentials sparqlEndpoint) {
         this.sparqlEndpoint = sparqlEndpoint;
     }
 

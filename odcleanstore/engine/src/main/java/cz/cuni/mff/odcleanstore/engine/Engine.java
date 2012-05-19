@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.*;
 
-import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
+import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
 import cz.cuni.mff.odcleanstore.engine.common.Module;
 import cz.cuni.mff.odcleanstore.engine.common.ModuleState;
 import cz.cuni.mff.odcleanstore.engine.pipeline.PipelineService;
@@ -39,8 +39,8 @@ public final class Engine extends Module {
 	public static final String USER_SERVICE_URI_PATH = "uri";
 	// end parameters
 
-	public static final SparqlEndpoint CLEAN_DATABASE_ENDPOINT = new SparqlEndpoint(CLEAN_DATABASE_CONNECTION_STRING, SPARQL_USER, SPARQL_PASSWORD);
-	public static final SparqlEndpoint DIRTY_DATABASE_ENDPOINT = new SparqlEndpoint(DIRTY_DATABASE_CONNECTION_STRING, SPARQL_USER, SPARQL_PASSWORD);
+	public static final ConnectionCredentials CLEAN_DATABASE_ENDPOINT = new ConnectionCredentials(CLEAN_DATABASE_CONNECTION_STRING, SPARQL_USER, SPARQL_PASSWORD);
+	public static final ConnectionCredentials DIRTY_DATABASE_ENDPOINT = new ConnectionCredentials(DIRTY_DATABASE_CONNECTION_STRING, SPARQL_USER, SPARQL_PASSWORD);
 
 	private static final Logger LOG = Logger.getLogger(Engine.class);
 	private static Engine _engine;

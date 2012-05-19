@@ -23,7 +23,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import cz.cuni.mff.odcleanstore.data.RDFprefix;
-import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
@@ -94,7 +93,7 @@ public class ConfigBuilder {
 		Document configDoc;
 		File configFile;
 		try {
-			configDoc = createConfigDoc(rawRules, prefixes, inputGraph, context, linksGraphName);
+			configDoc = createConfigDoc(rawRules, prefixes, inputGraph, linksGraphName);
 			LOG.info("Created link configuration document.");
 			configFile = storeConfigDoc(configDoc, context.getTransformerDirectory(), inputGraph.getGraphId());
 			LOG.info("Stored link configuration to temporary file {}", configFile.getAbsolutePath());
@@ -118,7 +117,7 @@ public class ConfigBuilder {
 	 * @throws IOException
 	 */
 	private static Document createConfigDoc(List<String> rawRules, List<RDFprefix> prefixes,
-			TransformedGraph inputGraph, TransformationContext context, String linksGraphName)
+			TransformedGraph inputGraph, String linksGraphName)
 			throws ParserConfigurationException, SAXException, IOException {
 
 		DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -126,10 +125,9 @@ public class ConfigBuilder {
 		Element root = configDoc.createElement(CONFIG_XML_ROOT);
 		configDoc.appendChild(root);
 		root.appendChild(createPrefixes(configDoc, prefixes));
-		root.appendChild(createSources(configDoc, context.getDirtyDatabaseEndpoint(), 
-				context.getCleanDatabaseEndpoint(), inputGraph.getGraphName()));
+		root.appendChild(createSources(configDoc, inputGraph.getGraphName()));
 		root.appendChild(
-				createLinkageRules(configDoc, rawRules, context, inputGraph.getGraphId(), builder, linksGraphName));			
+				createLinkageRules(configDoc, rawRules, inputGraph.getGraphId(), builder, linksGraphName));			
 		
 		return configDoc;
 	}
@@ -159,22 +157,17 @@ public class ConfigBuilder {
 	 * Creates XML element containing data sources definition.
 	 * 
 	 * @param doc configuration XML document
-	 * @param dirtyEndpoint SPARQL endpoint to the dirty DB
-	 * @param cleanEndpoint SPARQL endpoint to the clean DB
 	 * @param graphName name of the graph in dirty DB to be interlinked
 	 * @return
 	 */
-	private static Element createSources(Document doc, SparqlEndpoint dirtyEndpoint, SparqlEndpoint cleanEndpoint, String graphName) {
+	private static Element createSources(Document doc, String graphName) {
 		Element sourcesElement = doc.createElement(CONFIG_XML_SOURCES);
-		// TODO temporary solution until endpoints are available
-		SparqlEndpoint tempDirtyEndpoint = new SparqlEndpoint(TEMP_DIRTY_ENDPOINT);
-		SparqlEndpoint tempCleanEndpoint = new SparqlEndpoint(TEMP_CLEAN_ENDPOINT);
 		
-		Element sourceElement = createSource(doc, tempDirtyEndpoint, graphName);
+		Element sourceElement = createSource(doc, TEMP_DIRTY_ENDPOINT, graphName);
 		sourceElement.setAttribute(CONFIG_XML_ID, CONFIG_SOURCE_A_ID);
 		sourcesElement.appendChild(sourceElement);
 		
-		sourceElement = createSource(doc, tempCleanEndpoint, null);
+		sourceElement = createSource(doc, TEMP_CLEAN_ENDPOINT, null);
 		sourceElement.setAttribute(CONFIG_XML_ID, CONFIG_SOURCE_B_ID);
 		sourcesElement.appendChild(sourceElement);
 		
@@ -184,15 +177,15 @@ public class ConfigBuilder {
 	/**
 	 * Creates XML element containg one data source definition
 	 * @param doc configuration XML document
-	 * @param endpoint SPARQL endpoint to the data source
+	 * @param endpointUri SPARQL endpoint to the data source
 	 * @param graphName graph name to be interlinked or null when no graph is specified
 	 * @return
 	 */
-	private static Element createSource(Document doc, SparqlEndpoint endpoint, String graphName) {
+	private static Element createSource(Document doc, String endpointUri, String graphName) {
 		Element sourceElement = doc.createElement(CONFIG_XML_SOURCE);
 		
 		sourceElement.setAttribute(CONFIG_XML_TYPE, CONFIG_XML_SPARQL_ENDPOINT);
-		sourceElement.appendChild(createParamElement(doc, CONFIG_XML_ENDPOINT_URI, endpoint.getUri()));
+		sourceElement.appendChild(createParamElement(doc, CONFIG_XML_ENDPOINT_URI, endpointUri));
 		
 		if (graphName != null) {
 			sourceElement.appendChild(createParamElement(doc, CONFIG_XML_GRAPH, graphName));
@@ -213,15 +206,15 @@ public class ConfigBuilder {
 	 * @throws SAXException
 	 * @throws IOException
 	 */
-	private static Element createLinkageRules(Document doc, List<String> rawRules, TransformationContext context, 
-			String graphId, DocumentBuilder builder, String linksGraphName) throws SAXException, IOException {
+	private static Element createLinkageRules(Document doc, List<String> rawRules, String graphId, 
+			DocumentBuilder builder, String linksGraphName) throws SAXException, IOException {
 		Element rulesElement = doc.createElement(CONFIG_XML_LINKAGE_RULES);
 		
 		for (String rawRule:rawRules) {
 			Element ruleElement = builder.parse(new InputSource(new StringReader(rawRule))).getDocumentElement();
 			normalizeDatasets(ruleElement);
 			updateFileNames(ruleElement, graphId);
-			addEndpointParams(ruleElement, context.getDirtyDatabaseEndpoint(), linksGraphName);
+			addEndpointParams(ruleElement, linksGraphName);
 			rulesElement.appendChild(doc.importNode(ruleElement, true));
 		}
 		
@@ -288,11 +281,9 @@ public class ConfigBuilder {
 	 * 
 	 * @param doc configuration XML document
 	 * @param ruleElement linkage rule element
-	 * @param endpoint SPARQL endpoint to set
 	 * @param linksGraphName graph URI to set
 	 */
-	private static void addEndpointParams(Element ruleElement, SparqlEndpoint endpoint, 
-			String linksGraphName) {
+	private static void addEndpointParams(Element ruleElement, String linksGraphName) {
 		Document doc = ruleElement.getOwnerDocument();
 		
 		NodeList outputList = ruleElement.getElementsByTagName(CONFIG_XML_OUTPUT);
@@ -300,7 +291,6 @@ public class ConfigBuilder {
 			Element outputElement = (Element)outputList.item(i);
 			String type = outputElement.getAttribute(CONFIG_XML_TYPE);
 			if (CONFIG_XML_SPARQL_UPDATE.equals(type)) {
-				//TODO read from sparql endpoint when ready
 				outputElement.appendChild(createParamElement(doc, CONFIG_XML_URI, TEMP_DIRTY_ENDPOINT));
 				outputElement.appendChild(createParamElement(doc, CONFIG_XML_GRAPH_URI, linksGraphName));
 			}
