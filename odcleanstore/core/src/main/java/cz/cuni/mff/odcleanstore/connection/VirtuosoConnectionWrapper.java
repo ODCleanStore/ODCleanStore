@@ -2,7 +2,7 @@ package cz.cuni.mff.odcleanstore.connection;
 
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
-import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
+import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -34,7 +34,7 @@ public final class VirtuosoConnectionWrapper {
      * @return wrapper of the newly created connection
      * @throws ConnectionException database connection error
      */
-    public static VirtuosoConnectionWrapper createConnection(SparqlEndpoint sparqlEndpoint) throws ConnectionException {
+    public static VirtuosoConnectionWrapper createConnection(ConnectionCredentials sparqlEndpoint) throws ConnectionException {
         try {
             Class.forName("virtuoso.jdbc3.Driver");
         } catch (ClassNotFoundException e) {
@@ -56,7 +56,7 @@ public final class VirtuosoConnectionWrapper {
 
     /**
      * Create a new instance.
-     * @see #createConnection(SparqlEndpoint)
+     * @see #createConnection(ConnectionCredentials)
      * @param connection a connection to a Virtuoso database
      */
     private VirtuosoConnectionWrapper(Connection connection) {

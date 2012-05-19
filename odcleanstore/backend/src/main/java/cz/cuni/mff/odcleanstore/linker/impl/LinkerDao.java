@@ -11,7 +11,7 @@ import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
-import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
+import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
 
 /**
  * A singleton class for loading linkage rules from the relational DB.
@@ -33,25 +33,25 @@ public class LinkerDao {
 	/**
 	 * Private constructor used by the getInstance method.
 	 * 
-	 * @param endpoint endpoint with connection parameters
+	 * @param credentials connection parameters
 	 * @throws ConnectionException
 	 */
-	private LinkerDao(SparqlEndpoint endpoint) throws ConnectionException {
-		LOG.info("Connecting to DB on: " + endpoint.getUri());
-		connection = VirtuosoConnectionWrapper.createConnection(endpoint);
+	private LinkerDao(ConnectionCredentials credentials) throws ConnectionException {
+		LOG.info("Connecting to DB on: " + credentials.getUri());
+		connection = VirtuosoConnectionWrapper.createConnection(credentials);
 	}
 	
 	
 	/**
 	 * Creates singleton instance.
 	 * 
-	 * @param endpoint endpoint with connection parameters
+	 * @param credentials connection parameters
 	 * @return singleton instance
 	 * @throws ConnectionException
 	 */
-	public static LinkerDao getInstance(SparqlEndpoint endpoint) throws ConnectionException {
+	public static LinkerDao getInstance(ConnectionCredentials credentials) throws ConnectionException {
 		if (dao == null) {
-			return new LinkerDao(endpoint);
+			return new LinkerDao(credentials);
 		}
 		return dao;
 	}

@@ -1,6 +1,6 @@
 package cz.cuni.mff.odcleanstore.transformer;
 
-import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
+import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
 
 import java.io.File;
 
@@ -14,16 +14,16 @@ public interface TransformationContext {
     /**
      * Reference to the dirty database.
      * The dirty database contains new incoming named graphs.
-     * @return reference to the dirty database SPARQL endpoint
+     * @return reference to the dirty database connection credentials
      */
-    SparqlEndpoint getDirtyDatabaseEndpoint();
+    ConnectionCredentials getDirtyDatabaseCredentials();
 
     /**
      * Reference to the clean database.
      * The clean database contains already processed named graphs.
-     * @return reference to the clean database SPARQL endpoint
+     * @return reference to the clean database connection credentials
      */
-    SparqlEndpoint getCleanDatabaseEndpoint();
+    ConnectionCredentials getCleanDatabaseCredentials();
 
     /**
      * Configuration file for the Transformer (obtained from ODCS database).

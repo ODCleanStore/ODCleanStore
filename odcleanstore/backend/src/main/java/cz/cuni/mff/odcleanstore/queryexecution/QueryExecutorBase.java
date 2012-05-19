@@ -9,7 +9,7 @@ import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.data.QuadCollection;
-import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
+import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
@@ -184,7 +184,7 @@ import java.util.Locale;
     }
 
     /** Connection settings for the SPARQL endpoint that will be queried. */
-    protected final SparqlEndpoint sparqlEndpoint;
+    protected final ConnectionCredentials sparqlEndpoint;
 
     /** Constraints on triples returned in the result. */
     protected final QueryConstraintSpec constraints;
@@ -211,7 +211,7 @@ import java.util.Locale;
      * @param aggregationSpec aggregation settings for conflict resolution; overrides defaultAggregationSpec
      * @param defaultAggregationSpec default aggregation settings for conflict resolution
      */
-    protected QueryExecutorBase(SparqlEndpoint sparqlEndpoint, QueryConstraintSpec constraints,
+    protected QueryExecutorBase(ConnectionCredentials sparqlEndpoint, QueryConstraintSpec constraints,
             AggregationSpec aggregationSpec, AggregationSpec defaultAggregationSpec) {
         this.sparqlEndpoint = sparqlEndpoint;
         this.constraints = constraints;

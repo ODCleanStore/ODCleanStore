@@ -1,6 +1,6 @@
 package cz.cuni.mff.odcleanstore.qualityassessment.impl;
 
-import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
+import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
 
 /**
  * Implementation of Clean Database specific steps of the
@@ -9,8 +9,8 @@ import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
 public class CleanStoreAssessment extends CommonAssessment {
 
 	@Override
-	protected SparqlEndpoint getEndpoint() {
-		return context.getCleanDatabaseEndpoint();
+	protected ConnectionCredentials getEndpoint() {
+		return context.getCleanDatabaseCredentials();
 	}
 
 	//TODO: update publishers score

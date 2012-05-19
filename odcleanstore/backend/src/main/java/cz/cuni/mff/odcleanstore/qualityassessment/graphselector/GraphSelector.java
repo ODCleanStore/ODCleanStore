@@ -3,12 +3,12 @@ package cz.cuni.mff.odcleanstore.qualityassessment.graphselector;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
+import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.Rule;
 
 public class GraphSelector {
 	
-	public GraphSelector(SparqlEndpoint endpoint) {
+	public GraphSelector(ConnectionCredentials endpoint) {
 	}
 	
 	public Collection<String> getGraphAffectedByRuleChange(Rule former, Rule current) {

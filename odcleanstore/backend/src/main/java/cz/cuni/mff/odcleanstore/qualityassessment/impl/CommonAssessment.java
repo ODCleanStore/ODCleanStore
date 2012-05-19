@@ -4,7 +4,7 @@ import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
-import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
+import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
 import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.Rule;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.RulesModel;
@@ -88,7 +88,7 @@ abstract class CommonAssessment {
 	/**
 	 * Let the concrete implementation decide on what endpoint to choose (Clean/Dirty)
 	 */
-	abstract protected SparqlEndpoint getEndpoint();
+	abstract protected ConnectionCredentials getEndpoint();
 	
 	/**
 	 * Extract a URI of the graphs publisher if possible
@@ -130,7 +130,7 @@ abstract class CommonAssessment {
 	 * all rules that can surely be applied.
 	 */
 	protected void loadRules() throws QualityAssessmentException {
-		RulesModel model = new RulesModel(context.getCleanDatabaseEndpoint());
+		RulesModel model = new RulesModel(context.getCleanDatabaseCredentials());
 
 		String publisher = getGraphPublisher();
 

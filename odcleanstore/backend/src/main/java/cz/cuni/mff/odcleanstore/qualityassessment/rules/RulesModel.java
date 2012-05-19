@@ -7,7 +7,7 @@ import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
-import cz.cuni.mff.odcleanstore.data.SparqlEndpoint;
+import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
 import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
 
 import java.sql.*;
@@ -25,9 +25,9 @@ import org.slf4j.LoggerFactory;
 public class RulesModel {
 	private static final Logger LOG = LoggerFactory.getLogger(RulesModel.class);
 
-	private SparqlEndpoint endpoint;
+	private ConnectionCredentials endpoint;
 	
-	public RulesModel (SparqlEndpoint endpoint) {
+	public RulesModel (ConnectionCredentials endpoint) {
 		this.endpoint = endpoint;
 	}
 	
