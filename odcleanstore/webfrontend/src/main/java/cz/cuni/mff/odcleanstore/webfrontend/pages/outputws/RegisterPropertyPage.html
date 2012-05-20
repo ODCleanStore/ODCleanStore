@@ -1,0 +1,27 @@
+<wicket:extend>
+
+<wicket:link>
+<div>
+	<a class="placedright" href="AggregationSettingsPage.html">Back to the aggregation settings overview</a>
+	<div class="clear">&nbsp;</div>
+</div>
+</wicket:link>
+
+<form wicket:id="newPropertyForm">
+	<p>
+		<label for="property">Property:</label>
+		<input wicket:id="property" type="text" id="property" />
+	</p>
+	<p>
+		<label for="multivalue">Multivalue:</label>
+		<input wicket:id="multivalue" type="checkbox" id="multivalue" />
+	</p>
+	<p>
+		<label for="aggregationType">Aggregation type:</label>
+		<select wicket:id="aggregationType" id="aggregationType">
+		</select>
+	</p>
+	<input type="submit" value="Register" />
+</form>
+
+</wicket:extend>

@@ -34,10 +34,10 @@ public class AccountsListPage extends FrontendPage
 		
 		// register page components
 		//
-		addUserListView();
+		addAccountsListTable();
 	}
 
-	private void addUserListView()
+	private void addAccountsListTable()
 	{
 		List<User> allUserAccounts = userDao.loadAll();
 		

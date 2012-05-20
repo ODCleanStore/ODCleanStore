@@ -1,0 +1,33 @@
+<wicket:extend>
+
+<h2>Configure aggregation of individual properties</h2>
+
+<wicket:link>
+<div>
+	<a class="placedright" href="RegisterPropertyPage.html">Register a new property</a>
+	<div class="clear">&nbsp;</div>
+</div>
+</wicket:link>
+				
+<table border="1">
+
+	<tr>
+		<th>Property</th>
+		<th>Multivalue</th>
+		<th>Aggregation type</th>
+		<th>Actions</th>
+	</tr>
+	
+	<tr wicket:id="propertySettingsTable">
+	
+		<td wicket:id="property">foaf:name</td>
+		<td wicket:id="multivalue">true</td>
+		<td wicket:id="aggregationType">LONGEST</td>
+		<td>
+			<!-- <input type="button" value="Edit" /> -->
+			<input wicket:id="deleteProperty" type="button" value="Delete" />
+		</td>
+	</tr>
+</table>
+
+</wicket:extend>
