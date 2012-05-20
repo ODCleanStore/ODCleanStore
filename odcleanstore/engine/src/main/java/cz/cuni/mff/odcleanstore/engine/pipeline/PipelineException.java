@@ -19,4 +19,8 @@ public class PipelineException extends ODCleanStoreException {
 	PipelineException(String message) {
 		super(message);
 	}
+
+	PipelineException(Throwable cause) {
+		super(cause);
+	}
 }
