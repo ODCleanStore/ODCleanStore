@@ -2,6 +2,11 @@ package cz.cuni.mff.odcleanstore.engine.ws.scraper;
 
 import javax.xml.ws.WebFault;
 
+/**
+ * Internal odcs-inputclient jax-ws implementation class.
+ * Direct usage not recommended, may be removed in next versions.
+ *  @author Petr Jerman
+ */
 @WebFault(name = "InsertException", targetNamespace = "http://scraper.ws.engine.odcleanstore.mff.cuni.cz/")
 public class InsertException_Exception extends Exception {
 

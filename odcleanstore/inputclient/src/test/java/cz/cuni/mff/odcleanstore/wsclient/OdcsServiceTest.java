@@ -4,6 +4,9 @@ import java.io.IOException;
 
 import org.junit.Test;
 
+/**
+ *  @author Petr Jerman
+ */
 public class OdcsServiceTest {
 
 	@Test

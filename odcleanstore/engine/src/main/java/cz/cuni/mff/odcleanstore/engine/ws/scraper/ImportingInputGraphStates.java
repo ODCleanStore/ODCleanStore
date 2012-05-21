@@ -6,6 +6,9 @@ import cz.cuni.mff.odcleanstore.engine.InputGraphState;
 import cz.cuni.mff.odcleanstore.engine.common.SimpleVirtuosoAccess;
 import cz.cuni.mff.odcleanstore.engine.common.Utils;
 
+/**
+ *  @author Petr Jerman
+ */
 @SuppressWarnings("serial")
 public final class ImportingInputGraphStates {
 

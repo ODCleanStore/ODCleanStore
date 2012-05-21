@@ -10,6 +10,9 @@ import java.util.Collection;
 import cz.cuni.mff.odcleanstore.engine.common.RowListener;
 import cz.cuni.mff.odcleanstore.engine.common.SimpleVirtuosoAccess;
 
+/**
+ *  @author Petr Jerman
+ */
 public final class TransformerCommand {
 
 	private int _id;

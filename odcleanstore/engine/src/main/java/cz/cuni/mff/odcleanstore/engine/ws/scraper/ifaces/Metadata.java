@@ -1,13 +1,9 @@
-/**
- * 
- */
 package cz.cuni.mff.odcleanstore.engine.ws.scraper.ifaces;
 
 import java.io.Serializable;
 
 /**
- * 
- * @author Petr Jerman <petr.jerman@centrum.cz>
+ *  @author Petr Jerman
  */
 public class Metadata implements Serializable {
 	private static final long serialVersionUID = 1L;

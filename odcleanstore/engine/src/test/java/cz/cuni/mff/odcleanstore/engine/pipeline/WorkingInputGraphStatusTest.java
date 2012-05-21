@@ -12,6 +12,9 @@ import cz.cuni.mff.odcleanstore.engine.InputGraphState;
 import cz.cuni.mff.odcleanstore.engine.common.SimpleVirtuosoAccess;
 import cz.cuni.mff.odcleanstore.engine.pipeline.WorkingInputGraphStatus.NotWorkingTransformerException;
 
+/**
+ *  @author Petr Jerman
+ */
 public class WorkingInputGraphStatusTest {
 
 	private static String _dbSchemaPrefix = "DB.TEST";

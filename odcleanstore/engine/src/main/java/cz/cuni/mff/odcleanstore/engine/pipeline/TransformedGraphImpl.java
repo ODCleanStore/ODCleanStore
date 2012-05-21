@@ -1,6 +1,3 @@
-/**
- * 
- */
 package cz.cuni.mff.odcleanstore.engine.pipeline;
 
 import java.util.ArrayList;
@@ -11,8 +8,7 @@ import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraphException;
 
 /**
- * @author jermanp
- * 
+ *  @author Petr Jerman
  */
 public final class TransformedGraphImpl implements TransformedGraph {
 

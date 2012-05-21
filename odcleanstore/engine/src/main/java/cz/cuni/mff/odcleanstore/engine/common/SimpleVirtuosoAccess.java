@@ -18,8 +18,7 @@ import cz.cuni.mff.odcleanstore.engine.Engine;
 /**
  * Encapsulates jdbc connections and single threaded basic data operations on Virtuoso database.
  * 
- * @author Petr Jerman (petr.jerman@centrum.cz)
- * 
+ * @author Petr Jerman
  */
 public class SimpleVirtuosoAccess {
 

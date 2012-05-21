@@ -1,6 +1,3 @@
-/**
- * 
- */
 package cz.cuni.mff.odcleanstore.engine;
 
 import java.io.File;
@@ -17,8 +14,7 @@ import cz.cuni.mff.odcleanstore.engine.ws.scraper.ScraperService;
 import cz.cuni.mff.odcleanstore.engine.ws.user.UserService;
 
 /**
- * @author jermanp
- * 
+ * @author Petr Jerman
  */
 public final class Engine extends Module {
 

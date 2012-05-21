@@ -1,6 +1,3 @@
-/**
- * 
- */
 package cz.cuni.mff.odcleanstore.engine.ws.scraper;
 
 import java.io.File;
@@ -15,8 +12,7 @@ import cz.cuni.mff.odcleanstore.engine.Service;
 import cz.cuni.mff.odcleanstore.engine.common.ModuleState;
 
 /**
- * 
- * @author Petr Jerman <petr.jerman@centrum.cz>
+ *  @author Petr Jerman
  */
 public final class ScraperService extends Service implements Runnable {
 

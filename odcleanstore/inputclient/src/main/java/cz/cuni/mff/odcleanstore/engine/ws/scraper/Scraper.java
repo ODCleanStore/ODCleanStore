@@ -7,6 +7,11 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
 
+/**
+ * Internal odcs-inputclient jax-ws implementation class.
+ * Direct usage not recommended, may be removed in next versions.
+ *  @author Petr Jerman
+ */
 @WebService(name = "Scraper", targetNamespace = "http://scraper.ws.engine.odcleanstore.mff.cuni.cz/")
 @XmlSeeAlso({ ObjectFactory.class })
 public interface Scraper {

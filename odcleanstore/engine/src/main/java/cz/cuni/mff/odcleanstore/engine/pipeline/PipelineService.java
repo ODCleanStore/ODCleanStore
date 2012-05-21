@@ -18,6 +18,9 @@ import cz.cuni.mff.odcleanstore.transformer.Transformer;
 import cz.cuni.mff.odcleanstore.vocabulary.DC;
 import cz.cuni.mff.odcleanstore.vocabulary.W3P;
 
+/**
+ *  @author Petr Jerman
+ */
 public final class PipelineService extends Service implements Runnable {
 
 	private static final Logger LOG = Logger.getLogger(PipelineService.class);

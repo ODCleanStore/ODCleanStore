@@ -7,6 +7,9 @@ import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 
+/**
+ *  @author Petr Jerman
+ */
 public class TransformationContextImpl implements TransformationContext {
 
 	private String _configuration;
