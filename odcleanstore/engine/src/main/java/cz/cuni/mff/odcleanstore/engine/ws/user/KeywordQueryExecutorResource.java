@@ -1,6 +1,3 @@
-/**
- * 
- */
 package cz.cuni.mff.odcleanstore.engine.ws.user;
 
 import org.restlet.data.Form;
@@ -13,8 +10,7 @@ import cz.cuni.mff.odcleanstore.queryexecution.QueryExecution;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryResult;
 
 /**
- * @author jermanp
- * 
+ *  @author Petr Jerman
  */
 public class KeywordQueryExecutorResource extends QueryExecutorResourceBase {
 

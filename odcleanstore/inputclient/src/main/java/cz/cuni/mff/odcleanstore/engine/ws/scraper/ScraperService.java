@@ -6,6 +6,11 @@ import java.net.URL;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 
+/**
+ * Internal odcs-inputclient jax-ws implementation class.
+ * Direct usage not recommended, may be removed in next versions.
+ *  @author Petr Jerman
+ */
 public class ScraperService extends Service {
 	
 	public static ScraperService create(String serviceLocation) throws MalformedURLException {

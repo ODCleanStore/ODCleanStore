@@ -1,6 +1,3 @@
-/**
- * 
- */
 package cz.cuni.mff.odcleanstore.engine.ws.user;
 
 import org.restlet.Application;
@@ -10,7 +7,7 @@ import org.restlet.routing.Router;
 import cz.cuni.mff.odcleanstore.engine.Engine;
 
 /**
- * @author Petr Jerman <petr.jerman@centrum.cz>
+ *  @author Petr Jerman
  */
 public class Root extends Application {
 

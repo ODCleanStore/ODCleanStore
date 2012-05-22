@@ -9,6 +9,9 @@ import org.junit.Test;
 import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.common.SimpleVirtuosoAccess;
 
+/**
+ *  @author Petr Jerman
+ */
 public class WorkingInputGraphTest {
 
 	private WorkingInputGraph _wig;

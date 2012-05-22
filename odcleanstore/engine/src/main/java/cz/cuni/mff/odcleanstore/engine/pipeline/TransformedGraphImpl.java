@@ -1,6 +1,3 @@
-/**
- * 
- */
 package cz.cuni.mff.odcleanstore.engine.pipeline;
 
 import java.util.ArrayList;
@@ -11,8 +8,7 @@ import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraphException;
 
 /**
- * @author jermanp
- * 
+ *  @author Petr Jerman
  */
 public final class TransformedGraphImpl implements TransformedGraph {
 
@@ -84,11 +80,23 @@ public final class TransformedGraphImpl implements TransformedGraph {
 		}
 		al.addAll(_attachedGraphNames);
 	}
+	
+	private boolean containsAttachedGraphName(String graphName) {
+		if (_prevTransformedGraphImpl != null) {
+			if(_prevTransformedGraphImpl.containsAttachedGraphName(graphName)) {
+				return true;
+			}
+		}
+		return _attachedGraphNames.contains(graphName);
+	}
 
 	@Override
 	public void addAttachedGraph(String attachedGraphName) throws TransformedGraphException {
 		synchronized (_inputGraph) {
 			try {
+				if (containsAttachedGraphName(attachedGraphName)) {
+					return;
+				}
 				_inputGraph.workingInputGraphStatus.addAttachedGraphName(this, attachedGraphName);
 				_attachedGraphNames.add(attachedGraphName);
 				_inputGraph.totalAttachedGraphsCount++;

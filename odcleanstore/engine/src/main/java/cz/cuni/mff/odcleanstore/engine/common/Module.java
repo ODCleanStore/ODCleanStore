@@ -1,5 +1,8 @@
 package cz.cuni.mff.odcleanstore.engine.common;
 
+/**
+ *  @author Petr Jerman
+ */
 public class Module {
 	
 	private ModuleState _moduleState = ModuleState.NEW;

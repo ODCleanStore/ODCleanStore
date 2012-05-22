@@ -1,6 +1,3 @@
-/**
- * 
- */
 package cz.cuni.mff.odcleanstore.engine.ws.user;
 
 import org.apache.log4j.Logger;
@@ -12,8 +9,7 @@ import cz.cuni.mff.odcleanstore.engine.Service;
 import cz.cuni.mff.odcleanstore.engine.common.ModuleState;
 
 /**
- * @author jermanp
- * 
+ *  @author Petr Jerman
  */
 public final class UserService extends Service implements Runnable {
 	

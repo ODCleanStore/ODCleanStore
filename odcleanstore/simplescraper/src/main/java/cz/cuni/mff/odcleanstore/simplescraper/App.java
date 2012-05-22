@@ -7,8 +7,8 @@ import cz.cuni.mff.odcleanstore.wsclient.Metadata;
 import cz.cuni.mff.odcleanstore.wsclient.OdcsService;
 
 /**
- * Hello world!
- * 
+ * Simple odcs-inputclient webservice client for testing purposes.
+ * @author Petr Jerman
  */
 public class App {
 	public static void main(String[] args) {

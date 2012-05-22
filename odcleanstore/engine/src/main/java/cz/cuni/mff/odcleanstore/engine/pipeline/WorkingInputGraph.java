@@ -1,6 +1,3 @@
-/**
- * 
- */
 package cz.cuni.mff.odcleanstore.engine.pipeline;
 
 import java.util.Collection;
@@ -13,8 +10,7 @@ import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.common.SimpleVirtuosoAccess;
 
 /**
- * @author jermanp
- * 
+ *  @author Petr Jerman
  */
 final class WorkingInputGraph {
 

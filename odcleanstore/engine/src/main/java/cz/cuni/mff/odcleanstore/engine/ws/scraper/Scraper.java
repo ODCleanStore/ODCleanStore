@@ -20,8 +20,7 @@ import cz.cuni.mff.odcleanstore.engine.ws.scraper.ifaces.InsertException;
 import cz.cuni.mff.odcleanstore.engine.ws.scraper.ifaces.Metadata;
 
 /**
- * 
- * @author Petr Jerman <petr.jerman@centrum.cz>
+ *  @author Petr Jerman
  */
 @WebService
 public class Scraper implements IScraper {

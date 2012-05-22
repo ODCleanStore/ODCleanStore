@@ -5,6 +5,9 @@ import java.util.Collection;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ *  @author Petr Jerman
+ */
 public class TransformerCommandTest {
 
 	@Before

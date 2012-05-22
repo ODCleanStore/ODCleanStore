@@ -7,8 +7,7 @@ import cz.cuni.mff.odcleanstore.engine.common.Module;
 import cz.cuni.mff.odcleanstore.engine.common.ModuleState;
 
 /**
- * @author jermanp
- * 
+ *  @author Petr Jerman
  */
 public abstract class Service extends Module {
 	

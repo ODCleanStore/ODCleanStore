@@ -1,9 +1,15 @@
 package cz.cuni.mff.odcleanstore.engine.ws.scraper.ifaces;
 
+/**
+ * A exception arising from Scraper WebService.
+ *
+ * @author Petr Jerman
+ */
 public class InsertException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 
+	// defined exceptions id 1 - 8
 	public static final InsertException SERVICE_BUSY = new InsertException("Service busy", 1, "Service busy");
 	public static final InsertException BAD_CREDENTIALS = new InsertException("Bad credentials", 2, "Bad credentials");
 	public static final InsertException NOT_AUTHORIZED = new InsertException("Not authorized", 3, "Not authorized");
@@ -12,7 +18,11 @@ public class InsertException extends Exception {
 	public static final InsertException OTHER_ERROR = new InsertException("Other error", 7, "Other error");
 	public static final InsertException FATAL_ERROR = new InsertException("Fatal error", 8, "Fatal error");
 	
-	// public static final InsertException METADATA_ERROR = new InsertException("Metadata error", 9, "Metadata error");
+	/**
+	 * Constructs a new metadata exception with the given info.
+	 * 
+	 * @param moreInfo the detail information
+	 */
 	public InsertException(String moreInfo) {
 		super("Metadata error");
 		this.id = 9;
@@ -28,10 +38,18 @@ public class InsertException extends Exception {
 		this.moreInfo = moreInfo;
 	}
 
+	/**
+	 * Get exception id. 
+	 * @return exception id
+	 */
 	public int getId() {
 		return id;
 	}
 
+	/**
+	 * Get detailed exception information.
+	 * @return detailed exception information
+	 */
 	public String getMoreInfo() {
 		return moreInfo;
 	}

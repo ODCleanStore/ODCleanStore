@@ -1,6 +1,3 @@
-/**
- * 
- */
 package cz.cuni.mff.odcleanstore.engine.ws.user;
 
 import java.util.Map;
@@ -24,8 +21,7 @@ import cz.cuni.mff.odcleanstore.engine.ws.user.output.HTMLFormatter;
 import cz.cuni.mff.odcleanstore.engine.ws.user.output.QueryResultFormatter;
 
 /**
- * @author jermanp
- * 
+ *  @author Petr Jerman
  */
 public abstract class QueryExecutorResourceBase extends ServerResource {
 

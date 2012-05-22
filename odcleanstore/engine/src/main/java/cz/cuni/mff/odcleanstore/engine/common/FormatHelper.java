@@ -10,8 +10,7 @@ import java.util.Date;
  * 
  * Helper class for processing some formats.
  * 
- * @author Petr Jerman (petr.jerman@centrum.cz)
- * 
+ *  @author Petr Jerman
  */
 public class FormatHelper {
 

@@ -5,6 +5,11 @@ import javax.xml.bind.annotation.XmlElementDecl;
 import javax.xml.bind.annotation.XmlRegistry;
 import javax.xml.namespace.QName;
 
+/**
+ * Internal odcs-inputclient jax-ws implementation class.
+ * Direct usage not recommended, may be removed in next versions.
+ *  @author Petr Jerman
+ */
 @XmlRegistry
 public class ObjectFactory {
 

@@ -18,6 +18,9 @@ import cz.cuni.mff.odcleanstore.transformer.Transformer;
 import cz.cuni.mff.odcleanstore.vocabulary.DC;
 import cz.cuni.mff.odcleanstore.vocabulary.W3P;
 
+/**
+ *  @author Petr Jerman
+ */
 public final class PipelineService extends Service implements Runnable {
 
 	private static final Logger LOG = Logger.getLogger(PipelineService.class);
@@ -222,7 +225,8 @@ public final class PipelineService extends Service implements Runnable {
 		}
 
 		if (transformer != null) {
-			TransformationContextImpl context = new TransformationContextImpl(transformerCommand.getConfiguration(), transformerCommand.getWorkDirPath());
+			String path = checkTransformerWorkingDirectory(transformerCommand.getWorkDirPath());
+			TransformationContextImpl context = new TransformationContextImpl(transformerCommand.getConfiguration(), path);
 
 			_workingInputGraphStatus.setWorkingTransformedGraph(transformedGraphImpl);
 			transformer.transformNewGraph(transformedGraphImpl, context);
@@ -231,6 +235,46 @@ public final class PipelineService extends Service implements Runnable {
 		} else {
 			// throw new PipelineException("Prototype - Unknown transformer");
 			LOG.warn(String.format("PipelineService - unknown transformer %s ignored", transformerCommand.getFullClassName()));
+		}
+	}
+	
+	private String checkTransformerWorkingDirectory(String dirName) throws PipelineException {
+		try {
+			File file = new File(dirName);
+			if (!file.isAbsolute()) {
+				File curdir = new File("");
+				file = new File(curdir.getAbsolutePath() + File.separator + file.getPath());
+			}
+			
+ 			if (!file.exists()) {
+ 				satisfyParent(file);
+				file.mkdir();
+			}
+
+			if (!file.isDirectory()) {
+				throw new PipelineException(String.format(" Transformer working directory %s not exists", dirName));
+			}
+
+			if (!file.canRead()) {
+				throw new PipelineException(String.format(" Cannot read from transformer working directory %s", dirName));
+			}
+
+			if (!file.canWrite()) {
+				throw new PipelineException(String.format(" Cannot write to transformer working directory %s", dirName));
+			}
+			return file.getCanonicalPath();
+		} catch (PipelineException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new PipelineException(e);
+		}
+	}
+	
+	private void satisfyParent(File file) {
+		File parent = file.getParentFile();
+		if(parent != null) satisfyParent(parent);
+		if(!file.exists()) {
+			file.mkdir();
 		}
 	}
 
