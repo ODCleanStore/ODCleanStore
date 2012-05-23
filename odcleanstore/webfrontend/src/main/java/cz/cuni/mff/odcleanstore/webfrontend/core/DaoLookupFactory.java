@@ -1,12 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.core;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.RoleDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.AggregationTypeDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.PropertySettingsDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.*;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.*;
 
 import org.apache.wicket.proxy.LazyInitProxyFactory;
 import org.apache.wicket.spring.SpringBeanLocator;
@@ -24,6 +19,7 @@ public class DaoLookupFactory
 	
 	private PropertySettingsDao propertySettingsDao;
 	private AggregationTypeDao aggregationTypeDao;
+	private MultivalueTypeDao multivalueTypeDao;
 	
 	/**
 	 * 
@@ -71,6 +67,18 @@ public class DaoLookupFactory
 			aggregationTypeDao = createProxy("aggregationTypeDao", AggregationTypeDao.class);
 		
 		return aggregationTypeDao;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public MultivalueTypeDao getMultivalueTypeDao()
+	{
+		if (multivalueTypeDao == null)
+			multivalueTypeDao = createProxy("multivalueTypeDao", MultivalueTypeDao.class);
+		
+		return multivalueTypeDao;
 	}
 	
 	/**
