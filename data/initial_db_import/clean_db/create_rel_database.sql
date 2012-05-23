@@ -134,7 +134,7 @@ CREATE TABLE DB.FRONTEND.CR_SETTINGS
 DELETE FROM DB.FRONTEND.CR_SETTINGS;
 
 INSERT INTO DB.FRONTEND.CR_SETTINGS (name, value, description) VALUES ('DEFAULT_AGGREGATION', 'ALL', 'Default aggregation method');
-INSERT INTO DB.FRONTEND.CR_SETTINGS (name, value, description) VALUES ('DEFAULT_MULTIVALUE', '0', 'Default multivalue setting');
+INSERT INTO DB.FRONTEND.CR_SETTINGS (name, value, description) VALUES ('DEFAULT_MULTIVALUE', 'NO', 'Default multivalue setting');
 INSERT INTO DB.FRONTEND.CR_SETTINGS (name, value, description) VALUES ('ERROR_STRATEGY', 'RETURN_ALL', 'Default aggregation error strategy');
 
 CREATE TABLE DB.FRONTEND.CR_AGGREGATION_TYPES
