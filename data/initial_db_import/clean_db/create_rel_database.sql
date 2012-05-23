@@ -161,6 +161,17 @@ INSERT INTO DB.FRONTEND.CR_AGGREGATION_TYPES (label, description) VALUES ('MEDIA
 INSERT INTO DB.FRONTEND.CR_AGGREGATION_TYPES (label, description) VALUES ('CONCAT', 'Returns all values concatenated');
 INSERT INTO DB.FRONTEND.CR_AGGREGATION_TYPES (label, description) VALUES ('NONE', 'Selects all values without grouping of the same values');
 
+CREATE TABLE DB.FRONTEND.CR_MULTIVALUE_TYPES
+(
+	id INTEGER NOT NULL IDENTITY PRIMARY KEY,
+	label NVARCHAR(255) UNIQUE NOT NULL,
+	description LONG NVARCHAR
+);
+
+INSERT INTO DB.FRONTEND.CR_MULTIVALUE_TYPES (label, description) VALUES ('DEFAULT', 'Propagate the default multivalue settings');
+INSERT INTO DB.FRONTEND.CR_MULTIVALUE_TYPES (label, description) VALUES ('YES', 'Mutlivalue allowed');
+INSERT INTO DB.FRONTEND.CR_MULTIVALUE_TYPES (label, description) VALUES ('NO', 'Multivalue not allowed');
+
 CREATE TABLE DB.FRONTEND.CR_PROPERTIES
 (
 	id INTEGER NOT NULL IDENTITY PRIMARY KEY,
