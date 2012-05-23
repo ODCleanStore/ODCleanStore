@@ -1,11 +1,12 @@
+/* username: adm, password: adm, roles: ADM */
 INSERT INTO DB.FRONTEND.USERS (username, email, passwordHash, salt, firstname, surname) 
-VALUES ('dusanr', 'dusanr@odcleanstore.cz', 'f33b354b1a67af018bf7725049ad1036', 'salted', 'Dusan', 'Rychnovsky');
+VALUES ('adm', 'adm@odcleanstore.cz', '0e2aeeeb4125bea8d439c61050a08b52', 'salted', 'The', 'Administrator');
 
+/* username: poc, password: poc, roles: POC */
 INSERT INTO DB.FRONTEND.USERS (username, email, passwordHash, salt, firstname, surname) 
-VALUES ('jakubd', 'jakubd@odcleanstore.cz', '669f023337b5b15eed1b3ca8400f4ef1', 'salted', 'Jakub', 'Daniel');
+VALUES ('poc', 'poc@odcleanstore.cz', '247cd1ddd4858349720e59486a532100', 'salted', 'The', 'Policy Creator');
 
 INSERT INTO DB.FRONTEND.ROLES_ASSIGNED_TO_USERS VALUES (1, 4);
-INSERT INTO DB.FRONTEND.ROLES_ASSIGNED_TO_USERS VALUES (2, 2);
 INSERT INTO DB.FRONTEND.ROLES_ASSIGNED_TO_USERS VALUES (2, 3);
 
 INSERT INTO DB.FRONTEND.CR_PROPERTIES (property, multivalue, aggregationTypeId)
