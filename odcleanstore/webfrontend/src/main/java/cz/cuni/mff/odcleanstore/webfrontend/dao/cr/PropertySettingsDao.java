@@ -32,13 +32,13 @@ public class PropertySettingsDao extends Dao<PropertySettings>
 	public void save(PropertySettings item) 
 	{
 		String query = 
-			"INSERT INTO " + TABLE_NAME + " (property, multivalue, aggregationTypeId)" +
+			"INSERT INTO " + TABLE_NAME + " (property, multivalueTypeId, aggregationTypeId) " +
 			"VALUES (?, ?, ?)";
 		
 		Object[] arguments =
 		{
 			item.getProperty(),
-			item.isMultivalue(),
+			item.getMultivalueType().getId(),
 			item.getAggregationType().getId()
 		};
 		
@@ -55,10 +55,12 @@ public class PropertySettingsDao extends Dao<PropertySettings>
 	public List<PropertySettings> loadAll() 
 	{
 		String query = 
-			"SELECT P.*, AT.* " +
+			"SELECT * " +
 			"FROM " + PropertySettingsDao.TABLE_NAME + " as P " +
 			"JOIN " + AggregationTypeDao.TABLE_NAME + " as AT " +
-			"ON P.aggregationTypeId = AT.id";
+			"ON P.aggregationTypeId = AT.id " +
+			"JOIN " + MultivalueTypeDao.TABLE_NAME + " as MT " +
+			"ON P.multivalueTypeId = MT.id";
 		
 		return jdbcTemplate.query
 		(

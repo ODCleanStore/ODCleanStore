@@ -7,14 +7,15 @@ public class PropertySettings extends BusinessObject
 	private static final long serialVersionUID = 1L;
 
 	private String property;
-	private boolean multivalue;
+	private MultivalueType multivalueType;
 	private AggregationType aggregationType;
 	
-	public PropertySettings(Long id, String property, boolean multivalue, AggregationType aggregationType) 
+	public PropertySettings(Long id, String property, 
+		MultivalueType multivalueType, AggregationType aggregationType) 
 	{
 		this.id = id;
 		this.property = property;
-		this.multivalue = multivalue;
+		this.multivalueType = multivalueType;
 		this.aggregationType = aggregationType;
 	}
 
@@ -27,9 +28,9 @@ public class PropertySettings extends BusinessObject
 		return property;
 	}
 
-	public boolean isMultivalue() 
+	public MultivalueType getMultivalueType()
 	{
-		return multivalue;
+		return multivalueType;
 	}
 	
 	public AggregationType getAggregationType()
@@ -40,6 +41,6 @@ public class PropertySettings extends BusinessObject
 	@Override
 	public String toString()
 	{
-		return "[" + id + "; " + property + "; " + multivalue + "; " + aggregationType + "]";
+		return "[" + id + "; " + property + "; " + multivalueType + "; " + aggregationType + "]";
 	}
 }
