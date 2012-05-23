@@ -54,7 +54,9 @@ public class AggregationSettingsPage extends FrontendPage
 				item.setModel(new CompoundPropertyModel<PropertySettings>(property));
 				
 				item.add(new Label("property"));
-				item.add(new Label("multivalue"));
+				
+				String multivalueType = property.getMultivalueType().getLabel();
+				item.add(new Label("multivalueType", multivalueType));
 				
 				String aggregationType = property.getAggregationType().getLabel();
 				item.add(new Label("aggregationType", aggregationType));
