@@ -146,6 +146,7 @@ CREATE TABLE DB.FRONTEND.CR_AGGREGATION_TYPES
 
 DELETE FROM DB.FRONTEND.CR_AGGREGATION_TYPES;
 
+INSERT INTO DB.FRONTEND.CR_AGGREGATION_TYPES (label, description) VALUES ('DEFAULT', 'Propagates the default aggregation type');
 INSERT INTO DB.FRONTEND.CR_AGGREGATION_TYPES (label, description) VALUES ('ANY', 'Selects any single value');
 INSERT INTO DB.FRONTEND.CR_AGGREGATION_TYPES (label, description) VALUES ('ALL', 'Selects all values');
 INSERT INTO DB.FRONTEND.CR_AGGREGATION_TYPES (label, description) VALUES ('BEST', 'Selects the value with highest aggregated quality');
