@@ -1,12 +1,18 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages;
 
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.ChoiceRenderer;
+import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessObject;
 import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
 import cz.cuni.mff.odcleanstore.webfrontend.core.WicketApplication;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 
 /**
  * An abstract base class for all WebFrontend page components, except for
@@ -52,17 +58,39 @@ public abstract class FrontendPage extends WebPage
 		return (WicketApplication) this.getApplication();
 	}
 	
+	/* 	
+	 	========================================================================
+		FORM HELPERS
+	 	========================================================================
+	*/
+	
 	/**
+	 * Creates a select-box form component for an SQL-table based enumeration.
 	 * 
+	 * @param dao
+	 * @param componentName
+	 * @return
 	 */
-	@Override
-	protected void onDetach()
+	protected <EnumBO extends BusinessObject> DropDownChoice<EnumBO> createEnumSelectBox(
+		Dao<EnumBO> dao, String componentName)
 	{
+		// load all enum items
+		List<EnumBO> allItems = dao.loadAll();
 		
+		// prepare the select-box renderer
+		ChoiceRenderer<EnumBO> renderer = new ChoiceRenderer<EnumBO>("label", "id");
 		
-		// according to the Wicket javadoc documentation, the super implementation
-		// should be called at the last line
-		// (see http://wicket.apache.org/apidocs/1.4/org/apache/wicket/Page.html#onDetach())
-		super.onDetach();
+		// create the select-box component
+		DropDownChoice<EnumBO> selectBox = new DropDownChoice<EnumBO>
+		(
+			componentName,
+			allItems,
+			renderer
+		);
+		
+		// mark the select-box as a required form field
+		selectBox.setRequired(true);
+		
+		return selectBox;
 	}
 }

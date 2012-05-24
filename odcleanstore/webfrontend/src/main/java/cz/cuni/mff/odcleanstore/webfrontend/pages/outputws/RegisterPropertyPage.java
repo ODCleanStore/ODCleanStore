@@ -1,24 +1,15 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.outputws;
 
-import java.util.List;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-import javax.swing.text.MutableAttributeSet;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.*;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.*;
 
-import org.apache.wicket.markup.html.form.CheckBox;
-import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-
-import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.AggregationType;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.MultivalueType;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.PropertySettings;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.AggregationTypeDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.MultivalueTypeDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.PropertySettingsDao;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 public class RegisterPropertyPage extends FrontendPage
 {
@@ -48,10 +39,12 @@ public class RegisterPropertyPage extends FrontendPage
 	
 	private void addNewPropertyForm()
 	{
-		IModel formModel = new CompoundPropertyModel<PropertySettings>(new PropertySettings());
+		IModel<PropertySettings> formModel = new CompoundPropertyModel<PropertySettings>(new PropertySettings());
 		
 		Form<PropertySettings> newPropertyForm = new Form<PropertySettings>("newPropertyForm", formModel)
 		{
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			protected void onSubmit()
 			{
@@ -81,36 +74,18 @@ public class RegisterPropertyPage extends FrontendPage
 	
 	private void addMultivalueSelectBox(Form<PropertySettings> form)
 	{
-		List<MultivalueType> allMultivalueTypes = multivalueTypeDao.loadAll();
-		
-		ChoiceRenderer renderer = new ChoiceRenderer("label", "id");
-		
-		DropDownChoice selectBox = new DropDownChoice<MultivalueType>
-		(
-			"multivalueType",
-			allMultivalueTypes,
-			renderer
+		DropDownChoice<MultivalueType> selectBox = createEnumSelectBox(
+			multivalueTypeDao, "multivalueType"
 		);
-		
-		selectBox.setRequired(true);
 		
 		form.add(selectBox);
 	}
 	
 	private void addAggregationTypeSelectBox(Form<PropertySettings> form)
 	{
-		List<AggregationType> allAggregationTypes = aggregationTypeDao.loadAll();
-		
-		ChoiceRenderer renderer = new ChoiceRenderer("label", "id");
-		
-		DropDownChoice selectBox = new DropDownChoice<AggregationType>
-		(
-			"aggregationType",
-			allAggregationTypes,
-			renderer
+		DropDownChoice<AggregationType> selectBox = createEnumSelectBox(
+			aggregationTypeDao, "aggregationType"
 		);
-		
-		selectBox.setRequired(true);
 		
 		form.add(selectBox);
 	}

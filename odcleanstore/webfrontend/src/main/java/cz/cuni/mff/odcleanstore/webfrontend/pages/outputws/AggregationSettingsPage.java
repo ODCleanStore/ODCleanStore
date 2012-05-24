@@ -1,19 +1,19 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.outputws;
 
-import java.util.List;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-import org.apache.log4j.Logger;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.*;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.*;
+
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.GlobalAggregationSettings;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.PropertySettings;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.GlobalAggregationSettingsDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.PropertySettingsDao;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import java.util.List;
+
+import org.apache.log4j.Logger;
 
 public class AggregationSettingsPage extends FrontendPage
 {
@@ -46,12 +46,25 @@ public class AggregationSettingsPage extends FrontendPage
 	{
 		GlobalAggregationSettings settings = globalAggregationSettingsDao.load();
 		
+		addDefaultAggregationTypeLabel(settings);
+		addDefaultMultivalueTypeLabel(settings);
+		addDefaultErrorStrategy(settings);
+	}
+	
+	private void addDefaultAggregationTypeLabel(GlobalAggregationSettings settings)
+	{
 		String defaultAggregationType = settings.getDefaultAggregationType().getLabel();
 		add(new Label("defaultAggregationType", defaultAggregationType));
-		
+	}
+	
+	private void addDefaultMultivalueTypeLabel(GlobalAggregationSettings settings)
+	{
 		String defaultMultivalueType = settings.getDefaultMultivalueType().getLabel();
 		add(new Label("defaultMultivalueType", defaultMultivalueType));
-		
+	}
+	
+	private void addDefaultErrorStrategy(GlobalAggregationSettings settings)
+	{
 		String defaultErrorStrategy = settings.getDefaultErrorStrategy().getLabel();
 		add(new Label("defaultErrorStrategy", defaultErrorStrategy));
 	}
@@ -71,19 +84,34 @@ public class AggregationSettingsPage extends FrontendPage
 				
 				item.setModel(new CompoundPropertyModel<PropertySettings>(property));
 				
-				item.add(new Label("property"));
-				
-				String multivalueType = property.getMultivalueType().getLabel();
-				item.add(new Label("multivalueType", multivalueType));
-				
-				String aggregationType = property.getAggregationType().getLabel();
-				item.add(new Label("aggregationType", aggregationType));
+				addPropertyLabel(item);
+				addMultivalueTypeLabel(item, property);
+				addAggregationTypeLabel(item, property);			
 				
 				addDeleteButton(item, property);
 			}
 		};
 		
 		add(listView);
+	}
+	
+	private void addPropertyLabel(ListItem<PropertySettings> item)
+	{
+		item.add(new Label("property"));
+	}
+	
+	private void addMultivalueTypeLabel(ListItem<PropertySettings> item, 
+		PropertySettings property)
+	{
+		String multivalueType = property.getMultivalueType().getLabel();
+		item.add(new Label("multivalueType", multivalueType));
+	}
+	
+	private void addAggregationTypeLabel(ListItem<PropertySettings> item,
+		PropertySettings property)
+	{
+		String aggregationType = property.getAggregationType().getLabel();
+		item.add(new Label("aggregationType", aggregationType));
 	}
 	
 	private void addDeleteButton(ListItem<PropertySettings> item, final PropertySettings property)

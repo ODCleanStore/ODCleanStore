@@ -1,22 +1,14 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.outputws;
 
-import java.util.List;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-import org.apache.wicket.markup.html.form.ChoiceRenderer;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.*;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.*;
+
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-
-import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.AggregationType;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.ErrorStrategy;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.GlobalAggregationSettings;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.MultivalueType;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.AggregationTypeDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.ErrorStrategyDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.GlobalAggregationSettingsDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.MultivalueTypeDao;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 public class EditGlobalAggregationSettingsPage extends FrontendPage
 {
@@ -77,54 +69,27 @@ public class EditGlobalAggregationSettingsPage extends FrontendPage
 	
 	private void addDefaultMultivalueTypeCheckBox(Form<GlobalAggregationSettings> form)
 	{
-		List<MultivalueType> allMultivalueTypes = multivalueTypeDao.loadAll();
-		
-		ChoiceRenderer<MultivalueType> renderer = new ChoiceRenderer<MultivalueType>("label", "id");
-		
-		DropDownChoice<MultivalueType> selectBox = new DropDownChoice<MultivalueType>
-		(
-			"defaultMultivalueType",
-			allMultivalueTypes,
-			renderer
+		DropDownChoice<MultivalueType> selectBox = createEnumSelectBox(
+				multivalueTypeDao, "defaultMultivalueType"
 		);
-		
-		selectBox.setRequired(true);
 		
 		form.add(selectBox);
 	}
 	
 	private void addDefaultAggregationTypeCheckBox(Form<GlobalAggregationSettings> form)
 	{
-		List<AggregationType> allAggregationTypes = aggregationTypeDao.loadAll();
-		
-		ChoiceRenderer<AggregationType> renderer = new ChoiceRenderer<AggregationType>("label", "id");
-		
-		DropDownChoice<AggregationType> selectBox = new DropDownChoice<AggregationType>
-		(
-			"defaultAggregationType",
-			allAggregationTypes,
-			renderer
+		DropDownChoice<AggregationType> selectBox = createEnumSelectBox(
+			aggregationTypeDao, "defaultAggregationType"
 		);
-		
-		selectBox.setRequired(true);
 		
 		form.add(selectBox);
 	}
 
 	private void addDefaultErrorStrategyCheckBox(Form<GlobalAggregationSettings> form)
 	{
-		List<ErrorStrategy> allErrorStrategies = errorStrategyDao.loadAll();
-		
-		ChoiceRenderer<ErrorStrategy> renderer = new ChoiceRenderer<ErrorStrategy>("label", "id");
-		
-		DropDownChoice<ErrorStrategy> selectBox = new DropDownChoice<ErrorStrategy>
-		(
-			"defaultErrorStrategy",
-			allErrorStrategies,
-			renderer
+		DropDownChoice<ErrorStrategy> selectBox = createEnumSelectBox(
+			errorStrategyDao, "defaultErrorStrategy"
 		);
-		
-		selectBox.setRequired(true);
 		
 		form.add(selectBox);
 	}
