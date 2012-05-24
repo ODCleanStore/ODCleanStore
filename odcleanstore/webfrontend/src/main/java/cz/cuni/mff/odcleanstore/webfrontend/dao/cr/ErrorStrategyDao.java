@@ -1,16 +1,16 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.cr;
 
-import java.util.List;
-
-import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.MultivalueType;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.ErrorStrategy;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 
-public class MultivalueTypeDao extends Dao<MultivalueType> 
+import java.util.List;
+
+public class ErrorStrategyDao extends Dao<ErrorStrategy>
 {
-	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "CR_MULTIVALUE_TYPES";
+	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "CR_ERROR_STRATEGIES";
 	
 	@Override
-	public void delete(MultivalueType item) 
+	public void delete(ErrorStrategy item) 
 	{
 		throw new UnsupportedOperationException(
 			"Cannot delete from " + TABLE_NAME + "."
@@ -18,7 +18,7 @@ public class MultivalueTypeDao extends Dao<MultivalueType>
 	}
 
 	@Override
-	public void save(MultivalueType item) 
+	public void save(ErrorStrategy item) 
 	{
 		throw new UnsupportedOperationException(
 			"Cannot insert into " + TABLE_NAME + "."
@@ -26,7 +26,7 @@ public class MultivalueTypeDao extends Dao<MultivalueType>
 	}
 
 	@Override
-	public void update(MultivalueType item) 
+	public void update(ErrorStrategy item) 
 	{
 		throw new UnsupportedOperationException(
 			"Cannot modify " + TABLE_NAME + "."
@@ -34,17 +34,17 @@ public class MultivalueTypeDao extends Dao<MultivalueType>
 	}
 
 	@Override
-	public List<MultivalueType> loadAll() 
+	public List<ErrorStrategy> loadAll() 
 	{
 		return jdbcTemplate.query
 		(
 			"SELECT * FROM " + TABLE_NAME, 
-			new MultivalueTypeRowMapper()
+			new ErrorStrategyRowMapper()
 		);
 	}
 
 	@Override
-	public MultivalueType load(Long id) 
+	public ErrorStrategy load(Long id) 
 	{
 		String query = 
 			"SELECT * FROM " + TABLE_NAME + " " +
@@ -55,16 +55,16 @@ public class MultivalueTypeDao extends Dao<MultivalueType>
 			id
 		};
 
-		List<MultivalueType> matchingRows = jdbcTemplate.query(
+		List<ErrorStrategy> matchingRows = jdbcTemplate.query(
 			query,
 			params,
-			new MultivalueTypeRowMapper()
+			new ErrorStrategyRowMapper()
 		);
 		
 		if (matchingRows.size() != 1)
 		{
 			throw new IllegalArgumentException(
-				"The requested CR multivalue type could not be found."
+				"The requested CR error strategy could not be found."
 			);
 		}
 		

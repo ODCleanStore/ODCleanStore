@@ -3,9 +3,9 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.cr;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.AggregationType;
-
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+
+import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.AggregationType;
 
 public class AggregationTypeRowMapper implements ParameterizedRowMapper<AggregationType>
 {

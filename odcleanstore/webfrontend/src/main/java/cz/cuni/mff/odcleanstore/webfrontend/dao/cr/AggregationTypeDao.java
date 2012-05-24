@@ -46,11 +46,12 @@ public class AggregationTypeDao extends Dao<AggregationType>
 	@Override
 	public AggregationType load(Long id) 
 	{
-		String query = "SELECT * FROM ? WHERE id = ?";
+		String query = 
+			"SELECT * FROM " + TABLE_NAME + " " + 
+			"WHERE id = ?";
 		
 		Object[] params = 
 		{
-			TABLE_NAME,
 			id
 		};
 
@@ -60,7 +61,7 @@ public class AggregationTypeDao extends Dao<AggregationType>
 			new AggregationTypeRowMapper()
 		);
 		
-		if (matchingRows.size() != 0)
+		if (matchingRows.size() != 1)
 		{
 			throw new IllegalArgumentException(
 				"The requested CR aggregation type could not be found."
