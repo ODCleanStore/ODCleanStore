@@ -13,6 +13,10 @@ public class GlobalAggregationSettings
 		this.defaultMultivalueType = defaultMultivalueType;
 		this.defaultAggregationType = defaultAggregationType;
 	}
+	
+	public GlobalAggregationSettings()
+	{
+	}
 
 	public ErrorStrategy getDefaultErrorStrategy() 
 	{

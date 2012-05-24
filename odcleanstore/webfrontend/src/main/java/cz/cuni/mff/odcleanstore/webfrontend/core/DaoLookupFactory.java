@@ -20,6 +20,7 @@ public class DaoLookupFactory
 	private PropertySettingsDao propertySettingsDao;
 	private AggregationTypeDao aggregationTypeDao;
 	private MultivalueTypeDao multivalueTypeDao;
+	private ErrorStrategyDao errorStrategyDao;
 	private GlobalAggregationSettingsDao globalAggregationSettingsDao;
 	
 	/**
@@ -80,6 +81,14 @@ public class DaoLookupFactory
 			multivalueTypeDao = createProxy("multivalueTypeDao", MultivalueTypeDao.class);
 		
 		return multivalueTypeDao;
+	}
+	
+	public ErrorStrategyDao getErrorStrategyDao()
+	{
+		if (errorStrategyDao == null)
+			errorStrategyDao = createProxy("errorStrategyDao", ErrorStrategyDao.class);
+		
+		return errorStrategyDao;
 	}
 	
 	public GlobalAggregationSettingsDao getGlobalAggregationSettingsDao()
