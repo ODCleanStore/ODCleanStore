@@ -4,13 +4,14 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.GlobalAggregationSettings;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.PropertySettings;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.GlobalAggregationSettingsDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.PropertySettingsDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
@@ -21,6 +22,7 @@ public class AggregationSettingsPage extends FrontendPage
 	private static Logger logger = Logger.getLogger(AggregationSettingsPage.class);
 	
 	private PropertySettingsDao propertySettingsDao;
+	private GlobalAggregationSettingsDao globalAggregationSettingsDao;
 	
 	public AggregationSettingsPage() 
 	{
@@ -32,12 +34,28 @@ public class AggregationSettingsPage extends FrontendPage
 		// prepare DAO objects
 		//
 		propertySettingsDao = daoLookupFactory.getPropertySettingsDao();
+		globalAggregationSettingsDao = daoLookupFactory.getGlobalAggregationSettingsDao();
 		
 		// register page components
 		//
+		addGlobalAggregationSettingsSection();
 		addPropertySettingsTable();
 	}
 
+	private void addGlobalAggregationSettingsSection()
+	{
+		GlobalAggregationSettings settings = globalAggregationSettingsDao.load();
+		
+		String defaultAggregationType = settings.getDefaultAggregationType().getLabel();
+		add(new Label("defaultAggregationType", defaultAggregationType));
+		
+		String defaultMultivalueType = settings.getDefaultMultivalueType().getLabel();
+		add(new Label("defaultMultivalueType", defaultMultivalueType));
+		
+		String defaultErrorStrategy = settings.getDefaultErrorStrategy().getLabel();
+		add(new Label("defaultErrorStrategy", defaultErrorStrategy));
+	}
+	
 	private void addPropertySettingsTable()
 	{
 		List<PropertySettings> allProperties = propertySettingsDao.loadAll();
