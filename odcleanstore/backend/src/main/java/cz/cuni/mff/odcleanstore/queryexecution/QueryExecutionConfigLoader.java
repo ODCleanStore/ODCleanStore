@@ -26,6 +26,10 @@ import java.sql.SQLException;
     private static final String DEFAULT_MULTIVALUE_KEY = "DEFAULT_MULTIVALUE";
     private static final String ERROR_STRATEGY_KEY = "ERROR_STRATEGY";
 
+    private static final String DEFAULT_VALUE = "DEFAULT";
+    private static final String MULTIVALUE_TRUE = "YES";
+    private static final String MULTIVALUE_FALSE = "NO";
+
     /** Database connection settings. */
     private final ConnectionCredentials sparqlEndpoint;
 
@@ -69,19 +73,20 @@ import java.sql.SQLException;
             resultSet = null;
 
             // Get property-level settings
-            resultSet = connection.executeSelect("SELECT p.property, p.multivalue, at.label AS aggregation "
-                    + "FROM DB.FRONTEND.CR_PROPERTIES AS p "
-                    + "LEFT JOIN DB.FRONTEND.CR_AGGREGATION_TYPES AS at ON (p.aggregationTypeId = at.id)");
+            resultSet = connection.executeSelect("SELECT p.property, mt.label as multivalue, at.label AS aggregation"
+                    + "\n FROM DB.FRONTEND.CR_PROPERTIES AS p"
+                    + "\n JOIN DB.FRONTEND.CR_AGGREGATION_TYPES AS at ON (p.aggregationTypeId = at.id)"
+                    + "\n JOIN DB.FRONTEND.CR_MULTIVALUE_TYPES AS mt ON (p.multivalueTypeId = mt.id)");
+
             while (resultSet.next()) {
                 String property = resultSet.getString("property");
-
-                String aggregationValue = resultSet.getString("aggregation");
+                EnumAggregationType aggregationValue = parseAggregationType(resultSet.getString("aggregation"));
                 if (aggregationValue != null) {
-                    defaultSettings.getPropertyAggregations().put(property, parseAggregationType(aggregationValue));
+                    defaultSettings.getPropertyAggregations().put(property, aggregationValue);
                 }
-                String multivalueValue = resultSet.getString("multivalue");
+                Boolean multivalueValue = parseMultivalue(resultSet.getString("multivalue"));
                 if (multivalueValue != null) {
-                    defaultSettings.getPropertyMultivalue().put(property, parseMultivalue(multivalueValue));
+                    defaultSettings.getPropertyMultivalue().put(property, multivalueValue);
                 }
             }
 
@@ -101,10 +106,13 @@ import java.sql.SQLException;
     /**
      * Parse the given value to an EnumAggregationType.
      * @param value aggregation method name
-     * @return aggregation type
+     * @return aggregation type; null means propagate default value
      * @throws QueryExecutionException  the given value does not represent an aggregation type
      */
     private EnumAggregationType parseAggregationType(String value) throws QueryExecutionException {
+        if (DEFAULT_VALUE.equals(value)) {
+            return null;
+        }
         try {
             return EnumAggregationType.valueOf(value);
         } catch (IllegalArgumentException e) {
@@ -133,9 +141,19 @@ import java.sql.SQLException;
     /**
      * Parse the given value to a boolean.
      * @param value value of a multivalue setting from the database
-     * @return true iff represents true in the database
+     * @return true iff represents true in the database; null means propagate default value
+     * @throws QueryExecutionException the given value is not valid for multivalue
      */
-    private boolean parseMultivalue(String value) {
-        return "1".equals(value) || "true".equalsIgnoreCase(value);
+    private Boolean parseMultivalue(String value) throws QueryExecutionException {
+        if (MULTIVALUE_TRUE.equals(value)) {
+            return true;
+        } else if (MULTIVALUE_FALSE.equals(value)) {
+            return false;
+        } else if (DEFAULT_VALUE.equals(value)) {
+            return null;
+        } else {
+            throw new QueryExecutionException(EnumQueryError.DEFAULT_AGGREGATION_SETTINGS_INVALID,
+                    "Invalid value for multivalue '" + value + "' in the database");
+        }
     }
 }
