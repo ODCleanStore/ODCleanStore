@@ -27,7 +27,6 @@ public final class QueryExecutionHelper {
         if (aggregationSpec.getPropertyAggregations().isEmpty() && aggregationSpec.getPropertyMultivalue().isEmpty()) {
             return aggregationSpec;
         }
-        // TODO: handle null expansions!
         AggregationSpec result = aggregationSpec.shallowClone();
 
         Map<String, EnumAggregationType> newPropertyAggregations = new TreeMap<String, EnumAggregationType>();
