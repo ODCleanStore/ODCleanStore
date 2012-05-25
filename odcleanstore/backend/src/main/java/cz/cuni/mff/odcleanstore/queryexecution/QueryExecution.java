@@ -82,7 +82,7 @@ public class QueryExecution {
      */
     private PrefixMapping getPrefixMapping() throws QueryExecutionException {
         try {
-            return prefixMappingCache.getPrefixMapping();
+            return prefixMappingCache.getCachedValue();
         } catch (DatabaseException e) {
             throw new QueryExecutionException(EnumQueryError.DATABASE_ERROR, e);
         }
