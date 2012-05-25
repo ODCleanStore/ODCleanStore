@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.queryexecution;
+package cz.cuni.mff.odcleanstore.queryexecution.impl;
 
 import java.util.Map;
 
@@ -7,7 +7,7 @@ import java.util.Map;
  * Immutable, thread-safe.
  * @author Jan Michelfeit
  */
-public class PrefixMapping {
+/*package*/public class PrefixMapping {
     private Map<String, String> prefixToURIMap;
 
     /**

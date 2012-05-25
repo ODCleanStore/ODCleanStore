@@ -1,8 +1,10 @@
-package cz.cuni.mff.odcleanstore.queryexecution;
+package cz.cuni.mff.odcleanstore.queryexecution.impl;
 
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
 import cz.cuni.mff.odcleanstore.data.RDFprefix;
+import cz.cuni.mff.odcleanstore.queryexecution.EnumQueryError;
+import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
 import cz.cuni.mff.odcleanstore.shared.RDFPrefixesLoader;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 
@@ -15,7 +17,7 @@ import java.util.Map;
  * This class is thread-safe.
  * @author Jan Michelfeit
  */
-/*package*/class PrefixMappingCache extends CacheHolderBase<PrefixMapping> {
+public class PrefixMappingCache extends CacheHolderBase<PrefixMapping> {
     /** Lifetime of the cached value in milliseconds. */
     private static final long CACHE_LIFETIME = 10 * Utils.TIME_UNIT_60 * Utils.MILLISECONDS;
 
@@ -32,9 +34,13 @@ import java.util.Map;
     }
 
     @Override
-    protected PrefixMapping loadCachedValue() throws DatabaseException {
+    protected PrefixMapping loadCachedValue() throws QueryExecutionException {
         List<RDFprefix> prefixList = null;
-        prefixList = RDFPrefixesLoader.loadPrefixes(connection);
+        try {
+            prefixList = RDFPrefixesLoader.loadPrefixes(connection);
+        } catch (DatabaseException e) {
+            throw new QueryExecutionException(EnumQueryError.DATABASE_ERROR, e);
+        }
         Map<String, String> prefixMap = new HashMap<String, String>(prefixList.size());
         for (RDFprefix prefix : prefixList) {
             prefixMap.put(prefix.getPrefixId(), prefix.getNamespace());

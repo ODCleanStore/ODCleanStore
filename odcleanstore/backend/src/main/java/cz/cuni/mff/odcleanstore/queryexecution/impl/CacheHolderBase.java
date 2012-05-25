@@ -1,6 +1,7 @@
-package cz.cuni.mff.odcleanstore.queryexecution;
+package cz.cuni.mff.odcleanstore.queryexecution.impl;
 
-import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
+import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
+
 
 /**
  * Holder for a cached value, caching the value for the given lifetime.
@@ -29,9 +30,9 @@ import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
     /**
      * Returns the cached value; if the value hasn't been loaded yet, load it and store to cache.
      * @return the cached value
-     * @throws DatabaseException database error
+     * @throws QueryExecutionException error
      */
-    public T getCachedValue() throws DatabaseException {
+    public T getCachedValue() throws QueryExecutionException {
         if (System.currentTimeMillis() - lastRefreshTime > cacheLifetime) {
             // The double-checked locking idiom should work here because we test volatile lastRefreshTime
             // CHECKSTYLE:OFF
@@ -48,8 +49,9 @@ import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 
     /**
      * Load the value to be cached.
+     * Access to this method is synchronized.
      * @return the value to be cached
-     * @throws DatabaseException database error
+     * @throws QueryExecutionException error
      */
-    protected abstract T loadCachedValue() throws DatabaseException;
+    protected abstract T loadCachedValue() throws QueryExecutionException;
 }

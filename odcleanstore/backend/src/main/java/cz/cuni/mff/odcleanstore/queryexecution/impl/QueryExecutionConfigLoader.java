@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.queryexecution;
+package cz.cuni.mff.odcleanstore.queryexecution.impl;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
@@ -8,6 +8,8 @@ import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
+import cz.cuni.mff.odcleanstore.queryexecution.EnumQueryError;
+import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +17,8 @@ import org.slf4j.LoggerFactory;
 import java.sql.SQLException;
 
 /**
- * DAO class that loads default aggregation settings for use in {@link QueryExecution}.
+ * DAO class that loads default aggregation settings for use in
+ * {@link cz.cuni.mff.odcleanstore.queryexecution.QueryExecution}.
  * @author Jan Michelfeit
  *
  */
