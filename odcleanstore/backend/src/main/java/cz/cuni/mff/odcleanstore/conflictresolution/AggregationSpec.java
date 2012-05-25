@@ -90,6 +90,19 @@ public class AggregationSpec {
     }
 
     /**
+     * Creates a shallow copy of this object.
+     * @return aggregation settings that are a shallow copy of this object
+     */
+    public AggregationSpec shallowClone() {
+        return new AggregationSpec(
+                this.getDefaultAggregation(),
+                this.getPropertyAggregations(),
+                this.getErrorStrategy(),
+                this.getDefaultMultivalue(),
+                this.getPropertyMultivalue());
+    }
+
+    /**
      * Return aggregation error strategy.
      * @return the aggregation error strategy or null, if no strategy is set
      * @see #getEffectiveErrorStrategy()

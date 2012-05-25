@@ -1,8 +1,14 @@
 package cz.cuni.mff.odcleanstore.queryexecution;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
+import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationType;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
+import cz.cuni.mff.odcleanstore.shared.Utils;
+
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 
 /**
  * Access point (facade) of the Query Execution component.
@@ -21,7 +27,9 @@ public class QueryExecution {
     private final ConnectionCredentials sparqlEndpoint;
 
     /** Default aggregation settings for conflict resolution (loaded from database). */
-    private AggregationSpec defaultConfiguration;
+    private AggregationSpec expandedDefaultConfiguration;
+
+    private final PrefixMappingCache prefixMappingCache;
 
     /**
      * Creates a new instance of QueryExecution.
@@ -29,6 +37,7 @@ public class QueryExecution {
      */
     public QueryExecution(ConnectionCredentials sparqlEndpoint) {
         this.sparqlEndpoint = sparqlEndpoint;
+        this.prefixMappingCache = new PrefixMappingCache(sparqlEndpoint);
     }
 
     /**
@@ -38,15 +47,15 @@ public class QueryExecution {
      *
      * @param keywords searched keywords (separated by whitespace)
      * @param constraints constraints on triples returned in the result
-     * @param aggregationSpec aggregation settings for conflict resolution
+     * @param aggregationSpec aggregation settings for conflict resolution; may contain properties as  prefixed names
      * @return result of the query as RDF quads
      * @throws QueryExecutionException exception
      */
     public QueryResult findKeyword(String keywords, QueryConstraintSpec constraints, AggregationSpec aggregationSpec)
             throws QueryExecutionException {
 
-        KeywordQueryExecutor queryExecutor =
-                new KeywordQueryExecutor(sparqlEndpoint, constraints, aggregationSpec, getDefaultConfiguration());
+        KeywordQueryExecutor queryExecutor = new KeywordQueryExecutor(sparqlEndpoint, constraints,
+                expandPropertyNames(aggregationSpec), getExpandedDefaultConfiguration());
         return queryExecutor.findKeyword(keywords);
     }
 
@@ -54,18 +63,71 @@ public class QueryExecution {
      * URI search query.
      * Triples that contain the given URI as their subject or object are returned.
      *
-     * @param uri searched URI
+     * @param uri searched URI; may be a prefixed name
      * @param constraints constraints on triples returned in the result
-     * @param aggregationSpec aggregation settings for conflict resolution
+     * @param aggregationSpec aggregation settings for conflict resolution; may contain properties as  prefixed names
      * @return result of the query as RDF quads
      * @throws QueryExecutionException exception
      */
     public QueryResult findURI(String uri, QueryConstraintSpec constraints, AggregationSpec aggregationSpec)
             throws QueryExecutionException {
 
-        UriQueryExecutor queryExecutor =
-                new UriQueryExecutor(sparqlEndpoint, constraints, aggregationSpec, getDefaultConfiguration());
-        return queryExecutor.findURI(uri);
+        String expandedURI = Utils.isPrefixedName(uri) ? getPrefixMapping().expandPrefix(uri) : uri;
+        UriQueryExecutor queryExecutor = new UriQueryExecutor(sparqlEndpoint, constraints,
+                expandPropertyNames(aggregationSpec), getExpandedDefaultConfiguration());
+        return queryExecutor.findURI(expandedURI);
+    }
+
+    /**
+     * Returns a (cached) prefix mapping.
+     * @return prefix mapping
+     * @throws QueryExecutionException database error
+     */
+    private PrefixMapping getPrefixMapping() throws QueryExecutionException {
+        try {
+            return prefixMappingCache.getCachedValue();
+        } catch (DatabaseException e) {
+            throw new QueryExecutionException(EnumQueryError.DATABASE_ERROR, e);
+        }
+    }
+
+    /**
+     * Expands prefixed names in the given aggregation settings to full URIs.
+     * TODO: optimize?
+     * @param aggregationSpec aggregation settings where property names are expanded
+     * @return new aggregation settings
+     * @throws QueryExecutionException database error
+     */
+    private AggregationSpec expandPropertyNames(AggregationSpec aggregationSpec) throws QueryExecutionException {
+        if (aggregationSpec.getPropertyAggregations().isEmpty() && aggregationSpec.getPropertyMultivalue().isEmpty()) {
+            return aggregationSpec;
+        }
+        // TODO: handle null expansions!
+        AggregationSpec result = aggregationSpec.shallowClone();
+
+        Map<String, EnumAggregationType> newPropertyAggregations = new TreeMap<String, EnumAggregationType>();
+        for (Entry<String, EnumAggregationType> entry : aggregationSpec.getPropertyAggregations().entrySet()) {
+            String property = entry.getKey();
+            if (Utils.isPrefixedName(property)) {
+                newPropertyAggregations.put(getPrefixMapping().expandPrefix(property), entry.getValue());
+            } else {
+                newPropertyAggregations.put(property, entry.getValue());
+            }
+        }
+        result.setPropertyAggregations(newPropertyAggregations);
+
+        Map<String, Boolean> newPropertyMultivalue = new TreeMap<String, Boolean>();
+        for (Entry<String, Boolean> entry : aggregationSpec.getPropertyMultivalue().entrySet()) {
+            String property = entry.getKey();
+            if (Utils.isPrefixedName(property)) {
+                newPropertyMultivalue.put(getPrefixMapping().expandPrefix(property), entry.getValue());
+            } else {
+                newPropertyMultivalue.put(property, entry.getValue());
+            }
+        }
+        result.setPropertyMultivalue(newPropertyMultivalue);
+
+        return result;
     }
 
     /**
@@ -73,15 +135,17 @@ public class QueryExecution {
      * @return aggregation settings
      * @throws QueryExecutionException invalid settings in the database or a database error
      */
-    private AggregationSpec getDefaultConfiguration() throws QueryExecutionException {
-        if (defaultConfiguration == null) {
+    private AggregationSpec getExpandedDefaultConfiguration() throws QueryExecutionException {
+        if (expandedDefaultConfiguration == null) {
+            // TODO: do not keep forever!
             try {
                 // This may get executed by multiple threads, but that doesn't matter
-                defaultConfiguration = new QueryExecutionConfigLoader(sparqlEndpoint).getDefaultSettings();
+                expandedDefaultConfiguration = expandPropertyNames(
+                        new QueryExecutionConfigLoader(sparqlEndpoint).getDefaultSettings());
             } catch (DatabaseException e) {
                 throw new QueryExecutionException(EnumQueryError.DATABASE_ERROR, e);
             }
         }
-        return defaultConfiguration;
+        return expandedDefaultConfiguration;
     }
 }

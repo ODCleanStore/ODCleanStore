@@ -259,7 +259,8 @@ import java.util.Set;
      * Creates a new instance of UriQueryExecutor.
      * @param sparqlEndpoint connection settings for the SPARQL endpoint that will be queried
      * @param constraints constraints on triples returned in the result
-     * @param aggregationSpec aggregation settings for conflict resolution
+     * @param aggregationSpec aggregation settings for conflict resolution;
+     *        property names must not contain prefixed names
      * @param defaultAggregationSpec default aggregation settings for conflict resolution
      */
     public UriQueryExecutor(ConnectionCredentials sparqlEndpoint, QueryConstraintSpec constraints,
@@ -270,7 +271,7 @@ import java.util.Set;
     /**
      * Executes the URI search query.
      *
-     * @param uri searched URI
+     * @param uri searched URI; must be an absolute URI, not a prefixed name
      * @return query result holder
      * @throws QueryExecutionException database error or the query was invalid
      */
