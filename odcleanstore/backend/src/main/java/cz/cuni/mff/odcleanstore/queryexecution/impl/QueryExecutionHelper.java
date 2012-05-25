@@ -19,7 +19,7 @@ public final class QueryExecutionHelper {
      * @param aggregationSpec aggregation settings where property names are expanded
      * @param prefixMapping prefix mapping used for expansion
      * @return new aggregation settings
-     * @throws QueryExecutionException database error
+     * @throws QueryExecutionException a prefix has no defined mapping
      */
     public static AggregationSpec expandPropertyNames(AggregationSpec aggregationSpec, PrefixMapping prefixMapping)
             throws QueryExecutionException {

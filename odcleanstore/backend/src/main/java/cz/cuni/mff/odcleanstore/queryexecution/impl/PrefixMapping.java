@@ -1,5 +1,8 @@
 package cz.cuni.mff.odcleanstore.queryexecution.impl;
 
+import cz.cuni.mff.odcleanstore.queryexecution.EnumQueryError;
+import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
+
 import java.util.Map;
 
 /**
@@ -32,14 +35,18 @@ import java.util.Map;
      * Assumes that if the given string contains a ':', it<em>is</em> a prefixed name.
      * @param prefixedName prefixed name to expand
      * @return the expended URI or null if no mapping is found
+     * @throws QueryExecutionException used prefix has no mapping
      */
-    public String expandPrefix(String prefixedName) {
+    public String expandPrefix(String prefixedName) throws QueryExecutionException {
         int colon = prefixedName.indexOf(':');
         if (colon < 0) {
             return prefixedName;
-        } else {
-            String uri = get(prefixedName.substring(0, colon));
-            return uri == null ? null : uri + prefixedName.substring(colon + 1);
         }
+        String prefix = prefixedName.substring(0, colon);
+        String expandedPrefix = get(prefix);
+        if (expandedPrefix == null) {
+            throw new QueryExecutionException(EnumQueryError.UNKNOWN_PREFIX, "Unkown prefix " + prefix + ":");
+        }
+        return expandedPrefix + prefixedName.substring(colon + 1);
     }
 }

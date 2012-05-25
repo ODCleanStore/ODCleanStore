@@ -37,11 +37,20 @@ public class DefaultAggregationConfigurationCache extends CacheHolderBase<Aggreg
 
     @Override
     protected AggregationSpec loadCachedValue() throws QueryExecutionException {
+        AggregationSpec defaultSettings = null;
         try {
-            AggregationSpec defaultSettings = new QueryExecutionConfigLoader(connection).getDefaultSettings();
-            return QueryExecutionHelper.expandPropertyNames(defaultSettings, prefixMappingCache.getCachedValue());
+            defaultSettings = new QueryExecutionConfigLoader(connection).getDefaultSettings();
         } catch (DatabaseException e) {
             throw new QueryExecutionException(EnumQueryError.DATABASE_ERROR, e);
         }
+        try {
+            return QueryExecutionHelper.expandPropertyNames(defaultSettings, prefixMappingCache.getCachedValue());
+        } catch (QueryExecutionException e) {
+            throw new QueryExecutionException(
+                    EnumQueryError.DEFAULT_AGGREGATION_SETTINGS_INVALID,
+                    "Unkown prefix used in default aggregation settings",
+                    e);
+        }
+
     }
 }
