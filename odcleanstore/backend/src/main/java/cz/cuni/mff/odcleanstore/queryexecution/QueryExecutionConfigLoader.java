@@ -22,10 +22,6 @@ import java.sql.SQLException;
 /*package*/class QueryExecutionConfigLoader {
     private static final Logger LOG = LoggerFactory.getLogger(QueryExecutionConfigLoader.class);
 
-    private static final String DEFAULT_AGGREGATION_KEY = "DEFAULT_AGGREGATION";
-    private static final String DEFAULT_MULTIVALUE_KEY = "DEFAULT_MULTIVALUE";
-    private static final String ERROR_STRATEGY_KEY = "ERROR_STRATEGY";
-
     private static final String DEFAULT_VALUE = "DEFAULT";
     private static final String MULTIVALUE_TRUE = "YES";
     private static final String MULTIVALUE_FALSE = "NO";
@@ -57,17 +53,20 @@ import java.sql.SQLException;
             connection = VirtuosoConnectionWrapper.createConnection(sparqlEndpoint);
 
             // Get global settings
-            resultSet = connection.executeSelect("SELECT name, value FROM DB.FRONTEND.CR_SETTINGS");
-            while (resultSet.next()) {
-                String key = resultSet.getString("name");
-                String value = resultSet.getString("value");
-                if (DEFAULT_AGGREGATION_KEY.equals(key) && value != null) {
-                    defaultSettings.setDefaultAggregation(parseAggregationType(value));
-                } else if (DEFAULT_MULTIVALUE_KEY.equals(key) && value != null) {
-                    defaultSettings.setDefaultMultivalue(parseMultivalue(value));
-                } else if (ERROR_STRATEGY_KEY.equals(key) && value != null) {
-                    defaultSettings.setErrorStrategy(parseErrorStrategy(value));
-                }
+            resultSet = connection.executeSelect(
+                    "SELECT es.label AS errorStrategy, mt.label as multivalue, at.label AS aggregation"
+                    + "\n FROM DB.FRONTEND.CR_SETTINGS AS s"
+                    + "\n JOIN DB.FRONTEND.CR_ERROR_STRATEGIES AS es ON (s.defaultErrorStrategyId = es.id)"
+                    + "\n JOIN DB.FRONTEND.CR_AGGREGATION_TYPES AS at ON (s.defaultAggregationTypeId = at.id)"
+                    + "\n JOIN DB.FRONTEND.CR_MULTIVALUE_TYPES AS mt ON (s.defaultMultivalueTypeId = mt.id)");
+            if (resultSet.next()) {
+                defaultSettings.setDefaultAggregation(parseAggregationType(resultSet.getString("aggregation")));
+                defaultSettings.setDefaultMultivalue(parseMultivalue(resultSet.getString("multivalue")));
+                defaultSettings.setErrorStrategy(parseErrorStrategy(resultSet.getString("errorStrategy")));
+            } else {
+                throw new QueryExecutionException(
+                        EnumQueryError.DEFAULT_AGGREGATION_SETTINGS_INVALID,
+                        "No default aggregation settings in the database");
             }
             resultSet.closeQuietly();
             resultSet = null;
@@ -80,13 +79,13 @@ import java.sql.SQLException;
 
             while (resultSet.next()) {
                 String property = resultSet.getString("property");
-                EnumAggregationType aggregationValue = parseAggregationType(resultSet.getString("aggregation"));
-                if (aggregationValue != null) {
-                    defaultSettings.getPropertyAggregations().put(property, aggregationValue);
+                EnumAggregationType propertyAggregation = parseAggregationType(resultSet.getString("aggregation"));
+                if (propertyAggregation != null) {
+                    defaultSettings.getPropertyAggregations().put(property, propertyAggregation);
                 }
-                Boolean multivalueValue = parseMultivalue(resultSet.getString("multivalue"));
-                if (multivalueValue != null) {
-                    defaultSettings.getPropertyMultivalue().put(property, multivalueValue);
+                Boolean propertyMultivalue = parseMultivalue(resultSet.getString("multivalue"));
+                if (propertyMultivalue != null) {
+                    defaultSettings.getPropertyMultivalue().put(property, propertyMultivalue);
                 }
             }
 
