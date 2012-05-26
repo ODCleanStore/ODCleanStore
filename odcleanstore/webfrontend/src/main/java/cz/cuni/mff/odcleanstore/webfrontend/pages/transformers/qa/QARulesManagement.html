@@ -1,0 +1,32 @@
+<wicket:extend>
+
+<wicket:link>
+<div>
+	<a class="placedright" href="NewQARulePage.html">Add a new rule</a>
+	<div class="clear">&nbsp;</div>
+</div>
+</wicket:link>
+
+<table border="1">
+	
+	<tr>
+		<th>Description</th>
+		<th>Filter</th>
+		<th>Coefficient</th>
+		<th>Action</th>
+	</tr>
+	
+	<tr  wicket:id="qaRulesTable">
+	
+		<td wicket:id="description">[description]</td>
+		<td wicket:id="filter">[filter]</td>
+		<td wicket:id="coefficient">[coefficient]</td>
+		
+		<td class="centered">
+			<input wicket:id="deleteRule" type="button" value="Delete" />
+			<input wicket:id="manageRuleRestrictions" type="button" value="Manage restrictions" />
+		</td>
+	</tr>
+</table>
+
+</wicket:extend>

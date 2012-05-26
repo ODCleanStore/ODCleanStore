@@ -110,7 +110,14 @@ public class QARuleDao extends Dao<QARule>
 
 	private Map<Long, QARule> loadAllRawRules()
 	{
-		String query = "SELECT * FROM " + TABLE_NAME;
+		String query = 
+			"SELECT " +
+				"id, coefficient, " +
+				"blob_to_string(description) as description, "  +
+				"blob_to_string(filter) as filter " +
+			"FROM " + 
+				TABLE_NAME;
+		
 		List<QARule> rules = jdbcTemplate.query(query, new QARuleRowMapper());
 		
 		Map<Long, QARule> result = new HashMap<Long, QARule>();

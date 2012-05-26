@@ -2,6 +2,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.core;
 
 import cz.cuni.mff.odcleanstore.webfrontend.dao.*;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.*;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.*;
 
 import org.apache.wicket.proxy.LazyInitProxyFactory;
 import org.apache.wicket.spring.SpringBeanLocator;
@@ -22,6 +23,9 @@ public class DaoLookupFactory
 	private MultivalueTypeDao multivalueTypeDao;
 	private ErrorStrategyDao errorStrategyDao;
 	private GlobalAggregationSettingsDao globalAggregationSettingsDao;
+	
+	private PublisherDao publisherDao;
+	private QARuleDao qaRuleDao;
 	
 	/**
 	 * 
@@ -83,6 +87,10 @@ public class DaoLookupFactory
 		return multivalueTypeDao;
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
 	public ErrorStrategyDao getErrorStrategyDao()
 	{
 		if (errorStrategyDao == null)
@@ -91,6 +99,10 @@ public class DaoLookupFactory
 		return errorStrategyDao;
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
 	public GlobalAggregationSettingsDao getGlobalAggregationSettingsDao()
 	{
 		if (globalAggregationSettingsDao == null)
@@ -102,6 +114,30 @@ public class DaoLookupFactory
 		}
 		
 		return globalAggregationSettingsDao;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public PublisherDao getPublisherDao()
+	{
+		if (publisherDao == null)
+			publisherDao = createProxy("publisherDao", PublisherDao.class);
+		
+		return publisherDao;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public QARuleDao getQARuleDao()
+	{
+		if (qaRuleDao == null)
+			qaRuleDao = createProxy("qaRuleDao", QARuleDao.class);
+		
+		return qaRuleDao;
 	}
 	
 	/**
