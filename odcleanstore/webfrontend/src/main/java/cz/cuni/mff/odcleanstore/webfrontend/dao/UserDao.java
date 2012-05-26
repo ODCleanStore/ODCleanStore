@@ -45,7 +45,7 @@ public class UserDao extends Dao<User>
 		logger.debug("Saving new user.");
 		
 		String query = 
-			"INSERT INTO DB.FRONTEND.USERS " +
+			"INSERT INTO DB.ODCLEANSTORE.USERS " +
 			"(username, email, passwordHash, salt, firstname, surname) " +
 			"VALUES (?, ?, ?, ?, ?, ?)";
 		
@@ -148,7 +148,7 @@ public class UserDao extends Dao<User>
 		};
 		
 		List<User> resultList = jdbcTemplate.query(
-			"SELECT * FROM DB.FRONTEND.USERS WHERE id = ?", 
+			"SELECT * FROM DB.ODCLEANSTORE.USERS WHERE id = ?", 
 			arguments,
 			new UserRowMapper()
 		);
@@ -160,7 +160,7 @@ public class UserDao extends Dao<User>
 	private User fetchUserForUsername(String username)
 	{
 		String query =
-			"SELECT * FROM DB.FRONTEND.USERS " +
+			"SELECT * FROM DB.ODCLEANSTORE.USERS " +
 			"WHERE username = ?";
 		
 		Object[] arguments =
@@ -188,7 +188,7 @@ public class UserDao extends Dao<User>
 		//
 		List<User> registeredUsers = jdbcTemplate.query
 		(
-			"SELECT * FROM DB.FRONTEND.USERS",
+			"SELECT * FROM DB.ODCLEANSTORE.USERS",
 			new UserRowMapper()
 		);
 		
@@ -210,7 +210,7 @@ public class UserDao extends Dao<User>
 		//
 		List<Role> registeredRoles = jdbcTemplate.query
 		(
-			"SELECT * FROM DB.FRONTEND.ROLES", 
+			"SELECT * FROM DB.ODCLEANSTORE.ROLES", 
 			new RoleRowMapper()
 		);
 		
@@ -230,7 +230,7 @@ public class UserDao extends Dao<User>
 		
 		return jdbcTemplate.query
 		(
-			"SELECT * FROM DB.FRONTEND.ROLES_ASSIGNED_TO_USERS", 
+			"SELECT * FROM DB.ODCLEANSTORE.ROLES_ASSIGNED_TO_USERS", 
 			new RolesAssignedToUsersRowMapping()
 		);
 	}
@@ -246,7 +246,7 @@ public class UserDao extends Dao<User>
 		
 		return jdbcTemplate.query
 		(
-			"SELECT * FROM DB.FRONTEND.ROLES_ASSIGNED_TO_USERS WHERE userId = ?",
+			"SELECT * FROM DB.ODCLEANSTORE.ROLES_ASSIGNED_TO_USERS WHERE userId = ?",
 			arguments,
 			new RolesAssignedToUsersRowMapping()
 		);
@@ -257,7 +257,7 @@ public class UserDao extends Dao<User>
 		logger.debug("Updating user properties for user: " + user.getId());
 		
 		String query = 
-			"UPDATE DB.FRONTEND.USERS " +
+			"UPDATE DB.ODCLEANSTORE.USERS " +
 			"SET username = ?, email = ?, firstname = ?, surname = ? " +
 			"WHERE id = ?";
 		
@@ -283,7 +283,7 @@ public class UserDao extends Dao<User>
 		};
 		
 		jdbcTemplate.update(
-			"DELETE FROM DB.FRONTEND.ROLES_ASSIGNED_TO_USERS WHERE userId = ?", 
+			"DELETE FROM DB.ODCLEANSTORE.ROLES_ASSIGNED_TO_USERS WHERE userId = ?", 
 			arguments
 		);
 	}
@@ -303,7 +303,7 @@ public class UserDao extends Dao<User>
 			};
 			
 			jdbcTemplate.update(
-				"INSERT INTO DB.FRONTEND.ROLES_ASSIGNED_TO_USERS VALUES (?, ?)", 
+				"INSERT INTO DB.ODCLEANSTORE.ROLES_ASSIGNED_TO_USERS VALUES (?, ?)", 
 				arguments
 			);
 		}

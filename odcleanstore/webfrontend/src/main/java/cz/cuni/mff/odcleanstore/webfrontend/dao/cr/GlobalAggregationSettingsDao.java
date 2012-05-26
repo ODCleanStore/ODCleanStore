@@ -13,7 +13,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.MultivalueType;
 
 public class GlobalAggregationSettingsDao 
 {
-	private static final String TABLE_NAME_PREFIX = "DB.FRONTEND.";
+	private static final String TABLE_NAME_PREFIX = "DB.ODCLEANSTORE.";
 	
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "CR_SETTINGS";
 			

@@ -1,9 +1,9 @@
-delete from db.frontend.OI_RULES;
-delete from db.frontend.oi_rules_groups;
+delete from DB.ODCLEANSTORE.OI_RULES;
+delete from DB.ODCLEANSTORE.oi_rules_groups;
 
-insert into db.frontend.oi_rules_groups values (1, 'pravidla pro linkovani testovacich dat o zakazkach od Tomase K.','pravidla pro linkovani testovacich dat o zakazkach od Tomase K.');
+insert into DB.ODCLEANSTORE.oi_rules_groups values (1, 'pravidla pro linkovani testovacich dat o zakazkach od Tomase K.','pravidla pro linkovani testovacich dat o zakazkach od Tomase K.');
 
-insert into DB.FRONTEND.OI_RULES values (1,1,'<Interlink id="title_supplier">
+insert into DB.ODCLEANSTORE.OI_RULES values (1,1,'<Interlink id="title_supplier">
       <LinkType>owl:sameAs</LinkType>
       <SourceDataset dataSource="Zakazky" var="a">
         <RestrictTo> ?x purl:supplier ?a . </RestrictTo>
