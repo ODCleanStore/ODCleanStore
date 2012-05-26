@@ -1,8 +1,12 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.qa;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
+import cz.cuni.mff.odcleanstore.util.Pair;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.Publisher;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
@@ -96,10 +100,57 @@ public class QARuleDao extends Dao<QARule>
 	@Override
 	public List<QARule> loadAll() 
 	{
-		// TODO Auto-generated method stub
-		return null;
+		Map<Long, QARule> rules = loadAllRawRules();
+		Map<Long, Publisher> publishers = loadAllRawPublishers();
+		
+		addRestrictionsToRules(rules, publishers);
+		
+		return new LinkedList<QARule>(rules.values());
 	}
 
+	private Map<Long, QARule> loadAllRawRules()
+	{
+		String query = "SELECT * FROM " + TABLE_NAME;
+		List<QARule> rules = jdbcTemplate.query(query, new QARuleRowMapper());
+		
+		Map<Long, QARule> result = new HashMap<Long, QARule>();
+		for (QARule rule : rules)
+			result.put(rule.getId(), rule);
+		
+		return result;
+	}
+	
+	private Map<Long, Publisher> loadAllRawPublishers()
+	{
+		String query = "SELECT * FROM " + PublisherDao.TABLE_NAME;
+		List<Publisher> publishers = jdbcTemplate.query(query, new PublisherRowMapper());
+		
+		Map<Long, Publisher> result = new HashMap<Long, Publisher>();
+		for (Publisher publisher : publishers)
+			result.put(publisher.getId(), publisher);
+		
+		return result;
+	}
+	
+	private void addRestrictionsToRules(Map<Long, QARule> rules, Map<Long, Publisher> publishers)
+	{
+		String query = "SELECT * FROM " + RESTRICTIONS_TABLE_NAME;
+		
+		List<Pair<Long, Long>> mapping = jdbcTemplate.query
+		(
+			query, 
+			new RulesToPublishersRestrictionsRowMapper()
+		);
+		
+		for (Pair<Long, Long> pair : mapping)
+		{
+			QARule rule = rules.get(pair.getFirst());
+			Publisher publisher = publishers.get(pair.getSecond());
+			
+			rule.addPublisherRestriction(publisher);
+		}
+	}
+	
 	@Override
 	public QARule load(Long id) 
 	{

@@ -54,4 +54,9 @@ public class QARule extends BusinessObject
 	{
 		this.publisherRestrictions = restrictions;
 	}
+	
+	public void addPublisherRestriction(Publisher publisher)
+	{
+		this.publisherRestrictions.add(publisher);
+	}
 }
