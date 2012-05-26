@@ -25,11 +25,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * Default implementation of the conflict resolution process.
@@ -126,7 +127,7 @@ public class ConflictResolverImpl implements ConflictResolver {
         // A little optimization - check metadata for occurrences of old versions;
         // if there are none, there is no need to try to filter them in each
         // conflict cluster.
-        boolean hasOldVersions = hasOldVersions(metadata);
+        boolean hasOldVersions = hasPotentialOldVersions(metadata);
         ObjectSourceStoredComparator filterComparator = hasOldVersions
                 ? new ObjectSourceStoredComparator(metadata)
                 : null;
@@ -281,30 +282,28 @@ public class ConflictResolverImpl implements ConflictResolver {
     }
 
     /**
-     * Check whether metadata contain two named graphs where one is
-     * an update of the other.
-     * A named graph is an update of another graph if it has the same data
-     * source but a newer stored date.
+     * Check whether metadata contain two named graphs where one may be an updated of the other.
+     * This is a only a heuristic based on source metadata.
+     * @see #filterOldVersions(Collection, NamedGraphMetadataMap, ObjectSourceStoredComparator)
      *
      * @param metadataMap named graph metadata to analyze
      * @return true iff metadata contain two named graphs where one is
      *         an update of the other
      */
-    private boolean hasOldVersions(NamedGraphMetadataMap metadataMap) {
+    private boolean hasPotentialOldVersions(NamedGraphMetadataMap metadataMap) {
         Collection<NamedGraphMetadata> metadataCollection = metadataMap.listMetadata();
-        Map<String, Date> dataSourceDates = new HashMap<String, Date>(metadataCollection.size());
+        Set<String> sourceSet = new HashSet<String>(metadataCollection.size());
 
         for (NamedGraphMetadata metadata : metadataCollection) {
             assert metadata != null;
-            String dataSource = metadata.getSource();
-
-            if (dataSourceDates.containsKey(dataSource)
-                    && !dataSourceDates.get(dataSource).equals(metadata.getInsertedAt())) {
+            if (metadata.getInsertedAt() == null | metadata.getInsertedBy() == null | metadata.getSource() == null) {
+                // If any of the tested properties is null, the named graph cannot be marked as an update
+                continue;
+            } else if (sourceSet.contains(metadata.getSource())) {
                 // Occurrence of named graphs sharing a common data source
-                // with a different stored date
                 return true;
-            } else if (dataSource != null && metadata.getInsertedAt() != null) {
-                dataSourceDates.put(dataSource, metadata.getInsertedAt());
+            } else {
+                sourceSet.add(metadata.getSource());
             }
         }
         return false;
