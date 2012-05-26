@@ -19,10 +19,18 @@ public class QARuleDao extends Dao<QARule>
 	@Override
 	public void delete(QARule item) 
 	{
-		// TODO Auto-generated method stub
-		
+		clearPublisherRestrictions(item);
+		deleteRawRule(item);
 	}
 
+	private void deleteRawRule(QARule rule)
+	{
+		String query = "DELETE FROM " + TABLE_NAME + " WHERE id = ?";
+		Object[] params = { rule.getId() };
+		
+		jdbcTemplate.update(query, params);
+	}
+	
 	@Override
 	public void save(QARule item) 
 	{

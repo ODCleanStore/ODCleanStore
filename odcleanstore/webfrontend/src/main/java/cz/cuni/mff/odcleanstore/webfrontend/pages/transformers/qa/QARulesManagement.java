@@ -2,6 +2,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -15,6 +16,8 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 public class QARulesManagement extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
+
+	private static Logger logger = Logger.getLogger(QARulesManagement.class);
 	
 	private QARuleDao qaRuleDao;
 
