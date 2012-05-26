@@ -8,7 +8,9 @@ import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
  * @author Jan Michelfeit
  */
 public abstract class DatabaseException extends ODCleanStoreException {
-    /**
+	private static final long serialVersionUID = 1L;
+
+	/**
      * Creates a new exception.
      * @param cause cause
      */
