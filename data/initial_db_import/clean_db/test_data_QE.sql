@@ -1,10 +1,10 @@
 INSERT INTO DB.ODCLEANSTORE.CR_PROPERTIES (property, multivalueTypeId, aggregationTypeId) VALUES (
-	'http://www.w3.org/2003/01/geo/wgs84_pos#long', 
+	n'http://www.w3.org/2003/01/geo/wgs84_pos#long', 
 	(SELECT id FROM DB.ODCLEANSTORE.CR_MULTIVALUE_TYPES WHERE label = 'DEFAULT'),
 	(SELECT id FROM DB.ODCLEANSTORE.CR_AGGREGATION_TYPES WHERE label = 'AVG'));
 
 INSERT INTO DB.ODCLEANSTORE.CR_PROPERTIES (property, multivalueTypeId, aggregationTypeId) VALUES (
-	'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+	n'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
 	(SELECT id FROM DB.ODCLEANSTORE.CR_MULTIVALUE_TYPES WHERE label = 'YES'),
 	(SELECT id FROM DB.ODCLEANSTORE.CR_AGGREGATION_TYPES WHERE label = 'DEFAULT'));
 
