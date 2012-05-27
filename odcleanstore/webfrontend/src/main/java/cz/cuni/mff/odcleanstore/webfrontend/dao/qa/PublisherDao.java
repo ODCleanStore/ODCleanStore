@@ -29,7 +29,7 @@ public class PublisherDao extends Dao<Publisher>
 		
 		Object[] params =
 		{
-			item.getUri()
+			item.getUri().toString()
 		};
 		
 		jdbcTemplate.update(query, params);
