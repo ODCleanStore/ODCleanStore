@@ -10,6 +10,7 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
@@ -19,7 +20,7 @@ public class QARulesManagement extends FrontendPage
 
 	private static Logger logger = Logger.getLogger(QARulesManagement.class);
 	
-	private QARuleDao qaRuleDao;
+	private Dao<QARule> qaRuleDao;
 
 	public QARulesManagement() 
 	{
@@ -30,7 +31,7 @@ public class QARulesManagement extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		qaRuleDao = daoLookupFactory.getQARuleDao();
+		qaRuleDao = daoLookupFactory.getDao(QARuleDao.class);
 		
 		// register page components
 		//

@@ -3,6 +3,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.outputws;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.*;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.*;
 
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -15,9 +16,9 @@ public class EditGlobalAggregationSettingsPage extends FrontendPage
 	private static final long serialVersionUID = 1L;
 	
 	private GlobalAggregationSettingsDao globalAggregationSettingsDao;
-	private AggregationTypeDao aggregationTypeDao;
-	private MultivalueTypeDao multivalueTypeDao;
-	private ErrorStrategyDao errorStrategyDao;
+	private Dao<AggregationType> aggregationTypeDao;
+	private Dao<MultivalueType> multivalueTypeDao;
+	private Dao<ErrorStrategy> errorStrategyDao;
 	
 	public EditGlobalAggregationSettingsPage() 
 	{
@@ -29,9 +30,9 @@ public class EditGlobalAggregationSettingsPage extends FrontendPage
 		// prepare DAO objects
 		//
 		globalAggregationSettingsDao = daoLookupFactory.getGlobalAggregationSettingsDao();
-		aggregationTypeDao = daoLookupFactory.getAggregationTypeDao();
-		multivalueTypeDao = daoLookupFactory.getMultivalueTypeDao();
-		errorStrategyDao = daoLookupFactory.getErrorStrategyDao();
+		aggregationTypeDao = daoLookupFactory.getDao(AggregationTypeDao.class);
+		multivalueTypeDao = daoLookupFactory.getDao(MultivalueTypeDao.class);
+		errorStrategyDao = daoLookupFactory.getDao(ErrorStrategyDao.class);
 		
 		// register page components
 		//

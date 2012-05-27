@@ -1,8 +1,11 @@
 package cz.cuni.mff.odcleanstore.webfrontend.core;
 
-import cz.cuni.mff.odcleanstore.webfrontend.dao.*;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.*;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.*;
+import java.util.HashMap;
+
+import javax.sql.DataSource;
+
+import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.GlobalAggregationSettingsDao;
 
 import org.apache.wicket.proxy.LazyInitProxyFactory;
 import org.apache.wicket.spring.SpringBeanLocator;
@@ -15,88 +18,64 @@ import org.apache.wicket.spring.SpringBeanLocator;
  */
 public class DaoLookupFactory 
 {
-	private UserDao userDao;
-	private RoleDao roleDao;
+	private DataSource dataSource;
+	private HashMap<Class<? extends Dao>, Dao> daos;
 	
-	private PropertySettingsDao propertySettingsDao;
-	private AggregationTypeDao aggregationTypeDao;
-	private MultivalueTypeDao multivalueTypeDao;
-	private ErrorStrategyDao errorStrategyDao;
 	private GlobalAggregationSettingsDao globalAggregationSettingsDao;
 	
-	private PublisherDao publisherDao;
-	private QARuleDao qaRuleDao;
-	
 	/**
 	 * 
-	 * @return
 	 */
-	public UserDao getUserDao()
+	public DaoLookupFactory()
 	{
-		if (userDao == null)
-			userDao = createProxy("userDao", UserDao.class);
-		
-		return userDao;
+		this.dataSource = createProxy("dataSource", DataSource.class);
+		this.daos = new HashMap<Class<? extends Dao>, Dao>();
 	}
 	
 	/**
+	 * Creates (lazily) and returns the requested DAO object. Throws an AssertionError
+	 * if the requested DAO class cannot be instantiated.
 	 * 
+	 * @param daoClass
 	 * @return
-	*/
-	public RoleDao getRoleDao()
+	 * @throws AssertionError
+	 */
+	public Dao getDao(Class<? extends Dao> daoClass) throws AssertionError
 	{
-		if (roleDao == null)
-			roleDao = createProxy("roleDao", RoleDao.class);
+		if (daos.containsKey(daoClass))
+			return daos.get(daoClass);
 		
-		return roleDao;
+		Dao daoInstance = createDaoInstance(daoClass);
+		
+		daos.put(daoClass, daoInstance);
+		
+		return daoInstance;
 	}
+	
+	/**
+	 * Creates and returns a DAO instance related to the given class.
+	 *  
+	 * @param daoClass
+	 * @return
+	 * @throws AssertionError
+	 */
+	private Dao createDaoInstance(Class<? extends Dao> daoClass) throws AssertionError
+	{
+		Dao daoInstance;
+		
+		try {
+			daoInstance = daoClass.newInstance();
+		} 
+		catch (ReflectiveOperationException ex) 
+		{
+			throw new AssertionError(
+				"Could not load DAO class: " + daoClass
+			);
+		}
 
-	/**
-	 * 
-	 * @return
-	 */
-	public PropertySettingsDao getPropertySettingsDao()
-	{
-		if (propertySettingsDao == null)
-			propertySettingsDao = createProxy("propertySettingsDao", PropertySettingsDao.class);
+		daoInstance.setDataSource(dataSource);
 		
-		return propertySettingsDao;
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public AggregationTypeDao getAggregationTypeDao()
-	{
-		if (aggregationTypeDao == null)
-			aggregationTypeDao = createProxy("aggregationTypeDao", AggregationTypeDao.class);
-		
-		return aggregationTypeDao;
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public MultivalueTypeDao getMultivalueTypeDao()
-	{
-		if (multivalueTypeDao == null)
-			multivalueTypeDao = createProxy("multivalueTypeDao", MultivalueTypeDao.class);
-		
-		return multivalueTypeDao;
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public ErrorStrategyDao getErrorStrategyDao()
-	{
-		if (errorStrategyDao == null)
-			errorStrategyDao = createProxy("errorStrategyDao", ErrorStrategyDao.class);
-		
-		return errorStrategyDao;
+		return daoInstance;
 	}
 	
 	/**
@@ -116,30 +95,6 @@ public class DaoLookupFactory
 		return globalAggregationSettingsDao;
 	}
 
-	/**
-	 * 
-	 * @return
-	 */
-	public PublisherDao getPublisherDao()
-	{
-		if (publisherDao == null)
-			publisherDao = createProxy("publisherDao", PublisherDao.class);
-		
-		return publisherDao;
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public QARuleDao getQARuleDao()
-	{
-		if (qaRuleDao == null)
-			qaRuleDao = createProxy("qaRuleDao", QARuleDao.class);
-		
-		return qaRuleDao;
-	}
-	
 	/**
 	 * Helper method to create a proxy of the bean. This is needed not to
 	 * serialize the whole Spring framework when storing a page to cache.

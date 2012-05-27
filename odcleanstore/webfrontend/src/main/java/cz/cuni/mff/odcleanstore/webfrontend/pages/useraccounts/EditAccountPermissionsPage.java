@@ -42,8 +42,8 @@ public class EditAccountPermissionsPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		userDao = daoLookupFactory.getUserDao();
-		roleDao = daoLookupFactory.getRoleDao();
+		userDao = daoLookupFactory.getDao(UserDao.class);
+		roleDao = daoLookupFactory.getDao(RoleDao.class);
 		
 		// prepare the target User instance
 		//

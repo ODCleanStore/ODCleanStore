@@ -7,6 +7,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
@@ -14,7 +15,7 @@ public class NewQARulePage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 	
-	private QARuleDao qaRuleDao;
+	private Dao<QARule> qaRuleDao;
 	
 	public NewQARulePage() 
 	{
@@ -25,7 +26,7 @@ public class NewQARulePage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		this.qaRuleDao = daoLookupFactory.getQARuleDao();
+		this.qaRuleDao = daoLookupFactory.getDao(QARuleDao.class);
 		
 		// register page components
 		//

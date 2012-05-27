@@ -8,6 +8,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import javax.sql.DataSource;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,7 +29,10 @@ public class PublisherDaoTest extends DaoTest
 	{
 		super();
 		
-		publisherDao = (PublisherDao) ctx.getBean("publisherDao", PublisherDao.class);
+		DataSource dataSource = (DataSource) ctx.getBean("dataSource");
+		
+		publisherDao = new PublisherDao();
+		publisherDao.setDataSource(dataSource);
 	}
 	
 	@Before

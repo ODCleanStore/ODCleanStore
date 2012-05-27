@@ -3,6 +3,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.outputws;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.*;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.*;
 
 import org.apache.wicket.markup.html.basic.Label;
@@ -21,7 +22,7 @@ public class AggregationSettingsPage extends FrontendPage
 
 	private static Logger logger = Logger.getLogger(AggregationSettingsPage.class);
 	
-	private PropertySettingsDao propertySettingsDao;
+	private Dao<PropertySettings> propertySettingsDao;
 	private GlobalAggregationSettingsDao globalAggregationSettingsDao;
 	
 	public AggregationSettingsPage() 
@@ -33,7 +34,7 @@ public class AggregationSettingsPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		propertySettingsDao = daoLookupFactory.getPropertySettingsDao();
+		propertySettingsDao = daoLookupFactory.getDao(PropertySettingsDao.class);
 		globalAggregationSettingsDao = daoLookupFactory.getGlobalAggregationSettingsDao();
 		
 		// register page components

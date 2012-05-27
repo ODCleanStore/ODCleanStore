@@ -3,6 +3,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.outputws;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.*;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.*;
 
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -15,9 +16,9 @@ public class RegisterPropertyPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private PropertySettingsDao propertySettingsDao;
-	private AggregationTypeDao aggregationTypeDao;
-	private MultivalueTypeDao multivalueTypeDao;
+	private Dao<PropertySettings> propertySettingsDao;
+	private Dao<AggregationType> aggregationTypeDao;
+	private Dao<MultivalueType> multivalueTypeDao;
 	
 	public RegisterPropertyPage() 
 	{
@@ -28,9 +29,9 @@ public class RegisterPropertyPage extends FrontendPage
 
 		// prepare DAO objects
 		//
-		propertySettingsDao = daoLookupFactory.getPropertySettingsDao();
-		aggregationTypeDao = daoLookupFactory.getAggregationTypeDao();
-		multivalueTypeDao = daoLookupFactory.getMultivalueTypeDao();
+		propertySettingsDao = daoLookupFactory.getDao(PropertySettingsDao.class);
+		aggregationTypeDao = daoLookupFactory.getDao(AggregationTypeDao.class);
+		multivalueTypeDao = daoLookupFactory.getDao(MultivalueTypeDao.class);
 		
 		// register page components
 		//
