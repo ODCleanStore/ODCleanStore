@@ -36,7 +36,7 @@ public class RoleDao extends Dao<Role>
 	{
 		return jdbcTemplate.query
 		(
-			"SELECT * FROM DB.FRONTEND.ROLES", 
+			"SELECT * FROM DB.ODCLEANSTORE.ROLES", 
 			new RoleRowMapper()
 		);
 	}

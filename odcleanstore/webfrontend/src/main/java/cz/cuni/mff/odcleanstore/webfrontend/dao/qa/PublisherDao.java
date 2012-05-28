@@ -25,10 +25,11 @@ public class PublisherDao extends Dao<Publisher>
 	@Override
 	public void save(Publisher item) 
 	{
-		String query = "INSERT INTO " + TABLE_NAME + " (uri) VALUES (?)";
+		String query = "INSERT INTO " + TABLE_NAME + " (label, uri) VALUES (?, ?)";
 		
 		Object[] params =
 		{
+			item.getLabel(),
 			item.getUri()
 		};
 		

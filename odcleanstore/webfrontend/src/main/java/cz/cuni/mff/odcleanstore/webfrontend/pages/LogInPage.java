@@ -27,11 +27,11 @@ public class LogInPage extends FrontendPage
 	 * @param pageCrumbs
 	 * @param pageTitle
 	 */
-	public LogInPage() 
+	public LogInPage() throws AssertionError 
 	{
 		super("Home > LogIn", "Log in");
-		
-		userDao = daoLookupFactory.getUserDao();
+
+		userDao = (UserDao) daoLookupFactory.getDao(UserDao.class);
 		
 		addLoginForm();
 	}

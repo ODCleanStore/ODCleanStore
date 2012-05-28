@@ -3,6 +3,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 import org.apache.wicket.markup.html.basic.Label;
@@ -30,7 +31,7 @@ public class AccountsListPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		userDao = daoLookupFactory.getUserDao();
+		userDao = daoLookupFactory.getDao(UserDao.class);
 		
 		// register page components
 		//

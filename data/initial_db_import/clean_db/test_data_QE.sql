@@ -1,12 +1,12 @@
-INSERT INTO DB.FRONTEND.CR_PROPERTIES (property, multivalueTypeId, aggregationTypeId) VALUES (
-	'http://www.w3.org/2003/01/geo/wgs84_pos#long', 
-	(SELECT id FROM DB.FRONTEND.CR_MULTIVALUE_TYPES WHERE label = 'DEFAULT'),
-	(SELECT id FROM DB.FRONTEND.CR_AGGREGATION_TYPES WHERE label = 'AVG'));
+INSERT INTO DB.ODCLEANSTORE.CR_PROPERTIES (property, multivalueTypeId, aggregationTypeId) VALUES (
+	n'http://www.w3.org/2003/01/geo/wgs84_pos#long', 
+	(SELECT id FROM DB.ODCLEANSTORE.CR_MULTIVALUE_TYPES WHERE label = 'DEFAULT'),
+	(SELECT id FROM DB.ODCLEANSTORE.CR_AGGREGATION_TYPES WHERE label = 'AVG'));
 
-INSERT INTO DB.FRONTEND.CR_PROPERTIES (property, multivalueTypeId, aggregationTypeId) VALUES (
-	'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-	(SELECT id FROM DB.FRONTEND.CR_MULTIVALUE_TYPES WHERE label = 'YES'),
-	(SELECT id FROM DB.FRONTEND.CR_AGGREGATION_TYPES WHERE label = 'DEFAULT'));
+INSERT INTO DB.ODCLEANSTORE.CR_PROPERTIES (property, multivalueTypeId, aggregationTypeId) VALUES (
+	n'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+	(SELECT id FROM DB.ODCLEANSTORE.CR_MULTIVALUE_TYPES WHERE label = 'YES'),
+	(SELECT id FROM DB.ODCLEANSTORE.CR_AGGREGATION_TYPES WHERE label = 'DEFAULT'));
 
 SPARQL INSERT INTO <http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/dbpedia> {
 	<http://dbpedia.org/resource/Berlin>	<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>	<http://dbpedia.org/class/yago/Locations>.

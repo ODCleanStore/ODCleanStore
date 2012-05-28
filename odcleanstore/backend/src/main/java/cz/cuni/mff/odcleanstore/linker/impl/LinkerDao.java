@@ -66,7 +66,7 @@ public class LinkerDao {
 	 */
 	public List<String> loadRules(String[] groups) throws QueryException, SQLException {
 		List<String> ruleList = new ArrayList<String>();
-		WrappedResultSet resultSet = connection.executeSelect("select blob_to_string(definition) from DB.FRONTEND.OI_RULES where groupId in "
+		WrappedResultSet resultSet = connection.executeSelect("select blob_to_string(definition) from DB.ODCLEANSTORE.OI_RULES where groupId in "
 																+ createInPart(groups));
 		while (resultSet.next()) {
 			ruleList.add(resultSet.getString(1));

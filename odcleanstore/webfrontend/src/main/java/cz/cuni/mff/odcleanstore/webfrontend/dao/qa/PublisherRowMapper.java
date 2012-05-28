@@ -14,22 +14,11 @@ public class PublisherRowMapper implements ParameterizedRowMapper<Publisher>
 {
 	public Publisher mapRow(ResultSet rs, int rowNum) throws SQLException 
 	{
-		Long id = rs.getLong("id");
-		String uriValue = rs.getString("uri");
-		
-		URI uri;
-		
-		try 
-		{
-			uri = new URI(uriValue);
-		}
-		catch (URISyntaxException ex)
-		{
-			throw new SQLException(
-				"Invalid URI: " + uriValue + " for Publisher with id: " + id
-			);
-		}
-		
-		return new Publisher(id, uri);
+		return new Publisher
+		(
+			rs.getLong("id"), 
+			rs.getString("label"),
+			rs.getString("uri")
+		);
 	}
 }

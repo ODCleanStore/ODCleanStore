@@ -58,10 +58,10 @@ import java.sql.SQLException;
             // Get global settings
             resultSet = connection.executeSelect(
                     "SELECT es.label AS errorStrategy, mt.label as multivalue, at.label AS aggregation"
-                    + "\n FROM DB.FRONTEND.CR_SETTINGS AS s"
-                    + "\n JOIN DB.FRONTEND.CR_ERROR_STRATEGIES AS es ON (s.defaultErrorStrategyId = es.id)"
-                    + "\n JOIN DB.FRONTEND.CR_AGGREGATION_TYPES AS at ON (s.defaultAggregationTypeId = at.id)"
-                    + "\n JOIN DB.FRONTEND.CR_MULTIVALUE_TYPES AS mt ON (s.defaultMultivalueTypeId = mt.id)");
+                    + "\n FROM DB.ODCLEANSTORE.CR_SETTINGS AS s"
+                    + "\n JOIN DB.ODCLEANSTORE.CR_ERROR_STRATEGIES AS es ON (s.defaultErrorStrategyId = es.id)"
+                    + "\n JOIN DB.ODCLEANSTORE.CR_AGGREGATION_TYPES AS at ON (s.defaultAggregationTypeId = at.id)"
+                    + "\n JOIN DB.ODCLEANSTORE.CR_MULTIVALUE_TYPES AS mt ON (s.defaultMultivalueTypeId = mt.id)");
             if (resultSet.next()) {
                 defaultSettings.setDefaultAggregation(parseAggregationType(resultSet.getString("aggregation")));
                 defaultSettings.setDefaultMultivalue(parseMultivalue(resultSet.getString("multivalue")));
@@ -76,9 +76,9 @@ import java.sql.SQLException;
 
             // Get property-level settings
             resultSet = connection.executeSelect("SELECT p.property, mt.label as multivalue, at.label AS aggregation"
-                    + "\n FROM DB.FRONTEND.CR_PROPERTIES AS p"
-                    + "\n JOIN DB.FRONTEND.CR_AGGREGATION_TYPES AS at ON (p.aggregationTypeId = at.id)"
-                    + "\n JOIN DB.FRONTEND.CR_MULTIVALUE_TYPES AS mt ON (p.multivalueTypeId = mt.id)");
+                    + "\n FROM DB.ODCLEANSTORE.CR_PROPERTIES AS p"
+                    + "\n JOIN DB.ODCLEANSTORE.CR_AGGREGATION_TYPES AS at ON (p.aggregationTypeId = at.id)"
+                    + "\n JOIN DB.ODCLEANSTORE.CR_MULTIVALUE_TYPES AS mt ON (p.multivalueTypeId = mt.id)");
 
             while (resultSet.next()) {
                 String property = resultSet.getString("property");

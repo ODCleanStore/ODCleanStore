@@ -21,7 +21,7 @@ public final class ImportingInputGraphStates {
 	class NoActiveImportSession extends Exception {
 	}
 
-	private String _dbSchemaPrefix = "DB.FRONTEND";
+	private String _dbSchemaPrefix = "DB.ODCLEANSTORE";
 	private String _actualImportingGraphUuid;
 
 	ImportingInputGraphStates() {

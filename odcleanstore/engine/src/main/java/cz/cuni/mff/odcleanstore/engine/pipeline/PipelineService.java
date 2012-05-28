@@ -66,7 +66,7 @@ public final class PipelineService extends Service implements Runnable {
 					LOG.info("PipelineService initializing");
 				}
 
-				_workingInputGraphStatus = new WorkingInputGraphStatus("DB.FRONTEND");
+				_workingInputGraphStatus = new WorkingInputGraphStatus("DB.ODCLEANSTORE");
 				_workingInputGraph = new WorkingInputGraph();
 
 				String graphsForRecoveryUuid = _workingInputGraphStatus.getWorkingTransformedGraphUuid();
@@ -134,7 +134,7 @@ public final class PipelineService extends Service implements Runnable {
 		while ((uuid = waitForInput()) != null) {
 			try {
 				LOG.info(String.format("PipelineService starts processing graph %s", uuid));
-				Collection<TransformerCommand> TransformerCommands = TransformerCommand.getActualPlan("DB.FRONTEND");
+				Collection<TransformerCommand> TransformerCommands = TransformerCommand.getActualPlan("DB.ODCLEANSTORE");
 				loadData(uuid);
 				LOG.info(String.format("PipelineService ends data loading for graph %s", uuid));
 				for (TransformerCommand transformerCommand : TransformerCommands) {

@@ -8,11 +8,19 @@ public class Publisher extends BusinessObject
 {
 	private static final long serialVersionUID = 1L;
 	
-	private URI uri;
+	private String label;
+	private String uri;
 
-	public Publisher(Long id, URI uri) 
+	/**
+	 * 
+	 * @param id
+	 * @param label
+	 * @param uri
+	 */
+	public Publisher(Long id, String label, String uri) 
 	{
 		this.id = id;
+		this.label = label;
 		this.uri = uri;
 	}
 	
@@ -20,8 +28,23 @@ public class Publisher extends BusinessObject
 	{
 	}
 
-	public URI getUri() 
+	public String getLabel()
+	{
+		return label;
+	}
+	
+	public void setLabel(String label)
+	{
+		this.label = label;
+	}
+	
+	public String getUri() 
 	{
 		return uri;
+	}
+	
+	public void setUri(String uri)
+	{
+		this.uri = uri;
 	}
 }
