@@ -20,8 +20,8 @@ public class NewQARulePage extends FrontendPage
 	public NewQARulePage() 
 	{
 		super(
-			"Home > Transformers > QA > Rules management > Create", 
-			"Add new QA rule"
+			"Home > Transformers > QA > Rules management > Rules > Create", 
+			"Add a new QA rule"
 		);
 		
 		// prepare DAO objects

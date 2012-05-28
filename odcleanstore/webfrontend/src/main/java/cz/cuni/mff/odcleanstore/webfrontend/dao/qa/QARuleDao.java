@@ -179,7 +179,16 @@ public class QARuleDao extends Dao<QARule>
 	
 	private QARule loadRawRule(Long id)
 	{
-		String query = "SELECT * FROM " + TABLE_NAME + " WHERE id = ?";
+		String query =
+			"SELECT " +
+				"id, coefficient, " +
+				"blob_to_string(description) as description, "  +
+				"blob_to_string(filter) as filter " +
+			"FROM " + 
+				TABLE_NAME + " " +
+			"WHERE " +
+				"id = ?";
+		
 		Object[] params = { id };
 		
 		return (QARule) jdbcTemplate.queryForObject

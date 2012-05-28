@@ -52,10 +52,7 @@ public class PublisherDaoTest extends DaoTest
 	{
 		Publisher publisher = publisherDao.load(1L);
 		
-		assertEquals(
-			new URI("http://www.seznam.cz"),
-			publisher.getUri()
-		);
+		assertEquals("http://www.seznam.cz", publisher.getUri());
 	}
 	
 	@Test
@@ -65,27 +62,17 @@ public class PublisherDaoTest extends DaoTest
 		
 		assertEquals(3, publishers.size());
 		
-		assertEquals(
-			new URI("http://www.seznam.cz"),
-			publishers.get(0).getUri()
-		);
-
-		assertEquals(
-			new URI("http://www.google.com"),
-			publishers.get(1).getUri()
-		);
-
-		assertEquals(
-			new URI("http://www.isvzus.cz"),
-			publishers.get(2).getUri()
-		);
+		assertEquals("http://www.seznam.cz", publishers.get(0).getUri());
+		assertEquals("http://www.google.com", publishers.get(1).getUri());
+		assertEquals("http://www.isvzus.cz", publishers.get(2).getUri());
 	}
 	
 	@Test
 	public void testInserting() throws Exception
 	{
 		Publisher publisher = new Publisher();
-		publisher.setUri(new URI("http://www.nytimes.com"));
+		publisher.setLabel("NYTimes");
+		publisher.setUri("http://www.nytimes.com");
 		
 		publisherDao.save(publisher);
 
@@ -98,7 +85,7 @@ public class PublisherDaoTest extends DaoTest
 	@Test
 	public void testDeleting() throws Exception
 	{
-		Publisher publisher = new Publisher(2L, new URI("http://www.google.com"));
+		Publisher publisher = new Publisher(2L, "Google", "http://www.google.com");
 		
 		publisherDao.delete(publisher);
 

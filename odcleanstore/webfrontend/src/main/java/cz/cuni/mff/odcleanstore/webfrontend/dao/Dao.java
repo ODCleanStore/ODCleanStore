@@ -15,7 +15,7 @@ import java.util.List;
  */
 public abstract class Dao<T extends BusinessObject>
 {
-	protected static final String TABLE_NAME_PREFIX = "DB.ODCLEANSTORE.";
+	public static final String TABLE_NAME_PREFIX = "DB.ODCLEANSTORE.";
 	
 	protected JdbcTemplate jdbcTemplate;
 	

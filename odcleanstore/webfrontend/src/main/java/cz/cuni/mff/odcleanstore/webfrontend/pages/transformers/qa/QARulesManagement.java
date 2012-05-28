@@ -9,8 +9,10 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.Publisher;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.PublisherDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
@@ -21,6 +23,7 @@ public class QARulesManagement extends FrontendPage
 	private static Logger logger = Logger.getLogger(QARulesManagement.class);
 	
 	private Dao<QARule> qaRuleDao;
+	private Dao<Publisher> publisherDao;
 
 	public QARulesManagement() 
 	{
@@ -32,12 +35,70 @@ public class QARulesManagement extends FrontendPage
 		// prepare DAO objects
 		//
 		qaRuleDao = daoLookupFactory.getDao(QARuleDao.class);
+		publisherDao = daoLookupFactory.getDao(PublisherDao.class);
 		
 		// register page components
 		//
 		addQARulesTable();
+		addPublishersTable();
 	}
 
+	/*
+	 	=======================================================================
+	 	Implementace publishersTable
+	 	=======================================================================
+	*/
+	
+	private void addPublishersTable()
+	{
+		List<Publisher> allPublihers = publisherDao.loadAll();
+		
+		ListView<Publisher> listView = new ListView<Publisher>("publishersTable", allPublihers)
+		{
+			private static final long serialVersionUID = 1L;
+			
+			@Override
+			protected void populateItem(ListItem<Publisher> item) 
+			{
+				final Publisher publisher = item.getModelObject();
+				
+				item.setModel(new CompoundPropertyModel<Publisher>(publisher));
+
+				item.add(new Label("label"));	
+				item.add(new Label("uri"));	
+				
+				addDeleteButton(item, publisher);
+			}
+		};
+		
+		add(listView);
+	}
+	
+	private void addDeleteButton(ListItem<Publisher> item, final Publisher publisher)
+	{
+		Link button = new Link("deletePublisher")
+        {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+            public void onClick()
+            {
+            	publisherDao.delete(publisher);
+            	
+				getSession().info("The publisher was successfuly deleted.");
+				setResponsePage(QARulesManagement.class);
+            }
+        };
+        
+		item.add(button);
+	}
+	
+	/*
+	 	=======================================================================
+	 	Implementace qaRulesTable
+	 	=======================================================================
+	*/
+	
 	private void addQARulesTable()
 	{
 		List<QARule> allRules = qaRuleDao.loadAll();
@@ -93,11 +154,9 @@ public class QARulesManagement extends FrontendPage
 			@Override
             public void onClick()
             {
-            	/*
             	setResponsePage(
-					new EditAccountPermissionsPage(user.getId())
+					new ManageQARuleRestrictionsPage(rule.getId())
 				);
-				*/
             }
         };
         
