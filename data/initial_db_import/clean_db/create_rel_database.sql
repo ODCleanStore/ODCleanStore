@@ -71,7 +71,7 @@ CREATE TABLE DB.ODCLEANSTORE.EN_WORKING_ADDED_GRAPHS
 
 /*
 	===========================================================================
-	EL RULES MANAGEMENT
+	QA RULES MANAGEMENT
 	===========================================================================
 */
 CREATE TABLE DB.ODCLEANSTORE.QA_RULES
