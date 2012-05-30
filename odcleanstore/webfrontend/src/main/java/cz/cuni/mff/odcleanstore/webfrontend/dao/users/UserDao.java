@@ -1,10 +1,8 @@
-package cz.cuni.mff.odcleanstore.webfrontend.dao;
+package cz.cuni.mff.odcleanstore.webfrontend.dao.users;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.rowmappers.RoleRowMapper;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.rowmappers.RolesAssignedToUsersRowMapping;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.rowmappers.UserRowMapper;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.util.Pair;
 
 import java.util.HashMap;

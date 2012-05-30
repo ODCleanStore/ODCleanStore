@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.webfrontend.dao.rowmappers;
+package cz.cuni.mff.odcleanstore.webfrontend.dao.users;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 

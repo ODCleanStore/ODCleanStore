@@ -17,8 +17,8 @@ import org.apache.wicket.model.Model;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.RoleDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.users.RoleDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;

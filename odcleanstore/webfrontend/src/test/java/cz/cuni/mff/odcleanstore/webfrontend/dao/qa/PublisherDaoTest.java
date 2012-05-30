@@ -1,10 +1,10 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.qa;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.Publisher;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoTest;
 
 import java.io.File;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
@@ -23,7 +23,7 @@ public class PublisherDaoTest extends DaoTest
 	private static final String AFTER_INSERT_SCRIPT_LOCATION = ROOT_RESOURCE_DIR_PATH + "/after_insert_db_export.xml";
 	private static final String AFTER_DELETE_SCRIPT_LOCATION = ROOT_RESOURCE_DIR_PATH + "/after_delete_db_export.xml";
 	
-	private PublisherDao publisherDao;
+	private Dao<Publisher> publisherDao;
 
 	public PublisherDaoTest() throws Exception
 	{
@@ -35,16 +35,16 @@ public class PublisherDaoTest extends DaoTest
 		publisherDao.setDataSource(dataSource);
 	}
 	
-	@Before
-	public void setUp() throws Exception
-	{
-		super.setUp();
-	}
-	
 	@Override
 	protected String getInitialImportScriptLocation()
 	{
 		return IMPORT_SCRIPT_LOCATION;
+	}
+
+	@Before
+	public void setUp() throws Exception
+	{
+		super.setUp();
 	}
 	
 	@Test
