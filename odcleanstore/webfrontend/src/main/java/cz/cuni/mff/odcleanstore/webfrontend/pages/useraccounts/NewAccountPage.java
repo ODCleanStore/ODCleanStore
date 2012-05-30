@@ -71,12 +71,48 @@ public class NewAccountPage extends FrontendPage
 			}
 		};
 		
-		newAccountForm.add(new TextField<String>("username"));
-		newAccountForm.add(new TextField<String>("email"));
-		newAccountForm.add(new TextField<String>("firstname"));
-		newAccountForm.add(new TextField<String>("surname"));
+		addUsernameTextfield(newAccountForm);
+		addEmailTextfield(newAccountForm);
+		addFirstnameTextfield(newAccountForm);
+		addSurnameTextfield(newAccountForm);
 
 		add(newAccountForm);
+	}
+	
+	private void addUsernameTextfield(Form<User> form)
+	{
+		TextField<String> textField = new TextField<String>("username");
+		
+		textField.setRequired(true);
+
+		form.add(textField);
+	}
+	
+	private void addEmailTextfield(Form<User> form)
+	{
+		TextField<String> textField = new TextField<String>("email");
+		
+		textField.setRequired(true);
+
+		form.add(textField);
+	}
+
+	private void addFirstnameTextfield(Form<User> form)
+	{
+		TextField<String> textField = new TextField<String>("firstname");
+		
+		textField.setRequired(true);
+
+		form.add(textField);
+	}
+
+	private void addSurnameTextfield(Form<User> form)
+	{
+		TextField<String> textField = new TextField<String>("surname");
+		
+		textField.setRequired(true);
+
+		form.add(textField);
 	}
 	
 	private void initNewPasswordForUser(User user, Configuration config) 

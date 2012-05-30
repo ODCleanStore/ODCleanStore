@@ -5,6 +5,7 @@ import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.validation.validator.RangeValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
@@ -77,7 +78,9 @@ public class NewQARulePage extends FrontendPage
 	private void addCoefficientTextfield(Form<QARule> form)
 	{
 		TextField<String> textfield = new TextField<String>("coefficient");
+		
 		textfield.setRequired(true);
+		textfield.add(new RangeValidator<Double>(0.0, 1.0));
 		form.add(textfield);
 	}
 }

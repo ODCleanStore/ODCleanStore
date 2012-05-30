@@ -9,6 +9,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.Publisher;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.PublisherDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.validators.IRIValidator;
 
 public class NewPublisherPage extends FrontendPage
 {
@@ -74,7 +75,10 @@ public class NewPublisherPage extends FrontendPage
 	private void addURITextfield(Form<Publisher> form)
 	{
 		TextField<String> textfield = new TextField<String>("uri");
+		
 		textfield.setRequired(true);
+		textfield.add(new IRIValidator());
+		
 		form.add(textfield);
 	}
 }

@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.outputws;
 
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.validators.IRIValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.*;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
@@ -68,7 +69,9 @@ public class RegisterPropertyPage extends FrontendPage
 	private void addPropertyTextField(Form<PropertySettings> form)
 	{
 		TextField<String> textField = new TextField<String>("property");
+		
 		textField.setRequired(true);
+		textField.add(new IRIValidator());
 		
 		form.add(textField);
 	}
