@@ -6,6 +6,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 public class PropertySettingsDao extends Dao<PropertySettings>
 {
@@ -13,19 +14,29 @@ public class PropertySettingsDao extends Dao<PropertySettings>
 	
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "CR_PROPERTIES";
 	
+	private ParameterizedRowMapper<PropertySettings> rowMapper;
+	
+	public PropertySettingsDao()
+	{
+		this.rowMapper = new PropertySettingsRowMapper();
+	}
+	
+	@Override
+	protected String getTableName() 
+	{
+		return TABLE_NAME;
+	}
+
+	@Override
+	protected ParameterizedRowMapper<PropertySettings> getRowMapper() 
+	{
+		return rowMapper;
+	}
+	
 	@Override
 	public void delete(PropertySettings item) 
 	{
-		logger.debug("Deleting cr property settings: " + item.getId());
-		
-		String query = "DELETE FROM " + TABLE_NAME + " WHERE id = ?";
-		
-		Object[] arguments =
-		{
-			item.getId()
-		};
-		
-		jdbcTemplate.update(query, arguments);
+		deleteRaw(item.getId());
 	}
 
 	@Override
@@ -46,12 +57,6 @@ public class PropertySettingsDao extends Dao<PropertySettings>
 	}
 
 	@Override
-	public void update(PropertySettings item) 
-	{
-		throw new UnsupportedOperationException("Not implemented yet!");
-	}
-
-	@Override
 	public List<PropertySettings> loadAll() 
 	{
 		String query = 
@@ -62,16 +67,14 @@ public class PropertySettingsDao extends Dao<PropertySettings>
 			"JOIN " + MultivalueTypeDao.TABLE_NAME + " as MT " +
 			"ON P.multivalueTypeId = MT.id";
 		
-		return jdbcTemplate.query
-		(
-			query, 
-			new PropertySettingsRowMapper()
-		);
+		return jdbcTemplate.query(query, getRowMapper());
 	}
 
 	@Override
 	public PropertySettings load(Long id) 
 	{
-		return null;
+		throw new UnsupportedOperationException(
+			"Cannot load single rows from table: " + getTableName() + "."
+		);
 	}
 }

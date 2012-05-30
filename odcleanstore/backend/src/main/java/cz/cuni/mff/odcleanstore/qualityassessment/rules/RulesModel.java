@@ -90,7 +90,7 @@ public class RulesModel {
 	 * a particular publisher
          */
 	public Collection<Rule> getUnrestrictedRules() throws QualityAssessmentException {
-		return queryRules("SELECT * FROM DB.ODCLEANSTORE.QA_RULES WHERE id NOT IN (SELECT ruleId FROM DB.ODCLEANSTORE.QA_RULES_TO_DOMAINS_RESTRICTIONS)");
+		return queryRules("SELECT * FROM DB.ODCLEANSTORE.QA_RULES WHERE id NOT IN (SELECT ruleId FROM DB.ODCLEANSTORE.QA_RULES_TO_PUBLISHERS_RESTRICTIONS)");
 	}
 	
 	/**
@@ -102,8 +102,8 @@ public class RulesModel {
 		
 		Collection<Rule> publisherSpecific = queryRules("SELECT * FROM " +
 					"DB.ODCLEANSTORE.QA_RULES AS rule JOIN " +
-					"DB.ODCLEANSTORE.QA_RULES_TO_DOMAINS_RESTRICTIONS AS restriction ON rule.id = restriction.ruleId JOIN " +
-					"DB.ODCLEANSTORE.DATA_DOMAINS AS domain ON restriction.domainId = domain.id WHERE uri = ?", publisher);
+					"DB.ODCLEANSTORE.QA_RULES_TO_PUBLISHERS_RESTRICTIONS AS restriction ON rule.id = restriction.ruleId JOIN " +
+					"DB.ODCLEANSTORE.PUBLISHERS AS publisher ON restriction.publisherId = publisher.id WHERE uri = ?", publisher);
 		
 		publisherSpecific.addAll(getUnrestrictedRules());
 		

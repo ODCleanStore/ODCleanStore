@@ -2,7 +2,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.core.WicketSession;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.UserDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
 import cz.cuni.mff.odcleanstore.webfrontend.util.PasswordHandling;
 
 import org.apache.log4j.Logger;

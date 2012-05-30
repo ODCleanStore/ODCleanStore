@@ -112,10 +112,10 @@ public class QualityAssessorImplTest extends TestCase {
 	private String metadataGraphName;
 	
 	private List<Object[]> rulesRestrictionsBackup;
-	private List<Object[]> domainsBackup;
+	private List<Object[]> publishersBackup;
 	private List<Object[]> rulesBackup;
 	
-	private static final Object[][] domains = {
+	private static final Object[][] publishers = {
 		{0, "http://opendata.cz"}
 	};
 	
@@ -145,31 +145,31 @@ public class QualityAssessorImplTest extends TestCase {
 	}
 	
 	private void backupRulesRestrictions() throws Exception {
-		WrappedResultSet rulesRestrictions = connection.executeSelect("SELECT * FROM DB.ODCLEANSTORE.QA_RULES_TO_DOMAINS_RESTRICTIONS");
+		WrappedResultSet rulesRestrictions = connection.executeSelect("SELECT * FROM DB.ODCLEANSTORE.QA_RULES_TO_PUBLISHERS_RESTRICTIONS");
 		
 		rulesRestrictionsBackup = new ArrayList<Object[]>();
 		
 		while (rulesRestrictions.next()) {
 			Object[] ruleRestriction = {
 					rulesRestrictions.getInt("ruleId"),
-					rulesRestrictions.getInt("domainId")};
+					rulesRestrictions.getInt("publisherId")};
 
 			rulesRestrictionsBackup.add(ruleRestriction);
 		}
 	}
 	
 	private void backupDomains() throws Exception {
-		WrappedResultSet domains = connection.executeSelect("SELECT * FROM DB.ODCLEANSTORE.DATA_DOMAINS");
+		WrappedResultSet publishers = connection.executeSelect("SELECT * FROM DB.ODCLEANSTORE.DATA_PUBLISHERS");
 		
-		domainsBackup = new ArrayList<Object[]>();
+		publishersBackup = new ArrayList<Object[]>();
 		
-		while (domains.next()) {
-			Object[] domain = {
-					domains.getInt("id"),
-					domains.getNString("uri")
+		while (publishers.next()) {
+			Object[] publisher = {
+					publishers.getInt("id"),
+					publishers.getNString("uri")
 			};
 
-			domainsBackup.add(domain);
+			publishersBackup.add(publisher);
 		}
 	}
 	
@@ -179,23 +179,23 @@ public class QualityAssessorImplTest extends TestCase {
 		rulesBackup = new ArrayList<Object[]>();
 		
 		while (rules.next()) {
-			Object[] domain = {
+			Object[] publisher = {
 					rules.getInt("id"),
 					rules.getNString("filter"),
 					rules.getDouble("coefficient"),
 					rules.getNString("description")
 			};
 
-			rulesBackup.add(domain);
+			rulesBackup.add(publisher);
 		}
 	}
 	
 	private void dropRulesRestrictions() throws Exception {
-		connection.execute("DELETE FROM DB.ODCLEANSTORE.QA_RULES_TO_DOMAINS_RESTRICTIONS");
+		connection.execute("DELETE FROM DB.ODCLEANSTORE.QA_RULES_TO_PUBLISHERS_RESTRICTIONS");
 	}
 	
 	private void dropDomains() throws Exception {
-		connection.execute("DELETE FROM DB.ODCLEANSTORE.DATA_DOMAINS");
+		connection.execute("DELETE FROM DB.ODCLEANSTORE.DATA_PUBLISHERS");
 	}
 	
 	private void dropRules() throws Exception {
@@ -203,8 +203,8 @@ public class QualityAssessorImplTest extends TestCase {
 	}
 	
 	private void loadTestingDomains() throws Exception {
-		for (int i = 0; i < domains.length; ++i) {
-			connection.execute("INSERT INTO DB.ODCLEANSTORE.DATA_DOMAINS (id, uri) VALUES (?, ?)", domains[i]);
+		for (int i = 0; i < publishers.length; ++i) {
+			connection.execute("INSERT INTO DB.ODCLEANSTORE.DATA_PUBLISHERS (id, uri) VALUES (?, ?)", publishers[i]);
 		}
 	}
 	
@@ -216,15 +216,15 @@ public class QualityAssessorImplTest extends TestCase {
 	
 	private void loadTestingRulesRestrictions() throws Exception {
 		for (int i = 0; i < rulesRestrictions.length; ++i) {
-			connection.execute("INSERT INTO DB.ODCLEANSTORE.QA_RULES_TO_DOMAINS_RESTRICTIONS (ruleId, domainId) VALUES (?, ?)", rulesRestrictions[i]);
+			connection.execute("INSERT INTO DB.ODCLEANSTORE.QA_RULES_TO_PUBLISHERS_RESTRICTIONS (ruleId, publisherId) VALUES (?, ?)", rulesRestrictions[i]);
 		}
 	}
 	
 	private void restoreDomains() throws Exception {
-		Iterator<Object[]> objects = domainsBackup.iterator();
+		Iterator<Object[]> objects = publishersBackup.iterator();
 		
 		while (objects.hasNext()) {
-			connection.execute("INSERT INTO DB.ODCLEANSTORE.DATA_DOMAINS (id, uri) VALUES (?, ?)", objects.next());
+			connection.execute("INSERT INTO DB.ODCLEANSTORE.DATA_PUBLISHERS (id, uri) VALUES (?, ?)", objects.next());
 		}
 	}
 	
@@ -240,7 +240,7 @@ public class QualityAssessorImplTest extends TestCase {
 		Iterator<Object[]> objects = rulesRestrictionsBackup.iterator();
 		
 		while (objects.hasNext()) {
-			connection.execute("INSERT INTO DB.ODCLEANSTORE.QA_RULES_TO_DOMAINS_RESTRICTIONS (ruleId, domainId) VALUES (?, ?)", objects.next());
+			connection.execute("INSERT INTO DB.ODCLEANSTORE.QA_RULES_TO_PUBLISHERS_RESTRICTIONS (ruleId, publisherId) VALUES (?, ?)", objects.next());
 		}
 	}
 	

@@ -5,69 +5,48 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 
 import java.util.List;
 
+import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+
 public class AggregationTypeDao extends Dao<AggregationType>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "CR_AGGREGATION_TYPES";
 	
-	@Override
-	public void delete(AggregationType item) 
+	private ParameterizedRowMapper<AggregationType> rowMapper;
+	
+	public AggregationTypeDao()
 	{
-		throw new UnsupportedOperationException(
-			"Cannot delete from " + TABLE_NAME + "."
-		);
+		this.rowMapper = new AggregationTypeRowMapper();
+	}
+	
+	@Override
+	protected String getTableName() 
+	{
+		return TABLE_NAME;
 	}
 
 	@Override
-	public void save(AggregationType item) 
+	protected ParameterizedRowMapper<AggregationType> getRowMapper() 
 	{
-		throw new UnsupportedOperationException(
-			"Cannot insert into " + TABLE_NAME + "."
-		);
+		return rowMapper;
 	}
-
-	@Override
-	public void update(AggregationType item) 
-	{
-		throw new UnsupportedOperationException(
-			"Cannot modify " + TABLE_NAME + "."
-		);	
-	}
-
+	
 	@Override
 	public List<AggregationType> loadAll() 
 	{
-		return jdbcTemplate.query
-		(
-			"SELECT * FROM " + TABLE_NAME, 
-			new AggregationTypeRowMapper()
-		);
+		return loadAllRaw();
 	}
 
 	@Override
 	public AggregationType load(Long id) 
 	{
-		String query = 
-			"SELECT * FROM " + TABLE_NAME + " " + 
-			"WHERE id = ?";
-		
-		Object[] params = 
-		{
-			id
-		};
-
-		List<AggregationType> matchingRows = jdbcTemplate.query(
-			query,
-			params,
-			new AggregationTypeRowMapper()
+		return loadRaw(id);
+	}
+	
+	@Override
+	public void deleteRaw(Long id)
+	{
+		throw new UnsupportedOperationException(
+			"Cannot delete rows from table: " + getTableName() + "."
 		);
-		
-		if (matchingRows.size() != 1)
-		{
-			throw new IllegalArgumentException(
-				"The requested CR aggregation type could not be found."
-			);
-		}
-		
-		return matchingRows.get(0);
 	}
 }
