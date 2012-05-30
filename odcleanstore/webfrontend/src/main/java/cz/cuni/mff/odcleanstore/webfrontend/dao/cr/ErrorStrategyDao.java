@@ -5,69 +5,48 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 
 import java.util.List;
 
+import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+
 public class ErrorStrategyDao extends Dao<ErrorStrategy>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "CR_ERROR_STRATEGIES";
+
+	private ParameterizedRowMapper<ErrorStrategy> rowMapper;
+	
+	public ErrorStrategyDao()
+	{
+		this.rowMapper = new ErrorStrategyRowMapper();
+	}
 	
 	@Override
-	public void delete(ErrorStrategy item) 
+	protected String getTableName() 
 	{
-		throw new UnsupportedOperationException(
-			"Cannot delete from " + TABLE_NAME + "."
-		);
+		return TABLE_NAME;
 	}
-
+	
 	@Override
-	public void save(ErrorStrategy item) 
+	protected ParameterizedRowMapper<ErrorStrategy> getRowMapper() 
 	{
-		throw new UnsupportedOperationException(
-			"Cannot insert into " + TABLE_NAME + "."
-		);
+		return this.rowMapper;
 	}
-
-	@Override
-	public void update(ErrorStrategy item) 
-	{
-		throw new UnsupportedOperationException(
-			"Cannot modify " + TABLE_NAME + "."
-		);	
-	}
-
+	
 	@Override
 	public List<ErrorStrategy> loadAll() 
 	{
-		return jdbcTemplate.query
-		(
-			"SELECT * FROM " + TABLE_NAME, 
-			new ErrorStrategyRowMapper()
-		);
+		return loadAllRaw();
 	}
 
 	@Override
 	public ErrorStrategy load(Long id) 
 	{
-		String query = 
-			"SELECT * FROM " + TABLE_NAME + " " +
-			"WHERE id = ?";
-		
-		Object[] params = 
-		{
-			id
-		};
+		return loadRaw(id);
+	}
 
-		List<ErrorStrategy> matchingRows = jdbcTemplate.query(
-			query,
-			params,
-			new ErrorStrategyRowMapper()
+	@Override
+	public void deleteRaw(Long id)
+	{
+		throw new UnsupportedOperationException(
+			"Cannot delete rows from table: " + getTableName() + "."
 		);
-		
-		if (matchingRows.size() != 1)
-		{
-			throw new IllegalArgumentException(
-				"The requested CR error strategy could not be found."
-			);
-		}
-		
-		return matchingRows.get(0);
 	}
 }

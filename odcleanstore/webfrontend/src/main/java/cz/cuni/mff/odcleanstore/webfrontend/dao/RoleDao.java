@@ -5,6 +5,8 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.rowmappers.RoleRowMapper;
 
 import java.util.List;
 
+import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+
 /**
  * The Role DAO.
  * 
@@ -13,38 +15,36 @@ import java.util.List;
  */
 public class RoleDao extends Dao<Role>
 {
+	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "ROLES";
+	
+	private ParameterizedRowMapper<Role> rowMapper;
+	
+	public RoleDao()
+	{
+		this.rowMapper = new RoleRowMapper();
+	}
+	
 	@Override
-	public void delete(Role item) {
-		// TODO Auto-generated method stub
-		
+	protected String getTableName() 
+	{
+		return TABLE_NAME;
 	}
 
 	@Override
-	public void save(Role item) {
-		// TODO Auto-generated method stub
-		
+	protected ParameterizedRowMapper<Role> getRowMapper() 
+	{
+		return rowMapper;
 	}
-
-	@Override
-	public void update(Role item) {
-		// TODO Auto-generated method stub
-		
-	}
-
+	
 	@Override
 	public List<Role> loadAll() 
 	{
-		return jdbcTemplate.query
-		(
-			"SELECT * FROM DB.ODCLEANSTORE.ROLES", 
-			new RoleRowMapper()
-		);
+		return loadAllRaw();
 	}
 
 	@Override
-	public Role load(Long id) {
-		// TODO Auto-generated method stub
-		return null;
+	public Role load(Long id) 
+	{
+		return loadRaw(id);
 	}
-
 }

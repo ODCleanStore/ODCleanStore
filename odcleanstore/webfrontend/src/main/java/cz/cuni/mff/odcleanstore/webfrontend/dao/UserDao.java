@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import com.mysql.jdbc.PreparedStatement;
 
@@ -30,22 +31,38 @@ import com.mysql.jdbc.PreparedStatement;
  */
 public class UserDao extends Dao<User>
 {
+	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "USERS";
+	public static final String PERMISSIONS_TABLE_NAME = TABLE_NAME_PREFIX + "ROLES_ASSIGNED_TO_USERS";
+	
 	private static Logger logger = Logger.getLogger(UserDao.class);
 	
-	@Override
-	public void delete(User item) 
+	private ParameterizedRowMapper<User> rowMapper;
+	
+	public UserDao()
 	{
-		// TODO Auto-generated method stub
-		
+		this.rowMapper = new UserRowMapper();
+	}
+	
+	@Override
+	protected String getTableName() 
+	{
+		return TABLE_NAME;
 	}
 
+
+	@Override
+	protected ParameterizedRowMapper<User> getRowMapper() 
+	{
+		return rowMapper;
+	}
+	
 	@Override
 	public void save(User item) 
 	{
 		logger.debug("Saving new user.");
 		
 		String query = 
-			"INSERT INTO DB.ODCLEANSTORE.USERS " +
+			"INSERT INTO " + getTableName() + " " +
 			"(username, email, passwordHash, salt, firstname, surname) " +
 			"VALUES (?, ?, ?, ?, ?, ?)";
 		
@@ -101,7 +118,7 @@ public class UserDao extends Dao<User>
 	{
 		logger.debug("Loading registered user: " + id);
 		
-		User user = fetchUserForId(id);
+		User user = loadRaw(id);
 		Map<Long, Role> rolesMapping = fetchAllRoles();
 		
 		List<Pair<Long, Long>> assignedRoles = fetchRolesToUsersMappingForUserId(id);
@@ -140,44 +157,12 @@ public class UserDao extends Dao<User>
 		return user;
 	}
 	
-	private User fetchUserForId(Long id)
-	{
-		Object[] arguments =
-		{
-			id
-		};
-		
-		List<User> resultList = jdbcTemplate.query(
-			"SELECT * FROM DB.ODCLEANSTORE.USERS WHERE id = ?", 
-			arguments,
-			new UserRowMapper()
-		);
-		
-		// TODO: if (resultList.size() != 1) ....
-		return resultList.get(0);
-	}
-	
 	private User fetchUserForUsername(String username)
 	{
-		String query =
-			"SELECT * FROM DB.ODCLEANSTORE.USERS " +
-			"WHERE username = ?";
-		
-		Object[] arguments =
-		{
-			username
-		};
+		String query = "SELECT * FROM " + getTableName() + " WHERE username = ?";
+		Object[] arguments = { username };
 
-		List<User> resultList = jdbcTemplate.query(
-			query, 
-			arguments, 
-			new UserRowMapper()
-		);
-
-		if (resultList.isEmpty())
-			return null;
-		
-		return resultList.get(0);
+		return (User) jdbcTemplate.queryForObject(query, arguments, getRowMapper());
 	}
 	
 	private Map<Long, User> fetchAllUsers()
@@ -186,11 +171,7 @@ public class UserDao extends Dao<User>
 		
 		// fetch all users
 		//
-		List<User> registeredUsers = jdbcTemplate.query
-		(
-			"SELECT * FROM DB.ODCLEANSTORE.USERS",
-			new UserRowMapper()
-		);
+		List<User> registeredUsers = loadAllRaw();
 		
 		// convert fetched users to a map
 		//
@@ -208,6 +189,7 @@ public class UserDao extends Dao<User>
 		
 		// fetch all roles
 		//
+		// TODO: doresit cross-DAO queries
 		List<Role> registeredRoles = jdbcTemplate.query
 		(
 			"SELECT * FROM DB.ODCLEANSTORE.ROLES", 
@@ -230,26 +212,17 @@ public class UserDao extends Dao<User>
 		
 		return jdbcTemplate.query
 		(
-			"SELECT * FROM DB.ODCLEANSTORE.ROLES_ASSIGNED_TO_USERS", 
+			"SELECT * FROM " + PERMISSIONS_TABLE_NAME, 
 			new RolesAssignedToUsersRowMapping()
 		);
 	}
 	
 	private List<Pair<Long, Long>> fetchRolesToUsersMappingForUserId(Long id)
 	{
-		logger.debug("Fetching user-to-role mapping for user: " + id);
+		String query = "SELECT * FROM " + PERMISSIONS_TABLE_NAME + " WHERE userId = ?";
+		Object[] arguments = { id };
 		
-		Object[] arguments =
-		{
-			id
-		};
-		
-		return jdbcTemplate.query
-		(
-			"SELECT * FROM DB.ODCLEANSTORE.ROLES_ASSIGNED_TO_USERS WHERE userId = ?",
-			arguments,
-			new RolesAssignedToUsersRowMapping()
-		);
+		return jdbcTemplate.query(query, arguments, new RolesAssignedToUsersRowMapping());
 	}
 	
 	private void updateUserProperties(User user)

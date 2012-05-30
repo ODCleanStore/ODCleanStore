@@ -2,6 +2,8 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.qa;
 
 import java.util.List;
 
+import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.Publisher;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 
@@ -9,19 +11,25 @@ public class PublisherDao extends Dao<Publisher>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "PUBLISHERS";
 	
-	@Override
-	public void delete(Publisher item) 
+	private ParameterizedRowMapper<Publisher> rowMapper;
+	
+	public PublisherDao()
 	{
-		String query = "DELETE FROM " + TABLE_NAME + " WHERE id = ?";
-		
-		Object[] params =
-		{
-			item.getId()
-		};
-		
-		jdbcTemplate.update(query, params);
+		this.rowMapper = new PublisherRowMapper();
 	}
-
+	
+	@Override
+	protected String getTableName() 
+	{
+		return TABLE_NAME;
+	}
+	
+	@Override
+	protected ParameterizedRowMapper<Publisher> getRowMapper() 
+	{
+		return rowMapper;
+	}
+	
 	@Override
 	public void save(Publisher item) 
 	{
@@ -35,34 +43,22 @@ public class PublisherDao extends Dao<Publisher>
 		
 		jdbcTemplate.update(query, params);
 	}
-
+	
 	@Override
-	public void update(Publisher item) 
+	public void delete(Publisher item) 
 	{
-		throw new UnsupportedOperationException("Not implemented yet.");
+		deleteRaw(item.getId());
 	}
 
 	@Override
 	public List<Publisher> loadAll() 
 	{
-		return jdbcTemplate.query
-		(
-			"SELECT * FROM " + TABLE_NAME,
-			new PublisherRowMapper()
-		);
+		return loadAllRaw();
 	}
 
 	@Override
 	public Publisher load(Long id) 
 	{
-		String query = "SELECT * FROM " + TABLE_NAME + " WHERE id = ?";
-		Object[] params = { id };
-		
-		return (Publisher) jdbcTemplate.queryForObject
-		(
-			query, 
-			params, 
-			new PublisherRowMapper()
-		);
+		return loadRaw(id);
 	}
 }

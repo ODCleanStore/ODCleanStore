@@ -6,6 +6,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+
 import cz.cuni.mff.odcleanstore.util.Pair;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.Publisher;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
@@ -13,22 +15,33 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 
 public class QARuleDao extends Dao<QARule>
 {
-	private static final String TABLE_NAME = TABLE_NAME_PREFIX + "QA_RULES";
-	private static final String RESTRICTIONS_TABLE_NAME = TABLE_NAME_PREFIX + "QA_RULES_TO_PUBLISHERS_RESTRICTIONS";
+	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "QA_RULES";
+	public static final String RESTRICTIONS_TABLE_NAME = TABLE_NAME_PREFIX + "QA_RULES_TO_PUBLISHERS_RESTRICTIONS";
+	
+	private ParameterizedRowMapper<QARule> rowMapper;
+	
+	public QARuleDao()
+	{
+		this.rowMapper = new QARuleRowMapper();
+	}
+
+	@Override
+	protected String getTableName() 
+	{
+		return TABLE_NAME;
+	}
+
+	@Override
+	protected ParameterizedRowMapper<QARule> getRowMapper() 
+	{
+		return rowMapper;
+	}
 	
 	@Override
 	public void delete(QARule item) 
 	{
 		clearPublisherRestrictions(item);
-		deleteRawRule(item);
-	}
-
-	private void deleteRawRule(QARule rule)
-	{
-		String query = "DELETE FROM " + TABLE_NAME + " WHERE id = ?";
-		Object[] params = { rule.getId() };
-		
-		jdbcTemplate.update(query, params);
+		deleteRaw(item.getId());
 	}
 	
 	@Override
