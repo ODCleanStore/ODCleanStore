@@ -66,7 +66,7 @@ public class DaoLookupFactory
 		try {
 			daoInstance = daoClass.newInstance();
 		} 
-		catch (ReflectiveOperationException ex) 
+		catch (Exception ex) 
 		{
 			throw new AssertionError(
 				"Could not load DAO class: " + daoClass
