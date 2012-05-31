@@ -161,4 +161,26 @@ public class NamedGraphMetadata {
     public void setLicence(String license) {
         this.license = license;
     }
+
+    @Override
+    public String toString() {
+        return "Metadata for " + namedGraphURI
+                + " { Source: " + toStringWithNull(source)
+                + "; Publisher: " + toStringWithNull(publisher)
+                + "; Score: " + toStringWithNull(score)
+                + "; Publisher score: " + toStringWithNull(publisherScore)
+                + "; Inserted at: " + toStringWithNull(insertedAt)
+                + "; Inserted by: " + toStringWithNull(insertedBy)
+                + "; License: " + toStringWithNull(license)
+                + " }";
+    }
+
+    /**
+     * Null-proof conversion to string.
+     * @param o object
+     * @return string
+     */
+    private String toStringWithNull(Object o) {
+        return o == null ? "null" : o.toString();
+    }
 }

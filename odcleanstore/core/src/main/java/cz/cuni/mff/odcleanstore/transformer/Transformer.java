@@ -8,6 +8,7 @@ package cz.cuni.mff.odcleanstore.transformer;
  * already attached named graphs.
  * The caller must ensure that the transformed named graphs (and the respective attached graphs) are
  * not modified while the Transformer is working on it.
+ * A new instance of the transformer is created for each named graph to process.
  *
  * @author Jan Michelfeit
  */

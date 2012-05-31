@@ -286,7 +286,7 @@ import java.util.regex.Pattern;
      * @param keywordsQuery the keyword query
      * @return list of keywords parsed from the query
      */
-    private static Collection<String> parseContainsKeywords(String keywordsQuery) {
+    private static Collection<String> parseContainedKeywords(String keywordsQuery) {
         String filteredKeywordsQuery = CONTAINS_FILTER_PATTERN1.matcher(keywordsQuery).replaceAll("");
         filteredKeywordsQuery = CONTAINS_FILTER_PATTERN2.matcher(filteredKeywordsQuery).replaceAll("");
         Matcher keywordMatcher = CONTAINS_KEYWORD_PATTERN.matcher(filteredKeywordsQuery);
@@ -302,7 +302,7 @@ import java.util.regex.Pattern;
     /**
      * Builds the canonical representation of a query.
      * The result is a concatenation of all parsed keywords by a single space.
-     * @param keywords parsed keywords (see {@link #parseContainsKeywords(String)})
+     * @param keywords parsed keywords (see {@link #parseContainedKeywords(String)})
      * @return string representation of the query
      */
     private static String buildCanonicalQuery(Collection<String> keywords) {
@@ -326,7 +326,7 @@ import java.util.regex.Pattern;
      * TODO: possible tests: "abc def \"efg\" hij", "abc\"def\"efg", "abc\"def", "a'bc", "\"abc, "abcd*", "abc*",
      * "ab'c*", "ab\"c*"
      *
-     * @param keywords parsed keywords (see {@link #parseContainsKeywords(String)})
+     * @param keywords parsed keywords (see {@link #parseContainedKeywords(String)})
      * @return an expression that matches the given keyword(s) in a bif:contains pattern
      */
     private static String buildContainsMatchExpr(Collection<String> keywords) {
@@ -411,7 +411,7 @@ import java.util.regex.Pattern;
                     "The requested keyword query is longer than " + MAX_QUERY_LENGTH + " characters.");
         }
 
-        Collection<String> parsedKeywords = parseContainsKeywords(keywordsQuery);
+        Collection<String> parsedKeywords = parseContainedKeywords(keywordsQuery);
         String canonicalQuery = buildCanonicalQuery(parsedKeywords);
         String containsMatchExpr = buildContainsMatchExpr(parsedKeywords);
         String exactMatchExpr = buildExactMatchExpr(keywordsQuery);

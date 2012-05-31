@@ -6,7 +6,9 @@ package cz.cuni.mff.odcleanstore.shared;
  * @author Jan Michelfeit
  */
 public class ODCleanStoreException extends Exception {
-    /**
+	private static final long serialVersionUID = 1551176048380588306L;
+
+	/**
      * Constructs a new exception with the given cause.
      * @param cause the cause
      */
