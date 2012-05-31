@@ -204,6 +204,9 @@
 								<exclude>none</exclude>
 							</excludes>
 							<includes>
+								<include>**/Test*.java</include>
+								<include>**/*Test.java</include>
+								<include>**/*TestCase.java</include>
 								<include>**/systest/**</include>
 							</includes>
 						</configuration>
