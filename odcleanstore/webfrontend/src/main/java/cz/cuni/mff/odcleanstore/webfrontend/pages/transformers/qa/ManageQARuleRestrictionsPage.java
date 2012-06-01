@@ -2,7 +2,6 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
@@ -10,14 +9,12 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.Publisher;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.PublisherDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts.EditAccountPermissionsPage;
 
 public class ManageQARuleRestrictionsPage extends FrontendPage 
 {

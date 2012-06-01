@@ -6,15 +6,12 @@ import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.AggregationType;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.PropertySettings;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.Publisher;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.PublisherDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.outputws.AggregationSettingsPage;
 
 public class NewRestrictionPage extends FrontendPage
 {
