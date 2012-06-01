@@ -16,16 +16,16 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.PublisherDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-public class QARulesManagement extends FrontendPage
+public class QARulesManagementPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger(QARulesManagement.class);
+	private static Logger logger = Logger.getLogger(QARulesManagementPage.class);
 	
 	private Dao<QARule> qaRuleDao;
 	private Dao<Publisher> publisherDao;
 
-	public QARulesManagement() 
+	public QARulesManagementPage() 
 	{
 		super(
 			"Home > Transformers > QA > Rules management", 
@@ -86,7 +86,7 @@ public class QARulesManagement extends FrontendPage
             	publisherDao.delete(publisher);
             	
 				getSession().info("The publisher was successfuly deleted.");
-				setResponsePage(QARulesManagement.class);
+				setResponsePage(QARulesManagementPage.class);
             }
         };
         
@@ -138,7 +138,7 @@ public class QARulesManagement extends FrontendPage
             	qaRuleDao.delete(rule);
             	
 				getSession().info("The rule was successfuly deleted.");
-				setResponsePage(QARulesManagement.class);
+				setResponsePage(QARulesManagementPage.class);
             }
         };
         

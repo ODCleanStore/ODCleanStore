@@ -55,7 +55,7 @@ public class NewPublisherPage extends FrontendPage
 				publisherDao.save(publisher);
 				
 				getSession().info("The publisher was successfuly registered.");
-				setResponsePage(QARulesManagement.class);
+				setResponsePage(QARulesManagementPage.class);
 			}
 		};
 		

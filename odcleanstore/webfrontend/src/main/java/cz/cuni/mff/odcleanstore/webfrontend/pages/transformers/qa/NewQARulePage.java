@@ -50,7 +50,7 @@ public class NewQARulePage extends FrontendPage
 				qaRuleDao.save(rule);
 				
 				getSession().info("The rule was successfuly registered.");
-				setResponsePage(QARulesManagement.class);
+				setResponsePage(QARulesManagementPage.class);
 			}
 		};
 		
