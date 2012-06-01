@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.webfrontend.dao;
+package cz.cuni.mff.odcleanstore.webfrontend.systest.dao;
 
 import java.io.*;
 import java.io.File;

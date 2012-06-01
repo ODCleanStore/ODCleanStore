@@ -1,8 +1,9 @@
-package cz.cuni.mff.odcleanstore.webfrontend.dao.qa;
+package cz.cuni.mff.odcleanstore.webfrontend.systest.dao.qa;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.Publisher;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoTest;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.PublisherDao;
+import cz.cuni.mff.odcleanstore.webfrontend.systest.dao.DaoTest;
 
 import java.io.File;
 import java.net.URISyntaxException;

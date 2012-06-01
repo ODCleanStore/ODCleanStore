@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.webfrontend.dao.qa;
+package cz.cuni.mff.odcleanstore.webfrontend.systest.dao.qa;
 
 import static org.junit.Assert.*;
 
@@ -12,7 +12,8 @@ import org.junit.Test;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoTest;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
+import cz.cuni.mff.odcleanstore.webfrontend.systest.dao.DaoTest;
 
 public class QARuleDaoTest extends DaoTest
 {

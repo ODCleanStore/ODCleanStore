@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.webfrontend.dao.users;
+package cz.cuni.mff.odcleanstore.webfrontend.systest.dao.users;
 
 import static org.junit.Assert.*;
 
@@ -12,8 +12,8 @@ import org.junit.Test;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoTest;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.RoleDao;
+import cz.cuni.mff.odcleanstore.webfrontend.systest.dao.DaoTest;
 
 public class RoleDaoTest extends DaoTest
 {
