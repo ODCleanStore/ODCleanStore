@@ -1,0 +1,44 @@
+<wicket:extend>
+
+<wicket:link>
+<div>
+	<a class="placedright" href="OIRulesManagementPage.html">Back to the list of OI rules' groups</a>
+	<div class="clear">&nbsp;</div>
+</div>
+</wicket:link>
+				
+<div class="datalistitem">
+	<strong class="block">Label:</strong>
+	<span wicket:id="label">[label]</span>
+</div>
+
+<div class="datalistitem">
+	<strong class="block">Description:</strong>
+	<span wicket:id="description">[description]</span>
+</div>
+
+<h2>Related rules</h2>
+
+<div>
+	<a class="placedright" href="#" wicket:id="addNewRuleLink">Add a new rule</a>
+	<div class="clear">&nbsp;</div>
+</div>
+
+<table border="1">
+	
+	<tr>
+		<th>Definition</th>
+		<th>Action</th>
+	</tr>
+	
+	<tr wicket:id="oiRulesTable">
+	
+		<td wicket:id="definition">[definition]</td>
+		
+		<td class="centered">
+			<input wicket:id="deleteRule" type="button" value="Delete" />
+		</td>
+	</tr>
+</table>
+
+</wicket:extend>

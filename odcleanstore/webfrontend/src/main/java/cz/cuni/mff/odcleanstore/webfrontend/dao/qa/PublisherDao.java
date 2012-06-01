@@ -48,6 +48,8 @@ public class PublisherDao extends Dao<Publisher>
 	public void delete(Publisher item) 
 	{
 		deleteRaw(item.getId());
+		
+		// TODO: delete all related rule restrictions
 	}
 
 	@Override

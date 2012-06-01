@@ -1,0 +1,22 @@
+<wicket:extend>
+
+<wicket:link>
+<div>
+	<a class="placedright" href="OIRulesManagementPage.html">Back to the list of rules' groups</a>
+	<div class="clear">&nbsp;</div>
+</div>
+</wicket:link>
+
+<form wicket:id="newOIRulesGroupForm">
+	<p>
+		<label for="label">Label:</label>
+		<input wicket:id="label" id="label" />
+	</p>
+	<p>
+		<label for="description">Description:</label>
+		<textarea wicket:id="description" id="description"></textarea>
+	</p>
+	<input type="submit" value="Register" />
+</form>
+
+</wicket:extend>
