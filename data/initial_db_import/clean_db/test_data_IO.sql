@@ -1,9 +1,9 @@
-delete from DB.ODCLEANSTORE.OI_RULES;
-delete from DB.ODCLEANSTORE.oi_rules_groups;
+DELETE FROM DB.ODCLEANSTORE.OI_RULES;
+DELETE FROM DB.ODCLEANSTORE.OI_RULES_GROUPS;
 
-insert into DB.ODCLEANSTORE.oi_rules_groups values (1, n'pravidla pro linkovani testovacich dat o zakazkach od Tomase K.', n'pravidla pro linkovani testovacich dat o zakazkach od Tomase K.');
+INSERT INTO DB.ODCLEANSTORE.OI_RULES_GROUPS VALUES (1, n'pravidla pro linkovani testovacich dat o zakazkach od Tomase K.', n'pravidla pro linkovani testovacich dat o zakazkach od Tomase K.');
 
-insert into DB.ODCLEANSTORE.OI_RULES values (1, 1, n'<Interlink id="title_supplier">
+INSERT INTO DB.ODCLEANSTORE.OI_RULES VALUES (1, 1, n'<Interlink id="title_supplier">
       <LinkType>owl:sameAs</LinkType>
       <SourceDataset dataSource="Zakazky" var="a">
         <RestrictTo> ?x purl:supplier ?a . </RestrictTo>
@@ -23,4 +23,4 @@ insert into DB.ODCLEANSTORE.OI_RULES values (1, 1, n'<Interlink id="title_suppli
       </Outputs>
     </Interlink>');
     
-insert into DB.DBA.SYS_XML_PERSISTENT_NS_DECL values ('purl','http://purl.org/procurement#');
+INSERT INTO DB.DBA.SYS_XML_PERSISTENT_NS_DECL VALUES ('purl','http://purl.org/procurement#');
