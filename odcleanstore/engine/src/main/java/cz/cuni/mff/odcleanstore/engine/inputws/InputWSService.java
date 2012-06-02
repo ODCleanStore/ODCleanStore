@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.engine.ws.scraper;
+package cz.cuni.mff.odcleanstore.engine.inputws;
 
 import java.io.File;
 import java.util.Collection;
@@ -14,11 +14,11 @@ import cz.cuni.mff.odcleanstore.engine.common.ModuleState;
 /**
  *  @author Petr Jerman
  */
-public final class ScraperService extends Service implements Runnable {
+public final class InputWSService extends Service implements Runnable {
 
-	private static final Logger LOG = Logger.getLogger(ScraperService.class);
+	private static final Logger LOG = Logger.getLogger(InputWSService.class);
 
-	public ScraperService(Engine engine) {
+	public InputWSService(Engine engine) {
 		super(engine);
 	}
 
@@ -30,17 +30,17 @@ public final class ScraperService extends Service implements Runnable {
 					return;
 				}
 				setModuleState(ModuleState.INITIALIZING);
-				LOG.info("ScraperService initializing");
+				LOG.info("InputWSService initializing");
 			}
 
 			setModuleState(ModuleState.RECOVERY);
 			recovery();
-			Endpoint.publish(Engine.SCRAPER_ENDPOINT_URL, new Scraper());
+			Endpoint.publish(Engine.INPUTWS_ENDPOINT_URL, new InputWS());
 			setModuleState(ModuleState.RUNNING);
-			LOG.info("ScraperService running");
+			LOG.info("InputWSService running");
 		} catch (Exception e) {
 			setModuleState(ModuleState.CRASHED);
-			String message = String.format("ScraperService crashed - %s", e.getMessage());
+			String message = String.format("InputWSService crashed - %s", e.getMessage());
 			LOG.fatal(message);
 		}
 	}
@@ -49,13 +49,13 @@ public final class ScraperService extends Service implements Runnable {
 		ImportingInputGraphStates importedInputGraphStates = new ImportingInputGraphStates();
 		Collection<String> importingGraphUuids = importedInputGraphStates.getAllImportingGraphUuids();
 		if (importingGraphUuids != null && !importingGraphUuids.isEmpty()) {
-			LOG.info("ScraperService starts recovery");
+			LOG.info("InputWSService starts recovery");
 			for (String uuid : importingGraphUuids) {
-				File inputFile = new File(Engine.SCRAPER_INPUT_DIR + uuid + ".dat");
+				File inputFile = new File(Engine.INPUTWS_DIR + uuid + ".dat");
 				inputFile.delete();
 			}
 			importedInputGraphStates.deleteAllImportingGraphUuids();
-			LOG.info("ScraperService ends recovery");
+			LOG.info("InputWSService ends recovery");
 		}
 	}
 }

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package cz.cuni.mff.odcleanstore.engine.ws.scraper;
+package cz.cuni.mff.odcleanstore.engine.inputws;
 
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
@@ -15,17 +15,17 @@ import org.apache.log4j.Logger;
 
 import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
-import cz.cuni.mff.odcleanstore.engine.ws.scraper.ifaces.IScraper;
-import cz.cuni.mff.odcleanstore.engine.ws.scraper.ifaces.InsertException;
-import cz.cuni.mff.odcleanstore.engine.ws.scraper.ifaces.Metadata;
+import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.IInputWS;
+import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.InsertException;
+import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.Metadata;
 
 /**
  *  @author Petr Jerman
  */
 @WebService
-public class Scraper implements IScraper {
+public class InputWS implements IInputWS {
 
-	private static final Logger LOG = Logger.getLogger(Scraper.class);
+	private static final Logger LOG = Logger.getLogger(InputWS.class);
 
 	private static ImportingInputGraphStates _importedInputGraphStates = new ImportingInputGraphStates();
 
@@ -33,7 +33,7 @@ public class Scraper implements IScraper {
 	public void insert(@WebParam(name = "user") String user, @WebParam(name = "password") String password, @WebParam(name = "metadata") Metadata metadata,
 			@WebParam(name = "rdfXmlPayload") String rdfXmlPayload) throws InsertException {
 
-		LOG.info("Scraper webservice starts processing for input");
+		LOG.info("InputWS webservice starts processing for input");
 		try {
 			if (user == null || password == null || !user.equals("scraper") || !password.equals("reparcs")) {
 				throw InsertException.BAD_CREDENTIALS;
@@ -58,19 +58,19 @@ public class Scraper implements IScraper {
 			saveFiles(metadata, rdfXmlPayload);
 			_importedInputGraphStates.commitImportSession(sessionUuid);
 			Engine.signalToPipelineService();
-			LOG.info(String.format("Scraper webservice ends processing for input graph %s",metadata.uuid));
+			LOG.info(String.format("InputWS webservice ends processing for input graph %s",metadata.uuid));
 
 		} catch (InsertException e) {
-			LOG.warn(String.format("Scraper webservice - insert exception %s : %s", e.getMessage(), e.getMoreInfo()));
+			LOG.warn(String.format("InputWS webservice - insert exception %s : %s", e.getMessage(), e.getMoreInfo()));
 			throw e;
 		} catch (ImportingInputGraphStates.ServiceBusyException e) {
-			LOG.warn(String.format("Scraper webservice - insert exception %s : %s", InsertException.SERVICE_BUSY.getMessage(), InsertException.SERVICE_BUSY.getMoreInfo()));
+			LOG.warn(String.format("InputWS webservice - insert exception %s : %s", InsertException.SERVICE_BUSY.getMessage(), InsertException.SERVICE_BUSY.getMoreInfo()));
 			throw InsertException.SERVICE_BUSY;
 		} catch (ImportingInputGraphStates.DuplicatedUuid e) {
-			LOG.warn(String.format("Scraper webservice - insert exception %s : %s", InsertException.DUPLICATED_UUID.getMessage(), InsertException.DUPLICATED_UUID.getMoreInfo()));
+			LOG.warn(String.format("InputWS webservice - insert exception %s : %s", InsertException.DUPLICATED_UUID.getMessage(), InsertException.DUPLICATED_UUID.getMoreInfo()));
 			throw InsertException.DUPLICATED_UUID;
 		} catch (Exception e) {
-			LOG.warn(String.format("Scraper webservice - insert exception %s : %s", InsertException.FATAL_ERROR.getMessage(), InsertException.FATAL_ERROR.getMoreInfo()));
+			LOG.warn(String.format("InputWS webservice - insert exception %s : %s", InsertException.FATAL_ERROR.getMessage(), InsertException.FATAL_ERROR.getMoreInfo()));
 			throw InsertException.FATAL_ERROR;
 		}
 	}
@@ -123,7 +123,7 @@ public class Scraper implements IScraper {
 		FileOutputStream fout = null;
 		ObjectOutputStream oos = null;
 		try {
-			fout = new FileOutputStream(Engine.SCRAPER_INPUT_DIR + metadata.uuid + ".dat");
+			fout = new FileOutputStream(Engine.INPUTWS_DIR + metadata.uuid + ".dat");
 			oos = new ObjectOutputStream(fout);
 			oos.writeObject(FormatHelper.getW3CDTFCurrent());
 			oos.writeObject(metadata);

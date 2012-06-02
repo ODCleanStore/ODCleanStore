@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.engine.ws.scraper.ifaces;
+package cz.cuni.mff.odcleanstore.engine.inputws.ifaces;
 
 import java.io.Serializable;
 

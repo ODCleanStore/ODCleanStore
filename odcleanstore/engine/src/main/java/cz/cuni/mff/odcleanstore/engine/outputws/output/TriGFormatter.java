@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.engine.ws.user.output;
+package cz.cuni.mff.odcleanstore.engine.outputws.output;
 
 import java.io.IOException;
 import java.io.Writer;

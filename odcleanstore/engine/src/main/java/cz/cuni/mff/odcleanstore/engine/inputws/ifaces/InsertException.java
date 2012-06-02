@@ -1,7 +1,7 @@
-package cz.cuni.mff.odcleanstore.engine.ws.scraper.ifaces;
+package cz.cuni.mff.odcleanstore.engine.inputws.ifaces;
 
 /**
- * A exception arising from Scraper WebService.
+ * A exception arising from InputWS WebService.
  *
  * @author Petr Jerman
  */

@@ -5,7 +5,7 @@ package cz.cuni.mff.odcleanstore.wsclient;
  */
 
 /**
- * A exception arising from Scraper WebService.
+ * A exception arising from InputWS WebService.
  * 
  * Possible property values:
  * 

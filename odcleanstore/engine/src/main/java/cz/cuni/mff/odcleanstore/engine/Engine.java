@@ -9,9 +9,9 @@ import org.apache.log4j.*;
 import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
 import cz.cuni.mff.odcleanstore.engine.common.Module;
 import cz.cuni.mff.odcleanstore.engine.common.ModuleState;
+import cz.cuni.mff.odcleanstore.engine.inputws.InputWSService;
+import cz.cuni.mff.odcleanstore.engine.outputws.OutputWSService;
 import cz.cuni.mff.odcleanstore.engine.pipeline.PipelineService;
-import cz.cuni.mff.odcleanstore.engine.ws.scraper.ScraperService;
-import cz.cuni.mff.odcleanstore.engine.ws.user.UserService;
 
 /**
  * @author Petr Jerman
@@ -27,12 +27,12 @@ public final class Engine extends Module {
 	public static final String DATA_PREFIX = "http://opendata.cz/infrastructure/odcleanstore/";
 	public static final String METADATA_PREFIX = "http://opendata.cz/infrastructure/odcleanstore/metadata/";
 
-	public static final String SCRAPER_INPUT_DIR = "engineScraperInput/";
+	public static final String INPUTWS_DIR = "inputWS/";
+	public static final String INPUTWS_ENDPOINT_URL = "http://localhost:8088/odcleanstore/scraper";
 
-	public static final String SCRAPER_ENDPOINT_URL = "http://localhost:8088/odcleanstore/scraper";
-	public static final int USER_SERVICE_PORT = 8087;
-	public static final String USER_SERVICE_KEYWORD_PATH = "keyword";
-	public static final String USER_SERVICE_URI_PATH = "uri";
+	public static final int OUTPUTWS_PORT = 8087;
+	public static final String OUTPUTWS_KEYWORD_PATH = "keyword";
+	public static final String OUTPUTWS_URI_PATH = "uri";
 	// end parameters
 
 	public static final ConnectionCredentials CLEAN_DATABASE_ENDPOINT = new ConnectionCredentials(CLEAN_DATABASE_CONNECTION_STRING, SPARQL_USER, SPARQL_PASSWORD);
@@ -51,8 +51,8 @@ public final class Engine extends Module {
 	private ScheduledThreadPoolExecutor _executor;
 
 	private PipelineService _pipelineService;
-	private ScraperService _scraperService;
-	private UserService _userService;
+	private InputWSService _inputWSService;
+	private OutputWSService _userService;
 
 	private Engine() {
 	}
@@ -72,21 +72,21 @@ public final class Engine extends Module {
 
 	private void checkRequired() throws EngineException {
 		try {
-			File file = new File(SCRAPER_INPUT_DIR);
+			File file = new File(INPUTWS_DIR);
 			if (!file.exists()) {
 				file.mkdir();
 			}
 
 			if (!file.isDirectory()) {
-				throw new EngineException(String.format(" Directory %s not exists", SCRAPER_INPUT_DIR));
+				throw new EngineException(String.format(" Directory %s not exists", INPUTWS_DIR));
 			}
 
 			if (!file.canRead()) {
-				throw new EngineException(String.format(" Cannot read from scraper input directory %s", SCRAPER_INPUT_DIR));
+				throw new EngineException(String.format(" Cannot read from inputws directory %s", INPUTWS_DIR));
 			}
 
 			if (!file.canWrite()) {
-				throw new EngineException(String.format(" Cannot write to scraper input directory %s", SCRAPER_INPUT_DIR));
+				throw new EngineException(String.format(" Cannot write to inputws directory %s", INPUTWS_DIR));
 			}
 		} catch (EngineException e) {
 			throw e;
@@ -102,8 +102,8 @@ public final class Engine extends Module {
 
 		_executor = new ScheduledThreadPoolExecutor(5);
 
-		_userService = new UserService(this);
-		_scraperService = new ScraperService(this);
+		_userService = new OutputWSService(this);
+		_inputWSService = new InputWSService(this);
 		_pipelineService = new PipelineService(this);
 	}
 
@@ -124,7 +124,7 @@ public final class Engine extends Module {
 
 	private void startServices() {
 		_executor.execute(_userService);
-		_executor.execute(_scraperService);
+		_executor.execute(_inputWSService);
 		_executor.execute(_pipelineService);
 
 		_executor.scheduleAtFixedRate(new Runnable() {

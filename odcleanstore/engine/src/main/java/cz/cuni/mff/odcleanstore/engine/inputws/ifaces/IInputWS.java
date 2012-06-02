@@ -1,9 +1,9 @@
-package cz.cuni.mff.odcleanstore.engine.ws.scraper.ifaces;
+package cz.cuni.mff.odcleanstore.engine.inputws.ifaces;
 
 /**
  *  @author Petr Jerman
  */
-public interface IScraper {
+public interface IInputWS {
 	/**
 	 * 
 	 * @param user

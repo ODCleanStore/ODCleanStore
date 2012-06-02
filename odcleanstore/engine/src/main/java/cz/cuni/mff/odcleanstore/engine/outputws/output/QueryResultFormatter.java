@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.engine.ws.user.output;
+package cz.cuni.mff.odcleanstore.engine.outputws.output;
 
 import org.restlet.representation.Representation;
 

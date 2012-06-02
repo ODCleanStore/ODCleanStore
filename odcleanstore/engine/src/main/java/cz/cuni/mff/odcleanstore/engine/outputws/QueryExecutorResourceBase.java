@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.engine.ws.user;
+package cz.cuni.mff.odcleanstore.engine.outputws;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -17,8 +17,8 @@ import org.restlet.resource.ServerResource;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationType;
-import cz.cuni.mff.odcleanstore.engine.ws.user.output.HTMLFormatter;
-import cz.cuni.mff.odcleanstore.engine.ws.user.output.QueryResultFormatter;
+import cz.cuni.mff.odcleanstore.engine.outputws.output.HTMLFormatter;
+import cz.cuni.mff.odcleanstore.engine.outputws.output.QueryResultFormatter;
 
 /**
  *  @author Petr Jerman

@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.engine.ws.scraper;
+package cz.cuni.mff.odcleanstore.engine.inputws;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

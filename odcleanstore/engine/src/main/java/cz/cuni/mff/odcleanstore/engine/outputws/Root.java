@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.engine.ws.user;
+package cz.cuni.mff.odcleanstore.engine.outputws;
 
 import org.restlet.Application;
 import org.restlet.Restlet;
@@ -18,8 +18,8 @@ public class Root extends Application {
 	public synchronized Restlet createInboundRoot() {
 
 		Router router = new Router(getContext());
-		router.attach("/" + Engine.USER_SERVICE_KEYWORD_PATH, KeywordQueryExecutorResource.class);
-		router.attach("/" + Engine.USER_SERVICE_URI_PATH, UriQueryExecutorResource.class);
+		router.attach("/" + Engine.OUTPUTWS_KEYWORD_PATH, KeywordQueryExecutorResource.class);
+		router.attach("/" + Engine.OUTPUTWS_URI_PATH, UriQueryExecutorResource.class);
 		return router;
 	}
 }

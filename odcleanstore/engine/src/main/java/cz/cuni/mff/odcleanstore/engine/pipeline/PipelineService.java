@@ -13,7 +13,7 @@ import cz.cuni.mff.odcleanstore.engine.InputGraphState;
 import cz.cuni.mff.odcleanstore.engine.Service;
 import cz.cuni.mff.odcleanstore.engine.common.ModuleState;
 import cz.cuni.mff.odcleanstore.engine.common.SimpleVirtuosoAccess;
-import cz.cuni.mff.odcleanstore.engine.ws.scraper.ifaces.Metadata;
+import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.Metadata;
 import cz.cuni.mff.odcleanstore.transformer.Transformer;
 import cz.cuni.mff.odcleanstore.vocabulary.DC;
 import cz.cuni.mff.odcleanstore.vocabulary.W3P;
@@ -168,7 +168,7 @@ public final class PipelineService extends Service implements Runnable {
 		Metadata metadata = null;
 		String rdfXmlPayload = null;
 		try {
-			fin = new FileInputStream(Engine.SCRAPER_INPUT_DIR + uuid + ".dat");
+			fin = new FileInputStream(Engine.INPUTWS_DIR + uuid + ".dat");
 			ois = new ObjectInputStream(fin);
 			inserted = (String) ois.readObject();
 			metadata = (Metadata) ois.readObject();
@@ -305,7 +305,7 @@ public final class PipelineService extends Service implements Runnable {
 		graphs.add(Engine.METADATA_PREFIX + uuid);
 
 		_workingInputGraph.deleteGraphsFromDirtyDB(graphs);
-		File inputFile = new File(Engine.SCRAPER_INPUT_DIR + uuid + ".dat");
+		File inputFile = new File(Engine.INPUTWS_DIR + uuid + ".dat");
 		inputFile.delete();
 
 		_workingInputGraphStatus.deleteWorkingAttachedGraphNames();

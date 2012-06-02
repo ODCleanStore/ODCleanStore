@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.engine.ws.user.output;
+package cz.cuni.mff.odcleanstore.engine.outputws.output;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -171,7 +171,7 @@ public class HTMLFormatter extends ResultFormatterBase {
 		private void writeNode(Writer writer, Node node) throws IOException {
 			if (node.isURI()) {
 				writer.write("<a href=\"/");
-				writer.write(Engine.USER_SERVICE_URI_PATH);
+				writer.write(Engine.OUTPUTWS_URI_PATH);
 				writer.write("?find=");
 				writer.write(URLEncoder.encode(node.getURI(), "UTF-8"));
 				writer.write("&amp;aggregation=");
@@ -181,7 +181,7 @@ public class HTMLFormatter extends ResultFormatterBase {
 				writer.write("</a>");
 			} else if (node.isLiteral()) {
 				writer.write("<a href=\"/");
-				writer.write(Engine.USER_SERVICE_KEYWORD_PATH);
+				writer.write(Engine.OUTPUTWS_KEYWORD_PATH);
 				writer.write("?find=");
 				writer.write(URLEncoder.encode(node.getLiteralLexicalForm(), "UTF-8"));
 				writer.write("&amp;aggregation=");

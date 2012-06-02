@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.engine.ws.scraper;
+package cz.cuni.mff.odcleanstore.engine.inputws;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -12,13 +12,13 @@ import javax.xml.ws.ResponseWrapper;
  * Direct usage not recommended, may be removed in next versions.
  *  @author Petr Jerman
  */
-@WebService(name = "Scraper", targetNamespace = "http://scraper.ws.engine.odcleanstore.mff.cuni.cz/")
+@WebService(name = "InputWS", targetNamespace = "http://inputws.engine.odcleanstore.mff.cuni.cz/")
 @XmlSeeAlso({ ObjectFactory.class })
-public interface Scraper {
+public interface InputWS {
 
 	@WebMethod
-	@RequestWrapper(localName = "insert", targetNamespace = "http://scraper.ws.engine.odcleanstore.mff.cuni.cz/", className = "cz.cuni.mff.odcleanstore.engine.ws.scraper.Insert")
-	@ResponseWrapper(localName = "insertResponse", targetNamespace = "http://scraper.ws.engine.odcleanstore.mff.cuni.cz/", className = "cz.cuni.mff.odcleanstore.engine.ws.scraper.InsertResponse")
+	@RequestWrapper(localName = "insert", targetNamespace = "http://inputws.engine.odcleanstore.mff.cuni.cz/", className = "cz.cuni.mff.odcleanstore.engine.inputws.Insert")
+	@ResponseWrapper(localName = "insertResponse", targetNamespace = "http://inputws.engine.odcleanstore.mff.cuni.cz/", className = "cz.cuni.mff.odcleanstore.engine.inputws.InsertResponse")
 	public void insert(@WebParam(name = "user", targetNamespace = "") String user, @WebParam(name = "password", targetNamespace = "") String password,
 			@WebParam(name = "metadata", targetNamespace = "") Metadata metadata, @WebParam(name = "rdfXmlPayload", targetNamespace = "") String rdfXmlPayload) throws InsertException_Exception;
 }

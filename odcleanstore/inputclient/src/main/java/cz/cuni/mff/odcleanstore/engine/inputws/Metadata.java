@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.engine.ws.scraper;
+package cz.cuni.mff.odcleanstore.engine.inputws;
 
 import java.util.ArrayList;
 import java.util.List;

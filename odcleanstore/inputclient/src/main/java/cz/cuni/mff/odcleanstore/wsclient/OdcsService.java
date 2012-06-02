@@ -2,9 +2,9 @@ package cz.cuni.mff.odcleanstore.wsclient;
 
 import java.net.MalformedURLException;
 
-import cz.cuni.mff.odcleanstore.engine.ws.scraper.InsertException_Exception;
-import cz.cuni.mff.odcleanstore.engine.ws.scraper.Scraper;
-import cz.cuni.mff.odcleanstore.engine.ws.scraper.ScraperService;
+import cz.cuni.mff.odcleanstore.engine.inputws.InsertException_Exception;
+import cz.cuni.mff.odcleanstore.engine.inputws.InputWS;
+import cz.cuni.mff.odcleanstore.engine.inputws.InputWSService;
 
 /**
  *  Odcs-inputclient SOAP webservice java client wrapper.
@@ -14,8 +14,8 @@ import cz.cuni.mff.odcleanstore.engine.ws.scraper.ScraperService;
  */
 public final class OdcsService {
 
-	private ScraperService _scraperService;
-	private Scraper _scraperPort;
+	private InputWSService _inputWSService;
+	private InputWS _inputWSPort;
 
 	/**
 	 * Create new odcs-inputclient webservice java client wrapper.
@@ -23,8 +23,8 @@ public final class OdcsService {
 	 * @throws MalformedURLException 
 	 */
 	public OdcsService(String serviceLocation) throws MalformedURLException {
-		_scraperService = ScraperService.create(serviceLocation);
-		_scraperPort = _scraperService.getScraperPort();
+		_inputWSService = InputWSService.create(serviceLocation);
+		_inputWSPort = _inputWSService.getInputWSPort();
 	}
 
 	/**
@@ -38,7 +38,7 @@ public final class OdcsService {
 	 */
 	public void insert(String user, String password, Metadata metadata, String rdfXmlPayload) throws InsertException {
 
-		cz.cuni.mff.odcleanstore.engine.ws.scraper.Metadata wsMetadata = new cz.cuni.mff.odcleanstore.engine.ws.scraper.Metadata();
+		cz.cuni.mff.odcleanstore.engine.inputws.Metadata wsMetadata = new cz.cuni.mff.odcleanstore.engine.inputws.Metadata();
 
 		wsMetadata.setUuid(metadata.getUuid());
 		wsMetadata.getPublishedBy().addAll(metadata.getPublishedBy());
@@ -49,7 +49,7 @@ public final class OdcsService {
 		wsMetadata.setRdfXmlProvenance(metadata.getRdfXmlProvenance());
 
 		try {
-			_scraperPort.insert(user, password, wsMetadata, rdfXmlPayload);
+			_inputWSPort.insert(user, password, wsMetadata, rdfXmlPayload);
 		} catch (InsertException_Exception e) {
 			throw new InsertException(e.getFaultInfo().getId(), e.getFaultInfo().getMessage(), e.getFaultInfo().getMoreInfo());
 		}

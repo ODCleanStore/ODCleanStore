@@ -23,13 +23,13 @@ public class InputWSConfigTest {
     public void testCorrectConfiguration() throws ConfigurationException, MalformedURLException {
         Properties properties = Mockito.mock(Properties.class);
 
-        Mockito.when(properties.getProperty(GROUP_NAME + ".input_dir_path")).thenReturn("engineScraperInput");
+        Mockito.when(properties.getProperty(GROUP_NAME + ".input_dir_path")).thenReturn("inputWS");
         Mockito.when(properties.getProperty(GROUP_NAME + ".endpoint_url")).thenReturn(
                 "http://localhost:8088/odcleanstore/scraper");
 
         InputWSConfig inputWSConfig = InputWSConfig.load(properties);
 
-        assertEquals("engineScraperInput", inputWSConfig.getInputDirPath());
+        assertEquals("inputWS", inputWSConfig.getInputDirPath());
 
         assertEquals(new URL("http://localhost:8088/odcleanstore/scraper"), inputWSConfig.getSparqlEndpointCoords()
                 .getUrl());

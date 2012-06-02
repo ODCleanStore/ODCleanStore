@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.engine.ws.scraper;
+package cz.cuni.mff.odcleanstore.engine.inputws;
 
 import javax.xml.ws.WebFault;
 
@@ -7,7 +7,7 @@ import javax.xml.ws.WebFault;
  * Direct usage not recommended, may be removed in next versions.
  *  @author Petr Jerman
  */
-@WebFault(name = "InsertException", targetNamespace = "http://scraper.ws.engine.odcleanstore.mff.cuni.cz/")
+@WebFault(name = "InsertException", targetNamespace = "http://inputws.engine.odcleanstore.mff.cuni.cz/")
 public class InsertException_Exception extends Exception {
 
 	private static final long serialVersionUID = 1L;
