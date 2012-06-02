@@ -15,4 +15,5 @@ public class Metadata implements Serializable {
 	public String dataBaseUrl;
 	public String provenanceBaseUrl;
 	public String rdfXmlProvenance;
+	public String extraHandleName;
 }

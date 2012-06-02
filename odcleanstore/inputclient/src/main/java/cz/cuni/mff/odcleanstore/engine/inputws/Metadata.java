@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.XmlType;
  *  @author Petr Jerman
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "metadata", propOrder = { "uuid", "publishedBy", "source", "license", "dataBaseUrl", "provenanceBaseUrl", "rdfXmlProvenance" })
+@XmlType(name = "metadata", propOrder = { "uuid", "publishedBy", "source", "license", "dataBaseUrl", "provenanceBaseUrl", "rdfXmlProvenance", "extraHandleName" })
 public class Metadata {
 
 	protected String uuid;
@@ -26,6 +26,7 @@ public class Metadata {
 	protected String dataBaseUrl;
 	protected String provenanceBaseUrl;
 	protected String rdfXmlProvenance;
+	protected String extraHandleName;
 
 	public String getUuid() {
 		return uuid;
@@ -78,5 +79,13 @@ public class Metadata {
 
 	public void setRdfXmlProvenance(String value) {
 		this.rdfXmlProvenance = value;
+	}
+	
+	public String getExtraHandleName() {
+		return extraHandleName;
+	}
+
+	public void setExtraHandleName(String value) {
+		this.extraHandleName = value;
 	}
 }

@@ -17,6 +17,7 @@ public final class Metadata {
 	private String _dataBaseUrl;
 	private String _provenanceBaseUrl;
 	private String _rdfXmlProvenance;
+	private String _extraHandleName;
 
 	/**
 	 * Get uuid of insert operation.
@@ -113,5 +114,21 @@ public final class Metadata {
 	 */
 	public void setProvenanceBaseUrl(String value) {
 		this._provenanceBaseUrl = value;
+	}
+	
+	/**
+	 * Get optional name for extra processing in odcs-cleanstore.
+	 * @return name for extra processing in odcs-cleanstore
+	 */
+	public String getExtraHandleName() {
+		return _extraHandleName;
+	}
+
+	/**
+	 * Set optional name for extra processing in odcs-cleanstore.
+	 * @param value name for extra processing in odcs-cleanstore
+	 */
+	public void setExtraHandleName(String value) {
+		this._extraHandleName = value;
 	}
 }
