@@ -2,6 +2,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.qa;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.Publisher;

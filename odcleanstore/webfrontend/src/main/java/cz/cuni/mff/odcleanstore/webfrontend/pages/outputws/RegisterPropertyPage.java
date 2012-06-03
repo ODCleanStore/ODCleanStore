@@ -6,6 +6,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.validators.IRIValidator;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.*;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.*;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
@@ -52,7 +53,24 @@ public class RegisterPropertyPage extends FrontendPage
 			{
 				PropertySettings propertySettings = this.getModelObject();
 				
-				propertySettingsDao.save(propertySettings);
+				try {
+					propertySettingsDao.save(propertySettings);
+				}
+				catch (DaoException ex)
+				{
+					getSession().error(ex.getMessage());
+					return;
+				}
+				catch (Exception ex)
+				{
+					// TODO: log the error
+					
+					getSession().error(
+						"The property could not be registered due to an unexpected error."
+					);
+					
+					return;
+				}
 				
 				getSession().info("The property was successfuly registered.");
 				setResponsePage(AggregationSettingsPage.class);

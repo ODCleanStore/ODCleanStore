@@ -31,7 +31,7 @@ public class LogInPage extends FrontendPage
 	{
 		super("Home > LogIn", "Log in");
 
-		userDao = (UserDao) daoLookupFactory.getDao(UserDao.class);
+		userDao = (UserDao) daoLookupFactory.getUnsafeDao(UserDao.class);
 		
 		addLoginForm();
 	}

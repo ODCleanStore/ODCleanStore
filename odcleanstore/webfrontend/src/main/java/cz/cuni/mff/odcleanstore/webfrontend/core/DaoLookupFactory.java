@@ -1,10 +1,12 @@
 package cz.cuni.mff.odcleanstore.webfrontend.core;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 import javax.sql.DataSource;
 
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.SafetyDaoDecorator;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.GlobalAggregationSettingsDao;
 
 import org.apache.wicket.proxy.LazyInitProxyFactory;
@@ -16,8 +18,10 @@ import org.apache.wicket.spring.SpringBeanLocator;
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
-public class DaoLookupFactory 
+public class DaoLookupFactory implements Serializable
 {
+	private static final long serialVersionUID = 1L;
+	
 	private DataSource dataSource;
 	private HashMap<Class<? extends Dao>, Dao> daos;
 	
@@ -33,8 +37,11 @@ public class DaoLookupFactory
 	}
 	
 	/**
-	 * Creates (lazily) and returns the requested DAO object. Throws an AssertionError
-	 * if the requested DAO class cannot be instantiated.
+	 * Creates (lazily) and returns the requested DAO object decorated by
+	 * a SafetyDaoDecorator instance. 
+	 * 
+	 * Throws an AssertionError if the requested DAO class cannot be 
+	 * instantiated.
 	 * 
 	 * @param daoClass
 	 * @return
@@ -46,10 +53,27 @@ public class DaoLookupFactory
 			return daos.get(daoClass);
 		
 		Dao daoInstance = createDaoInstance(daoClass);
+		Dao safeDaoInstance = new SafetyDaoDecorator(daoInstance);
 		
-		daos.put(daoClass, daoInstance);
+		daos.put(daoClass, safeDaoInstance);
 		
-		return daoInstance;
+		return safeDaoInstance;
+	}
+	
+	/**
+	 * Creates and returns a bew raw (e.g. undecorated) instance of the
+	 * requested DAO class.
+	 * 
+	 * Throws an AssertionError if the requested DAO class cannot be 
+	 * instantiated.
+	 * 
+	 * @param daoClass
+	 * @return
+	 * @throws AssertionError
+	 */
+	public Dao getUnsafeDao(Class<? extends Dao> daoClass) throws AssertionError
+	{
+		return createDaoInstance(daoClass);
 	}
 	
 	/**
