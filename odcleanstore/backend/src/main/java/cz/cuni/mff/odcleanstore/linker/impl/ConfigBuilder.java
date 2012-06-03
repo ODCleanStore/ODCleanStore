@@ -69,10 +69,14 @@ public class ConfigBuilder {
 	private static final String CONFIG_XML_SPARQL_UPDATE = "sparul";
 	private static final String CONFIG_XML_URI = "uri";
 	private static final String CONFIG_XML_GRAPH_URI = "graphUri";
+	private static final String CONFIG_XML_LOGIN = "login";
+	private static final String CONFIG_XML_PASSWORD = "password";
 	
 	
-	private static final String TEMP_DIRTY_ENDPOINT = "http://localhost:8891/sparql";
+	private static final String TEMP_DIRTY_ENDPOINT = "http://localhost:8891/sparql-auth";
 	private static final String TEMP_CLEAN_ENDPOINT = "http://localhost:8890/sparql";
+	private static final String TEMP_DIRTY_SPARQL_LOGIN = "SILK";
+	private static final String TEMP_DIRTY_SPQRAL_PASSWORD = "odcs";
 	
 	/**
 	 * Creates linkage configuration file.
@@ -163,11 +167,12 @@ public class ConfigBuilder {
 	private static Element createSources(Document doc, String graphName) {
 		Element sourcesElement = doc.createElement(CONFIG_XML_SOURCES);
 		
-		Element sourceElement = createSource(doc, TEMP_DIRTY_ENDPOINT, graphName);
+		Element sourceElement = createSource(doc, TEMP_DIRTY_ENDPOINT, graphName,
+				TEMP_DIRTY_SPARQL_LOGIN, TEMP_DIRTY_SPQRAL_PASSWORD);
 		sourceElement.setAttribute(CONFIG_XML_ID, CONFIG_SOURCE_A_ID);
 		sourcesElement.appendChild(sourceElement);
 		
-		sourceElement = createSource(doc, TEMP_CLEAN_ENDPOINT, null);
+		sourceElement = createSource(doc, TEMP_CLEAN_ENDPOINT, null, null, null);
 		sourceElement.setAttribute(CONFIG_XML_ID, CONFIG_SOURCE_B_ID);
 		sourcesElement.appendChild(sourceElement);
 		
@@ -181,7 +186,8 @@ public class ConfigBuilder {
 	 * @param graphName graph name to be interlinked or null when no graph is specified
 	 * @return
 	 */
-	private static Element createSource(Document doc, String endpointUri, String graphName) {
+	private static Element createSource(Document doc, String endpointUri, String graphName,
+			String login, String password) {
 		Element sourceElement = doc.createElement(CONFIG_XML_SOURCE);
 		
 		sourceElement.setAttribute(CONFIG_XML_TYPE, CONFIG_XML_SPARQL_ENDPOINT);
@@ -189,6 +195,12 @@ public class ConfigBuilder {
 		
 		if (graphName != null) {
 			sourceElement.appendChild(createParamElement(doc, CONFIG_XML_GRAPH, graphName));
+		}
+		if (login != null) {
+			sourceElement.appendChild(createParamElement(doc, CONFIG_XML_LOGIN, login));
+		}
+		if (password != null) {
+			sourceElement.appendChild(createParamElement(doc, CONFIG_XML_PASSWORD, password));
 		}
 		
 		return sourceElement;
