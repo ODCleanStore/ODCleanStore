@@ -9,6 +9,7 @@ import org.apache.wicket.validation.validator.RangeValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
@@ -47,7 +48,24 @@ public class NewQARulePage extends FrontendPage
 			{
 				QARule rule = this.getModelObject();
 				
-				qaRuleDao.save(rule);
+				try {
+					qaRuleDao.save(rule);
+				}
+				catch (DaoException ex)
+				{
+					getSession().error(ex.getMessage());
+					return;
+				}
+				catch (Exception ex)
+				{
+					// TODO: log the error
+					
+					getSession().error(
+						"The rule could not be registered due to an unexpected error."
+					);
+					
+					return;
+				}
 				
 				getSession().info("The rule was successfuly registered.");
 				setResponsePage(QARulesManagementPage.class);

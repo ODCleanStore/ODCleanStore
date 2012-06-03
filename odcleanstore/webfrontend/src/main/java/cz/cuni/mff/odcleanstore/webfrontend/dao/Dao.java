@@ -33,6 +33,7 @@ public abstract class Dao<T extends BusinessObject>
 	 * Finds all entities in the database.
 	 * 
 	 * @return
+	 * @throws Exception 
 	 */
 	public abstract List<T> loadAll();
 	
@@ -83,7 +84,7 @@ public abstract class Dao<T extends BusinessObject>
 	 * 
 	 * @param item
 	 */
-	public void save(T item)
+	public void save(T item) throws Exception
 	{
 		throw new UnsupportedOperationException(
 			"Cannot insert rows into table:" + getTableName() + "."
