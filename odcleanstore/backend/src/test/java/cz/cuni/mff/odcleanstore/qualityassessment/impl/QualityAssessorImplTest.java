@@ -158,8 +158,8 @@ public class QualityAssessorImplTest extends TestCase {
 		}
 	}
 	
-	private void backupDomains() throws Exception {
-		WrappedResultSet publishers = connection.executeSelect("SELECT * FROM DB.ODCLEANSTORE.DATA_PUBLISHERS");
+	private void backupPublishers() throws Exception {
+		WrappedResultSet publishers = connection.executeSelect("SELECT * FROM DB.ODCLEANSTORE.PUBLISHERS");
 		
 		publishersBackup = new ArrayList<Object[]>();
 		
@@ -194,17 +194,17 @@ public class QualityAssessorImplTest extends TestCase {
 		connection.execute("DELETE FROM DB.ODCLEANSTORE.QA_RULES_TO_PUBLISHERS_RESTRICTIONS");
 	}
 	
-	private void dropDomains() throws Exception {
-		connection.execute("DELETE FROM DB.ODCLEANSTORE.DATA_PUBLISHERS");
+	private void dropPublishers() throws Exception {
+		connection.execute("DELETE FROM DB.ODCLEANSTORE.PUBLISHERS");
 	}
 	
 	private void dropRules() throws Exception {
 		connection.execute("DELETE FROM DB.ODCLEANSTORE.QA_RULES");
 	}
 	
-	private void loadTestingDomains() throws Exception {
+	private void loadTestingPublishers() throws Exception {
 		for (int i = 0; i < publishers.length; ++i) {
-			connection.execute("INSERT INTO DB.ODCLEANSTORE.DATA_PUBLISHERS (id, uri) VALUES (?, ?)", publishers[i]);
+			connection.execute("INSERT INTO DB.ODCLEANSTORE.PUBLISHERS (id, uri, label) VALUES (?, ?, '')", publishers[i]);
 		}
 	}
 	
@@ -220,11 +220,11 @@ public class QualityAssessorImplTest extends TestCase {
 		}
 	}
 	
-	private void restoreDomains() throws Exception {
+	private void restorePublishers() throws Exception {
 		Iterator<Object[]> objects = publishersBackup.iterator();
 		
 		while (objects.hasNext()) {
-			connection.execute("INSERT INTO DB.ODCLEANSTORE.DATA_PUBLISHERS (id, uri) VALUES (?, ?)", objects.next());
+			connection.execute("INSERT INTO DB.ODCLEANSTORE.PUBLISHERS (id, uri) VALUES (?, ?)", objects.next());
 		}
 	}
 	
@@ -281,14 +281,14 @@ public class QualityAssessorImplTest extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		backupRulesRestrictions();
-		backupDomains();
+		backupPublishers();
 		backupRules();
 		
 		dropRulesRestrictions();
-		dropDomains();
+		dropPublishers();
 		dropRules();
 		
-		loadTestingDomains();
+		loadTestingPublishers();
 		loadTestingRules();
 		loadTestingRulesRestrictions();
 		
@@ -302,10 +302,10 @@ public class QualityAssessorImplTest extends TestCase {
 		dropGraphs();
 		
 		dropRulesRestrictions();
-		dropDomains();
+		dropPublishers();
 		dropRules();
 		
-		restoreDomains();
+		restorePublishers();
 		restoreRules();
 		restoreRulesRestrictions();
 	}

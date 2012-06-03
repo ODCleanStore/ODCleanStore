@@ -36,7 +36,7 @@ public final class ODCS {
     public static final String scoreTrace = "http://opendata.cz/infrastructure/odcleanstore/scoreTrace";
 
     /**
-     * Property linking a publisher to her aggregated score.
+     * Property linking a publisher to its aggregated score.
      */
     public static final String publisherScore = "http://opendata.cz/infrastructure/odcleanstore/publisherScore";
 
