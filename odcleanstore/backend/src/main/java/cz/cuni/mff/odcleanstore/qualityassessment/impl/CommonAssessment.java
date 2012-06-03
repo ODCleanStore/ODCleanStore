@@ -43,17 +43,17 @@ abstract class CommonAssessment {
 	protected VirtuosoConnectionWrapper connection;
 
 	private VirtuosoConnectionWrapper getConnection () throws ConnectionException {
-        	if (connection == null) {
-        		connection = VirtuosoConnectionWrapper.createConnection(getEndpoint());
-       		}
+        if (connection == null) {
+        	connection = VirtuosoConnectionWrapper.createConnection(getEndpoint());
+       	}
 		return connection;
 	}
 
 	private void closeConnection() throws ConnectionException {
-        	if (connection != null) {
+        if (connection != null) {
 			connection.close();
 			connection = null;
-        	}
+        }
 	}
 
 	/**
