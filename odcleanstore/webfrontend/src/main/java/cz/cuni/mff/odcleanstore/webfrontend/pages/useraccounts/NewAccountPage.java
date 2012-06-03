@@ -9,6 +9,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.validation.validator.EmailAddressValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.configuration.Configuration;
@@ -93,6 +94,7 @@ public class NewAccountPage extends FrontendPage
 		TextField<String> textField = new TextField<String>("email");
 		
 		textField.setRequired(true);
+		textField.add(EmailAddressValidator.getInstance());
 
 		form.add(textField);
 	}
