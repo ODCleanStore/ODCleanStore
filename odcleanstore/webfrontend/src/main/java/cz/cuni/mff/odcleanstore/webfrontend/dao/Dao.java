@@ -35,7 +35,10 @@ public abstract class Dao<T extends BusinessObject>
 	 * @return
 	 * @throws Exception 
 	 */
-	public abstract List<T> loadAll();
+	public List<T> loadAll()
+	{
+		return loadAllRaw();
+	}
 	
 	public List<T> loadAllRaw()
 	{
@@ -49,7 +52,10 @@ public abstract class Dao<T extends BusinessObject>
 	 * @param id
 	 * @return
 	 */
-	public abstract T load(Long id);
+	public T load(Long id)
+	{
+		return loadRaw(id);
+	}
 	
 	public T loadRaw(Long id)
 	{

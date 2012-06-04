@@ -4,12 +4,14 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 public class TransformersConfigurationPage extends FrontendPage
 {
+	private static final long serialVersionUID = 1L;
+
 	public TransformersConfigurationPage() 
 	{
 		super
 		(
 			"Home > Transformers", 
-			"Transformers configuration"
+			"Standard transformers configuration"
 		);
 	}
 }

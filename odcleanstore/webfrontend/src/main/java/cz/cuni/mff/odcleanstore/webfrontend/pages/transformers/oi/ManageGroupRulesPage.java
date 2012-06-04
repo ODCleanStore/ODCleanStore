@@ -15,7 +15,6 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.ManageQARuleRestrictionsPage;
 
 public class ManageGroupRulesPage extends FrontendPage
 {
