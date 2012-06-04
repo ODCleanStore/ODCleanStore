@@ -1,4 +1,7 @@
-Delete from DB.ODCLEANSTORE.REGISTERED_TRANSFORMERS;
+DELETE FROM DB.ODCLEANSTORE.TRANSFORMERS;
 
-Insert into DB.ODCLEANSTORE.REGISTERED_TRANSFORMERS(label, jarPath, fullClassName, workDirPath, configuration, active, priority) VALUES('QA', '.', 'cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl', 'transformers-working-dir/qa', '', 1, 1);
-Insert into DB.ODCLEANSTORE.REGISTERED_TRANSFORMERS(label, jarPath, fullClassName, workDirPath, configuration, active, priority) VALUES('Linker', '.', 'cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl', 'transformers-working-dir/linker', '1', 1, 2);
+INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS (label, jarPath, fullClassName) 
+VALUES (n'QA', n'.', n'cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl');
+
+INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS (label, jarPath, fullClassName) 
+VALUES (n'Linker', n'.', n'cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl');
