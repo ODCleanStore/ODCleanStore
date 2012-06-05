@@ -58,7 +58,7 @@ public class TransformerDao extends Dao<Transformer>
 	
 	private void deleteRelatedPipelinesMapping(Long transformerId)
 	{
-		String query = "DELETE FROM " + PipelineDao.MAPPING_TABLE_NAME + " WHERE transformerId = ?";
+		String query = "DELETE FROM " + TransformerInstanceDao.TABLE_NAME + " WHERE transformerId = ?";
 		Object[] params = { transformerId };
 
 		jdbcTemplate.update(query, params);

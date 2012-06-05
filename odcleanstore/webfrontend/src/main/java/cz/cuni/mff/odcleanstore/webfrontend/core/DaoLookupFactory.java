@@ -8,6 +8,7 @@ import javax.sql.DataSource;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.SafetyDaoDecorator;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.GlobalAggregationSettingsDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 
 import org.apache.wicket.proxy.LazyInitProxyFactory;
 import org.apache.wicket.spring.SpringBeanLocator;
@@ -26,6 +27,7 @@ public class DaoLookupFactory implements Serializable
 	private HashMap<Class<? extends Dao>, Dao> daos;
 	
 	private GlobalAggregationSettingsDao globalAggregationSettingsDao;
+	private TransformerInstanceDao transformerInstanceDao;
 	
 	/**
 	 * 
@@ -119,6 +121,21 @@ public class DaoLookupFactory implements Serializable
 		return globalAggregationSettingsDao;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
+	public TransformerInstanceDao getTransformerInstanceDao()
+	{
+		if (transformerInstanceDao == null)
+		{
+			transformerInstanceDao = new TransformerInstanceDao();
+			transformerInstanceDao.setDataSource(dataSource);
+		}
+		
+		return transformerInstanceDao;
+	}
+	
 	/**
 	 * Helper method to create a proxy of the bean. This is needed not to
 	 * serialize the whole Spring framework when storing a page to cache.
