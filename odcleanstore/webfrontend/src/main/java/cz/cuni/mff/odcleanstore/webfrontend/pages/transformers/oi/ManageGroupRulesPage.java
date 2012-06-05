@@ -56,8 +56,9 @@ public class ManageGroupRulesPage extends FrontendPage
 		add(new Label("label"));
 		add(new Label("description"));
 	}
+	
 	/*
- 	=======================================================================
+ 		=======================================================================
 	 	Implementace oiRulesTable
 	 	=======================================================================
 	*/

@@ -6,7 +6,6 @@ import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.validation.validator.RangeValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
@@ -15,7 +14,6 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.ManageQARuleRestrictionsPage;
 
 public class NewAssignmentPage extends FrontendPage
 {
@@ -67,7 +65,7 @@ public class NewAssignmentPage extends FrontendPage
 	
 	private void addNewAssignmentForm(final Long pipelineId)
 	{
-		Form newAssignmentForm = new Form("newAssignmentForm", new CompoundPropertyModel(this))
+		Form form = new Form("newAssignmentForm", new CompoundPropertyModel(this))
 		{
 			private static final long serialVersionUID = 1L;
 
@@ -103,42 +101,14 @@ public class NewAssignmentPage extends FrontendPage
 			}
 		};
 
-		addTransformerSelectbox(newAssignmentForm);
+		form.add(createEnumSelectbox(transformerDao, "transformer"));
+		form.add(createTextfield("workDirPath"));
+		form.add(createTextarea("configuration"));
+		addPriorityTextfield(form);
 		
-		addWorkDirPathTextfield(newAssignmentForm);
-		addConfigurationTextarea(newAssignmentForm);
-		addPriorityTextfield(newAssignmentForm);
-		
-		add(newAssignmentForm);
+		add(form);
 	}
 
-	private void addTransformerSelectbox(Form form)
-	{
-		DropDownChoice<Transformer> selectBox = createEnumSelectBox(
-			transformerDao, "transformer"
-		);
-		
-		form.add(selectBox);
-	}
-	
-	private void addWorkDirPathTextfield(Form form)
-	{
-		TextField<String> textfield = new TextField<String>("workDirPath");
-		
-		textfield.setRequired(true);
-		
-		form.add(textfield);
-	}
-	
-	private void addConfigurationTextarea(Form form)
-	{
-		TextArea<String> textarea = new TextArea<String>("configuration");
-		
-		textarea.setRequired(true);
-		
-		form.add(textarea);
-	}
-	
 	private void addPriorityTextfield(Form form)
 	{
 		TextField<String> textfield = new TextField<String>("priority");

@@ -1,8 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
 
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.TextArea;
-import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
@@ -40,7 +38,7 @@ public class NewTransformerPage extends FrontendPage
 	{
 		IModel<Transformer> formModel = new CompoundPropertyModel<Transformer>(new Transformer());
 		
-		Form<Transformer> newTransformerForm = new Form<Transformer>("newTransformerForm", formModel)
+		Form<Transformer> form = new Form<Transformer>("newTransformerForm", formModel)
 		{
 			private static final long serialVersionUID = 1L;
 
@@ -73,45 +71,11 @@ public class NewTransformerPage extends FrontendPage
 			}
 		};
 		
-		addLabelTextfield(newTransformerForm);
-		addDescriptionTextarea(newTransformerForm);
-		addJarPathTextfield(newTransformerForm);
-		addFullClassNameTextfield(newTransformerForm);
+		form.add(createTextfield("label"));
+		form.add(createTextarea("description"));
+		form.add(createTextfield("jarPath"));
+		form.add(createTextfield("fullClassName"));
 		
-		add(newTransformerForm);
-	}
-	
-	private void addLabelTextfield(Form<Transformer> form)
-	{
-		TextField<String> textfield = new TextField<String>("label");
-		
-		textfield.setRequired(true);
-		
-		form.add(textfield);
-	}
-	
-	private void addDescriptionTextarea(Form<Transformer> form)
-	{
-		TextArea<String> textarea = new TextArea<String>("description");
-		textarea.setRequired(true);
-		form.add(textarea);
-	}
-	
-	private void addJarPathTextfield(Form<Transformer> form)
-	{
-		TextField<String> textfield = new TextField<String>("jarPath");
-		
-		textfield.setRequired(true);
-		
-		form.add(textfield);
-	}
-	
-	private void addFullClassNameTextfield(Form<Transformer> form)
-	{
-		TextField<String> textfield = new TextField<String>("fullClassName");
-		
-		textfield.setRequired(true);
-		
-		form.add(textfield);
+		add(form);
 	}
 }

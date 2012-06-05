@@ -1,7 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa;
 
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
@@ -39,7 +38,7 @@ public class NewQARulePage extends FrontendPage
 	{
 		IModel<QARule> formModel = new CompoundPropertyModel<QARule>(new QARule());
 		
-		Form<QARule> newQARuleForm = new Form<QARule>("newQARuleForm", formModel)
+		Form<QARule> form = new Form<QARule>("newQARuleForm", formModel)
 		{
 			private static final long serialVersionUID = 1L;
 
@@ -72,27 +71,13 @@ public class NewQARulePage extends FrontendPage
 			}
 		};
 		
-		addDescriptionTextarea(newQARuleForm);
-		addFilterTextarea(newQARuleForm);
-		addCoefficientTextfield(newQARuleForm);
+		form.add(createTextarea("description"));
+		form.add(createTextarea("filter"));
+		addCoefficientTextfield(form);
 		
-		add(newQARuleForm);
+		add(form);
 	}
-	
-	private void addDescriptionTextarea(Form<QARule> form)
-	{
-		TextArea<String> textarea = new TextArea<String>("description");
-		textarea.setRequired(true);
-		form.add(textarea);
-	}
-	
-	private void addFilterTextarea(Form<QARule> form)
-	{
-		TextArea<String> textarea = new TextArea<String>("filter");
-		textarea.setRequired(true);
-		form.add(textarea);
-	}
-	
+
 	private void addCoefficientTextfield(Form<QARule> form)
 	{
 		TextField<String> textfield = new TextField<String>("coefficient");

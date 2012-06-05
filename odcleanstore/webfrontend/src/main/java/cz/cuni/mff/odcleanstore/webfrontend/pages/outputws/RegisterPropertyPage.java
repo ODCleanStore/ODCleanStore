@@ -44,7 +44,7 @@ public class RegisterPropertyPage extends FrontendPage
 	{
 		IModel<PropertySettings> formModel = new CompoundPropertyModel<PropertySettings>(new PropertySettings());
 		
-		Form<PropertySettings> newPropertyForm = new Form<PropertySettings>("newPropertyForm", formModel)
+		Form<PropertySettings> form = new Form<PropertySettings>("newPropertyForm", formModel)
 		{
 			private static final long serialVersionUID = 1L;
 
@@ -77,38 +77,17 @@ public class RegisterPropertyPage extends FrontendPage
 			}
 		};
 		
-		addPropertyTextField(newPropertyForm);
-		addMultivalueSelectBox(newPropertyForm);
-		addAggregationTypeSelectBox(newPropertyForm);
+		addPropertyTextField(form);
+		form.add(createEnumSelectbox(multivalueTypeDao, "multivalueType"));
+		form.add(createEnumSelectbox(aggregationTypeDao, "aggregationType"));
 		
-		add(newPropertyForm);
+		add(form);
 	}
 	
 	private void addPropertyTextField(Form<PropertySettings> form)
 	{
-		TextField<String> textField = new TextField<String>("property");
-		
-		textField.setRequired(true);
+		TextField<String> textField = createTextfield("property");
 		textField.add(new IRIValidator());
-		
 		form.add(textField);
-	}
-	
-	private void addMultivalueSelectBox(Form<PropertySettings> form)
-	{
-		DropDownChoice<MultivalueType> selectBox = createEnumSelectBox(
-			multivalueTypeDao, "multivalueType"
-		);
-		
-		form.add(selectBox);
-	}
-	
-	private void addAggregationTypeSelectBox(Form<PropertySettings> form)
-	{
-		DropDownChoice<AggregationType> selectBox = createEnumSelectBox(
-			aggregationTypeDao, "aggregationType"
-		);
-		
-		form.add(selectBox);
 	}
 }

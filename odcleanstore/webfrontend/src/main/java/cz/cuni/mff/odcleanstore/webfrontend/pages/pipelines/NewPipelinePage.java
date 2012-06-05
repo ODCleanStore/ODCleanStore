@@ -1,8 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
 
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.TextArea;
-import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
@@ -40,7 +38,7 @@ public class NewPipelinePage extends FrontendPage
 	{
 		IModel<Pipeline> formModel = new CompoundPropertyModel<Pipeline>(new Pipeline());
 		
-		Form<Pipeline> newPipelineForm = new Form<Pipeline>("newPipelineForm", formModel)
+		Form<Pipeline> form = new Form<Pipeline>("newPipelineForm", formModel)
 		{
 			private static final long serialVersionUID = 1L;
 
@@ -73,25 +71,9 @@ public class NewPipelinePage extends FrontendPage
 			}
 		};
 		
-		addLabelTextfield(newPipelineForm);
-		addDescriptionTextarea(newPipelineForm);
+		form.add(createTextfield("label"));
+		form.add(createTextarea("description"));
 		
-		add(newPipelineForm);
-	}
-	
-	private void addLabelTextfield(Form<Pipeline> form)
-	{
-		TextField<String> textfield = new TextField<String>("label");
-		
-		textfield.setRequired(true);
-		
-		form.add(textfield);
-	}
-	
-	private void addDescriptionTextarea(Form<Pipeline> form)
-	{
-		TextArea<String> textarea = new TextArea<String>("description");
-		textarea.setRequired(true);
-		form.add(textarea);
+		add(form);
 	}
 }

@@ -61,7 +61,7 @@ public class NewRestrictionPage extends FrontendPage
 		this.restriction = new Publisher();
 		IModel formModel = new CompoundPropertyModel(this);
 		
-		Form<Publisher> newRestrictionForm = new Form<Publisher>("newRestrictionForm", formModel)
+		Form<Publisher> form = new Form<Publisher>("newRestrictionForm", formModel)
 		{
 			private static final long serialVersionUID = 1L;
 			
@@ -78,17 +78,8 @@ public class NewRestrictionPage extends FrontendPage
 			}
 		};
 		
-		addPublisherSelectBox(newRestrictionForm);
+		form.add(createEnumSelectbox(publisherDao, "restriction"));
 		
-		add(newRestrictionForm);
-	}
-
-	private void addPublisherSelectBox(Form<Publisher> form)
-	{
-		DropDownChoice<Publisher> selectBox = createEnumSelectBox(
-			publisherDao, "restriction"
-		);
-		
-		form.add(selectBox);
+		add(form);
 	}
 }

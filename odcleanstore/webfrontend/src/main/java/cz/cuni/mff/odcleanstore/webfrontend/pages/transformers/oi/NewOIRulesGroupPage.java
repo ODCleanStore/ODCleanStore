@@ -1,8 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi;
 
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.TextArea;
-import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
@@ -38,7 +36,7 @@ public class NewOIRulesGroupPage extends FrontendPage
 	{
 		IModel<OIRulesGroup> formModel = new CompoundPropertyModel<OIRulesGroup>(new OIRulesGroup());
 		
-		Form<OIRulesGroup> newOIRulesGroupForm = new Form<OIRulesGroup>("newOIRulesGroupForm", formModel)
+		Form<OIRulesGroup> form = new Form<OIRulesGroup>("newOIRulesGroupForm", formModel)
 		{
 			private static final long serialVersionUID = 1L;
 
@@ -71,23 +69,9 @@ public class NewOIRulesGroupPage extends FrontendPage
 			}
 		};
 		
-		addLabelTextfield(newOIRulesGroupForm);
-		addDescriptionTextarea(newOIRulesGroupForm);
+		form.add(createTextfield("label"));
+		form.add(createTextarea("description"));
 		
-		add(newOIRulesGroupForm);
-	}
-
-	private void addLabelTextfield(Form<OIRulesGroup> form)
-	{
-		TextField<String> textfield = new TextField<String>("label");
-		textfield.setRequired(true);
-		form.add(textfield);
-	}
-	
-	private void addDescriptionTextarea(Form<OIRulesGroup> form)
-	{
-		TextArea<String> textarea = new TextArea<String>("description");
-		textarea.setRequired(true);
-		form.add(textarea);
+		add(form);
 	}
 }

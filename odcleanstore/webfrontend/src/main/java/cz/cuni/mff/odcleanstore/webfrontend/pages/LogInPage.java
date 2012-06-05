@@ -74,8 +74,13 @@ class LogInForm extends Form
 	{
 		// 1. Load the User DB entry associated with the given username.
 		//
-		User user = userDao.loadForUsername(username);
-		if (user == null)
+		User user;
+		try {
+			user = userDao.loadForUsername(username);
+			if (user == null)
+				throw new Exception();
+		}
+		catch (Exception ex)
 		{
 			getSession().error("The given username is not registered.");
 			setResponsePage(LogInPage.class);
