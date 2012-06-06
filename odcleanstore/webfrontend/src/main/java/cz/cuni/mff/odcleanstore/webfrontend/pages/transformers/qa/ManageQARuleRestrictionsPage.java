@@ -121,7 +121,18 @@ public class ManageQARuleRestrictionsPage extends FrontendPage
             public void onClick()
             {
 				rule.removePublisherRestriction(publisher);
-            	qaRuleDao.update(rule);
+				
+				try {
+					qaRuleDao.update(rule);
+				}
+				catch (Exception ex)
+				{
+					getSession().error(
+						"The restriction could not be deleted due to an unexpected error."
+					);
+					
+					return;
+				}
             	
 				getSession().info("The restriction was successfuly deleted.");
 				setResponsePage(new ManageQARuleRestrictionsPage(rule.getId()));

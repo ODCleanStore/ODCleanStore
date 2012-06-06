@@ -120,7 +120,20 @@ public class PipelinesManagementPage extends FrontendPage
             public void onClick()
             {
 				pipeline.setRunOnCleanDB(true);
-				pipelineDao.update(pipeline);
+				
+				try {
+					pipelineDao.update(pipeline);
+				}
+				catch (Exception ex)
+				{
+					// logger.error(ex.getMessage());
+					
+					getSession().error(
+						"The pipeline could not be marked to be run on the clean DB due to an unexpected error."
+					);
+					
+					return;
+				}
 				
 				getSession().info("The pipeline was successfuly marked to be run on the clean DB.");
 				setResponsePage(PipelinesManagementPage.class);

@@ -9,6 +9,7 @@ import org.apache.wicket.model.IModel;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.Publisher;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.PublisherDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
@@ -71,7 +72,25 @@ public class NewRestrictionPage extends FrontendPage
 				Publisher restriction = NewRestrictionPage.this.restriction;
 						
 				rule.addPublisherRestriction(restriction);
-				qaRuleDao.update(rule);
+				
+				try {
+					qaRuleDao.update(rule);
+				} 
+				catch (DaoException ex)
+				{
+					getSession().error(ex.getMessage());
+					return;
+				}
+				catch (Exception ex)
+				{
+					// logger.error(ex.getMessage());
+					
+					getSession().error(
+						"The restriction could not be registered due to an unexpected error."
+					);
+					
+					return;
+				}
 				
 				getSession().info("The restriction was successfuly registered.");
 				setResponsePage(new ManageQARuleRestrictionsPage(rule.getId()));
