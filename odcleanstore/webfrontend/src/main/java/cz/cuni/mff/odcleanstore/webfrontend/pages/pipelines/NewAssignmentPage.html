@@ -8,20 +8,20 @@
 <form wicket:id="newAssignmentForm">
 	<p>
 		<label for="transformer">Transformer:</label>
-		<select wicket:id="transformer" id="transformer">
+		<select wicket:id="transformer" id="transformer" class="required">
 		</select>
 	</p>
 	<p>
 		<label for="workDirPath">Working directory:</label>
-		<input wicket:id="workDirPath" id="workDirPath" type="text" />
+		<input wicket:id="workDirPath" id="workDirPath" type="text" class="required"/>
 	</p>
 	<p>
 		<label for="configuration">Configuration:</label>
-		<textarea wicket:id="configuration" id="configuration"></textarea>
+		<textarea wicket:id="configuration" id="configuration" class="required"></textarea>
 	</p>
 	<p>
 		<label for="priority">Priority:</label>
-		<input wicket:id="priority" id="priority" type="text" />
+		<input wicket:id="priority" id="priority" type="text" class="required"/>
 	</p>
 	<input type="submit" value="Register" />
 </form>
