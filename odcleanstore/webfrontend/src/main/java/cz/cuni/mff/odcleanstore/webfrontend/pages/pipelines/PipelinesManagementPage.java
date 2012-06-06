@@ -66,6 +66,7 @@ public class PipelinesManagementPage extends FrontendPage
 				
 				addDeleteButton(item, pipeline);
 				addManagePipelineTransformersButton(item, pipeline.getId());
+				addMakePipelineRunOnCleanDBButton(item, pipeline);
 			}
 		};
 		
@@ -103,6 +104,26 @@ public class PipelinesManagementPage extends FrontendPage
             	setResponsePage(
             		new ManagePipelineTransformersPage(pipelineId)
 				);
+            }
+        };
+        
+		item.add(button);
+	}
+	
+	private void addMakePipelineRunOnCleanDBButton(ListItem<Pipeline> item, final Pipeline pipeline)
+	{
+		Link button = new Link("makePipelineRunOnCleanDB")
+        {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+            public void onClick()
+            {
+				pipeline.setRunOnCleanDB(true);
+				pipelineDao.update(pipeline);
+				
+				getSession().info("The pipeline was successfuly marked to be run on the clean DB.");
+				setResponsePage(PipelinesManagementPage.class);
             }
         };
         

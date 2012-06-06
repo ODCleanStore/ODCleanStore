@@ -72,6 +72,30 @@ public class PipelineDao extends Dao<Pipeline>
 	}
 	
 	@Override
+	public void update(Pipeline item)
+	{
+		if (!item.getRunOnCleanDB())
+			return;
+		
+		dropRunOnCleanDBForAllRows();
+		setRunOnCleanDB(item.getId());
+	}
+	
+	private void dropRunOnCleanDBForAllRows()
+	{
+		String query = "UPDATE " + TABLE_NAME + " SET runOnCleanDB = 0";
+		jdbcTemplate.update(query);
+	}
+	
+	private void setRunOnCleanDB(Long pipelineId)
+	{
+		String query = "UPDATE " + TABLE_NAME + " SET runOnCleanDB = 1 WHERE id = ?";
+		Object[] params = { pipelineId };
+		
+		jdbcTemplate.update(query, params);
+	}
+	
+	@Override
 	public void delete(Pipeline item)
 	{
 		deleteRelatedPipelinesMapping(item.getId());

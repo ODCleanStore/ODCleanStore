@@ -68,6 +68,15 @@ public class Pipeline extends BusinessObject
 	
 	/**
 	 * 
+	 * @param runOnCleanDB
+	 */
+	public void setRunOnCleanDB(Boolean runOnCleanDB)
+	{
+		this.runOnCleanDB = runOnCleanDB;
+	}
+	
+	/**
+	 * 
 	 * @return
 	 */
 	public List<TransformerInstance> getTransformers()
