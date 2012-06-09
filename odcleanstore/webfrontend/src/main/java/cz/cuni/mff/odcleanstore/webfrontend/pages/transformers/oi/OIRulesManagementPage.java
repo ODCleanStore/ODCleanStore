@@ -34,6 +34,7 @@ public class OIRulesManagementPage extends FrontendPage
 		//
 		addOIRulesGroupsTable();
 	}
+	
 	/*
 	 	=======================================================================
 	 	Implementace oiRulesGroupsTable

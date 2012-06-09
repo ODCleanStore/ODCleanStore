@@ -9,6 +9,9 @@ public abstract class CustomRowMapper<T> implements ParameterizedRowMapper<T>
 {
 	protected static String blobToString(Blob blob) throws SQLException
 	{
+		if (blob == null)
+			return "";
+		
 		return new String(blob.getBytes(1, (int)blob.length()));
 	}
 }

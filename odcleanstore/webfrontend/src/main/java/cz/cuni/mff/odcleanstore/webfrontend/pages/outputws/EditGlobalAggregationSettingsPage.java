@@ -45,7 +45,7 @@ public class EditGlobalAggregationSettingsPage extends FrontendPage
 			new GlobalAggregationSettings()
 		);
 		
-		Form<GlobalAggregationSettings> editGlobalSettingsForm = new Form<GlobalAggregationSettings>("editGlobalSettingsForm", formModel)
+		Form<GlobalAggregationSettings> form = new Form<GlobalAggregationSettings>("editGlobalSettingsForm", formModel)
 		{
 			private static final long serialVersionUID = 1L;
 
@@ -61,37 +61,10 @@ public class EditGlobalAggregationSettingsPage extends FrontendPage
 			}
 		};
 
-		addDefaultMultivalueTypeCheckBox(editGlobalSettingsForm);
-		addDefaultAggregationTypeCheckBox(editGlobalSettingsForm);
-		addDefaultErrorStrategyCheckBox(editGlobalSettingsForm);
-		
-		add(editGlobalSettingsForm);
-	}
-	
-	private void addDefaultMultivalueTypeCheckBox(Form<GlobalAggregationSettings> form)
-	{
-		DropDownChoice<MultivalueType> selectBox = createEnumSelectBox(
-				multivalueTypeDao, "defaultMultivalueType"
-		);
-		
-		form.add(selectBox);
-	}
-	
-	private void addDefaultAggregationTypeCheckBox(Form<GlobalAggregationSettings> form)
-	{
-		DropDownChoice<AggregationType> selectBox = createEnumSelectBox(
-			aggregationTypeDao, "defaultAggregationType"
-		);
-		
-		form.add(selectBox);
-	}
+		form.add(createEnumSelectbox(multivalueTypeDao, "defaultMultivalueType"));
+		form.add(createEnumSelectbox(aggregationTypeDao, "defaultAggregationType"));
+		form.add(createEnumSelectbox(errorStrategyDao, "defaultErrorStrategy"));
 
-	private void addDefaultErrorStrategyCheckBox(Form<GlobalAggregationSettings> form)
-	{
-		DropDownChoice<ErrorStrategy> selectBox = createEnumSelectBox(
-			errorStrategyDao, "defaultErrorStrategy"
-		);
-		
-		form.add(selectBox);
+		add(form);
 	}
 }

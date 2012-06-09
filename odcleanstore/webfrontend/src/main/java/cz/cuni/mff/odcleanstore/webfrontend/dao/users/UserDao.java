@@ -13,8 +13,6 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
-import com.mysql.jdbc.PreparedStatement;
-
 /**
  * The User DAO.
  * 

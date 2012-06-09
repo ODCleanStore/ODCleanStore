@@ -1,0 +1,36 @@
+<wicket:extend>
+
+<h2>Registered transformers</h2>
+
+<wicket:link>
+<div>
+	<a class="placedright" href="NewTransformerPage.html">Add a new transformer</a>
+	<div class="clear">&nbsp;</div>
+</div>
+</wicket:link>
+
+<table border="1">
+	
+	<tr>
+		<th>Label</th>
+		<th>Description</th>
+		<th>JAR path</th>
+		<th>Full classname</th>
+		<th>Action</th>
+	</tr>
+	
+	<tr  wicket:id="transformersTable">
+	
+		<td wicket:id="label">[label]</td>
+		<td wicket:id="description">[description]</td>
+		<td wicket:id="jarPath">[jarPath]</td>
+		<td wicket:id="fullClassName">[fullClassName]</td>
+		
+		<td class="centered">
+			<input wicket:id="deleteTransformer" type="button" value="Delete" />
+		</td>
+	</tr>
+	
+</table>
+
+</wicket:extend>

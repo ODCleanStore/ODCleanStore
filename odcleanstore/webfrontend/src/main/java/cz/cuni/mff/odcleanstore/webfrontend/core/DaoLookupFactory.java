@@ -8,9 +8,13 @@ import javax.sql.DataSource;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.SafetyDaoDecorator;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.GlobalAggregationSettingsDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.proxy.LazyInitProxyFactory;
 import org.apache.wicket.spring.SpringBeanLocator;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.support.AbstractPlatformTransactionManager;
 
 /**
  * A factory to lookup DAO Spring beans.
@@ -22,18 +26,23 @@ public class DaoLookupFactory implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 	
+	private static Logger logger = Logger.getLogger(DaoLookupFactory.class);
+	
 	private DataSource dataSource;
+	private AbstractPlatformTransactionManager transactionManager;
 	private HashMap<Class<? extends Dao>, Dao> daos;
 	
 	private GlobalAggregationSettingsDao globalAggregationSettingsDao;
+	private TransformerInstanceDao transformerInstanceDao;
 	
 	/**
 	 * 
 	 */
 	public DaoLookupFactory()
 	{
-		this.dataSource = createProxy("dataSource", DataSource.class);
-		this.daos = new HashMap<Class<? extends Dao>, Dao>();
+		dataSource = createProxy("dataSource", DataSource.class);
+		transactionManager = new DataSourceTransactionManager(dataSource);
+		daos = new HashMap<Class<? extends Dao>, Dao>();
 	}
 	
 	/**
@@ -98,6 +107,7 @@ public class DaoLookupFactory implements Serializable
 		}
 
 		daoInstance.setDataSource(dataSource);
+		daoInstance.setTransactionManager(transactionManager);
 		
 		return daoInstance;
 	}
@@ -119,6 +129,21 @@ public class DaoLookupFactory implements Serializable
 		return globalAggregationSettingsDao;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
+	public TransformerInstanceDao getTransformerInstanceDao()
+	{
+		if (transformerInstanceDao == null)
+		{
+			transformerInstanceDao = new TransformerInstanceDao();
+			transformerInstanceDao.setDataSource(dataSource);
+		}
+		
+		return transformerInstanceDao;
+	}
+	
 	/**
 	 * Helper method to create a proxy of the bean. This is needed not to
 	 * serialize the whole Spring framework when storing a page to cache.

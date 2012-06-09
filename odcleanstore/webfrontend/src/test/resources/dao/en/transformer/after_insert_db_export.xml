@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+  <PUBLISHERS id="1" label="Seznam" uri="http://www.seznam.cz"/>
+  <PUBLISHERS id="2" label="Google" uri="http://www.google.com"/>
+  <PUBLISHERS id="3" label="IZVUS" uri="http://www.isvzus.cz"/>
+  <PUBLISHERS id="4" label="NYTimes" uri="http://www.nytimes.com"/>
+</dataset>

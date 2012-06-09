@@ -1,0 +1,35 @@
+<wicket:extend>
+
+<h2>Registered pipelines</h2>
+
+<wicket:link>
+<div>
+	<a class="placedright" href="NewPipelinePage.html">Add a new pipeline</a>
+	<div class="clear">&nbsp;</div>
+</div>
+</wicket:link>
+
+<table border="1">
+	
+	<tr>
+		<th>Label</th>
+		<th>Description</th>
+		<th>Run on clean DB</th>
+		<th>Action</th>
+	</tr>
+	
+	<tr  wicket:id="pipelinesTable">
+	
+		<td wicket:id="label">[label]</td>
+		<td wicket:id="description">[description]</td>
+		<td wicket:id="runOnCleanDB">[run on clean DB]</td>
+		
+		<td class="centered">
+			<input wicket:id="deletePipeline" type="button" value="Delete" />
+			<input wicket:id="managePipelineTransformers" type="button" value="Manage transformers" />
+			<input wicket:id="makePipelineRunOnCleanDB" type="button" value="Run on clean DB" />
+		</td>
+	</tr>
+</table>
+
+</wicket:extend>

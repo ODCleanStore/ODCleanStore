@@ -47,7 +47,7 @@ public class NewPublisherPage extends FrontendPage
 	{
 		IModel<Publisher> formModel = new CompoundPropertyModel<Publisher>(new Publisher());
 		
-		Form<Publisher> newPublisherForm = new Form<Publisher>("newPublisherForm", formModel)
+		Form<Publisher> form = new Form<Publisher>("newPublisherForm", formModel)
 		{
 			private static final long serialVersionUID = 1L;
 
@@ -80,26 +80,16 @@ public class NewPublisherPage extends FrontendPage
 			}
 		};
 		
-		addLabelTextfield(newPublisherForm);
-		addURITextfield(newPublisherForm);
+		form.add(createTextfield("label"));
+		addURITextfield(form);
 		
-		add(newPublisherForm);
+		add(form);
 	}
 
-	private void addLabelTextfield(Form<Publisher> form)
-	{
-		TextField<String> textfield = new TextField<String>("label");
-		textfield.setRequired(true);
-		form.add(textfield);
-	}
-	
 	private void addURITextfield(Form<Publisher> form)
 	{
-		TextField<String> textfield = new TextField<String>("uri");
-		
-		textfield.setRequired(true);
+		TextField<String> textfield = createTextfield("uri");
 		textfield.add(new IRIValidator());
-		
 		form.add(textfield);
 	}
 }

@@ -48,7 +48,7 @@ public class NewAccountPage extends FrontendPage
 	{
 		IModel formModel = new CompoundPropertyModel<User>(new User());
 		
-		Form<User> newAccountForm = new Form<User>("newAccountForm", formModel)
+		Form<User> form = new Form<User>("newAccountForm", formModel)
 		{
 			@Override
 			protected void onSubmit()
@@ -72,23 +72,14 @@ public class NewAccountPage extends FrontendPage
 			}
 		};
 		
-		addUsernameTextfield(newAccountForm);
-		addEmailTextfield(newAccountForm);
-		addFirstnameTextfield(newAccountForm);
-		addSurnameTextfield(newAccountForm);
+		form.add(createTextfield("username"));
+		addEmailTextfield(form);
+		form.add(createTextfield("firstname"));
+		form.add(createTextfield("surname"));
 
-		add(newAccountForm);
+		add(form);
 	}
-	
-	private void addUsernameTextfield(Form<User> form)
-	{
-		TextField<String> textField = new TextField<String>("username");
-		
-		textField.setRequired(true);
 
-		form.add(textField);
-	}
-	
 	private void addEmailTextfield(Form<User> form)
 	{
 		TextField<String> textField = new TextField<String>("email");
@@ -99,24 +90,6 @@ public class NewAccountPage extends FrontendPage
 		form.add(textField);
 	}
 
-	private void addFirstnameTextfield(Form<User> form)
-	{
-		TextField<String> textField = new TextField<String>("firstname");
-		
-		textField.setRequired(true);
-
-		form.add(textField);
-	}
-
-	private void addSurnameTextfield(Form<User> form)
-	{
-		TextField<String> textField = new TextField<String>("surname");
-		
-		textField.setRequired(true);
-
-		form.add(textField);
-	}
-	
 	private void initNewPasswordForUser(User user, Configuration config) 
 		throws MessagingException, NoSuchAlgorithmException
 	{

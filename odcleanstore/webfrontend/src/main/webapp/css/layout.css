@@ -107,3 +107,14 @@ label
 {
 	display: block;
 }
+
+textarea
+{
+	width:  976px;
+	height: 100px;
+}
+
+.required
+{
+	border: 2px red solid;
+}

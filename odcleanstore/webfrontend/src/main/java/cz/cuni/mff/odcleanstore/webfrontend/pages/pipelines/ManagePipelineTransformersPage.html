@@ -1,0 +1,55 @@
+<wicket:extend>
+
+<wicket:link>
+<div>
+	<a class="placedright" href="PipelinesManagementPage.html">Back to the list of pipelines</a>
+	<div class="clear">&nbsp;</div>
+</div>
+</wicket:link>
+
+<div class="datalistitem">
+	<strong class="block">Label:</strong>
+	<span wicket:id="label">[label]</span>
+</div>
+				
+<div class="datalistitem">
+	<strong class="block">Description:</strong>
+	<span wicket:id="description">[description]</span>
+</div>
+
+<div class="datalistitem">
+	<strong class="block">Run on clean DB:</strong>
+	<span wicket:id="runOnCleanDB">[run on clean DB]</span>
+</div>
+
+<h2>Assigned transformers</h2>
+
+<div>
+	<a class="placedright" href="#" wicket:id="newAssignmentLink">Assign a transformer</a>
+	<div class="clear">&nbsp;</div>
+</div>
+
+<table border="1">
+	
+	<tr>
+		<th>Label</th>
+		<th>Working directory</th>
+		<th>Configuration</th>
+		<th>Priority</th>
+		<th>Action</th>
+	</tr>
+	
+	<tr  wicket:id="assignmentTable">
+	
+		<td wicket:id="label">[label]</td>
+		<td wicket:id="workDirPath">[working directory]</td>
+		<td wicket:id="configuration">[configuration]</td>
+		<td wicket:id="priority">[priority]</td>
+		
+		<td class="centered">
+			<input wicket:id="deleteAssignment" type="button" value="Delete" />
+		</td>
+	</tr>
+</table>
+
+</wicket:extend>

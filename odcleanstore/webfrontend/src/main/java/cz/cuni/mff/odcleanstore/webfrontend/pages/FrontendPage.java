@@ -7,9 +7,13 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
+import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.TextArea;
+import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessObject;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
 import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
 import cz.cuni.mff.odcleanstore.webfrontend.core.WicketApplication;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
@@ -71,8 +75,8 @@ public abstract class FrontendPage extends WebPage
 	 * @param componentName
 	 * @return
 	 */
-	protected <EnumBO extends BusinessObject> DropDownChoice<EnumBO> createEnumSelectBox(
-		Dao<EnumBO> dao, String componentName)
+	protected <EnumBO extends BusinessObject> DropDownChoice<EnumBO> createEnumSelectbox(
+		Dao<EnumBO> dao, String componentName, boolean required)
 	{
 		// load all enum items
 		List<EnumBO> allItems = dao.loadAll();
@@ -89,8 +93,66 @@ public abstract class FrontendPage extends WebPage
 		);
 		
 		// mark the select-box as a required form field
-		selectBox.setRequired(true);
+		selectBox.setRequired(required);
 		
 		return selectBox;
+	}
+	
+	/**
+	 * 
+	 * @param dao
+	 * @param componentName
+	 * @return
+	 */
+	protected <EnumBO extends BusinessObject> DropDownChoice<EnumBO> createEnumSelectbox(
+			Dao<EnumBO> dao, String componentName)
+	{
+		return createEnumSelectbox(dao, componentName, true);
+	}
+	
+	/**
+	 * 
+	 * @param componentName
+	 * @param required
+	 * @return
+	 */
+	protected TextField<String> createTextfield(String componentName, boolean required)
+	{
+		TextField<String> textfield = new TextField<String>(componentName);
+		textfield.setRequired(required);
+		return textfield;
+	}
+	
+	/**
+	 * 
+	 * @param componentName
+	 * @return
+	 */
+	protected TextField<String> createTextfield(String componentName)
+	{
+		return createTextfield(componentName, true);
+	}
+	
+	/**
+	 * 
+	 * @param componentName
+	 * @param required
+	 * @return
+	 */
+	protected TextArea<String> createTextarea(String componentName, boolean required)
+	{
+		TextArea<String> textarea = new TextArea<String>(componentName);
+		textarea.setRequired(required);
+		return textarea;
+	}
+	
+	/**
+	 * 
+	 * @param componentName
+	 * @return
+	 */
+	protected TextArea<String> createTextarea(String componentName)
+	{
+		return createTextarea(componentName, true);
 	}
 }

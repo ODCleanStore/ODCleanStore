@@ -79,7 +79,17 @@ public class EditAccountPermissionsPage extends FrontendPage
 						user.addRole(role);
 				}
 				
-				userDao.update(user);
+				try {
+					userDao.update(user);
+				} 
+				catch (Exception e) 
+				{
+					getSession().error(
+						"User permissions could not be modified due to an unexpected error."
+					);
+					
+					return;
+				}
 				
 				getSession().info("User permissions were successfuly modified.");
 				setResponsePage(AccountsListPage.class);

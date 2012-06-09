@@ -3,8 +3,13 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessObject;
 
 import javax.sql.DataSource;
+
+import org.apache.log4j.Logger;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+import org.springframework.transaction.support.AbstractPlatformTransactionManager;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
 
@@ -18,7 +23,10 @@ public abstract class Dao<T extends BusinessObject>
 {
 	public static final String TABLE_NAME_PREFIX = "DB.ODCLEANSTORE.";
 	
+	private static Logger logger = Logger.getLogger(Dao.class);
+	
 	protected JdbcTemplate jdbcTemplate;
+	protected TransactionTemplate transactionTemplate;
 	
 	/**
 	 * 
@@ -30,12 +38,25 @@ public abstract class Dao<T extends BusinessObject>
 	}
 	
 	/**
+	 * 
+	 * @param transactionManager
+	 */
+	public void setTransactionManager(AbstractPlatformTransactionManager transactionManager)
+	{
+		this.transactionTemplate = new TransactionTemplate(transactionManager);
+		this.transactionTemplate.setPropagationBehavior(DefaultTransactionDefinition.PROPAGATION_REQUIRED);
+	}
+	
+	/**
 	 * Finds all entities in the database.
 	 * 
 	 * @return
 	 * @throws Exception 
 	 */
-	public abstract List<T> loadAll();
+	public List<T> loadAll()
+	{
+		return loadAllRaw();
+	}
 	
 	public List<T> loadAllRaw()
 	{
@@ -49,7 +70,10 @@ public abstract class Dao<T extends BusinessObject>
 	 * @param id
 	 * @return
 	 */
-	public abstract T load(Long id);
+	public T load(Long id)
+	{
+		return loadRaw(id);
+	}
 	
 	public T loadRaw(Long id)
 	{
@@ -95,8 +119,9 @@ public abstract class Dao<T extends BusinessObject>
 	 * Updates the given item in the database.
 	 * 
 	 * @param item
+	 * @throws Exception 
 	 */
-	public void update(T item)
+	public void update(T item) throws Exception
 	{
 		throw new UnsupportedOperationException(
 			"Cannot update rows in table: " + getTableName() + "."
