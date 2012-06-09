@@ -19,25 +19,36 @@ import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationType;
 import cz.cuni.mff.odcleanstore.engine.outputws.output.HTMLFormatter;
 import cz.cuni.mff.odcleanstore.engine.outputws.output.QueryResultFormatter;
+import cz.cuni.mff.odcleanstore.engine.outputws.output.TriGFormatter;
 
 /**
  *  @author Petr Jerman
  */
 public abstract class QueryExecutorResourceBase extends ServerResource {
 
+	private Form _form;
+	
+	protected String getFormValue(String key){
+		return _form.getFirstValue(key);
+	}
+	
+	protected String[] getFormValuesArray(String key){
+		return _form.getValuesArray(key);
+	}
+		
 	@Get
 	public Representation executeGet() {
-		Form form = this.getQuery();
-		return execute(form);
+		_form = this.getQuery();
+		return execute();
 	}
 
 	@Post
 	public Representation executePost(Representation entity) {
-		Form form = new Form(entity);
-		return execute(form);
+		_form = new Form(entity);
+		return execute();
 	}
-
-	protected abstract Representation execute(Form form);
+	
+	protected abstract Representation execute();
 	
 	/**
 	 * Returns an appropriate formatter of the result.
@@ -45,33 +56,39 @@ public abstract class QueryExecutorResourceBase extends ServerResource {
 	 * TODO: choose a formatter according to user preferences (URL query variable, Accept request header)
 	 */
 	protected QueryResultFormatter getFormatter() {
-		//return new TriGFormatter(); 
+		String formatName = getFormValue("format");
+		
+		if (formatName != null && !formatName.isEmpty()) {
+			if(formatName.equalsIgnoreCase("TrigX")) {
+				return new TriGFormatter();
+			}
+		}
 		return new HTMLFormatter();
 	}
 	
 	/**
 	 * TODO: only temporary.
 	 */
-	protected AggregationSpec getAggregationSpec(Form form) {
+	protected AggregationSpec getAggregationSpec() {
 		AggregationSpec aggregationSpec = new AggregationSpec();
 		Map<String, EnumAggregationType> propertyAggregations = new TreeMap<String, EnumAggregationType>();
 		Map<String, Boolean> propertyMultivalue = new TreeMap<String, Boolean>();
 
-		String defaultAggregation = form.getFirstValue("aggregation");
+		String defaultAggregation = getFormValue("aggregation");
 		if (defaultAggregation != null && !defaultAggregation.isEmpty()) {
 			aggregationSpec.setDefaultAggregation(EnumAggregationType.valueOf(defaultAggregation));
 		}
-		String defaultMultivalue = form.getFirstValue("multivalue");
+		String defaultMultivalue = getFormValue("multivalue");
 		if (defaultMultivalue != null && !defaultMultivalue.isEmpty()) {
 			aggregationSpec.setDefaultMultivalue(Boolean.valueOf(defaultMultivalue));
 		}
-		String errorStrategy = form.getFirstValue("es");
+		String errorStrategy = getFormValue("es");
 		if (errorStrategy != null && !errorStrategy.isEmpty()) {
 			aggregationSpec.setErrorStrategy(EnumAggregationErrorStrategy.valueOf(errorStrategy));
 		}
 		
-		String[] propaNames = form.getValuesArray("propa-name");
-		String[] propaValues = form.getValuesArray("propa-value");
+		String[] propaNames = getFormValuesArray("propa-name");
+		String[] propaValues = getFormValuesArray("propa-value");
 		for (int i = 0; i < propaNames.length && i < propaValues.length; i++) {
 			if (propaNames[i] != null && !propaNames[i].isEmpty()) {
 				propertyAggregations.put(propaNames[i], EnumAggregationType.valueOf(propaValues[i]));
@@ -79,8 +96,8 @@ public abstract class QueryExecutorResourceBase extends ServerResource {
 		}
 		aggregationSpec.setPropertyAggregations(propertyAggregations);
 		
-		String[] propmNames = form.getValuesArray("propm-name");
-		String[] propmValues = form.getValuesArray("propm-value");
+		String[] propmNames = getFormValuesArray("propm-name");
+		String[] propmValues = getFormValuesArray("propm-value");
 		for (int i = 0; i < propmNames.length && i < propmValues.length; i++) {
 			if (propmNames[i] != null && !propmNames[i].isEmpty()) {
 				propertyMultivalue.put(propmNames[i], Boolean.valueOf(propmValues[i]));

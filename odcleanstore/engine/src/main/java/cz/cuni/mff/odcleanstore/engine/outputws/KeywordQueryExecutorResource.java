@@ -1,6 +1,5 @@
 package cz.cuni.mff.odcleanstore.engine.outputws;
 
-import org.restlet.data.Form;
 import org.restlet.representation.Representation;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
@@ -13,12 +12,12 @@ import cz.cuni.mff.odcleanstore.queryexecution.QueryResult;
  *  @author Petr Jerman
  */
 public class KeywordQueryExecutorResource extends QueryExecutorResourceBase {
-
+	
 	@Override
-	protected Representation execute(Form form) {
+	protected Representation execute() {
 		try {
-			String keyword = form.getFirst("find").getValue();
-			AggregationSpec aggregationSpec = getAggregationSpec(form);
+			String keyword = getFormValue("find");
+			AggregationSpec aggregationSpec = getAggregationSpec();
 			QueryExecution queryExecution = new QueryExecution(Engine.CLEAN_DATABASE_ENDPOINT);
 			final QueryResult result = queryExecution.findKeyword(keyword, new QueryConstraintSpec(), aggregationSpec);
 
