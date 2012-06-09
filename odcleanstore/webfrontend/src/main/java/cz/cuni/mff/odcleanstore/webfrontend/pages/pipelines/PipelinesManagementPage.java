@@ -9,6 +9,7 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
 
+import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
@@ -88,7 +89,9 @@ public class PipelinesManagementPage extends FrontendPage
 				setResponsePage(PipelinesManagementPage.class);
             }
         };
-        
+
+	    button.add(new ConfirmationBoxRenderer("Are you sure you want to delete the pipeline?"));
+	    
 		item.add(button);
 	}
 	
@@ -106,7 +109,7 @@ public class PipelinesManagementPage extends FrontendPage
 				);
             }
         };
-        
+	    
 		item.add(button);
 	}
 	

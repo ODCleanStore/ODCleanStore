@@ -8,6 +8,7 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
 
+import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
@@ -85,6 +86,7 @@ public class TransformersManagementPage extends FrontendPage
 	        }
 	    };
 	    
+	    button.add(new ConfirmationBoxRenderer("Are you sure you want to delete the transformer?"));
 		item.add(button);
 	}
 }
