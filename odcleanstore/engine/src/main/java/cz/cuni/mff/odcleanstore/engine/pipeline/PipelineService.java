@@ -134,7 +134,7 @@ public final class PipelineService extends Service implements Runnable {
 		while ((uuid = waitForInput()) != null) {
 			try {
 				LOG.info(String.format("PipelineService starts processing graph %s", uuid));
-				Collection<TransformerCommand> TransformerCommands = TransformerCommand.getActualPlan("DB.ODCLEANSTORE");
+				Collection<TransformerCommand> TransformerCommands = TransformerCommand.getActualPlan("DB.ODCLEANSTORE", "Dirty");
 				loadData(uuid);
 				LOG.info(String.format("PipelineService ends data loading for graph %s", uuid));
 				for (TransformerCommand transformerCommand : TransformerCommands) {

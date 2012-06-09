@@ -14,16 +14,11 @@ import cz.cuni.mff.odcleanstore.engine.common.SimpleVirtuosoAccess;
  *  @author Petr Jerman
  */
 public final class TransformerCommand {
-
-	private int _id;
+	
 	private String _jarPath;
 	private String _fullClassName;
 	private String _workDirPath;
 	private String _configuration;
-
-	int getId() {
-		return _id;
-	}
 
 	String getJarPath() {
 		return _jarPath;
@@ -44,7 +39,7 @@ public final class TransformerCommand {
 	private TransformerCommand() {
 	}
 
-	static Collection<TransformerCommand> getActualPlan(String dbSchemaPrefix)
+	static Collection<TransformerCommand> getActualPlan(String dbSchemaPrefix, String pipelineName)
 			throws Exception {
 		SimpleVirtuosoAccess sva = null;
 		try {
@@ -52,15 +47,18 @@ public final class TransformerCommand {
 
 			sva = SimpleVirtuosoAccess.createCleanDBConnection();
 			String sqlStatement = String
-					.format("Select id, jarPath, fullClassName, workDirPath, configuration from %s.REGISTERED_TRANSFORMERS WHERE active<>0 ORDER BY priority",
-							dbSchemaPrefix);
+					.format("Select t.jarPath, t.fullClassName, tp.workDirPath, tp.configuration \n" +
+							"FROM %s.TRANSFORMERS t, %s.PIPELINES p, %s.TRANSFORMERS_TO_PIPELINES_ASSIGNMENT tp \n" +
+							"WHERE t.id = tp.transformerId AND tp.pipelineId = p.id \n" +
+							"AND p.label='%s' AND p.runOnCleanDB = 0 \n" +
+							"ORDER BY tp.priority",
+							dbSchemaPrefix, dbSchemaPrefix, dbSchemaPrefix, pipelineName);
 			sva.processSqlStatementRows(sqlStatement, new RowListener() {
 
 				@Override
 				public void processRow(ResultSet rs, ResultSetMetaData metaData)
 						throws SQLException {
 					TransformerCommand tc = new TransformerCommand();
-					tc._id = rs.getInt("id");
 					tc._jarPath = rs.getString("jarPath");
 					tc._workDirPath = rs.getString("workDirPath");
 					tc._fullClassName = rs.getString("fullClassName");
