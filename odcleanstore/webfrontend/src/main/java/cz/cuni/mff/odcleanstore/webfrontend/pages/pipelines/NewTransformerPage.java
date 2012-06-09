@@ -72,7 +72,7 @@ public class NewTransformerPage extends FrontendPage
 		};
 		
 		form.add(createTextfield("label"));
-		form.add(createTextarea("description"));
+		form.add(createTextarea("description", false));
 		form.add(createTextfield("jarPath"));
 		form.add(createTextfield("fullClassName"));
 		

@@ -70,7 +70,7 @@ public class NewOIRulesGroupPage extends FrontendPage
 		};
 		
 		form.add(createTextfield("label"));
-		form.add(createTextarea("description"));
+		form.add(createTextarea("description", false));
 		
 		add(form);
 	}
