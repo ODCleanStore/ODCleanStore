@@ -8,6 +8,7 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
 
+import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
@@ -82,6 +83,12 @@ public class OIRulesManagementPage extends FrontendPage
 				setResponsePage(OIRulesManagementPage.class);
 	        }
 	    };
+	    
+	    button.add(
+	    	new ConfirmationBoxRenderer(
+	    		"Are you sure you want to delete the group together with all rules it contains?"
+	    	)
+	    );
 	    
 		item.add(button);
 	}

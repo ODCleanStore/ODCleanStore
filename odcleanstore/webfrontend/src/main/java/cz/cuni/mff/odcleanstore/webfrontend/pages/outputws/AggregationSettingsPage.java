@@ -2,6 +2,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.outputws;
 
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
+import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.*;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.*;
@@ -130,6 +131,8 @@ public class AggregationSettingsPage extends FrontendPage
 				setResponsePage(AggregationSettingsPage.class);
             }
         };
+        
+        button.add(new ConfirmationBoxRenderer("Are you sure you want to delete the property?"));
         
 		item.add(button);
 	}

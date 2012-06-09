@@ -9,6 +9,7 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
 
+import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.Publisher;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
@@ -138,6 +139,8 @@ public class ManageQARuleRestrictionsPage extends FrontendPage
 				setResponsePage(new ManageQARuleRestrictionsPage(rule.getId()));
             }
         };
+        
+        button.add(new ConfirmationBoxRenderer("Are you sure you want to delete the restriction?"));
         
 		item.add(button);
 	}

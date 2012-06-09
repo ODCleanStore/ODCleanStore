@@ -8,6 +8,7 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
 
+import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
@@ -127,7 +128,8 @@ public class ManagePipelineTransformersPage extends FrontendPage
 				setResponsePage(new ManagePipelineTransformersPage(pipelineId));
             }
         };
-        
+
+	    button.add(new ConfirmationBoxRenderer("Are you sure you want to delete the assignment?"));
 		item.add(button);
 	}
 }
