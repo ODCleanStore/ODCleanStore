@@ -16,6 +16,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -23,6 +24,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import cz.cuni.mff.odcleanstore.data.RDFprefix;
+import cz.cuni.mff.odcleanstore.linker.exceptions.InvalidLinkageRuleException;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
@@ -119,10 +121,12 @@ public class ConfigBuilder {
 	 * @throws ParserConfigurationException
 	 * @throws SAXException
 	 * @throws IOException
+	 * @throws InvalidLinkageRuleException 
+	 * @throws DOMException 
 	 */
 	private static Document createConfigDoc(List<String> rawRules, List<RDFprefix> prefixes,
-			TransformedGraph inputGraph, String linksGraphName)
-			throws ParserConfigurationException, SAXException, IOException {
+			TransformedGraph inputGraph, String linksGraphName) throws ParserConfigurationException, 
+			SAXException, IOException, DOMException, InvalidLinkageRuleException {
 
 		DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 		Document configDoc = builder.newDocument();
@@ -217,9 +221,11 @@ public class ConfigBuilder {
 	 * @return element containing linkage rules
 	 * @throws SAXException
 	 * @throws IOException
+	 * @throws InvalidLinkageRuleException 
 	 */
 	private static Element createLinkageRules(Document doc, List<String> rawRules, String graphId, 
-			DocumentBuilder builder, String linksGraphName) throws SAXException, IOException {
+			DocumentBuilder builder, String linksGraphName) throws SAXException, IOException,
+			InvalidLinkageRuleException {
 		Element rulesElement = doc.createElement(CONFIG_XML_LINKAGE_RULES);
 		
 		for (String rawRule:rawRules) {
@@ -237,11 +243,18 @@ public class ConfigBuilder {
 	 * Normalizes dataset names so they correspond with dataset definition.
 	 * 
 	 * @param ruleElement XML element containing linkage rule
+	 * @throws InvalidLinkageRuleException 
 	 */
-	private static void normalizeDatasets(Element ruleElement) {
+	private static void normalizeDatasets(Element ruleElement) throws InvalidLinkageRuleException {
 		Element sourceElement = (Element)ruleElement.getElementsByTagName(CONFIG_XML_SOURCE_DATASET).item(0);
+		if (sourceElement == null) {
+			throw new InvalidLinkageRuleException("Linkage rule does not specify source dataset.");
+		}
 		sourceElement.setAttribute(CONFIG_XML_DATASOURCE, CONFIG_SOURCE_A_ID);
 		Element targetElement = (Element)ruleElement.getElementsByTagName(CONFIG_XML_TARGET_DATASET).item(0);
+		if (targetElement == null) {
+			throw new InvalidLinkageRuleException("Linkage rule does not specify target dataset.");
+		}
 		targetElement.setAttribute(CONFIG_XML_DATASOURCE, CONFIG_SOURCE_B_ID);
 	}
 	
