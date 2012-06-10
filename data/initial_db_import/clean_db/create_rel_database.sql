@@ -145,49 +145,49 @@ CREATE TABLE DB.ODCLEANSTORE.OI_RULES
 CREATE TABLE DB.ODCLEANSTORE.CR_AGGREGATION_TYPES
 (
 	id INTEGER NOT NULL IDENTITY PRIMARY KEY,
-	label NVARCHAR(255) UNIQUE NOT NULL,
+	label VARCHAR(255) UNIQUE NOT NULL,
 	description LONG NVARCHAR	
 );
 
 DELETE FROM DB.ODCLEANSTORE.CR_AGGREGATION_TYPES;
 
-INSERT INTO DB.ODCLEANSTORE.CR_AGGREGATION_TYPES (label, description) VALUES (n'DEFAULT', n'Propagates the default aggregation type');
-INSERT INTO DB.ODCLEANSTORE.CR_AGGREGATION_TYPES (label, description) VALUES (n'ANY', n'Selects any single value');
-INSERT INTO DB.ODCLEANSTORE.CR_AGGREGATION_TYPES (label, description) VALUES (n'ALL', n'Selects all values');
-INSERT INTO DB.ODCLEANSTORE.CR_AGGREGATION_TYPES (label, description) VALUES (n'BEST', n'Selects the value with highest aggregated quality');
-INSERT INTO DB.ODCLEANSTORE.CR_AGGREGATION_TYPES (label, description) VALUES (n'LATEST', n'Selects the newest value');
-INSERT INTO DB.ODCLEANSTORE.CR_AGGREGATION_TYPES (label, description) VALUES (n'BEST_SOURCE', n'Selects the value with the highest score of its named graph');
-INSERT INTO DB.ODCLEANSTORE.CR_AGGREGATION_TYPES (label, description) VALUES (n'MAX', n'Selects maximum value');
-INSERT INTO DB.ODCLEANSTORE.CR_AGGREGATION_TYPES (label, description) VALUES (n'MIN', n'Selects minimum value');
-INSERT INTO DB.ODCLEANSTORE.CR_AGGREGATION_TYPES (label, description) VALUES (n'SHORTEST', n'Selects the shortest value');
-INSERT INTO DB.ODCLEANSTORE.CR_AGGREGATION_TYPES (label, description) VALUES (n'LONGEST', n'Selects the longest value');
-INSERT INTO DB.ODCLEANSTORE.CR_AGGREGATION_TYPES (label, description) VALUES (n'AVG', n'Computes average value');
-INSERT INTO DB.ODCLEANSTORE.CR_AGGREGATION_TYPES (label, description) VALUES (n'MEDIAN', n'Selects the median');
-INSERT INTO DB.ODCLEANSTORE.CR_AGGREGATION_TYPES (label, description) VALUES (n'CONCAT', n'Returns all values concatenated');
-INSERT INTO DB.ODCLEANSTORE.CR_AGGREGATION_TYPES (label, description) VALUES (n'NONE', n'Selects all values without grouping of the same values');
+INSERT INTO DB.ODCLEANSTORE.CR_AGGREGATION_TYPES (label, description) VALUES ('DEFAULT', n'Propagates the default aggregation type');
+INSERT INTO DB.ODCLEANSTORE.CR_AGGREGATION_TYPES (label, description) VALUES ('ANY', n'Selects any single value');
+INSERT INTO DB.ODCLEANSTORE.CR_AGGREGATION_TYPES (label, description) VALUES ('ALL', n'Selects all values');
+INSERT INTO DB.ODCLEANSTORE.CR_AGGREGATION_TYPES (label, description) VALUES ('BEST', n'Selects the value with highest aggregated quality');
+INSERT INTO DB.ODCLEANSTORE.CR_AGGREGATION_TYPES (label, description) VALUES ('LATEST', n'Selects the newest value');
+INSERT INTO DB.ODCLEANSTORE.CR_AGGREGATION_TYPES (label, description) VALUES ('BEST_SOURCE', n'Selects the value with the highest score of its named graph');
+INSERT INTO DB.ODCLEANSTORE.CR_AGGREGATION_TYPES (label, description) VALUES ('MAX', n'Selects maximum value');
+INSERT INTO DB.ODCLEANSTORE.CR_AGGREGATION_TYPES (label, description) VALUES ('MIN', n'Selects minimum value');
+INSERT INTO DB.ODCLEANSTORE.CR_AGGREGATION_TYPES (label, description) VALUES ('SHORTEST', n'Selects the shortest value');
+INSERT INTO DB.ODCLEANSTORE.CR_AGGREGATION_TYPES (label, description) VALUES ('LONGEST', n'Selects the longest value');
+INSERT INTO DB.ODCLEANSTORE.CR_AGGREGATION_TYPES (label, description) VALUES ('AVG', n'Computes average value');
+INSERT INTO DB.ODCLEANSTORE.CR_AGGREGATION_TYPES (label, description) VALUES ('MEDIAN', n'Selects the median');
+INSERT INTO DB.ODCLEANSTORE.CR_AGGREGATION_TYPES (label, description) VALUES ('CONCAT', n'Returns all values concatenated');
+INSERT INTO DB.ODCLEANSTORE.CR_AGGREGATION_TYPES (label, description) VALUES ('NONE', n'Selects all values without grouping of the same values');
 
 CREATE TABLE DB.ODCLEANSTORE.CR_MULTIVALUE_TYPES
 (
 	id INTEGER NOT NULL IDENTITY PRIMARY KEY,
-	label NVARCHAR(255) UNIQUE NOT NULL,
+	label VARCHAR(255) UNIQUE NOT NULL,
 	description LONG NVARCHAR
 );
 
 DELETE FROM DB.ODCLEANSTORE.CR_MULTIVALUE_TYPES;
 
-INSERT INTO DB.ODCLEANSTORE.CR_MULTIVALUE_TYPES (label, description) VALUES (n'DEFAULT', n'Propagate the default multivalue settings');
-INSERT INTO DB.ODCLEANSTORE.CR_MULTIVALUE_TYPES (label, description) VALUES (n'YES', n'Mutlivalue allowed');
-INSERT INTO DB.ODCLEANSTORE.CR_MULTIVALUE_TYPES (label, description) VALUES (n'NO', n'Multivalue not allowed');
+INSERT INTO DB.ODCLEANSTORE.CR_MULTIVALUE_TYPES (label, description) VALUES ('DEFAULT', n'Propagate the default multivalue settings');
+INSERT INTO DB.ODCLEANSTORE.CR_MULTIVALUE_TYPES (label, description) VALUES ('YES', n'Mutlivalue allowed');
+INSERT INTO DB.ODCLEANSTORE.CR_MULTIVALUE_TYPES (label, description) VALUES ('NO', n'Multivalue not allowed');
 
 CREATE TABLE DB.ODCLEANSTORE.CR_ERROR_STRATEGIES
 (
 	id INTEGER NOT NULL IDENTITY PRIMARY KEY,
-	label NVARCHAR(255) UNIQUE NOT NULL,
+	label VARCHAR(255) UNIQUE NOT NULL,
 	description LONG NVARCHAR
 );
 
-INSERT INTO DB.ODCLEANSTORE.CR_ERROR_STRATEGIES (label, description) VALUES (n'IGNORE', n'Discard value');
-INSERT INTO DB.ODCLEANSTORE.CR_ERROR_STRATEGIES (label, description) VALUES (n'RETURN_ALL', n'Return value without aggregation');
+INSERT INTO DB.ODCLEANSTORE.CR_ERROR_STRATEGIES (label, description) VALUES ('IGNORE', n'Discard value');
+INSERT INTO DB.ODCLEANSTORE.CR_ERROR_STRATEGIES (label, description) VALUES ('RETURN_ALL', n'Return value without aggregation');
 
 CREATE TABLE DB.ODCLEANSTORE.CR_PROPERTIES
 (
