@@ -12,6 +12,11 @@ public abstract class CustomRowMapper<T> implements ParameterizedRowMapper<T>
 		if (blob == null)
 			return "";
 		
-		return new String(blob.getBytes(1, (int)blob.length()));
+		byte[] content = blob.getBytes(1, (int)blob.length());
+		
+		if (content == null)
+			return "";
+		
+		return new String(content);
 	}
 }
