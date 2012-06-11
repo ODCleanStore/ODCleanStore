@@ -40,12 +40,8 @@ public class ConfirmationBoxRenderer extends AbstractBehavior
 	@Override
 	public void onComponentTag(final Component component, final ComponentTag tag) 
 	{
-		logger.info("in da on component tag");
-		
 		if (component instanceof Button || component instanceof Link) 
 		{
-			logger.info("inside da if");
-			
 			String originalOnclick = tag.getAttributes().getString("onclick"); 
 			tag.getAttributes().remove("onclick");
 			tag.getAttributes().put(
