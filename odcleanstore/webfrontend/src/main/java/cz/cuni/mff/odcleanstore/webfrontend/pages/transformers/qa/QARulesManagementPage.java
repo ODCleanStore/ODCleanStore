@@ -117,9 +117,9 @@ public class QARulesManagementPage extends FrontendPage
 				
 				item.setModel(new CompoundPropertyModel<QARule>(rule));
 				
-				item.add(new Label("description"));
 				item.add(new Label("filter"));
-				item.add(new Label("coefficient"));	
+				item.add(new Label("coefficient"));
+				item.add(new Label("description"));	
 				
 				addDeleteButton(item, rule);
 				addManageRuleRestrictionsButton(item, rule);

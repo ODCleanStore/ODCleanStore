@@ -71,9 +71,9 @@ public class NewQARulePage extends FrontendPage
 			}
 		};
 		
-		form.add(createTextarea("description", false));
 		form.add(createTextarea("filter"));
 		addCoefficientTextfield(form);
+		form.add(createTextarea("description", false));
 		
 		add(form);
 	}
