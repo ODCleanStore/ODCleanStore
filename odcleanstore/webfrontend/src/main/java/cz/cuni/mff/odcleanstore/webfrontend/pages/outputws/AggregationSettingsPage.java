@@ -7,11 +7,13 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.*;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.*;
 
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.Model;
 
 import java.util.List;
 
@@ -55,20 +57,31 @@ public class AggregationSettingsPage extends FrontendPage
 	
 	private void addDefaultAggregationTypeLabel(GlobalAggregationSettings settings)
 	{
-		String defaultAggregationType = settings.getDefaultAggregationType().getLabel();
-		add(new Label("defaultAggregationType", defaultAggregationType));
+		AggregationType aggregationType = settings.getDefaultAggregationType();
+		
+		Label label = new Label("defaultAggregationType", aggregationType.getLabel());
+		label.add(new AttributeModifier("title", new Model<String>(aggregationType.getDescription())));
+		add(label);
 	}
 	
 	private void addDefaultMultivalueTypeLabel(GlobalAggregationSettings settings)
 	{
-		String defaultMultivalueType = settings.getDefaultMultivalueType().getLabel();
-		add(new Label("defaultMultivalueType", defaultMultivalueType));
+		MultivalueType multivalueType = settings.getDefaultMultivalueType();
+		
+		Label label = new Label("defaultMultivalueType", multivalueType.getLabel());
+		label.add(new AttributeModifier("title", new Model<String>(multivalueType.getDescription())));
+		
+		add(label);
 	}
 	
 	private void addDefaultErrorStrategy(GlobalAggregationSettings settings)
 	{
-		String defaultErrorStrategy = settings.getDefaultErrorStrategy().getLabel();
-		add(new Label("defaultErrorStrategy", defaultErrorStrategy));
+		ErrorStrategy errorStrategy = settings.getDefaultErrorStrategy();
+		
+		Label label = new Label("defaultErrorStrategy", errorStrategy.getLabel());
+		label.add(new AttributeModifier("title", new Model<String>(errorStrategy.getDescription())));
+		
+		add(label);
 	}
 	
 	private void addPropertySettingsTable()
@@ -105,15 +118,23 @@ public class AggregationSettingsPage extends FrontendPage
 	private void addMultivalueTypeLabel(ListItem<PropertySettings> item, 
 		PropertySettings property)
 	{
-		String multivalueType = property.getMultivalueType().getLabel();
-		item.add(new Label("multivalueType", multivalueType));
+		MultivalueType multivalueType = property.getMultivalueType();
+		
+		Label label = new Label("multivalueType", multivalueType.getLabel());
+		label.add(new AttributeModifier("title", new Model<String>(multivalueType.getDescription())));
+		
+		item.add(label);
 	}
 	
 	private void addAggregationTypeLabel(ListItem<PropertySettings> item,
 		PropertySettings property)
 	{
-		String aggregationType = property.getAggregationType().getLabel();
-		item.add(new Label("aggregationType", aggregationType));
+		AggregationType aggregationType = property.getAggregationType();
+		
+		Label label = new Label("aggregationType", aggregationType.getLabel());
+		label.add(new AttributeModifier("title", new Model<String>(aggregationType.getDescription())));
+		
+		item.add(label);
 	}
 	
 	private void addDeleteButton(ListItem<PropertySettings> item, final PropertySettings property)
