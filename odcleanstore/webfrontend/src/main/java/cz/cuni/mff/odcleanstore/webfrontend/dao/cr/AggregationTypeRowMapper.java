@@ -1,20 +1,19 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.cr;
 
+import cz.cuni.mff.odcleanstore.webfrontend.dao.CustomRowMapper;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.AggregationType;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
-
-import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.AggregationType;
-
-public class AggregationTypeRowMapper implements ParameterizedRowMapper<AggregationType>
+public class AggregationTypeRowMapper extends CustomRowMapper<AggregationType>
 {
 	public AggregationType mapRow(ResultSet rs, int rowNum) throws SQLException 
 	{
 		return new AggregationType(
 			rs.getLong("id"),
 			rs.getString("label"),
-			rs.getString("description")
+			blobToString(rs.getBlob("description"))
 		);
 	}
 }
