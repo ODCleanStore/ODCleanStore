@@ -4,13 +4,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.apache.log4j.Logger;
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.AggregationType;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.MultivalueType;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.PropertySettings;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.CustomRowMapper;
 
-public class PropertySettingsRowMapper implements ParameterizedRowMapper<PropertySettings>
+public class PropertySettingsRowMapper extends CustomRowMapper<PropertySettings>
 {
 	private static Logger logger = Logger.getLogger(PropertySettingsRowMapper.class);
 	
@@ -20,14 +20,14 @@ public class PropertySettingsRowMapper implements ParameterizedRowMapper<Propert
 		(
 			rs.getLong("id__1"),
 			rs.getString("label"),
-			rs.getString("description")
+			blobToString(rs.getBlob("description"))
 		);
 		
 		MultivalueType multivalueType = new MultivalueType
 		(
 			rs.getLong("id__2"),
 			rs.getString("label__3"),
-			rs.getString("description__4")
+			blobToString(rs.getBlob("description__4"))
 		);
 		
 		return new PropertySettings
