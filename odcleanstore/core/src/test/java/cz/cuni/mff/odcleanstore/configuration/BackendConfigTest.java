@@ -79,7 +79,7 @@ public class BackendConfigTest {
     }
 
     private void mockDirtyJDBCConnectionCredentials(Properties properties) {
-        Mockito.when(properties.getProperty(GROUP_NAME + ".dirty_jdbc_connection_string")).thenReturn("jdbc:virtuoso://localhost:1111");
+        Mockito.when(properties.getProperty(GROUP_NAME + ".dirty_jdbc_connection_string")).thenReturn("jdbc:virtuoso://localhost:1112");
 
         Mockito.when(properties.getProperty(GROUP_NAME + ".dirty_jdbc_username")).thenReturn("dba");
 
@@ -89,7 +89,7 @@ public class BackendConfigTest {
     private void checkDirtyJDBCConnectionCredentials(BackendConfig config) throws MalformedURLException {
         JDBCConnectionCredentials dirtyJDBCConnectionCredentials = config.getDirtyDBJDBCConnectionCredentials();
 
-        assertEquals(new URL("http://www.jdbc.cz/dirty"), dirtyJDBCConnectionCredentials.getConnectionString());
+        assertEquals(new URL("jdbc:virtuoso://localhost:1112"), dirtyJDBCConnectionCredentials.getConnectionString());
 
         assertEquals("dba", dirtyJDBCConnectionCredentials.getUsername());
 
@@ -107,7 +107,7 @@ public class BackendConfigTest {
     private void checkCleanJDBCConnectionCredentials(BackendConfig config) throws MalformedURLException {
         JDBCConnectionCredentials cleanJDBCConnectionCredentials = config.getCleanDBJDBCConnectionCredentials();
 
-        assertEquals(new URL("http://www.jdbc.cz/clean"), cleanJDBCConnectionCredentials.getConnectionString());
+        assertEquals(new URL("jdbc:virtuoso://localhost:1111"), cleanJDBCConnectionCredentials.getConnectionString());
 
         assertEquals("dba", cleanJDBCConnectionCredentials.getUsername());
 
