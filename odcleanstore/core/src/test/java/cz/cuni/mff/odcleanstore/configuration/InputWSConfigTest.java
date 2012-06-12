@@ -31,7 +31,7 @@ public class InputWSConfigTest {
 
         assertEquals("inputWS", inputWSConfig.getInputDirPath());
 
-        assertEquals(new URL("http://localhost:8088/odcleanstore/scraper"), inputWSConfig.getSparqlEndpointCoords()
+        assertEquals(new URL("http://localhost:8088/odcleanstore/scraper"), inputWSConfig.getSparqlEndpointConnectionCredentials()
                 .getUrl());
     }
 }

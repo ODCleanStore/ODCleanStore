@@ -7,8 +7,8 @@ import cz.cuni.mff.odcleanstore.configuration.formats.FormatString;
 import cz.cuni.mff.odcleanstore.configuration.formats.FormatURI;
 import cz.cuni.mff.odcleanstore.configuration.formats.FormatURL;
 import cz.cuni.mff.odcleanstore.configuration.formats.ParameterFormat;
-import cz.cuni.mff.odcleanstore.connection.JDBCCoords;
-import cz.cuni.mff.odcleanstore.connection.SparqlEndpointCoords;
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.connection.SparqlEndpointConnectionCredentials;
 
 import java.net.URI;
 import java.net.URL;
@@ -39,31 +39,33 @@ public class BackendConfig extends ConfigGroup {
         GROUP_NAME = "backend";
     }
 
-    private SparqlEndpointCoords dirtyDBSparqlCoords;
-    private SparqlEndpointCoords cleanDBSparqlCoords;
-    private JDBCCoords dirtyDBJDBCCoords;
-    private JDBCCoords cleanDBJDBCCoords;
+    private SparqlEndpointConnectionCredentials dirtyDBSparqlConnectionCredentials;
+    private SparqlEndpointConnectionCredentials cleanDBSparqlConnectionCredentials;
+    private JDBCConnectionCredentials dirtyDBJDBCConnectionCredentials;
+    private JDBCConnectionCredentials cleanDBJDBCConnectionCredentials;
     private Integer queryTimeout;
     private URI dataGraphURIPrefix;
     private URI metadataGraphURIPrefix;
 
     /**
      *
-     * @param dirtyDBSparqlCoords
-     * @param cleanDBSparqlCoords
-     * @param dirtyDBJDBCCoords
-     * @param cleanDBJDBCCoords
+     * @param dirtyDBSparqlConnectionCredentials
+     * @param cleanDBSparqlConnectionCredentials
+     * @param dirtyDBJDBCConnectionCredentials
+     * @param cleanDBJDBCConnectionCredentials
      * @param queryTimeout
      * @param dataGraphURIPrefix
      * @param metadataGraphURIPrefix
      */
-    public BackendConfig(SparqlEndpointCoords dirtyDBSparqlCoords, SparqlEndpointCoords cleanDBSparqlCoords,
-            JDBCCoords dirtyDBJDBCCoords, JDBCCoords cleanDBJDBCCoords, Integer queryTimeout,
+    public BackendConfig(SparqlEndpointConnectionCredentials dirtyDBSparqlConnectionCredentials,
+    		SparqlEndpointConnectionCredentials cleanDBSparqlConnectionCredentials,
+            JDBCConnectionCredentials dirtyDBJDBCConnectionCredentials, 
+            JDBCConnectionCredentials cleanDBJDBCConnectionCredentials, Integer queryTimeout,
             URI dataGraphURIPrefix, URI metadataGraphURIPrefix) {
-        this.dirtyDBSparqlCoords = dirtyDBSparqlCoords;
-        this.cleanDBSparqlCoords = cleanDBSparqlCoords;
-        this.dirtyDBJDBCCoords = dirtyDBJDBCCoords;
-        this.cleanDBJDBCCoords = cleanDBJDBCCoords;
+        this.dirtyDBSparqlConnectionCredentials = dirtyDBSparqlConnectionCredentials;
+        this.cleanDBSparqlConnectionCredentials = cleanDBSparqlConnectionCredentials;
+        this.dirtyDBJDBCConnectionCredentials = dirtyDBJDBCConnectionCredentials;
+        this.cleanDBJDBCConnectionCredentials = cleanDBJDBCConnectionCredentials;
         this.queryTimeout = queryTimeout;
         this.dataGraphURIPrefix = dataGraphURIPrefix;
         this.metadataGraphURIPrefix = metadataGraphURIPrefix;
@@ -80,11 +82,11 @@ public class BackendConfig extends ConfigGroup {
      */
     public static BackendConfig load(Properties properties)
             throws ParameterNotAvailableException, IllegalParameterFormatException {
-        SparqlEndpointCoords dirtySparqlCoords = loadSparqlEndpointCoords(properties, DIRTY_DB_NAME);
-        JDBCCoords dirtyJDBCCoords = loadJDBCCoords(properties, DIRTY_DB_NAME);
+        SparqlEndpointConnectionCredentials dirtySparqlConnectionCredentials = loadSparqlEndpointConnectionCredentials(properties, DIRTY_DB_NAME);
+        JDBCConnectionCredentials dirtyJDBCConnectionCredentials = loadJDBCConnectionCredentials(properties, DIRTY_DB_NAME);
 
-        SparqlEndpointCoords cleanSparqlCoords = loadSparqlEndpointCoords(properties, CLEAN_DB_NAME);
-        JDBCCoords cleanJDBCCoords = loadJDBCCoords(properties, CLEAN_DB_NAME);
+        SparqlEndpointConnectionCredentials cleanSparqlConnectionCredentials = loadSparqlEndpointConnectionCredentials(properties, CLEAN_DB_NAME);
+        JDBCConnectionCredentials cleanJDBCConnectionCredentials = loadJDBCConnectionCredentials(properties, CLEAN_DB_NAME);
 
         ParameterFormat<Integer> formatInteger = new FormatInteger();
         Integer queryTimeout = loadParam(properties, "query_timeout", formatInteger);
@@ -94,10 +96,10 @@ public class BackendConfig extends ConfigGroup {
         URI metadataGraphURIPrefix = loadParam(properties, "metadata_graph_uri_prefix", formatURI);
 
         return new BackendConfig(
-                dirtySparqlCoords,
-                cleanSparqlCoords,
-                dirtyJDBCCoords,
-                cleanJDBCCoords,
+                dirtySparqlConnectionCredentials,
+                cleanSparqlConnectionCredentials,
+                dirtyJDBCConnectionCredentials,
+                cleanJDBCConnectionCredentials,
                 queryTimeout,
                 dataGraphURIPrefix,
                 metadataGraphURIPrefix);
@@ -105,7 +107,7 @@ public class BackendConfig extends ConfigGroup {
 
     /**
      * Extracts SPARQL Endpoint configuration values for the database given by its name
-     * from the given Properties instance. Returns a SparqlEndpointCoords object instantiated
+     * from the given Properties instance. Returns a SparqlEndpointConnectionCredentials object instantiated
      * using the extracted values.
      *
      * It is expected that the configuration values are given in the following format:
@@ -118,18 +120,18 @@ public class BackendConfig extends ConfigGroup {
      * @throws ParameterNotAvailableException
      * @throws IllegalParameterFormatException
      */
-    private static SparqlEndpointCoords loadSparqlEndpointCoords(Properties properties, String dbName)
+    private static SparqlEndpointConnectionCredentials loadSparqlEndpointConnectionCredentials(Properties properties, String dbName)
             throws ParameterNotAvailableException, IllegalParameterFormatException {
         ParameterFormat<URL> formatURL = new FormatURL();
 
         URL url = loadParam(properties, dbName + "_sparql_endpoint_url", formatURL);
 
-        return new SparqlEndpointCoords(url);
+        return new SparqlEndpointConnectionCredentials(url);
     }
 
     /**
      * Extracts JDBC configuration values for the database given by its name
-     * from the given Properties instance. Returns a JDBCCoords object instantiated using
+     * from the given Properties instance. Returns a JDBCConnectionCredentials object instantiated using
      * the extracted values.
      *
      * It is expected that the configuration values are given in the following format:
@@ -142,49 +144,49 @@ public class BackendConfig extends ConfigGroup {
      * @throws ParameterNotAvailableException
      * @throws IllegalParameterFormatException
      */
-    private static JDBCCoords loadJDBCCoords(Properties properties, String dbName)
+    private static JDBCConnectionCredentials loadJDBCConnectionCredentials(Properties properties, String dbName)
             throws ParameterNotAvailableException, IllegalParameterFormatException
     {
         ParameterFormat<URL> formatURL = new FormatURL();
         ParameterFormat<String> formatString = new FormatString();
 
-        URL url = loadParam(properties, dbName + "_jdbc_url", formatURL);
+        URL connectionString = loadParam(properties, dbName + "_jdbc_connection_string", formatURL);
         String username = loadParam(properties, dbName + "_jdbc_username", formatString);
         String password = loadParam(properties, dbName + "_jdbc_password", formatString);
 
-        return new JDBCCoords(url, username, password);
+        return new JDBCConnectionCredentials(connectionString, username, password);
     }
 
     /**
      *
      * @return
      */
-    public SparqlEndpointCoords getDirtyDBSparqlCoords() {
-        return dirtyDBSparqlCoords;
+    public SparqlEndpointConnectionCredentials getDirtyDBSparqlConnectionCredentials() {
+        return dirtyDBSparqlConnectionCredentials;
     }
 
     /**
      *
      * @return
      */
-    public SparqlEndpointCoords getCleanDBSparqlCoords() {
-        return cleanDBSparqlCoords;
+    public SparqlEndpointConnectionCredentials getCleanDBSparqlConnectionCredentials() {
+        return cleanDBSparqlConnectionCredentials;
     }
 
     /**
      *
      * @return
      */
-    public JDBCCoords getDirtyDBJDBCCoords() {
-        return dirtyDBJDBCCoords;
+    public JDBCConnectionCredentials getDirtyDBJDBCConnectionCredentials() {
+        return dirtyDBJDBCConnectionCredentials;
     }
 
     /**
      *
      * @return
      */
-    public JDBCCoords getCleanDBJDBCCoords() {
-        return cleanDBJDBCCoords;
+    public JDBCConnectionCredentials getCleanDBJDBCConnectionCredentials() {
+        return cleanDBJDBCConnectionCredentials;
     }
 
     /**

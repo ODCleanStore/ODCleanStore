@@ -5,7 +5,7 @@ import cz.cuni.mff.odcleanstore.configuration.exceptions.ParameterNotAvailableEx
 import cz.cuni.mff.odcleanstore.configuration.formats.FormatString;
 import cz.cuni.mff.odcleanstore.configuration.formats.FormatURL;
 import cz.cuni.mff.odcleanstore.configuration.formats.ParameterFormat;
-import cz.cuni.mff.odcleanstore.connection.SparqlEndpointCoords;
+import cz.cuni.mff.odcleanstore.connection.SparqlEndpointConnectionCredentials;
 
 import java.net.URL;
 import java.util.Properties;
@@ -31,16 +31,16 @@ public class InputWSConfig extends ConfigGroup {
 
     // TODO: doresit jak se konfiguruje instalacni adresar
     private String inputDirPath;
-    private SparqlEndpointCoords sparqlEndpointCoords;
+    private SparqlEndpointConnectionCredentials sparqlEndpointConnectionCredentials;
 
     /**
      *
      * @param inputDirPath
-     * @param sparqlEndpointCoords
+     * @param sparqlEndpointConnectionCredentials
      */
-    public InputWSConfig(String inputDirPath, SparqlEndpointCoords sparqlEndpointCoords) {
+    public InputWSConfig(String inputDirPath, SparqlEndpointConnectionCredentials sparqlEndpointConnectionCredentials) {
         this.inputDirPath = inputDirPath;
-        this.sparqlEndpointCoords = sparqlEndpointCoords;
+        this.sparqlEndpointConnectionCredentials = sparqlEndpointConnectionCredentials;
     }
 
     /**
@@ -63,7 +63,7 @@ public class InputWSConfig extends ConfigGroup {
 
         return new InputWSConfig(
                 inputDirPath,
-                new SparqlEndpointCoords(endpointURL));
+                new SparqlEndpointConnectionCredentials(endpointURL));
     }
 
     /**
@@ -78,7 +78,7 @@ public class InputWSConfig extends ConfigGroup {
      *
      * @return
      */
-    public SparqlEndpointCoords getSparqlEndpointCoords() {
-        return sparqlEndpointCoords;
+    public SparqlEndpointConnectionCredentials getSparqlEndpointConnectionCredentials() {
+        return sparqlEndpointConnectionCredentials;
     }
 }
