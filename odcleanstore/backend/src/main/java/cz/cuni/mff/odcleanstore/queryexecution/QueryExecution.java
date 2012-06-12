@@ -1,6 +1,8 @@
 package cz.cuni.mff.odcleanstore.queryexecution;
 
+import cz.cuni.mff.odcleanstore.configuration.Config;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
+import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
 import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
 import cz.cuni.mff.odcleanstore.queryexecution.impl.DefaultAggregationConfigurationCache;
 import cz.cuni.mff.odcleanstore.queryexecution.impl.PrefixMappingCache;
@@ -30,14 +32,21 @@ public class QueryExecution {
     private final PrefixMappingCache prefixMappingCache;
 
     /**
+     * Container for QE & CR configuration loaded from the global configuration file.
+     */
+    private Config globalConfig;
+
+    /**
      * Creates a new instance of QueryExecution.
      * @param sparqlEndpoint connection settings for the SPARQL endpoint that will be queried
+     * @param globalConfig container for QE & CR configuration loaded from the global configuration file
      */
-    public QueryExecution(ConnectionCredentials sparqlEndpoint) {
+    public QueryExecution(ConnectionCredentials sparqlEndpoint, Config globalConfig) {
         this.sparqlEndpoint = sparqlEndpoint;
+        this.globalConfig = globalConfig;
         this.prefixMappingCache = new PrefixMappingCache(sparqlEndpoint);
-        this.expandedDefaultConfigurationCache = new DefaultAggregationConfigurationCache(
-                sparqlEndpoint, prefixMappingCache);
+        this.expandedDefaultConfigurationCache =
+                new DefaultAggregationConfigurationCache(sparqlEndpoint, prefixMappingCache);
     }
 
     /**
@@ -54,12 +63,10 @@ public class QueryExecution {
     public QueryResult findKeyword(String keywords, QueryConstraintSpec constraints, AggregationSpec aggregationSpec)
             throws QueryExecutionException {
 
-        AggregationSpec defaultConfiguration = expandedDefaultConfigurationCache.getCachedValue();
         AggregationSpec expandedAggregationSpec = QueryExecutionHelper.expandPropertyNames(
                 aggregationSpec, prefixMappingCache.getCachedValue());
-
-        KeywordQueryExecutor queryExecutor = new KeywordQueryExecutor(
-                sparqlEndpoint, constraints, expandedAggregationSpec, defaultConfiguration);
+        KeywordQueryExecutor queryExecutor = new KeywordQueryExecutor(sparqlEndpoint, constraints,
+                expandedAggregationSpec, createConflictResolverFactory(), globalConfig.getQueryExecutionGroup());
         return queryExecutor.findKeyword(keywords);
     }
 
@@ -76,13 +83,24 @@ public class QueryExecution {
     public QueryResult findURI(String uri, QueryConstraintSpec constraints, AggregationSpec aggregationSpec)
             throws QueryExecutionException {
 
-        AggregationSpec defaultConfiguration = expandedDefaultConfigurationCache.getCachedValue();
+        String expandedURI = Utils.isPrefixedName(uri) ? prefixMappingCache.getCachedValue().expandPrefix(uri) : uri;
         AggregationSpec expandedAggregationSpec = QueryExecutionHelper.expandPropertyNames(
                 aggregationSpec, prefixMappingCache.getCachedValue());
-
-        String expandedURI = Utils.isPrefixedName(uri) ? prefixMappingCache.getCachedValue().expandPrefix(uri) : uri;
-        UriQueryExecutor queryExecutor = new UriQueryExecutor(
-                sparqlEndpoint, constraints, expandedAggregationSpec, defaultConfiguration);
+        UriQueryExecutor queryExecutor = new UriQueryExecutor(sparqlEndpoint, constraints, expandedAggregationSpec,
+                createConflictResolverFactory(), globalConfig.getQueryExecutionGroup());
         return queryExecutor.findURI(expandedURI);
+    }
+
+    /**
+     * Creates a new instance of ConflictResolverFactory using the correct default settings.
+     * A new instance should be created every time in order to reflect the current (cached) settings.
+     * @throws QueryExecutionException default settings cannot be loaded
+     * @return a new ConflictResolverFactory instance
+     */
+    private ConflictResolverFactory createConflictResolverFactory() throws QueryExecutionException {
+        AggregationSpec defaultConfiguration = expandedDefaultConfigurationCache.getCachedValue();
+        String resultGraphPrefix = globalConfig.getQueryExecutionGroup().getResultGraphURIPrefix().toString();
+        return new ConflictResolverFactory(resultGraphPrefix,
+                globalConfig.getConflictResolutionGroup(), defaultConfiguration);
     }
 }

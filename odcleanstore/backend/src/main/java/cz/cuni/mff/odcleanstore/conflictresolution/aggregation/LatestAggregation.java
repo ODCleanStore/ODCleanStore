@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
+import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.comparators.AggregationComparator;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.comparators.InsertedAtComparator;
@@ -21,9 +22,13 @@ import java.util.Collection;
      * Creates a new instance with given settings.
      * @param aggregationSpec aggregation and quality calculation settings
      * @param uriGenerator generator of URIs
+     * @param distanceMetric a {@link DistanceMetric} used for quality computation
+     * @param globalConfig global configuration values for conflict resolution;
+     * @see AggregationMethodBase#AggregationMethodBase()
      */
-    public LatestAggregation(AggregationSpec aggregationSpec, UniqueURIGenerator uriGenerator) {
-        super(aggregationSpec, uriGenerator);
+    public LatestAggregation(AggregationSpec aggregationSpec, UniqueURIGenerator uriGenerator,
+            DistanceMetric distanceMetric, ConflictResolutionConfig globalConfig) {
+        super(aggregationSpec, uriGenerator, distanceMetric, globalConfig);
     }
 
     @Override

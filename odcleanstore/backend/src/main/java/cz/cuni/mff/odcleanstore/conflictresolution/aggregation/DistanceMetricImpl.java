@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
+import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.AggregationUtils;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.EnumLiteralType;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.LevenshteinDistance;
@@ -29,13 +30,6 @@ import org.slf4j.LoggerFactory;
     /** Maximum distance between two {@link Node Nodes}. */
     private static final double MAX_DISTANCE = 1;
 
-    /**
-     * Difference between two dates when their distance is equal to MAX_DISTANCE in seconds.
-     * TODO: to configuration?
-     * Cca 1 year in seconds.
-     */
-    private static final long MAX_DATE_DIFFERENCE = 366 * Utils.DAY_HOURS * Utils.TIME_UNIT_60 * Utils.TIME_UNIT_60;
-
     /** Distance value for URI resources with different URIs. */
     private static final double DIFFERENT_RESOURCE_DISTANCE = MAX_DISTANCE;
 
@@ -48,8 +42,21 @@ import org.slf4j.LoggerFactory;
     /** Number of seconds in a day. */
     private static final int SECONDS_IN_DAY = (int) (Utils.DAY_HOURS * Utils.TIME_UNIT_60 * Utils.TIME_UNIT_60);
 
-    // /** Square root of two. */
-    // private static final double SQRT_OF_TWO = Math.sqrt(2);
+    /** Global configuration values for conflict resolution. */
+    private final ConflictResolutionConfig globalConfig;
+
+    /**
+     * Creates a new instance.
+     * @param globalConfig global configuration values for conflict resolution;
+     * values needed in globalConfig are the following:
+     * <dl>
+     * <dt>getMaxDateDifference
+     * <dd>Difference between two dates when their distance is equal to MAX_DISTANCE in seconds.
+     * </dl>
+     */
+    public DistanceMetricImpl(ConflictResolutionConfig globalConfig) {
+        this.globalConfig = globalConfig;
+    }
 
     /**
      * {@inheritDoc}
@@ -217,7 +224,8 @@ import org.slf4j.LoggerFactory;
                 }
                 double differenceInSeconds = Math.abs(primaryValueTime.asCalendar().getTimeInMillis()
                         - comparedValueTime.asCalendar().getTimeInMillis()) / Utils.MILLISECONDS;
-                double result = (MAX_DISTANCE - MIN_DISTANCE) * differenceInSeconds / MAX_DATE_DIFFERENCE;
+                double result = (MAX_DISTANCE - MIN_DISTANCE)
+                        * differenceInSeconds / globalConfig.getMaxDateDifference();
                 result = Math.min(result, MAX_DISTANCE);
                 assert MIN_DISTANCE <= result && result <= MAX_DISTANCE;
                 return result;
