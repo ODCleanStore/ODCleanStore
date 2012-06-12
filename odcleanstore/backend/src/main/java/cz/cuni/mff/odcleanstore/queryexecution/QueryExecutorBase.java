@@ -5,12 +5,12 @@ import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
-import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
 import cz.cuni.mff.odcleanstore.data.QuadCollection;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
@@ -175,7 +175,7 @@ import java.util.Locale;
     }
 
     /** Connection settings for the SPARQL endpoint that will be queried. */
-    protected final ConnectionCredentials sparqlEndpoint;
+    protected final JDBCConnectionCredentials connectionCredentials;
 
     /** Constraints on triples returned in the result. */
     protected final QueryConstraintSpec constraints;
@@ -203,7 +203,7 @@ import java.util.Locale;
 
     /**
      * Creates a new instance of QueryExecutorBase.
-     * @param sparqlEndpoint connection settings for the SPARQL endpoint that will be queried
+     * @param connectionCredentials connection settings for the SPARQL endpoint that will be queried
      * @param constraints constraints on triples returned in the result
      * @param aggregationSpec aggregation settings for conflict resolution;
      *        property names must not contain prefixed names
@@ -217,10 +217,10 @@ import java.util.Locale;
      * <dd>Prefix of named graphs where the resulting triples are placed.
      * </dl>
      */
-    protected QueryExecutorBase(ConnectionCredentials sparqlEndpoint, QueryConstraintSpec constraints,
+    protected QueryExecutorBase(JDBCConnectionCredentials connectionCredentials, QueryConstraintSpec constraints,
             AggregationSpec aggregationSpec, ConflictResolverFactory conflictResolverFactory,
             QueryExecutionConfig globalConfig) {
-        this.sparqlEndpoint = sparqlEndpoint;
+        this.connectionCredentials = connectionCredentials;
         this.constraints = constraints;
         this.aggregationSpec = aggregationSpec;
         this.conflictResolverFactory = conflictResolverFactory;
@@ -236,7 +236,7 @@ import java.util.Locale;
      */
     protected VirtuosoConnectionWrapper getConnection() throws ConnectionException {
         if (connection == null) {
-            connection = VirtuosoConnectionWrapper.createConnection(sparqlEndpoint);
+            connection = VirtuosoConnectionWrapper.createConnection(connectionCredentials);
         }
         return connection;
     }

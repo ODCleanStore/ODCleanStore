@@ -7,8 +7,8 @@ import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
-import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.vocabulary.DC;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
@@ -258,17 +258,17 @@ import java.util.Set;
 
     /**
      * Creates a new instance of UriQueryExecutor.
-     * @param sparqlEndpoint connection settings for the SPARQL endpoint that will be queried
+     * @param connectionCredentials connection settings for the SPARQL endpoint that will be queried
      * @param constraints constraints on triples returned in the result
      * @param aggregationSpec aggregation settings for conflict resolution;
      *        property names must not contain prefixed names
      * @param conflictResolverFactory factory for ConflictResolver
      * @param globalConfig global conflict resolution settings
      */
-    public UriQueryExecutor(ConnectionCredentials sparqlEndpoint, QueryConstraintSpec constraints,
+    public UriQueryExecutor(JDBCConnectionCredentials connectionCredentials, QueryConstraintSpec constraints,
             AggregationSpec aggregationSpec, ConflictResolverFactory conflictResolverFactory,
             QueryExecutionConfig globalConfig) {
-        super(sparqlEndpoint, constraints, aggregationSpec, conflictResolverFactory, globalConfig);
+        super(connectionCredentials, constraints, aggregationSpec, conflictResolverFactory, globalConfig);
     }
 
     /**

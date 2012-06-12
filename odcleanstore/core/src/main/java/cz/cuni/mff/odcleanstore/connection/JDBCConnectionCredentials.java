@@ -1,7 +1,5 @@
 package cz.cuni.mff.odcleanstore.connection;
 
-import java.net.URL;
-
 /**
  * Encapsulates the coordinates of a JDBC connection.
  *
@@ -9,7 +7,7 @@ import java.net.URL;
  *
  */
 public class JDBCConnectionCredentials {
-    private URL connectionString;
+    private String connectionString;
     private String username;
     private String password;
 
@@ -19,7 +17,7 @@ public class JDBCConnectionCredentials {
      * @param username user name
      * @param password password
      */
-    public JDBCConnectionCredentials(URL connectionString, String username, String password) {
+    public JDBCConnectionCredentials(String connectionString, String username, String password) {
         this.connectionString = connectionString;
         this.username = username;
         this.password = password;
@@ -29,7 +27,7 @@ public class JDBCConnectionCredentials {
      * Returns the JDBC connection string.
      * @return JDBC connection string
      */
-    public URL getConnectionString() {
+    public String getConnectionString() {
         return connectionString;
     }
 

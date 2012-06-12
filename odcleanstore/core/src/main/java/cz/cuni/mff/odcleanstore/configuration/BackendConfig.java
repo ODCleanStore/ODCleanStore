@@ -147,10 +147,9 @@ public class BackendConfig extends ConfigGroup {
     private static JDBCConnectionCredentials loadJDBCConnectionCredentials(Properties properties, String dbName)
             throws ParameterNotAvailableException, IllegalParameterFormatException
     {
-        ParameterFormat<URL> formatURL = new FormatURL();
         ParameterFormat<String> formatString = new FormatString();
 
-        URL connectionString = loadParam(properties, dbName + "_jdbc_connection_string", formatURL);
+        String connectionString = loadParam(properties, dbName + "_jdbc_connection_string", formatString);
         String username = loadParam(properties, dbName + "_jdbc_username", formatString);
         String password = loadParam(properties, dbName + "_jdbc_password", formatString);
 

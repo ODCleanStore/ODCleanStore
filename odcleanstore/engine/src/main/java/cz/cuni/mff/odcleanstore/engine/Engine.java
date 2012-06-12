@@ -39,6 +39,7 @@ public final class Engine extends Module {
 	public static final String OUTPUTWS_URI_PATH = "uri";
 	// end parameters
 
+	// TODO: replace by values from global configuration
 	public static final ConnectionCredentials CLEAN_DATABASE_ENDPOINT = new ConnectionCredentials(CLEAN_DATABASE_CONNECTION_STRING, SPARQL_USER, SPARQL_PASSWORD);
 	public static final ConnectionCredentials DIRTY_DATABASE_ENDPOINT = new ConnectionCredentials(DIRTY_DATABASE_CONNECTION_STRING, SPARQL_USER, SPARQL_PASSWORD);
 
@@ -113,10 +114,9 @@ public final class Engine extends Module {
 	}
 
 	private void init() throws EngineException {
-						
 		checkJavaVersion();
 		checkRequired();
-
+		
 		_executor = new ScheduledThreadPoolExecutor(5);
 
 		_userService = new OutputWSService(this);
