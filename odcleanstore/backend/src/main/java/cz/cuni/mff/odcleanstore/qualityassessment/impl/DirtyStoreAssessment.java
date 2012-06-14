@@ -1,6 +1,6 @@
 package cz.cuni.mff.odcleanstore.qualityassessment.impl;
 
-import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 
 /**
  * Implementation of Dirty Database specific steps of the
@@ -9,7 +9,7 @@ import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
 public class DirtyStoreAssessment extends CommonAssessment {
 
 	@Override
-	protected ConnectionCredentials getEndpoint() {
+	protected JDBCConnectionCredentials getEndpoint() {
 		return context.getDirtyDatabaseCredentials();
 	}
 

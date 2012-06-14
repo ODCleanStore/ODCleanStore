@@ -8,7 +8,7 @@ import java.net.URL;
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
-public class SparqlEndpointCoords {
+public class SparqlEndpointConnectionCredentials {
     // note that the endpoint connection coordinates currently currently consist of
     // a single URL; it is still a good idea to encapsulate this fact inside a custom
     // class though, for this is a detail that can change in future
@@ -19,7 +19,7 @@ public class SparqlEndpointCoords {
      * Creates a new instance.
      * @param url SPARQL endpoint URL
      */
-    public SparqlEndpointCoords(URL url) {
+    public SparqlEndpointConnectionCredentials(URL url) {
         this.url = url;
     }
 

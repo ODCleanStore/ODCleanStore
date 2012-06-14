@@ -3,7 +3,7 @@ package cz.cuni.mff.odcleanstore.configuration;
 import static org.junit.Assert.assertEquals;
 
 import cz.cuni.mff.odcleanstore.configuration.exceptions.ConfigurationException;
-import cz.cuni.mff.odcleanstore.connection.JDBCCoords;
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -26,17 +26,17 @@ public class BackendConfigTest {
     public void testCorrectConfiguration() throws ConfigurationException, URISyntaxException, MalformedURLException {
         Properties properties = Mockito.mock(Properties.class);
 
-        mockDirtyJDBCCoords(properties);
-        mockCleanJDBCCoords(properties);
-        mockSparqlEndpointsCoords(properties);
+        mockDirtyJDBCConnectionCredentials(properties);
+        mockCleanJDBCConnectionCredentials(properties);
+        mockSparqlEndpointsConnectionCredentials(properties);
         mockQueryTimeout(properties);
         mockGraphUriPrefixes(properties);
 
         BackendConfig backendConfig = BackendConfig.load(properties);
 
-        checkDirtyJDBCCoords(backendConfig);
-        checkCleanJDBCCoords(backendConfig);
-        checkSparqlEndpointsCoords(backendConfig);
+        checkDirtyJDBCConnectionCredentials(backendConfig);
+        checkCleanJDBCConnectionCredentials(backendConfig);
+        checkSparqlEndpointsConnectionCredentials(backendConfig);
         checkQueryTimeout(backendConfig);
         checkGraphUriPrefixes(backendConfig);
     }
@@ -64,7 +64,7 @@ public class BackendConfigTest {
                 config.getMetadataGraphURIPrefix());
     }
 
-    private void mockSparqlEndpointsCoords(Properties properties) {
+    private void mockSparqlEndpointsConnectionCredentials(Properties properties) {
         Mockito.when(properties.getProperty(GROUP_NAME + ".dirty_sparql_endpoint_url")).thenReturn(
                 "http://www.sparql.cz/dirty");
 
@@ -72,45 +72,45 @@ public class BackendConfigTest {
                 "http://www.sparql.cz/clean");
     }
 
-    private void checkSparqlEndpointsCoords(BackendConfig config) throws MalformedURLException {
-        assertEquals(new URL("http://www.sparql.cz/dirty"), config.getDirtyDBSparqlCoords().getUrl());
+    private void checkSparqlEndpointsConnectionCredentials(BackendConfig config) throws MalformedURLException {
+        assertEquals(new URL("http://www.sparql.cz/dirty"), config.getDirtyDBSparqlConnectionCredentials().getUrl());
 
-        assertEquals(new URL("http://www.sparql.cz/clean"), config.getCleanDBSparqlCoords().getUrl());
+        assertEquals(new URL("http://www.sparql.cz/clean"), config.getCleanDBSparqlConnectionCredentials().getUrl());
     }
 
-    private void mockDirtyJDBCCoords(Properties properties) {
-        Mockito.when(properties.getProperty(GROUP_NAME + ".dirty_jdbc_url")).thenReturn("http://www.jdbc.cz/dirty");
+    private void mockDirtyJDBCConnectionCredentials(Properties properties) {
+        Mockito.when(properties.getProperty(GROUP_NAME + ".dirty_jdbc_connection_string")).thenReturn("jdbc:virtuoso://localhost:1112");
 
         Mockito.when(properties.getProperty(GROUP_NAME + ".dirty_jdbc_username")).thenReturn("dba");
 
         Mockito.when(properties.getProperty(GROUP_NAME + ".dirty_jdbc_password")).thenReturn("dba");
     }
 
-    private void checkDirtyJDBCCoords(BackendConfig config) throws MalformedURLException {
-        JDBCCoords dirtyJDBCCoords = config.getDirtyDBJDBCCoords();
+    private void checkDirtyJDBCConnectionCredentials(BackendConfig config) throws MalformedURLException {
+        JDBCConnectionCredentials dirtyJDBCConnectionCredentials = config.getDirtyDBJDBCConnectionCredentials();
 
-        assertEquals(new URL("http://www.jdbc.cz/dirty"), dirtyJDBCCoords.getUrl());
+        assertEquals("jdbc:virtuoso://localhost:1112", dirtyJDBCConnectionCredentials.getConnectionString());
 
-        assertEquals("dba", dirtyJDBCCoords.getUsername());
+        assertEquals("dba", dirtyJDBCConnectionCredentials.getUsername());
 
-        assertEquals("dba", dirtyJDBCCoords.getPassword());
+        assertEquals("dba", dirtyJDBCConnectionCredentials.getPassword());
     }
 
-    private void mockCleanJDBCCoords(Properties properties) {
-        Mockito.when(properties.getProperty(GROUP_NAME + ".clean_jdbc_url")).thenReturn("http://www.jdbc.cz/clean");
+    private void mockCleanJDBCConnectionCredentials(Properties properties) {
+        Mockito.when(properties.getProperty(GROUP_NAME + ".clean_jdbc_connection_string")).thenReturn("jdbc:virtuoso://localhost:1111");
 
         Mockito.when(properties.getProperty(GROUP_NAME + ".clean_jdbc_username")).thenReturn("dba");
 
         Mockito.when(properties.getProperty(GROUP_NAME + ".clean_jdbc_password")).thenReturn("dba");
     }
 
-    private void checkCleanJDBCCoords(BackendConfig config) throws MalformedURLException {
-        JDBCCoords cleanJDBCCoords = config.getCleanDBJDBCCoords();
+    private void checkCleanJDBCConnectionCredentials(BackendConfig config) throws MalformedURLException {
+        JDBCConnectionCredentials cleanJDBCConnectionCredentials = config.getCleanDBJDBCConnectionCredentials();
 
-        assertEquals(new URL("http://www.jdbc.cz/clean"), cleanJDBCCoords.getUrl());
+        assertEquals("jdbc:virtuoso://localhost:1111", cleanJDBCConnectionCredentials.getConnectionString());
 
-        assertEquals("dba", cleanJDBCCoords.getUsername());
+        assertEquals("dba", cleanJDBCConnectionCredentials.getUsername());
 
-        assertEquals("dba", cleanJDBCCoords.getPassword());
+        assertEquals("dba", cleanJDBCConnectionCredentials.getPassword());
     }
 }

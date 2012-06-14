@@ -1,7 +1,9 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
+import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationType;
+import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.SimpleUriGenerator;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 
 import java.util.HashMap;
@@ -38,13 +40,30 @@ public class AggregationMethodFactory {
     private final AggregationSpec aggregationSpec;
 
     /**
-     * Creates a new factory with the given settings for creating new aggregations.
-     * @param uriGenerator generator of URIs
-     * @param aggregationSpec aggregation and quality calculation settings
+     * Distance metric used in quality calculation.
      */
-    public AggregationMethodFactory(UniqueURIGenerator uriGenerator, AggregationSpec aggregationSpec) {
-        this.uriGenerator = uriGenerator;
+    private final DistanceMetric distanceMetric;
+
+    /**
+     * Global configuration values for conflict resolution.
+     */
+    private final ConflictResolutionConfig globalConfig;
+
+    /**
+     * Creates a new factory with the given settings for creating new aggregations.
+     * @param aggregationSpec aggregation and quality calculation settings
+     * @param resultGraphPrefix prefix of URIs of named graphs where resolved triples are placed
+     * @param globalConfig global configuration values for conflict resolution
+     */
+    public AggregationMethodFactory(
+            AggregationSpec aggregationSpec,
+            String resultGraphPrefix,
+            ConflictResolutionConfig globalConfig) {
+
+        this.uriGenerator = new SimpleUriGenerator(resultGraphPrefix);
         this.aggregationSpec = aggregationSpec;
+        this.globalConfig = globalConfig;
+        this.distanceMetric = new DistanceMetricImpl(globalConfig);
         this.singleValueAggregation = createSingleValueAggregation();
     }
 
@@ -103,33 +122,33 @@ public class AggregationMethodFactory {
     protected AggregationMethod createAggregation(EnumAggregationType type) throws AggregationNotImplementedException {
         switch (type) {
         case ANY:
-            return new AnyAggregation(aggregationSpec, uriGenerator);
+            return new AnyAggregation(aggregationSpec, uriGenerator, distanceMetric, globalConfig);
         case ALL:
-            return new AllAggregation(aggregationSpec, uriGenerator);
+            return new AllAggregation(aggregationSpec, uriGenerator, distanceMetric, globalConfig);
         case BEST:
-            return new BestAggregation(aggregationSpec, uriGenerator);
+            return new BestAggregation(aggregationSpec, uriGenerator, distanceMetric, globalConfig);
         case LATEST:
-            return new LatestAggregation(aggregationSpec, uriGenerator);
+            return new LatestAggregation(aggregationSpec, uriGenerator, distanceMetric, globalConfig);
         case BEST_SOURCE:
-            return new BestSourceAggregation(aggregationSpec, uriGenerator);
+            return new BestSourceAggregation(aggregationSpec, uriGenerator, distanceMetric, globalConfig);
         case TOPC:
-            return new TopCAggregation(aggregationSpec, uriGenerator);
+            return new TopCAggregation(aggregationSpec, uriGenerator, distanceMetric, globalConfig);
         case MAX:
-            return new MaxAggregation(aggregationSpec, uriGenerator);
+            return new MaxAggregation(aggregationSpec, uriGenerator, distanceMetric, globalConfig);
         case MIN:
-            return new MinAggregation(aggregationSpec, uriGenerator);
+            return new MinAggregation(aggregationSpec, uriGenerator, distanceMetric, globalConfig);
         case AVG:
-            return new AvgAggregation(aggregationSpec, uriGenerator);
+            return new AvgAggregation(aggregationSpec, uriGenerator, distanceMetric, globalConfig);
         case MEDIAN:
-            return new MedianAggegation(aggregationSpec, uriGenerator);
+            return new MedianAggegation(aggregationSpec, uriGenerator, distanceMetric, globalConfig);
         case CONCAT:
-            return new ConcatAggregation(aggregationSpec, uriGenerator);
+            return new ConcatAggregation(aggregationSpec, uriGenerator, distanceMetric, globalConfig);
         case SHORTEST:
-            return new ShortestAggregation(aggregationSpec, uriGenerator);
+            return new ShortestAggregation(aggregationSpec, uriGenerator, distanceMetric, globalConfig);
         case LONGEST:
-            return new LongestAggregation(aggregationSpec, uriGenerator);
+            return new LongestAggregation(aggregationSpec, uriGenerator, distanceMetric, globalConfig);
         case NONE:
-            return new NoneAggregation(aggregationSpec, uriGenerator);
+            return new NoneAggregation(aggregationSpec, uriGenerator, distanceMetric, globalConfig);
         default:
             if (type == null) {
                 throw new IllegalArgumentException("Cannot create AggregationMethod of null type");
@@ -145,6 +164,6 @@ public class AggregationMethodFactory {
      * @return a new instance of AggregationMethod
      */
     protected AggregationMethod createSingleValueAggregation() {
-        return new SingleValueAggregation(aggregationSpec, uriGenerator);
+        return new SingleValueAggregation(aggregationSpec, uriGenerator, distanceMetric, globalConfig);
     }
 }

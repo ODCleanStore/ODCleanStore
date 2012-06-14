@@ -1,11 +1,11 @@
 package cz.cuni.mff.odcleanstore.configuration;
 
-import cz.cuni.mff.odcleanstore.configuration.exceptions.ConfigurationException;
+import java.io.File;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
+import cz.cuni.mff.odcleanstore.configuration.exceptions.ConfigurationException;
 
 /**
  * A globally accessible singleton Config instance.
@@ -14,10 +14,25 @@ import java.io.File;
  *
  */
 public class ConfigLoader {
-    /** path to the configuration file */
-    private static final String CONFIG_PATH = "odcs.ini";
+	private static final Logger LOG = LoggerFactory.getLogger(ConfigLoader.class);
+	
+    /** Default path to the configuration file */
+    private static final String DEFAULT_CONFIG_PATH = "odcs.ini";
 
     private static Config config;
+    
+    /**
+     * Loads and parses the contents of the configuration file into a Config
+     * instance. The instance is then available via the {@link #getConfig()} method.
+     *
+     * @param configPath path to the configuration file
+     * @throws ConfigurationException
+     */
+    public static void loadConfig(String configPath) throws ConfigurationException {
+    	File configFile = new File(configPath);
+    	LOG.info("Loading global configuration from {}", configFile.getAbsolutePath());
+        config = Config.load(configFile);
+    }
 
     /**
      * Loads and parses the contents of the configuration file into a Config
@@ -28,9 +43,7 @@ public class ConfigLoader {
      * @throws ConfigurationException
      */
     public static void loadConfig() throws ConfigurationException {
-        File f = new File(CONFIG_PATH);
-        LoggerFactory.getLogger(ConfigLoader.class).info(f.getAbsolutePath());
-        config = Config.load(new File(CONFIG_PATH));
+    	loadConfig(DEFAULT_CONFIG_PATH);
     }
 
     /**

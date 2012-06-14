@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
+import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
@@ -10,7 +11,6 @@ import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationMethod
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationMethodFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationNotImplementedException;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
-import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 
 import com.hp.hpl.jena.graph.Node;
@@ -90,11 +90,18 @@ public class ConflictResolverImpl implements ConflictResolver {
     }
 
     /**
-     * Creates a new instance of conflict resolver for settings passed in spec.
-     * @param crSpec settings for the conflict resolution process
+     * Global configuration values for conflict resolution.
      */
-    public ConflictResolverImpl(ConflictResolverSpec crSpec) {
+    private final ConflictResolutionConfig globalConfig;
+
+    /**
+     * Creates a new instance of conflict resolver for settings passed in crSpec.
+     * @param crSpec settings for the conflict resolution process
+     * @param globalConfig global configuration values for conflict resolution
+     */
+    public ConflictResolverImpl(ConflictResolverSpec crSpec, ConflictResolutionConfig globalConfig) {
         this.crSpec = crSpec;
+        this.globalConfig = globalConfig;
     }
 
     /**
@@ -136,7 +143,8 @@ public class ConflictResolverImpl implements ConflictResolver {
         }
 
         // Resolve conflicts:
-        AggregationMethodFactory aggregationFactory = getAggregationMethodFactory(effectiveAggregationSpec);
+        AggregationMethodFactory aggregationFactory =
+                new AggregationMethodFactory(effectiveAggregationSpec, crSpec.getNamedGraphPrefix(), globalConfig);
         Collection<CRQuad> result = createResultCollection();
         Iterator<Collection<Quad>> conflictIterator = quadsToResolve.listConflictingQuads();
         while (conflictIterator.hasNext()) {
@@ -202,16 +210,6 @@ public class ConflictResolverImpl implements ConflictResolver {
             String mappedURI = uriMappings.getCanonicalURI(entry.getKey());
             baseSettings.put(mappedURI, entry.getValue());
         }
-    }
-
-    /**
-     * Return a new instance of AggregationMethodFactory for the current CR settings.
-     * @param effectiveAggregationSpec aggregation settings to use
-     * @return instance of AggregationMethodFactory
-     */
-    private AggregationMethodFactory getAggregationMethodFactory(AggregationSpec effectiveAggregationSpec) {
-        UniqueURIGenerator uriGenerator = new SimpleUriGenerator(crSpec.getNamedGraphPrefix());
-        return new AggregationMethodFactory(uriGenerator, effectiveAggregationSpec);
     }
 
     /**

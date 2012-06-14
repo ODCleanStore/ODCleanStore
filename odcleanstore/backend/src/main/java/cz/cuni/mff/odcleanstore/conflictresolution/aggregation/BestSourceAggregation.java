@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
+import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.comparators.AggregationComparator;
@@ -16,16 +17,16 @@ import java.util.Collection;
  * @author Jan Michelfeit
  */
 /*package*/final class BestSourceAggregation extends BestSelectedAggregation {
-    private static final AggregationComparator AGGREGATION_COMPARATOR =
+    private final AggregationComparator aggregationComparator =
             new GraphQualityComparator(new GraphQualityCalculatorImpl());
 
     /**
      * Implementation of the helper {@link GraphQualityCalculator} interface.
      */
-    private static final class GraphQualityCalculatorImpl implements GraphQualityCalculator {
+    private final class GraphQualityCalculatorImpl implements GraphQualityCalculator {
         @Override
         public double getSourceQuality(NamedGraphMetadata metadata) {
-            return AggregationMethodBase.getSourceQuality(metadata);
+            return BestSourceAggregation.this.getSourceQuality(metadata);
         }
     }
 
@@ -33,13 +34,17 @@ import java.util.Collection;
      * Creates a new instance with given settings.
      * @param aggregationSpec aggregation and quality calculation settings
      * @param uriGenerator generator of URIs
+     * @param distanceMetric a {@link DistanceMetric} used for quality computation
+     * @param globalConfig global configuration values for conflict resolution;
+     * @see AggregationMethodBase#AggregationMethodBase()
      */
-    public BestSourceAggregation(AggregationSpec aggregationSpec, UniqueURIGenerator uriGenerator) {
-        super(aggregationSpec, uriGenerator);
+    public BestSourceAggregation(AggregationSpec aggregationSpec, UniqueURIGenerator uriGenerator,
+            DistanceMetric distanceMetric, ConflictResolutionConfig globalConfig) {
+        super(aggregationSpec, uriGenerator, distanceMetric, globalConfig);
     }
 
     @Override
     protected AggregationComparator getComparator(Collection<Quad> conflictingQuads) {
-        return AGGREGATION_COMPARATOR;
+        return aggregationComparator;
     }
 }

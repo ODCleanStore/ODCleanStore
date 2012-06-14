@@ -4,8 +4,10 @@ import java.io.File;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.*;
+import org.apache.log4j.Logger;
 
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.configuration.exceptions.ConfigurationException;
 import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
 import cz.cuni.mff.odcleanstore.engine.common.Module;
 import cz.cuni.mff.odcleanstore.engine.common.ModuleState;
@@ -17,6 +19,8 @@ import cz.cuni.mff.odcleanstore.engine.pipeline.PipelineService;
  * @author Petr Jerman
  */
 public final class Engine extends Module {
+	
+	public static final String DEFAULT_CONFIG_FILE_PATH = "odcs.ini"; // TODO: Added by JM
 
 	// parameters
 	private static final String CLEAN_DATABASE_CONNECTION_STRING = "jdbc:virtuoso://localhost:1111";
@@ -35,6 +39,7 @@ public final class Engine extends Module {
 	public static final String OUTPUTWS_URI_PATH = "uri";
 	// end parameters
 
+	// TODO: replace by values from global configuration
 	public static final ConnectionCredentials CLEAN_DATABASE_ENDPOINT = new ConnectionCredentials(CLEAN_DATABASE_CONNECTION_STRING, SPARQL_USER, SPARQL_PASSWORD);
 	public static final ConnectionCredentials DIRTY_DATABASE_ENDPOINT = new ConnectionCredentials(DIRTY_DATABASE_CONNECTION_STRING, SPARQL_USER, SPARQL_PASSWORD);
 
@@ -42,6 +47,19 @@ public final class Engine extends Module {
 	private static Engine _engine;
 
 	public static void main(String[] args) {
+		// TODO: Added by JM:
+		try {
+			if (args.length > 0) {
+				ConfigLoader.loadConfig(args[0]);
+			} else {
+				ConfigLoader.loadConfig();
+			}
+		} catch (ConfigurationException e) {
+			LOG.fatal(e.getMessage());
+			return;
+		}
+		// End of added by JM
+		
 		if (_engine == null) {
 			_engine = new Engine();
 			_engine.run();
@@ -96,10 +114,9 @@ public final class Engine extends Module {
 	}
 
 	private void init() throws EngineException {
-						
 		checkJavaVersion();
 		checkRequired();
-
+		
 		_executor = new ScheduledThreadPoolExecutor(5);
 
 		_userService = new OutputWSService(this);

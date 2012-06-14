@@ -41,6 +41,11 @@
 	<dependencies>
 		<dependency>
 			<groupId>cz.cuni.mff.odcleanstore</groupId>
+			<artifactId>odcs-core</artifactId>
+			<version>0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>cz.cuni.mff.odcleanstore</groupId>
 			<artifactId>odcs-backend</artifactId>
 			<version>0.1-SNAPSHOT</version>
 		</dependency>

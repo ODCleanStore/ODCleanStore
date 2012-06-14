@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
 import cz.cuni.mff.odcleanstore.TestUtils;
+import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
@@ -38,8 +39,10 @@ public class CalculatedValueAggregationTest {
     public class CalculatedValueAggregationImpl extends CalculatedValueAggregation {
         public CalculatedValueAggregationImpl(
                 AggregationSpec aggregationSpec,
-                UniqueURIGenerator uriGenerator) {
-            super(aggregationSpec, uriGenerator);
+                UniqueURIGenerator uriGenerator,
+                DistanceMetric distanceMetric,
+                ConflictResolutionConfig globalConfig) {
+            super(aggregationSpec, uriGenerator, distanceMetric, globalConfig);
         }
 
         @Override
@@ -66,8 +69,12 @@ public class CalculatedValueAggregationTest {
     public void testQualitySingleValue() {
         final double score = DEFAULT_SCORE;
 
-        CalculatedValueAggregation instance =
-                new CalculatedValueAggregationImpl(new AggregationSpec(), URI_GENERATOR);
+        ConflictResolutionConfig globalConfig = TestUtils.createConflictResolutionConfigMock();
+        CalculatedValueAggregation instance = new CalculatedValueAggregationImpl (
+                new AggregationSpec(),
+                URI_GENERATOR,
+                new DistanceMetricImpl(globalConfig),
+                globalConfig);
 
         Quad quad = TestUtils.createQuad();
         Collection<String> sourceNamedGraphs = Collections.singleton(quad.getGraphName().getURI());
@@ -93,8 +100,12 @@ public class CalculatedValueAggregationTest {
         final double lowerScore = DEFAULT_SCORE / 2;
         final double higherScore = DEFAULT_SCORE;
 
-        CalculatedValueAggregation instance =
-                new CalculatedValueAggregationImpl(new AggregationSpec(), URI_GENERATOR);
+        ConflictResolutionConfig globalConfig = TestUtils.createConflictResolutionConfigMock();
+        CalculatedValueAggregation instance = new CalculatedValueAggregationImpl (
+                new AggregationSpec(),
+                URI_GENERATOR,
+                new DistanceMetricImpl(globalConfig),
+                globalConfig);
 
         Collection<Quad> conflictingQuads = generateQuadCollection();
         NamedGraphMetadataMap metadataMap = new NamedGraphMetadataMap();
@@ -135,8 +146,12 @@ public class CalculatedValueAggregationTest {
 
     @Test
     public void testQualityEmptyMetadata() {
-        CalculatedValueAggregation instance =
-                new CalculatedValueAggregationImpl(new AggregationSpec(), URI_GENERATOR);
+        ConflictResolutionConfig globalConfig = TestUtils.createConflictResolutionConfigMock();
+        CalculatedValueAggregation instance = new CalculatedValueAggregationImpl (
+                new AggregationSpec(),
+                URI_GENERATOR,
+                new DistanceMetricImpl(globalConfig),
+                globalConfig);
 
         Quad quad = TestUtils.createQuad();
         Collection<String> sourceNamedGraphs = Collections.singleton(quad.getGraphName().getURI());
@@ -149,7 +164,7 @@ public class CalculatedValueAggregationTest {
                 Collections.singleton(quad),
                 metadata);
         Assert.assertEquals(
-                AggregationMethodBase.SCORE_IF_UNKNOWN,
+                globalConfig.getScoreIfUnknown(),
                 computedQuality,
                 EPSILON);
     }

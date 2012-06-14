@@ -1,26 +1,24 @@
 package cz.cuni.mff.odcleanstore.connection;
 
-import java.net.URL;
-
 /**
  * Encapsulates the coordinates of a JDBC connection.
  *
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
-public class JDBCCoords {
-    private URL url;
+public class JDBCConnectionCredentials {
+    private String connectionString;
     private String username;
     private String password;
 
     /**
      * Creates a new instance.
-     * @param url JDBC connection string
+     * @param connectionString JDBC connection string
      * @param username user name
      * @param password password
      */
-    public JDBCCoords(URL url, String username, String password) {
-        this.url = url;
+    public JDBCConnectionCredentials(String connectionString, String username, String password) {
+        this.connectionString = connectionString;
         this.username = username;
         this.password = password;
     }
@@ -29,8 +27,8 @@ public class JDBCCoords {
      * Returns the JDBC connection string.
      * @return JDBC connection string
      */
-    public URL getUrl() {
-        return url;
+    public String getConnectionString() {
+        return connectionString;
     }
 
     /**

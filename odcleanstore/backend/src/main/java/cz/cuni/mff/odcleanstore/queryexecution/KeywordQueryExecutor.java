@@ -1,14 +1,14 @@
 package cz.cuni.mff.odcleanstore.queryexecution;
 
+import cz.cuni.mff.odcleanstore.configuration.QueryExecutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
-import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
-import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
 import cz.cuni.mff.odcleanstore.vocabulary.DC;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.W3P;
@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -383,15 +384,17 @@ import java.util.regex.Pattern;
 
     /**
      * Creates a new instance of KeywordQueryExecutor.
-     * @param sparqlEndpoint connection settings for the SPARQL endpoint that will be queried
+     * @param connectionCredentials connection settings for the SPARQL endpoint that will be queried
      * @param constraints constraints on triples returned in the result
      * @param aggregationSpec aggregation settings for conflict resolution;
      *        property names must not contain prefixed names
-     * @param defaultAggregationSpec default aggregation settings for conflict resolution
+     * @param conflictResolverFactory factory for ConflictResolver
+     * @param globalConfig global conflict resolution settings
      */
-    public KeywordQueryExecutor(ConnectionCredentials sparqlEndpoint, QueryConstraintSpec constraints,
-            AggregationSpec aggregationSpec, AggregationSpec defaultAggregationSpec) {
-        super(sparqlEndpoint, constraints, aggregationSpec, defaultAggregationSpec);
+    public KeywordQueryExecutor(JDBCConnectionCredentials connectionCredentials, QueryConstraintSpec constraints,
+            AggregationSpec aggregationSpec, ConflictResolverFactory conflictResolverFactory,
+            QueryExecutionConfig globalConfig) {
+        super(connectionCredentials, constraints, aggregationSpec, conflictResolverFactory, globalConfig);
     }
 
     /**
@@ -429,16 +432,12 @@ import java.util.regex.Pattern;
             }
             quads.addAll(getLabels(containsMatchExpr, exactMatchExpr));
 
-            // Gather all settings for Conflict Resolution
-            ConflictResolverSpec crSpec =
-                    new ConflictResolverSpec(RESULT_GRAPH_PREFIX, aggregationSpec, defaultAggregationSpec);
-            crSpec.setPreferredURIs(getPreferredURIs());
-            crSpec.setSameAsLinks(getSameAsLinks().iterator());
-            NamedGraphMetadataMap metadata = getMetadata(containsMatchExpr, exactMatchExpr);
-            crSpec.setNamedGraphMetadata(metadata);
-
             // Apply conflict resolution
-            ConflictResolver conflictResolver = ConflictResolverFactory.createResolver(crSpec);
+            NamedGraphMetadataMap metadata = getMetadata(containsMatchExpr, exactMatchExpr);
+            Iterator<Triple> sameAsLinks = getSameAsLinks().iterator();
+            Set<String> preferredURIs = getPreferredURIs();
+            ConflictResolver conflictResolver =
+                    conflictResolverFactory.createResolver(aggregationSpec, metadata, sameAsLinks, preferredURIs);
             Collection<CRQuad> resolvedQuads = conflictResolver.resolveConflicts(quads);
 
             return createResult(resolvedQuads, metadata, canonicalQuery, System.currentTimeMillis() - startTime);
@@ -504,7 +503,7 @@ import java.util.regex.Pattern;
     private Collection<Quad> getKeywordOccurrences(String containsMatchExpr, String exactMatchExpr)
             throws DatabaseException {
         String query = String.format(KEYWORD_OCCURENCES_QUERY, containsMatchExpr, exactMatchExpr,
-                getGraphFilterClause(), MAX_LIMIT);
+                getGraphFilterClause(), maxLimit);
         return getQuadsFromQuery(query, "getKeywordOccurrences()");
     }
 
@@ -517,7 +516,7 @@ import java.util.regex.Pattern;
      */
     private Collection<Quad> getLabels(String containsMatchExpr, String exactMatchExpr) throws DatabaseException {
         String query = String.format(Locale.ROOT, LABELS_QUERY, containsMatchExpr, exactMatchExpr,
-                getGraphFilterClause(), LABEL_PROPERTIES_LIST, getGraphPrefixFilter("labelGraph"), MAX_LIMIT);
+                getGraphFilterClause(), LABEL_PROPERTIES_LIST, getGraphPrefixFilter("labelGraph"), maxLimit);
         return getQuadsFromQuery(query, "getLabels()");
     }
 
@@ -531,7 +530,7 @@ import java.util.regex.Pattern;
     private NamedGraphMetadataMap getMetadata(String containsMatchExpr, String exactMatchExpr)
             throws DatabaseException {
         String query = String.format(Locale.ROOT, METADATA_QUERY, containsMatchExpr, exactMatchExpr,
-                getGraphFilterClause(), LABEL_PROPERTIES_LIST, getGraphPrefixFilter("resGraph"), MAX_LIMIT);
+                getGraphFilterClause(), LABEL_PROPERTIES_LIST, getGraphPrefixFilter("resGraph"), maxLimit);
         return getMetadataFromQuery(query, "getMetadata()");
     }
 

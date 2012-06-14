@@ -106,7 +106,7 @@ public class ConflictResolverImplTest {
         conflictingQuads.add(newVersionQuad);
 
         // Create class instance
-        ConflictResolverImpl instance = new ConflictResolverImpl(spec);
+        ConflictResolverImpl instance = new ConflictResolverImpl(spec, TestUtils.createConflictResolutionConfigMock());
 
         // Test results
         Collection<CRQuad> aggregationResult =
@@ -147,7 +147,7 @@ public class ConflictResolverImplTest {
         conflictingQuads.add(similarQuad);
 
         // Create class instance
-        ConflictResolverImpl instance = new ConflictResolverImpl(spec);
+        ConflictResolverImpl instance = new ConflictResolverImpl(spec, TestUtils.createConflictResolutionConfigMock());
 
         // Test results
         Collection<CRQuad> aggregationResult =
@@ -170,7 +170,7 @@ public class ConflictResolverImplTest {
         conflictingQuads.add(oldVersionDiferentObjectQuad);
 
         // Create class instance
-        ConflictResolverImpl instance = new ConflictResolverImpl(spec);
+        ConflictResolverImpl instance = new ConflictResolverImpl(spec, TestUtils.createConflictResolutionConfigMock());
 
         // Test results
         Collection<CRQuad> aggregationResult =
@@ -198,7 +198,7 @@ public class ConflictResolverImplTest {
                 OWL.sameAs,
                 sameNamedGraphQuad.getObject().getURI()));
         spec.setSameAsLinks(sameAsLinks.iterator());
-        ConflictResolverImpl instance = new ConflictResolverImpl(spec);
+        ConflictResolverImpl instance = new ConflictResolverImpl(spec, TestUtils.createConflictResolutionConfigMock());
 
         // Test results
         Collection<CRQuad> aggregationResult =

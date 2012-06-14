@@ -1,14 +1,14 @@
 package cz.cuni.mff.odcleanstore.queryexecution;
 
+import cz.cuni.mff.odcleanstore.configuration.QueryExecutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
-import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
-import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.vocabulary.DC;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 
@@ -257,15 +258,17 @@ import java.util.Set;
 
     /**
      * Creates a new instance of UriQueryExecutor.
-     * @param sparqlEndpoint connection settings for the SPARQL endpoint that will be queried
+     * @param connectionCredentials connection settings for the SPARQL endpoint that will be queried
      * @param constraints constraints on triples returned in the result
      * @param aggregationSpec aggregation settings for conflict resolution;
      *        property names must not contain prefixed names
-     * @param defaultAggregationSpec default aggregation settings for conflict resolution
+     * @param conflictResolverFactory factory for ConflictResolver
+     * @param globalConfig global conflict resolution settings
      */
-    public UriQueryExecutor(ConnectionCredentials sparqlEndpoint, QueryConstraintSpec constraints,
-            AggregationSpec aggregationSpec, AggregationSpec defaultAggregationSpec) {
-        super(sparqlEndpoint, constraints, aggregationSpec, defaultAggregationSpec);
+    public UriQueryExecutor(JDBCConnectionCredentials connectionCredentials, QueryConstraintSpec constraints,
+            AggregationSpec aggregationSpec, ConflictResolverFactory conflictResolverFactory,
+            QueryExecutionConfig globalConfig) {
+        super(connectionCredentials, constraints, aggregationSpec, conflictResolverFactory, globalConfig);
     }
 
     /**
@@ -298,16 +301,12 @@ import java.util.Set;
             }
             quads.addAll(getLabels(uri));
 
-            // Gather all settings for Conflict Resolution
-            ConflictResolverSpec crSpec =
-                    new ConflictResolverSpec(RESULT_GRAPH_PREFIX, aggregationSpec, defaultAggregationSpec);
-            crSpec.setPreferredURIs(getPreferredURIs(uri));
-            crSpec.setSameAsLinks(getSameAsLinks(uri).iterator());
-            NamedGraphMetadataMap metadata = getMetadata(uri);
-            crSpec.setNamedGraphMetadata(metadata);
-
             // Apply conflict resolution
-            ConflictResolver conflictResolver = ConflictResolverFactory.createResolver(crSpec);
+            NamedGraphMetadataMap metadata = getMetadata(uri);
+            Iterator<Triple> sameAsLinks = getSameAsLinks(uri).iterator();
+            Set<String> preferredURIs = getPreferredURIs(uri);
+            ConflictResolver conflictResolver =
+                    conflictResolverFactory.createResolver(aggregationSpec, metadata, sameAsLinks, preferredURIs);
             Collection<CRQuad> resolvedQuads = conflictResolver.resolveConflicts(quads);
 
             return createResult(resolvedQuads, metadata, uri, System.currentTimeMillis() - startTime);
@@ -372,7 +371,7 @@ import java.util.Set;
      * @throws DatabaseException query error
      */
     private Collection<Quad> getURIOccurrences(String uri) throws DatabaseException {
-        String query = String.format(URI_OCCURENCES_QUERY, uri, getGraphFilterClause(), MAX_LIMIT);
+        String query = String.format(URI_OCCURENCES_QUERY, uri, getGraphFilterClause(), maxLimit);
         return getQuadsFromQuery(query, "getURIOccurrences()");
     }
 
@@ -384,7 +383,7 @@ import java.util.Set;
      */
     private Collection<Quad> getLabels(String uri) throws DatabaseException {
         String query = String.format(Locale.ROOT, LABELS_QUERY, uri, getGraphFilterClause(), LABEL_PROPERTIES_LIST,
-                getGraphPrefixFilter("labelGraph"), MAX_LIMIT);
+                getGraphPrefixFilter("labelGraph"), maxLimit);
         return getQuadsFromQuery(query, "getLabels()");
     }
 
@@ -396,7 +395,7 @@ import java.util.Set;
      */
     private NamedGraphMetadataMap getMetadata(String uri) throws DatabaseException {
         String query = String.format(Locale.ROOT, METADATA_QUERY, uri, getGraphFilterClause(),
-                LABEL_PROPERTIES_LIST, getGraphPrefixFilter("resGraph"), MAX_LIMIT);
+                LABEL_PROPERTIES_LIST, getGraphPrefixFilter("resGraph"), maxLimit);
         return getMetadataFromQuery(query, "getMetadata()");
     }
 

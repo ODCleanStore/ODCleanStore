@@ -1,14 +1,16 @@
 package cz.cuni.mff.odcleanstore.queryexecution;
 
+import cz.cuni.mff.odcleanstore.configuration.QueryExecutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
+import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
-import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
 import cz.cuni.mff.odcleanstore.data.QuadCollection;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
@@ -53,12 +55,6 @@ import java.util.Locale;
     private static final String GRAPH_PREFIX_FILTER = null; //"http://odcs.mff.cuni.cz/namedGraph/qe-test/";
 
     /**
-     * Maximum number of triples returned by each database query (the overall result size may be larger).
-     * TODO: get from global configuration.
-     */
-    protected static final long MAX_LIMIT = 500;
-
-    /**
      * Maximum number of properties with explicit aggregation settings.
      * This limit is imposed because all of them might be listed in a query.
      * @see UriQueryExecutor#getSameAsLinks()
@@ -72,17 +68,12 @@ import java.util.Locale;
     private static final int MAX_SAMEAS_PATH_LENGTH = 30;
 
     /**
-     * Prefix of named graphs where the resulting triples are placed.
-     * TODO: get from global configuration.
-     */
-    protected static final String RESULT_GRAPH_PREFIX = "http://odcs.mff.cuni.cz/results/";
-
-    /**
      * A {@link Node} representing the owl:sameAs predicate.
      */
     protected static final Node SAME_AS_PROPERTY = Node.createURI(OWL.sameAs);
 
     /** Properties designating a human-readable label. */
+    // TODO: get from database
     protected static final String[] LABEL_PROPERTIES = new String[] { RDFS.label };
 
     /** List of {@link #LABEL_PROPERTIES} formatted to a string for use in a SPARQL query. */
@@ -184,10 +175,13 @@ import java.util.Locale;
     }
 
     /** Connection settings for the SPARQL endpoint that will be queried. */
-    protected final ConnectionCredentials sparqlEndpoint;
+    protected final JDBCConnectionCredentials connectionCredentials;
 
     /** Constraints on triples returned in the result. */
     protected final QueryConstraintSpec constraints;
+
+    /** Global QE configuration settings. */
+    protected final QueryExecutionConfig globalConfig;
 
     /** Database connection. */
     private VirtuosoConnectionWrapper connection;
@@ -201,22 +195,37 @@ import java.util.Locale;
     /** Aggregation settings for conflict resolution. Overrides {@link #defaultAggregationSpec}. */
     protected final AggregationSpec aggregationSpec;
 
-    /** Default aggregation settings for conflict resolution. */
-    protected final AggregationSpec defaultAggregationSpec;
+    /** Factory for ConflictResolver instances. */
+    protected final ConflictResolverFactory conflictResolverFactory;
+
+    /** Maximum number of triples returned by each database query (the overall result size may be larger). */
+    protected final Long maxLimit;
 
     /**
      * Creates a new instance of QueryExecutorBase.
-     * @param sparqlEndpoint connection settings for the SPARQL endpoint that will be queried
+     * @param connectionCredentials connection settings for the SPARQL endpoint that will be queried
      * @param constraints constraints on triples returned in the result
-     * @param aggregationSpec aggregation settings for conflict resolution; overrides defaultAggregationSpec
-     * @param defaultAggregationSpec default aggregation settings for conflict resolution
+     * @param aggregationSpec aggregation settings for conflict resolution;
+     *        property names must not contain prefixed names
+     * @param conflictResolverFactory factory for ConflictResolver
+     * @param globalConfig global conflict resolution settings;
+     * values needed in globalConfig are the following:
+     * <dl>
+     * <dt>maxQueryResultSize
+     * <dd>Maximum number of triples returned by each database query (the overall result size may be larger).
+     * <dt>resultGraphPrefix
+     * <dd>Prefix of named graphs where the resulting triples are placed.
+     * </dl>
      */
-    protected QueryExecutorBase(ConnectionCredentials sparqlEndpoint, QueryConstraintSpec constraints,
-            AggregationSpec aggregationSpec, AggregationSpec defaultAggregationSpec) {
-        this.sparqlEndpoint = sparqlEndpoint;
+    protected QueryExecutorBase(JDBCConnectionCredentials connectionCredentials, QueryConstraintSpec constraints,
+            AggregationSpec aggregationSpec, ConflictResolverFactory conflictResolverFactory,
+            QueryExecutionConfig globalConfig) {
+        this.connectionCredentials = connectionCredentials;
         this.constraints = constraints;
         this.aggregationSpec = aggregationSpec;
-        this.defaultAggregationSpec = defaultAggregationSpec;
+        this.conflictResolverFactory = conflictResolverFactory;
+        this.globalConfig = globalConfig;
+        this.maxLimit = globalConfig.getMaxQueryResultSize();
     }
 
     /**
@@ -227,7 +236,7 @@ import java.util.Locale;
      */
     protected VirtuosoConnectionWrapper getConnection() throws ConnectionException {
         if (connection == null) {
-            connection = VirtuosoConnectionWrapper.createConnection(sparqlEndpoint);
+            connection = VirtuosoConnectionWrapper.createConnection(connectionCredentials);
         }
         return connection;
     }
@@ -397,7 +406,7 @@ import java.util.Locale;
      */
     protected void addSameAsLinksForURI(String uri, Collection<Triple> triples) throws DatabaseException {
         long startTime = System.currentTimeMillis();
-        String query = String.format(URI_SYNONYMS_QUERY, uri, MAX_SAMEAS_PATH_LENGTH, MAX_LIMIT);
+        String query = String.format(URI_SYNONYMS_QUERY, uri, MAX_SAMEAS_PATH_LENGTH, maxLimit);
         WrappedResultSet resultSet = getConnection().executeSelect(query);
         LOG.debug("Query Execution: getURISynonyms() query took {} ms", System.currentTimeMillis() - startTime);
         try {

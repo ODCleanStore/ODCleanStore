@@ -3,11 +3,11 @@ package cz.cuni.mff.odcleanstore.queryexecution.impl;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationType;
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
-import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
 import cz.cuni.mff.odcleanstore.queryexecution.EnumQueryError;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
 
@@ -30,14 +30,14 @@ import java.sql.SQLException;
     private static final String MULTIVALUE_FALSE = "NO";
 
     /** Database connection settings. */
-    private final ConnectionCredentials sparqlEndpoint;
+    private final JDBCConnectionCredentials connectionCredentials;
 
     /**
      * Creates a new instance.
-     * @param sparqlEndpoint database connection settings
+     * @param connectionCredentials database connection settings
      */
-    public QueryExecutionConfigLoader(ConnectionCredentials sparqlEndpoint) {
-        this.sparqlEndpoint = sparqlEndpoint;
+    public QueryExecutionConfigLoader(JDBCConnectionCredentials connectionCredentials) {
+        this.connectionCredentials = connectionCredentials;
     }
 
     /**
@@ -53,7 +53,7 @@ import java.sql.SQLException;
         VirtuosoConnectionWrapper connection = null;
         WrappedResultSet resultSet = null;
         try {
-            connection = VirtuosoConnectionWrapper.createConnection(sparqlEndpoint);
+            connection = VirtuosoConnectionWrapper.createConnection(connectionCredentials);
 
             // Get global settings
             resultSet = connection.executeSelect(

@@ -1,8 +1,8 @@
 package cz.cuni.mff.odcleanstore.queryexecution.impl;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
-import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
 import cz.cuni.mff.odcleanstore.queryexecution.EnumQueryError;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
 import cz.cuni.mff.odcleanstore.shared.Utils;
@@ -17,21 +17,21 @@ public class DefaultAggregationConfigurationCache extends CacheHolderBase<Aggreg
     private static final long CACHE_LIFETIME = 5 * Utils.TIME_UNIT_60 * Utils.MILLISECONDS;
 
     /** Database connection settings. */
-    private final ConnectionCredentials connection;
+    private final JDBCConnectionCredentials connectionCredentials;
 
     /** Prefix mappings. */
     private final PrefixMappingCache prefixMappingCache;
 
     /**
      * Create a new instance.
-     * @param connection connection settings
+     * @param connectionCredentials connection settings
      * @param prefixMappingCache cached prefix mapping
      */
     public DefaultAggregationConfigurationCache(
-            ConnectionCredentials connection, PrefixMappingCache prefixMappingCache) {
+            JDBCConnectionCredentials connectionCredentials, PrefixMappingCache prefixMappingCache) {
 
         super(CACHE_LIFETIME);
-        this.connection = connection;
+        this.connectionCredentials = connectionCredentials;
         this.prefixMappingCache = prefixMappingCache;
     }
 
@@ -39,7 +39,7 @@ public class DefaultAggregationConfigurationCache extends CacheHolderBase<Aggreg
     protected AggregationSpec loadCachedValue() throws QueryExecutionException {
         AggregationSpec defaultSettings = null;
         try {
-            defaultSettings = new QueryExecutionConfigLoader(connection).getDefaultSettings();
+            defaultSettings = new QueryExecutionConfigLoader(connectionCredentials).getDefaultSettings();
         } catch (DatabaseException e) {
             throw new QueryExecutionException(EnumQueryError.DATABASE_ERROR, e);
         }

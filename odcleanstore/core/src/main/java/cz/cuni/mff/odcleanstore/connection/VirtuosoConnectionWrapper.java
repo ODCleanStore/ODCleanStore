@@ -1,9 +1,5 @@
 package cz.cuni.mff.odcleanstore.connection;
 
-import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
-import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
-import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
-
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -11,6 +7,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+
+import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
+import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 
 /**
  * A wrapper for SQL {@link Connection} to a Virtuoso database.
@@ -30,11 +29,11 @@ public final class VirtuosoConnectionWrapper {
     /**
      * Create a new connection and return its wrapper.
      * Should be used only for connection to a Virtuoso instance.
-     * @param sparqlEndpoint connection settings for the SPARQL endpoint
+     * @param connectionCredentials connection settings for the SPARQL endpoint
      * @return wrapper of the newly created connection
      * @throws ConnectionException database connection error
      */
-    public static VirtuosoConnectionWrapper createConnection(ConnectionCredentials sparqlEndpoint) throws ConnectionException {
+    public static VirtuosoConnectionWrapper createConnection(JDBCConnectionCredentials connectionCredentials) throws ConnectionException {
         try {
             Class.forName("virtuoso.jdbc3.Driver");
         } catch (ClassNotFoundException e) {
@@ -42,9 +41,9 @@ public final class VirtuosoConnectionWrapper {
         }
         try {
             Connection connection = DriverManager.getConnection(
-                    sparqlEndpoint.getUri(),
-                    sparqlEndpoint.getUsername(),
-                    sparqlEndpoint.getPassword());
+                    connectionCredentials.getConnectionString(),
+                    connectionCredentials.getUsername(),
+                    connectionCredentials.getPassword());
             return new VirtuosoConnectionWrapper(connection);
         } catch (SQLException e) {
             throw new ConnectionException(e);
@@ -56,7 +55,7 @@ public final class VirtuosoConnectionWrapper {
 
     /**
      * Create a new instance.
-     * @see #createConnection(ConnectionCredentials)
+     * @see #createConnection(JDBCConnectionCredentials)
      * @param connection a connection to a Virtuoso database
      */
     private VirtuosoConnectionWrapper(Connection connection) {

@@ -5,7 +5,8 @@ import cz.cuni.mff.odcleanstore.configuration.exceptions.ParameterNotAvailableEx
 import cz.cuni.mff.odcleanstore.configuration.formats.FormatString;
 import cz.cuni.mff.odcleanstore.configuration.formats.FormatURL;
 import cz.cuni.mff.odcleanstore.configuration.formats.ParameterFormat;
-import cz.cuni.mff.odcleanstore.connection.SparqlEndpointCoords;
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.connection.SparqlEndpointConnectionCredentials;
 
 import java.net.URL;
 import java.util.Properties;
@@ -24,6 +25,12 @@ import java.util.Properties;
  *
  */
 public class InputWSConfig extends ConfigGroup {
+	/** database-name prefix for configuration values related to the dirty database */
+    private static final String DIRTY_DB_NAME = "dirty";
+
+    /** database-name prefix for configuration values related to the clean database */
+    private static final String CLEAN_DB_NAME = "clean";
+    
     static
     {
         GROUP_NAME = "input_ws";
@@ -31,16 +38,26 @@ public class InputWSConfig extends ConfigGroup {
 
     // TODO: doresit jak se konfiguruje instalacni adresar
     private String inputDirPath;
-    private SparqlEndpointCoords sparqlEndpointCoords;
+    private SparqlEndpointConnectionCredentials sparqlEndpointConnectionCredentials;
+    private JDBCConnectionCredentials dirtyDBJDBCConnectionCredentials;
+    private JDBCConnectionCredentials cleanDBJDBCConnectionCredentials;
 
     /**
      *
      * @param inputDirPath
-     * @param sparqlEndpointCoords
+     * @param sparqlEndpointConnectionCredentials
+     * @param dirtyDBJDBCConnectionCredentials
+     * @param cleanDBJDBCConnectionCredentials
      */
-    public InputWSConfig(String inputDirPath, SparqlEndpointCoords sparqlEndpointCoords) {
+    public InputWSConfig(
+    		String inputDirPath, 
+    		SparqlEndpointConnectionCredentials sparqlEndpointConnectionCredentials, 
+    		JDBCConnectionCredentials dirtyDBJDBCConnectionCredentials, 
+            JDBCConnectionCredentials cleanDBJDBCConnectionCredentials) {
         this.inputDirPath = inputDirPath;
-        this.sparqlEndpointCoords = sparqlEndpointCoords;
+        this.sparqlEndpointConnectionCredentials = sparqlEndpointConnectionCredentials;
+        this.dirtyDBJDBCConnectionCredentials = dirtyDBJDBCConnectionCredentials;
+        this.cleanDBJDBCConnectionCredentials = cleanDBJDBCConnectionCredentials;
     }
 
     /**
@@ -60,12 +77,44 @@ public class InputWSConfig extends ConfigGroup {
 
         ParameterFormat<URL> formatURL = new FormatURL();
         URL endpointURL = loadParam(properties, "endpoint_url", formatURL);
+        
+        JDBCConnectionCredentials dirtyJDBCConnectionCredentials = loadJDBCConnectionCredentials(properties, DIRTY_DB_NAME);
+
+        JDBCConnectionCredentials cleanJDBCConnectionCredentials = loadJDBCConnectionCredentials(properties, CLEAN_DB_NAME);
 
         return new InputWSConfig(
                 inputDirPath,
-                new SparqlEndpointCoords(endpointURL));
+                new SparqlEndpointConnectionCredentials(endpointURL),
+                dirtyJDBCConnectionCredentials,
+                cleanJDBCConnectionCredentials);
     }
+    
+    /**
+     * Extracts JDBC configuration values for the database given by its name
+     * from the given Properties instance. Returns a JDBCConnectionCredentials object instantiated using
+     * the extracted values.
+     *
+     * It is expected that the configuration values are given in the following format:
+     *
+     * [group_name].[db_name][param_name] = [param_value]
+     *
+     * @param properties
+     * @param dbName
+     * @return
+     * @throws ParameterNotAvailableException
+     * @throws IllegalParameterFormatException
+     */
+    private static JDBCConnectionCredentials loadJDBCConnectionCredentials(Properties properties, String dbName)
+            throws ParameterNotAvailableException, IllegalParameterFormatException {
+    	
+        ParameterFormat<String> formatString = new FormatString();
+        String connectionString = loadParam(properties, dbName + "_jdbc_connection_string", formatString);
+        String username = loadParam(properties, dbName + "_jdbc_username", formatString);
+        String password = loadParam(properties, dbName + "_jdbc_password", formatString);
 
+        return new JDBCConnectionCredentials(connectionString, username, password);
+    }
+    
     /**
      *
      * @return
@@ -78,7 +127,23 @@ public class InputWSConfig extends ConfigGroup {
      *
      * @return
      */
-    public SparqlEndpointCoords getSparqlEndpointCoords() {
-        return sparqlEndpointCoords;
+    public SparqlEndpointConnectionCredentials getSparqlEndpointConnectionCredentials() {
+        return sparqlEndpointConnectionCredentials;
     }
+    
+    /**
+    *
+    * @return
+    */
+   public JDBCConnectionCredentials getDirtyDBJDBCConnectionCredentials() {
+       return dirtyDBJDBCConnectionCredentials;
+   }
+
+   /**
+    *
+    * @return
+    */
+   public JDBCConnectionCredentials getCleanDBJDBCConnectionCredentials() {
+       return cleanDBJDBCConnectionCredentials;
+   }
 }

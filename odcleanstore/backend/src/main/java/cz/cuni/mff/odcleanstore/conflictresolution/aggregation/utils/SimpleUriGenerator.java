@@ -1,13 +1,13 @@
-package cz.cuni.mff.odcleanstore.conflictresolution.impl;
+package cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils;
 
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 
 /**
  * Generator of unique named graph URIs.
- * 
+ *
  * @author Jan Michelfeit
  */
-/* package */class SimpleUriGenerator implements UniqueURIGenerator {
+public class SimpleUriGenerator implements UniqueURIGenerator {
     /** Prefix of generated named graph URIs. */
     private String namedGraphURIPrefix;
 

@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
+import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
@@ -33,40 +34,13 @@ import java.util.Set;
      * Node distance metric used in quality computation.
      * @see #computeQuality(Quad, Collection, NamedGraphMetadataMap)
      */
-    private static/*final*/DistanceMetric distanceMetricInstance = new DistanceMetricImpl();
+    protected final DistanceMetric distanceMetric;
 
     /**
-     * Coefficient used in formula computed at {@link #computeQuality()}.
-     * The coefficient determines how multiple source named graphs that exactly agree on
-     * the result value increase quality. Value N of the coefficient means that (N+1) sources
-     * with score 1 that agree on the result increase the result quality to 1.
-     * @todo determine best value
+     * Global configuration values for conflict resolution.
+     * @see #AggregationMethodBase(AggregationSpec, UniqueURIGenerator, DistanceMetric, ConflictResolutionConfig)
      */
-    public static final double AGREE_COEFFICIENT = 4;
-
-    /**
-     * Default score of a named graph or a publisher used if the respective
-     * score is unknown.
-     * @todo determine best value
-     */
-    public static final double SCORE_IF_UNKNOWN = 1;
-
-    /**
-     * Weight of the source named graph score in source quality calculation.
-     * The sum of weights may be different from 1.
-     * @see #getSourceQuality(NamedGraphMetadata)
-     * @see #PUBLISHER_SCORE_WEIGHT
-     * @todo determine best value
-     */
-    protected static final double NAMED_GRAPH_SCORE_WEIGHT = 0.8;
-
-    /**
-     * Weight of the publisher source in source quality calculation.
-     * The sum of weights may be different from 1.
-     * @see #getSourceQuality(NamedGraphMetadata)
-     * @see #NAMED_GRAPH_SCORE_WEIGHT
-     */
-    protected static final double PUBLISHER_SCORE_WEIGHT = 0.2;
+    protected final ConflictResolutionConfig globalConfig;
 
     /**
      * Generator of unique URIs.
@@ -82,10 +56,35 @@ import java.util.Set;
      * Creates a new instance with given settings.
      * @param aggregationSpec aggregation and quality calculation settings
      * @param uriGenerator generator of URIs
+     * @param distanceMetric a {@link DistanceMetric} used for quality computation
+     * @param globalConfig global configuration values for conflict resolution;
+     * values needed in globalConfig are the following:
+     * <dl>
+     * <dt>agreeCoefficient
+     * <dd>Coefficient used in formula computed at {@link #computeQuality()}.
+     * The coefficient determines how multiple source named graphs that exactly agree on
+     * the result value increase quality. Value N of the coefficient means that (N+1) sources
+     * with score 1 that agree on the result increase the result quality to 1.
+     * <dt>scoreIfUnknown
+     * <dd>Default score of a named graph or a publisher used if the respective score is unknown.
+     * <dt>namedGraphScoreWeight
+     * <dd>Weight of the source named graph score in source quality calculation.
+     * The sum of weights may be different from 1.
+     * <dt>publisherScoreWeight
+     * <dd>Weight of the publisher source in source quality calculation.
+     * The sum of weights may be different from 1.
+     * </dl>
      */
-    public AggregationMethodBase(AggregationSpec aggregationSpec, UniqueURIGenerator uriGenerator) {
+    public AggregationMethodBase(
+            AggregationSpec aggregationSpec,
+            UniqueURIGenerator uriGenerator,
+            DistanceMetric distanceMetric,
+            ConflictResolutionConfig globalConfig) {
+
         this.uriGenerator = uriGenerator;
         this.aggregationSpec = aggregationSpec;
+        this.globalConfig = globalConfig;
+        this.distanceMetric = distanceMetric;
     }
 
     /**
@@ -93,14 +92,6 @@ import java.util.Set;
      */
     @Override
     public abstract Collection<CRQuad> aggregate(Collection<Quad> conflictingTriples, NamedGraphMetadataMap metadata);
-
-    /**
-     * Return the default DistanceMetric instance.
-     * @return Node distance metric that can be used in quality computation.
-     */
-    protected DistanceMetric getDistanceMetric() {
-        return distanceMetricInstance;
-    }
 
     /**
      * Calculated quality of a source of a named graph.
@@ -111,17 +102,17 @@ import java.util.Set;
      * @return quality of source of the named graph as a value from [0,1]
      * @see #SCORE_IF_UNKNOWN
      */
-    protected static final double getSourceQuality(NamedGraphMetadata metadata) {
+    protected final double getSourceQuality(NamedGraphMetadata metadata) {
         // Weighted average of metadata.getScore() and metadata.getPublisherScore()
         if (metadata == null) {
             LOG.debug("No metadata given for source quality computation, using default scores.");
-            return SCORE_IF_UNKNOWN;
+            return globalConfig.getScoreIfUnknown();
         }
 
         Double namedGraphScore = metadata.getScore();
         if (namedGraphScore == null) {
             LOG.debug("No score for named graph {}, using default score.", metadata.getNamedGraphURI());
-            namedGraphScore = SCORE_IF_UNKNOWN;
+            namedGraphScore = globalConfig.getScoreIfUnknown();
         }
 
         Double publisherScore = metadata.getPublisherScore();
@@ -131,8 +122,11 @@ import java.util.Set;
             publisherScore = namedGraphScore;
         }
 
-        double quality = namedGraphScore * NAMED_GRAPH_SCORE_WEIGHT + publisherScore * PUBLISHER_SCORE_WEIGHT;
-        quality /= NAMED_GRAPH_SCORE_WEIGHT + PUBLISHER_SCORE_WEIGHT;
+        double ngScoreWeight = globalConfig.getNamedGraphScoreWeight();
+        double publisherScoreWeight = globalConfig.getPublisherScoreWeight();
+        assert ngScoreWeight + publisherScoreWeight > 0;
+        double quality = namedGraphScore * ngScoreWeight + publisherScore * publisherScoreWeight;
+        quality /= ngScoreWeight + publisherScoreWeight;
         return quality;
     }
 
@@ -222,7 +216,6 @@ import java.util.Set;
             // the fact that distance(x,x) = 0 and that resultQuad is in conflictingQuads
 
             // Calculated distance average weighted by the respective source qualities
-            DistanceMetric distanceMetric = getDistanceMetric();
             double distanceAverage = 0;
             double totalSourceQuality = 0;
             for (Quad quad : conflictingQuads) {
@@ -254,7 +247,7 @@ import java.util.Set;
                 NamedGraphMetadata namedGraphMetadata = metadata.getMetadata(sourceNamedGraphURI);
                 sourceScoreSum += getSourceQuality(namedGraphMetadata);
             }
-            double agreeQualityCoef = (sourceScoreSum - basicQuality) / AGREE_COEFFICIENT;
+            double agreeQualityCoef = (sourceScoreSum - basicQuality) / globalConfig.getAgreeCoeficient();
             // agreeQualityCoef is non-negative thanks to invariant in computeBasicQuality()
             if (agreeQualityCoef > 1) {
                 agreeQualityCoef = 1;
