@@ -18,7 +18,7 @@
 	</parent>
 
 	<name>ODCleanStore - Input Client</name>
-	<description>TO BE ADDED</description>
+	<description>Client library for the input webservice</description>
 
 </project>
 	

@@ -22,6 +22,7 @@
 	</parent>
 
 	<name>ODCleanStore - Backend</name>
+	<description>Backend components of ODCleanStore - Conflict Resolution, Query Execution, Object Identification, Quality Assessment and Data Normalization</description>
 	
 	<dependencies>
 		<dependency>

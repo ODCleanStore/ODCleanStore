@@ -12,8 +12,13 @@
 	<packaging>pom</packaging>
 
 	<name>ODCleanStore</name>
+	<description>ODCleanStore is a data store and an integration platform for RDF data. 
+		Incoming data are procesed, scored and linked to other data.
+		Users can query over the stored data using a webservice and obtain aggregated and
+		integrated views on the data together with provenance information, according to 
+		aggregation policies given by the user.
+	</description>
 	
-	<description>TODO</description>
 	<url>http://sourceforge.net/p/odcleanstore/home/Home/</url>
 	<licenses>
 		<license>

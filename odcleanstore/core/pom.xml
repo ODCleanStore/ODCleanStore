@@ -17,6 +17,7 @@
 	</parent>
 
 	<name>ODCleanStore - Core</name>
+	<description>Shared components of ODCleanStore</description>
 
 	<dependencies>
 		<dependency>
