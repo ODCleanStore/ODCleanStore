@@ -91,7 +91,9 @@ public class QARulesManagementPage extends FrontendPage
             }
         };
         
-        button.add(new ConfirmationBoxRenderer("Are you sure you want to delete the publisher?"));
+        button.add(new ConfirmationBoxRenderer(
+        	"Are you sure you want to delete the publisher and all associated restrictions?"
+        ));
         
 		item.add(button);
 	}
@@ -145,7 +147,9 @@ public class QARulesManagementPage extends FrontendPage
             }
         };
         
-        button.add(new ConfirmationBoxRenderer("Are you sure you want to delete the rule?"));
+        button.add(new ConfirmationBoxRenderer(
+        	"Are you sure you want to delete the rule and all associated restrictions?"
+        ));
         
 		item.add(button);
 	}
