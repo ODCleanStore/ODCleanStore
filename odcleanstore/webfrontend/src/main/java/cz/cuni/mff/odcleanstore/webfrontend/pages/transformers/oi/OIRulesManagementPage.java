@@ -60,37 +60,22 @@ public class OIRulesManagementPage extends FrontendPage
 				item.add(new Label("label"));
 				item.add(new Label("description"));	
 				
-				addDeleteButton(item, group);
+				item.add(
+					createDeleteButton(
+						oiRulesGroupsDao,
+						group,
+						"deleteGroup",
+						"group",
+						"rule",
+						OIRulesManagementPage.class
+					)
+				);
+				
 				addManageRulesButton(item, group);
 			}
 		};
 		
 		add(listView);
-	}
-	
-	private void addDeleteButton(ListItem<OIRulesGroup> item, final OIRulesGroup group)
-	{
-		Link button = new Link("deleteGroup")
-	    {
-			private static final long serialVersionUID = 1L;
-	
-			@Override
-	        public void onClick()
-	        {
-	        	oiRulesGroupsDao.delete(group);
-	        	
-				getSession().info("The group was successfuly deleted.");
-				setResponsePage(OIRulesManagementPage.class);
-	        }
-	    };
-	    
-	    button.add(
-	    	new ConfirmationBoxRenderer(
-	    		"Are you sure you want to delete the group together with all rules it contains?"
-	    	)
-	    );
-	    
-		item.add(button);
 	}
 	
 	private void addManageRulesButton(ListItem<OIRulesGroup> item, final OIRulesGroup group)

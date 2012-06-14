@@ -3,12 +3,10 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
 import java.util.List;
 
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
 
-import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
@@ -63,30 +61,19 @@ public class TransformersManagementPage extends FrontendPage
 				item.add(new Label("jarPath"));
 				item.add(new Label("fullClassName"));
 				
-				addDeleteButton(item, transformer);
+				item.add(
+					createDeleteButton(
+						transformerDao, 
+						transformer, 
+						"deleteTransformer",
+						"transformer",
+						"pipeline assignment",
+						TransformersManagementPage.class
+					)
+				);
 			}
 		};
 		
 		add(listView);
-	}
-	
-	private void addDeleteButton(ListItem<Transformer> item, final Transformer transformer)
-	{
-		Link button = new Link("deleteTransformer")
-	    {
-			private static final long serialVersionUID = 1L;
-	
-			@Override
-	        public void onClick()
-	        {
-	        	transformerDao.delete(transformer);
-	        	
-				getSession().info("The transformer was successfuly deleted.");
-				setResponsePage(TransformersManagementPage.class);
-	        }
-	    };
-	    
-	    button.add(new ConfirmationBoxRenderer("Are you sure you want to delete the transformer?"));
-		item.add(button);
 	}
 }

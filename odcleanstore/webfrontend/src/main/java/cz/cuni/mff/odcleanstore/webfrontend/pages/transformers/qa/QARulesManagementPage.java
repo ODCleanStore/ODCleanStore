@@ -9,7 +9,6 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
 
-import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.Publisher;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
@@ -68,34 +67,20 @@ public class QARulesManagementPage extends FrontendPage
 				item.add(new Label("label"));	
 				item.add(new Label("uri"));	
 				
-				addDeleteButton(item, publisher);
+				item.add(
+					createDeleteButton(
+						publisherDao, 
+						publisher, 
+						"deletePublisher", 
+						"publisher", 
+						"restriction", 
+						QARulesManagementPage.class
+					)
+				);
 			}
 		};
 		
 		add(listView);
-	}
-	
-	private void addDeleteButton(ListItem<Publisher> item, final Publisher publisher)
-	{
-		Link button = new Link("deletePublisher")
-        {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-            public void onClick()
-            {
-            	publisherDao.delete(publisher);
-            	
-				getSession().info("The publisher was successfuly deleted.");
-				setResponsePage(QARulesManagementPage.class);
-            }
-        };
-        
-        button.add(new ConfirmationBoxRenderer(
-        	"Are you sure you want to delete the publisher and all associated restrictions?"
-        ));
-        
-		item.add(button);
 	}
 	
 	/*
@@ -123,35 +108,22 @@ public class QARulesManagementPage extends FrontendPage
 				item.add(new Label("coefficient"));
 				item.add(new Label("description"));	
 				
-				addDeleteButton(item, rule);
+				item.add(
+					createDeleteButton(
+						qaRuleDao, 
+						rule, 
+						"deleteRule", 
+						"rule", 
+						"restriction", 
+						QARulesManagementPage.class
+					)
+				);
+
 				addManageRuleRestrictionsButton(item, rule);
 			}
 		};
 		
 		add(listView);
-	}
-	
-	private void addDeleteButton(ListItem<QARule> item, final QARule rule)
-	{
-		Link button = new Link("deleteRule")
-        {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-            public void onClick()
-            {
-            	qaRuleDao.delete(rule);
-            	
-				getSession().info("The rule was successfuly deleted.");
-				setResponsePage(QARulesManagementPage.class);
-            }
-        };
-        
-        button.add(new ConfirmationBoxRenderer(
-        	"Are you sure you want to delete the rule and all associated restrictions?"
-        ));
-        
-		item.add(button);
 	}
 	
 	private void addManageRuleRestrictionsButton(ListItem<QARule> item, final QARule rule)

@@ -9,7 +9,6 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
 
-import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
@@ -65,34 +64,23 @@ public class PipelinesManagementPage extends FrontendPage
 				item.add(new Label("description"));
 				item.add(new Label("runOnCleanDB"));
 				
-				addDeleteButton(item, pipeline);
+				item.add(
+					createDeleteButton(
+						pipelineDao, 
+						pipeline, 
+						"deletePipeline", 
+						"pipeline", 
+						"transformer assignment", 
+						PipelinesManagementPage.class
+					)
+				);
+				
 				addManagePipelineTransformersButton(item, pipeline.getId());
 				addMakePipelineRunOnCleanDBButton(item, pipeline);
 			}
 		};
 		
 		add(listView);
-	}
-	
-	private void addDeleteButton(ListItem<Pipeline> item, final Pipeline pipeline)
-	{
-		Link button = new Link("deletePipeline")
-        {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-            public void onClick()
-            {
-            	pipelineDao.delete(pipeline);
-            	
-				getSession().info("The pipeline was successfuly deleted.");
-				setResponsePage(PipelinesManagementPage.class);
-            }
-        };
-
-	    button.add(new ConfirmationBoxRenderer("Are you sure you want to delete the pipeline?"));
-	    
-		item.add(button);
 	}
 	
 	private void addManagePipelineTransformersButton(ListItem<Pipeline> item, final Long pipelineId)

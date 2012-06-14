@@ -7,13 +7,13 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 
+import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessObject;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
 import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
 import cz.cuni.mff.odcleanstore.webfrontend.core.WicketApplication;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
@@ -154,5 +154,118 @@ public abstract class FrontendPage extends WebPage
 	protected TextArea<String> createTextarea(String componentName)
 	{
 		return createTextarea(componentName, true);
+	}
+	
+	/**
+	 * 
+	 * @param dao
+	 * @param boId
+	 * @param compName
+	 * @param objName
+	 * @param redirectPage
+	 * @return
+	 */
+	protected <LinkBO extends BusinessObject> Link createDeleteRawButton(
+		final Dao<LinkBO> dao, final Long boId, final String compName, 
+		final String objName, final Class<? extends FrontendPage> redirectPage)
+	{
+		Link button = new Link(compName)
+	    {
+			private static final long serialVersionUID = 1L;
+	
+			@Override
+	        public void onClick()
+	        {
+	        	dao.deleteRaw(boId);
+	        	
+				getSession().info("The " + objName + " was successfuly deleted.");
+				setResponsePage(redirectPage);
+	        }
+	    };
+	    
+	    button.add(
+	    	new ConfirmationBoxRenderer(
+	    		"Are you sure you want to delete the " + objName + "?"
+	    	)
+	    );
+	    
+	    return button;
+	}
+	
+	/**
+	 * 
+	 * @param dao
+	 * @param boId
+	 * @param compName
+	 * @param objName
+	 * @param redirectPage
+	 * @return
+	 */
+	protected <LinkBO extends BusinessObject> Link createDeleteRawButton(
+		final Dao<LinkBO> dao, final Long boId, final String compName, 
+		final String objName, final FrontendPage redirectPage)
+	{
+		Link button = new Link(compName)
+	    {
+			private static final long serialVersionUID = 1L;
+	
+			@Override
+	        public void onClick()
+	        {
+	        	dao.deleteRaw(boId);
+	        	
+				getSession().info("The " + objName + " was successfuly deleted.");
+				
+				// TODO: toto nefunguje, jak by melo (tj. zobrazit aktualni stav pravidel)
+				setResponsePage(redirectPage);
+	        }
+	    };
+	    
+	    button.add(
+	    	new ConfirmationBoxRenderer(
+	    		"Are you sure you want to delete the " + objName + "?"
+	    	)
+	    );
+	    
+	    return button;
+	}
+	
+	/**
+	 * 
+	 * @param dao
+	 * @param bo
+	 * @param compName
+	 * @param primaryObjName
+	 * @param secondaryObjName
+	 * @param redirectPage
+	 * @return
+	 */
+	protected <LinkBO extends BusinessObject> Link createDeleteButton(
+		final Dao<LinkBO> dao, final LinkBO bo, final String compName, 
+		final String primaryObjName, final String secondaryObjName, 
+		final Class<? extends FrontendPage> redirectPage)
+	{
+		Link button = new Link(compName)
+	    {
+			private static final long serialVersionUID = 1L;
+	
+			@Override
+	        public void onClick()
+	        {
+	        	dao.delete(bo);
+	        	
+				getSession().info("The " + primaryObjName + " was successfuly deleted.");
+				setResponsePage(redirectPage);
+	        }
+	    };
+	    
+	    button.add(
+	    	new ConfirmationBoxRenderer(
+	    		"Are you sure you want to delete the " + primaryObjName + 
+	    		" and all associated " + secondaryObjName + "s?"
+	    	)
+	    );
+	    
+	    return button;
 	}
 }
