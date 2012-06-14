@@ -27,7 +27,7 @@ INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS_TO_PIPELINES_ASSIGNMENT (transformerId,
 VALUES (1, 1, n'qa', n'', 1);
 
 INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS_TO_PIPELINES_ASSIGNMENT (transformerId, pipelineId, workDirPath, configuration, priority)
-VALUES (2, 1, n'link', n'', 2);
+VALUES (2, 1, n'link', n'1', 2);
 
 INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS_TO_PIPELINES_ASSIGNMENT (transformerId, pipelineId, workDirPath, configuration, priority)
 VALUES (3, 1, n'.', n'', 3);
