@@ -40,7 +40,7 @@ import java.util.Set;
      * Global configuration values for conflict resolution.
      * @see #AggregationMethodBase(AggregationSpec, UniqueURIGenerator, DistanceMetric, ConflictResolutionConfig)
      */
-    private final ConflictResolutionConfig globalConfig;
+    protected final ConflictResolutionConfig globalConfig;
 
     /**
      * Generator of unique URIs.

@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
 import cz.cuni.mff.odcleanstore.TestUtils;
+import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
@@ -30,8 +31,12 @@ public class AggregationMethodBaseTest {
     };
 
     private static class AggregationMethodBaseImpl extends AggregationMethodBase {
-        public AggregationMethodBaseImpl(AggregationSpec aggregationSpec, UniqueURIGenerator uriGenerator) {
-            super(aggregationSpec, uriGenerator);
+        public AggregationMethodBaseImpl(
+                AggregationSpec aggregationSpec,
+                UniqueURIGenerator uriGenerator,
+                DistanceMetric distanceMetric,
+                ConflictResolutionConfig globalConfig) {
+            super(aggregationSpec, uriGenerator, distanceMetric, globalConfig);
         }
 
         @Override
@@ -42,7 +47,7 @@ public class AggregationMethodBaseTest {
         @Override
         protected double computeBasicQuality(Quad resultQuad, Collection<String> sourceNamedGraphs,
                 NamedGraphMetadataMap metadata) {
-            return SCORE_IF_UNKNOWN;
+            return globalConfig.getScoreIfUnknown();
         }
     }
 
@@ -72,8 +77,12 @@ public class AggregationMethodBaseTest {
         conflictingQuads.add(TestUtils.createQuad(
                 subjectURI, predicateURI, TestUtils.getUniqueURI()));
 
-        AggregationMethodBase instance =
-                new AggregationMethodBaseImpl(new AggregationSpec(), URI_GENERATOR);
+        ConflictResolutionConfig globalConfig = TestUtils.createConflictResolutionConfigMock();
+        AggregationMethodBase instance = new AggregationMethodBaseImpl (
+                new AggregationSpec(),
+                URI_GENERATOR,
+                new DistanceMetricImpl(globalConfig),
+                globalConfig);
         Collection<String> actualResult = instance.sourceNamedGraphsForObject(
                 Node.createURI(testedObjectURI),
                 conflictingQuads);

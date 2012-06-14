@@ -28,7 +28,7 @@ public class DistanceMetricImplTest {
         Node literalNode = Node.createLiteral("value");
         Node blankNode = Node.createAnon(new AnonId(TestUtils.getUniqueURI()));
 
-        DistanceMetricImpl instance = new DistanceMetricImpl();
+        DistanceMetricImpl instance = new DistanceMetricImpl(TestUtils.createConflictResolutionConfigMock());
         double expectedResult = MAX_DISTANCE;
 
         double result1 = instance.distance(uriNode, literalNode);
@@ -43,7 +43,7 @@ public class DistanceMetricImplTest {
 
     @Test
     public void testSameValues() {
-        DistanceMetricImpl instance = new DistanceMetricImpl();
+        DistanceMetricImpl instance = new DistanceMetricImpl(TestUtils.createConflictResolutionConfigMock());
         double expectedResult = MIN_DISTANCE;
 
         String uri = TestUtils.getUniqueURI();
@@ -61,7 +61,7 @@ public class DistanceMetricImplTest {
 
     @Test
     public void testSymmetry() {
-        DistanceMetricImpl instance = new DistanceMetricImpl();
+        DistanceMetricImpl instance = new DistanceMetricImpl(TestUtils.createConflictResolutionConfigMock());
 
         Node uriNode1 = Node.createURI(TestUtils.getUniqueURI());
         Node uriNode2 = Node.createURI(TestUtils.getUniqueURI());
@@ -80,7 +80,7 @@ public class DistanceMetricImplTest {
 
     @Test
     public void testDifferentValues() {
-        DistanceMetricImpl instance = new DistanceMetricImpl();
+        DistanceMetricImpl instance = new DistanceMetricImpl(TestUtils.createConflictResolutionConfigMock());
 
         Node uriNode1 = Node.createURI(TestUtils.getUniqueURI());
         Node uriNode2 = Node.createURI(TestUtils.getUniqueURI());
@@ -98,7 +98,7 @@ public class DistanceMetricImplTest {
 
     @Test
     public void testDateDistance() {
-        DistanceMetricImpl instance = new DistanceMetricImpl();
+        DistanceMetricImpl instance = new DistanceMetricImpl(TestUtils.createConflictResolutionConfigMock());
         RDFDatatype dateDatatype = TypeMapper.getInstance().getSafeTypeByName(XMLSchema.dateType);
         RDFDatatype dateTimeDatatype = TypeMapper.getInstance().getSafeTypeByName(XMLSchema.dateTimeType);
 
@@ -121,7 +121,7 @@ public class DistanceMetricImplTest {
 
     @Test
     public void testDateTimeDistance() {
-        DistanceMetricImpl instance = new DistanceMetricImpl();
+        DistanceMetricImpl instance = new DistanceMetricImpl(TestUtils.createConflictResolutionConfigMock());
         RDFDatatype datatype = TypeMapper.getInstance().getSafeTypeByName(XMLSchema.dateTimeType);
 
         Node node1 = Node.createLiteral(LiteralLabelFactory.create("2002-10-10T17:10:00+00:00", null, datatype));
@@ -142,7 +142,7 @@ public class DistanceMetricImplTest {
 
     @Test
     public void testTimeDistance() {
-        DistanceMetricImpl instance = new DistanceMetricImpl();
+        DistanceMetricImpl instance = new DistanceMetricImpl(TestUtils.createConflictResolutionConfigMock());
         RDFDatatype datatype = TypeMapper.getInstance().getSafeTypeByName(XMLSchema.timeType);
 
         Node node1 = Node.createLiteral(LiteralLabelFactory.create("17:10:00+00:00", null, datatype));

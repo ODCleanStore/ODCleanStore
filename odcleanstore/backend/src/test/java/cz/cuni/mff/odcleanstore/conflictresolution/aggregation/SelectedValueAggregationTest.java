@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
 import cz.cuni.mff.odcleanstore.TestUtils;
+import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
@@ -39,9 +40,12 @@ public class SelectedValueAggregationTest {
     };
 
     private class SelectedValueAggregationImpl extends SelectedValueAggregation {
-        public SelectedValueAggregationImpl(AggregationSpec aggregationSpec,
-                UniqueURIGenerator uriGenerator) {
-            super(aggregationSpec, uriGenerator);
+        public SelectedValueAggregationImpl(
+                AggregationSpec aggregationSpec,
+                UniqueURIGenerator uriGenerator,
+                DistanceMetric distanceMetric,
+                ConflictResolutionConfig globalConfig) {
+            super(aggregationSpec, uriGenerator, distanceMetric, globalConfig);
         }
 
         @Override
@@ -75,8 +79,13 @@ public class SelectedValueAggregationTest {
     public void testQualitySingleValue() {
         final double score = DEFAULT_SCORE;
 
+        ConflictResolutionConfig globalConfig = TestUtils.createConflictResolutionConfigMock();
         SelectedValueAggregation instance =
-                new SelectedValueAggregationImpl(new AggregationSpec(), URI_GENERATOR);
+                new SelectedValueAggregationImpl(
+                        new AggregationSpec(),
+                        URI_GENERATOR,
+                        new DistanceMetricImpl(globalConfig),
+                        globalConfig);
 
         Quad quad = TestUtils.createQuad();
         Collection<Quad> conflictingQuads = Collections.singletonList(quad);
@@ -101,8 +110,13 @@ public class SelectedValueAggregationTest {
         final double lowerScore = DEFAULT_SCORE / 2;
         final double higherScore = DEFAULT_SCORE;
 
+        ConflictResolutionConfig globalConfig = TestUtils.createConflictResolutionConfigMock();
         SelectedValueAggregation instance =
-                new SelectedValueAggregationImpl(new AggregationSpec(), URI_GENERATOR);
+                new SelectedValueAggregationImpl(
+                        new AggregationSpec(),
+                        URI_GENERATOR,
+                        new DistanceMetricImpl(globalConfig),
+                        globalConfig);
 
         Collection<Quad> conflictingQuads = generateQuadCollection();
         NamedGraphMetadataMap metadataMap = new NamedGraphMetadataMap();
@@ -161,8 +175,14 @@ public class SelectedValueAggregationTest {
         conflictingQuads.add(singleQuad);
 
         NamedGraphMetadataMap metadataMap = new NamedGraphMetadataMap();
+        ConflictResolutionConfig globalConfig = TestUtils.createConflictResolutionConfigMock();
         SelectedValueAggregation instance =
-                new SelectedValueAggregationImpl(new AggregationSpec(), URI_GENERATOR);
+                new SelectedValueAggregationImpl(
+                        new AggregationSpec(),
+                        URI_GENERATOR,
+                        new DistanceMetricImpl(globalConfig),
+                        globalConfig);
+
 
         double calculatedValueDouble = instance.computeQualitySelected(
                 doubleQuad1,
@@ -179,22 +199,20 @@ public class SelectedValueAggregationTest {
 
     @Test
     public void testQualityEmptyMetadata() {
-        SelectedValueAggregation instance =
-                new SelectedValueAggregationImpl(new AggregationSpec(), URI_GENERATOR);
+        ConflictResolutionConfig globalConfig = TestUtils.createConflictResolutionConfigMock();
+        SelectedValueAggregation instance = new SelectedValueAggregationImpl(
+                new AggregationSpec(),
+                URI_GENERATOR,
+                new DistanceMetricImpl(globalConfig),
+                globalConfig);
 
         Quad quad = TestUtils.createQuad();
         Collection<Quad> conflictingQuads = Collections.singletonList(quad);
         NamedGraphMetadataMap metadata = new NamedGraphMetadataMap();
 
-        double computedQuality = instance.computeQualitySelected(
-                quad,
-                instance.sourceNamedGraphsForObject(quad.getObject(), conflictingQuads),
-                conflictingQuads,
-                metadata);
-        Assert.assertEquals(
-                AggregationMethodBase.SCORE_IF_UNKNOWN,
-                computedQuality,
-                EPSILON);
+        double computedQuality = instance.computeQualitySelected(quad,
+                instance.sourceNamedGraphsForObject(quad.getObject(), conflictingQuads), conflictingQuads, metadata);
+        Assert.assertEquals(globalConfig.getScoreIfUnknown(), computedQuality, EPSILON);
     }
 
 }
