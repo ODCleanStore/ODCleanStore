@@ -1,27 +1,27 @@
 package cz.cuni.mff.odcleanstore.linker.impl;
 
-import java.io.File;
-
-import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 
+import java.io.File;
+
 public class TransformationContextMock implements TransformationContext {
-	
+
 	private String directoryPath;
-	
+
 	public TransformationContextMock(String directoryPath) {
 		this.directoryPath = directoryPath;
 	}
-	
+
 	@Override
-	public ConnectionCredentials getDirtyDatabaseCredentials() {
+	public JDBCConnectionCredentials getDirtyDatabaseCredentials() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public ConnectionCredentials getCleanDatabaseCredentials() {
+	public JDBCConnectionCredentials getCleanDatabaseCredentials() {
 		// TODO Auto-generated method stub
 		return null;
 	}

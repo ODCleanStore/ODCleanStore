@@ -1,10 +1,10 @@
 package cz.cuni.mff.odcleanstore.qualityassessment.impl;
 
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
-import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
 import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.Rule;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.RulesModel;
@@ -13,14 +13,14 @@ import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.W3P;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A common base for assessment processes.
@@ -88,17 +88,17 @@ abstract class CommonAssessment {
 	/**
 	 * Let the concrete implementation decide on what endpoint to choose (Clean/Dirty)
 	 */
-	abstract protected ConnectionCredentials getEndpoint();
-	
+	abstract protected JDBCConnectionCredentials getEndpoint();
+
 	/**
 	 * Extract a URI of the graphs publisher if possible
-	 *  
+	 *
 	 * @return URI of the publisher of the input graph
 	 */
 	protected String getGraphPublisher () throws QualityAssessmentException {
 		final String graph = inputGraph.getGraphName();
 		final String metadataGraph = inputGraph.getMetadataGraphName();
-		
+
 		final String query = "SPARQL SELECT ?publisher FROM <" + metadataGraph + "> WHERE {<" + graph + "> <" + W3P.publishedBy + "> ?publisher}";
 		WrappedResultSet results = null;
 		String publisher = null;
@@ -121,7 +121,7 @@ abstract class CommonAssessment {
 				results.closeQuietly();
 			}
 		}
-		
+
 		return publisher;
 	}
 
@@ -226,16 +226,16 @@ abstract class CommonAssessment {
 			getConnection().execute(dropOldScore);
 			getConnection().execute(dropOldScoreTrace);
 			getConnection().execute(storeNewScore);
-			
+
 			Iterator<String> iterator = trace.iterator();
-			
+
 			while (iterator.hasNext()) {
 				String escapedTrace = iterator.next();
-				
+
 				escapedTrace = escapedTrace.replaceAll("'", "\\\\'");
-				
+
 				final String storeNewScoreTrace = "SPARQL INSERT DATA INTO <" + metadataGraph + "> {<" + graph + "> <" + ODCS.scoreTrace + "> '" + escapedTrace + "'^^xsd:string}";
-				
+
 				getConnection().execute(storeNewScoreTrace);
 			}
 		} catch (DatabaseException e) {

@@ -1,38 +1,38 @@
 package cz.cuni.mff.odcleanstore.test;
 
-import java.io.File;
-
-import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 
+import java.io.File;
+
 /**
- * 
+ *
  * Testovaci implementace
- * 
+ *
  * @author Tomas Soukup
  *
  */
 
 public class TransformationContextTestImpl implements TransformationContext {
-	
+
 	private File directory;
 	private String config;
-	private ConnectionCredentials endpoint;
-	
-	TransformationContextTestImpl(File directory, String config, ConnectionCredentials endpoint) {
+	private JDBCConnectionCredentials endpoint;
+
+	TransformationContextTestImpl(File directory, String config, JDBCConnectionCredentials endpoint) {
 		this.directory = directory;
 		this.config = config;
 		this.endpoint = endpoint;
 	}
-	
+
 	@Override
-	public ConnectionCredentials getDirtyDatabaseCredentials() {
+	public JDBCConnectionCredentials getDirtyDatabaseCredentials() {
 		return endpoint;
 	}
 
 	@Override
-	public ConnectionCredentials getCleanDatabaseCredentials() {
+	public JDBCConnectionCredentials getCleanDatabaseCredentials() {
 		return endpoint;
 	}
 

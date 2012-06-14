@@ -1,9 +1,5 @@
 package cz.cuni.mff.odcleanstore.connection;
 
-import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
-import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
-import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
-
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -11,6 +7,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+
+import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
+import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 
 /**
  * A wrapper for SQL {@link Connection} to a Virtuoso database.
@@ -27,32 +26,6 @@ public final class VirtuosoConnectionWrapper {
      */
     public static final int QUERY_TIMEOUT = 30;
 
-    /**
-     * Create a new connection and return its wrapper.
-     * Should be used only for connection to a Virtuoso instance.
-     * @param sparqlEndpoint connection settings for the SPARQL endpoint
-     * @return wrapper of the newly created connection
-     * @throws ConnectionException database connection error
-     * @deprecated deprecated in favor of use of JDBCConnectionCredentials
-     * TODO: remove
-     */
-    public static VirtuosoConnectionWrapper createConnection(ConnectionCredentials sparqlEndpoint) throws ConnectionException {
-        try {
-            Class.forName("virtuoso.jdbc3.Driver");
-        } catch (ClassNotFoundException e) {
-            throw new ConnectionException("Couldn't load Virtuoso jdbc driver", e);
-        }
-        try {
-            Connection connection = DriverManager.getConnection(
-                    sparqlEndpoint.getUri(),
-                    sparqlEndpoint.getUsername(),
-                    sparqlEndpoint.getPassword());
-            return new VirtuosoConnectionWrapper(connection);
-        } catch (SQLException e) {
-            throw new ConnectionException(e);
-        }
-    }
-    
     /**
      * Create a new connection and return its wrapper.
      * Should be used only for connection to a Virtuoso instance.
@@ -82,7 +55,7 @@ public final class VirtuosoConnectionWrapper {
 
     /**
      * Create a new instance.
-     * @see #createConnection(ConnectionCredentials)
+     * @see #createConnection(JDBCConnectionCredentials)
      * @param connection a connection to a Virtuoso database
      */
     private VirtuosoConnectionWrapper(Connection connection) {

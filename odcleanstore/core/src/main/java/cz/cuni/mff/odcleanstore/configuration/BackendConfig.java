@@ -60,8 +60,10 @@ public class BackendConfig extends ConfigGroup {
     public BackendConfig(SparqlEndpointConnectionCredentials dirtyDBSparqlConnectionCredentials,
     		SparqlEndpointConnectionCredentials cleanDBSparqlConnectionCredentials,
             JDBCConnectionCredentials dirtyDBJDBCConnectionCredentials, 
-            JDBCConnectionCredentials cleanDBJDBCConnectionCredentials, Integer queryTimeout,
-            URI dataGraphURIPrefix, URI metadataGraphURIPrefix) {
+            JDBCConnectionCredentials cleanDBJDBCConnectionCredentials,
+            Integer queryTimeout,
+            URI dataGraphURIPrefix, 
+            URI metadataGraphURIPrefix) {
         this.dirtyDBSparqlConnectionCredentials = dirtyDBSparqlConnectionCredentials;
         this.cleanDBSparqlConnectionCredentials = cleanDBSparqlConnectionCredentials;
         this.dirtyDBJDBCConnectionCredentials = dirtyDBJDBCConnectionCredentials;

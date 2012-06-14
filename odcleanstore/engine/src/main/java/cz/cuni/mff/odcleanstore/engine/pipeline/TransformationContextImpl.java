@@ -2,8 +2,8 @@ package cz.cuni.mff.odcleanstore.engine.pipeline;
 
 import java.io.File;
 
-import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
-import cz.cuni.mff.odcleanstore.engine.Engine;
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 
@@ -21,13 +21,13 @@ public class TransformationContextImpl implements TransformationContext {
 	}
 
 	@Override
-	public ConnectionCredentials getDirtyDatabaseCredentials() {
-		return Engine.DIRTY_DATABASE_ENDPOINT;
+	public JDBCConnectionCredentials getDirtyDatabaseCredentials() {
+		return ConfigLoader.getConfig().getInputWSGroup().getDirtyDBJDBCConnectionCredentials();
 	}
 
 	@Override
-	public ConnectionCredentials getCleanDatabaseCredentials() {
-		return Engine.CLEAN_DATABASE_ENDPOINT;
+	public JDBCConnectionCredentials getCleanDatabaseCredentials() {
+		return ConfigLoader.getConfig().getInputWSGroup().getCleanDBJDBCConnectionCredentials();
 	}
 
 	@Override

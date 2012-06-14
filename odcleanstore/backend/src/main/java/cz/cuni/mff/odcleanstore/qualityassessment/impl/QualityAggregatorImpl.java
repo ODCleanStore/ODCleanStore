@@ -12,7 +12,7 @@ import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
-import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.qualityassessment.QualityAggregator;
 import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
@@ -76,15 +76,15 @@ public class QualityAggregatorImpl implements QualityAggregator {
 			}, new TransformationContext() {
 
 				@Override
-				public ConnectionCredentials getDirtyDatabaseCredentials() {
+				public JDBCConnectionCredentials getDirtyDatabaseCredentials() {
 					// TODO Auto-generated method stub
-					return new ConnectionCredentials("jdbc:virtuoso://localhost:1112/UID=dba/PWD=dba", "dba", "dba");
+					return new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1112/UID=dba/PWD=dba", "dba", "dba");
 				}
 
 				@Override
-				public ConnectionCredentials getCleanDatabaseCredentials() {
+				public JDBCConnectionCredentials getCleanDatabaseCredentials() {
 					// TODO Auto-generated method stub
-					return new ConnectionCredentials("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba");
+					return new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba");
 				}
 
 				@Override
@@ -174,7 +174,7 @@ public class QualityAggregatorImpl implements QualityAggregator {
 	public void shutdown() throws TransformerException {
 	}
 	
-	private ConnectionCredentials endpoint;
+	private JDBCConnectionCredentials endpoint;
 	private VirtuosoConnectionWrapper connection;
 
 	private VirtuosoConnectionWrapper getConnection () throws ConnectionException {

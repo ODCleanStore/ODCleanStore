@@ -13,7 +13,6 @@ import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
-import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
 import cz.cuni.mff.odcleanstore.data.RDFprefix;
 
 /**
@@ -23,22 +22,6 @@ import cz.cuni.mff.odcleanstore.data.RDFprefix;
  */
 public class RDFPrefixesLoader {
 	private static final Logger LOG = LoggerFactory.getLogger(RDFPrefixesLoader.class);
-
-	/**
-	 * Loads RDF prefixes from Virtuoso DB.
-	 *
-	 * @param connectionCredentials endpoint to Virtuoso DB
-	 * @return list of loaded prefixes
-	 * @throws DatabaseException database error occurred
-	 * @deprecated use JDBCConnectionCredentials instead
-	 * TODO: remove
-	 */
-	public static List<RDFprefix> loadPrefixes(ConnectionCredentials connectionCredentials) throws DatabaseException {
-		return loadPrefixes(new JDBCConnectionCredentials(
-				connectionCredentials.getUri(),
-				connectionCredentials.getUsername(), 
-				connectionCredentials.getPassword()));
-	}
 	
 	/**
 	 * Loads RDF prefixes from Virtuoso DB.

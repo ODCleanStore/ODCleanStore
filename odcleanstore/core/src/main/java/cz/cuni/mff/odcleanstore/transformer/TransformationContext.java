@@ -1,8 +1,8 @@
 package cz.cuni.mff.odcleanstore.transformer;
 
-import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
-
 import java.io.File;
+
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 
 /**
  * Context for a custom transformer.
@@ -16,14 +16,14 @@ public interface TransformationContext {
      * The dirty database contains new incoming named graphs.
      * @return reference to the dirty database connection credentials
      */
-    ConnectionCredentials getDirtyDatabaseCredentials();
+    JDBCConnectionCredentials getDirtyDatabaseCredentials();
 
     /**
      * Reference to the clean database.
      * The clean database contains already processed named graphs.
      * @return reference to the clean database connection credentials
      */
-    ConnectionCredentials getCleanDatabaseCredentials();
+    JDBCConnectionCredentials getCleanDatabaseCredentials();
 
     /**
      * Configuration file for the Transformer (obtained from ODCS database).

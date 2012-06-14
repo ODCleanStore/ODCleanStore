@@ -1,21 +1,21 @@
 package cz.cuni.mff.odcleanstore.linker.impl;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
-import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A singleton class for loading linkage rules from the relational DB.
- * 
+ *
  * @author Tomas Soukup
  */
 public class LinkerDao {
@@ -24,41 +24,41 @@ public class LinkerDao {
 	 * singleton instance
 	 */
 	private static LinkerDao dao;
-	
+
 	/**
 	 * singleton connection instance
 	 */
 	private static VirtuosoConnectionWrapper connection;
-	
+
 	/**
 	 * Private constructor used by the getInstance method.
-	 * 
+	 *
 	 * @param credentials connection parameters
 	 * @throws ConnectionException
 	 */
-	private LinkerDao(ConnectionCredentials credentials) throws ConnectionException {
-		LOG.info("Connecting to DB on: " + credentials.getUri());
+	private LinkerDao(JDBCConnectionCredentials credentials) throws ConnectionException {
+		LOG.info("Connecting to DB on: " + credentials.getConnectionString());
 		connection = VirtuosoConnectionWrapper.createConnection(credentials);
 	}
-	
-	
+
+
 	/**
 	 * Creates singleton instance.
-	 * 
+	 *
 	 * @param credentials connection parameters
 	 * @return singleton instance
 	 * @throws ConnectionException
 	 */
-	public static LinkerDao getInstance(ConnectionCredentials credentials) throws ConnectionException {
+	public static LinkerDao getInstance(JDBCConnectionCredentials credentials) throws ConnectionException {
 		if (dao == null) {
 			return new LinkerDao(credentials);
 		}
 		return dao;
 	}
-	
+
 	/**
 	 * Loads rules from given groups from the database.
-	 * 
+	 *
 	 * @param groups array of group IDs
 	 * @return list of loaded linkage rules
 	 * @throws QueryException
@@ -75,10 +75,10 @@ public class LinkerDao {
 		LOG.info("Loaded {} linkage rules.", ruleList.size());
 		return ruleList;
 	}
-	
+
 	/**
 	 * Creates the IN part of SQL query from list of group IDs
-	 * 
+	 *
 	 * @param groups list of group IDs
 	 * @return IN part in format (id1,id2,...)
 	 */
