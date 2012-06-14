@@ -2,7 +2,6 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.qa;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.Publisher;
@@ -48,11 +47,18 @@ public class PublisherDao extends Dao<Publisher>
 	@Override
 	public void delete(Publisher item) 
 	{
+		clearRestrictionsToRules(item);
 		deleteRaw(item.getId());
-		
-		// TODO: delete all related rule restrictions
 	}
 
+	private void clearRestrictionsToRules(Publisher item)
+	{
+		String query = "DELETE FROM " + QARuleDao.RESTRICTIONS_TABLE_NAME + " WHERE publisherId = ?";
+		Object[] params = { item.getId() };
+		
+		jdbcTemplate.update(query, params);
+	}
+	
 	@Override
 	public List<Publisher> loadAll() 
 	{

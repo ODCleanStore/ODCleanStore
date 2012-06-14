@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -8,18 +9,21 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessObject;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.NonUniquePrimaryKeyException;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.UniquenessViolationException;
 
 public class SafetyDaoDecorator<T extends BusinessObject> extends Dao<T>
 {
 	private static Logger logger = Logger.getLogger(SafetyDaoDecorator.class);
 	
 	private Dao<T> dao;
+	private List<DaoExceptionHandler> exceptionHandlers;
 	
 	public SafetyDaoDecorator(Dao<T> dao)
 	{
 		this.dao = dao;
+		
+		exceptionHandlers = new LinkedList<DaoExceptionHandler>();
+		exceptionHandlers.add(new UniquenessViolationHandler());
+		exceptionHandlers.add(new NonUniquePrimaryKeyHandler());
 	}
 	
 
@@ -112,24 +116,20 @@ public class SafetyDaoDecorator<T extends BusinessObject> extends Dao<T>
 	
 	private void handleException(Exception ex) throws Exception
 	{
-		String originalMessage = ex.getMessage();
-		
-		String relevantMessagePart = getRelevantMessagePart(originalMessage);
+		String relevantMessagePart = getRelevantMessagePart(ex.getMessage());
 		if (relevantMessagePart == null)
 			throw ex;
+		
+		for (DaoExceptionHandler handler : exceptionHandlers)
+		{
+			if (!handler.comprisesException(relevantMessagePart))
+				continue;
 			
-		if (relevantMessagePart.startsWith("SR175:")) 
-		{
-			handleUniquenessViolation(relevantMessagePart);
+			handler.handleException(relevantMessagePart);
 			return;
 		}
 		
-		if (relevantMessagePart.startsWith("SR197:"))
-		{
-			handleNonUniquePrimaryKey(relevantMessagePart);
-			return;
-		}
-		
+		// if no handler accepted the exception, throw it unchanged
 		throw ex;
 	}
 	
@@ -139,43 +139,10 @@ public class SafetyDaoDecorator<T extends BusinessObject> extends Dao<T>
 		
 		for (String token : tokens)
 		{
-			logger.debug("token: " + token);
-			
-			if (token.startsWith("SR")) {
-				logger.debug("token accepted");
+			if (token.startsWith("SR"))
 				return token;
-			}
 		}
 		
-		logger.debug("No token accepted.");
 		return null;
-	}
-	
-	// TODO: move this to an individual strategy-like class later if needed
-	private void handleUniquenessViolation(String message) throws UniquenessViolationException
-	{
-		assert 
-			message.startsWith(
-				"SR175: Uniqueness violation : Violating unique index DB_ODCLEANSTORE_"
-			);
-		
-		String[] tokens = message.split(" ");
-		String constraintName = tokens[7];
-		
-		String[] parts = constraintName.split("_");
-		String attrName = parts[parts.length - 1];
-		
-		throw new UniquenessViolationException(attrName);
-	}
-	
-	// TODO: move this to an individual strategy-like class later if needed
-	private void handleNonUniquePrimaryKey(String message) throws NonUniquePrimaryKeyException
-	{
-		assert 
-			message.startsWith(
-				"SR197: Non unique primary key on DB.ODCLEANSTORE."
-			);
-		
-		throw new NonUniquePrimaryKeyException();
 	}
 }

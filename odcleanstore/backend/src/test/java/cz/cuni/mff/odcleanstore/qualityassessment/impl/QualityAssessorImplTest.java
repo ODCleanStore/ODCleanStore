@@ -166,7 +166,8 @@ public class QualityAssessorImplTest extends TestCase {
 		while (publishers.next()) {
 			Object[] publisher = {
 					publishers.getInt("id"),
-					publishers.getNString("uri")
+					publishers.getNString("uri"),
+					publishers.getNString("label")
 			};
 
 			publishersBackup.add(publisher);
@@ -224,7 +225,7 @@ public class QualityAssessorImplTest extends TestCase {
 		Iterator<Object[]> objects = publishersBackup.iterator();
 		
 		while (objects.hasNext()) {
-			connection.execute("INSERT INTO DB.ODCLEANSTORE.PUBLISHERS (id, uri) VALUES (?, ?)", objects.next());
+			connection.execute("INSERT INTO DB.ODCLEANSTORE.PUBLISHERS (id, uri, label) VALUES (?, ?, ?)", objects.next());
 		}
 	}
 	

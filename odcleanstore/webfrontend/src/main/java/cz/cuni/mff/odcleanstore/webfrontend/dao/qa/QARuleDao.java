@@ -89,14 +89,8 @@ public class QARuleDao extends Dao<QARule>
 	
 	private void clearPublisherRestrictions(QARule item)
 	{
-		String query =
-			"DELETE FROM " + RESTRICTIONS_TABLE_NAME + " " +
-			"WHERE ruleId = ?";
-		
-		Object[] params = 
-		{
-			item.getId()
-		};
+		String query = "DELETE FROM " + RESTRICTIONS_TABLE_NAME + " WHERE ruleId = ?";
+		Object[] params = { item.getId() };
 		
 		jdbcTemplate.update(query, params);
 	}

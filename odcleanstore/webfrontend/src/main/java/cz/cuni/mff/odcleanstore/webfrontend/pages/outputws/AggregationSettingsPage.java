@@ -2,14 +2,12 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.outputws;
 
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.*;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.*;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -103,7 +101,15 @@ public class AggregationSettingsPage extends FrontendPage
 				addMultivalueTypeLabel(item, property);
 				addAggregationTypeLabel(item, property);			
 				
-				addDeleteButton(item, property);
+				item.add(
+					createDeleteRawButton(
+						propertySettingsDao, 
+						property.getId(), 
+						"deleteProperty", 
+						"property", 
+						AggregationSettingsPage.class
+					)
+				);
 			}
 		};
 		
@@ -135,26 +141,5 @@ public class AggregationSettingsPage extends FrontendPage
 		label.add(new AttributeModifier("title", new Model<String>(aggregationType.getDescription())));
 		
 		item.add(label);
-	}
-	
-	private void addDeleteButton(ListItem<PropertySettings> item, final PropertySettings property)
-	{
-		Link button = new Link("deleteProperty")
-        {
-            @Override
-            public void onClick()
-            {
-            	logger.debug("About to delete property: " + property);
-            	
-            	propertySettingsDao.delete(property);
-				
-				getSession().info("The property was successfuly deleted.");
-				setResponsePage(AggregationSettingsPage.class);
-            }
-        };
-        
-        button.add(new ConfirmationBoxRenderer("Are you sure you want to delete the property?"));
-        
-		item.add(button);
 	}
 }
