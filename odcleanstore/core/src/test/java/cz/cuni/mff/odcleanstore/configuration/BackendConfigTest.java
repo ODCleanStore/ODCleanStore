@@ -89,7 +89,7 @@ public class BackendConfigTest {
     private void checkDirtyJDBCConnectionCredentials(BackendConfig config) throws MalformedURLException {
         JDBCConnectionCredentials dirtyJDBCConnectionCredentials = config.getDirtyDBJDBCConnectionCredentials();
 
-        assertEquals(new URL("jdbc:virtuoso://localhost:1112"), dirtyJDBCConnectionCredentials.getConnectionString());
+        assertEquals("jdbc:virtuoso://localhost:1112", dirtyJDBCConnectionCredentials.getConnectionString());
 
         assertEquals("dba", dirtyJDBCConnectionCredentials.getUsername());
 
@@ -107,7 +107,7 @@ public class BackendConfigTest {
     private void checkCleanJDBCConnectionCredentials(BackendConfig config) throws MalformedURLException {
         JDBCConnectionCredentials cleanJDBCConnectionCredentials = config.getCleanDBJDBCConnectionCredentials();
 
-        assertEquals(new URL("jdbc:virtuoso://localhost:1111"), cleanJDBCConnectionCredentials.getConnectionString());
+        assertEquals("jdbc:virtuoso://localhost:1111", cleanJDBCConnectionCredentials.getConnectionString());
 
         assertEquals("dba", cleanJDBCConnectionCredentials.getUsername());
 

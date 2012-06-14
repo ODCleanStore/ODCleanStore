@@ -1,9 +1,14 @@
 package cz.cuni.mff.odcleanstore;
 
+import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
+import cz.cuni.mff.odcleanstore.shared.Utils;
+
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 
 import de.fuberlin.wiwiss.ng4j.Quad;
+
+import org.mockito.Mockito;
 
 import java.util.Collection;
 
@@ -131,5 +136,20 @@ public final class TestUtils {
             }
         }
         return false;
+    }
+
+    /**
+     * Creates a mock of ConflictResolutionConfig
+     * @return a ConflictResolutionConfig mock
+     */
+    public static ConflictResolutionConfig createConflictResolutionConfigMock() {
+        ConflictResolutionConfig config = Mockito.mock(ConflictResolutionConfig.class);
+        Mockito.when(config.getAgreeCoeficient()).thenReturn(4d);
+        Mockito.when(config.getScoreIfUnknown()).thenReturn(1d);
+        Mockito.when(config.getNamedGraphScoreWeight()).thenReturn(0.8);
+        Mockito.when(config.getPublisherScoreWeight()).thenReturn(0.2);
+        Mockito.when(config.getMaxDateDifference()).thenReturn(
+                366 * Utils.DAY_HOURS * Utils.TIME_UNIT_60 * Utils.TIME_UNIT_60);
+        return config;
     }
 }
