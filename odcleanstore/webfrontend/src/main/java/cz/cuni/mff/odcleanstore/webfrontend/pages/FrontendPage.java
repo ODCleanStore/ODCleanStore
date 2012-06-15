@@ -11,9 +11,12 @@ import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessObject;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
 import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
 import cz.cuni.mff.odcleanstore.webfrontend.core.WicketApplication;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
@@ -267,5 +270,26 @@ public abstract class FrontendPage extends WebPage
 	    );
 	    
 	    return button;
+	}
+	
+	/*
+		=======================================================================
+		OTHER HELPERS
+		=======================================================================
+	*/
+	
+	protected <BO extends BusinessObject> IModel<List<BO>> createModelForListView(
+		final Dao<BO> dao)
+	{
+		return new LoadableDetachableModel<List<BO>>() 
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected List<BO> load() 
+			{
+				return dao.loadAll();
+			}
+		};
 	}
 }

@@ -8,6 +8,8 @@ import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
@@ -41,7 +43,7 @@ public class ManageGroupRulesPage extends FrontendPage
 		OIRulesGroup group = oiRulesGroupDao.load(groupId);
 		
 		addGroupInformationSection(group);
-		addOIRulesSection(group);
+		addOIRulesSection(group.getId());
 	}
 
 	/*
@@ -64,10 +66,10 @@ public class ManageGroupRulesPage extends FrontendPage
 	 	=======================================================================
 	*/
 	
-	private void addOIRulesSection(OIRulesGroup group) 
+	private void addOIRulesSection(Long groupId) 
 	{
-		addNewRestrictionLink(group.getId());
-		addOIRulesTable(group);
+		addNewRestrictionLink(groupId);
+		addOIRulesTable(groupId);
 	}
 	
 	private void addNewRestrictionLink(final Long ruleId)
@@ -86,11 +88,20 @@ public class ManageGroupRulesPage extends FrontendPage
 		});
 	}
 	
-	private void addOIRulesTable(final OIRulesGroup group) 
+	private void addOIRulesTable(final Long groupId) 
 	{
-		List<OIRule> allRules = new LinkedList<OIRule>(group.getRules());
-		
-		ListView<OIRule> listView = new ListView<OIRule>("oiRulesTable", allRules)
+		IModel<List<OIRule>> model = new LoadableDetachableModel<List<OIRule>>() 
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected List<OIRule> load() 
+			{
+				return oiRulesGroupDao.load(groupId).getRules();
+			}
+		};
+				
+		ListView<OIRule> listView = new ListView<OIRule>("oiRulesTable", model)
 		{
 			private static final long serialVersionUID = 1L;
 			
@@ -103,7 +114,7 @@ public class ManageGroupRulesPage extends FrontendPage
 				
 				item.add(new Label("definition"));
 				
-				addDeleteButton(item, group.getId(), rule.getId());
+				addDeleteButton(item, groupId, rule.getId());
 			}
 		};
 		

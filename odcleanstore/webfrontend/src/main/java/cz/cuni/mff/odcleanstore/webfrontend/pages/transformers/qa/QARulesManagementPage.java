@@ -8,6 +8,8 @@ import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.Publisher;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
@@ -51,9 +53,9 @@ public class QARulesManagementPage extends FrontendPage
 	
 	private void addPublishersTable()
 	{
-		List<Publisher> allPublihers = publisherDao.loadAll();
+		IModel<List<Publisher>> model = createModelForListView(publisherDao);
 		
-		ListView<Publisher> listView = new ListView<Publisher>("publishersTable", allPublihers)
+		ListView<Publisher> listView = new ListView<Publisher>("publishersTable", model)
 		{
 			private static final long serialVersionUID = 1L;
 			
@@ -91,9 +93,9 @@ public class QARulesManagementPage extends FrontendPage
 	
 	private void addQARulesTable()
 	{
-		List<QARule> allRules = qaRuleDao.loadAll();
-		
-		ListView<QARule> listView = new ListView<QARule>("qaRulesTable", allRules)
+		IModel<List<QARule>> model = createModelForListView(qaRuleDao);
+				
+		ListView<QARule> listView = new ListView<QARule>("qaRulesTable", model)
 		{
 			private static final long serialVersionUID = 1L;
 			

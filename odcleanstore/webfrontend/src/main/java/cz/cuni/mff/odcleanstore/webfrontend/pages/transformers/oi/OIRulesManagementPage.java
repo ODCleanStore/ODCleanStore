@@ -7,6 +7,7 @@ import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
@@ -44,9 +45,9 @@ public class OIRulesManagementPage extends FrontendPage
 	
 	private void addOIRulesGroupsTable()
 	{
-		List<OIRulesGroup> allGroups = oiRulesGroupsDao.loadAll();
+		IModel<List<OIRulesGroup>> model = createModelForListView(oiRulesGroupsDao);
 		
-		ListView<OIRulesGroup> listView = new ListView<OIRulesGroup>("oiRulesGroupsTable", allGroups)
+		ListView<OIRulesGroup> listView = new ListView<OIRulesGroup>("oiRulesGroupsTable", model)
 		{
 			private static final long serialVersionUID = 1L;
 			

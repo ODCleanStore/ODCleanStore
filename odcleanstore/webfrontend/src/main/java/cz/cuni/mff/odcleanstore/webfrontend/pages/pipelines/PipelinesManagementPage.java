@@ -8,6 +8,7 @@ import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
@@ -47,9 +48,9 @@ public class PipelinesManagementPage extends FrontendPage
 	
 	private void addPipelinesTable()
 	{
-		List<Pipeline> allPipelines = pipelineDao.loadAll();
+		IModel<List<Pipeline>> model = createModelForListView(pipelineDao);
 		
-		ListView<Pipeline> listView = new ListView<Pipeline>("pipelinesTable", allPipelines)
+		ListView<Pipeline> listView = new ListView<Pipeline>("pipelinesTable", model)
 		{
 			private static final long serialVersionUID = 1L;
 			

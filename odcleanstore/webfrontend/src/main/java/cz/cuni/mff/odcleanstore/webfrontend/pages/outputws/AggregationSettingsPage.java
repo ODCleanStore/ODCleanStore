@@ -11,6 +11,8 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 
 import java.util.List;
@@ -84,9 +86,9 @@ public class AggregationSettingsPage extends FrontendPage
 	
 	private void addPropertySettingsTable()
 	{
-		List<PropertySettings> allProperties = propertySettingsDao.loadAll();
-		
-		ListView<PropertySettings> listView = new ListView<PropertySettings>("propertySettingsTable", allProperties)
+		IModel<List<PropertySettings>> model = createModelForListView(propertySettingsDao);
+				
+		ListView<PropertySettings> listView = new ListView<PropertySettings>("propertySettingsTable", model)
 		{
 			private static final long serialVersionUID = 1L;
 			

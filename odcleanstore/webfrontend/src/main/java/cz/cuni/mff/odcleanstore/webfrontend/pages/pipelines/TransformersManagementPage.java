@@ -6,6 +6,8 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
@@ -43,9 +45,9 @@ public class TransformersManagementPage extends FrontendPage
 	
 	private void addTransformersTable()
 	{
-		List<Transformer> allTransformers = transformerDao.loadAll();
+		IModel<List<Transformer>> model = createModelForListView(transformerDao);
 		
-		ListView<Transformer> listView = new ListView<Transformer>("transformersTable", allTransformers)
+		ListView<Transformer> listView = new ListView<Transformer>("transformersTable", model)
 		{
 			private static final long serialVersionUID = 1L;
 			
