@@ -12,7 +12,6 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 
 import java.util.List;
@@ -52,7 +51,7 @@ public class AggregationSettingsPage extends FrontendPage
 		
 		addDefaultAggregationTypeLabel(settings);
 		addDefaultMultivalueTypeLabel(settings);
-		addDefaultErrorStrategy(settings);
+		addDefaultErrorStrategyLabel(settings);
 	}
 	
 	private void addDefaultAggregationTypeLabel(GlobalAggregationSettings settings)
@@ -74,7 +73,7 @@ public class AggregationSettingsPage extends FrontendPage
 		add(label);
 	}
 	
-	private void addDefaultErrorStrategy(GlobalAggregationSettings settings)
+	private void addDefaultErrorStrategyLabel(GlobalAggregationSettings settings)
 	{
 		ErrorStrategy errorStrategy = settings.getDefaultErrorStrategy();
 		
