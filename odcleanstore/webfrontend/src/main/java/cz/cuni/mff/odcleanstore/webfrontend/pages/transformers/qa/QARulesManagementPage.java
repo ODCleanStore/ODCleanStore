@@ -4,12 +4,10 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.LoadableDetachableModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.Publisher;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
@@ -121,28 +119,16 @@ public class QARulesManagementPage extends FrontendPage
 					)
 				);
 
-				addManageRuleRestrictionsButton(item, rule);
+				item.add(
+					createGoToPageButton(
+						ManageQARuleRestrictionsPage.class,
+						rule.getId(), 
+						"manageRuleRestrictions"
+					)
+				);
 			}
 		};
 		
 		add(listView);
-	}
-	
-	private void addManageRuleRestrictionsButton(ListItem<QARule> item, final QARule rule)
-	{
-		Link button = new Link("manageRuleRestrictions")
-        {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-            public void onClick()
-            {
-            	setResponsePage(
-					new ManageQARuleRestrictionsPage(rule.getId())
-				);
-            }
-        };
-        
-		item.add(button);
 	}
 }

@@ -67,26 +67,17 @@ public class ManageQARuleRestrictionsPage extends FrontendPage
 	
 	private void addRestrictionsSection(QARule rule) 
 	{
-		addNewRestrictionLink(rule.getId());
+		add(
+			createGoToPageButton(
+				NewRestrictionPage.class,
+				rule.getId(), 
+				"addNewRestrictionLink"
+			)
+		);
+		
 		addRestrictionsTable(rule);
 	}
 
-	private void addNewRestrictionLink(final Long ruleId)
-	{
-		add(new Link("addNewRestrictionLink")
-		{
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onClick() 
-			{
-				setResponsePage(
-					new NewRestrictionPage(ruleId)
-				);
-			}
-		});
-	}
-	
 	private void addRestrictionsTable(final QARule rule) 
 	{
 		List<Publisher> allRestrictions = new LinkedList<Publisher>(rule.getPublisherRestrictions());

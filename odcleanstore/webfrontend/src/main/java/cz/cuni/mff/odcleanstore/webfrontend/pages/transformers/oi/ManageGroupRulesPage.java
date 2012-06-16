@@ -1,17 +1,14 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 
-import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
@@ -68,26 +65,17 @@ public class ManageGroupRulesPage extends FrontendPage
 	
 	private void addOIRulesSection(Long groupId) 
 	{
-		addNewRestrictionLink(groupId);
+		add(
+			createGoToPageButton(
+				NewOIRulePage.class,
+				groupId, 
+				"addNewRuleLink"
+			)
+		);
+		
 		addOIRulesTable(groupId);
 	}
-	
-	private void addNewRestrictionLink(final Long ruleId)
-	{
-		add(new Link("addNewRuleLink")
-		{
-			private static final long serialVersionUID = 1L;
-	
-			@Override
-			public void onClick() 
-			{
-				setResponsePage(
-					new NewOIRulePage(ruleId)
-				);
-			}
-		});
-	}
-	
+
 	private void addOIRulesTable(final Long groupId) 
 	{
 		IModel<List<OIRule>> model = new LoadableDetachableModel<List<OIRule>>() 
@@ -114,31 +102,19 @@ public class ManageGroupRulesPage extends FrontendPage
 				
 				item.add(new Label("definition"));
 				
-				addDeleteButton(item, groupId, rule.getId());
+				item.add(
+					createDeleteRawButton(
+						oiRuleDao, 
+						rule.getId(), 
+						"deleteRule", 
+						"rule", 
+						ManageGroupRulesPage.this
+					)
+				);
 			}
 		};
 		
 		add(listView);
 	}
 	
-	private void addDeleteButton(ListItem<OIRule> item, final Long groupId, final Long ruleId)
-	{
-		Link button = new Link("deleteRule")
-	    {
-			private static final long serialVersionUID = 1L;
-	
-			@Override
-	        public void onClick()
-	        {
-				oiRuleDao.deleteRaw(ruleId);
-	        	
-				getSession().info("The rule was successfuly deleted.");
-				setResponsePage(new ManageGroupRulesPage(groupId));
-	        }
-	    };
-	    
-	    button.add(new ConfirmationBoxRenderer("Are you sure you want to delete the rule?"));
-	    
-		item.add(button);
-	}
 }

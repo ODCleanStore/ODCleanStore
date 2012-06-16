@@ -30,26 +30,17 @@ public class NewOIRulePage extends FrontendPage
 		
 		// register page components
 		//
-		addGoBackLink(groupId);
+		add(
+			createGoToPageButton(
+				ManageGroupRulesPage.class,
+				groupId, 
+				"manageGroupRules"
+			)
+		);
+		
 		addNewOIRuleForm(groupId);
 	}
 
-	private void addGoBackLink(final Long groupId)
-	{
-		add(new Link("manageGroupRules")
-		{
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onClick() 
-			{
-				setResponsePage(
-					new ManageGroupRulesPage(groupId)
-				);
-			}
-		});
-	}
-	
 	private void addNewOIRuleForm(final Long groupId)
 	{
 		IModel formModel = new CompoundPropertyModel(new OIRule());

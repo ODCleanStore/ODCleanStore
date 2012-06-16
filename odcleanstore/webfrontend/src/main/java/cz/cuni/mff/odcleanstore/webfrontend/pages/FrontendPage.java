@@ -1,5 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -16,7 +18,6 @@ import org.apache.wicket.model.LoadableDetachableModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessObject;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
 import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
 import cz.cuni.mff.odcleanstore.webfrontend.core.WicketApplication;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
@@ -157,6 +158,46 @@ public abstract class FrontendPage extends WebPage
 	protected TextArea<String> createTextarea(String componentName)
 	{
 		return createTextarea(componentName, true);
+	}
+	
+	/**
+	 * 
+	 * @param page
+	 * @param compName
+	 * @return
+	 */
+	protected Link createGoToPageButton(final Class<? extends FrontendPage> redirectPage, 
+		final Long param, final String compName)
+	{
+		return new Link(compName)
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick() 
+			{
+				FrontendPage page;
+				
+				try 
+				{
+					// using reflection here (instead of passing the page instance as a method
+					// argument) is necessary in order to postpone creating the page instance
+					// to when onClick is called
+					Constructor<? extends FrontendPage> constructor = 
+						redirectPage.getConstructor(new Class[]{Long.class});
+					
+					page = (FrontendPage) constructor.newInstance(param);
+				} 
+				catch (Exception ex) 
+				{
+					throw new AssertionError(
+						"Could not instantiate page class: " + redirectPage
+					);
+				}
+				
+				setResponsePage(page);
+			}
+		};
 	}
 	
 	/**

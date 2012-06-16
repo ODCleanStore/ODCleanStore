@@ -41,24 +41,15 @@ public class NewAssignmentPage extends FrontendPage
 		
 		// register page components
 		//
-		addGoBackLink(pipelineId);
+		add(
+			createGoToPageButton(
+				ManagePipelineTransformersPage.class,
+				pipelineId, 
+				"managePipelineTransformers"
+			)
+		);
+		
 		addNewAssignmentForm(pipelineId);
-	}
-	
-	private void addGoBackLink(final Long pipelineId)
-	{
-		add(new Link("managePipelineTransformers")
-		{
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onClick() 
-			{
-				setResponsePage(
-					new ManagePipelineTransformersPage(pipelineId)
-				);
-			}
-		});
 	}
 	
 	private void addNewAssignmentForm(final Long pipelineId)

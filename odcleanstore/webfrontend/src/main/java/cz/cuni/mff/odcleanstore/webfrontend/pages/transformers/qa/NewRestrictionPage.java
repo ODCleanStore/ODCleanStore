@@ -37,24 +37,15 @@ public class NewRestrictionPage extends FrontendPage
 		//
 		final QARule rule = qaRuleDao.load(ruleId);
 		
-		addGoBackLink(rule.getId());
+		add(
+			createGoToPageButton(
+				ManageQARuleRestrictionsPage.class,
+				ruleId, 
+				"manageRuleRestrictions"
+			)
+		);
+		
 		addNewRestrictionForm(rule);
-	}
-	
-	private void addGoBackLink(final Long ruleId)
-	{
-		add(new Link("manageRuleRestrictions")
-		{
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onClick() 
-			{
-				setResponsePage(
-					new ManageQARuleRestrictionsPage(ruleId)
-				);
-			}
-		});
 	}
 	
 	private void addNewRestrictionForm(final QARule rule)

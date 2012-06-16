@@ -76,30 +76,19 @@ public class PipelinesManagementPage extends FrontendPage
 					)
 				);
 				
-				addManagePipelineTransformersButton(item, pipeline.getId());
+				item.add(
+					createGoToPageButton(
+						ManagePipelineTransformersPage.class,
+						pipeline.getId(), 
+						"managePipelineTransformers"
+					)
+				);
+				
 				addMakePipelineRunOnCleanDBButton(item, pipeline);
 			}
 		};
 		
 		add(listView);
-	}
-	
-	private void addManagePipelineTransformersButton(ListItem<Pipeline> item, final Long pipelineId)
-	{
-		Link button = new Link("managePipelineTransformers")
-        {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-            public void onClick()
-            {
-            	setResponsePage(
-            		new ManagePipelineTransformersPage(pipelineId)
-				);
-            }
-        };
-	    
-		item.add(button);
 	}
 	
 	private void addMakePipelineRunOnCleanDBButton(ListItem<Pipeline> item, final Pipeline pipeline)

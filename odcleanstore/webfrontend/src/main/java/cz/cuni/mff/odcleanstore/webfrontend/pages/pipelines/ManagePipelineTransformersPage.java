@@ -66,24 +66,15 @@ public class ManagePipelineTransformersPage extends FrontendPage
 	
 	private void addAssignmentSection(Pipeline pipeline) 
 	{
-		addNewAssignmentLink(pipeline.getId());
+		add(
+			createGoToPageButton(
+				NewAssignmentPage.class, 
+				pipeline.getId(), 
+				"newAssignmentLink"
+			)
+		);
+		
 		addAssignmentTable(pipeline);
-	}
-
-	private void addNewAssignmentLink(final Long pipelineId)
-	{
-		add(new Link("newAssignmentLink")
-		{
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onClick() 
-			{
-				setResponsePage(
-					new NewAssignmentPage(pipelineId)
-				);
-			}
-		});
 	}
 	
 	private void addAssignmentTable(final Pipeline pipeline) 

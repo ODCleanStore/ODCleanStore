@@ -3,13 +3,11 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi;
 import java.util.List;
 
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
-import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
@@ -72,28 +70,16 @@ public class OIRulesManagementPage extends FrontendPage
 					)
 				);
 				
-				addManageRulesButton(item, group);
+				item.add(
+					createGoToPageButton(
+						ManageGroupRulesPage.class,
+						group.getId(), 
+						"manageRules"
+					)
+				);
 			}
 		};
 		
 		add(listView);
-	}
-	
-	private void addManageRulesButton(ListItem<OIRulesGroup> item, final OIRulesGroup group)
-	{
-		Link button = new Link("manageRules")
-	    {
-			private static final long serialVersionUID = 1L;
-	
-			@Override
-	        public void onClick()
-	        {
-	        	setResponsePage(
-	        		new ManageGroupRulesPage(group.getId())
-				);
-	        }
-	    };
-	    
-		item.add(button);
 	}
 }
