@@ -85,7 +85,8 @@ CREATE TABLE DB.ODCLEANSTORE.ERROR_GRAPHS
 CREATE TABLE DB.ODCLEANSTORE.EN_INPUT_GRAPHS
 (
 	uuid VARCHAR(48) PRIMARY KEY,
-	state VARCHAR(16) NOT NULL
+	state VARCHAR(16) NOT NULL,
+	pipelineId INTEGER NOT NULL
 );
 
 /* a temporary table (to be replaced later, not included in the diagram) */
