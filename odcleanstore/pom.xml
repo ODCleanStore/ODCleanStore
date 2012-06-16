@@ -93,6 +93,7 @@
 		<module>engine</module>
 		<module>webfrontend</module>
 		<module>simplescraper</module>
+		<module>simpletransformer</module>
 	</modules>
 
 	<properties>
