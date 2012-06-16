@@ -7,12 +7,19 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.mapper.IMapperContext;
 import org.apache.wicket.spring.ISpringContextLocator;
+import org.apache.wicket.util.lang.PackageName;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import cz.cuni.mff.odcleanstore.webfrontend.configuration.Configuration;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.HomePage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LogInPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.outputws.AggregationSettingsPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.PipelinesManagementPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.TransformersManagementPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.OIRulesManagementPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.QARulesManagementPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts.UserAccountsPage;
 
 /**
  * Web Frontend Application object.
@@ -20,6 +27,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.LogInPage;
  */
 public class ODCSWebFrontendApplication extends AuthenticatedWebApplication 
 {
+	private static final String WEB_URL_PREFIX = "odcs-web-frontend";
 	private static final String SPRING_CONFIG_LOCATION = "./config/spring.xml";
 	
 	static ISpringContextLocator CTX_LOCATOR = new ISpringContextLocator() 
@@ -38,7 +46,6 @@ public class ODCSWebFrontendApplication extends AuthenticatedWebApplication
 	
 	/** Application configuration */
 	private Configuration configuration;
-	
 	
 	@Override
 	public Class<HomePage> getHomePage() 
@@ -66,6 +73,14 @@ public class ODCSWebFrontendApplication extends AuthenticatedWebApplication
 		ctx = new ClassPathXmlApplicationContext(SPRING_CONFIG_LOCATION);
 		daoLookupFactory = new DaoLookupFactory();
 		configuration = (Configuration) ctx.getBean("appConfig");
+		
+		mountPage(WEB_URL_PREFIX + "/login", LogInPage.class);
+		mountPage(WEB_URL_PREFIX + "/user-accounts", UserAccountsPage.class);
+		mountPage(WEB_URL_PREFIX + "/backend/pipelines", PipelinesManagementPage.class);
+		mountPage(WEB_URL_PREFIX + "/backend/transformers", TransformersManagementPage.class);
+		mountPage(WEB_URL_PREFIX + "/backend/rules/oi", OIRulesManagementPage.class);
+		mountPage(WEB_URL_PREFIX + "/backend/rules/qa", QARulesManagementPage.class);
+		mountPage(WEB_URL_PREFIX + "/output-ws/aggregations", AggregationSettingsPage.class);
 	}
 	
 	@Override
