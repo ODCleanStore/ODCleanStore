@@ -54,7 +54,7 @@ public class InputWS implements IInputWS {
 				throw new InsertException("rdfXmlPayload is null");
 			}
 
-			String sessionUuid = _importedInputGraphStates.beginImportSession(metadata.uuid, null);
+			String sessionUuid = _importedInputGraphStates.beginImportSession(metadata.uuid, metadata.pipelineName, null);
 			saveFiles(metadata, rdfXmlPayload);
 			_importedInputGraphStates.commitImportSession(sessionUuid);
 			Engine.signalToPipelineService();
@@ -69,6 +69,12 @@ public class InputWS implements IInputWS {
 		} catch (ImportingInputGraphStates.DuplicatedUuid e) {
 			LOG.warn(String.format("InputWS webservice - insert exception %s : %s", InsertException.DUPLICATED_UUID.getMessage(), InsertException.DUPLICATED_UUID.getMoreInfo()));
 			throw InsertException.DUPLICATED_UUID;
+		} catch (ImportingInputGraphStates.UnknownPipelineName e) {
+			LOG.warn(String.format("InputWS webservice - insert exception %s : %s", InsertException.UNKNOWN_PIPELINENAME.getMessage(), InsertException.UNKNOWN_PIPELINENAME.getMoreInfo()));
+			throw InsertException.UNKNOWN_PIPELINENAME;
+		} catch (ImportingInputGraphStates.UnknownPipelineDefaultName e) {
+			LOG.warn(String.format("InputWS webservice - insert exception %s : %s", InsertException.FATAL_ERROR.getMessage(), "Unknown pipeline default name"));
+			throw InsertException.FATAL_ERROR;
 		} catch (Exception e) {
 			LOG.warn(String.format("InputWS webservice - insert exception %s : %s", InsertException.FATAL_ERROR.getMessage(), InsertException.FATAL_ERROR.getMoreInfo()));
 			throw InsertException.FATAL_ERROR;
@@ -86,7 +92,7 @@ public class InputWS implements IInputWS {
 			throw InsertException.UUID_BAD_FORMAT;
 		}
 	}
-
+		
 	private void checkUri(String uri, String moreInsertExceptionInfo) throws InsertException {
 		if (uri == null || uri.isEmpty()) {
 			throw new InsertException(moreInsertExceptionInfo);

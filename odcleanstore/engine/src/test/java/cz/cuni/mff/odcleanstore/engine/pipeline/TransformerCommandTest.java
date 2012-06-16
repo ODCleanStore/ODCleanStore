@@ -16,7 +16,5 @@ public class TransformerCommandTest {
 
 	// @Test
 	public void test() throws Exception {
-		 Collection<TransformerCommand> tc = TransformerCommand.getActualPlan("DB.ODCLEANSTORE", "Dirty");
-		 tc.clear();
 	}
 }

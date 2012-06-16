@@ -26,6 +26,8 @@ public class App {
 
 			metadata.getPublishedBy().add(props.getProperty("publishedby"));
 			metadata.getSource().add(props.getProperty("source"));
+			
+			metadata.setPipelineName(props.getProperty("pipelineName"));
 
 			FileInputStream fis = new FileInputStream(args[1]);
 			byte[] buf = new byte[fis.available()];

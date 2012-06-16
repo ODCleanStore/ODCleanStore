@@ -39,7 +39,7 @@ public final class TransformerCommand {
 	private TransformerCommand() {
 	}
 
-	static Collection<TransformerCommand> getActualPlan(String dbSchemaPrefix, String pipelineName)
+	static Collection<TransformerCommand> getActualPlan(String dbSchemaPrefix, int pipelineId)
 			throws Exception {
 		SimpleVirtuosoAccess sva = null;
 		try {
@@ -50,9 +50,9 @@ public final class TransformerCommand {
 					.format("Select t.jarPath, t.fullClassName, tp.workDirPath, tp.configuration \n" +
 							"FROM %s.TRANSFORMERS t, %s.PIPELINES p, %s.TRANSFORMERS_TO_PIPELINES_ASSIGNMENT tp \n" +
 							"WHERE t.id = tp.transformerId AND tp.pipelineId = p.id \n" +
-							"AND p.label='%s' AND p.runOnCleanDB = 0 \n" +
+							"AND p.id='%s' AND p.runOnCleanDB = 0 \n" +
 							"ORDER BY tp.priority",
-							dbSchemaPrefix, dbSchemaPrefix, dbSchemaPrefix, pipelineName);
+							dbSchemaPrefix, dbSchemaPrefix, dbSchemaPrefix, pipelineId);
 			sva.processSqlStatementRows(sqlStatement, new RowListener() {
 
 				@Override

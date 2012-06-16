@@ -34,6 +34,22 @@ final class WorkingInputGraphStatus {
 		}
 	}
 	
+	int getGraphPipelineId(String uuid) throws Exception {
+		SimpleVirtuosoAccess sva = null;
+		try {
+			sva = SimpleVirtuosoAccess.createCleanDBConnection();
+			Collection<String[]> rows;
+			String sqlStatement = String.format("Select pipelineId from %s.EN_INPUT_GRAPHS WHERE uuid='%s'",
+					_dbSchemaPrefix, uuid);
+			rows = sva.getRowFromSqlStatement(sqlStatement);
+			return Integer.parseInt(Utils.selectScalar(rows));
+		} finally {
+			if (sva != null) {
+				sva.close();
+			}
+		}
+	}
+	
 	Collection<String> getWorkingAttachedGraphNames() throws Exception {
 		SimpleVirtuosoAccess sva = null;
 		try {
