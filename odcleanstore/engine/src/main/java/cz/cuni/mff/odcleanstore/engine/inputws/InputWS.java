@@ -118,6 +118,8 @@ public class InputWS implements IInputWS {
 			throw new InsertException(String.format(" %s - cardinality must be %d minimal", moreInsertExceptionInfo, minCardinality));
 		}
 	}
+	
+	
 
 	private void saveFiles(Metadata metadata, String rdfXmlPayload) throws Exception {
 		FileOutputStream fout = null;

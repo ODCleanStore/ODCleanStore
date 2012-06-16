@@ -17,7 +17,7 @@ public final class Metadata {
 	private String _dataBaseUrl;
 	private String _provenanceBaseUrl;
 	private String _rdfXmlProvenance;
-	private String _extraHandleName;
+	private String _pipelineName;
 
 	/**
 	 * Get uuid of insert operation.
@@ -120,15 +120,15 @@ public final class Metadata {
 	 * Get optional name for extra processing in odcs-cleanstore.
 	 * @return name for extra processing in odcs-cleanstore
 	 */
-	public String getExtraHandleName() {
-		return _extraHandleName;
+	public String getPipelineName() {
+		return _pipelineName;
 	}
 
 	/**
 	 * Set optional name for extra processing in odcs-cleanstore.
 	 * @param value name for extra processing in odcs-cleanstore
 	 */
-	public void setExtraHandleName(String value) {
-		this._extraHandleName = value;
+	public void setPipelineName(String value) {
+		this._pipelineName = value;
 	}
 }

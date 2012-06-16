@@ -47,7 +47,7 @@ public final class OdcsService {
 		wsMetadata.setDataBaseUrl(metadata.getDataBaseUrl());
 		wsMetadata.setProvenanceBaseUrl(metadata.getProvenanceBaseUrl());
 		wsMetadata.setRdfXmlProvenance(metadata.getRdfXmlProvenance());
-		wsMetadata.setExtraHandleName(metadata.getExtraHandleName());
+		wsMetadata.setPipelineName(metadata.getPipelineName());
 
 		try {
 			_inputWSPort.insert(user, password, wsMetadata, rdfXmlPayload);
