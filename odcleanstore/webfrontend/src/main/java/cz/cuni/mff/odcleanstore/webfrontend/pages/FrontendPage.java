@@ -19,7 +19,7 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessObject;
 import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
-import cz.cuni.mff.odcleanstore.webfrontend.core.WicketApplication;
+import cz.cuni.mff.odcleanstore.webfrontend.core.ODCSWebFrontendApplication;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 
 /**
@@ -61,9 +61,9 @@ public abstract class FrontendPage extends WebPage
 	 * 
 	 * @return
 	 */
-	protected WicketApplication getApp() 
+	protected ODCSWebFrontendApplication getApp() 
 	{
-		return (WicketApplication) this.getApplication();
+		return (ODCSWebFrontendApplication) this.getApplication();
 	}
 	
 	/* 	

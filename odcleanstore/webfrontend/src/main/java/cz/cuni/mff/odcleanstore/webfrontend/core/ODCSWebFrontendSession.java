@@ -7,13 +7,13 @@ import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.request.Request;
 
-public class WicketSession extends AuthenticatedWebSession
+public class ODCSWebFrontendSession extends AuthenticatedWebSession
 {
 	private static final long serialVersionUID = 1L;
 	
 	private User user;
 	
-	public WicketSession(Request request) 
+	public ODCSWebFrontendSession(Request request) 
 	{
 		super(request);
 		
@@ -24,9 +24,9 @@ public class WicketSession extends AuthenticatedWebSession
 	 * 
 	 * @return
 	 */
-	public static WicketSession get()
+	public static ODCSWebFrontendSession get()
 	{
-		return (WicketSession) Session.get();
+		return (ODCSWebFrontendSession) Session.get();
 	}
 
 	/**

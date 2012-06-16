@@ -1,6 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages;
 
-import cz.cuni.mff.odcleanstore.webfrontend.core.WicketApplication;
+import cz.cuni.mff.odcleanstore.webfrontend.core.ODCSWebFrontendApplication;
 
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.Before;
@@ -16,7 +16,7 @@ public class TestHomePage
 	@Before
 	public void setUp()
 	{
-		tester = new WicketTester(new WicketApplication());
+		tester = new WicketTester(new ODCSWebFrontendApplication());
 	}
 
 	@Test

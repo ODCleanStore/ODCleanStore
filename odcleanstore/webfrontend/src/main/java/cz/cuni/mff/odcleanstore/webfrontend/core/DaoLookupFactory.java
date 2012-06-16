@@ -156,7 +156,7 @@ public class DaoLookupFactory implements Serializable
 	{
 		return (T)LazyInitProxyFactory.createProxy(
 			beanClass, 
-			new SpringBeanLocator(beanName, beanClass, WicketApplication.CTX_LOCATOR)
+			new SpringBeanLocator(beanName, beanClass, ODCSWebFrontendApplication.CTX_LOCATOR)
 		);
 	}
 }

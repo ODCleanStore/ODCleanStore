@@ -2,7 +2,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages;
 
 import cz.cuni.mff.odcleanstore.util.ArrayUtils;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
-import cz.cuni.mff.odcleanstore.webfrontend.core.WicketSession;
+import cz.cuni.mff.odcleanstore.webfrontend.core.ODCSWebFrontendSession;
 
 import org.apache.wicket.Page;
 import org.apache.wicket.RestartResponseAtInterceptPageException;
@@ -34,7 +34,7 @@ public class UserPanel extends Panel
 	
 	private void addRolesListLabel()
 	{
-		User user = WicketSession.get().getUser();
+		User user = ODCSWebFrontendSession.get().getUser();
 		String rolesList = user == null ? "" : formatRolesList(user);
 		
 		add(new Label("rolesList", rolesList));		
@@ -52,7 +52,7 @@ public class UserPanel extends Panel
 			@Override
 			public boolean isVisible()
 			{
-				return WicketSession.get().isAuthenticated();
+				return ODCSWebFrontendSession.get().isAuthenticated();
 			}
 		});
 	}
@@ -70,7 +70,7 @@ public class UserPanel extends Panel
 			@Override
 			public boolean isVisible()
 			{
-				return !WicketSession.get().isAuthenticated();
+				return !ODCSWebFrontendSession.get().isAuthenticated();
 			}
 		});
 	}
