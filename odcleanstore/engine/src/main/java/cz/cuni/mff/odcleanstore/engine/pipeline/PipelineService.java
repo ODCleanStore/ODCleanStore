@@ -3,6 +3,8 @@ package cz.cuni.mff.odcleanstore.engine.pipeline;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -211,18 +213,28 @@ public final class PipelineService extends Service implements Runnable {
 			}
 		}
 	}
+	
+	private Transformer loadCustomTransformer(TransformerCommand transformerCommand) throws Exception {
+		
+		URL url = new File(transformerCommand.getJarPath()).toURL(); 
+		URLClassLoader loader = new URLClassLoader(new URL[]{url}, getClass().getClassLoader());
+		Class<?> trida = Class.forName(transformerCommand.getFullClassName(), true, loader);
+		Object obj = trida.getConstructor(new Class[]{}).newInstance(new Object[]{});
+		return  obj instanceof Transformer ? (Transformer) obj : null;
+	}
 
 	private void processTransformer(TransformerCommand transformerCommand, TransformedGraphImpl transformedGraphImpl) throws Exception {
-		if (!transformerCommand.getJarPath().equals(".")) {
-			throw new PipelineException("Prototype - Custom transformers not supported");
-		}
-
 		Transformer transformer = null;
-
-		if (transformerCommand.getFullClassName().equals("cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl")) {
-			transformer = new cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl();
-		} else if (transformerCommand.getFullClassName().equals("cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl")) {
-			transformer = new cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl();
+		
+		if (!transformerCommand.getJarPath().equals(".")) {
+			transformer = loadCustomTransformer(transformerCommand);
+		}
+		else {
+			if (transformerCommand.getFullClassName().equals("cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl")) {
+				transformer = new cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl();
+			} else if (transformerCommand.getFullClassName().equals("cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl")) {
+				transformer = new cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl();
+			}	
 		}
 
 		if (transformer != null) {
@@ -234,7 +246,6 @@ public final class PipelineService extends Service implements Runnable {
 			LOG.info(String.format("PipelineService ends proccesing %s transformer on graph %s", transformerCommand.getFullClassName(), transformedGraphImpl.getGraphId()));
 			_workingInputGraphStatus.setWorkingTransformedGraph(null);
 		} else {
-			// throw new PipelineException("Prototype - Unknown transformer");
 			LOG.warn(String.format("PipelineService - unknown transformer %s ignored", transformerCommand.getFullClassName()));
 		}
 	}
