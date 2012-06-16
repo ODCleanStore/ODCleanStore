@@ -40,7 +40,7 @@ public class ManageQARuleRestrictionsPage extends FrontendPage
 		//
 		final QARule rule = qaRuleDao.load(ruleId);
 		
-		addRuleInformationSection(rule);
+		addRuleInformationSection(ruleId);
 		addRestrictionsSection(rule);
 	}
 
@@ -50,9 +50,9 @@ public class ManageQARuleRestrictionsPage extends FrontendPage
 	 	=======================================================================
 	*/
 
-	private void addRuleInformationSection(final QARule rule)
+	private void addRuleInformationSection(final Long ruleId)
 	{
-		setDefaultModel(new CompoundPropertyModel<QARule>(rule));
+		setDefaultModel(createModelForOverview(qaRuleDao, ruleId));
 		
 		add(new Label("description"));
 		add(new Label("filter"));

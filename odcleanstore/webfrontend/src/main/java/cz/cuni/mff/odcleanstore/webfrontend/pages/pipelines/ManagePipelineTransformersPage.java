@@ -7,6 +7,8 @@ import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
@@ -37,10 +39,8 @@ public class ManagePipelineTransformersPage extends FrontendPage
 		
 		// register page components
 		//
-		final Pipeline pipeline = pipelineDao.load(pipelineId);
-		
-		addPipelineInformationSection(pipeline);
-		addAssignmentSection(pipeline);
+		addPipelineInformationSection(pipelineId);
+		addAssignmentSection(pipelineId);
 	}
 
 	/*
@@ -49,9 +49,9 @@ public class ManagePipelineTransformersPage extends FrontendPage
 	 	=======================================================================
 	*/
 
-	private void addPipelineInformationSection(final Pipeline pipeline)
+	private void addPipelineInformationSection(final Long pipelineId)
 	{
-		setDefaultModel(new CompoundPropertyModel<Pipeline>(pipeline));
+		setDefaultModel(createModelForOverview(pipelineDao, pipelineId));
 		
 		add(new Label("label"));
 		add(new Label("description"));
@@ -64,24 +64,33 @@ public class ManagePipelineTransformersPage extends FrontendPage
 	 	=======================================================================
 	*/
 	
-	private void addAssignmentSection(Pipeline pipeline) 
+	private void addAssignmentSection(final Long pipelineId) 
 	{
 		add(
 			createGoToPageButton(
 				NewAssignmentPage.class, 
-				pipeline.getId(), 
+				pipelineId, 
 				"newAssignmentLink"
 			)
 		);
 		
-		addAssignmentTable(pipeline);
+		addAssignmentTable(pipelineId);
 	}
 	
-	private void addAssignmentTable(final Pipeline pipeline) 
+	private void addAssignmentTable(final Long pipelineId) 
 	{
-		List<TransformerInstance> assignment = pipeline.getTransformers();
+		IModel<List<TransformerInstance>> model = new LoadableDetachableModel<List<TransformerInstance>>() 
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected List<TransformerInstance> load() 
+			{
+				return pipelineDao.load(pipelineId).getTransformers();
+			}
+		};
 		
-		ListView<TransformerInstance> listView = new ListView<TransformerInstance>("assignmentTable", assignment)
+		ListView<TransformerInstance> listView = new ListView<TransformerInstance>("assignmentTable", model)
 		{
 			private static final long serialVersionUID = 1L;
 			

@@ -12,6 +12,7 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 
 import java.util.List;
@@ -47,11 +48,20 @@ public class AggregationSettingsPage extends FrontendPage
 
 	private void addGlobalAggregationSettingsSection()
 	{
-		GlobalAggregationSettings settings = globalAggregationSettingsDao.load();
+		IModel<GlobalAggregationSettings> model = new LoadableDetachableModel<GlobalAggregationSettings>() 
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected GlobalAggregationSettings load() 
+			{
+				return globalAggregationSettingsDao.load();
+			}
+		};
 		
-		addDefaultAggregationTypeLabel(settings);
-		addDefaultMultivalueTypeLabel(settings);
-		addDefaultErrorStrategyLabel(settings);
+		addDefaultAggregationTypeLabel(model.getObject());
+		addDefaultMultivalueTypeLabel(model.getObject());
+		addDefaultErrorStrategyLabel(model.getObject());
 	}
 	
 	private void addDefaultAggregationTypeLabel(GlobalAggregationSettings settings)

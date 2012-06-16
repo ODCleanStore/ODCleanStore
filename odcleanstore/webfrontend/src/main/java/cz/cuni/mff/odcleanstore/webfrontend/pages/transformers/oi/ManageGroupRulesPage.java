@@ -36,11 +36,9 @@ public class ManageGroupRulesPage extends FrontendPage
 		oiRuleDao = daoLookupFactory.getDao(OIRuleDao.class);
 		
 		// register page components
-		//
-		OIRulesGroup group = oiRulesGroupDao.load(groupId);
-		
-		addGroupInformationSection(group);
-		addOIRulesSection(group.getId());
+		//		
+		addGroupInformationSection(groupId);
+		addOIRulesSection(groupId);
 	}
 
 	/*
@@ -49,9 +47,9 @@ public class ManageGroupRulesPage extends FrontendPage
 	 	=======================================================================
 	*/
 
-	private void addGroupInformationSection(final OIRulesGroup group)
+	private void addGroupInformationSection(final Long groupId)
 	{
-		setDefaultModel(new CompoundPropertyModel<OIRulesGroup>(group));
+		setDefaultModel(createModelForOverview(oiRulesGroupDao, groupId));
 		
 		add(new Label("label"));
 		add(new Label("description"));
