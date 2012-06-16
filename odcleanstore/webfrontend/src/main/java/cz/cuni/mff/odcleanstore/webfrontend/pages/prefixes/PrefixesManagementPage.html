@@ -1,0 +1,32 @@
+<wicket:extend>
+
+<h2>Registered prefixes</h2>
+
+<wicket:link>
+<div>
+	<a class="placedright" href="NewPrefixPage.html">Add a new prefix</a>
+	<div class="clear">&nbsp;</div>
+</div>
+</wicket:link>
+
+<table border="1">
+	
+	<tr>
+		<th>Prefix</th>
+		<th>URL</th>
+		<th>Action</th>
+	</tr>
+	
+	<tr  wicket:id="prefixesTable">
+	
+		<td wicket:id="prefix">[prefix]</td>
+		<td wicket:id="url">[url]</td>
+		
+		<td class="centered">
+			<input wicket:id="deletePrefix" type="button" value="Delete" />
+		</td>
+	</tr>
+	
+</table>
+
+</wicket:extend>

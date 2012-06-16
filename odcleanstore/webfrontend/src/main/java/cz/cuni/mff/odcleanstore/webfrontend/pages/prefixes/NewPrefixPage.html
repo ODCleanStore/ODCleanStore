@@ -1,0 +1,22 @@
+<wicket:extend>
+
+<wicket:link>
+<div>
+	<a class="placedright" href="PrefixesManagementPage.html">Back to the list of registered prefixes</a>
+	<div class="clear">&nbsp;</div>
+</div>
+</wicket:link>
+
+<form wicket:id="newPrefixForm">
+	<p>
+		<label for="prefix">Prefix:</label>
+		<input wicket:id="prefix" id="prefix" type="text" class="required" />
+	</p>
+	<p>
+		<label for="url">URI:</label>
+		<input wicket:id="url" id="url" type="text" class="required" />
+	</p>
+	<input type="submit" value="Submit" />
+</form>
+
+</wicket:extend>
