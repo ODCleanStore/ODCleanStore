@@ -19,26 +19,30 @@
 		<div id="menu">
 			<wicket:link>
 			<ul>
-				<li><a href="HomePage.html">Home</a></li>
-				<li><a href="useraccounts/UserAccountsPage.html">User accounts management</a></li>
 				<li>
-					<a href="pipelines/PipelinesConfigurationPage.html">Pipelines configuration</a>
+					<a href="HomePage.html">Home</a>
+				</li>
+				<li>
+					<a href="useraccounts/UserAccountsPage.html">User accounts</a>
+				</li>
+				<li>
+					Backend
 					<ul>
-						<li><a href="pipelines/TransformersManagementPage.html">Transformers configuration</a></li>
-						<li><a href="pipelines/PipelinesManagementPage.html">Pipelines configuration</a></li>
+						<li><a href="pipelines/PipelinesManagementPage.html">Pipelines</a></li>
+						<li><a href="pipelines/TransformersManagementPage.html">Transformers</a></li>
+						<li>
+							Rules
+							<ul>
+								<li><a href="transformers/oi/OIRulesManagementPage.html">OI</a></li>
+								<li><a href="transformers/qa/QARulesManagementPage.html">QA</a></li>
+							</ul>
+						</li>
 					</ul>
 				</li>
 				<li>
-					<a href="transformers/TransformersConfigurationPage.html">Transformers configuration</a>
+					<a href="outputws/OutputWSPage.html">Output webservice</a>
 					<ul>
-						<li><a href="transformers/oi/OIRulesManagementPage.html">OI configuration</a></li>
-						<li><a href="transformers/qa/QARulesManagementPage.html">QA configuration</a></li>
-					</ul>
-				</li>
-				<li>
-					<a href="outputws/OutputWSPage.html">Output webservice configuration</a>
-					<ul>
-						<li><a href="outputws/AggregationSettingsPage.html">Aggregation settings</a></li>
+						<li><a href="outputws/AggregationSettingsPage.html">Aggregation</a></li>
 					</ul>
 				</li>
 			</ul>
