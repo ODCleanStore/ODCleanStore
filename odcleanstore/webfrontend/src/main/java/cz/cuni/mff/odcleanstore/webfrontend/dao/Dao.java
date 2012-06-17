@@ -83,6 +83,14 @@ public abstract class Dao<T extends BusinessObject>
 		return (T) jdbcTemplate.queryForObject(query, params, getRowMapper());
 	}
 	
+	public T loadRawBy(String columnName, String value)
+	{
+		String query = "SELECT * FROM " + getTableName() + " WHERE " + columnName + " = ?";
+		Object[] params = { value };
+		
+		return (T) jdbcTemplate.queryForObject(query, params, getRowMapper());
+	}
+	
 	/**
 	 * Deletes the given item in the database.
 	 * 
