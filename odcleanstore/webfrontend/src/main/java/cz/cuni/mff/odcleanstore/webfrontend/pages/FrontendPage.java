@@ -83,8 +83,8 @@ public abstract class FrontendPage extends WebPage
 	protected <EnumBO extends BusinessObject> DropDownChoice<EnumBO> createEnumSelectbox(
 		Dao<EnumBO> dao, String componentName, boolean required)
 	{
-		// load all enum items
-		List<EnumBO> allItems = dao.loadAll();
+		// create the model
+		IModel<List<EnumBO>> model = createModelForListView(dao);
 		
 		// prepare the select-box renderer
 		ChoiceRenderer<EnumBO> renderer = new ChoiceRenderer<EnumBO>("label", "id");
@@ -93,7 +93,7 @@ public abstract class FrontendPage extends WebPage
 		DropDownChoice<EnumBO> selectBox = new DropDownChoice<EnumBO>
 		(
 			componentName,
-			allItems,
+			model,
 			renderer
 		);
 		
