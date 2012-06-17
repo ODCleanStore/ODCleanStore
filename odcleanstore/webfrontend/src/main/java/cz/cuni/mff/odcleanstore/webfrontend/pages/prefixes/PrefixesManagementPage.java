@@ -1,25 +1,24 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.prefixes;
 
-import java.util.List;
-
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
+import org.apache.wicket.markup.repeater.Item;
+import org.apache.wicket.markup.repeater.data.DataView;
+import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.prefixes.PrefixMapping;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.prefixes.Prefix;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.prefixes.PrefixMappingDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.prefixes.PrefixDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 public class PrefixesManagementPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 	
-	private Dao<PrefixMapping> prefixMappingDao;
+	private Dao<Prefix> prefixMappingDao;
 	
 	public PrefixesManagementPage() 
 	{
@@ -31,7 +30,7 @@ public class PrefixesManagementPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		prefixMappingDao = daoLookupFactory.getDao(PrefixMappingDao.class);
+		prefixMappingDao = daoLookupFactory.getDao(PrefixDao.class);
 		
 		// register page components
 		//
@@ -46,19 +45,19 @@ public class PrefixesManagementPage extends FrontendPage
 	
 	private void addPrefixesTable()
 	{
-		IModel<List<PrefixMapping>> model = createModelForListView(prefixMappingDao);
+		IDataProvider<Prefix> data = new PrefixDataProvider(prefixMappingDao);
 		
-		ListView<PrefixMapping> listView = new ListView<PrefixMapping>("prefixesTable", model)
+		DataView<Prefix> dataView = new DataView<Prefix>("prefixesTable", data)
 		{
 			private static final long serialVersionUID = 1L;
-			
+
 			@Override
-			protected void populateItem(ListItem<PrefixMapping> item) 
+			protected void populateItem(final Item<Prefix> item) 
 			{
-				final PrefixMapping mapping = item.getModelObject();
+				Prefix mapping = item.getModelObject();
 				
-				item.setModel(new CompoundPropertyModel<PrefixMapping>(mapping));
-	
+				item.setModel(new CompoundPropertyModel<Prefix>(mapping));
+				
 				item.add(new Label("prefix"));
 				item.add(new Label("url"));
 				
@@ -66,10 +65,14 @@ public class PrefixesManagementPage extends FrontendPage
 			}
 		};
 		
-		add(listView);
+		dataView.setItemsPerPage(10);
+
+		add(dataView);
+		
+		add(new PagingNavigator("navigator", dataView));
 	}
 	
-	private Link createDeletePrefixButton(final PrefixMapping mapping)
+	private Link createDeletePrefixButton(final Prefix mapping)
 	{
 		Link button = new Link("deletePrefix")
 	    {

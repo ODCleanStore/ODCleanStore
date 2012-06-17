@@ -5,10 +5,10 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.prefixes.PrefixMapping;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.prefixes.Prefix;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.prefixes.PrefixMappingDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.prefixes.PrefixDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.validators.IRIValidator;
 
@@ -16,7 +16,7 @@ public class NewPrefixPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private Dao<PrefixMapping> prefixMappingDao;
+	private Dao<Prefix> prefixMappingDao;
 	
 	public NewPrefixPage() 
 	{
@@ -29,7 +29,7 @@ public class NewPrefixPage extends FrontendPage
 
 		// prepare DAO objects
 		//
-		prefixMappingDao = daoLookupFactory.getDao(PrefixMappingDao.class);
+		prefixMappingDao = daoLookupFactory.getDao(PrefixDao.class);
 		
 		// register page components
 		//
@@ -38,16 +38,16 @@ public class NewPrefixPage extends FrontendPage
 	
 	private void addNewPrefixForm()
 	{
-		IModel<PrefixMapping> formModel = new CompoundPropertyModel<PrefixMapping>(new PrefixMapping());
+		IModel<Prefix> formModel = new CompoundPropertyModel<Prefix>(new Prefix());
 		
-		Form<PrefixMapping> form = new Form<PrefixMapping>("newPrefixForm", formModel)
+		Form<Prefix> form = new Form<Prefix>("newPrefixForm", formModel)
 		{
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected void onSubmit()
 			{
-				PrefixMapping mapping = this.getModelObject();
+				Prefix mapping = this.getModelObject();
 				
 				try {
 					prefixMappingDao.save(mapping);
