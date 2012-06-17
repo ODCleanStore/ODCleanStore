@@ -2,18 +2,18 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.prefixes;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.prefixes.PrefixMapping;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.prefixes.Prefix;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 
-public class PrefixMappingDao extends Dao<PrefixMapping>
+public class PrefixDao extends Dao<Prefix>
 {
 	public static final String TABLE_NAME = "DB.DBA.SYS_XML_PERSISTENT_NS_DECL";
 	
-	private ParameterizedRowMapper<PrefixMapping> rowMapper;
+	private ParameterizedRowMapper<Prefix> rowMapper;
 	
-	public PrefixMappingDao()
+	public PrefixDao()
 	{
-		this.rowMapper = new PrefixMappingRowMapper();
+		this.rowMapper = new PrefixRowMapper();
 	}
 	
 	@Override
@@ -23,13 +23,13 @@ public class PrefixMappingDao extends Dao<PrefixMapping>
 	}
 
 	@Override
-	protected ParameterizedRowMapper<PrefixMapping> getRowMapper() 
+	protected ParameterizedRowMapper<Prefix> getRowMapper() 
 	{
 		return rowMapper;
 	}
 	
 	@Override
-	public PrefixMapping load(Long id)
+	public Prefix load(Long id)
 	{
 		throw new UnsupportedOperationException(
 			"Cannot load rows from table: " + getTableName() + " by id."
@@ -37,7 +37,7 @@ public class PrefixMappingDao extends Dao<PrefixMapping>
 	}
 	
 	@Override
-	public PrefixMapping loadRaw(Long id)
+	public Prefix loadRaw(Long id)
 	{
 		throw new UnsupportedOperationException(
 			"Cannot load raw rows from table: " + getTableName() + " by id."
@@ -53,7 +53,7 @@ public class PrefixMappingDao extends Dao<PrefixMapping>
 	}
 	
 	@Override
-	public void delete(PrefixMapping item)
+	public void delete(Prefix item)
 	{
 		String query = "DELETE FROM " + TABLE_NAME + " WHERE NS_PREFIX = ?";
 		Object[] params = { item.getPrefix() };
@@ -62,7 +62,7 @@ public class PrefixMappingDao extends Dao<PrefixMapping>
 	}
 	
 	@Override
-	public void save(PrefixMapping item)
+	public void save(Prefix item)
 	{
 		String query = "INSERT INTO " + TABLE_NAME + " (NS_PREFIX, NS_URL) VALUES (?, ?)";
 		Object[] params = { item.getPrefix(), item.getUrl() };
