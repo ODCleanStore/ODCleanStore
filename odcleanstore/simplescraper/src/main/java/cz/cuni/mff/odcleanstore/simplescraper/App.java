@@ -34,6 +34,15 @@ public class App {
 			fis.read(buf);
 			String payload = new String(buf, "UTF-8");
 			payload = payload.substring(payload.indexOf('<'));
+			
+			if (args.length > 2) {
+				FileInputStream fis2 = new FileInputStream(args[2]);
+				byte[] buf2 = new byte[fis2.available()];
+				fis2.read(buf2);
+				String provenancePayload = new String(buf2, "UTF-8");
+				provenancePayload = provenancePayload.substring(payload.indexOf('<'));
+				metadata.setRdfXmlProvenance(provenancePayload);
+			}
 
 			sc.insert("scraper", "reparcs", metadata, payload);
 		} catch (Exception e) {
