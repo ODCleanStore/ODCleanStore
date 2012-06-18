@@ -44,6 +44,11 @@ public final class ODCS {
      * Property linking a named graph to its conflict resolution quality estimate.
      */
     public static final String quality = "http://opendata.cz/infrastructure/odcleanstore/quality";
-
+    
+    /**
+     * Property linking a data graph to its metadata graph. 
+     */
+    public static final String metadataGraph = "http://opendata.cz/infrastructure/odcleanstore/metadataGraph";
+    
     // CHECKSTYLE:ON
 }
