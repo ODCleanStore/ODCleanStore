@@ -10,6 +10,7 @@ public class DetachableModel<BO extends BusinessObject> extends LoadableDetachab
 	private static final long serialVersionUID = 1L;
 	
 	private Dao<BO> dao;
+	private BO item;
 	private Long id;
 	
 	/**
@@ -28,12 +29,18 @@ public class DetachableModel<BO extends BusinessObject> extends LoadableDetachab
 	 */
 	public DetachableModel(Dao<BO> dao, BO item)
 	{
-		this(dao, item.getId());
+		this.item = item;
+		
+		this.dao = dao;
+		this.id = item.getId();
 	}
 	
 	@Override
 	protected BO load() 
 	{
-		return dao.load(id);
+		if (item == null)
+			item = dao.load(id);
+		
+		return item;
 	}
 }

@@ -10,15 +10,16 @@ public class DetachablePrefixModel extends LoadableDetachableModel<Prefix>
 	private static final long serialVersionUID = 1L;
 	
 	private Dao<Prefix> dao;
-	private String prefix;
+	private Prefix item;
+	private String id;
 	
 	/**
 	 * 
 	 */
-	public DetachablePrefixModel(Dao<Prefix> dao, String prefix)
+	public DetachablePrefixModel(Dao<Prefix> dao, String id)
 	{
 		this.dao = dao;
-		this.prefix = prefix;
+		this.id = id;
 	}
 	
 	/**
@@ -28,12 +29,18 @@ public class DetachablePrefixModel extends LoadableDetachableModel<Prefix>
 	 */
 	public DetachablePrefixModel(Dao<Prefix> dao, Prefix item)
 	{
-		this(dao, item.getPrefix());
+		this.item = item;
+		
+		this.dao = dao;
+		this.id = item.getPrefix();
 	}
 	
 	@Override
 	protected Prefix load() 
 	{
-		return dao.loadRawBy("NS_PREFIX", prefix);
+		if (item == null)
+			item = dao.loadRawBy("NS_PREFIX", id);
+		
+		return item;
 	}
 }

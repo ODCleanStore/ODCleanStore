@@ -10,6 +10,8 @@ import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 public class AggregationTypeDao extends Dao<AggregationType>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "CR_AGGREGATION_TYPES";
+
+	private static final long serialVersionUID = 1L;
 	
 	private ParameterizedRowMapper<AggregationType> rowMapper;
 	

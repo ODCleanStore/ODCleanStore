@@ -33,7 +33,7 @@ public class PublisherDaoTest extends DaoTest
 		DataSource dataSource = (DataSource) ctx.getBean("dataSource");
 		
 		publisherDao = new PublisherDao();
-		publisherDao.setDataSource(dataSource);
+		// TODO: publisherDao.setDataSource(dataSource);
 	}
 	
 	@Override

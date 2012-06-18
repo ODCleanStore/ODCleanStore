@@ -30,7 +30,7 @@ public class QARuleDaoTest extends DaoTest
 		DataSource dataSource = (DataSource) ctx.getBean("dataSource");
 		
 		ruleDao = new QARuleDao();
-		ruleDao.setDataSource(dataSource);
+		// TODO: ruleDao.setDataSource(dataSource);
 	}
 	
 	@Override

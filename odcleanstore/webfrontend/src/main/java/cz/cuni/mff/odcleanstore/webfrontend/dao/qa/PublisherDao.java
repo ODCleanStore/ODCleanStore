@@ -41,7 +41,7 @@ public class PublisherDao extends Dao<Publisher>
 			item.getUri()
 		};
 		
-		jdbcTemplate.update(query, params);
+		getJdbcTemplate().update(query, params);
 	}
 	
 	@Override
@@ -56,7 +56,7 @@ public class PublisherDao extends Dao<Publisher>
 		String query = "DELETE FROM " + QARuleDao.RESTRICTIONS_TABLE_NAME + " WHERE publisherId = ?";
 		Object[] params = { item.getId() };
 		
-		jdbcTemplate.update(query, params);
+		getJdbcTemplate().update(query, params);
 	}
 	
 	@Override

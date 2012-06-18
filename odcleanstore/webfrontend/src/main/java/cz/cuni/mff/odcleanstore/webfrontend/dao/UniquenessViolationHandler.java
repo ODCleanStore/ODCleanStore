@@ -2,8 +2,9 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao;
 
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.UniquenessViolationException;
 
-public class UniquenessViolationHandler extends DaoExceptionHandler
+public class UniquenessViolationHandler extends DaoExceptionHandler 
 {
+	private static final long serialVersionUID = 1L;
 
 	@Override
 	public boolean comprisesException(String relevantMessagePart)

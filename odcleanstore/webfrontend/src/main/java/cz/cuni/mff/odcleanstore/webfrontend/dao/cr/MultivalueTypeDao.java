@@ -11,6 +11,8 @@ public class MultivalueTypeDao extends Dao<MultivalueType>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "CR_MULTIVALUE_TYPES";
 
+	private static final long serialVersionUID = 1L;
+	
 	private ParameterizedRowMapper<MultivalueType> rowMapper;
 	
 	public MultivalueTypeDao()

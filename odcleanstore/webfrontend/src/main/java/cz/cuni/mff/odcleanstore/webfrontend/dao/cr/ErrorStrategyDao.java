@@ -11,6 +11,8 @@ public class ErrorStrategyDao extends Dao<ErrorStrategy>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "CR_ERROR_STRATEGIES";
 
+	private static final long serialVersionUID = 1L;
+	
 	private ParameterizedRowMapper<ErrorStrategy> rowMapper;
 	
 	public ErrorStrategyDao()

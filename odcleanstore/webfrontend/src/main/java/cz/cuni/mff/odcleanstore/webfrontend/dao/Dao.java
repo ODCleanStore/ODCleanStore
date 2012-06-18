@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessObject;
+import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
 
 import javax.sql.DataSource;
 
@@ -11,6 +12,7 @@ import org.springframework.transaction.support.AbstractPlatformTransactionManage
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -19,32 +21,53 @@ import java.util.List;
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
-public abstract class Dao<T extends BusinessObject>
+public abstract class Dao<T extends BusinessObject> implements Serializable
 {
 	public static final String TABLE_NAME_PREFIX = "DB.ODCLEANSTORE.";
 	
+	private static final long serialVersionUID = 1L;
+		
 	private static Logger logger = Logger.getLogger(Dao.class);
 	
-	protected JdbcTemplate jdbcTemplate;
-	protected TransactionTemplate transactionTemplate;
+	private DaoLookupFactory lookupFactory;
 	
-	/**
-	 * 
-	 * @param dataSource
-	 */
-	public void setDataSource(DataSource dataSource)
+	private transient JdbcTemplate jdbcTemplate;
+	private transient TransactionTemplate transactionTemplate;
+	
+	public void setDaoLookupFactory(DaoLookupFactory lookupFactory)
 	{
-		this.jdbcTemplate = new JdbcTemplate(dataSource);
+		this.lookupFactory = lookupFactory;
 	}
 	
 	/**
 	 * 
-	 * @param transactionManager
+	 * @return
 	 */
-	public void setTransactionManager(AbstractPlatformTransactionManager transactionManager)
+	protected JdbcTemplate getJdbcTemplate()
 	{
-		this.transactionTemplate = new TransactionTemplate(transactionManager);
-		this.transactionTemplate.setPropagationBehavior(DefaultTransactionDefinition.PROPAGATION_REQUIRED);
+		if (jdbcTemplate == null)
+		{
+			DataSource dataSource = lookupFactory.getDataSource();
+			jdbcTemplate = new JdbcTemplate(dataSource);
+		}
+		
+		return jdbcTemplate;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	protected TransactionTemplate getTransactionTemplate()
+	{
+		if (transactionTemplate == null)
+		{
+			AbstractPlatformTransactionManager manager = lookupFactory.getTransactionManager();
+			transactionTemplate = new TransactionTemplate(manager);
+			transactionTemplate.setPropagationBehavior(DefaultTransactionDefinition.PROPAGATION_REQUIRED);
+		}
+		
+		return transactionTemplate;
 	}
 	
 	/**
@@ -61,7 +84,7 @@ public abstract class Dao<T extends BusinessObject>
 	public List<T> loadAllRaw()
 	{
 		String query = "SELECT * FROM " + getTableName();
-		return jdbcTemplate.query(query, getRowMapper());
+		return getJdbcTemplate().query(query, getRowMapper());
 	}
 	
 	/**
@@ -80,7 +103,7 @@ public abstract class Dao<T extends BusinessObject>
 		String query = "SELECT * FROM " + getTableName() + " WHERE id = ?";
 		Object[] params = { id };
 		
-		return (T) jdbcTemplate.queryForObject(query, params, getRowMapper());
+		return (T) getJdbcTemplate().queryForObject(query, params, getRowMapper());
 	}
 	
 	public T loadRawBy(String columnName, String value)
@@ -88,7 +111,7 @@ public abstract class Dao<T extends BusinessObject>
 		String query = "SELECT * FROM " + getTableName() + " WHERE " + columnName + " = ?";
 		Object[] params = { value };
 		
-		return (T) jdbcTemplate.queryForObject(query, params, getRowMapper());
+		return (T) getJdbcTemplate().queryForObject(query, params, getRowMapper());
 	}
 	
 	/**
@@ -108,7 +131,7 @@ public abstract class Dao<T extends BusinessObject>
 		String query = "DELETE FROM " + getTableName() + " WHERE id = ?";
 		Object[] params = { id };
 		
-		jdbcTemplate.update(query, params);
+		getJdbcTemplate().update(query, params);
 	}
 	
 	/**

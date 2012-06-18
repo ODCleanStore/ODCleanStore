@@ -53,6 +53,6 @@ public class OIRuleDao extends Dao<OIRule>
 			item.getDefinition()
 		};
 		
-		jdbcTemplate.update(query, params);
+		getJdbcTemplate().update(query, params);
 	}
 }

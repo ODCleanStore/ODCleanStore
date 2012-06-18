@@ -8,6 +8,8 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 public class PrefixDao extends Dao<Prefix>
 {
 	public static final String TABLE_NAME = "DB.DBA.SYS_XML_PERSISTENT_NS_DECL";
+
+	private static final long serialVersionUID = 1L;
 	
 	private ParameterizedRowMapper<Prefix> rowMapper;
 	
@@ -58,7 +60,7 @@ public class PrefixDao extends Dao<Prefix>
 		String query = "DELETE FROM " + TABLE_NAME + " WHERE NS_PREFIX = ?";
 		Object[] params = { item.getPrefix() };
 		
-		jdbcTemplate.update(query, params);
+		getJdbcTemplate().update(query, params);
 	}
 	
 	@Override
@@ -67,6 +69,6 @@ public class PrefixDao extends Dao<Prefix>
 		String query = "INSERT INTO " + TABLE_NAME + " (NS_PREFIX, NS_URL) VALUES (?, ?)";
 		Object[] params = { item.getPrefix(), item.getUrl() };
 		
-		jdbcTemplate.update(query, params);
+		getJdbcTemplate().update(query, params);
 	}
 }

@@ -5,14 +5,14 @@ import java.util.HashMap;
 
 import javax.sql.DataSource;
 
+import cz.cuni.mff.odcleanstore.util.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.SafetyDaoDecorator;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.GlobalAggregationSettingsDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.log4j.Logger;
-import org.apache.wicket.proxy.LazyInitProxyFactory;
-import org.apache.wicket.spring.SpringBeanLocator;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.support.AbstractPlatformTransactionManager;
 
@@ -28,8 +28,11 @@ public class DaoLookupFactory implements Serializable
 	
 	private static Logger logger = Logger.getLogger(DaoLookupFactory.class);
 	
-	private DataSource dataSource;
-	private AbstractPlatformTransactionManager transactionManager;
+	private JDBCConnectionCredentials connectionCoords;
+	
+	private transient DataSource dataSource;
+	private transient AbstractPlatformTransactionManager transactionManager;
+	
 	private HashMap<Class<? extends Dao>, Dao> daos;
 	
 	private GlobalAggregationSettingsDao globalAggregationSettingsDao;
@@ -38,11 +41,10 @@ public class DaoLookupFactory implements Serializable
 	/**
 	 * 
 	 */
-	public DaoLookupFactory()
+	public DaoLookupFactory(JDBCConnectionCredentials connectionCoords)
 	{
-		dataSource = createProxy("dataSource", DataSource.class);
-		transactionManager = new DataSourceTransactionManager(dataSource);
-		daos = new HashMap<Class<? extends Dao>, Dao>();
+		this.connectionCoords = connectionCoords;
+		this.daos = new HashMap<Class<? extends Dao>, Dao>();
 	}
 	
 	/**
@@ -106,10 +108,40 @@ public class DaoLookupFactory implements Serializable
 			);
 		}
 
-		daoInstance.setDataSource(dataSource);
-		daoInstance.setTransactionManager(transactionManager);
+		daoInstance.setDaoLookupFactory(this);
 		
 		return daoInstance;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public DataSource getDataSource()
+	{
+		if (dataSource == null)
+		{
+			dataSource = new BasicDataSource();
+			
+			((BasicDataSource) dataSource).setDriverClassName(connectionCoords.getDriverClassName());
+			((BasicDataSource) dataSource).setUrl(connectionCoords.getConnectionString());
+			((BasicDataSource) dataSource).setUsername(connectionCoords.getUsername());
+			((BasicDataSource) dataSource).setPassword(connectionCoords.getPassword());
+		}
+		
+		return dataSource;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public AbstractPlatformTransactionManager getTransactionManager()
+	{
+		if (transactionManager == null)
+			transactionManager = new DataSourceTransactionManager(getDataSource());
+		
+		return transactionManager;
 	}
 	
 	/**
@@ -120,10 +152,8 @@ public class DaoLookupFactory implements Serializable
 	{
 		if (globalAggregationSettingsDao == null)
 		{
-			globalAggregationSettingsDao = createProxy(
-				"globalAggregationSettingsDao", 
-				GlobalAggregationSettingsDao.class
-			);
+			globalAggregationSettingsDao = new GlobalAggregationSettingsDao();
+			globalAggregationSettingsDao.setDaoLookupFactory(this);
 		}
 		
 		return globalAggregationSettingsDao;
@@ -138,25 +168,9 @@ public class DaoLookupFactory implements Serializable
 		if (transformerInstanceDao == null)
 		{
 			transformerInstanceDao = new TransformerInstanceDao();
-			transformerInstanceDao.setDataSource(dataSource);
+			transformerInstanceDao.setDaoLookupFactory(this);
 		}
 		
 		return transformerInstanceDao;
-	}
-	
-	/**
-	 * Helper method to create a proxy of the bean. This is needed not to
-	 * serialize the whole Spring framework when storing a page to cache.
-	 * 
-	 * @param beanName
-	 * @param beanClass
-	 * @return
-	 */
-	private <T> T createProxy(String beanName, Class<T> beanClass)
-	{
-		return (T)LazyInitProxyFactory.createProxy(
-			beanClass, 
-			new SpringBeanLocator(beanName, beanClass, ODCSWebFrontendApplication.CTX_LOCATOR)
-		);
 	}
 }

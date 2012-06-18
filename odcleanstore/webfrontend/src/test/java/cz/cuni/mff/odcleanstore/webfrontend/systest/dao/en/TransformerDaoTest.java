@@ -33,7 +33,7 @@ public class TransformerDaoTest extends DaoTest
 		DataSource dataSource = (DataSource) ctx.getBean("dataSource");
 		
 		transformerDao = new TransformerDao();
-		transformerDao.setDataSource(dataSource);
+		// TODO: transformerDao.setDataSource(dataSource);
 	}
 	
 	@Override

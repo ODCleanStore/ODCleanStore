@@ -4,10 +4,7 @@ import org.apache.wicket.DefaultMapperContext;
 import org.apache.wicket.authroles.authentication.AbstractAuthenticatedWebSession;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebApplication;
 import org.apache.wicket.markup.html.WebPage;
-import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.mapper.IMapperContext;
-import org.apache.wicket.spring.ISpringContextLocator;
-import org.apache.wicket.util.lang.PackageName;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -29,14 +26,6 @@ public class ODCSWebFrontendApplication extends AuthenticatedWebApplication
 {
 	private static final String WEB_URL_PREFIX = "odcs-web-frontend";
 	private static final String SPRING_CONFIG_LOCATION = "./config/spring.xml";
-	
-	static ISpringContextLocator CTX_LOCATOR = new ISpringContextLocator() 
-	{	
-		public ApplicationContext getSpringContext() 
-		{
-			return ((ODCSWebFrontendApplication) ODCSWebFrontendApplication.get()).ctx;
-		}
-	};
 
 	/** Spring context */
 	private ApplicationContext ctx;
@@ -71,8 +60,9 @@ public class ODCSWebFrontendApplication extends AuthenticatedWebApplication
 		super.init();
 		
 		ctx = new ClassPathXmlApplicationContext(SPRING_CONFIG_LOCATION);
-		daoLookupFactory = new DaoLookupFactory();
+
 		configuration = (Configuration) ctx.getBean("appConfig");
+		daoLookupFactory = new DaoLookupFactory(configuration.getConnectionCoords());
 		
 		mountPage(WEB_URL_PREFIX + "/login", LogInPage.class);
 		mountPage(WEB_URL_PREFIX + "/user-accounts", UserAccountsPage.class);

@@ -46,7 +46,7 @@ public class TransformerDao extends Dao<Transformer>
 			item.getFullClassName()
 		};
 		
-		jdbcTemplate.update(query, params);
+		getJdbcTemplate().update(query, params);
 	}
 	
 	@Override
@@ -61,6 +61,6 @@ public class TransformerDao extends Dao<Transformer>
 		String query = "DELETE FROM " + TransformerInstanceDao.TABLE_NAME + " WHERE transformerId = ?";
 		Object[] params = { transformerId };
 
-		jdbcTemplate.update(query, params);
+		getJdbcTemplate().update(query, params);
 	}
 }

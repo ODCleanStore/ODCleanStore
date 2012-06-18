@@ -51,7 +51,7 @@ public class PipelineDao extends Dao<Pipeline>
 		
 		Object[] params = { pipelineId };
 		
-		return jdbcTemplate.query(query, params, new TransformerInstanceRowMapper());
+		return getJdbcTemplate().query(query, params, new TransformerInstanceRowMapper());
 	}
 	
 	@Override
@@ -68,7 +68,7 @@ public class PipelineDao extends Dao<Pipeline>
 			Boolean.FALSE
 		};
 		
-		jdbcTemplate.update(query, params);
+		getJdbcTemplate().update(query, params);
 	}
 	
 	@Override
@@ -84,7 +84,7 @@ public class PipelineDao extends Dao<Pipeline>
 	private void dropRunOnCleanDBForAllRows()
 	{
 		String query = "UPDATE " + TABLE_NAME + " SET runOnCleanDB = 0";
-		jdbcTemplate.update(query);
+		getJdbcTemplate().update(query);
 	}
 	
 	private void setRunOnCleanDB(Long pipelineId)
@@ -92,7 +92,7 @@ public class PipelineDao extends Dao<Pipeline>
 		String query = "UPDATE " + TABLE_NAME + " SET runOnCleanDB = 1 WHERE id = ?";
 		Object[] params = { pipelineId };
 		
-		jdbcTemplate.update(query, params);
+		getJdbcTemplate().update(query, params);
 	}
 	
 	@Override
@@ -107,6 +107,6 @@ public class PipelineDao extends Dao<Pipeline>
 		String query = "DELETE FROM " + TransformerInstanceDao.TABLE_NAME + " WHERE pipelineId = ?";
 		Object[] params = { pipelineId };
 
-		jdbcTemplate.update(query, params);
+		getJdbcTemplate().update(query, params);
 	}
 }

@@ -50,7 +50,7 @@ public class OIRulesGroupDao extends Dao<OIRulesGroup>
 		String query = "SELECT * FROM " + OIRuleDao.TABLE_NAME + " WHERE groupId = ?";
 		Object[] params = { groupId };
 		
-		return jdbcTemplate.query(query, params, new OIRuleRowMapper());
+		return getJdbcTemplate().query(query, params, new OIRuleRowMapper());
 	}
 	
 	@Override
@@ -64,7 +64,7 @@ public class OIRulesGroupDao extends Dao<OIRulesGroup>
 			item.getDescription()
 		};
 		
-		jdbcTemplate.update(query, params);
+		getJdbcTemplate().update(query, params);
 	}
 	
 	@Override
@@ -79,6 +79,6 @@ public class OIRulesGroupDao extends Dao<OIRulesGroup>
 		String query = "DELETE FROM " + OIRuleDao.TABLE_NAME + " WHERE groupId = ?";
 		Object[] params = { item.getId() };
 		
-		jdbcTemplate.update(query, params);
+		getJdbcTemplate().update(query, params);
 	}
 }

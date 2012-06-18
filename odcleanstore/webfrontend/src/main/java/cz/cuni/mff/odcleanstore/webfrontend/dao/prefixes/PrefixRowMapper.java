@@ -8,6 +8,8 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.CustomRowMapper;
 
 public class PrefixRowMapper extends CustomRowMapper<Prefix>
 {
+	private static final long serialVersionUID = 1L;
+	
 	public Prefix mapRow(ResultSet rs, int rowNum) throws SQLException 
 	{
 		return new Prefix

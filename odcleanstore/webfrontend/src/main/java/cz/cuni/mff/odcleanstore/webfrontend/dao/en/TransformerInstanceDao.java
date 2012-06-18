@@ -1,25 +1,42 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.en;
 
+import java.io.Serializable;
+
 import javax.sql.DataSource;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
+import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 
-public class TransformerInstanceDao 
+public class TransformerInstanceDao implements Serializable
 {
 	public static final String TABLE_NAME = Dao.TABLE_NAME_PREFIX + "TRANSFORMERS_TO_PIPELINES_ASSIGNMENT";
+
+	private static final long serialVersionUID = 1L;
 	
-	private JdbcTemplate jdbcTemplate;
+	private DaoLookupFactory lookupFactory;
+	private transient JdbcTemplate jdbcTemplate;
 	
 	/**
 	 * 
-	 * @param dataSource
+	 * @param lookupFactory
 	 */
-	public void setDataSource(DataSource dataSource)
+	public void setDaoLookupFactory(DaoLookupFactory lookupFactory)
 	{
-		jdbcTemplate = new JdbcTemplate(dataSource);
+		this.lookupFactory = lookupFactory;
+	}
+		
+	private JdbcTemplate getJdbcTemplate()
+	{
+		if (jdbcTemplate == null)
+		{
+			DataSource dataSource = lookupFactory.getDataSource();
+			jdbcTemplate = new JdbcTemplate(dataSource);
+		}
+		
+		return jdbcTemplate;
 	}
 	
 	public void delete(Long pipelineId, Long transformerId)
@@ -27,7 +44,7 @@ public class TransformerInstanceDao
 		String query = "DELETE FROM " + TABLE_NAME + " WHERE pipelineId = ? AND transformerId = ?";
 		Object[] params = { pipelineId, transformerId };
 		
-		jdbcTemplate.update(query, params);
+		getJdbcTemplate().update(query, params);
 	}
 	
 	public void save(TransformerInstance item)
@@ -45,6 +62,6 @@ public class TransformerInstanceDao
 			item.getPriority()
 		};
 		
-		jdbcTemplate.update(query, params);
+		getJdbcTemplate().update(query, params);
 	}
 }

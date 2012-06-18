@@ -53,7 +53,7 @@ public class PropertySettingsDao extends Dao<PropertySettings>
 			item.getAggregationType().getId()
 		};
 		
-		jdbcTemplate.update(query, arguments);
+		getJdbcTemplate().update(query, arguments);
 	}
 
 	@Override
@@ -67,7 +67,7 @@ public class PropertySettingsDao extends Dao<PropertySettings>
 			"JOIN " + MultivalueTypeDao.TABLE_NAME + " as MT " +
 			"ON P.multivalueTypeId = MT.id";
 		
-		return jdbcTemplate.query(query, getRowMapper());
+		return getJdbcTemplate().query(query, getRowMapper());
 	}
 
 	@Override

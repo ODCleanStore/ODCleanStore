@@ -7,7 +7,9 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.NonUniquePrimaryKeyEx
 
 public class NonUniquePrimaryKeyHandler extends DaoExceptionHandler
 {
-	private Logger logger = Logger.getLogger(NonUniquePrimaryKeyHandler.class);
+	private static final long serialVersionUID = 1L;
+	
+	private static Logger logger = Logger.getLogger(NonUniquePrimaryKeyHandler.class);
 	
 	@Override
 	public boolean comprisesException(String relevantMessagePart) 

@@ -72,7 +72,7 @@ public class UserDao extends Dao<User>
 			item.getSurname()
 		};
 		
-		jdbcTemplate.update(query, arguments);
+		getJdbcTemplate().update(query, arguments);
 	}
 
 	@Override
@@ -158,7 +158,7 @@ public class UserDao extends Dao<User>
 		String query = "SELECT * FROM " + getTableName() + " WHERE username = ?";
 		Object[] arguments = { username };
 
-		return (User) jdbcTemplate.queryForObject(query, arguments, getRowMapper());
+		return (User) getJdbcTemplate().queryForObject(query, arguments, getRowMapper());
 	}
 	
 	private Map<Long, User> fetchAllUsers()
@@ -186,7 +186,7 @@ public class UserDao extends Dao<User>
 		// fetch all roles
 		//
 		// TODO: doresit cross-DAO queries
-		List<Role> registeredRoles = jdbcTemplate.query
+		List<Role> registeredRoles = getJdbcTemplate().query
 		(
 			"SELECT * FROM DB.ODCLEANSTORE.ROLES", 
 			new RoleRowMapper()
@@ -206,7 +206,7 @@ public class UserDao extends Dao<User>
 	{
 		logger.debug("Fetching user-to-role mapping");
 		
-		return jdbcTemplate.query
+		return getJdbcTemplate().query
 		(
 			"SELECT * FROM " + PERMISSIONS_TABLE_NAME, 
 			new RolesAssignedToUsersRowMapping()
@@ -218,7 +218,7 @@ public class UserDao extends Dao<User>
 		String query = "SELECT * FROM " + PERMISSIONS_TABLE_NAME + " WHERE userId = ?";
 		Object[] arguments = { id };
 		
-		return jdbcTemplate.query(query, arguments, new RolesAssignedToUsersRowMapping());
+		return getJdbcTemplate().query(query, arguments, new RolesAssignedToUsersRowMapping());
 	}
 	
 	private void updateUserProperties(User user)
@@ -239,7 +239,7 @@ public class UserDao extends Dao<User>
 			user.getId()
 		};
 		
-		jdbcTemplate.update(query, arguments);
+		getJdbcTemplate().update(query, arguments);
 	}
 	
 	private void clearRolesMappingForUser(User user)
@@ -251,7 +251,7 @@ public class UserDao extends Dao<User>
 			user.getId()	
 		};
 		
-		jdbcTemplate.update(
+		getJdbcTemplate().update(
 			"DELETE FROM DB.ODCLEANSTORE.ROLES_ASSIGNED_TO_USERS WHERE userId = ?", 
 			arguments
 		);
@@ -271,7 +271,7 @@ public class UserDao extends Dao<User>
 				role.getId()
 			};
 			
-			jdbcTemplate.update(
+			getJdbcTemplate().update(
 				"INSERT INTO DB.ODCLEANSTORE.ROLES_ASSIGNED_TO_USERS VALUES (?, ?)", 
 				arguments
 			);

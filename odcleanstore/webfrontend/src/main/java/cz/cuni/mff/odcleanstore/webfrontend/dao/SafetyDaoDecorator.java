@@ -93,7 +93,7 @@ public class SafetyDaoDecorator<T extends BusinessObject> extends Dao<T>
 	{
 		try
 		{
-			dao.transactionTemplate.execute(new TransactionCallbackWithoutResult() 
+			dao.getTransactionTemplate().execute(new TransactionCallbackWithoutResult() 
 			{
 				@Override
 				protected void doInTransactionWithoutResult(TransactionStatus status) 

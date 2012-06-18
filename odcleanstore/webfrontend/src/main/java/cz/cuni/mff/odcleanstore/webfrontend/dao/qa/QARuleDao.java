@@ -58,7 +58,7 @@ public class QARuleDao extends Dao<QARule>
 			item.getCoefficient()
 		};
 		
-		jdbcTemplate.update(query, params);
+		getJdbcTemplate().update(query, params);
 	}
 
 	@Override
@@ -84,7 +84,7 @@ public class QARuleDao extends Dao<QARule>
 			item.getId()
 		};
 		
-		jdbcTemplate.update(query, params);
+		getJdbcTemplate().update(query, params);
 	}
 	
 	private void clearPublisherRestrictions(QARule item)
@@ -92,7 +92,7 @@ public class QARuleDao extends Dao<QARule>
 		String query = "DELETE FROM " + RESTRICTIONS_TABLE_NAME + " WHERE ruleId = ?";
 		Object[] params = { item.getId() };
 		
-		jdbcTemplate.update(query, params);
+		getJdbcTemplate().update(query, params);
 	}
 
 	private void insertCurrentPublisherRestrictions(QARule item)
@@ -108,7 +108,7 @@ public class QARuleDao extends Dao<QARule>
 		for (Publisher publisher : item.getPublisherRestrictions())
 		{
 			params[1] = publisher.getId();
-			jdbcTemplate.update(query, params);
+			getJdbcTemplate().update(query, params);
 		}
 	}
 	
@@ -133,7 +133,7 @@ public class QARuleDao extends Dao<QARule>
 			"FROM " + 
 				TABLE_NAME;
 		
-		List<QARule> rules = jdbcTemplate.query(query, new QARuleRowMapper());
+		List<QARule> rules = getJdbcTemplate().query(query, new QARuleRowMapper());
 		
 		Map<Long, QARule> result = new HashMap<Long, QARule>();
 		for (QARule rule : rules)
@@ -145,7 +145,7 @@ public class QARuleDao extends Dao<QARule>
 	private Map<Long, Publisher> loadAllRawPublishers()
 	{
 		String query = "SELECT * FROM " + PublisherDao.TABLE_NAME;
-		List<Publisher> publishers = jdbcTemplate.query(query, new PublisherRowMapper());
+		List<Publisher> publishers = getJdbcTemplate().query(query, new PublisherRowMapper());
 		
 		Map<Long, Publisher> result = new HashMap<Long, Publisher>();
 		for (Publisher publisher : publishers)
@@ -158,7 +158,7 @@ public class QARuleDao extends Dao<QARule>
 	{
 		String query = "SELECT * FROM " + RESTRICTIONS_TABLE_NAME;
 		
-		List<Pair<Long, Long>> mapping = jdbcTemplate.query
+		List<Pair<Long, Long>> mapping = getJdbcTemplate().query
 		(
 			query, 
 			new RulesToPublishersRestrictionsRowMapper()
@@ -198,7 +198,7 @@ public class QARuleDao extends Dao<QARule>
 		
 		Object[] params = { id };
 		
-		return (QARule) jdbcTemplate.queryForObject
+		return (QARule) getJdbcTemplate().queryForObject
 		(
 			query, 
 			params, 
@@ -217,6 +217,6 @@ public class QARuleDao extends Dao<QARule>
 		
 		Object[] params = { id };
 		
-		return jdbcTemplate.query(query, params, new PublisherRowMapper());
+		return getJdbcTemplate().query(query, params, new PublisherRowMapper());
 	}
 }

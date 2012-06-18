@@ -30,7 +30,7 @@ public class RoleDaoTest extends DaoTest
 		DataSource dataSource = (DataSource) ctx.getBean("dataSource");
 		
 		roleDao = new RoleDao();
-		roleDao.setDataSource(dataSource);
+		// TODO: roleDao.setDataSource(dataSource);
 	}
 
 	@Override

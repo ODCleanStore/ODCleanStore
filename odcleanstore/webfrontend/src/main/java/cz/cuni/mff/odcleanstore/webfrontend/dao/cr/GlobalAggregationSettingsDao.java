@@ -1,7 +1,5 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.cr;
 
-import java.util.List;
-
 import javax.sql.DataSource;
 
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -10,6 +8,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.AggregationType;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.ErrorStrategy;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.GlobalAggregationSettings;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.MultivalueType;
+import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
 
 public class GlobalAggregationSettingsDao 
 {
@@ -17,7 +16,8 @@ public class GlobalAggregationSettingsDao
 	
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "CR_SETTINGS";
 			
-	private JdbcTemplate jdbcTemplate;
+	private DaoLookupFactory lookupFactory;
+	private transient JdbcTemplate jdbcTemplate;
 	
 	private ErrorStrategyDao errorStrategyDao;
 	private AggregationTypeDao aggregationTypeDao;
@@ -25,21 +25,31 @@ public class GlobalAggregationSettingsDao
 
 	/**
 	 * 
-	 * @param dataSource
+	 * @param lookupFactory
 	 */
-	public void setDataSource(DataSource dataSource)
+	public void setDaoLookupFactory(DaoLookupFactory lookupFactory)
 	{
-		jdbcTemplate = new JdbcTemplate(dataSource);
+		this.lookupFactory = lookupFactory;
 		
-		// TOOD: mozna spise predavat DaoLookupFactory?
 		errorStrategyDao = new ErrorStrategyDao();
-		errorStrategyDao.setDataSource(dataSource);
+		errorStrategyDao.setDaoLookupFactory(lookupFactory);
 		
 		aggregationTypeDao = new AggregationTypeDao();
-		aggregationTypeDao.setDataSource(dataSource);
+		aggregationTypeDao.setDaoLookupFactory(lookupFactory);
 		
 		multivalueTypeDao = new MultivalueTypeDao();
-		multivalueTypeDao.setDataSource(dataSource);
+		multivalueTypeDao.setDaoLookupFactory(lookupFactory);
+	}
+	
+	private JdbcTemplate getJdbcTemplate()
+	{
+		if (jdbcTemplate == null)
+		{
+			DataSource dataSource = lookupFactory.getDataSource();
+			jdbcTemplate = new JdbcTemplate(dataSource);
+		}
+		
+		return jdbcTemplate;
 	}
 	
 	public GlobalAggregationSettings load()
@@ -60,7 +70,7 @@ public class GlobalAggregationSettingsDao
 	{
 		String query = "SELECT defaultErrorStrategyId FROM " + TABLE_NAME;
 		
-		Long currentDefaultErrorStrategyId = jdbcTemplate.queryForLong(query);
+		Long currentDefaultErrorStrategyId = getJdbcTemplate().queryForLong(query);
 		
 		return errorStrategyDao.load(currentDefaultErrorStrategyId);
 	}
@@ -69,7 +79,7 @@ public class GlobalAggregationSettingsDao
 	{
 		String query = "SELECT defaultAggregationTypeId FROM " + TABLE_NAME;
 		
-		Long currentDefaultAggregationTypeId = jdbcTemplate.queryForLong(query);
+		Long currentDefaultAggregationTypeId = getJdbcTemplate().queryForLong(query);
 		
 		return aggregationTypeDao.load(currentDefaultAggregationTypeId);
 	}
@@ -78,7 +88,7 @@ public class GlobalAggregationSettingsDao
 	{
 		String query = "SELECT defaultMultivalueTypeId FROM " + TABLE_NAME;
 		
-		Long currentDefaultMultivalueTypeId = jdbcTemplate.queryForLong(query);
+		Long currentDefaultMultivalueTypeId = getJdbcTemplate().queryForLong(query);
 		
 		return multivalueTypeDao.load(currentDefaultMultivalueTypeId);
 	}
@@ -88,7 +98,7 @@ public class GlobalAggregationSettingsDao
 		// TODO: obalit pomoci transaction
 		
 		String deleteQuery = "DELETE FROM " + TABLE_NAME;
-		jdbcTemplate.update(deleteQuery);
+		getJdbcTemplate().update(deleteQuery);
 		
 		String insertQuery = 
 			"INSERT INTO " + TABLE_NAME + " " + 
@@ -101,6 +111,6 @@ public class GlobalAggregationSettingsDao
 			settings.getDefaultErrorStrategy().getId()
 		};
 		
-		jdbcTemplate.update(insertQuery, params);
+		getJdbcTemplate().update(insertQuery, params);
 	}
 }

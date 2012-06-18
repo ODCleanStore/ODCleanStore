@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.prefixes.Prefix;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
@@ -41,6 +40,9 @@ public class PrefixDataProvider implements IDataProvider<Prefix>
 
 	public Iterator iterator(int first, int count) 
 	{
+		// replace this with a special DAO method to only select the sub-list
+		// from the database call if necessary (instead of selecting all and 
+		// trimming)
 		return 
 			getData()
 				.subList(first, first + count)
@@ -54,7 +56,7 @@ public class PrefixDataProvider implements IDataProvider<Prefix>
 
 	public IModel<Prefix> model(Prefix object) 
 	{
-		// return new DetachablePrefixModel(dao, object);
-		return new Model<Prefix>(object);
+		return new DetachablePrefixModel(dao, object);
+		// return new Model<Prefix>(object);
 	}
 }
