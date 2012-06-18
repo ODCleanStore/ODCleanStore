@@ -12,6 +12,8 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessObject;
 
 public class SafetyDaoDecorator<T extends BusinessObject> extends Dao<T>
 {
+	private static final long serialVersionUID = 1L;
+
 	private static Logger logger = Logger.getLogger(SafetyDaoDecorator.class);
 	
 	private Dao<T> dao;
@@ -50,6 +52,12 @@ public class SafetyDaoDecorator<T extends BusinessObject> extends Dao<T>
 	{
 		return dao.loadAllRaw();
 	}
+	
+	@Override
+	public List<T> loadAllRawBy(String columnName, Object value)
+	{
+		return dao.loadAllRawBy(columnName, value);
+	}
 
 	@Override
 	public T load(Long id) 
@@ -61,6 +69,12 @@ public class SafetyDaoDecorator<T extends BusinessObject> extends Dao<T>
 	public T loadRaw(Long id)
 	{
 		return dao.loadRaw(id);
+	}
+	
+	@Override 
+	public T loadRawBy(String columnName, Object value)
+	{
+		return dao.loadRawBy(columnName, value);
 	}
 	
 	@Override

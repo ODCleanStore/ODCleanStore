@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.en;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.sql.DataSource;
 
@@ -37,6 +38,34 @@ public class TransformerInstanceDao implements Serializable
 		}
 		
 		return jdbcTemplate;
+	}
+	
+	public List<TransformerInstance> loadBy(String columnName, Object value)
+	{
+		String query =
+			"SELECT T.label, TA.* " +
+			"FROM " + TransformerDao.TABLE_NAME + " AS T " +
+			"JOIN " + TransformerInstanceDao.TABLE_NAME + " AS TA " +
+			"ON (T.id = TA.transformerId) " +
+			"WHERE TA." + columnName + " = ?";
+		
+		Object[] params = { value };
+		
+		return getJdbcTemplate().query(query, params, new TransformerInstanceRowMapper());
+	}
+	
+	public TransformerInstance load(Long pipelineId, Long transformerId)
+	{
+		String query =
+			"SELECT T.label, TA.* " +
+			"FROM " + TransformerDao.TABLE_NAME + " AS T " +
+			"JOIN " + TransformerInstanceDao.TABLE_NAME + " AS TA " +
+			"ON (T.id = TA.transformerId) " +
+			"WHERE T.pipelineId = ? AND T.transformerId = ?";
+		
+		Object[] params = { pipelineId, transformerId };
+		
+		return getJdbcTemplate().queryForObject(query, params, new TransformerInstanceRowMapper());
 	}
 	
 	public void delete(Long pipelineId, Long transformerId)

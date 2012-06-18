@@ -10,6 +10,8 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 public class OIRuleDao extends Dao<OIRule>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "OI_RULES";
+
+	private static final long serialVersionUID = 1L;
 	
 	private ParameterizedRowMapper<OIRule> rowMapper;
 	
@@ -28,18 +30,6 @@ public class OIRuleDao extends Dao<OIRule>
 	protected ParameterizedRowMapper<OIRule> getRowMapper() 
 	{
 		return rowMapper;
-	}
-	
-	@Override
-	public List<OIRule> loadAll() 
-	{
-		return loadAllRaw();
-	}
-
-	@Override
-	public OIRule load(Long id) 
-	{
-		return loadRaw(id);
 	}
 	
 	@Override

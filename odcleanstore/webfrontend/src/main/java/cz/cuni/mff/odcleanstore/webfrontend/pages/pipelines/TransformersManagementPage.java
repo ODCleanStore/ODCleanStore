@@ -1,16 +1,16 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
 
-import java.util.List;
-
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
+import org.apache.wicket.markup.repeater.Item;
+import org.apache.wicket.markup.repeater.data.DataView;
+import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
+import cz.cuni.mff.odcleanstore.webfrontend.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 public class TransformersManagementPage extends FrontendPage
@@ -44,16 +44,16 @@ public class TransformersManagementPage extends FrontendPage
 	
 	private void addTransformersTable()
 	{
-		IModel<List<Transformer>> model = createModelForListView(transformerDao);
+		IDataProvider<Transformer> data = new DataProvider<Transformer>(transformerDao);
 		
-		ListView<Transformer> listView = new ListView<Transformer>("transformersTable", model)
+		DataView<Transformer> dataView = new DataView<Transformer>("transformersTable", data)
 		{
 			private static final long serialVersionUID = 1L;
-			
+
 			@Override
-			protected void populateItem(ListItem<Transformer> item) 
+			protected void populateItem(Item<Transformer> item) 
 			{
-				final Transformer transformer = item.getModelObject();
+				Transformer transformer = item.getModelObject();
 				
 				item.setModel(new CompoundPropertyModel<Transformer>(transformer));
 	
@@ -71,10 +71,14 @@ public class TransformersManagementPage extends FrontendPage
 						"pipeline assignment",
 						TransformersManagementPage.class
 					)
-				);
+				);	
 			}
 		};
+
+		dataView.setItemsPerPage(10);
 		
-		add(listView);
+		add(dataView);
+		
+		add(new PagingNavigator("navigator", dataView));
 	}
 }

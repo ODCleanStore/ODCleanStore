@@ -1,25 +1,27 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi;
 
-import java.util.List;
-
+import org.apache.log4j.Logger;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
+import org.apache.wicket.markup.repeater.Item;
+import org.apache.wicket.markup.repeater.data.DataView;
+import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.LoadableDetachableModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
+import cz.cuni.mff.odcleanstore.webfrontend.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 public class ManageGroupRulesPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
+	private static Logger logger = Logger.getLogger(ManageGroupRulesPage.class);
+	
 	private Dao<OIRulesGroup> oiRulesGroupDao;
 	private Dao<OIRule> oiRuleDao;
 	
@@ -61,7 +63,7 @@ public class ManageGroupRulesPage extends FrontendPage
 	 	=======================================================================
 	*/
 	
-	private void addOIRulesSection(Long groupId) 
+	private void addOIRulesSection(final Long groupId) 
 	{
 		add(
 			createGoToPageButton(
@@ -75,26 +77,17 @@ public class ManageGroupRulesPage extends FrontendPage
 	}
 
 	private void addOIRulesTable(final Long groupId) 
-	{
-		IModel<List<OIRule>> model = new LoadableDetachableModel<List<OIRule>>() 
+	{		
+		IDataProvider<OIRule> data = new OIRuleDataProvider(oiRuleDao, groupId);
+		
+		DataView<OIRule> dataView = new DataView<OIRule>("oiRulesTable", data)
 		{
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected List<OIRule> load() 
+			protected void populateItem(Item<OIRule> item) 
 			{
-				return oiRulesGroupDao.load(groupId).getRules();
-			}
-		};
-				
-		ListView<OIRule> listView = new ListView<OIRule>("oiRulesTable", model)
-		{
-			private static final long serialVersionUID = 1L;
-			
-			@Override
-			protected void populateItem(ListItem<OIRule> item) 
-			{
-				final OIRule rule = item.getModelObject();
+				OIRule rule = item.getModelObject();
 				
 				item.setModel(new CompoundPropertyModel<OIRule>(rule));
 				
@@ -108,11 +101,15 @@ public class ManageGroupRulesPage extends FrontendPage
 						"rule", 
 						ManageGroupRulesPage.this
 					)
-				);
+				);	
 			}
 		};
 		
-		add(listView);
+		dataView.setItemsPerPage(10);
+		
+		add(dataView);
+		
+		add(new PagingNavigator("navigator", dataView));
 	}
 	
 }

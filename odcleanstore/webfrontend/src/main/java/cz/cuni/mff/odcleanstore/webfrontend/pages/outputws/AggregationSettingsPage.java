@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.outputws;
 
+import cz.cuni.mff.odcleanstore.webfrontend.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.*;
@@ -8,14 +9,14 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.*;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
+import org.apache.wicket.markup.repeater.Item;
+import org.apache.wicket.markup.repeater.data.DataView;
+import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
-
-import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -95,16 +96,16 @@ public class AggregationSettingsPage extends FrontendPage
 	
 	private void addPropertySettingsTable()
 	{
-		IModel<List<PropertySettings>> model = createModelForListView(propertySettingsDao);
+		IDataProvider<PropertySettings> data = new DataProvider<PropertySettings>(propertySettingsDao);
 				
-		ListView<PropertySettings> listView = new ListView<PropertySettings>("propertySettingsTable", model)
+		DataView<PropertySettings> dataView = new DataView<PropertySettings>("propertySettingsTable", data)
 		{
 			private static final long serialVersionUID = 1L;
-			
+
 			@Override
-			protected void populateItem(ListItem<PropertySettings> item) 
+			protected void populateItem(Item<PropertySettings> item) 
 			{
-				final PropertySettings property = item.getModelObject();
+				PropertySettings property = item.getModelObject();
 				
 				item.setModel(new CompoundPropertyModel<PropertySettings>(property));
 				
@@ -120,19 +121,23 @@ public class AggregationSettingsPage extends FrontendPage
 						"property", 
 						AggregationSettingsPage.class
 					)
-				);
+				);	
 			}
 		};
 		
-		add(listView);
+		dataView.setItemsPerPage(10);
+		
+		add(dataView);
+		
+		add(new PagingNavigator("navigator", dataView));
 	}
 	
-	private void addPropertyLabel(ListItem<PropertySettings> item)
+	private void addPropertyLabel(Item<PropertySettings> item)
 	{
 		item.add(new Label("property"));
 	}
 	
-	private void addMultivalueTypeLabel(ListItem<PropertySettings> item, 
+	private void addMultivalueTypeLabel(Item<PropertySettings> item, 
 		PropertySettings property)
 	{
 		MultivalueType multivalueType = property.getMultivalueType();
@@ -143,7 +148,7 @@ public class AggregationSettingsPage extends FrontendPage
 		item.add(label);
 	}
 	
-	private void addAggregationTypeLabel(ListItem<PropertySettings> item,
+	private void addAggregationTypeLabel(Item<PropertySettings> item,
 		PropertySettings property)
 	{
 		AggregationType aggregationType = property.getAggregationType();

@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessObject;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
 import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
 
 import javax.sql.DataSource;
@@ -80,12 +81,20 @@ public abstract class Dao<T extends BusinessObject> implements Serializable
 	{
 		return loadAllRaw();
 	}
-	
+		
 	public List<T> loadAllRaw()
 	{
 		String query = "SELECT * FROM " + getTableName();
 		return getJdbcTemplate().query(query, getRowMapper());
 	}
+	
+	public List<T> loadAllRawBy(String columnName, Object value)
+	{
+		String query = "SELECT * FROM " + getTableName() + " WHERE " + columnName + " = ?";
+		Object[] params = { value };
+		
+		return getJdbcTemplate().query(query, params, getRowMapper());
+	}	
 	
 	/**
 	 * Finds the entity with the given id in the database.
@@ -106,7 +115,7 @@ public abstract class Dao<T extends BusinessObject> implements Serializable
 		return (T) getJdbcTemplate().queryForObject(query, params, getRowMapper());
 	}
 	
-	public T loadRawBy(String columnName, String value)
+	public T loadRawBy(String columnName, Object value)
 	{
 		String query = "SELECT * FROM " + getTableName() + " WHERE " + columnName + " = ?";
 		Object[] params = { value };

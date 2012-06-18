@@ -6,6 +6,9 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
+import org.apache.wicket.markup.repeater.Item;
+import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -16,6 +19,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
+import cz.cuni.mff.odcleanstore.webfrontend.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 public class ManagePipelineTransformersPage extends FrontendPage 
@@ -79,25 +83,19 @@ public class ManagePipelineTransformersPage extends FrontendPage
 	
 	private void addAssignmentTable(final Long pipelineId) 
 	{
-		IModel<List<TransformerInstance>> model = new LoadableDetachableModel<List<TransformerInstance>>() 
+		TransformerInstanceDataProvider data = new TransformerInstanceDataProvider(
+			transformerInstanceDao, 
+			pipelineId
+		);
+		
+		DataView<TransformerInstance> dataView = new DataView<TransformerInstance>("assignmentTable", data)
 		{
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected List<TransformerInstance> load() 
+			protected void populateItem(Item<TransformerInstance> item) 
 			{
-				return pipelineDao.load(pipelineId).getTransformers();
-			}
-		};
-		
-		ListView<TransformerInstance> listView = new ListView<TransformerInstance>("assignmentTable", model)
-		{
-			private static final long serialVersionUID = 1L;
-			
-			@Override
-			protected void populateItem(ListItem<TransformerInstance> item) 
-			{
-				final TransformerInstance transformer = item.getModelObject();
+				TransformerInstance transformer = item.getModelObject();
 				
 				item.setModel(new CompoundPropertyModel<TransformerInstance>(transformer));
 				
@@ -106,11 +104,15 @@ public class ManagePipelineTransformersPage extends FrontendPage
 				item.add(new Label("configuration"));
 				item.add(new Label("priority"));
 				
-				addDeleteButton(item, transformer.getPipelineId(), transformer.getTransformerId());
+				addDeleteButton(item, transformer.getPipelineId(), transformer.getTransformerId());	
 			}
 		};
 		
-		add(listView);
+		dataView.setItemsPerPage(10);
+		
+		add(dataView);
+		
+		add(new PagingNavigator("navigator", dataView));
 	}
 	
 	private void addDeleteButton(ListItem<TransformerInstance> item, final Long pipelineId, final Long transformerId)

@@ -1,18 +1,18 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
 
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
+import org.apache.wicket.markup.repeater.Item;
+import org.apache.wicket.markup.repeater.data.DataView;
+import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
+import cz.cuni.mff.odcleanstore.webfrontend.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 public class PipelinesManagementPage extends FrontendPage 
@@ -48,16 +48,16 @@ public class PipelinesManagementPage extends FrontendPage
 	
 	private void addPipelinesTable()
 	{
-		IModel<List<Pipeline>> model = createModelForListView(pipelineDao);
+		IDataProvider<Pipeline> data = new DataProvider<Pipeline>(pipelineDao);
 		
-		ListView<Pipeline> listView = new ListView<Pipeline>("pipelinesTable", model)
+		DataView<Pipeline> dataView = new DataView<Pipeline>("pipelinesTable", data)
 		{
 			private static final long serialVersionUID = 1L;
 			
 			@Override
-			protected void populateItem(ListItem<Pipeline> item) 
+			protected void populateItem(Item<Pipeline> item) 
 			{
-				final Pipeline pipeline = item.getModelObject();
+				Pipeline pipeline = item.getModelObject();
 				
 				item.setModel(new CompoundPropertyModel<Pipeline>(pipeline));
 
@@ -87,11 +87,15 @@ public class PipelinesManagementPage extends FrontendPage
 				addMakePipelineRunOnCleanDBButton(item, pipeline);
 			}
 		};
+
+		dataView.setItemsPerPage(10);
 		
-		add(listView);
+		add(dataView);
+		
+		add(new PagingNavigator("navigator", dataView));
 	}
 	
-	private void addMakePipelineRunOnCleanDBButton(ListItem<Pipeline> item, final Pipeline pipeline)
+	private void addMakePipelineRunOnCleanDBButton(Item<Pipeline> item, final Pipeline pipeline)
 	{
 		Link button = new Link("makePipelineRunOnCleanDB")
         {

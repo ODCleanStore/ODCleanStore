@@ -11,6 +11,8 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 public class OIRulesGroupDao extends Dao<OIRulesGroup>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "OI_RULES_GROUPS";
+
+	private static final long serialVersionUID = 1L;
 	
 	private OIRulesGroupRowMapper rowMapper;
 	
@@ -29,12 +31,6 @@ public class OIRulesGroupDao extends Dao<OIRulesGroup>
 	protected ParameterizedRowMapper<OIRulesGroup> getRowMapper() 
 	{
 		return rowMapper;
-	}
-	
-	@Override
-	public List<OIRulesGroup> loadAll() 
-	{
-		return loadAllRaw();
 	}
 
 	@Override

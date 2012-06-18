@@ -1,16 +1,16 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi;
 
-import java.util.List;
-
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
+import org.apache.wicket.markup.repeater.Item;
+import org.apache.wicket.markup.repeater.data.DataView;
+import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
+import cz.cuni.mff.odcleanstore.webfrontend.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 public class OIRulesManagementPage extends FrontendPage
@@ -43,16 +43,16 @@ public class OIRulesManagementPage extends FrontendPage
 	
 	private void addOIRulesGroupsTable()
 	{
-		IModel<List<OIRulesGroup>> model = createModelForListView(oiRulesGroupsDao);
+		IDataProvider<OIRulesGroup> data = new DataProvider<OIRulesGroup>(oiRulesGroupsDao);
 		
-		ListView<OIRulesGroup> listView = new ListView<OIRulesGroup>("oiRulesGroupsTable", model)
+		DataView<OIRulesGroup> dataView = new DataView<OIRulesGroup>("oiRulesGroupsTable", data)
 		{
 			private static final long serialVersionUID = 1L;
-			
+
 			@Override
-			protected void populateItem(ListItem<OIRulesGroup> item) 
+			protected void populateItem(Item<OIRulesGroup> item) 
 			{
-				final OIRulesGroup group = item.getModelObject();
+				OIRulesGroup group = item.getModelObject();
 				
 				item.setModel(new CompoundPropertyModel<OIRulesGroup>(group));
 
@@ -76,10 +76,14 @@ public class OIRulesManagementPage extends FrontendPage
 						group.getId(), 
 						"manageRules"
 					)
-				);
+				);	
 			}
 		};
+
+		dataView.setItemsPerPage(10);
 		
-		add(listView);
+		add(dataView);
+		
+		add(new PagingNavigator("navigator", dataView));
 	}
 }

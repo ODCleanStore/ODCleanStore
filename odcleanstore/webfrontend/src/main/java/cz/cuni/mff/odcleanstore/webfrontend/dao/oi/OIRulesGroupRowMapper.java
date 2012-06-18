@@ -8,6 +8,8 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.CustomRowMapper;
 
 public class OIRulesGroupRowMapper extends CustomRowMapper<OIRulesGroup>
 {
+	private static final long serialVersionUID = 1L;
+
 	public OIRulesGroup mapRow(ResultSet rs, int rowNum) throws SQLException 
 	{
 		return new OIRulesGroup
