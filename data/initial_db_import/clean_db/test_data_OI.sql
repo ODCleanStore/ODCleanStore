@@ -6,15 +6,15 @@ INSERT INTO DB.ODCLEANSTORE.OI_RULES_GROUPS VALUES (1, n'pravidla pro linkovani 
 INSERT INTO DB.ODCLEANSTORE.OI_RULES VALUES (1, 1, n'<Interlink id="title_supplier">
       <LinkType>owl:sameAs</LinkType>
       <SourceDataset dataSource="Zakazky" var="a">
-        <RestrictTo> ?x purl:supplier ?a . </RestrictTo>
+        <RestrictTo>?x &lt;http://purl.org/procurement#supplier&gt; ?a .</RestrictTo>
       </SourceDataset>
       <TargetDataset dataSource="Zakazky" var="b">
-        <RestrictTo> ?y purl:supplier ?b . </RestrictTo>
+        <RestrictTo>?y &lt;http://purl.org/procurement#supplier&gt; ?b .</RestrictTo>
       </TargetDataset>
       <LinkageRule>
         <Compare weight="1" threshold="0.0" required="true" metric="equality" id="unnamed_3">
-          <Input path="?a/purl:title" id="unnamed_1"></Input>
-          <Input path="?b/purl:title" id="unnamed_2"></Input>
+          <Input path="?a/&lt;http://purl.org/procurement#title&gt;" id="unnamed_1"></Input>
+          <Input path="?b/&lt;http://purl.org/procurement#title&gt;" id="unnamed_2"></Input>
         </Compare>
       </LinkageRule>
       <Filter></Filter>
@@ -28,4 +28,4 @@ SPARQL INSERT INTO <http://opendata.cz/data/namedGraph/2> {
 	<http://opendata.cz/data/0781c6a4-1147-473d-968a-666284ebc977> <http://purl.org/procurement#title> "ZAVOS s.r.o.".
 }
     
-INSERT INTO DB.DBA.SYS_XML_PERSISTENT_NS_DECL VALUES ('purl','http://purl.org/procurement#');
+/*INSERT INTO DB.DBA.SYS_XML_PERSISTENT_NS_DECL VALUES ('purl','http://purl.org/procurement#');*/
