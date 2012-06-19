@@ -174,7 +174,7 @@ abstract class CommonAssessment {
 			 */
 			results = getConnection().executeSelect(query);
 
-			if (results.next()) {
+			if (results.next() && results.getInt(1) > 0) {
 				/**
 				 * If so, change the graph's score accordingly
 				 */
