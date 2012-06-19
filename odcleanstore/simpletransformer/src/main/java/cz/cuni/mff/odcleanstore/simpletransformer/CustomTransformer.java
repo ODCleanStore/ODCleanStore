@@ -38,10 +38,8 @@ public class CustomTransformer implements Transformer {
             for (String property : FILTERED_PROPERTIES) {
                 String query = String.format(DELETE_QUERY, inputGraph.getGraphName(), property);
                 connection.execute(query);
-                LOG.info(query);
 
                 query = String.format(DELETE_QUERY, inputGraph.getMetadataGraphName(), property);
-                LOG.info(query);
                 connection.execute(query);
             }
 
