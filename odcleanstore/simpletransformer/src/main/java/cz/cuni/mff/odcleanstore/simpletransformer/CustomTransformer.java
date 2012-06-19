@@ -39,8 +39,8 @@ public class CustomTransformer implements Transformer {
                 String query = String.format(DELETE_QUERY, inputGraph.getGraphName(), property);
                 connection.execute(query);
 
-                query = String.format(DELETE_QUERY, inputGraph.getMetadataGraphName(), property);
-                connection.execute(query);
+                //query = String.format(DELETE_QUERY, inputGraph.getMetadataGraphName(), property);
+                //connection.execute(query);
             }
 
         } catch (DatabaseException e) {
