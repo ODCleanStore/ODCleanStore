@@ -18,7 +18,7 @@ public class NewQARulePage extends FrontendPage
 	
 	private Dao<QARule> qaRuleDao;
 	
-	public NewQARulePage() 
+	public NewQARulePage(final Long groupId) 
 	{
 		super(
 			"Home > Transformers > QA > Rules management > Rules > Create", 
@@ -31,10 +31,18 @@ public class NewQARulePage extends FrontendPage
 		
 		// register page components
 		//
-		addNewQARuleForm();
+		add(
+			createGoToPageButton(
+				QARulesManagementPage.class,
+				groupId, 
+				"manageGroupRules"
+			)
+		);
+		
+		addNewQARuleForm(groupId);
 	}
 
-	private void addNewQARuleForm()
+	private void addNewQARuleForm(final Long groupId)
 	{
 		IModel<QARule> formModel = new CompoundPropertyModel<QARule>(new QARule());
 		
@@ -46,6 +54,7 @@ public class NewQARulePage extends FrontendPage
 			protected void onSubmit()
 			{
 				QARule rule = this.getModelObject();
+				rule.setGroupId(groupId);
 				
 				try {
 					qaRuleDao.save(rule);
@@ -67,7 +76,7 @@ public class NewQARulePage extends FrontendPage
 				}
 				
 				getSession().info("The rule was successfuly registered.");
-				setResponsePage(QARulesManagementPage.class);
+				setResponsePage(new QARulesManagementPage(groupId));
 			}
 		};
 		

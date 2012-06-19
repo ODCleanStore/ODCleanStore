@@ -1,19 +1,18 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa;
 
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
+import org.apache.wicket.markup.repeater.Item;
+import org.apache.wicket.markup.repeater.data.DataView;
+import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.IModel;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.Publisher;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.PublisherDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 public class QARulesManagementPage extends FrontendPage
@@ -22,10 +21,10 @@ public class QARulesManagementPage extends FrontendPage
 
 	private static Logger logger = Logger.getLogger(QARulesManagementPage.class);
 	
+	private Dao<QARulesGroup> qaRulesGroupDao;
 	private Dao<QARule> qaRuleDao;
-	private Dao<Publisher> publisherDao;
 
-	public QARulesManagementPage() 
+	public QARulesManagementPage(final Long groupId) 
 	{
 		super(
 			"Home > Transformers > QA > Rules management", 
@@ -34,53 +33,13 @@ public class QARulesManagementPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
+		qaRulesGroupDao = daoLookupFactory.getDao(QARulesGroupDao.class);
 		qaRuleDao = daoLookupFactory.getDao(QARuleDao.class);
-		publisherDao = daoLookupFactory.getDao(PublisherDao.class);
 		
 		// register page components
 		//
-		addQARulesTable();
-		addPublishersTable();
-	}
-
-	/*
-	 	=======================================================================
-	 	Implementace publishersTable
-	 	=======================================================================
-	*/
-	
-	private void addPublishersTable()
-	{
-		IModel<List<Publisher>> model = createModelForListView(publisherDao);
-		
-		ListView<Publisher> listView = new ListView<Publisher>("publishersTable", model)
-		{
-			private static final long serialVersionUID = 1L;
-			
-			@Override
-			protected void populateItem(ListItem<Publisher> item) 
-			{
-				final Publisher publisher = item.getModelObject();
-				
-				item.setModel(new CompoundPropertyModel<Publisher>(publisher));
-
-				item.add(new Label("label"));	
-				item.add(new Label("uri"));	
-				
-				item.add(
-					createDeleteButton(
-						publisherDao, 
-						publisher, 
-						"deletePublisher", 
-						"publisher", 
-						"restriction", 
-						QARulesManagementPage.class
-					)
-				);
-			}
-		};
-		
-		add(listView);
+		addGroupInformationSection(groupId);
+		addQARulesSection(groupId);
 	}
 	
 	/*
@@ -89,18 +48,39 @@ public class QARulesManagementPage extends FrontendPage
 	 	=======================================================================
 	*/
 	
-	private void addQARulesTable()
+	private void addGroupInformationSection(final Long groupId)
 	{
-		IModel<List<QARule>> model = createModelForListView(qaRuleDao);
-				
-		ListView<QARule> listView = new ListView<QARule>("qaRulesTable", model)
+		setDefaultModel(createModelForOverview(qaRulesGroupDao, groupId));
+		
+		add(new Label("label"));
+		add(new Label("description"));
+	}
+	
+	private void addQARulesSection(final Long groupId) 
+	{
+		add(
+			createGoToPageButton(
+				NewQARulePage.class,
+				groupId, 
+				"addNewRuleLink"
+			)
+		);
+		
+		addQARulesTable(groupId);
+	}
+	
+	private void addQARulesTable(final Long groupId)
+	{
+		IDataProvider<QARule> data = new QARuleDataProvider(qaRuleDao, groupId);
+		
+		DataView<QARule> dataView = new DataView<QARule>("qaRulesTable", data)
 		{
 			private static final long serialVersionUID = 1L;
 			
 			@Override
-			protected void populateItem(ListItem<QARule> item) 
+			protected void populateItem(Item<QARule> item) 
 			{
-				final QARule rule = item.getModelObject();
+				QARule rule = item.getModelObject();
 				
 				item.setModel(new CompoundPropertyModel<QARule>(rule));
 				
@@ -109,26 +89,21 @@ public class QARulesManagementPage extends FrontendPage
 				item.add(new Label("description"));	
 				
 				item.add(
-					createDeleteButton(
+					createDeleteRawButton(
 						qaRuleDao, 
-						rule, 
-						"deleteRule", 
-						"rule", 
-						"restriction", 
-						QARulesManagementPage.class
-					)
-				);
-
-				item.add(
-					createGoToPageButton(
-						ManageQARuleRestrictionsPage.class,
 						rule.getId(), 
-						"manageRuleRestrictions"
+						"deleteRule", 
+						"rule",
+						QARulesManagementPage.this
 					)
 				);
 			}
 		};
 		
-		add(listView);
+		dataView.setItemsPerPage(10);
+		
+		add(dataView);
+		
+		add(new PagingNavigator("navigator", dataView));
 	}
 }

@@ -9,11 +9,14 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.CustomRowMapper;
 
 public class QARuleRowMapper extends CustomRowMapper<QARule>
 {
+	private static final long serialVersionUID = 1L;
+
 	public QARule mapRow(ResultSet rs, int rowNum) throws SQLException 
 	{
 		return new QARule
 		(
 			rs.getLong("id"),
+			rs.getLong("groupId"),
 			blobToString(rs.getBlob("filter")),
 			blobToString(rs.getBlob("description")),
 			rs.getDouble("coefficient")

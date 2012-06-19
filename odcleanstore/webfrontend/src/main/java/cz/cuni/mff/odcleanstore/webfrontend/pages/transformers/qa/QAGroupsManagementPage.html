@@ -1,0 +1,33 @@
+<wicket:extend>
+
+<h2>Registered QA rules groups</h2>
+
+<wicket:link>
+<div>
+	<a class="placedright" href="NewQAGroupPage.html">Add a new rules group</a>
+	<div class="clear">&nbsp;</div>
+</div>
+</wicket:link>
+
+<span wicket:id="navigator">[dataview navigator]</span>
+<table border="1">
+	
+	<tr>
+		<th>Label</th>
+		<th>Description</th>
+		<th>Action</th>
+	</tr>
+	
+	<tr  wicket:id="qaRulesGroupsTable">
+	
+		<td wicket:id="label">[label]</td>
+		<td wicket:id="description">[description]</td>
+		
+		<td class="centered">
+			<input wicket:id="deleteGroup" type="button" value="Delete" />
+			<input wicket:id="manageRules" type="button" value="Manage rules" />
+		</td>
+	</tr>
+</table>
+
+</wicket:extend>
