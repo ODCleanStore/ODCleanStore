@@ -26,6 +26,6 @@ INSERT INTO DB.ODCLEANSTORE.OI_RULES VALUES (1, 1, n'<Interlink id="title_suppli
 SPARQL INSERT INTO <http://opendata.cz/data/namedGraph/2> {
 	<http://opendata.cz/data/767762e4-8180-428f-9c78-0edf60fcd911> <http://purl.org/procurement#supplier> <http://opendata.cz/data/0781c6a4-1147-473d-968a-666284ebc977> .
 	<http://opendata.cz/data/0781c6a4-1147-473d-968a-666284ebc977> <http://purl.org/procurement#title> "ZAVOS s.r.o.".
-}
+};
     
 /*INSERT INTO DB.DBA.SYS_XML_PERSISTENT_NS_DECL VALUES ('purl','http://purl.org/procurement#');*/
