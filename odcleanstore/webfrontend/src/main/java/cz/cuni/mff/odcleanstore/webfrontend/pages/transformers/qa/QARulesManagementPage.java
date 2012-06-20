@@ -10,6 +10,8 @@ import org.apache.wicket.model.CompoundPropertyModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARulesGroup;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
@@ -89,11 +91,12 @@ public class QARulesManagementPage extends FrontendPage
 				item.add(new Label("description"));	
 				
 				item.add(
-					createDeleteRawButton(
-						qaRuleDao, 
-						rule.getId(), 
-						"deleteRule", 
+					new DeleteButton<QARule>
+					(
+						qaRuleDao,
+						rule.getId(),
 						"rule",
+						new DeleteConfirmationMessage("rule"),
 						QARulesManagementPage.this
 					)
 				);

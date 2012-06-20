@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.webfrontend.models;
+package cz.cuni.mff.odcleanstore.webfrontend.core.models;
 
 import java.util.Iterator;
 import java.util.List;

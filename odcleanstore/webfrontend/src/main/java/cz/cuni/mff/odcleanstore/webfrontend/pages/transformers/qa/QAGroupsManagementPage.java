@@ -8,9 +8,11 @@ import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARulesGroup;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
+import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
-import cz.cuni.mff.odcleanstore.webfrontend.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 public class QAGroupsManagementPage extends FrontendPage
@@ -60,13 +62,13 @@ public class QAGroupsManagementPage extends FrontendPage
 				item.add(new Label("description"));	
 				
 				item.add(
-					createDeleteButton(
+					new DeleteButton<QARulesGroup>
+					(
 						qaRulesGroupDao,
-						group,
-						"deleteGroup",
+						group.getId(),
 						"group",
-						"rule",
-						QAGroupsManagementPage.class
+						new DeleteConfirmationMessage("group", "rule"),
+						QAGroupsManagementPage.this
 					)
 				);
 				

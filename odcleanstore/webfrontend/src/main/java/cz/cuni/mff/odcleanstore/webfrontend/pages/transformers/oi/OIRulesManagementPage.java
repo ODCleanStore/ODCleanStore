@@ -8,9 +8,11 @@ import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
+import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
-import cz.cuni.mff.odcleanstore.webfrontend.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 public class OIRulesManagementPage extends FrontendPage
@@ -60,13 +62,13 @@ public class OIRulesManagementPage extends FrontendPage
 				item.add(new Label("description"));	
 				
 				item.add(
-					createDeleteButton(
+					new DeleteButton<OIRulesGroup>
+					(
 						oiRulesGroupsDao,
-						group,
-						"deleteGroup",
+						group.getId(),
 						"group",
-						"rule",
-						OIRulesManagementPage.class
+						new DeleteConfirmationMessage("group", "rule"),
+						OIRulesManagementPage.this
 					)
 				);
 				

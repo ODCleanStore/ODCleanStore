@@ -7,9 +7,9 @@ import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
+import cz.cuni.mff.odcleanstore.webfrontend.core.models.DetachableModel;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
-import cz.cuni.mff.odcleanstore.webfrontend.models.DetachableModel;
 
 public class OIRuleDataProvider implements IDataProvider<OIRule>
 {

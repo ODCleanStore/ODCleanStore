@@ -10,9 +10,11 @@ import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
+import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
-import cz.cuni.mff.odcleanstore.webfrontend.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 public class PipelinesManagementPage extends FrontendPage 
@@ -66,13 +68,13 @@ public class PipelinesManagementPage extends FrontendPage
 				item.add(new Label("runOnCleanDB"));
 				
 				item.add(
-					createDeleteButton(
-						pipelineDao, 
-						pipeline, 
-						"deletePipeline", 
-						"pipeline", 
-						"transformer assignment", 
-						PipelinesManagementPage.class
+					new DeleteButton<Pipeline>
+					(
+						pipelineDao,
+						pipeline.getId(),
+						"pipeline",
+						new DeleteConfirmationMessage("pipeline", "transformer assignment"),
+						PipelinesManagementPage.this
 					)
 				);
 				

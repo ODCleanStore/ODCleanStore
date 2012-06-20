@@ -1,9 +1,11 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.outputws;
 
-import cz.cuni.mff.odcleanstore.webfrontend.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.*;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
+import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.*;
 
@@ -114,12 +116,12 @@ public class AggregationSettingsPage extends FrontendPage
 				addAggregationTypeLabel(item, property);			
 				
 				item.add(
-					createDeleteRawButton(
+					new DeleteButton<PropertySettings>(
 						propertySettingsDao, 
 						property.getId(), 
-						"deleteProperty", 
 						"property", 
-						AggregationSettingsPage.class
+						new DeleteConfirmationMessage("property"),  
+						AggregationSettingsPage.this
 					)
 				);	
 			}

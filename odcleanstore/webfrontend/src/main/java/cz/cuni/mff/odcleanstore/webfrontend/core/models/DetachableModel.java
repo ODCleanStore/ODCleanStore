@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.webfrontend.models;
+package cz.cuni.mff.odcleanstore.webfrontend.core.models;
 
 import org.apache.wicket.model.LoadableDetachableModel;
 

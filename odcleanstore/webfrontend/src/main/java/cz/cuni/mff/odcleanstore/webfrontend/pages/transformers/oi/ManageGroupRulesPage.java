@@ -10,6 +10,8 @@ import org.apache.wicket.model.CompoundPropertyModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
@@ -93,11 +95,12 @@ public class ManageGroupRulesPage extends FrontendPage
 				item.add(new Label("definition"));
 				
 				item.add(
-					createDeleteRawButton(
-						oiRuleDao, 
-						rule.getId(), 
-						"deleteRule", 
-						"rule", 
+					new DeleteButton<OIRule>
+					(
+						oiRuleDao,
+						rule.getId(),
+						"rule",
+						new DeleteConfirmationMessage("rule"),
 						ManageGroupRulesPage.this
 					)
 				);	

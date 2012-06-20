@@ -8,9 +8,11 @@ import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
+import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
-import cz.cuni.mff.odcleanstore.webfrontend.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 public class TransformersManagementPage extends FrontendPage
@@ -63,13 +65,13 @@ public class TransformersManagementPage extends FrontendPage
 				item.add(new Label("fullClassName"));
 				
 				item.add(
-					createDeleteButton(
-						transformerDao, 
-						transformer, 
-						"deleteTransformer",
+					new DeleteButton<Transformer>
+					(
+						transformerDao,
+						transformer.getId(),
 						"transformer",
-						"pipeline assignment",
-						TransformersManagementPage.class
+						new DeleteConfirmationMessage("transformer", "pipeline assignment"),
+						TransformersManagementPage.this
 					)
 				);	
 			}
