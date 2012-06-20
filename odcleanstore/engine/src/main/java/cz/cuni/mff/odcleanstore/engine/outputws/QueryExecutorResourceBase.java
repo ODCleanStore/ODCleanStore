@@ -59,7 +59,7 @@ public abstract class QueryExecutorResourceBase extends ServerResource {
 		String formatName = getFormValue("format");
 		
 		if (formatName != null && !formatName.isEmpty()) {
-			if(formatName.equalsIgnoreCase("TrigX")) {
+			if(formatName.equalsIgnoreCase("trig")) {
 				return new TriGFormatter();
 			}
 		}
