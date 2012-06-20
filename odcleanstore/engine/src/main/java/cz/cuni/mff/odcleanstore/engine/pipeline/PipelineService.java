@@ -130,10 +130,10 @@ public final class PipelineService extends Service implements Runnable {
 
 	private void runPipeline() throws Exception {
 
-		TransformedGraphImpl transformedGraphImpl = null;
 		String uuid = null;
 
 		while ((uuid = waitForInput()) != null) {
+		TransformedGraphImpl transformedGraphImpl = null;
 			try {
 				LOG.info(String.format("PipelineService starts processing graph %s", uuid));
 				int pipelineId = _workingInputGraphStatus.getGraphPipelineId(uuid);
