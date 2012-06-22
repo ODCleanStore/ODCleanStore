@@ -84,28 +84,33 @@ public class RulesModel {
 	}
 	
 	/**
-	 * Get rules applicable to any graph.
+     * Get rules applicable to graphs coming from a particular publisher.
+     * 
+     * @param group ID of the rule group
 	 *
-         * @return a collection of all rules that are not restricted to graphs coming from
-	 * a particular publisher
-         */
-	public Collection<Rule> getUnrestrictedRules() throws QualityAssessmentException {
-		return queryRules("SELECT * FROM DB.ODCLEANSTORE.QA_RULES WHERE id NOT IN (SELECT ruleId FROM DB.ODCLEANSTORE.QA_RULES_TO_PUBLISHERS_RESTRICTIONS)");
+	 * @return a collection of rules applicable to a graph coming from a particular publisher.
+     */
+	public Collection<Rule> getRules (int group) throws QualityAssessmentException {
+		
+		Collection<Rule> publisherSpecific = queryRules("SELECT * FROM " +
+					"DB.ODCLEANSTORE.QA_RULES WHERE groupId = ?", group);
+		
+		return publisherSpecific;
 	}
 	
 	/**
-         * Get rules applicable to graphs coming from a particular publisher.
+     * Get rules applicable to graphs coming from a particular publisher.
+     * 
+     * @param groupLabel the label of the group from which the rules are selected
 	 *
 	 * @return a collection of rules applicable to a graph coming from a particular publisher.
-         */
-	public Collection<Rule> getRulesForPublisher (String publisher) throws QualityAssessmentException {
+     */
+	public Collection<Rule> getRules (String groupLabel) throws QualityAssessmentException {
 		
 		Collection<Rule> publisherSpecific = queryRules("SELECT * FROM " +
-					"DB.ODCLEANSTORE.QA_RULES AS rule JOIN " +
-					"DB.ODCLEANSTORE.QA_RULES_TO_PUBLISHERS_RESTRICTIONS AS restriction ON rule.id = restriction.ruleId JOIN " +
-					"DB.ODCLEANSTORE.PUBLISHERS AS publisher ON restriction.publisherId = publisher.id WHERE uri = ?", publisher);
-		
-		publisherSpecific.addAll(getUnrestrictedRules());
+					"DB.ODCLEANSTORE.QA_RULES AS rules JOIN" +
+					"DB.ODCLEANSTORE.QA_RULES_GROUPS AS groups ON rules.groupId = groups.id" +
+					"WHERE groups.label = ?", groupLabel);
 		
 		return publisherSpecific;
 	}

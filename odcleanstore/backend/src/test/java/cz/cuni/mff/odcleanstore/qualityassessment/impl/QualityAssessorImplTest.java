@@ -111,66 +111,47 @@ public class QualityAssessorImplTest extends TestCase {
 	
 	private String metadataGraphName;
 	
-	private List<Object[]> rulesRestrictionsBackup;
-	private List<Object[]> publishersBackup;
+	private List<Object[]> groupsBackup;
 	private List<Object[]> rulesBackup;
 	
-	private static final Object[][] publishers = {
-		{0, "http://opendata.cz"}
-	};
-	
-	private static final Object[][] rulesRestrictions = {
-		{1, 0}
+	private static final Object[][] groups = {
+		{0, "Skupina 1", "Testovaci skupina"}
 	};
 	
 	private static final Object[][] rules = {
-		{0, "{{?s <http://purl.org/procurement#referenceNumber> ?o} FILTER (bif:regexp_like(?o, \'[a-zA-Z]\'))}", 0.9, "PROCUREMENT REFERENCE NUMBER CONSISTS OF UNANTICIPATED CHARACTERS"},
-		{1, "{{?s <http://purl.org/procurement#procedureType> ?o}} GROUP BY ?g ?s HAVING count(?o) > 1", 0.75, "PROCEDURE TYPE AMBIGUOUS"},
-		{2, "{{?s <http://purl.org/procurement#tenderDeadline> ?d; <http://purl.org/procurement#endDate> ?e} FILTER (?e > ?d)}", 0.9, "TENDER COMPLETION DATE EXCEEDED ITS DEADLINE"},
-		{3, "{{?s <http://purl.org/procurement#numberOfTenders> ?n. ?s <http://purl.org/procurement#tender> ?t}} GROUP BY ?g ?s ?n HAVING count(?t) != ?n", 0.9, "LIST OF TENDERS HAS DIFFERENT SIZE FROM WHAT WAS EXPECTED BY \'numberOfTenders\' PROPERTY"},
-		{4, "{{?s <http://purl.org/procurement#contactPerson> ?c}} GROUP BY ?g HAVING count(?c) != 1", 0.8, "PROCUREMENT CONTACT PERSON MISSING"},
-		{5, "{{?s <http://purl.org/procurement#lot> ?c; <http://purl.org/procurement#tender> ?t}}", 0.8, "PROCUREMENT BROKEN INTO SEVERAL CONTRACTS CANNOT HAVE DIRECT TENDERS"},
-		{6, "{{?s <http://purl.org/procurement#name> ?n} FILTER (NOT bif:regexp_like(?n, \'^(doc. )?((Ing.|Mgr.|PhDr.|JUDr.|RNDr.|MUDr.|Bc.) )?(arch. )?[^., ]*( [^., ]*){1,2}(, (Ph.D.|CSc.))?$\'))}", 0.9, "NAME IN UNRECOGNIZABLE FORMAT"},
-		{7, "{{?s <http://purl.org/procurement#estimatedPrice> ?p1; <http://purl.org/procurement#actualPrice> ?p2. ?p1 <http://purl.org/goodrelations/v1#hasCurrencyValue> ?v1. ?p2 <http://purl.org/goodrelations/v1#hasCurrencyValue> ?v2} FILTER (2 * ?v1 < ?v2)}", 0.8, "PROCUREMENT ACTUAL COSTS ARE ABOVE TWICE THE ESTIMATE"},
-		{8, "{{?s <http://purl.org/procurement#procedureType> <http://purl.org/procurement#Open>; <http://purl.org/procurement#estimatedPrice> ?p. ?p <http://purl.org/goodrelations/v1#hasCurrencyValue> ?v.} FILTER (?v < 50000 OR ?v > 3000000)}", 0.8, "PROCEDURE TYPE IS INCOMPATIBLE WITH THE ESTIMATED PRICE"},
-		{9, "{{?s <http://purl.org/procurement#awardDate> ?a; <http://purl.org/procurement#tenderDeadline> ?d.} FILTER (?d > ?a)}", 0.8, "TENDER AWARDED BEFORE APPLICATION DEADLINE"}};
+		{0, 0, "{{?s <http://purl.org/procurement#referenceNumber> ?o} FILTER (bif:regexp_like(?o, \'[a-zA-Z]\'))}", 0.9, "PROCUREMENT REFERENCE NUMBER CONSISTS OF UNANTICIPATED CHARACTERS"},
+		{1, 0, "{{?s <http://purl.org/procurement#procedureType> ?o}} GROUP BY ?g ?s HAVING count(?o) > 1", 0.75, "PROCEDURE TYPE AMBIGUOUS"},
+		{2, 0, "{{?s <http://purl.org/procurement#tenderDeadline> ?d; <http://purl.org/procurement#endDate> ?e} FILTER (?e > ?d)}", 0.9, "TENDER COMPLETION DATE EXCEEDED ITS DEADLINE"},
+		{3, 0, "{{?s <http://purl.org/procurement#numberOfTenders> ?n. ?s <http://purl.org/procurement#tender> ?t}} GROUP BY ?g ?s ?n HAVING count(?t) != ?n", 0.9, "LIST OF TENDERS HAS DIFFERENT SIZE FROM WHAT WAS EXPECTED BY \'numberOfTenders\' PROPERTY"},
+		{4, 0, "{{?s <http://purl.org/procurement#contactPerson> ?c}} GROUP BY ?g HAVING count(?c) != 1", 0.8, "PROCUREMENT CONTACT PERSON MISSING"},
+		{5, 0, "{{?s <http://purl.org/procurement#lot> ?c; <http://purl.org/procurement#tender> ?t}}", 0.8, "PROCUREMENT BROKEN INTO SEVERAL CONTRACTS CANNOT HAVE DIRECT TENDERS"},
+		{6, 0, "{{?s <http://purl.org/procurement#name> ?n} FILTER (NOT bif:regexp_like(?n, \'^(doc. )?((Ing.|Mgr.|PhDr.|JUDr.|RNDr.|MUDr.|Bc.) )?(arch. )?[^., ]*( [^., ]*){1,2}(, (Ph.D.|CSc.))?$\'))}", 0.9, "NAME IN UNRECOGNIZABLE FORMAT"},
+		{7, 0, "{{?s <http://purl.org/procurement#estimatedPrice> ?p1; <http://purl.org/procurement#actualPrice> ?p2. ?p1 <http://purl.org/goodrelations/v1#hasCurrencyValue> ?v1. ?p2 <http://purl.org/goodrelations/v1#hasCurrencyValue> ?v2} FILTER (2 * ?v1 < ?v2)}", 0.8, "PROCUREMENT ACTUAL COSTS ARE ABOVE TWICE THE ESTIMATE"},
+		{8, 0, "{{?s <http://purl.org/procurement#procedureType> <http://purl.org/procurement#Open>; <http://purl.org/procurement#estimatedPrice> ?p. ?p <http://purl.org/goodrelations/v1#hasCurrencyValue> ?v.} FILTER (?v < 50000 OR ?v > 3000000)}", 0.8, "PROCEDURE TYPE IS INCOMPATIBLE WITH THE ESTIMATED PRICE"},
+		{9, 0, "{{?s <http://purl.org/procurement#awardDate> ?a; <http://purl.org/procurement#tenderDeadline> ?d.} FILTER (?d > ?a)}", 0.8, "TENDER AWARDED BEFORE APPLICATION DEADLINE"}};
 
 	public QualityAssessorImplTest (String name) throws ConnectionException {
 		super(name);
 		
-		sparqlEndpoint = new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba");
+		sparqlEndpoint = new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1113/UID=dba/PWD=dba", "dba", "dba");
 		connection = VirtuosoConnectionWrapper.createConnection(sparqlEndpoint);
 		
 		metadataGraphName = TestUtils.getUniqueURI();
 	}
 	
-	private void backupRulesRestrictions() throws Exception {
-		WrappedResultSet rulesRestrictions = connection.executeSelect("SELECT * FROM DB.ODCLEANSTORE.QA_RULES_TO_PUBLISHERS_RESTRICTIONS");
+	private void backupGroups() throws Exception {
+		WrappedResultSet groups = connection.executeSelect("SELECT * FROM DB.ODCLEANSTORE.QA_RULES_GROUPS");
 		
-		rulesRestrictionsBackup = new ArrayList<Object[]>();
+		groupsBackup = new ArrayList<Object[]>();
 		
-		while (rulesRestrictions.next()) {
-			Object[] ruleRestriction = {
-					rulesRestrictions.getInt("ruleId"),
-					rulesRestrictions.getInt("publisherId")};
-
-			rulesRestrictionsBackup.add(ruleRestriction);
-		}
-	}
-	
-	private void backupPublishers() throws Exception {
-		WrappedResultSet publishers = connection.executeSelect("SELECT * FROM DB.ODCLEANSTORE.PUBLISHERS");
-		
-		publishersBackup = new ArrayList<Object[]>();
-		
-		while (publishers.next()) {
+		while (groups.next()) {
 			Object[] publisher = {
-					publishers.getInt("id"),
-					publishers.getNString("uri"),
-					publishers.getNString("label")
+					groups.getInt("id"),
+					groups.getNString("label"),
+					groups.getNString("description")
 			};
 
-			publishersBackup.add(publisher);
+			groupsBackup.add(publisher);
 		}
 	}
 	
@@ -182,6 +163,7 @@ public class QualityAssessorImplTest extends TestCase {
 		while (rules.next()) {
 			Object[] publisher = {
 					rules.getInt("id"),
+					rules.getInt("groupId"),
 					rules.getNString("filter"),
 					rules.getDouble("coefficient"),
 					rules.getNString("description")
@@ -191,41 +173,31 @@ public class QualityAssessorImplTest extends TestCase {
 		}
 	}
 	
-	private void dropRulesRestrictions() throws Exception {
-		connection.execute("DELETE FROM DB.ODCLEANSTORE.QA_RULES_TO_PUBLISHERS_RESTRICTIONS");
-	}
-	
-	private void dropPublishers() throws Exception {
-		connection.execute("DELETE FROM DB.ODCLEANSTORE.PUBLISHERS");
+	private void dropGroups() throws Exception {
+		connection.execute("DELETE FROM DB.ODCLEANSTORE.QA_RULES_GROUPS");
 	}
 	
 	private void dropRules() throws Exception {
 		connection.execute("DELETE FROM DB.ODCLEANSTORE.QA_RULES");
 	}
 	
-	private void loadTestingPublishers() throws Exception {
-		for (int i = 0; i < publishers.length; ++i) {
-			connection.execute("INSERT INTO DB.ODCLEANSTORE.PUBLISHERS (id, uri, label) VALUES (?, ?, '')", publishers[i]);
+	private void loadTestingGroups() throws Exception {
+		for (int i = 0; i < groups.length; ++i) {
+			connection.execute("INSERT INTO DB.ODCLEANSTORE.QA_RULES_GROUPS (id, label, description) VALUES (?, ?, ?)", groups[i]);
 		}
 	}
 	
 	private void loadTestingRules() throws Exception {
 		for (int i = 0; i < rules.length; ++i) {
-			connection.execute("INSERT INTO DB.ODCLEANSTORE.QA_RULES (id, filter, coefficient, description) VALUES (?, ?, ?, ?)", rules[i]);
+			connection.execute("INSERT INTO DB.ODCLEANSTORE.QA_RULES (id, groupId, filter, coefficient, description) VALUES (?, ?, ?, ?, ?)", rules[i]);
 		}
 	}
 	
-	private void loadTestingRulesRestrictions() throws Exception {
-		for (int i = 0; i < rulesRestrictions.length; ++i) {
-			connection.execute("INSERT INTO DB.ODCLEANSTORE.QA_RULES_TO_PUBLISHERS_RESTRICTIONS (ruleId, publisherId) VALUES (?, ?)", rulesRestrictions[i]);
-		}
-	}
-	
-	private void restorePublishers() throws Exception {
-		Iterator<Object[]> objects = publishersBackup.iterator();
+	private void restoreGroups() throws Exception {
+		Iterator<Object[]> objects = groupsBackup.iterator();
 		
 		while (objects.hasNext()) {
-			connection.execute("INSERT INTO DB.ODCLEANSTORE.PUBLISHERS (id, uri, label) VALUES (?, ?, ?)", objects.next());
+			connection.execute("INSERT INTO DB.ODCLEANSTORE.QA_RULES_GROUPS (id, label, description) VALUES (?, ?, ?)", objects.next());
 		}
 	}
 	
@@ -233,15 +205,7 @@ public class QualityAssessorImplTest extends TestCase {
 		Iterator<Object[]> objects = rulesBackup.iterator();
 		
 		while (objects.hasNext()) {
-			connection.execute("INSERT INTO DB.ODCLEANSTORE.QA_RULES (id, filter, coefficient, description) VALUES (?, ?, ?, ?)", objects.next());
-		}
-	}
-	
-	private void restoreRulesRestrictions() throws Exception {
-		Iterator<Object[]> objects = rulesRestrictionsBackup.iterator();
-		
-		while (objects.hasNext()) {
-			connection.execute("INSERT INTO DB.ODCLEANSTORE.QA_RULES_TO_PUBLISHERS_RESTRICTIONS (ruleId, publisherId) VALUES (?, ?)", objects.next());
+			connection.execute("INSERT INTO DB.ODCLEANSTORE.QA_RULES (id, group, filter, coefficient, description) VALUES (?, ?, ?, ?)", objects.next());
 		}
 	}
 	
@@ -281,17 +245,14 @@ public class QualityAssessorImplTest extends TestCase {
 	
 	@Override
 	protected void setUp() throws Exception {
-		backupRulesRestrictions();
-		backupPublishers();
+		backupGroups();
 		backupRules();
-		
-		dropRulesRestrictions();
-		dropPublishers();
+
+		dropGroups();
 		dropRules();
 		
-		loadTestingPublishers();
+		loadTestingGroups();
 		loadTestingRules();
-		loadTestingRulesRestrictions();
 		
 		createGraphs();
 		createMetadataGraph();
@@ -301,14 +262,12 @@ public class QualityAssessorImplTest extends TestCase {
 	protected void tearDown() throws Exception {
 		dropMetadataGraph();
 		dropGraphs();
-		
-		dropRulesRestrictions();
-		dropPublishers();
+
+		dropGroups();
 		dropRules();
 		
-		restorePublishers();
+		restoreGroups();
 		restoreRules();
-		restoreRulesRestrictions();
 	}
 	
 	private TransformedGraph prepareGraph (final String graphName) {

@@ -12,6 +12,7 @@ import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.W3P;
+import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,20 @@ import java.util.List;
  * There is a difference in computing aggregate score for publishers (TODO).
  */
 abstract class CommonAssessment {
+	private final static String dropOldScoreQueryFormat = "SPARQL DELETE FROM <%s> {<%s>" +
+			"<" + ODCS.score + "> " +
+			"?s} WHERE {<%s> " +
+			"<" + ODCS.score + "> ?s}";
+	private final static String dropOldScoreTraceQueryFormat = "SPARQL DELETE FROM <%s> {<%s> " +
+			"<" + ODCS.scoreTrace + "> " +
+			"?s} WHERE {<%s>" +
+			"<" + ODCS.scoreTrace + "> ?s}";
+	private final static String storeNewScoreQueryFormat =  "SPARQL INSERT DATA INTO <%s> {<%s> " +
+			"<" + ODCS.score + "> \"%f\"^^<" + XMLSchema.doubleType + ">}";
+	private final static String storeNewScoreTraceQueryFormat = "SPARQL INSERT DATA INTO <%s> {<%s> " +
+			"<" + ODCS.scoreTrace + "> " +
+			"'%s'^^<" + XMLSchema.stringType + ">}";
+	
 	protected static final Logger LOG = LoggerFactory.getLogger(CommonAssessment.class);
 
 	protected TransformedGraph inputGraph;
@@ -36,7 +51,7 @@ abstract class CommonAssessment {
 
 	protected Collection<Rule> rules;
 
-	protected Float score = 1.0f;
+	protected Double score = 1.0;
 	protected List<String> trace = new ArrayList<String>();
 	protected Integer violations = 0;
 
@@ -82,7 +97,8 @@ abstract class CommonAssessment {
 			}
 		}
 
-		LOG.info(String.format("Quality Assessment done for graph %s, %d rules tested, %d violations, score %f", inputGraph.getGraphName(), rules.size(), violations, score));
+		LOG.info(String.format("Quality Assessment done for graph %s, %d rules tested, %d violations, score %f",
+				inputGraph.getGraphName(), rules.size(), violations, score));
 	}
 
 	/**
@@ -91,54 +107,15 @@ abstract class CommonAssessment {
 	abstract protected JDBCConnectionCredentials getEndpoint();
 
 	/**
-	 * Extract a URI of the graphs publisher if possible
-	 *
-	 * @return URI of the publisher of the input graph
-	 */
-	protected String getGraphPublisher () throws QualityAssessmentException {
-		final String graph = inputGraph.getGraphName();
-		final String metadataGraph = inputGraph.getMetadataGraphName();
-
-		final String query = "SPARQL SELECT ?publisher FROM <" + metadataGraph + "> WHERE {<" + graph + "> <" + W3P.publishedBy + "> ?publisher}";
-		WrappedResultSet results = null;
-		String publisher = null;
-
-		try
-		{
-			results = getConnection().executeSelect(query);
-
-			if (results.next()) {
-				publisher = results.getString("publisher");
-			}
-		} catch (DatabaseException e) {
-			//LOG.fatal(e.getMessage());
-			throw new QualityAssessmentException(e.getMessage());
-		} catch (SQLException e) {
-			//...
-			throw new QualityAssessmentException(e.getMessage());
-		} finally {
-			if (results != null) {
-				results.closeQuietly();
-			}
-		}
-
-		return publisher;
-	}
-
-	/**
 	 * Analyze the graph (presence of publishedBy property). Choose
 	 * all rules that can surely be applied.
 	 */
 	protected void loadRules() throws QualityAssessmentException {
 		RulesModel model = new RulesModel(context.getCleanDatabaseCredentials());
 
-		String publisher = getGraphPublisher();
-
-		if (publisher == null) {
-			rules = model.getUnrestrictedRules();
-		} else {
-			rules = model.getRulesForPublisher(publisher);
-		}
+		int group = 0;
+		
+		rules = model.getRules(group);
 	}
 
 	/**
@@ -207,16 +184,18 @@ abstract class CommonAssessment {
 		final String graph = inputGraph.getGraphName();
 		final String metadataGraph = inputGraph.getMetadataGraphName();
 
-		final String dropOldScore = "SPARQL DELETE FROM <" + metadataGraph + "> {<" + graph + "> <" + ODCS.score + "> ?s} WHERE {<" + graph + "> <" + ODCS.score + "> ?s}";
-		final String dropOldScoreTrace = "SPARQL DELETE FROM <" + metadataGraph + "> {<" + graph + "> <" + ODCS.scoreTrace + "> ?s} WHERE {<" + graph + "> <" + ODCS.scoreTrace + "> ?s}";
-		final String storeNewScore = "SPARQL INSERT DATA INTO <" + metadataGraph + "> {<" + graph + "> <" + ODCS.score + "> \"" + score + "\"^^xsd:double}";
-
-		/*
-		System.err.println(dropOldScore);
-		System.err.println(dropOldScoreTrace);
-		System.err.println(storeNewScore);
-		System.err.println(storeNewScoreTrace);
-		*/
+		final String dropOldScore = String.format(dropOldScoreQueryFormat,
+				metadataGraph,
+				graph,
+				graph);
+		final String dropOldScoreTrace = String.format(dropOldScoreTraceQueryFormat,
+				metadataGraph,
+				graph,
+				graph);
+		final String storeNewScore = String.format(storeNewScoreQueryFormat,
+				metadataGraph,
+				graph,
+				score);
 
 		/**
 		 * First delete old values for this particular graph in the metadata graph.
@@ -234,7 +213,10 @@ abstract class CommonAssessment {
 
 				escapedTrace = escapedTrace.replaceAll("'", "\\\\'");
 
-				final String storeNewScoreTrace = "SPARQL INSERT DATA INTO <" + metadataGraph + "> {<" + graph + "> <" + ODCS.scoreTrace + "> '" + escapedTrace + "'^^xsd:string}";
+				final String storeNewScoreTrace = String.format(storeNewScoreTraceQueryFormat,
+						metadataGraph,
+						graph,
+						escapedTrace);
 
 				getConnection().execute(storeNewScoreTrace);
 			}
