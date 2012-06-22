@@ -22,18 +22,19 @@ import cz.cuni.mff.odcleanstore.transformer.TransformedGraphException;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.W3P;
+import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 
 public class QualityAggregatorImpl implements QualityAggregator {
 	private static final Logger LOG = LoggerFactory.getLogger(QualityAggregatorImpl.class);	
 	
 	public static void main(String[] args) {
 		try {
-			new QualityAggregatorImpl().transformExistingGraph(new TransformedGraph () {
+			new QualityAggregatorImpl().transformNewGraph(new TransformedGraph () {
 
 				@Override
 				public String getGraphName() {
 					// TODO Auto-generated method stub
-					return "http://opendata.cz/data/namedGraph/1";
+					return "http://opendata.cz/data/namedGraph/3";
 				}
 
 				@Override
@@ -110,48 +111,90 @@ public class QualityAggregatorImpl implements QualityAggregator {
 			LOG.error(e.getMessage());
 		}
 	}
+	
+	private final static String dropOutdatedQueryFormat = "SPARQL DELETE {<%s> <" + ODCS.publisherScore + "> ?score}";
+	private final static String computeSumUpdatedQueryFormat = "SPARQL SELECT SUM(?score) WHERE {?graph <" + ODCS.score + "> ?score; <" + W3P.publishedBy + "> <%s>}";
+	private final static String computeCountUpdatedQueryFormat = "SPARQL SELECT COUNT(?score) WHERE {?graph <" + ODCS.score + "> ?score; <" + W3P.publishedBy + "> <%s>}";
+	private final static String storeUpdatedQueryFormat = "SPARQL INSERT DATA INTO <%s> {<%s> <" + ODCS.publisherScore + "> \"%f\"^^<" + XMLSchema.doubleType + ">}";
+	private final static String graphPublisherQueryFormat = "SPARQL SELECT ?publisher FROM <%s> WHERE {<%s> <" + W3P.publishedBy + "> ?publisher}";
+	private final static String graphScoreQueryFormat = "SPARQL SELECT ?score FROM <%s> WHERE {<%s> <" + ODCS.score + "> ?score}";
 
+	/**
+	 * The aggregated score consists of all scores of graphs in the clean database and the score of the new graph (restrained to graphs published by the same publisher
+	 * who published the currently processed graph).
+	 */
 	@Override
 	public void transformNewGraph(TransformedGraph inputGraph,
 			TransformationContext context) throws TransformerException {
+		endpoint = context.getDirtyDatabaseCredentials();
+		cleanEndpoint = context.getCleanDatabaseCredentials();
+
+		Double dirtyScore = 0.0;
+		
+		try
+		{
+			dirtyScore = getGraphScore(inputGraph.getGraphName(), inputGraph.getMetadataGraphName());
+		} catch (QualityAssessmentException e) {
+			throw new TransformerException(e);
+		}
+
+		updatePublisherScore(inputGraph.getGraphName(),
+				inputGraph.getMetadataGraphName(),
+				dirtyScore,
+				1);
 	}
 
+	/**
+	 * Just compute score from all graphs in the clean database that share the publisher (the current graph is among them)
+	 */
 	@Override
 	public void transformExistingGraph(TransformedGraph inputGraph,
 			TransformationContext context) throws TransformerException {
+		endpoint = context.getCleanDatabaseCredentials();
+		cleanEndpoint = context.getCleanDatabaseCredentials();
+		
+		updatePublisherScore(inputGraph.getGraphName(),
+				inputGraph.getMetadataGraphName(),
+				0.0,
+				0);
+	}
+	
+	/**
+	 * Takes all the graphs from clean database that share the publisher with the input graph. Adds delta (score of deltaCount other graphs) into the average.
+	 */
+	private void updatePublisherScore (String graph,
+			String metadataGraph,
+			Double delta,
+			Integer deltaCount) throws TransformerException {
 		try
 		{
-			endpoint = context.getCleanDatabaseCredentials();
-		
-			final String graph = inputGraph.getGraphName();
-			final String metadataGraph = inputGraph.getMetadataGraphName();
 			final String publisher = getGraphPublisher(graph, metadataGraph);
 			
 			if (publisher != null) {
 				try {
-					final String dropOutdated = "SPARQL DELETE {<" + publisher + "> <" + ODCS.publisherScore + "> ?score}";
+					final String dropOutdated = String.format(dropOutdatedQueryFormat, publisher);
+
+					getCleanConnection().execute(dropOutdated);
 					
-					System.err.println(dropOutdated);
-					getConnection().execute(dropOutdated);
+					final String computeSumUpdated = String.format(computeSumUpdatedQueryFormat, publisher);
+					final String computeCountUpdated = String.format(computeCountUpdatedQueryFormat, publisher);
 					
-					final String computeUpdated = "SPARQL SELECT AVG(?score) WHERE {?graph <" + ODCS.score + "> ?score; <" + W3P.publishedBy + "> <" + publisher + ">}";
-					
-					System.err.println(computeUpdated);
-					WrappedResultSet rs = getConnection().executeSelect(computeUpdated);
+					WrappedResultSet rsSum = getCleanConnection().executeSelect(computeSumUpdated);
+					WrappedResultSet rsCount = getCleanConnection().executeSelect(computeCountUpdated);
 
 					Double score;
 
-					if (rs.next()) {
-						score = rs.getDouble(1);
+					if (rsSum.next() && rsCount.next()) {
+						score = (rsSum.getDouble(1) + delta) / (rsCount.getDouble(1) + deltaCount);
 					
 						LOG.info("Publisher <" + publisher + "> scored " + score + ".");
 					} else {
 						throw new QualityAssessmentException("Publisher has no score.");
 					}
 
-					final String storeUpdated = "SPARQL INSERT DATA INTO <" + metadataGraph + "> {<" + publisher + "> <" + ODCS.publisherScore + "> \"" + score + "\"^^xsd:double}";
+					final String storeUpdated = String.format(storeUpdatedQueryFormat, metadataGraph, publisher, score);
 				
-					getConnection().execute(storeUpdated);
+					getCleanConnection().execute(storeUpdated);
 				} catch (ConnectionException e) {
 					throw new TransformerException(e);
 				} catch (QueryException e) {
@@ -162,6 +205,7 @@ public class QualityAggregatorImpl implements QualityAggregator {
 			}
 			
 			try {
+				closeCleanConnection();
 				closeConnection();
 			} catch (ConnectionException e) {
 			}
@@ -174,9 +218,26 @@ public class QualityAggregatorImpl implements QualityAggregator {
 	public void shutdown() throws TransformerException {
 	}
 	
+	private JDBCConnectionCredentials cleanEndpoint;
 	private JDBCConnectionCredentials endpoint;
+	
+	private VirtuosoConnectionWrapper cleanConnection;
 	private VirtuosoConnectionWrapper connection;
 
+	private VirtuosoConnectionWrapper getCleanConnection () throws ConnectionException {
+        if (cleanConnection == null) {
+        	cleanConnection = VirtuosoConnectionWrapper.createConnection(cleanEndpoint);
+       	}
+		return cleanConnection;
+	}
+
+	private void closeCleanConnection() throws ConnectionException {
+        if (cleanConnection != null) {
+        	cleanConnection.close();
+        	cleanConnection = null;
+        }
+	}
+	
 	private VirtuosoConnectionWrapper getConnection () throws ConnectionException {
         if (connection == null) {
         	connection = VirtuosoConnectionWrapper.createConnection(endpoint);
@@ -191,8 +252,14 @@ public class QualityAggregatorImpl implements QualityAggregator {
         }
 	}
 	
+	/**
+	 * @param graph
+	 * @param metadataGraph
+	 * @return The publisher of the given graph.
+	 * @throws QualityAssessmentException
+	 */
 	private String getGraphPublisher (final String graph, final String metadataGraph) throws QualityAssessmentException {	
-		final String query = "SPARQL SELECT ?publisher FROM <" + metadataGraph + "> WHERE {<" + graph + "> <" + W3P.publishedBy + "> ?publisher}";
+		final String query = String.format(graphPublisherQueryFormat, metadataGraph, graph);
 		WrappedResultSet results = null;
 		String publisher = null;
 
@@ -214,5 +281,36 @@ public class QualityAggregatorImpl implements QualityAggregator {
 		}
 		
 		return publisher;
+	}
+	
+	/** 
+	 * @param graph
+	 * @param metadataGraph
+	 * @return Score of the given graph.
+	 * @throws QualityAssessmentException
+	 */
+	private Double getGraphScore (final String graph, final String metadataGraph) throws QualityAssessmentException {
+		final String query = String.format(graphScoreQueryFormat, metadataGraph, graph);
+		WrappedResultSet results = null;
+		Double score = null;
+
+		try
+		{
+			results = getConnection().executeSelect(query);
+
+			if (results.next()) {
+				score = results.getDouble("score");
+			}
+		} catch (DatabaseException e) {
+			throw new QualityAssessmentException(e.getMessage());
+		} catch (SQLException e) {
+			throw new QualityAssessmentException(e.getMessage());
+		} finally {
+			if (results != null) {
+				results.closeQuietly();
+			}
+		}
+		
+		return score;
 	}
 }
