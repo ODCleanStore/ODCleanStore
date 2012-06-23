@@ -6,9 +6,9 @@ import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARulesGroup;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
-public class QARulesGroupDao extends Dao<QARulesGroup>
+public class QARulesGroupDao extends DaoForEntityWithSurrogateKey<QARulesGroup>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "QA_RULES_GROUPS";
 
@@ -59,21 +59,6 @@ public class QARulesGroupDao extends Dao<QARulesGroup>
 			item.getLabel(),
 			item.getDescription()
 		};
-		
-		getJdbcTemplate().update(query, params);
-	}
-	
-	@Override
-	public void delete(QARulesGroup item) 
-	{
-		deleteRelatedRules(item);
-		deleteRaw(item.getId());
-	}
-	
-	private void deleteRelatedRules(QARulesGroup item)
-	{
-		String query = "DELETE FROM " + QARuleDao.TABLE_NAME + " WHERE groupId = ?";
-		Object[] params = { item.getId() };
 		
 		getJdbcTemplate().update(query, params);
 	}

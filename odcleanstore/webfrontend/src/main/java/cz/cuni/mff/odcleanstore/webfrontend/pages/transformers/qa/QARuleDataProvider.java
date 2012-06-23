@@ -8,13 +8,13 @@ import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DetachableModel;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
 public class QARuleDataProvider implements IDataProvider<QARule>
 {
 	private static final long serialVersionUID = 1L;
 	
-	private Dao<QARule> dao;
+	private DaoForEntityWithSurrogateKey<QARule> dao;
 	private List<QARule> data;
 	private Long groupId;
 	
@@ -22,7 +22,7 @@ public class QARuleDataProvider implements IDataProvider<QARule>
 	 * 
 	 * @param dao
 	 */
-	public QARuleDataProvider(Dao<QARule> dao, Long groupId)
+	public QARuleDataProvider(DaoForEntityWithSurrogateKey<QARule> dao, Long groupId)
 	{
 		this.dao = dao;
 		this.groupId = groupId;
@@ -41,7 +41,7 @@ public class QARuleDataProvider implements IDataProvider<QARule>
 		data = null;
 	}
 
-	public Iterator iterator(int first, int count) 
+	public Iterator<QARule> iterator(int first, int count) 
 	{
 		// replace this with a special DAO method to only select the sub-list
 		// from the database call if necessary (instead of selecting all and 

@@ -1,13 +1,11 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.oi;
 
-import java.util.List;
-
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
-public class OIRuleDao extends Dao<OIRule>
+public class OIRuleDao extends DaoForEntityWithSurrogateKey<OIRule>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "OI_RULES";
 

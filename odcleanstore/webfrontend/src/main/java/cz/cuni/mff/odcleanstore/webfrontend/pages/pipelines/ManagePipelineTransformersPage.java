@@ -14,6 +14,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
@@ -22,7 +23,7 @@ public class ManagePipelineTransformersPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private Dao<Pipeline> pipelineDao;
+	private DaoForEntityWithSurrogateKey<Pipeline> pipelineDao;
 	private TransformerInstanceDao transformerInstanceDao;
 
 	public ManagePipelineTransformersPage(final Long pipelineId) 
@@ -34,7 +35,7 @@ public class ManagePipelineTransformersPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		pipelineDao = daoLookupFactory.getDao(PipelineDao.class);
+		pipelineDao = (DaoForEntityWithSurrogateKey<Pipeline>) daoLookupFactory.getDao(PipelineDao.class);
 		transformerInstanceDao = daoLookupFactory.getTransformerInstanceDao();
 		
 		// register page components

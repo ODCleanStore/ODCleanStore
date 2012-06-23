@@ -3,6 +3,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
@@ -20,7 +21,7 @@ public class AccountsListPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private Dao<User> userDao;
+	private DaoForEntityWithSurrogateKey<User> userDao;
 	
 	public AccountsListPage() 
 	{
@@ -31,7 +32,7 @@ public class AccountsListPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		userDao = daoLookupFactory.getDao(UserDao.class);
+		userDao = (DaoForEntityWithSurrogateKey<User>) daoLookupFactory.getDao(UserDao.class);
 		
 		// register page components
 		//

@@ -12,7 +12,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
@@ -23,8 +23,8 @@ public class QARulesManagementPage extends FrontendPage
 
 	private static Logger logger = Logger.getLogger(QARulesManagementPage.class);
 	
-	private Dao<QARulesGroup> qaRulesGroupDao;
-	private Dao<QARule> qaRuleDao;
+	private DaoForEntityWithSurrogateKey<QARulesGroup> qaRulesGroupDao;
+	private DaoForEntityWithSurrogateKey<QARule> qaRuleDao;
 
 	public QARulesManagementPage(final Long groupId) 
 	{
@@ -35,8 +35,8 @@ public class QARulesManagementPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		qaRulesGroupDao = daoLookupFactory.getDao(QARulesGroupDao.class);
-		qaRuleDao = daoLookupFactory.getDao(QARuleDao.class);
+		qaRulesGroupDao = (DaoForEntityWithSurrogateKey<QARulesGroup>) daoLookupFactory.getDao(QARulesGroupDao.class);
+		qaRuleDao = (DaoForEntityWithSurrogateKey<QARule>) daoLookupFactory.getDao(QARuleDao.class);
 		
 		// register page components
 		//

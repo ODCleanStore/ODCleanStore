@@ -5,7 +5,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
@@ -14,7 +14,7 @@ public class NewOIRulesGroupPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private Dao<OIRulesGroup> oiRulesGroupDao;
+	private DaoForEntityWithSurrogateKey<OIRulesGroup> oiRulesGroupDao;
 	
 	public NewOIRulesGroupPage() 
 	{
@@ -25,7 +25,7 @@ public class NewOIRulesGroupPage extends FrontendPage
 
 		// prepare DAO objects
 		//
-		this.oiRulesGroupDao = daoLookupFactory.getDao(OIRulesGroupDao.class);
+		this.oiRulesGroupDao = (DaoForEntityWithSurrogateKey<OIRulesGroup>) daoLookupFactory.getDao(OIRulesGroupDao.class);
 		
 		// register page components
 		//

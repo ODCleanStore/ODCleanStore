@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.systest.dao.DaoTest;
 
@@ -21,7 +22,7 @@ public class QARuleDaoTest extends DaoTest
 	
 	private static final String IMPORT_SCRIPT_LOCATION = ROOT_RESOURCE_DIR_PATH + "/initial_db_import.sql";
 	
-	private Dao<QARule> ruleDao;
+	private DaoForEntityWithSurrogateKey<QARule> ruleDao;
 
 	public QARuleDaoTest() throws Exception
 	{

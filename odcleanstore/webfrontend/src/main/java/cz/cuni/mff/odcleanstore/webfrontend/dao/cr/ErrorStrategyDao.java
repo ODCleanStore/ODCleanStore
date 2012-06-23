@@ -1,13 +1,11 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.cr;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.ErrorStrategy;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
-
-import java.util.List;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
-public class ErrorStrategyDao extends Dao<ErrorStrategy>
+public class ErrorStrategyDao extends DaoForEntityWithSurrogateKey<ErrorStrategy>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "CR_ERROR_STRATEGIES";
 
@@ -32,18 +30,6 @@ public class ErrorStrategyDao extends Dao<ErrorStrategy>
 		return this.rowMapper;
 	}
 	
-	@Override
-	public List<ErrorStrategy> loadAll() 
-	{
-		return loadAllRaw();
-	}
-
-	@Override
-	public ErrorStrategy load(Long id) 
-	{
-		return loadRaw(id);
-	}
-
 	@Override
 	public void deleteRaw(Long id)
 	{

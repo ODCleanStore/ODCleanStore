@@ -6,11 +6,13 @@ import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
-public class PipelineDao extends Dao<Pipeline>
+public class PipelineDao extends DaoForEntityWithSurrogateKey<Pipeline>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "PIPELINES";
+	
+	private static final long serialVersionUID = 1L;
 	
 	private ParameterizedRowMapper<Pipeline> rowMapper;
 	
@@ -92,21 +94,6 @@ public class PipelineDao extends Dao<Pipeline>
 		String query = "UPDATE " + TABLE_NAME + " SET runOnCleanDB = 1 WHERE id = ?";
 		Object[] params = { pipelineId };
 		
-		getJdbcTemplate().update(query, params);
-	}
-	
-	@Override
-	public void delete(Pipeline item)
-	{
-		deleteRelatedPipelinesMapping(item.getId());
-		deleteRaw(item.getId());
-	}
-	
-	private void deleteRelatedPipelinesMapping(Long pipelineId)
-	{
-		String query = "DELETE FROM " + TransformerInstanceDao.TABLE_NAME + " WHERE pipelineId = ?";
-		Object[] params = { pipelineId };
-
 		getJdbcTemplate().update(query, params);
 	}
 }

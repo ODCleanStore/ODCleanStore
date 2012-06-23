@@ -8,9 +8,9 @@ import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessObject;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessEntity;
 
-public class SafetyDaoDecorator<T extends BusinessObject> extends Dao<T>
+public class SafetyDaoDecorator<T extends BusinessEntity> extends Dao<T>
 {
 	private static final long serialVersionUID = 1L;
 
@@ -58,35 +58,11 @@ public class SafetyDaoDecorator<T extends BusinessObject> extends Dao<T>
 	{
 		return dao.loadAllRawBy(columnName, value);
 	}
-
-	@Override
-	public T load(Long id) 
-	{
-		return dao.load(id);
-	}
-	
-	@Override
-	public T loadRaw(Long id)
-	{
-		return dao.loadRaw(id);
-	}
 	
 	@Override 
 	public T loadRawBy(String columnName, Object value)
 	{
 		return dao.loadRawBy(columnName, value);
-	}
-	
-	@Override
-	public void delete(T item)
-	{
-		dao.delete(item);
-	}
-	
-	@Override
-	public void deleteRaw(Long id)
-	{
-		dao.deleteRaw(id);
 	}
 	
 	@Override

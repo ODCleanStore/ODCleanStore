@@ -1,13 +1,11 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.cr;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.AggregationType;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
-
-import java.util.List;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
-public class AggregationTypeDao extends Dao<AggregationType>
+public class AggregationTypeDao extends DaoForEntityWithSurrogateKey<AggregationType>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "CR_AGGREGATION_TYPES";
 
@@ -30,18 +28,6 @@ public class AggregationTypeDao extends Dao<AggregationType>
 	protected ParameterizedRowMapper<AggregationType> getRowMapper() 
 	{
 		return rowMapper;
-	}
-	
-	@Override
-	public List<AggregationType> loadAll() 
-	{
-		return loadAllRaw();
-	}
-
-	@Override
-	public AggregationType load(Long id) 
-	{
-		return loadRaw(id);
 	}
 	
 	@Override

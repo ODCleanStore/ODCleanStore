@@ -12,7 +12,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
@@ -23,8 +23,8 @@ public class ManageGroupRulesPage extends FrontendPage
 
 	private static Logger logger = Logger.getLogger(ManageGroupRulesPage.class);
 	
-	private Dao<OIRulesGroup> oiRulesGroupDao;
-	private Dao<OIRule> oiRuleDao;
+	private DaoForEntityWithSurrogateKey<OIRulesGroup> oiRulesGroupDao;
+	private DaoForEntityWithSurrogateKey<OIRule> oiRuleDao;
 	
 	public ManageGroupRulesPage(final Long groupId) 
 	{
@@ -35,8 +35,8 @@ public class ManageGroupRulesPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		oiRulesGroupDao = daoLookupFactory.getDao(OIRulesGroupDao.class);
-		oiRuleDao = daoLookupFactory.getDao(OIRuleDao.class);
+		oiRulesGroupDao = (DaoForEntityWithSurrogateKey<OIRulesGroup>) daoLookupFactory.getDao(OIRulesGroupDao.class);
+		oiRuleDao = (DaoForEntityWithSurrogateKey<OIRule>) daoLookupFactory.getDao(OIRuleDao.class);
 		
 		// register page components
 		//		

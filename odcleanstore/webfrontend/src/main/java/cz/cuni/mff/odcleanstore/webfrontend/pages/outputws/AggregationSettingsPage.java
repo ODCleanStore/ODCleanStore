@@ -7,6 +7,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.*;
 
 import org.apache.wicket.AttributeModifier;
@@ -28,7 +29,7 @@ public class AggregationSettingsPage extends FrontendPage
 
 	private static Logger logger = Logger.getLogger(AggregationSettingsPage.class);
 	
-	private Dao<PropertySettings> propertySettingsDao;
+	private DaoForEntityWithSurrogateKey<PropertySettings> propertySettingsDao;
 	private GlobalAggregationSettingsDao globalAggregationSettingsDao;
 	
 	public AggregationSettingsPage() 
@@ -40,7 +41,7 @@ public class AggregationSettingsPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		propertySettingsDao = daoLookupFactory.getDao(PropertySettingsDao.class);
+		propertySettingsDao = (DaoForEntityWithSurrogateKey<PropertySettings>) daoLookupFactory.getDao(PropertySettingsDao.class);
 		globalAggregationSettingsDao = daoLookupFactory.getGlobalAggregationSettingsDao();
 		
 		// register page components

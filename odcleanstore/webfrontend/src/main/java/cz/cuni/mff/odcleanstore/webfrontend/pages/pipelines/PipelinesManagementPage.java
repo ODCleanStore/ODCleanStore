@@ -14,6 +14,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
@@ -23,7 +24,7 @@ public class PipelinesManagementPage extends FrontendPage
 
 	private static Logger logger = Logger.getLogger(PipelinesManagementPage.class);
 	
-	private Dao<Pipeline> pipelineDao;
+	private DaoForEntityWithSurrogateKey<Pipeline> pipelineDao;
 
 	public PipelinesManagementPage() 
 	{
@@ -35,7 +36,7 @@ public class PipelinesManagementPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		pipelineDao = daoLookupFactory.getDao(PipelineDao.class);
+		pipelineDao = (DaoForEntityWithSurrogateKey<Pipeline>) daoLookupFactory.getDao(PipelineDao.class);
 		
 		// register page components
 		//

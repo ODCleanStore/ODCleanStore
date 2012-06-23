@@ -3,6 +3,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.users;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.util.Pair;
 
 import java.util.HashMap;
@@ -25,7 +26,7 @@ import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
-public class UserDao extends Dao<User>
+public class UserDao extends DaoForEntityWithSurrogateKey<User>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "USERS";
 	public static final String PERMISSIONS_TABLE_NAME = TABLE_NAME_PREFIX + "ROLES_ASSIGNED_TO_USERS";

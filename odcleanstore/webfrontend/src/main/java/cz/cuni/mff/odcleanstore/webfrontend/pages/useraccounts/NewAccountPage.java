@@ -14,6 +14,7 @@ import org.apache.wicket.validation.validator.EmailAddressValidator;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.configuration.Configuration;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.util.Mail;
@@ -26,7 +27,7 @@ public class NewAccountPage extends FrontendPage
 {
 	private static Logger logger = Logger.getLogger(NewAccountPage.class);
 	
-	private Dao<User> userDao;
+	private DaoForEntityWithSurrogateKey<User> userDao;
 	
 	public NewAccountPage() 
 	{
@@ -37,7 +38,7 @@ public class NewAccountPage extends FrontendPage
 
 		// prepare DAO objects
 		//
-		userDao = daoLookupFactory.getDao(UserDao.class);
+		userDao = (DaoForEntityWithSurrogateKey<User>) daoLookupFactory.getDao(UserDao.class);
 		
 		// register page components
 		//

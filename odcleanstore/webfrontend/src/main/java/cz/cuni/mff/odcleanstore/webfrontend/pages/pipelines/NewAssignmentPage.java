@@ -9,6 +9,7 @@ import org.apache.wicket.validation.validator.RangeValidator;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
@@ -17,7 +18,7 @@ public class NewAssignmentPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private Dao<Transformer> transformerDao;
+	private DaoForEntityWithSurrogateKey<Transformer> transformerDao;
 	private TransformerInstanceDao transformerInstanceDao;
 	
 	private Transformer transformer;
@@ -36,7 +37,7 @@ public class NewAssignmentPage extends FrontendPage
 
 		// prepare DAO objects
 		//
-		transformerDao = daoLookupFactory.getDao(TransformerDao.class);
+		transformerDao = (DaoForEntityWithSurrogateKey<Transformer>) daoLookupFactory.getDao(TransformerDao.class);
 		transformerInstanceDao = daoLookupFactory.getTransformerInstanceDao();
 		
 		// register page components

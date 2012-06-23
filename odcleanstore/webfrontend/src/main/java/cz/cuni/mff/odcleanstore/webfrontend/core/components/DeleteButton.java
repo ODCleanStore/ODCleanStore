@@ -1,23 +1,22 @@
 package cz.cuni.mff.odcleanstore.webfrontend.core.components;
 
-import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.link.Link;
 
 import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessObject;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-public class DeleteButton<BO extends BusinessObject> extends Link
+public class DeleteButton<BO extends EntityWithSurrogateKey> extends Link
 {
 	private static final long serialVersionUID = 1L;
 
-	private Dao<BO> dao; 
+	private DaoForEntityWithSurrogateKey<BO> dao; 
 	private Long boId;
 	private String objName;
 	private FrontendPage redirectPage;
 	
-	public DeleteButton(Dao<BO> dao, Long boId, String objName,
+	public DeleteButton(DaoForEntityWithSurrogateKey<BO> dao, Long boId, String objName,
 		DeleteConfirmationMessage message, FrontendPage redirectPage) 
 	{
 		super(createCompName(objName));

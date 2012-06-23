@@ -6,9 +6,9 @@ import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
-public class OIRulesGroupDao extends Dao<OIRulesGroup>
+public class OIRulesGroupDao extends DaoForEntityWithSurrogateKey<OIRulesGroup>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "OI_RULES_GROUPS";
 
@@ -59,21 +59,6 @@ public class OIRulesGroupDao extends Dao<OIRulesGroup>
 			item.getLabel(),
 			item.getDescription()
 		};
-		
-		getJdbcTemplate().update(query, params);
-	}
-	
-	@Override
-	public void delete(OIRulesGroup item) 
-	{
-		deleteRelatedRules(item);
-		deleteRaw(item.getId());
-	}
-	
-	private void deleteRelatedRules(OIRulesGroup item)
-	{
-		String query = "DELETE FROM " + OIRuleDao.TABLE_NAME + " WHERE groupId = ?";
-		Object[] params = { item.getId() };
 		
 		getJdbcTemplate().update(query, params);
 	}

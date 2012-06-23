@@ -5,6 +5,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.validators.IRIValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.*;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.*;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 
@@ -17,9 +18,9 @@ public class RegisterPropertyPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private Dao<PropertySettings> propertySettingsDao;
-	private Dao<AggregationType> aggregationTypeDao;
-	private Dao<MultivalueType> multivalueTypeDao;
+	private DaoForEntityWithSurrogateKey<PropertySettings> propertySettingsDao;
+	private DaoForEntityWithSurrogateKey<AggregationType> aggregationTypeDao;
+	private DaoForEntityWithSurrogateKey<MultivalueType> multivalueTypeDao;
 	
 	public RegisterPropertyPage() 
 	{
@@ -30,9 +31,9 @@ public class RegisterPropertyPage extends FrontendPage
 
 		// prepare DAO objects
 		//
-		propertySettingsDao = daoLookupFactory.getDao(PropertySettingsDao.class);
-		aggregationTypeDao = daoLookupFactory.getDao(AggregationTypeDao.class);
-		multivalueTypeDao = daoLookupFactory.getDao(MultivalueTypeDao.class);
+		propertySettingsDao = (DaoForEntityWithSurrogateKey<PropertySettings>) daoLookupFactory.getDao(PropertySettingsDao.class);
+		aggregationTypeDao = (DaoForEntityWithSurrogateKey<AggregationType>) daoLookupFactory.getDao(AggregationTypeDao.class);
+		multivalueTypeDao = (DaoForEntityWithSurrogateKey<MultivalueType>) daoLookupFactory.getDao(MultivalueTypeDao.class);
 		
 		// register page components
 		//

@@ -3,9 +3,9 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.qa;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
-public class QARuleDao extends Dao<QARule>
+public class QARuleDao extends DaoForEntityWithSurrogateKey<QARule>
 {
 	private static final long serialVersionUID = 1L;
 	
