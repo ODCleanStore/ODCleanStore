@@ -86,7 +86,7 @@ class TestInstance {
 }
 
 public class QualityAssessorImplTest extends TestCase {
-	private JDBCConnectionCredentials sparqlEndpoint;
+	private JDBCConnectionCredentials sparqlEndpoint = new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1113/UID=dba/PWD=dba", "dba", "dba");
 	private VirtuosoConnectionWrapper connection;
 	
 	private TestInstance[] tests = new TestInstance[] {
@@ -133,7 +133,6 @@ public class QualityAssessorImplTest extends TestCase {
 	public QualityAssessorImplTest (String name) throws ConnectionException {
 		super(name);
 		
-		sparqlEndpoint = new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1113/UID=dba/PWD=dba", "dba", "dba");
 		connection = VirtuosoConnectionWrapper.createConnection(sparqlEndpoint);
 		
 		metadataGraphName = TestUtils.getUniqueURI();
@@ -205,7 +204,7 @@ public class QualityAssessorImplTest extends TestCase {
 		Iterator<Object[]> objects = rulesBackup.iterator();
 		
 		while (objects.hasNext()) {
-			connection.execute("INSERT INTO DB.ODCLEANSTORE.QA_RULES (id, group, filter, coefficient, description) VALUES (?, ?, ?, ?)", objects.next());
+			connection.execute("INSERT INTO DB.ODCLEANSTORE.QA_RULES (id, groupId, filter, coefficient, description) VALUES (?, ?, ?, ?, ?)", objects.next());
 		}
 	}
 	
