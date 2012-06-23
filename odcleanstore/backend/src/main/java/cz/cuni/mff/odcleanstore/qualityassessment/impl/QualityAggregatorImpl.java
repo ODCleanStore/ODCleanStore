@@ -118,6 +118,8 @@ public class QualityAggregatorImpl implements QualityAggregator {
 	private final static String storeUpdatedQueryFormat = "SPARQL INSERT DATA INTO <%s> {<%s> <" + ODCS.publisherScore + "> \"%f\"^^<" + XMLSchema.doubleType + ">}";
 	private final static String graphPublisherQueryFormat = "SPARQL SELECT ?publisher FROM <%s> WHERE {<%s> <" + W3P.publishedBy + "> ?publisher}";
 	private final static String graphScoreQueryFormat = "SPARQL SELECT ?score FROM <%s> WHERE {<%s> <" + ODCS.score + "> ?score}";
+	
+	private TransformationContext context;
 
 	/**
 	 * The aggregated score consists of all scores of graphs in the clean database and the score of the new graph (restrained to graphs published by the same publisher
@@ -126,22 +128,24 @@ public class QualityAggregatorImpl implements QualityAggregator {
 	@Override
 	public void transformNewGraph(TransformedGraph inputGraph,
 			TransformationContext context) throws TransformerException {
-		endpoint = context.getDirtyDatabaseCredentials();
-		cleanEndpoint = context.getCleanDatabaseCredentials();
-
-		Double dirtyScore = 0.0;
+		this.context = context;
 		
 		try
 		{
-			dirtyScore = getGraphScore(inputGraph.getGraphName(), inputGraph.getMetadataGraphName());
+			Double newScore = getGraphScore(inputGraph.getGraphName(), inputGraph.getMetadataGraphName(), getDirtyConnection());
+			
+			updatePublisherScore(inputGraph.getGraphName(),
+					inputGraph.getMetadataGraphName(),
+					newScore,
+					1);
 		} catch (QualityAssessmentException e) {
 			throw new TransformerException(e);
+		} catch (ConnectionException e) {
+			throw new TransformerException(e);
+		} finally {
+			closeCleanConnection();
+			closeDirtyConnection();
 		}
-
-		updatePublisherScore(inputGraph.getGraphName(),
-				inputGraph.getMetadataGraphName(),
-				dirtyScore,
-				1);
 	}
 
 	/**
@@ -150,13 +154,25 @@ public class QualityAggregatorImpl implements QualityAggregator {
 	@Override
 	public void transformExistingGraph(TransformedGraph inputGraph,
 			TransformationContext context) throws TransformerException {
-		endpoint = context.getCleanDatabaseCredentials();
-		cleanEndpoint = context.getCleanDatabaseCredentials();
+		this.context = context;
 		
-		updatePublisherScore(inputGraph.getGraphName(),
-				inputGraph.getMetadataGraphName(),
-				0.0,
-				0);
+		try
+		{
+			Double outdatedScore = getGraphScore(inputGraph.getGraphName(), inputGraph.getMetadataGraphName(), getCleanConnection());
+			Double updatedScore = getGraphScore(inputGraph.getGraphName(), inputGraph.getMetadataGraphName(), getDirtyConnection());
+			
+			updatePublisherScore(inputGraph.getGraphName(),
+					inputGraph.getMetadataGraphName(),
+					updatedScore - outdatedScore,
+					0);
+		} catch (QualityAssessmentException e) {
+			throw new TransformerException(e);
+		} catch (ConnectionException e) {
+			throw new TransformerException(e);
+		} finally {
+			closeCleanConnection();
+			closeDirtyConnection();
+		}
 	}
 	
 	/**
@@ -203,12 +219,6 @@ public class QualityAggregatorImpl implements QualityAggregator {
 					throw new TransformerException(e);
 				}
 			}
-			
-			try {
-				closeCleanConnection();
-				closeConnection();
-			} catch (ConnectionException e) {
-			}
 		} catch (QualityAssessmentException e) {
 			throw new TransformerException(e);
 		}
@@ -218,38 +228,43 @@ public class QualityAggregatorImpl implements QualityAggregator {
 	public void shutdown() throws TransformerException {
 	}
 	
-	private JDBCConnectionCredentials cleanEndpoint;
-	private JDBCConnectionCredentials endpoint;
-	
 	private VirtuosoConnectionWrapper cleanConnection;
-	private VirtuosoConnectionWrapper connection;
+	private VirtuosoConnectionWrapper dirtyConnection;
 
 	private VirtuosoConnectionWrapper getCleanConnection () throws ConnectionException {
         if (cleanConnection == null) {
-        	cleanConnection = VirtuosoConnectionWrapper.createConnection(cleanEndpoint);
+        	cleanConnection = VirtuosoConnectionWrapper.createConnection(context.getCleanDatabaseCredentials());
        	}
 		return cleanConnection;
 	}
 
-	private void closeCleanConnection() throws ConnectionException {
-        if (cleanConnection != null) {
-        	cleanConnection.close();
-        	cleanConnection = null;
-        }
+	private void closeCleanConnection() {
+		try {
+			if (cleanConnection != null) {
+				cleanConnection.close();
+			}
+		} catch (ConnectionException e) {
+		} finally {
+			cleanConnection = null;
+		}
 	}
 	
-	private VirtuosoConnectionWrapper getConnection () throws ConnectionException {
-        if (connection == null) {
-        	connection = VirtuosoConnectionWrapper.createConnection(endpoint);
+	private VirtuosoConnectionWrapper getDirtyConnection () throws ConnectionException {
+        if (dirtyConnection == null) {
+        	dirtyConnection = VirtuosoConnectionWrapper.createConnection(context.getDirtyDatabaseCredentials());
        	}
-		return connection;
+		return dirtyConnection;
 	}
 
-	private void closeConnection() throws ConnectionException {
-        if (connection != null) {
-        	connection.close();
-        	connection = null;
-        }
+	private void closeDirtyConnection() {
+		try {
+			if (dirtyConnection != null) {
+				dirtyConnection.close();
+			}
+		} catch (ConnectionException e) {
+		} finally {
+			dirtyConnection = null;
+		}
 	}
 	
 	/**
@@ -265,7 +280,7 @@ public class QualityAggregatorImpl implements QualityAggregator {
 
 		try
 		{
-			results = getConnection().executeSelect(query);
+			results = getDirtyConnection().executeSelect(query);
 
 			if (results.next()) {
 				publisher = results.getString("publisher");
@@ -289,14 +304,16 @@ public class QualityAggregatorImpl implements QualityAggregator {
 	 * @return Score of the given graph.
 	 * @throws QualityAssessmentException
 	 */
-	private Double getGraphScore (final String graph, final String metadataGraph) throws QualityAssessmentException {
+	private Double getGraphScore (final String graph,
+			final String metadataGraph,
+			final VirtuosoConnectionWrapper connection) throws QualityAssessmentException {
 		final String query = String.format(graphScoreQueryFormat, metadataGraph, graph);
 		WrappedResultSet results = null;
-		Double score = null;
+		Double score = 0.0;
 
 		try
 		{
-			results = getConnection().executeSelect(query);
+			results = connection.executeSelect(query);
 
 			if (results.next()) {
 				score = results.getDouble("score");
