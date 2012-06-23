@@ -10,7 +10,7 @@ import java.util.List;
  *
  */
 
-public class Role extends BusinessObject
+public class Role extends EntityWithSurrogateKey
 {
 	/** an enumeration of standard frontend roles */
 	public static List<Role> standardRoles;
@@ -38,9 +38,10 @@ public class Role extends BusinessObject
 	 */
 	public Role(Long id, String label, String description)
 	{
-		this(label, description);
+		super(id);
 		
-		this.id = id;
+		this.label = label;
+		this.description = description;
 	}
 	
 	/**

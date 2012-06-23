@@ -1,8 +1,8 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo.oi;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessObject;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
-public class OIRule extends BusinessObject
+public class OIRule extends EntityWithSurrogateKey
 {
 	private static final long serialVersionUID = 1L;
 
@@ -11,7 +11,8 @@ public class OIRule extends BusinessObject
 	
 	public OIRule(Long id, Long groupId, String definition) 
 	{
-		this.id = id;
+		super(id);
+		
 		this.groupId = groupId;
 		this.definition = definition;
 	}

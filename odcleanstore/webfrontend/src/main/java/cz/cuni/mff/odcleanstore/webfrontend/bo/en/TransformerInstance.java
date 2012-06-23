@@ -1,8 +1,8 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo.en;
 
-import java.io.Serializable;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessEntity;
 
-public class TransformerInstance implements Serializable
+public class TransformerInstance extends BusinessEntity
 {
 	private static final long serialVersionUID = 1L;
 	

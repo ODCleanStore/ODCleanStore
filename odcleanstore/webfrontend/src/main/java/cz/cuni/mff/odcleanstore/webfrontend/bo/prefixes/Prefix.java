@@ -1,8 +1,8 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo.prefixes;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessObject;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessEntity;
 
-public class Prefix extends BusinessObject
+public class Prefix extends BusinessEntity
 {
 	private static final long serialVersionUID = 1L;
 

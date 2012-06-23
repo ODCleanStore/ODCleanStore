@@ -1,8 +1,8 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo.en;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessObject;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessEntity;
 
-public class Graph extends BusinessObject
+public class Graph extends BusinessEntity
 {
 	private static final long serialVersionUID = 1L;
 	

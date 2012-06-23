@@ -3,9 +3,9 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo.qa;
 import java.util.LinkedList;
 import java.util.List;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessObject;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;;
 
-public class QARulesGroup extends BusinessObject 
+public class QARulesGroup extends EntityWithSurrogateKey 
 {
 	private static final long serialVersionUID = 1L;
 
@@ -15,7 +15,8 @@ public class QARulesGroup extends BusinessObject
 	
 	public QARulesGroup(Long id, String label, String description) 
 	{
-		this.id = id;
+		super(id);
+		
 		this.label = label;
 		this.description = description;
 		

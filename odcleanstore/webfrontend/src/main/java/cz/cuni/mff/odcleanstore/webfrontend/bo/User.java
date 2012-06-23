@@ -11,7 +11,7 @@ import java.util.Set;
  * @author Dusan Rychnovsky (dusan.rychnovsky@gmail.com)
  *
  */
-public class User extends BusinessObject
+public class User extends EntityWithSurrogateKey
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -34,9 +34,10 @@ public class User extends BusinessObject
 	 */
 	public User(Long id, String username, String email, String firstname, String surname)
 	{
-		this();
+		super(id);
+
+		this.roles = new HashSet<Role>();
 		
-		this.id = id;
 		this.username = username;
 		this.email = email;
 		this.firstname = firstname;

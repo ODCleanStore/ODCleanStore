@@ -1,7 +1,11 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo.cr;
 
-public class GlobalAggregationSettings 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessEntity;
+
+public class GlobalAggregationSettings extends BusinessEntity
 {
+	private static final long serialVersionUID = 1L;
+	
 	private ErrorStrategy defaultErrorStrategy;
 	private MultivalueType defaultMultivalueType;
 	private AggregationType defaultAggregationType;
