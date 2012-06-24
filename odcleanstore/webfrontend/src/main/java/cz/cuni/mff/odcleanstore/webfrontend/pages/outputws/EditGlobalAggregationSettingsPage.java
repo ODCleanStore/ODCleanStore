@@ -6,6 +6,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.*;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.*;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -56,7 +57,12 @@ public class EditGlobalAggregationSettingsPage extends FrontendPage
 				
 				try {
 					globalAggregationSettingsDao.save(settings);
-				} 
+				}
+				catch (DaoException ex)
+				{
+					getSession().error(ex.getMessage());
+					return;
+				}
 				catch (Exception e) 
 				{
 					getSession().error("Could not save global settings due to an unexpected error");
