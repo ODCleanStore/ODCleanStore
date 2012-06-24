@@ -48,15 +48,12 @@ public class GlobalAggregationSettingsDao extends Dao<GlobalAggregationSettings>
 	
 	public void save(GlobalAggregationSettings settings)
 	{
-		// TODO: obalit pomoci transaction (resp. spise predelat na update)
-		
-		String deleteQuery = "DELETE FROM " + TABLE_NAME;
-		getJdbcTemplate().update(deleteQuery);
-		
-		String insertQuery = 
-			"INSERT INTO " + TABLE_NAME + " " + 
-			"VALUES (?, ?, ?)";
-		
+		String query = 
+			"UPDATE " + TABLE_NAME + " SET " +
+			"defaultAggregationTypeId = ?, " +
+			"defaultMultivalueTypeId = ?, " +
+			"defaultErrorStrategyId = ?";
+	
 		Object[] params =
 		{
 			settings.getDefaultAggregationType().getId(),
@@ -64,6 +61,6 @@ public class GlobalAggregationSettingsDao extends Dao<GlobalAggregationSettings>
 			settings.getDefaultErrorStrategy().getId()
 		};
 		
-		getJdbcTemplate().update(insertQuery, params);
+		getJdbcTemplate().update(query, params);
 	}
 }
