@@ -15,6 +15,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.configuration.Configuration;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.util.Mail;
@@ -60,12 +61,19 @@ public class NewAccountPage extends FrontendPage
 				try 
 				{
 					initNewPasswordForUser(user, config);
+					// TODO: should send an email after successfuly inserting into DB
+					// TODO: inserting into DB + sending email should be in a transaction
 					userDao.save(user);
-				} 
-				catch (Exception ex) 
+				}
+				catch (DaoException ex) 
 				{
 					getSession().error(ex.getMessage());
-					setResponsePage(AccountsListPage.class);
+					return;
+				}
+				catch (Exception ex)
+				{
+					getSession().error("The user account could not be created due to an unexpected error.");
+					return;
 				}
 								
 				getSession().info("The user account was successfuly created.");
@@ -75,8 +83,8 @@ public class NewAccountPage extends FrontendPage
 		
 		form.add(createTextfield("username"));
 		addEmailTextfield(form);
-		form.add(createTextfield("firstname"));
-		form.add(createTextfield("surname"));
+		form.add(createTextfield("firstname", false));
+		form.add(createTextfield("surname", false));
 
 		add(form);
 	}

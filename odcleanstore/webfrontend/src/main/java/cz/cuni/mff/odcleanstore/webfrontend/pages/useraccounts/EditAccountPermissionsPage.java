@@ -17,6 +17,7 @@ import org.apache.wicket.model.Model;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.RoleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
@@ -84,8 +85,15 @@ public class EditAccountPermissionsPage extends FrontendPage
 				try {
 					userDao.update(user);
 				} 
-				catch (Exception e) 
+				catch (DaoException ex)
 				{
+					getSession().error(ex.getMessage());
+					return;
+				}
+				catch (Exception ex) 
+				{
+					logger.error("Could not edit user permissions due to: " + ex.getMessage());
+					
 					getSession().error(
 						"User permissions could not be modified due to an unexpected error."
 					);

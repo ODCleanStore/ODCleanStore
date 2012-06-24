@@ -177,7 +177,7 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 	private void updateRaw(User user)
 	{
 		String query = 
-			"UPDATE " + getTableName() +
+			"UPDATE " + getTableName() + " " +
 			"SET username = ?, email = ?, firstname = ?, surname = ? " +
 			"WHERE id = ?";
 		
