@@ -4,6 +4,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.*;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.*;
 
 import org.apache.wicket.markup.html.form.Form;
@@ -14,10 +15,10 @@ public class EditGlobalAggregationSettingsPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 	
-	private GlobalAggregationSettingsDao globalAggregationSettingsDao;
-	private Dao<AggregationType> aggregationTypeDao;
-	private Dao<MultivalueType> multivalueTypeDao;
-	private Dao<ErrorStrategy> errorStrategyDao;
+	private Dao<GlobalAggregationSettings> globalAggregationSettingsDao;
+	private DaoForEntityWithSurrogateKey<AggregationType> aggregationTypeDao;
+	private DaoForEntityWithSurrogateKey<MultivalueType> multivalueTypeDao;
+	private DaoForEntityWithSurrogateKey<ErrorStrategy> errorStrategyDao;
 	
 	public EditGlobalAggregationSettingsPage() 
 	{
@@ -28,10 +29,10 @@ public class EditGlobalAggregationSettingsPage extends FrontendPage
 
 		// prepare DAO objects
 		//
-		globalAggregationSettingsDao = daoLookupFactory.getGlobalAggregationSettingsDao();
-		aggregationTypeDao = daoLookupFactory.getDao(AggregationTypeDao.class);
-		multivalueTypeDao = daoLookupFactory.getDao(MultivalueTypeDao.class);
-		errorStrategyDao = daoLookupFactory.getDao(ErrorStrategyDao.class);
+		globalAggregationSettingsDao = daoLookupFactory.getDao(GlobalAggregationSettingsDao.class);
+		aggregationTypeDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(AggregationTypeDao.class);
+		multivalueTypeDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(MultivalueTypeDao.class);
+		errorStrategyDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(ErrorStrategyDao.class);
 		
 		// register page components
 		//
@@ -53,7 +54,14 @@ public class EditGlobalAggregationSettingsPage extends FrontendPage
 			{
 				GlobalAggregationSettings settings = this.getModelObject();
 				
-				globalAggregationSettingsDao.save(settings);
+				try {
+					globalAggregationSettingsDao.save(settings);
+				} 
+				catch (Exception e) 
+				{
+					getSession().error("Could not save global settings due to an unexpected error");
+					return;
+				}
 				
 				getSession().info("The global settings were successfuly altered.");
 				setResponsePage(AggregationSettingsPage.class);

@@ -1,18 +1,17 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.cr;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.PropertySettings;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
-public class PropertySettingsDao extends Dao<PropertySettings>
-{
-	private static Logger logger = Logger.getLogger(PropertySettingsDao.class);
-	
+public class PropertySettingsDao extends DaoForEntityWithSurrogateKey<PropertySettings>
+{	
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "CR_PROPERTIES";
+
+	private static final long serialVersionUID = 1L;
 	
 	private ParameterizedRowMapper<PropertySettings> rowMapper;
 	
@@ -33,12 +32,6 @@ public class PropertySettingsDao extends Dao<PropertySettings>
 		return rowMapper;
 	}
 	
-	@Override
-	public void delete(PropertySettings item) 
-	{
-		deleteRaw(item.getId());
-	}
-
 	@Override
 	public void save(PropertySettings item) 
 	{
@@ -69,12 +62,21 @@ public class PropertySettingsDao extends Dao<PropertySettings>
 		
 		return getJdbcTemplate().query(query, getRowMapper());
 	}
-
+	
 	@Override
-	public PropertySettings load(Long id) 
+	public PropertySettings load(Long id)
 	{
-		throw new UnsupportedOperationException(
-			"Cannot load single rows from table: " + getTableName() + "."
-		);
+		String query = 
+			"SELECT * " +
+			"FROM " + PropertySettingsDao.TABLE_NAME + " as P " +
+			"JOIN " + AggregationTypeDao.TABLE_NAME + " as AT " +
+			"ON P.aggregationTypeId = AT.id " +
+			"JOIN " + MultivalueTypeDao.TABLE_NAME + " as MT " +
+			"ON P.multivalueTypeId = MT.id " +
+			"WHERE P.id = ?";
+		
+		Object[] params = { id };
+			
+		return getJdbcTemplate().queryForObject(query, params, getRowMapper());
 	}
 }

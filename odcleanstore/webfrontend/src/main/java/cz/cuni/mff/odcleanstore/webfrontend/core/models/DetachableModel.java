@@ -2,21 +2,21 @@ package cz.cuni.mff.odcleanstore.webfrontend.core.models;
 
 import org.apache.wicket.model.LoadableDetachableModel;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessObject;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
-public class DetachableModel<BO extends BusinessObject> extends LoadableDetachableModel<BO>
+public class DetachableModel<BO extends EntityWithSurrogateKey> extends LoadableDetachableModel<BO>
 {
 	private static final long serialVersionUID = 1L;
 	
-	private Dao<BO> dao;
+	private DaoForEntityWithSurrogateKey<BO> dao;
 	private BO item;
 	private Long id;
 	
 	/**
 	 * 
 	 */
-	public DetachableModel(Dao<BO> dao, Long id)
+	public DetachableModel(DaoForEntityWithSurrogateKey<BO> dao, Long id)
 	{
 		this.dao = dao;
 		this.id = id;
@@ -27,7 +27,7 @@ public class DetachableModel<BO extends BusinessObject> extends LoadableDetachab
 	 * @param dao
 	 * @param item
 	 */
-	public DetachableModel(Dao<BO> dao, BO item)
+	public DetachableModel(DaoForEntityWithSurrogateKey<BO> dao, BO item)
 	{
 		this.item = item;
 		

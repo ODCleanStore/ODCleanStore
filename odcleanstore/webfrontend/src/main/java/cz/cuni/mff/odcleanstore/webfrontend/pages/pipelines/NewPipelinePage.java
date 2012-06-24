@@ -5,7 +5,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
@@ -14,7 +14,7 @@ public class NewPipelinePage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private Dao<Pipeline> pipelineDao;
+	private DaoForEntityWithSurrogateKey<Pipeline> pipelineDao;
 	
 	public NewPipelinePage() 
 	{
@@ -27,7 +27,7 @@ public class NewPipelinePage extends FrontendPage
 
 		// prepare DAO objects
 		//
-		pipelineDao = daoLookupFactory.getDao(PipelineDao.class);
+		pipelineDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(PipelineDao.class);
 		
 		// register page components
 		//

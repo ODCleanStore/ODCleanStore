@@ -1,9 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.users;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
-
-import java.util.List;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
@@ -13,9 +11,11 @@ import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
-public class RoleDao extends Dao<Role>
+public class RoleDao extends DaoForEntityWithSurrogateKey<Role>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "ROLES";
+
+	private static final long serialVersionUID = 1L;
 	
 	private ParameterizedRowMapper<Role> rowMapper;
 	
@@ -34,17 +34,5 @@ public class RoleDao extends Dao<Role>
 	protected ParameterizedRowMapper<Role> getRowMapper() 
 	{
 		return rowMapper;
-	}
-	
-	@Override
-	public List<Role> loadAll() 
-	{
-		return loadAllRaw();
-	}
-
-	@Override
-	public Role load(Long id) 
-	{
-		return loadRaw(id);
 	}
 }

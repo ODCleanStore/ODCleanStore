@@ -3,9 +3,9 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo.en;
 import java.util.LinkedList;
 import java.util.List;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessObject;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
-public class Pipeline extends BusinessObject
+public class Pipeline extends EntityWithSurrogateKey
 {
 	private static final long serialVersionUID = 1L;
 
@@ -23,9 +23,10 @@ public class Pipeline extends BusinessObject
 	 */
 	public Pipeline(Long id, String label, String description, Boolean runOnCleanDB) 
 	{
-		this();
+		super(id);
 		
-		this.id = id;
+		this.transformers = new LinkedList<TransformerInstance>();
+		
 		this.label = label;
 		this.description = description;
 		this.runOnCleanDB = runOnCleanDB;

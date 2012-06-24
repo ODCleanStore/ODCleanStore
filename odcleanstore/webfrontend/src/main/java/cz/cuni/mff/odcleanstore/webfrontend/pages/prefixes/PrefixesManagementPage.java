@@ -81,7 +81,14 @@ public class PrefixesManagementPage extends FrontendPage
 			@Override
 	        public void onClick()
 	        {
-	        	prefixMappingDao.delete(mapping);
+	        	try {
+					prefixMappingDao.delete(mapping);
+				} 
+	        	catch (Exception e) 
+	        	{
+	        		getSession().error("Could not delete prefix mapping due to an unexpected error.");
+	        		return;
+				}
 	        	
 				getSession().info("The prefix mapping was successfuly deleted.");
 				
