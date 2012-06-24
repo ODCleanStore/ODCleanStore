@@ -25,7 +25,7 @@ public class NewQAGroupPage extends FrontendPage
 
 		// prepare DAO objects
 		//
-		this.qaRulesGroupDao = (DaoForEntityWithSurrogateKey<QARulesGroup>) daoLookupFactory.getDao(QARulesGroupDao.class);
+		this.qaRulesGroupDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(QARulesGroupDao.class);
 		
 		// register page components
 		//

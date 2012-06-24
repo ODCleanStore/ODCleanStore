@@ -25,7 +25,7 @@ public class NewOIRulesGroupPage extends FrontendPage
 
 		// prepare DAO objects
 		//
-		this.oiRulesGroupDao = (DaoForEntityWithSurrogateKey<OIRulesGroup>) daoLookupFactory.getDao(OIRulesGroupDao.class);
+		this.oiRulesGroupDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIRulesGroupDao.class);
 		
 		// register page components
 		//

@@ -30,9 +30,9 @@ public class EditGlobalAggregationSettingsPage extends FrontendPage
 		// prepare DAO objects
 		//
 		globalAggregationSettingsDao = daoLookupFactory.getDao(GlobalAggregationSettingsDao.class);
-		aggregationTypeDao = (DaoForEntityWithSurrogateKey<AggregationType>) daoLookupFactory.getDao(AggregationTypeDao.class);
-		multivalueTypeDao = (DaoForEntityWithSurrogateKey<MultivalueType>) daoLookupFactory.getDao(MultivalueTypeDao.class);
-		errorStrategyDao = (DaoForEntityWithSurrogateKey<ErrorStrategy>) daoLookupFactory.getDao(ErrorStrategyDao.class);
+		aggregationTypeDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(AggregationTypeDao.class);
+		multivalueTypeDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(MultivalueTypeDao.class);
+		errorStrategyDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(ErrorStrategyDao.class);
 		
 		// register page components
 		//

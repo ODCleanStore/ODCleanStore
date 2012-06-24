@@ -25,7 +25,7 @@ public class NewOIRulePage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		oiRuleDao = (DaoForEntityWithSurrogateKey<OIRule>) daoLookupFactory.getDao(OIRuleDao.class);
+		oiRuleDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIRuleDao.class);
 		
 		// register page components
 		//

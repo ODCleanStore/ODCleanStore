@@ -2,13 +2,11 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
 
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.validation.validator.RangeValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
@@ -37,7 +35,7 @@ public class NewAssignmentPage extends FrontendPage
 
 		// prepare DAO objects
 		//
-		transformerDao = (DaoForEntityWithSurrogateKey<Transformer>) daoLookupFactory.getDao(TransformerDao.class);
+		transformerDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(TransformerDao.class);
 		transformerInstanceDao = daoLookupFactory.getTransformerInstanceDao();
 		
 		// register page components

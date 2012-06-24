@@ -11,7 +11,6 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
@@ -32,7 +31,7 @@ public class TransformersManagementPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		transformerDao = (DaoForEntityWithSurrogateKey<Transformer>) daoLookupFactory.getDao(TransformerDao.class);
+		transformerDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(TransformerDao.class);
 		
 		// register page components
 		//

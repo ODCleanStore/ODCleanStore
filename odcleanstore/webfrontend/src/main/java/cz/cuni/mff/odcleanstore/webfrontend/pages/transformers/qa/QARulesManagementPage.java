@@ -35,8 +35,8 @@ public class QARulesManagementPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		qaRulesGroupDao = (DaoForEntityWithSurrogateKey<QARulesGroup>) daoLookupFactory.getDao(QARulesGroupDao.class);
-		qaRuleDao = (DaoForEntityWithSurrogateKey<QARule>) daoLookupFactory.getDao(QARuleDao.class);
+		qaRulesGroupDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(QARulesGroupDao.class);
+		qaRuleDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(QARuleDao.class);
 		
 		// register page components
 		//

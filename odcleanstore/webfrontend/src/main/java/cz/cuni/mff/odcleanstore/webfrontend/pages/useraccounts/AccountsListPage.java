@@ -32,7 +32,7 @@ public class AccountsListPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		userDao = (DaoForEntityWithSurrogateKey<User>) daoLookupFactory.getDao(UserDao.class);
+		userDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(UserDao.class);
 		
 		// register page components
 		//

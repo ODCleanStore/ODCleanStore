@@ -35,8 +35,8 @@ public class ManageGroupRulesPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		oiRulesGroupDao = (DaoForEntityWithSurrogateKey<OIRulesGroup>) daoLookupFactory.getDao(OIRulesGroupDao.class);
-		oiRuleDao = (DaoForEntityWithSurrogateKey<OIRule>) daoLookupFactory.getDao(OIRuleDao.class);
+		oiRulesGroupDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIRulesGroupDao.class);
+		oiRuleDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIRuleDao.class);
 		
 		// register page components
 		//		

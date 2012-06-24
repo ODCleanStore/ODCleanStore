@@ -5,7 +5,6 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
@@ -28,7 +27,7 @@ public class NewTransformerPage extends FrontendPage
 
 		// prepare DAO objects
 		//
-		transformerDao = (DaoForEntityWithSurrogateKey<Transformer>) daoLookupFactory.getDao(TransformerDao.class);
+		transformerDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(TransformerDao.class);
 		
 		// register page components
 		//

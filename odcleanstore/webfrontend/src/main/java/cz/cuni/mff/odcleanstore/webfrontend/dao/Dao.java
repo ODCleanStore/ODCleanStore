@@ -5,6 +5,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
 
 import javax.sql.DataSource;
 
+import org.apache.log4j.Logger;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.transaction.support.AbstractPlatformTransactionManager;
@@ -25,6 +26,8 @@ public abstract class Dao<T extends BusinessEntity> implements Serializable
 	public static final String TABLE_NAME_PREFIX = "DB.ODCLEANSTORE.";
 	
 	private static final long serialVersionUID = 1L;
+	
+	private static Logger logger = Logger.getLogger(Dao.class);
 	
 	private DaoLookupFactory lookupFactory;
 	
@@ -49,6 +52,7 @@ public abstract class Dao<T extends BusinessEntity> implements Serializable
 	 */
 	public void setDaoLookupFactory(DaoLookupFactory lookupFactory)
 	{
+		logger.debug("setting dao lookup factory for: " + this.getClass());
 		this.lookupFactory = lookupFactory;
 	}
 	

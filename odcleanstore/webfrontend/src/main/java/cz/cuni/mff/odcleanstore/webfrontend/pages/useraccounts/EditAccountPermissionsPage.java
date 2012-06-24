@@ -44,8 +44,8 @@ public class EditAccountPermissionsPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		userDao = (DaoForEntityWithSurrogateKey<User>) daoLookupFactory.getDao(UserDao.class);
-		roleDao = (DaoForEntityWithSurrogateKey<Role>) daoLookupFactory.getDao(RoleDao.class);
+		userDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(UserDao.class);
+		roleDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(RoleDao.class);
 		
 		// prepare the target User instance
 		//

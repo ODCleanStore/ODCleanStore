@@ -27,7 +27,7 @@ public class NewPipelinePage extends FrontendPage
 
 		// prepare DAO objects
 		//
-		pipelineDao = (DaoForEntityWithSurrogateKey<Pipeline>) daoLookupFactory.getDao(PipelineDao.class);
+		pipelineDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(PipelineDao.class);
 		
 		// register page components
 		//

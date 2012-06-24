@@ -4,7 +4,6 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.validators.IRIValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.*;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.*;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
@@ -31,9 +30,9 @@ public class RegisterPropertyPage extends FrontendPage
 
 		// prepare DAO objects
 		//
-		propertySettingsDao = (DaoForEntityWithSurrogateKey<PropertySettings>) daoLookupFactory.getDao(PropertySettingsDao.class);
-		aggregationTypeDao = (DaoForEntityWithSurrogateKey<AggregationType>) daoLookupFactory.getDao(AggregationTypeDao.class);
-		multivalueTypeDao = (DaoForEntityWithSurrogateKey<MultivalueType>) daoLookupFactory.getDao(MultivalueTypeDao.class);
+		propertySettingsDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(PropertySettingsDao.class);
+		aggregationTypeDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(AggregationTypeDao.class);
+		multivalueTypeDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(MultivalueTypeDao.class);
 		
 		// register page components
 		//

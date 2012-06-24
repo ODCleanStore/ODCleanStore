@@ -1,7 +1,5 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
 
-import java.util.List;
-
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -13,7 +11,6 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
@@ -35,7 +32,7 @@ public class ManagePipelineTransformersPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		pipelineDao = (DaoForEntityWithSurrogateKey<Pipeline>) daoLookupFactory.getDao(PipelineDao.class);
+		pipelineDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(PipelineDao.class);
 		transformerInstanceDao = daoLookupFactory.getTransformerInstanceDao();
 		
 		// register page components

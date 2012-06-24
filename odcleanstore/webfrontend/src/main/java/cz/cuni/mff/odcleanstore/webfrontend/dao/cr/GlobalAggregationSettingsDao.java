@@ -37,7 +37,7 @@ public class GlobalAggregationSettingsDao extends Dao<GlobalAggregationSettings>
 			"select TOP 1 " + 
 			"A.id as aid, A.label as alabel, A.description as adescr, " +
 			"M.id as mid, M.label as mlabel, M.description as mdescr, " +
-			"E.id as esid, E.label as eslabel, E.description as esdsrc " +
+			"E.id as esid, E.label as eslabel, E.description as esdescr " +
 			"from DB.ODCLEANSTORE.CR_SETTINGS as S " + 
 			"join DB.ODCLEANSTORE.CR_AGGREGATION_TYPES as A on S.defaultAggregationTypeId = A.id " +
 			"join DB.ODCLEANSTORE.CR_MULTIVALUE_TYPES as M on S.defaultMultivalueTypeId = M.id " +

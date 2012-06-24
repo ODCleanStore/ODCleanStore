@@ -41,7 +41,7 @@ public class AggregationSettingsPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		propertySettingsDao = (DaoForEntityWithSurrogateKey<PropertySettings>) daoLookupFactory.getDao(PropertySettingsDao.class);
+		propertySettingsDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(PropertySettingsDao.class);
 		globalAggregationSettingsDao = daoLookupFactory.getDao(GlobalAggregationSettingsDao.class);
 		
 		// register page components

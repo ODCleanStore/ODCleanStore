@@ -8,18 +8,19 @@ import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessEntity;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
-public class SafetyDaoDecorator<T extends BusinessEntity> extends Dao<T>
+public class SafetyDaoDecoratorForEntityWithSurrogateKey<T extends EntityWithSurrogateKey> 
+	extends DaoForEntityWithSurrogateKey<T>
 {
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger(SafetyDaoDecorator.class);
+	private static Logger logger = Logger.getLogger(SafetyDaoDecoratorForEntityWithSurrogateKey.class);
 	
-	private Dao<T> dao;
+	private DaoForEntityWithSurrogateKey<T> dao;
 	private List<DaoExceptionHandler> exceptionHandlers;
 	
-	public SafetyDaoDecorator(Dao<T> dao)
+	public SafetyDaoDecoratorForEntityWithSurrogateKey(DaoForEntityWithSurrogateKey<T> dao)
 	{
 		this.dao = dao;
 		
@@ -58,7 +59,7 @@ public class SafetyDaoDecorator<T extends BusinessEntity> extends Dao<T>
 	{
 		return dao.loadFirstRaw();
 	}
-			
+	
 	@Override
 	public List<T> loadAllRawBy(String columnName, Object value)
 	{
@@ -69,6 +70,18 @@ public class SafetyDaoDecorator<T extends BusinessEntity> extends Dao<T>
 	public T loadRawBy(String columnName, Object value)
 	{
 		return dao.loadRawBy(columnName, value);
+	}
+	
+	@Override
+	public T loadRaw(Long id)
+	{
+		return dao.loadRaw(id);
+	}
+	
+	@Override
+	public T load(Long id)
+	{
+		return dao.load(id);
 	}
 	
 	@Override
@@ -114,6 +127,12 @@ public class SafetyDaoDecorator<T extends BusinessEntity> extends Dao<T>
 	public void delete(T item) throws Exception
 	{
 		dao.delete(item);
+	}
+	
+	@Override
+	public void deleteRaw(Long id)
+	{
+		dao.deleteRaw(id);
 	}
 	
 	private void handleException(Exception ex) throws Exception

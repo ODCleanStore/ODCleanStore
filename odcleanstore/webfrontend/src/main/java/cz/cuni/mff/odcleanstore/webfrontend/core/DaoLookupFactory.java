@@ -6,8 +6,11 @@ import java.util.HashMap;
 import javax.sql.DataSource;
 
 import cz.cuni.mff.odcleanstore.util.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.SafetyDaoDecorator;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.SafetyDaoDecoratorForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.GlobalAggregationSettingsDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 
@@ -65,6 +68,26 @@ public class DaoLookupFactory implements Serializable
 		
 		Dao daoInstance = createDaoInstance(daoClass);
 		Dao safeDaoInstance = new SafetyDaoDecorator(daoInstance);
+		
+		daos.put(daoClass, safeDaoInstance);
+		
+		return safeDaoInstance;
+	}
+	
+	/**
+	 * 
+	 * @param daoClass
+	 * @return
+	 * @throws AssertionError
+	 */
+	public DaoForEntityWithSurrogateKey getDaoForEntityWithSurrogateKey(Class daoClass) 
+		throws AssertionError
+	{
+		if (daos.containsKey(daoClass))
+			return (DaoForEntityWithSurrogateKey) daos.get(daoClass);
+		
+		DaoForEntityWithSurrogateKey daoInstance = (DaoForEntityWithSurrogateKey) createDaoInstance(daoClass);
+		DaoForEntityWithSurrogateKey safeDaoInstance = new SafetyDaoDecoratorForEntityWithSurrogateKey(daoInstance);
 		
 		daos.put(daoClass, safeDaoInstance);
 		
