@@ -29,7 +29,7 @@ public abstract class Dao<T extends BusinessEntity> implements Serializable
 	
 	private static Logger logger = Logger.getLogger(Dao.class);
 	
-	private DaoLookupFactory lookupFactory;
+	protected DaoLookupFactory lookupFactory;
 	
 	private transient JdbcTemplate jdbcTemplate;
 	private transient TransactionTemplate transactionTemplate;

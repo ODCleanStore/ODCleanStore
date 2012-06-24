@@ -3,7 +3,6 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -67,6 +66,13 @@ public class SafetyDaoDecorator<T extends BusinessEntity> extends Dao<T>
 	public T loadRawBy(String columnName, Object value)
 	{
 		return dao.loadRawBy(columnName, value);
+	}
+	
+
+	@Override
+	public T loadBy(String columnName, Object value)
+	{
+		return dao.loadBy(columnName, value);
 	}
 	
 	@Override

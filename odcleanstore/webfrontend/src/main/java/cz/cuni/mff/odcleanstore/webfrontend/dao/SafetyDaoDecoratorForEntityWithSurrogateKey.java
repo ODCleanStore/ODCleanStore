@@ -85,6 +85,12 @@ public class SafetyDaoDecoratorForEntityWithSurrogateKey<T extends EntityWithSur
 	}
 	
 	@Override
+	public T loadBy(String columnName, Object value)
+	{
+		return dao.loadBy(columnName, value);
+	}
+	
+	@Override
 	public void save(T item) throws Exception 
 	{
 		try {
