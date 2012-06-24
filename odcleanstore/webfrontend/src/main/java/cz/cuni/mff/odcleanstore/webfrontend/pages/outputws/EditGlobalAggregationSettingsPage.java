@@ -3,6 +3,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.outputws;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.*;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.*;
 
@@ -14,7 +15,7 @@ public class EditGlobalAggregationSettingsPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 	
-	private GlobalAggregationSettingsDao globalAggregationSettingsDao;
+	private Dao<GlobalAggregationSettings> globalAggregationSettingsDao;
 	private DaoForEntityWithSurrogateKey<AggregationType> aggregationTypeDao;
 	private DaoForEntityWithSurrogateKey<MultivalueType> multivalueTypeDao;
 	private DaoForEntityWithSurrogateKey<ErrorStrategy> errorStrategyDao;
@@ -28,7 +29,7 @@ public class EditGlobalAggregationSettingsPage extends FrontendPage
 
 		// prepare DAO objects
 		//
-		globalAggregationSettingsDao = daoLookupFactory.getGlobalAggregationSettingsDao();
+		globalAggregationSettingsDao = daoLookupFactory.getDao(GlobalAggregationSettingsDao.class);
 		aggregationTypeDao = (DaoForEntityWithSurrogateKey<AggregationType>) daoLookupFactory.getDao(AggregationTypeDao.class);
 		multivalueTypeDao = (DaoForEntityWithSurrogateKey<MultivalueType>) daoLookupFactory.getDao(MultivalueTypeDao.class);
 		errorStrategyDao = (DaoForEntityWithSurrogateKey<ErrorStrategy>) daoLookupFactory.getDao(ErrorStrategyDao.class);
@@ -53,7 +54,14 @@ public class EditGlobalAggregationSettingsPage extends FrontendPage
 			{
 				GlobalAggregationSettings settings = this.getModelObject();
 				
-				globalAggregationSettingsDao.save(settings);
+				try {
+					globalAggregationSettingsDao.save(settings);
+				} 
+				catch (Exception e) 
+				{
+					getSession().error("Could not save global settings due to an unexpected error");
+					return;
+				}
 				
 				getSession().info("The global settings were successfuly altered.");
 				setResponsePage(AggregationSettingsPage.class);

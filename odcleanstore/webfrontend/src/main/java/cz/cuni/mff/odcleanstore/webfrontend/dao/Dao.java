@@ -93,6 +93,12 @@ public abstract class Dao<T extends BusinessEntity> implements Serializable
 		return getJdbcTemplate().query(query, getRowMapper());
 	}
 	
+	public T loadFirstRaw()
+	{
+		String query = "SELECT TOP 1 * FROM " + getTableName();
+		return getJdbcTemplate().queryForObject(query, getRowMapper());
+	}
+	
 	/**
 	 * 
 	 * @param columnName

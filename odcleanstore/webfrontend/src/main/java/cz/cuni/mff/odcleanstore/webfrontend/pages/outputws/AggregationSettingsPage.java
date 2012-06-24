@@ -30,7 +30,7 @@ public class AggregationSettingsPage extends FrontendPage
 	private static Logger logger = Logger.getLogger(AggregationSettingsPage.class);
 	
 	private DaoForEntityWithSurrogateKey<PropertySettings> propertySettingsDao;
-	private GlobalAggregationSettingsDao globalAggregationSettingsDao;
+	private Dao<GlobalAggregationSettings> globalAggregationSettingsDao;
 	
 	public AggregationSettingsPage() 
 	{
@@ -42,7 +42,7 @@ public class AggregationSettingsPage extends FrontendPage
 		// prepare DAO objects
 		//
 		propertySettingsDao = (DaoForEntityWithSurrogateKey<PropertySettings>) daoLookupFactory.getDao(PropertySettingsDao.class);
-		globalAggregationSettingsDao = daoLookupFactory.getGlobalAggregationSettingsDao();
+		globalAggregationSettingsDao = daoLookupFactory.getDao(GlobalAggregationSettingsDao.class);
 		
 		// register page components
 		//
@@ -59,7 +59,7 @@ public class AggregationSettingsPage extends FrontendPage
 			@Override
 			protected GlobalAggregationSettings load() 
 			{
-				return globalAggregationSettingsDao.load();
+				return globalAggregationSettingsDao.loadFirstRaw();
 			}
 		};
 		

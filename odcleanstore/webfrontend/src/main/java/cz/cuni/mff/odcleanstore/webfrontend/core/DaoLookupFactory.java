@@ -143,21 +143,6 @@ public class DaoLookupFactory implements Serializable
 		
 		return transactionManager;
 	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public GlobalAggregationSettingsDao getGlobalAggregationSettingsDao()
-	{
-		if (globalAggregationSettingsDao == null)
-		{
-			globalAggregationSettingsDao = new GlobalAggregationSettingsDao();
-			globalAggregationSettingsDao.setDaoLookupFactory(this);
-		}
-		
-		return globalAggregationSettingsDao;
-	}
 
 	/**
 	 * 
