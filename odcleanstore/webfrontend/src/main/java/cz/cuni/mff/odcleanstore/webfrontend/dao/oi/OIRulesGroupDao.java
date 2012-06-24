@@ -1,10 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.oi;
 
-import java.util.List;
-
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
@@ -33,22 +30,6 @@ public class OIRulesGroupDao extends DaoForEntityWithSurrogateKey<OIRulesGroup>
 		return rowMapper;
 	}
 
-	@Override
-	public OIRulesGroup load(Long id) 
-	{
-		OIRulesGroup group = loadRaw(id);
-		group.setRules(loadAllRules(id));
-		return group;
-	}
-	
-	private List<OIRule> loadAllRules(Long groupId)
-	{
-		String query = "SELECT * FROM " + OIRuleDao.TABLE_NAME + " WHERE groupId = ?";
-		Object[] params = { groupId };
-		
-		return getJdbcTemplate().query(query, params, new OIRuleRowMapper());
-	}
-	
 	@Override
 	public void save(OIRulesGroup item)
 	{

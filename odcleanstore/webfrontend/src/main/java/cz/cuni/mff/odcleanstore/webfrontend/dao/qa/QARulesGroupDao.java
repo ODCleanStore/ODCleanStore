@@ -1,10 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.qa;
 
-import java.util.List;
-
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
@@ -31,22 +28,6 @@ public class QARulesGroupDao extends DaoForEntityWithSurrogateKey<QARulesGroup>
 	protected ParameterizedRowMapper<QARulesGroup> getRowMapper() 
 	{
 		return rowMapper;
-	}
-
-	@Override
-	public QARulesGroup load(Long id) 
-	{
-		QARulesGroup group = loadRaw(id);
-		group.setRules(loadAllRules(id));
-		return group;
-	}
-	
-	private List<QARule> loadAllRules(Long groupId)
-	{
-		String query = "SELECT * FROM " + QARuleDao.TABLE_NAME + " WHERE groupId = ?";
-		Object[] params = { groupId };
-		
-		return getJdbcTemplate().query(query, params, new QARuleRowMapper());
 	}
 	
 	@Override
