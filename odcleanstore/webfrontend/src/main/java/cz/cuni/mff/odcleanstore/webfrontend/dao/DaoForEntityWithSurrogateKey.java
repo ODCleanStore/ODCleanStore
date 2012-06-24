@@ -6,7 +6,7 @@ public abstract class DaoForEntityWithSurrogateKey<T extends EntityWithSurrogate
 {
 	private static final long serialVersionUID = 1L;
 
-	public void deleteRaw(Long id)
+	public void deleteRaw(Long id) throws Exception
 	{
 		String query = "DELETE FROM " + getTableName() + " WHERE id = ?";
 		Object[] params = { id };

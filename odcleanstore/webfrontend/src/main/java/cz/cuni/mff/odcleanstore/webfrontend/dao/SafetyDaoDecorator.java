@@ -14,8 +14,6 @@ public class SafetyDaoDecorator<T extends BusinessEntity> extends Dao<T>
 {
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger(SafetyDaoDecorator.class);
-	
 	private Dao<T> dao;
 	private List<DaoExceptionHandler> exceptionHandlers;
 	
@@ -113,6 +111,11 @@ public class SafetyDaoDecorator<T extends BusinessEntity> extends Dao<T>
 	@Override
 	public void delete(T item) throws Exception
 	{
+		// note that there is no need to surround the delete operation by 
+		// a transaction, as every delete is realized using a single
+		// SQL DELETE command - deleting related entities is ensured using
+		// CASCADING DELETE constraints
+		//
 		dao.delete(item);
 	}
 	

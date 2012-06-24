@@ -32,7 +32,17 @@ public class DeleteButton<BO extends EntityWithSurrogateKey> extends Link
 	@Override
 	public void onClick() 
 	{
-		dao.deleteRaw(boId);
+		try {
+			dao.deleteRaw(boId);
+		}
+		catch (Exception ex)
+		{
+			getSession().error(
+				"The " + objName + " could not be deleted due to an unexpected error."
+			);
+			
+			return;
+		}
     	
 		getSession().info("The " + objName + " was successfuly deleted.");
 		setResponsePage(redirectPage);

@@ -126,12 +126,22 @@ public class SafetyDaoDecoratorForEntityWithSurrogateKey<T extends EntityWithSur
 	@Override
 	public void delete(T item) throws Exception
 	{
+		// note that there is no need to surround the delete operation by 
+		// a transaction, as every delete is realized using a single
+		// SQL DELETE command - deleting related entities is ensured using
+		// CASCADING DELETE constraints
+		//
 		dao.delete(item);
 	}
 	
 	@Override
-	public void deleteRaw(Long id)
+	public void deleteRaw(Long id) throws Exception
 	{
+		// note that there is no need to surround the deleteRaw operation by 
+		// a transaction, as every delete is realized using a single
+		// SQL DELETE command - deleting related entities is ensured using
+		// CASCADING DELETE constraints
+		//
 		dao.deleteRaw(id);
 	}
 	
