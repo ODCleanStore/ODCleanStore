@@ -16,6 +16,7 @@ import org.apache.wicket.model.Model;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.RoleDao;
@@ -33,9 +34,7 @@ public class EditAccountPermissionsPage extends FrontendPage
 	
 	private DaoForEntityWithSurrogateKey<User> userDao;
 	private DaoForEntityWithSurrogateKey<Role> roleDao;
-	
-	private Map<Role, Boolean> currentRolesSettings;
-	
+		
 	public EditAccountPermissionsPage(final Long userId) 
 	{
 		super(
@@ -61,79 +60,118 @@ public class EditAccountPermissionsPage extends FrontendPage
 		add(new Label("firstname"));
 		add(new Label("surname"));
 		
-		addEditPermissionsForm(user);
+		add(new UserPermissionsForm("editPermissionsForm", userId, userDao, roleDao));
 	}
+}
+
+class UserPermissionsForm extends Form
+{
+	private static final long serialVersionUID = 1L;
+
+	private static Logger logger = Logger.getLogger(UserPermissionsForm.class);
 	
-	private void addEditPermissionsForm(final User user)
+	private DaoForEntityWithSurrogateKey<User> userDao;
+	private DaoForEntityWithSurrogateKey<Role> roleDao;
+
+	private Long userId;
+	
+	private Map<Role, Boolean> currentRolesSettings;
+	
+	/**
+	 * 
+	 * @param id
+	 * @param userDao
+	 * @param roleDao
+	 */
+	public UserPermissionsForm(String id, Long userId,
+		DaoForEntityWithSurrogateKey<User> userDao, DaoForEntityWithSurrogateKey<Role> roleDao) 
 	{
-		Form<User> form = new Form<User>("editPermissionsForm")
-		{
-			@Override
-			protected void onSubmit()
-			{
-				// TODO: obalit transakci
-				
-				user.removeAllRoles();
-				
-				List<Role> roles = roleDao.loadAll();
-				for (Role role : roles)
-				{
-					if (currentRolesSettings.get(role))
-						user.addRole(role);
-				}
-				
-				try {
-					userDao.update(user);
-				} 
-				catch (DaoException ex)
-				{
-					getSession().error(ex.getMessage());
-					return;
-				}
-				catch (Exception ex) 
-				{
-					logger.error("Could not edit user permissions due to: " + ex.getMessage());
-					
-					getSession().error(
-						"User permissions could not be modified due to an unexpected error."
-					);
-					
-					return;
-				}
-				
-				getSession().info("User permissions were successfuly modified.");
-				setResponsePage(AccountsListPage.class);
-			}
-		};
+		super(id);
 		
-		addRolesCheckBoxes(form, user);
-
-		addResetButton(form, user);
-
-		add(form);
-	}
-	
-	private void addRolesCheckBoxes(Form<User> form, User user)
-	{
-		prepareRolesSettings(user);
+		this.userId = userId;
+		
+		this.userDao = userDao;
+		this.roleDao = roleDao;
+		
+		resetRolesSettings(userId);
 		
 		for (final Role role : Role.standardRoles)
-			addRoleCheckBox(form, role);
+			addRoleCheckBox(role);
+		
+		add(
+			new RedirectButton
+			(
+				EditAccountPermissionsPage.class, 
+				userId, 
+				"resetButton"
+			)
+		);
+	}
+
+	@Override
+	protected void onSubmit()
+	{
+		// TODO: dodelat do UserDao metodu updateRoles(Set<Role> roles)?
+		
+		User user = userDao.load(userId);
+		
+		user.removeAllRoles();
+		
+		List<Role> roles = roleDao.loadAll();
+		for (Role role : roles)
+		{
+			if (currentRolesSettings.get(role))
+				user.addRole(role);
+		}
+		
+		try {
+			userDao.update(user);
+		} 
+		catch (DaoException ex)
+		{
+			getSession().error(ex.getMessage());
+			return;
+		}
+		catch (Exception ex) 
+		{
+			logger.error("Could not edit user permissions due to: " + ex.getMessage());
+			
+			getSession().error(
+				"User permissions could not be modified due to an unexpected error."
+			);
+			
+			return;
+		}
+		
+		getSession().info("User permissions were successfuly modified.");
+		setResponsePage(AccountsListPage.class);
 	}
 	
-	private void prepareRolesSettings(User user)
+	/**
+	 * 
+	 * @param userId
+	 */
+	private void resetRolesSettings(final Long userId)
 	{
 		currentRolesSettings = new HashMap<Role, Boolean>();
 		
+		User user = userDao.load(userId);
 		Set<Role> assignedRoles = user.getRoles();
+		
 		for (Role role : Role.standardRoles)
 			currentRolesSettings.put(role, assignedRoles.contains(role));
 	}
-	
-	private void addRoleCheckBox(Form<User> form, final Role role)
+
+	/**
+	 * 
+	 * @param role
+	 */
+	private void addRoleCheckBox(final Role role)
 	{
-		IModel model = new Model<Boolean>()
+		IModel<Boolean> model = new Model<Boolean>()
 		{ 
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public Boolean getObject()
 			{
@@ -149,25 +187,6 @@ public class EditAccountPermissionsPage extends FrontendPage
 
 		String roleLabel = "role" + role.getLabel();
 		
-		form.add(new CheckBox(roleLabel, model));
+		add(new CheckBox(roleLabel, model));
 	}
-	
-	private void addResetButton(Form<User> form, final User user)
-	{
-		Button resetButton = new Button("resetButton")
-		{
-			@Override
-			public void onSubmit()
-			{
-				setResponsePage(
-					new EditAccountPermissionsPage(user.getId())
-				);
-			}
-		};
-
-		resetButton.setDefaultFormProcessing(false);
-		
-		form.add(resetButton);
-	}
-
 }

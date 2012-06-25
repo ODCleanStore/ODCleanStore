@@ -12,6 +12,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
@@ -67,7 +68,7 @@ public class ManageGroupRulesPage extends FrontendPage
 	private void addOIRulesSection(final Long groupId) 
 	{
 		add(
-			createGoToPageButton(
+			new RedirectButton(
 				NewOIRulePage.class,
 				groupId, 
 				"addNewRuleLink"

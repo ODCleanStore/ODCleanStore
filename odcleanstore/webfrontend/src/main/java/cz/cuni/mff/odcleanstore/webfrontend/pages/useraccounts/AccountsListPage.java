@@ -4,6 +4,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
@@ -76,8 +77,7 @@ public class AccountsListPage extends FrontendPage
 				);
 				
 				item.add(
-					createGoToPageButton
-					(
+					new RedirectButton(
 						EditAccountPermissionsPage.class, 
 						user.getId(), 
 						"managePermissions"

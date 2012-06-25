@@ -21,6 +21,8 @@ import java.security.NoSuchAlgorithmException;
  */
 public class LogInPage extends FrontendPage
 {
+	private static final long serialVersionUID = 1L;
+	
 	private DaoForEntityWithSurrogateKey<User> userDao;
 	
 	/**
@@ -51,6 +53,8 @@ public class LogInPage extends FrontendPage
  */
 class LogInForm extends Form
 {
+	private static final long serialVersionUID = 1L;
+
 	private static Logger logger = Logger.getLogger(LogInForm.class);
 	
 	private DaoForEntityWithSurrogateKey<User> userDao;

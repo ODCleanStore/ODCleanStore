@@ -159,46 +159,6 @@ public abstract class FrontendPage extends WebPage
 		return createTextarea(componentName, true);
 	}
 	
-	/**
-	 * 
-	 * @param page
-	 * @param compName
-	 * @return
-	 */
-	protected Link createGoToPageButton(final Class<? extends FrontendPage> redirectPage, 
-		final Long param, final String compName)
-	{
-		return new Link(compName)
-		{
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onClick() 
-			{
-				FrontendPage page;
-				
-				try 
-				{
-					// using reflection here (instead of passing the page instance as a method
-					// argument) is necessary in order to postpone creating the page instance
-					// to when onClick is called
-					Constructor<? extends FrontendPage> constructor = 
-						redirectPage.getConstructor(new Class[]{Long.class});
-					
-					page = (FrontendPage) constructor.newInstance(param);
-				} 
-				catch (Exception ex) 
-				{
-					throw new AssertionError(
-						"Could not instantiate page class: " + redirectPage
-					);
-				}
-				
-				setResponsePage(page);
-			}
-		};
-	}
-	
 	/*
 		=======================================================================
 		OTHER HELPERS

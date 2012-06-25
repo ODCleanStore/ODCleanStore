@@ -12,6 +12,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
@@ -79,7 +80,7 @@ public class PipelinesManagementPage extends FrontendPage
 				);
 				
 				item.add(
-					createGoToPageButton(
+					new RedirectButton(
 						ManagePipelineTransformersPage.class,
 						pipeline.getId(), 
 						"managePipelineTransformers"
