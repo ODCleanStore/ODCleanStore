@@ -2,18 +2,20 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
+import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
+import org.apache.wicket.markup.repeater.Item;
+import org.apache.wicket.markup.repeater.data.DataView;
+import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 
-import java.util.List;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 
 @AuthorizeInstantiation({ "ADM" })
@@ -41,16 +43,16 @@ public class AccountsListPage extends FrontendPage
 
 	private void addAccountsListTable()
 	{
-		List<User> allUserAccounts = userDao.loadAll();
+		IDataProvider<User> data = new DataProvider<User>(userDao);
 		
-		ListView<User> listView = new ListView<User>("accountsListTable", allUserAccounts)
+		DataView<User> dataView = new DataView<User>("accountsListTable", data)
 		{
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void populateItem(ListItem<User> item) 
+			protected void populateItem(Item<User> item) 
 			{
-				final User user = item.getModelObject();
+				User user = item.getModelObject();
 				
 				item.setModel(new CompoundPropertyModel<User>(user));
 				
@@ -62,22 +64,33 @@ public class AccountsListPage extends FrontendPage
 				for (Role role : Role.standardRoles)
 					item.add(createRoleLabel(user, role));
 				
-				item.add(new Link("editPermissionsLink")
-				{
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void onClick() 
-					{
-						setResponsePage(
-							new EditAccountPermissionsPage(user.getId())
-						);
-					}
-				});
+				item.add(
+					new DeleteButton<User>
+					(
+						userDao,
+						user.getId(),
+						"user",
+						new DeleteConfirmationMessage("user"),
+						AccountsListPage.this
+					)
+				);
+				
+				item.add(
+					createGoToPageButton
+					(
+						EditAccountPermissionsPage.class, 
+						user.getId(), 
+						"managePermissions"
+					)
+				);
 			}
 		};
 		
-		add(listView);
+		dataView.setItemsPerPage(10);
+		
+		add(dataView);
+		
+		add(new PagingNavigator("navigator", dataView));
 	}
 	
 	/**

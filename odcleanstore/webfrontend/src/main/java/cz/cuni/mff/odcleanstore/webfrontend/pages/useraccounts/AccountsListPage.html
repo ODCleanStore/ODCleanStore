@@ -7,6 +7,8 @@
 </div>
 </wicket:link>
 
+<span wicket:id="navigator">[dataview navigator]</span>
+
 <table border="1">
 	
 	<tr>
@@ -37,9 +39,9 @@
 		<td wicket:id="roleADM" class="centered">&nbsp;</td>
 		
 		<td class="centered">
-			<input type="submit" value="Deaktivovat" />
+			<input wicket:id="deleteUser" type="button" value="Delete" />
+			<input wicket:id="managePermissions" type="button" value="Manage permissions" />
 			<input type="submit" value="Resetovat heslo" />
-			<a href="#" wicket:id="editPermissionsLink">Edit permissions</a>
 		</td>
 	</tr>
 </table>
