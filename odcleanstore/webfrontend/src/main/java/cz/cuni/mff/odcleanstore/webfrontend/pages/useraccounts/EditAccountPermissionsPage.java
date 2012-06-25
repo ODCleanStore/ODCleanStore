@@ -111,18 +111,9 @@ class UserPermissionsForm extends Form
 	@Override
 	protected void onSubmit()
 	{
-		// TODO: dodelat do UserDao metodu updateRoles(Set<Role> roles)?
-		
 		User user = userDao.load(userId);
 		
-		user.removeAllRoles();
-		
-		List<Role> roles = roleDao.loadAll();
-		for (Role role : roles)
-		{
-			if (currentRolesSettings.get(role))
-				user.addRole(role);
-		}
+		setUpRoles(user);
 		
 		try {
 			userDao.update(user);
@@ -145,6 +136,22 @@ class UserPermissionsForm extends Form
 		
 		getSession().info("User permissions were successfuly modified.");
 		setResponsePage(AccountsListPage.class);
+	}
+	
+	/**
+	 * 
+	 * @param user
+	 */
+	private void setUpRoles(User user)
+	{
+		user.removeAllRoles();
+		
+		List<Role> roles = roleDao.loadAll();
+		for (Role role : roles)
+		{
+			if (currentRolesSettings.get(role))
+				user.addRole(role);
+		}
 	}
 	
 	/**
