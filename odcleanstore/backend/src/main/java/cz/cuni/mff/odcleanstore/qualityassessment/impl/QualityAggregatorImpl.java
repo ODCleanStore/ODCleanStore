@@ -187,11 +187,7 @@ public class QualityAggregatorImpl implements QualityAggregator {
 			final String publisher = getGraphPublisher(graph, metadataGraph);
 			
 			if (publisher != null) {
-				try {
-					final String dropOutdated = String.format(dropOutdatedQueryFormat, publisher);
-
-					getCleanConnection().execute(dropOutdated);
-					
+				try {					
 					final String computeSumUpdated = String.format(computeSumUpdatedQueryFormat, publisher);
 					final String computeCountUpdated = String.format(computeCountUpdatedQueryFormat, publisher);
 					
@@ -210,7 +206,11 @@ public class QualityAggregatorImpl implements QualityAggregator {
 
 					final String storeUpdated = String.format(storeUpdatedQueryFormat, metadataGraph, publisher, score);
 				
-					getCleanConnection().execute(storeUpdated);
+					getDirtyConnection().execute(storeUpdated);
+					
+					final String dropOutdated = String.format(dropOutdatedQueryFormat, publisher);
+
+					getCleanConnection().execute(dropOutdated);
 				} catch (ConnectionException e) {
 					throw new TransformerException(e);
 				} catch (QueryException e) {
