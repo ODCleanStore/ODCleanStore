@@ -1,13 +1,11 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.cr;
 
-import java.util.List;
-
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.MultivalueType;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
-public class MultivalueTypeDao extends Dao<MultivalueType> 
+public class MultivalueTypeDao extends DaoForEntityWithSurrogateKey<MultivalueType> 
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "CR_MULTIVALUE_TYPES";
 
@@ -31,19 +29,7 @@ public class MultivalueTypeDao extends Dao<MultivalueType>
 	{
 		return rowMapper;
 	}
-	
-	@Override
-	public List<MultivalueType> loadAll() 
-	{
-		return loadAllRaw();
-	}
 
-	@Override
-	public MultivalueType load(Long id) 
-	{
-		return loadRaw(id);
-	}
-	
 	@Override
 	public void deleteRaw(Long id)
 	{

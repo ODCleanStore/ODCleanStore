@@ -6,21 +6,21 @@ import java.util.List;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessObject;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
-public class DataProvider<BO extends BusinessObject> implements IDataProvider<BO>
+public class DataProvider<BO extends EntityWithSurrogateKey> implements IDataProvider<BO>
 {
 	private static final long serialVersionUID = 1L;
 	
-	private Dao<BO> dao;
+	private DaoForEntityWithSurrogateKey<BO> dao;
 	private List<BO> data;
 	
 	/**
 	 * 
 	 * @param dao
 	 */
-	public DataProvider(Dao<BO> dao)
+	public DataProvider(DaoForEntityWithSurrogateKey<BO> dao)
 	{
 		this.dao = dao;
 	}
@@ -38,7 +38,7 @@ public class DataProvider<BO extends BusinessObject> implements IDataProvider<BO
 		data = null;
 	}
 
-	public Iterator iterator(int first, int count) 
+	public Iterator<BO> iterator(int first, int count) 
 	{
 		return 
 			getData()

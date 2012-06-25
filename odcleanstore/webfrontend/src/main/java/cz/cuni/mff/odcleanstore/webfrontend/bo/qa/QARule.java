@@ -1,8 +1,8 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo.qa;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessObject;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
-public class QARule extends BusinessObject
+public class QARule extends EntityWithSurrogateKey
 {
 	private static final long serialVersionUID = 1L;
 
@@ -13,7 +13,8 @@ public class QARule extends BusinessObject
 	
 	public QARule(Long id, Long groupId, String filter, String description, Double coefficient) 
 	{
-		this.id = id;
+		super(id);
+		
 		this.groupId = groupId;
 		this.filter = filter;
 		this.description = description;

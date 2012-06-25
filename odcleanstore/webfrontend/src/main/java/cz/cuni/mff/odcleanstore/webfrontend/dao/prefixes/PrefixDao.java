@@ -31,30 +31,6 @@ public class PrefixDao extends Dao<Prefix>
 	}
 	
 	@Override
-	public Prefix load(Long id)
-	{
-		throw new UnsupportedOperationException(
-			"Cannot load rows from table: " + getTableName() + " by id."
-		);
-	}
-	
-	@Override
-	public Prefix loadRaw(Long id)
-	{
-		throw new UnsupportedOperationException(
-			"Cannot load raw rows from table: " + getTableName() + " by id."
-		);
-	}
-	
-	@Override
-	public void deleteRaw(Long id)
-	{
-		throw new UnsupportedOperationException(
-			"Cannot delete rows from table: " + getTableName() + " by id."
-		);
-	}
-	
-	@Override
 	public void delete(Prefix item)
 	{
 		String query = "DELETE FROM " + TABLE_NAME + " WHERE NS_PREFIX = ?";

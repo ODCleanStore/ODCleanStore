@@ -1,109 +1,59 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.cr;
 
-import javax.sql.DataSource;
+import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
-import org.springframework.jdbc.core.JdbcTemplate;
-
-import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.AggregationType;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.ErrorStrategy;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.GlobalAggregationSettings;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.MultivalueType;
-import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 
-public class GlobalAggregationSettingsDao 
+public class GlobalAggregationSettingsDao extends Dao<GlobalAggregationSettings>
 {
-	private static final String TABLE_NAME_PREFIX = "DB.ODCLEANSTORE.";
-	
-	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "CR_SETTINGS";
-			
-	private DaoLookupFactory lookupFactory;
-	private transient JdbcTemplate jdbcTemplate;
-	
-	private ErrorStrategyDao errorStrategyDao;
-	private AggregationTypeDao aggregationTypeDao;
-	private MultivalueTypeDao multivalueTypeDao;
+	private static final long serialVersionUID = 1L;
 
-	/**
-	 * 
-	 * @param lookupFactory
-	 */
-	public void setDaoLookupFactory(DaoLookupFactory lookupFactory)
+	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "CR_SETTINGS";
+	
+	private ParameterizedRowMapper<GlobalAggregationSettings> rowMapper;
+
+	public GlobalAggregationSettingsDao()
 	{
-		this.lookupFactory = lookupFactory;
-		
-		errorStrategyDao = new ErrorStrategyDao();
-		errorStrategyDao.setDaoLookupFactory(lookupFactory);
-		
-		aggregationTypeDao = new AggregationTypeDao();
-		aggregationTypeDao.setDaoLookupFactory(lookupFactory);
-		
-		multivalueTypeDao = new MultivalueTypeDao();
-		multivalueTypeDao.setDaoLookupFactory(lookupFactory);
+		this.rowMapper = new GlobalAggregationSettingsRowMapper();
 	}
 	
-	private JdbcTemplate getJdbcTemplate()
+	@Override
+	protected String getTableName() 
 	{
-		if (jdbcTemplate == null)
-		{
-			DataSource dataSource = lookupFactory.getDataSource();
-			jdbcTemplate = new JdbcTemplate(dataSource);
-		}
-		
-		return jdbcTemplate;
+		return TABLE_NAME;
 	}
-	
-	public GlobalAggregationSettings load()
+
+	@Override
+	protected ParameterizedRowMapper<GlobalAggregationSettings> getRowMapper() 
 	{
-		ErrorStrategy defaultErrorStrategy = loadDefaultErrorStrategy();
-		AggregationType defaultAggregationType = loadDefaultAggregationType();
-		MultivalueType defaultMultivalueType = loadDefaultMultivalueType();
-		
-		return new GlobalAggregationSettings
-		(
-			defaultErrorStrategy, 
-			defaultMultivalueType, 
-			defaultAggregationType
-		);
+		return rowMapper;
 	}
-	
-	private ErrorStrategy loadDefaultErrorStrategy()
+
+	@Override
+	public GlobalAggregationSettings loadFirstRaw()
 	{
-		String query = "SELECT defaultErrorStrategyId FROM " + TABLE_NAME;
+		String query =
+			"select TOP 1 " + 
+			"A.id as aid, A.label as alabel, A.description as adescr, " +
+			"M.id as mid, M.label as mlabel, M.description as mdescr, " +
+			"E.id as esid, E.label as eslabel, E.description as esdescr " +
+			"from DB.ODCLEANSTORE.CR_SETTINGS as S " + 
+			"join DB.ODCLEANSTORE.CR_AGGREGATION_TYPES as A on S.defaultAggregationTypeId = A.id " +
+			"join DB.ODCLEANSTORE.CR_MULTIVALUE_TYPES as M on S.defaultMultivalueTypeId = M.id " +
+			"join DB.ODCLEANSTORE.CR_ERROR_STRaTEGIES as E on S.defaultErrorStrategyId = E.id";
 		
-		Long currentDefaultErrorStrategyId = getJdbcTemplate().queryForLong(query);
-		
-		return errorStrategyDao.load(currentDefaultErrorStrategyId);
-	}
-	
-	private AggregationType loadDefaultAggregationType()
-	{
-		String query = "SELECT defaultAggregationTypeId FROM " + TABLE_NAME;
-		
-		Long currentDefaultAggregationTypeId = getJdbcTemplate().queryForLong(query);
-		
-		return aggregationTypeDao.load(currentDefaultAggregationTypeId);
-	}
-	
-	private MultivalueType loadDefaultMultivalueType()
-	{
-		String query = "SELECT defaultMultivalueTypeId FROM " + TABLE_NAME;
-		
-		Long currentDefaultMultivalueTypeId = getJdbcTemplate().queryForLong(query);
-		
-		return multivalueTypeDao.load(currentDefaultMultivalueTypeId);
+		return getJdbcTemplate().queryForObject(query, getRowMapper());
 	}
 	
 	public void save(GlobalAggregationSettings settings)
 	{
-		// TODO: obalit pomoci transaction
-		
-		String deleteQuery = "DELETE FROM " + TABLE_NAME;
-		getJdbcTemplate().update(deleteQuery);
-		
-		String insertQuery = 
-			"INSERT INTO " + TABLE_NAME + " " + 
-			"VALUES (?, ?, ?)";
-		
+		String query = 
+			"UPDATE " + TABLE_NAME + " SET " +
+			"defaultAggregationTypeId = ?, " +
+			"defaultMultivalueTypeId = ?, " +
+			"defaultErrorStrategyId = ?";
+	
 		Object[] params =
 		{
 			settings.getDefaultAggregationType().getId(),
@@ -111,6 +61,6 @@ public class GlobalAggregationSettingsDao
 			settings.getDefaultErrorStrategy().getId()
 		};
 		
-		getJdbcTemplate().update(insertQuery, params);
+		getJdbcTemplate().update(query, params);
 	}
 }

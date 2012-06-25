@@ -1,8 +1,8 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo.cr;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessObject;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;;
 
-public class PropertySettings extends BusinessObject 
+public class PropertySettings extends EntityWithSurrogateKey
 {
 	private static final long serialVersionUID = 1L;
 
@@ -13,7 +13,8 @@ public class PropertySettings extends BusinessObject
 	public PropertySettings(Long id, String property, 
 		MultivalueType multivalueType, AggregationType aggregationType) 
 	{
-		this.id = id;
+		super(id);
+		
 		this.property = property;
 		this.multivalueType = multivalueType;
 		this.aggregationType = aggregationType;

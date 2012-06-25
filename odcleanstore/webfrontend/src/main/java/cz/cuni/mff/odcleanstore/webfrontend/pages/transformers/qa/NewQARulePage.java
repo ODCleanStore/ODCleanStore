@@ -8,6 +8,7 @@ import org.apache.wicket.validation.validator.RangeValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
@@ -16,7 +17,7 @@ public class NewQARulePage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 	
-	private Dao<QARule> qaRuleDao;
+	private DaoForEntityWithSurrogateKey<QARule> qaRuleDao;
 	
 	public NewQARulePage(final Long groupId) 
 	{
@@ -27,7 +28,7 @@ public class NewQARulePage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		this.qaRuleDao = daoLookupFactory.getDao(QARuleDao.class);
+		this.qaRuleDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(QARuleDao.class);
 		
 		// register page components
 		//

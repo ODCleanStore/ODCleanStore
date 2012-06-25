@@ -1,8 +1,8 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo.cr;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessObject;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
-public class AggregationType extends BusinessObject
+public class AggregationType extends EntityWithSurrogateKey
 {
 	private static final long serialVersionUID = 1L;
 
@@ -11,7 +11,8 @@ public class AggregationType extends BusinessObject
 	
 	public AggregationType(Long id, String label, String description) 
 	{
-		this.id = id;
+		super(id);
+		
 		this.label = label;
 		this.description = description;
 	}

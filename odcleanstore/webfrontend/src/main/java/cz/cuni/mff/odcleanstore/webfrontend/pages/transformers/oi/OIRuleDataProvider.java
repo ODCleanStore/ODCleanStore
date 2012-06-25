@@ -8,14 +8,13 @@ import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DetachableModel;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
 public class OIRuleDataProvider implements IDataProvider<OIRule>
 {
 	private static final long serialVersionUID = 1L;
 	
-	private Dao<OIRule> dao;
+	private DaoForEntityWithSurrogateKey<OIRule> dao;
 	private List<OIRule> data;
 	private Long groupId;
 	
@@ -23,7 +22,7 @@ public class OIRuleDataProvider implements IDataProvider<OIRule>
 	 * 
 	 * @param dao
 	 */
-	public OIRuleDataProvider(Dao<OIRule> dao, Long groupId)
+	public OIRuleDataProvider(DaoForEntityWithSurrogateKey<OIRule> dao, Long groupId)
 	{
 		this.dao = dao;
 		this.groupId = groupId;
@@ -42,7 +41,7 @@ public class OIRuleDataProvider implements IDataProvider<OIRule>
 		data = null;
 	}
 
-	public Iterator iterator(int first, int count) 
+	public Iterator<OIRule> iterator(int first, int count) 
 	{
 		// replace this with a special DAO method to only select the sub-list
 		// from the database call if necessary (instead of selecting all and 

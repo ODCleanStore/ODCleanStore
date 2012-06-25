@@ -17,10 +17,11 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessObject;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
 import cz.cuni.mff.odcleanstore.webfrontend.core.ODCSWebFrontendApplication;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
 /**
  * An abstract base class for all WebFrontend page components, except for
@@ -79,8 +80,8 @@ public abstract class FrontendPage extends WebPage
 	 * @param componentName
 	 * @return
 	 */
-	protected <EnumBO extends BusinessObject> DropDownChoice<EnumBO> createEnumSelectbox(
-		Dao<EnumBO> dao, String componentName, boolean required)
+	protected <EnumBO extends EntityWithSurrogateKey> DropDownChoice<EnumBO> createEnumSelectbox(
+		DaoForEntityWithSurrogateKey<EnumBO> dao, String componentName, boolean required)
 	{
 		// create the model
 		IModel<List<EnumBO>> model = createModelForListView(dao);
@@ -108,8 +109,8 @@ public abstract class FrontendPage extends WebPage
 	 * @param componentName
 	 * @return
 	 */
-	protected <EnumBO extends BusinessObject> DropDownChoice<EnumBO> createEnumSelectbox(
-			Dao<EnumBO> dao, String componentName)
+	protected <EnumBO extends EntityWithSurrogateKey> DropDownChoice<EnumBO> createEnumSelectbox(
+			DaoForEntityWithSurrogateKey<EnumBO> dao, String componentName)
 	{
 		return createEnumSelectbox(dao, componentName, true);
 	}
@@ -206,8 +207,8 @@ public abstract class FrontendPage extends WebPage
 		=======================================================================
 	*/
 	
-	protected <BO extends BusinessObject> IModel<List<BO>> createModelForListView(
-		final Dao<BO> dao)
+	protected <BO extends EntityWithSurrogateKey> IModel<List<BO>> createModelForListView(
+		final DaoForEntityWithSurrogateKey<BO> dao)
 	{
 		return new LoadableDetachableModel<List<BO>>() 
 		{
@@ -221,8 +222,8 @@ public abstract class FrontendPage extends WebPage
 		};
 	}
 	
-	protected <BO extends BusinessObject> IModel<BO> createModelForOverview(
-		final Dao<BO> dao, final Long boId)
+	protected <BO extends EntityWithSurrogateKey> IModel<BO> createModelForOverview(
+		final DaoForEntityWithSurrogateKey<BO> dao, final Long boId)
 	{
 		IModel model = new LoadableDetachableModel<BO>() 
 		{

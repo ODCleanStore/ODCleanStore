@@ -16,7 +16,7 @@ import org.apache.wicket.model.Model;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.RoleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
@@ -26,10 +26,12 @@ import org.apache.wicket.authroles.authorization.strategies.role.annotations.Aut
 @AuthorizeInstantiation({ "ADM" })
 public class EditAccountPermissionsPage extends FrontendPage
 {
+	private static final long serialVersionUID = 1L;
+
 	private static Logger logger = Logger.getLogger(EditAccountPermissionsPage.class);
 	
-	private Dao<User> userDao;
-	private Dao<Role> roleDao;
+	private DaoForEntityWithSurrogateKey<User> userDao;
+	private DaoForEntityWithSurrogateKey<Role> roleDao;
 	
 	private Map<Role, Boolean> currentRolesSettings;
 	
@@ -42,8 +44,8 @@ public class EditAccountPermissionsPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		userDao = daoLookupFactory.getDao(UserDao.class);
-		roleDao = daoLookupFactory.getDao(RoleDao.class);
+		userDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(UserDao.class);
+		roleDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(RoleDao.class);
 		
 		// prepare the target User instance
 		//

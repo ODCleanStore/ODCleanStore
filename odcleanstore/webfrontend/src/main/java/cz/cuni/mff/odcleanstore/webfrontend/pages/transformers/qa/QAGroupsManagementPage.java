@@ -12,6 +12,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
@@ -19,7 +20,7 @@ public class QAGroupsManagementPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private Dao<QARulesGroup> qaRulesGroupDao;
+	private DaoForEntityWithSurrogateKey<QARulesGroup> qaRulesGroupDao;
 	
 	public QAGroupsManagementPage() 
 	{
@@ -30,7 +31,7 @@ public class QAGroupsManagementPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		qaRulesGroupDao = daoLookupFactory.getDao(QARulesGroupDao.class);
+		qaRulesGroupDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(QARulesGroupDao.class);
 		
 		// register page components
 		//

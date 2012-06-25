@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.RoleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.systest.dao.DaoTest;
 
@@ -21,7 +22,7 @@ public class RoleDaoTest extends DaoTest
 	
 	private static final String IMPORT_SCRIPT_LOCATION = ROOT_RESOURCE_DIR_PATH + "/initial_db_import.sql";
 	
-	private Dao<Role> roleDao;
+	private DaoForEntityWithSurrogateKey<Role> roleDao;
 	
 	public RoleDaoTest() throws Exception 
 	{

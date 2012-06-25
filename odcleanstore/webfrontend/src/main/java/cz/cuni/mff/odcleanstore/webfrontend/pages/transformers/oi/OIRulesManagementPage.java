@@ -11,7 +11,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
@@ -19,7 +19,7 @@ public class OIRulesManagementPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private Dao<OIRulesGroup> oiRulesGroupsDao;
+	private DaoForEntityWithSurrogateKey<OIRulesGroup> oiRulesGroupsDao;
 	
 	public OIRulesManagementPage() 
 	{
@@ -30,7 +30,7 @@ public class OIRulesManagementPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		oiRulesGroupsDao = daoLookupFactory.getDao(OIRulesGroupDao.class);
+		oiRulesGroupsDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIRulesGroupDao.class);
 		
 		// register page components
 		//

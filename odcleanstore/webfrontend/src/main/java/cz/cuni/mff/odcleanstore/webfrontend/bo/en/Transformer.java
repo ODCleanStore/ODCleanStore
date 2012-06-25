@@ -1,8 +1,8 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo.en;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessObject;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
-public class Transformer extends BusinessObject
+public class Transformer extends EntityWithSurrogateKey
 {
 	private static final long serialVersionUID = 1L;
 
@@ -22,7 +22,8 @@ public class Transformer extends BusinessObject
 	public Transformer(Long id, String label, String description, String jarPath,
 		String fullClassName) 
 	{
-		this.id = id;
+		super(id);
+		
 		this.label = label;
 		this.description = description;
 		this.jarPath = jarPath;

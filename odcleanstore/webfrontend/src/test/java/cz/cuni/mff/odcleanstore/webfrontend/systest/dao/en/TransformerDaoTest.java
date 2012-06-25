@@ -2,6 +2,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.systest.dao.en;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
 import cz.cuni.mff.odcleanstore.webfrontend.systest.dao.DaoTest;
 
@@ -24,7 +25,7 @@ public class TransformerDaoTest extends DaoTest
 	private static final String AFTER_INSERT_SCRIPT_LOCATION = ROOT_RESOURCE_DIR_PATH + "/after_insert_db_export.xml";
 	private static final String AFTER_DELETE_SCRIPT_LOCATION = ROOT_RESOURCE_DIR_PATH + "/after_delete_db_export.xml";
 	
-	private Dao<Transformer> transformerDao;
+	private DaoForEntityWithSurrogateKey<Transformer> transformerDao;
 
 	public TransformerDaoTest() throws Exception
 	{

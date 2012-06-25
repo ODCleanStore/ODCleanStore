@@ -1,7 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessObject;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
 
 import javax.sql.DataSource;
@@ -22,12 +21,12 @@ import java.util.List;
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
-public abstract class Dao<T extends BusinessObject> implements Serializable
+public abstract class Dao<T extends BusinessEntity> implements Serializable
 {
 	public static final String TABLE_NAME_PREFIX = "DB.ODCLEANSTORE.";
 	
 	private static final long serialVersionUID = 1L;
-		
+	
 	private static Logger logger = Logger.getLogger(Dao.class);
 	
 	private DaoLookupFactory lookupFactory;
@@ -35,8 +34,25 @@ public abstract class Dao<T extends BusinessObject> implements Serializable
 	private transient JdbcTemplate jdbcTemplate;
 	private transient TransactionTemplate transactionTemplate;
 	
+	/**
+	 * 
+	 * @return
+	 */
+	protected abstract String getTableName();
+	
+	/**
+	 * 
+	 * @return
+	 */
+	protected abstract ParameterizedRowMapper<T> getRowMapper();
+	
+	/**
+	 * 
+	 * @param lookupFactory
+	 */
 	public void setDaoLookupFactory(DaoLookupFactory lookupFactory)
 	{
+		logger.debug("setting dao lookup factory for: " + this.getClass());
 		this.lookupFactory = lookupFactory;
 	}
 	
@@ -72,6 +88,36 @@ public abstract class Dao<T extends BusinessObject> implements Serializable
 	}
 	
 	/**
+	 * 
+	 * @return
+	 */
+	public List<T> loadAllRaw()
+	{
+		String query = "SELECT * FROM " + getTableName();
+		return getJdbcTemplate().query(query, getRowMapper());
+	}
+	
+	public T loadFirstRaw()
+	{
+		String query = "SELECT TOP 1 * FROM " + getTableName();
+		return getJdbcTemplate().queryForObject(query, getRowMapper());
+	}
+	
+	/**
+	 * 
+	 * @param columnName
+	 * @param value
+	 * @return
+	 */
+	public List<T> loadAllRawBy(String columnName, Object value)
+	{
+		String query = "SELECT * FROM " + getTableName() + " WHERE " + columnName + " = ?";
+		Object[] params = { value };
+		
+		return getJdbcTemplate().query(query, params, getRowMapper());
+	}
+	
+	/**
 	 * Finds all entities in the database.
 	 * 
 	 * @return
@@ -81,40 +127,13 @@ public abstract class Dao<T extends BusinessObject> implements Serializable
 	{
 		return loadAllRaw();
 	}
-		
-	public List<T> loadAllRaw()
-	{
-		String query = "SELECT * FROM " + getTableName();
-		return getJdbcTemplate().query(query, getRowMapper());
-	}
-	
-	public List<T> loadAllRawBy(String columnName, Object value)
-	{
-		String query = "SELECT * FROM " + getTableName() + " WHERE " + columnName + " = ?";
-		Object[] params = { value };
-		
-		return getJdbcTemplate().query(query, params, getRowMapper());
-	}	
 	
 	/**
-	 * Finds the entity with the given id in the database.
 	 * 
-	 * @param id
+	 * @param columnName
+	 * @param value
 	 * @return
 	 */
-	public T load(Long id)
-	{
-		return loadRaw(id);
-	}
-	
-	public T loadRaw(Long id)
-	{
-		String query = "SELECT * FROM " + getTableName() + " WHERE id = ?";
-		Object[] params = { id };
-		
-		return (T) getJdbcTemplate().queryForObject(query, params, getRowMapper());
-	}
-	
 	public T loadRawBy(String columnName, Object value)
 	{
 		String query = "SELECT * FROM " + getTableName() + " WHERE " + columnName + " = ?";
@@ -124,23 +143,14 @@ public abstract class Dao<T extends BusinessObject> implements Serializable
 	}
 	
 	/**
-	 * Deletes the given item in the database.
+	 * Finds the entity with the given id in the database.
 	 * 
-	 * @param item
+	 * @param id
+	 * @return
 	 */
-	public void delete(T item)
+	public T loadBy(String columnName, Object value)
 	{
-		throw new UnsupportedOperationException(
-			"Cannot delete rows from table: " + getTableName() + "."
-		);
-	}
-	
-	public void deleteRaw(Long id)
-	{
-		String query = "DELETE FROM " + getTableName() + " WHERE id = ?";
-		Object[] params = { id };
-		
-		getJdbcTemplate().update(query, params);
+		return loadRawBy(columnName, value);
 	}
 	
 	/**
@@ -168,7 +178,15 @@ public abstract class Dao<T extends BusinessObject> implements Serializable
 		);
 	}
 	
-	protected abstract String getTableName();
-	
-	protected abstract ParameterizedRowMapper<T> getRowMapper();
+	/**
+	 * 
+	 * @param item
+	 * @throws Exception
+	 */
+	public void delete(T item) throws Exception
+	{
+		throw new UnsupportedOperationException(
+			"Cannot delete rows from table: " + getTableName() + "."
+		);
+	}
 }
