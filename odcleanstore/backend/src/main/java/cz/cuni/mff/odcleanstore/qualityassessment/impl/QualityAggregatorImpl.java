@@ -7,6 +7,7 @@ import java.util.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
@@ -90,7 +91,6 @@ public class QualityAggregatorImpl implements QualityAggregator {
 
 				@Override
 				public String getTransformerConfiguration() {
-					// TODO Auto-generated method stub
 					return null;
 				}
 
@@ -112,10 +112,10 @@ public class QualityAggregatorImpl implements QualityAggregator {
 		}
 	}
 	
-	private final static String dropOutdatedQueryFormat = "SPARQL DELETE {<%s> <" + ODCS.publisherScore + "> ?score}";
+	private final static String dropOutdatedQueryFormat = "SPARQL DELETE FROM <null> {?publisher <" + ODCS.publisherScore + "> ?score} WHERE {?publisher <" + ODCS.publisherScore + "> ?score. FILTER (?publisher = <%s>)}";
 	private final static String computeSumUpdatedQueryFormat = "SPARQL SELECT SUM(?score) WHERE {?graph <" + ODCS.score + "> ?score; <" + W3P.publishedBy + "> <%s>}";
 	private final static String computeCountUpdatedQueryFormat = "SPARQL SELECT COUNT(?score) WHERE {?graph <" + ODCS.score + "> ?score; <" + W3P.publishedBy + "> <%s>}";
-	private final static String storeUpdatedQueryFormat = "SPARQL INSERT DATA INTO <%s> {<%s> <" + ODCS.publisherScore + "> \"%f\"^^<" + XMLSchema.doubleType + ">}";
+	private final static String storeUpdatedQueryFormat = "SPARQL INSERT DATA INTO <null> {<%s> <" + ODCS.publisherScore + "> \"%f\"^^<" + XMLSchema.doubleType + ">}";
 	private final static String graphPublisherQueryFormat = "SPARQL SELECT ?publisher FROM <%s> WHERE {<%s> <" + W3P.publishedBy + "> ?publisher}";
 	private final static String graphScoreQueryFormat = "SPARQL SELECT ?score FROM <%s> WHERE {<%s> <" + ODCS.score + "> ?score}";
 	
@@ -133,7 +133,7 @@ public class QualityAggregatorImpl implements QualityAggregator {
 		try
 		{
 			Double newScore = getGraphScore(inputGraph.getGraphName(), inputGraph.getMetadataGraphName(), getDirtyConnection());
-			
+
 			updatePublisherScore(inputGraph.getGraphName(),
 					inputGraph.getMetadataGraphName(),
 					newScore,
@@ -187,11 +187,7 @@ public class QualityAggregatorImpl implements QualityAggregator {
 			final String publisher = getGraphPublisher(graph, metadataGraph);
 			
 			if (publisher != null) {
-				try {
-					final String dropOutdated = String.format(dropOutdatedQueryFormat, publisher);
-
-					getCleanConnection().execute(dropOutdated);
-					
+				try {					
 					final String computeSumUpdated = String.format(computeSumUpdatedQueryFormat, publisher);
 					final String computeCountUpdated = String.format(computeCountUpdatedQueryFormat, publisher);
 					
@@ -207,10 +203,16 @@ public class QualityAggregatorImpl implements QualityAggregator {
 					} else {
 						throw new QualityAssessmentException("Publisher has no score.");
 					}
+					
+					getCleanConnection().adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL, false);
+					
+					final String dropOutdated = String.format(dropOutdatedQueryFormat, publisher);
+					getCleanConnection().execute(dropOutdated);
 
-					final String storeUpdated = String.format(storeUpdatedQueryFormat, metadataGraph, publisher, score);
-				
+					final String storeUpdated = String.format(storeUpdatedQueryFormat, publisher, score);
 					getCleanConnection().execute(storeUpdated);
+					
+					getCleanConnection().commit();
 				} catch (ConnectionException e) {
 					throw new TransformerException(e);
 				} catch (QueryException e) {
