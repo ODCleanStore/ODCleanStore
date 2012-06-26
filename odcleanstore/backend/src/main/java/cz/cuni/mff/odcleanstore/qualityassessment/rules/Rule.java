@@ -27,7 +27,7 @@ public class Rule {
 	 * Constructs a SPARQL query for a particular graph.
 	 */
 	public String toString(String graphName) {
-		return "SPARQL SELECT COUNT(*) FROM <" + graphName + "> WHERE " + this.filter;
+		return String.format("SPARQL SELECT COUNT(*) FROM <%s> WHERE %s", graphName, this.filter);
 	}
 
 	public Float getCoefficient() {
