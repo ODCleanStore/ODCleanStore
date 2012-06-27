@@ -60,12 +60,24 @@ public class NewAccountPage extends FrontendPage
 				
 				try 
 				{
-					initNewPasswordForUser(user, config);
-					// TODO: should send an email after successfuly inserting into DB
-					// TODO: inserting into DB + sending email should be in a transaction
+					String password = generateNewPassword();
+					String salt = generateNewSalt();
+					
+					sendConfirmationEmail(user, password, config);
+					
+					String passwordHash = calculatePasswordHash(password, salt);
+					
+					user.setPasswordHash(passwordHash);
+					user.setSalt(salt);
+					
 					userDao.save(user);
 				}
 				catch (DaoException ex) 
+				{
+					getSession().error(ex.getMessage());
+					return;
+				}
+				catch (MessagingException ex)
 				{
 					getSession().error(ex.getMessage());
 					return;
@@ -99,31 +111,44 @@ public class NewAccountPage extends FrontendPage
 		form.add(textField);
 	}
 
-	private void initNewPasswordForUser(User user, Configuration config) 
-		throws MessagingException, NoSuchAlgorithmException
+	/**
+	 * 
+	 * @return
+	 */
+	private String generateNewPassword()
 	{
-		logger.debug("Initializing password for user: " + user.getId());
-		
-		// 1. Generate random plain-text password.
-		//
 		logger.debug("Generating random password.");
 		
-		String password = PasswordHandling.generateRandomString(
+		return PasswordHandling.generateRandomString(
 			PasswordHandling.DEFAULT_CHARSET,
 			PasswordHandling.DEFAULT_PASSWORD_LENGTH
 		);
-		
-		// 2. Generate random salt.
-		//
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	private String generateNewSalt()
+	{
 		logger.debug("Generating random salt.");
 		
-		String salt = PasswordHandling.generateRandomString(
+		return PasswordHandling.generateRandomString(
 			PasswordHandling.DEFAULT_CHARSET,
 			PasswordHandling.DEFAULT_SALT_LENGTH
 		);
-		
-		// 3. Send confirmation email.
-		//
+	}
+	
+	/**
+	 * 
+	 * @param user
+	 * @param password
+	 * @param config
+	 * @throws MessagingException
+	 */
+	private void sendConfirmationEmail(User user, String password, Configuration config) 
+		throws MessagingException
+	{
 		logger.debug("Sending confirmation email.");
 		
 		try 
@@ -137,24 +162,27 @@ public class NewAccountPage extends FrontendPage
 				"Could not send confirmation email to: " + user.getEmail()
 			);
 		}
-		
-		// 4. Hash plain-text password using MD5.
-		//
+	}
+	
+	/**
+	 * 
+	 * @param password
+	 * @param salt
+	 * @return
+	 * @throws NoSuchAlgorithmException
+	 */
+	private String calculatePasswordHash(String password, String salt) 
+		throws NoSuchAlgorithmException
+	{
 		logger.debug("Calculating password hash.");
 		
-		String passwordHash;
 		try 
 		{
-			passwordHash = PasswordHandling.calculatePasswordHash(password, salt);
+			return PasswordHandling.calculatePasswordHash(password, salt);
 		}
 		catch (NoSuchAlgorithmException ex)
 		{
 			throw new NoSuchAlgorithmException("Could not calculate password hash.");
 		}
-
-		// 5. Update the passwordHash and salt of the given user.
-		//
-		user.setPasswordHash(passwordHash);
-		user.setSalt(salt);
 	}
 }
