@@ -13,7 +13,6 @@ import org.apache.wicket.validation.validator.EmailAddressValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.configuration.Configuration;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
@@ -60,12 +59,12 @@ public class NewAccountPage extends FrontendPage
 				
 				try 
 				{
-					String password = generateNewPassword();
-					String salt = generateNewSalt();
+					String password = PasswordHandling.generatePassword();
+					String salt = PasswordHandling.generateSalt();
 					
-					sendConfirmationEmail(user, password, config);
+					sendEmail(new NewAccountMail(user, password), config);
 					
-					String passwordHash = calculatePasswordHash(password, salt);
+					String passwordHash = PasswordHandling.calculatePasswordHash(password, salt);
 					
 					user.setPasswordHash(passwordHash);
 					user.setSalt(salt);
@@ -110,34 +109,6 @@ public class NewAccountPage extends FrontendPage
 
 		form.add(textField);
 	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	private String generateNewPassword()
-	{
-		logger.debug("Generating random password.");
-		
-		return PasswordHandling.generateRandomString(
-			PasswordHandling.DEFAULT_CHARSET,
-			PasswordHandling.DEFAULT_PASSWORD_LENGTH
-		);
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	private String generateNewSalt()
-	{
-		logger.debug("Generating random salt.");
-		
-		return PasswordHandling.generateRandomString(
-			PasswordHandling.DEFAULT_CHARSET,
-			PasswordHandling.DEFAULT_SALT_LENGTH
-		);
-	}
 	
 	/**
 	 * 
@@ -161,28 +132,6 @@ public class NewAccountPage extends FrontendPage
 			throw new MessagingException(
 				"Could not send confirmation email to: " + user.getEmail()
 			);
-		}
-	}
-	
-	/**
-	 * 
-	 * @param password
-	 * @param salt
-	 * @return
-	 * @throws NoSuchAlgorithmException
-	 */
-	private String calculatePasswordHash(String password, String salt) 
-		throws NoSuchAlgorithmException
-	{
-		logger.debug("Calculating password hash.");
-		
-		try 
-		{
-			return PasswordHandling.calculatePasswordHash(password, salt);
-		}
-		catch (NoSuchAlgorithmException ex)
-		{
-			throw new NoSuchAlgorithmException("Could not calculate password hash.");
 		}
 	}
 }

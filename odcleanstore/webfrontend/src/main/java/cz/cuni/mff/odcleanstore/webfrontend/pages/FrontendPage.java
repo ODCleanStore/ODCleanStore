@@ -1,7 +1,8 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages;
 
-import java.lang.reflect.Constructor;
 import java.util.List;
+
+import javax.mail.MessagingException;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.markup.html.WebPage;
@@ -10,16 +11,17 @@ import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.configuration.Configuration;
 import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
 import cz.cuni.mff.odcleanstore.webfrontend.core.ODCSWebFrontendApplication;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.util.Mail;
 
 /**
  * An abstract base class for all WebFrontend page components, except for
@@ -195,5 +197,19 @@ public abstract class FrontendPage extends WebPage
 		};
 		
 		return new CompoundPropertyModel<BO>(model);
+	}
+	
+	protected void sendEmail(Mail email, Configuration config) throws MessagingException
+	{
+		try 
+		{
+			email.sendThroughGmail(config.getGmailAddress(), config.getGmailPassword());
+		} 
+		catch (MessagingException ex) 
+		{
+			throw new MessagingException(
+				"Could not send confirmation email to: " + email.getRecipient()
+			);
+		}
 	}
 }

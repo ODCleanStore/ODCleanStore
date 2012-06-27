@@ -178,7 +178,7 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 	{
 		String query = 
 			"UPDATE " + getTableName() + " " +
-			"SET username = ?, email = ?, firstname = ?, surname = ? " +
+			"SET username = ?, email = ?, firstname = ?, surname = ?, passwordHash = ?, salt = ? " +
 			"WHERE id = ?";
 		
 		Object[] arguments =
@@ -187,6 +187,8 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 			user.getEmail(),
 			user.getFirstname(),
 			user.getSurname(),
+			user.getPasswordHash(),
+			user.getSalt(),
 			user.getId()
 		};
 		
