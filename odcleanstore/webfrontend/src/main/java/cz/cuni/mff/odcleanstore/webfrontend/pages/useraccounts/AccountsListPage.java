@@ -2,6 +2,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts;
 
 import javax.mail.MessagingException;
 
+import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
@@ -14,6 +15,8 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.util.Mail;
+import cz.cuni.mff.odcleanstore.webfrontend.util.NewAccountMail;
 import cz.cuni.mff.odcleanstore.webfrontend.util.NewPasswordMail;
 import cz.cuni.mff.odcleanstore.webfrontend.util.PasswordHandling;
 
@@ -119,15 +122,17 @@ public class AccountsListPage extends FrontendPage
 				{
 					String password = PasswordHandling.generatePassword();
 					String salt = PasswordHandling.generateSalt();
-					
-					sendEmail(new NewPasswordMail(user, password), config);
-					
 					String passwordHash = PasswordHandling.calculatePasswordHash(password, salt);
 					
 					user.setPasswordHash(passwordHash);
 					user.setSalt(salt);
 					
-					userDao.update(user);
+					Mail mail = new NewPasswordMail(user, password);
+					
+					userDao.update(
+						user,
+						new SendConfirmationEmailSnippet(config, mail)
+					);
 				}
 				catch (DaoException ex) 
 				{

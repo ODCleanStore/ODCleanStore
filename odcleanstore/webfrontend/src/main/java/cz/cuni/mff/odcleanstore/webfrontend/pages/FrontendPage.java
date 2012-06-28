@@ -198,18 +198,4 @@ public abstract class FrontendPage extends WebPage
 		
 		return new CompoundPropertyModel<BO>(model);
 	}
-	
-	protected void sendEmail(Mail email, Configuration config) throws MessagingException
-	{
-		try 
-		{
-			email.sendThroughGmail(config.getGmailAddress(), config.getGmailPassword());
-		} 
-		catch (MessagingException ex) 
-		{
-			throw new MessagingException(
-				"Could not send confirmation email to: " + email.getRecipient()
-			);
-		}
-	}
 }

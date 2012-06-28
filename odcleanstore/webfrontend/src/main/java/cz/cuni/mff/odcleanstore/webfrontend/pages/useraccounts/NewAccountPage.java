@@ -11,6 +11,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.validation.validator.EmailAddressValidator;
 
+import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.configuration.Configuration;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
@@ -61,15 +62,17 @@ public class NewAccountPage extends FrontendPage
 				{
 					String password = PasswordHandling.generatePassword();
 					String salt = PasswordHandling.generateSalt();
-					
-					sendEmail(new NewAccountMail(user, password), config);
-					
 					String passwordHash = PasswordHandling.calculatePasswordHash(password, salt);
 					
 					user.setPasswordHash(passwordHash);
 					user.setSalt(salt);
 					
-					userDao.save(user);
+					Mail mail = new NewAccountMail(user, password);
+					
+					userDao.save(
+						user, 
+						new SendConfirmationEmailSnippet(config, mail)
+					);
 				}
 				catch (DaoException ex) 
 				{
@@ -108,30 +111,5 @@ public class NewAccountPage extends FrontendPage
 		textField.add(EmailAddressValidator.getInstance());
 
 		form.add(textField);
-	}
-	
-	/**
-	 * 
-	 * @param user
-	 * @param password
-	 * @param config
-	 * @throws MessagingException
-	 */
-	private void sendConfirmationEmail(User user, String password, Configuration config) 
-		throws MessagingException
-	{
-		logger.debug("Sending confirmation email.");
-		
-		try 
-		{
-			Mail email = new NewAccountMail(user, password);
-			email.sendThroughGmail(config.getGmailAddress(), config.getGmailPassword());
-		} 
-		catch (MessagingException ex) 
-		{
-			throw new MessagingException(
-				"Could not send confirmation email to: " + user.getEmail()
-			);
-		}
 	}
 }
