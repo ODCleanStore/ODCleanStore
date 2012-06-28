@@ -4,7 +4,7 @@ DELETE FROM DB.ODCLEANSTORE.OI_RULES_GROUPS;
 INSERT INTO DB.ODCLEANSTORE.OI_RULES_GROUPS VALUES (1, n'pravidla pro linkovani testovacich dat o zakazkach od Tomase K.', n'pravidla pro linkovani testovacich dat o zakazkach od Tomase K.');
     
 INSERT INTO DB.ODCLEANSTORE.OI_RULES VALUES (1, 1, n'title_supplier', n'owl:sameAs', 
-n'?x &lt;http://purl.org/procurement#supplier&gt; ?a .', n'?y &lt;http://purl.org/procurement#supplier&gt; ?b .',
+n'?x <http://purl.org/procurement#supplier> ?a .', n'?y <http://purl.org/procurement#supplier> ?b .',
 n'<LinkageRule>
   <Compare weight="1" threshold="0.0" required="true" metric="equality" id="unnamed_3">
     <Input path="?a/&lt;http://purl.org/procurement#title&gt;" id="unnamed_1"></Input>
