@@ -19,12 +19,14 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import cz.cuni.mff.odcleanstore.data.RDFprefix;
 import cz.cuni.mff.odcleanstore.linker.exceptions.InvalidLinkageRuleException;
+import cz.cuni.mff.odcleanstore.linker.rules.FileOutput;
+import cz.cuni.mff.odcleanstore.linker.rules.Output;
+import cz.cuni.mff.odcleanstore.linker.rules.SilkRule;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
@@ -45,6 +47,9 @@ public class ConfigBuilder {
 	 */
 	private static final String CONFIG_SOURCE_A_ID = "sourceA";
 	private static final String CONFIG_SOURCE_B_ID = "sourceB";
+	
+	private static final String CONFIG_VAR_A = "a";
+	private static final String CONFIG_VAR_B = "b";
 	/**
 	 * Silk-LSL element and attribute names
 	 */
@@ -61,12 +66,23 @@ public class ConfigBuilder {
 	private static final String CONFIG_XML_ENDPOINT_URI = "endpointURI";
 	private static final String CONFIG_XML_GRAPH = "graph";
 	private static final String CONFIG_XML_LINKAGE_RULES = "Interlinks";
+	private static final String CONFIG_XML_LINKAGE_RULE = "Interlink";
+	private static final String CONFIG_XML_LINK_TYPE = "LinkType";
 	private static final String CONFIG_XML_SOURCE_DATASET = "SourceDataset";
 	private static final String CONFIG_XML_TARGET_DATASET = "TargetDataset";
 	private static final String CONFIG_XML_DATASOURCE = "dataSource";
+	private static final String CONFIG_XML_VAR = "var";
+	private static final String CONFIG_XML_RESTRICT_TO = "RestrictTo";
+	private static final String CONFIG_XML_FILTER = "Filter";
+	private static final String CONFIG_XML_THRESHOLD = "threshold";
+	private static final String CONFIG_XML_LIMIT = "limit";
+	private static final String CONFIG_XML_OUTPUTS = "Outputs";
 	private static final String CONFIG_XML_OUTPUT = "Output";
+	private static final String CONFIG_XML_MIN_CONFIDENCE = "minConfidence";
+	private static final String CONFIG_XML_MAX_CONFIDENCE = "maxConfidence";
 	private static final String CONFIG_XML_TYPE = "type";
 	private static final String CONFIG_XML_FILE = "file";
+	private static final String CONFIG_XML_FORMAT = "format";
 	private static final String CONFIG_XML_SPARQL_ENDPOINT = "sparqlEndpoint";
 	private static final String CONFIG_XML_SPARQL_UPDATE = "sparul";
 	private static final String CONFIG_XML_URI = "uri";
@@ -92,14 +108,14 @@ public class ConfigBuilder {
 	 * @return file containing linkage configuration
 	 * @throws TransformerException when anything fails
 	 */
-	public static File createLinkConfigFile(List<String> rawRules, List<RDFprefix> prefixes, 
+	public static File createLinkConfigFile(List<SilkRule> rules, List<RDFprefix> prefixes, 
 			TransformedGraph inputGraph, TransformationContext context, String linksGraphName) 
 					throws TransformerException {
 		LOG.info("Creating link configuration file.");
 		Document configDoc;
 		File configFile;
 		try {
-			configDoc = createConfigDoc(rawRules, prefixes, inputGraph, linksGraphName);
+			configDoc = createConfigDoc(rules, prefixes, inputGraph, linksGraphName);
 			LOG.info("Created link configuration document.");
 			configFile = storeConfigDoc(configDoc, context.getTransformerDirectory(), inputGraph.getGraphId());
 			LOG.info("Stored link configuration to temporary file {}", configFile.getAbsolutePath());
@@ -124,7 +140,7 @@ public class ConfigBuilder {
 	 * @throws InvalidLinkageRuleException 
 	 * @throws DOMException 
 	 */
-	private static Document createConfigDoc(List<String> rawRules, List<RDFprefix> prefixes,
+	private static Document createConfigDoc(List<SilkRule> rules, List<RDFprefix> prefixes,
 			TransformedGraph inputGraph, String linksGraphName) throws ParserConfigurationException, 
 			SAXException, IOException, DOMException, InvalidLinkageRuleException {
 
@@ -135,7 +151,7 @@ public class ConfigBuilder {
 		root.appendChild(createPrefixes(configDoc, prefixes));
 		root.appendChild(createSources(configDoc, inputGraph.getGraphName()));
 		root.appendChild(
-				createLinkageRules(configDoc, rawRules, inputGraph.getGraphId(), builder, linksGraphName));			
+				createLinkageRules(configDoc, rules, inputGraph.getGraphId(), builder, linksGraphName));			
 		
 		return configDoc;
 	}
@@ -195,16 +211,16 @@ public class ConfigBuilder {
 		Element sourceElement = doc.createElement(CONFIG_XML_SOURCE);
 		
 		sourceElement.setAttribute(CONFIG_XML_TYPE, CONFIG_XML_SPARQL_ENDPOINT);
-		sourceElement.appendChild(createParamElement(doc, CONFIG_XML_ENDPOINT_URI, endpointUri));
+		sourceElement.appendChild(createParam(doc, CONFIG_XML_ENDPOINT_URI, endpointUri));
 		
 		if (graphName != null) {
-			sourceElement.appendChild(createParamElement(doc, CONFIG_XML_GRAPH, graphName));
+			sourceElement.appendChild(createParam(doc, CONFIG_XML_GRAPH, graphName));
 		}
 		if (login != null) {
-			sourceElement.appendChild(createParamElement(doc, CONFIG_XML_LOGIN, login));
+			sourceElement.appendChild(createParam(doc, CONFIG_XML_LOGIN, login));
 		}
 		if (password != null) {
-			sourceElement.appendChild(createParamElement(doc, CONFIG_XML_PASSWORD, password));
+			sourceElement.appendChild(createParam(doc, CONFIG_XML_PASSWORD, password));
 		}
 		
 		return sourceElement;
@@ -223,65 +239,105 @@ public class ConfigBuilder {
 	 * @throws IOException
 	 * @throws InvalidLinkageRuleException 
 	 */
-	private static Element createLinkageRules(Document doc, List<String> rawRules, String graphId, 
+	private static Element createLinkageRules(Document doc, List<SilkRule> rules, String graphId, 
 			DocumentBuilder builder, String linksGraphName) throws SAXException, IOException,
 			InvalidLinkageRuleException {
 		Element rulesElement = doc.createElement(CONFIG_XML_LINKAGE_RULES);
 		
-		for (String rawRule:rawRules) {
-			Element ruleElement = builder.parse(new InputSource(new StringReader(rawRule))).getDocumentElement();
-			normalizeDatasets(ruleElement);
-			updateFileNames(ruleElement, graphId);
-			addEndpointParams(ruleElement, linksGraphName);
-			rulesElement.appendChild(doc.importNode(ruleElement, true));
+		for (SilkRule rule: rules) {		
+			rulesElement.appendChild(createLinkageRule(doc, rule, graphId, builder, linksGraphName));
 		}
 		
 		return rulesElement;
 	}
 	
-	/**
-	 * Normalizes dataset names so they correspond with dataset definition.
-	 * 
-	 * @param ruleElement XML element containing linkage rule
-	 * @throws InvalidLinkageRuleException 
-	 */
-	private static void normalizeDatasets(Element ruleElement) throws InvalidLinkageRuleException {
-		Element sourceElement = (Element)ruleElement.getElementsByTagName(CONFIG_XML_SOURCE_DATASET).item(0);
-		if (sourceElement == null) {
-			throw new InvalidLinkageRuleException("Linkage rule does not specify source dataset.");
-		}
-		sourceElement.setAttribute(CONFIG_XML_DATASOURCE, CONFIG_SOURCE_A_ID);
-		Element targetElement = (Element)ruleElement.getElementsByTagName(CONFIG_XML_TARGET_DATASET).item(0);
-		if (targetElement == null) {
-			throw new InvalidLinkageRuleException("Linkage rule does not specify target dataset.");
-		}
-		targetElement.setAttribute(CONFIG_XML_DATASOURCE, CONFIG_SOURCE_B_ID);
+	private static Element createLinkageRule(Document doc, SilkRule rule, String graphId, 
+			DocumentBuilder builder, String linksGraphName) 
+					throws SAXException, IOException, DOMException, InvalidLinkageRuleException {
+		Element ruleElement = doc.createElement(CONFIG_XML_LINKAGE_RULE);
+		ruleElement.setAttribute(CONFIG_XML_ID, rule.getLabel());
+		
+		ruleElement.appendChild(createTextElement(doc, CONFIG_XML_LINK_TYPE, rule.getLinkType()));
+		
+		ruleElement.appendChild(createDatasource(
+				doc, CONFIG_XML_SOURCE_DATASET, CONFIG_SOURCE_A_ID, CONFIG_VAR_A, rule.getSourceRestriction()));
+		ruleElement.appendChild(createDatasource(
+				doc, CONFIG_XML_TARGET_DATASET, CONFIG_SOURCE_B_ID, CONFIG_VAR_B, rule.getTargetRestriction()));
+		
+		Element linkageRuleElement = builder.parse(new InputSource(new StringReader(rule.getLinkageRule()))).
+				getDocumentElement();
+		ruleElement.appendChild(doc.importNode(linkageRuleElement, true));
+		
+		ruleElement.appendChild(createFilter(doc, rule.getFilterLimit(), rule.getFilterThreshold()));
+		
+		ruleElement.appendChild(createOutputs(doc, rule.getOutputs(), graphId, linksGraphName));
+		
+		return ruleElement;
 	}
 	
+	private static Element createTextElement(Document doc, String name, String content) {
+		Element element = doc.createElement(name);
+		element.setTextContent(content);
+		return element;
+	}
 	
-	/**
-	 * Adds uniqe identifier to the output file names to avoid concurrency conflicts.
-	 * 
-	 * @param ruleElement XML element containing linkage rule
-	 * @param graphId unique ID of the interlinked graph - used for unique filenames
-	 */
-	private static void updateFileNames(Element ruleElement, String graphId) {
-		NodeList outputList = ruleElement.getElementsByTagName(CONFIG_XML_OUTPUT);
-		for (int i = 0; i < outputList.getLength(); ++i) {
-			Element outputElement = (Element)outputList.item(i);
-			String type = outputElement.getAttribute(CONFIG_XML_TYPE);
-			if (CONFIG_XML_FILE.equals(type)) {
-				NodeList paramList = outputElement.getElementsByTagName(CONFIG_XML_PARAMETER);
-				for (int j = 0; j < paramList.getLength(); j++) {
-					Element paramElement = (Element)paramList.item(j);
-					String name = paramElement.getAttribute(CONFIG_XML_NAME);
-					if (CONFIG_XML_FILE.equals(name)) {
-						String newName = updateFileName(paramElement.getAttribute(CONFIG_XML_VALUE), graphId);
-						paramElement.setAttribute(CONFIG_XML_VALUE, newName);
-					}
-				}
-			}
+	private static Element createDatasource(
+			Document doc, String elementName, String sourceId, String variable, String restriction) {
+		Element datasourceElement = doc.createElement(elementName);
+		datasourceElement.setAttribute(CONFIG_XML_DATASOURCE, sourceId);
+		datasourceElement.setAttribute(CONFIG_XML_VAR, variable);
+		if (restriction != null) {
+			datasourceElement.appendChild(createTextElement(doc, CONFIG_XML_RESTRICT_TO, restriction));
 		}
+		return datasourceElement;
+	}
+	
+	private static Element createFilter(Document doc, Integer limit, Double threshold) {
+		Element filterElement = doc.createElement(CONFIG_XML_FILTER);
+		if (limit != null) {
+			filterElement.setAttribute(CONFIG_XML_THRESHOLD, threshold.toString());
+		}
+		if (threshold != null) {
+			filterElement.setAttribute(CONFIG_XML_LIMIT, limit.toString());
+		}
+		return filterElement;
+	}
+	
+	private static Element createOutputs(Document doc, List<Output> outputs, String graphId, String linksGraphName) 
+			throws DOMException, InvalidLinkageRuleException {
+		Element outputsElement = doc.createElement(CONFIG_XML_OUTPUTS);	
+		for (Output output: outputs) {
+			outputsElement.appendChild(createOutput(doc, output, graphId, linksGraphName));
+		}		
+		return outputsElement;
+	}
+	
+	private static Element createOutput(Document doc, Output output, String graphId, String linksGraphName) 
+			throws InvalidLinkageRuleException {
+		Element outputElement = doc.createElement(CONFIG_XML_OUTPUT);
+		if (output.getMinConfidence() != null) {
+			outputElement.setAttribute(CONFIG_XML_MIN_CONFIDENCE, output.getMinConfidence().toString());
+		}
+		if (output.getMaxConfidence() != null) {
+			outputElement.setAttribute(CONFIG_XML_MAX_CONFIDENCE, output.getMaxConfidence().toString());
+		}	
+		if (output instanceof FileOutput) {
+			FileOutput fileOutput = (FileOutput)output;
+			outputElement.setAttribute(CONFIG_XML_TYPE, CONFIG_XML_FILE);
+			if (fileOutput.getName() == null) {
+				throw new InvalidLinkageRuleException("Missing file name (file parameter) in output element.");
+			}
+			outputElement.appendChild(createParam(doc, CONFIG_XML_FILE, updateFileName(fileOutput.getName(), graphId)));
+			if (fileOutput.getFormat() == null) {
+				throw new InvalidLinkageRuleException("Missing file format parameter in output element.");
+			}
+			outputElement.appendChild(createParam(doc, CONFIG_XML_FORMAT, fileOutput.getFormat().toLowerCase()));
+		} else {
+			outputElement.setAttribute(CONFIG_XML_TYPE, CONFIG_XML_SPARQL_UPDATE);
+			outputElement.appendChild(createParam(doc, CONFIG_XML_URI, TEMP_DIRTY_ENDPOINT));
+			outputElement.appendChild(createParam(doc, CONFIG_XML_GRAPH_URI, linksGraphName));
+		}		
+		return outputElement;
 	}
 	
 	/**
@@ -298,30 +354,6 @@ public class ConfigBuilder {
 		return firstPart + graphId + thirdPart;
 	}
 	
-	
-	/**
-	 * Adds SPARQL endpoint parameters.
-	 * 
-	 * Adds Param subelements (endpoint URI, graph URI) to the Output element of type SPARQL update.
-	 * 
-	 * @param doc configuration XML document
-	 * @param ruleElement linkage rule element
-	 * @param linksGraphName graph URI to set
-	 */
-	private static void addEndpointParams(Element ruleElement, String linksGraphName) {
-		Document doc = ruleElement.getOwnerDocument();
-		
-		NodeList outputList = ruleElement.getElementsByTagName(CONFIG_XML_OUTPUT);
-		for (int i = 0; i < outputList.getLength(); ++i) {
-			Element outputElement = (Element)outputList.item(i);
-			String type = outputElement.getAttribute(CONFIG_XML_TYPE);
-			if (CONFIG_XML_SPARQL_UPDATE.equals(type)) {
-				outputElement.appendChild(createParamElement(doc, CONFIG_XML_URI, TEMP_DIRTY_ENDPOINT));
-				outputElement.appendChild(createParamElement(doc, CONFIG_XML_GRAPH_URI, linksGraphName));
-			}
-		}
-	}
-	
 	/**
 	 * Creates parameter element with given name and value.
 	 * 
@@ -330,7 +362,7 @@ public class ConfigBuilder {
 	 * @param value value of the parameter
 	 * @return
 	 */
-	private static Element createParamElement(Document doc, String name, String value) {
+	private static Element createParam(Document doc, String name, String value) {
 		Element paramElement = doc.createElement(CONFIG_XML_PARAMETER);
 		paramElement.setAttribute(CONFIG_XML_NAME, name);
 		paramElement.setAttribute(CONFIG_XML_VALUE, value);
