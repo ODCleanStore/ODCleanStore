@@ -7,6 +7,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cz.cuni.mff.odcleanstore.configuration.ObjectIdentificationConfig;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.data.RDFprefix;
@@ -26,10 +27,12 @@ import de.fuberlin.wiwiss.silk.Silk;
  */
 public class LinkerImpl implements Linker {
 	private static final Logger LOG = LoggerFactory.getLogger(LinkerImpl.class);
-	/** 
-	 * URI of graph to store generated links to 
-	 */
-	private static final String LINKS_GRAPH_NAME = "http://odcs.mff.cuni.cz/namedGraph/generatedLinks/";
+	
+	private ObjectIdentificationConfig globalConfig;
+	
+	public LinkerImpl(ObjectIdentificationConfig config) {
+		globalConfig = config;
+	}
 	
 	 /**
      * {@inheritDoc}
@@ -57,10 +60,9 @@ public class LinkerImpl implements Linker {
 				List<SilkRule> rules = loadRules(context.getTransformerConfiguration(), dao);
 				List<RDFprefix> prefixes = RDFPrefixesLoader.loadPrefixes(context.getCleanDatabaseCredentials());
 				
-				String linksGraphName = LINKS_GRAPH_NAME + inputGraph.getGraphId();
-				configFile = ConfigBuilder.createLinkConfigFile(rules, prefixes, inputGraph, context, linksGraphName);
+				configFile = ConfigBuilder.createLinkConfigFile(rules, prefixes, inputGraph, context, globalConfig);
 				
-				inputGraph.addAttachedGraph(linksGraphName);
+				inputGraph.addAttachedGraph(globalConfig.getLinksGraphURIPrefix().toString() + inputGraph.getGraphId());
 				
 				LOG.info("Calling Silk with temporary configuration file: {}", configFile.getAbsolutePath());
 				Silk.executeFile(configFile, null, Silk.DefaultThreads(), true);

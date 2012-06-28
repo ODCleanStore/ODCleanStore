@@ -15,6 +15,8 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.configuration.exceptions.ConfigurationException;
 import cz.cuni.mff.odcleanstore.data.RDFprefix;
 import cz.cuni.mff.odcleanstore.linker.rules.Output;
 import cz.cuni.mff.odcleanstore.linker.rules.SilkRule;
@@ -24,7 +26,8 @@ import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 
 public class ConfigBuilderTest {
 	@Test
-	public void testCreateConfigFile() throws TransformerException, ParserConfigurationException, SAXException, IOException {
+	public void testCreateConfigFile() throws TransformerException, ParserConfigurationException, SAXException, 
+	IOException, ConfigurationException {
 		List<SilkRule> rules = new ArrayList<SilkRule>();
 		SilkRule rule = new SilkRule();
 		rule.setLabel("testRule");
@@ -50,12 +53,13 @@ public class ConfigBuilderTest {
 				
 		TransformedGraph graph = new TransformedGraphMock("http://odcs.mff.cuni.cz/transformedGraph");
 		TransformationContext context = new TransformationContextMock("target/linkerTest");
-		String linksGraphName = "http://odcs.mff.cuni.cz/namedGraph/generatedLinks/";
 		
 		DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 		
+		ConfigLoader.loadConfig("../../data/odcs_configuration/odcs.ini");
+		
 		File configFile = ConfigBuilder.createLinkConfigFile(rules, prefixes, graph, 
-				context, linksGraphName);
+				context, ConfigLoader.getConfig().getObjectIdentificationConfig());
 		Document configDoc = builder.parse(configFile);
 		
 		File expectedFile = new File("src/test/resources/expectedLinkConfig.xml");

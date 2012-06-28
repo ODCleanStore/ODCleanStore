@@ -22,6 +22,8 @@ import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import cz.cuni.mff.odcleanstore.configuration.ObjectIdentificationConfig;
+import cz.cuni.mff.odcleanstore.connection.SparqlEndpointConnectionCredentials;
 import cz.cuni.mff.odcleanstore.data.RDFprefix;
 import cz.cuni.mff.odcleanstore.linker.exceptions.InvalidLinkageRuleException;
 import cz.cuni.mff.odcleanstore.linker.rules.FileOutput;
@@ -90,12 +92,6 @@ public class ConfigBuilder {
 	private static final String CONFIG_XML_LOGIN = "login";
 	private static final String CONFIG_XML_PASSWORD = "password";
 	
-	
-	private static final String TEMP_DIRTY_ENDPOINT = "http://localhost:8891/sparql-auth";
-	private static final String TEMP_CLEAN_ENDPOINT = "http://localhost:8890/sparql";
-	private static final String TEMP_DIRTY_SPARQL_LOGIN = "SILK";
-	private static final String TEMP_DIRTY_SPQRAL_PASSWORD = "odcs";
-	
 	/**
 	 * Creates linkage configuration file.
 	 * 
@@ -108,14 +104,13 @@ public class ConfigBuilder {
 	 * @return file containing linkage configuration
 	 * @throws TransformerException when anything fails
 	 */
-	public static File createLinkConfigFile(List<SilkRule> rules, List<RDFprefix> prefixes, 
-			TransformedGraph inputGraph, TransformationContext context, String linksGraphName) 
-					throws TransformerException {
+	public static File createLinkConfigFile(List<SilkRule> rules, List<RDFprefix> prefixes, TransformedGraph inputGraph, 
+			TransformationContext context, ObjectIdentificationConfig config) throws TransformerException {
 		LOG.info("Creating link configuration file.");
 		Document configDoc;
 		File configFile;
 		try {
-			configDoc = createConfigDoc(rules, prefixes, inputGraph, linksGraphName);
+			configDoc = createConfigDoc(rules, prefixes, inputGraph, config);
 			LOG.info("Created link configuration document.");
 			configFile = storeConfigDoc(configDoc, context.getTransformerDirectory(), inputGraph.getGraphId());
 			LOG.info("Stored link configuration to temporary file {}", configFile.getAbsolutePath());
@@ -141,7 +136,7 @@ public class ConfigBuilder {
 	 * @throws DOMException 
 	 */
 	private static Document createConfigDoc(List<SilkRule> rules, List<RDFprefix> prefixes,
-			TransformedGraph inputGraph, String linksGraphName) throws ParserConfigurationException, 
+			TransformedGraph inputGraph, ObjectIdentificationConfig config) throws ParserConfigurationException, 
 			SAXException, IOException, DOMException, InvalidLinkageRuleException {
 
 		DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -149,9 +144,9 @@ public class ConfigBuilder {
 		Element root = configDoc.createElement(CONFIG_XML_ROOT);
 		configDoc.appendChild(root);
 		root.appendChild(createPrefixes(configDoc, prefixes));
-		root.appendChild(createSources(configDoc, inputGraph.getGraphName()));
+		root.appendChild(createSources(configDoc, inputGraph.getGraphName(), config));
 		root.appendChild(
-				createLinkageRules(configDoc, rules, inputGraph.getGraphId(), builder, linksGraphName));			
+				createLinkageRules(configDoc, rules, inputGraph.getGraphId(), builder, config));			
 		
 		return configDoc;
 	}
@@ -184,15 +179,14 @@ public class ConfigBuilder {
 	 * @param graphName name of the graph in dirty DB to be interlinked
 	 * @return
 	 */
-	private static Element createSources(Document doc, String graphName) {
+	private static Element createSources(Document doc, String graphName, ObjectIdentificationConfig config) {
 		Element sourcesElement = doc.createElement(CONFIG_XML_SOURCES);
 		
-		Element sourceElement = createSource(doc, TEMP_DIRTY_ENDPOINT, graphName,
-				TEMP_DIRTY_SPARQL_LOGIN, TEMP_DIRTY_SPQRAL_PASSWORD);
+		Element sourceElement = createSource(doc, config.getDirtyDBSparqlConnectionCredentials(), graphName);
 		sourceElement.setAttribute(CONFIG_XML_ID, CONFIG_SOURCE_A_ID);
 		sourcesElement.appendChild(sourceElement);
 		
-		sourceElement = createSource(doc, TEMP_CLEAN_ENDPOINT, null, null, null);
+		sourceElement = createSource(doc, config.getCleanDBSparqlConnectionCredentials(), null);
 		sourceElement.setAttribute(CONFIG_XML_ID, CONFIG_SOURCE_B_ID);
 		sourcesElement.appendChild(sourceElement);
 		
@@ -206,21 +200,21 @@ public class ConfigBuilder {
 	 * @param graphName graph name to be interlinked or null when no graph is specified
 	 * @return
 	 */
-	private static Element createSource(Document doc, String endpointUri, String graphName,
-			String login, String password) {
+	private static Element createSource(Document doc, SparqlEndpointConnectionCredentials credentials, 
+			String graphName) {
 		Element sourceElement = doc.createElement(CONFIG_XML_SOURCE);
 		
 		sourceElement.setAttribute(CONFIG_XML_TYPE, CONFIG_XML_SPARQL_ENDPOINT);
-		sourceElement.appendChild(createParam(doc, CONFIG_XML_ENDPOINT_URI, endpointUri));
+		sourceElement.appendChild(createParam(doc, CONFIG_XML_ENDPOINT_URI, credentials.getUrl().toString()));
 		
 		if (graphName != null) {
 			sourceElement.appendChild(createParam(doc, CONFIG_XML_GRAPH, graphName));
 		}
-		if (login != null) {
-			sourceElement.appendChild(createParam(doc, CONFIG_XML_LOGIN, login));
+		if (credentials.getUsername() != null) {
+			sourceElement.appendChild(createParam(doc, CONFIG_XML_LOGIN, credentials.getUsername()));
 		}
-		if (password != null) {
-			sourceElement.appendChild(createParam(doc, CONFIG_XML_PASSWORD, password));
+		if (credentials.getPassword() != null) {
+			sourceElement.appendChild(createParam(doc, CONFIG_XML_PASSWORD, credentials.getPassword()));
 		}
 		
 		return sourceElement;
@@ -240,19 +234,19 @@ public class ConfigBuilder {
 	 * @throws InvalidLinkageRuleException 
 	 */
 	private static Element createLinkageRules(Document doc, List<SilkRule> rules, String graphId, 
-			DocumentBuilder builder, String linksGraphName) throws SAXException, IOException,
+			DocumentBuilder builder, ObjectIdentificationConfig config) throws SAXException, IOException,
 			InvalidLinkageRuleException {
 		Element rulesElement = doc.createElement(CONFIG_XML_LINKAGE_RULES);
 		
 		for (SilkRule rule: rules) {		
-			rulesElement.appendChild(createLinkageRule(doc, rule, graphId, builder, linksGraphName));
+			rulesElement.appendChild(createLinkageRule(doc, rule, graphId, builder, config));
 		}
 		
 		return rulesElement;
 	}
 	
 	private static Element createLinkageRule(Document doc, SilkRule rule, String graphId, 
-			DocumentBuilder builder, String linksGraphName) 
+			DocumentBuilder builder, ObjectIdentificationConfig config) 
 					throws SAXException, IOException, DOMException, InvalidLinkageRuleException {
 		Element ruleElement = doc.createElement(CONFIG_XML_LINKAGE_RULE);
 		ruleElement.setAttribute(CONFIG_XML_ID, rule.getLabel());
@@ -270,7 +264,7 @@ public class ConfigBuilder {
 		
 		ruleElement.appendChild(createFilter(doc, rule.getFilterLimit(), rule.getFilterThreshold()));
 		
-		ruleElement.appendChild(createOutputs(doc, rule.getOutputs(), graphId, linksGraphName));
+		ruleElement.appendChild(createOutputs(doc, rule.getOutputs(), graphId, config));
 		
 		return ruleElement;
 	}
@@ -303,16 +297,16 @@ public class ConfigBuilder {
 		return filterElement;
 	}
 	
-	private static Element createOutputs(Document doc, List<Output> outputs, String graphId, String linksGraphName) 
-			throws DOMException, InvalidLinkageRuleException {
+	private static Element createOutputs(Document doc, List<Output> outputs, String graphId, 
+			ObjectIdentificationConfig config) throws DOMException, InvalidLinkageRuleException {
 		Element outputsElement = doc.createElement(CONFIG_XML_OUTPUTS);	
 		for (Output output: outputs) {
-			outputsElement.appendChild(createOutput(doc, output, graphId, linksGraphName));
+			outputsElement.appendChild(createOutput(doc, output, graphId, config));
 		}		
 		return outputsElement;
 	}
 	
-	private static Element createOutput(Document doc, Output output, String graphId, String linksGraphName) 
+	private static Element createOutput(Document doc, Output output, String graphId, ObjectIdentificationConfig config) 
 			throws InvalidLinkageRuleException {
 		Element outputElement = doc.createElement(CONFIG_XML_OUTPUT);
 		if (output.getMinConfidence() != null) {
@@ -327,15 +321,18 @@ public class ConfigBuilder {
 			if (fileOutput.getName() == null) {
 				throw new InvalidLinkageRuleException("Missing file name (file parameter) in output element.");
 			}
-			outputElement.appendChild(createParam(doc, CONFIG_XML_FILE, updateFileName(fileOutput.getName(), graphId)));
+			outputElement.appendChild(createParam(doc, CONFIG_XML_FILE, updateFileName(
+					fileOutput.getName(), graphId)));
 			if (fileOutput.getFormat() == null) {
 				throw new InvalidLinkageRuleException("Missing file format parameter in output element.");
 			}
 			outputElement.appendChild(createParam(doc, CONFIG_XML_FORMAT, fileOutput.getFormat().toLowerCase()));
 		} else {
 			outputElement.setAttribute(CONFIG_XML_TYPE, CONFIG_XML_SPARQL_UPDATE);
-			outputElement.appendChild(createParam(doc, CONFIG_XML_URI, TEMP_DIRTY_ENDPOINT));
-			outputElement.appendChild(createParam(doc, CONFIG_XML_GRAPH_URI, linksGraphName));
+			outputElement.appendChild(createParam(doc, CONFIG_XML_URI, 
+					config.getDirtyDBSparqlConnectionCredentials().getUrl().toString()));
+			outputElement.appendChild(createParam(doc, CONFIG_XML_GRAPH_URI, 
+					config.getLinksGraphURIPrefix().toString() + graphId));
 		}		
 		return outputElement;
 	}
