@@ -11,6 +11,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
@@ -65,7 +66,7 @@ public class ManagePipelineTransformersPage extends FrontendPage
 	private void addAssignmentSection(final Long pipelineId) 
 	{
 		add(
-			createGoToPageButton(
+			new RedirectButton(
 				NewAssignmentPage.class, 
 				pipelineId, 
 				"newAssignmentLink"

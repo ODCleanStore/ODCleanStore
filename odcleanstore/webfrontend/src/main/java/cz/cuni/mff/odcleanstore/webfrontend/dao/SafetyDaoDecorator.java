@@ -3,11 +3,14 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import javax.mail.MessagingException;
+
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
+import cz.cuni.mff.odcleanstore.util.CodeSnippet;
+import cz.cuni.mff.odcleanstore.util.EmptyCodeSnippet;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessEntity;
 
 public class SafetyDaoDecorator<T extends BusinessEntity> extends Dao<T>
@@ -69,21 +72,15 @@ public class SafetyDaoDecorator<T extends BusinessEntity> extends Dao<T>
 		return dao.loadRawBy(columnName, value);
 	}
 	
-	@Override
-	public void save(T item) throws Exception 
-	{
-		try {
-			dao.save(item);
-		}
-		catch (Exception ex) 
-		{
-			handleException(ex);
-			throw ex;
-		}
-	}
 
 	@Override
-	public void update(final T item) throws Exception
+	public T loadBy(String columnName, Object value)
+	{
+		return dao.loadBy(columnName, value);
+	}
+	
+	@Override
+	public void save(final T item, final CodeSnippet doAfter) throws Exception
 	{
 		try
 		{
@@ -93,7 +90,8 @@ public class SafetyDaoDecorator<T extends BusinessEntity> extends Dao<T>
 				protected void doInTransactionWithoutResult(TransactionStatus status) 
 				{
 					try {
-						dao.update(item);
+						dao.save(item);
+						doAfter.execute();
 					}
 					catch (Exception ex) {
 						throw new RuntimeException(ex.getMessage(), ex);
@@ -109,6 +107,45 @@ public class SafetyDaoDecorator<T extends BusinessEntity> extends Dao<T>
 	}
 	
 	@Override
+	public void save(T item) throws Exception 
+	{
+		this.save(item, new EmptyCodeSnippet());
+	}
+
+	@Override
+	public void update(final T item, final CodeSnippet doAfter) throws Exception
+	{
+		try
+		{
+			dao.getTransactionTemplate().execute(new TransactionCallbackWithoutResult() 
+			{
+				@Override
+				protected void doInTransactionWithoutResult(TransactionStatus status) 
+				{
+					try {
+						dao.update(item);
+						doAfter.execute();
+					}
+					catch (Exception ex) {
+						throw new RuntimeException(ex.getMessage(), ex);
+					}
+				}
+			});
+		}
+		catch (Exception ex)
+		{
+			handleException(ex);
+			throw ex;
+		}	
+	}
+	
+	@Override
+	public void update(final T item) throws Exception
+	{
+		this.update(item, new EmptyCodeSnippet());
+	}
+	
+	@Override
 	public void delete(T item) throws Exception
 	{
 		// note that there is no need to surround the delete operation by 
@@ -120,6 +157,33 @@ public class SafetyDaoDecorator<T extends BusinessEntity> extends Dao<T>
 	}
 	
 	private void handleException(Exception ex) throws Exception
+	{
+		handleMessagingException(ex);
+		handleDAOException(ex);
+		
+		// if neither of the routines above handled the exception (e.g. they
+		// did not throw any exceptions), re-throw the exception unchanged
+		throw ex;
+	}
+	
+	/**
+	 * 
+	 * @param ex
+	 * @throws Exception
+	 */
+	private void handleMessagingException(Exception ex) throws Exception
+	{
+		if (ex instanceof RuntimeException)
+		{
+			Throwable innerEx = ex.getCause();
+			if (innerEx != null && (innerEx instanceof MessagingException))
+			{
+				throw (MessagingException) innerEx;
+			}
+		}
+	}
+	
+	private void handleDAOException(Exception ex) throws Exception
 	{
 		String relevantMessagePart = getRelevantMessagePart(ex.getMessage());
 		if (relevantMessagePart == null)
@@ -133,9 +197,6 @@ public class SafetyDaoDecorator<T extends BusinessEntity> extends Dao<T>
 			handler.handleException(relevantMessagePart);
 			return;
 		}
-		
-		// if no handler accepted the exception, throw it unchanged
-		throw ex;
 	}
 	
 	private String getRelevantMessagePart(String originalMessage)

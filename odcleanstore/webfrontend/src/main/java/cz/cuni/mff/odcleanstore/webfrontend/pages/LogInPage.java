@@ -2,6 +2,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.core.ODCSWebFrontendSession;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
 import cz.cuni.mff.odcleanstore.webfrontend.util.PasswordHandling;
 
@@ -20,7 +21,9 @@ import java.security.NoSuchAlgorithmException;
  */
 public class LogInPage extends FrontendPage
 {
-	private UserDao userDao;
+	private static final long serialVersionUID = 1L;
+	
+	private DaoForEntityWithSurrogateKey<User> userDao;
 	
 	/**
 	 * 
@@ -31,7 +34,7 @@ public class LogInPage extends FrontendPage
 	{
 		super("Home > LogIn", "Log in");
 
-		userDao = (UserDao) daoLookupFactory.getUnsafeDao(UserDao.class);
+		userDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(UserDao.class);
 		
 		addLoginForm();
 	}
@@ -50,14 +53,16 @@ public class LogInPage extends FrontendPage
  */
 class LogInForm extends Form
 {
+	private static final long serialVersionUID = 1L;
+
 	private static Logger logger = Logger.getLogger(LogInForm.class);
 	
-	private UserDao userDao;
+	private DaoForEntityWithSurrogateKey<User> userDao;
 	
 	private String username;
 	private String password;
 	
-	public LogInForm(String id, UserDao userDao) 
+	public LogInForm(String id, DaoForEntityWithSurrogateKey<User> userDao) 
 	{
 		super(id);
 		
@@ -76,7 +81,7 @@ class LogInForm extends Form
 		//
 		User user;
 		try {
-			user = userDao.loadForUsername(username);
+			user = userDao.loadBy("username", username);
 			if (user == null)
 				throw new Exception();
 		}
