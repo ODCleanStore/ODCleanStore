@@ -133,6 +133,15 @@ public class User extends EntityWithSurrogateKey
 		return this.roles;
 	}
 	
+	/**
+	 * 
+	 * @param roles
+	 */
+	public void setRoles(Set<Role> roles)
+	{
+		this.roles = roles;
+	}
+	
 	public String[] getRoleLabels()
 	{
 		List<String> labels = new LinkedList<String>();

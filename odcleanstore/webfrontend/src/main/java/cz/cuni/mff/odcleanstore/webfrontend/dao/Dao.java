@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao;
 
+import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
 
@@ -29,7 +30,7 @@ public abstract class Dao<T extends BusinessEntity> implements Serializable
 	
 	private static Logger logger = Logger.getLogger(Dao.class);
 	
-	private DaoLookupFactory lookupFactory;
+	protected DaoLookupFactory lookupFactory;
 	
 	private transient JdbcTemplate jdbcTemplate;
 	private transient TransactionTemplate transactionTemplate;
@@ -166,12 +167,38 @@ public abstract class Dao<T extends BusinessEntity> implements Serializable
 	}
 	
 	/**
+	 * 
+	 * @param item
+	 * @param doAfter
+	 * @throws Exception
+	 */
+	public void save(T item, CodeSnippet doAfter) throws Exception
+	{
+		throw new UnsupportedOperationException(
+			"Cannot insert rows into table:" + getTableName() + "."
+		);
+	}
+	
+	/**
 	 * Updates the given item in the database.
 	 * 
 	 * @param item
 	 * @throws Exception 
 	 */
 	public void update(T item) throws Exception
+	{
+		throw new UnsupportedOperationException(
+			"Cannot update rows in table: " + getTableName() + "."
+		);
+	}
+	
+	/**
+	 * 
+	 * @param item
+	 * @param doAfter
+	 * @throws Exception
+	 */
+	public void update(T item, CodeSnippet doAfter) throws Exception
 	{
 		throw new UnsupportedOperationException(
 			"Cannot update rows in table: " + getTableName() + "."

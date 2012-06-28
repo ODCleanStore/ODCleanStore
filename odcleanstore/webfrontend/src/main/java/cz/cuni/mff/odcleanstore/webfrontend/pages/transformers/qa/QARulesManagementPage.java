@@ -12,6 +12,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
@@ -61,7 +62,7 @@ public class QARulesManagementPage extends FrontendPage
 	private void addQARulesSection(final Long groupId) 
 	{
 		add(
-			createGoToPageButton(
+			new RedirectButton(
 				NewQARulePage.class,
 				groupId, 
 				"addNewRuleLink"

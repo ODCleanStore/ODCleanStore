@@ -46,6 +46,15 @@ public class Mail
 	
 	/**
 	 * 
+	 * @return
+	 */
+	public String getRecipient()
+	{
+		return to;
+	}
+	
+	/**
+	 * 
 	 * @param attachement
 	 */
 	public void addAttachement(String attachement)

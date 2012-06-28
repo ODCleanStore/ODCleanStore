@@ -1,14 +1,16 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.users;
 
+import cz.cuni.mff.odcleanstore.webfrontend.dao.CustomRowMapper;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class UserRowMapper implements ParameterizedRowMapper<User>
+public class UserRowMapper extends CustomRowMapper<User>
 {
+	private static final long serialVersionUID = 1L;
+
 	public User mapRow(ResultSet rs, int rowNum) throws SQLException 
 	{
 		User user = new User(

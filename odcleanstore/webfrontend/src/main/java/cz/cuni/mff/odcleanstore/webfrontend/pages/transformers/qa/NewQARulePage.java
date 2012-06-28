@@ -7,6 +7,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.validation.validator.RangeValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
@@ -33,7 +34,7 @@ public class NewQARulePage extends FrontendPage
 		// register page components
 		//
 		add(
-			createGoToPageButton(
+			new RedirectButton(
 				QARulesManagementPage.class,
 				groupId, 
 				"manageGroupRules"

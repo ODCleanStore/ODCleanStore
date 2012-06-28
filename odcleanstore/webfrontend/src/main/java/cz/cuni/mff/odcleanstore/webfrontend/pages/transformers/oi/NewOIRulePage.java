@@ -5,6 +5,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
@@ -30,7 +31,7 @@ public class NewOIRulePage extends FrontendPage
 		// register page components
 		//
 		add(
-			createGoToPageButton(
+			new RedirectButton(
 				ManageGroupRulesPage.class,
 				groupId, 
 				"manageGroupRules"
