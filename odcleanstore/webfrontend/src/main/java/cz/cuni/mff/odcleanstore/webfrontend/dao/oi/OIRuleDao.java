@@ -33,12 +33,21 @@ public class OIRuleDao extends DaoForEntityWithSurrogateKey<OIRule>
 	@Override
 	public void save(OIRule item)
 	{
-		String query = "INSERT INTO " + TABLE_NAME + " (groupId, definition) VALUES (?, ?)";
+		String query = 
+			"INSERT INTO " + TABLE_NAME + " " +
+			"(groupId, label, linkType, sourceRestriction, targetRestriction, linkageRule, filterThreshold, filterLimit) " +
+			"VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 		
 		Object[] params =
 		{
 			item.getGroupId(),
-			item.getDefinition()
+			item.getLabel(),
+			item.getLinkType(),
+			item.getSourceRestriction(),
+			item.getTargetRestriction(),
+			item.getLinkageRule(),
+			item.getFilterThreshold(),
+			item.getFilterLimit()
 		};
 		
 		getJdbcTemplate().update(query, params);

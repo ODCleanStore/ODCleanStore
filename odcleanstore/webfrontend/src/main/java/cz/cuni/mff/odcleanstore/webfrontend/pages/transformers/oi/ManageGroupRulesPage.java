@@ -93,7 +93,13 @@ public class ManageGroupRulesPage extends FrontendPage
 				
 				item.setModel(new CompoundPropertyModel<OIRule>(rule));
 				
-				item.add(new Label("definition"));
+				item.add(new Label("label"));
+				item.add(new Label("linkType"));
+				item.add(new Label("sourceRestriction"));
+				item.add(new Label("targetRestriction"));
+				item.add(new Label("linkageRule"));
+				item.add(new Label("filterThreshold"));
+				item.add(new Label("filterLimit"));
 				
 				item.add(
 					new DeleteButton<OIRule>
