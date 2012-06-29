@@ -12,7 +12,8 @@ public interface QueryResultFormatter {
 	/**
 	 * Returns a formatted representation of a query result. 
 	 * @param result query result 
+	 * @param requestURI URI of the request
 	 * @return representation of the formatted output
 	 */
-	Representation format(QueryResult result);
+	Representation format(QueryResult result, String requestURI);
 }

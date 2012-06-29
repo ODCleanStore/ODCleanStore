@@ -7,6 +7,7 @@ import org.restlet.data.CharacterSet;
 import org.restlet.data.Form;
 import org.restlet.data.Language;
 import org.restlet.data.MediaType;
+import org.restlet.data.Reference;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
@@ -20,12 +21,22 @@ import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationType;
 import cz.cuni.mff.odcleanstore.engine.outputws.output.HTMLFormatter;
 import cz.cuni.mff.odcleanstore.engine.outputws.output.QueryResultFormatter;
 import cz.cuni.mff.odcleanstore.engine.outputws.output.TriGFormatter;
+import cz.cuni.mff.odcleanstore.shared.Utils;
 
 /**
  *  @author Petr Jerman
  */
 public abstract class QueryExecutorResourceBase extends ServerResource {
 
+	private static final String DEFAULT_AGGREGATION_PARAM = "aggr";
+	private static final String DEFAULT_MULTIVALUE_PARAM = "multivalue";
+	private static final String ERROR_STRATEGY_PARAM = "es";
+	private static final String FORMAT_PARAM = "format";
+	private static final String PROPERTY_AGGREGATION_PARAM = "paggr[";
+	private static final String PROPERTY_MULTIVALUE_PARAM = "pmultivalue[";
+	
+	private static final String TRUE_LITERAL = "1";
+	
 	private Form _form;
 	
 	protected String getFormValue(String key){
@@ -34,6 +45,14 @@ public abstract class QueryExecutorResourceBase extends ServerResource {
 	
 	protected String[] getFormValuesArray(String key){
 		return _form.getValuesArray(key);
+	}
+	
+	protected Map<String, String> getValuesMap() {
+		return _form.getValuesMap();
+	}
+	
+	protected String getRequestURI() {
+		return this.getRequest().getResourceRef().toString(true, false);
 	}
 		
 	@Get
@@ -56,7 +75,7 @@ public abstract class QueryExecutorResourceBase extends ServerResource {
 	 * TODO: choose a formatter according to user preferences (URL query variable, Accept request header)
 	 */
 	protected QueryResultFormatter getFormatter() {
-		String formatName = getFormValue("format");
+		String formatName = getFormValue(FORMAT_PARAM);
 		
 		if (formatName != null && !formatName.isEmpty()) {
 			if(formatName.equalsIgnoreCase("trig")) {
@@ -74,41 +93,44 @@ public abstract class QueryExecutorResourceBase extends ServerResource {
 		Map<String, EnumAggregationType> propertyAggregations = new TreeMap<String, EnumAggregationType>();
 		Map<String, Boolean> propertyMultivalue = new TreeMap<String, Boolean>();
 
-		String defaultAggregation = getFormValue("aggregation");
+		String defaultAggregation = getFormValue(DEFAULT_AGGREGATION_PARAM);
 		if (defaultAggregation != null && !defaultAggregation.isEmpty()) {
 			aggregationSpec.setDefaultAggregation(EnumAggregationType.valueOf(defaultAggregation));
 		}
-		String defaultMultivalue = getFormValue("multivalue");
+		String defaultMultivalue = getFormValue(DEFAULT_MULTIVALUE_PARAM);
 		if (defaultMultivalue != null && !defaultMultivalue.isEmpty()) {
-			aggregationSpec.setDefaultMultivalue(Boolean.valueOf(defaultMultivalue));
+			aggregationSpec.setDefaultMultivalue(TRUE_LITERAL.equals(defaultMultivalue));
 		}
-		String errorStrategy = getFormValue("es");
+		String errorStrategy = getFormValue(ERROR_STRATEGY_PARAM);
 		if (errorStrategy != null && !errorStrategy.isEmpty()) {
 			aggregationSpec.setErrorStrategy(EnumAggregationErrorStrategy.valueOf(errorStrategy));
 		}
-		
-		String[] propaNames = getFormValuesArray("propa-name");
-		String[] propaValues = getFormValuesArray("propa-value");
-		for (int i = 0; i < propaNames.length && i < propaValues.length; i++) {
-			if (propaNames[i] != null && !propaNames[i].isEmpty()) {
-				propertyAggregations.put(propaNames[i], EnumAggregationType.valueOf(propaValues[i]));
+
+		Map<String, String> valuesMap = getValuesMap();
+		for (String param : valuesMap.keySet()) {
+			if (param.startsWith(PROPERTY_AGGREGATION_PARAM) && param.endsWith("]")) {
+				String property = param.substring(PROPERTY_AGGREGATION_PARAM.length(), param.length() - 1);
+				String aggregationString = valuesMap.get(param);
+				if (!Utils.isNullOrEmpty(aggregationString) && !property.isEmpty()) {
+					EnumAggregationType aggregation = EnumAggregationType.valueOf(aggregationString); // TODO: error handling
+					propertyAggregations.put(property, aggregation);
+				}
+			}
+			else if (param.startsWith(PROPERTY_MULTIVALUE_PARAM) && param.endsWith("]")) {
+				String property = param.substring(PROPERTY_MULTIVALUE_PARAM.length(), param.length() - 1);
+				String multivalueString = valuesMap.get(param);
+				if (!Utils.isNullOrEmpty(multivalueString) && !property.isEmpty()) {
+					propertyMultivalue.put(property, TRUE_LITERAL.equals(multivalueString));
+				}
 			}
 		}
 		aggregationSpec.setPropertyAggregations(propertyAggregations);
-		
-		String[] propmNames = getFormValuesArray("propm-name");
-		String[] propmValues = getFormValuesArray("propm-value");
-		for (int i = 0; i < propmNames.length && i < propmValues.length; i++) {
-			if (propmNames[i] != null && !propmNames[i].isEmpty()) {
-				propertyMultivalue.put(propmNames[i], Boolean.valueOf(propmValues[i]));
-			}
-		}
 		aggregationSpec.setPropertyMultivalue(propertyMultivalue);
 		return aggregationSpec;
 	}
 
 	protected Representation return404() {
 		setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-		return new StringRepresentation("NENY TEDKA", MediaType.TEXT_PLAIN, Language.ALL, CharacterSet.UTF_8);
+		return new StringRepresentation("Error", MediaType.TEXT_PLAIN, Language.ALL, CharacterSet.UTF_8);
 	}
 }

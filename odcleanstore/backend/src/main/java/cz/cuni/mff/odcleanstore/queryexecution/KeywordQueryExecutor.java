@@ -358,7 +358,7 @@ import java.util.regex.Pattern;
     }
 
     /**
-     * Returns an expression that equals the whole keywordsQuery considering a possible type of the literal.
+     * Returns an expression that equals the whole keywordsQuery, considering a possible type of the literal.
      * If the query looks like a numeric literal or xsd:dateTime literal, returns a typed literal, otherwise returns
      * a quoted string (with quotes inside the query filtered out).
      *

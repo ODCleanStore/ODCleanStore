@@ -206,7 +206,7 @@ public class HTMLFormatter extends ResultFormatterBase {
 	}
 	
 	@Override
-	public Representation format(QueryResult result) {
+	public Representation format(QueryResult result, String requestURI) {
 		WriterRepresentation representation = new HTMLRepresentation(result); 
 		representation.setCharacterSet(CharacterSet.UTF_8);
 		return representation;

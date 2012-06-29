@@ -57,7 +57,7 @@ public final class AggregationUtils {
         }
         LiteralLabel literal = node.getLiteral();
         String datatypeURI = literal.getDatatypeURI();
-        if (AggregationUtils.isNullOrEmpty(datatypeURI)) {
+        if (Utils.isNullOrEmpty(datatypeURI)) {
             return isUntypedNumericLiteral(literal)
                     ? EnumLiteralType.NUMERIC
                     : EnumLiteralType.OTHER;
@@ -173,15 +173,6 @@ public final class AggregationUtils {
             }
         }
         return null;
-    }
-
-    /**
-     * Checks if a string is null or an empty string.
-     * @param s tested string
-     * @return true iff s is null or an empty string
-     */
-    private static boolean isNullOrEmpty(String s) {
-        return s == null || s.length() == 0;
     }
 
     /**
