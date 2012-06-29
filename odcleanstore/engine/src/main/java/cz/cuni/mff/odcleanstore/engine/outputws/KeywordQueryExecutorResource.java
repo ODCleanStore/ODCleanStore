@@ -17,7 +17,7 @@ public class KeywordQueryExecutorResource extends QueryExecutorResourceBase {
 	@Override
 	protected Representation execute() {
 		try {
-			String keyword = getFormValue("find");
+			String keyword = getFormValue("kw");
 			AggregationSpec aggregationSpec = getAggregationSpec();
 			JDBCConnectionCredentials connectionCredentials = 
 					ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials();
@@ -27,7 +27,7 @@ public class KeywordQueryExecutorResource extends QueryExecutorResourceBase {
 			if (result == null)
 				return return404();
 
-			return getFormatter().format(result);
+			return getFormatter().format(result, getRequestURI());
 		} catch (Exception e) {
 			return return404();
 		}

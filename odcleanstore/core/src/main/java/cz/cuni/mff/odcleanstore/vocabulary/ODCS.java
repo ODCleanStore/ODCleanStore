@@ -50,5 +50,25 @@ public final class ODCS {
      */
     public static final String metadataGraph = "http://opendata.cz/infrastructure/odcleanstore/metadataGraph";
     
+    /**
+     * Class or resource describing a result of a query. 
+     */
+    public static final String queryResponse = "http://opendata.cz/infrastructure/odcleanstore/QueryResponse";
+    
+    /**
+     * A query over the output webservice. 
+     */
+    public static final String query = "http://opendata.cz/infrastructure/odcleanstore/query";
+    
+    /**
+     * Property linking an instance of odcs:QueryResponse to named graphs containing a result triple. 
+     */
+    public static final String result = "http://opendata.cz/infrastructure/odcleanstore/result";
+    
+    /**
+     * Number of quads in a query result. 
+     */
+    public static final String totalResults = "http://opendata.cz/infrastructure/odcleanstore/totalResults";
+    
     // CHECKSTYLE:ON
 }
