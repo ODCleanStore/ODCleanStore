@@ -16,7 +16,13 @@ public class OIRuleRowMapper extends CustomRowMapper<OIRule>
 		(
 			rs.getLong("id"),
 			rs.getLong("groupId"),
-			blobToString(rs.getBlob("definition"))
+			rs.getString("label"),
+			rs.getString("linkType"),
+			rs.getString("sourceRestriction"),
+			rs.getString("targetRestriction"),
+			blobToString(rs.getBlob("linkageRule")),
+			rs.getDouble("filterThreshold"),
+			rs.getInt("filterLimit")
 		);
 	}
 }
