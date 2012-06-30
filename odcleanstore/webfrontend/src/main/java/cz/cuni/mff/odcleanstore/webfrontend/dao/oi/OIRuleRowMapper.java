@@ -21,8 +21,8 @@ public class OIRuleRowMapper extends CustomRowMapper<OIRule>
 			rs.getString("sourceRestriction"),
 			rs.getString("targetRestriction"),
 			blobToString(rs.getBlob("linkageRule")),
-			rs.getDouble("filterThreshold"),
-			rs.getInt("filterLimit")
+			getDouble(rs, "filterThreshold"),
+			getInteger(rs, "filterLimit")
 		);
 	}
 }

@@ -95,11 +95,11 @@ public class ManageGroupRulesPage extends FrontendPage
 				
 				item.add(new Label("label"));
 				item.add(new Label("linkType"));
-				item.add(new Label("sourceRestriction"));
-				item.add(new Label("targetRestriction"));
+				item.add(createNullResistentTableCellLabel("sourceRestriction", rule.getSourceRestriction()));
+				item.add(createNullResistentTableCellLabel("targetRestriction", rule.getTargetRestriction()));
 				item.add(new Label("linkageRule"));
-				item.add(new Label("filterThreshold"));
-				item.add(new Label("filterLimit"));
+				item.add(createNullResistentTableCellLabel("filterThreshold", rule.getFilterThreshold()));
+				item.add(createNullResistentTableCellLabel("filterLimit", rule.getFilterLimit()));
 				
 				item.add(
 					new DeleteButton<OIRule>

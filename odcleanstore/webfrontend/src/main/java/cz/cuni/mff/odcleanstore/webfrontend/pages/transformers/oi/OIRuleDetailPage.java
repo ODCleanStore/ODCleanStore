@@ -80,14 +80,13 @@ public class OIRuleDetailPage extends FrontendPage
 	{
 		add(
 			new RedirectButton(
-				// TODO: change
-				OIRuleDetailPage.class,
+				NewDBOutputPage.class,
 				ruleId, 
 				"showNewDBOutputPage"
 			)
 		);
 		
-		OIOutputType outputType = oiOutputTypeDao.loadBy("label", "DB");
+		OIOutputType outputType = oiOutputTypeDao.loadBy("label", OIOutputType.DB_OUTPUT_LABEL);
 		
 		addDBOutputsTable(ruleId, outputType.getId());
 	}
@@ -107,8 +106,8 @@ public class OIRuleDetailPage extends FrontendPage
 				
 				item.setModel(new CompoundPropertyModel<OIOutput>(output));
 				
-				item.add(new Label("minConfidence"));
-				item.add(new Label("maxConfidence"));
+				item.add(createNullResistentTableCellLabel("minConfidence", output.getMinConfidence()));
+				item.add(createNullResistentTableCellLabel("maxConfidence", output.getMaxConfidence()));
 				
 				item.add(
 					new DeleteButton<OIOutput>
@@ -135,14 +134,13 @@ public class OIRuleDetailPage extends FrontendPage
 	{
 		add(
 			new RedirectButton(
-				// TODO: change
-				OIRuleDetailPage.class,
+				NewFileOutputPage.class,
 				ruleId, 
 				"showNewFileOutputPage"
 			)
 		);
 		
-		OIOutputType outputType = oiOutputTypeDao.loadBy("label", "FILE");
+		OIOutputType outputType = oiOutputTypeDao.loadBy("label", OIOutputType.FILE_OUTPUT_LABEL);
 		
 		addFileOutputsTable(ruleId, outputType.getId());
 	}
@@ -162,8 +160,8 @@ public class OIRuleDetailPage extends FrontendPage
 				
 				item.setModel(new CompoundPropertyModel<OIOutput>(output));
 				
-				item.add(new Label("minConfidence"));
-				item.add(new Label("maxConfidence"));
+				item.add(createNullResistentTableCellLabel("minConfidence", output.getMinConfidence()));
+				item.add(createNullResistentTableCellLabel("maxConfidence", output.getMaxConfidence()));
 				item.add(new Label("filename"));
 				item.add(new Label("fileFormat", output.getFileFormat().getLabel()));
 				
@@ -172,7 +170,7 @@ public class OIRuleDetailPage extends FrontendPage
 					(
 						oiOutputDao,
 						output.getId(),
-						"deleteDBOutput",
+						"deleteFileOutput",
 						"output",
 						new DeleteConfirmationMessage("output"),
 						OIRuleDetailPage.this

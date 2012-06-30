@@ -83,8 +83,8 @@ public class NewOIRulePage extends FrontendPage
 		
 		form.add(createTextfield("label"));
 		form.add(createTextfield("linkType"));
-		form.add(createTextfield("sourceRestriction"));
-		form.add(createTextfield("targetRestriction"));
+		form.add(createTextfield("sourceRestriction", false));
+		form.add(createTextfield("targetRestriction", false));
 		form.add(createTextarea("linkageRule"));
 		form.add(createFilterThresholdTextfield());
 		form.add(createFilterLimitTextfield());
@@ -98,8 +98,8 @@ public class NewOIRulePage extends FrontendPage
 	 */
 	private TextField<String> createFilterThresholdTextfield()
 	{
-		TextField<String> textfield = createTextfield("filterThreshold");
-		textfield.add(new RangeValidator<Double>(0.0, 1.0));
+		TextField<String> textfield = createTextfield("filterThreshold", false);
+		textfield.add(new RangeValidator<Double>(0.0, Double.MAX_VALUE));
 		return textfield;
 	}
 	
@@ -109,8 +109,8 @@ public class NewOIRulePage extends FrontendPage
 	 */
 	private TextField<String> createFilterLimitTextfield()
 	{
-		TextField<String> textfield = createTextfield("filterLimit");
-		textfield.add(new RangeValidator<Integer>(Integer.MIN_VALUE, Integer.MAX_VALUE));
+		TextField<String> textfield = createTextfield("filterLimit", false);
+		textfield.add(new RangeValidator<Integer>(1, Integer.MAX_VALUE));
 		return textfield;
 	}
 }

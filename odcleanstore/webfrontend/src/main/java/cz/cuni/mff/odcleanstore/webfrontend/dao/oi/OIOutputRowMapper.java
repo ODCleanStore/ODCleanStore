@@ -18,8 +18,8 @@ public class OIOutputRowMapper extends CustomRowMapper<OIOutput>
 			rs.getLong("oid"),
 			rs.getLong("ruleId"),
 			rs.getLong("otid"),
-			rs.getDouble("minConfidence"),
-			rs.getDouble("maxConfidence"),
+			getDouble(rs, "minConfidence"),
+			getDouble(rs, "maxConfidence"),
 			rs.getString("filename"),
 			mapFileFormat(rs)
 		);

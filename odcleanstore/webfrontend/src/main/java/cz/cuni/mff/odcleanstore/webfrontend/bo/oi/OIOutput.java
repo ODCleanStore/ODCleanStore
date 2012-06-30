@@ -101,4 +101,22 @@ public class OIOutput extends EntityWithSurrogateKey
 	{
 		return fileFormat;
 	}
+
+	/**
+	 * 
+	 * @param ruleId
+	 */
+	public void setRuleId(Long ruleId) 
+	{
+		this.ruleId = ruleId;
+	}
+	
+	/**
+	 * 
+	 * @param outputTypeId
+	 */
+	public void setOutputTypeId(Long outputTypeId)
+	{
+		this.outputTypeId = outputTypeId;
+	}
 }

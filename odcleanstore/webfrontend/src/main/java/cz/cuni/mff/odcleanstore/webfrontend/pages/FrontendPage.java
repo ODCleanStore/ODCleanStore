@@ -2,8 +2,6 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages;
 
 import java.util.List;
 
-import javax.mail.MessagingException;
-
 import org.apache.log4j.Logger;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
@@ -17,11 +15,9 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
-import cz.cuni.mff.odcleanstore.webfrontend.configuration.Configuration;
 import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
 import cz.cuni.mff.odcleanstore.webfrontend.core.ODCSWebFrontendApplication;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
-import cz.cuni.mff.odcleanstore.webfrontend.util.Mail;
 
 /**
  * An abstract base class for all WebFrontend page components, except for
@@ -159,6 +155,17 @@ public abstract class FrontendPage extends WebPage
 	protected TextArea<String> createTextarea(String componentName)
 	{
 		return createTextarea(componentName, true);
+	}
+	
+	protected Label createNullResistentTableCellLabel(String compName, Object value)
+	{
+		if (value != null)
+			return new Label(compName);
+		
+		Label label = new Label(compName, "&nbsp;");
+		label.setEscapeModelStrings(false);
+		
+		return label;
 	}
 	
 	/*
