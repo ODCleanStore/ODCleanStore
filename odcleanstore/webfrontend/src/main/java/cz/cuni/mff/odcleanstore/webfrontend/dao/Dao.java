@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao;
 
 import cz.cuni.mff.odcleanstore.util.CodeSnippet;
+import cz.cuni.mff.odcleanstore.util.Pair;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
 
@@ -14,6 +15,7 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.io.Serializable;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -127,6 +129,19 @@ public abstract class Dao<T extends BusinessEntity> implements Serializable
 	public List<T> loadAll()
 	{
 		return loadAllRaw();
+	}
+	
+	/**
+	 * 
+	 * @param criteria
+	 * @return
+	 */
+	public List<T> loadAllBy(QueryCriteria criteria)
+	{
+		String query = "SELECT * FROM " + getTableName() + " WHERE " + criteria.joinToString();
+		Object[] params = criteria.getRange();
+		
+		return getJdbcTemplate().query(query, params, getRowMapper());
 	}
 	
 	/**

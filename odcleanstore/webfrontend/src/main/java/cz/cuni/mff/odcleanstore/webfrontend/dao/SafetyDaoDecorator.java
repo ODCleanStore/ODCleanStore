@@ -11,6 +11,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.util.EmptyCodeSnippet;
+import cz.cuni.mff.odcleanstore.util.Pair;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessEntity;
 
 public class SafetyDaoDecorator<T extends BusinessEntity> extends Dao<T>
@@ -46,6 +47,12 @@ public class SafetyDaoDecorator<T extends BusinessEntity> extends Dao<T>
 	public List<T> loadAll() 
 	{
 		return dao.loadAll();
+	}
+
+	@Override
+	public List<T> loadAllBy(QueryCriteria criteria)
+	{
+		return dao.loadAllBy(criteria);
 	}
 	
 	@Override

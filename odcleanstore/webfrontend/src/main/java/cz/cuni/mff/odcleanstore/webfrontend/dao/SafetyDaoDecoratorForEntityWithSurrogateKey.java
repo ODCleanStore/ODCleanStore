@@ -12,6 +12,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.util.EmptyCodeSnippet;
+import cz.cuni.mff.odcleanstore.util.Pair;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
 public class SafetyDaoDecoratorForEntityWithSurrogateKey<T extends EntityWithSurrogateKey> 
@@ -50,6 +51,12 @@ public class SafetyDaoDecoratorForEntityWithSurrogateKey<T extends EntityWithSur
 	public List<T> loadAll() 
 	{
 		return dao.loadAll();
+	}
+	
+	@Override
+	public List<T> loadAllBy(QueryCriteria criteria)
+	{
+		return dao.loadAllBy(criteria);
 	}
 	
 	@Override
