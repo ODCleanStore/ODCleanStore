@@ -3,6 +3,7 @@ package cz.cuni.mff.odcleanstore.linker.impl;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.math.BigDecimal;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -286,7 +287,7 @@ public class ConfigBuilder {
 		return datasourceElement;
 	}
 	
-	private static Element createFilter(Document doc, Integer limit, Double threshold) {
+	private static Element createFilter(Document doc, Integer limit, BigDecimal threshold) {
 		Element filterElement = doc.createElement(CONFIG_XML_FILTER);
 		if (limit != null) {
 			filterElement.setAttribute(CONFIG_XML_THRESHOLD, threshold.toString());

@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.linker.rules;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class SilkRule {
@@ -8,7 +9,7 @@ public class SilkRule {
 	String sourceRestriction;
 	String targetRestriction;
 	String linkageRule;
-	Double filterThreshold;
+	BigDecimal filterThreshold;
 	Integer filterLimit;
 	List<Output> outputs;
 	
@@ -42,10 +43,10 @@ public class SilkRule {
 	public void setLinkageRule(String linkageRule) {
 		this.linkageRule = linkageRule;
 	}
-	public Double getFilterThreshold() {
+	public BigDecimal getFilterThreshold() {
 		return filterThreshold;
 	}
-	public void setFilterThreshold(Double filterThreshold) {
+	public void setFilterThreshold(BigDecimal filterThreshold) {
 		this.filterThreshold = filterThreshold;
 	}
 	public Integer getFilterLimit() {

@@ -153,7 +153,7 @@ CREATE TABLE DB.ODCLEANSTORE.OI_RULES
 	sourceRestriction NVARCHAR(255),
 	targetRestriction NVARCHAR(255),
 	linkageRule LONG NVARCHAR NOT NULL,
-	filterThreshold REAL,
+	filterThreshold DECIMAL,
 	filterLimit INTEGER, 
 	
 	FOREIGN KEY (groupId) REFERENCES DB.ODCLEANSTORE.OI_RULES_GROUPS(id) ON DELETE CASCADE
@@ -188,8 +188,8 @@ CREATE TABLE DB.ODCLEANSTORE.OI_OUTPUTS
 	id INTEGER NOT NULL IDENTITY PRIMARY KEY,
 	ruleId INTEGER NOT NULL,
 	outputTypeId INTEGER NOT NULL,
-	minConfidence REAL,
-	maxConfidence REAL,
+	minConfidence DECIMAL,
+	maxConfidence DECIMAL,
 	fileName VARCHAR(255),
 	fileFormatId INTEGER,
 

@@ -1,18 +1,20 @@
 package cz.cuni.mff.odcleanstore.linker.rules;
 
+import java.math.BigDecimal;
+
 public class Output {
-	Double minConfidence;
-	Double maxConfidence;
-	public Double getMinConfidence() {
+	BigDecimal minConfidence;
+	BigDecimal maxConfidence;
+	public BigDecimal getMinConfidence() {
 		return minConfidence;
 	}
-	public void setMinConfidence(Double minConfidence) {
+	public void setMinConfidence(BigDecimal minConfidence) {
 		this.minConfidence = minConfidence;
 	}
-	public Double getMaxConfidence() {
+	public BigDecimal getMaxConfidence() {
 		return maxConfidence;
 	}
-	public void setMaxConfidence(Double maxConfidence) {
+	public void setMaxConfidence(BigDecimal maxConfidence) {
 		this.maxConfidence = maxConfidence;
 	}
 }

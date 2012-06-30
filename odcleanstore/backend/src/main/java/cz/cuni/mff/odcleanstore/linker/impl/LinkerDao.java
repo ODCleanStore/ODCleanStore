@@ -90,7 +90,7 @@ public class LinkerDao {
 		rule.setSourceRestriction(resultSet.getString("sourceRestriction"));
 		rule.setTargetRestriction(resultSet.getString("targetRestriction"));
 		rule.setLinkageRule(resultSet.getString("rule"));
-		rule.setFilterThreshold(resultSet.getDouble("filterThreshold"));
+		rule.setFilterThreshold(resultSet.getBigDecimal("filterThreshold"));
 		rule.setFilterLimit(resultSet.getInt("filterLimit"));
 		return rule;
 	}
@@ -112,8 +112,8 @@ public class LinkerDao {
 			} else {
 				output = new Output();
 			}
-			output.setMinConfidence(resultSet.getDouble("minConfidence"));
-			output.setMaxConfidence(resultSet.getDouble("maxConfidence"));
+			output.setMinConfidence(resultSet.getBigDecimal("minConfidence"));
+			output.setMaxConfidence(resultSet.getBigDecimal("maxConfidence"));
 			outputs.add(output);
 		}
 		return outputs;
