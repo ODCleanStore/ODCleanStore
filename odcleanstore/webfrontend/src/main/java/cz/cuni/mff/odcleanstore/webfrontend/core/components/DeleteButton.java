@@ -16,10 +16,19 @@ public class DeleteButton<BO extends EntityWithSurrogateKey> extends Link
 	private String objName;
 	private FrontendPage redirectPage;
 	
-	public DeleteButton(DaoForEntityWithSurrogateKey<BO> dao, Long boId, String objName,
-		DeleteConfirmationMessage message, FrontendPage redirectPage) 
+	/**
+	 * 
+	 * @param dao
+	 * @param boId
+	 * @param compName
+	 * @param objName
+	 * @param message
+	 * @param redirectPage
+	 */
+	public DeleteButton(DaoForEntityWithSurrogateKey<BO> dao, Long boId, String compName,
+		String objName, DeleteConfirmationMessage message, FrontendPage redirectPage) 
 	{
-		super(createCompName(objName));
+		super(compName);
 		
 		this.dao = dao;
 		this.boId = boId;
@@ -27,6 +36,20 @@ public class DeleteButton<BO extends EntityWithSurrogateKey> extends Link
 		this.redirectPage = redirectPage;
 		
 		this.add(new ConfirmationBoxRenderer(message.toString()));
+	}
+	
+	/**
+	 * 
+	 * @param dao
+	 * @param boId
+	 * @param objName
+	 * @param message
+	 * @param redirectPage
+	 */
+	public DeleteButton(DaoForEntityWithSurrogateKey<BO> dao, Long boId, String objName,
+		DeleteConfirmationMessage message, FrontendPage redirectPage) 
+	{
+		this(dao, boId, createCompName(objName), objName, message, redirectPage);
 	}
 
 	@Override

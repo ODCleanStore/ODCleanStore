@@ -1,9 +1,12 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.oi;
 
+import java.util.List;
+
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutput;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
 
 public class OIOutputDao extends DaoForEntityWithSurrogateKey<OIOutput>
 {
@@ -31,21 +34,21 @@ public class OIOutputDao extends DaoForEntityWithSurrogateKey<OIOutput>
 	}
 
 	@Override
-	public OIOutput loadBy(String column, Object value)
+	public List<OIOutput> loadAllBy(QueryCriteria criteria)
 	{
 		String query = 
 			"SELECT " +
-			"id, ruleId, minConfidence, maxConfidence, fileName, " +
-			"OT.id as otid, OT.label as otlbl, OT.description as otdescr " +
+			"O.id as oid, ruleId, minConfidence, maxConfidence, fileName, " +
+			"OT.id as otid, OT.label as otlbl, OT.description as otdescr, " +
 			"FF.id as ffid, FF.label as fflbl, FF.description as ffdescr " +
-			"FROM " + TABLE_NAME + " AS O" +
+			"FROM " + TABLE_NAME + " AS O " +
 			"JOIN " + OIOutputTypeDao.TABLE_NAME + " AS OT ON (O.outputTypeId = OT.id) " +
 			"LEFT OUTER JOIN " + OIFileFormatDao.TABLE_NAME + " AS FF ON (O.fileFormatId = FF.id) " +
-			"WHERE column = ?";
+			"WHERE " + criteria.joinToString();
 		
-		Object[] params = { value };
+		Object[] params = criteria.getRange();
 		
-		return getJdbcTemplate().queryForObject(query, params, getRowMapper());
+		return getJdbcTemplate().query(query, params, getRowMapper());
 	}
 	
 	@Override
@@ -59,7 +62,7 @@ public class OIOutputDao extends DaoForEntityWithSurrogateKey<OIOutput>
 		Object[] params =
 		{
 			output.getRuleId(),
-			output.getOutputType().getId(),
+			output.getOutputTypeId(),
 			output.getMinConfidence(),
 			output.getMaxConfidence(),
 			output.getFilename(),

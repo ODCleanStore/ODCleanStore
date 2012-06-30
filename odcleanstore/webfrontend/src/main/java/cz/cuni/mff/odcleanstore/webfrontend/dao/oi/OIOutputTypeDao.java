@@ -7,7 +7,7 @@ import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 public class OIOutputTypeDao extends DaoForEntityWithSurrogateKey<OIOutputType>
 {
-	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "OI_OUTPUT_TYPE";
+	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "OI_OUTPUT_TYPES";
 
 	private static final long serialVersionUID = 1L;
 	

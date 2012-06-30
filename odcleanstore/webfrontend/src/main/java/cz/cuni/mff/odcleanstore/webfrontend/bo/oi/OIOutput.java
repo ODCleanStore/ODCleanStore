@@ -12,7 +12,7 @@ public class OIOutput extends EntityWithSurrogateKey
 	private static final long serialVersionUID = 1L;
 
 	private Long ruleId;
-	private OIOutputType outputType;
+	private Long outputTypeId;
 	private Double minConfidence;
 	private Double maxConfidence;
 	private String filename;
@@ -28,13 +28,13 @@ public class OIOutput extends EntityWithSurrogateKey
 	 * @param filename
 	 * @param fileFormat
 	 */
-	public OIOutput(Long id, Long ruleId, OIOutputType outputType, Double minConfidence, 
+	public OIOutput(Long id, Long ruleId, Long outputTypeId, Double minConfidence, 
 		Double maxConfidence, String filename, OIFileFormat fileFormat) 
 	{
 		super(id);
 		
 		this.ruleId = ruleId;
-		this.outputType = outputType;
+		this.outputTypeId = outputTypeId;
 		this.minConfidence = minConfidence;
 		this.maxConfidence = maxConfidence;
 		this.filename = filename;
@@ -61,9 +61,9 @@ public class OIOutput extends EntityWithSurrogateKey
 	 * 
 	 * @return
 	 */
-	public OIOutputType getOutputType() 
+	public Long getOutputTypeId() 
 	{
-		return outputType;
+		return outputTypeId;
 	}
 
 	/**

@@ -110,7 +110,16 @@ public class ManageGroupRulesPage extends FrontendPage
 						new DeleteConfirmationMessage("rule"),
 						ManageGroupRulesPage.this
 					)
-				);	
+				);
+				
+				item.add(
+					new RedirectButton
+					(
+						OIRuleDetailPage.class,
+						rule.getId(),
+						"showOIRuleDetail"
+					)
+				);
 			}
 		};
 		

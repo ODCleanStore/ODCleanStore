@@ -5,7 +5,6 @@ import java.sql.SQLException;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIFileFormat;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutput;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutputType;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.CustomRowMapper;
 
 public class OIOutputRowMapper extends CustomRowMapper<OIOutput> 
@@ -16,23 +15,13 @@ public class OIOutputRowMapper extends CustomRowMapper<OIOutput>
 	{
 		return new OIOutput
 		(
-			rs.getLong("id"),
+			rs.getLong("oid"),
 			rs.getLong("ruleId"),
-			mapOutputType(rs),
+			rs.getLong("otid"),
 			rs.getDouble("minConfidence"),
 			rs.getDouble("maxConfidence"),
 			rs.getString("filename"),
 			mapFileFormat(rs)
-		);
-	}
-	
-	private OIOutputType mapOutputType(ResultSet rs) throws SQLException
-	{
-		return new OIOutputType
-		(
-			rs.getLong("otid"),
-			rs.getString("otlbl"),
-			blobToString(rs.getBlob("otdescr"))
 		);
 	}
 	
