@@ -1,5 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.en;
 
+import java.util.List;
+
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
@@ -28,6 +30,15 @@ public class TransformerInstanceDao extends DaoForEntityWithSurrogateKey<Transfo
 	protected ParameterizedRowMapper<TransformerInstance> getRowMapper() 
 	{
 		return rowMapper;
+	}
+	
+	@Override
+	public List<TransformerInstance> loadAllRawBy(String columnName, Object value)
+	{
+		String query = "SELECT * FROM " + getTableName() + " WHERE " + columnName + " = ? ORDER BY priority";
+		Object[] params = { value };
+		
+		return getJdbcTemplate().query(query, params, getRowMapper());
 	}
 	
 	public void save(TransformerInstance item)

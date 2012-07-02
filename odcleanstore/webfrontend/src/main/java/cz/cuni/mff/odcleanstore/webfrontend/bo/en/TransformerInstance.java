@@ -8,10 +8,21 @@ public class TransformerInstance extends EntityWithSurrogateKey
 	
 	private Long transformerId;
 	private Long pipelineId;
-	private String label;
 	private String workDirPath;
 	private String configuration;
 	private Integer priority;
+	
+	public TransformerInstance(Long id, Long transformerId, Long pipelineId, String workDirPath, 
+			String configuration, Integer priority) 
+	{
+		super(id);
+		
+		this.transformerId = transformerId;
+		this.pipelineId = pipelineId;
+		this.workDirPath = workDirPath;
+		this.configuration = configuration;
+		this.priority = priority;
+	}
 	
 	/**
 	 * 
@@ -22,14 +33,11 @@ public class TransformerInstance extends EntityWithSurrogateKey
 	 * @param configuration
 	 * @param priority
 	 */
-	public TransformerInstance(Long id, Long transformerId, Long pipelineId, String label, String workDirPath, 
+	public TransformerInstance(Long transformerId, Long pipelineId, String workDirPath, 
 		String configuration, Integer priority) 
 	{
-		super(id);
-		
 		this.transformerId = transformerId;
 		this.pipelineId = pipelineId;
-		this.label = label;
 		this.workDirPath = workDirPath;
 		this.configuration = configuration;
 		this.priority = priority;
@@ -78,15 +86,6 @@ public class TransformerInstance extends EntityWithSurrogateKey
 		this.pipelineId = pipelineId;
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
-	public String getLabel() 
-	{
-		return label;
-	}
-
 	/**
 	 * 
 	 * @return

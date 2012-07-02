@@ -7,13 +7,14 @@ import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
+import cz.cuni.mff.odcleanstore.webfrontend.core.models.DetachableModel;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
 public class TransformerInstanceDataProvider implements IDataProvider<TransformerInstance>
 {
 	private static final long serialVersionUID = 1L;
 	
-	private TransformerInstanceDao dao;
+	private DaoForEntityWithSurrogateKey<TransformerInstance> dao;
 	private List<TransformerInstance> data;
 	private Long pipelineId;
 	
@@ -21,7 +22,7 @@ public class TransformerInstanceDataProvider implements IDataProvider<Transforme
 	 * 
 	 * @param dao
 	 */
-	public TransformerInstanceDataProvider(TransformerInstanceDao dao, Long pipelineId)
+	public TransformerInstanceDataProvider(DaoForEntityWithSurrogateKey<TransformerInstance> dao, Long pipelineId)
 	{
 		this.dao = dao;
 		this.pipelineId = pipelineId;
@@ -30,7 +31,7 @@ public class TransformerInstanceDataProvider implements IDataProvider<Transforme
 	private List<TransformerInstance> getData()
 	{
 		if (data == null)
-			data = dao.loadBy("pipelineId", pipelineId);
+			data = dao.loadAllRawBy("pipelineId", pipelineId);
 		
 		return data;
 	}
@@ -40,7 +41,7 @@ public class TransformerInstanceDataProvider implements IDataProvider<Transforme
 		data = null;
 	}
 
-	public Iterator iterator(int first, int count) 
+	public Iterator<TransformerInstance> iterator(int first, int count) 
 	{
 		// replace this with a special DAO method to only select the sub-list
 		// from the database call if necessary (instead of selecting all and 
@@ -58,6 +59,6 @@ public class TransformerInstanceDataProvider implements IDataProvider<Transforme
 
 	public IModel<TransformerInstance> model(TransformerInstance object) 
 	{
-		return new DetachableTransformerInstanceModel(dao, object);
+		return new DetachableModel<TransformerInstance>(dao, object);
 	}
 }

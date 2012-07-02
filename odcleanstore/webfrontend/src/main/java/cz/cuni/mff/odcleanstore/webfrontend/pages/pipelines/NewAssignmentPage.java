@@ -65,7 +65,6 @@ public class NewAssignmentPage extends FrontendPage
 				(
 					transformer.getId(),
 					pipelineId,
-					transformer.getLabel(),
 					workDirPath,
 					configuration,
 					priority
@@ -103,7 +102,7 @@ public class NewAssignmentPage extends FrontendPage
 		TextField<String> textfield = new TextField<String>("priority");
 		
 		textfield.setRequired(true);
-		textfield.add(new RangeValidator<Integer>(-10000, 10000));
+		textfield.add(new RangeValidator<Integer>(Integer.MIN_VALUE, Integer.MAX_VALUE));
 		form.add(textfield);
 	}
 }

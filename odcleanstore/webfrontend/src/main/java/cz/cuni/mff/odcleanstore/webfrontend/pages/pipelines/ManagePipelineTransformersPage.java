@@ -1,19 +1,22 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
 
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
+import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 
-import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
@@ -22,7 +25,8 @@ public class ManagePipelineTransformersPage extends FrontendPage
 	private static final long serialVersionUID = 1L;
 
 	private DaoForEntityWithSurrogateKey<Pipeline> pipelineDao;
-	private TransformerInstanceDao transformerInstanceDao;
+	private DaoForEntityWithSurrogateKey<Transformer> transformerDao;
+	private DaoForEntityWithSurrogateKey<TransformerInstance> transformerInstanceDao;
 
 	public ManagePipelineTransformersPage(final Long pipelineId) 
 	{
@@ -34,7 +38,8 @@ public class ManagePipelineTransformersPage extends FrontendPage
 		// prepare DAO objects
 		//
 		pipelineDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(PipelineDao.class);
-		transformerInstanceDao = daoLookupFactory.getTransformerInstanceDao();
+		transformerDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(TransformerDao.class);
+		transformerInstanceDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(TransformerInstanceDao.class);
 		
 		// register page components
 		//
@@ -78,10 +83,7 @@ public class ManagePipelineTransformersPage extends FrontendPage
 	
 	private void addAssignmentTable(final Long pipelineId) 
 	{
-		TransformerInstanceDataProvider data = new TransformerInstanceDataProvider(
-			transformerInstanceDao, 
-			pipelineId
-		);
+		IDataProvider<TransformerInstance> data = new TransformerInstanceDataProvider(transformerInstanceDao, pipelineId);
 		
 		DataView<TransformerInstance> dataView = new DataView<TransformerInstance>("assignmentTable", data)
 		{
@@ -90,16 +92,27 @@ public class ManagePipelineTransformersPage extends FrontendPage
 			@Override
 			protected void populateItem(Item<TransformerInstance> item) 
 			{
-				TransformerInstance transformer = item.getModelObject();
+				TransformerInstance transformerInstance = item.getModelObject();
 				
-				item.setModel(new CompoundPropertyModel<TransformerInstance>(transformer));
+				item.setModel(new CompoundPropertyModel<TransformerInstance>(transformerInstance));
 				
-				item.add(new Label("label"));
+				Transformer transformer = transformerDao.load(transformerInstance.getTransformerId());
+				item.add(new Label("label", transformer.getLabel()));
+				
 				item.add(new Label("workDirPath"));	
 				item.add(new Label("configuration"));
 				item.add(new Label("priority"));
 				
-				addDeleteButton(item, transformer.getPipelineId(), transformer.getTransformerId());	
+				item.add(
+					new DeleteButton<TransformerInstance>
+					(
+						transformerInstanceDao,
+						transformer.getId(),
+						"assignment",
+						new DeleteConfirmationMessage("transformer instance"),
+						ManagePipelineTransformersPage.this
+					)
+				);
 			}
 		};
 		
@@ -108,25 +121,5 @@ public class ManagePipelineTransformersPage extends FrontendPage
 		add(dataView);
 		
 		add(new PagingNavigator("navigator", dataView));
-	}
-	
-	private void addDeleteButton(ListItem<TransformerInstance> item, final Long pipelineId, final Long transformerId)
-	{
-		Link button = new Link("deleteAssignment")
-        {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-            public void onClick()
-            {
-				transformerInstanceDao.delete(pipelineId, transformerId);
-            	
-				getSession().info("The assignment was successfuly deleted.");
-				setResponsePage(new ManagePipelineTransformersPage(pipelineId));
-            }
-        };
-
-	    button.add(new ConfirmationBoxRenderer("Are you sure you want to delete the assignment?"));
-		item.add(button);
 	}
 }
