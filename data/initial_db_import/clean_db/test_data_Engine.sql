@@ -24,17 +24,17 @@ INSERT INTO DB.ODCLEANSTORE.PIPELINES (label, description, runOnCleanDB)
 VALUES (n'Clean', n'A basic clean pipeline', 1);
 
 
-INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS_TO_PIPELINES_ASSIGNMENT (transformerId, pipelineId, workDirPath, configuration, priority)
+INSERT INTO DB.ODCLEANSTORE.TRANSFORMER_INSTANCES (transformerId, pipelineId, workDirPath, configuration, priority)
 VALUES (1, 1, n'transformers-working-dir/qa', n'', 1);
 
-INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS_TO_PIPELINES_ASSIGNMENT (transformerId, pipelineId, workDirPath, configuration, priority)
+INSERT INTO DB.ODCLEANSTORE.TRANSFORMER_INSTANCES (transformerId, pipelineId, workDirPath, configuration, priority)
 VALUES (2, 1, n'transformers-working-dir/link', n'1', 2);
 
-INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS_TO_PIPELINES_ASSIGNMENT (transformerId, pipelineId, workDirPath, configuration, priority)
+INSERT INTO DB.ODCLEANSTORE.TRANSFORMER_INSTANCES (transformerId, pipelineId, workDirPath, configuration, priority)
 VALUES (3, 1, n'transformers-working-dir/dn', n'', 3);
 
-INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS_TO_PIPELINES_ASSIGNMENT (transformerId, pipelineId, workDirPath, configuration, priority)
+INSERT INTO DB.ODCLEANSTORE.TRANSFORMER_INSTANCES (transformerId, pipelineId, workDirPath, configuration, priority)
 VALUES (1, 2, n'transformers-working-dir/qa', n'', 1);
 
-INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS_TO_PIPELINES_ASSIGNMENT (transformerId, pipelineId, workDirPath, configuration, priority)
+INSERT INTO DB.ODCLEANSTORE.TRANSFORMER_INSTANCES (transformerId, pipelineId, workDirPath, configuration, priority)
 VALUES (2, 2, n'transformers-working-dir/link', n'', 1);
