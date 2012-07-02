@@ -18,16 +18,16 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-public class QARulesManagementPage extends FrontendPage
+public class QAGroupDetailPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger(QARulesManagementPage.class);
+	private static Logger logger = Logger.getLogger(QAGroupDetailPage.class);
 	
 	private DaoForEntityWithSurrogateKey<QARulesGroup> qaRulesGroupDao;
 	private DaoForEntityWithSurrogateKey<QARule> qaRuleDao;
 
-	public QARulesManagementPage(final Long groupId) 
+	public QAGroupDetailPage(final Long groupId) 
 	{
 		super(
 			"Home > Transformers > QA > Rules management", 
@@ -98,7 +98,7 @@ public class QARulesManagementPage extends FrontendPage
 						rule.getId(),
 						"rule",
 						new DeleteConfirmationMessage("rule"),
-						QARulesManagementPage.this
+						QAGroupDetailPage.this
 					)
 				);
 			}

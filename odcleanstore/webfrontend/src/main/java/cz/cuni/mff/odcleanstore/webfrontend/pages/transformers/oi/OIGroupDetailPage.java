@@ -18,16 +18,16 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-public class ManageGroupRulesPage extends FrontendPage
+public class OIGroupDetailPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger(ManageGroupRulesPage.class);
+	private static Logger logger = Logger.getLogger(OIGroupDetailPage.class);
 	
 	private DaoForEntityWithSurrogateKey<OIRulesGroup> oiRulesGroupDao;
 	private DaoForEntityWithSurrogateKey<OIRule> oiRuleDao;
 	
-	public ManageGroupRulesPage(final Long groupId) 
+	public OIGroupDetailPage(final Long groupId) 
 	{
 		super(
 			"Home > Transformers > OI > Rules management > Rules groups > Rules", 
@@ -108,7 +108,7 @@ public class ManageGroupRulesPage extends FrontendPage
 						rule.getId(),
 						"rule",
 						new DeleteConfirmationMessage("rule"),
-						ManageGroupRulesPage.this
+						OIGroupDetailPage.this
 					)
 				);
 				

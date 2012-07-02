@@ -11,11 +11,11 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import cz.cuni.mff.odcleanstore.webfrontend.configuration.Configuration;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.HomePage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LogInPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.outputws.AggregationSettingsPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.PipelinesManagementPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.TransformersManagementPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.OIRulesManagementPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.QARulesManagementPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.outputws.CRPropertiesListPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.PipelinesListPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.TransformersListPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.OIGroupsListPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.QAGroupDetailPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts.UserAccountsPage;
 
 /**
@@ -66,11 +66,11 @@ public class ODCSWebFrontendApplication extends AuthenticatedWebApplication
 		
 		mountPage(WEB_URL_PREFIX + "/login", LogInPage.class);
 		mountPage(WEB_URL_PREFIX + "/user-accounts", UserAccountsPage.class);
-		mountPage(WEB_URL_PREFIX + "/backend/pipelines", PipelinesManagementPage.class);
-		mountPage(WEB_URL_PREFIX + "/backend/transformers", TransformersManagementPage.class);
-		mountPage(WEB_URL_PREFIX + "/backend/rules/oi", OIRulesManagementPage.class);
-		mountPage(WEB_URL_PREFIX + "/backend/rules/qa", QARulesManagementPage.class);
-		mountPage(WEB_URL_PREFIX + "/output-ws/aggregations", AggregationSettingsPage.class);
+		mountPage(WEB_URL_PREFIX + "/backend/pipelines", PipelinesListPage.class);
+		mountPage(WEB_URL_PREFIX + "/backend/transformers", TransformersListPage.class);
+		mountPage(WEB_URL_PREFIX + "/backend/rules/oi", OIGroupsListPage.class);
+		mountPage(WEB_URL_PREFIX + "/backend/rules/qa", QAGroupDetailPage.class);
+		mountPage(WEB_URL_PREFIX + "/output-ws/aggregations", CRPropertiesListPage.class);
 	}
 	
 	@Override

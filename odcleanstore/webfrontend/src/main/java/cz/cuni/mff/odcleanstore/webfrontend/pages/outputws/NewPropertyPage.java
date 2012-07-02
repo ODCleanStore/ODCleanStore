@@ -13,7 +13,7 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
-public class RegisterPropertyPage extends FrontendPage
+public class NewPropertyPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
@@ -21,7 +21,7 @@ public class RegisterPropertyPage extends FrontendPage
 	private DaoForEntityWithSurrogateKey<AggregationType> aggregationTypeDao;
 	private DaoForEntityWithSurrogateKey<MultivalueType> multivalueTypeDao;
 	
-	public RegisterPropertyPage() 
+	public NewPropertyPage() 
 	{
 		super(
 			"Home > OutputWS > CR > Aggregation Settings > Register property", 
@@ -72,7 +72,7 @@ public class RegisterPropertyPage extends FrontendPage
 				}
 				
 				getSession().info("The property was successfuly registered.");
-				setResponsePage(AggregationSettingsPage.class);
+				setResponsePage(CRPropertiesListPage.class);
 			}
 		};
 		

@@ -2,7 +2,6 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts;
 
 import javax.mail.MessagingException;
 
-import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
@@ -16,7 +15,6 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.util.Mail;
-import cz.cuni.mff.odcleanstore.webfrontend.util.NewAccountMail;
 import cz.cuni.mff.odcleanstore.webfrontend.util.NewPasswordMail;
 import cz.cuni.mff.odcleanstore.webfrontend.util.PasswordHandling;
 

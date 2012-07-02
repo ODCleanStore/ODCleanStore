@@ -70,7 +70,7 @@ public class EditGlobalAggregationSettingsPage extends FrontendPage
 				}
 				
 				getSession().info("The global settings were successfuly altered.");
-				setResponsePage(AggregationSettingsPage.class);
+				setResponsePage(CRPropertiesListPage.class);
 			}
 		};
 

@@ -23,16 +23,16 @@ import org.apache.wicket.model.Model;
 
 import org.apache.log4j.Logger;
 
-public class AggregationSettingsPage extends FrontendPage
+public class CRPropertiesListPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger(AggregationSettingsPage.class);
+	private static Logger logger = Logger.getLogger(CRPropertiesListPage.class);
 	
 	private DaoForEntityWithSurrogateKey<PropertySettings> propertySettingsDao;
 	private Dao<GlobalAggregationSettings> globalAggregationSettingsDao;
 	
-	public AggregationSettingsPage() 
+	public CRPropertiesListPage() 
 	{
 		super(
 			"Home > OutputWS > CR > Aggregation Settings", 
@@ -122,7 +122,7 @@ public class AggregationSettingsPage extends FrontendPage
 						property.getId(), 
 						"property", 
 						new DeleteConfirmationMessage("property"),  
-						AggregationSettingsPage.this
+						CRPropertiesListPage.this
 					)
 				);	
 			}

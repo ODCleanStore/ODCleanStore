@@ -65,7 +65,7 @@ public class NewQAGroupPage extends FrontendPage
 				}
 				
 				getSession().info("The group was successfuly registered.");
-				setResponsePage(QAGroupsManagementPage.class);
+				setResponsePage(QAGroupsListPage.class);
 			}
 		};
 		

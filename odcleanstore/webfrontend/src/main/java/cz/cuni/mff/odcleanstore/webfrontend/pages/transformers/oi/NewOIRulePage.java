@@ -34,7 +34,7 @@ public class NewOIRulePage extends FrontendPage
 		//
 		add(
 			new RedirectButton(
-				ManageGroupRulesPage.class,
+				OIGroupDetailPage.class,
 				groupId, 
 				"manageGroupRules"
 			)
@@ -77,7 +77,7 @@ public class NewOIRulePage extends FrontendPage
 				}
 				
 				getSession().info("The rule was successfuly registered.");
-				setResponsePage(new ManageGroupRulesPage(groupId));
+				setResponsePage(new OIGroupDetailPage(groupId));
 			}
 		};
 		

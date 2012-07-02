@@ -59,7 +59,7 @@ public class OIRuleDetailPage extends FrontendPage
 		add(
 			new RedirectButton
 			(
-				ManageGroupRulesPage.class, 
+				OIGroupDetailPage.class, 
 				model.getObject().getGroupId(), 
 				"showOIRulesList"
 			)

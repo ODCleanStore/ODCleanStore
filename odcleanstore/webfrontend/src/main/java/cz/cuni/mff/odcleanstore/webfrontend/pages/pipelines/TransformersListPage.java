@@ -15,13 +15,13 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-public class TransformersManagementPage extends FrontendPage
+public class TransformersListPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
 	private DaoForEntityWithSurrogateKey<Transformer> transformerDao;
 	
-	public TransformersManagementPage() 
+	public TransformersListPage() 
 	{
 		super
 		(
@@ -71,7 +71,7 @@ public class TransformersManagementPage extends FrontendPage
 						transformer.getId(),
 						"transformer",
 						new DeleteConfirmationMessage("transformer", "pipeline assignment"),
-						TransformersManagementPage.this
+						TransformersListPage.this
 					)
 				);	
 			}

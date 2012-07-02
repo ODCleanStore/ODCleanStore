@@ -43,7 +43,7 @@ public class NewAssignmentPage extends FrontendPage
 		//
 		add(
 			new RedirectButton(
-				ManagePipelineTransformersPage.class,
+				PipelineDetailPage.class,
 				pipelineId, 
 				"managePipelineTransformers"
 			)
@@ -85,7 +85,7 @@ public class NewAssignmentPage extends FrontendPage
 				}
 				
 				getSession().info("The assignment was successfuly registered.");
-				setResponsePage(new ManagePipelineTransformersPage(pipelineId));
+				setResponsePage(new PipelineDetailPage(pipelineId));
 			}
 		};
 

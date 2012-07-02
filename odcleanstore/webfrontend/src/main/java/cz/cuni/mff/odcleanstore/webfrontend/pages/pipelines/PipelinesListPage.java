@@ -18,15 +18,15 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-public class PipelinesManagementPage extends FrontendPage 
+public class PipelinesListPage extends FrontendPage 
 {
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger(PipelinesManagementPage.class);
+	private static Logger logger = Logger.getLogger(PipelinesListPage.class);
 	
 	private DaoForEntityWithSurrogateKey<Pipeline> pipelineDao;
 
-	public PipelinesManagementPage() 
+	public PipelinesListPage() 
 	{
 		super
 		(
@@ -75,13 +75,13 @@ public class PipelinesManagementPage extends FrontendPage
 						pipeline.getId(),
 						"pipeline",
 						new DeleteConfirmationMessage("pipeline", "transformer assignment"),
-						PipelinesManagementPage.this
+						PipelinesListPage.this
 					)
 				);
 				
 				item.add(
 					new RedirectButton(
-						ManagePipelineTransformersPage.class,
+						PipelineDetailPage.class,
 						pipeline.getId(), 
 						"managePipelineTransformers"
 					)
@@ -124,7 +124,7 @@ public class PipelinesManagementPage extends FrontendPage
 				}
 				
 				getSession().info("The pipeline was successfuly marked to be run on the clean DB.");
-				setResponsePage(PipelinesManagementPage.class);
+				setResponsePage(PipelinesListPage.class);
             }
         };
         

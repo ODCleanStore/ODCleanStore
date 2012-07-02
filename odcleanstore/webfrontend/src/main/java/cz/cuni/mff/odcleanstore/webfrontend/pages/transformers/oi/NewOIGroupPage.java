@@ -10,13 +10,13 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-public class NewOIRulesGroupPage extends FrontendPage
+public class NewOIGroupPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
 	private DaoForEntityWithSurrogateKey<OIRulesGroup> oiRulesGroupDao;
 	
-	public NewOIRulesGroupPage() 
+	public NewOIGroupPage() 
 	{
 		super(
 			"Home > Transformers > OI > Rules management > Rules groups > Create", 
@@ -65,7 +65,7 @@ public class NewOIRulesGroupPage extends FrontendPage
 				}
 				
 				getSession().info("The group was successfuly registered.");
-				setResponsePage(OIRulesManagementPage.class);
+				setResponsePage(OIGroupsListPage.class);
 			}
 		};
 		

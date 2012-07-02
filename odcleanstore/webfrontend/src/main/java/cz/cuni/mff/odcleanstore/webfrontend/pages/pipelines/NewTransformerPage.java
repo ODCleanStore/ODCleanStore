@@ -67,7 +67,7 @@ public class NewTransformerPage extends FrontendPage
 				}
 				
 				getSession().info("The transformer was successfuly registered.");
-				setResponsePage(TransformersManagementPage.class);
+				setResponsePage(TransformersListPage.class);
 			}
 		};
 		

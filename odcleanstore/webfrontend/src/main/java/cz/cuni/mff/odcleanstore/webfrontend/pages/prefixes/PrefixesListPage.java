@@ -14,13 +14,13 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.prefixes.PrefixDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-public class PrefixesManagementPage extends FrontendPage
+public class PrefixesListPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 	
 	private Dao<Prefix> prefixMappingDao;
 	
-	public PrefixesManagementPage() 
+	public PrefixesListPage() 
 	{
 		super
 		(
@@ -92,7 +92,7 @@ public class PrefixesManagementPage extends FrontendPage
 	        	
 				getSession().info("The prefix mapping was successfuly deleted.");
 				
-				setResponsePage(PrefixesManagementPage.this);
+				setResponsePage(PrefixesListPage.this);
 	        }
 	    };
 	    

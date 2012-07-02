@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi;
+package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa;
 
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
@@ -7,22 +7,23 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-public class OIRulesManagementPage extends FrontendPage
+public class QAGroupsListPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private DaoForEntityWithSurrogateKey<OIRulesGroup> oiRulesGroupsDao;
+	private DaoForEntityWithSurrogateKey<QARulesGroup> qaRulesGroupDao;
 	
-	public OIRulesManagementPage() 
+	public QAGroupsListPage() 
 	{
 		super(
 			"Home > Transformers > OI > Rules management", 
@@ -31,7 +32,7 @@ public class OIRulesManagementPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		oiRulesGroupsDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIRulesGroupDao.class);
+		qaRulesGroupDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(QARulesGroupDao.class);
 		
 		// register page components
 		//
@@ -46,36 +47,36 @@ public class OIRulesManagementPage extends FrontendPage
 	
 	private void addOIRulesGroupsTable()
 	{
-		IDataProvider<OIRulesGroup> data = new DataProvider<OIRulesGroup>(oiRulesGroupsDao);
+		IDataProvider<QARulesGroup> data = new DataProvider<QARulesGroup>(qaRulesGroupDao);
 		
-		DataView<OIRulesGroup> dataView = new DataView<OIRulesGroup>("oiRulesGroupsTable", data)
+		DataView<QARulesGroup> dataView = new DataView<QARulesGroup>("qaRulesGroupsTable", data)
 		{
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void populateItem(Item<OIRulesGroup> item) 
+			protected void populateItem(Item<QARulesGroup> item) 
 			{
-				OIRulesGroup group = item.getModelObject();
+				QARulesGroup group = item.getModelObject();
 				
-				item.setModel(new CompoundPropertyModel<OIRulesGroup>(group));
+				item.setModel(new CompoundPropertyModel<QARulesGroup>(group));
 
 				item.add(new Label("label"));
 				item.add(new Label("description"));	
 				
 				item.add(
-					new DeleteButton<OIRulesGroup>
+					new DeleteButton<QARulesGroup>
 					(
-						oiRulesGroupsDao,
+						qaRulesGroupDao,
 						group.getId(),
 						"group",
 						new DeleteConfirmationMessage("group", "rule"),
-						OIRulesManagementPage.this
+						QAGroupsListPage.this
 					)
 				);
 				
 				item.add(
 					new RedirectButton(
-						ManageGroupRulesPage.class,
+						QAGroupDetailPage.class,
 						group.getId(), 
 						"manageRules"
 					)

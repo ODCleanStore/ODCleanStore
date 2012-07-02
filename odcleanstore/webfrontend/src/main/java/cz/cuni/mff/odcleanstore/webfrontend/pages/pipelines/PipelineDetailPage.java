@@ -13,14 +13,13 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
-import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-public class ManagePipelineTransformersPage extends FrontendPage 
+public class PipelineDetailPage extends FrontendPage 
 {
 	private static final long serialVersionUID = 1L;
 
@@ -28,7 +27,7 @@ public class ManagePipelineTransformersPage extends FrontendPage
 	private DaoForEntityWithSurrogateKey<Transformer> transformerDao;
 	private DaoForEntityWithSurrogateKey<TransformerInstance> transformerInstanceDao;
 
-	public ManagePipelineTransformersPage(final Long pipelineId) 
+	public PipelineDetailPage(final Long pipelineId) 
 	{
 		super(
 			"Home > Pipelines > Assigned transformers", 
@@ -110,7 +109,7 @@ public class ManagePipelineTransformersPage extends FrontendPage
 						transformer.getId(),
 						"assignment",
 						new DeleteConfirmationMessage("transformer instance"),
-						ManagePipelineTransformersPage.this
+						PipelineDetailPage.this
 					)
 				);
 			}

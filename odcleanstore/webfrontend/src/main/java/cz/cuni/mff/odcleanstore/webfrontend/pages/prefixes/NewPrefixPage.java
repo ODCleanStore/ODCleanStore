@@ -69,7 +69,7 @@ public class NewPrefixPage extends FrontendPage
 				}
 				
 				getSession().info("The prefix was successfuly registered.");
-				setResponsePage(PrefixesManagementPage.class);
+				setResponsePage(PrefixesListPage.class);
 			}
 		};
 		
