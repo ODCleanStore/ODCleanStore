@@ -1,8 +1,12 @@
 package cz.cuni.mff.odcleanstore.datanormalization.rules;
 
-import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import com.hp.hpl.jena.query.QueryExecution;
+import com.hp.hpl.jena.query.QueryExecutionFactory;
 
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
 
@@ -31,13 +35,24 @@ public class Rule {
 		public String getValue() {
 			String output = "";
 			
+			Pattern wherePattern = Pattern.compile("^(\\{.*\\})\\s*WHERE\\s*(\\{.*\\})$");
+			Matcher whereMatcher = wherePattern.matcher(value);
+			
+			String[] rule;
+			
+			if (whereMatcher.matches()) {
+				rule = new String[]{whereMatcher.group(1), whereMatcher.group(2)};
+			} else {
+				rule = new String[]{value, "{}"};
+			}
+			
 			switch (type) {
 				case RULE_COMPONENT_INSERT:
-					output = String.format("SPARQL INSERT DATA INTO <%%s> %s", value);
+					output = String.format("SPARQL INSERT INTO <%%s> %s WHERE {GRAPH <%%s> %s}", rule[0], rule[1]);
 					break;
 
 				case RULE_COMPONENT_DELETE:
-					output = String.format("SPARQL DELETE FROM <%%s> %s", value);
+					output = String.format("SPARQL DELETE FROM <%%s> %s WHERE {GRAPH <%%s> %s}", rule[0], rule[1]);
 					break;
 			}
 			
@@ -71,18 +86,13 @@ public class Rule {
 		}
 	}
 	
-	public String toString (String graph) {
-		StringBuilder builder = new StringBuilder();
+	public String[] toString (String graph) {
+		String[] rule = new String[components.size()];
 		
-		Iterator<Component> i = components.iterator();
-		
-		while (i.hasNext()) {
-			Component component = i.next();
-			
-			builder.append(String.format(component.getValue(), graph));
-			builder.append(";");
+		for (int i = 0; i < components.size(); ++i) {
+			rule[i] = String.format(components.elementAt(i).getValue(), graph, graph);
 		}
 		
-		return builder.toString();
+		return rule;
 	}
 }
