@@ -1,8 +1,8 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo.en;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessEntity;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
-public class TransformerInstance extends BusinessEntity
+public class TransformerInstance extends EntityWithSurrogateKey
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -22,9 +22,11 @@ public class TransformerInstance extends BusinessEntity
 	 * @param configuration
 	 * @param priority
 	 */
-	public TransformerInstance(Long transformerId, Long pipelineId, String label, String workDirPath, 
+	public TransformerInstance(Long id, Long transformerId, Long pipelineId, String label, String workDirPath, 
 		String configuration, Integer priority) 
 	{
+		super(id);
+		
 		this.transformerId = transformerId;
 		this.pipelineId = pipelineId;
 		this.label = label;

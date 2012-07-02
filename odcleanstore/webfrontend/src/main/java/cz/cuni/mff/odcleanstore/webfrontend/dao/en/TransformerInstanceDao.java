@@ -1,79 +1,33 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.en;
 
-import java.io.Serializable;
-import java.util.List;
-
-import javax.sql.DataSource;
-
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
-import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
-public class TransformerInstanceDao implements Serializable
+public class TransformerInstanceDao extends DaoForEntityWithSurrogateKey<TransformerInstance>
 {
-	public static final String TABLE_NAME = Dao.TABLE_NAME_PREFIX + "TRANSFORMERS_TO_PIPELINES_ASSIGNMENT";
+	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "TRANSFORMER_INSTANCES";
 
 	private static final long serialVersionUID = 1L;
 	
-	private DaoLookupFactory lookupFactory;
-	private transient JdbcTemplate jdbcTemplate;
+	private ParameterizedRowMapper<TransformerInstance> rowMapper;
 	
-	/**
-	 * 
-	 * @param lookupFactory
-	 */
-	public void setDaoLookupFactory(DaoLookupFactory lookupFactory)
+	public TransformerInstanceDao()
 	{
-		this.lookupFactory = lookupFactory;
-	}
-		
-	private JdbcTemplate getJdbcTemplate()
-	{
-		if (jdbcTemplate == null)
-		{
-			DataSource dataSource = lookupFactory.getDataSource();
-			jdbcTemplate = new JdbcTemplate(dataSource);
-		}
-		
-		return jdbcTemplate;
+		this.rowMapper = new TransformerInstanceRowMapper();
 	}
 	
-	public List<TransformerInstance> loadBy(String columnName, Object value)
+	@Override
+	protected String getTableName() 
 	{
-		String query =
-			"SELECT T.label, TA.* " +
-			"FROM " + TransformerDao.TABLE_NAME + " AS T " +
-			"JOIN " + TransformerInstanceDao.TABLE_NAME + " AS TA " +
-			"ON (T.id = TA.transformerId) " +
-			"WHERE TA." + columnName + " = ?";
-		
-		Object[] params = { value };
-		
-		return getJdbcTemplate().query(query, params, new TransformerInstanceRowMapper());
+		return TABLE_NAME;
 	}
-	
-	public TransformerInstance load(Long pipelineId, Long transformerId)
+
+	@Override
+	protected ParameterizedRowMapper<TransformerInstance> getRowMapper() 
 	{
-		String query =
-			"SELECT T.label, TA.* " +
-			"FROM " + TransformerDao.TABLE_NAME + " AS T " +
-			"JOIN " + TransformerInstanceDao.TABLE_NAME + " AS TA " +
-			"ON (T.id = TA.transformerId) " +
-			"WHERE T.pipelineId = ? AND T.transformerId = ?";
-		
-		Object[] params = { pipelineId, transformerId };
-		
-		return getJdbcTemplate().queryForObject(query, params, new TransformerInstanceRowMapper());
-	}
-	
-	public void delete(Long pipelineId, Long transformerId)
-	{
-		String query = "DELETE FROM " + TABLE_NAME + " WHERE pipelineId = ? AND transformerId = ?";
-		Object[] params = { pipelineId, transformerId };
-		
-		getJdbcTemplate().update(query, params);
+		return rowMapper;
 	}
 	
 	public void save(TransformerInstance item)
