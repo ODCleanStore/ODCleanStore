@@ -4,6 +4,7 @@ import com.hp.hpl.jena.graph.Node;
 
 import virtuoso.jena.driver.VirtGraph;
 
+import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -174,6 +175,26 @@ public class WrappedResultSet {
         double value = resultSet.getDouble(columnIndex);
         return resultSet.wasNull() ? null : value;
     }
+    
+    /**
+     * Retrieves the value of the designated column in the current row of this ResultSet object as a BigDecimal.
+     * @param columnLabel the label for the column (the name of the column or the name specified with the SQL AS clause)
+     * @return the column value; if the value is SQL NULL, the value returned is null
+     * @throws SQLException exception
+     */
+    public BigDecimal getBigDecimal(String columnLabel) throws SQLException {
+    	return resultSet.getBigDecimal(columnLabel);
+    }
+    
+    /**
+     * Retrieves the value of the designated column in the current row of this ResultSet object as a BigDecimal.
+     * @param columnIndex the first column is 1, the second is 2, ...
+     * @return the column value; if the value is SQL NULL, the value returned is null
+     * @throws SQLException exception
+     */
+    public BigDecimal getBigDecimal(int columnIndex) throws SQLException {
+    	return resultSet.getBigDecimal(columnIndex);
+    }    
 
     /**
      * Retrieves the value of the designated column in the current row of this ResultSet object as a java

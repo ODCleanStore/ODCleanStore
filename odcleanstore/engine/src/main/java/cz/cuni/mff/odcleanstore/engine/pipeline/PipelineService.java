@@ -10,6 +10,7 @@ import java.util.Collection;
 
 import org.apache.log4j.Logger;
 
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.InputGraphState;
 import cz.cuni.mff.odcleanstore.engine.Service;
@@ -231,7 +232,7 @@ public final class PipelineService extends Service implements Runnable {
 		}
 		else {
 			if (transformerCommand.getFullClassName().equals("cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl")) {
-				transformer = new cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl();
+				transformer = new cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl(ConfigLoader.getConfig().getObjectIdentificationConfig());
 			} else if (transformerCommand.getFullClassName().equals("cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl")) {
 				transformer = new cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl();
 			}	

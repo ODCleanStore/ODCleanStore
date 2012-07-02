@@ -9,18 +9,29 @@ import java.net.URL;
  *
  */
 public class SparqlEndpointConnectionCredentials {
-    // note that the endpoint connection coordinates currently currently consist of
-    // a single URL; it is still a good idea to encapsulate this fact inside a custom
-    // class though, for this is a detail that can change in future
-    //
+
     private URL url;
+    private String username;
+    private String password;
 
     /**
      * Creates a new instance.
      * @param url SPARQL endpoint URL
      */
     public SparqlEndpointConnectionCredentials(URL url) {
-        this.url = url;
+        this(url, null, null);
+    }
+    
+    /**
+     * Creates a new instance.
+     * @param url
+     * @param username
+     * @param password
+     */
+    public SparqlEndpointConnectionCredentials(URL url, String username, String password) {
+    	this.url = url;
+    	this.username = username;
+    	this.password = password;
     }
 
     /**
@@ -29,5 +40,21 @@ public class SparqlEndpointConnectionCredentials {
      */
     public URL getUrl() {
         return url;
+    }
+    
+    /**
+     * Returns the SPARQL endpoint username.
+     * @return SPARQL endpoint username
+     */
+    public String getUsername() {
+        return username;
+    }
+    
+    /**
+     * Returns the SPARQL endpoint password.
+     * @return SPARQL endpoint password
+     */
+    public String getPassword() {
+        return password;
     }
 }

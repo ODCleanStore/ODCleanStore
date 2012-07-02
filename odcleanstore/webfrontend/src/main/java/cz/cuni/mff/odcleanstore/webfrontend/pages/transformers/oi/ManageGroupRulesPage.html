@@ -28,16 +28,29 @@
 <table border="1">
 	
 	<tr>
-		<th>Definition</th>
+		<th>Label</th>
+		<th>Link type</th>
+		<th>Source restriction</th>
+		<th>Target restriction</th>
+		<th>Linkage rule</th>
+		<th>Filter threshold</th>
+		<th>Filter limit</th>
 		<th>Action</th>
 	</tr>
 	
 	<tr wicket:id="oiRulesTable">
 	
-		<td wicket:id="definition">[definition]</td>
+		<td wicket:id="label">[label]</td>
+		<td wicket:id="linkType">[link type]</td>
+		<td wicket:id="sourceRestriction">[source restriction]</td>
+		<td wicket:id="targetRestriction">[target restriction]</td>
+		<td wicket:id="linkageRule">[linkage rule]</td>
+		<td wicket:id="filterThreshold">[filter threshold]</td>
+		<td wicket:id="filterLimit">[filter limit]</td>
 		
 		<td class="centered">
 			<input wicket:id="deleteRule" type="button" value="Delete" />
+			<input wicket:id="showOIRuleDetail" type="button" value="Detail" />
 		</td>
 	</tr>
 </table>

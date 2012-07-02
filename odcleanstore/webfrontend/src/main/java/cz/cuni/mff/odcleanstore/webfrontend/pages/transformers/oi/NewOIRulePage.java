@@ -1,10 +1,13 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi;
 
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.validation.validator.RangeValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
@@ -30,7 +33,7 @@ public class NewOIRulePage extends FrontendPage
 		// register page components
 		//
 		add(
-			createGoToPageButton(
+			new RedirectButton(
 				ManageGroupRulesPage.class,
 				groupId, 
 				"manageGroupRules"
@@ -78,8 +81,36 @@ public class NewOIRulePage extends FrontendPage
 			}
 		};
 		
-		form.add(createTextarea("definition"));
+		form.add(createTextfield("label"));
+		form.add(createTextfield("linkType"));
+		form.add(createTextfield("sourceRestriction", false));
+		form.add(createTextfield("targetRestriction", false));
+		form.add(createTextarea("linkageRule"));
+		form.add(createFilterThresholdTextfield());
+		form.add(createFilterLimitTextfield());
 		
 		add(form);
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	private TextField<String> createFilterThresholdTextfield()
+	{
+		TextField<String> textfield = createTextfield("filterThreshold", false);
+		textfield.add(new RangeValidator<Double>(0.0, Double.MAX_VALUE));
+		return textfield;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	private TextField<String> createFilterLimitTextfield()
+	{
+		TextField<String> textfield = createTextfield("filterLimit", false);
+		textfield.add(new RangeValidator<Integer>(1, Integer.MAX_VALUE));
+		return textfield;
 	}
 }

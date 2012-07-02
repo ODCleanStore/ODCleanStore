@@ -3,11 +3,16 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.mail.MessagingException;
+
 import org.apache.log4j.Logger;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
+import cz.cuni.mff.odcleanstore.util.CodeSnippet;
+import cz.cuni.mff.odcleanstore.util.EmptyCodeSnippet;
+import cz.cuni.mff.odcleanstore.util.Pair;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
 public class SafetyDaoDecoratorForEntityWithSurrogateKey<T extends EntityWithSurrogateKey> 
@@ -49,6 +54,12 @@ public class SafetyDaoDecoratorForEntityWithSurrogateKey<T extends EntityWithSur
 	}
 	
 	@Override
+	public List<T> loadAllBy(QueryCriteria criteria)
+	{
+		return dao.loadAllBy(criteria);
+	}
+	
+	@Override
 	public List<T> loadAllRaw()
 	{
 		return dao.loadAllRaw();
@@ -85,20 +96,13 @@ public class SafetyDaoDecoratorForEntityWithSurrogateKey<T extends EntityWithSur
 	}
 	
 	@Override
-	public void save(T item) throws Exception 
+	public T loadBy(String columnName, Object value)
 	{
-		try {
-			dao.save(item);
-		}
-		catch (Exception ex) 
-		{
-			handleException(ex);
-			throw ex;
-		}
+		return dao.loadBy(columnName, value);
 	}
-
+	
 	@Override
-	public void update(final T item) throws Exception
+	public void save(final T item, final CodeSnippet doAfter) throws Exception
 	{
 		try
 		{
@@ -108,7 +112,8 @@ public class SafetyDaoDecoratorForEntityWithSurrogateKey<T extends EntityWithSur
 				protected void doInTransactionWithoutResult(TransactionStatus status) 
 				{
 					try {
-						dao.update(item);
+						dao.save(item);
+						doAfter.execute();
 					}
 					catch (Exception ex) {
 						throw new RuntimeException(ex.getMessage(), ex);
@@ -121,6 +126,45 @@ public class SafetyDaoDecoratorForEntityWithSurrogateKey<T extends EntityWithSur
 			handleException(ex);
 			throw ex;
 		}	
+	}
+	
+	@Override
+	public void save(T item) throws Exception 
+	{
+		this.save(item, new EmptyCodeSnippet());
+	}
+
+	@Override
+	public void update(final T item, final CodeSnippet doAfter) throws Exception
+	{
+		try
+		{
+			dao.getTransactionTemplate().execute(new TransactionCallbackWithoutResult() 
+			{
+				@Override
+				protected void doInTransactionWithoutResult(TransactionStatus status) 
+				{
+					try {
+						dao.update(item);
+						doAfter.execute();
+					}
+					catch (Exception ex) {
+						throw new RuntimeException(ex.getMessage(), ex);
+					}
+				}
+			});
+		}
+		catch (Exception ex)
+		{
+			handleException(ex);
+			throw ex;
+		}	
+	}
+	
+	@Override
+	public void update(final T item) throws Exception
+	{
+		this.update(item, new EmptyCodeSnippet());
 	}
 	
 	@Override
@@ -147,6 +191,38 @@ public class SafetyDaoDecoratorForEntityWithSurrogateKey<T extends EntityWithSur
 	
 	private void handleException(Exception ex) throws Exception
 	{
+		handleMessagingException(ex);
+		handleDAOException(ex);
+		
+		// if neither of the routines above handled the exception (e.g. they
+		// did not throw any exceptions), re-throw the exception unchanged
+		throw ex;
+	}
+	
+	/**
+	 * 
+	 * @param ex
+	 * @throws Exception
+	 */
+	private void handleMessagingException(Exception ex) throws Exception
+	{
+		if (ex instanceof RuntimeException)
+		{
+			Throwable innerEx = ex.getCause();
+			if (innerEx != null && (innerEx instanceof MessagingException))
+			{
+				throw (MessagingException) innerEx;
+			}
+		}
+	}
+	
+	/**
+	 * 
+	 * @param ex
+	 * @throws Exception
+	 */
+	private void handleDAOException(Exception ex) throws Exception
+	{
 		String relevantMessagePart = getRelevantMessagePart(ex.getMessage());
 		if (relevantMessagePart == null)
 			throw ex;
@@ -159,9 +235,6 @@ public class SafetyDaoDecoratorForEntityWithSurrogateKey<T extends EntityWithSur
 			handler.handleException(relevantMessagePart);
 			return;
 		}
-		
-		// if no handler accepted the exception, throw it unchanged
-		throw ex;
 	}
 	
 	private String getRelevantMessagePart(String originalMessage)

@@ -68,6 +68,15 @@ public final class Utils {
     public static boolean isPrefixedName(String uri) {
         return !uri.isEmpty() && PREFIXED_NAME_PATTERN.matcher(uri).matches();
     }
+    
+    /**
+     * Checks if a string is null or an empty string.
+     * @param s tested string
+     * @return true iff s is null or an empty string
+     */
+    public static boolean isNullOrEmpty(String s) {
+        return s == null || s.length() == 0;
+    }
 
     /** Disable constructor for a utility class. */
     private Utils() {

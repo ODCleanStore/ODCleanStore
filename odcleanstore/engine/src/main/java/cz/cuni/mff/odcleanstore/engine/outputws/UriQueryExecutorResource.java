@@ -16,7 +16,7 @@ public class UriQueryExecutorResource extends QueryExecutorResourceBase {
 
 	protected Representation execute() {
 		try {
-			String uri = getFormValue("find");
+			String uri = getFormValue("uri");
 			AggregationSpec aggregationSpec = getAggregationSpec();
 			JDBCConnectionCredentials connectionCredentials = 
 					ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials();
@@ -26,7 +26,7 @@ public class UriQueryExecutorResource extends QueryExecutorResourceBase {
 			if (result == null)
 				return return404();
 
-			return getFormatter().format(result);
+			return getFormatter().format(result, getRequestURI());
 		} catch (Exception e) {
 			return return404();
 		}

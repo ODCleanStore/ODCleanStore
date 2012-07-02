@@ -26,10 +26,40 @@ public class PasswordHandling
 		return new String(password);
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
+	public static String generatePassword()
+	{
+		return PasswordHandling.generateRandomString(
+			PasswordHandling.DEFAULT_CHARSET,
+			PasswordHandling.DEFAULT_PASSWORD_LENGTH
+		);
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public static String generateSalt()
+	{
+		return PasswordHandling.generateRandomString(
+			PasswordHandling.DEFAULT_CHARSET,
+			PasswordHandling.DEFAULT_SALT_LENGTH
+		);
+	}
+	
 	public static String calculatePasswordHash(String password, String salt) 
 		throws NoSuchAlgorithmException
 	{
-		return calculateHash(password + salt);
+		try {
+			return calculateHash(password + salt);
+		}
+		catch (NoSuchAlgorithmException ex)
+		{
+			throw new NoSuchAlgorithmException("Could not calculate password hash.");
+		}
 	}
 	
 	public static String calculateHash(String pattern) throws NoSuchAlgorithmException

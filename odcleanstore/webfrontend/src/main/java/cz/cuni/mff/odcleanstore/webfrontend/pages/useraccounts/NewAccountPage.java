@@ -11,10 +11,11 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.validation.validator.EmailAddressValidator;
 
+import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.configuration.Configuration;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.util.Mail;
@@ -59,13 +60,34 @@ public class NewAccountPage extends FrontendPage
 				
 				try 
 				{
-					initNewPasswordForUser(user, config);
-					userDao.save(user);
-				} 
-				catch (Exception ex) 
+					String password = PasswordHandling.generatePassword();
+					String salt = PasswordHandling.generateSalt();
+					String passwordHash = PasswordHandling.calculatePasswordHash(password, salt);
+					
+					user.setPasswordHash(passwordHash);
+					user.setSalt(salt);
+					
+					Mail mail = new NewAccountMail(user, password);
+					
+					userDao.save(
+						user, 
+						new SendConfirmationEmailSnippet(config, mail)
+					);
+				}
+				catch (DaoException ex) 
 				{
 					getSession().error(ex.getMessage());
-					setResponsePage(AccountsListPage.class);
+					return;
+				}
+				catch (MessagingException ex)
+				{
+					getSession().error(ex.getMessage());
+					return;
+				}
+				catch (Exception ex)
+				{
+					getSession().error("The user account could not be created due to an unexpected error.");
+					return;
 				}
 								
 				getSession().info("The user account was successfuly created.");
@@ -75,8 +97,8 @@ public class NewAccountPage extends FrontendPage
 		
 		form.add(createTextfield("username"));
 		addEmailTextfield(form);
-		form.add(createTextfield("firstname"));
-		form.add(createTextfield("surname"));
+		form.add(createTextfield("firstname", false));
+		form.add(createTextfield("surname", false));
 
 		add(form);
 	}
@@ -89,64 +111,5 @@ public class NewAccountPage extends FrontendPage
 		textField.add(EmailAddressValidator.getInstance());
 
 		form.add(textField);
-	}
-
-	private void initNewPasswordForUser(User user, Configuration config) 
-		throws MessagingException, NoSuchAlgorithmException
-	{
-		logger.debug("Initializing password for user: " + user.getId());
-		
-		// 1. Generate random plain-text password.
-		//
-		logger.debug("Generating random password.");
-		
-		String password = PasswordHandling.generateRandomString(
-			PasswordHandling.DEFAULT_CHARSET,
-			PasswordHandling.DEFAULT_PASSWORD_LENGTH
-		);
-		
-		// 2. Generate random salt.
-		//
-		logger.debug("Generating random salt.");
-		
-		String salt = PasswordHandling.generateRandomString(
-			PasswordHandling.DEFAULT_CHARSET,
-			PasswordHandling.DEFAULT_SALT_LENGTH
-		);
-		
-		// 3. Send confirmation email.
-		//
-		logger.debug("Sending confirmation email.");
-		
-		try 
-		{
-			Mail email = new NewAccountMail(user, password);
-			email.sendThroughGmail(config.getGmailAddress(), config.getGmailPassword());
-		} 
-		catch (MessagingException ex) 
-		{
-			throw new MessagingException(
-				"Could not send confirmation email to: " + user.getEmail()
-			);
-		}
-		
-		// 4. Hash plain-text password using MD5.
-		//
-		logger.debug("Calculating password hash.");
-		
-		String passwordHash;
-		try 
-		{
-			passwordHash = PasswordHandling.calculatePasswordHash(password, salt);
-		}
-		catch (NoSuchAlgorithmException ex)
-		{
-			throw new NoSuchAlgorithmException("Could not calculate password hash.");
-		}
-
-		// 5. Update the passwordHash and salt of the given user.
-		//
-		user.setPasswordHash(passwordHash);
-		user.setSalt(salt);
 	}
 }

@@ -1,5 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao;
 
+import cz.cuni.mff.odcleanstore.util.CodeSnippet;
+import cz.cuni.mff.odcleanstore.util.Pair;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
 
@@ -13,6 +15,7 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.io.Serializable;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -29,7 +32,7 @@ public abstract class Dao<T extends BusinessEntity> implements Serializable
 	
 	private static Logger logger = Logger.getLogger(Dao.class);
 	
-	private DaoLookupFactory lookupFactory;
+	protected DaoLookupFactory lookupFactory;
 	
 	private transient JdbcTemplate jdbcTemplate;
 	private transient TransactionTemplate transactionTemplate;
@@ -130,6 +133,19 @@ public abstract class Dao<T extends BusinessEntity> implements Serializable
 	
 	/**
 	 * 
+	 * @param criteria
+	 * @return
+	 */
+	public List<T> loadAllBy(QueryCriteria criteria)
+	{
+		String query = "SELECT * FROM " + getTableName() + " WHERE " + criteria.joinToString();
+		Object[] params = criteria.getRange();
+		
+		return getJdbcTemplate().query(query, params, getRowMapper());
+	}
+	
+	/**
+	 * 
 	 * @param columnName
 	 * @param value
 	 * @return
@@ -166,12 +182,38 @@ public abstract class Dao<T extends BusinessEntity> implements Serializable
 	}
 	
 	/**
+	 * 
+	 * @param item
+	 * @param doAfter
+	 * @throws Exception
+	 */
+	public void save(T item, CodeSnippet doAfter) throws Exception
+	{
+		throw new UnsupportedOperationException(
+			"Cannot insert rows into table:" + getTableName() + "."
+		);
+	}
+	
+	/**
 	 * Updates the given item in the database.
 	 * 
 	 * @param item
 	 * @throws Exception 
 	 */
 	public void update(T item) throws Exception
+	{
+		throw new UnsupportedOperationException(
+			"Cannot update rows in table: " + getTableName() + "."
+		);
+	}
+	
+	/**
+	 * 
+	 * @param item
+	 * @param doAfter
+	 * @throws Exception
+	 */
+	public void update(T item, CodeSnippet doAfter) throws Exception
 	{
 		throw new UnsupportedOperationException(
 			"Cannot update rows in table: " + getTableName() + "."

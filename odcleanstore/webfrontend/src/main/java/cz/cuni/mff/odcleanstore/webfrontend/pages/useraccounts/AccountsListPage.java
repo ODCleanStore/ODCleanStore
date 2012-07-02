@@ -1,19 +1,33 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts;
 
+import javax.mail.MessagingException;
+
+import cz.cuni.mff.odcleanstore.util.CodeSnippet;
+import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.configuration.Configuration;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.util.Mail;
+import cz.cuni.mff.odcleanstore.webfrontend.util.NewAccountMail;
+import cz.cuni.mff.odcleanstore.webfrontend.util.NewPasswordMail;
+import cz.cuni.mff.odcleanstore.webfrontend.util.PasswordHandling;
 
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
+import org.apache.wicket.markup.repeater.Item;
+import org.apache.wicket.markup.repeater.data.DataView;
+import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 
-import java.util.List;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 
 @AuthorizeInstantiation({ "ADM" })
@@ -41,16 +55,16 @@ public class AccountsListPage extends FrontendPage
 
 	private void addAccountsListTable()
 	{
-		List<User> allUserAccounts = userDao.loadAll();
+		IDataProvider<User> data = new DataProvider<User>(userDao);
 		
-		ListView<User> listView = new ListView<User>("accountsListTable", allUserAccounts)
+		DataView<User> dataView = new DataView<User>("accountsListTable", data)
 		{
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void populateItem(ListItem<User> item) 
+			protected void populateItem(Item<User> item) 
 			{
-				final User user = item.getModelObject();
+				User user = item.getModelObject();
 				
 				item.setModel(new CompoundPropertyModel<User>(user));
 				
@@ -62,24 +76,94 @@ public class AccountsListPage extends FrontendPage
 				for (Role role : Role.standardRoles)
 					item.add(createRoleLabel(user, role));
 				
-				item.add(new Link("editPermissionsLink")
-				{
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void onClick() 
-					{
-						setResponsePage(
-							new EditAccountPermissionsPage(user.getId())
-						);
-					}
-				});
+				item.add(
+					new DeleteButton<User>
+					(
+						userDao,
+						user.getId(),
+						"user",
+						new DeleteConfirmationMessage("user"),
+						AccountsListPage.this
+					)
+				);
+				
+				item.add(
+					new RedirectButton(
+						EditAccountPermissionsPage.class, 
+						user.getId(), 
+						"managePermissions"
+					)
+				);
+				
+				item.add(createSendNewPasswordButton(user.getId()));
 			}
 		};
 		
-		add(listView);
+		dataView.setItemsPerPage(10);
+		
+		add(dataView);
+		
+		add(new PagingNavigator("navigator", dataView));
 	}
 	
+	protected Link createSendNewPasswordButton(final Long userId) 
+	{
+		Link button = new Link("sendNewPassword")
+		{
+			private static final long serialVersionUID = 1L;
+			
+			@Override
+			public void onClick() 
+			{
+				User user = userDao.load(userId);
+				Configuration config = AccountsListPage.this.getApp().getConfiguration();
+				
+				try 
+				{
+					String password = PasswordHandling.generatePassword();
+					String salt = PasswordHandling.generateSalt();
+					String passwordHash = PasswordHandling.calculatePasswordHash(password, salt);
+					
+					user.setPasswordHash(passwordHash);
+					user.setSalt(salt);
+					
+					Mail mail = new NewPasswordMail(user, password);
+					
+					userDao.update(
+						user,
+						new SendConfirmationEmailSnippet(config, mail)
+					);
+				}
+				catch (DaoException ex) 
+				{
+					getSession().error(ex.getMessage());
+					return;
+				}
+				catch (MessagingException ex)
+				{
+					getSession().error(ex.getMessage());
+					return;
+				}
+				catch (Exception ex)
+				{
+					getSession().error("The password could not be updated due to an unexpected error.");
+					return;
+				}
+								
+				getSession().info("The password was successfuly updated.");
+				setResponsePage(AccountsListPage.class);
+			}
+		};
+		
+		button.add(
+			new ConfirmationBoxRenderer(
+				"Are you sure you want to reset the old user password?"
+			)
+		);
+		
+		return button;
+	}
+
 	/**
 	 * Returns the correct label for the given user and the given role
 	 * (e.g. returns an empty label if the user does not have the role
