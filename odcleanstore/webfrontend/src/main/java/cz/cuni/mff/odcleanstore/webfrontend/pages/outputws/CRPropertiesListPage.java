@@ -35,7 +35,7 @@ public class CRPropertiesListPage extends FrontendPage
 	public CRPropertiesListPage() 
 	{
 		super(
-			"Home > OutputWS > CR > Aggregation Settings", 
+			"Home > Output WS > CR > Aggregation Settings", 
 			"Adjust aggregation settings"
 		);
 		

@@ -10,8 +10,8 @@ public class PipelinesConfigurationPage extends FrontendPage
 	{
 		super
 		(
-			"Home > Pipelines", 
-			"Pipelines configuration"
+			"Home > Engine", 
+			"Engine configuration"
 		);
 	}
 }

@@ -30,8 +30,8 @@ public class PipelineDetailPage extends FrontendPage
 	public PipelineDetailPage(final Long pipelineId) 
 	{
 		super(
-			"Home > Pipelines > Assigned transformers", 
-			"Manage transformers assignment"
+			"Home > Pipelines > Pipeline > Detail", 
+			"Show pipeline detail"
 		);
 		
 		// prepare DAO objects

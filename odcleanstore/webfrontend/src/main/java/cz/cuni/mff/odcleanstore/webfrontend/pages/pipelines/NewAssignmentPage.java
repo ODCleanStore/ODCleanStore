@@ -29,8 +29,8 @@ public class NewAssignmentPage extends FrontendPage
 	{
 		super
 		(
-			"Home > Pipelines > Assigned transformers > Create", 
-			"Add a new transformer assignment"
+			"Home > Pipelines > Pipeline > Transformer instances > Create", 
+			"Add a new transformer instance"
 		);
 		
 

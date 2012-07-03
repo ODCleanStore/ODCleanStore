@@ -33,7 +33,7 @@ public class NewAccountPage extends FrontendPage
 	public NewAccountPage() 
 	{
 		super(
-			"Home > User accounts > Create", 
+			"Home > User accounts > Account > Create", 
 			"Create a new user account"
 		);
 

@@ -26,7 +26,7 @@ public class QAGroupsListPage extends FrontendPage
 	public QAGroupsListPage() 
 	{
 		super(
-			"Home > Transformers > OI > Rules management", 
+			"Home > QA > Rules groups > List", 
 			"OI Rules management"
 		);
 		

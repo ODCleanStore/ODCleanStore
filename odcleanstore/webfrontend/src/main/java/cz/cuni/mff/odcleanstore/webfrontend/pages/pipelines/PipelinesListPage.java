@@ -30,7 +30,7 @@ public class PipelinesListPage extends FrontendPage
 	{
 		super
 		(
-			"Home > Pipelines", 
+			"Home > Pipelines > List", 
 			"Registered pipelines configuration"
 		);
 		

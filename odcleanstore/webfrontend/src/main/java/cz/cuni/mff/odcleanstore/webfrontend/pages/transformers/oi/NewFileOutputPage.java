@@ -28,7 +28,7 @@ public class NewFileOutputPage extends FrontendPage
 	public NewFileOutputPage(final Long ruleId) 
 	{
 		super(
-			"Home > Transformers > OI > Rules management > Rules groups > Rules > Outputs > File > Create", 
+			"Home > OI > Rules groups > Group > Rules > Rule > File Outputs > Create", 
 			"Add a new file output"
 		);
 		

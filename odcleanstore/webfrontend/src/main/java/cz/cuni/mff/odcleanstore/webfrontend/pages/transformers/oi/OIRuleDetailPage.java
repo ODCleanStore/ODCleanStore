@@ -34,7 +34,7 @@ public class OIRuleDetailPage extends FrontendPage
 	public OIRuleDetailPage(final Long ruleId) 
 	{
 		super(
-			"Home > Transformers > OI > Rules management > Rules groups > Rules > Detail", 
+			"Home > OI > Rules groups > Group > Rules > Rule > Detail", 
 			"OI rule detail"
 		);
 		

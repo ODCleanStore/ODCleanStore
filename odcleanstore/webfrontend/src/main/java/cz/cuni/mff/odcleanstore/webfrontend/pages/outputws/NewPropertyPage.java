@@ -24,7 +24,7 @@ public class NewPropertyPage extends FrontendPage
 	public NewPropertyPage() 
 	{
 		super(
-			"Home > OutputWS > CR > Aggregation Settings > Register property", 
+			"Home > Output WS > CR > Aggregation Settings > Properties > Create", 
 			"Register a new property"
 		);
 

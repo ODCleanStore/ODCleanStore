@@ -25,7 +25,7 @@ public class TransformersListPage extends FrontendPage
 	{
 		super
 		(
-			"Home > Pipelines > Transformers", 
+			"Home > Transformers > List", 
 			"Registered transformers configuration"
 		);
 		

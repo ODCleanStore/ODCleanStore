@@ -10,8 +10,8 @@ public class TransformersConfigurationPage extends FrontendPage
 	{
 		super
 		(
-			"Home > Transformers", 
-			"Standard transformers configuration"
+			"Home > Rules", 
+			"Rules configuration"
 		);
 	}
 }

@@ -30,7 +30,7 @@ public class QAGroupDetailPage extends FrontendPage
 	public QAGroupDetailPage(final Long groupId) 
 	{
 		super(
-			"Home > Transformers > QA > Rules management", 
+			"Home > QA > Rules groups > Group > Detail", 
 			"QA Rules management"
 		);
 		

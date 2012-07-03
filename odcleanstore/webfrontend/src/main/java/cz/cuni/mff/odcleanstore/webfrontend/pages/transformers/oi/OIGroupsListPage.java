@@ -25,7 +25,7 @@ public class OIGroupsListPage extends FrontendPage
 	public OIGroupsListPage() 
 	{
 		super(
-			"Home > Transformers > OI > Rules management", 
+			"Home > OI > Rules groups > List", 
 			"OI Rules management"
 		);
 		

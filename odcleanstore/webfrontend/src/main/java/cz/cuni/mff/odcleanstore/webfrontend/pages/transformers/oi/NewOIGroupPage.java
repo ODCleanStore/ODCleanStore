@@ -19,7 +19,7 @@ public class NewOIGroupPage extends FrontendPage
 	public NewOIGroupPage() 
 	{
 		super(
-			"Home > Transformers > OI > Rules management > Rules groups > Create", 
+			"Home > OI > Rules groups > Create", 
 			"Add a new rules group"
 		);
 

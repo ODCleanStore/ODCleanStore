@@ -38,7 +38,7 @@ public class EditAccountPermissionsPage extends FrontendPage
 	public EditAccountPermissionsPage(final Long userId) 
 	{
 		super(
-			"Home > User accounts > Edit roles", 
+			"Home > User accounts > Account > Edit roles", 
 			"Edit user account roles"
 		);
 		

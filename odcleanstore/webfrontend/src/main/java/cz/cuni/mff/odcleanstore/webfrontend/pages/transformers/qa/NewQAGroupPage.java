@@ -19,7 +19,7 @@ public class NewQAGroupPage extends FrontendPage
 	public NewQAGroupPage() 
 	{
 		super(
-			"Home > Transformers > OI > Rules management > Rules groups > Create", 
+			"Home > QA > Rules groups > Create", 
 			"Add a new rules group"
 		);
 

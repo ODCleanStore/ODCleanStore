@@ -22,8 +22,8 @@ public class NewPrefixPage extends FrontendPage
 	{
 		super
 		(
-			"Home > Prefixes > Create", 
-			"Register a new transformer"
+			"Home > URI Prefixes > Create", 
+			"Register a new URI prefix"
 		);
 		
 

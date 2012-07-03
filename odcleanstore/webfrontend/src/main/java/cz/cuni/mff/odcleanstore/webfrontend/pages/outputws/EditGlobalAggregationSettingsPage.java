@@ -24,7 +24,7 @@ public class EditGlobalAggregationSettingsPage extends FrontendPage
 	public EditGlobalAggregationSettingsPage() 
 	{
 		super(
-			"Home > OutputWS > CR > Aggregation Settings > Edit global settings", 
+			"Home > Output WS > CR > Aggregation Settings > Global settings > Edit", 
 			"Edit global aggregation settings"
 		);
 

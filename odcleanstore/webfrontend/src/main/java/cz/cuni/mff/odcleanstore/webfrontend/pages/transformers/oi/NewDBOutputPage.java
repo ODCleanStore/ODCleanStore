@@ -25,7 +25,7 @@ public class NewDBOutputPage extends FrontendPage
 	public NewDBOutputPage(final Long ruleId) 
 	{
 		super(
-			"Home > Transformers > OI > Rules management > Rules groups > Rules > Outputs > DB > Create", 
+				"Home > OI > Rules groups > Group > Rules > Rule > DB Outputs > Create", 
 			"Add a new DB Output"
 		);
 		

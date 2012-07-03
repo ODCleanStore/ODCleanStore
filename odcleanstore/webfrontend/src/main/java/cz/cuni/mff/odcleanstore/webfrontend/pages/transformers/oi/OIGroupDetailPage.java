@@ -30,7 +30,7 @@ public class OIGroupDetailPage extends FrontendPage
 	public OIGroupDetailPage(final Long groupId) 
 	{
 		super(
-			"Home > Transformers > OI > Rules management > Rules groups > Rules", 
+			"Home > OI > Rules groups > Group > Detail", 
 			"Manage OI rules"
 		);
 		
