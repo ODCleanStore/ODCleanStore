@@ -112,6 +112,15 @@ public class PipelineDetailPage extends FrontendPage
 						PipelineDetailPage.this
 					)
 				);
+				
+				item.add(
+					new RedirectButton
+					(
+						TransformerInstanceDetailPage.class,
+						transformerInstance.getId(),
+						"showTransformerInstanceDetailPage"
+					)
+				);
 			}
 		};
 		

@@ -12,6 +12,8 @@ public class TransformerInstanceRowMapper extends CustomRowMapper<TransformerIns
 {
 	private static final long serialVersionUID = 1L;
 	
+	private static Logger logger = Logger.getLogger(TransformerInstanceRowMapper.class);
+	
 	public TransformerInstance mapRow(ResultSet rs, int rowNum) throws SQLException 
 	{
 		return new TransformerInstance
