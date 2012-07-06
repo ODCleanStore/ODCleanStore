@@ -9,6 +9,24 @@ import java.util.Iterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import virtuoso.jena.driver.VirtDataSource;
+import virtuoso.jena.driver.VirtGraph;
+import virtuoso.jena.driver.VirtModel;
+
+import com.hp.hpl.jena.graph.Graph;
+import com.hp.hpl.jena.query.Dataset;
+import com.hp.hpl.jena.query.DatasetFactory;
+import com.hp.hpl.jena.sparql.expr.NodeValue;
+import com.hp.hpl.jena.sparql.function.FunctionBase3;
+import com.hp.hpl.jena.sparql.function.FunctionBase4;
+import com.hp.hpl.jena.sparql.function.FunctionRegistry;
+import com.hp.hpl.jena.sparql.modify.op.Update;
+import com.hp.hpl.jena.update.GraphStore;
+import com.hp.hpl.jena.update.GraphStoreFactory;
+import com.hp.hpl.jena.update.UpdateAction;
+import com.hp.hpl.jena.update.UpdateFactory;
+import com.hp.hpl.jena.update.UpdateRequest;
+
 import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
@@ -30,7 +48,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 	
 	public static void main(String[] args) {
 		try {
-			for (int i = 0; i < 1844; ++i) {
+			for (int i = 1; i < 20 && i < 1844; ++i) {
 				final int id = i;
 
 				new DataNormalizerImpl().transformNewGraph(new TransformedGraph() {
@@ -112,7 +130,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 					
 				});
 			}
-		} catch (Exception e) {
+		} catch (TransformerException e) {
 			System.err.println("DNMain: " + e.getMessage());
 		}
 	}
@@ -123,29 +141,6 @@ public class DataNormalizerImpl implements DataNormalizer {
 	private TransformationContext context;
 	
 	private Collection<Rule> rules;
-
-	/**
-	 * Connection to dirty database (needed in all cases to work on a new graph or a copy of an existing one)
-	 */
-	private VirtuosoConnectionWrapper dirtyConnection;
-
-	private VirtuosoConnectionWrapper getDirtyConnection () throws ConnectionException {
-        if (dirtyConnection == null) {
-        	dirtyConnection = VirtuosoConnectionWrapper.createConnection(context.getDirtyDatabaseCredentials());
-       	}
-		return dirtyConnection;
-	}
-
-	private void closeDirtyConnection() {
-		try {
-			if (dirtyConnection != null) {
-				dirtyConnection.close();
-			}
-		} catch (ConnectionException e) {
-		} finally {
-			dirtyConnection = null;
-		}
-	}
 
 	@Override
 	public void transformNewGraph(TransformedGraph inputGraph,
@@ -159,8 +154,6 @@ public class DataNormalizerImpl implements DataNormalizer {
 			applyRules();
 		} catch (DataNormalizationException e) {
 			throw new TransformerException(e);
-		} finally {
-			closeDirtyConnection();
 		}
 
 		LOG.info(String.format("Data Normalization applied to graph %s", inputGraph.getGraphName()));
@@ -179,39 +172,51 @@ public class DataNormalizerImpl implements DataNormalizer {
 				EnumRuleComponentType.RULE_COMPONENT_INSERT, "{<a> <test> 'c'}",
 				EnumRuleComponentType.RULE_COMPONENT_DELETE, "{} WHERE {}",
 				EnumRuleComponentType.RULE_COMPONENT_INSERT, "{<a> <b> ?o} WHERE {?s <test> ?o}",
-				EnumRuleComponentType.RULE_COMPONENT_DELETE, "{<a> <test> 'c'}"
+				//EnumRuleComponentType.RULE_COMPONENT_DELETE, "{<a> <test> ?z} WHERE {?s <test> ?o. BIND ( <java:cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl.replace>(str(?o), \".\", \"x\") AS ?z)}"
+				EnumRuleComponentType.RULE_COMPONENT_DELETE, "{<a> <test> ?z} WHERE {?s <test> ?o. BIND ( ?o AS ?z)}"
 				));
 	}
 
 	private void applyRules () throws DataNormalizationException {
-		try {
-			getDirtyConnection();
-			
-			Iterator<Rule> i = rules.iterator();
-			
-			while (i.hasNext()) {
-				Rule rule = i.next();
+		Iterator<Rule> i = rules.iterator();
+		
+		while (i.hasNext()) {
+			Rule rule = i.next();
 
-				getDirtyConnection().adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL, false);
-				
-				String[] components = rule.toString(inputGraph.getGraphName());
+			String[] components = rule.toString(inputGraph.getGraphName());
+			
+			JDBCConnectionCredentials jdbc = context.getDirtyDatabaseCredentials();
+			
+			VirtGraph graph = new VirtGraph(inputGraph.getGraphName(),
+					jdbc.getConnectionString(),
+					jdbc.getUsername(),
+					jdbc.getPassword());
+			
+			//System.err.println(graph);
+			
+			//FunctionRegistry.get().put("java:cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl.replace", replace.class);
 
-				for (int j = 0; j < components.length; ++j) {
-					getDirtyConnection().execute(components[j]);
-				}
+			for (int j = 0; j < components.length; ++j) {
+				//System.err.println(components[j]);
+				UpdateRequest updateRequest = UpdateFactory.create(components[j]);
 				
-				getDirtyConnection().commit();
+				System.err.println(components[j]);
+
+				updateRequest.setPrefix("fn", "<java:cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl.>");
+				
+				UpdateAction.execute(updateRequest, graph);
 			}
-		} catch (ConnectionException e) {
-			throw new DataNormalizationException(e.getMessage());
-		} catch (QueryException e) {
-			throw new DataNormalizationException(e.getMessage());
-		} catch (SQLException e) {
-			throw new DataNormalizationException(e.getMessage());
 		}
 	}
 
 	@Override
 	public void shutdown() throws TransformerException {
+	}
+	
+	class replace extends FunctionBase3 {
+		@Override
+		public NodeValue exec(NodeValue arg0, NodeValue arg1, NodeValue arg2) {
+			return NodeValue.makeString(arg0.getString().replaceAll(arg1.getString(), arg2.getString()));
+		}
 	}
 }

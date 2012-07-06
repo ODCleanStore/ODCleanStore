@@ -48,11 +48,13 @@ public class Rule {
 			
 			switch (type) {
 				case RULE_COMPONENT_INSERT:
-					output = String.format("SPARQL INSERT INTO <%%s> %s WHERE {GRAPH <%%s> %s}", rule[0], rule[1]);
+					//output = String.format("INSERT INTO <%%s> %s WHERE {GRAPH <%%s> %s}", rule[0], rule[1]);
+					output = String.format("INSERT %s WHERE {GRAPH <%%s> %s}", rule[0], rule[1]);
 					break;
 
 				case RULE_COMPONENT_DELETE:
-					output = String.format("SPARQL DELETE FROM <%%s> %s WHERE {GRAPH <%%s> %s}", rule[0], rule[1]);
+					//output = String.format("DELETE DATA %s WHERE {GRAPH <%%s> %s}", rule[0], rule[1]);
+					output = String.format("DELETE %s WHERE {GRAPH <%%s> %s}", rule[0], rule[1]);
 					break;
 			}
 			
