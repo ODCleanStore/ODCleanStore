@@ -34,27 +34,14 @@ public class Rule {
 		@Override
 		public String getValue() {
 			String output = "";
-			
-			Pattern wherePattern = Pattern.compile("^(\\{.*\\})\\s*WHERE\\s*(\\{.*\\})$");
-			Matcher whereMatcher = wherePattern.matcher(value);
-			
-			String[] rule;
-			
-			if (whereMatcher.matches()) {
-				rule = new String[]{whereMatcher.group(1), whereMatcher.group(2)};
-			} else {
-				rule = new String[]{value, "{}"};
-			}
-			
+
 			switch (type) {
 				case RULE_COMPONENT_INSERT:
-					//output = String.format("INSERT INTO <%%s> %s WHERE {GRAPH <%%s> %s}", rule[0], rule[1]);
-					output = String.format("INSERT %s WHERE {GRAPH <%%s> %s}", rule[0], rule[1]);
+					output = "INSERT " + value;
 					break;
 
 				case RULE_COMPONENT_DELETE:
-					//output = String.format("DELETE DATA %s WHERE {GRAPH <%%s> %s}", rule[0], rule[1]);
-					output = String.format("DELETE %s WHERE {GRAPH <%%s> %s}", rule[0], rule[1]);
+					output = "DELETE " + value;
 					break;
 			}
 			
@@ -88,11 +75,11 @@ public class Rule {
 		}
 	}
 	
-	public String[] toString (String graph) {
+	public String[] getComponents () {
 		String[] rule = new String[components.size()];
 		
 		for (int i = 0; i < components.size(); ++i) {
-			rule[i] = String.format(components.elementAt(i).getValue(), graph, graph);
+			rule[i] = components.elementAt(i).getValue();
 		}
 		
 		return rule;

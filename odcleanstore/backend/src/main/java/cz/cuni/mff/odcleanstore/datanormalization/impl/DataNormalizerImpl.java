@@ -1,7 +1,6 @@
 package cz.cuni.mff.odcleanstore.datanormalization.impl;
 
 import java.io.File;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -9,40 +8,25 @@ import java.util.Iterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import virtuoso.jena.driver.VirtDataSource;
 import virtuoso.jena.driver.VirtGraph;
-import virtuoso.jena.driver.VirtModel;
 
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.query.Dataset;
-import com.hp.hpl.jena.query.DatasetFactory;
-import com.hp.hpl.jena.sparql.expr.NodeValue;
-import com.hp.hpl.jena.sparql.function.FunctionBase3;
-import com.hp.hpl.jena.sparql.function.FunctionBase4;
-import com.hp.hpl.jena.sparql.function.FunctionRegistry;
-import com.hp.hpl.jena.sparql.modify.op.Update;
-import com.hp.hpl.jena.update.GraphStore;
-import com.hp.hpl.jena.update.GraphStoreFactory;
+import com.hp.hpl.jena.query.Syntax;
+import com.hp.hpl.jena.sparql.lang.UpdateParserFactory;
 import com.hp.hpl.jena.update.UpdateAction;
 import com.hp.hpl.jena.update.UpdateFactory;
 import com.hp.hpl.jena.update.UpdateRequest;
 
-import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
-import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
-import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
-import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.datanormalization.DataNormalizer;
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
 import cz.cuni.mff.odcleanstore.datanormalization.rules.Rule;
 import cz.cuni.mff.odcleanstore.datanormalization.rules.Rule.EnumRuleComponentType;
-import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
-import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl.GraphScoreWithTrace;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraphException;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 
 public class DataNormalizerImpl implements DataNormalizer {
 	
@@ -169,11 +153,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 		rules = new ArrayList<Rule>();
 		
 		rules.add(new Rule(
-				EnumRuleComponentType.RULE_COMPONENT_INSERT, "{<a> <test> 'c'}",
-				EnumRuleComponentType.RULE_COMPONENT_DELETE, "{} WHERE {}",
-				EnumRuleComponentType.RULE_COMPONENT_INSERT, "{<a> <b> ?o} WHERE {?s <test> ?o}",
-				//EnumRuleComponentType.RULE_COMPONENT_DELETE, "{<a> <test> ?z} WHERE {?s <test> ?o. BIND ( <java:cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl.replace>(str(?o), \".\", \"x\") AS ?z)}"
-				EnumRuleComponentType.RULE_COMPONENT_DELETE, "{<a> <test> ?z} WHERE {?s <test> ?o. BIND ( ?o AS ?z)}"
+				EnumRuleComponentType.RULE_COMPONENT_INSERT, "{<http://opendata.cz> <" + ODCS.score + "> ?score} WHERE {<http://opendata.cz> <" + ODCS.score + "> ?oldScore. BIND (replace(str(?oldScore), \"0\", \"1\") AS ?score)}"
 				));
 	}
 
@@ -183,7 +163,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 		while (i.hasNext()) {
 			Rule rule = i.next();
 
-			String[] components = rule.toString(inputGraph.getGraphName());
+			String[] components = rule.getComponents();
 			
 			JDBCConnectionCredentials jdbc = context.getDirtyDatabaseCredentials();
 			
@@ -192,17 +172,10 @@ public class DataNormalizerImpl implements DataNormalizer {
 					jdbc.getUsername(),
 					jdbc.getPassword());
 			
-			//System.err.println(graph);
-			
-			//FunctionRegistry.get().put("java:cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl.replace", replace.class);
-
 			for (int j = 0; j < components.length; ++j) {
-				//System.err.println(components[j]);
-				UpdateRequest updateRequest = UpdateFactory.create(components[j]);
+				UpdateRequest updateRequest = UpdateFactory.create(components[j], Syntax.syntaxSPARQL_11);
 				
 				System.err.println(components[j]);
-
-				updateRequest.setPrefix("fn", "<java:cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl.>");
 				
 				UpdateAction.execute(updateRequest, graph);
 			}
@@ -211,12 +184,5 @@ public class DataNormalizerImpl implements DataNormalizer {
 
 	@Override
 	public void shutdown() throws TransformerException {
-	}
-	
-	class replace extends FunctionBase3 {
-		@Override
-		public NodeValue exec(NodeValue arg0, NodeValue arg1, NodeValue arg2) {
-			return NodeValue.makeString(arg0.getString().replaceAll(arg1.getString(), arg2.getString()));
-		}
 	}
 }
