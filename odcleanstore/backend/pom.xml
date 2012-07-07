@@ -26,16 +26,6 @@
 	
 	<dependencies>
 		<dependency>
-			<groupId>com.openlinksw</groupId>
-			<artifactId>virt_jena</artifactId>
-			<version>2.6.2</version>
-		</dependency>
-		<dependency>
-			<groupId>com.openlinksw</groupId>
-			<artifactId>virtjdbc</artifactId>
-			<version>3</version>
-		</dependency>	
-		<dependency>
 			<groupId>cz.cuni.mff.odcleanstore</groupId>
 			<artifactId>odcs-core</artifactId>
 			<version>${odcs-core-version}</version>
@@ -46,9 +36,15 @@
 			<version>1.6.4</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.jena</groupId>
-			<artifactId>jena-arq</artifactId>
-			<version>2.9.0-incubating</version>
+			<groupId>com.hp.hpl.jena</groupId>
+			<artifactId>jena</artifactId>
+			<version>2.6.4</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>slf4j-log4j12</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>de.fuberlin.wiwss.ng4j</groupId>
@@ -142,13 +138,6 @@
 			<id>melati.org</id>
 			<name>NG4J at melati.org</name>
 			<url>http://melati.org/maven2/</url>
-		</repository>
-		<repository>
-			<id>apache-repo-releases</id>
-			<url>https://repository.apache.org/content/repositories/releases/</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
 		</repository>
 	</repositories>
 </project>
