@@ -27,7 +27,7 @@ public class KeywordQueryExecutorResource extends QueryExecutorResourceBase {
 			if (result == null)
 				return return404();
 
-			return getFormatter().format(result, getRequestURI());
+			return getFormatter().format(result, getRequestReference());
 		} catch (Exception e) {
 			return return404();
 		}

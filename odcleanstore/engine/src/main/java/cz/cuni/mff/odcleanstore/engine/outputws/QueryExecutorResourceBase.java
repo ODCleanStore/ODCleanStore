@@ -51,8 +51,8 @@ public abstract class QueryExecutorResourceBase extends ServerResource {
 		return _form.getValuesMap();
 	}
 	
-	protected String getRequestURI() {
-		return this.getRequest().getResourceRef().toString(true, false);
+	protected Reference getRequestReference() {
+		return this.getRequest().getResourceRef();
 	}
 		
 	@Get

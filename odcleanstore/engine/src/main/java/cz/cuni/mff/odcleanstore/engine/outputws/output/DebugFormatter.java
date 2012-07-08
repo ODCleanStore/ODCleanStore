@@ -5,6 +5,7 @@ import java.io.Writer;
 
 import org.restlet.data.CharacterSet;
 import org.restlet.data.MediaType;
+import org.restlet.data.Reference;
 import org.restlet.representation.Representation;
 import org.restlet.representation.WriterRepresentation;
 
@@ -20,7 +21,7 @@ import cz.cuni.mff.odcleanstore.queryexecution.QueryResult;
  */
 public class DebugFormatter extends ResultFormatterBase {
 	@Override
-	public Representation format(final QueryResult result) {
+	public Representation format(final QueryResult result, Reference requestReference) {
 		WriterRepresentation representation = new WriterRepresentation(
 				MediaType.TEXT_PLAIN) {
 			@Override

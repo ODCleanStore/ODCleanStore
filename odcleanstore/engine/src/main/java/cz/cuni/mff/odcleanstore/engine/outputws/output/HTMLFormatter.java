@@ -1,19 +1,19 @@
 package cz.cuni.mff.odcleanstore.engine.outputws.output;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URLEncoder;
 
 import org.restlet.data.CharacterSet;
 import org.restlet.data.MediaType;
+import org.restlet.data.Reference;
 import org.restlet.representation.Representation;
 import org.restlet.representation.WriterRepresentation;
 
 import com.hp.hpl.jena.graph.Node;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
-import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationType;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryResult;
@@ -31,13 +31,18 @@ public class HTMLFormatter extends ResultFormatterBase {
 		/** Query result. */
 		private QueryResult queryResult;
 		
+		/** Representation of the requested URI */
+		private Reference requestReference;
+		
 		/** 
 		 * Initialize.
 		 * @param queryResult query result
+		 * @param requestReference representation of the requested URI
 		 */
-		public HTMLRepresentation(QueryResult queryResult) {
+		public HTMLRepresentation(QueryResult queryResult, Reference requestReference) {
 			super(MediaType.TEXT_HTML);
 			this.queryResult = queryResult;
+			this.requestReference = requestReference;
 		}
 		
 		@Override
@@ -170,44 +175,58 @@ public class HTMLFormatter extends ResultFormatterBase {
 		 */
 		private void writeNode(Writer writer, Node node) throws IOException {
 			if (node.isURI()) {
-				writer.write("<a href=\"/");
-				writer.write(Engine.OUTPUTWS_URI_PATH);
-				writer.write("?find=");
-				writer.write(URLEncoder.encode(node.getURI(), "UTF-8"));
-				writer.write("&amp;aggregation=");
-				writer.write(getAggregationType().name());
-				writer.write("\">");
-				writer.write(node.toString());
-				writer.write("</a>");
+				writer.append("<a href=\"/")
+					.append(getRequestForURI(node.getURI()))
+					.append("\">")
+					.append(node.toString())
+					.append("</a>");
 			} else if (node.isLiteral()) {
-				writer.write("<a href=\"/");
-				writer.write(Engine.OUTPUTWS_KEYWORD_PATH);
-				writer.write("?find=");
-				writer.write(URLEncoder.encode(node.getLiteralLexicalForm(), "UTF-8"));
-				writer.write("&amp;aggregation=");
-				writer.write(getAggregationType().name());
-				writer.write("\">");
-				writer.write(node.toString());
-				writer.write("</a>");
+				writer.append("<a href=\"/")
+				.append(getRequestForKeyword(node.getLiteralLexicalForm()))
+				.append("\">")
+				.append(node.toString())
+				.append("</a>");
 			} else {
 				writer.write(node.toString());
 			}
 		}
 		
 		/**
-		 * Returns the effective default aggregation type for the query.
-		 * @return aggregation type
+		 * Returns a URI of a URI query request with other settings same as for the current request 
+		 * @param uri the requested URI
+		 * @return URI of the query request
+		 * @throws UnsupportedEncodingException exception
 		 */
-		private EnumAggregationType getAggregationType() {
-			return queryResult.getAggregationSpec().getDefaultAggregation() == null
-					? AggregationSpec.IMPLICIT_AGGREGATION
-					: queryResult.getAggregationSpec().getDefaultAggregation();
+		private CharSequence getRequestForURI(String uri) throws UnsupportedEncodingException {
+			StringBuilder result = new StringBuilder();
+			result.append(Engine.OUTPUTWS_URI_PATH);
+			result.append("?uri=");
+			result.append(URLEncoder.encode(uri, "UTF-8"));
+			result.append("&");
+			result.append(requestReference.getQuery());
+			return result.toString();
+		}
+		
+		/**
+		 * Returns a URI of a keyword query request with other settings same as for the current request 
+		 * @param keyword the searched keyword
+		 * @return URI of the keyword request
+		 * @throws UnsupportedEncodingException exception
+		 */
+		private CharSequence getRequestForKeyword(String keyword) throws UnsupportedEncodingException {
+			StringBuilder result = new StringBuilder();
+			result.append(Engine.OUTPUTWS_KEYWORD_PATH);
+			result.append("?kw=");
+			result.append(URLEncoder.encode(keyword, "UTF-8"));
+			result.append("&");
+			result.append(requestReference.getQuery());
+			return result.toString();
 		}
 	}
 	
 	@Override
-	public Representation format(QueryResult result, String requestURI) {
-		WriterRepresentation representation = new HTMLRepresentation(result); 
+	public Representation format(QueryResult result, Reference requestReference) {
+		WriterRepresentation representation = new HTMLRepresentation(result, requestReference); 
 		representation.setCharacterSet(CharacterSet.UTF_8);
 		return representation;
 	}
