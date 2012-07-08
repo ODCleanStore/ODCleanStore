@@ -7,10 +7,18 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import virtuoso.jena.driver.VirtGraph;
+
+import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.Triple;
+import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 
 import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
@@ -22,111 +30,63 @@ import cz.cuni.mff.odcleanstore.datanormalization.DataNormalizer;
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
 import cz.cuni.mff.odcleanstore.datanormalization.rules.Rule;
 import cz.cuni.mff.odcleanstore.datanormalization.rules.Rule.EnumRuleComponentType;
+import cz.cuni.mff.odcleanstore.shared.UniqueGraphNameGenerator;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraphException;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
+import de.fuberlin.wiwiss.ng4j.NamedGraph;
+import de.fuberlin.wiwiss.ng4j.impl.GraphReaderService;
+import de.fuberlin.wiwiss.ng4j.impl.NamedGraphSetImpl;
 
 public class DataNormalizerImpl implements DataNormalizer {
 	
 	public static void main(String[] args) {
-
 		try {
-			for (int i = 1; i < 2 && i < 1844; ++i) {
-				final int id = i;
+			new DataNormalizerImpl().debugRules(System.getProperty("user.home") + "/odcleanstore/debugDN.ttl",
+					new TransformationContext() {
 
-				new DataNormalizerImpl().transformNewGraph(new TransformedGraph() {
+				@Override
+				public JDBCConnectionCredentials getDirtyDatabaseCredentials() {
+					// TODO Auto-generated method stub
+					return new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1112/UID=dba/PWD=dba", "dba", "dba");
+				}
 
-					@Override
-					public String getGraphName() {
-						// TODO Auto-generated method stub
-						return "http://opendata.cz/data/namedGraph/" + id;
-					}
+				@Override
+				public JDBCConnectionCredentials getCleanDatabaseCredentials() {
+					// TODO Auto-generated method stub
+					return new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba");
+				}
 
-					@Override
-					public String getGraphId() {
-						// TODO Auto-generated method stub
-						return null;
-					}
+				@Override
+				public String getTransformerConfiguration() {
+					// TODO Auto-generated method stub
+					return null;
+				}
 
-					@Override
-					public String getMetadataGraphName() {
-						// TODO Auto-generated method stub
-						return null;
-					}
+				@Override
+				public File getTransformerDirectory() {
+					// TODO Auto-generated method stub
+					return null;
+				}
 
-					@Override
-					public Collection<String> getAttachedGraphNames() {
-						// TODO Auto-generated method stub
-						return null;
-					}
-
-					@Override
-					public void addAttachedGraph(String attachedGraphName)
-							throws TransformedGraphException {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void deleteGraph() throws TransformedGraphException {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public boolean isDeleted() {
-						// TODO Auto-generated method stub
-						return false;
-					}
-					
-				}, new TransformationContext() {
-
-					@Override
-					public JDBCConnectionCredentials getDirtyDatabaseCredentials() {
-						// TODO Auto-generated method stub
-						return new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1112/UID=dba/PWD=dba", "dba", "dba");
-					}
-
-					@Override
-					public JDBCConnectionCredentials getCleanDatabaseCredentials() {
-						// TODO Auto-generated method stub
-						return new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba");
-					}
-
-					@Override
-					public String getTransformerConfiguration() {
-						// TODO Auto-generated method stub
-						return null;
-					}
-
-					@Override
-					public File getTransformerDirectory() {
-						// TODO Auto-generated method stub
-						return null;
-					}
-
-					@Override
-					public EnumTransformationType getTransformationType() {
-						// TODO Auto-generated method stub
-						return null;
-					}
-					
-				});
-			}
-		} catch (Exception e) {
-			System.err.println("DNMain: " + e.getMessage());
+				@Override
+				public EnumTransformationType getTransformationType() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+			});
+		} catch (TransformerException e) {
+			System.err.println(e.getMessage());
 		}
 	}
 	
 	private static final String selectFormat = "SPARQL SELECT %s FROM <%s> WHERE %s";
 	private static final String insertFormat = "SPARQL INSERT DATA INTO <%s> {%s}";
 	private static final String deleteFormat = "SPARQL DELETE DATA FROM <%s> {%s}";
-	
-	private static final String copyTestingGraphFormat = "SPARQL INSERT INTO <%s> {?s ?p ?o} WHERE {GRAPH <%s> {?s ?p ?o}}";
-	private static final String deleteTestingGraphFormat = "SPARQL DROP GRAPH <%s>";
-	
+
 	private static final Logger LOG = LoggerFactory.getLogger(DataNormalizerImpl.class);
 	
 	private TransformedGraph inputGraph;
@@ -157,9 +117,129 @@ public class DataNormalizerImpl implements DataNormalizer {
 		}
 	}
 	
-	public void testWithGraph(TransformedGraph inputGraph,
-			TransformationContext context) {
-		//...
+	private TransformedGraph prepareInputGraph (final String name) {
+		return new TransformedGraph() {
+
+			@Override
+			public String getGraphName() {
+				return name;
+			}
+			@Override
+			public String getGraphId() {
+				return null;
+			}
+			@Override
+			public String getMetadataGraphName() {
+				return null;
+			}
+			@Override
+			public Collection<String> getAttachedGraphNames() {
+				return null;
+			}
+			@Override
+			public void addAttachedGraph(String attachedGraphName)
+					throws TransformedGraphException {				
+			}
+			@Override
+			public void deleteGraph() throws TransformedGraphException {				
+			}
+			@Override
+			public boolean isDeleted() {
+				return false;
+			}
+		};
+	}
+	
+	public void debugRules (String sourceFile, TransformationContext context)
+			throws TransformerException {
+		/**
+		 * Load graphs from source file
+		 */
+		NamedGraphSetImpl namedGraphSet = new NamedGraphSetImpl();
+		
+		GraphReaderService reader = new GraphReaderService();
+		
+		reader.setSourceFile(new File(sourceFile));
+		reader.setLanguage("TRIG");
+		reader.readInto(namedGraphSet);
+		
+		/**
+		 * Copy them into unique graphs
+		 */
+		UniqueGraphNameGenerator graphNameGen = new UniqueGraphNameGenerator("http://example.com/datanormalization/", context.getDirtyDatabaseCredentials());
+		
+		HashMap<String, String> nameMap = new HashMap<String, String>();
+		
+		try {
+			Iterator<NamedGraph> it = namedGraphSet.listGraphs();
+
+			while (it.hasNext()) {
+				NamedGraph graph = it.next();
+			
+				String name = graph.getGraphName().toString();
+				String temporaryName;
+				
+				if (nameMap.containsKey(name)) {
+					temporaryName = nameMap.get(name);
+				} else {
+					temporaryName = graphNameGen.nextURI();
+				}
+			
+				nameMap.put(name, temporaryName);
+			
+				VirtGraph temporaryGraph = new VirtGraph(temporaryName,
+						context.getDirtyDatabaseCredentials().getConnectionString(),
+						context.getDirtyDatabaseCredentials().getUsername(),
+						context.getDirtyDatabaseCredentials().getPassword());
+			
+				ExtendedIterator<Triple> triples = graph.find(Node.ANY, Node.ANY, Node.ANY);
+
+				/**
+				 * Copying contents into unique temporary destination graphs in dirty database
+				 */
+				while (triples.hasNext()) {
+					Triple triple = triples.next();
+				
+					temporaryGraph.add(triple);
+				}
+			
+				LOG.info(String.format("Input debug graph <%s> copied into <%s>", name, temporaryName));
+
+				/**
+				 * Perform transformation (select rules by group specified in context - same behaviour as
+				 * normal transformation)
+				 */
+				transformNewGraph(prepareInputGraph(temporaryName), context);
+				
+				/**
+				 * TODO: Collect results
+				 */
+				System.err.println(temporaryGraph); //DEBUG
+			}
+		} finally {
+			Set<String> keys = nameMap.keySet();
+
+			Iterator<String> it = keys.iterator();
+
+			/**
+			 * Drop all graphs
+			 */
+			while (it.hasNext()) {
+				String key = it.next();
+
+				try {
+					VirtGraph temporaryGraph = new VirtGraph(nameMap.get(key),
+							context.getDirtyDatabaseCredentials().getConnectionString(),
+							context.getDirtyDatabaseCredentials().getUsername(),
+							context.getDirtyDatabaseCredentials().getPassword());
+					
+					temporaryGraph.clear();
+					
+					LOG.info(String.format("Temporary copy <%s> of input debug graph <%s> cleared", nameMap.get(key), key));
+				} catch (Exception e) {
+				}
+			}
+		}
 	}
 
 	@Override
@@ -190,6 +270,9 @@ public class DataNormalizerImpl implements DataNormalizer {
 	private void loadRules () throws DataNormalizationException {
 		rules = new ArrayList<Rule>();
 		
+		/**
+		 * DEBUG rules
+		 */
 		rules.add(new Rule(
 				EnumRuleComponentType.RULE_COMPONENT_INSERT, "<http://opendata.cz> <http://opendata.cz> \"Test\"", null, null,
 				EnumRuleComponentType.RULE_COMPONENT_INSERT, "?a ?b ?d", "?a ?b fn:replace(str(?c), \"(.)$\", \"$1ing\") AS ?d", "{?a ?b ?c. FILTER (?c = \"Test\")}"
