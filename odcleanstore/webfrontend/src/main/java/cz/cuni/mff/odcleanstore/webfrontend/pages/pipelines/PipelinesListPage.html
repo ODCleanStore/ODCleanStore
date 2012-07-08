@@ -16,7 +16,7 @@
 	<tr>
 		<th>Label</th>
 		<th>Description</th>
-		<th>Run on clean DB</th>
+		<th>Default</th>
 		<th>Action</th>
 	</tr>
 	
@@ -24,12 +24,12 @@
 	
 		<td wicket:id="label">[label]</td>
 		<td wicket:id="description">[description]</td>
-		<td wicket:id="runOnCleanDB">[run on clean DB]</td>
+		<td wicket:id="isDefault">[is default]</td>
 		
 		<td class="centered">
 			<input wicket:id="deletePipeline" type="button" value="Delete" />
-			<input wicket:id="managePipelineTransformers" type="button" value="Manage transformers" />
-			<input wicket:id="makePipelineRunOnCleanDB" type="button" value="Run on clean DB" />
+			<input wicket:id="managePipelineTransformers" type="button" value="Detail" />
+			<input wicket:id="markPipelineDefault" type="button" value="Mark as default" />
 		</td>
 	</tr>
 </table>

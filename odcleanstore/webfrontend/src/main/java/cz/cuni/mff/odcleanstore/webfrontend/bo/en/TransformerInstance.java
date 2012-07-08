@@ -10,10 +10,11 @@ public class TransformerInstance extends EntityWithSurrogateKey
 	private Long pipelineId;
 	private String workDirPath;
 	private String configuration;
+	private Boolean runOnCleanDB;
 	private Integer priority;
 	
 	public TransformerInstance(Long id, Long transformerId, Long pipelineId, String workDirPath, 
-			String configuration, Integer priority) 
+			String configuration, Boolean runOnCleanDB, Integer priority) 
 	{
 		super(id);
 		
@@ -21,6 +22,7 @@ public class TransformerInstance extends EntityWithSurrogateKey
 		this.pipelineId = pipelineId;
 		this.workDirPath = workDirPath;
 		this.configuration = configuration;
+		this.runOnCleanDB = runOnCleanDB;
 		this.priority = priority;
 	}
 	
@@ -34,12 +36,13 @@ public class TransformerInstance extends EntityWithSurrogateKey
 	 * @param priority
 	 */
 	public TransformerInstance(Long transformerId, Long pipelineId, String workDirPath, 
-		String configuration, Integer priority) 
+		String configuration, Boolean runOnCleanDB, Integer priority) 
 	{
 		this.transformerId = transformerId;
 		this.pipelineId = pipelineId;
 		this.workDirPath = workDirPath;
 		this.configuration = configuration;
+		this.runOnCleanDB = runOnCleanDB;
 		this.priority = priority;
 	}
 	
@@ -104,6 +107,15 @@ public class TransformerInstance extends EntityWithSurrogateKey
 		return configuration;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
+	public Boolean getRunOnCleanDB()
+	{
+		return runOnCleanDB;
+	}
+	
 	/**
 	 * 
 	 * @return

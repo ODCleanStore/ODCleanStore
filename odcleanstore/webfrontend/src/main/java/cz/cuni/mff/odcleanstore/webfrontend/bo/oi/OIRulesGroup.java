@@ -3,9 +3,9 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo.oi;
 import java.util.LinkedList;
 import java.util.List;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.RulesGroupEntity;
 
-public class OIRulesGroup extends EntityWithSurrogateKey 
+public class OIRulesGroup extends RulesGroupEntity 
 {
 	private static final long serialVersionUID = 1L;
 

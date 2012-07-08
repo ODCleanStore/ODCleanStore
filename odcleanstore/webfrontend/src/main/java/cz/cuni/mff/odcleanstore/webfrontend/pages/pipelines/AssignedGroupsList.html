@@ -1,0 +1,34 @@
+<wicket:panel>
+	
+<h2>Assigned groups</h2>
+
+<div>
+	<a class="placedright" href="#" wicket:id="showNewGroupAssignmentPage">Assign a group</a>
+	<div class="clear">&nbsp;</div>
+</div>
+
+
+<span wicket:id="navigator">[dataview navigator]</span>
+
+<table border="1">
+	
+	<tr>
+		<th>Label</th>
+		<th>Description</th>
+		<th>Action</th>
+	</tr>
+	
+	<tr  wicket:id="assignmentTable">
+	
+		<td wicket:id="groupLabel">[label]</td>
+		<td wicket:id="groupDescription">[description]</td>
+		
+		<td class="centered">
+			<input wicket:id="deleteAssignment" type="button" value="Delete assignment" />
+			<input wicket:id="showGroupDetailPage" type="button" value="Detail" />
+		</td>
+	</tr>
+</table>
+	
+</wicket:panel>
+

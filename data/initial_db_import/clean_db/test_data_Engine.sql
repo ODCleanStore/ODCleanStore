@@ -17,10 +17,10 @@ INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS (label, description, jarPath, fullClass
 VALUES (n'DN', n'The standard data normalization transformer', n'.', n'not yet known');
 
 
-INSERT INTO DB.ODCLEANSTORE.PIPELINES (label, description, runOnCleanDB)
+INSERT INTO DB.ODCLEANSTORE.PIPELINES (label, description, isDefault)
 VALUES (n'Dirty', n'A basic dirty pipeline', 0);
 
-INSERT INTO DB.ODCLEANSTORE.PIPELINES (label, description, runOnCleanDB)
+INSERT INTO DB.ODCLEANSTORE.PIPELINES (label, description, isDefault)
 VALUES (n'Clean', n'A basic clean pipeline', 1);
 
 

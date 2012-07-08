@@ -18,8 +18,8 @@
 </div>
 
 <div class="datalistitem">
-	<strong class="block">Run on clean DB:</strong>
-	<span wicket:id="runOnCleanDB">[run on clean DB]</span>
+	<strong class="block">Is default:</strong>
+	<span wicket:id="isDefault">[is default]</span>
 </div>
 
 <h2>Assigned transformers</h2>
@@ -38,6 +38,7 @@
 		<th>Label</th>
 		<th>Working directory</th>
 		<th>Configuration</th>
+		<th>Run on clean DB</th>
 		<th>Priority</th>
 		<th>Action</th>
 	</tr>
@@ -47,10 +48,12 @@
 		<td wicket:id="label">[label]</td>
 		<td wicket:id="workDirPath">[working directory]</td>
 		<td wicket:id="configuration">[configuration]</td>
+		<td wicket:id="runOnCleanDB">[run on clean db]</td>
 		<td wicket:id="priority">[priority]</td>
 		
 		<td class="centered">
 			<input wicket:id="deleteAssignment" type="button" value="Delete" />
+			<input wicket:id="showTransformerInstanceDetailPage" type="button" value="Detail" />
 		</td>
 	</tr>
 </table>

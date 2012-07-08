@@ -1,0 +1,38 @@
+<wicket:extend>
+
+<div>
+	<a class="placedright" href="#" wicket:id="showPipelineDetailPage">
+		Back to the list of transformer instances
+	</a>
+	<div class="clear">&nbsp;</div>
+</div>
+
+<div class="datalistitem">
+	<strong class="block">Label:</strong>
+	<span wicket:id="label">[label]</span>
+</div>
+				
+<div class="datalistitem">
+	<strong class="block">Working directory:</strong>
+	<span wicket:id="workDirPath">[working directory]</span>
+</div>
+
+<div class="datalistitem">
+	<strong class="block">Configuration:</strong>
+	<span wicket:id="configuration">[configuration]</span>
+</div>
+
+<div class="datalistitem">
+	<strong class="block">Run on clean DB:</strong>
+	<span wicket:id="runOnCleanDB">[run on clean db]</span>
+</div>
+
+<div class="datalistitem">
+	<strong class="block">Priority:</strong>
+	<span wicket:id="priority">[priority]</span>
+</div>
+
+<div wicket:id="assignedGroupsListSection"></div>
+
+</wicket:extend>
+

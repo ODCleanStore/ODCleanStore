@@ -12,6 +12,8 @@ public class TransformerInstanceRowMapper extends CustomRowMapper<TransformerIns
 {
 	private static final long serialVersionUID = 1L;
 	
+	private static Logger logger = Logger.getLogger(TransformerInstanceRowMapper.class);
+	
 	public TransformerInstance mapRow(ResultSet rs, int rowNum) throws SQLException 
 	{
 		return new TransformerInstance
@@ -21,6 +23,7 @@ public class TransformerInstanceRowMapper extends CustomRowMapper<TransformerIns
 			rs.getLong("pipelineId"),
 			blobToString(rs.getBlob("workDirPath")),
 			blobToString(rs.getBlob("configuration")),
+			rs.getBoolean("runOnCleanDB"),
 			rs.getInt("priority")
 		);
 	}

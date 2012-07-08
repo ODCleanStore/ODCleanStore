@@ -8,6 +8,8 @@ import java.sql.SQLException;
 
 public class PipelineRowMapper extends CustomRowMapper<Pipeline>
 {
+	private static final long serialVersionUID = 1L;
+
 	public Pipeline mapRow(ResultSet rs, int rowNum) throws SQLException 
 	{
 		return new Pipeline
@@ -15,7 +17,7 @@ public class PipelineRowMapper extends CustomRowMapper<Pipeline>
 			rs.getLong("id"),
 			blobToString(rs.getBlob("label")),
 			blobToString(rs.getBlob("description")),
-			rs.getBoolean("runOnCleanDB")
+			rs.getBoolean("isDefault")
 		);
 	}
 }
