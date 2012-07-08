@@ -71,7 +71,7 @@ public class PipelineDetailPage extends FrontendPage
 	{
 		add(
 			new RedirectButton(
-				NewAssignmentPage.class, 
+				NewTransformerAssignmentPage.class, 
 				pipelineId, 
 				"newAssignmentLink"
 			)

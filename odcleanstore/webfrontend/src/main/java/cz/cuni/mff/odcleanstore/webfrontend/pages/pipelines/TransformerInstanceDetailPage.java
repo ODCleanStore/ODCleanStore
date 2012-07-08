@@ -3,17 +3,31 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.IModel;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.RulesGroupEntity;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.en.RuleAssignment;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.en.OIRuleAssignmentDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.en.QARuleAssignmentDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.OIGroupDetailPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.QAGroupDetailPage;
 
 public class TransformerInstanceDetailPage extends FrontendPage 
 {
 	private static final long serialVersionUID = 1L;
+	
+	private static final String QA_FULL_CLASS_NAME = 
+		"cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl";
+	
+	private static final String OI_FULL_CLASS_NAME = 
+		"cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl";
 
 	private DaoForEntityWithSurrogateKey<TransformerInstance> transformerInstanceDao;
 	private DaoForEntityWithSurrogateKey<Transformer> transformerDao;
@@ -21,8 +35,8 @@ public class TransformerInstanceDetailPage extends FrontendPage
 	public TransformerInstanceDetailPage(final Long transformerInstanceId) 
 	{
 		super(
-			"Home > Pipelines > Pipeline > Detail", 
-			"Show pipeline detail"
+			"Home > Pipelines > Pipeline > Transformer Instances > Transformer Instance > Detail", 
+			"Show transformer instance detail"
 		);
 		
 		// prepare DAO objects
@@ -30,26 +44,32 @@ public class TransformerInstanceDetailPage extends FrontendPage
 		transformerInstanceDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(TransformerInstanceDao.class);
 		transformerDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(TransformerDao.class);
 		
+		// load common BO objects
+		//
+		TransformerInstance transformerInstance = transformerInstanceDao.load(transformerInstanceId);
+		Transformer transformer = transformerDao.load(transformerInstance.getTransformerId());
+		
 		// register page components
 		//
-		addTransformerInstanceInformationSection(transformerInstanceId);
+		addTransformerInstanceInformationSection(transformerInstance, transformer);
+		addAssignedGroupsListSection(transformerInstance, transformer);
 	}
 
-	private void addTransformerInstanceInformationSection(final Long transformerInstanceId)
+	private void addTransformerInstanceInformationSection(
+		final TransformerInstance transformerInstance, 
+		final Transformer transformer)
 	{
 		IModel<TransformerInstance> model = createModelForOverview(
-			transformerInstanceDao, transformerInstanceId
+			transformerInstanceDao, transformerInstance.getId()
 		);
-
-		Transformer transformer = transformerDao.load(model.getObject().getTransformerId());
-
+		
 		setDefaultModel(model);
 		
 		add(
 			new RedirectButton
 			(
 				PipelineDetailPage.class,
-				model.getObject().getPipelineId(),
+				transformerInstance.getPipelineId(),
 				"showPipelineDetailPage"
 			)
 		);
@@ -58,5 +78,44 @@ public class TransformerInstanceDetailPage extends FrontendPage
 		add(new Label("workDirPath"));
 		add(new Label("configuration"));
 		add(new Label("priority"));
+	}
+	
+
+	private void addAssignedGroupsListSection(
+		final TransformerInstance transformerInstance,
+		final Transformer transformer) 
+	{
+		DaoForEntityWithSurrogateKey<RuleAssignment> assignedGroupsDao = null;
+		DaoForEntityWithSurrogateKey<RulesGroupEntity> groupsDao = null;
+		Class<? extends FrontendPage> groupDetailPageClass = null;
+		
+		String fullClassName = transformer.getFullClassName();
+		
+		if (QA_FULL_CLASS_NAME.equals(fullClassName))
+		{
+			assignedGroupsDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(QARuleAssignmentDao.class);
+			groupsDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(QARulesGroupDao.class);
+			groupDetailPageClass = QAGroupDetailPage.class;
+			
+		}
+		else if (OI_FULL_CLASS_NAME.equals(fullClassName))
+		{
+			assignedGroupsDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIRuleAssignmentDao.class);
+			groupsDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIRulesGroupDao.class);
+			groupDetailPageClass = OIGroupDetailPage.class;
+		}
+		else
+		{
+			add(new Label("assignedGroupsListSection", ""));
+			return;
+		}
+		
+		add(
+			new AssignedGroupsList(
+				"assignedGroupsListSection", 
+				transformerInstance.getId(), 
+				groupsDao, assignedGroupsDao, groupDetailPageClass
+			)
+		);
 	}
 }

@@ -13,7 +13,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-public class NewAssignmentPage extends FrontendPage
+public class NewTransformerAssignmentPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
@@ -25,7 +25,7 @@ public class NewAssignmentPage extends FrontendPage
 	private String configuration;
 	private Integer priority;
 	
-	public NewAssignmentPage(final Long pipelineId) 
+	public NewTransformerAssignmentPage(final Long pipelineId) 
 	{
 		super
 		(
