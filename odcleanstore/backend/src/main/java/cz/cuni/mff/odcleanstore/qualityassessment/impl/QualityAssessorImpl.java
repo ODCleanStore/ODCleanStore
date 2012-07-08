@@ -4,6 +4,7 @@ import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -15,11 +16,12 @@ import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
+import cz.cuni.mff.odcleanstore.data.DebugGraphFileLoader;
+import cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl;
 import cz.cuni.mff.odcleanstore.qualityassessment.*;
 import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.Rule;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.RulesModel;
-import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
@@ -38,13 +40,13 @@ public class QualityAssessorImpl implements QualityAssessor {
 	
 	public static void main(String[] args) {
 		try {
-			for (int i = 0; i < 1843; ++i) {
-				GraphScoreWithTrace scoreWithTrace = new QualityAssessorImpl().getGraphScoreWithTrace("http://opendata.cz/data/namedGraph/" + i, new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba"));
-			
-				System.out.println(i + " ScoreWithTrace: " + scoreWithTrace.getScore() + " " + scoreWithTrace.trace.toString());
-			}
-		} catch (Exception e) {
-			System.err.println("QAMain: " + e.getMessage());
+			new QualityAssessorImpl().debugRules(System.getProperty("user.home") + "/odcleanstore/debugDN.ttl",
+					"http://opendata.cz/data/namedGraph/1",
+					prepareContext(
+							new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba"),
+							new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1112/UID=dba/PWD=dba", "dba", "dba")));
+		} catch (TransformerException e) {
+			System.err.println(e.getMessage());
 		}
 	}
 	
@@ -96,6 +98,96 @@ public class QualityAssessorImpl implements QualityAssessor {
 		} catch (ConnectionException e) {
 		} finally {
 			dirtyConnection = null;
+		}
+	}
+	
+	private static TransformedGraph prepareInputGraph (final String name, final String metadataName) {
+		return new TransformedGraph() {
+
+			@Override
+			public String getGraphName() {
+				return name;
+			}
+			@Override
+			public String getGraphId() {
+				return null;
+			}
+			@Override
+			public String getMetadataGraphName() {
+				return metadataName;
+			}
+			@Override
+			public Collection<String> getAttachedGraphNames() {
+				return null;
+			}
+			@Override
+			public void addAttachedGraph(String attachedGraphName)
+					throws TransformedGraphException {				
+			}
+			@Override
+			public void deleteGraph() throws TransformedGraphException {				
+			}
+			@Override
+			public boolean isDeleted() {
+				return false;
+			}
+		};
+	}
+	
+	private static TransformationContext prepareContext (final JDBCConnectionCredentials clean, final JDBCConnectionCredentials dirty) {
+		return new TransformationContext() {
+			@Override
+			public JDBCConnectionCredentials getDirtyDatabaseCredentials() {
+				return dirty;
+			}
+			@Override
+			public JDBCConnectionCredentials getCleanDatabaseCredentials() {
+				return clean;
+			}
+			@Override
+			public String getTransformerConfiguration() {
+				return null;
+			}
+			@Override
+			public File getTransformerDirectory() {
+				return null;
+			}
+			@Override
+			public EnumTransformationType getTransformationType() {
+				return null;
+			}
+		};
+	}
+	
+	public void debugRules (String sourceFile, String commonMetadataGraph, TransformationContext context)
+			throws TransformerException {
+		HashMap<String, String> graphs = new HashMap<String, String>();
+		DebugGraphFileLoader loader = new DebugGraphFileLoader(context.getDirtyDatabaseCredentials());
+		
+		try {
+			graphs = loader.load(sourceFile, this.getClass().getSimpleName());
+			
+			if (!graphs.containsKey(commonMetadataGraph)) {
+				throw new TransformerException("missing metadata graph");
+			}
+			
+			Collection<String> temporaryGraphs = graphs.values();
+			
+			Iterator<String> it = temporaryGraphs.iterator();
+			
+			while (it.hasNext()) {
+				String temporaryName = it.next();
+				
+				transformNewGraph(prepareInputGraph(temporaryName, graphs.get(commonMetadataGraph)), context);
+				
+				/**
+				 * TODO: COLLECT RESULTS
+				 */
+			}
+		} catch (Exception e) {
+			LOG.error("Debugging of Quality Assessment rules failed: " + e.getMessage());
+		} finally {
+			loader.unload(graphs);
 		}
 	}
 	
@@ -166,70 +258,9 @@ public class QualityAssessorImpl implements QualityAssessor {
 	public GraphScoreWithTrace getGraphScoreWithTrace (final String graphName, final JDBCConnectionCredentials credentials)
 		throws TransformerException {
 
-		this.inputGraph = new TransformedGraph() {
-
-			@Override
-			public String getGraphName() {
-				return graphName;
-			}
-
-			@Override
-			public String getGraphId() {
-				return null;
-			}
-
-			@Override
-			public String getMetadataGraphName() {
-				return null;
-			}
-
-			@Override
-			public Collection<String> getAttachedGraphNames() {
-				return null;
-			}
-
-			@Override
-			public void addAttachedGraph(String attachedGraphName)
-					throws TransformedGraphException {
-			}
-
-			@Override
-			public void deleteGraph() throws TransformedGraphException {
-			}
-
-			@Override
-			public boolean isDeleted() {
-				return false;
-			}
-		};
+		this.inputGraph = prepareInputGraph(graphName, null);
 		
-		this.context = new TransformationContext() {
-
-			@Override
-			public JDBCConnectionCredentials getDirtyDatabaseCredentials() {
-				return credentials;
-			}
-
-			@Override
-			public JDBCConnectionCredentials getCleanDatabaseCredentials() {
-				return credentials;
-			}
-
-			@Override
-			public String getTransformerConfiguration() {
-				return null;
-			}
-
-			@Override
-			public File getTransformerDirectory() {
-				return null;
-			}
-
-			@Override
-			public EnumTransformationType getTransformationType() {
-				return null;
-			}
-		};
+		this.context = prepareContext(credentials, credentials);
 		
 		/**
 		 * Start from scratch

@@ -9,16 +9,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import virtuoso.jena.driver.VirtGraph;
-
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 
 import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
@@ -26,19 +19,16 @@ import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
+import cz.cuni.mff.odcleanstore.data.DebugGraphFileLoader;
 import cz.cuni.mff.odcleanstore.datanormalization.DataNormalizer;
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
 import cz.cuni.mff.odcleanstore.datanormalization.rules.Rule;
 import cz.cuni.mff.odcleanstore.datanormalization.rules.Rule.EnumRuleComponentType;
-import cz.cuni.mff.odcleanstore.shared.UniqueGraphNameGenerator;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraphException;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
-import de.fuberlin.wiwiss.ng4j.NamedGraph;
-import de.fuberlin.wiwiss.ng4j.impl.GraphReaderService;
-import de.fuberlin.wiwiss.ng4j.impl.NamedGraphSetImpl;
 
 public class DataNormalizerImpl implements DataNormalizer {
 	
@@ -117,7 +107,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 		}
 	}
 	
-	private TransformedGraph prepareInputGraph (final String name) {
+	private static TransformedGraph prepareInputGraph (final String name) {
 		return new TransformedGraph() {
 
 			@Override
@@ -152,93 +142,29 @@ public class DataNormalizerImpl implements DataNormalizer {
 	
 	public void debugRules (String sourceFile, TransformationContext context)
 			throws TransformerException {
-		/**
-		 * Load graphs from source file
-		 */
-		NamedGraphSetImpl namedGraphSet = new NamedGraphSetImpl();
-		
-		GraphReaderService reader = new GraphReaderService();
-		
-		reader.setSourceFile(new File(sourceFile));
-		reader.setLanguage("TRIG");
-		reader.readInto(namedGraphSet);
-		
-		/**
-		 * Copy them into unique graphs
-		 */
-		UniqueGraphNameGenerator graphNameGen = new UniqueGraphNameGenerator("http://example.com/datanormalization/", context.getDirtyDatabaseCredentials());
-		
-		HashMap<String, String> nameMap = new HashMap<String, String>();
+		HashMap<String, String> graphs = new HashMap<String, String>();
+		DebugGraphFileLoader loader = new DebugGraphFileLoader(context.getDirtyDatabaseCredentials());
 		
 		try {
-			Iterator<NamedGraph> it = namedGraphSet.listGraphs();
-
+			graphs = loader.load(sourceFile, this.getClass().getSimpleName());
+			
+			Collection<String> temporaryGraphs = graphs.values();
+			
+			Iterator<String> it = temporaryGraphs.iterator();
+			
 			while (it.hasNext()) {
-				NamedGraph graph = it.next();
-			
-				String name = graph.getGraphName().toString();
-				String temporaryName;
+				String temporaryName = it.next();
 				
-				if (nameMap.containsKey(name)) {
-					temporaryName = nameMap.get(name);
-				} else {
-					temporaryName = graphNameGen.nextURI();
-				}
-			
-				nameMap.put(name, temporaryName);
-			
-				VirtGraph temporaryGraph = new VirtGraph(temporaryName,
-						context.getDirtyDatabaseCredentials().getConnectionString(),
-						context.getDirtyDatabaseCredentials().getUsername(),
-						context.getDirtyDatabaseCredentials().getPassword());
-			
-				ExtendedIterator<Triple> triples = graph.find(Node.ANY, Node.ANY, Node.ANY);
-
-				/**
-				 * Copying contents into unique temporary destination graphs in dirty database
-				 */
-				while (triples.hasNext()) {
-					Triple triple = triples.next();
-				
-					temporaryGraph.add(triple);
-				}
-			
-				LOG.info(String.format("Input debug graph <%s> copied into <%s>", name, temporaryName));
-
-				/**
-				 * Perform transformation (select rules by group specified in context - same behaviour as
-				 * normal transformation)
-				 */
 				transformNewGraph(prepareInputGraph(temporaryName), context);
 				
 				/**
-				 * TODO: Collect results
+				 * TODO: COLLECT RESULTS
 				 */
-				System.err.println(temporaryGraph); //DEBUG
 			}
+		} catch (Exception e) {
+			LOG.error("Debugging of Data Normalization rules failed: " + e.getMessage());
 		} finally {
-			Set<String> keys = nameMap.keySet();
-
-			Iterator<String> it = keys.iterator();
-
-			/**
-			 * Drop all graphs
-			 */
-			while (it.hasNext()) {
-				String key = it.next();
-
-				try {
-					VirtGraph temporaryGraph = new VirtGraph(nameMap.get(key),
-							context.getDirtyDatabaseCredentials().getConnectionString(),
-							context.getDirtyDatabaseCredentials().getUsername(),
-							context.getDirtyDatabaseCredentials().getPassword());
-					
-					temporaryGraph.clear();
-					
-					LOG.info(String.format("Temporary copy <%s> of input debug graph <%s> cleared", nameMap.get(key), key));
-				} catch (Exception e) {
-				}
-			}
+			loader.unload(graphs);
 		}
 	}
 
