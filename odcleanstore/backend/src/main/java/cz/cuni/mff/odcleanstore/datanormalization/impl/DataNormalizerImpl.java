@@ -1,6 +1,9 @@
 package cz.cuni.mff.odcleanstore.datanormalization.impl;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,14 +15,13 @@ import org.slf4j.LoggerFactory;
 import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
+import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.datanormalization.DataNormalizer;
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
 import cz.cuni.mff.odcleanstore.datanormalization.rules.Rule;
 import cz.cuni.mff.odcleanstore.datanormalization.rules.Rule.EnumRuleComponentType;
-import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
-import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl.GraphScoreWithTrace;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
@@ -29,8 +31,9 @@ import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 public class DataNormalizerImpl implements DataNormalizer {
 	
 	public static void main(String[] args) {
+
 		try {
-			for (int i = 0; i < 1844; ++i) {
+			for (int i = 1; i < 2 && i < 1844; ++i) {
 				final int id = i;
 
 				new DataNormalizerImpl().transformNewGraph(new TransformedGraph() {
@@ -117,6 +120,13 @@ public class DataNormalizerImpl implements DataNormalizer {
 		}
 	}
 	
+	private static final String selectFormat = "SPARQL SELECT %s FROM <%s> WHERE %s";
+	private static final String insertFormat = "SPARQL INSERT DATA INTO <%s> {%s}";
+	private static final String deleteFormat = "SPARQL DELETE DATA FROM <%s> {%s}";
+	
+	private static final String copyTestingGraphFormat = "SPARQL INSERT INTO <%s> {?s ?p ?o} WHERE {GRAPH <%s> {?s ?p ?o}}";
+	private static final String deleteTestingGraphFormat = "SPARQL DROP GRAPH <%s>";
+	
 	private static final Logger LOG = LoggerFactory.getLogger(DataNormalizerImpl.class);
 	
 	private TransformedGraph inputGraph;
@@ -145,6 +155,11 @@ public class DataNormalizerImpl implements DataNormalizer {
 		} finally {
 			dirtyConnection = null;
 		}
+	}
+	
+	public void testWithGraph(TransformedGraph inputGraph,
+			TransformationContext context) {
+		//...
 	}
 
 	@Override
@@ -176,10 +191,8 @@ public class DataNormalizerImpl implements DataNormalizer {
 		rules = new ArrayList<Rule>();
 		
 		rules.add(new Rule(
-				EnumRuleComponentType.RULE_COMPONENT_INSERT, "{<a> <test> 'c'}",
-				EnumRuleComponentType.RULE_COMPONENT_DELETE, "{} WHERE {}",
-				EnumRuleComponentType.RULE_COMPONENT_INSERT, "{<a> <b> ?o} WHERE {?s <test> ?o}",
-				EnumRuleComponentType.RULE_COMPONENT_DELETE, "{<a> <test> 'c'}"
+				EnumRuleComponentType.RULE_COMPONENT_INSERT, "<http://opendata.cz> <http://opendata.cz> \"Test\"", null, null,
+				EnumRuleComponentType.RULE_COMPONENT_INSERT, "?a ?b ?d", "?a ?b fn:replace(str(?c), \"(.)$\", \"$1ing\") AS ?d", "{?a ?b ?c. FILTER (?c = \"Test\")}"
 				));
 	}
 
@@ -194,11 +207,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 
 				getDirtyConnection().adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL, false);
 				
-				String[] components = rule.toString(inputGraph.getGraphName());
-
-				for (int j = 0; j < components.length; ++j) {
-					getDirtyConnection().execute(components[j]);
-				}
+				performRule(rule);
 				
 				getDirtyConnection().commit();
 			}
@@ -209,6 +218,135 @@ public class DataNormalizerImpl implements DataNormalizer {
 		} catch (SQLException e) {
 			throw new DataNormalizationException(e.getMessage());
 		}
+	}
+	
+	private void performRule (Rule rule) throws DataNormalizationException, ConnectionException, QueryException, SQLException {
+		Rule.Component[] components = rule.getComponents();
+
+		for (int j = 0; j < components.length; ++j) {
+			performRuleComponent(components[j]);
+		}
+	}
+
+	private void performRuleComponent (Rule.Component component) throws DataNormalizationException, ConnectionException, QueryException, SQLException {
+		if (component.getVariables() == null && component.getWhere() == null) {
+			performUpdate(component, null);
+		} else {
+			WrappedResultSet results = getDirtyConnection().executeSelect(
+				String.format(selectFormat, component.getVariables(), inputGraph.getGraphName(), component.getWhere()));
+			
+			while (results.next()) {
+				performUpdate(component, results.getCurrentResultSet());
+			}
+		}
+	}
+	private void performUpdate (Rule.Component component, ResultSet result) throws DataNormalizationException, ConnectionException, QueryException {
+		switch (component.getType()) {
+		case RULE_COMPONENT_INSERT:
+			String insert = String.format(insertFormat, inputGraph.getGraphName(), bindVariables(component.getTriples(), result));
+			
+			//System.err.println(insert);
+			
+			getDirtyConnection().execute(insert);
+			break;
+
+		case RULE_COMPONENT_DELETE:
+			String delete = String.format(deleteFormat, inputGraph.getGraphName(), bindVariables(component.getTriples(), result));
+			
+			//System.err.println(delete);
+			
+			getDirtyConnection().execute(delete);
+			break;
+		}
+	}
+	
+	private static String bindVariables (String triples, ResultSet result) throws DataNormalizationException {
+		
+		String bound = "";
+		
+		while (triples.length() > 0) {
+			int variable = findVariable(triples);
+			
+			if (variable < 0) {
+				bound += triples;
+
+				triples = "";
+			} else {
+				int length = findNonVariable(triples.substring(variable));
+				
+				String name = triples.substring(variable, variable + length);
+				
+				try {
+					String replacement;
+					
+					try {
+						replacement = "<" + new URI(result.getString(name)).toString() + ">";
+					} catch (URISyntaxException e) {
+						replacement = "\"" + result.getString(name) + "\"";
+					}
+
+					bound += triples.substring(0, variable - 1);
+					triples = triples.substring(variable + length);
+					bound += replacement;
+				} catch (SQLException e) {
+					throw new DataNormalizationException ("Unbound variable '" + name + "'");
+				}
+			}
+		}
+		
+		return bound;
+	}
+	
+	private static int findVariable (String triples) {
+		boolean quoted = false;
+		boolean url = false;
+		
+		for (int i = 0; i < triples.length(); ++i) {
+			switch (triples.charAt(i)) {
+			case '"':
+				if (!isEscaped(triples, i)) quoted = !quoted;
+				break;
+			case '<':
+				if (!quoted) url = true;
+				break;
+			case '>':
+				if (!quoted) url = false;
+				break;
+			case '?':
+				if (!quoted && !url) return i + 1;
+			}
+		}
+		
+		return -1;
+	}
+	
+	private static int findNonVariable (String triples) {
+		int i = 0;
+		
+		while (triples.length() > i &&
+				('a' <= triples.charAt(i) && triples.charAt(i) <= 'z' ||
+				'A' <= triples.charAt(i) && triples.charAt(i) <= 'Z' ||
+				'0' <= triples.charAt(i) && triples.charAt(i) <= '9' ||
+				triples.charAt(i) == '_')) {
+		
+			++i;
+		}
+		
+		return i;
+	}
+	
+	private static boolean isEscaped (String source, int position) {
+		int escapes = 0;
+		
+		while (position - 1 >= 0) {
+			
+			if (source.charAt(position - 1) == '\\') ++escapes;
+			else break;
+			
+			--position;
+		}
+		
+		return escapes % 2 == 1;
 	}
 
 	@Override
