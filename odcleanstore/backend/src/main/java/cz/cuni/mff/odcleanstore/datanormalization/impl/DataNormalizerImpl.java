@@ -124,6 +124,9 @@ public class DataNormalizerImpl implements DataNormalizer {
 	private static final String insertFormat = "SPARQL INSERT DATA INTO <%s> {%s}";
 	private static final String deleteFormat = "SPARQL DELETE DATA FROM <%s> {%s}";
 	
+	private static final String copyTestingGraphFormat = "SPARQL INSERT INTO <%s> {?s ?p ?o} WHERE {GRAPH <%s> {?s ?p ?o}}";
+	private static final String deleteTestingGraphFormat = "SPARQL DROP GRAPH <%s>";
+	
 	private static final Logger LOG = LoggerFactory.getLogger(DataNormalizerImpl.class);
 	
 	private TransformedGraph inputGraph;
@@ -152,6 +155,11 @@ public class DataNormalizerImpl implements DataNormalizer {
 		} finally {
 			dirtyConnection = null;
 		}
+	}
+	
+	public void testWithGraph(TransformedGraph inputGraph,
+			TransformationContext context) {
+		//...
 	}
 
 	@Override
