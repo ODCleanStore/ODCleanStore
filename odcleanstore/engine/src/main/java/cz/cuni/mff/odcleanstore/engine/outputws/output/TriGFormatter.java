@@ -6,6 +6,7 @@ import java.util.Date;
 
 import org.restlet.data.CharacterSet;
 import org.restlet.data.MediaType;
+import org.restlet.data.Reference;
 import org.restlet.representation.Representation;
 import org.restlet.representation.WriterRepresentation;
 
@@ -80,12 +81,12 @@ public class TriGFormatter extends ResultFormatterBase {
     public static final String METADATA_GRAPH = "http://opendata.cz/infrastructure/odcleanstore/query/metadata/";
     
 	@Override
-	public Representation format(final QueryResult result, final String requestURI) {
+	public Representation format(final QueryResult result, final Reference requestReference) {
 		WriterRepresentation representation = new WriterRepresentation(MediaType.APPLICATION_RDF_TRIG) {
 			@Override
 			public void write(Writer writer) throws IOException {
 				// TODO: baseURI ?
-				convertToNGSet(result, requestURI).write(writer, "TRIG", "" /* baseURI */);
+				convertToNGSet(result, requestReference).write(writer, "TRIG", "" /* baseURI */);
 			};
 		};
 		representation.setCharacterSet(CharacterSet.UTF_8);
@@ -95,16 +96,16 @@ public class TriGFormatter extends ResultFormatterBase {
     /**
      * Returns a representation of crQuads and metadata as quads in a NamedGraphSet.
      * @param queryResult result of a query
-     * @param requestURI URI of the request
+     * @param requestReference Representation of the requested URI
      * @return representation of crQuads and metadata as quads in a NamedGraphSet
      */
-    private NamedGraphSet convertToNGSet(QueryResult queryResult, String requestURI) {
+    private NamedGraphSet convertToNGSet(QueryResult queryResult, Reference requestReference) {
         NamedGraphSet result = new NamedGraphSetImpl();
         NamedGraph metadataGraph = new NamedGraphImpl(
                 METADATA_GRAPH,
                 Factory.createGraphMem(ReificationStyle.Standard));
         
-        Node queryURI = Node.createURI(requestURI);
+        Node queryURI = Node.createURI(requestReference.toString(true, false));
         
         // Data and metadata about the result
         int totalResults = 0;

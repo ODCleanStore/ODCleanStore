@@ -63,6 +63,12 @@ public class QueryExecution {
     public QueryResult findKeyword(String keywords, QueryConstraintSpec constraints, AggregationSpec aggregationSpec)
             throws QueryExecutionException {
 
+        if (keywords == null) {
+            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, "keywords must not be null");
+        } else if (constraints == null || aggregationSpec == null) {
+            throw new IllegalArgumentException();
+        }
+
         AggregationSpec expandedAggregationSpec = QueryExecutionHelper.expandPropertyNames(
                 aggregationSpec, prefixMappingCache.getCachedValue());
         KeywordQueryExecutor queryExecutor = new KeywordQueryExecutor(connectionCredentials, constraints,
@@ -82,6 +88,12 @@ public class QueryExecution {
      */
     public QueryResult findURI(String uri, QueryConstraintSpec constraints, AggregationSpec aggregationSpec)
             throws QueryExecutionException {
+
+        if (uri == null) {
+            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, "URI must not be null");
+        } else if (constraints == null || aggregationSpec == null) {
+            throw new IllegalArgumentException();
+        }
 
         String expandedURI = Utils.isPrefixedName(uri) ? prefixMappingCache.getCachedValue().expandPrefix(uri) : uri;
         AggregationSpec expandedAggregationSpec = QueryExecutionHelper.expandPropertyNames(
