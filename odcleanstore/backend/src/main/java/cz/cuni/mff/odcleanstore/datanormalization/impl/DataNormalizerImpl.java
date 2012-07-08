@@ -1,8 +1,6 @@
 package cz.cuni.mff.odcleanstore.datanormalization.impl;
 
 import java.io.File;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,17 +9,6 @@ import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.query.QueryExecution;
-import com.hp.hpl.jena.query.QueryExecutionFactory;
-import com.hp.hpl.jena.query.QuerySolution;
-import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.update.UpdateFactory;
-import com.hp.hpl.jena.update.UpdateRequest;
-
-import virtuoso.jena.driver.VirtGraph;
-import virtuoso.jena.driver.VirtModel;
 
 import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
@@ -81,10 +68,6 @@ public class DataNormalizerImpl implements DataNormalizer {
 			System.err.println(e.getMessage());
 		}
 	}
-	
-	private static final String selectFormat = "SPARQL SELECT %s FROM <%s> WHERE %s";
-	private static final String insertFormat = "SPARQL INSERT DATA INTO <%s> {%s}";
-	private static final String deleteFormat = "SPARQL DELETE DATA FROM <%s> {%s}";
 
 	private static final Logger LOG = LoggerFactory.getLogger(DataNormalizerImpl.class);
 	
