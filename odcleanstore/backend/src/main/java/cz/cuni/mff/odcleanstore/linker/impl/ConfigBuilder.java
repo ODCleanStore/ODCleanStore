@@ -3,12 +3,15 @@ package cz.cuni.mff.odcleanstore.linker.impl;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
@@ -20,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -29,6 +33,7 @@ import cz.cuni.mff.odcleanstore.data.RDFprefix;
 import cz.cuni.mff.odcleanstore.linker.exceptions.InvalidLinkageRuleException;
 import cz.cuni.mff.odcleanstore.linker.rules.FileOutput;
 import cz.cuni.mff.odcleanstore.linker.rules.Output;
+import cz.cuni.mff.odcleanstore.linker.rules.OutputType;
 import cz.cuni.mff.odcleanstore.linker.rules.SilkRule;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
@@ -68,8 +73,8 @@ public class ConfigBuilder {
 	private static final String CONFIG_XML_VALUE = "value";
 	private static final String CONFIG_XML_ENDPOINT_URI = "endpointURI";
 	private static final String CONFIG_XML_GRAPH = "graph";
-	private static final String CONFIG_XML_LINKAGE_RULES = "Interlinks";
-	private static final String CONFIG_XML_LINKAGE_RULE = "Interlink";
+	private static final String CONFIG_XML_INTERLINKS = "Interlinks";
+	private static final String CONFIG_XML_INTERLINK = "Interlink";
 	private static final String CONFIG_XML_LINK_TYPE = "LinkType";
 	private static final String CONFIG_XML_SOURCE_DATASET = "SourceDataset";
 	private static final String CONFIG_XML_TARGET_DATASET = "TargetDataset";
@@ -92,6 +97,7 @@ public class ConfigBuilder {
 	private static final String CONFIG_XML_GRAPH_URI = "graphUri";
 	private static final String CONFIG_XML_LOGIN = "login";
 	private static final String CONFIG_XML_PASSWORD = "password";
+	private static final String CONFIG_XML_LINKAGE_RULE = "LinkageRule";
 	
 	/**
 	 * Creates linkage configuration file.
@@ -120,6 +126,151 @@ public class ConfigBuilder {
 		}
 		
 		return configFile;
+	}
+	
+	/**
+	 * Parses given link configuration file.
+	 * 
+	 * @param inputFile input file to parse
+	 * @return parsed rule
+	 * @throws javax.xml.transform.TransformerException
+	 * @throws ParserConfigurationException
+	 * @throws SAXException
+	 * @throws IOException
+	 */
+	public static SilkRule parseRule(File inputFile) 
+			throws javax.xml.transform.TransformerException, ParserConfigurationException, SAXException, IOException {
+		LOG.info("Parsing link configuration file {}", inputFile.getAbsolutePath());
+		DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+		Document doc = builder.parse(inputFile);
+		
+		SilkRule rule = new SilkRule();
+		
+		NodeList nodeList = doc.getElementsByTagName(CONFIG_XML_INTERLINK);
+		if (nodeList.getLength() < 1) {
+			return null;
+		}
+		Element ruleElement = (Element)nodeList.item(0);
+		
+		rule.setLabel(parseLabel(ruleElement));
+		rule.setLinkType(parseLinkType(ruleElement));
+		rule.setSourceRestriction(parseRestriction(ruleElement, CONFIG_XML_SOURCE_DATASET));
+		rule.setTargetRestriction(parseRestriction(ruleElement, CONFIG_XML_TARGET_DATASET));
+		rule.setLinkageRule(parseLinkageRule(ruleElement));
+		Element filterElement = getFirstSubElement(ruleElement, CONFIG_XML_FILTER);
+		rule.setFilterLimit(parseFilterLimit(filterElement));
+		rule.setFilterThreshold(parseFilterThreshold(filterElement));
+		rule.setOutputs(parseOutputs(ruleElement));
+		
+		return rule;
+	}
+	
+	private static String parseLabel(Element ruleElement) {
+		String label = ruleElement.getAttribute(CONFIG_XML_ID);
+		if ((label == null) || label.isEmpty()) {
+			return null;
+		}
+		return label;
+	}
+	
+	private static String parseLinkType(Element parentElement) {
+		Element typeElement = getFirstSubElement(parentElement, CONFIG_XML_LINK_TYPE);
+		if (typeElement == null) {
+			return null;
+		}
+		return typeElement.getTextContent();
+	}
+	
+	private static String parseRestriction(Element parentElement, String subElementName) {
+		Element datasetElement = getFirstSubElement(parentElement, subElementName);
+		if (datasetElement == null) {
+			return null;
+		}
+		Element restrictElement = getFirstSubElement(datasetElement, CONFIG_XML_RESTRICT_TO);
+		if (restrictElement == null) {
+			return null;
+		}
+		return restrictElement.getTextContent();
+	}
+	
+	private static String parseLinkageRule(Element parentElement) throws javax.xml.transform.TransformerException {
+		Element linkageRuleElement = getFirstSubElement(parentElement, CONFIG_XML_LINKAGE_RULE);
+		if (linkageRuleElement == null) {
+			return null;
+		}	
+		Transformer transformer = TransformerFactory.newInstance().newTransformer();
+		StringWriter buffer = new StringWriter();
+		transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+		transformer.transform(new DOMSource(linkageRuleElement), new StreamResult(buffer));
+		return buffer.toString();
+	}
+	
+	private static Integer parseFilterLimit(Element filterElement) {
+		String limit = filterElement.getAttribute(CONFIG_XML_LIMIT);
+		if ((limit == null) || limit.isEmpty()) {
+			return null;
+		}
+		return Integer.parseInt(limit);
+	}
+	
+	private static BigDecimal parseFilterThreshold(Element filterElement) {
+		String threshold = filterElement.getAttribute(CONFIG_XML_THRESHOLD);
+		if ((threshold == null) || threshold.isEmpty()) {
+			return null;
+		}
+		return new BigDecimal(threshold);
+	}
+	
+	private static List<Output> parseOutputs(Element parentElement) {
+		List<Output> outputs = new ArrayList<Output>();
+		Element outputsElement = getFirstSubElement(parentElement, CONFIG_XML_OUTPUTS);
+		NodeList nodeList = outputsElement.getChildNodes();
+		for (int i = 0; i < nodeList.getLength(); i++) {
+			outputs.add(parseOutput((Element)nodeList.item(i)));
+		}
+		return outputs;
+	}
+	
+	private static Output parseOutput(Element outputElement) {
+		Output output;
+		String type = outputElement.getAttribute(CONFIG_XML_TYPE);
+		if ((type != null) && (OutputType.FILE.toString().equals(type.toUpperCase()))) {
+			FileOutput fileOutput = new FileOutput();
+			NodeList paramList = outputElement.getElementsByTagName(CONFIG_XML_PARAMETER);
+			for (int i = 0; i < paramList.getLength(); i++) {
+				Element paramElement = (Element)paramList.item(i);
+				String paramName = paramElement.getAttribute(CONFIG_XML_NAME);
+				if (CONFIG_XML_FILE.equals(paramName)) {
+					fileOutput.setName(paramElement.getAttribute(CONFIG_XML_VALUE));
+				} else if (CONFIG_XML_FORMAT.equals(paramName)) {
+					fileOutput.setFormat(paramElement.getAttribute(CONFIG_XML_VALUE));
+				}
+			}
+			output = fileOutput;
+		} else {
+			output = new Output();
+		}
+		
+		output.setMinConfidence(parseBigDecimal(outputElement.getAttribute(CONFIG_XML_MIN_CONFIDENCE)));
+		output.setMaxConfidence(parseBigDecimal(outputElement.getAttribute(CONFIG_XML_MAX_CONFIDENCE)));
+		
+		return output;
+	}
+	
+	private static BigDecimal parseBigDecimal(String input) {
+		if ((input == null) || input.isEmpty()) {
+			return null;
+		}
+		return new BigDecimal(input);
+	}
+	
+	private static Element getFirstSubElement(Element parentElement, String tagName) {
+		NodeList nodeList = parentElement.getElementsByTagName(tagName);
+		if (nodeList.getLength() < 1) {
+			return null;
+		} else {
+			return (Element)nodeList.item(0);
+		}
 	}
 	
 	/**
@@ -237,7 +388,7 @@ public class ConfigBuilder {
 	private static Element createLinkageRules(Document doc, List<SilkRule> rules, String graphId, 
 			DocumentBuilder builder, ObjectIdentificationConfig config) throws SAXException, IOException,
 			InvalidLinkageRuleException {
-		Element rulesElement = doc.createElement(CONFIG_XML_LINKAGE_RULES);
+		Element rulesElement = doc.createElement(CONFIG_XML_INTERLINKS);
 		
 		for (SilkRule rule: rules) {		
 			rulesElement.appendChild(createLinkageRule(doc, rule, graphId, builder, config));
@@ -249,7 +400,7 @@ public class ConfigBuilder {
 	private static Element createLinkageRule(Document doc, SilkRule rule, String graphId, 
 			DocumentBuilder builder, ObjectIdentificationConfig config) 
 					throws SAXException, IOException, DOMException, InvalidLinkageRuleException {
-		Element ruleElement = doc.createElement(CONFIG_XML_LINKAGE_RULE);
+		Element ruleElement = doc.createElement(CONFIG_XML_INTERLINK);
 		ruleElement.setAttribute(CONFIG_XML_ID, rule.getLabel());
 		
 		ruleElement.appendChild(createTextElement(doc, CONFIG_XML_LINK_TYPE, rule.getLinkType()));
