@@ -17,7 +17,6 @@ import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.data.DebugGraphFileLoader;
-import cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl;
 import cz.cuni.mff.odcleanstore.qualityassessment.*;
 import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.Rule;
