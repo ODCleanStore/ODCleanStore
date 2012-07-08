@@ -183,8 +183,8 @@ public class DataNormalizerImpl implements DataNormalizer {
 		rules = new ArrayList<Rule>();
 		
 		rules.add(new Rule(
-				EnumRuleComponentType.RULE_COMPONENT_INSERT, "<http://opendata.cz> <http://opendata.cz> \"bullshit\"", null, null,
-				EnumRuleComponentType.RULE_COMPONENT_INSERT, "?a ?b ?d", "?a ?b replace(str(?c), \"u\", \"*\") AS ?d", "{?a ?b ?c. FILTER (?c = \"bullshit\")}"
+				EnumRuleComponentType.RULE_COMPONENT_INSERT, "<http://opendata.cz> <http://opendata.cz> \"Test\"", null, null,
+				EnumRuleComponentType.RULE_COMPONENT_INSERT, "?a ?b ?d", "?a ?b fn:replace(str(?c), \"(.)$\", \"$1ing\") AS ?d", "{?a ?b ?c. FILTER (?c = \"Test\")}"
 				));
 	}
 
