@@ -11,6 +11,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 public class NewTransformerAssignmentPage extends FrontendPage
@@ -18,7 +19,7 @@ public class NewTransformerAssignmentPage extends FrontendPage
 	private static final long serialVersionUID = 1L;
 
 	private DaoForEntityWithSurrogateKey<Transformer> transformerDao;
-	private TransformerInstanceDao transformerInstanceDao;
+	private DaoForEntityWithSurrogateKey<TransformerInstance> transformerInstanceDao;
 	
 	private Transformer transformer;
 	private String workDirPath;
@@ -37,7 +38,7 @@ public class NewTransformerAssignmentPage extends FrontendPage
 		// prepare DAO objects
 		//
 		transformerDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(TransformerDao.class);
-		transformerInstanceDao = daoLookupFactory.getTransformerInstanceDao();
+		transformerInstanceDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(TransformerInstanceDao.class);
 		
 		// register page components
 		//
@@ -72,6 +73,11 @@ public class NewTransformerAssignmentPage extends FrontendPage
 
 				try {
 					transformerInstanceDao.save(assignment);
+				}
+				catch (DaoException ex)
+				{
+					getSession().error(ex.getMessage());
+					return;
 				}
 				catch (Exception ex)
 				{

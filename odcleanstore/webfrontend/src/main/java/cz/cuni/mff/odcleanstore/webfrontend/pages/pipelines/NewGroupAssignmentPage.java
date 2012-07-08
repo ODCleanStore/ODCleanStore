@@ -8,6 +8,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.RulesGroupEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.RuleAssignment;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 public class NewGroupAssignmentPage extends FrontendPage
@@ -66,6 +67,11 @@ public class NewGroupAssignmentPage extends FrontendPage
 				
 				try {
 					assignedGroupsDao.save(assignment);
+				}
+				catch (DaoException ex)
+				{
+					getSession().error(ex.getMessage());
+					return;
 				}
 				catch (Exception ex)
 				{
