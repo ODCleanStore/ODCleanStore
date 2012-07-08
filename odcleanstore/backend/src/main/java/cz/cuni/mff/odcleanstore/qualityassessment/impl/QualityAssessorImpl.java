@@ -178,7 +178,12 @@ public class QualityAssessorImpl implements QualityAssessor {
 			while (it.hasNext()) {
 				String temporaryName = it.next();
 				
-				transformNewGraph(prepareInputGraph(temporaryName, graphs.get(commonMetadataGraph)), context);
+				/**
+				 * Perform QA for all graphs except the metadata graph
+				 */
+				if (!temporaryName.equals(graphs.get(commonMetadataGraph))) {
+					transformNewGraph(prepareInputGraph(temporaryName, graphs.get(commonMetadataGraph)), context);
+				}
 				
 				/**
 				 * TODO: COLLECT RESULTS
