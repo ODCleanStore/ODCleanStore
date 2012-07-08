@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.qualityassessment.impl;
+package cz.cuni.mff.odcleanstore.systest.qualityassessment.impl;
 
 import java.io.File;
 import java.net.URL;
@@ -20,6 +20,7 @@ import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.qualityassessment.QualityAssessor;
+import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
