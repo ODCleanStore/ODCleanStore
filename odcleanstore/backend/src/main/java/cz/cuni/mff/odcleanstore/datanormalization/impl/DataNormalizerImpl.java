@@ -200,8 +200,14 @@ public class DataNormalizerImpl implements DataNormalizer {
 		 * DEBUG rules
 		 */
 		rules.add(new Rule(
-				EnumRuleComponentType.RULE_COMPONENT_INSERT, "<http://opendata.cz> <http://opendata.cz> \"Test\"", null, null,
-				EnumRuleComponentType.RULE_COMPONENT_INSERT, "?a ?b ?d", "?a ?b fn:replace(str(?c), \"(.)$\", \"$1ing\") AS ?d", "{?a ?b ?c. FILTER (?c = \"Test\")}"
+				EnumRuleComponentType.RULE_COMPONENT_INSERT,
+					"<http://opendata.cz> <http://opendata.cz> \"Test\"",
+					null,
+					null,
+
+				EnumRuleComponentType.RULE_COMPONENT_INSERT,
+					"?a ?b ?d", "?a ?b fn:replace(str(?c), \"(.)$\", \"$1ing\") AS ?d",
+					"{?a ?b ?c. FILTER (?c = \"Test\")}"
 				));
 	}
 

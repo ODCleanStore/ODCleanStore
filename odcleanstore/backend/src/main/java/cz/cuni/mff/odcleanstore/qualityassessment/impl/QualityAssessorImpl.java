@@ -40,7 +40,7 @@ public class QualityAssessorImpl implements QualityAssessor {
 	
 	public static void main(String[] args) {
 		try {
-			new QualityAssessorImpl().debugRules(System.getProperty("user.home") + "/odcleanstore/debugDN.ttl",
+			new QualityAssessorImpl().debugRules(System.getProperty("user.home") + "/odcleanstore/debugQA.ttl",
 					"http://opendata.cz/data/namedGraph/1",
 					prepareContext(
 							new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba"),
