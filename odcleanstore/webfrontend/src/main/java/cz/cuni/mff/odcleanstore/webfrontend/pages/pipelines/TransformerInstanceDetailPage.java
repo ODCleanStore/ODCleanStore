@@ -3,21 +3,13 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.IModel;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.RulesGroupEntity;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.en.RuleAssignment;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.en.OIRuleAssignmentDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.en.QARuleAssignmentDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.OIGroupDetailPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.QAGroupDetailPage;
 
 public class TransformerInstanceDetailPage extends FrontendPage 
 {
@@ -85,37 +77,30 @@ public class TransformerInstanceDetailPage extends FrontendPage
 		final TransformerInstance transformerInstance,
 		final Transformer transformer) 
 	{
-		DaoForEntityWithSurrogateKey<RuleAssignment> assignedGroupsDao = null;
-		DaoForEntityWithSurrogateKey<RulesGroupEntity> groupsDao = null;
-		Class<? extends FrontendPage> groupDetailPageClass = null;
-		
 		String fullClassName = transformer.getFullClassName();
 		
 		if (QA_FULL_CLASS_NAME.equals(fullClassName))
 		{
-			assignedGroupsDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(QARuleAssignmentDao.class);
-			groupsDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(QARulesGroupDao.class);
-			groupDetailPageClass = QAGroupDetailPage.class;
-			
+			add(
+				AssignedGroupsListPageFactory.createAssignedQAGroupsList(
+					daoLookupFactory, 
+					transformerInstance.getId()
+				)
+			);
 		}
 		else if (OI_FULL_CLASS_NAME.equals(fullClassName))
 		{
-			assignedGroupsDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIRuleAssignmentDao.class);
-			groupsDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIRulesGroupDao.class);
-			groupDetailPageClass = OIGroupDetailPage.class;
+			add(
+				AssignedGroupsListPageFactory.createAssignedOIGroupsList(
+					daoLookupFactory, 
+					transformerInstance.getId()
+				)
+			);
 		}
 		else
 		{
 			add(new Label("assignedGroupsListSection", ""));
 			return;
 		}
-		
-		add(
-			new AssignedGroupsList(
-				"assignedGroupsListSection", 
-				transformerInstance.getId(), 
-				groupsDao, assignedGroupsDao, groupDetailPageClass
-			)
-		);
 	}
 }
