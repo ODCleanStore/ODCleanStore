@@ -23,6 +23,7 @@ public class TransformerInstanceRowMapper extends CustomRowMapper<TransformerIns
 			rs.getLong("pipelineId"),
 			blobToString(rs.getBlob("workDirPath")),
 			blobToString(rs.getBlob("configuration")),
+			rs.getBoolean("runOnCleanDB"),
 			rs.getInt("priority")
 		);
 	}

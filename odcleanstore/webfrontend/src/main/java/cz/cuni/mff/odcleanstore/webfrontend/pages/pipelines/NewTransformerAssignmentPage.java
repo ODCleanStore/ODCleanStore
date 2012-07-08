@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -18,12 +19,15 @@ public class NewTransformerAssignmentPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
+	private static Logger logger = Logger.getLogger(NewTransformerAssignmentPage.class);
+	
 	private DaoForEntityWithSurrogateKey<Transformer> transformerDao;
 	private DaoForEntityWithSurrogateKey<TransformerInstance> transformerInstanceDao;
 	
 	private Transformer transformer;
 	private String workDirPath;
 	private String configuration;
+	private Boolean runOnCleanDB;
 	private Integer priority;
 	
 	public NewTransformerAssignmentPage(final Long pipelineId) 
@@ -68,6 +72,7 @@ public class NewTransformerAssignmentPage extends FrontendPage
 					pipelineId,
 					workDirPath,
 					configuration,
+					runOnCleanDB,
 					priority
 				);
 
@@ -81,7 +86,7 @@ public class NewTransformerAssignmentPage extends FrontendPage
 				}
 				catch (Exception ex)
 				{
-					// TODO: log the error
+					logger.error(ex.getMessage());
 					
 					getSession().error(
 						"The assignment could not be registered due to an unexpected error."
@@ -98,6 +103,7 @@ public class NewTransformerAssignmentPage extends FrontendPage
 		form.add(createEnumSelectbox(transformerDao, "transformer"));
 		form.add(createTextfield("workDirPath"));
 		form.add(createTextarea("configuration"));
+		form.add(createCheckbox("runOnCleanDB"));
 		addPriorityTextfield(form);
 		
 		add(form);

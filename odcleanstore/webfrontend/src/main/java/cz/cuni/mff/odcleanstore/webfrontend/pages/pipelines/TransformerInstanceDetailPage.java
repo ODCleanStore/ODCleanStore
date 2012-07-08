@@ -69,6 +69,7 @@ public class TransformerInstanceDetailPage extends FrontendPage
 		add(new Label("label", transformer.getLabel()));
 		add(new Label("workDirPath"));
 		add(new Label("configuration"));
+		add(new Label("runOnCleanDB"));
 		add(new Label("priority"));
 	}
 	

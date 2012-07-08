@@ -100,13 +100,14 @@ public class PipelineDetailPage extends FrontendPage
 				
 				item.add(new Label("workDirPath"));	
 				item.add(new Label("configuration"));
+				item.add(new Label("runOnCleanDB"));
 				item.add(new Label("priority"));
 				
 				item.add(
 					new DeleteButton<TransformerInstance>
 					(
 						transformerInstanceDao,
-						transformer.getId(),
+						transformerInstance.getId(),
 						"assignment",
 						new DeleteConfirmationMessage("transformer instance"),
 						PipelineDetailPage.this

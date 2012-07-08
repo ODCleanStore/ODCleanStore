@@ -92,6 +92,17 @@ public abstract class Dao<T extends BusinessEntity> implements Serializable
 	
 	/**
 	 * 
+	 * @param value
+	 */
+	protected static int boolToSmallint(boolean value)
+	{
+		if (value)
+			return 1;
+		else
+			return 0;
+	}
+	/**
+	 * 
 	 * @return
 	 */
 	public List<T> loadAllRaw()
