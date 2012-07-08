@@ -58,7 +58,7 @@ public class PipelineDetailPage extends FrontendPage
 		
 		add(new Label("label"));
 		add(new Label("description"));
-		add(new Label("runOnCleanDB"));
+		add(new Label("isDefault"));
 	}
 	
 	/*

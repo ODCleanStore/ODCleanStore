@@ -16,6 +16,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 public class PipelinesListPage extends FrontendPage 
@@ -66,7 +67,7 @@ public class PipelinesListPage extends FrontendPage
 
 				item.add(new Label("label"));
 				item.add(new Label("description"));
-				item.add(new Label("runOnCleanDB"));
+				item.add(new Label("isDefault"));
 				
 				item.add(
 					new DeleteButton<Pipeline>
@@ -87,7 +88,7 @@ public class PipelinesListPage extends FrontendPage
 					)
 				);
 				
-				addMakePipelineRunOnCleanDBButton(item, pipeline);
+				addMarkPipelineDefaultButton(item, pipeline);
 			}
 		};
 
@@ -98,32 +99,37 @@ public class PipelinesListPage extends FrontendPage
 		add(new PagingNavigator("navigator", dataView));
 	}
 	
-	private void addMakePipelineRunOnCleanDBButton(Item<Pipeline> item, final Pipeline pipeline)
+	private void addMarkPipelineDefaultButton(Item<Pipeline> item, final Pipeline pipeline)
 	{
-		Link button = new Link("makePipelineRunOnCleanDB")
+		Link button = new Link("markPipelineDefault")
         {
 			private static final long serialVersionUID = 1L;
 
 			@Override
             public void onClick()
             {
-				pipeline.setRunOnCleanDB(true);
+				pipeline.setDefault(true);
 				
 				try {
 					pipelineDao.update(pipeline);
+				}
+				catch (DaoException ex)
+				{
+					getSession().error(ex.getMessage());
+					return;
 				}
 				catch (Exception ex)
 				{
 					// logger.error(ex.getMessage());
 					
 					getSession().error(
-						"The pipeline could not be marked to be run on the clean DB due to an unexpected error."
+						"The pipeline could not be marked as default due to an unexpected error."
 					);
 					
 					return;
 				}
 				
-				getSession().info("The pipeline was successfuly marked to be run on the clean DB.");
+				getSession().info("The pipeline was successfuly marked as default.");
 				setResponsePage(PipelinesListPage.class);
             }
         };

@@ -60,7 +60,7 @@ public class PipelineDao extends DaoForEntityWithSurrogateKey<Pipeline>
 	public void save(Pipeline item) 
 	{
 		String query = 
-			"INSERT INTO " + TABLE_NAME + " (label, description, runOnCleanDB) " +
+			"INSERT INTO " + TABLE_NAME + " (label, description, isDefault) " +
 			"VALUES (?, ?, ?)";
 		
 		Object[] params =
@@ -76,7 +76,7 @@ public class PipelineDao extends DaoForEntityWithSurrogateKey<Pipeline>
 	@Override
 	public void update(Pipeline item)
 	{
-		if (!item.getRunOnCleanDB())
+		if (!item.isDefault())
 			return;
 		
 		dropRunOnCleanDBForAllRows();
@@ -85,13 +85,13 @@ public class PipelineDao extends DaoForEntityWithSurrogateKey<Pipeline>
 	
 	private void dropRunOnCleanDBForAllRows()
 	{
-		String query = "UPDATE " + TABLE_NAME + " SET runOnCleanDB = 0";
+		String query = "UPDATE " + TABLE_NAME + " SET isDefault = 0";
 		getJdbcTemplate().update(query);
 	}
 	
 	private void setRunOnCleanDB(Long pipelineId)
 	{
-		String query = "UPDATE " + TABLE_NAME + " SET runOnCleanDB = 1 WHERE id = ?";
+		String query = "UPDATE " + TABLE_NAME + " SET isDefault = 1 WHERE id = ?";
 		Object[] params = { pipelineId };
 		
 		getJdbcTemplate().update(query, params);
