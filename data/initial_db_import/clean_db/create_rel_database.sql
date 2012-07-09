@@ -299,3 +299,16 @@ INSERT INTO DB.ODCLEANSTORE.CR_SETTINGS (defaultAggregationTypeId, defaultMultiv
 	(SELECT id FROM DB.ODCLEANSTORE.CR_AGGREGATION_TYPES WHERE label = 'ALL'),
 	(SELECT id FROM DB.ODCLEANSTORE.CR_MULTIVALUE_TYPES WHERE label = 'NO'),
 	(SELECT id FROM DB.ODCLEANSTORE.CR_ERROR_STRATEGIES WHERE label = 'RETURN_ALL'));
+
+/*
+	===========================================================================
+	QUERY EXECUTION SETTINGS
+	===========================================================================
+*/
+CREATE TABLE DB.ODCLEANSTORE.QE_LABEL_PROPERTIES
+(
+	id INTEGER NOT NULL IDENTITY PRIMARY KEY,
+	property NVARCHAR(1024) UNIQUE NOT NULL
+);
+
+INSERT INTO DB.ODCLEANSTORE.QE_LABEL_PROPERTIES (property) VALUES (n'http://www.w3.org/2000/01/rdf-schema#label');
