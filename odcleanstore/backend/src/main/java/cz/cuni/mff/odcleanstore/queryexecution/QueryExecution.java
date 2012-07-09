@@ -5,6 +5,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.queryexecution.impl.DefaultAggregationConfigurationCache;
+import cz.cuni.mff.odcleanstore.queryexecution.impl.LabelPropertiesListCache;
 import cz.cuni.mff.odcleanstore.queryexecution.impl.PrefixMappingCache;
 import cz.cuni.mff.odcleanstore.queryexecution.impl.QueryExecutionHelper;
 import cz.cuni.mff.odcleanstore.shared.Utils;
@@ -31,6 +32,9 @@ public class QueryExecution {
     /** Prefix mappings. */
     private final PrefixMappingCache prefixMappingCache;
 
+    /** Properties designating a human-readable label formatted to a string for use in a SPARQL query, with caching. */
+    protected LabelPropertiesListCache labelPropertiesListCache;
+
     /**
      * Container for QE & CR configuration loaded from the global configuration file.
      */
@@ -45,6 +49,7 @@ public class QueryExecution {
         this.connectionCredentials = connectionCredentials;
         this.globalConfig = globalConfig;
         this.prefixMappingCache = new PrefixMappingCache(connectionCredentials);
+        this.labelPropertiesListCache = new LabelPropertiesListCache(connectionCredentials, prefixMappingCache);
         this.expandedDefaultConfigurationCache =
                 new DefaultAggregationConfigurationCache(connectionCredentials, prefixMappingCache);
     }
@@ -71,8 +76,13 @@ public class QueryExecution {
 
         AggregationSpec expandedAggregationSpec = QueryExecutionHelper.expandPropertyNames(
                 aggregationSpec, prefixMappingCache.getCachedValue());
-        KeywordQueryExecutor queryExecutor = new KeywordQueryExecutor(connectionCredentials, constraints,
-                expandedAggregationSpec, createConflictResolverFactory(), globalConfig.getQueryExecutionGroup());
+        KeywordQueryExecutor queryExecutor = new KeywordQueryExecutor(
+                connectionCredentials,
+                constraints,
+                expandedAggregationSpec,
+                createConflictResolverFactory(),
+                labelPropertiesListCache.getCachedValue(),
+                globalConfig.getQueryExecutionGroup());
         return queryExecutor.findKeyword(keywords);
     }
 
@@ -103,6 +113,7 @@ public class QueryExecution {
                 constraints,
                 expandedAggregationSpec,
                 createConflictResolverFactory(),
+                labelPropertiesListCache.getCachedValue(),
                 globalConfig.getQueryExecutionGroup());
         return queryExecutor.findURI(expandedURI);
     }

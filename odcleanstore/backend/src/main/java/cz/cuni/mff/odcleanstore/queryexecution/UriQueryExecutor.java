@@ -263,12 +263,14 @@ import java.util.Set;
      * @param aggregationSpec aggregation settings for conflict resolution;
      *        property names must not contain prefixed names
      * @param conflictResolverFactory factory for ConflictResolver
+     * @param labelPropertiesList list of label properties formatted as a string for use in a query
      * @param globalConfig global conflict resolution settings
      */
     public UriQueryExecutor(JDBCConnectionCredentials connectionCredentials, QueryConstraintSpec constraints,
             AggregationSpec aggregationSpec, ConflictResolverFactory conflictResolverFactory,
-            QueryExecutionConfig globalConfig) {
-        super(connectionCredentials, constraints, aggregationSpec, conflictResolverFactory, globalConfig);
+            String labelPropertiesList, QueryExecutionConfig globalConfig) {
+        super(connectionCredentials, constraints, aggregationSpec, conflictResolverFactory,
+                labelPropertiesList, globalConfig);
     }
 
     /**
@@ -382,8 +384,8 @@ import java.util.Set;
      * @throws DatabaseException query error
      */
     private Collection<Quad> getLabels(String uri) throws DatabaseException {
-        String query = String.format(Locale.ROOT, LABELS_QUERY, uri, getGraphFilterClause(), LABEL_PROPERTIES_LIST,
-                getGraphPrefixFilter("labelGraph"), maxLimit);
+        String query = String.format(Locale.ROOT, LABELS_QUERY, uri, getGraphFilterClause(),
+                labelPropertiesList, getGraphPrefixFilter("labelGraph"), maxLimit);
         return getQuadsFromQuery(query, "getLabels()");
     }
 
@@ -395,7 +397,7 @@ import java.util.Set;
      */
     private NamedGraphMetadataMap getMetadata(String uri) throws DatabaseException {
         String query = String.format(Locale.ROOT, METADATA_QUERY, uri, getGraphFilterClause(),
-                LABEL_PROPERTIES_LIST, getGraphPrefixFilter("resGraph"), maxLimit);
+                labelPropertiesList, getGraphPrefixFilter("resGraph"), maxLimit);
         return getMetadataFromQuery(query, "getMetadata()");
     }
 

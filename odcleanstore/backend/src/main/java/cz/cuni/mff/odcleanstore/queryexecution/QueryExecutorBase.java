@@ -15,7 +15,6 @@ import cz.cuni.mff.odcleanstore.data.QuadCollection;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
-import cz.cuni.mff.odcleanstore.vocabulary.RDFS;
 import cz.cuni.mff.odcleanstore.vocabulary.W3P;
 import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 
@@ -72,12 +71,6 @@ import java.util.Locale;
      */
     protected static final Node SAME_AS_PROPERTY = Node.createURI(OWL.sameAs);
 
-    /** Properties designating a human-readable label. */
-    // TODO: get from database
-    protected static final String[] LABEL_PROPERTIES = new String[] { RDFS.label };
-
-    /** List of {@link #LABEL_PROPERTIES} formatted to a string for use in a SPARQL query. */
-    protected static final String LABEL_PROPERTIES_LIST;
 
     /**
      * SPARQL snippet restricting result to ?graph having at least the given score.
@@ -125,17 +118,6 @@ import java.util.Locale;
                 + "\n }"
                 + "\n LIMIT %3$d";
 
-    static {
-        assert (LABEL_PROPERTIES.length > 0);
-        StringBuilder sb = new StringBuilder();
-        for (String property : LABEL_PROPERTIES) {
-            sb.append('<');
-            sb.append(property);
-            sb.append(">, ");
-        }
-        LABEL_PROPERTIES_LIST = sb.substring(0, sb.length() - 2);
-    }
-
     /**
      * Returns a SPARQL snippet restricting a named graph URI referenced by the given variable to GRAPH_PREFIX_FILTER.
      * Returns an empty string if GRAPH_PREFIX_FILTER is null.
@@ -180,6 +162,9 @@ import java.util.Locale;
     /** Constraints on triples returned in the result. */
     protected final QueryConstraintSpec constraints;
 
+    /** Properties designating a human-readable label formatted to a string for use in a SPARQL query. */
+    protected String labelPropertiesList;
+
     /** Global QE configuration settings. */
     protected final QueryExecutionConfig globalConfig;
 
@@ -208,6 +193,7 @@ import java.util.Locale;
      * @param aggregationSpec aggregation settings for conflict resolution;
      *        property names must not contain prefixed names
      * @param conflictResolverFactory factory for ConflictResolver
+     * @param labelPropertiesList list of label properties formatted as a string for use in a query
      * @param globalConfig global conflict resolution settings;
      * values needed in globalConfig are the following:
      * <dl>
@@ -219,13 +205,14 @@ import java.util.Locale;
      */
     protected QueryExecutorBase(JDBCConnectionCredentials connectionCredentials, QueryConstraintSpec constraints,
             AggregationSpec aggregationSpec, ConflictResolverFactory conflictResolverFactory,
-            QueryExecutionConfig globalConfig) {
+            String labelPropertiesList, QueryExecutionConfig globalConfig) {
         this.connectionCredentials = connectionCredentials;
         this.constraints = constraints;
         this.aggregationSpec = aggregationSpec;
         this.conflictResolverFactory = conflictResolverFactory;
         this.globalConfig = globalConfig;
         this.maxLimit = globalConfig.getMaxQueryResultSize();
+        this.labelPropertiesList = labelPropertiesList;
     }
 
     /**

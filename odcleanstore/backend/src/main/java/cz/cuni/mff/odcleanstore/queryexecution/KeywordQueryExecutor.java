@@ -389,12 +389,14 @@ import java.util.regex.Pattern;
      * @param aggregationSpec aggregation settings for conflict resolution;
      *        property names must not contain prefixed names
      * @param conflictResolverFactory factory for ConflictResolver
+     * @param labelPropertiesList list of label properties formatted as a string for use in a query
      * @param globalConfig global conflict resolution settings
      */
     public KeywordQueryExecutor(JDBCConnectionCredentials connectionCredentials, QueryConstraintSpec constraints,
             AggregationSpec aggregationSpec, ConflictResolverFactory conflictResolverFactory,
-            QueryExecutionConfig globalConfig) {
-        super(connectionCredentials, constraints, aggregationSpec, conflictResolverFactory, globalConfig);
+            String labelPropertiesList, QueryExecutionConfig globalConfig) {
+        super(connectionCredentials, constraints, aggregationSpec, conflictResolverFactory,
+                labelPropertiesList, globalConfig);
     }
 
     /**
@@ -516,7 +518,8 @@ import java.util.regex.Pattern;
      */
     private Collection<Quad> getLabels(String containsMatchExpr, String exactMatchExpr) throws DatabaseException {
         String query = String.format(Locale.ROOT, LABELS_QUERY, containsMatchExpr, exactMatchExpr,
-                getGraphFilterClause(), LABEL_PROPERTIES_LIST, getGraphPrefixFilter("labelGraph"), maxLimit);
+                getGraphFilterClause(), labelPropertiesList, getGraphPrefixFilter("labelGraph"),
+                maxLimit);
         return getQuadsFromQuery(query, "getLabels()");
     }
 
@@ -530,7 +533,8 @@ import java.util.regex.Pattern;
     private NamedGraphMetadataMap getMetadata(String containsMatchExpr, String exactMatchExpr)
             throws DatabaseException {
         String query = String.format(Locale.ROOT, METADATA_QUERY, containsMatchExpr, exactMatchExpr,
-                getGraphFilterClause(), LABEL_PROPERTIES_LIST, getGraphPrefixFilter("resGraph"), maxLimit);
+                getGraphFilterClause(), labelPropertiesList, getGraphPrefixFilter("resGraph"),
+                maxLimit);
         return getMetadataFromQuery(query, "getMetadata()");
     }
 

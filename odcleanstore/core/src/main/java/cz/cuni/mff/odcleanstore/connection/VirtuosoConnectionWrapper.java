@@ -218,6 +218,17 @@ public final class VirtuosoConnectionWrapper {
             throw new ConnectionException(e);
         }
     }
+    
+    /**
+     * Closes the wrapped connection without throwing an exception.
+     */
+    public void closeQuietly() {
+        try {
+        	close();
+        } catch (ConnectionException e) {
+            // Do nothing
+        }
+    }
 
     /**
      * Close connection on finalize().
