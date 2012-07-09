@@ -3,9 +3,9 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo.qa;
 import java.util.LinkedList;
 import java.util.List;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.RulesGroupEntity;
 
-public class QARulesGroup extends EntityWithSurrogateKey 
+public class QARulesGroup extends RulesGroupEntity 
 {
 	private static final long serialVersionUID = 1L;
 

@@ -58,7 +58,7 @@ public class PipelineDetailPage extends FrontendPage
 		
 		add(new Label("label"));
 		add(new Label("description"));
-		add(new Label("runOnCleanDB"));
+		add(new Label("isDefault"));
 	}
 	
 	/*
@@ -71,7 +71,7 @@ public class PipelineDetailPage extends FrontendPage
 	{
 		add(
 			new RedirectButton(
-				NewAssignmentPage.class, 
+				NewTransformerAssignmentPage.class, 
 				pipelineId, 
 				"newAssignmentLink"
 			)
@@ -100,16 +100,26 @@ public class PipelineDetailPage extends FrontendPage
 				
 				item.add(new Label("workDirPath"));	
 				item.add(new Label("configuration"));
+				item.add(new Label("runOnCleanDB"));
 				item.add(new Label("priority"));
 				
 				item.add(
 					new DeleteButton<TransformerInstance>
 					(
 						transformerInstanceDao,
-						transformer.getId(),
+						transformerInstance.getId(),
 						"assignment",
 						new DeleteConfirmationMessage("transformer instance"),
 						PipelineDetailPage.this
+					)
+				);
+				
+				item.add(
+					new RedirectButton
+					(
+						TransformerInstanceDetailPage.class,
+						transformerInstance.getId(),
+						"showTransformerInstanceDetailPage"
 					)
 				);
 			}

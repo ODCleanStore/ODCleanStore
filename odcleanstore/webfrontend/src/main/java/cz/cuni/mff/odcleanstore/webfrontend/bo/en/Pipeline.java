@@ -11,7 +11,7 @@ public class Pipeline extends EntityWithSurrogateKey
 
 	private String label;
 	private String description;
-	private Boolean runOnCleanDB;
+	private Boolean isDefault;
 	private List<TransformerInstance> transformers;
 	
 	/**
@@ -19,9 +19,9 @@ public class Pipeline extends EntityWithSurrogateKey
 	 * @param id
 	 * @param label
 	 * @param description
-	 * @param runOnCleanDB
+	 * @param isDefault
 	 */
-	public Pipeline(Long id, String label, String description, Boolean runOnCleanDB) 
+	public Pipeline(Long id, String label, String description, Boolean isDefault) 
 	{
 		super(id);
 		
@@ -29,7 +29,7 @@ public class Pipeline extends EntityWithSurrogateKey
 		
 		this.label = label;
 		this.description = description;
-		this.runOnCleanDB = runOnCleanDB;
+		this.isDefault = isDefault;
 	}
 	
 	/**
@@ -62,18 +62,18 @@ public class Pipeline extends EntityWithSurrogateKey
 	 * 
 	 * @return
 	 */
-	public Boolean getRunOnCleanDB() 
+	public Boolean isDefault() 
 	{
-		return runOnCleanDB;
+		return isDefault;
 	}
 	
 	/**
 	 * 
-	 * @param runOnCleanDB
+	 * @param isDefault
 	 */
-	public void setRunOnCleanDB(Boolean runOnCleanDB)
+	public void setDefault(Boolean isDefault)
 	{
-		this.runOnCleanDB = runOnCleanDB;
+		this.isDefault = isDefault;
 	}
 	
 	/**

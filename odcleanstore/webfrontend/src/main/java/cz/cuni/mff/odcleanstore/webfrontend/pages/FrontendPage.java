@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.TextArea;
@@ -13,6 +14,7 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.model.Model;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
@@ -122,6 +124,16 @@ public abstract class FrontendPage extends WebPage
 		TextField<String> textfield = new TextField<String>(componentName);
 		textfield.setRequired(required);
 		return textfield;
+	}
+	
+	/**
+	 * 
+	 * @param componentName
+	 * @return
+	 */
+	protected CheckBox createCheckbox(String componentName)
+	{
+		return new CheckBox(componentName);
 	}
 	
 	/**

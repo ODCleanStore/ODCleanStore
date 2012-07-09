@@ -8,6 +8,8 @@ import java.sql.SQLException;
 
 public class TransformerRowMapper extends CustomRowMapper<Transformer>
 {
+	private static final long serialVersionUID = 1L;
+
 	public Transformer mapRow(ResultSet rs, int rowNum) throws SQLException 
 	{
 		return new Transformer
