@@ -133,7 +133,7 @@ public class InputWS implements IInputWS {
 		try {
 			fout = new FileOutputStream(Engine.INPUTWS_DIR + metadata.uuid + ".dat");
 			oos = new ObjectOutputStream(fout);
-			oos.writeObject(FormatHelper.getW3CDTFCurrent());
+			oos.writeObject(FormatHelper.getTypedW3CDTFCurrent());
 			oos.writeObject(metadata);
 			oos.writeObject(rdfXmlPayload);
 		} finally {
