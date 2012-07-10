@@ -19,6 +19,7 @@ import cz.cuni.mff.odcleanstore.engine.common.SimpleVirtuosoAccess;
 import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.Metadata;
 import cz.cuni.mff.odcleanstore.transformer.Transformer;
 import cz.cuni.mff.odcleanstore.vocabulary.DC;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.W3P;
 
 /**
@@ -189,24 +190,29 @@ public final class PipelineService extends Service implements Runnable {
 		SimpleVirtuosoAccess sva = null;
 		try {
 			sva = SimpleVirtuosoAccess.createDirtyDBConnection();
+			String dataGraphURI = Engine.DATA_PREFIX + uuid;
+			String metadataGraphURI = Engine.METADATA_PREFIX + uuid;
+			String provenanceGraphURI = Engine.RDFXML_PROVENANCE_METADATA_PREFIX + uuid;
 
-			sva.insertQuad("<" + Engine.DATA_PREFIX + uuid + ">", "<" + W3P.insertedAt + ">", inserted, "<" + Engine.METADATA_PREFIX + uuid + ">");
-			sva.insertQuad("<" + Engine.DATA_PREFIX + uuid + ">", "<" + W3P.insertedBy + ">", "'scraper'", "<" + Engine.METADATA_PREFIX + uuid + ">");
+			sva.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.metadataGraph + ">", "<" + metadataGraphURI + ">", "<" + metadataGraphURI + ">");
+			sva.insertQuad("<" + dataGraphURI + ">", "<" + W3P.insertedAt + ">", inserted, "<" + metadataGraphURI + ">");
+			sva.insertQuad("<" + dataGraphURI + ">", "<" + W3P.insertedBy + ">", "'scraper'", "<" + metadataGraphURI + ">");
 			for (String source : metadata.source) {
-				sva.insertQuad("<" + Engine.DATA_PREFIX + uuid + ">", "<" + W3P.source + ">", "<" + source + ">", "<" + Engine.METADATA_PREFIX + uuid + ">");
+				sva.insertQuad("<" + dataGraphURI + ">", "<" + W3P.source + ">", "<" + source + ">", "<" + metadataGraphURI + ">");
 			}
 			for (String publishedBy : metadata.publishedBy) {
-				sva.insertQuad("<" + Engine.DATA_PREFIX + uuid + ">", "<" + W3P.publishedBy + ">", "<" + publishedBy + ">", "<" + Engine.METADATA_PREFIX + uuid + ">");
+				sva.insertQuad("<" + dataGraphURI + ">", "<" + W3P.publishedBy + ">", "<" + publishedBy + ">", "<" + metadataGraphURI + ">");
 			}
 			if (metadata.license != null) {
 				for (String license : metadata.license) {
-					sva.insertQuad("<" + Engine.DATA_PREFIX + uuid + ">", "<" + DC.license + ">", "<" + license + ">", "<" + Engine.METADATA_PREFIX + uuid + ">");
+					sva.insertQuad("<" + dataGraphURI + ">", "<" + DC.license + ">", "<" + license + ">", "<" + metadataGraphURI + ">");
 				}
 			}
 			if (metadata.rdfXmlProvenance != null) {
-				sva.insertRdfXml(metadata.provenanceBaseUrl, metadata.rdfXmlProvenance, Engine.METADATA_PREFIX + uuid);
+				sva.insertRdfXml(dataGraphURI, metadata.rdfXmlProvenance, provenanceGraphURI);
+				sva.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.provenanceMetadataGraph + ">", "<" + provenanceGraphURI + ">", "<" + metadataGraphURI + ">");
 			}
-			sva.insertRdfXml(metadata.dataBaseUrl, rdfXmlPayload, Engine.DATA_PREFIX + uuid);
+			sva.insertRdfXml(dataGraphURI, rdfXmlPayload, dataGraphURI);
 			sva.commit();
 		} finally {
 			if (sva != null) {

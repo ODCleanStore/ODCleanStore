@@ -30,6 +30,8 @@ public final class Engine extends Module {
 
 	public static final String DATA_PREFIX = "http://opendata.cz/infrastructure/odcleanstore/";
 	public static final String METADATA_PREFIX = "http://opendata.cz/infrastructure/odcleanstore/metadata/";
+	public static final String RDFXML_PROVENANCE_METADATA_PREFIX =
+			"http://opendata.cz/infrastructure/odcleanstore/provenanceMetadata/";
 
 	public static final String INPUTWS_DIR = "inputWS/";
 	public static final String INPUTWS_ENDPOINT_URL = "http://localhost:8088/odcleanstore/scraper";

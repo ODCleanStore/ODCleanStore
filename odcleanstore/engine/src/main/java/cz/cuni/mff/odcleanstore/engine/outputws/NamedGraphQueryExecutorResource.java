@@ -14,7 +14,7 @@ import cz.cuni.mff.odcleanstore.queryexecution.QueryExecution;
 import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
 
 /**
- *  @author Petr Jerman
+ *  @author Jan Michelfeit
  */
 public class NamedGraphQueryExecutorResource extends QueryExecutorResourceBase {
 
