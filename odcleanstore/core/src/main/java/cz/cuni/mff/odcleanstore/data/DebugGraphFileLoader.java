@@ -1,6 +1,8 @@
 package cz.cuni.mff.odcleanstore.data;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
@@ -29,18 +31,40 @@ public class DebugGraphFileLoader {
 		this.connectionCredentials = connectionCredentials;
 	}
 	
+	private static String getInputBaseURI (String discriminator) {
+		return "http://example.com/" + discriminator + "/input/";
+	}
+	
 	public HashMap<String, String> load (String inputFileName, String discriminator) throws Exception {
+		HashMap<String, String> graphs = new HashMap<String, String>();
+
+		try {
+			graphs = load(new FileInputStream(inputFileName), discriminator);
+		} catch (Exception e) {
+			try {
+				graphs = load(new RDFXML2TriG().transform(inputFileName, getInputBaseURI(discriminator)), discriminator);
+			} catch (Exception e2) {
+				LOG.error(String.format("Could not finish loading debug graphs from input file '%s': %s", inputFileName, e2.getMessage()));
+				
+				throw e2;
+			}
+		}
+		
+		return graphs;
+	}
+	
+	private HashMap<String, String> load (InputStream input, String discriminator) throws Exception {	
 		/**
 		 * Load graphs from source file
 		 */
 		NamedGraphSetImpl namedGraphSet = new NamedGraphSetImpl();
 		
 		GraphReaderService reader = new GraphReaderService();
-		
-		reader.setSourceFile(new File(inputFileName));
+
+		reader.setSourceInputStream(input, getInputBaseURI(discriminator));
 		reader.setLanguage("TRIG");
 		reader.readInto(namedGraphSet);
-		
+
 		/**
 		 * Copy them into unique graphs
 		 */
@@ -84,7 +108,6 @@ public class DebugGraphFileLoader {
 				LOG.info(String.format("Input debug graph <%s> copied into <%s>", name, temporaryName));
 			}
 		} catch (Exception e) {
-			LOG.error(String.format("Could not finish loading debug graphs from input file '%s': %s", inputFileName, e.getMessage()));
 			
 			unload(graphs);
 			
