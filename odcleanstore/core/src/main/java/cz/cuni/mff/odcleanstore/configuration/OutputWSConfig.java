@@ -30,23 +30,29 @@ public class OutputWSConfig extends ConfigGroup {
     }
 
     private URI metadataGraphURIPrefix;
+    private String qaRuleURIPrefix;
     private Integer port;
     private String keywordPath;
     private String uriPath;
+    private String namedGraphPath;
 
     /**
      *
      * @param metadataGraphURIPrefix
+     * @param qaRuleURIPrefix
      * @param port
      * @param keywordPath
      * @param uriPath
+     * @param namedGraphPath
      */
-    public OutputWSConfig(URI metadataGraphURIPrefix, Integer port,
-            String keywordPath, String uriPath) {
+    public OutputWSConfig(URI metadataGraphURIPrefix, String qaRuleURIPrefix, Integer port,
+            String keywordPath, String uriPath, String namedGraphPath) {
         this.metadataGraphURIPrefix = metadataGraphURIPrefix;
+        this.qaRuleURIPrefix = qaRuleURIPrefix;
         this.port = port;
         this.keywordPath = keywordPath;
         this.uriPath = uriPath;
+        this.namedGraphPath = namedGraphPath;
     }
 
     /**
@@ -61,20 +67,24 @@ public class OutputWSConfig extends ConfigGroup {
     public static OutputWSConfig load(Properties properties)
             throws ParameterNotAvailableException, IllegalParameterFormatException {
         ParameterFormat<URI> formatURI = new FormatURI();
+        ParameterFormat<String> formatString = new FormatString();
         URI metadataGraphURIPrefix = loadParam(properties, "metadata_graph_uri", formatURI);
+        String qaRuleURIPrefix = loadParam(properties, "qa_rule_uri_prefix", formatString);
 
         ParameterFormat<Integer> formatInteger = new FormatInteger();
         Integer port = loadParam(properties, "port", formatInteger);
 
-        ParameterFormat<String> formatString = new FormatString();
         String keywordPath = loadParam(properties, "keyword_path", formatString);
         String uriPath = loadParam(properties, "uri_path", formatString);
+        String namedGraphPath = loadParam(properties, "named_graph_path", formatString);
 
         return new OutputWSConfig(
                 metadataGraphURIPrefix,
+                qaRuleURIPrefix,
                 port,
                 keywordPath,
-                uriPath);
+                uriPath,
+                namedGraphPath);
     }
 
     /**
@@ -85,6 +95,15 @@ public class OutputWSConfig extends ConfigGroup {
         return metadataGraphURIPrefix;
     }
 
+    /**
+    *
+    * @return
+    */
+   public String getQARuleURIPrefix() {
+       return qaRuleURIPrefix;
+   }
+
+    
     /**
      *
      * @return
@@ -108,4 +127,12 @@ public class OutputWSConfig extends ConfigGroup {
     public String getUriPath() {
         return uriPath;
     }
+    
+    /**
+    *
+    * @return
+    */
+   public String getNamedGraphPath() {
+       return namedGraphPath;
+   }
 }

@@ -25,16 +25,21 @@ public class OutputWSConfigTest {
 
         Mockito.when(properties.getProperty(GROUP_NAME + ".metadata_graph_uri")).thenReturn(
                 "http://odcs.mff.cuni.cz/query/metadata/");
+        Mockito.when(properties.getProperty(GROUP_NAME + ".qa_rule_uri_prefix")).thenReturn(
+                "http://odcs.mff.cuni.cz/query/QARule/");
         Mockito.when(properties.getProperty(GROUP_NAME + ".port")).thenReturn("8087");
         Mockito.when(properties.getProperty(GROUP_NAME + ".keyword_path")).thenReturn("keyword");
         Mockito.when(properties.getProperty(GROUP_NAME + ".uri_path")).thenReturn("uri");
+        Mockito.when(properties.getProperty(GROUP_NAME + ".named_graph_path")).thenReturn("namedGraph");
 
         OutputWSConfig outputWSConfig = OutputWSConfig.load(properties);
 
         assertEquals(new URI("http://odcs.mff.cuni.cz/query/metadata/"), outputWSConfig.getMetadataGraphURIPrefix());
+        assertEquals("http://odcs.mff.cuni.cz/query/QARule/", outputWSConfig.getQARuleURIPrefix());
 
         assertEquals(new Integer(8087), outputWSConfig.getPort());
         assertEquals("keyword", outputWSConfig.getKeywordPath());
         assertEquals("uri", outputWSConfig.getUriPath());
+        assertEquals("namedGraph", outputWSConfig.getNamedGraphPath());
     }
 }

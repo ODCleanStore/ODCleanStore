@@ -52,7 +52,6 @@ import java.util.Locale;
      * (Debug) Only named graph having URI starting with this prefix can be included in query result.
      * If the value is null, there is now restriction on named graph URIs.
      * This constant is only for debugging purposes and should be null in production environment.
-     * TODO: set to null
      */
     private static final String GRAPH_PREFIX_FILTER = null; //"http://odcs.mff.cuni.cz/namedGraph/qe-test/";
 

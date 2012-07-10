@@ -14,6 +14,7 @@ import org.restlet.representation.WriterRepresentation;
 
 import com.hp.hpl.jena.graph.Node;
 
+import cz.cuni.mff.odcleanstore.configuration.OutputWSConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
@@ -33,6 +34,17 @@ import de.fuberlin.wiwiss.ng4j.Quad;
  * @author Jan Michelfeit
  */
 public class HTMLFormatter extends ResultFormatterBase {
+    /** Configuration of the output webservice from the global configuration file. */
+    private OutputWSConfig outputWSConfig;
+    
+    /**
+     * Creates a new instance.
+     * @param outputWSConfig configuration of the output webservice from the global configuration file
+     */
+	public HTMLFormatter(OutputWSConfig outputWSConfig) {
+		this.outputWSConfig = outputWSConfig;
+	}
+	
 	@Override
 	public Representation format(BasicQueryResult result, Reference requestReference) {
 		WriterRepresentation representation = new BasicQueryHTMLRepresentation(result, requestReference); 
@@ -213,7 +225,7 @@ public class HTMLFormatter extends ResultFormatterBase {
 		 */
 		protected CharSequence getRequestForURI(String uri) throws UnsupportedEncodingException {
 			StringBuilder result = new StringBuilder();
-			result.append(Engine.OUTPUTWS_URI_PATH);
+			result.append(outputWSConfig.getUriPath());
 			result.append("?uri=");
 			result.append(URLEncoder.encode(uri, "UTF-8"));
 			result.append("&");
@@ -229,7 +241,7 @@ public class HTMLFormatter extends ResultFormatterBase {
 		 */
 		protected CharSequence getRequestForKeyword(String keyword) throws UnsupportedEncodingException {
 			StringBuilder result = new StringBuilder();
-			result.append(Engine.OUTPUTWS_KEYWORD_PATH);
+			result.append(outputWSConfig.getKeywordPath());
 			result.append("?kw=");
 			result.append(URLEncoder.encode(keyword, "UTF-8"));
 			result.append("&");
@@ -245,7 +257,7 @@ public class HTMLFormatter extends ResultFormatterBase {
 		 */
 		protected CharSequence getRequestForNamedGraph(String namedGraphURI) throws UnsupportedEncodingException {
 			StringBuilder result = new StringBuilder();
-			result.append(Engine.OUTPUTWS_NAMED_GRAPH_PATH);
+			result.append(outputWSConfig.getNamedGraphPath());
 			result.append("?uri=");
 			result.append(URLEncoder.encode(namedGraphURI, "UTF-8"));
 			result.append("&format=HTML");

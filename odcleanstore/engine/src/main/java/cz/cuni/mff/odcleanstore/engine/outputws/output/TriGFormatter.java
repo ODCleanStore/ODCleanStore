@@ -20,6 +20,7 @@ import com.hp.hpl.jena.graph.impl.LiteralLabelFactory;
 import com.hp.hpl.jena.shared.ReificationStyle;
 import com.hp.hpl.jena.vocabulary.XSD;
 
+import cz.cuni.mff.odcleanstore.configuration.OutputWSConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
@@ -96,18 +97,22 @@ public class TriGFormatter extends ResultFormatterBase {
     /** Title for an unknown type of  query. */
     private static final String TITLE_GENERAL = "Query %s";
     
-	/** URI of named graph where metadata are placed. TODO: load from global configuration */
-    public static final String METADATA_GRAPH = "http://opendata.cz/infrastructure/odcleanstore/query/metadata/";
+    /** Configuration of the output webservice from the global configuration file. */
+    private OutputWSConfig outputWSConfig;
     
-    /** Prefix of URIs of Quality Assessment rules. TODO: load from global configuration */
-    public static final String QA_RULE_PREFIX = "http://opendata.cz/infrastructure/odcleanstore/QARule/";
-    
+    /**
+     * Creates a new instance.
+     * @param outputWSConfig configuration of the output webservice from the global configuration file
+     */
+	public TriGFormatter(OutputWSConfig outputWSConfig) {
+		this.outputWSConfig = outputWSConfig;
+	}
+
 	@Override
 	public Representation format(final BasicQueryResult result, final Reference requestReference) {
 		WriterRepresentation representation = new WriterRepresentation(MediaType.APPLICATION_RDF_TRIG) {
 			@Override
 			public void write(Writer writer) throws IOException {
-				// TODO: baseURI ?
 				basicConvertToNGSet(result, requestReference).write(writer, "TRIG", "" /* baseURI */);
 			};
 		};
@@ -124,7 +129,7 @@ public class TriGFormatter extends ResultFormatterBase {
     private NamedGraphSet basicConvertToNGSet(BasicQueryResult queryResult, Reference requestReference) {
         NamedGraphSet result = new NamedGraphSetImpl();
         NamedGraph metadataGraph = new NamedGraphImpl(
-                METADATA_GRAPH,
+                outputWSConfig.getMetadataGraphURIPrefix().toString(),
                 Factory.createGraphMem(ReificationStyle.Standard));
         
         Node queryURI = Node.createURI(requestReference.toString(true, false));
@@ -187,7 +192,6 @@ public class TriGFormatter extends ResultFormatterBase {
 		WriterRepresentation representation = new WriterRepresentation(MediaType.APPLICATION_RDF_TRIG) {
 			@Override
 			public void write(Writer writer) throws IOException {
-				// TODO: baseURI ?
 				namedGraphConvertToNGSet(metadataResult, qaResult, totalTime, requestReference)
 						.write(writer, "TRIG", "" /* baseURI */);
 			};
@@ -212,14 +216,14 @@ public class TriGFormatter extends ResultFormatterBase {
         
 		NamedGraphSet result = new NamedGraphSetImpl();
         NamedGraph metadataGraph = new NamedGraphImpl(
-                METADATA_GRAPH,
+                outputWSConfig.getMetadataGraphURIPrefix().toString(),
                 Factory.createGraphMem(ReificationStyle.Standard));
         
         // Quality Assessment results
         LiteralLabel scoreLiteral = LiteralLabelFactory.create(qaResult.getScore());
         metadataGraph.add(new Triple(namedGraphURI, SCORE_PROPERTY, Node.createLiteral(scoreLiteral)));
         for (Rule qaRule : qaResult.getTrace()) {
-        	Node ruleNode = Node.createURI(QA_RULE_PREFIX + qaRule.getId().toString());
+        	Node ruleNode = Node.createURI(outputWSConfig.getQARuleURIPrefix() + qaRule.getId().toString());
         	metadataGraph.add(new Triple(namedGraphURI, VIOLATED_QA_RULE_PROPERTY, ruleNode));
         	
         	metadataGraph.add(new Triple(ruleNode, TYPE_PROPERTY, QARULE_CLASS));

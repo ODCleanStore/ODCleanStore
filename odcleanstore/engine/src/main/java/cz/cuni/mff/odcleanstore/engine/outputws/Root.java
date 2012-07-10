@@ -4,12 +4,22 @@ import org.restlet.Application;
 import org.restlet.Restlet;
 import org.restlet.routing.Router;
 
-import cz.cuni.mff.odcleanstore.engine.Engine;
+import cz.cuni.mff.odcleanstore.configuration.OutputWSConfig;
 
 /**
  *  @author Petr Jerman
  */
 public class Root extends Application {
+    /** Configuration of the output webservice from the global configuration file. */
+    private OutputWSConfig outputWSConfig;
+    
+    /**
+     * Creates a new instance.
+     * @param outputWSConfig configuration of the output webservice from the global configuration file
+     */
+	public Root(OutputWSConfig outputWSConfig) {
+		this.outputWSConfig = outputWSConfig;
+	}
 
 	/**
 	 * Creates a root Restlet that will receive all incoming calls.
@@ -18,9 +28,9 @@ public class Root extends Application {
 	public synchronized Restlet createInboundRoot() {
 
 		Router router = new Router(getContext());
-		router.attach("/" + Engine.OUTPUTWS_KEYWORD_PATH, KeywordQueryExecutorResource.class);
-		router.attach("/" + Engine.OUTPUTWS_URI_PATH, UriQueryExecutorResource.class);
-		router.attach("/" + Engine.OUTPUTWS_NAMED_GRAPH_PATH, NamedGraphQueryExecutorResource.class);
+		router.attach("/" + outputWSConfig.getKeywordPath(), KeywordQueryExecutorResource.class);
+		router.attach("/" + outputWSConfig.getUriPath(), UriQueryExecutorResource.class);
+		router.attach("/" + outputWSConfig.getNamedGraphPath(), NamedGraphQueryExecutorResource.class);
 		return router;
 	}
 }

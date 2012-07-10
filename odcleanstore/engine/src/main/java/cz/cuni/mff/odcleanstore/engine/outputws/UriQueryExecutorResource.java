@@ -5,9 +5,9 @@ import org.restlet.representation.Representation;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryConstraintSpec;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecution;
-import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
 
 /**
  *  @author Petr Jerman
@@ -26,7 +26,7 @@ public class UriQueryExecutorResource extends QueryExecutorResourceBase {
 			if (result == null)
 				return return404();
 
-			return getFormatter().format(result, getRequestReference());
+			return getFormatter(ConfigLoader.getConfig().getOutputWSGroup()).format(result, getRequestReference());
 		} catch (Exception e) {
 			return return404();
 		}

@@ -3,15 +3,11 @@ package cz.cuni.mff.odcleanstore.engine.outputws;
 import org.restlet.representation.Representation;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
-import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
-import cz.cuni.mff.odcleanstore.qualityassessment.QualityAssessor;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl.GraphScoreWithTrace;
 import cz.cuni.mff.odcleanstore.queryexecution.NamedGraphMetadataQueryResult;
-import cz.cuni.mff.odcleanstore.queryexecution.QueryConstraintSpec;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecution;
-import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
 
 /**
  *  @author Jan Michelfeit
@@ -38,7 +34,8 @@ public class NamedGraphQueryExecutorResource extends QueryExecutorResourceBase {
 			
 			long totalTime = System.currentTimeMillis() - qaStartTime + metadataResult.getExecutionTime();
 
-			return getFormatter().format(metadataResult, qaResult, totalTime, getRequestReference());
+			return getFormatter(ConfigLoader.getConfig().getOutputWSGroup()).format(
+					metadataResult, qaResult, totalTime, getRequestReference());
 		} catch (Exception e) {
 			return return404();
 		}
