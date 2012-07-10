@@ -28,6 +28,7 @@ import cz.cuni.mff.odcleanstore.qualityassessment.rules.Rule;
 import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.EnumQueryType;
 import cz.cuni.mff.odcleanstore.queryexecution.NamedGraphMetadataQueryResult;
+import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.vocabulary.DC;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.RDF;
@@ -295,7 +296,10 @@ public class TriGFormatter extends ResultFormatterBase {
             
             String license = graphMetadata.getLicence();
             if (license != null) {
-            	metadataGraph.add(new Triple(namedGraphURI, LICENSE_PROPERTY, Node.createURI(license)));
+            	Node licenseNode = license.startsWith("http://") && Utils.isValidIRI(license)
+            			? Node.createURI(license)
+            			: Node.createLiteral(license);
+            	metadataGraph.add(new Triple(namedGraphURI, LICENSE_PROPERTY, licenseNode));
             }
 
             Double publisherScore = graphMetadata.getPublisherScore();
