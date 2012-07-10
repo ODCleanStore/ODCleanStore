@@ -3,6 +3,8 @@ package cz.cuni.mff.odcleanstore.engine.outputws.output;
 import org.restlet.data.Reference;
 import org.restlet.representation.Representation;
 
+import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl.GraphScoreWithTrace;
+import cz.cuni.mff.odcleanstore.queryexecution.NamedGraphMetadataQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
 
 /**
@@ -17,4 +19,14 @@ public interface QueryResultFormatter {
 	 * @return representation of the formatted output
 	 */
 	Representation format(BasicQueryResult result, Reference requestReference);
+
+	/**
+	 * Returns a formatted representation of a named graph query result. 
+	 * @param metadataResult result of metadata query about the requested named graph 
+	 * @param qaResult result of quality assessment over the given named graph
+	 * @param totalTime execution time of the query
+	 * @return representation of the formatted output
+	 */
+	Representation format(NamedGraphMetadataQueryResult metadataResult,
+			GraphScoreWithTrace qaResult, long totalTime, Reference requestReference);
 }

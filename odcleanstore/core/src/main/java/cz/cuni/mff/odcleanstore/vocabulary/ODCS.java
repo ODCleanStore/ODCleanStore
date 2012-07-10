@@ -57,7 +57,7 @@ public final class ODCS {
     		"http://opendata.cz/infrastructure/odcleanstore/provenanceMetadataGraph";
     
     /**
-     * Class or resource describing a result of a query. 
+     * Class of resources describing a result of a query. 
      */
     public static final String queryResponse = "http://opendata.cz/infrastructure/odcleanstore/QueryResponse";
     
@@ -75,6 +75,21 @@ public final class ODCS {
      * Number of quads in a query result. 
      */
     public static final String totalResults = "http://opendata.cz/infrastructure/odcleanstore/totalResults";
+    
+    /**
+     * Property linking a data graph to a Quality Assessment rule it violates. 
+     */
+    public static final String violatedQARule = "http://opendata.cz/infrastructure/odcleanstore/violatedQARule";
+    
+    /**
+     * Coefficient of a Quality Assessment rule.
+     */
+    public static final String coefficient = "http://opendata.cz/infrastructure/odcleanstore/coefficient";
+    
+    /**
+     * Class of resources describing a Quality Assessment rule. 
+     */
+    public static final String QARule = "http://opendata.cz/infrastructure/odcleanstore/QARule";
     
     // CHECKSTYLE:ON
 }

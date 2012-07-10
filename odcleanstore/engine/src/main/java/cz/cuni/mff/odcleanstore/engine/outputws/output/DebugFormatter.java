@@ -11,7 +11,11 @@ import org.restlet.representation.WriterRepresentation;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
+import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl.GraphScoreWithTrace;
+import cz.cuni.mff.odcleanstore.qualityassessment.rules.Rule;
+import cz.cuni.mff.odcleanstore.queryexecution.NamedGraphMetadataQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
+import de.fuberlin.wiwiss.ng4j.Quad;
 
 /**
  * Returns a representation of a query result serialized to the TriG format.
@@ -65,6 +69,61 @@ public class DebugFormatter extends ResultFormatterBase {
 						writer.write('\n');
 					}
 				}
+			}
+		};
+		representation.setCharacterSet(CharacterSet.UTF_8);
+		return representation;
+	}
+
+	@Override
+	public Representation format(final NamedGraphMetadataQueryResult metadataResult,
+			final GraphScoreWithTrace qaResult, final long totalTime, Reference requestReference) {
+		
+		WriterRepresentation representation = new WriterRepresentation(
+				MediaType.TEXT_PLAIN) {
+			@Override
+			public void write(Writer writer) throws IOException {
+				writer.write("Query executed in ");
+				writer.write(formatExecutionTime(totalTime));
+				
+				writer.write("\n\n===============================");
+				writer.write("\n== Graph score ==\n");
+				writer.write(qaResult.getScore().toString());
+				writer.write("\n\n== Matched QA rules ==\n");
+				for (Rule matchedRule : qaResult.getTrace()) {
+					writer.write(matchedRule.getCoefficient().toString());
+					writer.write('\t');
+					writer.write(matchedRule.getComment());
+					writer.write('\n');
+				}
+				
+				writer.write("\n\n===============================\n== Metadata ==\n");
+				for (NamedGraphMetadata metadata : metadataResult.getMetadata().listMetadata()) {
+					writer.write(metadata.getNamedGraphURI());
+					writer.write('\n');
+					if (metadata.getSource() != null) {
+						writer.write("\tSource: ");
+						writer.write(metadata.getSource());
+						writer.write('\n');
+					}
+					if (metadata.getInsertedAt() != null) {
+						writer.write("\tInserted at: ");
+						writer.write(formatDate(metadata.getInsertedAt()));
+						writer.write('\n');
+					}
+					if (metadata.getScore() != null) {
+						writer.write("\tGraph score: ");
+						writer.write(metadata.getScore().toString());
+						writer.write('\n');
+					}
+				}
+				writer.write("\n\n===============================\n== Provenance metadata ==\n");
+				for (Quad quad : metadataResult.getProvenanceMetadata()) {
+					writer.write(quad.toString());
+					writer.write('\n');
+				}
+
+				
 			}
 		};
 		representation.setCharacterSet(CharacterSet.UTF_8);

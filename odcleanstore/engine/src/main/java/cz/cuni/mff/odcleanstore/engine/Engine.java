@@ -37,6 +37,7 @@ public final class Engine extends Module {
 	public static final int OUTPUTWS_PORT = 8087;
 	public static final String OUTPUTWS_KEYWORD_PATH = "keyword";
 	public static final String OUTPUTWS_URI_PATH = "uri";
+	public static final String OUTPUTWS_NAMED_GRAPH_PATH = "namedGraph";
 	// end parameters
 
 	// TODO: replace by values from global configuration

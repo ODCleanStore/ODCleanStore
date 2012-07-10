@@ -20,6 +20,7 @@ public class Root extends Application {
 		Router router = new Router(getContext());
 		router.attach("/" + Engine.OUTPUTWS_KEYWORD_PATH, KeywordQueryExecutorResource.class);
 		router.attach("/" + Engine.OUTPUTWS_URI_PATH, UriQueryExecutorResource.class);
+		router.attach("/" + Engine.OUTPUTWS_NAMED_GRAPH_PATH, NamedGraphQueryExecutorResource.class);
 		return router;
 	}
 }
