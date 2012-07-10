@@ -72,7 +72,7 @@ public class TriGFormatter extends ResultFormatterBase {
     private static final String TITLE_URI = "URI query for <%s>";
     
     /** Title for a keyword query. */
-    private static final String TITLE_KW = "URI query for '%s'";
+    private static final String TITLE_KW = "Keyword query for '%s'";
     
     /** Title for an unknown type of  query. */
     private static final String TITLE_GENERAL = "Query %s";
@@ -188,4 +188,5 @@ public class TriGFormatter extends ResultFormatterBase {
         result.addGraph(metadataGraph);
         return result;
     }
+    
 }
