@@ -16,7 +16,7 @@ import com.hp.hpl.jena.graph.Node;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.engine.Engine;
-import cz.cuni.mff.odcleanstore.queryexecution.QueryResult;
+import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
 
 /**
  * Returns a representation of a query result in a user-friendly HTML document.
@@ -29,7 +29,7 @@ public class HTMLFormatter extends ResultFormatterBase {
 	/** The actual representation of the result HTML document. */
 	private class HTMLRepresentation extends WriterRepresentation {
 		/** Query result. */
-		private QueryResult queryResult;
+		private BasicQueryResult queryResult;
 		
 		/** Representation of the requested URI */
 		private Reference requestReference;
@@ -39,7 +39,7 @@ public class HTMLFormatter extends ResultFormatterBase {
 		 * @param queryResult query result
 		 * @param requestReference representation of the requested URI
 		 */
-		public HTMLRepresentation(QueryResult queryResult, Reference requestReference) {
+		public HTMLRepresentation(BasicQueryResult queryResult, Reference requestReference) {
 			super(MediaType.TEXT_HTML);
 			this.queryResult = queryResult;
 			this.requestReference = requestReference;
@@ -225,7 +225,7 @@ public class HTMLFormatter extends ResultFormatterBase {
 	}
 	
 	@Override
-	public Representation format(QueryResult result, Reference requestReference) {
+	public Representation format(BasicQueryResult result, Reference requestReference) {
 		WriterRepresentation representation = new HTMLRepresentation(result, requestReference); 
 		representation.setCharacterSet(CharacterSet.UTF_8);
 		return representation;

@@ -11,7 +11,7 @@ import org.restlet.representation.WriterRepresentation;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
-import cz.cuni.mff.odcleanstore.queryexecution.QueryResult;
+import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
 
 /**
  * Returns a representation of a query result serialized to the TriG format.
@@ -21,7 +21,7 @@ import cz.cuni.mff.odcleanstore.queryexecution.QueryResult;
  */
 public class DebugFormatter extends ResultFormatterBase {
 	@Override
-	public Representation format(final QueryResult result, Reference requestReference) {
+	public Representation format(final BasicQueryResult result, Reference requestReference) {
 		WriterRepresentation representation = new WriterRepresentation(
 				MediaType.TEXT_PLAIN) {
 			@Override

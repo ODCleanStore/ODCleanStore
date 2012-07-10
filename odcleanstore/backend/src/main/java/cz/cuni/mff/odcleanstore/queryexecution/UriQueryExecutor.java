@@ -41,9 +41,6 @@ import java.util.Set;
 /*package*/class UriQueryExecutor extends QueryExecutorBase {
     private static final Logger LOG = LoggerFactory.getLogger(UriQueryExecutor.class);
 
-    /** Maximum allowed length of the query. */
-    public static final int MAX_URI_LENGTH = 1024;
-
     /**
      * SPARQL query that gets the main result quads.
      * Use of UNION instead of a more complex filter is to make owl:sameAs inference in Virtuoso work.
@@ -280,7 +277,7 @@ import java.util.Set;
      * @return query result holder
      * @throws QueryExecutionException database error or the query was invalid
      */
-    public QueryResult findURI(String uri) throws QueryExecutionException {
+    public BasicQueryResult findURI(String uri) throws QueryExecutionException {
         LOG.info("URI query for <{}>", uri);
         long startTime = System.currentTimeMillis();
         checkValidSettings();
@@ -352,7 +349,7 @@ import java.util.Set;
      * @param executionTime query execution time in ms
      * @return query result holder
      */
-    private QueryResult createResult(
+    private BasicQueryResult createResult(
             Collection<CRQuad> resultQuads,
             NamedGraphMetadataMap metadata,
             String query,
@@ -360,7 +357,7 @@ import java.util.Set;
 
         LOG.debug("Query Execution: findURI() in {} ms", executionTime);
         // Format and return result
-        QueryResult queryResult = new QueryResult(resultQuads, metadata, query, EnumQueryType.URI, constraints,
+        BasicQueryResult queryResult = new BasicQueryResult(resultQuads, metadata, query, EnumQueryType.URI, constraints,
                 aggregationSpec);
         queryResult.setExecutionTime(executionTime);
         return queryResult;

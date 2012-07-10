@@ -406,7 +406,7 @@ import java.util.regex.Pattern;
      * @return query result holder
      * @throws QueryExecutionException invalid query or database error
      */
-    public QueryResult findKeyword(String keywordsQuery) throws QueryExecutionException {
+    public BasicQueryResult findKeyword(String keywordsQuery) throws QueryExecutionException {
         LOG.info("Keyword query for '{}'", keywordsQuery);
         long startTime = System.currentTimeMillis();
         checkValidSettings();
@@ -481,7 +481,7 @@ import java.util.regex.Pattern;
      * @param executionTime query execution time in ms
      * @return query result holder
      */
-    private QueryResult createResult(
+    private BasicQueryResult createResult(
             Collection<CRQuad> resultQuads,
             NamedGraphMetadataMap metadata,
             String query,
@@ -489,7 +489,7 @@ import java.util.regex.Pattern;
 
         LOG.debug("Query Execution: findKeyword() in {} ms", executionTime);
         // Format and return result
-        QueryResult queryResult = new QueryResult(resultQuads, metadata, query, EnumQueryType.KEYWORD, constraints,
+        BasicQueryResult queryResult = new BasicQueryResult(resultQuads, metadata, query, EnumQueryType.KEYWORD, constraints,
                 aggregationSpec);
         queryResult.setExecutionTime(executionTime);
         return queryResult;

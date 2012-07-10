@@ -51,6 +51,12 @@ public final class ODCS {
     public static final String metadataGraph = "http://opendata.cz/infrastructure/odcleanstore/metadataGraph";
     
     /**
+     * Property linking a data graph to its provenance metadata graph. 
+     */
+    public static final String provenanceMetadataGraph = 
+    		"http://opendata.cz/infrastructure/odcleanstore/provenanceMetadataGraph";
+    
+    /**
      * Class or resource describing a result of a query. 
      */
     public static final String queryResponse = "http://opendata.cz/infrastructure/odcleanstore/QueryResponse";

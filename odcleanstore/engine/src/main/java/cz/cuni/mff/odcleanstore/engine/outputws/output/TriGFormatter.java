@@ -23,7 +23,7 @@ import com.hp.hpl.jena.vocabulary.XSD;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.queryexecution.EnumQueryType;
-import cz.cuni.mff.odcleanstore.queryexecution.QueryResult;
+import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
 import cz.cuni.mff.odcleanstore.vocabulary.DC;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.RDF;
@@ -81,7 +81,7 @@ public class TriGFormatter extends ResultFormatterBase {
     public static final String METADATA_GRAPH = "http://opendata.cz/infrastructure/odcleanstore/query/metadata/";
     
 	@Override
-	public Representation format(final QueryResult result, final Reference requestReference) {
+	public Representation format(final BasicQueryResult result, final Reference requestReference) {
 		WriterRepresentation representation = new WriterRepresentation(MediaType.APPLICATION_RDF_TRIG) {
 			@Override
 			public void write(Writer writer) throws IOException {
@@ -99,7 +99,7 @@ public class TriGFormatter extends ResultFormatterBase {
      * @param requestReference Representation of the requested URI
      * @return representation of crQuads and metadata as quads in a NamedGraphSet
      */
-    private NamedGraphSet convertToNGSet(QueryResult queryResult, Reference requestReference) {
+    private NamedGraphSet convertToNGSet(BasicQueryResult queryResult, Reference requestReference) {
         NamedGraphSet result = new NamedGraphSetImpl();
         NamedGraph metadataGraph = new NamedGraphImpl(
                 METADATA_GRAPH,

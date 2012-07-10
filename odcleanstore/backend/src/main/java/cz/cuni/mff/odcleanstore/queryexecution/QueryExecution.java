@@ -65,7 +65,7 @@ public class QueryExecution {
      * @return result of the query as RDF quads
      * @throws QueryExecutionException exception
      */
-    public QueryResult findKeyword(String keywords, QueryConstraintSpec constraints, AggregationSpec aggregationSpec)
+    public BasicQueryResult findKeyword(String keywords, QueryConstraintSpec constraints, AggregationSpec aggregationSpec)
             throws QueryExecutionException {
 
         if (keywords == null) {
@@ -96,7 +96,7 @@ public class QueryExecution {
      * @return result of the query as RDF quads
      * @throws QueryExecutionException exception
      */
-    public QueryResult findURI(String uri, QueryConstraintSpec constraints, AggregationSpec aggregationSpec)
+    public BasicQueryResult findURI(String uri, QueryConstraintSpec constraints, AggregationSpec aggregationSpec)
             throws QueryExecutionException {
 
         if (uri == null) {
@@ -116,6 +116,32 @@ public class QueryExecution {
                 labelPropertiesListCache.getCachedValue(),
                 globalConfig.getQueryExecutionGroup());
         return queryExecutor.findURI(expandedURI);
+    }
+
+    /**
+     * Named graph provenance metadata query.
+     * Metadata about a given named graph are returned.
+     * The result quads contain RDF/XML provenance metadata provided to the input webservice, other metadata are
+     * stored in NamedGraphMetadataMap.
+     *
+     * @param namedGraphURI URI of a named graph; may be a prefixed name
+     * @return result of the query
+     * @throws QueryExecutionException exception
+     */
+    public NamedGraphMetadataQueryResult findNamedGraphMetadata(String namedGraphURI) throws QueryExecutionException {
+        if (namedGraphURI == null) {
+            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, "Named graph URI must not be null");
+        }
+
+        String expandedNamedGraphURI = Utils.isPrefixedName(namedGraphURI)
+                ? prefixMappingCache.getCachedValue().expandPrefix(namedGraphURI)
+                : namedGraphURI;
+        NamedGraphMetadataQueryExecutor queryExecutor = new NamedGraphMetadataQueryExecutor(
+                connectionCredentials,
+                createConflictResolverFactory(),
+                labelPropertiesListCache.getCachedValue(),
+                globalConfig.getQueryExecutionGroup());
+        return queryExecutor.getMetadata(expandedNamedGraphURI);
     }
 
     /**

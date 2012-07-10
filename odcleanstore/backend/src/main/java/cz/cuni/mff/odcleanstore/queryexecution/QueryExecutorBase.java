@@ -45,6 +45,9 @@ import java.util.Locale;
 /*package*/abstract class QueryExecutorBase {
     private static final Logger LOG = LoggerFactory.getLogger(QueryExecutorBase.class);
 
+    /** Maximum allowed length of a URI query. */
+    public static final int MAX_URI_LENGTH = 1024;
+
     /**
      * (Debug) Only named graph having URI starting with this prefix can be included in query result.
      * If the value is null, there is now restriction on named graph URIs.

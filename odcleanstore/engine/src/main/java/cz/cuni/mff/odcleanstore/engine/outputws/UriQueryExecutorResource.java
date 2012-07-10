@@ -7,7 +7,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryConstraintSpec;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecution;
-import cz.cuni.mff.odcleanstore.queryexecution.QueryResult;
+import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
 
 /**
  *  @author Petr Jerman
@@ -21,7 +21,7 @@ public class UriQueryExecutorResource extends QueryExecutorResourceBase {
 			JDBCConnectionCredentials connectionCredentials = 
 					ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials();
 			QueryExecution queryExecution = new QueryExecution(connectionCredentials, ConfigLoader.getConfig());
-			final QueryResult result = queryExecution.findURI(uri, new QueryConstraintSpec(), aggregationSpec);
+			final BasicQueryResult result = queryExecution.findURI(uri, new QueryConstraintSpec(), aggregationSpec);
 
 			if (result == null)
 				return return404();
