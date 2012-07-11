@@ -1,7 +1,5 @@
 package cz.cuni.mff.odcleanstore.data;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -35,16 +33,16 @@ public class DebugGraphFileLoader {
 		return "http://example.com/" + discriminator + "/input/";
 	}
 	
-	public HashMap<String, String> load (String inputFileName, String discriminator) throws Exception {
+	public HashMap<String, String> load (InputStream input, String discriminator) throws Exception {
 		HashMap<String, String> graphs = new HashMap<String, String>();
 
 		try {
-			graphs = load(new FileInputStream(inputFileName), discriminator);
+			graphs = loadImpl(input, discriminator);
 		} catch (Exception e) {
 			try {
-				graphs = load(new RDFXML2TriG().transform(inputFileName, getInputBaseURI(discriminator)), discriminator);
+				graphs = loadImpl(new RDFXML2TriG().transform(input, getInputBaseURI(discriminator)), discriminator);
 			} catch (Exception e2) {
-				LOG.error(String.format("Could not finish loading debug graphs from input file '%s': %s", inputFileName, e2.getMessage()));
+				LOG.error(String.format("Could not finish loading debug graphs from input: %s", e2.getMessage()));
 				
 				throw e2;
 			}
@@ -53,7 +51,7 @@ public class DebugGraphFileLoader {
 		return graphs;
 	}
 	
-	private HashMap<String, String> load (InputStream input, String discriminator) throws Exception {	
+	private HashMap<String, String> loadImpl (InputStream input, String discriminator) throws Exception {	
 		/**
 		 * Load graphs from source file
 		 */

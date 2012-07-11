@@ -1,6 +1,8 @@
 package cz.cuni.mff.odcleanstore.datanormalization.impl;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,7 +32,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 	
 	public static void main(String[] args) {
 		try {
-			new DataNormalizerImpl().debugRules(System.getProperty("user.home") + "/odcleanstore/debugDN.ttl",
+			new DataNormalizerImpl().debugRules(new FileInputStream(System.getProperty("user.home") + "/odcleanstore/debugDN.ttl"),
 					new TransformationContext() {
 
 				@Override
@@ -64,7 +66,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 				}
 				
 			});
-		} catch (TransformerException e) {
+		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}
 	}
@@ -132,13 +134,13 @@ public class DataNormalizerImpl implements DataNormalizer {
 		};
 	}
 	
-	public void debugRules (String sourceFile, TransformationContext context)
+	public void debugRules (InputStream source, TransformationContext context)
 			throws TransformerException {
 		HashMap<String, String> graphs = new HashMap<String, String>();
 		DebugGraphFileLoader loader = new DebugGraphFileLoader(context.getDirtyDatabaseCredentials());
 		
 		try {
-			graphs = loader.load(sourceFile, this.getClass().getSimpleName());
+			graphs = loader.load(source, this.getClass().getSimpleName());
 			
 			Collection<String> temporaryGraphs = graphs.values();
 			

@@ -1,6 +1,8 @@
 package cz.cuni.mff.odcleanstore.qualityassessment.impl;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,12 +41,12 @@ public class QualityAssessorImpl implements QualityAssessor {
 	
 	public static void main(String[] args) {
 		try {
-			new QualityAssessorImpl().debugRules(System.getProperty("user.home") + "/odcleanstore/debugQA.ttl",
+			new QualityAssessorImpl().debugRules(new FileInputStream(System.getProperty("user.home") + "/odcleanstore/debugQA.ttl"),
 					"http://opendata.cz/data/metadataGraph",
 					prepareContext(
 							new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba"),
 							new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1112/UID=dba/PWD=dba", "dba", "dba")));
-		} catch (TransformerException e) {
+		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}
 	}
@@ -158,13 +160,13 @@ public class QualityAssessorImpl implements QualityAssessor {
 		};
 	}
 	
-	public void debugRules (String sourceFile, String commonMetadataGraph, TransformationContext context)
+	public void debugRules (InputStream source, String commonMetadataGraph, TransformationContext context)
 			throws TransformerException {
 		HashMap<String, String> graphs = new HashMap<String, String>();
 		DebugGraphFileLoader loader = new DebugGraphFileLoader(context.getDirtyDatabaseCredentials());
 		
 		try {
-			graphs = loader.load(sourceFile, this.getClass().getSimpleName());
+			graphs = loader.load(source, this.getClass().getSimpleName());
 			
 			if (!graphs.containsKey(commonMetadataGraph)) {
 				throw new TransformerException("missing metadata graph");
