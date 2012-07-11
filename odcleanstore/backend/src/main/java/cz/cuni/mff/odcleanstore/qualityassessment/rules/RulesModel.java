@@ -31,10 +31,6 @@ public class RulesModel {
 		this.endpoint = endpoint;
 	}
 	
-	private Collection<Rule> queryRules (String query) throws QualityAssessmentException {
-		return queryRules(query, new Object[0]);
-	}
-	
 	private Collection<Rule> queryRules (String query, Object... objects) throws QualityAssessmentException {
 		Collection<Rule> rules = new ArrayList<Rule>();
 		

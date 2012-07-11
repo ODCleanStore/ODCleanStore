@@ -7,6 +7,7 @@ import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.linker.rules.FileOutput;
 import cz.cuni.mff.odcleanstore.linker.rules.Output;
+import cz.cuni.mff.odcleanstore.linker.rules.OutputType;
 import cz.cuni.mff.odcleanstore.linker.rules.SilkRule;
 
 import org.slf4j.Logger;
@@ -104,7 +105,7 @@ public class LinkerDao {
 		while (resultSet.next()) {
 			Output output;
 			String ruleType = resultSet.getString("type");
-			if ("FILE".equals(ruleType)) {
+			if (OutputType.FILE.toString().equals(ruleType)) {
 				FileOutput fileOutput = new FileOutput();
 				fileOutput.setFormat(resultSet.getString("format"));
 				fileOutput.setName(resultSet.getString("fileName"));

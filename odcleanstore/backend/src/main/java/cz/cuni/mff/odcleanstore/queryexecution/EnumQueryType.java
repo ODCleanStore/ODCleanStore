@@ -15,5 +15,11 @@ public enum EnumQueryType {
      * Keyword query.
      * @see QueryExecution#findKeyword()
      */
-    KEYWORD
+    KEYWORD,
+
+    /**
+     * Keyword query.
+     * @see QueryExecution#getNamedGraphMetadata()
+     */
+    NAMED_GRAPH
 }

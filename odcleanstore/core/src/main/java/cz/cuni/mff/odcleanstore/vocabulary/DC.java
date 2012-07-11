@@ -36,6 +36,11 @@ public final class DC {
     public static final String title = "http://purl.org/dc/terms/title";
     
     /**
+     * Description.
+     */
+    public static final String description = "http://purl.org/dc/terms/description";
+    
+    /**
      * A point or period of time associated with an event in the lifecycle of the resource.
      */
     public static final String date = "http://purl.org/dc/terms/date";

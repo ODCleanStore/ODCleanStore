@@ -1,12 +1,6 @@
 package cz.cuni.mff.odcleanstore.datanormalization.rules;
 
-import java.util.Map.Entry;
 import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import com.hp.hpl.jena.query.QueryExecution;
-import com.hp.hpl.jena.query.QueryExecutionFactory;
 
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
 
@@ -18,32 +12,27 @@ public class Rule {
 	
 	public class Component {
 		
-		public Component (EnumRuleComponentType type, String triples, String variables, String where) {
+		public Component (EnumRuleComponentType type, String update) {
 			this.type = type;
-			this.triples = triples;
-			this.variables = variables;
-			this.where = where;
+			this.update = update;
 		}
 		
 		private EnumRuleComponentType type;
-		private String triples;
-		private String variables;
-		private String where;
+		private String update;
 
-		public EnumRuleComponentType getType () {
-			return type;
-		}
+		public String toString (String graph) {
+			String output = "<" + graph + "> " + update.replaceAll("GRAPH\\s*\\$\\$graph\\$\\$", "GRAPH <" + graph + ">");
 
-		public String getTriples () {
-			return triples;
-		}
-		
-		public String getVariables () {
-			return variables;
-		}
-		
-		public String getWhere () {
-			return where;
+			switch (type) {
+			case RULE_COMPONENT_INSERT:
+				output = "SPARQL INSERT INTO " + output;
+				break;
+			case RULE_COMPONENT_DELETE:
+				output = "SPARQL DELETE FROM " + output;
+				break;
+			}
+			
+			return output;
 		}
 	}
 
@@ -52,27 +41,29 @@ public class Rule {
 	public Rule (Object... components) throws DataNormalizationException {
 		if (components.length % 2 == 1) throw new DataNormalizationException("Incomplete rule initialization list");
 		
-		for (int i = 0; i < components.length; i += 4) {
-			if (components[i] instanceof EnumRuleComponentType &&
-					components[i + 1] instanceof String &&
-					(components[i + 2] instanceof String || components[i + 2] == null) &&
-					(components[i + 2] instanceof String || components[i + 2] == null)) {
+		for (int i = 0; i < components.length; i += 2) {
+			if (components[i] instanceof EnumRuleComponentType && components[i + 1] instanceof String) {
 
 				EnumRuleComponentType type = (EnumRuleComponentType)components[i];
 				
-				String triples = (String)components[i + 1];
-				String variables = (String)components[i + 2];
-				String where = (String)components[i + 3];
+				String update = (String)components[i + 1];
 
-				this.components.add(new Component(type, triples, variables, where));
+				this.components.add(new Component(type, update));
 			} else {
 				throw new DataNormalizationException("Invalid rule initialization list");
 			}
 		}
 	}
 	
-	public Component[] getComponents () {
+	public String[] getComponents (String graph) {
+		String[] componentStrings = new String[this.components.size()];
 		
-		return components.toArray(new Component[components.size()]);
+		Component[] components = this.components.toArray(new Component[this.components.size()]);
+		
+		for (int i = 0; i < components.length; ++i) {
+			componentStrings[i] = components[i].toString(graph);
+		}
+		
+		return componentStrings;
 	}
 }

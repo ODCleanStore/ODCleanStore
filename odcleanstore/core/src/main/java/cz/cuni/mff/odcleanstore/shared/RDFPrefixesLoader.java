@@ -45,11 +45,7 @@ public class RDFPrefixesLoader {
         } catch (SQLException e) {
             throw new QueryException(e);
         } finally {
-			try {
-				connection.close();
-			} catch (ConnectionException e) {
-				// do nothing
-			}
+			connection.closeQuietly();
 		}
 		LOG.info("Loaded {} prefixes.", prefixList.size());
 		return prefixList;

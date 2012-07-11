@@ -41,9 +41,6 @@ import java.util.Set;
 /*package*/class UriQueryExecutor extends QueryExecutorBase {
     private static final Logger LOG = LoggerFactory.getLogger(UriQueryExecutor.class);
 
-    /** Maximum allowed length of the query. */
-    public static final int MAX_URI_LENGTH = 1024;
-
     /**
      * SPARQL query that gets the main result quads.
      * Use of UNION instead of a more complex filter is to make owl:sameAs inference in Virtuoso work.
@@ -263,12 +260,14 @@ import java.util.Set;
      * @param aggregationSpec aggregation settings for conflict resolution;
      *        property names must not contain prefixed names
      * @param conflictResolverFactory factory for ConflictResolver
+     * @param labelPropertiesList list of label properties formatted as a string for use in a query
      * @param globalConfig global conflict resolution settings
      */
     public UriQueryExecutor(JDBCConnectionCredentials connectionCredentials, QueryConstraintSpec constraints,
             AggregationSpec aggregationSpec, ConflictResolverFactory conflictResolverFactory,
-            QueryExecutionConfig globalConfig) {
-        super(connectionCredentials, constraints, aggregationSpec, conflictResolverFactory, globalConfig);
+            String labelPropertiesList, QueryExecutionConfig globalConfig) {
+        super(connectionCredentials, constraints, aggregationSpec, conflictResolverFactory,
+                labelPropertiesList, globalConfig);
     }
 
     /**
@@ -278,7 +277,7 @@ import java.util.Set;
      * @return query result holder
      * @throws QueryExecutionException database error or the query was invalid
      */
-    public QueryResult findURI(String uri) throws QueryExecutionException {
+    public BasicQueryResult findURI(String uri) throws QueryExecutionException {
         LOG.info("URI query for <{}>", uri);
         long startTime = System.currentTimeMillis();
         checkValidSettings();
@@ -350,7 +349,7 @@ import java.util.Set;
      * @param executionTime query execution time in ms
      * @return query result holder
      */
-    private QueryResult createResult(
+    private BasicQueryResult createResult(
             Collection<CRQuad> resultQuads,
             NamedGraphMetadataMap metadata,
             String query,
@@ -358,7 +357,7 @@ import java.util.Set;
 
         LOG.debug("Query Execution: findURI() in {} ms", executionTime);
         // Format and return result
-        QueryResult queryResult = new QueryResult(resultQuads, metadata, query, EnumQueryType.URI, constraints,
+        BasicQueryResult queryResult = new BasicQueryResult(resultQuads, metadata, query, EnumQueryType.URI, constraints,
                 aggregationSpec);
         queryResult.setExecutionTime(executionTime);
         return queryResult;
@@ -382,8 +381,8 @@ import java.util.Set;
      * @throws DatabaseException query error
      */
     private Collection<Quad> getLabels(String uri) throws DatabaseException {
-        String query = String.format(Locale.ROOT, LABELS_QUERY, uri, getGraphFilterClause(), LABEL_PROPERTIES_LIST,
-                getGraphPrefixFilter("labelGraph"), maxLimit);
+        String query = String.format(Locale.ROOT, LABELS_QUERY, uri, getGraphFilterClause(),
+                labelPropertiesList, getGraphPrefixFilter("labelGraph"), maxLimit);
         return getQuadsFromQuery(query, "getLabels()");
     }
 
@@ -395,7 +394,7 @@ import java.util.Set;
      */
     private NamedGraphMetadataMap getMetadata(String uri) throws DatabaseException {
         String query = String.format(Locale.ROOT, METADATA_QUERY, uri, getGraphFilterClause(),
-                LABEL_PROPERTIES_LIST, getGraphPrefixFilter("resGraph"), maxLimit);
+                labelPropertiesList, getGraphPrefixFilter("resGraph"), maxLimit);
         return getMetadataFromQuery(query, "getMetadata()");
     }
 

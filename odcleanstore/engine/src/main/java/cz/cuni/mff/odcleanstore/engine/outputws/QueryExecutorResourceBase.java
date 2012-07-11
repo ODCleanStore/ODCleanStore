@@ -15,6 +15,7 @@ import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 import org.restlet.resource.ServerResource;
 
+import cz.cuni.mff.odcleanstore.configuration.OutputWSConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationType;
@@ -51,8 +52,8 @@ public abstract class QueryExecutorResourceBase extends ServerResource {
 		return _form.getValuesMap();
 	}
 	
-	protected String getRequestURI() {
-		return this.getRequest().getResourceRef().toString(true, false);
+	protected Reference getRequestReference() {
+		return this.getRequest().getResourceRef();
 	}
 		
 	@Get
@@ -71,22 +72,24 @@ public abstract class QueryExecutorResourceBase extends ServerResource {
 	
 	/**
 	 * Returns an appropriate formatter of the result.
+	 * @param outputWSConfig Configuration of the output webservice from the global configuration file.
 	 * @return formatter of query result
-	 * TODO: choose a formatter according to user preferences (URL query variable, Accept request header)
+	 * TODO: accept also content-negotiation (Accept request header)
 	 */
-	protected QueryResultFormatter getFormatter() {
+	protected QueryResultFormatter getFormatter(OutputWSConfig outputWSConfig) {
 		String formatName = getFormValue(FORMAT_PARAM);
 		
 		if (formatName != null && !formatName.isEmpty()) {
 			if(formatName.equalsIgnoreCase("trig")) {
-				return new TriGFormatter();
+				return new TriGFormatter(outputWSConfig);
 			}
 		}
-		return new HTMLFormatter();
+		return new HTMLFormatter(outputWSConfig);
 	}
 	
 	/**
-	 * TODO: only temporary.
+	 * Reads parameters given to the output webservice and build an AggregationSpec object according to it.
+	 * @return aggregation settings given to the output webservice
 	 */
 	protected AggregationSpec getAggregationSpec() {
 		AggregationSpec aggregationSpec = new AggregationSpec();

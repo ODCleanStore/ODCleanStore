@@ -5,6 +5,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.queryexecution.impl.DefaultAggregationConfigurationCache;
+import cz.cuni.mff.odcleanstore.queryexecution.impl.LabelPropertiesListCache;
 import cz.cuni.mff.odcleanstore.queryexecution.impl.PrefixMappingCache;
 import cz.cuni.mff.odcleanstore.queryexecution.impl.QueryExecutionHelper;
 import cz.cuni.mff.odcleanstore.shared.Utils;
@@ -31,6 +32,9 @@ public class QueryExecution {
     /** Prefix mappings. */
     private final PrefixMappingCache prefixMappingCache;
 
+    /** Properties designating a human-readable label formatted to a string for use in a SPARQL query, with caching. */
+    protected LabelPropertiesListCache labelPropertiesListCache;
+
     /**
      * Container for QE & CR configuration loaded from the global configuration file.
      */
@@ -45,6 +49,7 @@ public class QueryExecution {
         this.connectionCredentials = connectionCredentials;
         this.globalConfig = globalConfig;
         this.prefixMappingCache = new PrefixMappingCache(connectionCredentials);
+        this.labelPropertiesListCache = new LabelPropertiesListCache(connectionCredentials, prefixMappingCache);
         this.expandedDefaultConfigurationCache =
                 new DefaultAggregationConfigurationCache(connectionCredentials, prefixMappingCache);
     }
@@ -60,13 +65,24 @@ public class QueryExecution {
      * @return result of the query as RDF quads
      * @throws QueryExecutionException exception
      */
-    public QueryResult findKeyword(String keywords, QueryConstraintSpec constraints, AggregationSpec aggregationSpec)
+    public BasicQueryResult findKeyword(String keywords, QueryConstraintSpec constraints, AggregationSpec aggregationSpec)
             throws QueryExecutionException {
+
+        if (keywords == null) {
+            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, "keywords must not be null");
+        } else if (constraints == null || aggregationSpec == null) {
+            throw new IllegalArgumentException();
+        }
 
         AggregationSpec expandedAggregationSpec = QueryExecutionHelper.expandPropertyNames(
                 aggregationSpec, prefixMappingCache.getCachedValue());
-        KeywordQueryExecutor queryExecutor = new KeywordQueryExecutor(connectionCredentials, constraints,
-                expandedAggregationSpec, createConflictResolverFactory(), globalConfig.getQueryExecutionGroup());
+        KeywordQueryExecutor queryExecutor = new KeywordQueryExecutor(
+                connectionCredentials,
+                constraints,
+                expandedAggregationSpec,
+                createConflictResolverFactory(),
+                labelPropertiesListCache.getCachedValue(),
+                globalConfig.getQueryExecutionGroup());
         return queryExecutor.findKeyword(keywords);
     }
 
@@ -80,8 +96,14 @@ public class QueryExecution {
      * @return result of the query as RDF quads
      * @throws QueryExecutionException exception
      */
-    public QueryResult findURI(String uri, QueryConstraintSpec constraints, AggregationSpec aggregationSpec)
+    public BasicQueryResult findURI(String uri, QueryConstraintSpec constraints, AggregationSpec aggregationSpec)
             throws QueryExecutionException {
+
+        if (uri == null) {
+            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, "URI must not be null");
+        } else if (constraints == null || aggregationSpec == null) {
+            throw new IllegalArgumentException();
+        }
 
         String expandedURI = Utils.isPrefixedName(uri) ? prefixMappingCache.getCachedValue().expandPrefix(uri) : uri;
         AggregationSpec expandedAggregationSpec = QueryExecutionHelper.expandPropertyNames(
@@ -91,8 +113,35 @@ public class QueryExecution {
                 constraints,
                 expandedAggregationSpec,
                 createConflictResolverFactory(),
+                labelPropertiesListCache.getCachedValue(),
                 globalConfig.getQueryExecutionGroup());
         return queryExecutor.findURI(expandedURI);
+    }
+
+    /**
+     * Named graph provenance metadata query.
+     * Metadata about a given named graph are returned.
+     * The result quads contain RDF/XML provenance metadata provided to the input webservice, other metadata are
+     * stored in NamedGraphMetadataMap.
+     *
+     * @param namedGraphURI URI of a named graph; may be a prefixed name
+     * @return result of the query
+     * @throws QueryExecutionException exception
+     */
+    public NamedGraphMetadataQueryResult findNamedGraphMetadata(String namedGraphURI) throws QueryExecutionException {
+        if (namedGraphURI == null) {
+            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, "Named graph URI must not be null");
+        }
+
+        String expandedNamedGraphURI = Utils.isPrefixedName(namedGraphURI)
+                ? prefixMappingCache.getCachedValue().expandPrefix(namedGraphURI)
+                : namedGraphURI;
+        NamedGraphMetadataQueryExecutor queryExecutor = new NamedGraphMetadataQueryExecutor(
+                connectionCredentials,
+                createConflictResolverFactory(),
+                labelPropertiesListCache.getCachedValue(),
+                globalConfig.getQueryExecutionGroup());
+        return queryExecutor.getMetadata(expandedNamedGraphURI);
     }
 
     /**

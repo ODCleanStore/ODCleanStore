@@ -127,7 +127,7 @@ public final class Config {
     }
 
     /**
-     * Returns output websrvice configuration.
+     * Returns output webservice configuration.
      * @return output webservice configuration
      */
     public OutputWSConfig getOutputWSGroup() {

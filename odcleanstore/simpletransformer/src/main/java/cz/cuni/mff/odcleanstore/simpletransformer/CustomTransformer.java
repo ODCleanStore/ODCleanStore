@@ -23,7 +23,8 @@ public class CustomTransformer implements Transformer {
     private static final Logger LOG = LoggerFactory.getLogger(CustomTransformer.class);
 
     private static final String[] FILTERED_PROPERTIES = new String[] { ODCS.score, ODCS.publisherScore, ODCS.scoreTrace,
-            ODCS.metadataGraph, W3P.insertedAt, W3P.insertedBy, W3P.source, W3P.publishedBy, DC.license };
+            ODCS.metadataGraph, ODCS.provenanceMetadataGraph, W3P.insertedAt, W3P.insertedBy, W3P.source, 
+            W3P.publishedBy, DC.license };
 
     private static final String DELETE_QUERY = "SPARQL DELETE FROM <%1$s> { ?s <%2$s> ?o } WHERE { ?s <%2$s> ?o }";
 
