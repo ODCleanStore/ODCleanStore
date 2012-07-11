@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -160,7 +161,7 @@ public class QualityAssessorImpl implements QualityAssessor {
 		};
 	}
 	
-	public InputStream debugRules (InputStream source, String commonMetadataGraph, TransformationContext context)
+	public Map<String, GraphScoreWithTrace> debugRules (InputStream source, String commonMetadataGraph, TransformationContext context)
 			throws TransformerException {
 		HashMap<String, String> graphs = new HashMap<String, String>();
 		DebugGraphFileLoader loader = new DebugGraphFileLoader(context.getDirtyDatabaseCredentials());
@@ -172,23 +173,27 @@ public class QualityAssessorImpl implements QualityAssessor {
 				throw new TransformerException("missing metadata graph");
 			}
 			
-			Collection<String> temporaryGraphs = graphs.values();
+			Collection<String> originalGraphs = graphs.keySet();
+			Map<String, GraphScoreWithTrace> result = new HashMap<String, GraphScoreWithTrace>();
 			
-			Iterator<String> it = temporaryGraphs.iterator();
+			Iterator<String> it = originalGraphs.iterator();
 			
 			while (it.hasNext()) {
-				String temporaryName = it.next();
+				String originalName = it.next();
+				String temporaryName = graphs.get(originalName);
 				
 				/**
 				 * Perform QA for all graphs except the metadata graph
 				 */
 				if (!temporaryName.equals(graphs.get(commonMetadataGraph))) {
-					GraphScoreWithTrace result = getGraphScoreWithTrace(temporaryName, context.getDirtyDatabaseCredentials());
+					GraphScoreWithTrace subResult = getGraphScoreWithTrace(temporaryName,
+							context.getCleanDatabaseCredentials(),
+							context.getDirtyDatabaseCredentials());
+					
+					result.put(originalName, subResult);
 				}
 				
-				/**
-				 * TODO: COLLECT RESULTS
-				 */
+				return result;
 			}
 			
 			return null;
@@ -265,12 +270,22 @@ public class QualityAssessorImpl implements QualityAssessor {
 		}
 	}
 	
-	public GraphScoreWithTrace getGraphScoreWithTrace (final String graphName, final JDBCConnectionCredentials credentials)
+	//Queries for clean graphs
+	public GraphScoreWithTrace getGraphScoreWithTrace (final String graphName,
+			final JDBCConnectionCredentials clean)
+					throws TransformerException {
+		return getGraphScoreWithTrace(graphName, clean, clean);
+	}
+
+	//General version for rule debugging etc.
+	public GraphScoreWithTrace getGraphScoreWithTrace (final String graphName,
+			final JDBCConnectionCredentials clean,
+			final JDBCConnectionCredentials source)
 		throws TransformerException {
 
 		this.inputGraph = prepareInputGraph(graphName, null);
 		
-		this.context = prepareContext(credentials, credentials);
+		this.context = prepareContext(clean, source);
 		
 		/**
 		 * Start from scratch

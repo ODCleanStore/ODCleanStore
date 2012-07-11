@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,39 +35,9 @@ public class DataNormalizerImpl implements DataNormalizer {
 	public static void main(String[] args) {
 		try {
 			new DataNormalizerImpl().debugRules(new FileInputStream(System.getProperty("user.home") + "/odcleanstore/debugDN.ttl"),
-					new TransformationContext() {
-
-				@Override
-				public JDBCConnectionCredentials getDirtyDatabaseCredentials() {
-					// TODO Auto-generated method stub
-					return new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1112/UID=dba/PWD=dba", "dba", "dba");
-				}
-
-				@Override
-				public JDBCConnectionCredentials getCleanDatabaseCredentials() {
-					// TODO Auto-generated method stub
-					return new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba");
-				}
-
-				@Override
-				public String getTransformerConfiguration() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-
-				@Override
-				public File getTransformerDirectory() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-
-				@Override
-				public EnumTransformationType getTransformationType() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-				
-			});
+					prepareContext(
+							new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba"),
+							new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1112/UID=dba/PWD=dba", "dba", "dba")));
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}
@@ -134,6 +106,31 @@ public class DataNormalizerImpl implements DataNormalizer {
 		};
 	}
 	
+	private static TransformationContext prepareContext (final JDBCConnectionCredentials clean, final JDBCConnectionCredentials dirty) {
+		return new TransformationContext() {
+			@Override
+			public JDBCConnectionCredentials getDirtyDatabaseCredentials() {
+				return dirty;
+			}
+			@Override
+			public JDBCConnectionCredentials getCleanDatabaseCredentials() {
+				return clean;
+			}
+			@Override
+			public String getTransformerConfiguration() {
+				return null;
+			}
+			@Override
+			public File getTransformerDirectory() {
+				return null;
+			}
+			@Override
+			public EnumTransformationType getTransformationType() {
+				return null;
+			}
+		};
+	}
+	
 	public InputStream debugRules (InputStream source, TransformationContext context)
 			throws TransformerException {
 		HashMap<String, String> graphs = new HashMap<String, String>();
@@ -152,7 +149,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 				transformNewGraph(prepareInputGraph(temporaryName), context);
 				
 				/**
-				 * FIND INSERTIONS AND DELETIONS
+				 * FIND INSERTIONS AND DELETIONS PER RULE APPLICATION
 				 */
 			}
 			
@@ -175,7 +172,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 		try
 		{
 			loadRules();
-			applyRules();
+			applyRules(null);
 		} catch (DataNormalizationException e) {
 			throw new TransformerException(e);
 		} finally {
@@ -191,6 +188,38 @@ public class DataNormalizerImpl implements DataNormalizer {
 		throw new TransformerException("Data normalization is supposed to be applied to new graphs.");
 	}
 	
+	public class TripleModification {
+		String s;
+		String p;
+		String o;
+
+		EnumRuleComponentType type;
+		
+		Integer rule;
+	}
+	
+	public Map<Integer, Set<TripleModification>> getModifications (final String graphName,
+			final JDBCConnectionCredentials clean,
+			final JDBCConnectionCredentials source)
+			throws TransformerException {
+		this.inputGraph = prepareInputGraph(graphName);
+		this.context = prepareContext(clean, source);
+		
+		Map<Integer, Set<TripleModification>> modifications = new HashMap<Integer, Set<TripleModification>>();
+		
+		try
+		{
+			loadRules();
+			applyRules(modifications);
+		} catch (DataNormalizationException e) {
+			throw new TransformerException(e);
+		} finally {
+			closeDirtyConnection();
+		}
+
+		return modifications;
+	}
+	
 	private void loadRules () throws DataNormalizationException {
 		rules = new ArrayList<Rule>();
 		
@@ -203,7 +232,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 				));
 	}
 
-	private void applyRules () throws DataNormalizationException {
+	private void applyRules (Map<Integer, Set<TripleModification>> modifications) throws DataNormalizationException {
 		try {
 			getDirtyConnection();
 			
@@ -214,7 +243,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 
 				getDirtyConnection().adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL, false);
 				
-				performRule(rule);
+				performRule(rule, modifications);
 				
 				getDirtyConnection().commit();
 			}
@@ -227,7 +256,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 		}
 	}
 	
-	private void performRule (Rule rule) throws DataNormalizationException, ConnectionException, QueryException, SQLException {
+	private void performRule (Rule rule, Map<Integer, Set<TripleModification>> modifications) throws DataNormalizationException, ConnectionException, QueryException, SQLException {
 		String[] components = rule.getComponents(inputGraph.getGraphName());
 
 		for (int j = 0; j < components.length; ++j) {
@@ -235,6 +264,8 @@ public class DataNormalizerImpl implements DataNormalizer {
 
 			getDirtyConnection().execute(components[j]);
 		}
+		
+		//UPDATE MODIFICATIONS
 	}
 
 	@Override
