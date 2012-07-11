@@ -134,7 +134,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 		};
 	}
 	
-	public void debugRules (InputStream source, TransformationContext context)
+	public InputStream debugRules (InputStream source, TransformationContext context)
 			throws TransformerException {
 		HashMap<String, String> graphs = new HashMap<String, String>();
 		DebugGraphFileLoader loader = new DebugGraphFileLoader(context.getDirtyDatabaseCredentials());
@@ -152,11 +152,15 @@ public class DataNormalizerImpl implements DataNormalizer {
 				transformNewGraph(prepareInputGraph(temporaryName), context);
 				
 				/**
-				 * TODO: COLLECT RESULTS
+				 * FIND INSERTIONS AND DELETIONS
 				 */
 			}
+			
+			return null;
 		} catch (Exception e) {
 			LOG.error("Debugging of Data Normalization rules failed: " + e.getMessage());
+			
+			throw new TransformerException(e);
 		} finally {
 			loader.unload(graphs);
 		}

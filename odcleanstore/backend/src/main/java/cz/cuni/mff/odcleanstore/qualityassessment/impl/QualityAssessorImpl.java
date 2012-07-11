@@ -160,7 +160,7 @@ public class QualityAssessorImpl implements QualityAssessor {
 		};
 	}
 	
-	public void debugRules (InputStream source, String commonMetadataGraph, TransformationContext context)
+	public InputStream debugRules (InputStream source, String commonMetadataGraph, TransformationContext context)
 			throws TransformerException {
 		HashMap<String, String> graphs = new HashMap<String, String>();
 		DebugGraphFileLoader loader = new DebugGraphFileLoader(context.getDirtyDatabaseCredentials());
@@ -183,15 +183,19 @@ public class QualityAssessorImpl implements QualityAssessor {
 				 * Perform QA for all graphs except the metadata graph
 				 */
 				if (!temporaryName.equals(graphs.get(commonMetadataGraph))) {
-					transformNewGraph(prepareInputGraph(temporaryName, graphs.get(commonMetadataGraph)), context);
+					GraphScoreWithTrace result = getGraphScoreWithTrace(temporaryName, context.getDirtyDatabaseCredentials());
 				}
 				
 				/**
 				 * TODO: COLLECT RESULTS
 				 */
 			}
+			
+			return null;
 		} catch (Exception e) {
 			LOG.error("Debugging of Quality Assessment rules failed: " + e.getMessage());
+			
+			throw new TransformerException(e);
 		} finally {
 			loader.unload(graphs);
 		}
