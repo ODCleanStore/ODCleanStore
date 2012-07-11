@@ -31,9 +31,14 @@ public class LinkerDao {
 	private static LinkerDao dao;
 
 	/**
-	 * singleton connection instance
+	 * connection credentials to the clean DB
 	 */
-	private static VirtuosoConnectionWrapper connection;
+	private static JDBCConnectionCredentials cleanDBCredentials;
+	
+	/**
+	 * connection credentials to the dirty DB
+	 */
+	private static JDBCConnectionCredentials dirtyDBCredentials;
 
 	/**
 	 * Private constructor used by the getInstance method.
@@ -41,9 +46,10 @@ public class LinkerDao {
 	 * @param credentials connection parameters
 	 * @throws ConnectionException
 	 */
-	private LinkerDao(JDBCConnectionCredentials credentials) throws ConnectionException {
-		LOG.info("Connecting to DB on: " + credentials.getConnectionString());
-		connection = VirtuosoConnectionWrapper.createConnection(credentials);
+	private LinkerDao(JDBCConnectionCredentials cleanDBCredentials, JDBCConnectionCredentials dirtyDBCredentials) 
+			throws ConnectionException {
+		LinkerDao.cleanDBCredentials = cleanDBCredentials;
+		LinkerDao.dirtyDBCredentials = dirtyDBCredentials;
 	}
 
 
@@ -54,9 +60,10 @@ public class LinkerDao {
 	 * @return singleton instance
 	 * @throws ConnectionException
 	 */
-	public static LinkerDao getInstance(JDBCConnectionCredentials credentials) throws ConnectionException {
+	public static LinkerDao getInstance(JDBCConnectionCredentials cleanDBCredentials, JDBCConnectionCredentials dirtyDBCredentials) 
+			throws ConnectionException {
 		if (dao == null) {
-			return new LinkerDao(credentials);
+			return new LinkerDao(cleanDBCredentials, dirtyDBCredentials);
 		}
 		return dao;
 	}
@@ -68,18 +75,32 @@ public class LinkerDao {
 	 * @return list of loaded linkage rules
 	 * @throws QueryException
 	 * @throws SQLException
+	 * @throws ConnectionException 
 	 */
-	public List<SilkRule> loadRules(String[] groups) throws QueryException, SQLException {
+	public List<SilkRule> loadRules(String[] groups) throws QueryException, ConnectionException {
 		List<SilkRule> ruleList = new ArrayList<SilkRule>();
-		WrappedResultSet resultSet = connection.executeSelect(
-				"select id, label, linkType, sourceRestriction, targetRestriction, blob_to_string(linkageRule) as rule, filterThreshold, filterLimit " +
-				"from DB.ODCLEANSTORE.OI_RULES where groupId in " + createInPart(groups));
-		while (resultSet.next()) {
-			SilkRule rule = createRule(resultSet);
-			rule.setOutputs(loadOutputs(resultSet.getInt("id")));
-			ruleList.add(rule);
-		}
-		resultSet.closeQuietly();
+		VirtuosoConnectionWrapper connection = null;
+		WrappedResultSet resultSet = null;
+		try {
+			connection = VirtuosoConnectionWrapper.createConnection(cleanDBCredentials);
+			resultSet = connection.executeSelect(
+					"select id, label, linkType, sourceRestriction, targetRestriction, blob_to_string(linkageRule) as rule, filterThreshold, filterLimit " +
+					"from DB.ODCLEANSTORE.OI_RULES where groupId in " + createInPart(groups));
+			while (resultSet.next()) {
+				SilkRule rule = createRule(resultSet);
+				rule.setOutputs(loadOutputs(connection, resultSet.getInt("id")));
+				ruleList.add(rule);
+			}
+		} catch (SQLException se) {
+			throw new QueryException(se);
+		} finally {
+			if (resultSet != null) {
+				resultSet.closeQuietly();
+			}
+			if (connection != null) {
+				connection.closeQuietly();
+			}
+		}		
 		LOG.info("Loaded {} linkage rules.", ruleList.size());
 		return ruleList;
 	}
@@ -96,27 +117,37 @@ public class LinkerDao {
 		return rule;
 	}
 	
-	private List<Output> loadOutputs(Integer ruleId) throws QueryException, SQLException {
+	private List<Output> loadOutputs(VirtuosoConnectionWrapper connection, Integer ruleId) 
+			throws QueryException, SQLException {
 		List<Output> outputs = new ArrayList<Output>();
-		WrappedResultSet resultSet = connection.executeSelect("select t.label as type, o.minConfidence, o.maxConfidence, o.fileName, f.label as format " +
-				"from DB.ODCLEANSTORE.OI_OUTPUTS o inner join DB.ODCLEANSTORE.OI_OUTPUT_TYPES t on o.outputTypeId = t.id " +
-				"inner join DB.ODCLEANSTORE.OI_FILE_FORMATS f on o.outputTypeId = f.id " +
-				"where o.ruleId = " + ruleId);
-		while (resultSet.next()) {
-			Output output;
-			String ruleType = resultSet.getString("type");
-			if (OutputType.FILE.toString().equals(ruleType)) {
-				FileOutput fileOutput = new FileOutput();
-				fileOutput.setFormat(resultSet.getString("format"));
-				fileOutput.setName(resultSet.getString("fileName"));
-				output = fileOutput;
-			} else {
-				output = new Output();
+		WrappedResultSet resultSet = null;
+		try {
+			resultSet = connection.executeSelect(
+					"select t.label as type, o.minConfidence, o.maxConfidence, o.fileName, f.label as format " +
+					"from DB.ODCLEANSTORE.OI_OUTPUTS o inner join DB.ODCLEANSTORE.OI_OUTPUT_TYPES t on o.outputTypeId = t.id " +
+					"inner join DB.ODCLEANSTORE.OI_FILE_FORMATS f on o.outputTypeId = f.id " +
+					"where o.ruleId = " + ruleId);
+			while (resultSet.next()) {
+				Output output;
+				String ruleType = resultSet.getString("type");
+				if (OutputType.FILE.toString().equals(ruleType)) {
+					FileOutput fileOutput = new FileOutput();
+					fileOutput.setFormat(resultSet.getString("format"));
+					fileOutput.setName(resultSet.getString("fileName"));
+					output = fileOutput;
+				} else {
+					output = new Output();
+				}
+				output.setMinConfidence(resultSet.getBigDecimal("minConfidence"));
+				output.setMaxConfidence(resultSet.getBigDecimal("maxConfidence"));
+				outputs.add(output);
 			}
-			output.setMinConfidence(resultSet.getBigDecimal("minConfidence"));
-			output.setMaxConfidence(resultSet.getBigDecimal("maxConfidence"));
-			outputs.add(output);
+		} finally {
+			if (resultSet != null) {
+				resultSet.closeQuietly();
+			}
 		}
+		
 		return outputs;
 	}
 
@@ -132,5 +163,18 @@ public class LinkerDao {
 			result += group + ",";
 		}
 		return result.substring(0, result.length()-1) + ")";
+	}
+	
+	public void clearGraph(String graphId) throws ConnectionException, QueryException {
+		LOG.info("Clearing graph: {} ", graphId);
+		VirtuosoConnectionWrapper connection = null;
+		try {
+			connection = VirtuosoConnectionWrapper.createConnection(dirtyDBCredentials);
+			connection.execute("SPARQL CLEAR GRAPH <" + graphId + ">");
+		} finally {
+			if (connection != null) {
+				connection.closeQuietly();
+			}
+		}
 	}
 }
