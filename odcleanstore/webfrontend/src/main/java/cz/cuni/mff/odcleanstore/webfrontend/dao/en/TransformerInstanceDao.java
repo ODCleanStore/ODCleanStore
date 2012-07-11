@@ -9,7 +9,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
 public class TransformerInstanceDao extends DaoForEntityWithSurrogateKey<TransformerInstance>
 {
-	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "TRANSFORMER_INSTANCES";
+	public static final String TABLE_NAME = TABLE_NAME_PREFIX + BACKUP_TABLE_PREFIX + "TRANSFORMER_INSTANCES";
 
 	private static final long serialVersionUID = 1L;
 	
