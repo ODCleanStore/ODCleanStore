@@ -12,7 +12,7 @@ public class OIRuleAssignmentDao extends DaoForEntityWithSurrogateKey<RuleAssign
 {
 	private static final long serialVersionUID = 1L;
 
-	private static final String TABLE_NAME = TABLE_NAME_PREFIX + "OI_RULES_ASSIGNMENT";
+	private static final String TABLE_NAME = TABLE_NAME_PREFIX + BACKUP_TABLE_PREFIX + "OI_RULES_ASSIGNMENT";
 	
 	private ParameterizedRowMapper<RuleAssignment> rowMapper;
 	

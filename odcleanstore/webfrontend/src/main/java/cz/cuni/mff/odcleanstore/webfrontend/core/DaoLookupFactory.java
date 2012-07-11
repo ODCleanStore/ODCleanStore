@@ -12,6 +12,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.SafetyDaoDecorator;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.SafetyDaoDecoratorForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.GlobalAggregationSettingsDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.en.OfficialPipelinesDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 
 import org.apache.commons.dbcp.BasicDataSource;
@@ -136,6 +137,16 @@ public class DaoLookupFactory implements Serializable
 		return daoInstance;
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
+	public OfficialPipelinesDao getOfficialPipelinesDao()
+	{
+		OfficialPipelinesDao dao = new OfficialPipelinesDao();
+		dao.setDaoLookupFactory(this);
+		return dao;
+	}
 	/**
 	 * 
 	 * @return
