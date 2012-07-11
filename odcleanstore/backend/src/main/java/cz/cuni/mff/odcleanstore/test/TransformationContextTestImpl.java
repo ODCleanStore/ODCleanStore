@@ -18,22 +18,30 @@ public class TransformationContextTestImpl implements TransformationContext {
 
 	private File directory;
 	private String config;
-	private JDBCConnectionCredentials endpoint;
+	private JDBCConnectionCredentials cleanDBconnection;
+	private JDBCConnectionCredentials dirtyDBconnection;
+	
 
-	TransformationContextTestImpl(File directory, String config, JDBCConnectionCredentials endpoint) {
+	TransformationContextTestImpl(File directory, String config, JDBCConnectionCredentials cleanDBconnection) {
+		this(directory, config, cleanDBconnection, null);
+	}
+	
+	TransformationContextTestImpl(File directory, String config, JDBCConnectionCredentials cleanDBconnection, 
+			JDBCConnectionCredentials dirtyDBconnection) {
 		this.directory = directory;
 		this.config = config;
-		this.endpoint = endpoint;
+		this.cleanDBconnection = cleanDBconnection;
+		this.dirtyDBconnection = dirtyDBconnection;
 	}
 
 	@Override
 	public JDBCConnectionCredentials getDirtyDatabaseCredentials() {
-		return endpoint;
+		return dirtyDBconnection;
 	}
 
 	@Override
 	public JDBCConnectionCredentials getCleanDatabaseCredentials() {
-		return endpoint;
+		return cleanDBconnection;
 	}
 
 	@Override

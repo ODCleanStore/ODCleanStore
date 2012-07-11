@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.restlet.Component;
 import org.restlet.data.Protocol;
 
+import cz.cuni.mff.odcleanstore.configuration.OutputWSConfig;
 import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.Service;
 import cz.cuni.mff.odcleanstore.engine.common.ModuleState;
@@ -14,9 +15,12 @@ import cz.cuni.mff.odcleanstore.engine.common.ModuleState;
 public final class OutputWSService extends Service implements Runnable {
 	
 	private static final Logger LOG = Logger.getLogger(OutputWSService.class);
+	
+	private OutputWSConfig outputWSConfig;
 
-	public OutputWSService(Engine engine) {
+	public OutputWSService(Engine engine, OutputWSConfig outputWSConfig) {
 		super(engine);
+		this.outputWSConfig = outputWSConfig;
 	}
 
 	private Component _component;
@@ -33,8 +37,8 @@ public final class OutputWSService extends Service implements Runnable {
 			}
 			System.setProperty("org.restlet.engine.loggerFacadeClass", "org.restlet.ext.slf4j.Slf4jLoggerFacade");
 			_component = new Component();
-			_component.getServers().add(Protocol.HTTP, Engine.OUTPUTWS_PORT);
-			_component.getDefaultHost().attach(new Root());
+			_component.getServers().add(Protocol.HTTP, outputWSConfig.getPort());
+			_component.getDefaultHost().attach(new Root(outputWSConfig));
 			_component.start();
 			setModuleState(ModuleState.RUNNING);
 			LOG.info("OutputWSService running");

@@ -117,7 +117,7 @@ public class ConfigBuilder {
 		Document configDoc;
 		File configFile;
 		try {
-			configDoc = createConfigDoc(rules, prefixes, inputGraph, config);
+			configDoc = createConfigDoc(rules, prefixes, inputGraph, config, context.getTransformerDirectory());
 			LOG.info("Created link configuration document.");
 			configFile = storeConfigDoc(configDoc, context.getTransformerDirectory(), inputGraph.getGraphId());
 			LOG.info("Stored link configuration to temporary file {}", configFile.getAbsolutePath());
@@ -287,9 +287,10 @@ public class ConfigBuilder {
 	 * @throws InvalidLinkageRuleException 
 	 * @throws DOMException 
 	 */
-	private static Document createConfigDoc(List<SilkRule> rules, List<RDFprefix> prefixes,
-			TransformedGraph inputGraph, ObjectIdentificationConfig config) throws ParserConfigurationException, 
-			SAXException, IOException, DOMException, InvalidLinkageRuleException {
+	private static Document createConfigDoc(List<SilkRule> rules, List<RDFprefix> prefixes, 
+			TransformedGraph inputGraph, ObjectIdentificationConfig config, File transformerDirectory) 
+					throws ParserConfigurationException, SAXException, IOException, DOMException, 
+					InvalidLinkageRuleException {
 
 		DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 		Document configDoc = builder.newDocument();
@@ -297,8 +298,8 @@ public class ConfigBuilder {
 		configDoc.appendChild(root);
 		root.appendChild(createPrefixes(configDoc, prefixes));
 		root.appendChild(createSources(configDoc, inputGraph.getGraphName(), config));
-		root.appendChild(
-				createLinkageRules(configDoc, rules, inputGraph.getGraphId(), builder, config));			
+		root.appendChild(createLinkageRules(
+				configDoc, rules, inputGraph.getGraphId(), builder, config, transformerDirectory));			
 		
 		return configDoc;
 	}
@@ -386,19 +387,19 @@ public class ConfigBuilder {
 	 * @throws InvalidLinkageRuleException 
 	 */
 	private static Element createLinkageRules(Document doc, List<SilkRule> rules, String graphId, 
-			DocumentBuilder builder, ObjectIdentificationConfig config) throws SAXException, IOException,
-			InvalidLinkageRuleException {
+			DocumentBuilder builder, ObjectIdentificationConfig config, File transformerDirectory) 
+					throws SAXException, IOException, InvalidLinkageRuleException {
 		Element rulesElement = doc.createElement(CONFIG_XML_INTERLINKS);
 		
 		for (SilkRule rule: rules) {		
-			rulesElement.appendChild(createLinkageRule(doc, rule, graphId, builder, config));
+			rulesElement.appendChild(createLinkageRule(doc, rule, graphId, builder, config, transformerDirectory));
 		}
 		
 		return rulesElement;
 	}
 	
 	private static Element createLinkageRule(Document doc, SilkRule rule, String graphId, 
-			DocumentBuilder builder, ObjectIdentificationConfig config) 
+			DocumentBuilder builder, ObjectIdentificationConfig config, File transformerDirectory) 
 					throws SAXException, IOException, DOMException, InvalidLinkageRuleException {
 		Element ruleElement = doc.createElement(CONFIG_XML_INTERLINK);
 		ruleElement.setAttribute(CONFIG_XML_ID, rule.getLabel());
@@ -416,7 +417,7 @@ public class ConfigBuilder {
 		
 		ruleElement.appendChild(createFilter(doc, rule.getFilterLimit(), rule.getFilterThreshold()));
 		
-		ruleElement.appendChild(createOutputs(doc, rule.getOutputs(), graphId, config));
+		ruleElement.appendChild(createOutputs(doc, rule.getOutputs(), graphId, config, transformerDirectory));
 		
 		return ruleElement;
 	}
@@ -450,16 +451,17 @@ public class ConfigBuilder {
 	}
 	
 	private static Element createOutputs(Document doc, List<Output> outputs, String graphId, 
-			ObjectIdentificationConfig config) throws DOMException, InvalidLinkageRuleException {
+			ObjectIdentificationConfig config, File transformerDirectory) 
+					throws DOMException, InvalidLinkageRuleException {
 		Element outputsElement = doc.createElement(CONFIG_XML_OUTPUTS);	
 		for (Output output: outputs) {
-			outputsElement.appendChild(createOutput(doc, output, graphId, config));
+			outputsElement.appendChild(createOutput(doc, output, graphId, config, transformerDirectory));
 		}		
 		return outputsElement;
 	}
 	
-	private static Element createOutput(Document doc, Output output, String graphId, ObjectIdentificationConfig config) 
-			throws InvalidLinkageRuleException {
+	private static Element createOutput(Document doc, Output output, String graphId, 
+			ObjectIdentificationConfig config, File transformerDirectory) throws InvalidLinkageRuleException {
 		Element outputElement = doc.createElement(CONFIG_XML_OUTPUT);
 		if (output.getMinConfidence() != null) {
 			outputElement.setAttribute(CONFIG_XML_MIN_CONFIDENCE, output.getMinConfidence().toString());
@@ -474,7 +476,7 @@ public class ConfigBuilder {
 				throw new InvalidLinkageRuleException("Missing file name (file parameter) in output element.");
 			}
 			outputElement.appendChild(createParam(doc, CONFIG_XML_FILE, updateFileName(
-					fileOutput.getName(), graphId)));
+					fileOutput.getName(), graphId, transformerDirectory)));
 			if (fileOutput.getFormat() == null) {
 				throw new InvalidLinkageRuleException("Missing file format parameter in output element.");
 			}
@@ -496,11 +498,12 @@ public class ConfigBuilder {
 	 * @param graphId unique graph ID
 	 * @return unique file name
 	 */
-	private static String updateFileName(String name, String graphId) {
-		int dotIndex = name.lastIndexOf(".");
-		String firstPart = name.substring(0, dotIndex);
+	private static String updateFileName(String name, String graphId, File transformerDirectory) {
+		int colonIndex = name.indexOf(':');
+		int dotIndex = name.lastIndexOf('.');
+		String firstPart = name.substring(colonIndex + 1, dotIndex);
 		String thirdPart = name.substring(dotIndex);
-		return firstPart + graphId + thirdPart;
+		return transformerDirectory.getAbsolutePath() + firstPart + graphId + thirdPart;
 	}
 	
 	/**

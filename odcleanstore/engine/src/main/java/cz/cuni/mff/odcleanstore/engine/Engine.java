@@ -30,13 +30,12 @@ public final class Engine extends Module {
 
 	public static final String DATA_PREFIX = "http://opendata.cz/infrastructure/odcleanstore/";
 	public static final String METADATA_PREFIX = "http://opendata.cz/infrastructure/odcleanstore/metadata/";
+	public static final String RDFXML_PROVENANCE_METADATA_PREFIX =
+			"http://opendata.cz/infrastructure/odcleanstore/provenanceMetadata/";
 
 	public static final String INPUTWS_DIR = "inputWS/";
 	public static final String INPUTWS_ENDPOINT_URL = "http://localhost:8088/odcleanstore/scraper";
 
-	public static final int OUTPUTWS_PORT = 8087;
-	public static final String OUTPUTWS_KEYWORD_PATH = "keyword";
-	public static final String OUTPUTWS_URI_PATH = "uri";
 	// end parameters
 
 	// TODO: replace by values from global configuration
@@ -70,7 +69,7 @@ public final class Engine extends Module {
 
 	private PipelineService _pipelineService;
 	private InputWSService _inputWSService;
-	private OutputWSService _userService;
+	private OutputWSService _outputWSService;
 
 	private Engine() {
 	}
@@ -119,7 +118,7 @@ public final class Engine extends Module {
 		
 		_executor = new ScheduledThreadPoolExecutor(5);
 
-		_userService = new OutputWSService(this);
+		_outputWSService = new OutputWSService(this, ConfigLoader.getConfig().getOutputWSGroup());
 		_inputWSService = new InputWSService(this);
 		_pipelineService = new PipelineService(this);
 	}
@@ -140,7 +139,7 @@ public final class Engine extends Module {
 	}
 
 	private void startServices() {
-		_executor.execute(_userService);
+		_executor.execute(_outputWSService);
 		_executor.execute(_inputWSService);
 		_executor.execute(_pipelineService);
 

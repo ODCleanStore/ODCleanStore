@@ -1,13 +1,13 @@
 package cz.cuni.mff.odcleanstore.linker.impl;
 
 import java.io.File;
-import java.sql.SQLException;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cz.cuni.mff.odcleanstore.configuration.ObjectIdentificationConfig;
+import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.data.RDFprefix;
@@ -53,24 +53,21 @@ public class LinkerImpl implements Linker {
 			LOG.info("No configuration specified, using XML files in directory {}", context.getTransformerDirectory().getAbsolutePath());
 			linkByConfigFiles(context);
 		} else {
-			LinkerDao dao;
 			File configFile = null;
 			try {
-				dao = LinkerDao.getInstance(context.getCleanDatabaseCredentials());
+				LinkerDao dao = LinkerDao.getInstance(context.getCleanDatabaseCredentials(), context.getDirtyDatabaseCredentials());
 				List<SilkRule> rules = loadRules(context.getTransformerConfiguration(), dao);
 				List<RDFprefix> prefixes = RDFPrefixesLoader.loadPrefixes(context.getCleanDatabaseCredentials());
 				
 				configFile = ConfigBuilder.createLinkConfigFile(rules, prefixes, inputGraph, context, globalConfig);
 				
-				inputGraph.addAttachedGraph(globalConfig.getLinksGraphURIPrefix().toString() + inputGraph.getGraphId());
+				inputGraph.addAttachedGraph(getLinksGraphId(inputGraph));
 				
 				LOG.info("Calling Silk with temporary configuration file: {}", configFile.getAbsolutePath());
 				Silk.executeFile(configFile, null, Silk.DefaultThreads(), true);
 				LOG.info("Linking finished.");
 				
 				configFile.delete();
-			} catch (SQLException e) {
-				throw new TransformerException(e);
 			} catch (DatabaseException e) {
 				throw new TransformerException(e);
 			} catch (TransformedGraphException e) {
@@ -88,10 +85,19 @@ public class LinkerImpl implements Linker {
 	 *
 	 * @param inputGraph {@inheritDoc}
 	 * @param context {@inheritDoc}
+	 * @throws TransformerException 
 	 */
 	@Override
-	public void transformExistingGraph(TransformedGraph inputGraph, TransformationContext context) {
-		// TODO Auto-generated method stub		
+	public void transformExistingGraph(TransformedGraph inputGraph, TransformationContext context) throws TransformerException {
+		LOG.info("Linking existing graph: {}", inputGraph.getGraphName());
+		LinkerDao dao;
+		try {
+			dao = LinkerDao.getInstance(context.getCleanDatabaseCredentials(), context.getDirtyDatabaseCredentials());
+			dao.clearGraph(getLinksGraphId(inputGraph));
+			transformNewGraph(inputGraph, context);
+		} catch (DatabaseException e) {
+			throw new TransformerException(e);
+		}
 	}
 	
 	@Override
@@ -136,10 +142,14 @@ public class LinkerImpl implements Linker {
 	 * @param dao is used to load rules from DB
 	 */
 	private List<SilkRule> loadRules(String transformerConfiguration, LinkerDao dao ) 
-			throws SQLException, QueryException {
+			throws ConnectionException, QueryException {
 		LOG.info("Loading rule groups: {}", transformerConfiguration);
 		String[] ruleGroupArray = transformerConfiguration.split(",");
 
 		return dao.loadRules(ruleGroupArray);
+	}
+	
+	private String getLinksGraphId(TransformedGraph inputGraph) {
+		return globalConfig.getLinksGraphURIPrefix().toString() + inputGraph.getGraphId();
 	}
 }

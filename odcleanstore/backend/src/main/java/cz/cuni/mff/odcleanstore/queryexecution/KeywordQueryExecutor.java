@@ -389,12 +389,14 @@ import java.util.regex.Pattern;
      * @param aggregationSpec aggregation settings for conflict resolution;
      *        property names must not contain prefixed names
      * @param conflictResolverFactory factory for ConflictResolver
+     * @param labelPropertiesList list of label properties formatted as a string for use in a query
      * @param globalConfig global conflict resolution settings
      */
     public KeywordQueryExecutor(JDBCConnectionCredentials connectionCredentials, QueryConstraintSpec constraints,
             AggregationSpec aggregationSpec, ConflictResolverFactory conflictResolverFactory,
-            QueryExecutionConfig globalConfig) {
-        super(connectionCredentials, constraints, aggregationSpec, conflictResolverFactory, globalConfig);
+            String labelPropertiesList, QueryExecutionConfig globalConfig) {
+        super(connectionCredentials, constraints, aggregationSpec, conflictResolverFactory,
+                labelPropertiesList, globalConfig);
     }
 
     /**
@@ -404,7 +406,7 @@ import java.util.regex.Pattern;
      * @return query result holder
      * @throws QueryExecutionException invalid query or database error
      */
-    public QueryResult findKeyword(String keywordsQuery) throws QueryExecutionException {
+    public BasicQueryResult findKeyword(String keywordsQuery) throws QueryExecutionException {
         LOG.info("Keyword query for '{}'", keywordsQuery);
         long startTime = System.currentTimeMillis();
         checkValidSettings();
@@ -479,7 +481,7 @@ import java.util.regex.Pattern;
      * @param executionTime query execution time in ms
      * @return query result holder
      */
-    private QueryResult createResult(
+    private BasicQueryResult createResult(
             Collection<CRQuad> resultQuads,
             NamedGraphMetadataMap metadata,
             String query,
@@ -487,7 +489,7 @@ import java.util.regex.Pattern;
 
         LOG.debug("Query Execution: findKeyword() in {} ms", executionTime);
         // Format and return result
-        QueryResult queryResult = new QueryResult(resultQuads, metadata, query, EnumQueryType.KEYWORD, constraints,
+        BasicQueryResult queryResult = new BasicQueryResult(resultQuads, metadata, query, EnumQueryType.KEYWORD, constraints,
                 aggregationSpec);
         queryResult.setExecutionTime(executionTime);
         return queryResult;
@@ -516,7 +518,8 @@ import java.util.regex.Pattern;
      */
     private Collection<Quad> getLabels(String containsMatchExpr, String exactMatchExpr) throws DatabaseException {
         String query = String.format(Locale.ROOT, LABELS_QUERY, containsMatchExpr, exactMatchExpr,
-                getGraphFilterClause(), LABEL_PROPERTIES_LIST, getGraphPrefixFilter("labelGraph"), maxLimit);
+                getGraphFilterClause(), labelPropertiesList, getGraphPrefixFilter("labelGraph"),
+                maxLimit);
         return getQuadsFromQuery(query, "getLabels()");
     }
 
@@ -530,7 +533,8 @@ import java.util.regex.Pattern;
     private NamedGraphMetadataMap getMetadata(String containsMatchExpr, String exactMatchExpr)
             throws DatabaseException {
         String query = String.format(Locale.ROOT, METADATA_QUERY, containsMatchExpr, exactMatchExpr,
-                getGraphFilterClause(), LABEL_PROPERTIES_LIST, getGraphPrefixFilter("resGraph"), maxLimit);
+                getGraphFilterClause(), labelPropertiesList, getGraphPrefixFilter("resGraph"),
+                maxLimit);
         return getMetadataFromQuery(query, "getMetadata()");
     }
 

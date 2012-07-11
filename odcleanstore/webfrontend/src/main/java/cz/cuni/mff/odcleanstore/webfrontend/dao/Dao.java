@@ -15,7 +15,6 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.io.Serializable;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -27,6 +26,7 @@ import java.util.List;
 public abstract class Dao<T extends BusinessEntity> implements Serializable
 {
 	public static final String TABLE_NAME_PREFIX = "DB.ODCLEANSTORE.";
+	public static final String BACKUP_TABLE_PREFIX = "BACKUP_";
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -55,7 +55,6 @@ public abstract class Dao<T extends BusinessEntity> implements Serializable
 	 */
 	public void setDaoLookupFactory(DaoLookupFactory lookupFactory)
 	{
-		logger.debug("setting dao lookup factory for: " + this.getClass());
 		this.lookupFactory = lookupFactory;
 	}
 	

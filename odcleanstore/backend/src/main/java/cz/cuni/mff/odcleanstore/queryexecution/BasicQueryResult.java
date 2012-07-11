@@ -11,27 +11,18 @@ import java.util.Collection;
  * Provides access to all important information about query result such as the result quads, metadata or query settings.
  * @author Jan Michelfeit
  */
-public class QueryResult {
+public class BasicQueryResult extends QueryResultBase {
     /** The result of the query as CRQuads. */
     private Collection<CRQuad> resultQuads;
 
     /** Provenance metadata for {@link #resultQuads}. */
     private NamedGraphMetadataMap metadata;
 
-    /** The query string. */
-    private String query;
-
-    /** Type of the query. */
-    private EnumQueryType queryType;
-
     /** Constraints on triples returned in the result. */
     private QueryConstraintSpec queryConstraints;
 
     /** Aggregation settings for conflict resolution. */
     private AggregationSpec aggregationSpec;
-
-    /** Query execution time in ms. */
-    private Long executionTime;
 
     /**
      * Initializes a new instance.
@@ -42,7 +33,7 @@ public class QueryResult {
      * @param queryConstraints constraints on triples returned in the result
      * @param aggregationSpec aggregation settings used during conflict resolution
      */
-    public QueryResult(
+    public BasicQueryResult(
             Collection<CRQuad> resultQuads,
             NamedGraphMetadataMap metadata,
             String query,
@@ -50,10 +41,9 @@ public class QueryResult {
             QueryConstraintSpec queryConstraints,
             AggregationSpec aggregationSpec) {
 
+        super(query, queryType);
         this.resultQuads = resultQuads;
         this.metadata = metadata;
-        this.query = query;
-        this.queryType = queryType;
         this.queryConstraints = queryConstraints;
         this.aggregationSpec = aggregationSpec;
     }
@@ -75,23 +65,6 @@ public class QueryResult {
     }
 
     /**
-     * Returns the query string.
-     * @return the query string
-     */
-    public String getQuery() {
-        return query;
-    }
-
-
-    /**
-     * Returns type of the query.
-     * @return type of the query
-     */
-    public EnumQueryType getQueryType() {
-        return queryType;
-    }
-
-    /**
      * Returns constraints on triples returned in the result.
      * @return query constraints
      */
@@ -105,22 +78,6 @@ public class QueryResult {
      */
     public AggregationSpec getAggregationSpec() {
         return aggregationSpec;
-    }
-
-    /**
-     * Set query execution time in ms.
-     * @param executionTime execution time in ms
-     */
-    public void setExecutionTime(long executionTime) {
-        this.executionTime = executionTime;
-    }
-
-    /**
-     * Returns query execution time in ms.
-     * @return execution time in ms or null if unknown
-     */
-    public Long getExecutionTime() {
-        return executionTime;
     }
 
 }
