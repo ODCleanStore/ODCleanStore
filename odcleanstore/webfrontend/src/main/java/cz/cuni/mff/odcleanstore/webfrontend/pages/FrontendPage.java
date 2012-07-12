@@ -14,7 +14,6 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
-import org.apache.wicket.model.Model;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
@@ -30,6 +29,8 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
  */
 public abstract class FrontendPage extends WebPage 
 {
+	public static final int MAX_LIST_COLUMN_TEXT_LENGTH = 100;
+	
 	private static final long serialVersionUID = 1L;
 
 	private static Logger logger = Logger.getLogger(FrontendPage.class);

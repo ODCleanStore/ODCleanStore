@@ -13,6 +13,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
@@ -87,9 +88,9 @@ public class QAGroupDetailPage extends FrontendPage
 				
 				item.setModel(new CompoundPropertyModel<QARule>(rule));
 				
-				item.add(new Label("filter"));
+				item.add(new TruncatedLabel("filter", MAX_LIST_COLUMN_TEXT_LENGTH));
 				item.add(new Label("coefficient"));
-				item.add(new Label("description"));	
+				item.add(new TruncatedLabel("description", MAX_LIST_COLUMN_TEXT_LENGTH));
 				
 				item.add(
 					new DeleteButton<QARule>
