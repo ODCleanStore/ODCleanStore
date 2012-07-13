@@ -10,6 +10,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
@@ -74,7 +75,15 @@ public class TransformersListPage extends FrontendPage
 						new DeleteConfirmationMessage("transformer", "pipeline assignment"),
 						TransformersListPage.this
 					)
-				);	
+				);
+				
+				item.add(
+					new RedirectButton(
+						TransformerDetailPage.class, 
+						transformer.getId(), 
+						"showTransformerDetailPage"
+					)
+				);
 			}
 		};
 
