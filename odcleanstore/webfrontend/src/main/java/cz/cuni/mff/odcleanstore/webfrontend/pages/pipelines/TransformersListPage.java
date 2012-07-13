@@ -10,6 +10,8 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
@@ -60,9 +62,9 @@ public class TransformersListPage extends FrontendPage
 				item.setModel(new CompoundPropertyModel<Transformer>(transformer));
 	
 				item.add(new Label("label"));
-				item.add(new Label("description"));
-				item.add(new Label("jarPath"));
-				item.add(new Label("fullClassName"));
+				item.add(new TruncatedLabel("description", MAX_LIST_COLUMN_TEXT_LENGTH));
+				item.add(new TruncatedLabel("jarPath", MAX_LIST_COLUMN_TEXT_LENGTH));
+				item.add(new TruncatedLabel("fullClassName", MAX_LIST_COLUMN_TEXT_LENGTH));
 				
 				item.add(
 					new DeleteButton<Transformer>
@@ -73,7 +75,15 @@ public class TransformersListPage extends FrontendPage
 						new DeleteConfirmationMessage("transformer", "pipeline assignment"),
 						TransformersListPage.this
 					)
-				);	
+				);
+				
+				item.add(
+					new RedirectButton(
+						TransformerDetailPage.class, 
+						transformer.getId(), 
+						"showTransformerDetailPage"
+					)
+				);
 			}
 		};
 

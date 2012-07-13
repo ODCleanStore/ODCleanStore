@@ -4,6 +4,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.RulesGroupEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.RuleAssignment;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
@@ -75,7 +76,7 @@ public class AssignedGroupsList extends Panel
 				item.setModel(new CompoundPropertyModel<RuleAssignment>(ruleAssignment));
 				
 				item.add(new Label("groupLabel"));	
-				item.add(new Label("groupDescription"));
+				item.add(new TruncatedLabel("groupDescription", FrontendPage.MAX_LIST_COLUMN_TEXT_LENGTH));
 				
 				item.add(
 					createDeleteButton(

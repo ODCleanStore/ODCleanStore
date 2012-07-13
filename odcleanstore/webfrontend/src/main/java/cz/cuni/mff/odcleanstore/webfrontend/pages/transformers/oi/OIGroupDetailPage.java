@@ -13,6 +13,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
@@ -97,7 +98,7 @@ public class OIGroupDetailPage extends FrontendPage
 				item.add(new Label("linkType"));
 				item.add(createNullResistentTableCellLabel("sourceRestriction", rule.getSourceRestriction()));
 				item.add(createNullResistentTableCellLabel("targetRestriction", rule.getTargetRestriction()));
-				item.add(new Label("linkageRule"));
+				item.add(new TruncatedLabel("linkageRule", MAX_LIST_COLUMN_TEXT_LENGTH));
 				item.add(createNullResistentTableCellLabel("filterThreshold", rule.getFilterThreshold()));
 				item.add(createNullResistentTableCellLabel("filterLimit", rule.getFilterLimit()));
 				

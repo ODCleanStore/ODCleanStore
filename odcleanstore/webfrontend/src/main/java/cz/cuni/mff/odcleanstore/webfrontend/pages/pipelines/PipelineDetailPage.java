@@ -13,6 +13,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
@@ -98,8 +99,8 @@ public class PipelineDetailPage extends FrontendPage
 				Transformer transformer = transformerDao.load(transformerInstance.getTransformerId());
 				item.add(new Label("label", transformer.getLabel()));
 				
-				item.add(new Label("workDirPath"));	
-				item.add(new Label("configuration"));
+				item.add(new TruncatedLabel("workDirPath", MAX_LIST_COLUMN_TEXT_LENGTH));	
+				item.add(new TruncatedLabel("configuration", MAX_LIST_COLUMN_TEXT_LENGTH));
 				item.add(new Label("runOnCleanDB"));
 				item.add(new Label("priority"));
 				
