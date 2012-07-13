@@ -49,6 +49,10 @@ public class UniqueGraphNameGenerator implements UniqueURIGenerator {
 
 	@Override
 	public String nextURI() {
+		return nextURI(0);
+	}
+
+	public String nextURI(Integer start) {
 		try
 		{
 			//System.err.println(String.format(uriSuffixQueryFormat, uriBase));
@@ -64,7 +68,7 @@ public class UniqueGraphNameGenerator implements UniqueURIGenerator {
 				}
 			}
 			
-			return uriBase + (id + 1);
+			return uriBase + (start + id + 1);
 		} catch (ConnectionException e) {
 		} catch (QueryException e) {
 		} catch (SQLException e) {

@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -17,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
+import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.data.DebugGraphFileLoader;
@@ -24,6 +26,7 @@ import cz.cuni.mff.odcleanstore.datanormalization.DataNormalizer;
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
 import cz.cuni.mff.odcleanstore.datanormalization.rules.Rule;
 import cz.cuni.mff.odcleanstore.datanormalization.rules.Rule.EnumRuleComponentType;
+import cz.cuni.mff.odcleanstore.shared.UniqueGraphNameGenerator;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
@@ -34,16 +37,58 @@ public class DataNormalizerImpl implements DataNormalizer {
 	
 	public static void main(String[] args) {
 		try {
-			new DataNormalizerImpl().debugRules(new FileInputStream(System.getProperty("user.home") + "/odcleanstore/debugDN.ttl"),
+			Map<String, GraphModification> result = new DataNormalizerImpl().debugRules(new FileInputStream(System.getProperty("user.home") + "/odcleanstore/debugDN.rdf"),
 					prepareContext(
 							new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba"),
 							new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1112/UID=dba/PWD=dba", "dba", "dba")));
+			
+			Iterator<String> i = result.keySet().iterator();
+			
+			while (i.hasNext()) {
+				String graph = i.next();
+
+				System.err.println(graph);
+				
+				Iterator<Rule> j = result.get(graph).getRuleIterator();
+				
+				while (j.hasNext()) {
+					Rule rule = j.next();
+					
+					Iterator<TripleModification> k;
+					
+					k = result.get(graph).getModificationsByRule(rule).getInsertions().iterator();
+					
+					while (k.hasNext()) {
+						TripleModification modification = k.next();
+						
+						System.err.println(modification.s + " " + modification.p + " " + modification.o + " INSERTED (Rule #" + rule.getId() + ")");
+						System.err.println();
+					}
+					
+					k = result.get(graph).getModificationsByRule(rule).getDeletions().iterator();
+					
+					while (k.hasNext()) {
+						TripleModification modification = k.next();
+						
+						System.err.println(modification.s + " " + modification.p + " " + modification.o + " DELETED (Rule #" + rule.getId() + ")");
+						System.err.println();
+					}
+				}
+				
+				System.err.println();
+				System.err.println();
+			}
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}
 	}
 
 	private static final Logger LOG = LoggerFactory.getLogger(DataNormalizerImpl.class);
+	
+	private static final String backupQueryFormat = "SPARQL INSERT INTO <%s> {?s ?p ?o} WHERE {GRAPH <%s> {?s ?p ?o}}";
+	private static final String selectQueryFormat = "SPARQL SELECT ?s ?p ?o FROM <%s> WHERE {?s ?p ?o}"; 
+	private static final String diffQueryFormat = "SPARQL DELETE FROM <%s> {?s ?p ?o} WHERE {GRAPH <%s> {?s ?p ?o}}";
+	private static final String dropBackupQueryFormat = "SPARQL CLEAR GRAPH <%s>";
 	
 	private TransformedGraph inputGraph;
 	private TransformationContext context;
@@ -131,7 +176,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 		};
 	}
 	
-	public InputStream debugRules (InputStream source, TransformationContext context)
+	public Map<String, GraphModification> debugRules (InputStream source, TransformationContext context)
 			throws TransformerException {
 		HashMap<String, String> graphs = new HashMap<String, String>();
 		DebugGraphFileLoader loader = new DebugGraphFileLoader(context.getDirtyDatabaseCredentials());
@@ -139,21 +184,23 @@ public class DataNormalizerImpl implements DataNormalizer {
 		try {
 			graphs = loader.load(source, this.getClass().getSimpleName());
 			
-			Collection<String> temporaryGraphs = graphs.values();
+			Collection<String> originalGraphs = graphs.keySet();
+			Map<String, GraphModification> result = new HashMap<String, GraphModification>();
 			
-			Iterator<String> it = temporaryGraphs.iterator();
+			Iterator<String> it = originalGraphs.iterator();
 			
 			while (it.hasNext()) {
-				String temporaryName = it.next();
+				String originalName = it.next();
+				String temporaryName = graphs.get(originalName);
 				
-				transformNewGraph(prepareInputGraph(temporaryName), context);
+				GraphModification subResult = getGraphModifications(temporaryName,
+						context.getCleanDatabaseCredentials(),
+						context.getDirtyDatabaseCredentials());
 				
-				/**
-				 * FIND INSERTIONS AND DELETIONS PER RULE APPLICATION
-				 */
+				result.put(originalName, subResult);
 			}
 			
-			return null;
+			return result;
 		} catch (Exception e) {
 			LOG.error("Debugging of Data Normalization rules failed: " + e.getMessage());
 			
@@ -192,20 +239,79 @@ public class DataNormalizerImpl implements DataNormalizer {
 		String s;
 		String p;
 		String o;
-
-		EnumRuleComponentType type;
 		
-		Integer rule;
+		public TripleModification(String s, String p, String o) {			
+			this.s = s;
+			this.p = p;
+			this.o = o;
+		}
 	}
 	
-	public Map<Integer, Set<TripleModification>> getModifications (final String graphName,
+	public class RuleModification {
+		private Collection<TripleModification> insertions = new HashSet<TripleModification>();
+		private Collection<TripleModification> deletions = new HashSet<TripleModification>();
+		
+		public void addInsertion(String s, String p, String o) {
+			insertions.add(new TripleModification(s, p, o));
+		}
+		
+		public void addDeletion(String s, String p, String o) {
+			deletions.add(new TripleModification(s, p, o));
+		}
+		
+		public Collection<TripleModification> getInsertions() {
+			return insertions;
+		}
+		
+		public Collection<TripleModification> getDeletions() {
+			return deletions;
+		}
+	}
+	
+	public class GraphModification {
+		private Map<Rule, RuleModification> modifications = new HashMap<Rule, RuleModification>();
+		
+		public void addInsertion (Rule rule, String s, String p, String o) {
+			if (modifications.containsKey(rule)) {
+				modifications.get(rule).addInsertion(s, p, o);
+			} else {
+				RuleModification subModifications = new RuleModification();
+				
+				subModifications.addInsertion(s, p, o);
+				
+				modifications.put(rule, subModifications);
+			}
+		}
+		
+		public void addDeletion(Rule rule, String s, String p, String o) {
+			if (modifications.containsKey(rule)) {
+				modifications.get(rule).addDeletion(s, p, o);
+			} else {
+				RuleModification subModifications = new RuleModification();
+				
+				subModifications.addDeletion(s, p, o);
+				
+				modifications.put(rule, subModifications);
+			}
+		}
+		
+		public Iterator<Rule> getRuleIterator() {
+			return modifications.keySet().iterator();
+		}
+		
+		public RuleModification getModificationsByRule(Rule rule) {
+			return modifications.get(rule);
+		}
+	}
+	
+	public GraphModification getGraphModifications(final String graphName,
 			final JDBCConnectionCredentials clean,
 			final JDBCConnectionCredentials source)
 			throws TransformerException {
 		this.inputGraph = prepareInputGraph(graphName);
 		this.context = prepareContext(clean, source);
 		
-		Map<Integer, Set<TripleModification>> modifications = new HashMap<Integer, Set<TripleModification>>();
+		GraphModification modifications = new GraphModification();
 		
 		try
 		{
@@ -220,19 +326,24 @@ public class DataNormalizerImpl implements DataNormalizer {
 		return modifications;
 	}
 	
-	private void loadRules () throws DataNormalizationException {
+	private void loadRules() throws DataNormalizationException {
 		rules = new ArrayList<Rule>();
 		
 		/**
 		 * DEBUG rules
 		 */
-		rules.add(new Rule(
+		rules.add(new Rule(0,
 				EnumRuleComponentType.RULE_COMPONENT_INSERT,
-					"{?a ?b ?y} WHERE {GRAPH $$graph$$ {SELECT ?a ?b fn:replace(str(?c), \".\", \"*\") AS ?y WHERE {?a ?b ?c}}}"
+					"{?a ?b ?y} WHERE {GRAPH $$graph$$ {SELECT ?a ?b fn:replace(str(?c), \".\", \"*\") AS ?y WHERE {?a ?b ?c}}}",
+				EnumRuleComponentType.RULE_COMPONENT_DELETE,
+					"{?a ?b ?c} WHERE {GRAPH $$graph$$ {?a ?b ?c} FILTER (contains(str(?c), \"*\") = false)}"
 				));
+		rules.add(new Rule(1,
+				EnumRuleComponentType.RULE_COMPONENT_INSERT,
+					"{?a <http://example.com/#test> ?b} WHERE {GRAPH $$graph$$ {?a ?b ?c} FILTER (contains(str(?c), \"*******\"))}"));
 	}
 
-	private void applyRules (Map<Integer, Set<TripleModification>> modifications) throws DataNormalizationException {
+	private void applyRules(GraphModification modifications) throws DataNormalizationException {
 		try {
 			getDirtyConnection();
 			
@@ -256,16 +367,64 @@ public class DataNormalizerImpl implements DataNormalizer {
 		}
 	}
 	
-	private void performRule (Rule rule, Map<Integer, Set<TripleModification>> modifications) throws DataNormalizationException, ConnectionException, QueryException, SQLException {
+	private void performRule(Rule rule, GraphModification modifications) throws DataNormalizationException, ConnectionException, QueryException, SQLException {
 		String[] components = rule.getComponents(inputGraph.getGraphName());
 
-		for (int j = 0; j < components.length; ++j) {
-			//System.err.println(components[j]);
-
-			getDirtyConnection().execute(components[j]);
-		}
+		if (modifications == null) {
+			for (int j = 0; j < components.length; ++j) {
+				getDirtyConnection().execute(components[j]);
+			}
+		} else {
+			UniqueGraphNameGenerator generator = new UniqueGraphNameGenerator("http://example.com/" + this.getClass().getSimpleName() + "/diff/", context.getDirtyDatabaseCredentials());
+			String original = "";
+			String modified = "";
 		
-		//UPDATE MODIFICATIONS
+			try {
+				original = generator.nextURI(0);
+				getDirtyConnection().execute(String.format(backupQueryFormat, original, inputGraph.getGraphName()));
+
+				for (int j = 0; j < components.length; ++j) {
+					getDirtyConnection().execute(components[j]);
+				}
+
+				modified = generator.nextURI(1);
+				getDirtyConnection().execute(String.format(backupQueryFormat, modified, inputGraph.getGraphName()));
+
+				/**
+				 * Unfortunatelly "SELECT ?s ?p ?o WHERE {{GRAPH <%s> {?s ?p ?o}} MINUS {GRAPH <%s> {?s ?p ?o}}}"
+				 * throws "Internal error: 'output:valmode' declaration conflicts with 'output:format'"
+				 * 
+				 * Therefore it is necessary to first create graphs with differences.
+				 */
+				getDirtyConnection().execute(String.format(diffQueryFormat, modified, original));
+				getDirtyConnection().execute(String.format(diffQueryFormat, original, inputGraph.getGraphName()));
+
+				WrappedResultSet inserted = getDirtyConnection().executeSelect(String.format(selectQueryFormat, modified));
+				
+				while (inserted.next()) {
+					modifications.addInsertion(rule,
+							inserted.getString("s"),
+							inserted.getString("p"),
+							inserted.getString("o"));
+				}
+
+				WrappedResultSet deleted = getDirtyConnection().executeSelect(String.format(selectQueryFormat, original));				
+		
+				while (deleted.next()) {
+					modifications.addDeletion(rule,
+							deleted.getString("s"),
+							deleted.getString("p"),
+							deleted.getString("o"));
+				}
+			} finally {
+				try {
+					getDirtyConnection().execute(String.format(dropBackupQueryFormat, original));
+				} finally {}
+				try {
+					getDirtyConnection().execute(String.format(dropBackupQueryFormat, modified));
+				} finally {}
+			}
+		}
 	}
 
 	@Override

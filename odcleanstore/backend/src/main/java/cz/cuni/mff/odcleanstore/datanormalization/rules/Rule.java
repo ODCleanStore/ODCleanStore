@@ -36,9 +36,12 @@ public class Rule {
 		}
 	}
 
+	Integer id;
 	Vector<Component> components = new Vector<Component>();
 	
-	public Rule (Object... components) throws DataNormalizationException {
+	public Rule (Integer id, Object... components) throws DataNormalizationException {
+		this.id = id;
+
 		if (components.length % 2 == 1) throw new DataNormalizationException("Incomplete rule initialization list");
 		
 		for (int i = 0; i < components.length; i += 2) {
@@ -53,6 +56,10 @@ public class Rule {
 				throw new DataNormalizationException("Invalid rule initialization list");
 			}
 		}
+	}
+	
+	public Integer getId () {
+		return id;
 	}
 	
 	public String[] getComponents (String graph) {

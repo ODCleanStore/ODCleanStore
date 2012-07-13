@@ -37,15 +37,11 @@ public class DebugGraphFileLoader {
 		HashMap<String, String> graphs = new HashMap<String, String>();
 
 		try {
-			graphs = loadImpl(input, discriminator);
+			graphs = loadImpl(new EnforceTriG().transform(input, getInputBaseURI(discriminator)), discriminator);
 		} catch (Exception e) {
-			try {
-				graphs = loadImpl(new RDFXML2TriG().transform(input, getInputBaseURI(discriminator)), discriminator);
-			} catch (Exception e2) {
-				LOG.error(String.format("Could not finish loading debug graphs from input: %s", e2.getMessage()));
+			LOG.error(String.format("Could not finish loading debug graphs from input: %s", e.getMessage()));
 				
-				throw e2;
-			}
+			throw e;
 		}
 		
 		return graphs;
