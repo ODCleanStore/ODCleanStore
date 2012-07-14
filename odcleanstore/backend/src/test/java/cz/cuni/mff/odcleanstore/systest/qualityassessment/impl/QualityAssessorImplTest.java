@@ -405,7 +405,7 @@ public class QualityAssessorImplTest extends TestCase {
 			TransformedGraph inputGraph = prepareGraph(graph.name);
 			TransformationContext context = prepareContext();
 			
-			QualityAssessor qualityAssessor = new QualityAssessorImpl();
+			QualityAssessor qualityAssessor = new QualityAssessorImpl((Integer)groups[0][0]);
 			
 			qualityAssessor.transformExistingGraph(inputGraph, context);
 		}
