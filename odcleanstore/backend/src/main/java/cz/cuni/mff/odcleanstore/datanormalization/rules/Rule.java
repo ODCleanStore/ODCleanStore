@@ -12,16 +12,16 @@ public class Rule {
 	
 	public class Component {
 		
-		public Component (EnumRuleComponentType type, String update) {
+		public Component(EnumRuleComponentType type, String modification) {
 			this.type = type;
-			this.update = update;
+			this.modification = modification;
 		}
 		
 		private EnumRuleComponentType type;
-		private String update;
+		private String modification;
 
-		public String toString (String graph) {
-			String output = "<" + graph + "> " + update.replaceAll("GRAPH\\s*\\$\\$graph\\$\\$", "GRAPH <" + graph + ">");
+		public String toString(String graph) {
+			String output = "<" + graph + "> " + modification.replaceAll("GRAPH\\s*\\$\\$graph\\$\\$", "GRAPH <" + graph + ">");
 
 			switch (type) {
 			case RULE_COMPONENT_INSERT:
@@ -39,30 +39,25 @@ public class Rule {
 	Integer id;
 	Vector<Component> components = new Vector<Component>();
 	
-	public Rule (Integer id, Object... components) throws DataNormalizationException {
+	public Rule(Integer id) {
+		this.id = id;
+	}
+	
+	public Rule(Integer id, String... components) throws DataNormalizationException {
 		this.id = id;
 
 		if (components.length % 2 == 1) throw new DataNormalizationException("Incomplete rule initialization list");
 		
 		for (int i = 0; i < components.length; i += 2) {
-			if (components[i] instanceof EnumRuleComponentType && components[i + 1] instanceof String) {
-
-				EnumRuleComponentType type = (EnumRuleComponentType)components[i];
-				
-				String update = (String)components[i + 1];
-
-				this.components.add(new Component(type, update));
-			} else {
-				throw new DataNormalizationException("Invalid rule initialization list");
-			}
+			addComponent(components[i], components[i + 1]);
 		}
 	}
 	
-	public Integer getId () {
+	public Integer getId() {
 		return id;
 	}
 	
-	public String[] getComponents (String graph) {
+	public String[] getComponents(String graph) {
 		String[] componentStrings = new String[this.components.size()];
 		
 		Component[] components = this.components.toArray(new Component[this.components.size()]);
@@ -72,5 +67,19 @@ public class Rule {
 		}
 		
 		return componentStrings;
+	}
+	
+	public void addComponent(String type, String modification) throws DataNormalizationException {
+		if (type.equals("INSERT")) {
+			addComponent(EnumRuleComponentType.RULE_COMPONENT_INSERT, modification);
+		} else if (type.equals("DELETE")) {
+			addComponent(EnumRuleComponentType.RULE_COMPONENT_DELETE, modification);
+		} else {
+			throw new DataNormalizationException("Unknown Data Normalization Rule type");
+		}
+	}
+	
+	public void addComponent(EnumRuleComponentType type, String modification) {
+		components.add(new Component(type, modification));
 	}
 }

@@ -42,7 +42,7 @@ public class QualityAssessorImpl implements QualityAssessor {
 	
 	public static void main(String[] args) {
 		try {
-			new QualityAssessorImpl().debugRules(new FileInputStream(System.getProperty("user.home") + "/odcleanstore/debugQA.ttl"),
+			new QualityAssessorImpl(0).debugRules(new FileInputStream(System.getProperty("user.home") + "/odcleanstore/debugQA.ttl"),
 					"http://opendata.cz/data/metadataGraph",
 					prepareContext(
 							new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba"),
@@ -74,11 +74,16 @@ public class QualityAssessorImpl implements QualityAssessor {
 	private TransformedGraph inputGraph;
 	private TransformationContext context;
 
+	private Integer groupId;
 	private Collection<Rule> rules;
 
 	private Double score;
 	private List<String> trace;
 	private Integer violations;
+	
+	public QualityAssessorImpl (Integer groupId) {
+		this.groupId = groupId;
+	}
 
 	/**
 	 * Connection to dirty database (needed in all cases to work on a new graph or a copy of an existing one)
@@ -314,10 +319,8 @@ public class QualityAssessorImpl implements QualityAssessor {
 	 */
 	protected void loadRules() throws QualityAssessmentException {
 		RulesModel model = new RulesModel(context.getCleanDatabaseCredentials());
-
-		int group = 1;
 		
-		rules = model.getRules(group);
+		rules = model.getRules(groupId);
 	}
 
 	/**

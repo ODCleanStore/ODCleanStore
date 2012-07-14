@@ -4,13 +4,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +23,7 @@ import cz.cuni.mff.odcleanstore.data.DebugGraphFileLoader;
 import cz.cuni.mff.odcleanstore.datanormalization.DataNormalizer;
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
 import cz.cuni.mff.odcleanstore.datanormalization.rules.Rule;
-import cz.cuni.mff.odcleanstore.datanormalization.rules.Rule.EnumRuleComponentType;
+import cz.cuni.mff.odcleanstore.datanormalization.rules.RulesModel;
 import cz.cuni.mff.odcleanstore.shared.UniqueGraphNameGenerator;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
@@ -37,7 +35,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 	
 	public static void main(String[] args) {
 		try {
-			Map<String, GraphModification> result = new DataNormalizerImpl().debugRules(new FileInputStream(System.getProperty("user.home") + "/odcleanstore/debugDN.rdf"),
+			Map<String, GraphModification> result = new DataNormalizerImpl(0).debugRules(new FileInputStream(System.getProperty("user.home") + "/odcleanstore/debugDN.ttl"),
 					prepareContext(
 							new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba"),
 							new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1112/UID=dba/PWD=dba", "dba", "dba")));
@@ -93,7 +91,12 @@ public class DataNormalizerImpl implements DataNormalizer {
 	private TransformedGraph inputGraph;
 	private TransformationContext context;
 	
+	private Integer groupId;
 	private Collection<Rule> rules;
+	
+	public DataNormalizerImpl (Integer groupId) {
+		this.groupId = groupId;
+	}
 
 	/**
 	 * Connection to dirty database (needed in all cases to work on a new graph or a copy of an existing one)
@@ -327,20 +330,9 @@ public class DataNormalizerImpl implements DataNormalizer {
 	}
 	
 	private void loadRules() throws DataNormalizationException {
-		rules = new ArrayList<Rule>();
+		RulesModel model = new RulesModel(context.getCleanDatabaseCredentials());
 		
-		/**
-		 * DEBUG rules
-		 */
-		rules.add(new Rule(0,
-				EnumRuleComponentType.RULE_COMPONENT_INSERT,
-					"{?a ?b ?y} WHERE {GRAPH $$graph$$ {SELECT ?a ?b fn:replace(str(?c), \".\", \"*\") AS ?y WHERE {?a ?b ?c}}}",
-				EnumRuleComponentType.RULE_COMPONENT_DELETE,
-					"{?a ?b ?c} WHERE {GRAPH $$graph$$ {?a ?b ?c} FILTER (contains(str(?c), \"*\") = false)}"
-				));
-		rules.add(new Rule(1,
-				EnumRuleComponentType.RULE_COMPONENT_INSERT,
-					"{?a <http://example.com/#test> ?b} WHERE {GRAPH $$graph$$ {?a ?b ?c} FILTER (contains(str(?c), \"*******\"))}"));
+		rules = model.getRules(groupId);
 	}
 
 	private void applyRules(GraphModification modifications) throws DataNormalizationException {

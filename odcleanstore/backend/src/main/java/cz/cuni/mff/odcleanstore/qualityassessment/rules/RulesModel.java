@@ -80,12 +80,8 @@ public class RulesModel {
 	}
 	
 	/**
-     * Get rules applicable to graphs coming from a particular publisher.
-     * 
      * @param group ID of the rule group
-	 *
-	 * @return a collection of rules applicable to a graph coming from a particular publisher.
-     */
+     *      */
 	public Collection<Rule> getRules (int group) throws QualityAssessmentException {
 		
 		Collection<Rule> publisherSpecific = queryRules("SELECT * FROM " +
@@ -95,11 +91,7 @@ public class RulesModel {
 	}
 	
 	/**
-     * Get rules applicable to graphs coming from a particular publisher.
-     * 
      * @param groupLabel the label of the group from which the rules are selected
-	 *
-	 * @return a collection of rules applicable to a graph coming from a particular publisher.
      */
 	public Collection<Rule> getRules (String groupLabel) throws QualityAssessmentException {
 		
