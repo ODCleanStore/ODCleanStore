@@ -63,6 +63,39 @@ CREATE TABLE DB.ODCLEANSTORE.QA_RULES
 
 /*
 	===========================================================================
+	DN RULES MANAGEMENT
+	===========================================================================
+*/
+CREATE TABLE DB.ODCLEANSTORE.DN_RULES_GROUPS
+(
+	id INTEGER NOT NULL IDENTITY PRIMARY KEY,
+	label NVARCHAR(255) UNIQUE NOT NULL,
+	description LONG NVARCHAR
+);
+
+CREATE TABLE DB.ODCLEANSTORE.DN_RULES
+(
+	id INTEGER NOT NULL IDENTITY PRIMARY KEY,
+	groupId INTEGER NOT NULL,
+	description LONG NVARCHAR,
+	
+	FOREIGN KEY (groupId) REFERENCES DB.ODCLEANSTORE.DN_RULES_GROUPS(id) ON DELETE CASCADE
+);
+
+CREATE TABLE DB.ODCLEANSTORE.DN_RULE_COMPONENTS
+(
+	id INTEGER NOT NULL IDENTITY PRIMARY KEY,
+	ruleId INTEGER NOT NULL,
+	type VARCHAR(20),
+	modification LONG NVARCHAR,
+	description LONG NVARCHAR,
+	
+	FOREIGN KEY (ruleId) REFERENCES DB.ODCLEANSTORE.DN_RULES(id) ON DELETE CASCADE,
+	CONSTRAINT typeCheck CHECK (type IN ('INSERT', 'DELETE'))
+);
+
+/*
+	===========================================================================
 	OI RULES MANAGEMENT
 	===========================================================================
 */
