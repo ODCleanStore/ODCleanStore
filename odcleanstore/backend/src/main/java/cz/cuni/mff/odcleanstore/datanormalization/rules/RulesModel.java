@@ -4,8 +4,10 @@ import java.sql.Blob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,33 +81,43 @@ public class RulesModel {
 	}
 	
 	/**
-     * @param group ID of the rule group
+     * @param groupIds IDs of the rule groups from which the rules are selected
      */
-	public Collection<Rule> getRules (int group) throws DataNormalizationException {
+	public Collection<Rule> getRules (Integer... groupIds) throws DataNormalizationException {
+		Set<Rule> rules = new HashSet<Rule>();
 		
-		Collection<Rule> groupSpecific = queryRules("SELECT rules.id AS id," +
-				"components.type AS type," +
-				"components.modification AS modification FROM " +
-				"DB.ODCLEANSTORE.DN_RULES AS rules JOIN " +
-				"DB.ODCLEANSTORE.DN_RULE_COMPONENTS AS components ON components.ruleId = rules.id " +
-				"WHERE groupId = ?", group);
+		for (int i = 0; i < groupIds.length; ++i) {
+			Collection<Rule> groupSpecific = queryRules("SELECT rules.id AS id, " +
+					"components.type AS type, " +
+					"components.modification AS modification FROM " +
+					"DB.ODCLEANSTORE.DN_RULES AS rules JOIN " +
+					"DB.ODCLEANSTORE.DN_RULE_COMPONENTS AS components ON components.ruleId = rules.id " +
+					"WHERE groupId = ?", groupIds[i]);
+			
+			rules.addAll(groupSpecific);
+		}
 		
-		return groupSpecific;
+		return rules;
 	}
 	
 	/**
-     * @param groupLabel the label of the group from which the rules are selected
+     * @param groupLabels set of labels of groups from which the rules are selected
      */
-	public Collection<Rule> getRules (String groupLabel) throws DataNormalizationException {
+	public Collection<Rule> getRules (String... groupLabels) throws DataNormalizationException {
+		Set<Rule> rules = new HashSet<Rule>();
 		
-		Collection<Rule> groupSpecific = queryRules("SELECT rules.id AS id," +
-				"components.type AS type," +
-				"components.modification AS modification FROM " +
-				"DB.ODCLEANSTORE.DN_RULES AS rules JOIN " +
-				"DB.ODCLEANSTORE.DN_RULES_GROUPS AS groups ON rules.groupId = groups.id JOIN " +
-				"DB.ODCLEANSTORE.DN_RULE_COMPONENTS AS components ON components.ruleId = rules.id " +
-				"WHERE groups.label = ?", groupLabel);
+		for (int i = 0; i < groupLabels.length; ++i) {
+			Collection<Rule> groupSpecific = queryRules("SELECT rules.id AS id, " +
+					"components.type AS type, " +
+					"components.modification AS modification FROM " +
+					"DB.ODCLEANSTORE.DN_RULES AS rules JOIN " +
+					"DB.ODCLEANSTORE.DN_RULES_GROUPS AS groups ON rules.groupId = groups.id JOIN " +
+					"DB.ODCLEANSTORE.DN_RULE_COMPONENTS AS components ON components.ruleId = rules.id " +
+					"WHERE groups.label = ?", groupLabels[i]);
+			
+			rules.addAll(groupSpecific);
+		}
 		
-		return groupSpecific;
+		return rules;
 	}
 }

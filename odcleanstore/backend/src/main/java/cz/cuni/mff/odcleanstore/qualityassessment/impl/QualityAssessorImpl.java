@@ -42,7 +42,7 @@ public class QualityAssessorImpl implements QualityAssessor {
 	
 	public static void main(String[] args) {
 		try {
-			Map<String, GraphScoreWithTrace> result = new QualityAssessorImpl(1).debugRules(new FileInputStream(System.getProperty("user.home") + "/odcleanstore/debugQA.ttl"),
+			Map<String, GraphScoreWithTrace> result = new QualityAssessorImpl("Group 1").debugRules(new FileInputStream(System.getProperty("user.home") + "/odcleanstore/debugQA.ttl"),
 					"http://opendata.cz/data/metadataGraph",
 					prepareContext(
 							new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba"),
@@ -92,15 +92,21 @@ public class QualityAssessorImpl implements QualityAssessor {
 	private TransformedGraph inputGraph;
 	private TransformationContext context;
 
-	private Integer groupId;
+	private Integer[] groupIds;
+	private String[] groupLabels;
+
 	private Collection<Rule> rules;
 
 	private Double score;
 	private List<String> trace;
 	private Integer violations;
 	
-	public QualityAssessorImpl (Integer groupId) {
-		this.groupId = groupId;
+	public QualityAssessorImpl (Integer... groupIds) {
+		this.groupIds = groupIds;
+	}
+	
+	public QualityAssessorImpl (String... groupLabels) {
+		this.groupLabels = groupLabels;
 	}
 
 	/**
@@ -338,7 +344,11 @@ public class QualityAssessorImpl implements QualityAssessor {
 	protected void loadRules() throws QualityAssessmentException {
 		RulesModel model = new RulesModel(context.getCleanDatabaseCredentials());
 		
-		rules = model.getRules(groupId);
+		if (groupIds != null) {
+			rules = model.getRules(groupIds);
+		} else {
+			rules = model.getRules(groupLabels);
+		}
 	}
 
 	/**

@@ -91,11 +91,17 @@ public class DataNormalizerImpl implements DataNormalizer {
 	private TransformedGraph inputGraph;
 	private TransformationContext context;
 	
-	private Integer groupId;
+	private Integer[] groupIds = null;
+	private String[] groupLabels = null;
+
 	private Collection<Rule> rules;
 	
-	public DataNormalizerImpl (Integer groupId) {
-		this.groupId = groupId;
+	public DataNormalizerImpl (Integer... groupIds) {
+		this.groupIds = groupIds;
+	}
+	
+	public DataNormalizerImpl (String... groupLabels) {
+		this.groupLabels = groupLabels;
 	}
 
 	/**
@@ -331,8 +337,12 @@ public class DataNormalizerImpl implements DataNormalizer {
 	
 	private void loadRules() throws DataNormalizationException {
 		RulesModel model = new RulesModel(context.getCleanDatabaseCredentials());
-		
-		rules = model.getRules(groupId);
+
+		if (groupIds != null) {
+			rules = model.getRules(groupIds);
+		} else {
+			rules = model.getRules(groupLabels);
+		}
 	}
 
 	private void applyRules(GraphModification modifications) throws DataNormalizationException {

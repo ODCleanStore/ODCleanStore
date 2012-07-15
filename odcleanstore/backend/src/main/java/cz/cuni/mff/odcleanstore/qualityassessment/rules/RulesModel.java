@@ -2,6 +2,8 @@ package cz.cuni.mff.odcleanstore.qualityassessment.rules;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
@@ -110,31 +112,41 @@ public class RulesModel {
 	}
 	
 	/**
-     * @param group ID of the rule group
-     *      */
-	public Collection<Rule> getRules (int group) throws QualityAssessmentException {
+     * @param groupIds IDs of the rule groups from which the rules are selected
+     */
+	public Collection<Rule> getRules (Integer... groupIds) throws QualityAssessmentException {
+		Set<Rule> rules = new HashSet<Rule>();
 		
-		Collection<Rule> groupSpecific = queryRules("SELECT id, groupId, filter, coefficient, description FROM " +
-				"DB.ODCLEANSTORE.QA_RULES WHERE groupId = ?", group);
-		
-		return groupSpecific;
+		for (int i = 0; i < groupIds.length; ++i) {
+			Collection<Rule> groupSpecific = queryRules("SELECT id, groupId, filter, coefficient, description FROM " +
+					"DB.ODCLEANSTORE.QA_RULES WHERE groupId = ?", groupIds[i]);
+			
+			rules.addAll(groupSpecific);
+		}
+
+		return rules;
 	}
 	
 	/**
-     * @param groupLabel the label of the group from which the rules are selected
+     * @param groupLabels set of labels of groups from which the rules are selected
      */
-	public Collection<Rule> getRules (String groupLabel) throws QualityAssessmentException {
+	public Collection<Rule> getRules (String... groupLabels) throws QualityAssessmentException {
+		Set<Rule> rules = new HashSet<Rule>();
 		
-		Collection<Rule> groupSpecific = queryRules("SELECT rules.id AS id," +
-				"rules.groupId AS groupId," +
-				"rules.filter AS filter," +
-				"rules.coefficient AS coefficient," +
-				"rules.description AS description FROM " +
-				"DB.ODCLEANSTORE.QA_RULES AS rules JOIN" +
-				"DB.ODCLEANSTORE.QA_RULES_GROUPS AS groups ON rules.groupId = groups.id" +
-				"WHERE groups.label = ?", groupLabel);
+		for (int i = 0; i < groupLabels.length; ++i) {
+			Collection<Rule> groupSpecific = queryRules("SELECT rules.id AS id," +
+					"rules.groupId AS groupId," +
+					"rules.filter AS filter," +
+					"rules.coefficient AS coefficient," +
+					"rules.description AS description FROM " +
+					"DB.ODCLEANSTORE.QA_RULES AS rules JOIN " +
+					"DB.ODCLEANSTORE.QA_RULES_GROUPS AS groups ON rules.groupId = groups.id " +
+					"WHERE groups.label = ?", groupLabels[i]);
+			
+			rules.addAll(groupSpecific);
+		}
 		
-		return groupSpecific;
+		return rules;
 	}
 	
 	public void compileOntologyToRules(InputStream ontology, Integer groupId) throws QualityAssessmentException {
