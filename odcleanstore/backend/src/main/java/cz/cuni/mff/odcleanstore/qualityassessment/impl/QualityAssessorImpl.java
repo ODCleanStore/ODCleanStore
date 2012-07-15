@@ -361,7 +361,7 @@ public class QualityAssessorImpl implements QualityAssessor {
 				 * If so, change the graph's score accordingly
 				 */
 				addCoefficient(rule.getCoefficient());
-				logComment(rule.getComment());
+				logComment(rule.getDescription());
 				++violations;
 				
 				if (appliedRules != null) appliedRules.add(rule);
@@ -383,7 +383,7 @@ public class QualityAssessorImpl implements QualityAssessor {
 		trace.add(comment);
 	}
 
-	protected void addCoefficient(Float coefficient) {
+	protected void addCoefficient(Double coefficient) {
 		score *= coefficient;
 	}
 

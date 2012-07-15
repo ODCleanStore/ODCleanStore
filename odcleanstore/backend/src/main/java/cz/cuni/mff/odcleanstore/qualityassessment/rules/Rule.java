@@ -8,33 +8,42 @@ package cz.cuni.mff.odcleanstore.qualityassessment.rules;
  */
 public class Rule {
 	private Integer id;
+	private Integer groupId;
 	private String filter;
-	private Float coefficient;
-	private String comment;
+	private Double coefficient;
+	private String description;
 
-	public Rule (Integer id, String filter, Float coefficient, String comment) {
+	public Rule (Integer id, Integer groupId, String filter, Double coefficient, String description) {
 		this.id = id;
+		this.groupId = groupId;
 		this.filter = filter;
 		this.coefficient = coefficient;
-		this.comment = comment;
+		this.description = description;
 	}
 
 	public Integer getId() {
 		return id;
+	}
+	
+	public Integer getGroupId() {
+		return groupId;
+	}
+	public String getFilter() {
+		return filter;
 	}
 
 	/**
 	 * Constructs a SPARQL query for a particular graph.
 	 */
 	public String toString(String graphName) {
-		return String.format("SPARQL SELECT COUNT(*) FROM <%s> WHERE %s", graphName, this.filter);
+		return String.format("SPARQL SELECT COUNT(*) FROM <%s> WHERE %s", graphName, filter);
 	}
 
-	public Float getCoefficient() {
+	public Double getCoefficient() {
 		return coefficient;
 	}
 
-	public String getComment() {
-		return comment;
+	public String getDescription() {
+		return description;
 	}
 }

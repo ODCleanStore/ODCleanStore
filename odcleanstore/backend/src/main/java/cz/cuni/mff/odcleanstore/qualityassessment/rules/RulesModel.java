@@ -3,6 +3,7 @@ package cz.cuni.mff.odcleanstore.qualityassessment.rules;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
@@ -10,10 +11,27 @@ import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
 
-import java.sql.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.sql.ResultSet;
+import java.sql.Blob;
+import java.sql.SQLException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.hp.hpl.jena.query.QueryException;
+import com.hp.hpl.jena.query.QueryExecution;
+import com.hp.hpl.jena.query.QueryExecutionFactory;
+import com.hp.hpl.jena.query.QuerySolution;
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.vocabulary.OWL;
+import com.hp.hpl.jena.vocabulary.RDF;
+
+import de.fuberlin.wiwiss.ng4j.impl.GraphReaderService;
 
 /**
  * Rules Model.
@@ -23,6 +41,16 @@ import org.slf4j.LoggerFactory;
  * @author Jakub Daniel
  */
 public class RulesModel {
+	public static void main(String[] args) {
+		try {
+			new RulesModel(new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba")).compileOntologyToRules(new FileInputStream(System.getProperty("user.home") + "/odcleanstore/public-contracts.ttl"), 1);
+		} catch (QualityAssessmentException e) {
+			System.err.println(e.getMessage());
+		} catch (FileNotFoundException e) {
+			System.err.println(e.getMessage());
+		}
+	}
+
 	private static final Logger LOG = LoggerFactory.getLogger(RulesModel.class);
 
 	private JDBCConnectionCredentials endpoint;
@@ -49,15 +77,17 @@ public class RulesModel {
 				
 				Integer id = result.getInt("id");
 				
+				Integer groupId = result.getInt("groupId");
+				
 				Blob filterBlob = result.getBlob("filter");
 				String filter = new String(filterBlob.getBytes(1, (int)filterBlob.length()));
 				
-				Float coefficient = result.getFloat("coefficient");
+				Double coefficient = result.getDouble("coefficient");
 				
 				Blob descriptionBlob = result.getBlob("description");
 				String description = new String(descriptionBlob.getBytes(1, (int)descriptionBlob.length()));
 				
-				rules.add(new Rule(id, filter, coefficient, description));
+				rules.add(new Rule(id, groupId, filter, coefficient, description));
 			}
 		} catch (DatabaseException e) {
 			throw new QualityAssessmentException(e.getMessage());
@@ -84,10 +114,10 @@ public class RulesModel {
      *      */
 	public Collection<Rule> getRules (int group) throws QualityAssessmentException {
 		
-		Collection<Rule> publisherSpecific = queryRules("SELECT * FROM " +
-					"DB.ODCLEANSTORE.QA_RULES WHERE groupId = ?", group);
+		Collection<Rule> groupSpecific = queryRules("SELECT id, groupId, filter, coefficient, description FROM " +
+				"DB.ODCLEANSTORE.QA_RULES WHERE groupId = ?", group);
 		
-		return publisherSpecific;
+		return groupSpecific;
 	}
 	
 	/**
@@ -95,11 +125,73 @@ public class RulesModel {
      */
 	public Collection<Rule> getRules (String groupLabel) throws QualityAssessmentException {
 		
-		Collection<Rule> publisherSpecific = queryRules("SELECT * FROM " +
-					"DB.ODCLEANSTORE.QA_RULES AS rules JOIN" +
-					"DB.ODCLEANSTORE.QA_RULES_GROUPS AS groups ON rules.groupId = groups.id" +
-					"WHERE groups.label = ?", groupLabel);
+		Collection<Rule> groupSpecific = queryRules("SELECT rules.id AS id," +
+				"rules.groupId AS groupId," +
+				"rules.filter AS filter," +
+				"rules.coefficient AS coefficient," +
+				"rules.description AS description FROM " +
+				"DB.ODCLEANSTORE.QA_RULES AS rules JOIN" +
+				"DB.ODCLEANSTORE.QA_RULES_GROUPS AS groups ON rules.groupId = groups.id" +
+				"WHERE groups.label = ?", groupLabel);
 		
-		return publisherSpecific;
+		return groupSpecific;
+	}
+	
+	public void compileOntologyToRules(InputStream ontology, Integer groupId) throws QualityAssessmentException {
+		Model model = ModelFactory.createOntologyModel();
+		
+		GraphReaderService reader = new GraphReaderService();
+
+		reader.setSourceInputStream(ontology, "");
+		reader.setLanguage("TURTLE");
+		reader.readInto(model);
+		
+		QueryExecution query = QueryExecutionFactory.create("SELECT ?s WHERE {?s ?p ?o} GROUP BY ?s", model);
+		
+		com.hp.hpl.jena.query.ResultSet resultSet = query.execSelect();
+		
+		while (resultSet.hasNext()) {
+			QuerySolution solution = resultSet.next();
+			
+			processOntologyResource(solution.getResource("s"), model, groupId);
+		}
+	}
+	
+	private void processOntologyResource(Resource resource, Model model, Integer groupId) throws QualityAssessmentException {
+		if (model.contains(resource, RDF.type, OWL.FunctionalProperty)) {	
+			Rule rule = new Rule(null, groupId, "{?s <" + resource.getURI() + "> ?o} GROUP BY ?s HAVING COUNT(?o) > 1", 0.8, resource.getLocalName() + " is FunctionalProperty (can have only 1 unique value)");
+			
+			storeRule(rule);
+		}
+	}
+	
+	private void storeRule (Rule rule) throws QualityAssessmentException {
+		VirtuosoConnectionWrapper connection = null;
+		
+		try {
+			connection = VirtuosoConnectionWrapper.createConnection(endpoint);
+			
+			connection.adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL, false);			
+			
+			connection.execute(String.format("INSERT INTO DB.ODCLEANSTORE.QA_RULES (groupId, filter, coefficient, description) VALUES (%d, '%s', %f, '%s')",
+					rule.getGroupId(), rule.getFilter(), rule.getCoefficient(), rule.getDescription()));
+			connection.execute(String.format("INSERT INTO DB.ODCLEANSTORE.QA_RULES_TO_ONTOLOGIES_MAP (ruleId, ontologyId) VALUES (identity_value(), %d)", 0));
+			
+			connection.commit();
+		} catch (DatabaseException e) {
+			throw new QualityAssessmentException(e.getMessage());
+		} catch (QueryException e) {
+			throw new QualityAssessmentException(e.getMessage());
+		} catch (SQLException e) {
+			throw new QualityAssessmentException(e.getMessage());
+		} finally {
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (ConnectionException e) {
+					LOG.error("Rules Model connection not closed: " + e.getMessage());
+				}
+			}
+		}
 	}
 }
