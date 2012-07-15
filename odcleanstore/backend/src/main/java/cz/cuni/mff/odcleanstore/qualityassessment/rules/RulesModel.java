@@ -163,6 +163,11 @@ public class RulesModel {
 			
 			storeRule(rule);
 		}
+		if (model.contains(resource, RDF.type, OWL.InverseFunctionalProperty)) {
+			Rule rule = new Rule(null, groupId, "{?s <" + resource.getURI() + "> ?o} GROUP BY ?o HAVING COUNT(?s) > 1", 0.8, resource.getLocalName() + " is InverseFunctionalProperty (value cannot be shared by two distinct subjects)");
+			
+			storeRule(rule);
+		}
 	}
 	
 	private void storeRule (Rule rule) throws QualityAssessmentException {
@@ -171,7 +176,7 @@ public class RulesModel {
 		try {
 			connection = VirtuosoConnectionWrapper.createConnection(endpoint);
 			
-			connection.adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL, false);			
+			connection.adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL, false);
 			
 			connection.execute(String.format("INSERT INTO DB.ODCLEANSTORE.QA_RULES (groupId, filter, coefficient, description) VALUES (%d, '%s', %f, '%s')",
 					rule.getGroupId(), rule.getFilter(), rule.getCoefficient(), rule.getDescription()));

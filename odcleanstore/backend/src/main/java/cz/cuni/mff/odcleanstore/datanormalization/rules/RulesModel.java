@@ -3,7 +3,6 @@ package cz.cuni.mff.odcleanstore.datanormalization.rules;
 import java.sql.Blob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.HashMap;
@@ -84,14 +83,14 @@ public class RulesModel {
      */
 	public Collection<Rule> getRules (int group) throws DataNormalizationException {
 		
-		Collection<Rule> publisherSpecific = queryRules("SELECT rules.id AS id," +
+		Collection<Rule> groupSpecific = queryRules("SELECT rules.id AS id," +
 				"components.type AS type," +
 				"components.modification AS modification FROM " +
 				"DB.ODCLEANSTORE.DN_RULES AS rules JOIN " +
 				"DB.ODCLEANSTORE.DN_RULE_COMPONENTS AS components ON components.ruleId = rules.id " +
 				"WHERE groupId = ?", group);
 		
-		return publisherSpecific;
+		return groupSpecific;
 	}
 	
 	/**
@@ -99,7 +98,7 @@ public class RulesModel {
      */
 	public Collection<Rule> getRules (String groupLabel) throws DataNormalizationException {
 		
-		Collection<Rule> publisherSpecific = queryRules("SELECT rules.id AS id," +
+		Collection<Rule> groupSpecific = queryRules("SELECT rules.id AS id," +
 				"components.type AS type," +
 				"components.modification AS modification FROM " +
 				"DB.ODCLEANSTORE.DN_RULES AS rules JOIN " +
@@ -107,6 +106,6 @@ public class RulesModel {
 				"DB.ODCLEANSTORE.DN_RULE_COMPONENTS AS components ON components.ruleId = rules.id " +
 				"WHERE groups.label = ?", groupLabel);
 		
-		return publisherSpecific;
+		return groupSpecific;
 	}
 }
