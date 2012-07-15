@@ -240,7 +240,9 @@ public final class PipelineService extends Service implements Runnable {
 			if (transformerCommand.getFullClassName().equals("cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl")) {
 				transformer = new cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl(ConfigLoader.getConfig().getObjectIdentificationConfig());
 			} else if (transformerCommand.getFullClassName().equals("cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl")) {
-				transformer = new cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl();
+				//TODO: This is HOTFIX. Engine needs to pass proper groupIds or groupLabels in constructor of QAImpl
+				//This only makes common ids be selected (as groupId is IDENTITY (AUTOINCREMENT starting at 1))
+				transformer = new cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl(0, 1, 2, 3, 4, 5);
 			}	
 		}
 
