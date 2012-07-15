@@ -42,11 +42,29 @@ public class QualityAssessorImpl implements QualityAssessor {
 	
 	public static void main(String[] args) {
 		try {
-			new QualityAssessorImpl(0).debugRules(new FileInputStream(System.getProperty("user.home") + "/odcleanstore/debugQA.ttl"),
+			Map<String, GraphScoreWithTrace> result = new QualityAssessorImpl(1).debugRules(new FileInputStream(System.getProperty("user.home") + "/odcleanstore/debugQA.ttl"),
 					"http://opendata.cz/data/metadataGraph",
 					prepareContext(
 							new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba"),
 							new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1112/UID=dba/PWD=dba", "dba", "dba")));
+			
+			Iterator<String> i = result.keySet().iterator();
+			
+			while (i.hasNext()) {
+				String graph = i.next();
+				
+				System.err.println(graph + " " + result.get(graph).score);
+				
+				Iterator<Rule> j = result.get(graph).trace.iterator();
+				
+				while (j.hasNext()) {
+					Rule rule = j.next();
+					
+					System.err.println("\t" + rule.getDescription() + " " + rule.getCoefficient());
+				}
+				
+				System.err.println();
+			}
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}

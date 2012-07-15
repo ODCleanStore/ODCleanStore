@@ -34,17 +34,13 @@ public class DebugGraphFileLoader {
 	}
 	
 	public HashMap<String, String> load (InputStream input, String discriminator) throws Exception {
-		HashMap<String, String> graphs = new HashMap<String, String>();
-
 		try {
-			graphs = loadImpl(new EnforceTriG().transform(input, getInputBaseURI(discriminator)), discriminator);
+			return loadImpl(new EnforceTriG().transform(input, getInputBaseURI(discriminator)), discriminator);
 		} catch (Exception e) {
 			LOG.error(String.format("Could not finish loading debug graphs from input: %s", e.getMessage()));
 				
 			throw e;
 		}
-		
-		return graphs;
 	}
 	
 	private HashMap<String, String> loadImpl (InputStream input, String discriminator) throws Exception {	

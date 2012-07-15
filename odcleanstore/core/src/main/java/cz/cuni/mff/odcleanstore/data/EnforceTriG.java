@@ -1,10 +1,9 @@
 package cz.cuni.mff.odcleanstore.data;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 
 import de.fuberlin.wiwiss.ng4j.impl.GraphReaderService;
 import de.fuberlin.wiwiss.ng4j.impl.NamedGraphSetImpl;
@@ -14,7 +13,7 @@ public class EnforceTriG {
 		NamedGraphSetImpl namedGraphSet = new NamedGraphSetImpl();
 
 		GraphReaderService reader = new GraphReaderService();
-
+		
 		/**
 		 * Buffer the file so that it can be parsed multiple times
 		 */
@@ -54,14 +53,10 @@ public class EnforceTriG {
 			reader.readInto(namedGraphSet);
 		}
 		
-		PipedInputStream in = new PipedInputStream();
-		PipedOutputStream out = new PipedOutputStream(in);
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		
 		namedGraphSet.write(out, "TRIG", defaultGraphName);
 		
-		out.flush();
-		out.close();
-		
-		return in;
+		return new ByteArrayInputStream(out.toByteArray());
 	}
 }
