@@ -84,6 +84,14 @@ public class TransformersListPage extends FrontendPage
 						"showTransformerDetailPage"
 					)
 				);
+				
+				item.add(
+					new RedirectButton(
+						EditTransformerPage.class, 
+						transformer.getId(), 
+						"showEditTransformerPage"
+					)
+				);
 			}
 		};
 

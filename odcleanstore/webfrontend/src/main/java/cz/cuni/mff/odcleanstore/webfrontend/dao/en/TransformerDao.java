@@ -47,4 +47,25 @@ public class TransformerDao extends DaoForEntityWithSurrogateKey<Transformer>
 		
 		getJdbcTemplate().update(query, params);
 	}
+	
+	@Override
+	public void update(Transformer item)
+	{
+		// note that it is not possible to change the fullClassName of an existing transformer,
+		// because the fullClassName parameter determines the way rules groups are added to
+		// transformer instances and changing it could lead into a non consistent content of DB
+		//
+		String query = 
+			"UPDATE " + TABLE_NAME + " SET label = ?, description = ?, jarPath = ? WHERE id = ?";
+		
+		Object[] params =
+		{
+			item.getLabel(),
+			item.getDescription(),
+			item.getJarPath(),
+			item.getId()
+		};
+		
+		getJdbcTemplate().update(query, params);
+	}
 }
