@@ -80,7 +80,15 @@ public class OIGroupsListPage extends FrontendPage
 						group.getId(), 
 						"manageRules"
 					)
-				);	
+				);
+				
+				item.add(
+					new RedirectButton(
+						EditOIGroupPage.class,
+						group.getId(),
+						"showEditOIGroupPage"
+					)
+				);
 			}
 		};
 

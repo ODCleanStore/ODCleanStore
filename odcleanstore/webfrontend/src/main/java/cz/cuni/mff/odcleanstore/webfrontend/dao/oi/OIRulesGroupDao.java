@@ -46,4 +46,23 @@ public class OIRulesGroupDao extends DaoForEntityWithSurrogateKey<OIRulesGroup>
 		
 		getJdbcTemplate().update(query, params);
 	}
+	
+	@Override
+	public void update(OIRulesGroup item)
+	{
+		String query = "UPDATE " + TABLE_NAME + " SET label = ?, description = ? WHERE id = ?";
+		
+		Object[] params =
+		{
+			item.getLabel(),
+			item.getDescription(),
+			item.getId()
+		};
+		
+		logger.debug("label: " + item.getLabel());
+		logger.debug("description: " + item.getDescription());
+		logger.debug("id: " + item.getId());
+		
+		getJdbcTemplate().update(query, params);
+	}
 }

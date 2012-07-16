@@ -25,13 +25,9 @@ public abstract class CustomRowMapper<T> implements ParameterizedRowMapper<T>, S
 		byte[] content;
 		
 		try {
-			logger.warn("blob: " + blob);
-			logger.warn("blob.length(): " + blob.length());
-			
 			content = blob.getBytes(1, (int)blob.length());
 		}
 		catch (Exception ex) {
-			logger.warn("Cannot read blob: " + ex.getMessage());
 			return "";
 		}
 		
