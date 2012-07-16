@@ -49,6 +49,47 @@ public class OIRuleDao extends DaoForEntityWithSurrogateKey<OIRule>
 			item.getFilterThreshold(),
 			item.getFilterLimit()
 		};
+
+		logger.debug("groupId: " + item.getGroupId());
+		logger.debug("label: " + item.getLabel());
+		logger.debug("linkType: " + item.getLinkType());
+		logger.debug("sourceRestriction: " + item.getSourceRestriction());
+		logger.debug("targetRestriction: " + item.getTargetRestriction());
+		logger.debug("linkageRule: " + item.getLinkageRule());
+		logger.debug("filterThreshold: " + item.getFilterThreshold());
+		logger.debug("filterLimit: " + item.getFilterLimit());
+		
+		getJdbcTemplate().update(query, params);
+	}
+	
+	@Override
+	public void update(OIRule item)
+	{
+		String query =
+			"UPDATE " + TABLE_NAME + 
+			" SET label = ?, linkType = ?, sourceRestriction = ?, targetRestriction = ?, linkageRule = ?, filterThreshold = ?, filterLimit = ? " +
+			" WHERE id = ?";
+		
+		Object[] params =
+		{
+			item.getLabel(),
+			item.getLinkType(),
+			item.getSourceRestriction(),
+			item.getTargetRestriction(),
+			item.getLinkageRule(),
+			item.getFilterThreshold(),
+			item.getFilterLimit(),
+			item.getId()
+		};
+		
+		logger.debug("label: " + item.getLabel());
+		logger.debug("linkType: " + item.getLinkType());
+		logger.debug("sourceRestriction: " + item.getSourceRestriction());
+		logger.debug("targetRestriction: " + item.getTargetRestriction());
+		logger.debug("linkageRule: " + item.getLinkageRule());
+		logger.debug("filterThreshold: " + item.getFilterThreshold());
+		logger.debug("filterLimit: " + item.getFilterLimit());
+		logger.debug("id: " + item.getId());
 		
 		getJdbcTemplate().update(query, params);
 	}

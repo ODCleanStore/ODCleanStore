@@ -1,0 +1,42 @@
+<wicket:extend>
+
+<div>
+	<a class="placedright" href="#" wicket:id="manageGroupRules">Back to the group overview</a>
+	<div class="clear">&nbsp;</div>
+</div>
+
+<form wicket:id="editOIRuleForm">
+	<p>
+		<label for="label">Label:</label>
+		<input wicket:id="label" type="text" id="label" class="required" />
+	</p>
+	<p>
+		<label for="linkType">Link type:</label>
+		<input wicket:id="linkType" type="text" id="linkType" class="required" />
+	</p>
+	<p>
+		<label for="sourceRestriction">Source restriction:</label>
+		<input wicket:id="sourceRestriction" type="text" id="sourceRestriction" />
+	</p>
+	<p>
+		<label for="targetRestriction">Target restriction:</label>
+		<input wicket:id="targetRestriction" type="text" id="targetRestriction" />
+	</p>
+	<p>
+		<label for="linkageRule">Linkage rule:</label>
+		<textarea wicket:id="linkageRule" id="linkageRule" class="required"></textarea>
+	</p>
+	
+	<p>
+		<label for="filterThreshold">Filter threshold:</label>
+		<input wicket:id="filterThreshold" type="text" id="filterThreshold" />
+	</p>
+	<p>
+		<label for="filterLimit">Link limit:</label>
+		<input wicket:id="filterLimit" type="text" id="filterLimit" />
+	</p>
+	
+	<input type="submit" value="Submit" />
+</form>
+
+</wicket:extend>

@@ -121,6 +121,15 @@ public class OIGroupDetailPage extends FrontendPage
 						"showOIRuleDetail"
 					)
 				);
+				
+				item.add(
+					new RedirectButton
+					(
+						EditOIRulePage.class,
+						rule.getId(),
+						"showEditOIRulePage"
+					)
+				);
 			}
 		};
 		
