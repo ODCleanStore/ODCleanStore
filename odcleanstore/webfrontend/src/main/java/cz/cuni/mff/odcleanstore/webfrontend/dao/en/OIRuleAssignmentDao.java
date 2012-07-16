@@ -43,6 +43,7 @@ public class OIRuleAssignmentDao extends DaoForEntityWithSurrogateKey<RuleAssign
 			"WHERE " + columnName + " = ?";
 		
 		Object[] params = { value };
+		logger.debug("value: " + value);
 		
 		return getJdbcTemplate().query(query, params, getRowMapper());
 	}
@@ -57,6 +58,7 @@ public class OIRuleAssignmentDao extends DaoForEntityWithSurrogateKey<RuleAssign
 			"WHERE " + columnName + " = ?";
 		
 		Object[] params = { value };
+		logger.debug("value: " + value);
 		
 		return getJdbcTemplate().queryForObject(query, params, getRowMapper());
 	}
@@ -73,6 +75,9 @@ public class OIRuleAssignmentDao extends DaoForEntityWithSurrogateKey<RuleAssign
 			item.getTransformerInstanceId(),
 			item.getGroupId()
 		};
+		
+		logger.debug("transformerInstanceId: " + item.getTransformerInstanceId());
+		logger.debug("groupId: " + item.getGroupId());
 		
 		getJdbcTemplate().update(query, params);
 	}

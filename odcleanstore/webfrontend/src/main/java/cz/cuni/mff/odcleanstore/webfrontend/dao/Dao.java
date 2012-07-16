@@ -30,7 +30,7 @@ public abstract class Dao<T extends BusinessEntity> implements Serializable
 	
 	private static final long serialVersionUID = 1L;
 	
-	private static Logger logger = Logger.getLogger(Dao.class);
+	protected static Logger logger = Logger.getLogger(Dao.class);
 	
 	protected DaoLookupFactory lookupFactory;
 	
@@ -164,6 +164,8 @@ public abstract class Dao<T extends BusinessEntity> implements Serializable
 	{
 		String query = "SELECT * FROM " + getTableName() + " WHERE " + columnName + " = ?";
 		Object[] params = { value };
+		
+		logger.debug("value: " + value);
 		
 		return (T) getJdbcTemplate().queryForObject(query, params, getRowMapper());
 	}

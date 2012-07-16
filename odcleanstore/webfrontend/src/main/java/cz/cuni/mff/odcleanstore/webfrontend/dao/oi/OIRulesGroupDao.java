@@ -41,6 +41,9 @@ public class OIRulesGroupDao extends DaoForEntityWithSurrogateKey<OIRulesGroup>
 			item.getDescription()
 		};
 		
+		logger.debug("label: " + item.getLabel());
+		logger.debug("description: " + item.getDescription());
+		
 		getJdbcTemplate().update(query, params);
 	}
 }

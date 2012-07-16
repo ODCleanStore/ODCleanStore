@@ -32,7 +32,7 @@ public class AssignedGroupsListPageFactory
 			transformerInstanceId, 
 			daoLookupFactory.getDaoForEntityWithSurrogateKey(OIRulesGroupDao.class), 
 			daoLookupFactory.getDaoForEntityWithSurrogateKey(OIRuleAssignmentDao.class), 
-			QAGroupDetailPage.class
+			OIGroupDetailPage.class
 		);
 	}
 }
