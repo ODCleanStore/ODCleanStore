@@ -111,6 +111,15 @@ public class QAGroupDetailPage extends FrontendPage
 						"showQARuleDetailPage"
 					)
 				);
+				
+				item.add(
+					new RedirectButton
+					(
+						EditQARulePage.class,
+						rule.getId(),
+						"showEditQARulePage"
+					)
+				);
 			}
 		};
 		

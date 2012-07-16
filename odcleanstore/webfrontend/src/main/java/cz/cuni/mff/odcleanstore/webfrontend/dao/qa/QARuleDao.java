@@ -45,6 +45,33 @@ public class QARuleDao extends DaoForEntityWithSurrogateKey<QARule>
 			item.getDescription(),
 			item.getCoefficient()
 		};
+
+		logger.debug("groupId: " + item.getGroupId());
+		logger.debug("filter: " + item.getFilter());
+		logger.debug("description: " + item.getDescription());
+		logger.debug("coefficient: " + item.getCoefficient());
+		
+		getJdbcTemplate().update(query, params);
+	}
+	
+	@Override
+	public void update(QARule item)
+	{
+		String query =
+			"UPDATE " + TABLE_NAME + " SET filter = ?, description = ?, coefficient = ? WHERE id = ?";
+		
+		Object[] params =
+		{
+			item.getFilter(),
+			item.getDescription(),
+			item.getCoefficient(),
+			item.getId()
+		};
+		
+		logger.debug("filter: " + item.getFilter());
+		logger.debug("description: " + item.getDescription());
+		logger.debug("coefficient: " + item.getCoefficient());
+		logger.debug("id: " + item.getId());
 		
 		getJdbcTemplate().update(query, params);
 	}
