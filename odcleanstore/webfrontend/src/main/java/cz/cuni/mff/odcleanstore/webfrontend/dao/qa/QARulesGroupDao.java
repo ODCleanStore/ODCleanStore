@@ -2,6 +2,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.qa;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
@@ -40,6 +41,28 @@ public class QARulesGroupDao extends DaoForEntityWithSurrogateKey<QARulesGroup>
 			item.getLabel(),
 			item.getDescription()
 		};
+		
+		logger.debug("label: " + item.getLabel());
+		logger.debug("description: " + item.getDescription());
+		
+		getJdbcTemplate().update(query, params);
+	}
+
+	@Override
+	public void update(QARulesGroup item)
+	{
+		String query = "UPDATE " + TABLE_NAME + " SET label = ?, description = ? WHERE id = ?";
+		
+		Object[] params =
+		{
+			item.getLabel(),
+			item.getDescription(),
+			item.getId()
+		};
+		
+		logger.debug("label: " + item.getLabel());
+		logger.debug("description: " + item.getDescription());
+		logger.debug("id: " + item.getId());
 		
 		getJdbcTemplate().update(query, params);
 	}

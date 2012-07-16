@@ -81,7 +81,15 @@ public class QAGroupsListPage extends FrontendPage
 						group.getId(), 
 						"manageRules"
 					)
-				);	
+				);
+				
+				item.add(
+					new RedirectButton(
+						EditQAGroupPage.class,
+						group.getId(),
+						"showEditQAGroupPage"
+					)
+				);
 			}
 		};
 
