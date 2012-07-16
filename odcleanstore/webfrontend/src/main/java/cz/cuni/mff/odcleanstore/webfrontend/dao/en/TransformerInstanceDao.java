@@ -60,4 +60,23 @@ public class TransformerInstanceDao extends DaoForEntityWithSurrogateKey<Transfo
 		
 		getJdbcTemplate().update(query, params);
 	}
+	
+	public void update(TransformerInstance item)
+	{
+		String query = 
+			"UPDATE " + TABLE_NAME + 
+			" SET workDirPath = ?, configuration = ?, runOnCleanDB = ?, priority = ? " +
+			"WHERE id = ?";
+		
+		Object[] params =
+		{
+			item.getWorkDirPath(),
+			item.getConfiguration(),
+			boolToSmallint(item.getRunOnCleanDB()),
+			item.getPriority(),
+			item.getId()
+		};
+		
+		getJdbcTemplate().update(query, params);
+	}
 }

@@ -1,0 +1,28 @@
+<wicket:extend>
+
+<div>
+	<a class="placedright" href="#" wicket:id="managePipelineTransformers">Back to the assignment overview</a>
+	<div class="clear">&nbsp;</div>
+</div>
+
+<form wicket:id="editAssignmentForm">
+	<p>
+		<label for="workDirPath">Working directory:</label>
+		<input wicket:id="workDirPath" id="workDirPath" type="text" class="required"/>
+	</p>
+	<p>
+		<label for="configuration">Configuration:</label>
+		<textarea wicket:id="configuration" id="configuration" class="required"></textarea>
+	</p>
+	<p>
+		<label for="runOnCleanDB">Run on clean DB:</label>
+		<input wicket:id="runOnCleanDB" id="runOnCleanDB" type="checkbox" />
+	</p>
+	<p>
+		<label for="priority">Priority:</label>
+		<input wicket:id="priority" id="priority" type="text" class="required"/>
+	</p>
+	<input type="submit" value="Submit" />
+</form>
+
+</wicket:extend>

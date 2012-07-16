@@ -123,6 +123,15 @@ public class PipelineDetailPage extends FrontendPage
 						"showTransformerInstanceDetailPage"
 					)
 				);
+				
+				item.add(
+					new RedirectButton
+					(
+						EditTransformerAssignmentPage.class,
+						transformerInstance.getId(),
+						"showEditTransformerInstancePage"
+					)
+				);
 			}
 		};
 		
