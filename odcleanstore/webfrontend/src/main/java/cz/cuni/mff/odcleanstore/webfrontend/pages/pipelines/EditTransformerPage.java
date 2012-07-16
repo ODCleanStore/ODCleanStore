@@ -20,8 +20,8 @@ public class EditTransformerPage extends FrontendPage
 	{
 		super
 		(
-			"Home > Transformers > Create", 
-			"Register a new transformer"
+			"Home > Transformers > Edit", 
+			"Edit a transformer"
 		);
 		
 

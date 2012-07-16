@@ -76,11 +76,13 @@ public class PipelineDao extends DaoForEntityWithSurrogateKey<Pipeline>
 	@Override
 	public void update(Pipeline item)
 	{
-		if (!item.isDefault())
-			return;
+		updateRaw(item);
 		
-		dropRunOnCleanDBForAllRows();
-		setRunOnCleanDB(item.getId());
+		if (item.isDefault())
+		{
+			dropRunOnCleanDBForAllRows();
+			setRunOnCleanDB(item.getId());
+		}
 	}
 	
 	private void dropRunOnCleanDBForAllRows()
@@ -93,6 +95,20 @@ public class PipelineDao extends DaoForEntityWithSurrogateKey<Pipeline>
 	{
 		String query = "UPDATE " + TABLE_NAME + " SET isDefault = 1 WHERE id = ?";
 		Object[] params = { pipelineId };
+		
+		getJdbcTemplate().update(query, params);
+	}
+	
+	private void updateRaw(Pipeline item)
+	{
+		String query = "UPDATE " + TABLE_NAME + " SET label = ?, description = ? WHERE id = ?";
+		
+		Object[] params =
+		{
+			item.getLabel(),
+			item.getDescription(),
+			item.getId()
+		};
 		
 		getJdbcTemplate().update(query, params);
 	}

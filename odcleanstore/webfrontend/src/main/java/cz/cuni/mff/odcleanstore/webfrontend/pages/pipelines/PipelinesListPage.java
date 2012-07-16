@@ -123,6 +123,14 @@ public class PipelinesListPage extends FrontendPage
 					)
 				);
 				
+				item.add(
+					new RedirectButton(
+						EditPipelinePage.class,
+						pipeline.getId(), 
+						"showEditPipelinePage"
+					)
+				);
+				
 				addMarkPipelineDefaultButton(item, pipeline);
 			}
 		};
