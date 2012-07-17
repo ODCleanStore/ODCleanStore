@@ -46,6 +46,33 @@ public class PropertySettingsDao extends DaoForEntityWithSurrogateKey<PropertySe
 			item.getAggregationType().getId()
 		};
 		
+		logger.debug("property: " + item.getProperty());
+		logger.debug("multivalueTypeId: " + item.getMultivalueType().getId());
+		logger.debug("aggregationTypeId: " + item.getAggregationType().getId());
+		
+		getJdbcTemplate().update(query, arguments);
+	}
+	
+	@Override
+	public void update(PropertySettings item)
+	{
+		String query = 
+			"UPDATE " + TABLE_NAME + " SET property = ?, multivalueTypeId = ?, aggregationTypeId = ? " +
+			"WHERE id = ?";
+		
+		Object[] arguments =
+		{
+			item.getProperty(),
+			item.getMultivalueType().getId(),
+			item.getAggregationType().getId(),
+			item.getId()
+		};
+		
+		logger.debug("property: " + item.getProperty());
+		logger.debug("multivalueTypeId: " + item.getMultivalueType().getId());
+		logger.debug("aggregationTypeId: " + item.getAggregationType().getId());
+		logger.debug("id: " + item.getId());
+		
 		getJdbcTemplate().update(query, arguments);
 	}
 

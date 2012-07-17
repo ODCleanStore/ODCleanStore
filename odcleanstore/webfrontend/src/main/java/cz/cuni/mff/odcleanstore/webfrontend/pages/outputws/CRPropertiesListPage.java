@@ -5,6 +5,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.*;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
@@ -124,7 +125,15 @@ public class CRPropertiesListPage extends FrontendPage
 						new DeleteConfirmationMessage("property"),  
 						CRPropertiesListPage.this
 					)
-				);	
+				);
+				
+				item.add(
+					new RedirectButton(
+						EditPropertyPage.class, 
+						property.getId(), 
+						"showEditGlobalAggregationSettingsPage"
+					)
+				);
 			}
 		};
 		

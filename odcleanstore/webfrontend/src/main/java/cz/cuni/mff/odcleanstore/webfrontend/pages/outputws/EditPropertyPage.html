@@ -1,0 +1,28 @@
+<wicket:extend>
+
+<wicket:link>
+<div>
+	<a class="placedright" href="CRPropertiesListPage.html">Back to the aggregation settings overview</a>
+	<div class="clear">&nbsp;</div>
+</div>
+</wicket:link>
+
+<form wicket:id="editPropertyForm">
+	<p>
+		<label for="property">Property:</label>
+		<input wicket:id="property" type="text" id="property" class="required" />
+	</p>
+	<p>
+		<label for="multivalueType">Multivalue:</label>
+		<select wicket:id="multivalueType" id="multivalueType" class="required">
+		</select>
+	</p>
+	<p>
+		<label for="aggregationType">Aggregation type:</label>
+		<select wicket:id="aggregationType" id="aggregationType" class="required">
+		</select>
+	</p>
+	<input type="submit" value="Submit" />
+</form>
+
+</wicket:extend>
