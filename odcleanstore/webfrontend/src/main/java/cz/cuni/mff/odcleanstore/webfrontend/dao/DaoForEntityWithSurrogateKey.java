@@ -15,6 +15,8 @@ public abstract class DaoForEntityWithSurrogateKey<T extends EntityWithSurrogate
 		String query = "DELETE FROM " + getTableName() + " WHERE id = ?";
 		Object[] params = { id };
 		
+		logger.debug("id: " + id);
+		
 		getJdbcTemplate().update(query, params);
 	}
 		

@@ -52,6 +52,24 @@ public class OIOutputDao extends DaoForEntityWithSurrogateKey<OIOutput>
 	}
 	
 	@Override
+	public OIOutput load(Long id)
+	{
+		String query = 
+				"SELECT " +
+				"O.id as oid, ruleId, minConfidence, maxConfidence, fileName, " +
+				"OT.id as otid, OT.label as otlbl, OT.description as otdescr, " +
+				"FF.id as ffid, FF.label as fflbl, FF.description as ffdescr " +
+				"FROM " + TABLE_NAME + " AS O " +
+				"JOIN " + OIOutputTypeDao.TABLE_NAME + " AS OT ON (O.outputTypeId = OT.id) " +
+				"LEFT OUTER JOIN " + OIFileFormatDao.TABLE_NAME + " AS FF ON (O.fileFormatId = FF.id) " +
+				"WHERE O.id = ?";
+			
+		Object[] params = { id };
+		
+		return getJdbcTemplate().queryForObject(query, params, getRowMapper());
+	}
+	
+	@Override
 	public void save(OIOutput output)
 	{
 		String query = 
@@ -68,6 +86,37 @@ public class OIOutputDao extends DaoForEntityWithSurrogateKey<OIOutput>
 			output.getFilename(),
 			(output.getFileFormat() == null ? null : output.getFileFormat().getId())
 		};
+		
+		logger.debug("ruleId: " + output.getRuleId());
+		logger.debug("outputTypeId: " + output.getOutputTypeId());
+		logger.debug("minConfidence: " + output.getMinConfidence());
+		logger.debug("maxConfidence: " + output.getMaxConfidence());
+		
+		getJdbcTemplate().update(query, params);
+	}
+	
+	@Override
+	public void update(OIOutput output)
+	{
+		String query = 
+			"UPDATE " + TABLE_NAME + " " +
+			"SET outputTypeId = ?, minConfidence = ?, maxConfidence = ?, fileName = ?, fileFormatId = ?" +
+			"WHERE id = ?";
+		
+		Object[] params =
+		{
+			output.getOutputTypeId(),
+			output.getMinConfidence(),
+			output.getMaxConfidence(),
+			output.getFilename(),
+			(output.getFileFormat() == null ? null : output.getFileFormat().getId()),
+			output.getId()
+		};
+
+		logger.debug("outputTypeId: " + output.getOutputTypeId());
+		logger.debug("minConfidence: " + output.getMinConfidence());
+		logger.debug("maxConfidence: " + output.getMaxConfidence());
+		logger.debug("id: " + output.getId());
 		
 		getJdbcTemplate().update(query, params);
 	}

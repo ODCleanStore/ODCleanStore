@@ -45,13 +45,7 @@ public class OIGroupDetailPage extends FrontendPage
 		addGroupInformationSection(groupId);
 		addOIRulesSection(groupId);
 	}
-
-	/*
-	 	=======================================================================
-	 	Group information section
-	 	=======================================================================
-	*/
-
+	
 	private void addGroupInformationSection(final Long groupId)
 	{
 		setDefaultModel(createModelForOverview(oiRulesGroupDao, groupId));
@@ -59,12 +53,6 @@ public class OIGroupDetailPage extends FrontendPage
 		add(new Label("label"));
 		add(new Label("description"));
 	}
-	
-	/*
- 		=======================================================================
-	 	Implementace oiRulesTable
-	 	=======================================================================
-	*/
 	
 	private void addOIRulesSection(final Long groupId) 
 	{

@@ -12,7 +12,7 @@ public abstract class CustomRowMapper<T> implements ParameterizedRowMapper<T>, S
 {
 	private static final long serialVersionUID = 1L;
 	
-	private static Logger logger = Logger.getLogger(CustomRowMapper.class);
+	protected static Logger logger = Logger.getLogger(CustomRowMapper.class);
 
 	/**
 	 * 

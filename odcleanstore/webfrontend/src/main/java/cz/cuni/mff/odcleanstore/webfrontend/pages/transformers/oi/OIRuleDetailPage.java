@@ -175,7 +175,15 @@ public class OIRuleDetailPage extends FrontendPage
 						new DeleteConfirmationMessage("output"),
 						OIRuleDetailPage.this
 					)
-				);	
+				);
+				
+				item.add(
+					new RedirectButton(
+						EditFileOutputPage.class, 
+						output.getId(), 
+						"showEditFileOutputPage"
+					)
+				);
 			}
 		};
 		

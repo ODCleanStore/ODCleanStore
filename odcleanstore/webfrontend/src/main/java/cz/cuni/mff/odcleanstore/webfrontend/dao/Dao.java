@@ -127,6 +127,8 @@ public abstract class Dao<T extends BusinessEntity> implements Serializable
 		String query = "SELECT * FROM " + getTableName() + " WHERE " + columnName + " = ?";
 		Object[] params = { value };
 		
+		logger.debug("value: " + value);
+		
 		return getJdbcTemplate().query(query, params, getRowMapper());
 	}
 	

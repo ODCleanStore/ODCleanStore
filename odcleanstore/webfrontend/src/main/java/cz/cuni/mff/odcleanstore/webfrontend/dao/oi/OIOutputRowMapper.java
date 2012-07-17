@@ -13,6 +13,10 @@ public class OIOutputRowMapper extends CustomRowMapper<OIOutput>
 
 	public OIOutput mapRow(ResultSet rs, int rowNum) throws SQLException 
 	{
+		logger.debug("oid: " + rs.getLong("oid"));
+		logger.debug("ruleId: " + rs.getLong("ruleId"));
+		logger.debug("otid: " + rs.getLong("otid"));
+		
 		return new OIOutput
 		(
 			rs.getLong("oid"),

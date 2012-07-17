@@ -147,6 +147,7 @@ public class DaoLookupFactory implements Serializable
 		dao.setDaoLookupFactory(this);
 		return dao;
 	}
+	
 	/**
 	 * 
 	 * @return
