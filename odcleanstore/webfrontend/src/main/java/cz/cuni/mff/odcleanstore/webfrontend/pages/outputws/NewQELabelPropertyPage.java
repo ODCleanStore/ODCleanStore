@@ -1,14 +1,17 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.outputws;
 
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.PropertySettings;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qe.LabelProperty;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qe.LabelPropertyDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.validators.IRIValidator;
 
 public class NewQELabelPropertyPage extends FrontendPage
 {
@@ -70,8 +73,15 @@ public class NewQELabelPropertyPage extends FrontendPage
 			}
 		};
 		
-		form.add(createTextfield("property"));
+		form.add(createPropertyTextField());
 		
 		add(form);
+	}
+	
+	private TextField<String> createPropertyTextField()
+	{
+		TextField<String> textField = createTextfield("property");
+		textField.add(new IRIValidator());
+		return textField;
 	}
 }
