@@ -120,6 +120,14 @@ public class OIRuleDetailPage extends FrontendPage
 						OIRuleDetailPage.this
 					)
 				);	
+				
+				item.add(
+					new RedirectButton(
+						EditDBOutputPage.class, 
+						output.getId(), 
+						"showEditDBOutputPage"
+					)
+				);
 			}
 		};
 		

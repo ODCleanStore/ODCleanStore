@@ -19,7 +19,7 @@ public class EditOIGroupPage extends FrontendPage
 	public EditOIGroupPage(final Long groupId) 
 	{
 		super(
-			"Home > OI > Rules groups > Create", 
+			"Home > OI > Rules groups > Edit", 
 			"Add a new rules group"
 		);
 

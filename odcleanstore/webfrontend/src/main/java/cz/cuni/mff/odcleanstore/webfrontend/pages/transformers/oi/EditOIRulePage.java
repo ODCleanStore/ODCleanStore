@@ -25,7 +25,7 @@ public class EditOIRulePage extends FrontendPage
 	public EditOIRulePage(final Long ruleId) 
 	{
 		super(
-			"Home > OI > Rules groups > Group > Rules > Create", 
+			"Home > OI > Rules groups > Group > Rules > Edit", 
 			"Add a new OI rule"
 		);
 		

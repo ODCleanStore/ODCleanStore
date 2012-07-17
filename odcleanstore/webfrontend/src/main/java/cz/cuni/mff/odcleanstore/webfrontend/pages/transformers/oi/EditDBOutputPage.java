@@ -6,37 +6,33 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.validation.validator.RangeValidator;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIFileFormat;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutput;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutputType;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIFileFormatDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputTypeDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-public class EditFileOutputPage extends FrontendPage 
+public class EditDBOutputPage extends FrontendPage 
 {
 	private static final long serialVersionUID = 1L;
 	
 	private DaoForEntityWithSurrogateKey<OIOutput> oiOutputDao;
 	private DaoForEntityWithSurrogateKey<OIOutputType> oiOutputTypeDao;
-	private DaoForEntityWithSurrogateKey<OIFileFormat> oiFileFormatDao;
 	
-	public EditFileOutputPage(final Long outputId) 
+	public EditDBOutputPage(final Long outputId) 
 	{
 		super(
-			"Home > OI > Rules groups > Group > Rules > Rule > File Outputs > Edit", 
-			"Add a new file output"
+			"Home > OI > Rules groups > Group > Rules > Rule > DB Outputs > Edit", 
+			"Add a new DB Output"
 		);
 		
 		// prepare DAO objects
 		//
 		oiOutputDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIOutputDao.class);
 		oiOutputTypeDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIOutputTypeDao.class);
-		oiFileFormatDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIFileFormatDao.class);
 		
 		// register page components
 		//
@@ -50,14 +46,14 @@ public class EditFileOutputPage extends FrontendPage
 			)
 		);
 		
-		addEditFileOutputForm(output);
+		addEditDBOutputForm(output);
 	}
 
-	private void addEditFileOutputForm(final OIOutput output)
+	private void addEditDBOutputForm(final OIOutput output)
 	{
 		IModel<OIOutput> formModel = new CompoundPropertyModel<OIOutput>(output);
 		
-		Form<OIOutput> form = new Form<OIOutput>("editFileOutputForm", formModel)
+		Form<OIOutput> form = new Form<OIOutput>("editDBOutputForm", formModel)
 		{
 			private static final long serialVersionUID = 1L;
 			
@@ -92,8 +88,6 @@ public class EditFileOutputPage extends FrontendPage
 		
 		form.add(createConfidenceTextfield("minConfidence"));
 		form.add(createConfidenceTextfield("maxConfidence"));
-		form.add(createTextfield("filename"));
-		form.add(createEnumSelectbox(oiFileFormatDao, "fileFormat"));
 		
 		add(form);
 	}
