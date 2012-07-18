@@ -112,6 +112,8 @@ public class QualityAggregatorImpl implements QualityAggregator {
 		}
 	}
 	
+	//TODO: null is just a special graph (might be replaced by something more configurable)
+	
 	private final static String dropOutdatedQueryFormat = "SPARQL DELETE FROM <null> {?publisher <" + ODCS.publisherScore + "> ?score} WHERE {?publisher <" + ODCS.publisherScore + "> ?score. FILTER (?publisher = <%s>)}";
 	private final static String computeSumUpdatedQueryFormat = "SPARQL SELECT SUM(?score) WHERE {?graph <" + ODCS.score + "> ?score; <" + W3P.publishedBy + "> <%s>}";
 	private final static String computeCountUpdatedQueryFormat = "SPARQL SELECT COUNT(?score) WHERE {?graph <" + ODCS.score + "> ?score; <" + W3P.publishedBy + "> <%s>}";

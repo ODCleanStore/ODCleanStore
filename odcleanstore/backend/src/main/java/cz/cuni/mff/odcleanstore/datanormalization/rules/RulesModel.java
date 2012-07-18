@@ -1,8 +1,5 @@
 package cz.cuni.mff.odcleanstore.datanormalization.rules;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.sql.Blob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -15,12 +12,13 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import virtuoso.jena.driver.VirtModel;
+
 import com.hp.hpl.jena.query.QueryException;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDFS;
 import com.hp.hpl.jena.vocabulary.XSD;
@@ -34,15 +32,12 @@ import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
 import cz.cuni.mff.odcleanstore.datanormalization.rules.Rule.Component;
 import cz.cuni.mff.odcleanstore.vocabulary.XPathFunctions;
-import de.fuberlin.wiwiss.ng4j.impl.GraphReaderService;
 
 public class RulesModel {
 	public static void main(String[] args) {
 		try {
-			new RulesModel(new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba")).compileOntologyToRules(new FileInputStream(System.getProperty("user.home") + "/odcleanstore/public-contracts.ttl"), 1);
+			new RulesModel(new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba")).compileOntologyToRules("http://purl.org/procurement/public-contracts", 1);
 		} catch (DataNormalizationException e) {
-			System.err.println(e.getMessage());
-		} catch (FileNotFoundException e) {
 			System.err.println(e.getMessage());
 		}
 	}
@@ -164,27 +159,24 @@ public class RulesModel {
 		return rules;
 	}
 	
-	public void compileOntologyToRules(InputStream ontology, Integer groupId) throws DataNormalizationException {
-		Model model = ModelFactory.createOntologyModel();
+	public void compileOntologyToRules(String ontologyUri, Integer groupId) throws DataNormalizationException {
+		VirtModel ontology = VirtModel.openDatabaseModel(ontologyUri,
+				endpoint.getConnectionString(),
+				endpoint.getUsername(),
+				endpoint.getPassword());
 		
-		GraphReaderService reader = new GraphReaderService();
-
-		reader.setSourceInputStream(ontology, "");
-		reader.setLanguage("TURTLE");
-		reader.readInto(model);
-		
-		QueryExecution query = QueryExecutionFactory.create("SELECT ?s WHERE {?s ?p ?o} GROUP BY ?s", model);
+		QueryExecution query = QueryExecutionFactory.create("SELECT ?s WHERE {?s ?p ?o} GROUP BY ?s", ontology);
 		
 		com.hp.hpl.jena.query.ResultSet resultSet = query.execSelect();
 		
 		while (resultSet.hasNext()) {
 			QuerySolution solution = resultSet.next();
 			
-			processOntologyResource(solution.getResource("s"), model, groupId);
+			processOntologyResource(solution.getResource("s"), ontology, ontologyUri, groupId);
 		}
 	}
 	
-	private void processOntologyResource(Resource resource, Model model, Integer groupId) throws DataNormalizationException {
+	private void processOntologyResource(Resource resource, Model model, String ontology, Integer groupId) throws DataNormalizationException {
 		if (model.contains(resource, RDFS.range, XSD.date)) {
 			Rule rule = new Rule(null, groupId, "Convert " + resource.getLocalName() + " into " + XSD.date.getLocalName(),
 					"INSERT",
@@ -195,11 +187,11 @@ public class RulesModel {
 					"{?s <" + resource.getURI() + "> ?o} WHERE {GRAPH $$graph$$ {?s <" + resource.getURI() + "> ?o. FILTER (?o != <" + XPathFunctions.dateFunction + ">(str(?o)))}}",
 					"Remove all improper values of the property " + resource.getURI());
 			
-			storeRule(rule);
+			storeRule(rule, ontology);
 		}
 	}
 	
-	private void storeRule (Rule rule) throws DataNormalizationException {
+	private void storeRule (Rule rule, String ontology) throws DataNormalizationException {
 		VirtuosoConnectionWrapper connection = null;
 		
 		try {
@@ -226,9 +218,11 @@ public class RulesModel {
 						id, components[i].getModification(), components[i].getDescription(), components[i].getType().toString()));
 			}
 			
-			connection.execute(String.format("INSERT INTO DB.ODCLEANSTORE.DN_RULES_TO_ONTOLOGIES_MAP (ruleId, ontology) VALUES (%d, '%s')", id, "http://TODO")); //TODO pass ontology URI
+			connection.execute(String.format("INSERT INTO DB.ODCLEANSTORE.DN_RULES_TO_ONTOLOGIES_MAP (ruleId, ontology) VALUES (%d, '%s')", id, ontology));
 			
 			connection.commit();
+
+			LOG.info("Generated data normalization rule from ontology " + ontology);
 		} catch (DatabaseException e) {
 			e.printStackTrace(System.err);
 			throw new DataNormalizationException(e.getMessage());

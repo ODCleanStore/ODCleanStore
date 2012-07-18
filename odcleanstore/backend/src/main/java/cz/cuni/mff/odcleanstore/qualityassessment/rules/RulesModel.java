@@ -13,9 +13,6 @@ import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.sql.ResultSet;
 import java.sql.Blob;
 import java.sql.SQLException;
@@ -23,17 +20,16 @@ import java.sql.SQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import virtuoso.jena.driver.VirtModel;
+
 import com.hp.hpl.jena.query.QueryException;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDF;
-
-import de.fuberlin.wiwiss.ng4j.impl.GraphReaderService;
 
 /**
  * Rules Model.
@@ -45,10 +41,8 @@ import de.fuberlin.wiwiss.ng4j.impl.GraphReaderService;
 public class RulesModel {
 	public static void main(String[] args) {
 		try {
-			new RulesModel(new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba")).compileOntologyToRules(new FileInputStream(System.getProperty("user.home") + "/odcleanstore/public-contracts.ttl"), 1);
+			new RulesModel(new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba")).compileOntologyToRules("http://purl.org/procurement/public-contracts", 1);
 		} catch (QualityAssessmentException e) {
-			System.err.println(e.getMessage());
-		} catch (FileNotFoundException e) {
 			System.err.println(e.getMessage());
 		}
 	}
@@ -149,40 +143,37 @@ public class RulesModel {
 		return rules;
 	}
 	
-	public void compileOntologyToRules(InputStream ontology, Integer groupId) throws QualityAssessmentException {
-		Model model = ModelFactory.createOntologyModel();
+	public void compileOntologyToRules(String ontologyUri, Integer groupId) throws QualityAssessmentException {
+		VirtModel ontology = VirtModel.openDatabaseModel(ontologyUri,
+				endpoint.getConnectionString(),
+				endpoint.getUsername(),
+				endpoint.getPassword());
 		
-		GraphReaderService reader = new GraphReaderService();
-
-		reader.setSourceInputStream(ontology, "");
-		reader.setLanguage("TURTLE");
-		reader.readInto(model);
-		
-		QueryExecution query = QueryExecutionFactory.create("SELECT ?s WHERE {?s ?p ?o} GROUP BY ?s", model);
+		QueryExecution query = QueryExecutionFactory.create("SELECT ?s WHERE {?s ?p ?o} GROUP BY ?s", ontology);
 		
 		com.hp.hpl.jena.query.ResultSet resultSet = query.execSelect();
 		
 		while (resultSet.hasNext()) {
 			QuerySolution solution = resultSet.next();
 			
-			processOntologyResource(solution.getResource("s"), model, groupId);
+			processOntologyResource(solution.getResource("s"), ontology, ontologyUri, groupId);
 		}
 	}
 	
-	private void processOntologyResource(Resource resource, Model model, Integer groupId) throws QualityAssessmentException {
+	private void processOntologyResource(Resource resource, Model model, String ontology, Integer groupId) throws QualityAssessmentException {
 		if (model.contains(resource, RDF.type, OWL.FunctionalProperty)) {	
 			Rule rule = new Rule(null, groupId, "{?s <" + resource.getURI() + "> ?o} GROUP BY ?s HAVING COUNT(?o) > 1", 0.8, resource.getLocalName() + " is FunctionalProperty (can have only 1 unique value)");
 			
-			storeRule(rule);
+			storeRule(rule, ontology);
 		}
 		if (model.contains(resource, RDF.type, OWL.InverseFunctionalProperty)) {
 			Rule rule = new Rule(null, groupId, "{?s <" + resource.getURI() + "> ?o} GROUP BY ?o HAVING COUNT(?s) > 1", 0.8, resource.getLocalName() + " is InverseFunctionalProperty (value cannot be shared by two distinct subjects)");
 			
-			storeRule(rule);
+			storeRule(rule, ontology);
 		}
 	}
 	
-	private void storeRule (Rule rule) throws QualityAssessmentException {
+	private void storeRule (Rule rule, String ontology) throws QualityAssessmentException {
 		VirtuosoConnectionWrapper connection = null;
 		
 		try {
@@ -192,9 +183,11 @@ public class RulesModel {
 			
 			connection.execute(String.format("INSERT INTO DB.ODCLEANSTORE.QA_RULES (groupId, filter, coefficient, description) VALUES (%d, '%s', %f, '%s')",
 					rule.getGroupId(), rule.getFilter(), rule.getCoefficient(), rule.getDescription()));
-			connection.execute(String.format("INSERT INTO DB.ODCLEANSTORE.QA_RULES_TO_ONTOLOGIES_MAP (ruleId, ontology) VALUES (identity_value(), '%s')", "http://TODO")); //TODO pass ontology URI
+			connection.execute(String.format("INSERT INTO DB.ODCLEANSTORE.QA_RULES_TO_ONTOLOGIES_MAP (ruleId, ontology) VALUES (identity_value(), '%s')", ontology));
 			
 			connection.commit();
+			
+			LOG.info("Generated quality assessment rule from ontology " + ontology);
 		} catch (DatabaseException e) {
 			throw new QualityAssessmentException(e.getMessage());
 		} catch (QueryException e) {
