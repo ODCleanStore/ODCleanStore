@@ -290,9 +290,9 @@ public class QualityAggregatorImpl implements QualityAggregator {
 				publisher = results.getString("publisher");
 			}
 		} catch (DatabaseException e) {
-			throw new QualityAssessmentException(e.getMessage());
+			throw new QualityAssessmentException(e);
 		} catch (SQLException e) {
-			throw new QualityAssessmentException(e.getMessage());
+			throw new QualityAssessmentException(e);
 		} finally {
 			if (results != null) {
 				results.closeQuietly();
@@ -323,9 +323,9 @@ public class QualityAggregatorImpl implements QualityAggregator {
 				score = results.getDouble("score");
 			}
 		} catch (DatabaseException e) {
-			throw new QualityAssessmentException(e.getMessage());
+			throw new QualityAssessmentException(e);
 		} catch (SQLException e) {
-			throw new QualityAssessmentException(e.getMessage());
+			throw new QualityAssessmentException(e);
 		} finally {
 			if (results != null) {
 				results.closeQuietly();

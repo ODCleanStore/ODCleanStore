@@ -86,9 +86,9 @@ public class RulesModel {
 				rules.add(new Rule(id, groupId, filter, coefficient, description));
 			}
 		} catch (DatabaseException e) {
-			throw new QualityAssessmentException(e.getMessage());
+			throw new QualityAssessmentException(e);
 		} catch (SQLException e) {
-			throw new QualityAssessmentException(e.getMessage());
+			throw new QualityAssessmentException(e);
 		} finally {
 			if (results != null) {
 				results.closeQuietly();
@@ -171,7 +171,7 @@ public class RulesModel {
 			connection.execute(String.format("DELETE FROM DB.ODCLEANSTORE.QA_RULES WHERE id IN (SELECT ruleId AS id FROM DB.ODCLEANSTORE.QA_RULES_TO_ONTOLOGIES_MAP WHERE ontology = '%s')", ontology));
 			
 		} catch (DatabaseException e) {
-			throw new QualityAssessmentException(e.getMessage());
+			throw new QualityAssessmentException(e);
 		} finally {
 			if (connection != null) {
 				try {
@@ -212,11 +212,11 @@ public class RulesModel {
 			
 			LOG.info("Generated quality assessment rule from ontology " + ontology);
 		} catch (DatabaseException e) {
-			throw new QualityAssessmentException(e.getMessage());
+			throw new QualityAssessmentException(e);
 		} catch (QueryException e) {
-			throw new QualityAssessmentException(e.getMessage());
+			throw new QualityAssessmentException(e);
 		} catch (SQLException e) {
-			throw new QualityAssessmentException(e.getMessage());
+			throw new QualityAssessmentException(e);
 		} finally {
 			if (connection != null) {
 				try {

@@ -396,10 +396,10 @@ public class QualityAssessorImpl implements QualityAssessor {
 			}
 		} catch (DatabaseException e) {
 			//LOG.fatal(e.getMessage());
-			throw new QualityAssessmentException(e.getMessage());
+			throw new QualityAssessmentException(e);
 		} catch (SQLException e) {
 			//...
-			throw new QualityAssessmentException(e.getMessage());
+			throw new QualityAssessmentException(e);
 		} finally {
 			if (results != null) {
 				results.closeQuietly();
@@ -457,7 +457,7 @@ public class QualityAssessorImpl implements QualityAssessor {
 			}
 		} catch (DatabaseException e) {
 			//LOG.fatal(e.getMessage());
-			throw new QualityAssessmentException(e.getMessage());
+			throw new QualityAssessmentException(e);
 		}
 	}
 	

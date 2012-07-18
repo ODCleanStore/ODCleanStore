@@ -361,11 +361,11 @@ public class DataNormalizerImpl implements DataNormalizer {
 				getDirtyConnection().commit();
 			}
 		} catch (ConnectionException e) {
-			throw new DataNormalizationException(e.getMessage());
+			throw new DataNormalizationException(e);
 		} catch (QueryException e) {
-			throw new DataNormalizationException(e.getMessage());
+			throw new DataNormalizationException(e);
 		} catch (SQLException e) {
-			throw new DataNormalizationException(e.getMessage());
+			throw new DataNormalizationException(e);
 		}
 	}
 	

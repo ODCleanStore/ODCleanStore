@@ -91,9 +91,9 @@ public class RulesModel {
 				}
 			}
 		} catch (DatabaseException e) {
-			throw new DataNormalizationException(e.getMessage());
+			throw new DataNormalizationException(e);
 		} catch (SQLException e) {
-			throw new DataNormalizationException(e.getMessage());
+			throw new DataNormalizationException(e);
 		} finally {
 			if (results != null) {
 				results.closeQuietly();
@@ -187,7 +187,7 @@ public class RulesModel {
 			connection.execute(String.format("DELETE FROM DB.ODCLEANSTORE.DN_RULES WHERE id IN (SELECT ruleId AS id FROM DB.ODCLEANSTORE.DN_RULES_TO_ONTOLOGIES_MAP WHERE ontology = '%s')", ontology));
 			
 		} catch (DatabaseException e) {
-			throw new DataNormalizationException(e.getMessage());
+			throw new DataNormalizationException(e);
 		} finally {
 			if (connection != null) {
 				try {
@@ -248,11 +248,11 @@ public class RulesModel {
 			LOG.info("Generated data normalization rule from ontology " + ontology);
 		} catch (DatabaseException e) {
 			e.printStackTrace(System.err);
-			throw new DataNormalizationException(e.getMessage());
+			throw new DataNormalizationException(e);
 		} catch (QueryException e) {
-			throw new DataNormalizationException(e.getMessage());
+			throw new DataNormalizationException(e);
 		} catch (SQLException e) {
-			throw new DataNormalizationException(e.getMessage());
+			throw new DataNormalizationException(e);
 		} finally {
 			if (connection != null) {
 				try {
