@@ -6,19 +6,41 @@ import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationEx
 
 public class Rule {
 	public enum EnumRuleComponentType {
-		RULE_COMPONENT_INSERT,
-		RULE_COMPONENT_DELETE
+		RULE_COMPONENT_INSERT {
+			public String toString() {
+				return "INSERT";
+			}
+		},
+		RULE_COMPONENT_DELETE {
+			public String toString() {
+				return "DELETE";
+			}
+		}
 	}
 	
 	public class Component {
 		
-		public Component(EnumRuleComponentType type, String modification) {
+		public Component(EnumRuleComponentType type, String modification, String description) {
 			this.type = type;
 			this.modification = modification;
+			this.description = description;
 		}
 		
 		private EnumRuleComponentType type;
 		private String modification;
+		private String description;
+		
+		public EnumRuleComponentType getType() {
+			return type;
+		}
+		
+		public String getModification() {
+			return modification;
+		}
+		
+		public String getDescription() {
+			return description;
+		}
 
 		public String toString(String graph) {
 			String output = "<" + graph + "> " + modification.replaceAll("GRAPH\\s*\\$\\$graph\\$\\$", "GRAPH <" + graph + ">");
@@ -37,24 +59,36 @@ public class Rule {
 	}
 
 	Integer id;
+	Integer groupId;
+	String description;
 	Vector<Component> components = new Vector<Component>();
 	
-	public Rule(Integer id) {
+	public Rule(Integer id, Integer groupId, String description, String... components) throws DataNormalizationException {
 		this.id = id;
-	}
-	
-	public Rule(Integer id, String... components) throws DataNormalizationException {
-		this.id = id;
+		this.groupId = groupId;
+		this.description = description;
 
-		if (components.length % 2 == 1) throw new DataNormalizationException("Incomplete rule initialization list");
+		if (components.length % 3 != 0) throw new DataNormalizationException("Incomplete rule initialization list");
 		
-		for (int i = 0; i < components.length; i += 2) {
-			addComponent(components[i], components[i + 1]);
+		for (int i = 0; i < components.length; i += 3) {
+			addComponent(components[i], components[i + 1], components[i + 2]);
 		}
 	}
 	
 	public Integer getId() {
 		return id;
+	}
+	
+	public Integer getGroupId() {
+		return groupId;
+	}
+	
+	public String getDescription() {
+		return description;
+	}
+	
+	public Component[] getComponents() {
+		return components.toArray(new Component[this.components.size()]);
 	}
 	
 	public String[] getComponents(String graph) {
@@ -69,17 +103,17 @@ public class Rule {
 		return componentStrings;
 	}
 	
-	public void addComponent(String type, String modification) throws DataNormalizationException {
+	public void addComponent(String type, String modification, String description) throws DataNormalizationException {
 		if (type.equals("INSERT")) {
-			addComponent(EnumRuleComponentType.RULE_COMPONENT_INSERT, modification);
+			addComponent(EnumRuleComponentType.RULE_COMPONENT_INSERT, modification, description);
 		} else if (type.equals("DELETE")) {
-			addComponent(EnumRuleComponentType.RULE_COMPONENT_DELETE, modification);
+			addComponent(EnumRuleComponentType.RULE_COMPONENT_DELETE, modification, description);
 		} else {
 			throw new DataNormalizationException("Unknown Data Normalization Rule type");
 		}
 	}
 	
-	public void addComponent(EnumRuleComponentType type, String modification) {
-		components.add(new Component(type, modification));
+	public void addComponent(EnumRuleComponentType type, String modification, String description) {
+		components.add(new Component(type, modification, description));
 	}
 }

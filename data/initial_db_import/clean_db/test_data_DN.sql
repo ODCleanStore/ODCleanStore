@@ -1,9 +1,9 @@
 -- GROUPS
-INSERT INTO DB.ODCLEANSTORE.DN_RULES_GROUPS (id, label, description) VALUES (0, 'test group', 'this is a group for testing purposes');
+INSERT INTO DB.ODCLEANSTORE.DN_RULES_GROUPS (id, label, description) VALUES (1, 'test group', 'this is a group for testing purposes');
 
 -- RULES
-INSERT INTO DB.ODCLEANSTORE.DN_RULES (id, groupId, description) VALUES (0, 0, '');
-INSERT INTO DB.ODCLEANSTORE.DN_RULES (id, groupId, description) VALUES (1, 0, '');
+INSERT INTO DB.ODCLEANSTORE.DN_RULES (id, groupId, description) VALUES (0, 1, '');
+INSERT INTO DB.ODCLEANSTORE.DN_RULES (id, groupId, description) VALUES (1, 1, '');
 
 -- COMPONENTS
 INSERT INTO DB.ODCLEANSTORE.DN_RULE_COMPONENTS (id, ruleId, typeId, modification, description) VALUES (0, 0, 0, '{?a ?b ?y} WHERE {GRAPH $$$$graph$$$$ {SELECT ?a ?b fn:replace(str(?c), ".", "*") AS ?y WHERE {?a ?b ?c}}}', '');
