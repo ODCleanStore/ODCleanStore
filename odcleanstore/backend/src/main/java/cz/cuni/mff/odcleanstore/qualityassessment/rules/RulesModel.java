@@ -46,6 +46,22 @@ public class RulesModel {
 			System.err.println(e.getMessage());
 		}
 	}
+	
+	private static final String ruleByGroupIdQueryFormat = "SELECT id, groupId, filter, coefficient, description FROM " +
+			"DB.ODCLEANSTORE.QA_RULES WHERE groupId = ?";
+	private static final String ruleByGroupLabelQueryFormat = "SELECT rules.id AS id," +
+			"rules.groupId AS groupId," +
+			"rules.filter AS filter," +
+			"rules.coefficient AS coefficient," +
+			"rules.description AS description FROM " +
+			"DB.ODCLEANSTORE.QA_RULES AS rules JOIN " +
+			"DB.ODCLEANSTORE.QA_RULES_GROUPS AS groups ON rules.groupId = groups.id " +
+			"WHERE groups.label = ?";
+	private static final String ontologyResourceQueryFormat = "SELECT ?s WHERE {?s ?p ?o} GROUP BY ?s";
+	private static final String deleteRulesByOntologyFormat = "DELETE FROM DB.ODCLEANSTORE.QA_RULES WHERE id IN " +
+			"(SELECT ruleId AS id FROM DB.ODCLEANSTORE.QA_RULES_TO_ONTOLOGIES_MAP WHERE ontology = ?)";
+	private static final String insertRuleFormat = "INSERT INTO DB.ODCLEANSTORE.QA_RULES (groupId, filter, coefficient, description) VALUES (?, ?, ?, ?)";
+	private static final String mapRuleToOntologyFormat = "INSERT INTO DB.ODCLEANSTORE.QA_RULES_TO_ONTOLOGIES_MAP (ruleId, ontology) VALUES (identity_value(), ?)";
 
 	private static final Logger LOG = LoggerFactory.getLogger(RulesModel.class);
 
@@ -112,8 +128,7 @@ public class RulesModel {
 		Set<Rule> rules = new HashSet<Rule>();
 		
 		for (int i = 0; i < groupIds.length; ++i) {
-			Collection<Rule> groupSpecific = queryRules("SELECT id, groupId, filter, coefficient, description FROM " +
-					"DB.ODCLEANSTORE.QA_RULES WHERE groupId = ?", groupIds[i]);
+			Collection<Rule> groupSpecific = queryRules(ruleByGroupIdQueryFormat, groupIds[i]);
 			
 			rules.addAll(groupSpecific);
 		}
@@ -128,14 +143,7 @@ public class RulesModel {
 		Set<Rule> rules = new HashSet<Rule>();
 		
 		for (int i = 0; i < groupLabels.length; ++i) {
-			Collection<Rule> groupSpecific = queryRules("SELECT rules.id AS id," +
-					"rules.groupId AS groupId," +
-					"rules.filter AS filter," +
-					"rules.coefficient AS coefficient," +
-					"rules.description AS description FROM " +
-					"DB.ODCLEANSTORE.QA_RULES AS rules JOIN " +
-					"DB.ODCLEANSTORE.QA_RULES_GROUPS AS groups ON rules.groupId = groups.id " +
-					"WHERE groups.label = ?", groupLabels[i]);
+			Collection<Rule> groupSpecific = queryRules(ruleByGroupLabelQueryFormat, groupLabels[i]);
 			
 			rules.addAll(groupSpecific);
 		}
@@ -149,7 +157,7 @@ public class RulesModel {
 				endpoint.getUsername(),
 				endpoint.getPassword());
 		
-		QueryExecution query = QueryExecutionFactory.create("SELECT ?s WHERE {?s ?p ?o} GROUP BY ?s", ontology);
+		QueryExecution query = QueryExecutionFactory.create(ontologyResourceQueryFormat, ontology);
 		
 		com.hp.hpl.jena.query.ResultSet resultSet = query.execSelect();
 		
@@ -168,7 +176,7 @@ public class RulesModel {
 		try {
 			connection = VirtuosoConnectionWrapper.createConnection(endpoint);
 			
-			connection.execute(String.format("DELETE FROM DB.ODCLEANSTORE.QA_RULES WHERE id IN (SELECT ruleId AS id FROM DB.ODCLEANSTORE.QA_RULES_TO_ONTOLOGIES_MAP WHERE ontology = '%s')", ontology));
+			connection.execute(deleteRulesByOntologyFormat, ontology);
 			
 		} catch (DatabaseException e) {
 			throw new QualityAssessmentException(e);
@@ -204,9 +212,8 @@ public class RulesModel {
 			
 			connection.adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL, false);
 			
-			connection.execute(String.format("INSERT INTO DB.ODCLEANSTORE.QA_RULES (groupId, filter, coefficient, description) VALUES (%d, '%s', %f, '%s')",
-					rule.getGroupId(), rule.getFilter(), rule.getCoefficient(), rule.getDescription()));
-			connection.execute(String.format("INSERT INTO DB.ODCLEANSTORE.QA_RULES_TO_ONTOLOGIES_MAP (ruleId, ontology) VALUES (identity_value(), '%s')", ontology));
+			connection.execute(insertRuleFormat, rule.getGroupId(), rule.getFilter(), rule.getCoefficient(), rule.getDescription());
+			connection.execute(mapRuleToOntologyFormat, ontology);
 			
 			connection.commit();
 			

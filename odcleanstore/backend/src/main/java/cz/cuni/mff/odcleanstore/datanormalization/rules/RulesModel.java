@@ -41,6 +41,38 @@ public class RulesModel {
 			System.err.println(e.getMessage());
 		}
 	}
+	
+	private static final String ruleByGroupIdQueryFormat = "SELECT rules.id AS id, " +
+			"rules.groupId AS groupId, " +
+			"types.label AS type, " +
+			"components.modification AS modification, " +
+			"rules.description AS description, " +
+			"components.description AS componentDescription FROM " +
+			"DB.ODCLEANSTORE.DN_RULES AS rules JOIN " +
+			"DB.ODCLEANSTORE.DN_RULE_COMPONENTS AS components ON components.ruleId = rules.id JOIN " +
+			"DB.ODCLEANSTORE.DN_RULE_COMPONENT_TYPES AS types ON components.typeId = types.id " +
+			"WHERE groupId = ?";
+	private static final String ruleByGroupLabelQueryFormat = "SELECT rules.id AS id, " +
+			"rules.groupId AS groupId, " +
+			"types.label AS type, " +
+			"components.modification AS modification " +
+			"rules.description AS description, " +
+			"components.description AS componentDescription FROM " +
+			"DB.ODCLEANSTORE.DN_RULES AS rules JOIN " +
+			"DB.ODCLEANSTORE.DN_RULES_GROUPS AS groups ON rules.groupId = groups.id JOIN " +
+			"DB.ODCLEANSTORE.DN_RULE_COMPONENTS AS components ON components.ruleId = rules.id JOIN " +
+			"DB.ODCLEANSTORE.DN_RULE_COMPONENT_TYPES AS types ON components.typeId = types.id " +
+			"WHERE groups.label = ?";
+	private static final String ontologyResourceQueryFormat = "SELECT ?s WHERE {?s ?p ?o} GROUP BY ?s";
+	private static final String deleteRulesByOntologyFormat = "DELETE FROM DB.ODCLEANSTORE.DN_RULES WHERE id IN " +
+			"(SELECT ruleId AS id FROM DB.ODCLEANSTORE.DN_RULES_TO_ONTOLOGIES_MAP WHERE ontology = ?)";
+	private static final String insertConvertedPropertyValueFormat = "{?s <%s> ?x} WHERE {GRAPH $$graph$$ {SELECT ?s <%s> <%s>(str(?o)) AS ?x WHERE {?s ?p ?o}}}";
+	private static final String deleteUnconvertedPropertyValueFormat = "{?s <%s> ?o} WHERE {GRAPH $$graph$$ {?s <%s> ?o. FILTER (?o != <%s>(str(?o)))}}";
+	private static final String insertRuleFormat = "INSERT INTO DB.ODCLEANSTORE.DN_RULES (groupId, description) VALUES (?, ?)";
+	private static final String lastIdQueryFormat = "SELECT identity_value() AS id";
+	private static final String insertComponentFormat = "INSERT INTO DB.ODCLEANSTORE.DN_RULE_COMPONENTS (ruleId, typeId, modification, description) " +
+			"SELECT ? AS ruleId, id AS typeId, ? AS modification, ? AS description FROM DB.ODCLEANSTORE.DN_RULE_COMPONENT_TYPES WHERE label = ?";
+	private static final String mapRuleToOntologyFormat = "INSERT INTO DB.ODCLEANSTORE.DN_RULES_TO_ONTOLOGIES_MAP (ruleId, ontology) VALUES (?, ?)";
 
 	private static final Logger LOG = LoggerFactory.getLogger(RulesModel.class);
 
@@ -117,16 +149,7 @@ public class RulesModel {
 		Set<Rule> rules = new HashSet<Rule>();
 		
 		for (int i = 0; i < groupIds.length; ++i) {
-			Collection<Rule> groupSpecific = queryRules("SELECT rules.id AS id, " +
-					"rules.groupId AS groupId, " +
-					"types.label AS type, " +
-					"components.modification AS modification, " +
-					"rules.description AS description, " +
-					"components.description AS componentDescription FROM " +
-					"DB.ODCLEANSTORE.DN_RULES AS rules JOIN " +
-					"DB.ODCLEANSTORE.DN_RULE_COMPONENTS AS components ON components.ruleId = rules.id JOIN " +
-					"DB.ODCLEANSTORE.DN_RULE_COMPONENT_TYPES AS types ON components.typeId = types.id " +
-					"WHERE groupId = ?", groupIds[i]);
+			Collection<Rule> groupSpecific = queryRules(ruleByGroupIdQueryFormat, groupIds[i]);
 			
 			rules.addAll(groupSpecific);
 		}
@@ -141,17 +164,7 @@ public class RulesModel {
 		Set<Rule> rules = new HashSet<Rule>();
 		
 		for (int i = 0; i < groupLabels.length; ++i) {
-			Collection<Rule> groupSpecific = queryRules("SELECT rules.id AS id, " +
-					"rules.groupId AS groupId, " +
-					"types.label AS type, " +
-					"components.modification AS modification " +
-					"rules.description AS description, " +
-					"components.description AS componentDescription FROM " +
-					"DB.ODCLEANSTORE.DN_RULES AS rules JOIN " +
-					"DB.ODCLEANSTORE.DN_RULES_GROUPS AS groups ON rules.groupId = groups.id JOIN " +
-					"DB.ODCLEANSTORE.DN_RULE_COMPONENTS AS components ON components.ruleId = rules.id JOIN " +
-					"DB.ODCLEANSTORE.DN_RULE_COMPONENT_TYPES AS types ON components.typeId = types.id " +
-					"WHERE groups.label = ?", groupLabels[i]);
+			Collection<Rule> groupSpecific = queryRules(ruleByGroupLabelQueryFormat, groupLabels[i]);
 			
 			rules.addAll(groupSpecific);
 		}
@@ -165,7 +178,7 @@ public class RulesModel {
 				endpoint.getUsername(),
 				endpoint.getPassword());
 		
-		QueryExecution query = QueryExecutionFactory.create("SELECT ?s WHERE {?s ?p ?o} GROUP BY ?s", ontology);
+		QueryExecution query = QueryExecutionFactory.create(ontologyResourceQueryFormat, ontology);
 		
 		com.hp.hpl.jena.query.ResultSet resultSet = query.execSelect();
 		
@@ -184,7 +197,7 @@ public class RulesModel {
 		try {
 			connection = VirtuosoConnectionWrapper.createConnection(endpoint);
 			
-			connection.execute(String.format("DELETE FROM DB.ODCLEANSTORE.DN_RULES WHERE id IN (SELECT ruleId AS id FROM DB.ODCLEANSTORE.DN_RULES_TO_ONTOLOGIES_MAP WHERE ontology = '%s')", ontology));
+			connection.execute(deleteRulesByOntologyFormat, ontology);
 			
 		} catch (DatabaseException e) {
 			throw new DataNormalizationException(e);
@@ -203,11 +216,11 @@ public class RulesModel {
 		if (model.contains(resource, RDFS.range, XSD.date)) {
 			Rule rule = new Rule(null, groupId, "Convert " + resource.getLocalName() + " into " + XSD.date.getLocalName(),
 					"INSERT",
-					"{?s <" + resource.getURI() + "> ?x} WHERE {GRAPH $$graph$$ {SELECT ?s <" + resource.getURI() + "> <" + XPathFunctions.dateFunction + ">(str(?o)) AS ?x WHERE {?s ?p ?o}}}",
+					String.format(insertConvertedPropertyValueFormat, resource.getURI(), resource.getURI(), XPathFunctions.dateFunction),
 					"Create proper " + XSD.date.getLocalName() + " value for the property " + resource.getURI(),
 					
 					"DELETE",
-					"{?s <" + resource.getURI() + "> ?o} WHERE {GRAPH $$graph$$ {?s <" + resource.getURI() + "> ?o. FILTER (?o != <" + XPathFunctions.dateFunction + ">(str(?o)))}}",
+					String.format(deleteUnconvertedPropertyValueFormat, resource.getURI(), resource.getURI(), XPathFunctions.dateFunction),
 					"Remove all improper values of the property " + resource.getURI());
 			
 			storeRule(rule, ontology);
@@ -222,13 +235,12 @@ public class RulesModel {
 			
 			connection.adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL, false);
 			
-			connection.execute(String.format("INSERT INTO DB.ODCLEANSTORE.DN_RULES (groupId, description) VALUES (%d, '%s')",
-					rule.getGroupId(), rule.getDescription()));
+			connection.execute(insertRuleFormat, rule.getGroupId(), rule.getDescription());
 			
 			Component[] components = rule.getComponents();
 			
 			Integer id = 0;
-			WrappedResultSet result = connection.executeSelect("SELECT identity_value() AS id");
+			WrappedResultSet result = connection.executeSelect(lastIdQueryFormat);
 			
 			if (result.next()) {
 				id = result.getInt("id");
@@ -237,11 +249,11 @@ public class RulesModel {
 			}
 			
 			for (int i = 0; i < components.length; ++i) {
-				connection.execute(String.format("INSERT INTO DB.ODCLEANSTORE.DN_RULE_COMPONENTS (ruleId, typeId, modification, description) SELECT %d AS ruleId, id AS typeId, '%s' AS modification, '%s' AS description FROM DB.ODCLEANSTORE.DN_RULE_COMPONENT_TYPES WHERE label = '%s'",
-						id, components[i].getModification(), components[i].getDescription(), components[i].getType().toString()));
+				connection.execute(insertComponentFormat,
+						id, components[i].getModification(), components[i].getDescription(), components[i].getType().toString());
 			}
 			
-			connection.execute(String.format("INSERT INTO DB.ODCLEANSTORE.DN_RULES_TO_ONTOLOGIES_MAP (ruleId, ontology) VALUES (%d, '%s')", id, ontology));
+			connection.execute(mapRuleToOntologyFormat, id, ontology);
 			
 			connection.commit();
 
