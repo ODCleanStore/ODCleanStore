@@ -88,10 +88,11 @@ public class RulesModel {
 		
 		for (int i = 0; i < groupIds.length; ++i) {
 			Collection<Rule> groupSpecific = queryRules("SELECT rules.id AS id, " +
-					"components.type AS type, " +
+					"types.label AS type, " +
 					"components.modification AS modification FROM " +
 					"DB.ODCLEANSTORE.DN_RULES AS rules JOIN " +
-					"DB.ODCLEANSTORE.DN_RULE_COMPONENTS AS components ON components.ruleId = rules.id " +
+					"DB.ODCLEANSTORE.DN_RULE_COMPONENTS AS components ON components.ruleId = rules.id JOIN " +
+					"DB.ODCLEANSTORE.DN_RULE_COMPONENT_TYPES AS types ON components.typeId = types.id " +
 					"WHERE groupId = ?", groupIds[i]);
 			
 			rules.addAll(groupSpecific);
@@ -108,11 +109,12 @@ public class RulesModel {
 		
 		for (int i = 0; i < groupLabels.length; ++i) {
 			Collection<Rule> groupSpecific = queryRules("SELECT rules.id AS id, " +
-					"components.type AS type, " +
+					"types.label AS type, " +
 					"components.modification AS modification FROM " +
 					"DB.ODCLEANSTORE.DN_RULES AS rules JOIN " +
 					"DB.ODCLEANSTORE.DN_RULES_GROUPS AS groups ON rules.groupId = groups.id JOIN " +
-					"DB.ODCLEANSTORE.DN_RULE_COMPONENTS AS components ON components.ruleId = rules.id " +
+					"DB.ODCLEANSTORE.DN_RULE_COMPONENTS AS components ON components.ruleId = rules.id JOIN " +
+					"DB.ODCLEANSTORE.DN_RULE_COMPONENT_TYPES AS types ON components.typeId = types.id " +
 					"WHERE groups.label = ?", groupLabels[i]);
 			
 			rules.addAll(groupSpecific);
