@@ -169,10 +169,33 @@ public class RulesModel {
 		
 		com.hp.hpl.jena.query.ResultSet resultSet = query.execSelect();
 		
+		dropRules(ontologyUri);
+		
 		while (resultSet.hasNext()) {
 			QuerySolution solution = resultSet.next();
 			
 			processOntologyResource(solution.getResource("s"), ontology, ontologyUri, groupId);
+		}
+	}
+	
+	private void dropRules(String ontology) throws DataNormalizationException {
+		VirtuosoConnectionWrapper connection = null;
+		
+		try {
+			connection = VirtuosoConnectionWrapper.createConnection(endpoint);
+			
+			connection.execute(String.format("DELETE FROM DB.ODCLEANSTORE.DN_RULES WHERE id IN (SELECT ruleId AS id FROM DB.ODCLEANSTORE.DN_RULES_TO_ONTOLOGIES_MAP WHERE ontology = '%s')", ontology));
+			
+		} catch (DatabaseException e) {
+			throw new DataNormalizationException(e.getMessage());
+		} finally {
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (ConnectionException e) {
+					LOG.error("Rules Model connection not closed: " + e.getMessage());
+				}
+			}
 		}
 	}
 	
