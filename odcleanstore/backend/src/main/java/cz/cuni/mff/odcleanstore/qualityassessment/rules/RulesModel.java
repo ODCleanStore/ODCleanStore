@@ -192,7 +192,7 @@ public class RulesModel {
 			
 			connection.execute(String.format("INSERT INTO DB.ODCLEANSTORE.QA_RULES (groupId, filter, coefficient, description) VALUES (%d, '%s', %f, '%s')",
 					rule.getGroupId(), rule.getFilter(), rule.getCoefficient(), rule.getDescription()));
-			connection.execute(String.format("INSERT INTO DB.ODCLEANSTORE.QA_RULES_TO_ONTOLOGIES_MAP (ruleId, ontology) VALUES (identity_value(), %s)", "http://TODO")); //TODO pass ontology URI
+			connection.execute(String.format("INSERT INTO DB.ODCLEANSTORE.QA_RULES_TO_ONTOLOGIES_MAP (ruleId, ontology) VALUES (identity_value(), '%s')", "http://TODO")); //TODO pass ontology URI
 			
 			connection.commit();
 		} catch (DatabaseException e) {
