@@ -26,7 +26,9 @@ public class NamedGraphQueryExecutorResource extends QueryExecutorResourceBase {
 			
 			// Get QA results
 			long qaStartTime = System.currentTimeMillis();
-			QualityAssessorImpl qualityAssessor = new QualityAssessorImpl();
+			//TODO: This is HOTFIX. NamedGraphQueryExecutorResource needs to pass proper groupIds or groupLabels in constructor of QAImpl
+			//This only makes common ids be selected (as groupId is IDENTITY (AUTOINCREMENT starting at 1))
+			QualityAssessorImpl qualityAssessor = new QualityAssessorImpl(0, 1, 2, 3, 4, 5);
 			GraphScoreWithTrace qaResult = qualityAssessor.getGraphScoreWithTrace(namedGraphURI, connectionCredentials);
 			
 			if (metadataResult == null || qaResult == null)

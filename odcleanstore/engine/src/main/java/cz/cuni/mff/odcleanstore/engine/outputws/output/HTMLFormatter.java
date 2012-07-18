@@ -421,7 +421,7 @@ public class HTMLFormatter extends ResultFormatterBase {
 			writer.write("  <tr><th>Rule description</th><th>Score decreased by</th></tr>\n");
 			for (Rule rule : qaRules) {
 				writer.write("  <tr><td>");
-				writer.write(rule.getComment());
+				writer.write(rule.getDescription());
 				writer.write("</td><td>");
 				writer.write(rule.getCoefficient().toString());
 				writer.write("</td></tr>\n");

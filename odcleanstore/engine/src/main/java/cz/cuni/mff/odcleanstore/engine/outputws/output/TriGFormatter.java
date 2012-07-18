@@ -227,7 +227,7 @@ public class TriGFormatter extends ResultFormatterBase {
         	metadataGraph.add(new Triple(namedGraphURI, VIOLATED_QA_RULE_PROPERTY, ruleNode));
         	
         	metadataGraph.add(new Triple(ruleNode, TYPE_PROPERTY, QARULE_CLASS));
-        	metadataGraph.add(new Triple(ruleNode, DESCRIPTION_PROPERTY, Node.createLiteral(qaRule.getComment())));
+        	metadataGraph.add(new Triple(ruleNode, DESCRIPTION_PROPERTY, Node.createLiteral(qaRule.getDescription())));
         	LiteralLabel coefficientLiteral = LiteralLabelFactory.create(qaRule.getCoefficient());
         	metadataGraph.add(new Triple(ruleNode, COEFFICIENT_PROPERTY, Node.createLiteral(coefficientLiteral)));
         }

@@ -93,7 +93,7 @@ public class DebugFormatter extends ResultFormatterBase {
 				for (Rule matchedRule : qaResult.getTrace()) {
 					writer.write(matchedRule.getCoefficient().toString());
 					writer.write('\t');
-					writer.write(matchedRule.getComment());
+					writer.write(matchedRule.getDescription());
 					writer.write('\n');
 				}
 				
