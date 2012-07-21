@@ -3,7 +3,7 @@ package cz.cuni.mff.odcleanstore.engine.pipeline;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import cz.cuni.mff.odcleanstore.engine.Engine;
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraphException;
 
@@ -52,7 +52,7 @@ public final class TransformedGraphImpl implements TransformedGraph {
 
 	@Override
 	public String getGraphName() {
-		return Engine.DATA_PREFIX + getGraphId();
+		return ConfigLoader.getConfig().getBackendGroup().getDataGraphURIPrefix() + getGraphId();
 	}
 
 	@Override
@@ -62,7 +62,7 @@ public final class TransformedGraphImpl implements TransformedGraph {
 
 	@Override
 	public String getMetadataGraphName() {
-		return Engine.METADATA_PREFIX + getGraphId();
+		return ConfigLoader.getConfig().getBackendGroup().getMetadataGraphURIPrefix() + getGraphId();
 	}
 
 	@Override

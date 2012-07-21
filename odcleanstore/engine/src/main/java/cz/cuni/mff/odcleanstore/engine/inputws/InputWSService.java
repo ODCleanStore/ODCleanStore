@@ -7,9 +7,12 @@ import javax.xml.ws.Endpoint;
 
 import org.apache.log4j.Logger;
 
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.Service;
 import cz.cuni.mff.odcleanstore.engine.common.ModuleState;
+import cz.cuni.mff.odcleanstore.engine.common.Utils;
+import cz.cuni.mff.odcleanstore.engine.common.Utils.DirectoryException;
 
 /**
  *  @author Petr Jerman
@@ -32,10 +35,10 @@ public final class InputWSService extends Service implements Runnable {
 				setModuleState(ModuleState.INITIALIZING);
 				LOG.info("InputWSService initializing");
 			}
-
+			initialize();
 			setModuleState(ModuleState.RECOVERY);
 			recovery();
-			Endpoint.publish(Engine.INPUTWS_ENDPOINT_URL, new InputWS());
+			Endpoint.publish(ConfigLoader.getConfig().getInputWSGroup().getEndpointURL().toString(), new InputWS());
 			setModuleState(ModuleState.RUNNING);
 			LOG.info("InputWSService running");
 		} catch (Exception e) {
@@ -44,14 +47,25 @@ public final class InputWSService extends Service implements Runnable {
 			LOG.fatal(message);
 		}
 	}
+	
+	private void initialize() throws Exception {
+		String inputDirectory =  ConfigLoader.getConfig().getInputWSGroup().getInputDirPath();
+		try {
+			Utils.satisfyDirectory(inputDirectory);
+		} catch (DirectoryException e) {
+			throw new InputWSException("Input directory checking error", e);
+		}
+	}
 
 	private void recovery() throws Exception {
+		String inputDirectory =  ConfigLoader.getConfig().getInputWSGroup().getInputDirPath();
+		
 		ImportingInputGraphStates importedInputGraphStates = new ImportingInputGraphStates();
 		Collection<String> importingGraphUuids = importedInputGraphStates.getAllImportingGraphUuids();
 		if (importingGraphUuids != null && !importingGraphUuids.isEmpty()) {
 			LOG.info("InputWSService starts recovery");
 			for (String uuid : importingGraphUuids) {
-				File inputFile = new File(Engine.INPUTWS_DIR + uuid + ".dat");
+				File inputFile = new File(inputDirectory + uuid + ".dat");
 				inputFile.delete();
 			}
 			importedInputGraphStates.deleteAllImportingGraphUuids();

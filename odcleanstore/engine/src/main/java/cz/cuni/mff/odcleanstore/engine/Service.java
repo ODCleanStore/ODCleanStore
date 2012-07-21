@@ -11,13 +11,13 @@ import cz.cuni.mff.odcleanstore.engine.common.ModuleState;
  */
 public abstract class Service extends Module {
 	
-	private Engine _engine;
+	private final Engine _engine;
 
 	protected Service(Engine engine) {
 		if (engine == null) {
 			throw new IllegalArgumentException();
 		}
-		_engine = engine;
+		this._engine = engine;
 	}
 
 	@Override

@@ -27,6 +27,8 @@ public class FormatHelper {
 	 */
 	public static String getTypedW3CDTF(Date date) {
 		String formattedDate = SIMPLEDATEFORMAT_W3CDTF.format(date);
+
+		// TODO po odstraneni SimpleVirtuosoAccess zkontrolovat!
 		
 		// Fix that the timezone in xsd:dateTime must be formatted as e.g.  +02:00 instead of +0200 
 		// given by SimpleDateFormat
@@ -35,7 +37,7 @@ public class FormatHelper {
 		result.append(formattedDate, 0, formattedDate.length() - 2);
 		result.append(':');
 		result.append(formattedDate, formattedDate.length() - 2, formattedDate.length());
-		result.append("\"<");
+		result.append("\"^^<");
 		result.append(XMLSchema.dateTimeType);
 		result.append('>');
 		return result.toString();

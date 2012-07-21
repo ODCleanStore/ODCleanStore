@@ -13,6 +13,7 @@ import javax.jws.WebService;
 
 import org.apache.log4j.Logger;
 
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
 import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.IInputWS;
@@ -28,7 +29,7 @@ public class InputWS implements IInputWS {
 	private static final Logger LOG = Logger.getLogger(InputWS.class);
 
 	private static ImportingInputGraphStates _importedInputGraphStates = new ImportingInputGraphStates();
-
+	
 	@Override
 	public void insert(@WebParam(name = "user") String user, @WebParam(name = "password") String password, @WebParam(name = "metadata") Metadata metadata,
 			@WebParam(name = "rdfXmlPayload") String rdfXmlPayload) throws InsertException {
@@ -125,13 +126,12 @@ public class InputWS implements IInputWS {
 		}
 	}
 	
-	
-
 	private void saveFiles(Metadata metadata, String rdfXmlPayload) throws Exception {
 		FileOutputStream fout = null;
 		ObjectOutputStream oos = null;
+		String inputDirectory =  ConfigLoader.getConfig().getInputWSGroup().getInputDirPath();
 		try {
-			fout = new FileOutputStream(Engine.INPUTWS_DIR + metadata.uuid + ".dat");
+			fout = new FileOutputStream(inputDirectory + metadata.uuid + ".dat");
 			oos = new ObjectOutputStream(fout);
 			oos.writeObject(FormatHelper.getTypedW3CDTFCurrent());
 			oos.writeObject(metadata);

@@ -36,6 +36,7 @@ public class InputWSConfig extends ConfigGroup {
         GROUP_NAME = "input_ws";
     }
 
+    private URL endpointURL;
     // TODO: doresit jak se konfiguruje instalacni adresar
     private String inputDirPath;
     private SparqlEndpointConnectionCredentials sparqlEndpointConnectionCredentials;
@@ -44,16 +45,19 @@ public class InputWSConfig extends ConfigGroup {
 
     /**
      *
+     * @param endpointURL
      * @param inputDirPath
      * @param sparqlEndpointConnectionCredentials
      * @param dirtyDBJDBCConnectionCredentials
      * @param cleanDBJDBCConnectionCredentials
      */
     public InputWSConfig(
+    		URL endpointURL,
     		String inputDirPath, 
     		SparqlEndpointConnectionCredentials sparqlEndpointConnectionCredentials, 
     		JDBCConnectionCredentials dirtyDBJDBCConnectionCredentials, 
             JDBCConnectionCredentials cleanDBJDBCConnectionCredentials) {
+    	this.endpointURL = endpointURL;
         this.inputDirPath = inputDirPath;
         this.sparqlEndpointConnectionCredentials = sparqlEndpointConnectionCredentials;
         this.dirtyDBJDBCConnectionCredentials = dirtyDBJDBCConnectionCredentials;
@@ -83,6 +87,7 @@ public class InputWSConfig extends ConfigGroup {
         JDBCConnectionCredentials cleanJDBCConnectionCredentials = loadJDBCConnectionCredentials(properties, CLEAN_DB_NAME);
 
         return new InputWSConfig(
+        		endpointURL,
                 inputDirPath,
                 new SparqlEndpointConnectionCredentials(endpointURL),
                 dirtyJDBCConnectionCredentials,
@@ -113,6 +118,14 @@ public class InputWSConfig extends ConfigGroup {
         String password = loadParam(properties, dbName + "_jdbc_password", formatString);
 
         return new JDBCConnectionCredentials(connectionString, username, password);
+    }
+    
+    /**
+    *
+    * @return
+    */
+    public URL getEndpointURL() {
+    	return endpointURL;
     }
     
     /**

@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.junit.Before;
 import org.junit.Test;
 
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.common.SimpleVirtuosoAccess;
 
@@ -24,7 +25,7 @@ public class WorkingInputGraphTest {
 	// @Test
 	public void test() throws Exception {
 		SimpleVirtuosoAccess sva = null;
-		String graphName = Engine.DATA_PREFIX + "g/" + UUID.randomUUID().toString();
+		String graphName = ConfigLoader.getConfig().getBackendGroup().getDataGraphURIPrefix() + "g/" + UUID.randomUUID().toString();
 		try {
 			sva = SimpleVirtuosoAccess.createDirtyDBConnection();
 			insertGraph(graphName);
@@ -45,7 +46,8 @@ public class WorkingInputGraphTest {
 			sva = SimpleVirtuosoAccess.createDirtyDBConnection();
 			for (int i = 0; i < 10; i++) {
 				String ruiid = UUID.randomUUID().toString();
-				sva.insertQuad("<" + Engine.DATA_PREFIX + "s/" + ruiid + ">", "<" + Engine.DATA_PREFIX + "p/" + ruiid + ">", "<" + Engine.DATA_PREFIX + "o/" + ruiid + ">", "<" + graphName  + ">");
+				String dataPrefix =  ConfigLoader.getConfig().getBackendGroup().getDataGraphURIPrefix().toString();
+				sva.insertQuad("<" + dataPrefix + "s/" + ruiid+ ">", "<" + dataPrefix + "p/" + ruiid + ">", "<" + dataPrefix + "o/" + ruiid + ">", "<" + graphName  + ">");
 			}
 			sva.commit();
 

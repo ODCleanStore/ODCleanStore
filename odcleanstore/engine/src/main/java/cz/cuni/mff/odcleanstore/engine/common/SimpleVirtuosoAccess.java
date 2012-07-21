@@ -13,7 +13,8 @@ import java.sql.Statement;
 import java.util.Collection;
 import java.util.LinkedList;
 
-import cz.cuni.mff.odcleanstore.engine.Engine;
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 
 /**
  * Encapsulates jdbc connections and single threaded basic data operations on Virtuoso database.
@@ -31,14 +32,15 @@ public class SimpleVirtuosoAccess {
 	 * @throws SQLException
 	 */
 	public static SimpleVirtuosoAccess createCleanDBConnection() throws ClassNotFoundException, SQLException {
+		JDBCConnectionCredentials credit = ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials();
 
-		return new SimpleVirtuosoAccess(Engine.CLEAN_DATABASE_ENDPOINT.getUri(), Engine.CLEAN_DATABASE_ENDPOINT.getUsername(), Engine.CLEAN_DATABASE_ENDPOINT.getPassword());
+		return new SimpleVirtuosoAccess(credit.getConnectionString(), credit.getUsername(), credit.getPassword());
 	}
 
 	public static SimpleVirtuosoAccess createDirtyDBConnection() throws ClassNotFoundException, SQLException {
+		JDBCConnectionCredentials credit = ConfigLoader.getConfig().getBackendGroup().getDirtyDBJDBCConnectionCredentials();
 
-		return new SimpleVirtuosoAccess(Engine.DIRTY_DATABASE_ENDPOINT.getUri(), Engine.DIRTY_DATABASE_ENDPOINT.getUsername(), Engine.DIRTY_DATABASE_ENDPOINT.getPassword());
-	}
+		return new SimpleVirtuosoAccess(credit.getConnectionString(), credit.getUsername(), credit.getPassword());	}
 
 	private Connection _con;
 
