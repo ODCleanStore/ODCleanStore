@@ -282,6 +282,7 @@ public final class PipelineService extends Service implements Runnable {
 		_workingInputGraph.deleteGraphsFromDirtyDB(_workingInputGraphStatus.getWorkingAttachedGraphNames());
 		_workingInputGraph.deleteGraphFromDirtyDB(backendConfig.getDataGraphURIPrefix() + uuid);
 		_workingInputGraph.deleteGraphFromDirtyDB(backendConfig.getMetadataGraphURIPrefix() + uuid);
+		_workingInputGraph.deleteGraphFromDirtyDB(backendConfig.getProvenanceMetadataGraphURIPrefix() + uuid);
 
 		_workingInputGraphStatus.deleteGraphAndWorkingAttachedGraphNames(uuid);
 		LOG.info(String.format("PipelineService ends deleting graph %s", uuid));
@@ -293,6 +294,7 @@ public final class PipelineService extends Service implements Runnable {
 		graphs.addAll(_workingInputGraphStatus.getWorkingAttachedGraphNames());
 		graphs.add(backendConfig.getDataGraphURIPrefix() + uuid);
 		graphs.add(backendConfig.getMetadataGraphURIPrefix() + uuid);
+		graphs.add(backendConfig.getProvenanceMetadataGraphURIPrefix() + uuid);
 
 		_workingInputGraph.copyGraphsFromDirtyDBToCleanDB(graphs);
 
@@ -305,6 +307,7 @@ public final class PipelineService extends Service implements Runnable {
 		graphs.addAll(_workingInputGraphStatus.getWorkingAttachedGraphNames());
 		graphs.add(backendConfig.getDataGraphURIPrefix() + uuid);
 		graphs.add(backendConfig.getMetadataGraphURIPrefix() + uuid);
+		graphs.add(backendConfig.getProvenanceMetadataGraphURIPrefix() + uuid);
 
 		_workingInputGraph.deleteGraphsFromDirtyDB(graphs);
 		String inputDirPath = ConfigLoader.getConfig().getInputWSGroup().getInputDirPath();
