@@ -8,6 +8,7 @@ import cz.cuni.mff.odcleanstore.configuration.formats.ParameterFormat;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.SparqlEndpointConnectionCredentials;
 
+import java.io.File;
 import java.net.URL;
 import java.util.Properties;
 
@@ -78,6 +79,9 @@ public class InputWSConfig extends ConfigGroup {
     {
         ParameterFormat<String> formatString = new FormatString();
         String inputDirPath = loadParam(properties, "input_dir_path", formatString);
+        if(!inputDirPath.endsWith(File.separator)) {
+        	inputDirPath = inputDirPath +  File.separator;
+        }
 
         ParameterFormat<URL> formatURL = new FormatURL();
         URL endpointURL = loadParam(properties, "endpoint_url", formatURL);
