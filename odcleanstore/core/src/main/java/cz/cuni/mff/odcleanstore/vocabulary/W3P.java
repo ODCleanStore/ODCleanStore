@@ -44,6 +44,12 @@ public final class W3P {
      * The data was inserted at.
      */
     public static final String insertedAt = "http://purl.org/provenance#insertedAt";
+    
+    /**
+     * The metadataGraph for graph.
+     */
+    public static final String metadataGraph = "w3p:metadataGraph";
+
 
     // CHECKSTYLE:ON
 }

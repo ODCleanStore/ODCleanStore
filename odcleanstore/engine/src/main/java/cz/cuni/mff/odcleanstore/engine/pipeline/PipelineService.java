@@ -201,7 +201,10 @@ public final class PipelineService extends Service implements Runnable {
 			String metadataGraphURI = backendConfig.getMetadataGraphURIPrefix() + uuid;
 			String provenanceGraphURI = backendConfig.getProvenanceMetadataGraphURIPrefix() + uuid;
 
+			// TODO ktera ctverice tam ma teda byt?
 			sva.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.metadataGraph + ">", "<" + metadataGraphURI + ">", "<" + metadataGraphURI + ">");
+			sva.insertQuad("<" + dataGraphURI + ">", "<" + W3P. metadataGraph + ">", "<" + metadataGraphURI + ">", "<" + metadataGraphURI + ">");
+			
 			sva.insertQuad("<" + dataGraphURI + ">", "<" + W3P.insertedAt + ">", inserted, "<" + metadataGraphURI + ">");
 			sva.insertQuad("<" + dataGraphURI + ">", "<" + W3P.insertedBy + ">", "'scraper'", "<" + metadataGraphURI + ">");
 			for (String source : metadata.source) {
