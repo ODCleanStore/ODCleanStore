@@ -10,13 +10,13 @@ import javax.xml.bind.annotation.XmlType;
  *  @author Petr Jerman
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "insert", propOrder = { "user", "password", "metadata", "rdfXmlPayload" })
+@XmlType(name = "insert", propOrder = { "user", "password", "metadata", "payload" })
 public class Insert {
 
 	protected String user;
 	protected String password;
 	protected Metadata metadata;
-	protected String rdfXmlPayload;
+	protected String payload;
 
 	public String getUser() {
 		return user;
@@ -42,11 +42,11 @@ public class Insert {
 		this.metadata = value;
 	}
 
-	public String getRdfXmlPayload() {
-		return rdfXmlPayload;
+	public String getPayload() {
+		return payload;
 	}
 
-	public void setRdfXmlPayload(String value) {
-		this.rdfXmlPayload = value;
+	public void setPayload(String value) {
+		this.payload = value;
 	}
 }

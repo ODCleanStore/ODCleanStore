@@ -20,5 +20,5 @@ public interface InputWS {
 	@RequestWrapper(localName = "insert", targetNamespace = "http://inputws.engine.odcleanstore.mff.cuni.cz/", className = "cz.cuni.mff.odcleanstore.engine.inputws.Insert")
 	@ResponseWrapper(localName = "insertResponse", targetNamespace = "http://inputws.engine.odcleanstore.mff.cuni.cz/", className = "cz.cuni.mff.odcleanstore.engine.inputws.InsertResponse")
 	public void insert(@WebParam(name = "user", targetNamespace = "") String user, @WebParam(name = "password", targetNamespace = "") String password,
-			@WebParam(name = "metadata", targetNamespace = "") Metadata metadata, @WebParam(name = "rdfXmlPayload", targetNamespace = "") String rdfXmlPayload) throws InsertException_Exception;
+			@WebParam(name = "metadata", targetNamespace = "") Metadata metadata, @WebParam(name = "payload", targetNamespace = "") String payload) throws InsertException_Exception;
 }

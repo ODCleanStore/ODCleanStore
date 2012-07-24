@@ -9,8 +9,8 @@ public interface IInputWS {
 	 * @param user
 	 * @param password
 	 * @param metadata
-	 * @param rdfXmlPayload
+	 * @param payload
 	 * @throws InsertException 
 	 */
-	public void insert(String user, String password, Metadata metadata, String rdfXmlPayload) throws InsertException;
+	public void insert(String user, String password, Metadata metadata, String payload) throws InsertException;
 }

@@ -12,7 +12,7 @@ import java.util.Collection;
  * @author Jan Michelfeit
  */
 public class NamedGraphMetadataQueryResult extends QueryResultBase {
-    /** The provenance metadata given to the input webservice as value of rdfXmlProvenance parameter. */
+    /** The provenance metadata given to the input webservice as value of provenance parameter. */
     private Collection<Quad> provenanceMetadata;
 
     /** ODCS metadata. */
@@ -20,7 +20,7 @@ public class NamedGraphMetadataQueryResult extends QueryResultBase {
 
     /**
      * Initializes a new instance.
-     * @param provenanceMetadata metadata given to the input webservice as value of rdfXmlProvenance parameter
+     * @param provenanceMetadata metadata given to the input webservice as value of provenance parameter
      * @param metadata ODCS metadata
      * @param query the query string
      * @param queryType type of the query
@@ -37,7 +37,7 @@ public class NamedGraphMetadataQueryResult extends QueryResultBase {
     }
 
     /**
-     * Returns the provenance metadata given to the input webservice as value of rdfXmlProvenance parameter.
+     * Returns the provenance metadata given to the input webservice as value of provenance parameter.
      * @return provenance metadata
      */
     public Collection<Quad> getProvenanceMetadata() {

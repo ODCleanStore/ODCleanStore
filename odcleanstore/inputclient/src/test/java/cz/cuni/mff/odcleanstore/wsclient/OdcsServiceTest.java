@@ -19,12 +19,12 @@ public class OdcsServiceTest {
 		metadata.setProvenanceBaseUrl("prd");
 		metadata.setUuid("ff714b5e-1572-4317-b9ea-dd22a91787d023");
 		
-		String rdfXmlProvenance = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+		String provenance = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
 				+ "<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\" xmlns:dcterm=\"http://purl.org/dc/terms/\" xmlns:vcard=\"http://www.w3.org/2006/vcard/ns#\" xmlns:sindicevocab=\"http://vocab.sindice.net/\">"
 				+ "<rdf:Description rdf:about=\"http://xhinker.com/sioc.axd\">" + "  <dcterm:title>SIOC</dcterm:title>" + "  <dcterm:format>application/rdf+xml</dcterm:format>" + "</rdf:Description>"
 				+ "</rdf:RDF>";
 		
-		metadata.setRdfXmlProvenance(rdfXmlProvenance);
+		metadata.setProvenance(provenance);
 
 		metadata.getPublishedBy().add("gogo");
 		metadata.getSource().add("gogo-source");

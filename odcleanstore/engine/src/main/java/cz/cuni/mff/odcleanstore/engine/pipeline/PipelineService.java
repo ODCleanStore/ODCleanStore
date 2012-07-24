@@ -177,14 +177,14 @@ public final class PipelineService extends Service implements Runnable {
 		ObjectInputStream ois = null;
 		String inserted = null;
 		Metadata metadata = null;
-		String rdfXmlPayload = null;
+		String payload = null;
 		try {
 			String inputDirPath = ConfigLoader.getConfig().getInputWSGroup().getInputDirPath();
 			fin = new FileInputStream(inputDirPath + uuid + ".dat");
 			ois = new ObjectInputStream(fin);
 			inserted = (String) ois.readObject();
 			metadata = (Metadata) ois.readObject();
-			rdfXmlPayload = (String) ois.readObject();
+			payload = (String) ois.readObject();
 		} finally {
 			if (ois != null) {
 				ois.close();
@@ -218,11 +218,11 @@ public final class PipelineService extends Service implements Runnable {
 					sva.insertQuad("<" + dataGraphURI + ">", "<" + DC.license + ">", "<" + license + ">", "<" + metadataGraphURI + ">");
 				}
 			}
-			if (metadata.rdfXmlProvenance != null) {
-				sva.insertRdfXml(dataGraphURI, metadata.rdfXmlProvenance, provenanceGraphURI);
+			if (metadata.provenance != null) {
+				sva.insertRdfXmlOrTtl(dataGraphURI, metadata.provenance, provenanceGraphURI);
 				sva.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.provenanceMetadataGraph + ">", "<" + provenanceGraphURI + ">", "<" + metadataGraphURI + ">");
 			}
-			sva.insertRdfXml(dataGraphURI, rdfXmlPayload, dataGraphURI);
+			sva.insertRdfXmlOrTtl(dataGraphURI, payload, dataGraphURI);
 			sva.commit();
 		} finally {
 			if (sva != null) {

@@ -114,6 +114,25 @@ public class SimpleVirtuosoAccess {
 		String statement = String.format("SPARQL INSERT INTO GRAPH %s { %s %s %s }", graph, subject, predicate, object);
 		executeStatement(statement);
 	}
+	
+	/**
+	 * Insert rdfXml or ttl to the database.
+	 * 
+	 * @param relativeBase
+	 * @param rdfXml or Ttl
+	 * @param graph
+	 * 
+	 * @throws SQLException
+	 */
+	public void insertRdfXmlOrTtl(String relativeBase, String payload, String graph) throws SQLException {
+		if (payload.startsWith("<?xml")){
+			insertRdfXml(relativeBase, payload, graph);
+		}
+		else {
+			insertTtl(relativeBase, payload, graph);
+		}
+	}
+
 
 	/**
 	 * Insert rdfXml to the database.
@@ -128,6 +147,24 @@ public class SimpleVirtuosoAccess {
 		String stat = relativeBase != null ?
 				"{call DB.DBA.RDF_LOAD_RDFXML('" + rdfXml + "', '" + relativeBase + "', '" + graph + "')}" :
 				"{call DB.DBA.RDF_LOAD_RDFXML('" + rdfXml + "', '' , '"	+ graph + "')}";
+
+		CallableStatement cst = _con.prepareCall(stat);
+		cst.execute();
+	}
+	
+	/**
+	 * Insert TTL to the database.
+	 * 
+	 * @param relativeBase
+	 * @param Ttl data
+	 * @param graph
+	 * 
+	 * @throws SQLException
+	 */
+	public void insertTtl(String relativeBase, String ttl, String graph) throws SQLException {
+		String stat = relativeBase != null ?
+				"{call DB.DBA.TTLP('" + ttl + "', '" + relativeBase + "', '" + graph + "', 0)}" :
+				"{call DB.DBA.TTLP('" + ttl + "', '' , '"	+ graph + "', 0)}";
 
 		CallableStatement cst = _con.prepareCall(stat);
 		cst.execute();
