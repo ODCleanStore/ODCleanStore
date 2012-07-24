@@ -107,6 +107,7 @@ public class LinkerDao {
 	
 	private SilkRule createRule(WrappedResultSet resultSet) throws SQLException {
 		SilkRule rule = new SilkRule();
+		rule.setId(resultSet.getInt("id"));
 		rule.setLabel(resultSet.getString("label"));
 		rule.setLinkType(resultSet.getString("linkType"));
 		rule.setSourceRestriction(resultSet.getString("sourceRestriction"));

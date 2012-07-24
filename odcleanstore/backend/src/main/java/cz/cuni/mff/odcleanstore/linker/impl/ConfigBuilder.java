@@ -7,6 +7,7 @@ import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -98,6 +99,10 @@ public class ConfigBuilder {
 	private static final String CONFIG_XML_LOGIN = "login";
 	private static final String CONFIG_XML_PASSWORD = "password";
 	private static final String CONFIG_XML_LINKAGE_RULE = "LinkageRule";
+	private static final String CONFIG_XML_ALIGNMENT = "alignment";
+	
+	private static final BigDecimal MIN_CONFIDENCE = BigDecimal.ZERO;
+	private static final BigDecimal MAX_CONFIDENCE = BigDecimal.valueOf(1000);
 	
 	/**
 	 * Creates linkage configuration file.
@@ -117,7 +122,8 @@ public class ConfigBuilder {
 		Document configDoc;
 		File configFile;
 		try {
-			configDoc = createConfigDoc(rules, prefixes, inputGraph, config, context.getTransformerDirectory());
+			configDoc = createConfigDoc(rules, prefixes, inputGraph.getGraphName(), inputGraph.getGraphId(), config, 
+					context.getTransformerDirectory());
 			LOG.info("Created link configuration document.");
 			configFile = storeConfigDoc(configDoc, context.getTransformerDirectory(), inputGraph.getGraphId());
 			LOG.info("Stored link configuration to temporary file {}", configFile.getAbsolutePath());
@@ -288,7 +294,7 @@ public class ConfigBuilder {
 	 * @throws DOMException 
 	 */
 	private static Document createConfigDoc(List<SilkRule> rules, List<RDFprefix> prefixes, 
-			TransformedGraph inputGraph, ObjectIdentificationConfig config, File transformerDirectory) 
+			String graphName, String fileId, ObjectIdentificationConfig config, File transformerDirectory) 
 					throws ParserConfigurationException, SAXException, IOException, DOMException, 
 					InvalidLinkageRuleException {
 
@@ -297,9 +303,9 @@ public class ConfigBuilder {
 		Element root = configDoc.createElement(CONFIG_XML_ROOT);
 		configDoc.appendChild(root);
 		root.appendChild(createPrefixes(configDoc, prefixes));
-		root.appendChild(createSources(configDoc, inputGraph.getGraphName(), config));
+		root.appendChild(createSources(configDoc, graphName, config));
 		root.appendChild(createLinkageRules(
-				configDoc, rules, inputGraph.getGraphId(), builder, config, transformerDirectory));			
+				configDoc, rules, fileId, builder, config, transformerDirectory));			
 		
 		return configDoc;
 	}
@@ -529,14 +535,14 @@ public class ConfigBuilder {
 	 * 
 	 * @param configDoc XML document containing linkage configuration
 	 * @param targetDirectory a directory to store the file to
-	 * @param graphId unique graph ID
+	 * @param graphId unique file ID
 	 * @return stored file
 	 * @throws TransformerFactoryConfigurationError
 	 * @throws javax.xml.transform.TransformerException
 	 */
-	private static File storeConfigDoc(Document configDoc, File targetDirectory, String graphId) 
+	private static File storeConfigDoc(Document configDoc, File targetDirectory, String fileId) 
 			throws TransformerFactoryConfigurationError, javax.xml.transform.TransformerException {
-		File configFile = new File(targetDirectory, graphId + CONFIG_FILENAME);
+		File configFile = new File(targetDirectory, fileId + CONFIG_FILENAME);
 		
 		Transformer transformer = TransformerFactory.newInstance().newTransformer();
 		DOMSource source = new DOMSource(configDoc);
@@ -545,5 +551,83 @@ public class ConfigBuilder {
 		transformer.transform(source, result);
 				
 		return configFile;
+	}
+	
+	public static File createDebugLinkConfigFile(SilkRule rule, List<RDFprefix> prefixes, TransformationContext context,
+			ObjectIdentificationConfig config, String resultFileName) throws TransformerException {
+		LOG.info("Creating debug link configuration file.");
+		Document configDoc;
+		File configFile;
+		List<SilkRule> rules = new ArrayList<SilkRule>();
+		rules.add(rule);
+		String randomId = UUID.randomUUID().toString();
+		try {
+			configDoc = createConfigDoc(rules, prefixes, null, randomId, config, 
+					context.getTransformerDirectory());
+			redirectOutputToFile(configDoc, resultFileName, rule.getOutputs());
+			LOG.info("Created link configuration document.");
+			configFile = storeConfigDoc(configDoc, context.getTransformerDirectory(), randomId);
+			LOG.info("Stored link configuration to temporary file {}", configFile.getAbsolutePath());
+		} catch (Exception e) {
+			throw new TransformerException(e);
+		}
+		
+		return configFile;
+	}
+	
+	private static void redirectOutputToFile(Document doc, String resultFileName, List<Output> outputs) {
+		Element debugOutputsElement = createDebugOutputsElement(doc, resultFileName, outputs);
+		
+		NodeList ruleList = doc.getElementsByTagName(CONFIG_XML_INTERLINK);
+		Element ruleElement = (Element)ruleList.item(0);
+		NodeList outputsList = ruleElement.getElementsByTagName(CONFIG_XML_OUTPUTS);
+		Element outputsElement = (Element)outputsList.item(0);
+		ruleElement.replaceChild(debugOutputsElement, outputsElement);
+	}
+	
+	private static Element createDebugOutputsElement(Document doc, String resultFileName, List<Output> outputs) {
+		Element outputElement = doc.createElement(CONFIG_XML_OUTPUT);
+		BigDecimal minConfidence = getMinConfidence(outputs);
+		if (minConfidence != null) {
+			outputElement.setAttribute(CONFIG_XML_MIN_CONFIDENCE, minConfidence.toString());
+		}
+		BigDecimal maxConfidence = getMaxConfidence(outputs);
+		if (maxConfidence != null) {
+			outputElement.setAttribute(CONFIG_XML_MAX_CONFIDENCE, maxConfidence.toString());
+		}	
+		outputElement.setAttribute(CONFIG_XML_TYPE, CONFIG_XML_FILE);
+		outputElement.appendChild(createParam(doc, CONFIG_XML_FILE, resultFileName));
+		outputElement.appendChild(createParam(doc, CONFIG_XML_FORMAT, CONFIG_XML_ALIGNMENT));
+			
+		Element outputsElement = doc.createElement(CONFIG_XML_OUTPUTS);
+		outputsElement.appendChild(outputElement);
+		
+		return outputsElement;
+	}
+	
+	private static BigDecimal getMinConfidence(List<Output> outputs) {
+		BigDecimal min = MAX_CONFIDENCE;
+		for (Output output: outputs) {
+			BigDecimal confidence = output.getMinConfidence();
+			if (confidence == null) {
+				return null;
+			} else if (confidence.compareTo(min) == -1) {
+				min = confidence;
+			}
+		}
+		return min;
+	}
+	
+	private static BigDecimal getMaxConfidence(List<Output> outputs) {
+		BigDecimal max = MIN_CONFIDENCE;
+		for (Output output: outputs) {
+			BigDecimal confidence = output.getMaxConfidence();
+			if (confidence == null) {
+				return null;
+			} else if (confidence.compareTo(max) == 1) {
+				max = confidence;
+			}
+		}
+		return max;
 	}
 }

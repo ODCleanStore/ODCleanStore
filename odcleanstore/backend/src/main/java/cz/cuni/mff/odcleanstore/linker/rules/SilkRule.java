@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public class SilkRule {
+	Integer id;
 	String label;
 	String linkType;
 	String sourceRestriction;
@@ -13,6 +14,12 @@ public class SilkRule {
 	Integer filterLimit;
 	List<Output> outputs;
 	
+	public Integer getId() {
+		return id;
+	}
+	public void setId(Integer id) {
+		this.id = id;
+	}
 	public String getLabel() {
 		return label;
 	}
