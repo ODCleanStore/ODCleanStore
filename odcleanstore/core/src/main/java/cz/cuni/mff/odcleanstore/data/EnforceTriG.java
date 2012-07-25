@@ -8,6 +8,10 @@ import java.io.InputStream;
 import de.fuberlin.wiwiss.ng4j.impl.GraphReaderService;
 import de.fuberlin.wiwiss.ng4j.impl.NamedGraphSetImpl;
 
+/**
+ * Utility used to transform input streams in RDF/XML to TRiG
+ * @author Jakub Daniel
+ */
 public class EnforceTriG {
 	public InputStream transform (InputStream input, String defaultGraphName) throws IOException {
 		NamedGraphSetImpl namedGraphSet = new NamedGraphSetImpl();

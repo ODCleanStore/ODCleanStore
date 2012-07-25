@@ -8,6 +8,11 @@ import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 
+/**
+ * Utility that can generate unique graph names (URIs) for given base
+ * (it however does not reserve the name, so two consecutive requests may generate the same URI)
+ * @author Jakub Daniel
+ */
 public class UniqueGraphNameGenerator implements UniqueURIGenerator {
 	
 	/*
@@ -47,11 +52,20 @@ public class UniqueGraphNameGenerator implements UniqueURIGenerator {
 		this.connectionCredentials = connectionCredentials;
 	}
 
+	/**
+	 * return the first URI that is free
+	 * @return the unique URI
+	 */
 	@Override
 	public String nextURI() {
 		return nextURI(0);
 	}
 
+	/**
+	 * return the start-th URI that is free
+	 * @param start the offset of the unique URI generator
+	 * @return the unique URI
+	 */
 	public String nextURI(Integer start) {
 		try
 		{

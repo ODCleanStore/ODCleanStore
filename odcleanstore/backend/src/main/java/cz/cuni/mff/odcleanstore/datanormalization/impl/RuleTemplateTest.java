@@ -8,14 +8,20 @@ import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.datanormalization.rules.Rule;
 
+/**
+ * Explanation of how rule templates work
+ * @author Jakub Daniel
+ */
 public class RuleTemplateTest {
 	public static void main(String[] args) {
 		HashMap<Integer, String> fieldValueMap = new HashMap<Integer, String>();
 		
 		/* INPUT */
 		fieldValueMap.put(0, "http://purl.org/dc/terms/title");
-		fieldValueMap.put(1, "^([^ ]*) (.*)$");
+		fieldValueMap.put(1, "^([^ ]*) (.*)$"); //Warning: xpath replace does not support regexps that can be matched by "" !!!
 		fieldValueMap.put(2, "$1");
+		
+		/**************************************************************************************/
 
 		/* TRANSFORMATION LOGIC */
 		String selectRecipes = "SELECT recipes.id AS id, types.label AS type FROM " +

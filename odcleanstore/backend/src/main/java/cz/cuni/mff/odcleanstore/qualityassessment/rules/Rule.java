@@ -34,6 +34,8 @@ public class Rule {
 
 	/**
 	 * Constructs a SPARQL query for a particular graph.
+	 * @param graphName the name of the graph to apply the rule to
+	 * @return the SPARQL
 	 */
 	public String toString(String graphName) {
 		return String.format("SPARQL SELECT COUNT(*) FROM <%s> WHERE %s", graphName, filter);

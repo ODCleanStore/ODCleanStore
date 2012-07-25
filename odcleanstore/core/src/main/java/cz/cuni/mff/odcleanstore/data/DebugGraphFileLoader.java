@@ -20,6 +20,10 @@ import de.fuberlin.wiwiss.ng4j.NamedGraph;
 import de.fuberlin.wiwiss.ng4j.impl.GraphReaderService;
 import de.fuberlin.wiwiss.ng4j.impl.NamedGraphSetImpl;
 
+/**
+ * Utility used to copy graphs into temporary graphs in dirty database
+ * @author Jakub Daniel
+ */
 public class DebugGraphFileLoader {
 	private static final Logger LOG = LoggerFactory.getLogger(DebugGraphFileLoader.class);
 
