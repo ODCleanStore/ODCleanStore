@@ -176,14 +176,14 @@ public class LinkerImpl implements Linker {
 		return globalConfig.getLinksGraphURIPrefix().toString() + inputGraph.getGraphId();
 	}
 	
-	public Map<Integer, List<LinkedPair>> debugRules(InputStream source, TransformationContext context) 
+	public List<DebugResult> debugRules(InputStream source, TransformationContext context) 
 			throws TransformerException {
 		return debugRules(streamToFile(source, context.getTransformerDirectory()), context);
 	}
 	
-	public Map<Integer, List<LinkedPair>> debugRules(File inputFile, TransformationContext context) 
+	public List<DebugResult> debugRules(File inputFile, TransformationContext context) 
 			throws TransformerException {
-		Map<Integer, List<LinkedPair>> result = new HashMap<Integer, List<LinkedPair>>();
+		List<DebugResult> resultList = new ArrayList<DebugResult>();
 		File configFile = null;
 		try {
 			List<SilkRule> rules = loadRules(context);
@@ -193,14 +193,14 @@ public class LinkerImpl implements Linker {
 				configFile = ConfigBuilder.createDebugLinkConfigFile(rule, prefixes, context, globalConfig,
 						inputFile.getAbsolutePath(), resultFileName);
 				Silk.executeFile(configFile, null, Silk.DefaultThreads(), true);
-				result.put(rule.getId(), parseLinkedPairs(resultFileName));
+				resultList.add(new DebugResult(rule, parseLinkedPairs(resultFileName)));
 			}
 			
 		} catch (DatabaseException e) {
 			throw new TransformerException(e);
 		} 
 		
-		return result;
+		return resultList;
 	}
 	
 	private String createFileName(SilkRule rule, File transformerDirectory, String fileName) {
