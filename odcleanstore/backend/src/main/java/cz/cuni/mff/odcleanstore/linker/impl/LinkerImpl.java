@@ -1,7 +1,11 @@
 package cz.cuni.mff.odcleanstore.linker.impl;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,7 +43,8 @@ import de.fuberlin.wiwiss.silk.Silk;
 public class LinkerImpl implements Linker {
 	private static final Logger LOG = LoggerFactory.getLogger(LinkerImpl.class);
 	
-	private static final String DEBUG_FILENAME = "debugResult.xml";
+	private static final String DEBUG_INPUT_FILENAME = "debugInput.xml";
+	private static final String DEBUG_OUTPUT_FILENAME = "debugResult.xml";
 	private static final String CONFIG_XML_CELL = "Cell";
 	private static final String CONFIG_XML_ENTITY1 = "entity1";
 	private static final String CONFIG_XML_ENTITY2 = "entity2";
@@ -173,15 +178,20 @@ public class LinkerImpl implements Linker {
 	
 	public Map<Integer, List<LinkedPair>> debugRules(InputStream source, TransformationContext context) 
 			throws TransformerException {
+		return debugRules(streamToFile(source, context.getTransformerDirectory()), context);
+	}
+	
+	public Map<Integer, List<LinkedPair>> debugRules(File inputFile, TransformationContext context) 
+			throws TransformerException {
 		Map<Integer, List<LinkedPair>> result = new HashMap<Integer, List<LinkedPair>>();
 		File configFile = null;
 		try {
 			List<SilkRule> rules = loadRules(context);
 			List<RDFprefix> prefixes = RDFPrefixesLoader.loadPrefixes(context.getCleanDatabaseCredentials());
 			for (SilkRule rule: rules) {
-				String resultFileName = createFileName(rule, context.getTransformerDirectory());
+				String resultFileName = createFileName(rule, context.getTransformerDirectory(), DEBUG_OUTPUT_FILENAME);
 				configFile = ConfigBuilder.createDebugLinkConfigFile(rule, prefixes, context, globalConfig,
-						resultFileName);
+						inputFile.getAbsolutePath(), resultFileName);
 				Silk.executeFile(configFile, null, Silk.DefaultThreads(), true);
 				result.put(rule.getId(), parseLinkedPairs(resultFileName));
 			}
@@ -193,8 +203,8 @@ public class LinkerImpl implements Linker {
 		return result;
 	}
 	
-	public String createFileName(SilkRule rule, File transformerDirectory) {
-		return transformerDirectory.getAbsolutePath() + rule.getId() + DEBUG_FILENAME;
+	private String createFileName(SilkRule rule, File transformerDirectory, String fileName) {
+		return transformerDirectory.getAbsolutePath() + rule.getId() + fileName;
 	}
 	
 	private List<LinkedPair> parseLinkedPairs(String resultFileName) throws TransformerException {
@@ -244,5 +254,30 @@ public class LinkerImpl implements Linker {
 		} 
 		
 		return pairList;
+	}
+	
+	private File streamToFile(InputStream stream, File targetDirectory) throws TransformerException {
+		try {
+			File file = new File(targetDirectory, DEBUG_INPUT_FILENAME);
+		    OutputStream os = new FileOutputStream(file);  
+		    try {  
+		        byte[] buffer = new byte[4096];  
+		        for (int n; (n = stream.read(buffer)) != -1; )   
+		            os.write(buffer, 0, n);
+		        return file;
+		    } catch (IOException e) {
+				throw new TransformerException(e);
+			} finally { 
+		    	try {
+					os.close();
+				} catch (IOException e) { /* do nothing */ } 
+		    }
+		} catch (FileNotFoundException e) {
+			throw new TransformerException(e);
+		} finally { 
+			try {
+				stream.close();
+			} catch (IOException e) { /* do nothing */ } 
+		}
 	}
 }

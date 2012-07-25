@@ -100,6 +100,7 @@ public class ConfigBuilder {
 	private static final String CONFIG_XML_PASSWORD = "password";
 	private static final String CONFIG_XML_LINKAGE_RULE = "LinkageRule";
 	private static final String CONFIG_XML_ALIGNMENT = "alignment";
+	private static final String CONFIG_XML_NTRIPLE = "N-TRIPLE";
 	
 	private static final BigDecimal MIN_CONFIDENCE = BigDecimal.ZERO;
 	private static final BigDecimal MAX_CONFIDENCE = BigDecimal.valueOf(1000);
@@ -163,7 +164,7 @@ public class ConfigBuilder {
 		rule.setSourceRestriction(parseRestriction(ruleElement, CONFIG_XML_SOURCE_DATASET));
 		rule.setTargetRestriction(parseRestriction(ruleElement, CONFIG_XML_TARGET_DATASET));
 		rule.setLinkageRule(parseLinkageRule(ruleElement));
-		Element filterElement = getFirstSubElement(ruleElement, CONFIG_XML_FILTER);
+		Element filterElement = getFirstChild(ruleElement, CONFIG_XML_FILTER);
 		rule.setFilterLimit(parseFilterLimit(filterElement));
 		rule.setFilterThreshold(parseFilterThreshold(filterElement));
 		rule.setOutputs(parseOutputs(ruleElement));
@@ -180,7 +181,7 @@ public class ConfigBuilder {
 	}
 	
 	private static String parseLinkType(Element parentElement) {
-		Element typeElement = getFirstSubElement(parentElement, CONFIG_XML_LINK_TYPE);
+		Element typeElement = getFirstChild(parentElement, CONFIG_XML_LINK_TYPE);
 		if (typeElement == null) {
 			return null;
 		}
@@ -188,11 +189,11 @@ public class ConfigBuilder {
 	}
 	
 	private static String parseRestriction(Element parentElement, String subElementName) {
-		Element datasetElement = getFirstSubElement(parentElement, subElementName);
+		Element datasetElement = getFirstChild(parentElement, subElementName);
 		if (datasetElement == null) {
 			return null;
 		}
-		Element restrictElement = getFirstSubElement(datasetElement, CONFIG_XML_RESTRICT_TO);
+		Element restrictElement = getFirstChild(datasetElement, CONFIG_XML_RESTRICT_TO);
 		if (restrictElement == null) {
 			return null;
 		}
@@ -200,7 +201,7 @@ public class ConfigBuilder {
 	}
 	
 	private static String parseLinkageRule(Element parentElement) throws javax.xml.transform.TransformerException {
-		Element linkageRuleElement = getFirstSubElement(parentElement, CONFIG_XML_LINKAGE_RULE);
+		Element linkageRuleElement = getFirstChild(parentElement, CONFIG_XML_LINKAGE_RULE);
 		if (linkageRuleElement == null) {
 			return null;
 		}	
@@ -229,7 +230,7 @@ public class ConfigBuilder {
 	
 	private static List<Output> parseOutputs(Element parentElement) {
 		List<Output> outputs = new ArrayList<Output>();
-		Element outputsElement = getFirstSubElement(parentElement, CONFIG_XML_OUTPUTS);
+		Element outputsElement = getFirstChild(parentElement, CONFIG_XML_OUTPUTS);
 		NodeList nodeList = outputsElement.getChildNodes();
 		for (int i = 0; i < nodeList.getLength(); i++) {
 			outputs.add(parseOutput((Element)nodeList.item(i)));
@@ -270,8 +271,17 @@ public class ConfigBuilder {
 		return new BigDecimal(input);
 	}
 	
-	private static Element getFirstSubElement(Element parentElement, String tagName) {
+	private static Element getFirstChild(Element parentElement, String tagName) {
 		NodeList nodeList = parentElement.getElementsByTagName(tagName);
+		if (nodeList.getLength() < 1) {
+			return null;
+		} else {
+			return (Element)nodeList.item(0);
+		}
+	}
+	
+	private static Element getFirstElement(Document doc, String tagName) {
+		NodeList nodeList = doc.getElementsByTagName(tagName);
 		if (nodeList.getLength() < 1) {
 			return null;
 		} else {
@@ -554,7 +564,7 @@ public class ConfigBuilder {
 	}
 	
 	public static File createDebugLinkConfigFile(SilkRule rule, List<RDFprefix> prefixes, TransformationContext context,
-			ObjectIdentificationConfig config, String resultFileName) throws TransformerException {
+			ObjectIdentificationConfig config, String inputFileName, String resultFileName) throws TransformerException {
 		LOG.info("Creating debug link configuration file.");
 		Document configDoc;
 		File configFile;
@@ -564,6 +574,7 @@ public class ConfigBuilder {
 		try {
 			configDoc = createConfigDoc(rules, prefixes, null, randomId, config, 
 					context.getTransformerDirectory());
+			changeSourceToFile(configDoc, inputFileName);
 			redirectOutputToFile(configDoc, resultFileName, rule.getOutputs());
 			LOG.info("Created link configuration document.");
 			configFile = storeConfigDoc(configDoc, context.getTransformerDirectory(), randomId);
@@ -576,12 +587,9 @@ public class ConfigBuilder {
 	}
 	
 	private static void redirectOutputToFile(Document doc, String resultFileName, List<Output> outputs) {
-		Element debugOutputsElement = createDebugOutputsElement(doc, resultFileName, outputs);
-		
-		NodeList ruleList = doc.getElementsByTagName(CONFIG_XML_INTERLINK);
-		Element ruleElement = (Element)ruleList.item(0);
-		NodeList outputsList = ruleElement.getElementsByTagName(CONFIG_XML_OUTPUTS);
-		Element outputsElement = (Element)outputsList.item(0);
+		Element debugOutputsElement = createDebugOutputsElement(doc, resultFileName, outputs);		
+		Element ruleElement = getFirstElement(doc, CONFIG_XML_INTERLINK);
+		Element outputsElement = getFirstChild(ruleElement, CONFIG_XML_OUTPUTS);
 		ruleElement.replaceChild(debugOutputsElement, outputsElement);
 	}
 	
@@ -630,4 +638,23 @@ public class ConfigBuilder {
 		}
 		return max;
 	}
+	
+	private static void changeSourceToFile(Document doc, String inputFileName) {
+		Element newSourceElement = createSourceElement(doc, inputFileName);
+		Element sources = getFirstElement(doc, CONFIG_XML_SOURCES);
+		Element oldSourceElement = getFirstChild(sources, CONFIG_XML_SOURCE);
+		sources.replaceChild(newSourceElement, oldSourceElement);
+	}
+	
+	private static Element createSourceElement(Document doc, String inputFileName) {
+		Element sourceElement = doc.createElement(CONFIG_XML_SOURCE);
+		
+		sourceElement.setAttribute(CONFIG_XML_TYPE, CONFIG_XML_FILE);
+		sourceElement.setAttribute(CONFIG_XML_ID, CONFIG_SOURCE_A_ID);
+		sourceElement.appendChild(createParam(doc, CONFIG_XML_FILE, inputFileName));
+		sourceElement.appendChild(createParam(doc, CONFIG_XML_FORMAT, CONFIG_XML_NTRIPLE));
+		
+		return sourceElement;
+	}
+	
 }
