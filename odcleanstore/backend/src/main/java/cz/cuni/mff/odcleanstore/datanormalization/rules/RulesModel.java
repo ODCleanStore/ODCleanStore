@@ -82,6 +82,14 @@ public class RulesModel {
 		this.endpoint = endpoint;
 	}
 	
+	/**
+	 * selects all rules that satisfy conditions of the query. It is required that the query is projected to
+	 * id (int), groupId (int), type (string), modification (string), description (string), componentDescription (string)
+	 * @param query the select query
+	 * @param objects the bindings to the query
+	 * @return a collection of the selected rules
+	 * @throws DataNormalizationException
+	 */
 	private Collection<Rule> queryRules (String query, Object... objects) throws DataNormalizationException {
 		Map<Integer, Rule> rules = new HashMap<Integer, Rule>();
 		
@@ -143,7 +151,9 @@ public class RulesModel {
 	}
 	
 	/**
+	 * selects rules that belong to groups whose IDs are among groupIds
      * @param groupIds IDs of the rule groups from which the rules are selected
+     * @return a collection of the selected rules
      */
 	public Collection<Rule> getRules (Integer... groupIds) throws DataNormalizationException {
 		Set<Rule> rules = new HashSet<Rule>();
@@ -158,7 +168,9 @@ public class RulesModel {
 	}
 	
 	/**
+	 * selects rules that belong to groups whose labels are among groupLabels
      * @param groupLabels set of labels of groups from which the rules are selected
+     * @return a collection of the selected rules
      */
 	public Collection<Rule> getRules (String... groupLabels) throws DataNormalizationException {
 		Set<Rule> rules = new HashSet<Rule>();
@@ -171,7 +183,13 @@ public class RulesModel {
 		
 		return rules;
 	}
-	
+
+	/**
+	 * creates rules that verify properties of the input ontology (stored in the clean database)
+	 * @param ontologyUri the uri of the ontology whose properties should be verified by the ouput rules
+	 * @param groupId the ID of a rule group to which the new rules should be stored 
+	 * @throws DataNormalizationException
+	 */
 	public void compileOntologyToRules(String ontologyUri, Integer groupId) throws DataNormalizationException {
 		VirtModel ontology = VirtModel.openDatabaseModel(ontologyUri,
 				endpoint.getConnectionString(),
@@ -182,15 +200,26 @@ public class RulesModel {
 		
 		com.hp.hpl.jena.query.ResultSet resultSet = query.execSelect();
 		
+		/**
+		 * Remove all the rules generated from this ontology
+		 */
 		dropRules(ontologyUri);
 		
+		/**
+		 * Process all resources in the ontology
+		 */
 		while (resultSet.hasNext()) {
 			QuerySolution solution = resultSet.next();
 			
 			processOntologyResource(solution.getResource("s"), ontology, ontologyUri, groupId);
 		}
 	}
-	
+
+	/**
+	 * removes all rules that were created according to this ontology
+	 * @param ontology the uri of the ontology to which the deleted rules are to be mapped
+	 * @throws DataNormalizationException
+	 */
 	private void dropRules(String ontology) throws DataNormalizationException {
 		VirtuosoConnectionWrapper connection = null;
 		
@@ -211,8 +240,19 @@ public class RulesModel {
 			}
 		}
 	}
-	
+
+	/**
+	 * examines one resource and creates rule(s) for it 
+	 * @param resource the resource to be examined
+	 * @param model the ontology model
+	 * @param ontology the name of the ontology (URI)
+	 * @param groupId the ID of the rule group to store the rules to
+	 * @throws DataNormalizationException
+	 */
 	private void processOntologyResource(Resource resource, Model model, String ontology, Integer groupId) throws DataNormalizationException {
+		/**
+		 * Correct date formats ("YYYY" to "YYYY-MM-DD" etc.)
+		 */
 		if (model.contains(resource, RDFS.range, XSD.date)) {
 			Rule rule = new Rule(null, groupId, "Convert " + resource.getLocalName() + " into " + XSD.date.getLocalName(),
 					"INSERT",
@@ -226,7 +266,13 @@ public class RulesModel {
 			storeRule(rule, ontology);
 		}
 	}
-	
+
+	/**
+	 * stores a generated rule and maps it to the ontology to be able to track its origin and dependence on the ontology
+	 * @param rule the rule to be stored
+	 * @param ontology the ontology the rule should be mapped to
+	 * @throws DataNormalizationException
+	 */
 	private void storeRule (Rule rule, String ontology) throws DataNormalizationException {
 		VirtuosoConnectionWrapper connection = null;
 		

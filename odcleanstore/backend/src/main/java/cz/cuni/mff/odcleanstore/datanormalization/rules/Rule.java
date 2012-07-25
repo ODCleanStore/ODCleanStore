@@ -5,6 +5,10 @@ import java.util.Vector;
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
 
 public class Rule {
+	/**
+	 * The type of the modification to be done by one component of the rule
+	 * @author Jakub Daniel
+	 */
 	public enum EnumRuleComponentType {
 		RULE_COMPONENT_INSERT {
 			public String toString() {
@@ -17,7 +21,11 @@ public class Rule {
 			}
 		}
 	}
-	
+
+	/**
+	 * One transformation (either INSERTION or DELETION)
+	 * @author Jakub Daniel
+	 */
 	public class Component {
 		
 		public Component(EnumRuleComponentType type, String modification, String description) {
@@ -42,7 +50,16 @@ public class Rule {
 			return description;
 		}
 
+		/**
+		 * compiles the rule into SPARUL
+		 * @param graph the name of the graph to apply the rule to
+		 * @return the SPARUL
+		 */
 		public String toString(String graph) {
+			/**
+			 * Restrict the rule to the transformed graph
+			 * Replace 'GRAPH $$graph$$' with the correct GraphPattern restriction
+			 */
 			String output = "<" + graph + "> " + modification.replaceAll("GRAPH\\s*\\$\\$graph\\$\\$", "GRAPH <" + graph + ">");
 
 			switch (type) {
@@ -62,7 +79,15 @@ public class Rule {
 	Integer groupId;
 	String description;
 	Vector<Component> components = new Vector<Component>();
-	
+
+	/**
+	 * constructs new rule with the specified components
+	 * @param id the rule ID
+	 * @param groupId the group ID the rule should belong to
+	 * @param description the description of what the rule is supposed to do
+	 * @param components the list of triples (component type, component code, component description)
+	 * @throws DataNormalizationException
+	 */
 	public Rule(Integer id, Integer groupId, String description, String... components) throws DataNormalizationException {
 		this.id = id;
 		this.groupId = groupId;
@@ -91,6 +116,11 @@ public class Rule {
 		return components.toArray(new Component[this.components.size()]);
 	}
 	
+	/**
+	 * constructs SPARULs for all the components restricted to a concrete graph
+	 * @param graph the graph name to restrict the SPARULs to
+	 * @return an array of SPARULs
+	 */
 	public String[] getComponents(String graph) {
 		String[] componentStrings = new String[this.components.size()];
 		
@@ -102,7 +132,14 @@ public class Rule {
 		
 		return componentStrings;
 	}
-	
+
+	/**
+	 * adds new component to a rule
+	 * @param type the type of the component (either "INSERT" or "DELETE")
+	 * @param modification the code of the component
+	 * @param description the description explaining what the component should do 
+	 * @throws DataNormalizationException
+	 */
 	public void addComponent(String type, String modification, String description) throws DataNormalizationException {
 		if (type.equals("INSERT")) {
 			addComponent(EnumRuleComponentType.RULE_COMPONENT_INSERT, modification, description);
@@ -112,7 +149,14 @@ public class Rule {
 			throw new DataNormalizationException("Unknown Data Normalization Rule type");
 		}
 	}
-	
+
+	/**
+	 * adds new component to a rule
+	 * @param type the type of the component
+	 * @param modification the code of the component
+	 * @param description the description explaining what the component should do 
+	 * @throws DataNormalizationException
+	 */
 	public void addComponent(EnumRuleComponentType type, String modification, String description) {
 		components.add(new Component(type, modification, description));
 	}
