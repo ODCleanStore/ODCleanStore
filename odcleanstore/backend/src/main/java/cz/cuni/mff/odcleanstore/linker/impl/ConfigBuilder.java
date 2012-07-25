@@ -7,6 +7,7 @@ import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -98,6 +99,11 @@ public class ConfigBuilder {
 	private static final String CONFIG_XML_LOGIN = "login";
 	private static final String CONFIG_XML_PASSWORD = "password";
 	private static final String CONFIG_XML_LINKAGE_RULE = "LinkageRule";
+	private static final String CONFIG_XML_ALIGNMENT = "alignment";
+	private static final String CONFIG_XML_NTRIPLE = "N-TRIPLE";
+	
+	private static final BigDecimal MIN_CONFIDENCE = BigDecimal.ZERO;
+	private static final BigDecimal MAX_CONFIDENCE = BigDecimal.valueOf(1000);
 	
 	/**
 	 * Creates linkage configuration file.
@@ -117,7 +123,8 @@ public class ConfigBuilder {
 		Document configDoc;
 		File configFile;
 		try {
-			configDoc = createConfigDoc(rules, prefixes, inputGraph, config, context.getTransformerDirectory());
+			configDoc = createConfigDoc(rules, prefixes, inputGraph.getGraphName(), inputGraph.getGraphId(), config, 
+					context.getTransformerDirectory());
 			LOG.info("Created link configuration document.");
 			configFile = storeConfigDoc(configDoc, context.getTransformerDirectory(), inputGraph.getGraphId());
 			LOG.info("Stored link configuration to temporary file {}", configFile.getAbsolutePath());
@@ -157,7 +164,7 @@ public class ConfigBuilder {
 		rule.setSourceRestriction(parseRestriction(ruleElement, CONFIG_XML_SOURCE_DATASET));
 		rule.setTargetRestriction(parseRestriction(ruleElement, CONFIG_XML_TARGET_DATASET));
 		rule.setLinkageRule(parseLinkageRule(ruleElement));
-		Element filterElement = getFirstSubElement(ruleElement, CONFIG_XML_FILTER);
+		Element filterElement = getFirstChild(ruleElement, CONFIG_XML_FILTER);
 		rule.setFilterLimit(parseFilterLimit(filterElement));
 		rule.setFilterThreshold(parseFilterThreshold(filterElement));
 		rule.setOutputs(parseOutputs(ruleElement));
@@ -174,7 +181,7 @@ public class ConfigBuilder {
 	}
 	
 	private static String parseLinkType(Element parentElement) {
-		Element typeElement = getFirstSubElement(parentElement, CONFIG_XML_LINK_TYPE);
+		Element typeElement = getFirstChild(parentElement, CONFIG_XML_LINK_TYPE);
 		if (typeElement == null) {
 			return null;
 		}
@@ -182,11 +189,11 @@ public class ConfigBuilder {
 	}
 	
 	private static String parseRestriction(Element parentElement, String subElementName) {
-		Element datasetElement = getFirstSubElement(parentElement, subElementName);
+		Element datasetElement = getFirstChild(parentElement, subElementName);
 		if (datasetElement == null) {
 			return null;
 		}
-		Element restrictElement = getFirstSubElement(datasetElement, CONFIG_XML_RESTRICT_TO);
+		Element restrictElement = getFirstChild(datasetElement, CONFIG_XML_RESTRICT_TO);
 		if (restrictElement == null) {
 			return null;
 		}
@@ -194,7 +201,7 @@ public class ConfigBuilder {
 	}
 	
 	private static String parseLinkageRule(Element parentElement) throws javax.xml.transform.TransformerException {
-		Element linkageRuleElement = getFirstSubElement(parentElement, CONFIG_XML_LINKAGE_RULE);
+		Element linkageRuleElement = getFirstChild(parentElement, CONFIG_XML_LINKAGE_RULE);
 		if (linkageRuleElement == null) {
 			return null;
 		}	
@@ -223,7 +230,7 @@ public class ConfigBuilder {
 	
 	private static List<Output> parseOutputs(Element parentElement) {
 		List<Output> outputs = new ArrayList<Output>();
-		Element outputsElement = getFirstSubElement(parentElement, CONFIG_XML_OUTPUTS);
+		Element outputsElement = getFirstChild(parentElement, CONFIG_XML_OUTPUTS);
 		NodeList nodeList = outputsElement.getChildNodes();
 		for (int i = 0; i < nodeList.getLength(); i++) {
 			outputs.add(parseOutput((Element)nodeList.item(i)));
@@ -264,8 +271,17 @@ public class ConfigBuilder {
 		return new BigDecimal(input);
 	}
 	
-	private static Element getFirstSubElement(Element parentElement, String tagName) {
+	private static Element getFirstChild(Element parentElement, String tagName) {
 		NodeList nodeList = parentElement.getElementsByTagName(tagName);
+		if (nodeList.getLength() < 1) {
+			return null;
+		} else {
+			return (Element)nodeList.item(0);
+		}
+	}
+	
+	private static Element getFirstElement(Document doc, String tagName) {
+		NodeList nodeList = doc.getElementsByTagName(tagName);
 		if (nodeList.getLength() < 1) {
 			return null;
 		} else {
@@ -288,7 +304,7 @@ public class ConfigBuilder {
 	 * @throws DOMException 
 	 */
 	private static Document createConfigDoc(List<SilkRule> rules, List<RDFprefix> prefixes, 
-			TransformedGraph inputGraph, ObjectIdentificationConfig config, File transformerDirectory) 
+			String graphName, String fileId, ObjectIdentificationConfig config, File transformerDirectory) 
 					throws ParserConfigurationException, SAXException, IOException, DOMException, 
 					InvalidLinkageRuleException {
 
@@ -297,9 +313,9 @@ public class ConfigBuilder {
 		Element root = configDoc.createElement(CONFIG_XML_ROOT);
 		configDoc.appendChild(root);
 		root.appendChild(createPrefixes(configDoc, prefixes));
-		root.appendChild(createSources(configDoc, inputGraph.getGraphName(), config));
+		root.appendChild(createSources(configDoc, graphName, config));
 		root.appendChild(createLinkageRules(
-				configDoc, rules, inputGraph.getGraphId(), builder, config, transformerDirectory));			
+				configDoc, rules, fileId, builder, config, transformerDirectory));			
 		
 		return configDoc;
 	}
@@ -529,14 +545,14 @@ public class ConfigBuilder {
 	 * 
 	 * @param configDoc XML document containing linkage configuration
 	 * @param targetDirectory a directory to store the file to
-	 * @param graphId unique graph ID
+	 * @param graphId unique file ID
 	 * @return stored file
 	 * @throws TransformerFactoryConfigurationError
 	 * @throws javax.xml.transform.TransformerException
 	 */
-	private static File storeConfigDoc(Document configDoc, File targetDirectory, String graphId) 
+	private static File storeConfigDoc(Document configDoc, File targetDirectory, String fileId) 
 			throws TransformerFactoryConfigurationError, javax.xml.transform.TransformerException {
-		File configFile = new File(targetDirectory, graphId + CONFIG_FILENAME);
+		File configFile = new File(targetDirectory, fileId + CONFIG_FILENAME);
 		
 		Transformer transformer = TransformerFactory.newInstance().newTransformer();
 		DOMSource source = new DOMSource(configDoc);
@@ -546,4 +562,99 @@ public class ConfigBuilder {
 				
 		return configFile;
 	}
+	
+	public static File createDebugLinkConfigFile(SilkRule rule, List<RDFprefix> prefixes, TransformationContext context,
+			ObjectIdentificationConfig config, String inputFileName, String resultFileName) throws TransformerException {
+		LOG.info("Creating debug link configuration file.");
+		Document configDoc;
+		File configFile;
+		List<SilkRule> rules = new ArrayList<SilkRule>();
+		rules.add(rule);
+		String randomId = UUID.randomUUID().toString();
+		try {
+			configDoc = createConfigDoc(rules, prefixes, null, randomId, config, 
+					context.getTransformerDirectory());
+			changeSourceToFile(configDoc, inputFileName);
+			redirectOutputToFile(configDoc, resultFileName, rule.getOutputs());
+			LOG.info("Created link configuration document.");
+			configFile = storeConfigDoc(configDoc, context.getTransformerDirectory(), randomId);
+			LOG.info("Stored link configuration to temporary file {}", configFile.getAbsolutePath());
+		} catch (Exception e) {
+			throw new TransformerException(e);
+		}
+		
+		return configFile;
+	}
+	
+	private static void redirectOutputToFile(Document doc, String resultFileName, List<Output> outputs) {
+		Element debugOutputsElement = createDebugOutputsElement(doc, resultFileName, outputs);		
+		Element ruleElement = getFirstElement(doc, CONFIG_XML_INTERLINK);
+		Element outputsElement = getFirstChild(ruleElement, CONFIG_XML_OUTPUTS);
+		ruleElement.replaceChild(debugOutputsElement, outputsElement);
+	}
+	
+	private static Element createDebugOutputsElement(Document doc, String resultFileName, List<Output> outputs) {
+		Element outputElement = doc.createElement(CONFIG_XML_OUTPUT);
+		BigDecimal minConfidence = getMinConfidence(outputs);
+		if (minConfidence != null) {
+			outputElement.setAttribute(CONFIG_XML_MIN_CONFIDENCE, minConfidence.toString());
+		}
+		BigDecimal maxConfidence = getMaxConfidence(outputs);
+		if (maxConfidence != null) {
+			outputElement.setAttribute(CONFIG_XML_MAX_CONFIDENCE, maxConfidence.toString());
+		}	
+		outputElement.setAttribute(CONFIG_XML_TYPE, CONFIG_XML_FILE);
+		outputElement.appendChild(createParam(doc, CONFIG_XML_FILE, resultFileName));
+		outputElement.appendChild(createParam(doc, CONFIG_XML_FORMAT, CONFIG_XML_ALIGNMENT));
+			
+		Element outputsElement = doc.createElement(CONFIG_XML_OUTPUTS);
+		outputsElement.appendChild(outputElement);
+		
+		return outputsElement;
+	}
+	
+	private static BigDecimal getMinConfidence(List<Output> outputs) {
+		BigDecimal min = MAX_CONFIDENCE;
+		for (Output output: outputs) {
+			BigDecimal confidence = output.getMinConfidence();
+			if (confidence == null) {
+				return null;
+			} else if (confidence.compareTo(min) == -1) {
+				min = confidence;
+			}
+		}
+		return min;
+	}
+	
+	private static BigDecimal getMaxConfidence(List<Output> outputs) {
+		BigDecimal max = MIN_CONFIDENCE;
+		for (Output output: outputs) {
+			BigDecimal confidence = output.getMaxConfidence();
+			if (confidence == null) {
+				return null;
+			} else if (confidence.compareTo(max) == 1) {
+				max = confidence;
+			}
+		}
+		return max;
+	}
+	
+	private static void changeSourceToFile(Document doc, String inputFileName) {
+		Element newSourceElement = createSourceElement(doc, inputFileName);
+		Element sources = getFirstElement(doc, CONFIG_XML_SOURCES);
+		Element oldSourceElement = getFirstChild(sources, CONFIG_XML_SOURCE);
+		sources.replaceChild(newSourceElement, oldSourceElement);
+	}
+	
+	private static Element createSourceElement(Document doc, String inputFileName) {
+		Element sourceElement = doc.createElement(CONFIG_XML_SOURCE);
+		
+		sourceElement.setAttribute(CONFIG_XML_TYPE, CONFIG_XML_FILE);
+		sourceElement.setAttribute(CONFIG_XML_ID, CONFIG_SOURCE_A_ID);
+		sourceElement.appendChild(createParam(doc, CONFIG_XML_FILE, inputFileName));
+		sourceElement.appendChild(createParam(doc, CONFIG_XML_FORMAT, CONFIG_XML_NTRIPLE));
+		
+		return sourceElement;
+	}
+	
 }

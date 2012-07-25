@@ -13,7 +13,8 @@ import java.sql.Statement;
 import java.util.Collection;
 import java.util.LinkedList;
 
-import cz.cuni.mff.odcleanstore.engine.Engine;
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 
 /**
  * Encapsulates jdbc connections and single threaded basic data operations on Virtuoso database.
@@ -31,14 +32,15 @@ public class SimpleVirtuosoAccess {
 	 * @throws SQLException
 	 */
 	public static SimpleVirtuosoAccess createCleanDBConnection() throws ClassNotFoundException, SQLException {
+		JDBCConnectionCredentials credit = ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials();
 
-		return new SimpleVirtuosoAccess(Engine.CLEAN_DATABASE_ENDPOINT.getUri(), Engine.CLEAN_DATABASE_ENDPOINT.getUsername(), Engine.CLEAN_DATABASE_ENDPOINT.getPassword());
+		return new SimpleVirtuosoAccess(credit.getConnectionString(), credit.getUsername(), credit.getPassword());
 	}
 
 	public static SimpleVirtuosoAccess createDirtyDBConnection() throws ClassNotFoundException, SQLException {
+		JDBCConnectionCredentials credit = ConfigLoader.getConfig().getBackendGroup().getDirtyDBJDBCConnectionCredentials();
 
-		return new SimpleVirtuosoAccess(Engine.DIRTY_DATABASE_ENDPOINT.getUri(), Engine.DIRTY_DATABASE_ENDPOINT.getUsername(), Engine.DIRTY_DATABASE_ENDPOINT.getPassword());
-	}
+		return new SimpleVirtuosoAccess(credit.getConnectionString(), credit.getUsername(), credit.getPassword());	}
 
 	private Connection _con;
 
@@ -112,6 +114,25 @@ public class SimpleVirtuosoAccess {
 		String statement = String.format("SPARQL INSERT INTO GRAPH %s { %s %s %s }", graph, subject, predicate, object);
 		executeStatement(statement);
 	}
+	
+	/**
+	 * Insert rdfXml or ttl to the database.
+	 * 
+	 * @param relativeBase
+	 * @param rdfXml or Ttl
+	 * @param graph
+	 * 
+	 * @throws SQLException
+	 */
+	public void insertRdfXmlOrTtl(String relativeBase, String payload, String graph) throws SQLException {
+		if (payload.startsWith("<?xml")){
+			insertRdfXml(relativeBase, payload, graph);
+		}
+		else {
+			insertTtl(relativeBase, payload, graph);
+		}
+	}
+
 
 	/**
 	 * Insert rdfXml to the database.
@@ -126,6 +147,24 @@ public class SimpleVirtuosoAccess {
 		String stat = relativeBase != null ?
 				"{call DB.DBA.RDF_LOAD_RDFXML('" + rdfXml + "', '" + relativeBase + "', '" + graph + "')}" :
 				"{call DB.DBA.RDF_LOAD_RDFXML('" + rdfXml + "', '' , '"	+ graph + "')}";
+
+		CallableStatement cst = _con.prepareCall(stat);
+		cst.execute();
+	}
+	
+	/**
+	 * Insert TTL to the database.
+	 * 
+	 * @param relativeBase
+	 * @param Ttl data
+	 * @param graph
+	 * 
+	 * @throws SQLException
+	 */
+	public void insertTtl(String relativeBase, String ttl, String graph) throws SQLException {
+		String stat = relativeBase != null ?
+				"{call DB.DBA.TTLP('" + ttl + "', '" + relativeBase + "', '" + graph + "', 0)}" :
+				"{call DB.DBA.TTLP('" + ttl + "', '' , '"	+ graph + "', 0)}";
 
 		CallableStatement cst = _con.prepareCall(stat);
 		cst.execute();

@@ -46,6 +46,7 @@ public class BackendConfig extends ConfigGroup {
     private Integer queryTimeout;
     private URI dataGraphURIPrefix;
     private URI metadataGraphURIPrefix;
+    private URI provenanceMetadataGraphURIPrefix;
 
     /**
      *
@@ -56,6 +57,7 @@ public class BackendConfig extends ConfigGroup {
      * @param queryTimeout
      * @param dataGraphURIPrefix
      * @param metadataGraphURIPrefix
+     * @param provenanceMetadataGraphURIPrefix
      */
     public BackendConfig(SparqlEndpointConnectionCredentials dirtyDBSparqlConnectionCredentials,
     		SparqlEndpointConnectionCredentials cleanDBSparqlConnectionCredentials,
@@ -63,7 +65,8 @@ public class BackendConfig extends ConfigGroup {
             JDBCConnectionCredentials cleanDBJDBCConnectionCredentials,
             Integer queryTimeout,
             URI dataGraphURIPrefix, 
-            URI metadataGraphURIPrefix) {
+            URI metadataGraphURIPrefix,
+            URI provenanceMetadataGraphURIPrefix) {
         this.dirtyDBSparqlConnectionCredentials = dirtyDBSparqlConnectionCredentials;
         this.cleanDBSparqlConnectionCredentials = cleanDBSparqlConnectionCredentials;
         this.dirtyDBJDBCConnectionCredentials = dirtyDBJDBCConnectionCredentials;
@@ -71,6 +74,7 @@ public class BackendConfig extends ConfigGroup {
         this.queryTimeout = queryTimeout;
         this.dataGraphURIPrefix = dataGraphURIPrefix;
         this.metadataGraphURIPrefix = metadataGraphURIPrefix;
+        this.provenanceMetadataGraphURIPrefix = provenanceMetadataGraphURIPrefix;
     }
 
     /**
@@ -96,6 +100,7 @@ public class BackendConfig extends ConfigGroup {
         ParameterFormat<URI> formatURI = new FormatURI();
         URI dataGraphURIPrefix = loadParam(properties, "data_graph_uri_prefix", formatURI);
         URI metadataGraphURIPrefix = loadParam(properties, "metadata_graph_uri_prefix", formatURI);
+        URI provenanceMetadataGraphURIPrefix = loadParam(properties, "provenance_metadata_graph_uri_prefix", formatURI);
 
         return new BackendConfig(
                 dirtySparqlConnectionCredentials,
@@ -104,7 +109,8 @@ public class BackendConfig extends ConfigGroup {
                 cleanJDBCConnectionCredentials,
                 queryTimeout,
                 dataGraphURIPrefix,
-                metadataGraphURIPrefix);
+                metadataGraphURIPrefix,
+                provenanceMetadataGraphURIPrefix);
     }
 
     /**
@@ -213,4 +219,12 @@ public class BackendConfig extends ConfigGroup {
     public URI getMetadataGraphURIPrefix() {
         return metadataGraphURIPrefix;
     }
+    
+    /**
+    *
+    * @return
+    */
+   public URI getProvenanceMetadataGraphURIPrefix() {
+       return provenanceMetadataGraphURIPrefix;
+   }    
 }

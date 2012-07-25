@@ -13,6 +13,7 @@ import javax.jws.WebService;
 
 import org.apache.log4j.Logger;
 
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
 import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.IInputWS;
@@ -28,10 +29,10 @@ public class InputWS implements IInputWS {
 	private static final Logger LOG = Logger.getLogger(InputWS.class);
 
 	private static ImportingInputGraphStates _importedInputGraphStates = new ImportingInputGraphStates();
-
+	
 	@Override
 	public void insert(@WebParam(name = "user") String user, @WebParam(name = "password") String password, @WebParam(name = "metadata") Metadata metadata,
-			@WebParam(name = "rdfXmlPayload") String rdfXmlPayload) throws InsertException {
+			@WebParam(name = "payload") String payload) throws InsertException {
 
 		LOG.info("InputWS webservice starts processing for input");
 		try {
@@ -50,12 +51,12 @@ public class InputWS implements IInputWS {
 			checkUri(metadata.dataBaseUrl, "dataBaseUrl");
 			checkUri(metadata.provenanceBaseUrl, "provenanceBaseUrl");
 
-			if (rdfXmlPayload == null) {
-				throw new InsertException("rdfXmlPayload is null");
+			if (payload == null) {
+				throw new InsertException("payload is null");
 			}
 
 			String sessionUuid = _importedInputGraphStates.beginImportSession(metadata.uuid, metadata.pipelineName, null);
-			saveFiles(metadata, rdfXmlPayload);
+			saveFiles(metadata, payload);
 			_importedInputGraphStates.commitImportSession(sessionUuid);
 			Engine.signalToPipelineService();
 			LOG.info(String.format("InputWS webservice ends processing for input graph %s",metadata.uuid));
@@ -125,17 +126,16 @@ public class InputWS implements IInputWS {
 		}
 	}
 	
-	
-
-	private void saveFiles(Metadata metadata, String rdfXmlPayload) throws Exception {
+	private void saveFiles(Metadata metadata, String payload) throws Exception {
 		FileOutputStream fout = null;
 		ObjectOutputStream oos = null;
+		String inputDirectory =  ConfigLoader.getConfig().getInputWSGroup().getInputDirPath();
 		try {
-			fout = new FileOutputStream(Engine.INPUTWS_DIR + metadata.uuid + ".dat");
+			fout = new FileOutputStream(inputDirectory + metadata.uuid + ".dat");
 			oos = new ObjectOutputStream(fout);
 			oos.writeObject(FormatHelper.getTypedW3CDTFCurrent());
 			oos.writeObject(metadata);
-			oos.writeObject(rdfXmlPayload);
+			oos.writeObject(payload);
 		} finally {
 			if (oos != null) {
 				oos.close();

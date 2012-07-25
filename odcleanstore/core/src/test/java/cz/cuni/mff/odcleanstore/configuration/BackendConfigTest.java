@@ -55,6 +55,9 @@ public class BackendConfigTest {
 
         Mockito.when(properties.getProperty(GROUP_NAME + ".metadata_graph_uri_prefix")).thenReturn(
                 "http://opendata.cz/infrastructure/odcleanstore/metadata/");
+        
+        Mockito.when(properties.getProperty(GROUP_NAME + ".provenance_metadata_graph_uri_prefix")).thenReturn(
+                "http://opendata.cz/infrastructure/odcleanstore/provenanceMetadata/");
     }
 
     private void checkGraphUriPrefixes(BackendConfig config) throws URISyntaxException {
@@ -62,6 +65,9 @@ public class BackendConfigTest {
 
         assertEquals(new URI("http://opendata.cz/infrastructure/odcleanstore/metadata/"),
                 config.getMetadataGraphURIPrefix());
+        
+        assertEquals(new URI("http://opendata.cz/infrastructure/odcleanstore/provenanceMetadata/"),
+                config.getProvenanceMetadataGraphURIPrefix());
     }
 
     private void mockSparqlEndpointsConnectionCredentials(Properties properties) {

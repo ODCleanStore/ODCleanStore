@@ -10,12 +10,15 @@ import java.util.Collection;
 
 import org.apache.log4j.Logger;
 
+import cz.cuni.mff.odcleanstore.configuration.BackendConfig;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.InputGraphState;
 import cz.cuni.mff.odcleanstore.engine.Service;
 import cz.cuni.mff.odcleanstore.engine.common.ModuleState;
 import cz.cuni.mff.odcleanstore.engine.common.SimpleVirtuosoAccess;
+import cz.cuni.mff.odcleanstore.engine.common.Utils;
+import cz.cuni.mff.odcleanstore.engine.common.Utils.DirectoryException;
 import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.Metadata;
 import cz.cuni.mff.odcleanstore.transformer.Transformer;
 import cz.cuni.mff.odcleanstore.vocabulary.DC;
@@ -97,12 +100,13 @@ public final class PipelineService extends Service implements Runnable {
 	private void recovery(String uuid) throws Exception {
 
 		InputGraphState state = _workingInputGraphStatus.getState(uuid);
+		BackendConfig backendConfig = ConfigLoader.getConfig().getBackendGroup();
 
 		switch (state) {
 		case PROCESSING:
 			_workingInputGraph.deleteGraphsFromDirtyDB(_workingInputGraphStatus.getWorkingAttachedGraphNames());
-			_workingInputGraph.deleteGraphFromDirtyDB(Engine.DATA_PREFIX + uuid);
-			_workingInputGraph.deleteGraphFromDirtyDB(Engine.METADATA_PREFIX + uuid);
+			_workingInputGraph.deleteGraphFromDirtyDB(backendConfig.getDataGraphURIPrefix() + uuid);
+			_workingInputGraph.deleteGraphFromDirtyDB(backendConfig.getMetadataGraphURIPrefix() + uuid);
 
 			_workingInputGraphStatus.deleteWorkingAttachedGraphNames();
 			_workingInputGraphStatus.setState(uuid, InputGraphState.IMPORTED);
@@ -120,8 +124,8 @@ public final class PipelineService extends Service implements Runnable {
 			break;
 		case DIRTY:
 			_workingInputGraph.deleteGraphsFromDirtyDB(_workingInputGraphStatus.getWorkingAttachedGraphNames());
-			_workingInputGraph.deleteGraphFromDirtyDB(Engine.DATA_PREFIX + uuid);
-			_workingInputGraph.deleteGraphFromDirtyDB(Engine.METADATA_PREFIX + uuid);
+			_workingInputGraph.deleteGraphFromDirtyDB(backendConfig.getDataGraphURIPrefix() + uuid);
+			_workingInputGraph.deleteGraphFromDirtyDB(backendConfig.getMetadataGraphURIPrefix() + uuid);
 
 			_workingInputGraphStatus.deleteWorkingAttachedGraphNames();
 			_workingInputGraphStatus.setState(uuid, InputGraphState.WRONG);
@@ -167,17 +171,20 @@ public final class PipelineService extends Service implements Runnable {
 	}
 
 	private void loadData(String uuid) throws Exception {
+		BackendConfig backendConfig = ConfigLoader.getConfig().getBackendGroup();
+		
 		FileInputStream fin = null;
 		ObjectInputStream ois = null;
 		String inserted = null;
 		Metadata metadata = null;
-		String rdfXmlPayload = null;
+		String payload = null;
 		try {
-			fin = new FileInputStream(Engine.INPUTWS_DIR + uuid + ".dat");
+			String inputDirPath = ConfigLoader.getConfig().getInputWSGroup().getInputDirPath();
+			fin = new FileInputStream(inputDirPath + uuid + ".dat");
 			ois = new ObjectInputStream(fin);
 			inserted = (String) ois.readObject();
 			metadata = (Metadata) ois.readObject();
-			rdfXmlPayload = (String) ois.readObject();
+			payload = (String) ois.readObject();
 		} finally {
 			if (ois != null) {
 				ois.close();
@@ -190,11 +197,14 @@ public final class PipelineService extends Service implements Runnable {
 		SimpleVirtuosoAccess sva = null;
 		try {
 			sva = SimpleVirtuosoAccess.createDirtyDBConnection();
-			String dataGraphURI = Engine.DATA_PREFIX + uuid;
-			String metadataGraphURI = Engine.METADATA_PREFIX + uuid;
-			String provenanceGraphURI = Engine.RDFXML_PROVENANCE_METADATA_PREFIX + uuid;
+			String dataGraphURI = backendConfig.getDataGraphURIPrefix() + uuid;
+			String metadataGraphURI = backendConfig.getMetadataGraphURIPrefix() + uuid;
+			String provenanceGraphURI = backendConfig.getProvenanceMetadataGraphURIPrefix() + uuid;
 
+			// TODO ktera ctverice tam ma teda byt?
 			sva.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.metadataGraph + ">", "<" + metadataGraphURI + ">", "<" + metadataGraphURI + ">");
+			sva.insertQuad("<" + dataGraphURI + ">", "<" + W3P. metadataGraph + ">", "<" + metadataGraphURI + ">", "<" + metadataGraphURI + ">");
+			
 			sva.insertQuad("<" + dataGraphURI + ">", "<" + W3P.insertedAt + ">", inserted, "<" + metadataGraphURI + ">");
 			sva.insertQuad("<" + dataGraphURI + ">", "<" + W3P.insertedBy + ">", "'scraper'", "<" + metadataGraphURI + ">");
 			for (String source : metadata.source) {
@@ -208,11 +218,11 @@ public final class PipelineService extends Service implements Runnable {
 					sva.insertQuad("<" + dataGraphURI + ">", "<" + DC.license + ">", "<" + license + ">", "<" + metadataGraphURI + ">");
 				}
 			}
-			if (metadata.rdfXmlProvenance != null) {
-				sva.insertRdfXml(dataGraphURI, metadata.rdfXmlProvenance, provenanceGraphURI);
+			if (metadata.provenance != null) {
+				sva.insertRdfXmlOrTtl(dataGraphURI, metadata.provenance, provenanceGraphURI);
 				sva.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.provenanceMetadataGraph + ">", "<" + provenanceGraphURI + ">", "<" + metadataGraphURI + ">");
 			}
-			sva.insertRdfXml(dataGraphURI, rdfXmlPayload, dataGraphURI);
+			sva.insertRdfXmlOrTtl(dataGraphURI, payload, dataGraphURI);
 			sva.commit();
 		} finally {
 			if (sva != null) {
@@ -261,58 +271,30 @@ public final class PipelineService extends Service implements Runnable {
 	
 	private String checkTransformerWorkingDirectory(String dirName) throws PipelineException {
 		try {
-			File file = new File(dirName);
-			if (!file.isAbsolute()) {
-				File curdir = new File("");
-				file = new File(curdir.getAbsolutePath() + File.separator + file.getPath());
-			}
-			
- 			if (!file.exists()) {
- 				satisfyParent(file);
-				file.mkdir();
-			}
-
-			if (!file.isDirectory()) {
-				throw new PipelineException(String.format(" Transformer working directory %s not exists", dirName));
-			}
-
-			if (!file.canRead()) {
-				throw new PipelineException(String.format(" Cannot read from transformer working directory %s", dirName));
-			}
-
-			if (!file.canWrite()) {
-				throw new PipelineException(String.format(" Cannot write to transformer working directory %s", dirName));
-			}
-			return file.getCanonicalPath();
-		} catch (PipelineException e) {
-			throw e;
-		} catch (Exception e) {
-			throw new PipelineException(e);
-		}
-	}
-	
-	private void satisfyParent(File file) {
-		File parent = file.getParentFile();
-		if(parent != null) satisfyParent(parent);
-		if(!file.exists()) {
-			file.mkdir();
+			return Utils.satisfyDirectory(dirName);
+		} catch (Utils.DirectoryException e) {
+			throw new PipelineException("Transformer working directory checking error", e);
 		}
 	}
 
 	private void processDeletingState(String uuid) throws Exception {
+		BackendConfig backendConfig = ConfigLoader.getConfig().getBackendGroup();
 		_workingInputGraph.deleteGraphsFromDirtyDB(_workingInputGraphStatus.getWorkingAttachedGraphNames());
-		_workingInputGraph.deleteGraphFromDirtyDB(Engine.DATA_PREFIX + uuid);
-		_workingInputGraph.deleteGraphFromDirtyDB(Engine.METADATA_PREFIX + uuid);
+		_workingInputGraph.deleteGraphFromDirtyDB(backendConfig.getDataGraphURIPrefix() + uuid);
+		_workingInputGraph.deleteGraphFromDirtyDB(backendConfig.getMetadataGraphURIPrefix() + uuid);
+		_workingInputGraph.deleteGraphFromDirtyDB(backendConfig.getProvenanceMetadataGraphURIPrefix() + uuid);
 
 		_workingInputGraphStatus.deleteGraphAndWorkingAttachedGraphNames(uuid);
 		LOG.info(String.format("PipelineService ends deleting graph %s", uuid));
 	}
 
 	private void processProcessedState(String uuid) throws Exception {
+		BackendConfig backendConfig = ConfigLoader.getConfig().getBackendGroup();
 		ArrayList<String> graphs = new ArrayList<String>();
 		graphs.addAll(_workingInputGraphStatus.getWorkingAttachedGraphNames());
-		graphs.add(Engine.DATA_PREFIX + uuid);
-		graphs.add(Engine.METADATA_PREFIX + uuid);
+		graphs.add(backendConfig.getDataGraphURIPrefix() + uuid);
+		graphs.add(backendConfig.getMetadataGraphURIPrefix() + uuid);
+		graphs.add(backendConfig.getProvenanceMetadataGraphURIPrefix() + uuid);
 
 		_workingInputGraph.copyGraphsFromDirtyDBToCleanDB(graphs);
 
@@ -320,13 +302,16 @@ public final class PipelineService extends Service implements Runnable {
 	}
 
 	private void processPropagatedState(String uuid) throws Exception {
+		BackendConfig backendConfig = ConfigLoader.getConfig().getBackendGroup();
 		ArrayList<String> graphs = new ArrayList<String>();
 		graphs.addAll(_workingInputGraphStatus.getWorkingAttachedGraphNames());
-		graphs.add(Engine.DATA_PREFIX + uuid);
-		graphs.add(Engine.METADATA_PREFIX + uuid);
+		graphs.add(backendConfig.getDataGraphURIPrefix() + uuid);
+		graphs.add(backendConfig.getMetadataGraphURIPrefix() + uuid);
+		graphs.add(backendConfig.getProvenanceMetadataGraphURIPrefix() + uuid);
 
 		_workingInputGraph.deleteGraphsFromDirtyDB(graphs);
-		File inputFile = new File(Engine.INPUTWS_DIR + uuid + ".dat");
+		String inputDirPath = ConfigLoader.getConfig().getInputWSGroup().getInputDirPath();
+		File inputFile = new File(inputDirPath + uuid + ".dat");
 		inputFile.delete();
 
 		_workingInputGraphStatus.deleteWorkingAttachedGraphNames();

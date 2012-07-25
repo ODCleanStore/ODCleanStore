@@ -1,21 +1,21 @@
-package cz.cuni.mff.odcleanstore.engine.pipeline;
+package cz.cuni.mff.odcleanstore.engine.inputws;
 
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 
 /**
- * A exception arising from Pipeline code.
+ * A exception arising from InputWS code.
  * 
  * @author Petr Jerman
  */
-public class PipelineException extends ODCleanStoreException {
-
+public class InputWSException extends ODCleanStoreException {
+	
 	private static final long serialVersionUID = 1551176048380588306L;
-
+	
 	/**
      * Constructs a new exception with the given message.
      * @param message the detail message
      */
-	PipelineException(String message) {
+	InputWSException(String message) {
 		super(message);
 	}
 
@@ -23,7 +23,7 @@ public class PipelineException extends ODCleanStoreException {
      * Constructs a new exception with the given cause.
      * @param cause the cause
      */
-	PipelineException(Throwable cause) {
+	InputWSException(Throwable cause) {
 		super(cause);
 	}
 	
@@ -32,7 +32,7 @@ public class PipelineException extends ODCleanStoreException {
      * @param message the detail message
      * @param cause the cause
      */
-	PipelineException(String message, Throwable cause) {
+	InputWSException(String message, Throwable cause) {
         super(message, cause);
     }
 }

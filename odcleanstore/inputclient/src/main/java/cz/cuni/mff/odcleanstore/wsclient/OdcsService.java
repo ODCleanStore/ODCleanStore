@@ -33,10 +33,10 @@ public final class OdcsService {
 	 * @param user odcs user for message
 	 * @param password odcs user password for message
 	 * @param metadata metadata asocciated with payload
-	 * @param rdfXmlPayload payload in rdfxml format
+	 * @param payload payload in rdfxml or ttl format
 	 * @throws InsertException
 	 */
-	public void insert(String user, String password, Metadata metadata, String rdfXmlPayload) throws InsertException {
+	public void insert(String user, String password, Metadata metadata, String payload) throws InsertException {
 
 		cz.cuni.mff.odcleanstore.engine.inputws.Metadata wsMetadata = new cz.cuni.mff.odcleanstore.engine.inputws.Metadata();
 
@@ -46,11 +46,11 @@ public final class OdcsService {
 		wsMetadata.getLicense().addAll(metadata.getLicense());
 		wsMetadata.setDataBaseUrl(metadata.getDataBaseUrl());
 		wsMetadata.setProvenanceBaseUrl(metadata.getProvenanceBaseUrl());
-		wsMetadata.setRdfXmlProvenance(metadata.getRdfXmlProvenance());
+		wsMetadata.setProvenance(metadata.getProvenance());
 		wsMetadata.setPipelineName(metadata.getPipelineName());
 
 		try {
-			_inputWSPort.insert(user, password, wsMetadata, rdfXmlPayload);
+			_inputWSPort.insert(user, password, wsMetadata, payload);
 		} catch (InsertException_Exception e) {
 			throw new InsertException(e.getFaultInfo().getId(), e.getFaultInfo().getMessage(), e.getFaultInfo().getMoreInfo());
 		}

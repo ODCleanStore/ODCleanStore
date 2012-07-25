@@ -9,7 +9,7 @@ import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
  */
 public class EngineException extends ODCleanStoreException {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1551176048380588306L;
 
     /**
      * Constructs a new exception with the given message.

@@ -8,6 +8,7 @@ import cz.cuni.mff.odcleanstore.configuration.formats.ParameterFormat;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.SparqlEndpointConnectionCredentials;
 
+import java.io.File;
 import java.net.URL;
 import java.util.Properties;
 
@@ -36,6 +37,7 @@ public class InputWSConfig extends ConfigGroup {
         GROUP_NAME = "input_ws";
     }
 
+    private URL endpointURL;
     // TODO: doresit jak se konfiguruje instalacni adresar
     private String inputDirPath;
     private SparqlEndpointConnectionCredentials sparqlEndpointConnectionCredentials;
@@ -44,16 +46,19 @@ public class InputWSConfig extends ConfigGroup {
 
     /**
      *
+     * @param endpointURL
      * @param inputDirPath
      * @param sparqlEndpointConnectionCredentials
      * @param dirtyDBJDBCConnectionCredentials
      * @param cleanDBJDBCConnectionCredentials
      */
     public InputWSConfig(
+    		URL endpointURL,
     		String inputDirPath, 
     		SparqlEndpointConnectionCredentials sparqlEndpointConnectionCredentials, 
     		JDBCConnectionCredentials dirtyDBJDBCConnectionCredentials, 
             JDBCConnectionCredentials cleanDBJDBCConnectionCredentials) {
+    	this.endpointURL = endpointURL;
         this.inputDirPath = inputDirPath;
         this.sparqlEndpointConnectionCredentials = sparqlEndpointConnectionCredentials;
         this.dirtyDBJDBCConnectionCredentials = dirtyDBJDBCConnectionCredentials;
@@ -74,6 +79,9 @@ public class InputWSConfig extends ConfigGroup {
     {
         ParameterFormat<String> formatString = new FormatString();
         String inputDirPath = loadParam(properties, "input_dir_path", formatString);
+        if(!inputDirPath.endsWith(File.separator)) {
+        	inputDirPath = inputDirPath +  File.separator;
+        }
 
         ParameterFormat<URL> formatURL = new FormatURL();
         URL endpointURL = loadParam(properties, "endpoint_url", formatURL);
@@ -83,6 +91,7 @@ public class InputWSConfig extends ConfigGroup {
         JDBCConnectionCredentials cleanJDBCConnectionCredentials = loadJDBCConnectionCredentials(properties, CLEAN_DB_NAME);
 
         return new InputWSConfig(
+        		endpointURL,
                 inputDirPath,
                 new SparqlEndpointConnectionCredentials(endpointURL),
                 dirtyJDBCConnectionCredentials,
@@ -113,6 +122,14 @@ public class InputWSConfig extends ConfigGroup {
         String password = loadParam(properties, dbName + "_jdbc_password", formatString);
 
         return new JDBCConnectionCredentials(connectionString, username, password);
+    }
+    
+    /**
+    *
+    * @return
+    */
+    public URL getEndpointURL() {
+    	return endpointURL;
     }
     
     /**

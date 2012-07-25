@@ -46,13 +46,15 @@ public final class TransformerCommand {
 			final ArrayList<TransformerCommand> commands = new ArrayList<TransformerCommand>();
 
 			sva = SimpleVirtuosoAccess.createCleanDBConnection();
+			
 			String sqlStatement = String
-					.format("Select t.jarPath, t.fullClassName, tp.workDirPath, tp.configuration \n" +
-							"FROM %s.TRANSFORMERS t, %s.PIPELINES p, %s.TRANSFORMERS_TO_PIPELINES_ASSIGNMENT tp \n" +
-							"WHERE t.id = tp.transformerId AND tp.pipelineId = p.id \n" +
-							"AND p.id='%s' AND p.runOnCleanDB = 0 \n" +
-							"ORDER BY tp.priority",
+					.format("Select t.jarPath, t.fullClassName, ti.workDirPath, ti.configuration \n" +
+							"FROM %s.TRANSFORMERS t, %s.PIPELINES p, %s.TRANSFORMER_INSTANCES ti \n" +
+							"WHERE t.id = ti.transformerId AND ti.pipelineId = p.id \n" +
+							"AND p.id='%s' \n" +
+							"ORDER BY ti.priority",
 							dbSchemaPrefix, dbSchemaPrefix, dbSchemaPrefix, pipelineId);
+			
 			sva.processSqlStatementRows(sqlStatement, new RowListener() {
 
 				@Override

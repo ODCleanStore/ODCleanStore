@@ -16,7 +16,7 @@ public final class Metadata {
 	private List<String> _license;
 	private String _dataBaseUrl;
 	private String _provenanceBaseUrl;
-	private String _rdfXmlProvenance;
+	private String _provenance;
 	private String _pipelineName;
 
 	/**
@@ -72,20 +72,20 @@ public final class Metadata {
 	 * Get provenance metadata of insert operation.
 	 * @return provenance metadata
 	 */
-	public String getRdfXmlProvenance() {
-		return _rdfXmlProvenance;
+	public String getProvenance() {
+		return _provenance;
 	}
 
 	/**
 	 * Set provenance metadata of insert operation.
 	 * @param value provenance metadata of insert operation 
 	 */
-	public void setRdfXmlProvenance(String value) {
-		this._rdfXmlProvenance = value;
+	public void setProvenance(String value) {
+		this._provenance = value;
 	}
 
 	/**
-	 * Get base URL for payload rdfxml.
+	 * Get base URL for payload.
 	 * @return base URL for payload
 	 */
 	public String getDataBaseUrl() {
@@ -93,7 +93,7 @@ public final class Metadata {
 	}
 
 	/**
-	 * Set base URL for payload rdfxml.
+	 * Set base URL for payload.
 	 * @param value base URL for payload
 	 */
 	public void setDataBaseUrl(String value) {
@@ -101,7 +101,7 @@ public final class Metadata {
 	}
 
 	/**
-	 * Get base URL for provenance metadata rdfxml.
+	 * Get base URL for provenance metadata.
 	 * @return base URL for provenance metadata
 	 */
 	public String getProvenanceBaseUrl() {
@@ -109,7 +109,7 @@ public final class Metadata {
 	}
 
 	/**
-	 * Set base URL for provenance metadata rdfxml.
+	 * Set base URL for provenance metadata.
 	 * @param value base URL for provenance metadata
 	 */
 	public void setProvenanceBaseUrl(String value) {

@@ -1,10 +1,25 @@
 package cz.cuni.mff.odcleanstore.linker.impl;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import cz.cuni.mff.odcleanstore.configuration.ObjectIdentificationConfig;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
@@ -27,6 +42,14 @@ import de.fuberlin.wiwiss.silk.Silk;
  */
 public class LinkerImpl implements Linker {
 	private static final Logger LOG = LoggerFactory.getLogger(LinkerImpl.class);
+	
+	private static final String DEBUG_INPUT_FILENAME = "debugInput.xml";
+	private static final String DEBUG_OUTPUT_FILENAME = "debugResult.xml";
+	private static final String CONFIG_XML_CELL = "Cell";
+	private static final String CONFIG_XML_ENTITY1 = "entity1";
+	private static final String CONFIG_XML_ENTITY2 = "entity2";
+	private static final String CONFIG_XML_RESOURCE = "rdf:resource";
+	private static final String CONFIG_XML_MEASURE = "measure";
 	
 	private ObjectIdentificationConfig globalConfig;
 	
@@ -54,9 +77,8 @@ public class LinkerImpl implements Linker {
 			linkByConfigFiles(context);
 		} else {
 			File configFile = null;
-			try {
-				LinkerDao dao = LinkerDao.getInstance(context.getCleanDatabaseCredentials(), context.getDirtyDatabaseCredentials());
-				List<SilkRule> rules = loadRules(context.getTransformerConfiguration(), dao);
+			try {				
+				List<SilkRule> rules = loadRules(context);
 				List<RDFprefix> prefixes = RDFPrefixesLoader.loadPrefixes(context.getCleanDatabaseCredentials());
 				
 				configFile = ConfigBuilder.createLinkConfigFile(rules, prefixes, inputGraph, context, globalConfig);
@@ -141,15 +163,121 @@ public class LinkerImpl implements Linker {
 	 * @param transformerConfiguration string containing the list of rule-groups IDs
 	 * @param dao is used to load rules from DB
 	 */
-	private List<SilkRule> loadRules(String transformerConfiguration, LinkerDao dao ) 
+	private List<SilkRule> loadRules(TransformationContext context) 
 			throws ConnectionException, QueryException {
-		LOG.info("Loading rule groups: {}", transformerConfiguration);
-		String[] ruleGroupArray = transformerConfiguration.split(",");
+		LOG.info("Loading rule groups: {}", context.getTransformerConfiguration());
+		LinkerDao dao = LinkerDao.getInstance(context.getCleanDatabaseCredentials(), context.getDirtyDatabaseCredentials());
+		String[] ruleGroupArray = context.getTransformerConfiguration().split(",");
 
 		return dao.loadRules(ruleGroupArray);
 	}
 	
 	private String getLinksGraphId(TransformedGraph inputGraph) {
 		return globalConfig.getLinksGraphURIPrefix().toString() + inputGraph.getGraphId();
+	}
+	
+	public Map<Integer, List<LinkedPair>> debugRules(InputStream source, TransformationContext context) 
+			throws TransformerException {
+		return debugRules(streamToFile(source, context.getTransformerDirectory()), context);
+	}
+	
+	public Map<Integer, List<LinkedPair>> debugRules(File inputFile, TransformationContext context) 
+			throws TransformerException {
+		Map<Integer, List<LinkedPair>> result = new HashMap<Integer, List<LinkedPair>>();
+		File configFile = null;
+		try {
+			List<SilkRule> rules = loadRules(context);
+			List<RDFprefix> prefixes = RDFPrefixesLoader.loadPrefixes(context.getCleanDatabaseCredentials());
+			for (SilkRule rule: rules) {
+				String resultFileName = createFileName(rule, context.getTransformerDirectory(), DEBUG_OUTPUT_FILENAME);
+				configFile = ConfigBuilder.createDebugLinkConfigFile(rule, prefixes, context, globalConfig,
+						inputFile.getAbsolutePath(), resultFileName);
+				Silk.executeFile(configFile, null, Silk.DefaultThreads(), true);
+				result.put(rule.getId(), parseLinkedPairs(resultFileName));
+			}
+			
+		} catch (DatabaseException e) {
+			throw new TransformerException(e);
+		} 
+		
+		return result;
+	}
+	
+	private String createFileName(SilkRule rule, File transformerDirectory, String fileName) {
+		return transformerDirectory.getAbsolutePath() + rule.getId() + fileName;
+	}
+	
+	private List<LinkedPair> parseLinkedPairs(String resultFileName) throws TransformerException {
+		List<LinkedPair> pairList = new ArrayList<LinkedPair>();
+		
+		DocumentBuilder builder;
+		try {
+			builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			Document doc = builder.parse(resultFileName);
+			NodeList cells = doc.getElementsByTagName(CONFIG_XML_CELL);
+			int cellLength = cells.getLength();
+			
+			for (int i = 0; i < cellLength; i++) {
+				String firstUri = null;
+				String secondUri = null;
+				Double confidence = null;
+				Node cell = cells.item(i);
+				NodeList cellChildern = cell.getChildNodes();
+				int childLength = cellChildern.getLength();
+				
+				for (int j = 0; j < childLength; j++) {
+					Element child = (Element) cellChildern.item(j);
+					String childName = child.getLocalName();
+					if (CONFIG_XML_ENTITY1.equals(childName)) {
+						firstUri = child.getAttribute(CONFIG_XML_RESOURCE);
+					} else if (CONFIG_XML_ENTITY2.equals(childName)) {
+						secondUri = child.getAttribute(CONFIG_XML_RESOURCE);
+					} else if (CONFIG_XML_MEASURE.equals(childName)) {
+						String content = child.getTextContent();
+						int leftIndex = content.indexOf('(');
+						if (leftIndex != -1) {
+							int rightIndex = content.indexOf(')');
+							if (rightIndex == -1) {
+								rightIndex = content.length();
+							}
+							content = content.substring(leftIndex + 1, rightIndex);
+						}				
+						confidence = Double.valueOf(child.getTextContent());
+					}
+				}
+				
+				pairList.add(new LinkedPair(firstUri, secondUri, confidence));
+			}
+			
+		} catch (Exception e) {
+			throw new TransformerException(e);
+		} 
+		
+		return pairList;
+	}
+	
+	private File streamToFile(InputStream stream, File targetDirectory) throws TransformerException {
+		try {
+			File file = new File(targetDirectory, DEBUG_INPUT_FILENAME);
+		    OutputStream os = new FileOutputStream(file);  
+		    try {  
+		        byte[] buffer = new byte[4096];  
+		        for (int n; (n = stream.read(buffer)) != -1; )   
+		            os.write(buffer, 0, n);
+		        return file;
+		    } catch (IOException e) {
+				throw new TransformerException(e);
+			} finally { 
+		    	try {
+					os.close();
+				} catch (IOException e) { /* do nothing */ } 
+		    }
+		} catch (FileNotFoundException e) {
+			throw new TransformerException(e);
+		} finally { 
+			try {
+				stream.close();
+			} catch (IOException e) { /* do nothing */ } 
+		}
 	}
 }

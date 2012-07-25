@@ -2,11 +2,12 @@ package cz.cuni.mff.odcleanstore.engine.pipeline;
 
 import java.util.Collection;
 
-import com.hp.hpl.jena.rdf.model.Model;
-
 import virtuoso.jena.driver.VirtModel;
 
-import cz.cuni.mff.odcleanstore.engine.Engine;
+import com.hp.hpl.jena.rdf.model.Model;
+
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.engine.common.SimpleVirtuosoAccess;
 
 /**
@@ -76,12 +77,14 @@ final class WorkingInputGraph {
 	}
 
 	void copyGraphsFromDirtyDBToCleanDB(Collection<String> graphNames) throws Exception {
+		JDBCConnectionCredentials creditClean = ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials();
+		JDBCConnectionCredentials creditDirty = ConfigLoader.getConfig().getBackendGroup().getDirtyDBJDBCConnectionCredentials();
 		for (String graphName : graphNames) {
 			Model dstModel = null;
 			Model srcModel = null;
 			try {
-				srcModel = VirtModel.openDatabaseModel(graphName, Engine.DIRTY_DATABASE_ENDPOINT.getUri(), Engine.DIRTY_DATABASE_ENDPOINT.getUsername(), Engine.DIRTY_DATABASE_ENDPOINT.getPassword());
-				dstModel = VirtModel.openDatabaseModel(graphName, Engine.CLEAN_DATABASE_ENDPOINT.getUri(), Engine.CLEAN_DATABASE_ENDPOINT.getUsername(), Engine.CLEAN_DATABASE_ENDPOINT.getPassword());
+				srcModel = VirtModel.openDatabaseModel(graphName, creditDirty.getConnectionString(), creditDirty.getUsername(), creditDirty.getPassword());
+				dstModel = VirtModel.openDatabaseModel(graphName, creditClean.getConnectionString(), creditClean.getUsername(), creditClean.getPassword());
 				dstModel.add(srcModel);
 			} finally {
 				if (srcModel != null) {
