@@ -1,8 +1,5 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo.qa;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import cz.cuni.mff.odcleanstore.webfrontend.bo.RulesGroupEntity;
 
 public class QARulesGroup extends RulesGroupEntity 
@@ -11,7 +8,6 @@ public class QARulesGroup extends RulesGroupEntity
 
 	private String label;
 	private String description;
-	private List<QARule> rules;
 	
 	public QARulesGroup(Long id, String label, String description) 
 	{
@@ -19,8 +15,6 @@ public class QARulesGroup extends RulesGroupEntity
 		
 		this.label = label;
 		this.description = description;
-		
-		this.rules = new LinkedList<QARule>();
 	}
 
 	public QARulesGroup() 
@@ -35,15 +29,5 @@ public class QARulesGroup extends RulesGroupEntity
 	public String getDescription() 
 	{
 		return description;
-	}
-	
-	public void setRules(List<QARule> rules)
-	{
-		this.rules = rules;
-	}
-	
-	public List<QARule> getRules()
-	{
-		return rules;
 	}
 }
