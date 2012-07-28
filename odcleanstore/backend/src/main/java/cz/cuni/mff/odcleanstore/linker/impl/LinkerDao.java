@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -159,10 +160,10 @@ public class LinkerDao {
 	 * @param groups list of group IDs
 	 * @return IN part in format (id1,id2,...)
 	 */
-	private String createInPart(String[] groups) {
+	private String createInPart(String[] members) {
 		String result = "(";
-		for (String group : groups) {
-			result += group + ",";
+		for (String member : members) {
+			result += member + ",";
 		}
 		return result.substring(0, result.length()-1) + ")";
 	}
@@ -181,14 +182,17 @@ public class LinkerDao {
 	}
 	
 	public void loadLabels(Map<String, String> uriLabelMap) throws QueryException, ConnectionException {
-		LOG.info("Loading labels for URIs.");
+		String uriList = createUriListString(uriLabelMap.keySet().iterator());
+		LOG.info("Loading labels for URIs: {}", uriList);
 		VirtuosoConnectionWrapper connection = null;
 		WrappedResultSet resultSet = null;
 		try {
 			connection = VirtuosoConnectionWrapper.createConnection(cleanDBCredentials);
-			resultSet = connection.executeSelect("SPARQL SELECT ...");
+			resultSet = connection.executeSelect(
+				"SPARQL SELECT ?uri ?label WHERE {?uri <http://www.w3.org/2000/01/rdf-schema#label> ?label " +
+				"FILTER (?uri IN " + uriList + ")}"); 
 			while (resultSet.next()) {
-				//TODO SELECT and result processing
+				uriLabelMap.put(resultSet.getString("uri"), resultSet.getString("label"));
 			}
 		} catch (SQLException e) {
 			throw new QueryException(e);
@@ -200,5 +204,13 @@ public class LinkerDao {
 				connection.closeQuietly();
 			}
 		}
+	}
+	
+	public String createUriListString(Iterator<String> iterator) {
+		String result = "(";
+		while (iterator.hasNext()) {
+			result += "<" + iterator.next() + ">, ";
+		}
+		return result.substring(0, result.length()-2) + ")";
 	}
 }

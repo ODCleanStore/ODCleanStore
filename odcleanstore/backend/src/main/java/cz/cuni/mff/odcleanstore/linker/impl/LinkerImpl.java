@@ -336,7 +336,6 @@ public class LinkerImpl implements Linker {
 		} catch (QueryException e) {
 			throw new TransformerException(e);
 		}
-		
 	}
 	
 	private Map<String, String> createUriLabelMap(List<LinkedPair> linkedPairs) {
