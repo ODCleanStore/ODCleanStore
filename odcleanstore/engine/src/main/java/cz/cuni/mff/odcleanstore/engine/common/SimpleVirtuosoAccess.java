@@ -3,9 +3,6 @@
  */
 package cz.cuni.mff.odcleanstore.engine.common;
 
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -14,7 +11,12 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
+import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
+import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
+import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 
 /**
  * Encapsulates jdbc connections and single threaded basic data operations on Virtuoso database.
@@ -23,26 +25,26 @@ import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
  */
 public class SimpleVirtuosoAccess {
 
-	private static boolean _isDriverInitialized = false;
-
 	/**
-	 * Create a new connections to the local database on 1111 port with dba credentials.
+	 * Create a new connections.
 	 * 
 	 * @throws ClassNotFoundException
-	 * @throws SQLException
+	 * @throws QueryException
+	 * @throws ConnectionException 
 	 */
-	public static SimpleVirtuosoAccess createCleanDBConnection() throws ClassNotFoundException, SQLException {
+	public static SimpleVirtuosoAccess createCleanDBConnection() throws ConnectionException {
 		JDBCConnectionCredentials credit = ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials();
 
-		return new SimpleVirtuosoAccess(credit.getConnectionString(), credit.getUsername(), credit.getPassword());
+		return new SimpleVirtuosoAccess(credit);
 	}
 
-	public static SimpleVirtuosoAccess createDirtyDBConnection() throws ClassNotFoundException, SQLException {
+	public static SimpleVirtuosoAccess createDirtyDBConnection() throws ConnectionException {
 		JDBCConnectionCredentials credit = ConfigLoader.getConfig().getBackendGroup().getDirtyDBJDBCConnectionCredentials();
 
-		return new SimpleVirtuosoAccess(credit.getConnectionString(), credit.getUsername(), credit.getPassword());	}
+		return new SimpleVirtuosoAccess(credit);	
+	}
 
-	private Connection _con;
+	private VirtuosoConnectionWrapper _con;
 
 	/**
 	 * Create a new connections to the database.
@@ -50,18 +52,11 @@ public class SimpleVirtuosoAccess {
 	 * @param connectionString
 	 * @param user
 	 * @param password
-	 * @throws ClassNotFoundException
-	 * @throws SQLException
+	 * @throws ConnectionException 
 	 */
-	public SimpleVirtuosoAccess(String connectionString, String user, String password) throws ClassNotFoundException, SQLException {
-		if (!_isDriverInitialized) {
-			Class.forName("virtuoso.jdbc3.Driver");
-			_isDriverInitialized = true;
-		}
-
-		_con = DriverManager.getConnection(connectionString, user, password);
-
-		adjustTransactionLevel("1", false);
+	private SimpleVirtuosoAccess(JDBCConnectionCredentials connectionCredentials) throws ConnectionException {
+		_con = VirtuosoConnectionWrapper.createConnection(connectionCredentials);
+		_con.adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL, false);
 	}
 
 	/**
@@ -69,20 +64,16 @@ public class SimpleVirtuosoAccess {
 	 * 
 	 */
 	public void close() {
-
 		if (_con != null) {
-			try {
-				_con.close();
-				_con = null;
-			} catch (SQLException e) {
-			}
+			_con.closeQuietly();
 		}
 	}
 
 	/**
 	 * Commit changes to the database.
 	 * 
-	 * @throws SQLException
+	 * @throws QueryException
+	 * @throws SQLException 
 	 */
 	public void commit() throws SQLException {
 		_con.commit();
@@ -93,11 +84,11 @@ public class SimpleVirtuosoAccess {
 	 * 
 	 * @param graphName
 	 * 
-	 * @throws SQLException
+	 * @throws QueryException 
 	 */
-	public void deleteGraph(String graphName) throws SQLException {
+	public void deleteGraph(String graphName) throws QueryException {
 		String statement = String.format("SPARQL CLEAR GRAPH %s", graphName);
-		executeStatement(statement);
+		_con.execute(statement);
 	}
 
 	/**
@@ -108,11 +99,11 @@ public class SimpleVirtuosoAccess {
 	 * @param object
 	 * @param graph
 	 * 
-	 * @throws SQLException
+	 * @throws QueryException
 	 */
-	public void insertQuad(String subject, String predicate, String object, String graph) throws SQLException {
+	public void insertQuad(String subject, String predicate, String object, String graph) throws QueryException {
 		String statement = String.format("SPARQL INSERT INTO GRAPH %s { %s %s %s }", graph, subject, predicate, object);
-		executeStatement(statement);
+		_con.execute(statement);
 	}
 	
 	/**
@@ -122,9 +113,9 @@ public class SimpleVirtuosoAccess {
 	 * @param rdfXml or Ttl
 	 * @param graph
 	 * 
-	 * @throws SQLException
+	 * @throws QueryException
 	 */
-	public void insertRdfXmlOrTtl(String relativeBase, String payload, String graph) throws SQLException {
+	public void insertRdfXmlOrTtl(String relativeBase, String payload, String graph) throws QueryException {
 		if (payload.startsWith("<?xml")){
 			insertRdfXml(relativeBase, payload, graph);
 		}
@@ -133,7 +124,6 @@ public class SimpleVirtuosoAccess {
 		}
 	}
 
-
 	/**
 	 * Insert rdfXml to the database.
 	 * 
@@ -141,15 +131,15 @@ public class SimpleVirtuosoAccess {
 	 * @param rdfXml
 	 * @param graph
 	 * 
-	 * @throws SQLException
+	 * @throws QueryException
+	 * @throws QueryException 
 	 */
-	public void insertRdfXml(String relativeBase, String rdfXml, String graph) throws SQLException {
-		String stat = relativeBase != null ?
+	public void insertRdfXml(String relativeBase, String rdfXml, String graph) throws QueryException {
+		String statement = relativeBase != null ?
 				"{call DB.DBA.RDF_LOAD_RDFXML('" + rdfXml + "', '" + relativeBase + "', '" + graph + "')}" :
 				"{call DB.DBA.RDF_LOAD_RDFXML('" + rdfXml + "', '' , '"	+ graph + "')}";
 
-		CallableStatement cst = _con.prepareCall(stat);
-		cst.execute();
+		_con.executeLongDurableCall(statement);
 	}
 	
 	/**
@@ -159,57 +149,39 @@ public class SimpleVirtuosoAccess {
 	 * @param Ttl data
 	 * @param graph
 	 * 
-	 * @throws SQLException
+	 * @throws QueryException
+	 * @throws QueryException 
 	 */
-	public void insertTtl(String relativeBase, String ttl, String graph) throws SQLException {
-		String stat = relativeBase != null ?
+	public void insertTtl(String relativeBase, String ttl, String graph) throws QueryException {
+		String statement = relativeBase != null ?
 				"{call DB.DBA.TTLP('" + ttl + "', '" + relativeBase + "', '" + graph + "', 0)}" :
 				"{call DB.DBA.TTLP('" + ttl + "', '' , '"	+ graph + "', 0)}";
 
-		CallableStatement cst = _con.prepareCall(stat);
-		cst.execute();
+		_con.executeLongDurableCall(statement);
 	}
 
-	/**
-	 * Execute Sql and Sparql statement.
-	 * 
-	 * @param statement
-	 * 
-	 * @throws SQLException
-	 */
-	public void executeStatement(String statement) throws SQLException {
-		Statement stmt = _con.createStatement();
-		stmt.execute(statement);
-	}
 
 	/**
 	 * Execute Sql statement with processing returned rows.
 	 * 
 	 * @param statement
 	 * 
-	 * @throws SQLException
+	 * @throws QueryException
+	 * @throws SQLException 
 	 */
-	public Collection<String[]> getRowFromSqlStatement(String statement) throws SQLException {
+	public Collection<String[]> getRowFromSqlStatement(String statement) throws QueryException, SQLException {
 		LinkedList<String[]> retVal = new LinkedList<String[]>();
 
-		Statement stmt = _con.createStatement();
-		stmt.execute(statement);
-		if (stmt.getResultSet() != null) {
-			ResultSetMetaData data = stmt.getResultSet().getMetaData();
-			boolean more = true;
-			while (more) {
-				ResultSet rs = stmt.getResultSet();
-				while (rs.next()) {
-					String[] row = new String[data.getColumnCount()];
-					for (int i = 0; i < row.length; i++) {
-						row[i] = rs.getString(i + 1);
-					}
-					retVal.add(row);
-				}
-				more = stmt.getMoreResults();
+		WrappedResultSet wrs = _con.executeSelect(statement);
+		
+		while (wrs.next()) {
+			ResultSet rs = wrs.getCurrentResultSet();
+			String[] row = new String[rs.getMetaData().getColumnCount()];
+			for (int i = 0; i < row.length; i++) {
+				row[i] = rs.getString(i + 1);
 			}
+			retVal.add(row);
 		}
-
 		return retVal;
 	}
 
@@ -218,47 +190,38 @@ public class SimpleVirtuosoAccess {
 	 * 
 	 * @param statement
 	 * 
-	 * @throws SQLException
+	 * @throws QueryException
+	 * @throws SQLException 
 	 */
-	public void processSqlStatementRows(String statement, RowListener rowListener) throws SQLException {
-		Statement stmt = _con.createStatement();
-		stmt.execute(statement);
-		if (stmt.getResultSet() != null) {
-			ResultSetMetaData data = stmt.getResultSet().getMetaData();
-			boolean more = true;
-			while (more) {
-				ResultSet rs = stmt.getResultSet();
-				while (rs.next()) {
-					rowListener.processRow(rs, data);
-				}
-				more = stmt.getMoreResults();
-			}
+	public void processSqlStatementRows(String statement, RowListener rowListener) throws QueryException, SQLException {
+		
+		WrappedResultSet wrs = _con.executeSelect(statement);
+		while (wrs.next()) {
+			ResultSet rs = wrs.getCurrentResultSet();
+			rowListener.processRow(rs, rs.getMetaData());
 		}
+	}
+	
+	/**
+	 * Execute Sql and Sparql statement.
+	 * 
+	 * @param statement
+	 * 
+	 * @throws SQLException
+	 * @throws QueryException 
+	 */
+	public void executeStatement(String statement) throws QueryException {
+		_con.execute(statement);
 	}
 
 	/**
 	 * Revert changes to the last commit.
 	 * 
-	 * @throws SQLException
+	 * @throws QueryException
+	 * @throws SQLException 
 	 */
 	public void revert() throws SQLException {
 		_con.rollback();
-	}
-
-	/**
-	 * Adjust transaction level in Virtuoso and jdbc
-	 * 
-	 * @param virtusoLogEnableValue
-	 *            - 0 disable log, 1 enable transaction level log, 3 enable statement level log
-	 * @param autoCommitValue
-	 * 
-	 * @throws SQLException
-	 */
-	private void adjustTransactionLevel(String virtusoLogEnableValue, boolean autoCommitValue) throws SQLException {
-
-		CallableStatement cst = _con.prepareCall(String.format("log_enable(%s)", virtusoLogEnableValue));
-		cst.execute();
-		_con.setAutoCommit(autoCommitValue);
 	}
 
 	/**

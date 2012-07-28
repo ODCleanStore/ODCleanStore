@@ -114,7 +114,7 @@ final class WorkingInputGraphStatus {
 		try {
 			sva = SimpleVirtuosoAccess.createCleanDBConnection();
 			String sqlStatement = String.format("Update %s.EN_INPUT_GRAPHS SET state='%S' WHERE uuid='%s'", _dbSchemaPrefix, newState.toString(), uuid);
-			sva.getRowFromSqlStatement(sqlStatement);
+			sva.executeStatement(sqlStatement);
 			sva.commit();
 		} finally {
 			if (sva != null) {
@@ -141,7 +141,7 @@ final class WorkingInputGraphStatus {
 			uuid = Utils.selectScalar(rows);
 			if (uuid != null) {
 				sqlStatement = String.format("Update %s.EN_INPUT_GRAPHS SET state='%S' WHERE uuid='%s'", _dbSchemaPrefix, InputGraphState.PROCESSING, uuid);
-				sva.getRowFromSqlStatement(sqlStatement);
+				sva.executeStatement(sqlStatement);
 				sva.commit();
 				return uuid;
 			}

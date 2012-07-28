@@ -146,6 +146,20 @@ public final class VirtuosoConnectionWrapper {
             throw new QueryException(e);
         }
     }
+    
+    /**
+     * Executes a long durable callable SQL/SPARQL query.
+     * @param query SQL/SPARQL query
+     * @throws QueryException query error
+     */
+    public void executeLongDurableCall(String query) throws QueryException {
+        try {
+            CallableStatement cst = connection.prepareCall(query);
+            cst.execute();
+        } catch (SQLException e) {
+            throw new QueryException(e);
+        }
+    }
 
     /**
      * Executes a general SQL/SPARQL query.
