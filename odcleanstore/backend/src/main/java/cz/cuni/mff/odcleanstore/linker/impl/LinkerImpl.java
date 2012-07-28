@@ -330,7 +330,17 @@ public class LinkerImpl implements Linker {
 		LinkerDao dao;
 		try {
 			dao = LinkerDao.getInstance(cleanDBCredentials, dirtyDBCredentials);
-			dao.loadLabels(uriLabelMap);	
+			dao.loadLabels(uriLabelMap);
+			for (LinkedPair pair: linkedPairs) {
+				String label = uriLabelMap.get(pair.getFirstUri());
+				if (label != null) {
+					pair.setFirstLabel(label);
+				}
+				label = uriLabelMap.get(pair.getSecondUri());
+				if (label != null) {
+					pair.setSecondLabel(label);
+				}
+			}
 		} catch (ConnectionException e) {
 			throw new TransformerException(e);
 		} catch (QueryException e) {
