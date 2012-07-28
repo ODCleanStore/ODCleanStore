@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A singleton class for loading linkage rules from the relational DB.
@@ -173,6 +174,28 @@ public class LinkerDao {
 			connection = VirtuosoConnectionWrapper.createConnection(dirtyDBCredentials);
 			connection.execute("SPARQL CLEAR GRAPH <" + graphId + ">");
 		} finally {
+			if (connection != null) {
+				connection.closeQuietly();
+			}
+		}
+	}
+	
+	public void loadLabels(Map<String, String> uriLabelMap) throws QueryException, ConnectionException {
+		LOG.info("Loading labels for URIs.");
+		VirtuosoConnectionWrapper connection = null;
+		WrappedResultSet resultSet = null;
+		try {
+			connection = VirtuosoConnectionWrapper.createConnection(cleanDBCredentials);
+			resultSet = connection.executeSelect("SPARQL SELECT ...");
+			while (resultSet.next()) {
+				//TODO SELECT and result processing
+			}
+		} catch (SQLException e) {
+			throw new QueryException(e);
+		} finally {
+			if (resultSet != null) {
+				resultSet.closeQuietly();
+			}
 			if (connection != null) {
 				connection.closeQuietly();
 			}

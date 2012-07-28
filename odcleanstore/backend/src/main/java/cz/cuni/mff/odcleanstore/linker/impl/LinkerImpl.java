@@ -7,7 +7,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -16,10 +19,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.sparql.core.Quad;
+
 import cz.cuni.mff.odcleanstore.configuration.ObjectIdentificationConfig;
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
@@ -31,6 +37,9 @@ import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraphException;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
+import de.fuberlin.wiwiss.ng4j.NamedGraphSet;
+import de.fuberlin.wiwiss.ng4j.impl.GraphReaderService;
+import de.fuberlin.wiwiss.ng4j.impl.NamedGraphSetImpl;
 import de.fuberlin.wiwiss.silk.Silk;
 
 /**
@@ -43,11 +52,14 @@ public class LinkerImpl implements Linker {
 	
 	private static final String DEBUG_INPUT_FILENAME = "debugInput.xml";
 	private static final String DEBUG_OUTPUT_FILENAME = "debugResult.xml";
+	
 	private static final String CONFIG_XML_CELL = "Cell";
 	private static final String CONFIG_XML_ENTITY1 = "entity1";
 	private static final String CONFIG_XML_ENTITY2 = "entity2";
 	private static final String CONFIG_XML_RESOURCE = "rdf:resource";
 	private static final String CONFIG_XML_MEASURE = "measure";
+	
+	private static final String LABEL_URI = "rdfs:label";
 	
 	private ObjectIdentificationConfig globalConfig;
 	
@@ -191,7 +203,10 @@ public class LinkerImpl implements Linker {
 				configFile = ConfigBuilder.createDebugLinkConfigFile(rule, prefixes, context, globalConfig,
 						inputFile.getAbsolutePath(), resultFileName);
 				Silk.executeFile(configFile, null, Silk.DefaultThreads(), true);
-				resultList.add(new DebugResult(rule, parseLinkedPairs(resultFileName)));
+				List<LinkedPair> linkedPairs = parseLinkedPairs(resultFileName);
+				loadLabels(inputFile, linkedPairs);
+				loadLabels(context.getCleanDatabaseCredentials(), context.getDirtyDatabaseCredentials(), linkedPairs);
+				resultList.add(new DebugResult(rule, linkedPairs));
 			}
 			
 		} catch (DatabaseException e) {
@@ -219,7 +234,7 @@ public class LinkerImpl implements Linker {
 				String firstUri = null;
 				String secondUri = null;
 				Double confidence = null;
-				Node cell = cells.item(i);
+				Element cell = (Element)cells.item(i);
 				NodeList cellChildern = cell.getChildNodes();
 				int childLength = cellChildern.getLength();
 				
@@ -277,5 +292,59 @@ public class LinkerImpl implements Linker {
 				stream.close();
 			} catch (IOException e) { /* do nothing */ } 
 		}
+	}
+	
+	private void loadLabels(File inputFile, List<LinkedPair> linkedPairs) {
+		NamedGraphSet graphSet = loadGraphs(inputFile);
+		for (LinkedPair pair: linkedPairs) {
+			Iterator<?> it = graphSet.findQuads(
+					Node.ANY, Node.createURI(pair.getFirstUri()), Node.createURI(LABEL_URI), Node.ANY);
+			Quad quad;
+			if (it.hasNext()) {
+				quad = (Quad)it.next();
+				pair.setFirstLabel(quad.getObject().toString());
+			}
+			
+			it = graphSet.findQuads(
+					Node.ANY, Node.createURI(pair.getSecondUri()), Node.createURI(LABEL_URI), Node.ANY);
+			if (it.hasNext()) {
+				quad = (Quad)it.next();
+				pair.setSecondLabel(quad.getObject().toString());
+			}
+		}
+	}
+	
+	private NamedGraphSet loadGraphs(File inputFile) {
+		GraphReaderService reader = new GraphReaderService();
+		reader.setLanguage("RDF/XML");
+		reader.setSourceFile(inputFile);
+		NamedGraphSet graphSet = new NamedGraphSetImpl();
+		reader.readInto(graphSet);
+		
+		return graphSet;
+	}
+	
+	private void loadLabels(JDBCConnectionCredentials cleanDBCredentials, JDBCConnectionCredentials dirtyDBCredentials,
+			List<LinkedPair> linkedPairs) throws TransformerException {
+		Map<String, String> uriLabelMap = createUriLabelMap(linkedPairs);
+		LinkerDao dao;
+		try {
+			dao = LinkerDao.getInstance(cleanDBCredentials, dirtyDBCredentials);
+			dao.loadLabels(uriLabelMap);	
+		} catch (ConnectionException e) {
+			throw new TransformerException(e);
+		} catch (QueryException e) {
+			throw new TransformerException(e);
+		}
+		
+	}
+	
+	private Map<String, String> createUriLabelMap(List<LinkedPair> linkedPairs) {
+		Map<String, String> uriLabelMap = new HashMap<String, String>();
+		for (LinkedPair pair: linkedPairs) {
+			uriLabelMap.put(pair.getFirstUri(), pair.getFirstLabel());
+			uriLabelMap.put(pair.getSecondUri(), pair.getSecondLabel());
+		}
+		return uriLabelMap;
 	}
 }
