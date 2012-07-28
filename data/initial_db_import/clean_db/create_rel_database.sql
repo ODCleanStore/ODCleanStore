@@ -424,3 +424,16 @@ CREATE TABLE DB.ODCLEANSTORE.QE_LABEL_PROPERTIES
 );
 
 INSERT INTO DB.ODCLEANSTORE.QE_LABEL_PROPERTIES (property) VALUES (n'http://www.w3.org/2000/01/rdf-schema#label');
+
+/*
+	===========================================================================
+	ONTOLOGY MANAGEMENT
+	===========================================================================
+*/
+CREATE TABLE DB.ODCLEANSTORE.ONTOLOGIES
+(
+  id INTEGER NOT NULL IDENTITY PRIMARY KEY,
+	label NVARCHAR(255) UNIQUE NOT NULL,
+	description LONG NVARCHAR,
+	graphName NVARCHAR(1024) UNIQUE NOT NULL
+); 
