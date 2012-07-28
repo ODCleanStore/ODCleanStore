@@ -1,0 +1,43 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Basic formatting and settings
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[12pt,a4paper]{report}
+\usepackage[utf8x]{inputenc}
+\usepackage[IL2]{fontenc}
+\usepackage{a4wide}
+\usepackage[left=2.5cm, right=2.5cm, top=3cm, bottom=3cm]{geometry}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Include required packages
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[usenames]{color}
+\usepackage{nicefrac}
+\usepackage{verbatim}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{setspace}
+
+\usepackage[pdftex,bookmarks=true,colorlinks,linkcolor=blue,urlcolor=blue,unicode]{hyperref}
+\hypersetup{pdftitle=ODCleanStore}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Additional formatting settings
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\pagestyle{plain}
+\pagestyle{headings}
+\linespread{1.1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Include macro definitions and package settings
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{header-basic-definitions}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Optionally disable use of images.
+% Convenient for export to .dvi when the documents contain images not supported in plain latex
+% Uncomment to disable images.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\renewcommand{\includegraphics}[2][1]{}

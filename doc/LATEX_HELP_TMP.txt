@@ -1,0 +1,65 @@
+Dokumentace je psaná v LaTeXu. Abyste ze zdrojáků mohli vytvořit PDF
+nebo DVI soubor, je potřeba nainstalovat nějakou distribuci LaTeXu. Pro
+Windows nejlépe MiKTeX.
+
+1. Instalace MiKTeXu:
+
+  * Stáhněte instalátor z http://miktex.org/2.9/setup .
+  * Nainstalujte.
+  * Ujistěte se, že máte latex a pdflatex v PATH
+    (typicky adresář C:\Program Files\MiKTeX 2.8\miktex\bin).
+
+2. Vygenerování souborů
+
+  * Pomocí příkazů
+
+    latex -quiet soubor.tex
+    pdflatex -quiet soubor.tex
+
+    můžete vygenerovat DVI, resp. PDF soubor. Během psaní je vhodnější
+    používat DVI, protože se v prohlížeči DVI souborů yap (součást instalace
+    MiKTeXu) po přegenerování dokument automaticky aktualizuje, což u PDF
+    neplatí.
+
+  * Během generování může MiKTeX dotahovat z internetu potřebné
+    balíčky, k čemuž může vyžadovat administrátorské oprávnění.
+    Pokud vám to dělá problémy, zkuste vygenerovat soubory z TeXnicCenter
+    (viz dále).
+
+  * Pro vygenerování dokumentace můžete použít přiložené .bat soubory.
+
+3. Editace
+
+  * .tex soubory můžete editovat v libovolném textovém editoru, nebo
+    použít specializovaný TeX editor, pro Windows nejlépe TeXnicCenter.
+    
+  * TeXnicCenter můžete stáhnout z http://www.texniccenter.org/ . Pro
+    začátečníka je vhodné hlavně tím, že přímo z editoru můžete
+    nechat vygenerovat cílový soubor a přehledně hlásí případné chyby.
+
+  * Co se týče syntaxe LaTeXu, tak
+
+    * odstavce se oddělují prázdným řádkem
+    * číslované nadpisy se značí příkazy \chapter{nadpis}, \section{nadpis},
+      \subsection{nadpis}. Nečíslované nadpisy \chapter*{nadpis} atd.
+    * číslované seznamy se píší jako
+      \begin{enumerate}
+        \item položka
+        \item položka
+      \end{enumerate}
+
+      nečíslované jako
+      \begin{itemize}
+        \item položka
+        \item položka
+      \end{itemize}
+    * pro zvýrazněná slova je předdefinované makro \term{slovo}, pro
+      názvy tříd apod. makro \code{Trida}, pro uvozovky makro \quot{text v
+      uvozovkach}
+    * to je asi tak to hlavní, zbytek vykoukáte ze zdrojáků, stručný
+      cheat sheet je třeba na   
+      http://www.stdout.org/~winston/latex/latexsheet-a4.pdf
+
+      Pro vážnější zájemce je např. http://en.wikibooks.org/wiki/LaTeX/Basics .
+
+Kdyby něco, napište.
