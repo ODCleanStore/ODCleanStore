@@ -232,11 +232,11 @@ public class RulesModel {
 				Statement conceptStmt = enumerations.next();
 
 				if (model.contains(conceptStmt.getObject().asResource(), RDF.type, model.createProperty(skosNS, "Concept"))) {
-					valueList.append(conceptStmt.getObject().asNode().getLocalName());
+					valueList.append(conceptStmt.getObject().asNode().getURI());
 					filter.append("?o != <" + conceptStmt.getObject().asNode().getURI() + ">");
 					
 					if (enumerations.hasNext()) {
-						valueList.append(",");
+						valueList.append(", ");
 						filter.append(" AND ");
 					}
 				} else {
@@ -254,7 +254,7 @@ public class RulesModel {
 			while (resultSet.hasNext()) {
 				QuerySolution solution = resultSet.nextSolution();
 
-				Rule rule = new Rule(null, groupId, "{?s <" + solution.get("s") + "> ?o. FILTER (" + filter + ")}", 0.8, resource.getLocalName() + " can have only these values:" + valueList.toString());
+				Rule rule = new Rule(null, groupId, "{?s <" + solution.get("s") + "> ?o. FILTER (" + filter + ")}", 0.8, solution.getResource("s").getLocalName() + " can have only these values: " + valueList.toString());
 
 				storeRule(rule, ontology);
 			}
