@@ -44,7 +44,7 @@ public class WorkingInputGraphStatusTest {
 		Collection<String> wag = _wigs.getWorkingAttachedGraphNames();
 		Assert.assertEquals(0, wag.size());
 
-		TransformedGraphImpl tg = new TransformedGraphImpl(_wigs, uuid2);
+		TransformedGraphImpl tg = new TransformedGraphImpl(_wigs,_wigs.getGraphDbKeyId(uuid2), uuid2);
 		_wigs.setWorkingTransformedGraph(tg);
 		_wigs.addAttachedGraphName(tg, "Prd23");
 		wag = _wigs.getWorkingAttachedGraphNames();
@@ -90,7 +90,7 @@ public class WorkingInputGraphStatusTest {
 		_wigs.deleteGraph(tg);
 		_wigs.addAttachedGraphName(tg, "Prd25");
 
-		TransformedGraphImpl tg2 = new TransformedGraphImpl(_wigs, uuid2);
+		TransformedGraphImpl tg2 = new TransformedGraphImpl(_wigs,_wigs.getGraphDbKeyId(uuid2), uuid2);
 		_wigs.setWorkingTransformedGraph(tg2);
 
 		try {

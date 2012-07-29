@@ -38,6 +38,21 @@ final class WorkingInputGraphStatus {
 		}
 	}
 	
+	int getGraphDbKeyId(String uuid) throws Exception {
+		VirtuosoConnectionWrapper con = null;
+		try {
+			con = VirtuosoConnectionWrapper.createTransactionalLevelConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
+			String sqlStatement = String.format("Select Id from %s.EN_INPUT_GRAPHS WHERE uuid='%s'", _dbSchemaPrefix, uuid);
+			WrappedResultSet resultSet = con.executeSelect(sqlStatement);
+			resultSet.next();
+			return resultSet.getInt(1);
+		} finally {
+			if (con != null) {
+				con.close();
+			}
+		}
+	}
+	
 	int getGraphPipelineId(String uuid) throws Exception {
 		VirtuosoConnectionWrapper con = null;
 		try {
@@ -54,12 +69,18 @@ final class WorkingInputGraphStatus {
 	}
 	
 	Collection<String> getWorkingAttachedGraphNames() throws Exception {
+		LinkedList<String> retVal = new LinkedList<String>();
+		
+		if (_workingTransformedGraphImpl == null) {
+			return retVal;
+		}
+		
+		int dbKeyId = _workingTransformedGraphImpl.getGraphDbKeyId();
 		VirtuosoConnectionWrapper con = null;
 		try {
 			con = VirtuosoConnectionWrapper.createTransactionalLevelConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
-			String sqlStatement = String.format("Select name from %s.EN_WORKING_ADDED_GRAPHS", _dbSchemaPrefix);
+			String sqlStatement = String.format("Select name from %s.EN_WORKING_ADDED_GRAPHS WHERE graphId = %d", _dbSchemaPrefix, dbKeyId);
 			WrappedResultSet resultSet = con.executeSelect(sqlStatement);
-			LinkedList<String> retVal = new LinkedList<String>();
 			while(resultSet.next()) {
 				retVal.add(resultSet.getString(1));
 			}
@@ -72,10 +93,15 @@ final class WorkingInputGraphStatus {
 	}
 	
 	void deleteWorkingAttachedGraphNames() throws Exception {
+		if (_workingTransformedGraphImpl == null) {
+			return;
+		}
+		
+		int dbKeyId = _workingTransformedGraphImpl.getGraphDbKeyId();
 		VirtuosoConnectionWrapper con = null;
 		try {
 			con = VirtuosoConnectionWrapper.createTransactionalLevelConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
-			String sqlStatement = String.format("Delete from %s.EN_WORKING_ADDED_GRAPHS", _dbSchemaPrefix);
+			String sqlStatement = String.format("Delete from %s.EN_WORKING_ADDED_GRAPHS HERE graphId = %d", _dbSchemaPrefix, dbKeyId);
 			con.execute(sqlStatement);
 			con.commit();
 		} finally {
@@ -89,7 +115,7 @@ final class WorkingInputGraphStatus {
 		VirtuosoConnectionWrapper con = null;
 		try {
 			con = VirtuosoConnectionWrapper.createTransactionalLevelConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
-			String sqlStatement = String.format("Delete from %s.EN_WORKING_ADDED_GRAPHS", _dbSchemaPrefix);
+			String sqlStatement = String.format("Delete from %s.EN_WORKING_ADDED_GRAPHS WHERE graphId = '%s'", _dbSchemaPrefix, uuid);
 			con.execute(sqlStatement);
 			sqlStatement = String.format("Delete from %s.EN_INPUT_GRAPHS WHERE uuid='%s'", _dbSchemaPrefix, uuid);
 			con.execute(sqlStatement);
@@ -166,10 +192,11 @@ final class WorkingInputGraphStatus {
 			throw new NotWorkingTransformerException();
 		}
 
+		int dbKeyId = _workingTransformedGraphImpl.getGraphDbKeyId();
 		VirtuosoConnectionWrapper con = null;
 		try {
 			con = VirtuosoConnectionWrapper.createTransactionalLevelConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
-			String sqlStatement = String.format("Insert into %s.EN_WORKING_ADDED_GRAPHS(name) VALUES('%s')", _dbSchemaPrefix, attachedGraphName);
+			String sqlStatement = String.format("Insert into %s.EN_WORKING_ADDED_GRAPHS(name, graphId) VALUES('%s', %d)", _dbSchemaPrefix, attachedGraphName, dbKeyId);
 			con.execute(sqlStatement);
 			con.commit();
 		} finally {

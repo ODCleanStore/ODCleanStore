@@ -142,12 +142,13 @@ public final class PipelineService extends Service implements Runnable {
 			
 			try {
 				LOG.info(String.format("PipelineService starts processing graph %s", uuid));
+				int dbKeyId = _workingInputGraphStatus.getGraphDbKeyId(uuid);
 				int pipelineId = _workingInputGraphStatus.getGraphPipelineId(uuid);
 				Collection<TransformerCommand> TransformerCommands = TransformerCommand.getActualPlan("DB.ODCLEANSTORE", pipelineId);
 				loadData(uuid);
 				LOG.info(String.format("PipelineService ends data loading for graph %s", uuid));
 				for (TransformerCommand transformerCommand : TransformerCommands) {
-					transformedGraphImpl = transformedGraphImpl == null ? new TransformedGraphImpl(_workingInputGraphStatus, uuid) : new TransformedGraphImpl(transformedGraphImpl);
+					transformedGraphImpl = transformedGraphImpl == null ? new TransformedGraphImpl(_workingInputGraphStatus, dbKeyId, uuid) : new TransformedGraphImpl(transformedGraphImpl);
 					processTransformer(transformerCommand, transformedGraphImpl);
 					if (transformedGraphImpl.isDeleted()) {
 						break;
