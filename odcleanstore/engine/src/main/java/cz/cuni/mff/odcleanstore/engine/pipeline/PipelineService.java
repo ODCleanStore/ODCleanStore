@@ -12,13 +12,12 @@ import org.apache.log4j.Logger;
 
 import cz.cuni.mff.odcleanstore.configuration.BackendConfig;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.InputGraphState;
 import cz.cuni.mff.odcleanstore.engine.Service;
 import cz.cuni.mff.odcleanstore.engine.common.ModuleState;
-import cz.cuni.mff.odcleanstore.engine.common.SimpleVirtuosoAccess;
 import cz.cuni.mff.odcleanstore.engine.common.Utils;
-import cz.cuni.mff.odcleanstore.engine.common.Utils.DirectoryException;
 import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.Metadata;
 import cz.cuni.mff.odcleanstore.transformer.Transformer;
 import cz.cuni.mff.odcleanstore.vocabulary.DC;
@@ -194,46 +193,46 @@ public final class PipelineService extends Service implements Runnable {
 			}
 		}
 
-		SimpleVirtuosoAccess sva = null;
+		VirtuosoConnectionWrapper con = null;
 		try {
-			sva = SimpleVirtuosoAccess.createDirtyDBConnection();
+			con = VirtuosoConnectionWrapper.createTransactionalLevelConnection(ConfigLoader.getConfig().getBackendGroup().getDirtyDBJDBCConnectionCredentials());
 			String dataGraphURI = backendConfig.getDataGraphURIPrefix() + uuid;
 			String metadataGraphURI = backendConfig.getMetadataGraphURIPrefix() + uuid;
 			String provenanceGraphURI = backendConfig.getProvenanceMetadataGraphURIPrefix() + uuid;
 
 			// TODO ktera ctverice tam ma teda byt?
-			sva.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.metadataGraph + ">", "<" + metadataGraphURI + ">", "<" + metadataGraphURI + ">");
-			sva.insertQuad("<" + dataGraphURI + ">", "<" + W3P. metadataGraph + ">", "<" + metadataGraphURI + ">", "<" + metadataGraphURI + ">");
+			con.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.metadataGraph + ">", "<" + metadataGraphURI + ">", "<" + metadataGraphURI + ">");
+			con.insertQuad("<" + dataGraphURI + ">", "<" + W3P. metadataGraph + ">", "<" + metadataGraphURI + ">", "<" + metadataGraphURI + ">");
 			
-			sva.insertQuad("<" + dataGraphURI + ">", "<" + W3P.insertedAt + ">", inserted, "<" + metadataGraphURI + ">");
-			sva.insertQuad("<" + dataGraphURI + ">", "<" + W3P.insertedBy + ">", "'scraper'", "<" + metadataGraphURI + ">");
+			con.insertQuad("<" + dataGraphURI + ">", "<" + W3P.insertedAt + ">", inserted, "<" + metadataGraphURI + ">");
+			con.insertQuad("<" + dataGraphURI + ">", "<" + W3P.insertedBy + ">", "'scraper'", "<" + metadataGraphURI + ">");
 			for (String source : metadata.source) {
-				sva.insertQuad("<" + dataGraphURI + ">", "<" + W3P.source + ">", "<" + source + ">", "<" + metadataGraphURI + ">");
+				con.insertQuad("<" + dataGraphURI + ">", "<" + W3P.source + ">", "<" + source + ">", "<" + metadataGraphURI + ">");
 			}
 			for (String publishedBy : metadata.publishedBy) {
-				sva.insertQuad("<" + dataGraphURI + ">", "<" + W3P.publishedBy + ">", "<" + publishedBy + ">", "<" + metadataGraphURI + ">");
+				con.insertQuad("<" + dataGraphURI + ">", "<" + W3P.publishedBy + ">", "<" + publishedBy + ">", "<" + metadataGraphURI + ">");
 			}
 			if (metadata.license != null) {
 				for (String license : metadata.license) {
-					sva.insertQuad("<" + dataGraphURI + ">", "<" + DC.license + ">", "<" + license + ">", "<" + metadataGraphURI + ">");
+					con.insertQuad("<" + dataGraphURI + ">", "<" + DC.license + ">", "<" + license + ">", "<" + metadataGraphURI + ">");
 				}
 			}
 			if (metadata.provenance != null) {
-				sva.insertRdfXmlOrTtl(dataGraphURI, metadata.provenance, provenanceGraphURI);
-				sva.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.provenanceMetadataGraph + ">", "<" + provenanceGraphURI + ">", "<" + metadataGraphURI + ">");
+				con.insertRdfXmlOrTtl(dataGraphURI, metadata.provenance, provenanceGraphURI);
+				con.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.provenanceMetadataGraph + ">", "<" + provenanceGraphURI + ">", "<" + metadataGraphURI + ">");
 			}
-			sva.insertRdfXmlOrTtl(dataGraphURI, payload, dataGraphURI);
-			sva.commit();
+			con.insertRdfXmlOrTtl(dataGraphURI, payload, dataGraphURI);
+			con.commit();
 		} finally {
-			if (sva != null) {
-				sva.close();
+			if (con != null) {
+				con.close();
 			}
 		}
 	}
 	
 	private Transformer loadCustomTransformer(TransformerCommand transformerCommand) throws Exception {
 		
-		URL url = new File(transformerCommand.getJarPath()).toURL(); 
+		URL url = new File(transformerCommand.getJarPath()).toURI().toURL();
 		URLClassLoader loader = new URLClassLoader(new URL[]{url}, getClass().getClassLoader());
 		Class<?> trida = Class.forName(transformerCommand.getFullClassName(), true, loader);
 		Object obj = trida.getConstructor(new Class[]{}).newInstance(new Object[]{});

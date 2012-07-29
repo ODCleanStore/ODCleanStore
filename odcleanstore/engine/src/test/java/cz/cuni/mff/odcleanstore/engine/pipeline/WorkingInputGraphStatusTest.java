@@ -6,10 +6,10 @@ import java.util.UUID;
 import junit.framework.Assert;
 
 import org.junit.Before;
-import org.junit.Test;
 
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.engine.InputGraphState;
-import cz.cuni.mff.odcleanstore.engine.common.SimpleVirtuosoAccess;
 import cz.cuni.mff.odcleanstore.engine.pipeline.WorkingInputGraphStatus.NotWorkingTransformerException;
 
 /**
@@ -117,42 +117,42 @@ public class WorkingInputGraphStatusTest {
 	}
 
 	private void insertGraphUuid(String uuid, InputGraphState inputGraphState) throws Exception {
-		SimpleVirtuosoAccess sva = null;
+		VirtuosoConnectionWrapper con = null;
 		try {
-			sva = SimpleVirtuosoAccess.createCleanDBConnection();
+			con = VirtuosoConnectionWrapper.createTransactionalLevelConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
 			String sqlStatement = String.format("Insert into %s.EN_INPUT_GRAPHS(uuid, state) VALUES('%s', '%s')", _dbSchemaPrefix, uuid, inputGraphState.toString());
-			sva.executeStatement(sqlStatement);
-			sva.commit();
+			con.execute(sqlStatement);
+			con.commit();
 		} finally {
-			if (sva != null) {
-				sva.close();
+			if (con != null) {
+				con.close();
 			}
 		}
 	}
 
 	private void init() throws Exception {
-		SimpleVirtuosoAccess sva = null;
+		VirtuosoConnectionWrapper con = null;
 		String sqlStatement = null;
 		try {
-			sva = SimpleVirtuosoAccess.createCleanDBConnection();
+			con = VirtuosoConnectionWrapper.createTransactionalLevelConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
 			sqlStatement = String.format("DROP TABLE  %s.EN_INPUT_GRAPHS", _dbSchemaPrefix);
 			try {
-				sva.executeStatement(sqlStatement);
+				con.execute(sqlStatement);
 			} catch (Exception e) {
 			}
 			sqlStatement = String.format("DROP TABLE  %s.EN_WORKING_ADDED_GRAPHS", _dbSchemaPrefix);
 			try {
-				sva.executeStatement(sqlStatement);
+				con.execute(sqlStatement);
 			} catch (Exception e) {
 			}
 			sqlStatement = String.format("CREATE TABLE %s.EN_INPUT_GRAPHS (uuid VARCHAR(48) PRIMARY KEY,state VARCHAR(16) NOT NULL)", _dbSchemaPrefix);
-			sva.executeStatement(sqlStatement);
+			con.execute(sqlStatement);
 			sqlStatement = String.format("CREATE TABLE  %s.EN_WORKING_ADDED_GRAPHS (name VARCHAR PRIMARY KEY)", _dbSchemaPrefix);
-			sva.executeStatement(sqlStatement);
-			sva.commit();
+			con.execute(sqlStatement);
+			con.commit();
 		} finally {
-			if (sva != null) {
-				sva.close();
+			if (con != null) {
+				con.close();
 			}
 		}
 	}
