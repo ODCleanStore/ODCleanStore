@@ -8,7 +8,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
-import cz.cuni.mff.odcleanstore.engine.common.SimpleVirtuosoAccess;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 
 /**
  *  @author Petr Jerman
@@ -19,59 +19,59 @@ final class WorkingInputGraph {
 	}
 
 	void deleteGraphFromDirtyDB(String graphName) throws Exception {
-		SimpleVirtuosoAccess sva = null;
+		VirtuosoConnectionWrapper con = null;
 		try {
-			sva = SimpleVirtuosoAccess.createDirtyDBConnection();
-			sva.deleteGraph("<" + graphName + ">");
-			sva.commit();
+			con = VirtuosoConnectionWrapper.createTransactionalLevelConnection(ConfigLoader.getConfig().getBackendGroup().getDirtyDBJDBCConnectionCredentials());
+			con.deleteGraph("<" + graphName + ">");
+			con.commit();
 		} finally {
-			if (sva != null) {
-				sva.close();
+			if (con != null) {
+				con.close();
 			}
 		}
 	}
 
 	void deleteGraphFromCleanDB(String graphName) throws Exception {
-		SimpleVirtuosoAccess sva = null;
+		VirtuosoConnectionWrapper con = null;
 		try {
-			sva = SimpleVirtuosoAccess.createCleanDBConnection();
-			sva.deleteGraph("<" + graphName + ">");
-			sva.commit();
+			con = VirtuosoConnectionWrapper.createTransactionalLevelConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
+			con.deleteGraph("<" + graphName + ">");
+			con.commit();
 		} finally {
-			if (sva != null) {
-				sva.close();
+			if (con != null) {
+				con.close();
 			}
 		}
 	}
 
 	void deleteGraphsFromDirtyDB(Collection<String> graphNames) throws Exception {
-		SimpleVirtuosoAccess sva = null;
+		VirtuosoConnectionWrapper con = null;
 		try {
-			sva = SimpleVirtuosoAccess.createDirtyDBConnection();
+			con = VirtuosoConnectionWrapper.createTransactionalLevelConnection(ConfigLoader.getConfig().getBackendGroup().getDirtyDBJDBCConnectionCredentials());
 			for (String graphName : graphNames) {
-				sva.deleteGraph("<" + graphName + ">");
+				con.deleteGraph("<" + graphName + ">");
 			}
-			sva.commit();
+			con.commit();
 
 		} finally {
-			if (sva != null) {
-				sva.close();
+			if (con != null) {
+				con.close();
 			}
 		}
 	}
 
 	void deleteGraphsFromCleanDB(Collection<String> graphNames) throws Exception {
-		SimpleVirtuosoAccess sva = null;
+		VirtuosoConnectionWrapper con = null;
 		try {
-			sva = SimpleVirtuosoAccess.createCleanDBConnection();
+			con = VirtuosoConnectionWrapper.createTransactionalLevelConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
 			for (String graphName : graphNames) {
-				sva.deleteGraph("<" + graphName + ">");
+				con.deleteGraph("<" + graphName + ">");
 			}
-			sva.commit();
+			con.commit();
 
 		} finally {
-			if (sva != null) {
-				sva.close();
+			if (con != null) {
+				con.close();
 			}
 		}
 	}

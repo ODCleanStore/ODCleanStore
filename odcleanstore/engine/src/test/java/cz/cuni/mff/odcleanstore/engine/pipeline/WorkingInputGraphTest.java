@@ -4,11 +4,9 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import org.junit.Before;
-import org.junit.Test;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
-import cz.cuni.mff.odcleanstore.engine.Engine;
-import cz.cuni.mff.odcleanstore.engine.common.SimpleVirtuosoAccess;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 
 /**
  *  @author Petr Jerman
@@ -24,10 +22,8 @@ public class WorkingInputGraphTest {
 
 	// @Test
 	public void test() throws Exception {
-		SimpleVirtuosoAccess sva = null;
 		String graphName = ConfigLoader.getConfig().getBackendGroup().getDataGraphURIPrefix() + "g/" + UUID.randomUUID().toString();
 		try {
-			sva = SimpleVirtuosoAccess.createDirtyDBConnection();
 			insertGraph(graphName);
 			ArrayList<String> al = new ArrayList<String>();
 			al.add(graphName);
@@ -36,24 +32,23 @@ public class WorkingInputGraphTest {
 		} finally {
 			_wig.deleteGraphFromCleanDB(graphName);
 			_wig.deleteGraphFromDirtyDB(graphName);
-			sva.close();
 		}
 	}
 
 	private void insertGraph(String graphName) throws Exception {
-		SimpleVirtuosoAccess sva = null;
+		VirtuosoConnectionWrapper con = null;
 		try {
-			sva = SimpleVirtuosoAccess.createDirtyDBConnection();
+			con = VirtuosoConnectionWrapper.createTransactionalLevelConnection(ConfigLoader.getConfig().getBackendGroup().getDirtyDBJDBCConnectionCredentials());
 			for (int i = 0; i < 10; i++) {
 				String ruiid = UUID.randomUUID().toString();
 				String dataPrefix =  ConfigLoader.getConfig().getBackendGroup().getDataGraphURIPrefix().toString();
-				sva.insertQuad("<" + dataPrefix + "s/" + ruiid+ ">", "<" + dataPrefix + "p/" + ruiid + ">", "<" + dataPrefix + "o/" + ruiid + ">", "<" + graphName  + ">");
+				con.insertQuad("<" + dataPrefix + "s/" + ruiid+ ">", "<" + dataPrefix + "p/" + ruiid + ">", "<" + dataPrefix + "o/" + ruiid + ">", "<" + graphName  + ">");
 			}
-			sva.commit();
+			con.commit();
 
 		} finally {
-			if (sva != null) {
-				sva.close();
+			if (con != null) {
+				con.close();
 			}
 		}
 	}

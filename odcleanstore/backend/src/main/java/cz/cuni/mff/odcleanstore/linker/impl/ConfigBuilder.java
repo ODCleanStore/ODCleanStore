@@ -100,7 +100,8 @@ public class ConfigBuilder {
 	private static final String CONFIG_XML_PASSWORD = "password";
 	private static final String CONFIG_XML_LINKAGE_RULE = "LinkageRule";
 	private static final String CONFIG_XML_ALIGNMENT = "alignment";
-	private static final String CONFIG_XML_NTRIPLE = "N-TRIPLE";
+	
+	private static final String SOURCE_FORMAT = "RDF/XML";
 	
 	private static final BigDecimal MIN_CONFIDENCE = BigDecimal.ZERO;
 	private static final BigDecimal MAX_CONFIDENCE = BigDecimal.valueOf(1000);
@@ -652,7 +653,7 @@ public class ConfigBuilder {
 		sourceElement.setAttribute(CONFIG_XML_TYPE, CONFIG_XML_FILE);
 		sourceElement.setAttribute(CONFIG_XML_ID, CONFIG_SOURCE_A_ID);
 		sourceElement.appendChild(createParam(doc, CONFIG_XML_FILE, inputFileName));
-		sourceElement.appendChild(createParam(doc, CONFIG_XML_FORMAT, CONFIG_XML_NTRIPLE));
+		sourceElement.appendChild(createParam(doc, CONFIG_XML_FORMAT, SOURCE_FORMAT));
 		
 		return sourceElement;
 	}

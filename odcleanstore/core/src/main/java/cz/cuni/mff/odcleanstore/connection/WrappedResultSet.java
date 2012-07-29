@@ -228,9 +228,9 @@ public class WrappedResultSet {
     public String getNString(int columnIndex) throws SQLException {
         /* getNString throws AbstractMethodError :( its somehow broken (virt_jdbc3) */
         Blob blob = resultSet.getBlob(columnIndex);
-        String value = new String(blob.getBytes(1, (int) blob.length()));
-        return resultSet.wasNull() ? null : value;
-
+        // Changed by Petr Jerman - 0 length blob now returns "" instead throw exception        
+        byte[] buffer = blob.getBytes(1, (int) blob.length());
+        return resultSet.wasNull() ? null : buffer == null ? "" : new String(buffer);
     }
 
     /**
@@ -243,9 +243,9 @@ public class WrappedResultSet {
     public String getNString(String columnLabel) throws SQLException {
         /* getNString throws AbstractMethodError :( its somehow broken (virt_jdbc3) */
         Blob blob = resultSet.getBlob(columnLabel);
-        String value = new String(blob.getBytes(1, (int) blob.length()));
-        return resultSet.wasNull() ? null : value;
-
+        // Changed by Petr Jerman - 0 length blob now returns "" instead throw exception
+        byte[] buffer = blob.getBytes(1, (int) blob.length());
+        return resultSet.wasNull() ? null : buffer == null ? "" : new String(buffer);
     }
 
     /**

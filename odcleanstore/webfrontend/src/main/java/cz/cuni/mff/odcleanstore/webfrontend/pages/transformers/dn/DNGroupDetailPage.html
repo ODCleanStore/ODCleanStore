@@ -1,0 +1,47 @@
+<wicket:extend>
+
+<wicket:link>
+<div>
+	<a class="placedright" href="DNGroupsListPage.html">Back to the list of DN rules' groups</a>
+	<div class="clear">&nbsp;</div>
+</div>
+</wicket:link>
+
+<div class="datalistitem">
+	<strong class="block">Label:</strong>
+	<span wicket:id="label">[label]</span>
+</div>
+
+<div class="datalistitem">
+	<strong class="block">Description:</strong>
+	<span wicket:id="description">[description]</span>
+</div>
+
+<h2>Related rules</h2>
+
+<div>
+	<a class="placedright" href="#" wicket:id="addNewRuleLink">Add a new rule</a>
+	<div class="clear">&nbsp;</div>
+</div>
+
+<span wicket:id="navigator">[dataview navigator]</span>
+<table border="1">
+	
+	<tr>
+		<th>Description</th>
+		<th>Action</th>
+	</tr>
+	
+	<tr  wicket:id="dnRulesTable">
+	
+		<td wicket:id="description">[description]</td>
+		
+		<td class="centered">
+			<input wicket:id="deleteRule" type="button" value="Delete" />
+			<input wicket:id="showDNRuleDetailPage" type="button" value="Detail" />
+			<input wicket:id="showEditDNRulePage" type="button" value="Edit" />
+		</td>
+	</tr>
+</table>
+
+</wicket:extend>

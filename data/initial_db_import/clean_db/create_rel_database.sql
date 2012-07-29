@@ -479,7 +479,10 @@ CREATE TABLE DB.ODCLEANSTORE.EN_GRAPHS_IN_ERROR
 /* a temporary table (to be replaced later, not included in the diagram) */
 CREATE TABLE DB.ODCLEANSTORE.EN_WORKING_ADDED_GRAPHS
 (
-	name NVARCHAR PRIMARY KEY
+	name NVARCHAR PRIMARY KEY,
+	graphId INTEGER NOT NULL,
+
+	FOREIGN KEY (graphId) REFERENCES DB.ODCLEANSTORE.EN_INPUT_GRAPHS(id) ON DELETE CASCADE
 );
 
 /*
@@ -575,3 +578,16 @@ CREATE TABLE DB.ODCLEANSTORE.QE_LABEL_PROPERTIES
 );
 
 INSERT INTO DB.ODCLEANSTORE.QE_LABEL_PROPERTIES (property) VALUES (n'http://www.w3.org/2000/01/rdf-schema#label');
+
+/*
+	===========================================================================
+	ONTOLOGY MANAGEMENT
+	===========================================================================
+*/
+CREATE TABLE DB.ODCLEANSTORE.ONTOLOGIES
+(
+  id INTEGER NOT NULL IDENTITY PRIMARY KEY,
+	label NVARCHAR(255) UNIQUE NOT NULL,
+	description LONG NVARCHAR,
+	graphName NVARCHAR(1024) UNIQUE NOT NULL
+); 

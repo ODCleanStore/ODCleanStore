@@ -1,15 +1,15 @@
-package cz.cuni.mff.odcleanstore.webfrontend.bo.qa;
+package cz.cuni.mff.odcleanstore.webfrontend.bo.dn;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.RulesGroupEntity;
 
-public class QARulesGroup extends RulesGroupEntity 
+public class DNRulesGroup extends RulesGroupEntity 
 {
 	private static final long serialVersionUID = 1L;
 
 	private String label;
 	private String description;
 	
-	public QARulesGroup(Long id, String label, String description) 
+	public DNRulesGroup(Long id, String label, String description) 
 	{
 		super(id);
 		
@@ -17,7 +17,7 @@ public class QARulesGroup extends RulesGroupEntity
 		this.description = description;
 	}
 
-	public QARulesGroup() 
+	public DNRulesGroup() 
 	{
 	}
 
