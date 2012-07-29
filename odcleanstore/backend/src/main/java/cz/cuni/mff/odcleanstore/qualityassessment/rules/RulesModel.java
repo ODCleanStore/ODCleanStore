@@ -22,14 +22,18 @@ import org.slf4j.LoggerFactory;
 
 import virtuoso.jena.driver.VirtModel;
 
+import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.query.QueryException;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.Statement;
+import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDF;
+import com.hp.hpl.jena.vocabulary.RDFS;
 
 /**
  * Rules Model.
@@ -192,15 +196,68 @@ public class RulesModel {
 	}
 	
 	private void processOntologyResource(Resource resource, Model model, String ontology, Integer groupId) throws QualityAssessmentException {
+		final String skosNS = "http://www.w3.org/2004/02/skos/core#";
+
+		/**
+		 * Functional Property can have only 1 value
+		 */
 		if (model.contains(resource, RDF.type, OWL.FunctionalProperty)) {	
 			Rule rule = new Rule(null, groupId, "{?s <" + resource.getURI() + "> ?o} GROUP BY ?s HAVING COUNT(?o) > 1", 0.8, resource.getLocalName() + " is FunctionalProperty (can have only 1 unique value)");
 			
 			storeRule(rule, ontology);
 		}
+
+		/**
+		 * Value of Inverse Functional Property cannot be shared by two or more subjects
+		 */
 		if (model.contains(resource, RDF.type, OWL.InverseFunctionalProperty)) {
 			Rule rule = new Rule(null, groupId, "{?s <" + resource.getURI() + "> ?o} GROUP BY ?o HAVING COUNT(?s) > 1", 0.8, resource.getLocalName() + " is InverseFunctionalProperty (value cannot be shared by two distinct subjects)");
 			
 			storeRule(rule, ontology);
+		}
+
+		/**
+		 * Enumeration check based on Concept Scheme
+		 */
+		if (model.contains(resource, RDF.type, model.createProperty(skosNS, "ConceptScheme"))) {
+			StmtIterator enumerations = model.listStatements(resource, model.createProperty(skosNS, "hasTopConcept"), model.getRDFNode(Node.ANY));
+
+			/**
+			 * Generate list of possible values
+			 */
+			StringBuilder valueList = new StringBuilder();
+			StringBuilder filter = new StringBuilder();
+			
+			while (enumerations.hasNext()) {	
+				Statement conceptStmt = enumerations.next();
+
+				if (model.contains(conceptStmt.getObject().asResource(), RDF.type, model.createProperty(skosNS, "Concept"))) {
+					valueList.append(conceptStmt.getObject().asNode().getLocalName());
+					filter.append("?o != <" + conceptStmt.getObject().asNode().getURI() + ">");
+					
+					if (enumerations.hasNext()) {
+						valueList.append(",");
+						filter.append(" AND ");
+					}
+				} else {
+					throw new QualityAssessmentException("Missing definition of a Concept in ConceptScheme");
+				}
+			}
+
+			/**
+			 * Generate rules for all properties with enumerated range
+			 */
+			QueryExecution queryExecution = QueryExecutionFactory.create("SELECT ?s WHERE {?s <" + RDFS.range + "> [<" + OWL.hasValue + "> <" + resource.getURI() + ">].}", model);
+			
+			com.hp.hpl.jena.query.ResultSet resultSet = queryExecution.execSelect();
+			
+			while (resultSet.hasNext()) {
+				QuerySolution solution = resultSet.nextSolution();
+
+				Rule rule = new Rule(null, groupId, "{?s <" + solution.get("s") + "> ?o. FILTER (" + filter + ")}", 0.8, resource.getLocalName() + " can have only these values:" + valueList.toString());
+
+				storeRule(rule, ontology);
+			}
 		}
 	}
 	
@@ -209,9 +266,9 @@ public class RulesModel {
 		
 		try {
 			connection = VirtuosoConnectionWrapper.createConnection(endpoint);
-			
+
 			connection.adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL, false);
-			
+
 			connection.execute(insertRuleFormat, rule.getGroupId(), rule.getFilter(), rule.getCoefficient(), rule.getDescription());
 			connection.execute(mapRuleToOntologyFormat, ontology);
 			
