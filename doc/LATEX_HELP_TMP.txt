@@ -21,6 +21,9 @@ Windows nejlépe MiKTeX.
     MiKTeXu) po přegenerování dokument automaticky aktualizuje, což u PDF
     neplatí.
 
+    ! Soubory určené ke kompilaci jsou pouze content-*.tex, ostatní .tex
+    soubory jsou includované z těchto souborů.
+
   * Během generování může MiKTeX dotahovat z internetu potřebné
     balíčky, k čemuž může vyžadovat administrátorské oprávnění.
     Pokud vám to dělá problémy, zkuste vygenerovat soubory z TeXnicCenter
@@ -36,6 +39,7 @@ Windows nejlépe MiKTeX.
   * TeXnicCenter můžete stáhnout z http://www.texniccenter.org/ . Pro
     začátečníka je vhodné hlavně tím, že přímo z editoru můžete
     nechat vygenerovat cílový soubor a přehledně hlásí případné chyby.
+    Opět platí, že ke generování jsou určeny pouze soubory content-*.tex.
 
   * Co se týče syntaxe LaTeXu, tak
 
