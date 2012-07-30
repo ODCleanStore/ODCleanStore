@@ -31,7 +31,11 @@ Context.
 
 Use cases, mention expected deployment (public contracts, students).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \chapter{User Roles}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \chapter{Administration Frontend}
 
@@ -59,6 +63,8 @@ Use cases, mention expected deployment (public contracts, students).
 
 \subsection*{Prefix management}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \chapter{Web Services}
 
 \section{Web Services Overview}
@@ -66,6 +72,50 @@ Use cases, mention expected deployment (public contracts, students).
 \section{Data Publisher}
 
 \section{Data Consumer}
+
+A consumer of data stored in ODCleanStore can query the database through the \term{Output Webservice}. The Output Webservice can be queried for data about a given URI resource, queried by keywords or queried for metadata of a given named graph. Conflicts in data returned in response to a query are resolved and the data are fused using policies provided by the user or by the administrator.
+
+Additionally, the user can access the data in the clean database directly using the SPARQL endpoint powered by Virtuoso. This way the data consumer can use the full power of the SPARQL query language, however conflict resolution and provenance tracking is not supported for this type of queries.
+\todo{define clean database (in glossary?)}
+\todo{specify where the SPARQL endpoint can be accessed}
+
+\section*{Output Webservice}
+
+The Output Webservice is a REST webservice which can be accessed using both GET and POST HTTP methods equivalently.
+
+\subsection{Types of queries}
+
+The Output Webservice can be queried for:
+
+\begin{enumerate}
+	\item a resource URI
+	\item keyword(s)
+	\item named graph metadata
+\end{enumerate}
+
+Table \ref{tbl:queryTypes} lists where each type of query can be accessed.
+
+\begin{table}[h]
+\centering
+\caption{Types of queries}
+\label{tbl:queryTypes}
+\begin{tabular}{|l|l|p{8cm}|}
+	\hline
+	Query & URI & Example of a query \\
+	\hline \hline
+	URI & \varcode{host}\code{/uri} & \mbox{http://localhost:8087/uri} \mbox{?uri=http\%3A\%2F\%2Fexample.com} \\
+	\hline
+	Keyword & \varcode{host}\code{/keyword} & http://localhost:8087/keyword=keyword\\
+	\hline
+	Named graph metadata & \varcode{host}\code{/namedGraph} & \mbox{http://localhost:8087/namedGraph} \mbox{?uri=http\%3A\%2F\%2Fexample.com} \\
+	\hline
+\end{tabular}
+\end{table} 
+
+More information is available in the Query Execition specification. \todo{reference}
+
+
+\subsection{Request format}
 
 \chapwithtoc{References}
 
