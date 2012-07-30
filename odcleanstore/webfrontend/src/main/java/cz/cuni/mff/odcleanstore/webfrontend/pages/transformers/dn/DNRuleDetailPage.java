@@ -34,8 +34,8 @@ public class DNRuleDetailPage extends FrontendPage
 	public DNRuleDetailPage(final Long ruleId) 
 	{
 		super(
-			"Home > QA > Rules groups > Group > Rule > Detail", 
-			"QA Rules management"
+			"Home > DN > Rules groups > Group > Rule > Detail", 
+			"DN Rules management"
 		);
 		
 		// prepare DAO objects
@@ -106,6 +106,15 @@ public class DNRuleDetailPage extends FrontendPage
 						"component",
 						new DeleteConfirmationMessage("rule component"),
 						DNRuleDetailPage.this
+					)
+				);
+
+				item.add(
+					new RedirectButton
+					(
+						DNRuleComponentDetailPage.class, 
+						component.getId(), 
+						"showDNRuleComponentDetailPage"
 					)
 				);
 				
