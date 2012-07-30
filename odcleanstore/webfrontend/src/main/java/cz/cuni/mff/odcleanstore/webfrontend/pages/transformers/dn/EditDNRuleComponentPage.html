@@ -1,0 +1,25 @@
+<wicket:extend>
+
+<div>
+	<a class="placedright" href="#" wicket:id="showDNRuleDetailPage">Back to the rule overview</a>
+	<div class="clear">&nbsp;</div>
+</div>
+
+<form wicket:id="editDNRuleComponentForm">
+	<p>
+		<label for="type">Type:</label>
+		<select wicket:id="type" id="type" class="required">
+		</select>
+	</p>
+	<p>
+		<label for="modification">Modification:</label>
+		<textarea wicket:id="modification" id="modification"></textarea>
+	</p>
+	<p>
+		<label for="description">Description:</label>
+		<textarea wicket:id="description" id="description"></textarea>
+	</p>
+	<input type="submit" value="Submit" />
+</form>
+
+</wicket:extend>
