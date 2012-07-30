@@ -49,7 +49,7 @@ public class DNRuleComponentDao extends DaoForEntityWithSurrogateKey<DNRuleCompo
 	{
 		String query = 
 			"SELECT C.id as id, ruleId, modification, C.description as description, " +
-			"CT.id as typeId, CT.label as typeLbl, CT.description as typeDescr,  " +
+			"CT.id as typeId, CT.label as typeLbl, CT.description as typeDescr " +
 			"FROM " + TABLE_NAME + " as C " +
 			"JOIN " + DNRuleComponentTypeDao.TABLE_NAME + " as CT " +
 			"ON CT.id = C.typeId ";
@@ -58,11 +58,27 @@ public class DNRuleComponentDao extends DaoForEntityWithSurrogateKey<DNRuleCompo
 	}
 	
 	@Override
+	public List<DNRuleComponent> loadAllRawBy(String columnName, Object value)
+	{
+		String query = 
+			"SELECT C.id as id, ruleId, modification, C.description as description, " +
+			"CT.id as typeId, CT.label as typeLbl, CT.description as typeDescr " +
+			"FROM " + TABLE_NAME + " as C " +
+			"JOIN " + DNRuleComponentTypeDao.TABLE_NAME + " as CT " +
+			"ON CT.id = C.typeId " +
+			"WHERE " + columnName + " = ?";
+		
+		Object[] params = { value };
+		
+		return getJdbcTemplate().query(query, params, getRowMapper());
+	}
+	
+	@Override
 	public DNRuleComponent load(Long id)
 	{
 		String query = 
 			"SELECT C.id as id, ruleId, modification, C.description as description, " +
-			"CT.id as typeId, CT.label as typeLbl, CT.description as typeDescr,  " +
+			"CT.id as typeId, CT.label as typeLbl, CT.description as typeDescr " +
 			"FROM " + TABLE_NAME + " as C " +
 			"JOIN " + DNRuleComponentTypeDao.TABLE_NAME + " as CT " +
 			"ON CT.id = C.typeId " +
