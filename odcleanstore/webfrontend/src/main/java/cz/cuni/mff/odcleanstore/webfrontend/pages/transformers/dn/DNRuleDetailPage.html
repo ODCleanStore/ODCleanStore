@@ -10,4 +10,34 @@
 	<span wicket:id="description">[description]</span>
 </div>
 
+<h2>Related components</h2>
+
+<div>
+	<a class="placedright" href="#" wicket:id="addNewComponentLink">Add a new rule component</a>
+	<div class="clear">&nbsp;</div>
+</div>
+
+<span wicket:id="navigator">[dataview navigator]</span>
+<table border="1">
+	
+	<tr>
+		<th>Type</th>
+		<th>Modification</th>
+		<th>Description</th>
+		<th>Action</th>
+	</tr>
+	
+	<tr  wicket:id="dnComponentsTable">
+	
+		<td wicket:id="type">[type]</td>
+		<td wicket:id="modification">[modification]</td>
+		<td wicket:id="description">[description]</td>
+		
+		<td class="centered">
+			<input wicket:id="deleteComponent" type="button" value="Delete" />
+			<input wicket:id="showEditDNRuleComponentPage" type="button" value="Edit" />
+		</td>
+	</tr>
+</table>
+
 </wicket:extend>

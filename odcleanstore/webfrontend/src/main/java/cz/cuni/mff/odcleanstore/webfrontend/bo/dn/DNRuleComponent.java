@@ -53,6 +53,15 @@ public class DNRuleComponent extends EntityWithSurrogateKey
 
 	/**
 	 * 
+	 * @param ruleId
+	 */
+	public void setRuleId(Long ruleId) 
+	{
+		this.ruleId = ruleId;
+	}
+
+	/**
+	 * 
 	 * @return
 	 */
 	public DNRuleComponentType getType() 
