@@ -1,9 +1,6 @@
 package cz.cuni.mff.odcleanstore.engine.pipeline;
 
-import java.util.Collection;
-
 import org.junit.Before;
-import org.junit.Test;
 
 /**
  *  @author Petr Jerman

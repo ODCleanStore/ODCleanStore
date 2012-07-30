@@ -1,10 +1,12 @@
 package cz.cuni.mff.odcleanstore.engine.inputws;
 
 import java.util.Collection;
+import java.util.LinkedList;
 
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
+import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.engine.InputGraphState;
-import cz.cuni.mff.odcleanstore.engine.common.SimpleVirtuosoAccess;
-import cz.cuni.mff.odcleanstore.engine.common.Utils;
 
 /**
  *  @author Petr Jerman
@@ -36,45 +38,48 @@ public final class ImportingInputGraphStates {
 	}
 
 	Collection<String> getAllImportingGraphUuids() throws Exception {
-		SimpleVirtuosoAccess sva = null;
+		VirtuosoConnectionWrapper con = null;
 		try {
-			sva = SimpleVirtuosoAccess.createCleanDBConnection();
+			con = VirtuosoConnectionWrapper.createTransactionalLevelConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
 			String sqlStatement = String.format("Select uuid from %s.EN_INPUT_GRAPHS WHERE state='IMPORTING'", DB_SCHEMA_PREFIX);
-			Collection<String[]> rows = sva.getRowFromSqlStatement(sqlStatement);
-			return Utils.selectColumn(rows, 0);
+			WrappedResultSet resultSet = con.executeSelect(sqlStatement);
+			LinkedList<String> retVal = new LinkedList<String>();
+			while(resultSet.next()) {
+				retVal.add(resultSet.getString(1));
+			}
+			return retVal;
 		} finally {
-			if (sva != null) {
-				sva.close();
+			if (con != null) {
+				con.close();
 			}
 		}
 	}
 
 	void deleteAllImportingGraphUuids() throws Exception {
-		SimpleVirtuosoAccess sva = null;
+		VirtuosoConnectionWrapper con = null;
 		try {
-			sva = SimpleVirtuosoAccess.createCleanDBConnection();
+			con = VirtuosoConnectionWrapper.createTransactionalLevelConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
 			String sqlStatement = String.format("Delete from %s.EN_INPUT_GRAPHS WHERE state='IMPORTING'", DB_SCHEMA_PREFIX);
-			sva.executeStatement(sqlStatement);
-			sva.commit();
+			con.execute(sqlStatement);
+			con.commit();
 		} finally {
-			if (sva != null) {
-				sva.close();
+			if (con != null) {
+				con.close();
 			}
 		}
 	}
 
 	synchronized String beginImportSession(String graphUuid, String pipelineName, Runnable interruptNotifyTask) throws Exception {
-
 		if (_actualImportingGraphUuid != null) {
 			throw new ServiceBusyException();
 		}
-		
-		SimpleVirtuosoAccess sva = null;
+		VirtuosoConnectionWrapper con = null; 
 		try {
-			sva = SimpleVirtuosoAccess.createCleanDBConnection();
-
+			con = VirtuosoConnectionWrapper.createTransactionalLevelConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
+			
 			String sqlStatement = String.format("Select uuid from %s.EN_INPUT_GRAPHS WHERE uuid='%s'", DB_SCHEMA_PREFIX, graphUuid);
-			if (sva.getRowFromSqlStatement(sqlStatement).size() != 0) {
+			WrappedResultSet resultSet = con.executeSelect(sqlStatement);
+			if (resultSet.next()) {
 				throw new DuplicatedUuid();
 			}
 			
@@ -84,23 +89,21 @@ public final class ImportingInputGraphStates {
 			else {
 				sqlStatement = String.format("Select id from %s.PIPELINES WHERE label='%s'", DB_SCHEMA_PREFIX, pipelineName);
 			}
-			
-			Collection<String[]> pipelineRows = sva.getRowFromSqlStatement(sqlStatement);
-			
-			if (pipelineRows.isEmpty()) {
+			resultSet = con.executeSelect(sqlStatement);
+			if (!resultSet.next()) {
 				throw pipelineName == null || pipelineName.isEmpty() ? new UnknownPipelineDefaultName(): new UnknownPipelineName();
 			}
+			String pipelineId = resultSet.getString(1);
 			
-			String pipelineId = pipelineRows.iterator().next()[0];
 			sqlStatement = String.format("Insert into %s.EN_INPUT_GRAPHS(uuid, pipelineId, state) VALUES('%s', '%s', '%s')", DB_SCHEMA_PREFIX, graphUuid, pipelineId , InputGraphState.IMPORTING);
-			sva.executeStatement(sqlStatement);
-			sva.commit();
+			con.execute(sqlStatement);
+			con.commit();
 
 			_actualImportingGraphUuid = graphUuid;
 			return graphUuid;
 		} finally {
-			if (sva != null) {
-				sva.close();
+			if (con != null) {
+				con.close();
 			}
 		}
 	}
@@ -110,16 +113,16 @@ public final class ImportingInputGraphStates {
 			throw new NoActiveImportSession();
 		}
 
-		SimpleVirtuosoAccess sva = null;
+		VirtuosoConnectionWrapper con = null;
 		try {
-			sva = SimpleVirtuosoAccess.createCleanDBConnection();
+			con = VirtuosoConnectionWrapper.createTransactionalLevelConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
 			String sqlStatement = String.format("Update %s.EN_INPUT_GRAPHS SET state='%s' WHERE uuid='%s'", DB_SCHEMA_PREFIX, InputGraphState.IMPORTED, importUuid);
-			sva.executeStatement(sqlStatement);
-			sva.commit();
+			con.execute(sqlStatement);
+			con.commit();
 			_actualImportingGraphUuid = null;
 		} finally {
-			if (sva != null) {
-				sva.close();
+			if (con != null) {
+				con.close();
 			}
 		}
 	}
@@ -129,16 +132,16 @@ public final class ImportingInputGraphStates {
 			throw new NoActiveImportSession();
 		}
 
-		SimpleVirtuosoAccess sva = null;
+		VirtuosoConnectionWrapper con = null;
 		try {
-			sva = SimpleVirtuosoAccess.createCleanDBConnection();
+			con = VirtuosoConnectionWrapper.createTransactionalLevelConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
 			String sqlStatement = String.format("Delete from %s.EN_INPUT_GRAPHS(uuid) VALUES('%s')", DB_SCHEMA_PREFIX, importUuid);
-			sva.executeStatement(sqlStatement);
-			sva.commit();
+			con.execute(sqlStatement);
+			con.commit();
 			_actualImportingGraphUuid = null;
 		} finally {
-			if (sva != null) {
-				sva.close();
+			if (con != null) {
+				con.close();
 			}
 		}
 	}

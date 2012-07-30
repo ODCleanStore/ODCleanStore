@@ -1,14 +1,11 @@
 package cz.cuni.mff.odcleanstore.engine.pipeline;
 
-import java.sql.Blob;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import cz.cuni.mff.odcleanstore.engine.common.RowListener;
-import cz.cuni.mff.odcleanstore.engine.common.SimpleVirtuosoAccess;
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
+import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 
 /**
  *  @author Petr Jerman
@@ -41,11 +38,11 @@ public final class TransformerCommand {
 
 	static Collection<TransformerCommand> getActualPlan(String dbSchemaPrefix, int pipelineId)
 			throws Exception {
-		SimpleVirtuosoAccess sva = null;
+		VirtuosoConnectionWrapper con = null;
 		try {
 			final ArrayList<TransformerCommand> commands = new ArrayList<TransformerCommand>();
 
-			sva = SimpleVirtuosoAccess.createCleanDBConnection();
+			con = VirtuosoConnectionWrapper.createTransactionalLevelConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
 			
 			String sqlStatement = String
 					.format("Select t.jarPath, t.fullClassName, ti.workDirPath, ti.configuration \n" +
@@ -55,32 +52,21 @@ public final class TransformerCommand {
 							"ORDER BY ti.priority",
 							dbSchemaPrefix, dbSchemaPrefix, dbSchemaPrefix, pipelineId);
 			
-			sva.processSqlStatementRows(sqlStatement, new RowListener() {
-
-				@Override
-				public void processRow(ResultSet rs, ResultSetMetaData metaData)
-						throws SQLException {
-					TransformerCommand tc = new TransformerCommand();
-					tc._jarPath = rs.getString("jarPath");
-					tc._workDirPath = rs.getString("workDirPath");
-					tc._fullClassName = rs.getString("fullClassName");
-
-					Blob configuration = rs.getBlob("configuration");
-					if (configuration != null) {
-						byte[] cbytes = configuration.getBytes(1, (int) configuration.length());
-						if (cbytes != null) {
-							tc._configuration = new String(cbytes);
-						}
-					}
-					commands.add(tc);
-				}
-			});
+			WrappedResultSet resultSet = con.executeSelect(sqlStatement);
+			while(resultSet.next()) {
+				TransformerCommand tc = new TransformerCommand();
+				tc._jarPath = resultSet.getString("jarPath");
+				tc._workDirPath = resultSet.getString("workDirPath");
+				tc._fullClassName = resultSet.getString("fullClassName");
+				tc._configuration = resultSet.getNString("configuration");
+				commands.add(tc);
+			}
 
 			return commands;
 
 		} finally {
-			if (sva != null) {
-				sva.close();
+			if (con != null) {
+				con.close();
 			}
 		}
 	}

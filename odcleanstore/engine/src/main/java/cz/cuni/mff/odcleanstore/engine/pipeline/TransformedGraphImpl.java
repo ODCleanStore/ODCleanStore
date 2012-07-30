@@ -16,6 +16,7 @@ public final class TransformedGraphImpl implements TransformedGraph {
 
 	private static class InputGraph {
 		public WorkingInputGraphStatus workingInputGraphStatus;
+		public int dbKeyId;
 		public String uuid;
 		public boolean isDeleted;
 		public int totalAttachedGraphsCount;
@@ -25,13 +26,14 @@ public final class TransformedGraphImpl implements TransformedGraph {
 	private TransformedGraphImpl _prevTransformedGraphImpl;
 	private ArrayList<String> _attachedGraphNames;
 
-	TransformedGraphImpl(WorkingInputGraphStatus workingInputGraphStatus, String uuid) {
-		if (workingInputGraphStatus == null || uuid == null) {
+	TransformedGraphImpl(WorkingInputGraphStatus workingInputGraphStatus,int dbKeyId, String uuid) {
+		if (workingInputGraphStatus == null || dbKeyId == 0) {
 			throw new IllegalArgumentException();
 		}
-
+		
 		_inputGraph = new InputGraph();
 		_inputGraph.workingInputGraphStatus = workingInputGraphStatus;
+		_inputGraph.dbKeyId = dbKeyId;
 		_inputGraph.uuid = uuid;
 		_inputGraph.isDeleted = false;
 		_inputGraph.totalAttachedGraphsCount = 0;
@@ -49,10 +51,14 @@ public final class TransformedGraphImpl implements TransformedGraph {
 		_prevTransformedGraphImpl = prevTransformedGraphImpl;
 		_attachedGraphNames = new ArrayList<String>();
 	}
-
+	
 	@Override
 	public String getGraphName() {
 		return ConfigLoader.getConfig().getBackendGroup().getDataGraphURIPrefix() + getGraphId();
+	}
+	
+	int getGraphDbKeyId() {
+		return _inputGraph.dbKeyId;
 	}
 
 	@Override
