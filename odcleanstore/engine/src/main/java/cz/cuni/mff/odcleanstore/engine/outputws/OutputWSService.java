@@ -51,12 +51,13 @@ public final class OutputWSService extends Service implements Runnable {
 			_component.getServers().add(Protocol.HTTP, outputWSConfig.getPort());
 			_component.getDefaultHost().attach(new Root(outputWSConfig));
 			_component.start();
-			setModuleState(ModuleState.RUNNING);
 			LOG.info("OutputWSService running");
+			setModuleState(ModuleState.RUNNING);
+			
 		} catch (Exception e) {
-			setModuleState(ModuleState.CRASHED);
 			String message = String.format("OutputWSService crashed - %s", e.getMessage());
 			LOG.fatal(message);
+			setModuleState(ModuleState.CRASHED);
 		}
 	}
 }

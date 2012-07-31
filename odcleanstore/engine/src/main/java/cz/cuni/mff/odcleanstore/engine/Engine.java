@@ -27,7 +27,7 @@ public final class Engine extends Module {
 			_engine.run(args);
 		}
 	}
-
+	
 	private ScheduledThreadPoolExecutor _executor;
 
 	private PipelineService _pipelineService;
@@ -62,7 +62,7 @@ public final class Engine extends Module {
 		checkJavaVersion();
 		loadConfiguration(args);
 	
-		_executor = new ScheduledThreadPoolExecutor(5);
+		_executor = new ScheduledThreadPoolExecutor(3);
 
 		_outputWSService = new OutputWSService(this);
 		_inputWSService = new InputWSService(this);
@@ -71,30 +71,15 @@ public final class Engine extends Module {
 
 	private void run(String[] args) {
 		try {
-			setModuleState(ModuleState.INITIALIZING);
 			LOG.info("Engine initializing");
+			setModuleState(ModuleState.INITIALIZING);
 			init(args);
-			setModuleState(ModuleState.RUNNING);
-			LOG.info("Engine running - start services");
-			startServices();
+			_executor.execute(_inputWSService);
 		} catch (Exception e) {
 			setModuleState(ModuleState.CRASHED);
 			String message = String.format("Engine crashed - %s", e.getMessage());
 			LOG.fatal(message);
 		}
-	}
-
-	private void startServices() {
-		_executor.execute(_outputWSService);
-		_executor.execute(_pipelineService);
-		_executor.execute(_inputWSService);
-
-		_executor.scheduleAtFixedRate(new Runnable() {
-			@Override
-			public void run() {
-				signalToPipelineService();
-			}
-		}, 1, 1, TimeUnit.SECONDS);
 	}
 	
 	@SuppressWarnings("unused")
@@ -109,6 +94,24 @@ public final class Engine extends Module {
 	}
 
 	void onServiceStateChanged(Service service) {
+		if (service == _inputWSService && service.getModuleState() == ModuleState.RUNNING) {
+			_executor.execute(_outputWSService);
+		
+			_executor.execute(_pipelineService);
+			_executor.scheduleAtFixedRate(new Runnable() {
+				@Override
+				public void run() {
+					signalToPipelineService();
+				}
+			}, 1, 1, TimeUnit.SECONDS);
+		}
+		else if (service == _inputWSService && service.getModuleState() == ModuleState.CRASHED) {
+			shutdown();
+		}
+		else if (service == _outputWSService && service.getModuleState() == ModuleState.RUNNING) {
+			LOG.info("Engine running");
+			setModuleState(ModuleState.RUNNING);
+		}
 	}
 
 	public static void signalToPipelineService() {

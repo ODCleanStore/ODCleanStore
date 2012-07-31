@@ -72,8 +72,8 @@ public final class PipelineService extends Service implements Runnable {
 					if (getModuleState() != ModuleState.NEW && getModuleState() != ModuleState.CRASHED) {
 						return;
 					}
-					setModuleState(ModuleState.INITIALIZING);
 					LOG.info("PipelineService initializing");
+					setModuleState(ModuleState.INITIALIZING);
 				}
 
 				_workingInputGraphStatus = new WorkingInputGraphStatus("DB.ODCLEANSTORE");
@@ -81,21 +81,22 @@ public final class PipelineService extends Service implements Runnable {
 
 				String graphsForRecoveryUuid = _workingInputGraphStatus.getWorkingTransformedGraphUuid();
 				if (graphsForRecoveryUuid != null) {
-					setModuleState(ModuleState.RECOVERY);
 					LOG.info("PipelineService starts recovery");
+					setModuleState(ModuleState.RECOVERY);
 					recovery(graphsForRecoveryUuid);
 				}
-				setModuleState(ModuleState.RUNNING);
 				LOG.info("PipelineService running");
+				setModuleState(ModuleState.RUNNING);
 				runPipeline();
-				setModuleState(ModuleState.STOPPED);
 				LOG.info("PipelineService stopped");
+				setModuleState(ModuleState.STOPPED);
+
 			} catch (Exception e) {
 				_workingInputGraphStatus.setWorkingTransformedGraph(null);
-				setModuleState(ModuleState.CRASHED);
 				String message = String.format("PipelineService crashed - %s", e.getMessage());
-				e.printStackTrace();
 				LOG.error(message);
+				e.printStackTrace();
+				setModuleState(ModuleState.CRASHED);
 			}
 		}
 	}
