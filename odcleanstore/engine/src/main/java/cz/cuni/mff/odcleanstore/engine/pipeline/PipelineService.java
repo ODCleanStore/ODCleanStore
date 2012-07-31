@@ -33,6 +33,8 @@ public final class PipelineService extends Service implements Runnable {
 	
 	private WorkingInputGraphStatus _workingInputGraphStatus;
 	private WorkingInputGraph _workingInputGraph;
+	
+	private int _pipelineWaitPenalty = 0;
 
 	public PipelineService(Engine engine) {
 		super(engine);
@@ -72,6 +74,10 @@ public final class PipelineService extends Service implements Runnable {
 					if (getModuleState() != ModuleState.NEW && getModuleState() != ModuleState.CRASHED) {
 						return;
 					}
+					
+					Thread.sleep(_pipelineWaitPenalty);
+					_pipelineWaitPenalty = 30000;
+
 					LOG.info("PipelineService initializing");
 					setModuleState(ModuleState.INITIALIZING);
 				}
@@ -83,8 +89,11 @@ public final class PipelineService extends Service implements Runnable {
 				if (graphsForRecoveryUuid != null) {
 					LOG.info("PipelineService starts recovery");
 					setModuleState(ModuleState.RECOVERY);
+					
 					recovery(graphsForRecoveryUuid);
 				}
+				
+				_pipelineWaitPenalty = 0;
 				LOG.info("PipelineService running");
 				setModuleState(ModuleState.RUNNING);
 				runPipeline();
@@ -102,7 +111,7 @@ public final class PipelineService extends Service implements Runnable {
 	}
 	
 	private void recovery(String uuid) throws Exception {
-
+		
 		InputGraphState state = _workingInputGraphStatus.getState(uuid);
 		BackendConfig backendConfig = ConfigLoader.getConfig().getBackendGroup();
 

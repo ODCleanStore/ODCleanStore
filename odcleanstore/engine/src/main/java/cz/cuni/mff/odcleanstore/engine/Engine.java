@@ -62,7 +62,7 @@ public final class Engine extends Module {
 		checkJavaVersion();
 		loadConfiguration(args);
 	
-		_executor = new ScheduledThreadPoolExecutor(3);
+		_executor = new ScheduledThreadPoolExecutor(4);
 
 		_outputWSService = new OutputWSService(this);
 		_inputWSService = new InputWSService(this);
@@ -76,41 +76,73 @@ public final class Engine extends Module {
 			init(args);
 			_executor.execute(_inputWSService);
 		} catch (Exception e) {
-			setModuleState(ModuleState.CRASHED);
-			String message = String.format("Engine crashed - %s", e.getMessage());
-			LOG.fatal(message);
+			try {
+				String message = String.format("Engine crashed - %s", e.getMessage());
+				LOG.fatal(message);
+				e.printStackTrace();
+				setModuleState(ModuleState.CRASHED);
+			}
+			finally {
+				shutdown();
+			}
 		}
 	}
 	
-	@SuppressWarnings("unused")
 	private void shutdown() {
-		_executor.shutdown();
-		_inputWSService.shutdown();
-		_pipelineService.shutdown();
-		_outputWSService.shutdown();
-		LOG.info("Engine shutdown");
-		LogManager.shutdown();
-		System.exit(0);
+		try {
+			_executor.shutdown();
+			_inputWSService.shutdown();
+			_pipelineService.shutdown();
+			_outputWSService.shutdown();
+			
+			//TODO : add DB connection shutdown
+			
+			LOG.info("Engine shutdown");
+			LogManager.shutdown();
+		} catch (Exception e) {
+			String message = String.format("Engine crashed - %s", e.getMessage());
+			LOG.fatal(message);
+			e.printStackTrace();
+			setModuleState(ModuleState.CRASHED);
+		} finally {
+			System.exit(0);
+		}
 	}
 
 	void onServiceStateChanged(Service service) {
-		if (service == _inputWSService && service.getModuleState() == ModuleState.RUNNING) {
-			_executor.execute(_outputWSService);
+		try {
+			if (service == _inputWSService && service.getModuleState() == ModuleState.RUNNING) {
+				_executor.execute(_outputWSService);
 		
-			_executor.execute(_pipelineService);
-			_executor.scheduleAtFixedRate(new Runnable() {
-				@Override
-				public void run() {
-					signalToPipelineService();
-				}
-			}, 1, 1, TimeUnit.SECONDS);
+				_executor.execute(_pipelineService);
+				_executor.scheduleAtFixedRate(new Runnable() {
+					@Override
+					public void run() {
+						signalToPipelineService();
+					}
+				}, 1, 1, TimeUnit.SECONDS);
+			}
+			else if (service == _inputWSService && service.getModuleState() == ModuleState.CRASHED) {
+				shutdown();
+			}
+			else if (service == _outputWSService && service.getModuleState() == ModuleState.RUNNING) {
+				LOG.info("Engine running");
+				setModuleState(ModuleState.RUNNING);
+			}
+			else if (service == _outputWSService && service.getModuleState() == ModuleState.CRASHED) {
+				shutdown();
+			}
 		}
-		else if (service == _inputWSService && service.getModuleState() == ModuleState.CRASHED) {
-			shutdown();
-		}
-		else if (service == _outputWSService && service.getModuleState() == ModuleState.RUNNING) {
-			LOG.info("Engine running");
-			setModuleState(ModuleState.RUNNING);
+		catch (Exception e) {
+			try {
+				String message = String.format("Engine crashed - %s", e.getMessage());
+				LOG.fatal(message);
+				e.printStackTrace();
+				setModuleState(ModuleState.CRASHED);
+			}
+			finally {
+				shutdown();
+			}
 		}
 	}
 
