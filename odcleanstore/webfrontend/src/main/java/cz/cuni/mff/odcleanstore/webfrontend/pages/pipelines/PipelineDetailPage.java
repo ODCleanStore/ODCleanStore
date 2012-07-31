@@ -14,6 +14,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
+import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
@@ -83,7 +84,12 @@ public class PipelineDetailPage extends FrontendPage
 	
 	private void addAssignmentTable(final Long pipelineId) 
 	{
-		IDataProvider<TransformerInstance> data = new TransformerInstanceDataProvider(transformerInstanceDao, pipelineId);
+		IDataProvider<TransformerInstance> data = new DependentDataProvider<TransformerInstance>
+		(
+			transformerInstanceDao, 
+			"pipelineId", 
+			pipelineId
+		);
 		
 		DataView<TransformerInstance> dataView = new DataView<TransformerInstance>("assignmentTable", data)
 		{

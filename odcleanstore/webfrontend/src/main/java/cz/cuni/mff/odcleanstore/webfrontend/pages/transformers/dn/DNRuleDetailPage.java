@@ -15,6 +15,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
+import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DetachableModel;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleComponentDao;
@@ -81,7 +82,11 @@ public class DNRuleDetailPage extends FrontendPage
 
 	private void addRuleComponentsTable(Long ruleId) 
 	{
-		IDataProvider<DNRuleComponent> data = new DNRuleComponentDataProvider(dnRuleComponentDao, ruleId);
+		IDataProvider<DNRuleComponent> data = new DependentDataProvider<DNRuleComponent>(
+			dnRuleComponentDao, 
+			"ruleId", 
+			ruleId
+		);
 		
 		DataView<DNRuleComponent> dataView = new DataView<DNRuleComponent>("dnComponentsTable", data)
 		{

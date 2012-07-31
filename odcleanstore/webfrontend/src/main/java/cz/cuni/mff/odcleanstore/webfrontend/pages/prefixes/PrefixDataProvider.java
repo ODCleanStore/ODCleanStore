@@ -57,6 +57,5 @@ public class PrefixDataProvider implements IDataProvider<Prefix>
 	public IModel<Prefix> model(Prefix object) 
 	{
 		return new DetachablePrefixModel(dao, object);
-		// return new Model<Prefix>(object);
 	}
 }
