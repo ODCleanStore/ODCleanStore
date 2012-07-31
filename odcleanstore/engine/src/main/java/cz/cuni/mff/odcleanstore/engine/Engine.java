@@ -3,6 +3,7 @@ package cz.cuni.mff.odcleanstore.engine;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
@@ -85,8 +86,8 @@ public final class Engine extends Module {
 
 	private void startServices() {
 		_executor.execute(_outputWSService);
-		_executor.execute(_inputWSService);
 		_executor.execute(_pipelineService);
+		_executor.execute(_inputWSService);
 
 		_executor.scheduleAtFixedRate(new Runnable() {
 			@Override
@@ -94,6 +95,17 @@ public final class Engine extends Module {
 				signalToPipelineService();
 			}
 		}, 1, 1, TimeUnit.SECONDS);
+	}
+	
+	@SuppressWarnings("unused")
+	private void shutdown() {
+		_executor.shutdown();
+		_inputWSService.shutdown();
+		_pipelineService.shutdown();
+		_outputWSService.shutdown();
+		LOG.info("Engine shutdown");
+		LogManager.shutdown();
+		System.exit(0);
 	}
 
 	void onServiceStateChanged(Service service) {

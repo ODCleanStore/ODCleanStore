@@ -37,6 +37,10 @@ public final class PipelineService extends Service implements Runnable {
 	public PipelineService(Engine engine) {
 		super(engine);
 	}
+	
+	@Override
+	public void shutdown() {
+	}
 
 	private Object fromInputWSLocks = new Object();
 
@@ -59,7 +63,7 @@ public final class PipelineService extends Service implements Runnable {
 			}
 		}
 	}
-
+	
 	@Override
 	public void run() {
 		while (true) {
@@ -95,7 +99,7 @@ public final class PipelineService extends Service implements Runnable {
 			}
 		}
 	}
-
+	
 	private void recovery(String uuid) throws Exception {
 
 		InputGraphState state = _workingInputGraphStatus.getState(uuid);

@@ -22,6 +22,16 @@ public final class OutputWSService extends Service implements Runnable {
 	}
 
 	private Component _component;
+	
+	@Override
+	public void shutdown() {
+		try {
+			if(_component != null) {
+				_component.stop();
+			}
+		} catch (Exception e) {
+		}
+	}
 
 	@Override
 	public void run() {

@@ -20,9 +20,18 @@ import cz.cuni.mff.odcleanstore.engine.common.Utils.DirectoryException;
 public final class InputWSService extends Service implements Runnable {
 
 	private static final Logger LOG = Logger.getLogger(InputWSService.class);
+	
+	private Endpoint _endpoint;
 
 	public InputWSService(Engine engine) {
 		super(engine);
+	}
+	
+	@Override
+	public void shutdown() {
+		if(_endpoint != null) {
+			_endpoint.stop();
+		}
 	}
 
 	@Override
@@ -38,7 +47,7 @@ public final class InputWSService extends Service implements Runnable {
 			initialize();
 			setModuleState(ModuleState.RECOVERY);
 			recovery();
-			Endpoint.publish(ConfigLoader.getConfig().getInputWSGroup().getEndpointURL().toString(), new InputWS());
+			_endpoint = Endpoint.publish(ConfigLoader.getConfig().getInputWSGroup().getEndpointURL().toString(), new InputWS());
 			setModuleState(ModuleState.RUNNING);
 			LOG.info("InputWSService running");
 		} catch (Exception e) {

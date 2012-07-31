@@ -35,6 +35,7 @@ public class InputWS implements IInputWS {
 			@WebParam(name = "payload") String payload) throws InsertException {
 
 		LOG.info("InputWS webservice starts processing for input");
+		
 		try {
 			if (user == null || password == null || !user.equals("scraper") || !password.equals("reparcs")) {
 				throw InsertException.BAD_CREDENTIALS;
