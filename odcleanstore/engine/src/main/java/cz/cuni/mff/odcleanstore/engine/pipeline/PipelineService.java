@@ -265,44 +265,33 @@ public final class PipelineService extends Service implements Runnable {
 	}
 
 	private void processTransformer(TransformerCommand transformerCommand, TransformedGraphImpl transformedGraphImpl) throws Exception {
-		try {
-			_currentTransformer = null;
+		_currentTransformer = null;
 		
-			if (!transformerCommand.getJarPath().equals(".")) {
-				_currentTransformer = loadCustomTransformer(transformerCommand);
-			}
-			else {
-				if (transformerCommand.getFullClassName().equals("cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl")) {
-					_currentTransformer = new cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl(ConfigLoader.getConfig().getObjectIdentificationConfig());
-				} else if (transformerCommand.getFullClassName().equals("cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl")) {
-					//TODO: This is HOTFIX. Engine needs to pass proper groupIds or groupLabels in constructor of QAImpl
-					//This only makes common ids be selected (as groupId is IDENTITY (AUTOINCREMENT starting at 1))
-					_currentTransformer = new cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl(0, 1, 2, 3, 4, 5);
-				}	
-			}
+		if (!transformerCommand.getJarPath().equals(".")) {
+			_currentTransformer = loadCustomTransformer(transformerCommand);
+		}
+		else {
+			if (transformerCommand.getFullClassName().equals("cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl")) {
+				_currentTransformer = new cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl(ConfigLoader.getConfig().getObjectIdentificationConfig());
+			} else if (transformerCommand.getFullClassName().equals("cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl")) {
+				//TODO: This is HOTFIX. Engine needs to pass proper groupIds or groupLabels in constructor of QAImpl
+				//This only makes common ids be selected (as groupId is IDENTITY (AUTOINCREMENT starting at 1))
+				_currentTransformer = new cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl(0, 1, 2, 3, 4, 5);
+			}	
+		}
 
-			if (_currentTransformer != null) {
-				String path = checkTransformerWorkingDirectory(transformerCommand.getWorkDirPath());
-				TransformationContextImpl context = new TransformationContextImpl(transformerCommand.getConfiguration(), path);
+		if (_currentTransformer != null) {
+			String path = checkTransformerWorkingDirectory(transformerCommand.getWorkDirPath());
+			TransformationContextImpl context = new TransformationContextImpl(transformerCommand.getConfiguration(), path);
 
-				_workingInputGraphStatus.setWorkingTransformedGraph(transformedGraphImpl);
-				_currentTransformer.transformNewGraph(transformedGraphImpl, context);
-				LOG.info(String.format("PipelineService ends proccesing %s transformer on graph %s", transformerCommand.getFullClassName(), transformedGraphImpl.getGraphId()));
-				_workingInputGraphStatus.setWorkingTransformedGraph(null);
-			} else {
-				LOG.warn(String.format("PipelineService - unknown transformer %s ignored", transformerCommand.getFullClassName()));
-			}
-		} finally {
-			try {
-				Transformer currentTransformer = _currentTransformer;
-				_currentTransformer = null;
-				if (currentTransformer != null) {
-					currentTransformer.shutdown();
-				}
-			}
-			catch(Exception e) {
-				LOG.warn(String.format("PipelineService - shutdown transformer %s error", transformerCommand.getFullClassName()));
-			}
+			_workingInputGraphStatus.setWorkingTransformedGraph(transformedGraphImpl);
+			_currentTransformer.transformNewGraph(transformedGraphImpl, context);
+			_currentTransformer.shutdown();
+			_currentTransformer = null;
+			LOG.info(String.format("PipelineService ends proccesing %s transformer on graph %s", transformerCommand.getFullClassName(), transformedGraphImpl.getGraphId()));
+			_workingInputGraphStatus.setWorkingTransformedGraph(null);
+		} else {
+			LOG.warn(String.format("PipelineService - unknown transformer %s ignored", transformerCommand.getFullClassName()));
 		}
 	}
 	
