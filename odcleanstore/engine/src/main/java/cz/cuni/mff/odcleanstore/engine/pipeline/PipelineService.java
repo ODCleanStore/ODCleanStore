@@ -20,7 +20,6 @@ import cz.cuni.mff.odcleanstore.engine.common.ModuleState;
 import cz.cuni.mff.odcleanstore.engine.common.Utils;
 import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.Metadata;
 import cz.cuni.mff.odcleanstore.transformer.Transformer;
-import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 import cz.cuni.mff.odcleanstore.vocabulary.DC;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.W3P;
@@ -86,6 +85,7 @@ public final class PipelineService extends Service implements Runnable {
 					}
 					
 					Thread.sleep(_pipelineWaitPenalty);
+					// TODO pridat parametr do config
 					_pipelineWaitPenalty = 30000;
 
 					LOG.info("PipelineService initializing");

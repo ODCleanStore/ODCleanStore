@@ -7,6 +7,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.engine.common.Module;
 import cz.cuni.mff.odcleanstore.engine.common.ModuleState;
 import cz.cuni.mff.odcleanstore.engine.inputws.InputWSService;
@@ -90,12 +91,14 @@ public final class Engine extends Module {
 	
 	private void shutdown() {
 		try {
+			// TODO pridat timeout a parametr do config
+			LOG.info("Engine shutdown init");
 			_executor.shutdown();
 			_inputWSService.shutdown();
 			_pipelineService.shutdown();
 			_outputWSService.shutdown();
 			
-			//TODO : add DB connection shutdown
+		    VirtuosoConnectionWrapper.shutdown();
 			
 			LOG.info("Engine shutdown");
 			LogManager.shutdown();
