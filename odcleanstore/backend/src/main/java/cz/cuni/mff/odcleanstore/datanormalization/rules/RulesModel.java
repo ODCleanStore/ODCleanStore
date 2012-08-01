@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import virtuoso.jena.driver.VirtModel;
 
+import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.query.QueryException;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
@@ -66,7 +67,7 @@ public class RulesModel {
 	private static final String ontologyResourceQueryFormat = "SELECT ?s WHERE {?s ?p ?o} GROUP BY ?s";
 	private static final String deleteRulesByOntologyFormat = "DELETE FROM DB.ODCLEANSTORE.DN_RULES WHERE id IN " +
 			"(SELECT ruleId AS id FROM DB.ODCLEANSTORE.DN_RULES_TO_ONTOLOGIES_MAP WHERE ontology = ?)";
-	private static final String insertConvertedPropertyValueFormat = "{?s <%s> ?x} WHERE {GRAPH $$graph$$ {SELECT ?s <%s> <%s>(str(?o)) AS ?x WHERE {?s ?p ?o}}}";
+	private static final String insertConvertedPropertyValueFormat = "{?s <%s> ?x} WHERE {GRAPH $$graph$$ {SELECT ?s <%s>(str(?o)) AS ?x WHERE {?s <%s> ?o}}}";
 	private static final String deleteUnconvertedPropertyValueFormat = "{?s <%s> ?o} WHERE {GRAPH $$graph$$ {?s <%s> ?o. FILTER (?o != <%s>(str(?o)))}}";
 	private static final String insertRuleFormat = "INSERT INTO DB.ODCLEANSTORE.DN_RULES (groupId, description) VALUES (?, ?)";
 	private static final String lastIdQueryFormat = "SELECT identity_value() AS id";
@@ -250,20 +251,47 @@ public class RulesModel {
 	 * @throws DataNormalizationException
 	 */
 	private void processOntologyResource(Resource resource, Model model, String ontology, Integer groupId) throws DataNormalizationException {
-		/**
-		 * Correct date formats ("YYYY" to "YYYY-MM-DD" etc.)
-		 */
-		if (model.contains(resource, RDFS.range, XSD.date)) {
-			Rule rule = new Rule(null, groupId, "Convert " + resource.getLocalName() + " into " + XSD.date.getLocalName(),
-					"INSERT",
-					String.format(insertConvertedPropertyValueFormat, resource.getURI(), resource.getURI(), XPathFunctions.dateFunction),
-					"Create proper " + XSD.date.getLocalName() + " value for the property " + resource.getURI(),
-					
-					"DELETE",
-					String.format(deleteUnconvertedPropertyValueFormat, resource.getURI(), resource.getURI(), XPathFunctions.dateFunction),
-					"Remove all improper values of the property " + resource.getURI());
+		if (model.contains(resource, RDFS.range, model.asRDFNode(Node.ANY))) {
+			boolean knownConversion = false;
+
+			String insert = null;
+			String delete = null;
+			String datatype = null;
 			
-			storeRule(rule, ontology);
+			/**
+			 * Correct string
+			 */
+			if (model.contains(resource, RDFS.range, XSD.xstring)) {
+				knownConversion = true;
+
+				insert = String.format(insertConvertedPropertyValueFormat, resource.getURI(), XPathFunctions.stringFunction, resource.getURI());
+				delete = String.format(deleteUnconvertedPropertyValueFormat, resource.getURI(), resource.getURI(), XPathFunctions.stringFunction);
+				datatype = XSD.xstring.getLocalName();
+			}
+			
+			/**
+			 * Correct date formats ("YYYY" to "YYYY-MM-DD" etc.)
+			 */
+			if (model.contains(resource, RDFS.range, XSD.date)) {
+				knownConversion = true;
+
+				insert = String.format(insertConvertedPropertyValueFormat, resource.getURI(), XPathFunctions.dateFunction, resource.getURI());
+				delete = String.format(deleteUnconvertedPropertyValueFormat, resource.getURI(), resource.getURI(), XPathFunctions.dateFunction);
+				datatype = XSD.date.getLocalName();
+			}
+
+			if (knownConversion) {
+				Rule rule = new Rule(null, groupId, "Convert " + resource.getLocalName() + " into " + datatype,
+						"INSERT",
+						insert,
+						"Create proper " + datatype + " value for the property " + resource.getURI(),
+						
+						"DELETE",
+						delete,
+						"Remove all improper values of the property " + resource.getURI());
+				
+				storeRule(rule, ontology);
+			}
 		}
 	}
 

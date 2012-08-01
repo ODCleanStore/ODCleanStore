@@ -25,5 +25,6 @@ public final class XPathFunctions {
 
     // CHECKSTYLE:OFF
     public static final String dateFunction = "http://www.w3.org/2005/xpath-functions:date";
+    public static final String stringFunction = "http://www.w3.org/2005/xpath-functions:string";
     // CHECKSTYLE:ON
 }
