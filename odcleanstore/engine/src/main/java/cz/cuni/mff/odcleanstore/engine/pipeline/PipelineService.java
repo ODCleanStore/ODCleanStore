@@ -130,6 +130,7 @@ public final class PipelineService extends Service implements Runnable {
 			_workingInputGraph.deleteGraphsFromDirtyDB(_workingInputGraphStatus.getWorkingAttachedGraphNames());
 			_workingInputGraph.deleteGraphFromDirtyDB(backendConfig.getDataGraphURIPrefix() + uuid);
 			_workingInputGraph.deleteGraphFromDirtyDB(backendConfig.getMetadataGraphURIPrefix() + uuid);
+			_workingInputGraph.deleteGraphFromDirtyDB(backendConfig.getProvenanceMetadataGraphURIPrefix() + uuid);
 
 			_workingInputGraphStatus.deleteWorkingAttachedGraphNames();
 			_workingInputGraphStatus.setState(uuid, InputGraphState.IMPORTED);
@@ -149,7 +150,8 @@ public final class PipelineService extends Service implements Runnable {
 			_workingInputGraph.deleteGraphsFromDirtyDB(_workingInputGraphStatus.getWorkingAttachedGraphNames());
 			_workingInputGraph.deleteGraphFromDirtyDB(backendConfig.getDataGraphURIPrefix() + uuid);
 			_workingInputGraph.deleteGraphFromDirtyDB(backendConfig.getMetadataGraphURIPrefix() + uuid);
-
+			_workingInputGraph.deleteGraphFromDirtyDB(backendConfig.getProvenanceMetadataGraphURIPrefix() + uuid);
+			
 			_workingInputGraphStatus.deleteWorkingAttachedGraphNames();
 			_workingInputGraphStatus.setState(uuid, InputGraphState.WRONG);
 			LOG.info("PipelineService ends recovery from crashed pipeline proccesing");
@@ -158,7 +160,6 @@ public final class PipelineService extends Service implements Runnable {
 	}
 
 	private void runPipeline() throws Exception {
-		
 		String uuid = null;
 
 		while ((uuid = waitForInput()) != null) {
@@ -305,11 +306,17 @@ public final class PipelineService extends Service implements Runnable {
 
 	private void processDeletingState(String uuid) throws Exception {
 		BackendConfig backendConfig = ConfigLoader.getConfig().getBackendGroup();
-		_workingInputGraph.deleteGraphsFromDirtyDB(_workingInputGraphStatus.getWorkingAttachedGraphNames());
-		_workingInputGraph.deleteGraphFromDirtyDB(backendConfig.getDataGraphURIPrefix() + uuid);
-		_workingInputGraph.deleteGraphFromDirtyDB(backendConfig.getMetadataGraphURIPrefix() + uuid);
-		_workingInputGraph.deleteGraphFromDirtyDB(backendConfig.getProvenanceMetadataGraphURIPrefix() + uuid);
-
+		ArrayList<String> graphs = new ArrayList<String>();
+		graphs.addAll(_workingInputGraphStatus.getWorkingAttachedGraphNames());
+		graphs.add(backendConfig.getDataGraphURIPrefix() + uuid);
+		graphs.add(backendConfig.getMetadataGraphURIPrefix() + uuid);
+		graphs.add(backendConfig.getProvenanceMetadataGraphURIPrefix() + uuid);
+		_workingInputGraph.deleteGraphsFromDirtyDB(graphs);
+		
+		String inputDirPath = ConfigLoader.getConfig().getInputWSGroup().getInputDirPath();
+		File inputFile = new File(inputDirPath + uuid + ".dat");
+		inputFile.delete();
+		
 		_workingInputGraphStatus.deleteGraphAndWorkingAttachedGraphNames(uuid);
 		LOG.info(String.format("PipelineService ends deleting graph %s", uuid));
 	}
@@ -334,13 +341,12 @@ public final class PipelineService extends Service implements Runnable {
 		graphs.add(backendConfig.getDataGraphURIPrefix() + uuid);
 		graphs.add(backendConfig.getMetadataGraphURIPrefix() + uuid);
 		graphs.add(backendConfig.getProvenanceMetadataGraphURIPrefix() + uuid);
-
 		_workingInputGraph.deleteGraphsFromDirtyDB(graphs);
+		
 		String inputDirPath = ConfigLoader.getConfig().getInputWSGroup().getInputDirPath();
 		File inputFile = new File(inputDirPath + uuid + ".dat");
 		inputFile.delete();
 
-		_workingInputGraphStatus.deleteWorkingAttachedGraphNames();
 		_workingInputGraphStatus.setState(uuid, InputGraphState.FINISHED);
 		LOG.info(String.format("PipelineService has finished graph %s", uuid));
 	}

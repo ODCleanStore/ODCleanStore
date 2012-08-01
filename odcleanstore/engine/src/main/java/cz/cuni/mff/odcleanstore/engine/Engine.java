@@ -93,10 +93,19 @@ public final class Engine extends Module {
 		try {
 			// TODO pridat timeout a parametr do config
 			LOG.info("Engine shutdown init");
-			_executor.shutdown();
-			_inputWSService.shutdown();
-			_pipelineService.shutdown();
-			_outputWSService.shutdown();
+			
+			if(_executor != null) {
+				_executor.shutdown();
+			}
+			if(_inputWSService != null) {
+				_inputWSService.shutdown();
+			}
+			if(_pipelineService != null) {
+				_pipelineService.shutdown();
+			}
+			if(_outputWSService != null) {
+				_outputWSService.shutdown();
+			}
 			
 		    VirtuosoConnectionWrapper.shutdown();
 			
