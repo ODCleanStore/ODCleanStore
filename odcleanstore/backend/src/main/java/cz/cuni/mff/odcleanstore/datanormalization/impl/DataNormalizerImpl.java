@@ -44,7 +44,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 	public static void main(String[] args) {
 		try {
 			ConfigLoader.loadConfig();
-			Map<String, GraphModification> result = new DataNormalizerImpl(0).debugRules(new FileInputStream(System.getProperty("user.home") + "/odcleanstore/debugDN.ttl"),
+			Map<String, GraphModification> result = new DataNormalizerImpl("Group 1").debugRules(new FileInputStream(System.getProperty("user.home") + "/odcleanstore/debugDN.ttl"),
 					prepareContext(
 							new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba"),
 							new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1112/UID=dba/PWD=dba", "dba", "dba")));

@@ -24,6 +24,7 @@ public final class XPathFunctions {
     /* Vocabulary properties: */
 
     // CHECKSTYLE:OFF
+    public static final String boolFunction = "http://www.w3.org/2005/xpath-functions:boolean";
     public static final String dateFunction = "http://www.w3.org/2005/xpath-functions:date";
     public static final String stringFunction = "http://www.w3.org/2005/xpath-functions:string";
     // CHECKSTYLE:ON

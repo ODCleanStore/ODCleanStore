@@ -69,8 +69,19 @@ public class RulesModel {
 	private static final String ontologyResourceQueryFormat = "SELECT ?s WHERE {?s ?p ?o} GROUP BY ?s";
 	private static final String deleteRulesByOntologyFormat = "DELETE FROM DB.ODCLEANSTORE.DN_RULES WHERE id IN " +
 			"(SELECT ruleId AS id FROM DB.ODCLEANSTORE.DN_RULES_TO_ONTOLOGIES_MAP WHERE ontology = ?)";
-	private static final String insertConvertedPropertyValueFormat = "{?s <%s> ?x} WHERE {GRAPH $$graph$$ {SELECT ?s <%s>(str(?o)) AS ?x WHERE {?s <%s> ?o}}}";
-	private static final String deleteUnconvertedPropertyValueFormat = "{?s <%s> ?o} WHERE {GRAPH $$graph$$ {?s <%s> ?o. FILTER (?o != <%s>(str(?o)))}}";
+	
+	private static final String boolTruePattern = "?o = '1' OR lcase(str(?o)) = 'true' OR lcase(str(?o)) = 'yes' OR lcase(str(?o)) = 't' OR lcase(str(?o)) = 'y'";
+	private static final String boolFalsePattern = "?o = '0' OR lcase(str(?o)) = 'false' OR lcase(str(?o)) = 'no' OR lcase(str(?o)) = 'f' OR lcase(str(?o)) = 'n'";
+	private static final String insertConvertedTruePropertyValueFormat = "{?s <%s> ?t} WHERE {GRAPH $$graph$$ {SELECT ?s <%s>(1) AS ?t WHERE {?s <%s> ?o. FILTER (" + boolTruePattern + ")}}}";
+	private static final String insertConvertedFalsePropertyValueFormat = "{?s <%s> ?f} WHERE {GRAPH $$graph$$ {SELECT ?s <%s>(0) AS ?f WHERE {?s <%s> ?o. FILTER (" + boolFalsePattern + ")}}}";
+	private static final String deleteUnconvertedBoolPropertyValueFormat = "{?s <%s> ?o} WHERE {GRAPH $$graph$$ {?s <%s> ?o. FILTER (" + boolTruePattern + " OR " + boolFalsePattern + ")}}";
+	
+	private static final String insertConvertedStringPropertyValueFormat = "{?s <%s> ?x} WHERE {GRAPH $$graph$$ {SELECT ?s <%s>(str(?o)) AS ?x WHERE {?s <%s> ?o}}}";
+	private static final String deleteUnconvertedStringPropertyValueFormat = "{?s <%s> ?o} WHERE {GRAPH $$graph$$ {?s <%s> ?o. FILTER (?o != <%s>(str(?o)))}}";
+	
+	private static final String insertConvertedDatePropertyValueFormat = "{?s <%s> ?x} WHERE {GRAPH $$graph$$ {SELECT ?s <%s>(str(?o)) AS ?x WHERE {?s <%s> ?o}}}";
+	private static final String deleteUnconvertedDatePropertyValueFormat = "{?s <%s> ?o} WHERE {GRAPH $$graph$$ {?s <%s> ?o. FILTER (?o != <%s>(str(?o)))}}";
+	
 	private static final String insertRuleFormat = "INSERT INTO DB.ODCLEANSTORE.DN_RULES (groupId, description) VALUES (?, ?)";
 	private static final String lastIdQueryFormat = "SELECT identity_value() AS id";
 	private static final String insertComponentFormat = "INSERT INTO DB.ODCLEANSTORE.DN_RULE_COMPONENTS (ruleId, typeId, modification, description) " +
@@ -254,43 +265,57 @@ public class RulesModel {
 	 */
 	private void processOntologyResource(Resource resource, Model model, String ontology, Integer groupId) throws DataNormalizationException {
 		if (model.contains(resource, RDFS.range, model.asRDFNode(Node.ANY))) {
-			boolean knownConversion = false;
+	
+			/**
+			 * Correct boolean
+			 */
+			if (model.contains(resource, RDFS.range, XSD.xboolean)) {
+				Rule rule = new Rule(null, groupId, "Convert " + resource.getLocalName() + " into " + XSD.xstring.getLocalName(),
+						"INSERT",
+						String.format(insertConvertedTruePropertyValueFormat, resource.getURI(), XPathFunctions.boolFunction, resource.getURI()),
+						"Create proper " + XSD.xboolean.getLocalName() + " value for the property " + resource.getURI() + " (\"1\", \"true\", ...)",
+						
+						"INSERT",
+						String.format(insertConvertedFalsePropertyValueFormat, resource.getURI(), XPathFunctions.boolFunction, resource.getURI()),
+						"Create proper " + XSD.xboolean.getLocalName() + " value for the property " + resource.getURI() + " (\"0\", \"false\", ...)",
+						
+						"DELETE",
+						String.format(deleteUnconvertedBoolPropertyValueFormat, resource.getURI(), resource.getURI()),
+						"Remove all improper values of the property " + resource.getURI());
+				
+				storeRule(rule, ontology);
+			}
 
-			String insert = null;
-			String delete = null;
-			String datatype = null;
-			
 			/**
 			 * Correct string
 			 */
-			if (model.contains(resource, RDFS.range, XSD.xstring)) {
-				knownConversion = true;
-
-				insert = String.format(insertConvertedPropertyValueFormat, resource.getURI(), XPathFunctions.stringFunction, resource.getURI());
-				delete = String.format(deleteUnconvertedPropertyValueFormat, resource.getURI(), resource.getURI(), XPathFunctions.stringFunction);
-				datatype = XSD.xstring.getLocalName();
+			if (model.contains(resource, RDFS.range, XSD.xstring)) {			
+				Rule rule = new Rule(null, groupId, "Convert " + resource.getLocalName() + " into " + XSD.xstring.getLocalName(),
+						"INSERT",
+						String.format(insertConvertedStringPropertyValueFormat, resource.getURI(), XPathFunctions.stringFunction, resource.getURI()),
+						"Create proper " + XSD.xstring.getLocalName() + " value for the property " + resource.getURI(),
+						
+						"DELETE",
+						String.format(deleteUnconvertedStringPropertyValueFormat, resource.getURI(), resource.getURI(), XPathFunctions.stringFunction),
+						"Remove all improper values of the property " + resource.getURI());
+				
+				storeRule(rule, ontology);
 			}
-			
+
 			/**
 			 * Correct date formats ("YYYY" to "YYYY-MM-DD" etc.)
 			 */
 			if (model.contains(resource, RDFS.range, XSD.date)) {
-				knownConversion = true;
-
-				insert = String.format(insertConvertedPropertyValueFormat, resource.getURI(), XPathFunctions.dateFunction, resource.getURI());
-				delete = String.format(deleteUnconvertedPropertyValueFormat, resource.getURI(), resource.getURI(), XPathFunctions.dateFunction);
-				datatype = XSD.date.getLocalName();
-			}
-
-			if (knownConversion) {
-				Rule rule = new Rule(null, groupId, "Convert " + resource.getLocalName() + " into " + datatype,
+				Rule rule = new Rule(null, groupId, "Convert " + resource.getLocalName() + " into " + XSD.date.getLocalName(),
 						"INSERT",
-						insert,
-						"Create proper " + datatype + " value for the property " + resource.getURI(),
+						String.format(insertConvertedDatePropertyValueFormat, resource.getURI(), XPathFunctions.dateFunction, resource.getURI()),
+						"Create proper " + XSD.date.getLocalName() + " value for the property " + resource.getURI(),
 						
 						"DELETE",
-						delete,
+						String.format(deleteUnconvertedDatePropertyValueFormat, resource.getURI(), resource.getURI(), XPathFunctions.dateFunction),
 						"Remove all improper values of the property " + resource.getURI());
+				
+				storeRule(rule, ontology);
 				
 				storeRule(rule, ontology);
 			}
