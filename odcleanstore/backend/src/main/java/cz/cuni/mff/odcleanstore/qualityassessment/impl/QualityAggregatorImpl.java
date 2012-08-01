@@ -7,6 +7,7 @@ import java.util.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
@@ -30,6 +31,7 @@ public class QualityAggregatorImpl implements QualityAggregator {
 	
 	public static void main(String[] args) {
 		try {
+			ConfigLoader.loadConfig();
 			new QualityAggregatorImpl().transformNewGraph(new TransformedGraph () {
 
 				@Override
@@ -117,7 +119,7 @@ public class QualityAggregatorImpl implements QualityAggregator {
 	private final static String dropOutdatedQueryFormat = "SPARQL DELETE FROM <null> {?publisher <" + ODCS.publisherScore + "> ?score} WHERE {?publisher <" + ODCS.publisherScore + "> ?score. FILTER (?publisher = <%s>)}";
 	private final static String computeSumUpdatedQueryFormat = "SPARQL SELECT SUM(?score) WHERE {?graph <" + ODCS.score + "> ?score; <" + W3P.publishedBy + "> <%s>}";
 	private final static String computeCountUpdatedQueryFormat = "SPARQL SELECT COUNT(?score) WHERE {?graph <" + ODCS.score + "> ?score; <" + W3P.publishedBy + "> <%s>}";
-	private final static String storeUpdatedQueryFormat = "SPARQL INSERT DATA INTO <null> {<%s> <" + ODCS.publisherScore + "> \"%f\"^^<" + XMLSchema.doubleType + ">}";
+	private final static String storeUpdatedQueryFormat = "SPARQL INSERT DATA INTO <%s> {<%s> <" + ODCS.publisherScore + "> \"%f\"^^<" + XMLSchema.doubleType + ">}";
 	private final static String graphPublisherQueryFormat = "SPARQL SELECT ?publisher FROM <%s> WHERE {<%s> <" + W3P.publishedBy + "> ?publisher}";
 	private final static String graphScoreQueryFormat = "SPARQL SELECT ?score FROM <%s> WHERE {<%s> <" + ODCS.score + "> ?score}";
 	
@@ -211,7 +213,7 @@ public class QualityAggregatorImpl implements QualityAggregator {
 					final String dropOutdated = String.format(dropOutdatedQueryFormat, publisher);
 					getCleanConnection().execute(dropOutdated);
 
-					final String storeUpdated = String.format(storeUpdatedQueryFormat, publisher, score);
+					final String storeUpdated = String.format(storeUpdatedQueryFormat, ConfigLoader.getConfig().getQualityAssessmentGroup().getAggregatedPublisherScoreGraphURI(), publisher, score);
 					getCleanConnection().execute(storeUpdated);
 					
 					getCleanConnection().commit();
