@@ -89,7 +89,7 @@ public class NewDNRuleComponentPage extends FrontendPage
 		};
 		
 		form.add(createEnumSelectbox(dnRuleComponentTypeDao, "type"));
-		form.add(createTextarea("modification", false));
+		form.add(createTextarea("modification", true));
 		form.add(createTextarea("description", false));
 		
 		add(form);

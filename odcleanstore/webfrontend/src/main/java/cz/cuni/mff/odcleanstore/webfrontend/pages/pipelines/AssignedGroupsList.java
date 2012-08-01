@@ -5,6 +5,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.RulesGroupEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.RuleAssignment;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
+import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
@@ -62,7 +63,12 @@ public class AssignedGroupsList extends Panel
 		final Long transformerInstanceId, 
 		final Class<? extends FrontendPage> groupDetailPageClass) 
 	{
-		IDataProvider<RuleAssignment> data = new AssignedGroupsDataProvider(assignedGroupsDao, transformerInstanceId);
+		IDataProvider<RuleAssignment> data = new DependentDataProvider<RuleAssignment>
+		(
+			assignedGroupsDao, 
+			"transformerInstanceId", 
+			transformerInstanceId
+		); 
 		
 		DataView<RuleAssignment> dataView = new DataView<RuleAssignment>("assignmentTable", data)
 		{

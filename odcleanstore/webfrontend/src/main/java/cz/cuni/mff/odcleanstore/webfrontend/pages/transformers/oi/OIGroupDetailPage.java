@@ -14,6 +14,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
+import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
@@ -69,7 +70,7 @@ public class OIGroupDetailPage extends FrontendPage
 
 	private void addOIRulesTable(final Long groupId) 
 	{		
-		IDataProvider<OIRule> data = new OIRuleDataProvider(oiRuleDao, groupId);
+		IDataProvider<OIRule> data = new DependentDataProvider<OIRule>(oiRuleDao, "groupId", groupId);
 		
 		DataView<OIRule> dataView = new DataView<OIRule>("oiRulesTable", data)
 		{

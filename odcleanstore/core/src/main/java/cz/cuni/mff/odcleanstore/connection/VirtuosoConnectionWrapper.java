@@ -7,6 +7,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
@@ -28,6 +31,20 @@ public final class VirtuosoConnectionWrapper {
      */
     private static int query_timeout = -1;
     
+    // Added by Petr Jerman - for shutdown Engine
+    private static Collection<VirtuosoConnectionWrapper> opened_connections = Collections.synchronizedCollection(new HashSet<VirtuosoConnectionWrapper>());
+    
+    /**
+     * Closes all opened connection.
+     */
+    public static void shutdown(){
+    	VirtuosoConnectionWrapper[] con = opened_connections.toArray(new VirtuosoConnectionWrapper[0]);
+       	for(VirtuosoConnectionWrapper item:con) {
+       			item.closeQuietly();
+       	}
+    }
+    // End added by Petr Jerman
+    
     /**
      * Create a new connection and return its wrapper.
      * Should be used only for connection to a Virtuoso instance.
@@ -36,7 +53,7 @@ public final class VirtuosoConnectionWrapper {
      * @throws ConnectionException database connection error
      */
     public static VirtuosoConnectionWrapper createConnection(JDBCConnectionCredentials connectionCredentials) throws ConnectionException {
-    	// Added by Petr Jerman - loading from global config 
+    	// Added by Petr Jerman - loading from global config
     	if(query_timeout < 0) {
     		query_timeout = ConfigLoader.getConfig().getBackendGroup().getQueryTimeout();
     	}
@@ -67,6 +84,7 @@ public final class VirtuosoConnectionWrapper {
      */
     private VirtuosoConnectionWrapper(Connection connection) {
         this.connection = connection;
+        opened_connections.add(this); // Added by Petr Jerman
     }
 
     /**
@@ -219,6 +237,7 @@ public final class VirtuosoConnectionWrapper {
         try {
             if (connection != null) {
                 connection.close();
+                opened_connections.remove(this); // Added by Petr Jerman
                 connection = null;
             }
         } catch (SQLException e) {

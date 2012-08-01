@@ -14,6 +14,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
+import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
@@ -75,7 +76,7 @@ public class QAGroupDetailPage extends FrontendPage
 	
 	private void addQARulesTable(final Long groupId)
 	{
-		IDataProvider<QARule> data = new QARuleDataProvider(qaRuleDao, groupId);
+		IDataProvider<QARule> data = new DependentDataProvider<QARule>(qaRuleDao, "groupId", groupId);
 		
 		DataView<QARule> dataView = new DataView<QARule>("qaRulesTable", data)
 		{

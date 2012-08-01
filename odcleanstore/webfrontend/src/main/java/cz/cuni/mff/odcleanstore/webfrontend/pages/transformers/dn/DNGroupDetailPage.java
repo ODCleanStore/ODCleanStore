@@ -16,6 +16,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
+import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
@@ -79,7 +80,7 @@ public class DNGroupDetailPage extends FrontendPage
 	
 	private void addDNRulesTable(final Long groupId)
 	{
-		IDataProvider<DNRule> data = new DNRuleDataProvider(dnRuleDao, groupId);
+		IDataProvider<DNRule> data = new DependentDataProvider<DNRule>(dnRuleDao, "groupId", groupId);
 		
 		DataView<DNRule> dataView = new DataView<DNRule>("dnRulesTable", data)
 		{

@@ -25,4 +25,6 @@ public abstract class Service extends Module {
 		super.setModuleState(_moduleState);
 		_engine.onServiceStateChanged(this);
 	}
+	
+	public abstract void shutdown(); 
 }

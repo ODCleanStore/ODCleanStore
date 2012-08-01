@@ -3,9 +3,11 @@ package cz.cuni.mff.odcleanstore.engine;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.engine.common.Module;
 import cz.cuni.mff.odcleanstore.engine.common.ModuleState;
 import cz.cuni.mff.odcleanstore.engine.inputws.InputWSService;
@@ -26,7 +28,7 @@ public final class Engine extends Module {
 			_engine.run(args);
 		}
 	}
-
+	
 	private ScheduledThreadPoolExecutor _executor;
 
 	private PipelineService _pipelineService;
@@ -61,7 +63,7 @@ public final class Engine extends Module {
 		checkJavaVersion();
 		loadConfiguration(args);
 	
-		_executor = new ScheduledThreadPoolExecutor(5);
+		_executor = new ScheduledThreadPoolExecutor(4);
 
 		_outputWSService = new OutputWSService(this);
 		_inputWSService = new InputWSService(this);
@@ -70,33 +72,81 @@ public final class Engine extends Module {
 
 	private void run(String[] args) {
 		try {
-			setModuleState(ModuleState.INITIALIZING);
 			LOG.info("Engine initializing");
+			setModuleState(ModuleState.INITIALIZING);
 			init(args);
-			setModuleState(ModuleState.RUNNING);
-			LOG.info("Engine running - start services");
-			startServices();
+			_executor.execute(_inputWSService);
 		} catch (Exception e) {
-			setModuleState(ModuleState.CRASHED);
+			try {
+				String message = String.format("Engine crashed - %s", e.getMessage());
+				LOG.fatal(message);
+				e.printStackTrace();
+				setModuleState(ModuleState.CRASHED);
+			}
+			finally {
+				shutdown();
+			}
+		}
+	}
+	
+	private void shutdown() {
+		try {
+			// TODO pridat timeout a parametr do config
+			LOG.info("Engine shutdown init");
+			_executor.shutdown();
+			_inputWSService.shutdown();
+			_pipelineService.shutdown();
+			_outputWSService.shutdown();
+			
+		    VirtuosoConnectionWrapper.shutdown();
+			
+			LOG.info("Engine shutdown");
+			LogManager.shutdown();
+		} catch (Exception e) {
 			String message = String.format("Engine crashed - %s", e.getMessage());
 			LOG.fatal(message);
+			e.printStackTrace();
+			setModuleState(ModuleState.CRASHED);
+		} finally {
+			System.exit(0);
 		}
 	}
 
-	private void startServices() {
-		_executor.execute(_outputWSService);
-		_executor.execute(_inputWSService);
-		_executor.execute(_pipelineService);
-
-		_executor.scheduleAtFixedRate(new Runnable() {
-			@Override
-			public void run() {
-				signalToPipelineService();
-			}
-		}, 1, 1, TimeUnit.SECONDS);
-	}
-
 	void onServiceStateChanged(Service service) {
+		try {
+			if (service == _inputWSService && service.getModuleState() == ModuleState.RUNNING) {
+				_executor.execute(_outputWSService);
+		
+				_executor.execute(_pipelineService);
+				_executor.scheduleAtFixedRate(new Runnable() {
+					@Override
+					public void run() {
+						signalToPipelineService();
+					}
+				}, 1, 1, TimeUnit.SECONDS);
+			}
+			else if (service == _inputWSService && service.getModuleState() == ModuleState.CRASHED) {
+				shutdown();
+			}
+			else if (service == _outputWSService && service.getModuleState() == ModuleState.RUNNING) {
+				LOG.info("Engine running");
+				setModuleState(ModuleState.RUNNING);
+			}
+			else if (service == _outputWSService && service.getModuleState() == ModuleState.CRASHED) {
+				shutdown();
+			}
+		}
+		catch (Exception e) {
+			try {
+				String message = String.format("Engine crashed - %s", e.getMessage());
+				LOG.fatal(message);
+				e.printStackTrace();
+				setModuleState(ModuleState.CRASHED);
+			}
+			finally {
+				shutdown();
+			}
+		}
 	}
 
 	public static void signalToPipelineService() {

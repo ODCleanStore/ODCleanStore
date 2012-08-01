@@ -33,9 +33,24 @@ public final class PipelineService extends Service implements Runnable {
 	
 	private WorkingInputGraphStatus _workingInputGraphStatus;
 	private WorkingInputGraph _workingInputGraph;
+	
+	private int _pipelineWaitPenalty = 0;
+	
+	private Transformer _currentTransformer;
 
 	public PipelineService(Engine engine) {
 		super(engine);
+	}
+	
+	@Override
+	public void shutdown() {
+		try {
+			Transformer currentTransformer = _currentTransformer; 
+			if (currentTransformer != null) {
+				currentTransformer.shutdown();
+			}
+		}
+		catch(Exception e) {}
 	}
 
 	private Object fromInputWSLocks = new Object();
@@ -59,7 +74,7 @@ public final class PipelineService extends Service implements Runnable {
 			}
 		}
 	}
-
+	
 	@Override
 	public void run() {
 		while (true) {
@@ -68,8 +83,13 @@ public final class PipelineService extends Service implements Runnable {
 					if (getModuleState() != ModuleState.NEW && getModuleState() != ModuleState.CRASHED) {
 						return;
 					}
-					setModuleState(ModuleState.INITIALIZING);
+					
+					Thread.sleep(_pipelineWaitPenalty);
+					// TODO pridat parametr do config
+					_pipelineWaitPenalty = 30000;
+
 					LOG.info("PipelineService initializing");
+					setModuleState(ModuleState.INITIALIZING);
 				}
 
 				_workingInputGraphStatus = new WorkingInputGraphStatus("DB.ODCLEANSTORE");
@@ -77,27 +97,31 @@ public final class PipelineService extends Service implements Runnable {
 
 				String graphsForRecoveryUuid = _workingInputGraphStatus.getWorkingTransformedGraphUuid();
 				if (graphsForRecoveryUuid != null) {
-					setModuleState(ModuleState.RECOVERY);
 					LOG.info("PipelineService starts recovery");
+					setModuleState(ModuleState.RECOVERY);
+					
 					recovery(graphsForRecoveryUuid);
 				}
-				setModuleState(ModuleState.RUNNING);
+				
+				_pipelineWaitPenalty = 0;
 				LOG.info("PipelineService running");
+				setModuleState(ModuleState.RUNNING);
 				runPipeline();
-				setModuleState(ModuleState.STOPPED);
 				LOG.info("PipelineService stopped");
+				setModuleState(ModuleState.STOPPED);
+
 			} catch (Exception e) {
 				_workingInputGraphStatus.setWorkingTransformedGraph(null);
-				setModuleState(ModuleState.CRASHED);
 				String message = String.format("PipelineService crashed - %s", e.getMessage());
-				e.printStackTrace();
 				LOG.error(message);
+				e.printStackTrace();
+				setModuleState(ModuleState.CRASHED);
 			}
 		}
 	}
-
+	
 	private void recovery(String uuid) throws Exception {
-
+		
 		InputGraphState state = _workingInputGraphStatus.getState(uuid);
 		BackendConfig backendConfig = ConfigLoader.getConfig().getBackendGroup();
 
@@ -241,27 +265,29 @@ public final class PipelineService extends Service implements Runnable {
 	}
 
 	private void processTransformer(TransformerCommand transformerCommand, TransformedGraphImpl transformedGraphImpl) throws Exception {
-		Transformer transformer = null;
+		_currentTransformer = null;
 		
 		if (!transformerCommand.getJarPath().equals(".")) {
-			transformer = loadCustomTransformer(transformerCommand);
+			_currentTransformer = loadCustomTransformer(transformerCommand);
 		}
 		else {
 			if (transformerCommand.getFullClassName().equals("cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl")) {
-				transformer = new cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl(ConfigLoader.getConfig().getObjectIdentificationConfig());
+				_currentTransformer = new cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl(ConfigLoader.getConfig().getObjectIdentificationConfig());
 			} else if (transformerCommand.getFullClassName().equals("cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl")) {
 				//TODO: This is HOTFIX. Engine needs to pass proper groupIds or groupLabels in constructor of QAImpl
 				//This only makes common ids be selected (as groupId is IDENTITY (AUTOINCREMENT starting at 1))
-				transformer = new cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl(0, 1, 2, 3, 4, 5);
+				_currentTransformer = new cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl(0, 1, 2, 3, 4, 5);
 			}	
 		}
 
-		if (transformer != null) {
+		if (_currentTransformer != null) {
 			String path = checkTransformerWorkingDirectory(transformerCommand.getWorkDirPath());
 			TransformationContextImpl context = new TransformationContextImpl(transformerCommand.getConfiguration(), path);
 
 			_workingInputGraphStatus.setWorkingTransformedGraph(transformedGraphImpl);
-			transformer.transformNewGraph(transformedGraphImpl, context);
+			_currentTransformer.transformNewGraph(transformedGraphImpl, context);
+			_currentTransformer.shutdown();
+			_currentTransformer = null;
 			LOG.info(String.format("PipelineService ends proccesing %s transformer on graph %s", transformerCommand.getFullClassName(), transformedGraphImpl.getGraphId()));
 			_workingInputGraphStatus.setWorkingTransformedGraph(null);
 		} else {

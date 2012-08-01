@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
+package cz.cuni.mff.odcleanstore.webfrontend.core.models;
 
 import java.util.Iterator;
 import java.util.List;
@@ -6,32 +6,34 @@ import java.util.List;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DetachableModel;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
-public class TransformerInstanceDataProvider implements IDataProvider<TransformerInstance>
+public class DependentDataProvider<BO extends EntityWithSurrogateKey> implements IDataProvider<BO>
 {
 	private static final long serialVersionUID = 1L;
 	
-	private DaoForEntityWithSurrogateKey<TransformerInstance> dao;
-	private List<TransformerInstance> data;
-	private Long pipelineId;
+	private DaoForEntityWithSurrogateKey<BO> dao;
+	private List<BO> data;
+	private String columnName;
+	private Object value;
 	
 	/**
 	 * 
 	 * @param dao
 	 */
-	public TransformerInstanceDataProvider(DaoForEntityWithSurrogateKey<TransformerInstance> dao, Long pipelineId)
+	public DependentDataProvider(DaoForEntityWithSurrogateKey<BO> dao, String columnName, Object value)
 	{
 		this.dao = dao;
-		this.pipelineId = pipelineId;
+		this.columnName = columnName;
+		this.value = value;
 	}
 	
-	private List<TransformerInstance> getData()
+	private List<BO> getData()
 	{
 		if (data == null)
-			data = dao.loadAllRawBy("pipelineId", pipelineId);
+			data = dao.loadAllRawBy(columnName, value);
 		
 		return data;
 	}
@@ -41,7 +43,7 @@ public class TransformerInstanceDataProvider implements IDataProvider<Transforme
 		data = null;
 	}
 
-	public Iterator<TransformerInstance> iterator(int first, int count) 
+	public Iterator<BO> iterator(int first, int count) 
 	{
 		// replace this with a special DAO method to only select the sub-list
 		// from the database call if necessary (instead of selecting all and 
@@ -57,8 +59,8 @@ public class TransformerInstanceDataProvider implements IDataProvider<Transforme
 		return getData().size();
 	}
 
-	public IModel<TransformerInstance> model(TransformerInstance object) 
+	public IModel<BO> model(BO object) 
 	{
-		return new DetachableModel<TransformerInstance>(dao, object);
+		return new DetachableModel<BO>(dao, object);
 	}
 }
