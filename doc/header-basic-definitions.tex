@@ -25,6 +25,7 @@
 \newcommand{\quot}[1]{``#1''}
 \newcommand{\code}[1]{\texttt{#1}}
 \newcommand{\varcode}[1]{\textit{\textless #1\,\textgreater}}
+\newcommand{\vartext}[1]{\textit{#1}}
 \newcommand{\tab}{\rule{30pt}{0pt}}
 \newcommand{\term}[1]{\textit{#1}}
 \newcommand{\todo}[1]{}
@@ -65,6 +66,13 @@
 % Package settings
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% lstlistings environment
+% Defines a custom trivlisting environment
+\lstset{basicstyle=\ttfamily\footnotesize,columns=flexible,
+  frame=lines,float=ht,captionpos=b,aboveskip=1.5\bigskipamount}
+\lstnewenvironment{trivlisting}
+  {\lstset{basicstyle=\ttfamily,aboveskip=\medskipamount,frame=none}}
+  {}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Document-specific commands

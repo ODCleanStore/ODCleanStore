@@ -59,9 +59,10 @@ Use cases, mention expected deployment (public contracts, students).
 
 \section{Other Settings}
 
-\subsection*{Query Execution \& Conflict Resolution}
+\subsection{Query Execution \& Conflict Resolution}
 
-\subsection*{Prefix management}
+\subsection{Prefix management}
+\label{sec:frontendPrefixMgmt}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -97,9 +98,8 @@ Table \ref{tbl:queryTypes} lists where each type of query can be accessed.
 
 \begin{table}[h]
 \centering
-\caption{Types of queries}
 \label{tbl:queryTypes}
-\begin{tabular}{|l|l|p{8cm}|}
+\begin{tabular}{|l|l|p{7.5cm}|}
 	\hline
 	Query & URI & Example of a query \\
 	\hline \hline
@@ -110,12 +110,210 @@ Table \ref{tbl:queryTypes} lists where each type of query can be accessed.
 	Named graph metadata & \varcode{host}\code{/namedGraph} & \mbox{http://localhost:8087/namedGraph} \mbox{?uri=http\%3A\%2F\%2Fexample.com} \\
 	\hline
 \end{tabular}
+\caption{Types of queries}
 \end{table} 
 
 More information is available in the Query Execition specification. \todo{reference}
 
-
 \subsection{Request format}
+
+The following table lists (either GET or POST) parameters than can be used with the URI and keyword queries:
+
+\begin{table}[h!]
+\centering
+\label{tbl:requestFormat}
+\begin{tabularx}{\textwidth}{|l|X|p{2cm}|p{2cm}|}
+	\hline
+	Name & Description & Possible values & Default value \\
+	\hline \hline
+	\code{uri} & searched URI; \newline \textit{used only with URI query} & \vartext{string} & \vartext{N/A} \\
+	\hline
+	\code{kw} & searched keyword(s); \newline \textit{used only with keyword query} & \vartext{string} & \vartext{N/A} \\
+	\hline
+	\code{format} & format of the result & \code{html}, \code{trig} & \code{html} \\
+	\hline
+	\code{aggr} & default aggregation method & \vartext{string} & \code{ALL} \\
+	\hline
+	\code{es} & error strategy -- handling of values for which aggregation fails & \code{IGNORE}, \code{RETURN\_ALL} & \code{RETURN\_ALL} \\
+	\hline
+	\code{multivalue} & default multivalue setting & 0, 1 & 0 \\
+	\hline
+	\code{paggr[\vartext{property}]} & aggregation method for the given property; \newline example: \code{paggr[rdfs\%3Alabel]=ANY} & \vartext{string} & \vartext{N/A} \\
+	\hline
+	\code{pmultivalue[\vartext{property}]} & multivalue setting for the given property;
+		\newline example: \code{pmultivalue[rdf\%3Atype]=1} & 0, 1 & \vartext{N/A} \\
+	\hline
+\end{tabularx}
+\caption{URI and keyword query parameters}
+\end{table} 
+
+The next table lists parameters that can be used with the named graph metadata query:
+
+\begin{table}[h!]
+\centering
+\label{tbl:requestFormat}
+\begin{tabular}{|l|l|l|l|}
+	\hline
+	Name & Description & Possible values & Default value \\
+	\hline \hline
+	\code{uri} & URI of the requested named graph & \vartext{string} & \vartext{N/A} \\
+	\hline
+	\code{format} & format of the result & \code{html}, \code{trig} & \code{html} \\
+	\hline
+\end{tabular}
+\caption{Named graph metadata query parameters}
+\end{table}
+
+For all queries, parameters and values are case-sensitive. Property names may be either full URIs, or prefixed names (e.g. \code{rdfs:label}). Available prefixes are managed in the administration frontend (see section \ref{sec:frontendPrefixMgmt}).
+
+For more information about aggregation settings, see the corresponding section of Conflict Resolution specification\todo{reference}.
+
+\subsubsection*{General aggregation methods}
+
+\begin{description}
+	\item[ALL]
+		returns all conflicting values
+	\item[BEST]
+		value with the highest aggregated quality; in case of equality, the newest timestamp is preferred
+	\item[LATEST]
+		value with the newest timestamp; in case of equality, the highest aggregate quality is preferred
+	\item[ANY]
+		returns a single arbitrary value
+	\item[CONCAT]
+		concatenation of conflicting values separated by \quot{\code{;\ }}
+	\item[NONE]
+		retruns all conflicting values including duplicities
+\end{description}
+
+\subsubsection*{Numeric aggregation methods}
+
+\begin{description}
+	\item[MIN]
+		minimum of conflicting values
+	\item[MAX]
+		maximum of conflicting values
+	\item[AVG]
+		average of conflicting values
+	\item[MEDIAN]
+		median of conflicting values
+\end{description}
+
+\subsubsection*{Date aggregation methods}
+
+\begin{description}
+	\item[MIN]
+		the earliest date
+	\item[MAX]
+		the latest date
+\end{description}
+
+\subsubsection*{String aggregation methods}
+
+\begin{description}
+	\item[SHORTEST]
+		the shortest string
+	\item[LONGEST]
+		the longest string
+\end{description}
+
+\subsubsection*{Error strategy}
+The error strategy determines how to handle values that cannot be aggregated by the given aggregation method, e.g. when applying MEDIAN aggregation to a mix of numeric and date values.
+
+Note that for some aggregations, an untyped literal may be converted to a numeric literal (\code{xsd:double}) if possible.
+
+\subsubsection*{Multivalie parameter}
+The multivalue parameter determines whether differences with other conflicting values decrease quality (\code{multivalue=0}), or not (\code{multivalue=1}). Setting multivalue to false (0) is appropriate for properties with a single value (e.g. \code{dbprop:population}), setting it to true (1) is appropriate for propertiees with multiple possible values (e.g. \code{rdf:type}).
+
+\todo{content-negotiation}
+
+\subsection{Query Format}
+
+\subsubsection{URI Query \& Named Graph Metadata Query}
+The value of the \code{uri} parameter must be either a full valid URI, or a prefixed name (e.g. \code{dbpedia:Berlin}).  Available prefixes are managed in the administration frontend (see section \ref{sec:frontendPrefixMgmt}).
+
+\subsubsection{Keyword Query}
+The \code{kw} parameter can contain one or more keywords separated by whitespace. If a keyword itself contains spaces, it may be enclosed in double quotes. Query Execution looks for literals that contain all of the keywords. Keywords can also contain the \code{*} wildcard, but they must begin with at least four non-wildcard characters if a wildcard is to be used.
+
+Query Execution also looks for an exact match of the entire \code{kw} value (i.e. without any division to keywords). If the \code{kw} value is a number, then numeric typed literals will match; if the \code{kw} value is formatted as \code{xsd:dateTime}\footnote{\url{http://www.w3.org/TR/xmlschema-2/\#dateTime-lexical-representation}}, then \code{xsd:dateTime} typed literals will match.
+
+\subsection{Results Format for URI \& Keyword Queries}
+The result contains triples returned in response to the query, including relevant labels of URI resources in the result, and metadata for the triples.
+
+\subsubsection{HTML}
+
+The result in HTML format contains results in a human-readable form. It contains
+
+\begin{itemize}
+	\item a table with all triples in the result together with their aggregated quality and named graphs from which the triple was selected or calculated,
+  \item  a table with metadata of named graphs occuring in the first table.
+\end{itemize}
+
+\subsubsection{TriG}
+
+The result contains triples (quads) serialized in the TriG\footnote{\url{http://www4.wiwiss.fu-berlin.de/bizer/trig/}} format. The result includes:
+
+\begin{itemize}
+	\item triples returned in response to the query, each one placed in a unique named graph
+  \item aggregated quality (\code{odcs:quality}) and source named graphs (\code{w3p:source}) of the above triples; subjects of these statements are the unique named graphs where the respective triples are placed
+  \item  metadata of source named graphs; they may include where the data were extracted from (\code{w3p:source}), Quality Assesment score of the named graph (\code{odcs:score}) and its publisher (\code{odcs:publisherScore}), the publisher of the data (\code{w3p:publishedBy}), timestamp (\code{w3p:insertedAt}), licence (\code{dc:licence})
+  \item  metadata about the query response itself -- a title (\code{dc:title}), date (\code{dc:date}), number of result triples (\code{odcs:totalResults}), the query (\code{odcs:query}) and link to each result item (\code{odcs:result})
+\end{itemize}
+
+\pagebreakd
+
+An example:
+
+\begin{lstlisting}[caption={Example of query response in TriG}]
+@prefix :        <#> .
+@prefix odcs:    <http://opendata.cz/infrastructure/odcleanstore/> .
+@prefix w3p:     <http://purl.org/provenance#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix dc:      <http://purl.org/dc/terms/> .
+
+<http://opendata.cz/infrastructure/odcleanstore/query/metadata/> {
+  <http://opendata.cz/infrastructure/odcleanstore/data/e0cdc9d7-e2d8-4bde>
+    w3p:insertedAt "2012-04-01 12:34:56.0"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
+    w3p:source <http://dbpedia.org/page/Berlin> ;
+    w3p:publishedBy <http://dbpedia.org/> ;
+    odcs:provenanceMetadataGraph
+      <http://opendata.cz/infrastructure/odcleanstore/provenanceMetadata/e0cdc9d7-e2d8-4bde>;
+        
+    odcs:score 0.72 ;
+    odcs:violatedQARule <http://opendata.cz/infrastructure/odcleanstore/QARule/10> ;
+    odcs:violatedQARule <http://opendata.cz/infrastructure/odcleanstore/QARule/20> .  
+
+  <http://opendata.cz/infrastructure/odcleanstore/QARule/10>
+    a odcs:QARule ;
+    odcs:coefficient 0.8 ;
+    dc:description "Procedure type ambiguous" .
+        
+  <http://opendata.cz/infrastructure/odcleanstore/QARule/20>
+    a odcs:QARule ;
+    odcs:coefficient 0.9 ;
+    dc:description "Procurement contact person missing" .
+        
+  <http://localhost:8087/namedGraph?uri=http%3A%2F%2Fopendata.cz
+      %2Finfrastructure%2Fodcleanstore%2Fdata%2Fe0cdc9d7-e2d8-4bde>
+    a odcs:QueryResponse ;
+    dc:title "Metadata for named graph:
+      http://opendata.cz/infrastructure/odcleanstore/data/e0cdc9d7-e2d8-4bde" ;
+    dc:date "2012-08-01T10:20:30+01:00" ;
+    odcs:query "http://opendata.cz/infrastructure/odcleanstore/data/e0cdc9d7-e2d8-4bde";
+}
+    
+<http://opendata.cz/infrastructure/odcleanstore/provenanceMetadata/e0cdc9d7-e2d8-4bde> {
+  <http://opendata.cz/infrastructure/odcleanstore/data/e0cdc9d7-e2d8-4bde>
+    w3p:provenanceMetadataProperty1 "provenanceMetadataValue1".
+  <http://opendata.cz/infrastructure/odcleanstore/data/e0cdc9d7-e2d8-4bde>
+    w3p:provenanceMetadataProperty2 "provenanceMetadataValue2".
+}
+\end{lstlisting}
+
+\todo{JSON}
+\todo{Error handling!}
+\todo{Examples}
+
 
 \chapwithtoc{References}
 
