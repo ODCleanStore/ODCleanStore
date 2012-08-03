@@ -26,7 +26,7 @@ INSERT INTO DB.ODCLEANSTORE.BACKUP_TRANSFORMERS (label, description, jarPath, fu
 VALUES (n'Linker', n'The standard object identification transformer',  n'.', n'cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl');
 
 INSERT INTO DB.ODCLEANSTORE.BACKUP_TRANSFORMERS (label, description, jarPath, fullClassName)
-VALUES (n'DN', n'The standard data normalization transformer', n'.', n'not yet known');
+VALUES (n'DN', n'The standard data normalization transformer', n'.', n'cz.cuni.mff.odcleanstore.datanormalization.DataNormalizer');
 
 
 INSERT INTO DB.ODCLEANSTORE.BACKUP_PIPELINES (label, description, isDefault)
