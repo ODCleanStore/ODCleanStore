@@ -2,7 +2,6 @@
 \newcommand{\version}{0.1}
 \newcommand{\documentname}{User Manual}
 
-
 \begin{document}
 
 \include{titlepage}
@@ -121,7 +120,7 @@ The following table lists (either GET or POST) parameters than can be used with 
 
 \begin{table}[h!]
 \centering
-\label{tbl:requestFormat}
+\label{tbl:requestFormatUK}
 \begin{tabularx}{\textwidth}{|l|X|p{2cm}|p{2cm}|}
 	\hline
 	Name & Description & Possible values & Default value \\
@@ -151,7 +150,7 @@ The next table lists parameters that can be used with the named graph metadata q
 
 \begin{table}[h!]
 \centering
-\label{tbl:requestFormat}
+\label{tbl:requestFormatNG}
 \begin{tabular}{|l|l|l|l|}
 	\hline
 	Name & Description & Possible values & Default value \\
@@ -322,5 +321,63 @@ An example:
 \appendix
 
 \chapter{Glossary}
+
+\section*{RDF related}
+\begin{glossarylist}
+	\item[RDF] Resource Description Framework, a language for representing information about resources in the World Wide Web\footnote{\url{http://www.w3.org/RDF/}}
+	\item[RDF triple] Statement about a resource expressed in the form of subject-predicate-object expression
+	\item[URI] Uniform Resource Identifier, identifies RDF resources
+	\item[Named graph] A set of related RDF triples (RDF graph) named with a URI
+	\item[RDF quad] An RDF triple plus named graph URI (subject, predicate, object, named graph)
+	\item[Ontology] Representation of the meaning of terms in a vocabulary and of their interrelationships
+	\item[OWL] The Web Ontology Language\footnote{\url{http://www.w3.org/TR/owl-features/}}
+\end{glossarylist}
+
+\section*{Data quality}
+\begin{glossarylist}
+	\item[Named graph score (\code{odcs:score})] Quality of a single named graph estimated by the Quality Assesment component and stored in the database, expressed as a number from interval [0,1]
+	\item[Publisher score] Average score of named graphs from a publisher
+	\item[Aggregate quality] Quality of a triple in the results calculated by the Conflict Resolution component during query time, expressed as a number from interval [0,1]
+\end{glossarylist}
+
+\section*{User Roles}
+\begin{glossarylist}
+	\item[ADM] Administrator
+	\item[ONC] Ontology creator
+	\item[PIC] Pipeline creator
+	\item[SCR] Scraper, data producer
+	\item[USR] Data consumer
+\end{glossarylist}
+
+\chapter{List of Used XML Namespaces}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|l|}
+	\hline
+	\ttfamily
+	\textrm{\textbf{Prefix}} & \textrm{\textbf{URI}} \\
+	\hline\hline
+	odcs & http://opendata.cz/infrastructure/odcleanstore/ \\
+	\hline
+	w3p & http://purl.org/provenance\# \\
+	\hline
+	dc & http://purl.org/dc/terms/ \\
+	\hline
+	rdf & http://www.w3.org/1999/02/22-rdf-syntax-ns\# \\
+	\hline
+	rdfs & http://www.w3.org/2000/01/rdf-schema\# \\
+	\hline
+	owl & http://www.w3.org/2002/07/owl\# \\
+	\hline
+	xsd & http://www.w3.org/2001/XMLSchema\# \\
+	\hline
+	dbpedia & http://dbpedia.org/resource/ \\
+	\hline
+	dbprop & http://dbpedia.org/property/ \\
+	\hline
+\end{tabular}
+%\caption{List of used XML namespaces}
+\end{table} 
 
 \end{document}
