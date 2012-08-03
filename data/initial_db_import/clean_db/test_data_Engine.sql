@@ -19,16 +19,6 @@ set_identity_column('DB.ODCLEANSTORE.PIPELINES','id', 1);
 -- fill backup tables
 --
 
-INSERT INTO DB.ODCLEANSTORE.BACKUP_TRANSFORMERS (label, description, jarPath, fullClassName) 
-VALUES (n'QA', n'The standard quality assessment transformer', n'.', n'cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl');
-
-INSERT INTO DB.ODCLEANSTORE.BACKUP_TRANSFORMERS (label, description, jarPath, fullClassName) 
-VALUES (n'Linker', n'The standard object identification transformer',  n'.', n'cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl');
-
-INSERT INTO DB.ODCLEANSTORE.BACKUP_TRANSFORMERS (label, description, jarPath, fullClassName)
-VALUES (n'DN', n'The standard data normalization transformer', n'.', n'cz.cuni.mff.odcleanstore.datanormalization.DataNormalizer');
-
-
 INSERT INTO DB.ODCLEANSTORE.BACKUP_PIPELINES (label, description, isDefault)
 VALUES (n'Dirty', n'A basic dirty pipeline', 0);
 
@@ -54,16 +44,6 @@ VALUES (2, 2, n'transformers-working-dir/link', n'', 1);
 --
 -- fill official tables
 --
-
-INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS (label, description, jarPath, fullClassName) 
-VALUES (n'QA', n'The standard quality assessment transformer', n'.', n'cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl');
-
-INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS (label, description, jarPath, fullClassName) 
-VALUES (n'Linker', n'The standard object identification transformer',  n'.', n'cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl');
-
-INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS (label, description, jarPath, fullClassName)
-VALUES (n'DN', n'The standard data normalization transformer', n'.', n'not yet known');
-
 
 INSERT INTO DB.ODCLEANSTORE.PIPELINES (label, description, isDefault)
 VALUES (n'Dirty', n'A basic dirty pipeline', 0);
