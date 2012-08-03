@@ -24,8 +24,14 @@ final class WorkingInputGraphStatus {
 		VirtuosoConnectionWrapper con = null;
 		try {
 			con = VirtuosoConnectionWrapper.createTransactionalLevelConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
-			String sqlStatement = String.format("Select uuid from %s.EN_INPUT_GRAPHS" + " WHERE state='PROCESSING' OR state='PROCESSED' OR state ='PROPAGATED' OR state ='DELETING' OR state ='DIRTY'",
-					_dbSchemaPrefix);
+			String sqlStatement = String.format("Select uuid from %s.EN_INPUT_GRAPHS" + " WHERE stateId=%d OR stateId=%d OR stateId=%d OR stateId=%d OR stateId=%d",
+					_dbSchemaPrefix,
+					InputGraphState.PROCESSING,
+					InputGraphState.PROCESSED,
+					InputGraphState.PROPAGATED,
+					InputGraphState.DELETING,
+					InputGraphState.DIRTY);
+			
 			WrappedResultSet resultSet = con.executeSelect(sqlStatement);
 			if(resultSet.next()) {
 				return resultSet.getString(1);
@@ -127,14 +133,14 @@ final class WorkingInputGraphStatus {
 		}
 	}
 
-	InputGraphState getState(String uuid) throws Exception {
+	int getState(String uuid) throws Exception {
 		VirtuosoConnectionWrapper con = null;
 		try {
 			con = VirtuosoConnectionWrapper.createTransactionalLevelConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
-			String sqlStatement = String.format("Select state from %s.EN_INPUT_GRAPHS WHERE uuid='%s'", _dbSchemaPrefix, uuid);
+			String sqlStatement = String.format("Select stateId from %s.EN_INPUT_GRAPHS WHERE uuid='%s'", _dbSchemaPrefix, uuid);
 			WrappedResultSet resultSet = con.executeSelect(sqlStatement);
 			resultSet.next();
-			return InputGraphState.valueOf(resultSet.getString(1));
+			return resultSet.getInt(1);
 		} finally {
 			if (con != null) {
 				con.close();
@@ -142,11 +148,11 @@ final class WorkingInputGraphStatus {
 		}
 	}
 
-	void setState(String uuid, InputGraphState newState) throws Exception {
+	void setState(String uuid, int state) throws Exception {
 		VirtuosoConnectionWrapper con = null;
 		try {
 			con = VirtuosoConnectionWrapper.createTransactionalLevelConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
-			String sqlStatement = String.format("Update %s.EN_INPUT_GRAPHS SET state='%S' WHERE uuid='%s'", _dbSchemaPrefix, newState.toString(), uuid);
+			String sqlStatement = String.format("Update %s.EN_INPUT_GRAPHS SET stateId=%d WHERE uuid='%s'", _dbSchemaPrefix, state, uuid);
 			con.execute(sqlStatement);
 			con.commit();
 		} finally {
@@ -158,24 +164,28 @@ final class WorkingInputGraphStatus {
 
 	String getNextProcessingGraphUuid() throws Exception {
 		VirtuosoConnectionWrapper con = null;
+		String uuid = null;
 		try {
 			con = VirtuosoConnectionWrapper.createTransactionalLevelConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
-			String sqlStatement = String.format("Select uuid from %s.EN_INPUT_GRAPHS WHERE state='PROCESSING'", _dbSchemaPrefix);
+			String sqlStatement = String.format("Select uuid from %s.EN_INPUT_GRAPHS WHERE stateId=%d ORDER BY updated", _dbSchemaPrefix,InputGraphState.REPAIRED);
 			WrappedResultSet resultSet = con.executeSelect(sqlStatement);
 			if(resultSet.next()) {
-				return resultSet.getString(1);
+				uuid  = resultSet.getString(1);
 			}
-
-			sqlStatement = String.format("Select uuid from %s.EN_INPUT_GRAPHS WHERE state='IMPORTED'", _dbSchemaPrefix);
-			resultSet = con.executeSelect(sqlStatement);
-			if(resultSet.next()) {
-				String uuid  = resultSet.getString(1);
-				sqlStatement = String.format("Update %s.EN_INPUT_GRAPHS SET state='%S' WHERE uuid='%s'", _dbSchemaPrefix, InputGraphState.PROCESSING, uuid);
+			else {
+				sqlStatement = String.format("Select uuid from %s.EN_INPUT_GRAPHS WHERE stateId=%d ORDER BY updated", _dbSchemaPrefix, InputGraphState.IMPORTED);
+				resultSet = con.executeSelect(sqlStatement);
+				if(resultSet.next()) {
+					uuid  = resultSet.getString(1);
+				}
+			}
+				
+			if (uuid != null) {
+				sqlStatement = String.format("Update %s.EN_INPUT_GRAPHS SET stateId=%d WHERE uuid='%s'", _dbSchemaPrefix, InputGraphState.PROCESSING, uuid);
 				con.execute(sqlStatement);
 				con.commit();
-				return uuid;
 			}
-			return null;
+			return uuid;
 		} finally {
 			if (con != null) {
 				con.close();

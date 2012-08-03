@@ -122,31 +122,31 @@ public final class PipelineService extends Service implements Runnable {
 	
 	private void recovery(String uuid) throws Exception {
 		
-		InputGraphState state = _workingInputGraphStatus.getState(uuid);
+		int state = _workingInputGraphStatus.getState(uuid);
 		BackendConfig backendConfig = ConfigLoader.getConfig().getBackendGroup();
 
 		switch (state) {
-		case PROCESSING:
+		case InputGraphState.PROCESSING:
 			_workingInputGraph.deleteGraphsFromDirtyDB(_workingInputGraphStatus.getWorkingAttachedGraphNames());
 			_workingInputGraph.deleteGraphFromDirtyDB(backendConfig.getDataGraphURIPrefix() + uuid);
 			_workingInputGraph.deleteGraphFromDirtyDB(backendConfig.getMetadataGraphURIPrefix() + uuid);
 			_workingInputGraph.deleteGraphFromDirtyDB(backendConfig.getProvenanceMetadataGraphURIPrefix() + uuid);
 
 			_workingInputGraphStatus.deleteWorkingAttachedGraphNames();
-			_workingInputGraphStatus.setState(uuid, InputGraphState.IMPORTED);
+			_workingInputGraphStatus.setState(uuid, InputGraphState.REPAIRED);
 			LOG.info("PipelineService ends recovery from interrupted processing");
 			break;
-		case PROCESSED:
+		case InputGraphState.PROCESSED:
 			processProcessedState(uuid);
-		case PROPAGATED:
+		case InputGraphState.PROPAGATED:
 			processPropagatedState(uuid);
 			LOG.info("PipelineService ends recovery from interrupted copying graph from dirty to clean database instance");
 			break;
-		case DELETING:
+		case InputGraphState.DELETING:
 			processDeletingState(uuid);
 			LOG.info("PipelineService ends recovery from interrupted deleting graph");
 			break;
-		case DIRTY:
+		case InputGraphState.DIRTY:
 			_workingInputGraph.deleteGraphsFromDirtyDB(_workingInputGraphStatus.getWorkingAttachedGraphNames());
 			_workingInputGraph.deleteGraphFromDirtyDB(backendConfig.getDataGraphURIPrefix() + uuid);
 			_workingInputGraph.deleteGraphFromDirtyDB(backendConfig.getMetadataGraphURIPrefix() + uuid);

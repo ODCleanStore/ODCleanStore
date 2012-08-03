@@ -41,7 +41,7 @@ public final class ImportingInputGraphStates {
 		VirtuosoConnectionWrapper con = null;
 		try {
 			con = VirtuosoConnectionWrapper.createTransactionalLevelConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
-			String sqlStatement = String.format("Select uuid from %s.EN_INPUT_GRAPHS WHERE state='IMPORTING'", DB_SCHEMA_PREFIX);
+			String sqlStatement = String.format("Select uuid from %s.EN_INPUT_GRAPHS WHERE stateId=%d", DB_SCHEMA_PREFIX, InputGraphState.IMPORTING);
 			WrappedResultSet resultSet = con.executeSelect(sqlStatement);
 			LinkedList<String> retVal = new LinkedList<String>();
 			while(resultSet.next()) {
@@ -59,7 +59,7 @@ public final class ImportingInputGraphStates {
 		VirtuosoConnectionWrapper con = null;
 		try {
 			con = VirtuosoConnectionWrapper.createTransactionalLevelConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
-			String sqlStatement = String.format("Delete from %s.EN_INPUT_GRAPHS WHERE state='IMPORTING'", DB_SCHEMA_PREFIX);
+			String sqlStatement = String.format("Delete from %s.EN_INPUT_GRAPHS WHERE stateId=%d", DB_SCHEMA_PREFIX, InputGraphState.IMPORTING);
 			con.execute(sqlStatement);
 			con.commit();
 		} finally {
@@ -95,7 +95,7 @@ public final class ImportingInputGraphStates {
 			}
 			String pipelineId = resultSet.getString(1);
 			
-			sqlStatement = String.format("Insert into %s.EN_INPUT_GRAPHS(uuid, pipelineId, state) VALUES('%s', '%s', '%s')", DB_SCHEMA_PREFIX, graphUuid, pipelineId , InputGraphState.IMPORTING);
+			sqlStatement = String.format("Insert into %s.EN_INPUT_GRAPHS(uuid, pipelineId, stateId) VALUES('%s', '%s', %d)", DB_SCHEMA_PREFIX, graphUuid, pipelineId , InputGraphState.IMPORTING);
 			con.execute(sqlStatement);
 			con.commit();
 
@@ -116,7 +116,7 @@ public final class ImportingInputGraphStates {
 		VirtuosoConnectionWrapper con = null;
 		try {
 			con = VirtuosoConnectionWrapper.createTransactionalLevelConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
-			String sqlStatement = String.format("Update %s.EN_INPUT_GRAPHS SET state='%s' WHERE uuid='%s'", DB_SCHEMA_PREFIX, InputGraphState.IMPORTED, importUuid);
+			String sqlStatement = String.format("Update %s.EN_INPUT_GRAPHS SET stateId=%d WHERE uuid='%s'", DB_SCHEMA_PREFIX, InputGraphState.IMPORTED, importUuid);
 			con.execute(sqlStatement);
 			con.commit();
 			_actualImportingGraphUuid = null;
