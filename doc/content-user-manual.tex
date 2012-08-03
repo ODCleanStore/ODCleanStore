@@ -34,6 +34,35 @@ Use cases, mention expected deployment (public contracts, students).
 
 \chapter{User Roles}
 
+Data consumers accessing the Output Webservice (see Section \ref{sec:outputWS}) do not need to have an account in ODCleanStore; these users have a special role User (USR). Other users working with ODCleanStore need to have an account and their permissions are based on the roles they are assigned.
+
+\section[Administrator]{Administrator (ADM)}
+
+	Administrator has privileges to manages user accounts, assign roles and manage system-wide settings such as
+	\begin{itemize}
+		\item transformers that can be used in pipelines created by pipeline creators,
+		\item settings of the Output Webservice (default aggregation policies, etc.),
+		\item URI prefixes that can be used in settings and queries.
+	\end{itemize}
+
+	In addition, the administrator is authorized to edit pipelines and rules created by pipeline creators.
+
+	More information, e.g. about adding transformers, can be found in the related document Administrator's \& Installation Manual.
+
+\section[Ontology Creator]{Ontology Creator (ONC)}
+	The ontology creator can import and edit ontologies registered in the system. The ontology creator is also responsible for inserting mappings (\code{owl:sameAs} links) between ontologies.
+
+\section[Pipeline Creator]{Pipeline Creator (PIC)}
+	The pipeline creator can create input data processing pipelines. This includes creating new pipelines and assigning transformers to them (Section \ref{sec:pipelineManagement}) and also creating rules for the transformers (Section \ref{sec:transformerRules}).
+
+	Every pipeline creator is allowed to create custom pipelines and rule groups for predefined transformers. The pipeline creator has a read-only access to other creators' pipelines and rules (and can use such rules in custom pipelines), however rules and pipelines can only be edited by their author. The only exception is the administrator, who can edit arbitrary pipelines and rule groups.
+	
+\section[Data Producer]{Data Producer (SCR)} \todo{SCR? DAP?}
+  The data producer can use the Input Webservice (Section \ref{sec:inputWS}) to insert new data to ODCleanStore. The system keeps track of which data were inserted by which data producer.
+
+\section[Data Consumer]{Data Consumer (USR)} \todo{USR? DAC?}
+  The data consumer can use the Output Webservice (Section \ref{sec:outputWS}) to ask queries over the data in the clean database. This role is special in that users in this role do not need to have an account (any user using the Output Webservice is automatically assigned the USR role).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \chapter{Administration Frontend}
@@ -43,10 +72,13 @@ Use cases, mention expected deployment (public contracts, students).
 \section{User Accounts Administration}
 
 \section{Transformer management}
+\label{sec:transformerManagement}
 
 \section{Pipeline management}
+\label{sec:pipelineManagement}
 
-\section{Transformer policies}
+\section{Transformer rules}
+\label{sec:transformerRules}
 
 \subsection*{Quality Assessment}
 
@@ -55,10 +87,12 @@ Use cases, mention expected deployment (public contracts, students).
 \subsection*{Object Identification}
 
 \section{Ontology management}
+\label{sec:ontologyManagement}
 
 \section{Other Settings}
 
 \subsection{Query Execution \& Conflict Resolution}
+\label{sec:QEnCR}
 
 \subsection{Prefix management}
 \label{sec:frontendPrefixMgmt}
@@ -70,8 +104,10 @@ Use cases, mention expected deployment (public contracts, students).
 \section{Web Services Overview}
 
 \section{Data Publisher}
+\label{sec:inputWS}
 
 \section{Data Consumer}
+\label{sec:outputWS}
 
 A consumer of data stored in ODCleanStore can query the database through the \term{Output Webservice}. The Output Webservice can be queried for data about a given URI resource, queried by keywords or queried for metadata of a given named graph. Conflicts in data returned in response to a query are resolved and the data are fused using policies provided by the user or by the administrator.
 
@@ -333,8 +369,10 @@ An example:
 	\item[OWL] The Web Ontology Language\footnote{\url{http://www.w3.org/TR/owl-features/}}
 \end{glossarylist}
 
-\section*{Data quality}
+\section*{Data \& Data Quality}
 \begin{glossarylist}
+	\item[Dirty (staging) database] Database where incoming data are stored until they are processed by a processing pipeline (e.g. clean, linked to other data, etc.)
+	\item[Clean database] Database where incoming data are stored after they are successfully processed by the respective processing pipeline; this database can be accessed using the Output Webservice
 	\item[Named graph score (\code{odcs:score})] Quality of a single named graph estimated by the Quality Assesment component and stored in the database, expressed as a number from interval [0,1]
 	\item[Publisher score] Average score of named graphs from a publisher
 	\item[Aggregate quality] Quality of a triple in the results calculated by the Conflict Resolution component during query time, expressed as a number from interval [0,1]
@@ -345,7 +383,7 @@ An example:
 	\item[ADM] Administrator
 	\item[ONC] Ontology creator
 	\item[PIC] Pipeline creator
-	\item[SCR] Scraper, data producer
+	\item[SCR] Data producer (scraper)
 	\item[USR] Data consumer
 \end{glossarylist}
 
