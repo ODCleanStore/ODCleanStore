@@ -20,6 +20,9 @@ public class TransformerInstanceDetailPage extends FrontendPage
 	
 	private static final String OI_FULL_CLASS_NAME = 
 		"cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl";
+	
+	private static final String DN_FULL_CLASS_NAME = 
+		"cz.cuni.mff.odcleanstore.datanormalization.DataNormalizer";
 
 	private DaoForEntityWithSurrogateKey<TransformerInstance> transformerInstanceDao;
 	private DaoForEntityWithSurrogateKey<Transformer> transformerDao;
@@ -93,6 +96,15 @@ public class TransformerInstanceDetailPage extends FrontendPage
 		{
 			add(
 				AssignedGroupsListPageFactory.createAssignedOIGroupsList(
+					daoLookupFactory, 
+					transformerInstance.getId()
+				)
+			);
+		}
+		else if (DN_FULL_CLASS_NAME.equals(fullClassName))
+		{
+			add(
+				AssignedGroupsListPageFactory.createAssignedDNGroupsList(
 					daoLookupFactory, 
 					transformerInstance.getId()
 				)

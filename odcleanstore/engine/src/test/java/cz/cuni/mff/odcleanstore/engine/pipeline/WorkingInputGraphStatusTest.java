@@ -34,7 +34,7 @@ public class WorkingInputGraphStatusTest {
 		String uuid2 = _wigs.getWorkingTransformedGraphUuid();
 		Assert.assertEquals(uuid, uuid2);
 
-		InputGraphState inputGraphState = _wigs.getState(uuid2);
+		int inputGraphState = _wigs.getState(uuid2);
 		Assert.assertEquals(InputGraphState.PROCESSING, inputGraphState);
 
 		_wigs.setState(uuid2, InputGraphState.WRONG);
@@ -116,11 +116,11 @@ public class WorkingInputGraphStatusTest {
 		}
 	}
 
-	private void insertGraphUuid(String uuid, InputGraphState inputGraphState) throws Exception {
+	private void insertGraphUuid(String uuid, int inputGraphState) throws Exception {
 		VirtuosoConnectionWrapper con = null;
 		try {
 			con = VirtuosoConnectionWrapper.createTransactionalLevelConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
-			String sqlStatement = String.format("Insert into %s.EN_INPUT_GRAPHS(uuid, state) VALUES('%s', '%s')", _dbSchemaPrefix, uuid, inputGraphState.toString());
+			String sqlStatement = String.format("Insert into %s.EN_INPUT_GRAPHS(uuid, state) VALUES('%s', %d)", _dbSchemaPrefix, uuid, inputGraphState);
 			con.execute(sqlStatement);
 			con.commit();
 		} finally {

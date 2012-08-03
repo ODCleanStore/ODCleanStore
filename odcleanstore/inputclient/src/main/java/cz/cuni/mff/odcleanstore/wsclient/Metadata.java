@@ -1,7 +1,9 @@
 package cz.cuni.mff.odcleanstore.wsclient;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  *  Metadata used in conjuction with payload in insert SOAP message of odcs-inputclient webservice.
@@ -10,12 +12,12 @@ import java.util.List;
  */
 public final class Metadata {
 
-	private String _uuid;
-	private List<String> _publishedBy;
-	private List<String> _source;
-	private List<String> _license;
-	private String _dataBaseUrl;
-	private String _provenanceBaseUrl;
+	private UUID _uuid;
+	private List<URI> _publishedBy;
+	private List<URI> _source;
+	private List<URI> _license;
+	private URI _dataBaseUrl;
+	private URI _provenanceBaseUrl;
 	private String _provenance;
 	private String _pipelineName;
 
@@ -23,7 +25,7 @@ public final class Metadata {
 	 * Get uuid of insert operation.
 	 * @return uuid
 	 */
-	public String getUuid() {
+	public UUID getUuid() {
 		return _uuid;
 	}
 
@@ -31,7 +33,7 @@ public final class Metadata {
 	 * Set uuid of insert operation.
 	 * @param value uuid of insert operation
 	 */
-	public void setUuid(String value) {
+	public void setUuid(UUID value) {
 		this._uuid = value;
 	}
 
@@ -39,9 +41,9 @@ public final class Metadata {
 	 * Get appendable list of publishers of insert operation.
 	 * @return list of publishers
 	 */
-	public List<String> getPublishedBy() {
+	public List<URI> getPublishedBy() {
 		if (_publishedBy == null) {
-			_publishedBy = new ArrayList<String>();
+			_publishedBy = new ArrayList<URI>();
 		}
 		return this._publishedBy;
 	}
@@ -50,9 +52,9 @@ public final class Metadata {
 	 * Get appendable list of sources of insert operation.
 	 * @return appendable list of sources
 	 */
-	public List<String> getSource() {
+	public List<URI> getSource() {
 		if (_source == null) {
-			_source = new ArrayList<String>();
+			_source = new ArrayList<URI>();
 		}
 		return this._source;
 	}
@@ -61,9 +63,9 @@ public final class Metadata {
 	 * Get appendable list of licenses of insert operation.
 	 * @return appendable list of licenses
 	 */
-	public List<String> getLicense() {
+	public List<URI> getLicense() {
 		if (_license == null) {
-			_license = new ArrayList<String>();
+			_license = new ArrayList<URI>();
 		}
 		return this._license;
 	}
@@ -88,7 +90,7 @@ public final class Metadata {
 	 * Get base URL for payload.
 	 * @return base URL for payload
 	 */
-	public String getDataBaseUrl() {
+	public URI getDataBaseUrl() {
 		return _dataBaseUrl;
 	}
 
@@ -96,7 +98,7 @@ public final class Metadata {
 	 * Set base URL for payload.
 	 * @param value base URL for payload
 	 */
-	public void setDataBaseUrl(String value) {
+	public void setDataBaseUrl(URI value) {
 		this._dataBaseUrl = value;
 	}
 
@@ -104,7 +106,7 @@ public final class Metadata {
 	 * Get base URL for provenance metadata.
 	 * @return base URL for provenance metadata
 	 */
-	public String getProvenanceBaseUrl() {
+	public URI getProvenanceBaseUrl() {
 		return _provenanceBaseUrl;
 	}
 
@@ -112,7 +114,7 @@ public final class Metadata {
 	 * Set base URL for provenance metadata.
 	 * @param value base URL for provenance metadata
 	 */
-	public void setProvenanceBaseUrl(String value) {
+	public void setProvenanceBaseUrl(URI value) {
 		this._provenanceBaseUrl = value;
 	}
 	

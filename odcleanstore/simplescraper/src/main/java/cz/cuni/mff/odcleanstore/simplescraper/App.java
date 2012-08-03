@@ -1,7 +1,9 @@
 package cz.cuni.mff.odcleanstore.simplescraper;
 
 import java.io.FileInputStream;
+import java.net.URI;
 import java.util.Properties;
+import java.util.UUID;
 
 import cz.cuni.mff.odcleanstore.wsclient.Metadata;
 import cz.cuni.mff.odcleanstore.wsclient.OdcsService;
@@ -21,12 +23,12 @@ public class App {
 
 			props.load(new FileInputStream(args[0]));
 			
-			metadata.setDataBaseUrl(props.getProperty("databaseurl"));
-			metadata.setProvenanceBaseUrl(props.getProperty("provenancebaseurl"));
-			metadata.setUuid(props.getProperty("uuid"));
+			metadata.setDataBaseUrl(new URI(props.getProperty("databaseurl")));
+			metadata.setProvenanceBaseUrl(new URI(props.getProperty("provenancebaseurl")));
+			metadata.setUuid(UUID.fromString(props.getProperty("uuid")));
 
-			metadata.getPublishedBy().add(props.getProperty("publishedby"));
-			metadata.getSource().add(props.getProperty("source"));
+			metadata.getPublishedBy().add(new URI(props.getProperty("publishedby")));
+			metadata.getSource().add(new URI(props.getProperty("source")));
 			
 			metadata.setPipelineName(props.getProperty("pipelineName"));
 			
