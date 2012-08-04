@@ -8,13 +8,15 @@ package cz.cuni.mff.odcleanstore.engine;
  */
 public class InputGraphState {
 	public static final int IMPORTING = 1;
-	public static final int IMPORTED = 2;
-	public static final int PROCESSING = 3;
-	public static final int PROCESSED = 4;
-	public static final int PROPAGATED = 5;
-	public static final int FINISHED = 6;
-	public static final int DELETING = 7;
-	public static final int DIRTY = 8;
-	public static final int WRONG = 9;
-	public static final int REPAIRED = 10;
+	public static final int QUEUED_FOR_DELETE = 2;
+	public static final int QUEUED_URGENT = 3;
+	public static final int QUEUED = 4;
+	public static final int DELETING = 5;
+	public static final int PROCESSING = 6;
+	public static final int PROCESSED = 7;
+	public static final int PROPAGATED = 8;
+	public static final int FINISHED = 9;
+	public static final int DELETED = 10;
+	public static final int WRONG = 11;
+	public static final int DIRTY = 12;
 }

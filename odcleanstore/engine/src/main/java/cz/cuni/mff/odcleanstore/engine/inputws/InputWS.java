@@ -29,7 +29,7 @@ public class InputWS implements IInputWS {
 
 	private static final Logger LOG = Logger.getLogger(InputWS.class);
 
-	private static ImportingInputGraphStates _importedInputGraphStates = new ImportingInputGraphStates();
+	private static InputGraphStatus _importedInputGraphStates = new InputGraphStatus();
 	
 	@Override
 	public void insert(@WebParam(name = "user") String user, @WebParam(name = "password") String password, @WebParam(name = "metadata") Metadata metadata,
@@ -69,16 +69,16 @@ public class InputWS implements IInputWS {
 		} catch (InsertException e) {
 			LOG.warn(String.format("InputWS webservice - insert exception %s : %s", e.getMessage(), e.getMoreInfo()));
 			throw e;
-		} catch (ImportingInputGraphStates.ServiceBusyException e) {
+		} catch (InputGraphStatus.ServiceBusyException e) {
 			LOG.warn(String.format("InputWS webservice - insert exception %s : %s", InsertException.SERVICE_BUSY.getMessage(), InsertException.SERVICE_BUSY.getMoreInfo()));
 			throw InsertException.SERVICE_BUSY;
-		} catch (ImportingInputGraphStates.DuplicatedUuid e) {
+		} catch (InputGraphStatus.DuplicatedUuid e) {
 			LOG.warn(String.format("InputWS webservice - insert exception %s : %s", InsertException.DUPLICATED_UUID.getMessage(), InsertException.DUPLICATED_UUID.getMoreInfo()));
 			throw InsertException.DUPLICATED_UUID;
-		} catch (ImportingInputGraphStates.UnknownPipelineName e) {
+		} catch (InputGraphStatus.UnknownPipelineName e) {
 			LOG.warn(String.format("InputWS webservice - insert exception %s : %s", InsertException.UNKNOWN_PIPELINENAME.getMessage(), InsertException.UNKNOWN_PIPELINENAME.getMoreInfo()));
 			throw InsertException.UNKNOWN_PIPELINENAME;
-		} catch (ImportingInputGraphStates.UnknownPipelineDefaultName e) {
+		} catch (InputGraphStatus.UnknownPipelineDefaultName e) {
 			LOG.warn(String.format("InputWS webservice - insert exception %s : %s", InsertException.FATAL_ERROR.getMessage(), "Unknown pipeline default name"));
 			throw InsertException.FATAL_ERROR;
 		} catch (Exception e) {

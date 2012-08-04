@@ -31,8 +31,8 @@ public final class PipelineService extends Service implements Runnable {
 
 	private static final Logger LOG = Logger.getLogger(PipelineService.class);
 	
-	private WorkingInputGraphStatus _workingInputGraphStatus;
-	private WorkingInputGraph _workingInputGraph;
+	private TrnasformedGraphStatus _workingInputGraphStatus;
+	private TransformedGraphManipulation _workingInputGraph;
 	
 	private int _pipelineWaitPenalty = 0;
 	
@@ -92,8 +92,8 @@ public final class PipelineService extends Service implements Runnable {
 					setModuleState(ModuleState.INITIALIZING);
 				}
 
-				_workingInputGraphStatus = new WorkingInputGraphStatus("DB.ODCLEANSTORE");
-				_workingInputGraph = new WorkingInputGraph();
+				_workingInputGraphStatus = new TrnasformedGraphStatus("DB.ODCLEANSTORE");
+				_workingInputGraph = new TransformedGraphManipulation();
 
 				String graphsForRecoveryUuid = _workingInputGraphStatus.getWorkingTransformedGraphUuid();
 				if (graphsForRecoveryUuid != null) {
@@ -133,7 +133,7 @@ public final class PipelineService extends Service implements Runnable {
 			_workingInputGraph.deleteGraphFromDirtyDB(backendConfig.getProvenanceMetadataGraphURIPrefix() + uuid);
 
 			_workingInputGraphStatus.deleteWorkingAttachedGraphNames();
-			_workingInputGraphStatus.setState(uuid, InputGraphState.REPAIRED);
+			_workingInputGraphStatus.setState(uuid, InputGraphState.QUEUED);
 			LOG.info("PipelineService ends recovery from interrupted processing");
 			break;
 		case InputGraphState.PROCESSED:
@@ -142,7 +142,7 @@ public final class PipelineService extends Service implements Runnable {
 			processPropagatedState(uuid);
 			LOG.info("PipelineService ends recovery from interrupted copying graph from dirty to clean database instance");
 			break;
-		case InputGraphState.DELETING:
+		case InputGraphState.QUEUED_FOR_DELETE:
 			processDeletingState(uuid);
 			LOG.info("PipelineService ends recovery from interrupted deleting graph");
 			break;

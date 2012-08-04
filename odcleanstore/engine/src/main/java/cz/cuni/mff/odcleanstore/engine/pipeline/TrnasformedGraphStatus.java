@@ -11,12 +11,12 @@ import cz.cuni.mff.odcleanstore.engine.InputGraphState;
 /**
  *  @author Petr Jerman
  */
-final class WorkingInputGraphStatus {
+final class TrnasformedGraphStatus {
 
 	private String _dbSchemaPrefix;
 	private TransformedGraphImpl _workingTransformedGraphImpl;
 
-	WorkingInputGraphStatus(String dbSchemaPrefix) throws Exception {
+	TrnasformedGraphStatus(String dbSchemaPrefix) throws Exception {
 		_dbSchemaPrefix = dbSchemaPrefix;
 	}
 
@@ -29,7 +29,7 @@ final class WorkingInputGraphStatus {
 					InputGraphState.PROCESSING,
 					InputGraphState.PROCESSED,
 					InputGraphState.PROPAGATED,
-					InputGraphState.DELETING,
+					InputGraphState.QUEUED_FOR_DELETE,
 					InputGraphState.DIRTY);
 			
 			WrappedResultSet resultSet = con.executeSelect(sqlStatement);
@@ -167,13 +167,13 @@ final class WorkingInputGraphStatus {
 		String uuid = null;
 		try {
 			con = VirtuosoConnectionWrapper.createTransactionalLevelConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
-			String sqlStatement = String.format("Select uuid from %s.EN_INPUT_GRAPHS WHERE stateId=%d ORDER BY updated", _dbSchemaPrefix,InputGraphState.REPAIRED);
+			String sqlStatement = String.format("Select uuid from %s.EN_INPUT_GRAPHS WHERE stateId=%d ORDER BY updated", _dbSchemaPrefix,InputGraphState.QUEUED_URGENT);
 			WrappedResultSet resultSet = con.executeSelect(sqlStatement);
 			if(resultSet.next()) {
 				uuid  = resultSet.getString(1);
 			}
 			else {
-				sqlStatement = String.format("Select uuid from %s.EN_INPUT_GRAPHS WHERE stateId=%d ORDER BY updated", _dbSchemaPrefix, InputGraphState.IMPORTED);
+				sqlStatement = String.format("Select uuid from %s.EN_INPUT_GRAPHS WHERE stateId=%d ORDER BY updated", _dbSchemaPrefix, InputGraphState.QUEUED);
 				resultSet = con.executeSelect(sqlStatement);
 				if(resultSet.next()) {
 					uuid  = resultSet.getString(1);
@@ -221,7 +221,7 @@ final class WorkingInputGraphStatus {
 			throw new NotWorkingTransformerException();
 		}
 
-		setState(transformedGraphImpl.getGraphId(), InputGraphState.DELETING);
+		setState(transformedGraphImpl.getGraphId(), InputGraphState.QUEUED_FOR_DELETE);
 	}
 
 	static class NotWorkingTransformerException extends Exception {

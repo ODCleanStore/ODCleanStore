@@ -15,7 +15,7 @@ public final class TransformedGraphImpl implements TransformedGraph {
 	public static final String NOT_WORKING_TRANSFORMER = "Operation is permitted only for working transformer";
 
 	private static class InputGraph {
-		public WorkingInputGraphStatus workingInputGraphStatus;
+		public TrnasformedGraphStatus workingInputGraphStatus;
 		public int dbKeyId;
 		public String uuid;
 		public boolean isDeleted;
@@ -26,7 +26,7 @@ public final class TransformedGraphImpl implements TransformedGraph {
 	private TransformedGraphImpl _prevTransformedGraphImpl;
 	private ArrayList<String> _attachedGraphNames;
 
-	TransformedGraphImpl(WorkingInputGraphStatus workingInputGraphStatus,int dbKeyId, String uuid) {
+	TransformedGraphImpl(TrnasformedGraphStatus workingInputGraphStatus,int dbKeyId, String uuid) {
 		if (workingInputGraphStatus == null || dbKeyId == 0) {
 			throw new IllegalArgumentException();
 		}
@@ -106,7 +106,7 @@ public final class TransformedGraphImpl implements TransformedGraph {
 				_inputGraph.workingInputGraphStatus.addAttachedGraphName(this, attachedGraphName);
 				_attachedGraphNames.add(attachedGraphName);
 				_inputGraph.totalAttachedGraphsCount++;
-			} catch (WorkingInputGraphStatus.NotWorkingTransformerException e) {
+			} catch (TrnasformedGraphStatus.NotWorkingTransformerException e) {
 				throw new TransformedGraphException(NOT_WORKING_TRANSFORMER);
 			} catch (Exception e) {
 				throw new TransformedGraphException(e);
@@ -120,7 +120,7 @@ public final class TransformedGraphImpl implements TransformedGraph {
 			try {
 				_inputGraph.workingInputGraphStatus.deleteGraph(this);
 				_inputGraph.isDeleted = true;
-			} catch (WorkingInputGraphStatus.NotWorkingTransformerException e) {
+			} catch (TrnasformedGraphStatus.NotWorkingTransformerException e) {
 				throw new TransformedGraphException(NOT_WORKING_TRANSFORMER);
 			} catch (Exception e) {
 				throw new TransformedGraphException(e);
