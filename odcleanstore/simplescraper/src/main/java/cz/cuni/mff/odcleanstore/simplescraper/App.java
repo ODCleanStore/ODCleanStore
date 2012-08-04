@@ -24,7 +24,6 @@ public class App {
 			props.load(new FileInputStream(args[0]));
 			
 			metadata.setDataBaseUrl(new URI(props.getProperty("databaseurl")));
-			metadata.setProvenanceBaseUrl(new URI(props.getProperty("provenancebaseurl")));
 			metadata.setUuid(UUID.fromString(props.getProperty("uuid")));
 
 			metadata.getPublishedBy().add(new URI(props.getProperty("publishedby")));

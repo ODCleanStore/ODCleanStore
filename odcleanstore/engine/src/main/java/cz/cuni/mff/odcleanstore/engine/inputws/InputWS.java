@@ -53,7 +53,6 @@ public class InputWS implements IInputWS {
 			checkUries(metadata.source, 1, "source");
 			checkUries(metadata.license, 0, "license");
 			checkUri(metadata.dataBaseUrl, "dataBaseUrl");
-			checkUri(metadata.provenanceBaseUrl, "provenanceBaseUrl");
 
 			if (payload == null) {
 				throw new InsertException("payload is null");

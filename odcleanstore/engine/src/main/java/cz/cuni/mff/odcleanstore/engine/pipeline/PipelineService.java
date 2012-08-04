@@ -242,10 +242,10 @@ public final class PipelineService extends Service implements Runnable {
 				}
 			}
 			if (metadata.provenance != null) {
-				con.insertRdfXmlOrTtl(dataGraphURI, metadata.provenance, provenanceGraphURI);
+				con.insertRdfXmlOrTtl(metadata.dataBaseUrl, metadata.provenance, provenanceGraphURI);
 				con.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.provenanceMetadataGraph + ">", "<" + provenanceGraphURI + ">", "<" + metadataGraphURI + ">");
 			}
-			con.insertRdfXmlOrTtl(dataGraphURI, payload, dataGraphURI);
+			con.insertRdfXmlOrTtl(metadata.dataBaseUrl, payload, dataGraphURI);
 			con.commit();
 		} finally {
 			if (con != null) {

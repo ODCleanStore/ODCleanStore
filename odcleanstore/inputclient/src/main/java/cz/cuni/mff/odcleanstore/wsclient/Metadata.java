@@ -17,7 +17,6 @@ public final class Metadata {
 	private List<URI> _source;
 	private List<URI> _license;
 	private URI _dataBaseUrl;
-	private URI _provenanceBaseUrl;
 	private String _provenance;
 	private String _pipelineName;
 
@@ -100,22 +99,6 @@ public final class Metadata {
 	 */
 	public void setDataBaseUrl(URI value) {
 		this._dataBaseUrl = value;
-	}
-
-	/**
-	 * Get base URL for provenance metadata.
-	 * @return base URL for provenance metadata
-	 */
-	public URI getProvenanceBaseUrl() {
-		return _provenanceBaseUrl;
-	}
-
-	/**
-	 * Set base URL for provenance metadata.
-	 * @param value base URL for provenance metadata
-	 */
-	public void setProvenanceBaseUrl(URI value) {
-		this._provenanceBaseUrl = value;
 	}
 	
 	/**

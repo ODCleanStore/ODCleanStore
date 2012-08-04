@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.XmlType;
  *  @author Petr Jerman
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "metadata", propOrder = { "uuid", "publishedBy", "source", "license", "dataBaseUrl", "provenanceBaseUrl", "provenance", "pipelineName" })
+@XmlType(name = "metadata", propOrder = { "uuid", "publishedBy", "source", "license", "dataBaseUrl", "provenance", "pipelineName" })
 public class Metadata {
 
 	protected String uuid;
@@ -24,7 +24,6 @@ public class Metadata {
 	@XmlElement(nillable = true)
 	protected List<String> license;
 	protected String dataBaseUrl;
-	protected String provenanceBaseUrl;
 	protected String provenance;
 	protected String pipelineName;
 
@@ -63,14 +62,6 @@ public class Metadata {
 
 	public void setDataBaseUrl(String value) {
 		this.dataBaseUrl = value;
-	}
-
-	public String getProvenanceBaseUrl() {
-		return provenanceBaseUrl;
-	}
-
-	public void setProvenanceBaseUrl(String value) {
-		this.provenanceBaseUrl = value;
 	}
 
 	public String getProvenance() {
