@@ -31,7 +31,7 @@ public final class PipelineService extends Service implements Runnable {
 
 	private static final Logger LOG = Logger.getLogger(PipelineService.class);
 	
-	private TrnasformedGraphStatus _workingInputGraphStatus;
+	private TransformedGraphStatus _workingInputGraphStatus;
 	private TransformedGraphManipulation _workingInputGraph;
 	
 	private int _pipelineWaitPenalty = 0;
@@ -92,7 +92,7 @@ public final class PipelineService extends Service implements Runnable {
 					setModuleState(ModuleState.INITIALIZING);
 				}
 
-				_workingInputGraphStatus = new TrnasformedGraphStatus("DB.ODCLEANSTORE");
+				_workingInputGraphStatus = new TransformedGraphStatus("DB.ODCLEANSTORE");
 				_workingInputGraph = new TransformedGraphManipulation();
 
 				String graphsForRecoveryUuid = _workingInputGraphStatus.getWorkingTransformedGraphUuid();

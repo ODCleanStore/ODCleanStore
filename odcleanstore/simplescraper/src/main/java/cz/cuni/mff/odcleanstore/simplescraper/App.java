@@ -24,7 +24,13 @@ public class App {
 			props.load(new FileInputStream(args[0]));
 			
 			metadata.setDataBaseUrl(new URI(props.getProperty("databaseurl")));
-			metadata.setUuid(UUID.fromString(props.getProperty("uuid")));
+			
+			String uuidString = props.getProperty("uuid");
+			UUID uuid = UUID.fromString(uuidString);
+			if (!uuidString.equals(uuid.toString())) {
+				throw new Exception("uuid format error");
+			}
+			metadata.setUuid(uuid);
 
 			metadata.getPublishedBy().add(new URI(props.getProperty("publishedby")));
 			metadata.getSource().add(new URI(props.getProperty("source")));

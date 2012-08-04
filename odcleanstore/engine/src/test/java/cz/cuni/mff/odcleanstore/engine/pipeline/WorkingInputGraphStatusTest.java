@@ -10,7 +10,7 @@ import org.junit.Before;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.engine.InputGraphState;
-import cz.cuni.mff.odcleanstore.engine.pipeline.TrnasformedGraphStatus.NotWorkingTransformerException;
+import cz.cuni.mff.odcleanstore.engine.pipeline.TransformedGraphStatus.NotWorkingTransformerException;
 
 /**
  *  @author Petr Jerman
@@ -18,11 +18,11 @@ import cz.cuni.mff.odcleanstore.engine.pipeline.TrnasformedGraphStatus.NotWorkin
 public class WorkingInputGraphStatusTest {
 
 	private static String _dbSchemaPrefix = "DB.TEST";
-	private TrnasformedGraphStatus _wigs;
+	private TransformedGraphStatus _wigs;
 
 	@Before
 	public void setUp() throws Exception {
-		_wigs = new TrnasformedGraphStatus(_dbSchemaPrefix);
+		_wigs = new TransformedGraphStatus(_dbSchemaPrefix);
 	}
 
 	// @Test

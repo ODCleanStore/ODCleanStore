@@ -11,12 +11,12 @@ import cz.cuni.mff.odcleanstore.engine.InputGraphState;
 /**
  *  @author Petr Jerman
  */
-final class TrnasformedGraphStatus {
+final class TransformedGraphStatus {
 
 	private String _dbSchemaPrefix;
 	private TransformedGraphImpl _workingTransformedGraphImpl;
 
-	TrnasformedGraphStatus(String dbSchemaPrefix) throws Exception {
+	TransformedGraphStatus(String dbSchemaPrefix) throws Exception {
 		_dbSchemaPrefix = dbSchemaPrefix;
 	}
 
