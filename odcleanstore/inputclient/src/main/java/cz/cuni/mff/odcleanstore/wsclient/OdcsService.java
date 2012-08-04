@@ -1,6 +1,10 @@
 package cz.cuni.mff.odcleanstore.wsclient;
 
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 import cz.cuni.mff.odcleanstore.engine.inputws.InsertException_Exception;
 import cz.cuni.mff.odcleanstore.engine.inputws.InputWS;
@@ -20,7 +24,7 @@ public final class OdcsService {
 	/**
 	 * Create new odcs-inputclient webservice java client wrapper.
 	 * @param serviceLocation odcs-inputclient webservice location
-	 * @throws MalformedURLException 
+	 * @throws MalformedURLException serviceLocation URL format error
 	 */
 	public OdcsService(String serviceLocation) throws MalformedURLException {
 		_inputWSService = InputWSService.create(serviceLocation);
@@ -28,31 +32,53 @@ public final class OdcsService {
 	}
 
 	/**
-	 * Send insert message to odcs-inputclient SOAP webservice.
+	 * Send insert data message to odcs-inputclient SOAP webservice.
 	 * 
 	 * @param user odcs user for message
 	 * @param password odcs user password for message
 	 * @param metadata metadata asocciated with payload
-	 * @param rdfXmlPayload payload in rdfxml format
-	 * @throws InsertException
+	 * @param payload payload in rdfxml format
+	 * @throws InsertException Exception returned from server
 	 */
-	public void insert(String user, String password, Metadata metadata, String rdfXmlPayload) throws InsertException {
+	public void insert(String user, String password, Metadata metadata, String payload) throws InsertException {
 
 		cz.cuni.mff.odcleanstore.engine.inputws.Metadata wsMetadata = new cz.cuni.mff.odcleanstore.engine.inputws.Metadata();
-
-		wsMetadata.setUuid(metadata.getUuid());
-		wsMetadata.getPublishedBy().addAll(metadata.getPublishedBy());
-		wsMetadata.getSource().addAll(metadata.getSource());
-		wsMetadata.getLicense().addAll(metadata.getLicense());
-		wsMetadata.setDataBaseUrl(metadata.getDataBaseUrl());
-		wsMetadata.setProvenanceBaseUrl(metadata.getProvenanceBaseUrl());
-		wsMetadata.setRdfXmlProvenance(metadata.getRdfXmlProvenance());
+	
+		wsMetadata.setUuid(convert(metadata.getUuid()));
+		wsMetadata.getPublishedBy().addAll(convert(metadata.getPublishedBy()));
+		wsMetadata.getSource().addAll(convert(metadata.getSource()));
+		wsMetadata.getLicense().addAll(convert(metadata.getLicense()));
+		wsMetadata.setDataBaseUrl(convert(metadata.getDataBaseUrl()));
+		wsMetadata.setProvenanceBaseUrl(convert(metadata.getDataBaseUrl()));
+		wsMetadata.setRdfXmlProvenance(metadata.getProvenance());
 		wsMetadata.setPipelineName(metadata.getPipelineName());
+		
+		if (payload  != null && payload.startsWith("\ufeff<?xml")) {
+			payload = payload.substring(1);
+		}
 
 		try {
-			_inputWSPort.insert(user, password, wsMetadata, rdfXmlPayload);
+			_inputWSPort.insert(user, password, wsMetadata, payload);
 		} catch (InsertException_Exception e) {
 			throw new InsertException(e.getFaultInfo().getId(), e.getFaultInfo().getMessage(), e.getFaultInfo().getMoreInfo());
 		}
+	}
+	
+	private List<String> convert(List<URI> src) {
+		List<String> retVal= new ArrayList<String>();
+		for(URI item:src) {
+			if(item != null) {
+				retVal.add(item.toString());
+			}
+		}
+		return retVal;
+	}
+	
+	private String convert(URI src) {
+		return src != null ? src.toString() : null;
+	}
+
+	private String convert(UUID src) {
+		return src != null ? src.toString() : null;
 	}
 }
