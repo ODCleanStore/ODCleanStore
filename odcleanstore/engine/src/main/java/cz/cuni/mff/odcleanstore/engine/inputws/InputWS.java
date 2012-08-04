@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
+import cz.cuni.mff.odcleanstore.engine.common.Utils;
 import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.IInputWS;
 import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.InsertException;
 import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.Metadata;
@@ -44,6 +45,8 @@ public class InputWS implements IInputWS {
 			if (metadata == null) {
 				throw new InsertException("metadata is null");
 			}
+			
+			metadata.provenance = Utils.removeInitialBOMXml(metadata.provenance);
 
 			checkUuid(metadata.uuid);
 			checkUries(metadata.publishedBy, 1, "publishedBy");
@@ -55,6 +58,8 @@ public class InputWS implements IInputWS {
 			if (payload == null) {
 				throw new InsertException("payload is null");
 			}
+			
+			payload = Utils.removeInitialBOMXml(payload);
 
 			String sessionUuid = _importedInputGraphStates.beginImportSession(metadata.uuid, metadata.pipelineName, null);
 			saveFiles(metadata, payload);
