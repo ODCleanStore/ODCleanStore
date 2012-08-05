@@ -23,7 +23,7 @@ public final class OdcsService {
 
 	/**
 	 * Create new odcs-inputclient webservice java client wrapper.
-	 * @param serviceLocation odcs-inputclient webservice location
+	 * @param serviceLocation required odcs-inputclient webservice location
 	 * @throws MalformedURLException serviceLocation URL format error
 	 */
 	public OdcsService(String serviceLocation) throws MalformedURLException {
@@ -34,10 +34,10 @@ public final class OdcsService {
 	/**
 	 * Send insert data message to odcs-inputclient SOAP webservice.
 	 * 
-	 * @param user odcs user for message
-	 * @param password odcs user password for message
-	 * @param metadata metadata asocciated with payload
-	 * @param payload payload in rdfxml format
+	 * @param user odcs required user for message
+	 * @param password required odcs user password for message
+	 * @param metadata required metadata asocciated with payload
+	 * @param payload required payload in rdfxml format
 	 * @throws InsertException Exception returned from server
 	 */
 	public void insert(String user, String password, Metadata metadata, String payload) throws InsertException {

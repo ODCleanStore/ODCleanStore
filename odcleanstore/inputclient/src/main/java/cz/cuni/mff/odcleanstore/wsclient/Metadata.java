@@ -21,7 +21,7 @@ public final class Metadata {
 	private String _pipelineName;
 
 	/**
-	 * Get uuid of insert operation.
+	 * Get required uuid of insert operation.
 	 * @return uuid
 	 */
 	public UUID getUuid() {
@@ -29,7 +29,7 @@ public final class Metadata {
 	}
 
 	/**
-	 * Set uuid of insert operation.
+	 * Set required uuid of insert operation.
 	 * @param value uuid of insert operation
 	 */
 	public void setUuid(UUID value) {
@@ -37,7 +37,8 @@ public final class Metadata {
 	}
 
 	/**
-	 * Get appendable list of publishers of insert operation.
+	 * Get appendable list of publishers of insert operation.</br>
+	 * At least one publisher is required.
 	 * @return list of publishers
 	 */
 	public List<URI> getPublishedBy() {
@@ -48,7 +49,8 @@ public final class Metadata {
 	}
 
 	/**
-	 * Get appendable list of sources of insert operation.
+	 * Get appendable list of sources of insert operation.</br>
+	 * At least one source is required.
 	 * @return appendable list of sources
 	 */
 	public List<URI> getSource() {
@@ -60,6 +62,7 @@ public final class Metadata {
 
 	/**
 	 * Get appendable list of licenses of insert operation.
+	 * Zero or more licenses are allowed.
 	 * @return appendable list of licenses
 	 */
 	public List<URI> getLicense() {
@@ -70,7 +73,7 @@ public final class Metadata {
 	}
 
 	/**
-	 * Get provenance metadata of insert operation.
+	 * Get optional provenance metadata of insert operation.
 	 * @return provenance metadata
 	 */
 	public String getProvenance() {
@@ -78,15 +81,15 @@ public final class Metadata {
 	}
 
 	/**
-	 * Set provenance metadata of insert operation.
-	 * @param value provenance metadata of insert operation 
+	 * Set optional provenance metadata of insert operation.
+	 * @param value provenance metadata in rdfxml format 
 	 */
 	public void setProvenance(String value) {
 		this._provenance = value;
 	}
 
 	/**
-	 * Get base URL for payload.
+	 * Get required base URL for payload.
 	 * @return base URL for payload
 	 */
 	public URI getDataBaseUrl() {
@@ -94,7 +97,7 @@ public final class Metadata {
 	}
 
 	/**
-	 * Set base URL for payload.
+	 * Set required base URL for payload.
 	 * @param value base URL for payload
 	 */
 	public void setDataBaseUrl(URI value) {
