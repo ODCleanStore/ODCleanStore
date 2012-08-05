@@ -24,6 +24,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDFS;
 import com.hp.hpl.jena.vocabulary.XSD;
 
+import cz.cuni.mff.odcleanstore.configuration.BackendConfig;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
@@ -39,7 +40,9 @@ public class RulesModel {
 	public static void main(String[] args) {
 		try {
 			ConfigLoader.loadConfig();
-			new RulesModel(new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba")).compileOntologyToRules("http://purl.org/procurement/public-contracts", 1);
+			BackendConfig config = ConfigLoader.getConfig().getBackendGroup();
+
+			new RulesModel(config.getCleanDBJDBCConnectionCredentials()).compileOntologyToRules("http://purl.org/procurement/public-contracts", 1);
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}
@@ -58,7 +61,7 @@ public class RulesModel {
 	private static final String ruleByGroupLabelQueryFormat = "SELECT rules.id AS id, " +
 			"rules.groupId AS groupId, " +
 			"types.label AS type, " +
-			"components.modification AS modification " +
+			"components.modification AS modification, " +
 			"rules.description AS description, " +
 			"components.description AS componentDescription FROM " +
 			"DB.ODCLEANSTORE.DN_RULES AS rules JOIN " +

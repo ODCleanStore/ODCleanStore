@@ -14,6 +14,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cz.cuni.mff.odcleanstore.configuration.BackendConfig;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
@@ -44,11 +45,13 @@ public class QualityAssessorImpl implements QualityAssessor {
 	public static void main(String[] args) {
 		try {
 			ConfigLoader.loadConfig();
+			BackendConfig config = ConfigLoader.getConfig().getBackendGroup();
+
 			Map<String, GraphScoreWithTrace> result = new QualityAssessorImpl("Group 1").debugRules(new FileInputStream(System.getProperty("user.home") + "/odcleanstore/debugQA.ttl"),
 					"http://opendata.cz/data/metadataGraph",
 					prepareContext(
-							new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba"),
-							new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1112/UID=dba/PWD=dba", "dba", "dba")));
+							config.getCleanDBJDBCConnectionCredentials(),
+							config.getDirtyDBJDBCConnectionCredentials()));
 			
 			Iterator<String> i = result.keySet().iterator();
 			
