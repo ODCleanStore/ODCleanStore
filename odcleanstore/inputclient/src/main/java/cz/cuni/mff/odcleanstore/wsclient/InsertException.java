@@ -14,6 +14,7 @@ package cz.cuni.mff.odcleanstore.wsclient;
  * <li>message : "Not authorized", id :  3, moreInfo :  "Not authorized"</li>
  * <li>message : "Duplicated uuid", id :  4, moreInfo :  "Duplicated uuid"</li>
  * <li>message : "Uuid bad format", id :  5, moreInfo :  "Uuid bad format"</li>
+ * <li>message : "Unknown pipeline name", id :  6, moreInfo :  "Unknown pipeline name"</li>
  * <li>message : "Other error", id :  7, moreInfo :  "Other error"</li>
  * <li>message : "Fatal error", id :  8, moreInfo :  "Fatal error"</li>
  * <li>message : "Metadata error", id :  9, moreInfo :  detailed error description</li>
