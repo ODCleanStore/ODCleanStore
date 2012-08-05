@@ -50,8 +50,13 @@ public final class OdcsService {
 		wsMetadata.getLicense().addAll(convert(metadata.getLicense()));
 		wsMetadata.setDataBaseUrl(convert(metadata.getDataBaseUrl()));
 		wsMetadata.setProvenanceBaseUrl(convert(metadata.getDataBaseUrl()));
-		wsMetadata.setRdfXmlProvenance(metadata.getProvenance());
 		wsMetadata.setPipelineName(metadata.getPipelineName());
+		
+		String provenance = metadata.getProvenance();
+		if (provenance  != null && provenance.startsWith("\ufeff<?xml")) {
+			provenance = provenance.substring(1);
+		}
+		wsMetadata.setRdfXmlProvenance(provenance);
 		
 		if (payload  != null && payload.startsWith("\ufeff<?xml")) {
 			payload = payload.substring(1);
