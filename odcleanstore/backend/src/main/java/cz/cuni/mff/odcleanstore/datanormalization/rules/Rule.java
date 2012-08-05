@@ -1,6 +1,6 @@
 package cz.cuni.mff.odcleanstore.datanormalization.rules;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
 
@@ -78,7 +78,7 @@ public class Rule {
 	Integer id;
 	Integer groupId;
 	String description;
-	Vector<Component> components = new Vector<Component>();
+	ArrayList<Component> components = new ArrayList<Component>();
 
 	/**
 	 * constructs new rule with the specified components

@@ -158,7 +158,7 @@ public class RulesModel {
 			if (connection != null) {
 				try {
 					connection.close();
-				} catch (ConnectionException e) {
+				} catch (DatabaseException e) {
 					LOG.error("Rules Model connection not closed: " + e.getMessage());
 				}
 			}
@@ -251,7 +251,7 @@ public class RulesModel {
 			if (connection != null) {
 				try {
 					connection.close();
-				} catch (ConnectionException e) {
+				} catch (DatabaseException e) {
 					LOG.error("Rules Model connection not closed: " + e.getMessage());
 				}
 			}
@@ -319,8 +319,6 @@ public class RulesModel {
 						"Remove all improper values of the property " + resource.getURI());
 				
 				storeRule(rule, ontology);
-				
-				storeRule(rule, ontology);
 			}
 		}
 	}
@@ -373,7 +371,7 @@ public class RulesModel {
 			if (connection != null) {
 				try {
 					connection.close();
-				} catch (ConnectionException e) {
+				} catch (DatabaseException e) {
 					LOG.error("Rules Model connection not closed: " + e.getMessage());
 				}
 			}

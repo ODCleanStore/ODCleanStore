@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.data;
 
 import java.io.InputStream;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
@@ -17,7 +18,6 @@ import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.shared.UniqueGraphNameGenerator;
 import de.fuberlin.wiwiss.ng4j.NamedGraph;
-import de.fuberlin.wiwiss.ng4j.impl.GraphReaderService;
 import de.fuberlin.wiwiss.ng4j.impl.NamedGraphSetImpl;
 
 /**
@@ -27,19 +27,21 @@ import de.fuberlin.wiwiss.ng4j.impl.NamedGraphSetImpl;
 public class DebugGraphFileLoader {
 	private static final Logger LOG = LoggerFactory.getLogger(DebugGraphFileLoader.class);
 
+	private String temporaryGraphURIPrefix;
 	private JDBCConnectionCredentials connectionCredentials;
 	
-	public DebugGraphFileLoader(JDBCConnectionCredentials connectionCredentials) {
+	public DebugGraphFileLoader(URI temporaryGraphURIPrefix, JDBCConnectionCredentials connectionCredentials) {
+		this.temporaryGraphURIPrefix = temporaryGraphURIPrefix.toString();
 		this.connectionCredentials = connectionCredentials;
 	}
 	
-	private static String getInputBaseURI (String discriminator) {
-		return "http://example.com/" + discriminator + "/input/";
+	private static String getInputBaseURI (String temporaryGraphURIPrefix, String discriminator) {
+		return temporaryGraphURIPrefix + "/" + discriminator + "/input/";
 	}
 	
 	public HashMap<String, String> load (InputStream input, String discriminator) throws Exception {
 		try {
-			return loadImpl(new EnforceTriG().transform(input, getInputBaseURI(discriminator)), discriminator);
+			return loadImpl(new MultipleFormatLoader().load(input, getInputBaseURI(this.temporaryGraphURIPrefix, discriminator)), discriminator);
 		} catch (Exception e) {
 			LOG.error(String.format("Could not finish loading debug graphs from input: %s", e.getMessage()));
 				
@@ -47,18 +49,7 @@ public class DebugGraphFileLoader {
 		}
 	}
 	
-	private HashMap<String, String> loadImpl (InputStream input, String discriminator) throws Exception {	
-		/**
-		 * Load graphs from source file
-		 */
-		NamedGraphSetImpl namedGraphSet = new NamedGraphSetImpl();
-		
-		GraphReaderService reader = new GraphReaderService();
-
-		reader.setSourceInputStream(input, getInputBaseURI(discriminator));
-		reader.setLanguage("TRIG");
-		reader.readInto(namedGraphSet);
-
+	private HashMap<String, String> loadImpl (NamedGraphSetImpl namedGraphSet, String discriminator) throws Exception {	
 		/**
 		 * Copy them into unique graphs
 		 */

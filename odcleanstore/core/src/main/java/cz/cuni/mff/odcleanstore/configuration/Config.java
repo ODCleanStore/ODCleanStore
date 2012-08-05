@@ -24,6 +24,7 @@ import java.util.Properties;
 // TODO: doplnit integracni testy pro parse cele konfigurace ze souboru
 public final class Config {
     private BackendConfig backendConfigGroup;
+    private DataNormalizationConfig dataNormalizationGroup;
     private QualityAssessmentConfig qualityAssessmentGroup;
     private ObjectIdentificationConfig objectIdentificationGroup;
     private QueryExecutionConfig queryExecutionGroup;
@@ -40,10 +41,12 @@ public final class Config {
      * @param outputWSGroup input webservice configuration
      * @param inputWSGroup output webservice configuration
      */
-    private Config(BackendConfig backendConfigGroup, QualityAssessmentConfig qualityAssessmentGroup, ObjectIdentificationConfig objectIdentificationGroup,
+    private Config(BackendConfig backendConfigGroup, DataNormalizationConfig dataNormalizationGroup,
+            QualityAssessmentConfig qualityAssessmentGroup, ObjectIdentificationConfig objectIdentificationGroup,
             QueryExecutionConfig queryExecutionGroup, ConflictResolutionConfig conflictResolutionGroup,
             OutputWSConfig outputWSGroup, InputWSConfig inputWSGroup) {
         this.backendConfigGroup = backendConfigGroup;
+        this.dataNormalizationGroup = dataNormalizationGroup;
         this.qualityAssessmentGroup = qualityAssessmentGroup;
         this.objectIdentificationGroup = objectIdentificationGroup;
         this.queryExecutionGroup = queryExecutionGroup;
@@ -62,6 +65,7 @@ public final class Config {
      */
     public static Config load(Properties properties) throws ConfigurationException {
         BackendConfig backendConfigGroup = BackendConfig.load(properties);
+        DataNormalizationConfig dataNormalizationGroup = DataNormalizationConfig.load(properties);
         QualityAssessmentConfig qualityAssessmentGroup = QualityAssessmentConfig.load(properties);
         ObjectIdentificationConfig objectIdentificationGroup = ObjectIdentificationConfig.load(properties);
         QueryExecutionConfig queryExecutionGroup = QueryExecutionConfig.load(properties);
@@ -69,8 +73,8 @@ public final class Config {
         OutputWSConfig outputWSGroup = OutputWSConfig.load(properties);
         InputWSConfig inputWSGroup = InputWSConfig.load(properties);
 
-        return new Config(backendConfigGroup, qualityAssessmentGroup, objectIdentificationGroup, queryExecutionGroup, conflictResolutionGroup,
-                outputWSGroup, inputWSGroup);
+        return new Config(backendConfigGroup, dataNormalizationGroup, qualityAssessmentGroup, objectIdentificationGroup,
+        		queryExecutionGroup, conflictResolutionGroup, outputWSGroup, inputWSGroup);
     }
 
     /**
@@ -104,6 +108,14 @@ public final class Config {
     public BackendConfig getBackendGroup() {
         return backendConfigGroup;
     }
+
+    /**
+     * Returns DN configuration.
+     * @return DN configuration
+     */
+	public DataNormalizationConfig getDataNormalizationGroup() {
+		return dataNormalizationGroup;
+	}
     
     /**
      * Returns QA configuration.

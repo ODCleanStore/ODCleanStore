@@ -1,7 +1,6 @@
 package cz.cuni.mff.odcleanstore.data;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -12,8 +11,8 @@ import de.fuberlin.wiwiss.ng4j.impl.NamedGraphSetImpl;
  * Utility used to transform input streams in RDF/XML to TRiG
  * @author Jakub Daniel
  */
-public class EnforceTriG {
-	public InputStream transform (InputStream input, String defaultGraphName) throws IOException {
+public class MultipleFormatLoader {
+	public NamedGraphSetImpl load(InputStream input, String defaultGraphName) throws IOException {
 		NamedGraphSetImpl namedGraphSet = new NamedGraphSetImpl();
 
 		GraphReaderService reader = new GraphReaderService();
@@ -57,10 +56,6 @@ public class EnforceTriG {
 			reader.readInto(namedGraphSet);
 		}
 		
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		
-		namedGraphSet.write(out, "TRIG", defaultGraphName);
-		
-		return new ByteArrayInputStream(out.toByteArray());
+		return namedGraphSet;
 	}
 }

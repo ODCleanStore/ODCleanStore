@@ -11,9 +11,7 @@ import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
-import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
-import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.qualityassessment.QualityAggregator;
 import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
@@ -144,7 +142,7 @@ public class QualityAggregatorImpl implements QualityAggregator {
 					1);
 		} catch (QualityAssessmentException e) {
 			throw new TransformerException(e);
-		} catch (ConnectionException e) {
+		} catch (DatabaseException e) {
 			throw new TransformerException(e);
 		} finally {
 			closeCleanConnection();
@@ -171,7 +169,7 @@ public class QualityAggregatorImpl implements QualityAggregator {
 					0);
 		} catch (QualityAssessmentException e) {
 			throw new TransformerException(e);
-		} catch (ConnectionException e) {
+		} catch (DatabaseException e) {
 			throw new TransformerException(e);
 		} finally {
 			closeCleanConnection();
@@ -217,9 +215,7 @@ public class QualityAggregatorImpl implements QualityAggregator {
 					getCleanConnection().execute(storeUpdated);
 					
 					getCleanConnection().commit();
-				} catch (ConnectionException e) {
-					throw new TransformerException(e);
-				} catch (QueryException e) {
+				} catch (DatabaseException e) {
 					throw new TransformerException(e);
 				} catch (SQLException e) {
 					throw new TransformerException(e);
@@ -237,7 +233,7 @@ public class QualityAggregatorImpl implements QualityAggregator {
 	private VirtuosoConnectionWrapper cleanConnection;
 	private VirtuosoConnectionWrapper dirtyConnection;
 
-	private VirtuosoConnectionWrapper getCleanConnection () throws ConnectionException {
+	private VirtuosoConnectionWrapper getCleanConnection () throws DatabaseException {
         if (cleanConnection == null) {
         	cleanConnection = VirtuosoConnectionWrapper.createConnection(context.getCleanDatabaseCredentials());
        	}
@@ -249,13 +245,13 @@ public class QualityAggregatorImpl implements QualityAggregator {
 			if (cleanConnection != null) {
 				cleanConnection.close();
 			}
-		} catch (ConnectionException e) {
+		} catch (DatabaseException e) {
 		} finally {
 			cleanConnection = null;
 		}
 	}
 	
-	private VirtuosoConnectionWrapper getDirtyConnection () throws ConnectionException {
+	private VirtuosoConnectionWrapper getDirtyConnection () throws DatabaseException {
         if (dirtyConnection == null) {
         	dirtyConnection = VirtuosoConnectionWrapper.createConnection(context.getDirtyDatabaseCredentials());
        	}
@@ -267,7 +263,7 @@ public class QualityAggregatorImpl implements QualityAggregator {
 			if (dirtyConnection != null) {
 				dirtyConnection.close();
 			}
-		} catch (ConnectionException e) {
+		} catch (DatabaseException e) {
 		} finally {
 			dirtyConnection = null;
 		}
