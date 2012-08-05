@@ -2,12 +2,12 @@
 
 <wicket:link>
 <div>
-	<a class="placedright" href="OntologiesListPage.html">Back to a list of all ontologies</a>
+	<a class="placedright" href="OntologiesListPage.html">Back to the list of ontologies</a>
 	<div class="clear">&nbsp;</div>
 </div>
 </wicket:link>
 
-<form wicket:id="newOntologyForm">
+<form wicket:id="editOntologyForm">
 	<p>
 		<label for="label">Label:</label>
 		<input wicket:id="label" id="label" class="required" />
@@ -15,10 +15,6 @@
 	<p>
 		<label for="description">Description:</label>
 		<textarea wicket:id="description" id="description"></textarea>
-	</p>
-	<p>
-		<label for="graphName">Graph name:</label>
-		<input wicket:id="graphName" id="graphName" class="required" />
 	</p>
 	<p>
 		<label for="rdfData">Definition:</label>

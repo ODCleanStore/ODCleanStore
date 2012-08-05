@@ -10,7 +10,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
@@ -91,7 +91,7 @@ public class OIGroupDetailPage extends FrontendPage
 				item.add(createNullResistentTableCellLabel("filterLimit", rule.getFilterLimit()));
 				
 				item.add(
-					new DeleteButton<OIRule>
+					new DeleteRawButton<OIRule>
 					(
 						oiRuleDao,
 						rule.getId(),

@@ -14,9 +14,9 @@ public class Ontology extends RDFGraphEntity
 	private String label;
 	private String description;
 	
-	public Ontology(Long id, String label, String description, String graphName, String rdfData) 
+	public Ontology(Long id, String label, String description, String graphName) 
 	{
-		super(id, graphName, rdfData);
+		super(id, graphName);
 		this.label = label;
 		this.description = description;
 	}

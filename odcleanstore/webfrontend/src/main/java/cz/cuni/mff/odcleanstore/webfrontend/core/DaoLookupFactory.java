@@ -3,10 +3,8 @@ package cz.cuni.mff.odcleanstore.webfrontend.core;
 import java.io.Serializable;
 import java.util.HashMap;
 
-import javax.sql.DataSource;
 
 import cz.cuni.mff.odcleanstore.util.JDBCConnectionCredentials;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.SafetyDaoDecorator;
@@ -15,10 +13,11 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.GlobalAggregationSettingsDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.OfficialPipelinesDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 
-import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.log4j.Logger;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.support.AbstractPlatformTransactionManager;
+
+import virtuoso.jdbc3.VirtuosoDataSource;
 
 /**
  * A factory to lookup DAO Spring beans.
@@ -34,7 +33,7 @@ public class DaoLookupFactory implements Serializable
 	
 	private JDBCConnectionCredentials connectionCoords;
 	
-	private transient DataSource dataSource;
+	private transient VirtuosoDataSource dataSource;
 	private transient AbstractPlatformTransactionManager transactionManager;
 	
 	private HashMap<Class<? extends Dao>, Dao> daos;
@@ -152,16 +151,14 @@ public class DaoLookupFactory implements Serializable
 	 * 
 	 * @return
 	 */
-	public DataSource getDataSource()
+	public VirtuosoDataSource getDataSource()
 	{
 		if (dataSource == null)
 		{
-			dataSource = new BasicDataSource();
-			
-			((BasicDataSource) dataSource).setDriverClassName(connectionCoords.getDriverClassName());
-			((BasicDataSource) dataSource).setUrl(connectionCoords.getConnectionString());
-			((BasicDataSource) dataSource).setUsername(connectionCoords.getUsername());
-			((BasicDataSource) dataSource).setPassword(connectionCoords.getPassword());
+			dataSource = new VirtuosoDataSource();
+			dataSource.setServerName(connectionCoords.getConnectionString());
+			dataSource.setUser(connectionCoords.getUsername());
+			dataSource.setPassword(connectionCoords.getPassword());
 		}
 		
 		return dataSource;

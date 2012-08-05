@@ -29,4 +29,11 @@ public abstract class DaoForEntityWithSurrogateKey<T extends EntityWithSurrogate
 	{
 		return loadRaw(id);
 	}
+	
+	public void delete(final Long id) throws Exception
+	{
+		throw new UnsupportedOperationException(
+			"Cannot delete rows from table: " + getTableName() + "."
+		);
+	}
 }

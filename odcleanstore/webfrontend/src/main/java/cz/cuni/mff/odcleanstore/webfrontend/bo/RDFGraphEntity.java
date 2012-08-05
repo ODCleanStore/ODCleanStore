@@ -7,11 +7,10 @@ public abstract class RDFGraphEntity extends EntityWithSurrogateKey {
 	protected String graphName;
 	protected String rdfData;
 
-	public RDFGraphEntity(Long id, String graphName, String rdfData)
+	public RDFGraphEntity(Long id, String graphName)
 	{
 		super(id);
 		this.graphName = graphName;
-		this.rdfData = rdfData;
 	}
 	
 	public RDFGraphEntity()

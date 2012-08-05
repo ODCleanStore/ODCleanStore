@@ -1,5 +1,7 @@
 <wicket:extend>
 
+<h2>Stored ontologies</h2>
+
 <wicket:link>
 <div>
 	<a class="placedright" href="NewOntologyPage.html">Create a new ontology</a>
@@ -7,6 +9,28 @@
 </div>
 </wicket:link>
 
-TO BE COMPLETED
+<span wicket:id="navigator">[dataview navigator]</span>
+<table border="1">
+	
+	<tr>
+		<th>Label</th>
+		<th>Description</th>
+		<th>Graph name</th>
+		<th>Action</th>
+	</tr>
+	
+	<tr  wicket:id="OntologiesTable">
+	
+		<td wicket:id="label">[label]</td>
+		<td wicket:id="description">[description]</td>
+		<td wicket:id="graphName">[graphName]</td>
+		
+		<td class="centered">
+			<input wicket:id="deleteOntology" type="button" value="Delete" />
+			<input wicket:id="ontologyDetail" type="button" value="Detail" />
+			<input wicket:id="showEditOntologyPage" type="button" value="Edit" />
+		</td>
+	</tr>
+</table>
 
 </wicket:extend>

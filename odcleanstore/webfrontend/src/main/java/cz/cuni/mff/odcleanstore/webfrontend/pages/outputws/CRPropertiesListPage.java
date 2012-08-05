@@ -3,7 +3,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.outputws;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.*;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
@@ -118,7 +118,7 @@ public class CRPropertiesListPage extends FrontendPage
 				addAggregationTypeLabel(item, property);			
 				
 				item.add(
-					new DeleteButton<PropertySettings>(
+					new DeleteRawButton<PropertySettings>(
 						propertySettingsDao, 
 						property.getId(), 
 						"property", 
