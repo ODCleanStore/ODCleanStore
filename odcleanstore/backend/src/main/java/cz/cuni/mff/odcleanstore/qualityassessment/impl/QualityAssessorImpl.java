@@ -354,6 +354,8 @@ public class QualityAssessorImpl implements QualityAssessor {
 		} else {
 			rules = model.getRules(groupLabels);
 		}
+		
+		LOG.info(String.format("Quality Assessment selected %d rules.", rules.size()));
 	}
 
 	/**

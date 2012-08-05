@@ -479,6 +479,8 @@ public class DataNormalizerImpl implements DataNormalizer {
 		} else {
 			rules = model.getRules(groupLabels);
 		}
+		
+		LOG.info(String.format("Data Normalization selected %d rules.", rules.size()));
 	}
 
 	/**
@@ -593,6 +595,8 @@ public class DataNormalizerImpl implements DataNormalizer {
 							deleted.getString("p"),
 							deleted.getString("o"));
 				}
+				
+				LOG.info("Data Normalization rule applied.");
 			} finally {
 				try {
 					getDirtyConnection().execute(String.format(dropBackupQueryFormat, original));
