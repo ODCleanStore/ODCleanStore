@@ -11,7 +11,6 @@ import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
-import cz.cuni.mff.odcleanstore.data.QuadCollection;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
@@ -28,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Locale;
@@ -305,7 +305,7 @@ import java.util.Locale;
         LOG.debug("Query Execution: {} query took {} ms", debugName, System.currentTimeMillis() - startTime);
 
         try {
-            QuadCollection quads = new QuadCollection();
+            Collection<Quad> quads = new ArrayList<Quad>();
             while (resultSet.next()) {
                 // CHECKSTYLE:OFF
                 Quad quad = new Quad(

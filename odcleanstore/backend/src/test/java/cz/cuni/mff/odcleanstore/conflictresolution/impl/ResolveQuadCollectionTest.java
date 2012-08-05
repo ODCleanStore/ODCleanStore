@@ -1,7 +1,6 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
 import cz.cuni.mff.odcleanstore.TestUtils;
-import cz.cuni.mff.odcleanstore.data.QuadCollection;
 
 import com.hp.hpl.jena.graph.Node;
 
@@ -11,6 +10,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -63,7 +63,7 @@ public class ResolveQuadCollectionTest {
         for (int i = 0; i < quadCount; i++) {
             quadList.add(TestUtils.createQuad());
         }
-        QuadCollection quadGraph = new QuadCollection(quadList);
+        Collection<Quad> quadGraph = new ArrayList<Quad>((quadList));
         instance.addQuads(quadGraph);
 
         Iterator<Collection<Quad>> clusterIterator = instance.listConflictingQuads();
@@ -92,7 +92,7 @@ public class ResolveQuadCollectionTest {
                 predicateURI,
                 objectURI,
                 namedGraph));
-        QuadCollection quadGraph = new QuadCollection(quadList);
+        Collection<Quad> quadGraph = new ArrayList<Quad>((quadList));
 
         ResolveQuadCollection instance = new ResolveQuadCollection();
         instance.addQuads(quadGraph);
@@ -138,7 +138,7 @@ public class ResolveQuadCollectionTest {
         quadList.add(conflictingQuad1);
         quadList.add(conflictingQuad2);
         quadList.add(otherQuad);
-        QuadCollection quadGraph = new QuadCollection(quadList);
+        Collection<Quad> quadGraph = new ArrayList<Quad>((quadList));
 
         ResolveQuadCollection instance = new ResolveQuadCollection();
         instance.addQuads(quadGraph);
