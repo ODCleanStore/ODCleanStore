@@ -10,7 +10,7 @@ import org.junit.Before;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.engine.InputGraphState;
-import cz.cuni.mff.odcleanstore.engine.pipeline.WorkingInputGraphStatus.NotWorkingTransformerException;
+import cz.cuni.mff.odcleanstore.engine.pipeline.TransformedGraphStatus.NotWorkingTransformerException;
 
 /**
  *  @author Petr Jerman
@@ -18,11 +18,11 @@ import cz.cuni.mff.odcleanstore.engine.pipeline.WorkingInputGraphStatus.NotWorki
 public class WorkingInputGraphStatusTest {
 
 	private static String _dbSchemaPrefix = "DB.TEST";
-	private WorkingInputGraphStatus _wigs;
+	private TransformedGraphStatus _wigs;
 
 	@Before
 	public void setUp() throws Exception {
-		_wigs = new WorkingInputGraphStatus(_dbSchemaPrefix);
+		_wigs = new TransformedGraphStatus(_dbSchemaPrefix);
 	}
 
 	// @Test
@@ -58,7 +58,7 @@ public class WorkingInputGraphStatusTest {
 		Assert.assertEquals(2, wag.size());
 
 		_wigs.deleteGraph(tg);
-		Assert.assertEquals(InputGraphState.DELETING, _wigs.getState(uuid2));
+		Assert.assertEquals(InputGraphState.QUEUED_FOR_DELETE, _wigs.getState(uuid2));
 
 		_wigs.deleteGraphAndWorkingAttachedGraphNames(uuid2);
 		uuid2 = _wigs.getWorkingTransformedGraphUuid();
@@ -79,7 +79,7 @@ public class WorkingInputGraphStatusTest {
 		Assert.assertEquals(uuid, uuid2);
 
 		_wigs.deleteGraphAndWorkingAttachedGraphNames(uuid2);
-		insertGraphUuid(uuid, InputGraphState.IMPORTED);
+		insertGraphUuid(uuid, InputGraphState.QUEUED);
 		uuid2 = _wigs.getNextProcessingGraphUuid();
 		Assert.assertEquals(uuid, uuid2);
 		inputGraphState = _wigs.getState(uuid2);

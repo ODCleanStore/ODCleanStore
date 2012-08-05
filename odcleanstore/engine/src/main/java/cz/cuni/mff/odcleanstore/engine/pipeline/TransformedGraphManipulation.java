@@ -13,9 +13,9 @@ import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 /**
  *  @author Petr Jerman
  */
-final class WorkingInputGraph {
+final class TransformedGraphManipulation {
 
-	WorkingInputGraph() {
+	TransformedGraphManipulation() {
 	}
 
 	void deleteGraphFromDirtyDB(String graphName) throws Exception {

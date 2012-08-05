@@ -69,7 +69,7 @@ public final class InputWSService extends Service implements Runnable {
 	private void recovery() throws Exception {
 		String inputDirectory =  ConfigLoader.getConfig().getInputWSGroup().getInputDirPath();
 		
-		ImportingInputGraphStates importedInputGraphStates = new ImportingInputGraphStates();
+		InputGraphStatus importedInputGraphStates = new InputGraphStatus();
 		Collection<String> importingGraphUuids = importedInputGraphStates.getAllImportingGraphUuids();
 		if (importingGraphUuids != null && !importingGraphUuids.isEmpty()) {
 			LOG.info("InputWSService starts recovery");

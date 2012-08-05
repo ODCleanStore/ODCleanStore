@@ -13,7 +13,6 @@ public class Metadata implements Serializable {
 	public String[] source;
 	public String[] license;
 	public String dataBaseUrl;
-	public String provenanceBaseUrl;
 	public String provenance;
 	public String pipelineName;
 }

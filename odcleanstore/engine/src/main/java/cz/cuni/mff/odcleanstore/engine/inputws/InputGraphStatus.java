@@ -12,7 +12,7 @@ import cz.cuni.mff.odcleanstore.engine.InputGraphState;
  *  @author Petr Jerman
  */
 @SuppressWarnings("serial")
-public final class ImportingInputGraphStates {
+public final class InputGraphStatus {
 
 	class ServiceBusyException extends Exception {
 	}
@@ -34,7 +34,7 @@ public final class ImportingInputGraphStates {
 	
 	private String _actualImportingGraphUuid;
 	
-	ImportingInputGraphStates() {
+	InputGraphStatus() {
 	}
 
 	Collection<String> getAllImportingGraphUuids() throws Exception {
@@ -116,7 +116,7 @@ public final class ImportingInputGraphStates {
 		VirtuosoConnectionWrapper con = null;
 		try {
 			con = VirtuosoConnectionWrapper.createTransactionalLevelConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
-			String sqlStatement = String.format("Update %s.EN_INPUT_GRAPHS SET stateId=%d WHERE uuid='%s'", DB_SCHEMA_PREFIX, InputGraphState.IMPORTED, importUuid);
+			String sqlStatement = String.format("Update %s.EN_INPUT_GRAPHS SET stateId=%d WHERE uuid='%s'", DB_SCHEMA_PREFIX, InputGraphState.QUEUED, importUuid);
 			con.execute(sqlStatement);
 			con.commit();
 			_actualImportingGraphUuid = null;

@@ -49,7 +49,6 @@ public final class OdcsService {
 		wsMetadata.getSource().addAll(convert(metadata.getSource()));
 		wsMetadata.getLicense().addAll(convert(metadata.getLicense()));
 		wsMetadata.setDataBaseUrl(convert(metadata.getDataBaseUrl()));
-		wsMetadata.setProvenanceBaseUrl(convert(metadata.getProvenanceBaseUrl()));
 		wsMetadata.setProvenance(metadata.getProvenance());
 		wsMetadata.setPipelineName(metadata.getPipelineName());
 

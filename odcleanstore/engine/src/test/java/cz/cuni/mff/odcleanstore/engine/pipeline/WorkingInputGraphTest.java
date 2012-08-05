@@ -13,11 +13,11 @@ import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
  */
 public class WorkingInputGraphTest {
 
-	private WorkingInputGraph _wig;
+	private TransformedGraphManipulation _wig;
 
 	@Before
 	public void setUp() throws Exception {
-		_wig = new WorkingInputGraph();
+		_wig = new TransformedGraphManipulation();
 	}
 
 	// @Test

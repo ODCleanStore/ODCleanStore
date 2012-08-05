@@ -13,6 +13,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cz.cuni.mff.odcleanstore.configuration.BackendConfig;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
@@ -44,10 +45,12 @@ public class DataNormalizerImpl implements DataNormalizer {
 	public static void main(String[] args) {
 		try {
 			ConfigLoader.loadConfig();
+			BackendConfig config = ConfigLoader.getConfig().getBackendGroup();
+
 			Map<String, GraphModification> result = new DataNormalizerImpl("Group 1").debugRules(new FileInputStream(System.getProperty("user.home") + "/odcleanstore/debugDN.ttl"),
 					prepareContext(
-							new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba"),
-							new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1112/UID=dba/PWD=dba", "dba", "dba")));
+							config.getCleanDBJDBCConnectionCredentials(),
+							config.getDirtyDBJDBCConnectionCredentials()));
 			
 			Iterator<String> i = result.keySet().iterator();
 			
@@ -476,6 +479,8 @@ public class DataNormalizerImpl implements DataNormalizer {
 		} else {
 			rules = model.getRules(groupLabels);
 		}
+		
+		LOG.info(String.format("Data Normalization selected %d rules.", rules.size()));
 	}
 
 	/**
@@ -590,6 +595,8 @@ public class DataNormalizerImpl implements DataNormalizer {
 							deleted.getString("p"),
 							deleted.getString("o"));
 				}
+				
+				LOG.info("Data Normalization rule applied.");
 			} finally {
 				try {
 					getDirtyConnection().execute(String.format(dropBackupQueryFormat, original));

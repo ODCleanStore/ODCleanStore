@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import cz.cuni.mff.odcleanstore.configuration.BackendConfig;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
@@ -47,7 +48,9 @@ public class RulesModel {
 	public static void main(String[] args) {
 		try {
 			ConfigLoader.loadConfig();
-			new RulesModel(new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba")).compileOntologyToRules("http://purl.org/procurement/public-contracts", 1);
+			BackendConfig config = ConfigLoader.getConfig().getBackendGroup();
+
+			new RulesModel(config.getCleanDBJDBCConnectionCredentials()).compileOntologyToRules("http://purl.org/procurement/public-contracts", 1);
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}

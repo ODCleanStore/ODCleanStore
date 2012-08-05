@@ -16,7 +16,6 @@ public class OdcsServiceTest {
 		Metadata metadata = new Metadata();
 
 		metadata.setDataBaseUrl("prd");
-		metadata.setProvenanceBaseUrl("prd");
 		metadata.setUuid("ff714b5e-1572-4317-b9ea-dd22a91787d023");
 		
 		String provenance = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"

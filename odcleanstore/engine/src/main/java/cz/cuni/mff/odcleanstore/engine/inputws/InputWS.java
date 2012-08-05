@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
+import cz.cuni.mff.odcleanstore.engine.common.Utils;
 import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.IInputWS;
 import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.InsertException;
 import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.Metadata;
@@ -28,7 +29,7 @@ public class InputWS implements IInputWS {
 
 	private static final Logger LOG = Logger.getLogger(InputWS.class);
 
-	private static ImportingInputGraphStates _importedInputGraphStates = new ImportingInputGraphStates();
+	private static InputGraphStatus _importedInputGraphStates = new InputGraphStatus();
 	
 	@Override
 	public void insert(@WebParam(name = "user") String user, @WebParam(name = "password") String password, @WebParam(name = "metadata") Metadata metadata,
@@ -44,17 +45,20 @@ public class InputWS implements IInputWS {
 			if (metadata == null) {
 				throw new InsertException("metadata is null");
 			}
+			
+			metadata.provenance = Utils.removeInitialBOMXml(metadata.provenance);
 
 			checkUuid(metadata.uuid);
 			checkUries(metadata.publishedBy, 1, "publishedBy");
 			checkUries(metadata.source, 1, "source");
 			checkUries(metadata.license, 0, "license");
 			checkUri(metadata.dataBaseUrl, "dataBaseUrl");
-			checkUri(metadata.provenanceBaseUrl, "provenanceBaseUrl");
 
 			if (payload == null) {
 				throw new InsertException("payload is null");
 			}
+			
+			payload = Utils.removeInitialBOMXml(payload);
 
 			String sessionUuid = _importedInputGraphStates.beginImportSession(metadata.uuid, metadata.pipelineName, null);
 			saveFiles(metadata, payload);
@@ -65,16 +69,16 @@ public class InputWS implements IInputWS {
 		} catch (InsertException e) {
 			LOG.warn(String.format("InputWS webservice - insert exception %s : %s", e.getMessage(), e.getMoreInfo()));
 			throw e;
-		} catch (ImportingInputGraphStates.ServiceBusyException e) {
+		} catch (InputGraphStatus.ServiceBusyException e) {
 			LOG.warn(String.format("InputWS webservice - insert exception %s : %s", InsertException.SERVICE_BUSY.getMessage(), InsertException.SERVICE_BUSY.getMoreInfo()));
 			throw InsertException.SERVICE_BUSY;
-		} catch (ImportingInputGraphStates.DuplicatedUuid e) {
+		} catch (InputGraphStatus.DuplicatedUuid e) {
 			LOG.warn(String.format("InputWS webservice - insert exception %s : %s", InsertException.DUPLICATED_UUID.getMessage(), InsertException.DUPLICATED_UUID.getMoreInfo()));
 			throw InsertException.DUPLICATED_UUID;
-		} catch (ImportingInputGraphStates.UnknownPipelineName e) {
+		} catch (InputGraphStatus.UnknownPipelineName e) {
 			LOG.warn(String.format("InputWS webservice - insert exception %s : %s", InsertException.UNKNOWN_PIPELINENAME.getMessage(), InsertException.UNKNOWN_PIPELINENAME.getMoreInfo()));
 			throw InsertException.UNKNOWN_PIPELINENAME;
-		} catch (ImportingInputGraphStates.UnknownPipelineDefaultName e) {
+		} catch (InputGraphStatus.UnknownPipelineDefaultName e) {
 			LOG.warn(String.format("InputWS webservice - insert exception %s : %s", InsertException.FATAL_ERROR.getMessage(), "Unknown pipeline default name"));
 			throw InsertException.FATAL_ERROR;
 		} catch (Exception e) {
