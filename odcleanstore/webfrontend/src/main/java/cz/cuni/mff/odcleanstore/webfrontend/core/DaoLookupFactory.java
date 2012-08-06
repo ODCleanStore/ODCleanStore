@@ -14,6 +14,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.SafetyDaoDecoratorForEntityWithS
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.GlobalAggregationSettingsDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.OfficialPipelinesDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.en.EngineOperationsDao;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.log4j.Logger;
@@ -144,6 +145,17 @@ public class DaoLookupFactory implements Serializable
 	public OfficialPipelinesDao getOfficialPipelinesDao()
 	{
 		OfficialPipelinesDao dao = new OfficialPipelinesDao();
+		dao.setDaoLookupFactory(this);
+		return dao;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public EngineOperationsDao getEngineOperationsDao() 
+	{
+		EngineOperationsDao dao = new EngineOperationsDao();
 		dao.setDaoLookupFactory(this);
 		return dao;
 	}
