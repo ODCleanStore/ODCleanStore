@@ -27,6 +27,9 @@ import de.fuberlin.wiwiss.ng4j.impl.NamedGraphSetImpl;
 public class DebugGraphFileLoader {
 	private static final Logger LOG = LoggerFactory.getLogger(DebugGraphFileLoader.class);
 
+	private static String markTemporaryGraph = "INSERT INTO DB.ODCLEANSTORE.TEMPORARY_GRAPHS (graphName) VALUES (?)";
+	private static String unmarkTemporaryGraph = "DELETE FROM DB.ODCLEANSTORE.TEMPORARY_GRAPHS WHERE graphName = ?";
+
 	private String temporaryGraphURIPrefix;
 	private JDBCConnectionCredentials connectionCredentials;
 	
@@ -35,11 +38,11 @@ public class DebugGraphFileLoader {
 		this.connectionCredentials = connectionCredentials;
 	}
 	
-	private static String getInputBaseURI (String temporaryGraphURIPrefix, String discriminator) {
+	private static String getInputBaseURI(String temporaryGraphURIPrefix, String discriminator) {
 		return temporaryGraphURIPrefix + "/" + discriminator + "/input/";
 	}
 	
-	public HashMap<String, String> load (InputStream input, String discriminator) throws Exception {
+	public HashMap<String, String> load(InputStream input, String discriminator) throws Exception {
 		try {
 			return loadImpl(new MultipleFormatLoader().load(input, getInputBaseURI(this.temporaryGraphURIPrefix, discriminator)), discriminator);
 		} catch (Exception e) {
@@ -48,8 +51,33 @@ public class DebugGraphFileLoader {
 			throw e;
 		}
 	}
+
+	private void markTemporaryGraph(String temporaryName) throws DatabaseException {
+		performUpdate(markTemporaryGraph, temporaryName);
+	}
+
+	private void unmarkTemporaryGraph(String temporaryName) throws DatabaseException {
+		performUpdate(unmarkTemporaryGraph, temporaryName);
+	}
+
+	private void performUpdate(String query, Object... objects) throws DatabaseException {
+		VirtuosoConnectionWrapper connection = null;
+
+		try {
+			connection = VirtuosoConnectionWrapper.createConnection(connectionCredentials);
+
+			connection.execute(query, objects);
+		} finally {
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (DatabaseException e) {
+				}
+			}
+		}
+	}
 	
-	private HashMap<String, String> loadImpl (NamedGraphSetImpl namedGraphSet, String discriminator) throws Exception {	
+	private HashMap<String, String> loadImpl(NamedGraphSetImpl namedGraphSet, String discriminator) throws Exception {	
 		/**
 		 * Copy them into unique graphs
 		 */
@@ -70,9 +98,14 @@ public class DebugGraphFileLoader {
 					temporaryName = graphs.get(name);
 				} else {
 					temporaryName = graphNameGen.nextURI();
+
+					/**
+					 * Make sure it is noted what graphs are temporarily in the database
+					 */
+					markTemporaryGraph(temporaryName);
+
+					graphs.put(name, temporaryName);
 				}
-			
-				graphs.put(name, temporaryName);
 			
 				VirtGraph temporaryGraph = new VirtGraph(temporaryName,
 						connectionCredentials.getConnectionString(),
@@ -102,7 +135,7 @@ public class DebugGraphFileLoader {
 		return graphs;
 	}
 	
-	public void unload (HashMap<String, String> graphs) {
+	public void unload(HashMap<String, String> graphs) {
 		Set<String> keys = graphs.keySet();
 
 		Iterator<String> it = keys.iterator();
@@ -120,6 +153,8 @@ public class DebugGraphFileLoader {
 						connectionCredentials.getPassword());
 				
 				temporaryGraph.clear();
+
+				unmarkTemporaryGraph(graphs.get(key));
 				
 				LOG.info(String.format("Temporary copy <%s> of input debug graph <%s> cleared", graphs.get(key), key));
 			} catch (Exception e) {
