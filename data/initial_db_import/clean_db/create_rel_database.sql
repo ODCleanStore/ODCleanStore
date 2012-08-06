@@ -23,7 +23,7 @@ CREATE TABLE DB.ODCLEANSTORE.ROLES
 
 DELETE FROM DB.ODCLEANSTORE.ROLES;
 
-INSERT INTO DB.ODCLEANSTORE.ROLES (label, description) VALUES (n'SCR', n'Scrapper');
+INSERT INTO DB.ODCLEANSTORE.ROLES (label, description) VALUES (n'SCR', n'Scraper');
 INSERT INTO DB.ODCLEANSTORE.ROLES (label, description) VALUES (n'ONC', n'Ontology creator');
 INSERT INTO DB.ODCLEANSTORE.ROLES (label, description) VALUES (n'POC', n'Policy creator');
 INSERT INTO DB.ODCLEANSTORE.ROLES (label, description) VALUES (n'ADM', n'Administrator');
@@ -215,6 +215,12 @@ CREATE TABLE DB.ODCLEANSTORE.TRANSFORMERS
 	fullClassName NVARCHAR(255) NOT NULL
 );
 
+DELETE FROM DB.ODCLEANSTORE.TRANSFORMERS;
+
+INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS (label, description, jarPath, fullClassName) VALUES (n'Quality Assessment', n'The standard Quality Assessment transformer', n'.', n'cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl');
+INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS (label, description, jarPath, fullClassName) VALUES (n'Linker', n'The standard Object Identification transformer',  n'.', n'cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl');
+INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS (label, description, jarPath, fullClassName) VALUES (n'Data Normalization', n'The standard Data Normalization transformer', n'.', n'cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl');
+
 CREATE TABLE DB.ODCLEANSTORE.BACKUP_TRANSFORMERS
 (
 	id INTEGER NOT NULL IDENTITY PRIMARY KEY,
@@ -223,6 +229,12 @@ CREATE TABLE DB.ODCLEANSTORE.BACKUP_TRANSFORMERS
 	jarPath NVARCHAR(255) NOT NULL,
 	fullClassName NVARCHAR(255) NOT NULL
 );
+
+DELETE FROM DB.ODCLEANSTORE.BACKUP_TRANSFORMERS;
+
+INSERT INTO DB.ODCLEANSTORE.BACKUP_TRANSFORMERS (label, description, jarPath, fullClassName) VALUES (n'Quality Assessment', n'The standard Quality Assessment transformer', n'.', n'cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl');
+INSERT INTO DB.ODCLEANSTORE.BACKUP_TRANSFORMERS (label, description, jarPath, fullClassName) VALUES (n'Linker', n'The standard Object Identification transformer',  n'.', n'cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl');
+INSERT INTO DB.ODCLEANSTORE.BACKUP_TRANSFORMERS (label, description, jarPath, fullClassName) VALUES (n'Data Normalization', n'The standard Data Normalization transformer', n'.', n'cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl');
 
 CREATE TABLE DB.ODCLEANSTORE.PIPELINES
 (
@@ -347,6 +359,17 @@ INSERT INTO DB.ODCLEANSTORE.EN_INPUT_GRAPHS_STATES (id, label) VALUES (10, 'DELE
 INSERT INTO DB.ODCLEANSTORE.EN_INPUT_GRAPHS_STATES (id, label) VALUES (11, 'WRONG');
 INSERT INTO DB.ODCLEANSTORE.EN_INPUT_GRAPHS_STATES (id, label) VALUES (12, 'DIRTY');
 
+CREATE TABLE DB.ODCLEANSTORE.EN_ATTACHED_ENGINES
+(
+	id INTEGER NOT NULL IDENTITY PRIMARY KEY,
+	uuid VARCHAR(36) UNIQUE NOT NULL,
+	currentWorkingGraphId INTEGER,
+	currentStatusMessage NVARCHAR(255),
+	updated TIMESTAMP
+);
+
+INSERT INTO DB.ODCLEANSTORE.EN_ATTACHED_ENGINES (id, uuid) VALUES (1, '88888888-8888-8888-8888-888888888888');
+
 CREATE TABLE DB.ODCLEANSTORE.EN_INPUT_GRAPHS
 (
 	id INTEGER NOT NULL IDENTITY PRIMARY KEY,
@@ -361,17 +384,6 @@ CREATE TABLE DB.ODCLEANSTORE.EN_INPUT_GRAPHS
 	FOREIGN KEY (pipelineId) REFERENCES DB.ODCLEANSTORE.PIPELINES(id) ON DELETE SET NULL,
 	FOREIGN KEY (engineId) REFERENCES DB.ODCLEANSTORE.EN_ATTACHED_ENGINES(id) ON DELETE SET NULL
 );
-
-CREATE TABLE DB.ODCLEANSTORE.EN_ATTACHED_ENGINES
-(
-	id INTEGER NOT NULL IDENTITY PRIMARY KEY,
-	uuid VARCHAR(36) UNIQUE NOT NULL,
-	currentWorkingGraphId INTEGER,
-	currentStatusMessage NVARCHAR(255),
-	updated TIMESTAMP
-);
-
-INSERT INTO DB.ODCLEANSTORE.EN_ATTACHED_ENGINES (id, uuid) VALUES (1, '88888888-8888-8888-8888-888888888888');
 
 CREATE TABLE DB.ODCLEANSTORE.EN_PIPELINE_ERROR_TYPES
 (
