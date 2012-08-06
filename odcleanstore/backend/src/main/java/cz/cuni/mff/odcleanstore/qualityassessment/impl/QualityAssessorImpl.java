@@ -16,10 +16,10 @@ import org.slf4j.LoggerFactory;
 
 import cz.cuni.mff.odcleanstore.configuration.BackendConfig;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.configuration.DataNormalizationConfig;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
-import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.data.DebugGraphFileLoader;
 import cz.cuni.mff.odcleanstore.qualityassessment.*;
@@ -119,7 +119,7 @@ public class QualityAssessorImpl implements QualityAssessor {
 	 */
 	private VirtuosoConnectionWrapper dirtyConnection;
 
-	private VirtuosoConnectionWrapper getDirtyConnection () throws ConnectionException {
+	private VirtuosoConnectionWrapper getDirtyConnection () throws DatabaseException {
         if (dirtyConnection == null) {
         	dirtyConnection = VirtuosoConnectionWrapper.createConnection(context.getDirtyDatabaseCredentials());
        	}
@@ -131,7 +131,7 @@ public class QualityAssessorImpl implements QualityAssessor {
 			if (dirtyConnection != null) {
 				dirtyConnection.close();
 			}
-		} catch (ConnectionException e) {
+		} catch (DatabaseException e) {
 		} finally {
 			dirtyConnection = null;
 		}
@@ -198,7 +198,9 @@ public class QualityAssessorImpl implements QualityAssessor {
 	public Map<String, GraphScoreWithTrace> debugRules (InputStream source, String commonMetadataGraph, TransformationContext context)
 			throws TransformerException {
 		HashMap<String, String> graphs = new HashMap<String, String>();
-		DebugGraphFileLoader loader = new DebugGraphFileLoader(context.getDirtyDatabaseCredentials());
+		DataNormalizationConfig config = ConfigLoader.getConfig().getDataNormalizationGroup();
+
+		DebugGraphFileLoader loader = new DebugGraphFileLoader(config.getTemporaryGraphURIPrefix(), context.getDirtyDatabaseCredentials());
 		
 		try {
 			graphs = loader.load(source, this.getClass().getSimpleName());

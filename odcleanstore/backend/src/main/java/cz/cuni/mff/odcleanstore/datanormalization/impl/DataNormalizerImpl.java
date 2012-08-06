@@ -15,12 +15,12 @@ import org.slf4j.LoggerFactory;
 
 import cz.cuni.mff.odcleanstore.configuration.BackendConfig;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.configuration.DataNormalizationConfig;
 import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
-import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
-import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
+import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.data.DebugGraphFileLoader;
 import cz.cuni.mff.odcleanstore.datanormalization.DataNormalizer;
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
@@ -149,9 +149,9 @@ public class DataNormalizerImpl implements DataNormalizer {
 	 * constructs new connection to the dirty database.
 	 * 
 	 * @return wrapped connection to the dirty database
-	 * @throws ConnectionException
+	 * @throws DatabaseException
 	 */
-	private VirtuosoConnectionWrapper getDirtyConnection () throws ConnectionException {
+	private VirtuosoConnectionWrapper getDirtyConnection () throws DatabaseException {
         if (dirtyConnection == null) {
         	dirtyConnection = VirtuosoConnectionWrapper.createConnection(context.getDirtyDatabaseCredentials());
        	}
@@ -166,7 +166,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 			if (dirtyConnection != null) {
 				dirtyConnection.close();
 			}
-		} catch (ConnectionException e) {
+		} catch (DatabaseException e) {
 		} finally {
 			dirtyConnection = null;
 		}
@@ -258,7 +258,9 @@ public class DataNormalizerImpl implements DataNormalizer {
 		/**
 		 * Prepare graph loader connected to the dirty database 
 		 */
-		DebugGraphFileLoader loader = new DebugGraphFileLoader(context.getDirtyDatabaseCredentials());
+		DataNormalizationConfig config = ConfigLoader.getConfig().getDataNormalizationGroup();
+
+		DebugGraphFileLoader loader = new DebugGraphFileLoader(config.getTemporaryGraphURIPrefix(), context.getDirtyDatabaseCredentials());
 		
 		try {
 			/**
@@ -514,9 +516,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 			}
 			
 			getDirtyConnection().commit();
-		} catch (ConnectionException e) {
-			throw new DataNormalizationException(e);
-		} catch (QueryException e) {
+		} catch (DatabaseException e) {
 			throw new DataNormalizationException(e);
 		} catch (SQLException e) {
 			throw new DataNormalizationException(e);
@@ -529,11 +529,14 @@ public class DataNormalizerImpl implements DataNormalizer {
 	 * @param rule the rule to be applied to the currently transformed graph
 	 * @param modifications collection to be filled with graph modifications done by this rule (in case it is not null)
 	 * @throws DataNormalizationException
-	 * @throws ConnectionException
-	 * @throws QueryException
+	 * @throws DatabaseException
 	 * @throws SQLException
 	 */
-	private void performRule(Rule rule, GraphModification modifications) throws DataNormalizationException, ConnectionException, QueryException, SQLException {
+	private void performRule(Rule rule, GraphModification modifications) throws DataNormalizationException, DatabaseException, SQLException {
+		if (inputGraph.getGraphName().length() == 0) {
+			throw new DataNormalizationException("Empty Graph Name is not allowed.");
+		}
+
 		String[] components = rule.getComponents(inputGraph.getGraphName());
 
 		if (modifications == null) {
@@ -548,7 +551,9 @@ public class DataNormalizerImpl implements DataNormalizer {
 			 * In case we need to know what changed we need to create copies of the graph to compare them after
 			 * the rule was applied
 			 */
-			UniqueGraphNameGenerator generator = new UniqueGraphNameGenerator("http://example.com/" + this.getClass().getSimpleName() + "/diff/", context.getDirtyDatabaseCredentials());
+			DataNormalizationConfig config = ConfigLoader.getConfig().getDataNormalizationGroup();
+
+			UniqueGraphNameGenerator generator = new UniqueGraphNameGenerator(config.getTemporaryGraphURIPrefix() + "/" + this.getClass().getSimpleName() + "/diff/", context.getDirtyDatabaseCredentials());
 			String original = "";
 			String modified = "";
 		

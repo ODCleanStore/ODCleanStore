@@ -17,6 +17,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.en.EngineOperationsDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.OfficialPipelinesDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
@@ -30,6 +31,7 @@ public class PipelinesListPage extends FrontendPage
 	
 	private DaoForEntityWithSurrogateKey<Pipeline> pipelineDao;
 	private OfficialPipelinesDao officialPipelinesDao;
+	private EngineOperationsDao engineOperationsDao;
 
 	public PipelinesListPage() 
 	{
@@ -43,6 +45,7 @@ public class PipelinesListPage extends FrontendPage
 		//
 		pipelineDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(PipelineDao.class);
 		officialPipelinesDao = daoLookupFactory.getOfficialPipelinesDao();
+		engineOperationsDao = daoLookupFactory.getEngineOperationsDao();
 		
 		// register page components
 		//
@@ -132,6 +135,7 @@ public class PipelinesListPage extends FrontendPage
 				);
 				
 				addMarkPipelineDefaultButton(item, pipeline);
+				addRerunAssociatedGraphsButton(item, pipeline.getId());
 			}
 		};
 
@@ -173,6 +177,37 @@ public class PipelinesListPage extends FrontendPage
 				}
 				
 				getSession().info("The pipeline was successfuly marked as default.");
+				setResponsePage(PipelinesListPage.class);
+            }
+        };
+        
+		item.add(button);
+	}
+	
+	private void addRerunAssociatedGraphsButton(final Item<Pipeline> item, final Long pipelineId)
+	{
+		Link button = new Link("rerunAssociatedGraphs")
+        {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+            public void onClick()
+            {
+				try {
+					engineOperationsDao.rerunGraphsForPipeline(pipelineId);
+				}
+				catch (Exception ex)
+				{
+					logger.error(ex.getMessage());
+					
+					getSession().error(
+						"The associated graphs could not be marked to be rerun due to an unexpected error."
+					);
+					
+					return;
+				}
+				
+				getSession().info("The associated graphs were successfuly marked to be rerun.");
 				setResponsePage(PipelinesListPage.class);
             }
         };

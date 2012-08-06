@@ -10,7 +10,6 @@ import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
-import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
@@ -121,7 +120,7 @@ public class RulesModel {
 			if (connection != null) {
 				try {
 					connection.close();
-				} catch (ConnectionException e) {
+				} catch (DatabaseException e) {
 					LOG.error("Rules Model connection not closed: " + e.getMessage());
 				}
 			}
@@ -193,7 +192,7 @@ public class RulesModel {
 			if (connection != null) {
 				try {
 					connection.close();
-				} catch (ConnectionException e) {
+				} catch (DatabaseException e) {
 					LOG.error("Rules Model connection not closed: " + e.getMessage());
 				}
 			}
@@ -282,15 +281,13 @@ public class RulesModel {
 			LOG.info("Generated quality assessment rule from ontology " + ontology);
 		} catch (DatabaseException e) {
 			throw new QualityAssessmentException(e);
-		} catch (QueryException e) {
-			throw new QualityAssessmentException(e);
 		} catch (SQLException e) {
 			throw new QualityAssessmentException(e);
 		} finally {
 			if (connection != null) {
 				try {
 					connection.close();
-				} catch (ConnectionException e) {
+				} catch (DatabaseException e) {
 					LOG.error("Rules Model connection not closed: " + e.getMessage());
 				}
 			}

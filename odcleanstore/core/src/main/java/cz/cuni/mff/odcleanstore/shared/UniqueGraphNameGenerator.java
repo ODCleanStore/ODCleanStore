@@ -5,8 +5,7 @@ import java.sql.SQLException;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
-import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
-import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
+import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 
 /**
  * Utility that can generate unique graph names (URIs) for given base
@@ -29,7 +28,7 @@ public class UniqueGraphNameGenerator implements UniqueURIGenerator {
 	private JDBCConnectionCredentials connectionCredentials;
 	private VirtuosoConnectionWrapper connection;
 
-	private VirtuosoConnectionWrapper getConnection () throws ConnectionException {
+	private VirtuosoConnectionWrapper getConnection () throws DatabaseException {
         if (connection == null) {
         	connection = VirtuosoConnectionWrapper.createConnection(connectionCredentials);
        	}
@@ -41,7 +40,7 @@ public class UniqueGraphNameGenerator implements UniqueURIGenerator {
 			if (connection != null) {
 				connection.close();
 			}
-		} catch (ConnectionException e) {
+		} catch (DatabaseException e) {
 		} finally {
 			connection = null;
 		}
@@ -83,8 +82,7 @@ public class UniqueGraphNameGenerator implements UniqueURIGenerator {
 			}
 			
 			return uriBase + (start + id + 1);
-		} catch (ConnectionException e) {
-		} catch (QueryException e) {
+		} catch (DatabaseException e) {
 		} catch (SQLException e) {
 		} finally {
 			closeConnection();

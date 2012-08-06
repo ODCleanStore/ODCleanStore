@@ -18,7 +18,7 @@ import cz.cuni.mff.odcleanstore.TestUtils;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
-import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
+import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.qualityassessment.QualityAssessor;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
@@ -131,7 +131,7 @@ public class QualityAssessorImplTest extends TestCase {
 		{8, 0, "{{?s <http://purl.org/procurement#procedureType> <http://purl.org/procurement#Open>; <http://purl.org/procurement#estimatedPrice> ?p. ?p <http://purl.org/goodrelations/v1#hasCurrencyValue> ?v.} FILTER (?v < 50000 OR ?v > 3000000)}", 0.8, "PROCEDURE TYPE IS INCOMPATIBLE WITH THE ESTIMATED PRICE"},
 		{9, 0, "{{?s <http://purl.org/procurement#awardDate> ?a; <http://purl.org/procurement#tenderDeadline> ?d.} FILTER (?d > ?a)}", 0.8, "TENDER AWARDED BEFORE APPLICATION DEADLINE"}};
 
-	public QualityAssessorImplTest (String name) throws ConnectionException {
+	public QualityAssessorImplTest (String name) throws DatabaseException {
 		super(name);
 		
 		connection = VirtuosoConnectionWrapper.createConnection(sparqlEndpoint);
