@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import virtuoso.jena.driver.VirtModel;
 
 import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.query.QueryException;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QuerySolution;
