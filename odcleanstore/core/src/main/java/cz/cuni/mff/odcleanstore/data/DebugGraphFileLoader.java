@@ -53,7 +53,7 @@ public class DebugGraphFileLoader {
 		/**
 		 * Copy them into unique graphs
 		 */
-		UniqueGraphNameGenerator graphNameGen = new UniqueGraphNameGenerator("http://example.com/" + discriminator + "/debug/", connectionCredentials);
+		UniqueGraphNameGenerator graphNameGen = new UniqueGraphNameGenerator(temporaryGraphURIPrefix + "/" + discriminator + "/debug/", connectionCredentials);
 		
 		HashMap<String, String> graphs = new HashMap<String, String>();
 		
