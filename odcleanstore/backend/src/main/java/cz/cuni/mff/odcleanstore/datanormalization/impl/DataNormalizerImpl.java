@@ -99,6 +99,9 @@ public class DataNormalizerImpl implements DataNormalizer {
 	private static final String selectQueryFormat = "SPARQL SELECT ?s ?p ?o FROM <%s> WHERE {?s ?p ?o}"; 
 	private static final String diffQueryFormat = "SPARQL DELETE FROM <%s> {?s ?p ?o} WHERE {GRAPH <%s> {?s ?p ?o}}";
 	private static final String dropBackupQueryFormat = "SPARQL CLEAR GRAPH <%s>";
+	
+	private static final String markTemporaryGraph = "INSERT INTO DB.ODCLEANSTORE.TEMPORARY_GRAPHS (graphName) VALUES (?)";
+	private static final String unmarkTemporaryGraph = "DELETE FROM DB.ODCLEANSTORE.TEMPORARY_GRAPHS WHERE graphName = ?";
 
 	/**
 	 * The following describer inner state of the transformer
@@ -559,6 +562,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 		
 			try {
 				original = generator.nextURI(0);
+				getDirtyConnection().execute(markTemporaryGraph, original);
 				getDirtyConnection().execute(String.format(backupQueryFormat, original, inputGraph.getGraphName()));
 
 				for (int j = 0; j < components.length; ++j) {
@@ -566,6 +570,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 				}
 
 				modified = generator.nextURI(1);
+				getDirtyConnection().execute(markTemporaryGraph, modified);
 				getDirtyConnection().execute(String.format(backupQueryFormat, modified, inputGraph.getGraphName()));
 
 				/**
@@ -609,6 +614,8 @@ public class DataNormalizerImpl implements DataNormalizer {
 				try {
 					getDirtyConnection().execute(String.format(dropBackupQueryFormat, modified));
 				} finally {}
+				getDirtyConnection().execute(unmarkTemporaryGraph, original);
+				getDirtyConnection().execute(unmarkTemporaryGraph, modified);
 			}
 		}
 	}
