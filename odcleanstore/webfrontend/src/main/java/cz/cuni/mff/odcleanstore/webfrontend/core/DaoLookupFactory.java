@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 
 
-import cz.cuni.mff.odcleanstore.util.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.SafetyDaoDecorator;
@@ -31,7 +31,7 @@ public class DaoLookupFactory implements Serializable
 	
 	private static Logger logger = Logger.getLogger(DaoLookupFactory.class);
 	
-	private JDBCConnectionCredentials connectionCoords;
+	private ConnectionCredentials connectionCoords;
 	
 	private transient VirtuosoDataSource dataSource;
 	private transient AbstractPlatformTransactionManager transactionManager;
@@ -44,7 +44,7 @@ public class DaoLookupFactory implements Serializable
 	/**
 	 * 
 	 */
-	public DaoLookupFactory(JDBCConnectionCredentials connectionCoords)
+	public DaoLookupFactory(ConnectionCredentials connectionCoords)
 	{
 		this.connectionCoords = connectionCoords;
 		this.daos = new HashMap<Class<? extends Dao>, Dao>();
@@ -156,7 +156,7 @@ public class DaoLookupFactory implements Serializable
 		if (dataSource == null)
 		{
 			dataSource = new VirtuosoDataSource();
-			dataSource.setServerName(connectionCoords.getConnectionString());
+			dataSource.setServerName(connectionCoords.getUri());
 			dataSource.setUser(connectionCoords.getUsername());
 			dataSource.setPassword(connectionCoords.getPassword());
 		}
