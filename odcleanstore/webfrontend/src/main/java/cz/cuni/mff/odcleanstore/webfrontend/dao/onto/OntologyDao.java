@@ -2,6 +2,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.onto;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 import org.apache.log4j.Logger;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
@@ -19,6 +20,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "ONTOLOGIES";
 	private static final String OUTPUT_LANGUAGE = "RDF/XML-ABBREV";
 	private static final String ENCODING = "UTF-8";
+	public static final String GRAPH_NAME_PREFIX = "http://opendata.cz/infrastructure/odcleanstore/ontologies/";
 
 	protected static Logger logger = Logger.getLogger(OntologyDao.class);
 	
@@ -77,23 +79,28 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 	{
 		String query = "INSERT INTO " + TABLE_NAME + " (label, description, graphName) VALUES (?, ?, ?)";
 		
-		Object[] params =
-		{
-			item.getLabel(),
-			item.getDescription(),
-			item.getGraphName()
-		};
-		
-		logger.debug("label: " + item.getLabel());
-		logger.debug("description: " + item.getDescription());
-		logger.debug("graphName" + item.getGraphName());
-		
-		getJdbcTemplate().update(query, params);
-		
-		// to be able to drop a graph in Virtuoso, it has to be explicitly created before
-		createGraph(item.getGraphName());
-		
-		storeRdfXml(item.getRdfData(), item.getGraphName());
+		try {
+			item.setGraphName(GRAPH_NAME_PREFIX + URLEncoder.encode(item.getLabel(), ENCODING));
+			Object[] params =
+			{
+				item.getLabel(),
+				item.getDescription(),
+				item.getGraphName()
+			};
+			
+			logger.debug("label: " + item.getLabel());
+			logger.debug("description: " + item.getDescription());
+			logger.debug("graphName" + item.getGraphName());
+			
+			getJdbcTemplate().update(query, params);
+			
+			// to be able to drop a graph in Virtuoso, it has to be explicitly created before
+			createGraph(item.getGraphName());
+			
+			storeRdfXml(item.getRdfData(), item.getGraphName());
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+		}		
 	}
 	
 	private void createGraph(String graphName) 

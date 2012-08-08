@@ -75,7 +75,6 @@ public class NewOntologyPage extends FrontendPage
 		
 		form.add(createTextfield("label"));
 		form.add(createTextarea("description", false));
-		form.add(createTextfield("graphName"));
 		TextArea<String> rdfData = createTextarea("rdfData");
 		form.add(rdfData);
 		
