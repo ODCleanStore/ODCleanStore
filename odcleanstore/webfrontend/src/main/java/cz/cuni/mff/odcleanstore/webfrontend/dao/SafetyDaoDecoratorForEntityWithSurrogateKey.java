@@ -12,7 +12,6 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.util.EmptyCodeSnippet;
-import cz.cuni.mff.odcleanstore.util.Pair;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
 public class SafetyDaoDecoratorForEntityWithSurrogateKey<T extends EntityWithSurrogateKey> 
@@ -168,17 +167,6 @@ public class SafetyDaoDecoratorForEntityWithSurrogateKey<T extends EntityWithSur
 	}
 	
 	@Override
-	public void delete(T item) throws Exception
-	{
-		// note that there is no need to surround the delete operation by 
-		// a transaction, as every delete is realized using a single
-		// SQL DELETE command - deleting related entities is ensured using
-		// CASCADING DELETE constraints
-		//
-		dao.delete(item);
-	}
-	
-	@Override
 	public void deleteRaw(Long id) throws Exception
 	{
 		// note that there is no need to surround the deleteRaw operation by 
@@ -187,6 +175,58 @@ public class SafetyDaoDecoratorForEntityWithSurrogateKey<T extends EntityWithSur
 		// CASCADING DELETE constraints
 		//
 		dao.deleteRaw(id);
+	}
+	
+	@Override
+	public void delete(final Long id) throws Exception
+	{
+		try
+		{
+			dao.getTransactionTemplate().execute(new TransactionCallbackWithoutResult() 
+			{
+				@Override
+				protected void doInTransactionWithoutResult(TransactionStatus status) 
+				{
+					try {
+						dao.delete(id);
+					}
+					catch (Exception ex) {
+						throw new RuntimeException(ex.getMessage(), ex);
+					}
+				}
+			});
+		}
+		catch (Exception ex)
+		{
+			handleException(ex);
+			throw ex;
+		}
+	}
+	
+	@Override
+	public void delete(final T item) throws Exception
+	{
+		try
+		{
+			dao.getTransactionTemplate().execute(new TransactionCallbackWithoutResult() 
+			{
+				@Override
+				protected void doInTransactionWithoutResult(TransactionStatus status) 
+				{
+					try {
+						dao.delete(item);
+					}
+					catch (Exception ex) {
+						throw new RuntimeException(ex.getMessage(), ex);
+					}
+				}
+			});
+		}
+		catch (Exception ex)
+		{
+			handleException(ex);
+			throw ex;
+		}
 	}
 	
 	private void handleException(Exception ex) throws Exception
