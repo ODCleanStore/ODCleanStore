@@ -9,6 +9,7 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 
+import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
@@ -140,6 +141,12 @@ public class QAGroupsListPage extends FrontendPage
             }
         };
 
+        button.add(
+        	new ConfirmationBoxRenderer(
+        		"Are you sure you want to rerun all affected graphs?"
+        	)
+        );
+        
         return button;
 	}
 }

@@ -180,6 +180,12 @@ public class PipelinesListPage extends FrontendPage
 				setResponsePage(PipelinesListPage.class);
             }
         };
+
+        button.add(
+        	new ConfirmationBoxRenderer(
+        		"Are you sure you want to mark the pipeline as default?"
+        	)
+        );
         
 		item.add(button);
 	}
@@ -211,6 +217,12 @@ public class PipelinesListPage extends FrontendPage
 				setResponsePage(PipelinesListPage.class);
             }
         };
+
+        button.add(
+        	new ConfirmationBoxRenderer(
+        		"Are you sure you want to rerun all associated graphs?"
+        	)
+        );
         
 		item.add(button);
 	}
