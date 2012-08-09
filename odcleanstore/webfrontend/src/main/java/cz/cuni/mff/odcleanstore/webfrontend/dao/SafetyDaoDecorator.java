@@ -32,7 +32,7 @@ public class SafetyDaoDecorator<T extends BusinessEntity> extends Dao<T>
 	
 
 	@Override
-	protected String getTableName() 
+	public String getTableName() 
 	{
 		return dao.getTableName();
 	}

@@ -1,6 +1,8 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
@@ -17,14 +19,22 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.en.DNRuleAssignmentDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.en.EngineOperationsDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.en.OIRuleAssignmentDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.OIGroupsListPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.QAGroupsListPage;
 
 public class DNGroupsListPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
+	private static Logger logger = Logger.getLogger(OIGroupsListPage.class);
+	
 	private DaoForEntityWithSurrogateKey<DNRulesGroup> dnRulesGroupDao;
+	private EngineOperationsDao engineOperationsDao;
 	
 	public DNGroupsListPage() 
 	{
@@ -36,6 +46,7 @@ public class DNGroupsListPage extends FrontendPage
 		// prepare DAO objects
 		//
 		dnRulesGroupDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNRulesGroupDao.class);
+		engineOperationsDao = daoLookupFactory.getEngineOperationsDao();
 		
 		// register page components
 		//
@@ -92,6 +103,8 @@ public class DNGroupsListPage extends FrontendPage
 						"showEditQAGroupPage"
 					)
 				);
+				
+				item.add(createRerunAffectedGraphsButton(group.getId()));
 			}
 		};
 
@@ -100,5 +113,36 @@ public class DNGroupsListPage extends FrontendPage
 		add(dataView);
 		
 		add(new PagingNavigator("navigator", dataView));
+	}
+
+	private Link createRerunAffectedGraphsButton(final Long groupId)
+	{
+		Link button = new Link("rerunAffectedGraphs")
+        {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+            public void onClick()
+            {
+				try {
+					engineOperationsDao.rerunGraphsForRulesGroup(DNRuleAssignmentDao.TABLE_NAME, groupId);
+				}
+				catch (Exception ex)
+				{
+					logger.error(ex.getMessage());
+					
+					getSession().error(
+						"The affected graphs could not be marked to be rerun due to an unexpected error."
+					);
+					
+					return;
+				}
+				
+				getSession().info("The affected graphs were successfuly marked to be rerun.");
+				setResponsePage(DNGroupsListPage.class);
+            }
+        };
+
+        return button;
 	}
 }

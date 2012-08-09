@@ -42,7 +42,7 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 	}
 	
 	@Override
-	protected String getTableName() 
+	public String getTableName() 
 	{
 		return TABLE_NAME;
 	}

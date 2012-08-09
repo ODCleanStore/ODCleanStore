@@ -21,7 +21,7 @@ public class DNRulesGroupDao extends DaoForEntityWithSurrogateKey<DNRulesGroup>
 	}
 	
 	@Override
-	protected String getTableName() 
+	public String getTableName() 
 	{
 		return TABLE_NAME;
 	}

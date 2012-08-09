@@ -19,7 +19,7 @@ public class OIRulesGroupDao extends DaoForEntityWithSurrogateKey<OIRulesGroup>
 	}
 	
 	@Override
-	protected String getTableName() 
+	public String getTableName() 
 	{
 		return TABLE_NAME;
 	}

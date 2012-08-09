@@ -41,7 +41,7 @@ public abstract class Dao<T extends BusinessEntity> implements Serializable
 	 * 
 	 * @return
 	 */
-	protected abstract String getTableName();
+	public abstract String getTableName();
 	
 	/**
 	 * 

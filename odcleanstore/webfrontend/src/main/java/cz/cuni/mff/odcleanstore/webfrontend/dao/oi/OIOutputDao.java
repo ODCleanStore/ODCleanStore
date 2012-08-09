@@ -22,7 +22,7 @@ public class OIOutputDao extends DaoForEntityWithSurrogateKey<OIOutput>
 	}
 	
 	@Override
-	protected String getTableName() 
+	public String getTableName() 
 	{
 		return TABLE_NAME;
 	}

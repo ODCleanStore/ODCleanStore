@@ -12,7 +12,7 @@ public class DNRuleAssignmentDao extends DaoForEntityWithSurrogateKey<RuleAssign
 {
 	private static final long serialVersionUID = 1L;
 
-	private static final String TABLE_NAME = TABLE_NAME_PREFIX + BACKUP_TABLE_PREFIX + "DN_RULES_ASSIGNMENT";
+	public static final String TABLE_NAME = TABLE_NAME_PREFIX + BACKUP_TABLE_PREFIX + "DN_RULES_ASSIGNMENT";
 	
 	private ParameterizedRowMapper<RuleAssignment> rowMapper;
 	
@@ -22,7 +22,7 @@ public class DNRuleAssignmentDao extends DaoForEntityWithSurrogateKey<RuleAssign
 	}
 	
 	@Override
-	protected String getTableName() 
+	public String getTableName() 
 	{
 		return TABLE_NAME;
 	}

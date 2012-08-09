@@ -1,12 +1,15 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
@@ -15,14 +18,20 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.en.EngineOperationsDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.en.QARuleAssignmentDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.PipelinesListPage;
 
 public class QAGroupsListPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
+	private static Logger logger = Logger.getLogger(QAGroupsListPage.class);
+	
 	private DaoForEntityWithSurrogateKey<QARulesGroup> qaRulesGroupDao;
+	private EngineOperationsDao engineOperationsDao;
 	
 	public QAGroupsListPage() 
 	{
@@ -34,6 +43,7 @@ public class QAGroupsListPage extends FrontendPage
 		// prepare DAO objects
 		//
 		qaRulesGroupDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(QARulesGroupDao.class);
+		engineOperationsDao = daoLookupFactory.getEngineOperationsDao();
 		
 		// register page components
 		//
@@ -90,6 +100,8 @@ public class QAGroupsListPage extends FrontendPage
 						"showEditQAGroupPage"
 					)
 				);
+				
+				item.add(createRerunAffectedGraphsButton(group.getId()));
 			}
 		};
 
@@ -98,5 +110,36 @@ public class QAGroupsListPage extends FrontendPage
 		add(dataView);
 		
 		add(new PagingNavigator("navigator", dataView));
+	}
+	
+	private Link createRerunAffectedGraphsButton(final Long groupId)
+	{
+		Link button = new Link("rerunAffectedGraphs")
+        {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+            public void onClick()
+            {
+				try {
+					engineOperationsDao.rerunGraphsForRulesGroup(QARuleAssignmentDao.TABLE_NAME, groupId);
+				}
+				catch (Exception ex)
+				{
+					logger.error(ex.getMessage());
+					
+					getSession().error(
+						"The affected graphs could not be marked to be rerun due to an unexpected error."
+					);
+					
+					return;
+				}
+				
+				getSession().info("The affected graphs were successfuly marked to be rerun.");
+				setResponsePage(QAGroupsListPage.class);
+            }
+        };
+
+        return button;
 	}
 }

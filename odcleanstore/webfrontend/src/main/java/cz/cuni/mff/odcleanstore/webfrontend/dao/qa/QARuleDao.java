@@ -20,7 +20,7 @@ public class QARuleDao extends DaoForEntityWithSurrogateKey<QARule>
 	}
 
 	@Override
-	protected String getTableName() 
+	public String getTableName() 
 	{
 		return TABLE_NAME;
 	}

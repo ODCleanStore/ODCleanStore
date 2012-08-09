@@ -21,7 +21,7 @@ public class TransformerInstanceDao extends DaoForEntityWithSurrogateKey<Transfo
 	}
 	
 	@Override
-	protected String getTableName() 
+	public String getTableName() 
 	{
 		return TABLE_NAME;
 	}
