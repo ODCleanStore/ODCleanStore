@@ -7,7 +7,6 @@ import java.util.Set;
 
 import cz.cuni.mff.odcleanstore.configuration.BackendConfig;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
-import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
@@ -24,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import virtuoso.jena.driver.VirtModel;
 
 import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.query.QueryException;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QuerySolution;
@@ -49,9 +47,11 @@ public class RulesModel {
 			ConfigLoader.loadConfig();
 			BackendConfig config = ConfigLoader.getConfig().getBackendGroup();
 
-			new RulesModel(config.getCleanDBJDBCConnectionCredentials()).compileOntologyToRules("http://purl.org/procurement/public-contracts", 1);
+			new RulesModel(config.getCleanDBJDBCConnectionCredentials()).compileOntologyToRules("public-contracts", "Group 1");
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
+			
+			e.printStackTrace();
 		}
 	}
 	
@@ -65,15 +65,51 @@ public class RulesModel {
 			"DB.ODCLEANSTORE.QA_RULES AS rules JOIN " +
 			"DB.ODCLEANSTORE.QA_RULES_GROUPS AS groups ON rules.groupId = groups.id " +
 			"WHERE groups.label = ?";
-	private static final String ontologyResourceQueryFormat = "SELECT ?s WHERE {?s ?p ?o} GROUP BY ?s";
-	private static final String deleteRulesByOntologyFormat = "DELETE FROM DB.ODCLEANSTORE.QA_RULES WHERE id IN " +
-			"(SELECT ruleId AS id FROM DB.ODCLEANSTORE.QA_RULES_TO_ONTOLOGIES_MAP WHERE ontology = ?)";
-	private static final String insertRuleFormat = "INSERT INTO DB.ODCLEANSTORE.QA_RULES (groupId, filter, coefficient, description) VALUES (?, ?, ?, ?)";
-	private static final String mapRuleToOntologyFormat = "INSERT INTO DB.ODCLEANSTORE.QA_RULES_TO_ONTOLOGIES_MAP (ruleId, ontology) VALUES (identity_value(), ?)";
+	private static final String groupIdQuery = "SELECT id FROM DB.ODCLEANSTORE.QA_RULES_GROUPS WHERE label = ?";
+	private static final String ontologyIdQuery = "SELECT id FROM DB.ODCLEANSTORE.ONTOLOGIES WHERE label = ?";
+	private static final String ontologyGraphURIQuery = "SELECT graphName FROM DB.ODCLEANSTORE.ONTOLOGIES WHERE id = ?";
+	private static final String ontologyResourceQuery = "SELECT ?s WHERE {?s ?p ?o} GROUP BY ?s";
+	private static final String deleteRulesByOntology = "DELETE FROM DB.ODCLEANSTORE.QA_RULES WHERE groupId IN " +
+			"(SELECT groupId FROM DB.ODCLEANSTORE.QA_RULES_GROUPS_TO_ONTOLOGIES_MAP WHERE ontologyId = ?)";
+	private static final String deleteMapping = "DELETE FROM DB.ODCLEANSTORE.QA_RULES_GROUPS_TO_ONTOLOGIES_MAP WHERE groupId = ? AND ontologyId = ? ";
+	private static final String insertRule = "INSERT INTO DB.ODCLEANSTORE.QA_RULES (groupId, filter, coefficient, description) VALUES (?, ?, ?, ?)";
+	private static final String mapGroupToOntology = "INSERT INTO DB.ODCLEANSTORE.QA_RULES_GROUPS_TO_ONTOLOGIES_MAP (groupId, ontologyId) VALUES (?, ?)";
 
 	private static final Logger LOG = LoggerFactory.getLogger(RulesModel.class);
 
 	private JDBCConnectionCredentials endpoint;
+	
+	/**
+	 * Connection to dirty database (needed in all cases to work on a new graph or a copy of an existing one)
+	 */
+	private VirtuosoConnectionWrapper cleanConnection;
+
+	/**
+	 * constructs new connection to the dirty database.
+	 * 
+	 * @return wrapped connection to the dirty database
+	 * @throws DatabaseException
+	 */
+	private VirtuosoConnectionWrapper getCleanConnection () throws DatabaseException {
+        if (cleanConnection == null) {
+        	cleanConnection = VirtuosoConnectionWrapper.createConnection(endpoint);
+       	}
+		return cleanConnection;
+	}
+
+	/**
+	 * makes sure the connection to the dirty database is closed and not referenced
+	 */
+	private void closeCleanConnection() {
+		try {
+			if (cleanConnection != null) {
+				cleanConnection.close();
+			}
+		} catch (DatabaseException e) {
+		} finally {
+			cleanConnection = null;
+		}
+	}
 	
 	public RulesModel (JDBCConnectionCredentials endpoint) {
 		this.endpoint = endpoint;
@@ -82,12 +118,8 @@ public class RulesModel {
 	private Collection<Rule> queryRules (String query, Object... objects) throws QualityAssessmentException {
 		Collection<Rule> rules = new ArrayList<Rule>();
 		
-		VirtuosoConnectionWrapper connection = null;
-		WrappedResultSet results = null;
-		
 		try {
-			connection = VirtuosoConnectionWrapper.createConnection(endpoint);
-			results = connection.executeSelect(query, objects);
+			WrappedResultSet results = getCleanConnection().executeSelect(query, objects);
 			
 			/**
 			 * Fill the collection with rule instances for all records in database.
@@ -114,16 +146,7 @@ public class RulesModel {
 		} catch (SQLException e) {
 			throw new QualityAssessmentException(e);
 		} finally {
-			if (results != null) {
-				results.closeQuietly();
-			}
-			if (connection != null) {
-				try {
-					connection.close();
-				} catch (DatabaseException e) {
-					LOG.error("Rules Model connection not closed: " + e.getMessage());
-				}
-			}
+			closeCleanConnection();
 		}
 		
 		return rules;
@@ -159,43 +182,100 @@ public class RulesModel {
 		return rules;
 	}
 	
-	public void compileOntologyToRules(String ontologyUri, Integer groupId) throws QualityAssessmentException {
-		VirtModel ontology = VirtModel.openDatabaseModel(ontologyUri,
-				endpoint.getConnectionString(),
-				endpoint.getUsername(),
-				endpoint.getPassword());
-		
-		QueryExecution query = QueryExecutionFactory.create(ontologyResourceQueryFormat, ontology);
-		
-		com.hp.hpl.jena.query.ResultSet resultSet = query.execSelect();
-		
-		dropRules(ontologyUri);
-		
-		while (resultSet.hasNext()) {
-			QuerySolution solution = resultSet.next();
+	private Integer getGroupId(String groupLabel) throws QualityAssessmentException {
+		try {
+			WrappedResultSet resultSet = getCleanConnection().executeSelect(groupIdQuery, groupLabel);
 			
-			processOntologyResource(solution.getResource("s"), ontology, ontologyUri, groupId);
+			if (!resultSet.next()) throw new QualityAssessmentException("No '" + groupLabel + "' QA Rule group."); 
+		
+			return resultSet.getCurrentResultSet().getInt(1);
+		} catch (DatabaseException e) {
+			throw new QualityAssessmentException(e);
+		} catch (SQLException e) {
+			throw new QualityAssessmentException(e);
 		}
 	}
 	
-	private void dropRules(String ontology) throws QualityAssessmentException {
-		VirtuosoConnectionWrapper connection = null;
-		
+	private Integer getOntologyId(String ontologyLabel) throws QualityAssessmentException {
 		try {
-			connection = VirtuosoConnectionWrapper.createConnection(endpoint);
+			WrappedResultSet resultSet = getCleanConnection().executeSelect(ontologyIdQuery, ontologyLabel);
 			
-			connection.execute(deleteRulesByOntologyFormat, ontology);
+			if (!resultSet.next()) throw new QualityAssessmentException("No '" + ontologyLabel + "' ontology."); 
 			
+			return resultSet.getCurrentResultSet().getInt("id");
 		} catch (DatabaseException e) {
 			throw new QualityAssessmentException(e);
+		} catch (SQLException e) {
+			throw new QualityAssessmentException(e);
+		}
+	}
+	
+	private String getOntologyGraphURI(Integer ontologyId) throws QualityAssessmentException {
+		try {
+			WrappedResultSet resultSet = getCleanConnection().executeSelect(ontologyGraphURIQuery, ontologyId);
+		
+			if (!resultSet.next()) throw new QualityAssessmentException("No ontology with id " + ontologyId + "."); 
+			
+			return resultSet.getCurrentResultSet().getString("graphName");
+		} catch (DatabaseException e) {
+			throw new QualityAssessmentException(e);
+		} catch (SQLException e) {
+			throw new QualityAssessmentException(e);
+		}
+	}
+	
+	private void mapGroupToOntology(Integer groupId, Integer ontologyId) throws QualityAssessmentException {
+		try {
+			getCleanConnection().execute(mapGroupToOntology, groupId, ontologyId);
+		} catch (DatabaseException e) {
+			throw new QualityAssessmentException(e);
+		}
+	}
+	
+	public void compileOntologyToRules(String ontologyLabel, String groupLabel) throws QualityAssessmentException {
+		try {
+			Integer groupId = getGroupId(groupLabel);
+			Integer ontologyId = getOntologyId(ontologyLabel);
+		
+			compileOntologyToRules(ontologyId, groupId);
 		} finally {
-			if (connection != null) {
-				try {
-					connection.close();
-				} catch (DatabaseException e) {
-					LOG.error("Rules Model connection not closed: " + e.getMessage());
-				}
+			closeCleanConnection();
+		}
+	}
+	
+	public void compileOntologyToRules(Integer ontologyId, Integer groupId) throws QualityAssessmentException {
+		try {
+			String ontologyGraphURI = getOntologyGraphURI(ontologyId);
+
+			VirtModel ontology = VirtModel.openDatabaseModel(ontologyGraphURI,
+					endpoint.getConnectionString(),
+					endpoint.getUsername(),
+					endpoint.getPassword());
+		
+			QueryExecution query = QueryExecutionFactory.create(ontologyResourceQuery, ontology);
+		
+			com.hp.hpl.jena.query.ResultSet resultSet = query.execSelect();
+		
+			dropRules(groupId, ontologyId);
+		
+			mapGroupToOntology(groupId, ontologyId);
+		
+			while (resultSet.hasNext()) {
+				QuerySolution solution = resultSet.next();
+			
+				processOntologyResource(solution.getResource("s"), ontology, ontologyGraphURI, groupId);
 			}
+		} finally {
+			closeCleanConnection();
+		}
+	}
+	
+	private void dropRules(Integer groupId, Integer ontologyId) throws QualityAssessmentException {
+		try {			
+			getCleanConnection().execute(deleteRulesByOntology, ontologyId);
+			getCleanConnection().execute(deleteMapping, groupId, ontologyId);
+		} catch (DatabaseException e) {
+			throw new QualityAssessmentException(e);
 		}
 	}
 	
@@ -266,31 +346,12 @@ public class RulesModel {
 	}
 	
 	private void storeRule (Rule rule, String ontology) throws QualityAssessmentException {
-		VirtuosoConnectionWrapper connection = null;
-		
-		try {
-			connection = VirtuosoConnectionWrapper.createConnection(endpoint);
-
-			connection.adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL, false);
-
-			connection.execute(insertRuleFormat, rule.getGroupId(), rule.getFilter(), rule.getCoefficient(), rule.getDescription());
-			connection.execute(mapRuleToOntologyFormat, ontology);
-			
-			connection.commit();
+		try{
+			getCleanConnection().execute(insertRule, rule.getGroupId(), rule.getFilter(), rule.getCoefficient(), rule.getDescription());
 			
 			LOG.info("Generated quality assessment rule from ontology " + ontology);
 		} catch (DatabaseException e) {
 			throw new QualityAssessmentException(e);
-		} catch (SQLException e) {
-			throw new QualityAssessmentException(e);
-		} finally {
-			if (connection != null) {
-				try {
-					connection.close();
-				} catch (DatabaseException e) {
-					LOG.error("Rules Model connection not closed: " + e.getMessage());
-				}
-			}
 		}
 	}
 }

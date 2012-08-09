@@ -23,7 +23,7 @@ CREATE TABLE DB.ODCLEANSTORE.ROLES
 
 DELETE FROM DB.ODCLEANSTORE.ROLES;
 
-INSERT INTO DB.ODCLEANSTORE.ROLES (label, description) VALUES (n'SCR', n'Scrapper');
+INSERT INTO DB.ODCLEANSTORE.ROLES (label, description) VALUES (n'SCR', n'Scraper');
 INSERT INTO DB.ODCLEANSTORE.ROLES (label, description) VALUES (n'ONC', n'Ontology creator');
 INSERT INTO DB.ODCLEANSTORE.ROLES (label, description) VALUES (n'POC', n'Policy creator');
 INSERT INTO DB.ODCLEANSTORE.ROLES (label, description) VALUES (n'ADM', n'Administrator');
@@ -59,14 +59,6 @@ CREATE TABLE DB.ODCLEANSTORE.QA_RULES
 	description LONG NVARCHAR,
 	
 	FOREIGN KEY (groupId) REFERENCES DB.ODCLEANSTORE.QA_RULES_GROUPS(id) ON DELETE CASCADE
-);
-
-CREATE TABLE DB.ODCLEANSTORE.QA_RULES_TO_ONTOLOGIES_MAP
-(
-	ruleId INTEGER NOT NULL IDENTITY PRIMARY KEY,
-	ontology NVARCHAR NOT NULL,
-
-	FOREIGN KEY (ruleId) REFERENCES DB.ODCLEANSTORE.QA_RULES(id) ON DELETE CASCADE
 );
 
 /*
@@ -112,14 +104,6 @@ CREATE TABLE DB.ODCLEANSTORE.DN_RULE_COMPONENTS
 	
 	FOREIGN KEY (ruleId) REFERENCES DB.ODCLEANSTORE.DN_RULES(id) ON DELETE CASCADE,
 	FOREIGN KEY (typeId) REFERENCES DB.ODCLEANSTORE.DN_RULE_COMPONENT_TYPES(id) ON DELETE CASCADE
-);
-
-CREATE TABLE DB.ODCLEANSTORE.DN_RULES_TO_ONTOLOGIES_MAP
-(
-	ruleId INTEGER NOT NULL IDENTITY PRIMARY KEY,
-	ontology NVARCHAR NOT NULL,
-
-	FOREIGN KEY (ruleId) REFERENCES DB.ODCLEANSTORE.DN_RULES(id) ON DELETE CASCADE
 );
 
 /*
@@ -203,6 +187,12 @@ CREATE TABLE DB.ODCLEANSTORE.TRANSFORMERS
 	fullClassName NVARCHAR(255) NOT NULL
 );
 
+DELETE FROM DB.ODCLEANSTORE.TRANSFORMERS;
+
+INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS (label, description, jarPath, fullClassName) VALUES (n'Quality Assessment', n'The standard Quality Assessment transformer', n'.', n'cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl');
+INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS (label, description, jarPath, fullClassName) VALUES (n'Linker', n'The standard Object Identification transformer',  n'.', n'cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl');
+INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS (label, description, jarPath, fullClassName) VALUES (n'Data Normalization', n'The standard Data Normalization transformer', n'.', n'cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl');
+
 CREATE TABLE DB.ODCLEANSTORE.BACKUP_TRANSFORMERS
 (
 	id INTEGER NOT NULL IDENTITY PRIMARY KEY,
@@ -211,6 +201,12 @@ CREATE TABLE DB.ODCLEANSTORE.BACKUP_TRANSFORMERS
 	jarPath NVARCHAR(255) NOT NULL,
 	fullClassName NVARCHAR(255) NOT NULL
 );
+
+DELETE FROM DB.ODCLEANSTORE.BACKUP_TRANSFORMERS;
+
+INSERT INTO DB.ODCLEANSTORE.BACKUP_TRANSFORMERS (label, description, jarPath, fullClassName) VALUES (n'Quality Assessment', n'The standard Quality Assessment transformer', n'.', n'cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl');
+INSERT INTO DB.ODCLEANSTORE.BACKUP_TRANSFORMERS (label, description, jarPath, fullClassName) VALUES (n'Linker', n'The standard Object Identification transformer',  n'.', n'cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl');
+INSERT INTO DB.ODCLEANSTORE.BACKUP_TRANSFORMERS (label, description, jarPath, fullClassName) VALUES (n'Data Normalization', n'The standard Data Normalization transformer', n'.', n'cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl');
 
 CREATE TABLE DB.ODCLEANSTORE.PIPELINES
 (
@@ -496,3 +492,21 @@ CREATE TABLE DB.ODCLEANSTORE.ONTOLOGIES
 	description LONG NVARCHAR,
 	graphName NVARCHAR(1024) UNIQUE NOT NULL
 ); 
+
+CREATE TABLE DB.ODCLEANSTORE.QA_RULES_GROUPS_TO_ONTOLOGIES_MAP
+(
+	groupId INTEGER NOT NULL IDENTITY PRIMARY KEY,
+	ontologyId INTEGER NOT NULL,
+
+	FOREIGN KEY (groupId) REFERENCES DB.ODCLEANSTORE.QA_RULES_GROUPS(id) ON DELETE CASCADE,
+	FOREIGN KEY (ontologyId) REFERENCES DB.ODCLEANSTORE.ONTOLOGIES(id) ON DELETE CASCADE
+);
+
+CREATE TABLE DB.ODCLEANSTORE.DN_RULES_GROUPS_TO_ONTOLOGIES_MAP
+(
+	groupId INTEGER NOT NULL IDENTITY PRIMARY KEY,
+	ontologyId INTEGER NOT NULL,
+
+	FOREIGN KEY (groupId) REFERENCES DB.ODCLEANSTORE.DN_RULES_GROUPS(id) ON DELETE CASCADE,
+	FOREIGN KEY (ontologyId) REFERENCES DB.ODCLEANSTORE.ONTOLOGIES(id) ON DELETE CASCADE
+);

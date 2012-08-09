@@ -12,7 +12,7 @@ import org.apache.wicket.model.IModel;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutput;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutputType;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
@@ -110,7 +110,7 @@ public class OIRuleDetailPage extends FrontendPage
 				item.add(createNullResistentTableCellLabel("maxConfidence", output.getMaxConfidence()));
 				
 				item.add(
-					new DeleteButton<OIOutput>
+					new DeleteRawButton<OIOutput>
 					(
 						oiOutputDao,
 						output.getId(),
@@ -174,7 +174,7 @@ public class OIRuleDetailPage extends FrontendPage
 				item.add(new Label("fileFormat", output.getFileFormat().getLabel()));
 				
 				item.add(
-					new DeleteButton<OIOutput>
+					new DeleteRawButton<OIOutput>
 					(
 						oiOutputDao,
 						output.getId(),

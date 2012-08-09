@@ -10,7 +10,7 @@ import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
  * @author Jan Michelfeit
  */
 /*package*/abstract class CacheHolderBase<T> {
-    /** Lifetime of the cached value in milliseconds. */
+    /** Lifetime of the cached value in milliseconds. Zero means no caching. */
     private final long cacheLifetime;
 
     /** The cached value. */
@@ -33,6 +33,9 @@ import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
      * @throws QueryExecutionException error
      */
     public T getCachedValue() throws QueryExecutionException {
+        if (cacheLifetime == 0) {
+            return loadCachedValue();
+        }
         if (System.currentTimeMillis() - lastRefreshTime > cacheLifetime) {
             // The double-checked locking idiom should work here because we test volatile lastRefreshTime
             // CHECKSTYLE:OFF

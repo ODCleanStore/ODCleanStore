@@ -6,7 +6,6 @@ import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationType;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.data.QuadCollection;
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 
@@ -17,6 +16,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -110,7 +110,7 @@ public class ConflictResolverImplTest {
 
         // Test results
         Collection<CRQuad> aggregationResult =
-                instance.resolveConflicts(new QuadCollection(conflictingQuads));
+                instance.resolveConflicts(new ArrayList<Quad>((conflictingQuads)));
         // Only newVersionQuad and otherQuad, oldVersionQuad is filtered out
         Assert.assertEquals(2, aggregationResult.size());
         double newVersionQuality = Double.NaN;
@@ -151,7 +151,7 @@ public class ConflictResolverImplTest {
 
         // Test results
         Collection<CRQuad> aggregationResult =
-                instance.resolveConflicts(new QuadCollection(conflictingQuads));
+                instance.resolveConflicts(new ArrayList<Quad>(conflictingQuads));
         // Neither quad was filtered out
         Assert.assertEquals(2, aggregationResult.size());
     }
@@ -174,7 +174,7 @@ public class ConflictResolverImplTest {
 
         // Test results
         Collection<CRQuad> aggregationResult =
-                instance.resolveConflicts(new QuadCollection(conflictingQuads));
+                instance.resolveConflicts(new ArrayList<Quad>((conflictingQuads)));
         // Neither quad was filtered out
         Assert.assertEquals(2, aggregationResult.size());
     }
@@ -202,7 +202,7 @@ public class ConflictResolverImplTest {
 
         // Test results
         Collection<CRQuad> aggregationResult =
-                instance.resolveConflicts(new QuadCollection(conflictingQuads));
+                instance.resolveConflicts(new ArrayList<Quad>((conflictingQuads)));
         // Nothing filtered out because of versions, but CR removes duplicates
         final long expectedQuadCount = 2;
         Assert.assertEquals(expectedQuadCount, aggregationResult.size());
