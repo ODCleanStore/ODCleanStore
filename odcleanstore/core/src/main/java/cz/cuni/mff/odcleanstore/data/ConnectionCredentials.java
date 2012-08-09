@@ -1,14 +1,18 @@
 package cz.cuni.mff.odcleanstore.data;
 
+import java.io.Serializable;
+
 /**
  * SPARQL endpoint representation. User name and password are optional.
  * Immutable.
  *
  * @author Tomas Soukup
  */
-public class ConnectionCredentials {
+public class ConnectionCredentials implements Serializable
+{
+	private static final long serialVersionUID = 1L;
 
-    /** The URI of the SPARQL endpoint. */
+	/** The URI of the SPARQL endpoint. */
     private String uri;
 
     /** User name required for authentication. */
