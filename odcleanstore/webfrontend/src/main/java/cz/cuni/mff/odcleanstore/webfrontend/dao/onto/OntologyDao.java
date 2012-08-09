@@ -79,28 +79,32 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 	{
 		String query = "INSERT INTO " + TABLE_NAME + " (label, description, graphName) VALUES (?, ?, ?)";
 		
+		createGraphName(item);
+		Object[] params =
+		{
+			item.getLabel(),
+			item.getDescription(),
+			item.getGraphName()
+		};
+		
+		logger.debug("label: " + item.getLabel());
+		logger.debug("description: " + item.getDescription());
+		logger.debug("graphName" + item.getGraphName());
+		
+		getJdbcTemplate().update(query, params);
+		
+		// to be able to drop a graph in Virtuoso, it has to be explicitly created before
+		createGraph(item.getGraphName());
+		
+		storeRdfXml(item.getRdfData(), item.getGraphName());	
+	}
+	
+	private void createGraphName(Ontology item) {
 		try {
 			item.setGraphName(GRAPH_NAME_PREFIX + URLEncoder.encode(item.getLabel(), ENCODING));
-			Object[] params =
-			{
-				item.getLabel(),
-				item.getDescription(),
-				item.getGraphName()
-			};
-			
-			logger.debug("label: " + item.getLabel());
-			logger.debug("description: " + item.getDescription());
-			logger.debug("graphName" + item.getGraphName());
-			
-			getJdbcTemplate().update(query, params);
-			
-			// to be able to drop a graph in Virtuoso, it has to be explicitly created before
-			createGraph(item.getGraphName());
-			
-			storeRdfXml(item.getRdfData(), item.getGraphName());
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-		}		
+			// TODO handle
+		}
 	}
 	
 	private void createGraph(String graphName) 
@@ -127,16 +131,19 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 	
 	@Override
 	public void update(Ontology item)
-	{
+	{	
+		String oldName = item.getGraphName();
+		createGraphName(item);
 		String query =
 			"UPDATE " + TABLE_NAME + 
-			" SET label = ?, description = ?" +
+			" SET label = ?, description = ?, graphName = ?" +
 			" WHERE id = ?";
 		
 		Object[] params =
 		{
 			item.getLabel(),
 			item.getDescription(),
+			item.getGraphName(),
 			item.getId(),
 		};
 		
@@ -146,7 +153,9 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		
 		getJdbcTemplate().update(query, params);
 		
-		deleteGraph(item.getGraphName());
+		deleteGraph(oldName);
+		
+		createGraph(item.getGraphName());
 		
 		storeRdfXml(item.getRdfData(), item.getGraphName());
 	}
