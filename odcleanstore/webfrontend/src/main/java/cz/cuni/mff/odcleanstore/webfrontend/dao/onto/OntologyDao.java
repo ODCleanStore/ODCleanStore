@@ -20,7 +20,13 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "ONTOLOGIES";
 	private static final String OUTPUT_LANGUAGE = "RDF/XML-ABBREV";
 	private static final String ENCODING = "UTF-8";
-	public static final String GRAPH_NAME_PREFIX = "http://opendata.cz/infrastructure/odcleanstore/ontologies/";
+	private static final String GRAPH_NAME_PREFIX = "http://opendata.cz/infrastructure/odcleanstore/ontologies/";
+	private static final String RULE_GROUP_PREFIX = "Generated from ontology: ";
+	private static final String QA_GROUPS_TABLE_NAME = "QA_RULES_GROUPS";
+	private static final String DN_GROUPS_TABLE_NAME = "DN_RULES_GROUPS";
+	private static final String QA_MAPPING_TABLE_NAME = "QA_RULES_GROUPS_TO_ONTOLOGIES_MAP";
+	private static final String DN_MAPPING_TABLE_NAME = "DN_RULES_GROUPS_TO_ONTOLOGIES_MAP";
+	
 
 	protected static Logger logger = Logger.getLogger(OntologyDao.class);
 	
@@ -96,10 +102,14 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		// to be able to drop a graph in Virtuoso, it has to be explicitly created before
 		createGraph(item.getGraphName());
 		
-		storeRdfXml(item.getRdfData(), item.getGraphName());	
+		storeRdfXml(item.getRdfData(), item.getGraphName());
+		
+		generateRules(QA_GROUPS_TABLE_NAME, item.getLabel());
+		generateRules(DN_GROUPS_TABLE_NAME, item.getLabel());
 	}
 	
-	private void createGraphName(Ontology item) {
+	private void createGraphName(Ontology item) 
+	{
 		try {
 			item.setGraphName(GRAPH_NAME_PREFIX + URLEncoder.encode(item.getLabel(), ENCODING));
 		} catch (UnsupportedEncodingException e) {
@@ -158,6 +168,12 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		createGraph(item.getGraphName());
 		
 		storeRdfXml(item.getRdfData(), item.getGraphName());
+		
+		deleteRules(QA_GROUPS_TABLE_NAME, item);
+		deleteRules(QA_GROUPS_TABLE_NAME, item);
+		
+		generateRules(QA_GROUPS_TABLE_NAME, item.getLabel());
+		generateRules(DN_GROUPS_TABLE_NAME, item.getLabel());
 	}
 	
 	private void deleteGraph(String graphName) 
@@ -170,8 +186,76 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 	}
 	
 	@Override
-	public void delete(Ontology item) throws Exception {
+	public void delete(Ontology item) throws Exception 
+	{
 		deleteRaw(item.getId());
 		deleteGraph(item.getGraphName());
+		
+		deleteRules(QA_GROUPS_TABLE_NAME, item);
+		deleteRules(QA_GROUPS_TABLE_NAME, item);
+	}
+	
+	private void generateRules(String tableName, String ontologyLabel) 
+	{
+		String groupLabel = createGroupLabel(ontologyLabel);
+		createRuleGroup(tableName, groupLabel);
+		if (QA_GROUPS_TABLE_NAME.equals(tableName)) {
+			/*
+			RulesModel rulesModel = new RulesModel(this.lookupFactory.getDataSource());
+			rulesModel.compileOntologyToRules(ontologyLabel, groupLabel);
+			*/
+		} else {
+			/*
+			RulesModel rulesModel = new RulesModel(this.lookupFactory.getDataSource());
+			rulesModel.compileOntologyToRules(ontologyLabel, groupLabel);
+			*/
+		}
+		
+	}
+	
+	private String createGroupLabel(String ontologyLabel) 
+	{
+		return RULE_GROUP_PREFIX + ontologyLabel;
+	}
+	
+	private void createRuleGroup(String tableName, String groupLabel) 
+	{
+		String query = "INSERT INTO " + TABLE_NAME_PREFIX + tableName + " (label) VALUES (?)";
+		
+		Object[] params = { groupLabel };
+		
+		logger.debug("groupName" + groupLabel);
+		
+		getJdbcTemplate().update(query, params);
+	}
+	
+	private void deleteRules(String tableName, Ontology item) 
+	{
+		String mappingTableName = createMappingTableName(tableName);
+		Long rulesGroupId = getRulesGroupId(mappingTableName, item.getId()); 
+		
+		String query = "DELETE FROM " + TABLE_NAME_PREFIX + tableName + " WHERE id = ?";
+		
+		Object[] params = { rulesGroupId };
+		
+		getJdbcTemplate().update(query, params);
+	}
+	
+	private String createMappingTableName(String groupTableName) 
+	{
+		if (QA_GROUPS_TABLE_NAME.equals(groupTableName)) {
+			return QA_MAPPING_TABLE_NAME;
+		} else {
+			return DN_MAPPING_TABLE_NAME;
+		}
+	}
+	
+	private Long getRulesGroupId(String tableName, Long ontologyId) 
+	{
+		String query = "SELECT groupId FROM " + TABLE_NAME_PREFIX + tableName + " WHERE ontologyId = ?";
+		
+		Object[] params = { ontologyId };
+		
+		return getJdbcTemplate().queryForObject(query, params, Long.class);
 	}
 }
