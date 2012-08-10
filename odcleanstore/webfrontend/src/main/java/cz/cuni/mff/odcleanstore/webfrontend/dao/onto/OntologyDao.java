@@ -140,40 +140,11 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 	}
 	
 	@Override
-	public void update(Ontology item)
+	public void update(Ontology item) throws Exception
 	{	
-		String oldName = item.getGraphName();
+		delete(item);
 		createGraphName(item);
-		String query =
-			"UPDATE " + TABLE_NAME + 
-			" SET label = ?, description = ?, graphName = ?" +
-			" WHERE id = ?";
-		
-		Object[] params =
-		{
-			item.getLabel(),
-			item.getDescription(),
-			item.getGraphName(),
-			item.getId(),
-		};
-		
-		logger.debug("label: " + item.getLabel());
-		logger.debug("description: " + item.getDescription());
-		logger.debug("id: " + item.getId());
-		
-		getJdbcTemplate().update(query, params);
-		
-		deleteGraph(oldName);
-		
-		createGraph(item.getGraphName());
-		
-		storeRdfXml(item.getRdfData(), item.getGraphName());
-		
-		deleteRules(QA_GROUPS_TABLE_NAME, item);
-		deleteRules(QA_GROUPS_TABLE_NAME, item);
-		
-		generateRules(QA_GROUPS_TABLE_NAME, item.getLabel());
-		generateRules(DN_GROUPS_TABLE_NAME, item.getLabel());
+		save(item);
 	}
 	
 	private void deleteGraph(String graphName) 
@@ -190,24 +161,28 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 	{
 		deleteRaw(item.getId());
 		deleteGraph(item.getGraphName());
-		
-		deleteRules(QA_GROUPS_TABLE_NAME, item);
-		deleteRules(QA_GROUPS_TABLE_NAME, item);
 	}
 	
 	private void generateRules(String tableName, String ontologyLabel) 
 	{
 		String groupLabel = createGroupLabel(ontologyLabel);
-		createRuleGroup(tableName, groupLabel);
+		createRulesGroup(tableName, groupLabel);
+		
+		Ontology ontologyWithId = super.loadRawBy("label", ontologyLabel);
+		Long ontologyId = ontologyWithId.getId();
+		Long groupId = getGroupId(tableName, groupLabel);
+		
+		createMapping(createMappingTableName(tableName), groupId, ontologyId);
+		
 		if (QA_GROUPS_TABLE_NAME.equals(tableName)) {
 			/*
 			RulesModel rulesModel = new RulesModel(this.lookupFactory.getDataSource());
-			rulesModel.compileOntologyToRules(ontologyLabel, groupLabel);
+			rulesModel.compileOntologyToRules(ontologyId, groupId);
 			*/
 		} else {
 			/*
 			RulesModel rulesModel = new RulesModel(this.lookupFactory.getDataSource());
-			rulesModel.compileOntologyToRules(ontologyLabel, groupLabel);
+			rulesModel.compileOntologyToRules(ontologyId, groupId);
 			*/
 		}
 		
@@ -218,25 +193,13 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		return RULE_GROUP_PREFIX + ontologyLabel;
 	}
 	
-	private void createRuleGroup(String tableName, String groupLabel) 
+	private void createRulesGroup(String tableName, String groupLabel) 
 	{
 		String query = "INSERT INTO " + TABLE_NAME_PREFIX + tableName + " (label) VALUES (?)";
 		
 		Object[] params = { groupLabel };
 		
 		logger.debug("groupName" + groupLabel);
-		
-		getJdbcTemplate().update(query, params);
-	}
-	
-	private void deleteRules(String tableName, Ontology item) 
-	{
-		String mappingTableName = createMappingTableName(tableName);
-		Long rulesGroupId = getRulesGroupId(mappingTableName, item.getId()); 
-		
-		String query = "DELETE FROM " + TABLE_NAME_PREFIX + tableName + " WHERE id = ?";
-		
-		Object[] params = { rulesGroupId };
 		
 		getJdbcTemplate().update(query, params);
 	}
@@ -250,12 +213,28 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		}
 	}
 	
-	private Long getRulesGroupId(String tableName, Long ontologyId) 
+	private Long getGroupId(String tableName, String groupLabel) 
 	{
-		String query = "SELECT groupId FROM " + TABLE_NAME_PREFIX + tableName + " WHERE ontologyId = ?";
+		String query = "SELECT id FROM " + TABLE_NAME_PREFIX + tableName + " WHERE label = ?";
 		
-		Object[] params = { ontologyId };
+		Object[] params = { groupLabel };
 		
 		return getJdbcTemplate().queryForObject(query, params, Long.class);
+	}
+	
+	private void createMapping(String tableName, Long groupId, Long ontologyId)
+	{
+		String query = "INSERT INTO " + TABLE_NAME_PREFIX + tableName + " (groupId, ontologyId) VALUES (?, ?)";
+		
+		Object[] params = 
+		{ 
+			groupId,
+			ontologyId
+		};
+		
+		logger.debug("groupId" + groupId);
+		logger.debug("ontologyId" + ontologyId);
+		
+		getJdbcTemplate().update(query, params);
 	}
 }
