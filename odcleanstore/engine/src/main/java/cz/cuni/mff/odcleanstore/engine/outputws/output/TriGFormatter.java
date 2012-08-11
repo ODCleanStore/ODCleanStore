@@ -25,7 +25,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl.GraphScoreWithTrace;
-import cz.cuni.mff.odcleanstore.qualityassessment.rules.Rule;
+import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRule;
 import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.EnumQueryType;
 import cz.cuni.mff.odcleanstore.queryexecution.NamedGraphMetadataQueryResult;
@@ -222,7 +222,7 @@ public class TriGFormatter extends ResultFormatterBase {
         // Quality Assessment results
         LiteralLabel scoreLiteral = LiteralLabelFactory.create(qaResult.getScore());
         metadataGraph.add(new Triple(namedGraphURI, SCORE_PROPERTY, Node.createLiteral(scoreLiteral)));
-        for (Rule qaRule : qaResult.getTrace()) {
+        for (QualityAssessmentRule qaRule : qaResult.getTrace()) {
         	Node ruleNode = Node.createURI(outputWSConfig.getQARuleURIPrefix() + qaRule.getId().toString());
         	metadataGraph.add(new Triple(namedGraphURI, VIOLATED_QA_RULE_PROPERTY, ruleNode));
         	

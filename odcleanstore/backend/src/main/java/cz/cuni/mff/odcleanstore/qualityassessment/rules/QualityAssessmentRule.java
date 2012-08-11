@@ -6,14 +6,14 @@ package cz.cuni.mff.odcleanstore.qualityassessment.rules;
  * follow after WHERE clause), a coefficient and a human readable
  * explanation.
  */
-public class Rule {
-	private Integer id;
-	private Integer groupId;
+public class QualityAssessmentRule {
+	private Long id;
+	private Long groupId;
 	private String filter;
 	private Double coefficient;
 	private String description;
 
-	public Rule (Integer id, Integer groupId, String filter, Double coefficient, String description) {
+	public QualityAssessmentRule (Long id, Long groupId, String filter, Double coefficient, String description) {
 		this.id = id;
 		this.groupId = groupId;
 		this.filter = filter;
@@ -21,11 +21,11 @@ public class Rule {
 		this.description = description;
 	}
 
-	public Integer getId() {
+	public Long getId() {
 		return id;
 	}
 	
-	public Integer getGroupId() {
+	public Long getGroupId() {
 		return groupId;
 	}
 	public String getFilter() {

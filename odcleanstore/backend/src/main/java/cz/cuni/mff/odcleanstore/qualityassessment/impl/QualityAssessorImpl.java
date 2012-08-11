@@ -24,8 +24,8 @@ import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.data.DebugGraphFileLoader;
 import cz.cuni.mff.odcleanstore.qualityassessment.*;
 import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
-import cz.cuni.mff.odcleanstore.qualityassessment.rules.Rule;
-import cz.cuni.mff.odcleanstore.qualityassessment.rules.RulesModel;
+import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRule;
+import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRulesModel;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
@@ -60,10 +60,10 @@ public class QualityAssessorImpl implements QualityAssessor {
 				
 				System.err.println(graph + " " + result.get(graph).score);
 				
-				Iterator<Rule> j = result.get(graph).trace.iterator();
+				Iterator<QualityAssessmentRule> j = result.get(graph).trace.iterator();
 				
 				while (j.hasNext()) {
-					Rule rule = j.next();
+					QualityAssessmentRule rule = j.next();
 					
 					System.err.println("\t" + rule.getDescription() + " " + rule.getCoefficient());
 				}
@@ -100,7 +100,7 @@ public class QualityAssessorImpl implements QualityAssessor {
 	private Integer[] groupIds;
 	private String[] groupLabels;
 
-	private Collection<Rule> rules;
+	private Collection<QualityAssessmentRule> rules;
 
 	private Double score;
 	private List<String> trace;
@@ -290,9 +290,9 @@ public class QualityAssessorImpl implements QualityAssessor {
 	
 	public class GraphScoreWithTrace {
 		private Double score;
-		private Collection<Rule> trace;
+		private Collection<QualityAssessmentRule> trace;
 		
-		public GraphScoreWithTrace(Double score, Collection<Rule> trace) {
+		public GraphScoreWithTrace(Double score, Collection<QualityAssessmentRule> trace) {
 			this.score = score;
 			this.trace = trace;
 		}
@@ -301,7 +301,7 @@ public class QualityAssessorImpl implements QualityAssessor {
 			return score;
 		}
 		
-		public Collection<Rule> getTrace() {
+		public Collection<QualityAssessmentRule> getTrace() {
 			return trace;
 		}
 	}
@@ -330,7 +330,7 @@ public class QualityAssessorImpl implements QualityAssessor {
 		trace = new ArrayList<String>();
 		violations = 0;
 		
-		Collection<Rule> rules = new ArrayList<Rule>();
+		Collection<QualityAssessmentRule> rules = new ArrayList<QualityAssessmentRule>();
 		
 		try
 		{
@@ -349,7 +349,7 @@ public class QualityAssessorImpl implements QualityAssessor {
 	 * Analyse what rules should be applied (find out what rule group is demanded)
 	 */
 	protected void loadRules() throws QualityAssessmentException {
-		RulesModel model = new RulesModel(context.getCleanDatabaseCredentials());
+		QualityAssessmentRulesModel model = new QualityAssessmentRulesModel(context.getCleanDatabaseCredentials());
 		
 		if (groupIds != null) {
 			rules = model.getRules(groupIds);
@@ -363,12 +363,12 @@ public class QualityAssessorImpl implements QualityAssessor {
 	/**
 	 * Find out what rules are violated and change the score and trace accordingly.
 	 */
-	protected void applyRules(Collection<Rule> appliedRules) throws QualityAssessmentException {
+	protected void applyRules(Collection<QualityAssessmentRule> appliedRules) throws QualityAssessmentException {
 
-		Iterator<Rule> iterator = rules.iterator();
+		Iterator<QualityAssessmentRule> iterator = rules.iterator();
 
 		while (iterator.hasNext()) {
-			Rule rule = iterator.next();
+			QualityAssessmentRule rule = iterator.next();
 
 			applyRule(rule, appliedRules);
 		}
@@ -377,7 +377,7 @@ public class QualityAssessorImpl implements QualityAssessor {
 	/**
 	 * Applies all the selected rules on the input graph
 	 */
-	protected void applyRule(Rule rule, Collection<Rule> appliedRules) throws QualityAssessmentException {
+	protected void applyRule(QualityAssessmentRule rule, Collection<QualityAssessmentRule> appliedRules) throws QualityAssessmentException {
 		String query = rule.toString(inputGraph.getGraphName());
 
 		WrappedResultSet results = null;

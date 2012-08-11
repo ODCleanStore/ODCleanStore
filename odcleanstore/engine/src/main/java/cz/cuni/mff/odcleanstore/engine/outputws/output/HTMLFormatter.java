@@ -19,7 +19,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl.GraphScoreWithTrace;
-import cz.cuni.mff.odcleanstore.qualityassessment.rules.Rule;
+import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRule;
 import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.NamedGraphMetadataQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryResultBase;
@@ -415,10 +415,10 @@ public class HTMLFormatter extends ResultFormatterBase {
 		 * @param qaRules violated QA rules
 		 * @throws IOException if an I/O error occurs
 		 */
-		private void writeQARules(Writer writer, Collection<Rule> qaRules) throws IOException {
+		private void writeQARules(Writer writer, Collection<QualityAssessmentRule> qaRules) throws IOException {
 			writer.write(" <table border=\"1\" cellspacing=\"0\" cellpadding=\"2\">\n");
 			writer.write("  <tr><th>Rule description</th><th>Score decreased by</th></tr>\n");
-			for (Rule rule : qaRules) {
+			for (QualityAssessmentRule rule : qaRules) {
 				writer.write("  <tr><td>");
 				writer.write(rule.getDescription());
 				writer.write("</td><td>");

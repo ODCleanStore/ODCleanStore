@@ -12,7 +12,7 @@ import org.restlet.representation.WriterRepresentation;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl.GraphScoreWithTrace;
-import cz.cuni.mff.odcleanstore.qualityassessment.rules.Rule;
+import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRule;
 import cz.cuni.mff.odcleanstore.queryexecution.NamedGraphMetadataQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
 import de.fuberlin.wiwiss.ng4j.Quad;
@@ -90,7 +90,7 @@ public class DebugFormatter extends ResultFormatterBase {
 				writer.write("\n== Graph score ==\n");
 				writer.write(qaResult.getScore().toString());
 				writer.write("\n\n== Matched QA rules ==\n");
-				for (Rule matchedRule : qaResult.getTrace()) {
+				for (QualityAssessmentRule matchedRule : qaResult.getTrace()) {
 					writer.write(matchedRule.getCoefficient().toString());
 					writer.write('\t');
 					writer.write(matchedRule.getDescription());

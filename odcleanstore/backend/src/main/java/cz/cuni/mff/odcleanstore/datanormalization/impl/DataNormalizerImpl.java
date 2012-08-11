@@ -24,8 +24,8 @@ import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.data.DebugGraphFileLoader;
 import cz.cuni.mff.odcleanstore.datanormalization.DataNormalizer;
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
-import cz.cuni.mff.odcleanstore.datanormalization.rules.Rule;
-import cz.cuni.mff.odcleanstore.datanormalization.rules.RulesModel;
+import cz.cuni.mff.odcleanstore.datanormalization.rules.DataNormalizationRule;
+import cz.cuni.mff.odcleanstore.datanormalization.rules.DataNormalizationRulesModel;
 import cz.cuni.mff.odcleanstore.shared.UniqueGraphNameGenerator;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
@@ -59,10 +59,10 @@ public class DataNormalizerImpl implements DataNormalizer {
 
 				System.err.println(graph);
 				
-				Iterator<Rule> j = result.get(graph).getRuleIterator();
+				Iterator<DataNormalizationRule> j = result.get(graph).getRuleIterator();
 				
 				while (j.hasNext()) {
-					Rule rule = j.next();
+					DataNormalizationRule rule = j.next();
 					
 					Iterator<TripleModification> k;
 					
@@ -125,7 +125,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 	private Integer[] groupIds = null;
 	private String[] groupLabels = null;
 
-	private Collection<Rule> rules;
+	private Collection<DataNormalizationRule> rules;
 
 	/**
 	 * constructs new data normalizer
@@ -387,9 +387,9 @@ public class DataNormalizerImpl implements DataNormalizer {
 	 * @author Jakub Daniel
 	 */
 	public class GraphModification {
-		private Map<Rule, RuleModification> modifications = new HashMap<Rule, RuleModification>();
+		private Map<DataNormalizationRule, RuleModification> modifications = new HashMap<DataNormalizationRule, RuleModification>();
 		
-		public void addInsertion (Rule rule, String s, String p, String o) {
+		public void addInsertion (DataNormalizationRule rule, String s, String p, String o) {
 			if (modifications.containsKey(rule)) {
 				/**
 				 * Extend an existing modification done by a certain rule
@@ -407,7 +407,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 			}
 		}
 		
-		public void addDeletion(Rule rule, String s, String p, String o) {
+		public void addDeletion(DataNormalizationRule rule, String s, String p, String o) {
 			if (modifications.containsKey(rule)) {
 				/**
 				 * Extend an existing modification done by a certain rule
@@ -425,11 +425,11 @@ public class DataNormalizerImpl implements DataNormalizer {
 			}
 		}
 		
-		public Iterator<Rule> getRuleIterator() {
+		public Iterator<DataNormalizationRule> getRuleIterator() {
 			return modifications.keySet().iterator();
 		}
 		
-		public RuleModification getModificationsByRule(Rule rule) {
+		public RuleModification getModificationsByRule(DataNormalizationRule rule) {
 			return modifications.get(rule);
 		}
 	}
@@ -474,7 +474,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 	 * @throws DataNormalizationException
 	 */
 	private void loadRules() throws DataNormalizationException {
-		RulesModel model = new RulesModel(context.getCleanDatabaseCredentials());
+		DataNormalizationRulesModel model = new DataNormalizationRulesModel(context.getCleanDatabaseCredentials());
 
 		/**
 		 * Either IDs or Labels need to be specified
@@ -505,7 +505,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 		try {
 			getDirtyConnection();
 			
-			Iterator<Rule> i = rules.iterator();
+			Iterator<DataNormalizationRule> i = rules.iterator();
 			
 			/**
 			 * Ensure that the graph is either transformed completely or not at all
@@ -513,7 +513,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 			getDirtyConnection().adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL, false);
 			
 			while (i.hasNext()) {
-				Rule rule = i.next();
+				DataNormalizationRule rule = i.next();
 
 				performRule(rule, modifications);
 			}
@@ -535,7 +535,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 	 * @throws DatabaseException
 	 * @throws SQLException
 	 */
-	private void performRule(Rule rule, GraphModification modifications) throws DataNormalizationException, DatabaseException, SQLException {
+	private void performRule(DataNormalizationRule rule, GraphModification modifications) throws DataNormalizationException, DatabaseException, SQLException {
 		if (inputGraph.getGraphName().length() == 0) {
 			throw new DataNormalizationException("Empty Graph Name is not allowed.");
 		}

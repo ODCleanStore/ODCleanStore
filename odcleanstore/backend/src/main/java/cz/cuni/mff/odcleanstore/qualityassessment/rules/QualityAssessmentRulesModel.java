@@ -20,6 +20,7 @@ import java.sql.SQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import virtuoso.jdbc3.VirtuosoDataSource;
 import virtuoso.jena.driver.VirtModel;
 
 import com.hp.hpl.jena.graph.Node;
@@ -41,13 +42,19 @@ import com.hp.hpl.jena.vocabulary.RDFS;
  *
  * @author Jakub Daniel
  */
-public class RulesModel {
+public class QualityAssessmentRulesModel {
 	public static void main(String[] args) {
 		try {
 			ConfigLoader.loadConfig();
 			BackendConfig config = ConfigLoader.getConfig().getBackendGroup();
+			
+			JDBCConnectionCredentials credentials = config.getCleanDBJDBCConnectionCredentials();
+			VirtuosoDataSource dataSource = new VirtuosoDataSource();
+			dataSource.setServerName(credentials.getConnectionString());
+			dataSource.setUser(credentials.getUsername());
+			dataSource.setPassword(credentials.getPassword());
 
-			new RulesModel(config.getCleanDBJDBCConnectionCredentials()).compileOntologyToRules("public-contracts", "Group 1");
+			new QualityAssessmentRulesModel(dataSource).compileOntologyToRules("public-contracts", "Group 1");
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 			
@@ -75,7 +82,7 @@ public class RulesModel {
 	private static final String insertRule = "INSERT INTO DB.ODCLEANSTORE.QA_RULES (groupId, filter, coefficient, description) VALUES (?, ?, ?, ?)";
 	private static final String mapGroupToOntology = "INSERT INTO DB.ODCLEANSTORE.QA_RULES_GROUPS_TO_ONTOLOGIES_MAP (groupId, ontologyId) VALUES (?, ?)";
 
-	private static final Logger LOG = LoggerFactory.getLogger(RulesModel.class);
+	private static final Logger LOG = LoggerFactory.getLogger(QualityAssessmentRulesModel.class);
 
 	private JDBCConnectionCredentials endpoint;
 	
@@ -111,12 +118,19 @@ public class RulesModel {
 		}
 	}
 	
-	public RulesModel (JDBCConnectionCredentials endpoint) {
+	public QualityAssessmentRulesModel (JDBCConnectionCredentials endpoint) {
 		this.endpoint = endpoint;
 	}
 	
-	private Collection<Rule> queryRules (String query, Object... objects) throws QualityAssessmentException {
-		Collection<Rule> rules = new ArrayList<Rule>();
+	public QualityAssessmentRulesModel (VirtuosoDataSource dataSource) {
+		this.endpoint = new JDBCConnectionCredentials(
+				dataSource.getServerName(),
+				dataSource.getUser(),
+				dataSource.getPassword());
+	}
+	
+	private Collection<QualityAssessmentRule> queryRules (String query, Object... objects) throws QualityAssessmentException {
+		Collection<QualityAssessmentRule> rules = new ArrayList<QualityAssessmentRule>();
 		
 		try {
 			WrappedResultSet results = getCleanConnection().executeSelect(query, objects);
@@ -127,9 +141,9 @@ public class RulesModel {
 			while (results.next()) {
 				ResultSet result = results.getCurrentResultSet();
 				
-				Integer id = result.getInt("id");
+				Long id = result.getLong("id");
 				
-				Integer groupId = result.getInt("groupId");
+				Long groupId = result.getLong("groupId");
 				
 				Blob filterBlob = result.getBlob("filter");
 				String filter = new String(filterBlob.getBytes(1, (int)filterBlob.length()));
@@ -139,7 +153,7 @@ public class RulesModel {
 				Blob descriptionBlob = result.getBlob("description");
 				String description = new String(descriptionBlob.getBytes(1, (int)descriptionBlob.length()));
 				
-				rules.add(new Rule(id, groupId, filter, coefficient, description));
+				rules.add(new QualityAssessmentRule(id, groupId, filter, coefficient, description));
 			}
 		} catch (DatabaseException e) {
 			throw new QualityAssessmentException(e);
@@ -155,11 +169,11 @@ public class RulesModel {
 	/**
      * @param groupIds IDs of the rule groups from which the rules are selected
      */
-	public Collection<Rule> getRules (Integer... groupIds) throws QualityAssessmentException {
-		Set<Rule> rules = new HashSet<Rule>();
+	public Collection<QualityAssessmentRule> getRules (Integer... groupIds) throws QualityAssessmentException {
+		Set<QualityAssessmentRule> rules = new HashSet<QualityAssessmentRule>();
 		
 		for (int i = 0; i < groupIds.length; ++i) {
-			Collection<Rule> groupSpecific = queryRules(ruleByGroupIdQueryFormat, groupIds[i]);
+			Collection<QualityAssessmentRule> groupSpecific = queryRules(ruleByGroupIdQueryFormat, groupIds[i]);
 			
 			rules.addAll(groupSpecific);
 		}
@@ -170,11 +184,11 @@ public class RulesModel {
 	/**
      * @param groupLabels set of labels of groups from which the rules are selected
      */
-	public Collection<Rule> getRules (String... groupLabels) throws QualityAssessmentException {
-		Set<Rule> rules = new HashSet<Rule>();
+	public Collection<QualityAssessmentRule> getRules (String... groupLabels) throws QualityAssessmentException {
+		Set<QualityAssessmentRule> rules = new HashSet<QualityAssessmentRule>();
 		
 		for (int i = 0; i < groupLabels.length; ++i) {
-			Collection<Rule> groupSpecific = queryRules(ruleByGroupLabelQueryFormat, groupLabels[i]);
+			Collection<QualityAssessmentRule> groupSpecific = queryRules(ruleByGroupLabelQueryFormat, groupLabels[i]);
 			
 			rules.addAll(groupSpecific);
 		}
@@ -182,13 +196,13 @@ public class RulesModel {
 		return rules;
 	}
 	
-	private Integer getGroupId(String groupLabel) throws QualityAssessmentException {
+	private Long getGroupId(String groupLabel) throws QualityAssessmentException {
 		try {
 			WrappedResultSet resultSet = getCleanConnection().executeSelect(groupIdQuery, groupLabel);
 			
 			if (!resultSet.next()) throw new QualityAssessmentException("No '" + groupLabel + "' QA Rule group."); 
 		
-			return resultSet.getCurrentResultSet().getInt(1);
+			return resultSet.getCurrentResultSet().getLong("id");
 		} catch (DatabaseException e) {
 			throw new QualityAssessmentException(e);
 		} catch (SQLException e) {
@@ -196,13 +210,13 @@ public class RulesModel {
 		}
 	}
 	
-	private Integer getOntologyId(String ontologyLabel) throws QualityAssessmentException {
+	private Long getOntologyId(String ontologyLabel) throws QualityAssessmentException {
 		try {
 			WrappedResultSet resultSet = getCleanConnection().executeSelect(ontologyIdQuery, ontologyLabel);
 			
 			if (!resultSet.next()) throw new QualityAssessmentException("No '" + ontologyLabel + "' ontology."); 
 			
-			return resultSet.getCurrentResultSet().getInt("id");
+			return resultSet.getCurrentResultSet().getLong("id");
 		} catch (DatabaseException e) {
 			throw new QualityAssessmentException(e);
 		} catch (SQLException e) {
@@ -210,7 +224,7 @@ public class RulesModel {
 		}
 	}
 	
-	private String getOntologyGraphURI(Integer ontologyId) throws QualityAssessmentException {
+	private String getOntologyGraphURI(Long ontologyId) throws QualityAssessmentException {
 		try {
 			WrappedResultSet resultSet = getCleanConnection().executeSelect(ontologyGraphURIQuery, ontologyId);
 		
@@ -224,7 +238,7 @@ public class RulesModel {
 		}
 	}
 	
-	private void mapGroupToOntology(Integer groupId, Integer ontologyId) throws QualityAssessmentException {
+	private void mapGroupToOntology(Long groupId, Long ontologyId) throws QualityAssessmentException {
 		try {
 			getCleanConnection().execute(mapGroupToOntology, groupId, ontologyId);
 		} catch (DatabaseException e) {
@@ -234,8 +248,8 @@ public class RulesModel {
 	
 	public void compileOntologyToRules(String ontologyLabel, String groupLabel) throws QualityAssessmentException {
 		try {
-			Integer groupId = getGroupId(groupLabel);
-			Integer ontologyId = getOntologyId(ontologyLabel);
+			Long groupId = getGroupId(groupLabel);
+			Long ontologyId = getOntologyId(ontologyLabel);
 		
 			compileOntologyToRules(ontologyId, groupId);
 		} finally {
@@ -243,7 +257,7 @@ public class RulesModel {
 		}
 	}
 	
-	public void compileOntologyToRules(Integer ontologyId, Integer groupId) throws QualityAssessmentException {
+	public void compileOntologyToRules(Long ontologyId, Long groupId) throws QualityAssessmentException {
 		try {
 			String ontologyGraphURI = getOntologyGraphURI(ontologyId);
 
@@ -270,7 +284,7 @@ public class RulesModel {
 		}
 	}
 	
-	private void dropRules(Integer groupId, Integer ontologyId) throws QualityAssessmentException {
+	private void dropRules(Long groupId, Long ontologyId) throws QualityAssessmentException {
 		try {			
 			getCleanConnection().execute(deleteRulesByOntology, ontologyId);
 			getCleanConnection().execute(deleteMapping, groupId, ontologyId);
@@ -279,14 +293,14 @@ public class RulesModel {
 		}
 	}
 	
-	private void processOntologyResource(Resource resource, Model model, String ontology, Integer groupId) throws QualityAssessmentException {
+	private void processOntologyResource(Resource resource, Model model, String ontology, Long groupId) throws QualityAssessmentException {
 		final String skosNS = "http://www.w3.org/2004/02/skos/core#";
 
 		/**
 		 * Functional Property can have only 1 value
 		 */
 		if (model.contains(resource, RDF.type, OWL.FunctionalProperty)) {	
-			Rule rule = new Rule(null, groupId, "{?s <" + resource.getURI() + "> ?o} GROUP BY ?s HAVING COUNT(?o) > 1", 0.8, resource.getLocalName() + " is FunctionalProperty (can have only 1 unique value)");
+			QualityAssessmentRule rule = new QualityAssessmentRule(null, groupId, "{?s <" + resource.getURI() + "> ?o} GROUP BY ?s HAVING COUNT(?o) > 1", 0.8, resource.getLocalName() + " is FunctionalProperty (can have only 1 unique value)");
 			
 			storeRule(rule, ontology);
 		}
@@ -295,7 +309,7 @@ public class RulesModel {
 		 * Value of Inverse Functional Property cannot be shared by two or more subjects
 		 */
 		if (model.contains(resource, RDF.type, OWL.InverseFunctionalProperty)) {
-			Rule rule = new Rule(null, groupId, "{?s <" + resource.getURI() + "> ?o} GROUP BY ?o HAVING COUNT(?s) > 1", 0.8, resource.getLocalName() + " is InverseFunctionalProperty (value cannot be shared by two distinct subjects)");
+			QualityAssessmentRule rule = new QualityAssessmentRule(null, groupId, "{?s <" + resource.getURI() + "> ?o} GROUP BY ?o HAVING COUNT(?s) > 1", 0.8, resource.getLocalName() + " is InverseFunctionalProperty (value cannot be shared by two distinct subjects)");
 			
 			storeRule(rule, ontology);
 		}
@@ -338,14 +352,14 @@ public class RulesModel {
 			while (resultSet.hasNext()) {
 				QuerySolution solution = resultSet.nextSolution();
 
-				Rule rule = new Rule(null, groupId, "{?s <" + solution.get("s") + "> ?o. FILTER (" + filter + ")}", 0.8, solution.getResource("s").getLocalName() + " can have only these values: " + valueList.toString());
+				QualityAssessmentRule rule = new QualityAssessmentRule(null, groupId, "{?s <" + solution.get("s") + "> ?o. FILTER (" + filter + ")}", 0.8, solution.getResource("s").getLocalName() + " can have only these values: " + valueList.toString());
 
 				storeRule(rule, ontology);
 			}
 		}
 	}
 	
-	private void storeRule (Rule rule, String ontology) throws QualityAssessmentException {
+	private void storeRule (QualityAssessmentRule rule, String ontology) throws QualityAssessmentException {
 		try{
 			getCleanConnection().execute(insertRule, rule.getGroupId(), rule.getFilter(), rule.getCoefficient(), rule.getDescription());
 			

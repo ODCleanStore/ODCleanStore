@@ -12,6 +12,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import virtuoso.jdbc3.VirtuosoDataSource;
 import virtuoso.jena.driver.VirtModel;
 
 import com.hp.hpl.jena.graph.Node;
@@ -32,16 +33,22 @@ import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
-import cz.cuni.mff.odcleanstore.datanormalization.rules.Rule.Component;
+import cz.cuni.mff.odcleanstore.datanormalization.rules.DataNormalizationRule.Component;
 import cz.cuni.mff.odcleanstore.vocabulary.XPathFunctions;
 
-public class RulesModel {
+public class DataNormalizationRulesModel {
 	public static void main(String[] args) {
 		try {
 			ConfigLoader.loadConfig();
 			BackendConfig config = ConfigLoader.getConfig().getBackendGroup();
 
-			new RulesModel(config.getCleanDBJDBCConnectionCredentials()).compileOntologyToRules("public-contracts", "Group 1");
+			JDBCConnectionCredentials credentials = config.getCleanDBJDBCConnectionCredentials();
+			VirtuosoDataSource dataSource = new VirtuosoDataSource();
+			dataSource.setServerName(credentials.getConnectionString());
+			dataSource.setUser(credentials.getUsername());
+			dataSource.setPassword(credentials.getPassword());
+
+			new DataNormalizationRulesModel(dataSource).compileOntologyToRules("public-contracts", "Group 1");
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 			
@@ -96,7 +103,7 @@ public class RulesModel {
 			"SELECT ? AS ruleId, id AS typeId, ? AS modification, ? AS description FROM DB.ODCLEANSTORE.DN_RULE_COMPONENT_TYPES WHERE label = ?";
 	private static final String mapGroupToOntology = "INSERT INTO DB.ODCLEANSTORE.DN_RULES_GROUPS_TO_ONTOLOGIES_MAP (groupId, ontologyId) VALUES (?, ?)";
 
-	private static final Logger LOG = LoggerFactory.getLogger(RulesModel.class);
+	private static final Logger LOG = LoggerFactory.getLogger(DataNormalizationRulesModel.class);
 
 	private JDBCConnectionCredentials endpoint;
 	
@@ -132,8 +139,15 @@ public class RulesModel {
 		}
 	}
 	
-	public RulesModel (JDBCConnectionCredentials endpoint) {
+	public DataNormalizationRulesModel (JDBCConnectionCredentials endpoint) {
 		this.endpoint = endpoint;
+	}
+	
+	public DataNormalizationRulesModel (VirtuosoDataSource dataSource) {
+		this.endpoint = new JDBCConnectionCredentials(
+				dataSource.getServerName(),
+				dataSource.getUser(),
+				dataSource.getPassword());
 	}
 	
 	/**
@@ -144,8 +158,8 @@ public class RulesModel {
 	 * @return a collection of the selected rules
 	 * @throws DataNormalizationException
 	 */
-	private Collection<Rule> queryRules (String query, Object... objects) throws DataNormalizationException {
-		Map<Integer, Rule> rules = new HashMap<Integer, Rule>();
+	private Collection<DataNormalizationRule> queryRules (String query, Object... objects) throws DataNormalizationException {
+		Map<Long, DataNormalizationRule> rules = new HashMap<Long, DataNormalizationRule>();
 		
 		try {
 			WrappedResultSet results = getCleanConnection().executeSelect(query, objects);
@@ -156,9 +170,9 @@ public class RulesModel {
 			while (results.next()) {
 				ResultSet result = results.getCurrentResultSet();
 				
-				Integer id = result.getInt("id");
+				Long id = result.getLong("id");
 				
-				Integer groupId = result.getInt("groupId");
+				Long groupId = result.getLong("groupId");
 				
 				Blob typeBlob = result.getBlob("type");
 				String type = new String(typeBlob.getBytes(1, (int)typeBlob.length()));
@@ -173,11 +187,11 @@ public class RulesModel {
 				String componentDescription = new String(componentDescriptionBlob.getBytes(1, (int)componentDescriptionBlob.length()));
 				
 				if (rules.containsKey(id)) {
-					Rule rule = rules.get(id);
+					DataNormalizationRule rule = rules.get(id);
 					
 					rule.addComponent(type, modification, componentDescription);
 				} else {
-					rules.put(id, new Rule(id, groupId, description, type, modification, componentDescription));
+					rules.put(id, new DataNormalizationRule(id, groupId, description, type, modification, componentDescription));
 				}
 			}
 		} catch (DatabaseException e) {
@@ -196,11 +210,11 @@ public class RulesModel {
      * @param groupIds IDs of the rule groups from which the rules are selected
      * @return a collection of the selected rules
      */
-	public Collection<Rule> getRules (Integer... groupIds) throws DataNormalizationException {
-		Set<Rule> rules = new HashSet<Rule>();
+	public Collection<DataNormalizationRule> getRules (Integer... groupIds) throws DataNormalizationException {
+		Set<DataNormalizationRule> rules = new HashSet<DataNormalizationRule>();
 		
 		for (int i = 0; i < groupIds.length; ++i) {
-			Collection<Rule> groupSpecific = queryRules(ruleByGroupIdQueryFormat, groupIds[i]);
+			Collection<DataNormalizationRule> groupSpecific = queryRules(ruleByGroupIdQueryFormat, groupIds[i]);
 			
 			rules.addAll(groupSpecific);
 		}
@@ -213,11 +227,11 @@ public class RulesModel {
      * @param groupLabels set of labels of groups from which the rules are selected
      * @return a collection of the selected rules
      */
-	public Collection<Rule> getRules (String... groupLabels) throws DataNormalizationException {
-		Set<Rule> rules = new HashSet<Rule>();
+	public Collection<DataNormalizationRule> getRules (String... groupLabels) throws DataNormalizationException {
+		Set<DataNormalizationRule> rules = new HashSet<DataNormalizationRule>();
 		
 		for (int i = 0; i < groupLabels.length; ++i) {
-			Collection<Rule> groupSpecific = queryRules(ruleByGroupLabelQueryFormat, groupLabels[i]);
+			Collection<DataNormalizationRule> groupSpecific = queryRules(ruleByGroupLabelQueryFormat, groupLabels[i]);
 			
 			rules.addAll(groupSpecific);
 		}
@@ -225,13 +239,13 @@ public class RulesModel {
 		return rules;
 	}
 	
-	private Integer getGroupId(String groupLabel) throws DataNormalizationException {
+	private Long getGroupId(String groupLabel) throws DataNormalizationException {
 		try {
 			WrappedResultSet resultSet = getCleanConnection().executeSelect(groupIdQuery, groupLabel);
 			
 			if (!resultSet.next()) throw new DataNormalizationException("No '" + groupLabel + "' QA Rule group."); 
 		
-			return resultSet.getCurrentResultSet().getInt(1);
+			return resultSet.getCurrentResultSet().getLong("id");
 		} catch (DatabaseException e) {
 			throw new DataNormalizationException(e);
 		} catch (SQLException e) {
@@ -239,13 +253,13 @@ public class RulesModel {
 		}
 	}
 	
-	private Integer getOntologyId(String ontologyLabel) throws DataNormalizationException {
+	private Long getOntologyId(String ontologyLabel) throws DataNormalizationException {
 		try {
 			WrappedResultSet resultSet = getCleanConnection().executeSelect(ontologyIdQuery, ontologyLabel);
 			
 			if (!resultSet.next()) throw new DataNormalizationException("No '" + ontologyLabel + "' ontology."); 
 			
-			return resultSet.getCurrentResultSet().getInt("id");
+			return resultSet.getCurrentResultSet().getLong("id");
 		} catch (DatabaseException e) {
 			throw new DataNormalizationException(e);
 		} catch (SQLException e) {
@@ -253,7 +267,7 @@ public class RulesModel {
 		}
 	}
 	
-	private String getOntologyGraphURI(Integer ontologyId) throws DataNormalizationException {
+	private String getOntologyGraphURI(Long ontologyId) throws DataNormalizationException {
 		try {
 			WrappedResultSet resultSet = getCleanConnection().executeSelect(ontologyGraphURIQuery, ontologyId);
 		
@@ -267,7 +281,7 @@ public class RulesModel {
 		}
 	}
 	
-	private void mapGroupToOntology(Integer groupId, Integer ontologyId) throws DataNormalizationException {
+	private void mapGroupToOntology(Long groupId, Long ontologyId) throws DataNormalizationException {
 		try {
 			getCleanConnection().execute(mapGroupToOntology, groupId, ontologyId);
 		} catch (DatabaseException e) {
@@ -277,8 +291,8 @@ public class RulesModel {
 	
 	public void compileOntologyToRules(String ontologyLabel, String groupLabel) throws DataNormalizationException {
 		try {
-			Integer groupId = getGroupId(groupLabel);
-			Integer ontologyId = getOntologyId(ontologyLabel);
+			Long groupId = getGroupId(groupLabel);
+			Long ontologyId = getOntologyId(ontologyLabel);
 		
 			compileOntologyToRules(ontologyId, groupId);
 		} finally {
@@ -292,7 +306,7 @@ public class RulesModel {
 	 * @param groupId the ID of a rule group to which the new rules should be stored 
 	 * @throws DataNormalizationException
 	 */
-	public void compileOntologyToRules(Integer ontologyId, Integer groupId) throws DataNormalizationException {
+	public void compileOntologyToRules(Long ontologyId, Long groupId) throws DataNormalizationException {
 		try {
 			String ontologyGraphURI = getOntologyGraphURI(ontologyId);
 
@@ -330,7 +344,7 @@ public class RulesModel {
 	 * @param ontology the uri of the ontology to which the deleted rules are to be mapped
 	 * @throws DataNormalizationException
 	 */
-	private void dropRules(Integer groupId, Integer ontologyId) throws DataNormalizationException {
+	private void dropRules(Long groupId, Long ontologyId) throws DataNormalizationException {
 		try {			
 			getCleanConnection().execute(deleteRulesByOntology, ontologyId);
 			getCleanConnection().execute(deleteMapping, groupId, ontologyId);
@@ -347,14 +361,14 @@ public class RulesModel {
 	 * @param groupId the ID of the rule group to store the rules to
 	 * @throws DataNormalizationException
 	 */
-	private void processOntologyResource(Resource resource, Model model, String ontology, Integer groupId) throws DataNormalizationException {
+	private void processOntologyResource(Resource resource, Model model, String ontology, Long groupId) throws DataNormalizationException {
 		if (model.contains(resource, RDFS.range, model.asRDFNode(Node.ANY))) {
 	
 			/**
 			 * Correct boolean
 			 */
 			if (model.contains(resource, RDFS.range, XSD.xboolean)) {
-				Rule rule = new Rule(null, groupId, "Convert " + resource.getLocalName() + " into " + XSD.xstring.getLocalName(),
+				DataNormalizationRule rule = new DataNormalizationRule(null, groupId, "Convert " + resource.getLocalName() + " into " + XSD.xstring.getLocalName(),
 						"INSERT",
 						String.format(insertConvertedTruePropertyValueFormat, resource.getURI(), XPathFunctions.boolFunction, resource.getURI()),
 						"Create proper " + XSD.xboolean.getLocalName() + " value for the property " + resource.getURI() + " (\"1\", \"true\", ...)",
@@ -374,7 +388,7 @@ public class RulesModel {
 			 * Correct string
 			 */
 			if (model.contains(resource, RDFS.range, XSD.xstring)) {			
-				Rule rule = new Rule(null, groupId, "Convert " + resource.getLocalName() + " into " + XSD.xstring.getLocalName(),
+				DataNormalizationRule rule = new DataNormalizationRule(null, groupId, "Convert " + resource.getLocalName() + " into " + XSD.xstring.getLocalName(),
 						"INSERT",
 						String.format(insertConvertedStringPropertyValueFormat, resource.getURI(), XPathFunctions.stringFunction, resource.getURI()),
 						"Create proper " + XSD.xstring.getLocalName() + " value for the property " + resource.getURI(),
@@ -390,7 +404,7 @@ public class RulesModel {
 			 * Correct date formats ("YYYY" to "YYYY-MM-DD" etc.)
 			 */
 			if (model.contains(resource, RDFS.range, XSD.date)) {
-				Rule rule = new Rule(null, groupId, "Convert " + resource.getLocalName() + " into " + XSD.date.getLocalName(),
+				DataNormalizationRule rule = new DataNormalizationRule(null, groupId, "Convert " + resource.getLocalName() + " into " + XSD.date.getLocalName(),
 						"INSERT",
 						String.format(insertConvertedDatePropertyValueFormat, resource.getURI(), XPathFunctions.dateFunction, resource.getURI()),
 						"Create proper " + XSD.date.getLocalName() + " value for the property " + resource.getURI(),
@@ -410,7 +424,7 @@ public class RulesModel {
 	 * @param ontology the ontology the rule should be mapped to
 	 * @throws DataNormalizationException
 	 */
-	private void storeRule (Rule rule, String ontology) throws DataNormalizationException {
+	private void storeRule (DataNormalizationRule rule, String ontology) throws DataNormalizationException {
 		try {			
 			getCleanConnection().adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL, false);
 			

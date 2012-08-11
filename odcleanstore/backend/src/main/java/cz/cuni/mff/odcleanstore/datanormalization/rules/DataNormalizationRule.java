@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
 
-public class Rule {
+public class DataNormalizationRule {
 	/**
 	 * The type of the modification to be done by one component of the rule
 	 * @author Jakub Daniel
@@ -75,8 +75,8 @@ public class Rule {
 		}
 	}
 
-	Integer id;
-	Integer groupId;
+	Long id;
+	Long groupId;
 	String description;
 	ArrayList<Component> components = new ArrayList<Component>();
 
@@ -88,7 +88,7 @@ public class Rule {
 	 * @param components the list of triples (component type, component code, component description)
 	 * @throws DataNormalizationException
 	 */
-	public Rule(Integer id, Integer groupId, String description, String... components) throws DataNormalizationException {
+	public DataNormalizationRule(Long id, Long groupId, String description, String... components) throws DataNormalizationException {
 		this.id = id;
 		this.groupId = groupId;
 		this.description = description;
@@ -100,11 +100,11 @@ public class Rule {
 		}
 	}
 	
-	public Integer getId() {
+	public Long getId() {
 		return id;
 	}
 	
-	public Integer getGroupId() {
+	public Long getGroupId() {
 		return groupId;
 	}
 	
