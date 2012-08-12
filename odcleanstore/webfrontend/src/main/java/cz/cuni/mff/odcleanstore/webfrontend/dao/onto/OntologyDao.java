@@ -12,6 +12,8 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 
 import virtuoso.jena.driver.VirtGraph;
 
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.configuration.exceptions.ConfigurationException;
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
 import cz.cuni.mff.odcleanstore.datanormalization.rules.DataNormalizationRulesModel;
 import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
@@ -108,8 +110,15 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		
 		storeRdfXml(item.getRdfData(), item.getGraphName());
 		
-		generateRules(QA_GROUPS_TABLE_NAME, item.getLabel());
-		generateRules(DN_GROUPS_TABLE_NAME, item.getLabel());
+		try
+		{
+			ConfigLoader.loadConfig();
+		
+			generateRules(QA_GROUPS_TABLE_NAME, item.getLabel());
+			generateRules(DN_GROUPS_TABLE_NAME, item.getLabel());
+		} catch (ConfigurationException e) {
+			// TODO:
+		}
 	}
 	
 	private void createGraphName(Ontology item) 
@@ -177,7 +186,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		Long groupId = getGroupId(tableName, groupLabel);
 		
 		createMapping(createMappingTableName(tableName), groupId, ontologyId);
-		
+	
 		if (QA_GROUPS_TABLE_NAME.equals(tableName)) {
 			QualityAssessmentRulesModel rulesModel = new QualityAssessmentRulesModel(this.lookupFactory.getDataSource());
 			
@@ -188,14 +197,13 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 			}
 		} else {
 			DataNormalizationRulesModel rulesModel = new DataNormalizationRulesModel(this.lookupFactory.getDataSource());
-			
+
 			try {
 				rulesModel.compileOntologyToRules(ontologyId, groupId);
 			} catch (DataNormalizationException e) {
 				// TODO: Handle it properly
 			}
 		}
-		
 	}
 	
 	private String createGroupLabel(String ontologyLabel) 
