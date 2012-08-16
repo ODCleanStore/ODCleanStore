@@ -55,12 +55,6 @@ public class QAGroupsListPage extends FrontendPage
 		addOIRulesGroupsTable();
 	}
 	
-	/*
-	 	=======================================================================
-	 	Implementace oiRulesGroupsTable
-	 	=======================================================================
-	*/
-	
 	private void addOIRulesGroupsTable()
 	{
 		SortableDataProvider<QARulesGroup> data = new GenericSortableDataProvider<QARulesGroup>(qaRulesGroupDao, "label");
