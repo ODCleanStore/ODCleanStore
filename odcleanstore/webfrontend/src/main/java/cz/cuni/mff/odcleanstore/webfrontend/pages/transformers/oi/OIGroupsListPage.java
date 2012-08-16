@@ -56,7 +56,7 @@ public class OIGroupsListPage extends FrontendPage
 
 	private void addOIRulesGroupsTable()
 	{
-		SortableDataProvider<OIRulesGroup> data = new GenericSortableDataProvider<OIRulesGroup>(oiRulesGroupsDao);
+		SortableDataProvider<OIRulesGroup> data = new GenericSortableDataProvider<OIRulesGroup>(oiRulesGroupsDao, "label");
 		
 		final DataView<OIRulesGroup> dataView = new DataView<OIRulesGroup>("oiRulesGroupsTable", data)
 		{

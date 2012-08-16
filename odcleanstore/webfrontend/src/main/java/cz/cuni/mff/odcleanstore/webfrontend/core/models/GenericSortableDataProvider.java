@@ -25,7 +25,17 @@ public class GenericSortableDataProvider<BO extends EntityWithSurrogateKey> exte
 	 */
 	public GenericSortableDataProvider(DaoForEntityWithSurrogateKey<BO> dao)
 	{
-		setSort("id", SortOrder.ASCENDING);
+		this(dao, "id");
+	}
+	
+	/**
+	 * 
+	 * @param dao
+	 * @param defaultSortColumnName
+	 */
+	public GenericSortableDataProvider(DaoForEntityWithSurrogateKey<BO> dao, String defaultSortColumnName)
+	{
+		setSort(defaultSortColumnName, SortOrder.ASCENDING);
 		
 		this.dao = dao;
 	}
