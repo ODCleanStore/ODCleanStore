@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
 
 public class TransformerInstanceDao extends DaoForEntityWithSurrogateKey<TransformerInstance>
 {
@@ -33,12 +34,30 @@ public class TransformerInstanceDao extends DaoForEntityWithSurrogateKey<Transfo
 	}
 	
 	@Override
-	public List<TransformerInstance> loadAllRawBy(String columnName, Object value)
+	public List<TransformerInstance> loadAllBy(QueryCriteria criteria)
 	{
-		String query = "SELECT * FROM " + getTableName() + " WHERE " + columnName + " = ? ORDER BY priority";
-		Object[] params = { value };
+		String query = 
+			"SELECT T.label, TI.* FROM " + getTableName() + " AS TI " +
+			"JOIN " + TransformerDao.TABLE_NAME + " AS T ON (T.id = TI.transformerId) " +
+			criteria.buildWhereClause() +
+			criteria.buildOrderByClause();
+		
+		Object[] params = criteria.buildWhereClauseParams();
 		
 		return getJdbcTemplate().query(query, params, getRowMapper());
+	}
+	
+	@Override
+	public TransformerInstance load(Long id)
+	{
+		String query = 
+			"SELECT T.label, TI.* FROM " + getTableName() + " AS TI " +
+			"JOIN " + TransformerDao.TABLE_NAME + " AS T ON (T.id = TI.transformerId) " +
+			"WHERE TI.id = ?";
+		
+		Object[] params = { id };
+		
+		return getJdbcTemplate().queryForObject(query, params, getRowMapper());
 	}
 	
 	public void save(TransformerInstance item)
