@@ -51,10 +51,13 @@ public class QueryCriteria
 	 */
 	public String buildWhereClause()
 	{
+		if (whereClauses.isEmpty())
+			return "";
+		
 		StringBuilder builder = new StringBuilder();
 
 		String columnName = whereClauses.get(0).getFirst();
-		builder.append(columnName + " = ?");
+		builder.append("WHERE " + columnName + " = ?");
 		
 		for (int i = 1; i < whereClauses.size(); i++)
 		{
@@ -85,11 +88,14 @@ public class QueryCriteria
 	 */
 	public String buildOrderByClause()
 	{
+		if (orderByClauses.isEmpty())
+			return "";
+		
 		StringBuilder builder = new StringBuilder();
 
 		String columnName = orderByClauses.get(0).getFirst();
 		String sortOrder = orderByClauses.get(0).getSecond().toString();
-		builder.append(columnName + " " + sortOrder);
+		builder.append("ORDER BY " + columnName + " " + sortOrder);
 		
 		for (int i = 1; i < orderByClauses.size(); i++)
 		{

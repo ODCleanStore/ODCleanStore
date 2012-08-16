@@ -150,7 +150,11 @@ public abstract class Dao<T extends BusinessEntity> implements Serializable
 	 */
 	public List<T> loadAllBy(QueryCriteria criteria)
 	{
-		String query = "SELECT * FROM " + getTableName() + " WHERE " + criteria.buildWhereClause();
+		String query = 
+			"SELECT * FROM " + getTableName() +
+			criteria.buildWhereClause() +
+			criteria.buildOrderByClause();
+		
 		Object[] params = criteria.buildWhereClauseParams();
 		
 		return getJdbcTemplate().query(query, params, getRowMapper());
