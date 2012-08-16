@@ -4,55 +4,53 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria.SortOrder;
+
 public class QueryCriteriaTest 
 {
 	@Test
-	public void testJoiningSimpleCriteria() 
+	public void testBuildingSimpleWhereClause() 
 	{
-		QueryCriteria criteria = createSimpleCriteria();
-		assertEquals("count = ?", criteria.joinToString());
+		QueryCriteria criteria = new QueryCriteria();
+		criteria.addWhereClause("count", new Integer(1));
+		
+		assertEquals("count = ?", criteria.buildWhereClause());
+		
+		Object[] range = { new Integer(1) };
+		assertArrayEquals(range, criteria.buildWhereClauseParams());
 	}
 
-	@Test 
-	public void testSimpleCriteriaRange()
+	@Test
+	public void testBuildingComplexWhereClause() 
 	{
-		QueryCriteria criteria = createSimpleCriteria();
-		Object[] range = { new Integer(1) };
+		QueryCriteria criteria = new QueryCriteria();
+		criteria.addWhereClause("size", new Integer(5));
+		criteria.addWhereClause("width", new Integer(10));
+		criteria.addWhereClause("height", new Integer(15));
 		
-		assertArrayEquals(range, criteria.getRange());
-	}
-	
-	@Test
-	public void testJoiningComplexCriteria() 
-	{
-		QueryCriteria criteria = createComplexCriteria();
-		assertEquals("size = ? AND width = ? AND height = ?", criteria.joinToString());
-	}
-	
-	@Test
-	public void testComplexCriteriaRange()
-	{
-		QueryCriteria criteria = createComplexCriteria();
+		assertEquals("size = ? AND width = ? AND height = ?", criteria.buildWhereClause());
+
 		Object[] range = { new Integer(5), new Integer(10), new Integer(15) };
-		
-		assertArrayEquals(range, criteria.getRange());
+		assertArrayEquals(range, criteria.buildWhereClauseParams());
 	}
 	
-	private QueryCriteria createSimpleCriteria()
+	@Test
+	public void testBuildingSimpleOrderByClause()
 	{
 		QueryCriteria criteria = new QueryCriteria();
-		criteria.addCriterion("count", new Integer(1));
-		return criteria;
+		criteria.addOrderByClause("size", SortOrder.ASC);
+		
+		assertEquals("size ASC", criteria.buildOrderByClause());
 	}
 	
-	private QueryCriteria createComplexCriteria()
+	@Test
+	public void testBuildingComplexOrderByClause()
 	{
 		QueryCriteria criteria = new QueryCriteria();
+		criteria.addOrderByClause("size", SortOrder.ASC);
+		criteria.addOrderByClause("width", SortOrder.ASC);
+		criteria.addOrderByClause("height", SortOrder.DESC);
 		
-		criteria.addCriterion("size", new Integer(5));
-		criteria.addCriterion("width", new Integer(10));
-		criteria.addCriterion("height", new Integer(15));
-		
-		return criteria;
+		assertEquals("size ASC, width ASC, height DESC", criteria.buildOrderByClause());
 	}
 }

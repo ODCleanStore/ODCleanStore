@@ -12,14 +12,18 @@ import cz.cuni.mff.odcleanstore.util.Pair;
  */
 public class QueryCriteria 
 {
-	private List<Pair<String, Object>> criteria;
+	public enum SortOrder { ASC, DESC };
+	
+	private List<Pair<String, Object>> whereClauses;
+	private List<Pair<String, SortOrder>> orderByClauses;
 	
 	/**
 	 * 
 	 */
 	public QueryCriteria()
 	{
-		this.criteria = new LinkedList<Pair<String, Object>>();
+		this.whereClauses = new LinkedList<Pair<String, Object>>();
+		this.orderByClauses = new LinkedList<Pair<String, SortOrder>>();
 	}
 	
 	/**
@@ -27,28 +31,34 @@ public class QueryCriteria
 	 * @param column
 	 * @param value
 	 */
-	public void addCriterion(String column, Object value)
+	public void addWhereClause(String column, Object value)
 	{
-		this.criteria.add(new Pair<String, Object>(column, value));
+		this.whereClauses.add(new Pair<String, Object>(column, value));
 	}
 	
 	/**
 	 * 
-	 * @param criteria
+	 * @param column
+	 */
+	public void addOrderByClause(String column, SortOrder order)
+	{
+		this.orderByClauses.add(new Pair<String, SortOrder>(column, order));
+	}
+	
+	/**
+	 * 
 	 * @return
 	 */
-	public String joinToString()
+	public String buildWhereClause()
 	{
-		assert criteria != null && criteria.size() >= 1;
-		
 		StringBuilder builder = new StringBuilder();
 
-		String columnName = criteria.get(0).getFirst();
+		String columnName = whereClauses.get(0).getFirst();
 		builder.append(columnName + " = ?");
 		
-		for (int i = 1; i < criteria.size(); i++)
+		for (int i = 1; i < whereClauses.size(); i++)
 		{
-			columnName = criteria.get(i).getFirst();
+			columnName = whereClauses.get(i).getFirst();
 			builder.append(" AND " + columnName + " = ?");
 		}
 		
@@ -57,16 +67,38 @@ public class QueryCriteria
 	
 	/**
 	 * 
-	 * @param criteria
 	 * @return
 	 */
-	public Object[] getRange()
+	public Object[] buildWhereClauseParams()
 	{
 		List<Object> result = new LinkedList<Object>();
 		
-		for (Pair<String, Object> criterion : criteria)
+		for (Pair<String, Object> criterion : whereClauses)
 			result.add(criterion.getSecond());
 		
 		return result.toArray();
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String buildOrderByClause()
+	{
+		StringBuilder builder = new StringBuilder();
+
+		String columnName = orderByClauses.get(0).getFirst();
+		String sortOrder = orderByClauses.get(0).getSecond().toString();
+		builder.append(columnName + " " + sortOrder);
+		
+		for (int i = 1; i < orderByClauses.size(); i++)
+		{
+			columnName = orderByClauses.get(i).getFirst();
+			sortOrder = orderByClauses.get(i).getSecond().toString();
+			
+			builder.append(", " + columnName + " " + sortOrder);
+		}
+		
+		return builder.toString();
 	}
 }

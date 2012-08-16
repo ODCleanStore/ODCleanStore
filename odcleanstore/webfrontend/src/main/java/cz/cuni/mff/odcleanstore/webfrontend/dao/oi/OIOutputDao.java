@@ -44,9 +44,9 @@ public class OIOutputDao extends DaoForEntityWithSurrogateKey<OIOutput>
 			"FROM " + TABLE_NAME + " AS O " +
 			"JOIN " + OIOutputTypeDao.TABLE_NAME + " AS OT ON (O.outputTypeId = OT.id) " +
 			"LEFT OUTER JOIN " + OIFileFormatDao.TABLE_NAME + " AS FF ON (O.fileFormatId = FF.id) " +
-			"WHERE " + criteria.joinToString();
+			"WHERE " + criteria.buildWhereClause();
 		
-		Object[] params = criteria.getRange();
+		Object[] params = criteria.buildWhereClauseParams();
 		
 		return getJdbcTemplate().query(query, params, getRowMapper());
 	}
