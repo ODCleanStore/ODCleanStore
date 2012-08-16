@@ -16,6 +16,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvider;
@@ -104,16 +105,7 @@ public class OIGroupsListPage extends FrontendPage
 
 		dataView.setItemsPerPage(10);
 		
-		add(new OrderByBorder("orderByLabel", "label", data)
-        {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            protected void onSortChanged()
-            {
-                dataView.setCurrentPage(0);
-            }
-        });
+		add(new SortTableButton<OIRulesGroup>("orderByLabel", "label", data, dataView));
 		
 		add(dataView);
 		
