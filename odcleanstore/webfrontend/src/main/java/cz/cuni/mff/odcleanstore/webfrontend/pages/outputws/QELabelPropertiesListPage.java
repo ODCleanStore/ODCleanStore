@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.outputws;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
 import org.apache.wicket.markup.repeater.Item;
@@ -8,10 +9,13 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qe.LabelProperty;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
+import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qe.LabelPropertyDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
@@ -42,7 +46,7 @@ public class QELabelPropertiesListPage extends FrontendPage
 
 	private void addLabelPropertiesTable()
 	{
-		IDataProvider<LabelProperty> data = new DataProvider<LabelProperty>(labelPropertyDao);
+		SortableDataProvider<LabelProperty> data = new GenericSortableDataProvider<LabelProperty>(labelPropertyDao, "property");
 		
 		DataView<LabelProperty> dataView = new DataView<LabelProperty>("propertiesTable", data)
 		{
@@ -71,6 +75,8 @@ public class QELabelPropertiesListPage extends FrontendPage
 		};
 
 		dataView.setItemsPerPage(10);
+		
+		add(new SortTableButton<LabelProperty>("orderByProperty", "property", data, dataView));
 		
 		add(dataView);
 		
