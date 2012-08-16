@@ -1,6 +1,8 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.OrderByBorder;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
@@ -16,6 +18,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMe
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
+import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.EngineOperationsDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.OIRuleAssignmentDao;
@@ -49,18 +52,12 @@ public class OIGroupsListPage extends FrontendPage
 		//
 		addOIRulesGroupsTable();
 	}
-	
-	/*
-	 	=======================================================================
-	 	Implementace oiRulesGroupsTable
-	 	=======================================================================
-	*/
-	
+
 	private void addOIRulesGroupsTable()
 	{
-		IDataProvider<OIRulesGroup> data = new DataProvider<OIRulesGroup>(oiRulesGroupsDao);
+		SortableDataProvider<OIRulesGroup> data = new GenericSortableDataProvider<OIRulesGroup>(oiRulesGroupsDao);
 		
-		DataView<OIRulesGroup> dataView = new DataView<OIRulesGroup>("oiRulesGroupsTable", data)
+		final DataView<OIRulesGroup> dataView = new DataView<OIRulesGroup>("oiRulesGroupsTable", data)
 		{
 			private static final long serialVersionUID = 1L;
 
@@ -106,6 +103,17 @@ public class OIGroupsListPage extends FrontendPage
 		};
 
 		dataView.setItemsPerPage(10);
+		
+		add(new OrderByBorder("orderByLabel", "label", data)
+        {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            protected void onSortChanged()
+            {
+                dataView.setCurrentPage(0);
+            }
+        });
 		
 		add(dataView);
 		

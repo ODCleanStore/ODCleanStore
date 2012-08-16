@@ -47,6 +47,17 @@ public class QueryCriteria
 	
 	/**
 	 * 
+	 * @param column
+	 * @param ascending
+	 */
+	public void addOrderByClause(String column, boolean ascending)
+	{
+		SortOrder order = ascending ? SortOrder.ASC : SortOrder.DESC;
+		addOrderByClause(column, order);
+	}
+	
+	/**
+	 * 
 	 * @return
 	 */
 	public String buildWhereClause()
@@ -57,7 +68,7 @@ public class QueryCriteria
 		StringBuilder builder = new StringBuilder();
 
 		String columnName = whereClauses.get(0).getFirst();
-		builder.append("WHERE " + columnName + " = ?");
+		builder.append(" WHERE " + columnName + " = ?");
 		
 		for (int i = 1; i < whereClauses.size(); i++)
 		{
@@ -95,7 +106,7 @@ public class QueryCriteria
 
 		String columnName = orderByClauses.get(0).getFirst();
 		String sortOrder = orderByClauses.get(0).getSecond().toString();
-		builder.append("ORDER BY " + columnName + " " + sortOrder);
+		builder.append(" ORDER BY " + columnName + " " + sortOrder);
 		
 		for (int i = 1; i < orderByClauses.size(); i++)
 		{

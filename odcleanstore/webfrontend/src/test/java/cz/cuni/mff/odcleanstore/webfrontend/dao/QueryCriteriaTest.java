@@ -23,7 +23,7 @@ public class QueryCriteriaTest
 		QueryCriteria criteria = new QueryCriteria();
 		criteria.addWhereClause("count", new Integer(1));
 		
-		assertEquals("WHERE count = ?", criteria.buildWhereClause());
+		assertEquals(" WHERE count = ?", criteria.buildWhereClause());
 		
 		Object[] range = { new Integer(1) };
 		assertArrayEquals(range, criteria.buildWhereClauseParams());
@@ -37,7 +37,7 @@ public class QueryCriteriaTest
 		criteria.addWhereClause("width", new Integer(10));
 		criteria.addWhereClause("height", new Integer(15));
 		
-		assertEquals("WHERE size = ? AND width = ? AND height = ?", criteria.buildWhereClause());
+		assertEquals(" WHERE size = ? AND width = ? AND height = ?", criteria.buildWhereClause());
 
 		Object[] range = { new Integer(5), new Integer(10), new Integer(15) };
 		assertArrayEquals(range, criteria.buildWhereClauseParams());
@@ -56,7 +56,7 @@ public class QueryCriteriaTest
 		QueryCriteria criteria = new QueryCriteria();
 		criteria.addOrderByClause("size", SortOrder.ASC);
 		
-		assertEquals("ORDER BY size ASC", criteria.buildOrderByClause());
+		assertEquals(" ORDER BY size ASC", criteria.buildOrderByClause());
 	}
 	
 	@Test
@@ -67,6 +67,6 @@ public class QueryCriteriaTest
 		criteria.addOrderByClause("width", SortOrder.ASC);
 		criteria.addOrderByClause("height", SortOrder.DESC);
 		
-		assertEquals("ORDER BY size ASC, width ASC, height DESC", criteria.buildOrderByClause());
+		assertEquals(" ORDER BY size ASC, width ASC, height DESC", criteria.buildOrderByClause());
 	}
 }
