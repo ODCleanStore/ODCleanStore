@@ -14,27 +14,115 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\chapwithtoc{Introduction}
+\chapter{Introduction}
+
+The advent of Open Data\footnote{\url{http://opendatahandbook.org/}} and Linked Data\footnote{\url{http://www.w3.org/standards/semanticweb/data}, \url{http://linkeddata.org/}}  accelerates the evolution of the Web into an exponentially growing information space (see the Linked Open Data Cloud\footnote{\url{http://richard.cyganiak.de/2007/10/lod/}}) where the unprecedented volume of data will offer information consumers a level of information integration and aggregation agility that has up to now not been possible. Data consumers can now \quot{mashup} and readily integrate information in myriads of applications.
+
+Indiscriminate addition of information, however, comes with inherent problems, such as the provision of poor quality, inaccurate, irrelevant or fraudulent information. All will come with an associate cost of the data integration which will ultimately affect data consumer's benefit and Linked Data applications usage and uptake.
+
+To overcome these issues, we present a framework enabling management of Linked Data -- data cleaning, linking, transformation and quality assessment -- and providing  applications with a possibility to consume the stored cleaned and integrated data, which reduces the costs of application development.
+
+% TODO
+%what is ...
+%	Open data, problems, ...
+%overview
+%	components, how it works, features
+% https://sourceforge.net/p/odcleanstore/wiki/Project%20description/
+% EA diagrams
+
+% TODO what is imporntant, what is different from others, how do we support the goals
 
 \section{What is ODCleanStore}
 
-Purpose.
+ODCleanStore is a server application that stores RDF data, processes them and provides integrated views on the data.
+
+ODCleanStore accepts arbitrary RDF data through a webservice (together with provenance and other metadata). The data is processed by \term{transformers} in one of a set of customizable \term{pipelines} and stored to a persistent store. The stored data can be accessed via another webservice. Linked Data consumers can send queries and custom query policies to this webservice and receive (aggregated/integrated) RDF data relevant for their query, together with information about provenance and data quality.
+
+ODCleanStore is developed at the Charles University in Prague, Faculty of Mathematics and Physics as part of the \href{http://opendata.cz}{OpenData.cz} initiative and the \href{http://lod2.eu}{LOD2.eu} project and published as a free software under Apache License 2.0. The project is hosted at SourceForge at
+\begin{center}
+  \url{http://sourceforge.net/p/odcleanstore/}.
+\end{center}
+
+
 
 \section{Linked Data Framework}
 
-Context.
+The goal of the \href{http://opendata.cz}{OpenData.cz} initiative is to build an open data infrastructure in The Czech Republic. It would provide public data in a form that allows access to anyone at any time and allows to combine it freely. This would allow the creation of applications that the public really needs.
 
-\section{Overview of features}
+ODCleanStore is a part of the Linked Data Framework developed under the OpenData.cz initiative. The main three parts of the framework are \term{Data Acquisition} module, \term{Data Aggregation and Cleaning} module and \term{Data Visualization and Analysis} module.
 
-\section{Examples of usage}
+\todo{obrázek}
 
-Use cases, mention expected deployment (public contracts, students).
+The Data Acquisition module\footnote{\url{http://strigil.sourceforge.net/}} will be able to crawl webpages and scrape structured data from the webpages and other sources (such as XLS spreadsheets). This data is converted to RDF and sent to the Data Aggregation and Cleaning module represented by ODCleanStore. ODCleanStore processes the data, stores it and provides access to it. The Visualization and Analysis module will query ODCleanStore and provide a human-friendly interface to end users.
+
+
+\section{Examples of Usage}
+
+TODO: Use cases, mention expected deployment (public contracts, students).
+
+
+\section{How to Read This Document}
+
+This document is a user manual with detailed instructions on how to access and work with the application from the perspective of a user. Chapter \ref{chap:howItWorks} gives a basic description of how ODCleanStore works, while Chapter \ref{chap:userRoles} describes user roles and will guide you to other parts of this manual relevant for your user role.
+
+If more detailed information is needed, please refer to related documents \quot{Administrator's \& Installation Manual} and \quot{Programmer's Guide}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{How It Works}
+\label{chap:howItWorks}
+
+ODCleanStore consists of \term{Engine}, \term{Input Webservice} and \term{Output Webservice} (both run as part of the Engine), and administration webfrontend. The Engine processes incoming and stored data using \term{transformers}. A transformer is a pluggable Java class implementing a defined interface; several transformers ship with ODCleanStore, such as Quality Assessment, Object Identification or Data Normalization.
+
+\todo{obrázek}
+
+\section{Data Lifecycle}
+
+The lifecycle of data inside ODCleanStore is as follows:
+
+\begin{enumerate}
+  \item RDF data (and additional metadata) is accepted by Input Webservice and stored as a single named graph to the \term{dirty database}. Data can be uploaded by any third-party application registered in ODCleanStore.
+  \item Engine successively processes named graphs in the dirty database by applying a pipeline of transformers to it; the applied pipeline may be specified by the input metadata.
+  \item Each transformer in the pipeline may modify the named graph or attach new related named graphs (such as named graph with mappings to other resources or results of quality assessment).
+  \item When the pipeline finishes, the augmented RDF data are populated to the \term{clean database} together with any auxiliary data and metadata created during the pipeline execution.
+  \item Data consumers can use Output Webservice to query data in the clean database. Output Webservice provides two basic types of queries -- URI query and keyword query -- and additionally metadata about a given named graph can be requested. The response to a query consists of relevant RDF triples together with their provenance information and quality estimate. The query can be further customized by user-defined conflict resolution policies.\\
+	Data in the clean database can be also queried using the SPARQL query language. While SPARQL queries are more expressive, there is no direct support for provenance tracking and quality estimation. 
+  \item When rules transformer rules change, the administrator may choose to re-run a pipeline on data already stored in the clean database. Copy of this data is created in the dirty database where it is processed by the pipeline. After that the processed version od data replaces the original in the clean database.
+\end{enumerate}
+
+\section{Administration Frontend Features}
+The administration webfrontend enables
+\begin{itemize}
+  \item management of user accounts,
+  \item management of pipelines, transformers and transformer rules,
+  \item management of ontologies,
+  \item monitoring of the state of Engine,
+  \item management of other settings, such as default conflict resolution policies.  
+\end{itemize}
+
+\section{Summary of Features}
+\todo{vyhodit?}
+
+\begin{itemize}
+  \item Administration in a simple web interface.
+  \item Webservices communicate in standard formats - Input Webservice accepts RDF/XML or TTL, Output Webservice provides results in the TriG format. \todo{taky RDF/XML}
+  \item Highly customizable pipelines for incoming data processing. Different pipelines can be used for different data sources.
+  \item Data can be processed before they are stored to a persistent store but also when they are already stored if neccessary.
+  \item Ships with several predefined transformers for use in data-processing pipelines: Data Normalization (transformations of data), Quality Assesment (estimates quality of data based on a set of rules), Object Identification (links RDF resources representing the same entity or otherwise related). All these transformers can be managed in the web administration interface.
+  \item Support for ontology management. Mappings between ontologies can be defined in order to integrate heterogeneous data. Also, rules for data-processing transformers can be automatically generated from ontologies.
+  \item Data consumers can query for all data about a given resource or use the keyword search.
+  \item Response to a query includes provenance information and quality estimate of each RDF triple in the result. More provenance metadata can be requested.
+\end{itemize}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \chapter{User Roles}
+\label{chap:userRoles}
 
-Data consumers accessing the Output Webservice (see Section \ref{sec:outputWS}) do not need to have an account in ODCleanStore; these users have a special role User (USR). Other users working with ODCleanStore need to have an account and their permissions are based on the roles they are assigned.
+\todo{use-case diagram}
+
+Data consumers accessing the Output Webservice (see Section \ref{sec:outputWS}) do not need to have an account in ODCleanStore; these users have a special role User (USR). Other users working with ODCleanStore need to have an account and their permissions are based on the roles they are assigned. This chapter describes all the roles recognized by ODCleanStore.
 
 \section[Administrator]{Administrator (ADM)}
 
@@ -49,35 +137,46 @@ Data consumers accessing the Output Webservice (see Section \ref{sec:outputWS}) 
 
 	More information, e.g. about adding transformers, can be found in the related document Administrator's \& Installation Manual.
 
+	\paragraph{Most relevant sections of this document:} Chapter \ref{chap:administrationFrontend} \nameref{chap:administrationFrontend}.
+
 \section[Ontology Creator]{Ontology Creator (ONC)}
 	The ontology creator can import and edit ontologies registered in the system. The ontology creator is also responsible for inserting mappings (\code{owl:sameAs} links) between ontologies.
+
+	\paragraph{Most relevant sections of this document:} Section \ref{sec:ontologyManagement} \nameref{sec:ontologyManagement}.
 
 \section[Pipeline Creator]{Pipeline Creator (PIC)}
 	The pipeline creator can create input data processing pipelines. This includes creating new pipelines and assigning transformers to them (Section \ref{sec:pipelineManagement}) and also creating rules for the transformers (Section \ref{sec:transformerRules}).
 
 	Every pipeline creator is allowed to create custom pipelines and rule groups for predefined transformers. The pipeline creator has a read-only access to other creators' pipelines and rules (and can use such rules in custom pipelines), however rules and pipelines can only be edited by their author. The only exception is the administrator, who can edit arbitrary pipelines and rule groups.
+
+	\paragraph{Most relevant sections of this document:} Sections \ref{sec:pipelineManagement} \nameref{sec:pipelineManagement} and \ref{sec:transformerRules} \nameref{sec:transformerRules}.
 	
 \section[Data Producer]{Data Producer (SCR)} \todo{SCR? DAP?}
   The data producer can use the Input Webservice (Section \ref{sec:inputWS}) to insert new data to ODCleanStore. The system keeps track of which data were inserted by which data producer.
 
+  \paragraph{Most relevant sections of this document:} Section \ref{sec:inputWS} \nameref{sec:inputWS}.
+
 \section[Data Consumer]{Data Consumer (USR)} \todo{USR? DAC?}
   The data consumer can use the Output Webservice (Section \ref{sec:outputWS}) to ask queries over the data in the clean database. This role is special in that users in this role do not need to have an account (any user using the Output Webservice is automatically assigned the USR role).
+
+  \paragraph{Most relevant sections of this document:} Section \ref{sec:outputWS} \nameref{sec:outputWS}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \chapter{Administration Frontend}
+\label{chap:administrationFrontend}
 
 \section{Administration Frontend Overview}
 
 \section{User Accounts Administration}
 
-\section{Transformer management}
+\section{Transformer Management}
 \label{sec:transformerManagement}
 
-\section{Pipeline management}
+\section{Pipeline Management}
 \label{sec:pipelineManagement}
 
-\section{Transformer rules}
+\section{Transformer Rules}
 \label{sec:transformerRules}
 
 \subsection*{Quality Assessment}
@@ -86,7 +185,7 @@ Data consumers accessing the Output Webservice (see Section \ref{sec:outputWS}) 
 
 \subsection*{Object Identification}
 
-\section{Ontology management}
+\section{Ontology Management}
 \label{sec:ontologyManagement}
 
 \section{Other Settings}
@@ -363,10 +462,11 @@ An example:
 	\item[RDF] Resource Description Framework, a language for representing information about resources in the World Wide Web\footnote{\url{http://www.w3.org/RDF/}}
 	\item[RDF triple] Statement about a resource expressed in the form of subject-predicate-object expression
 	\item[URI] Uniform Resource Identifier, identifies RDF resources
-	\item[Named graph] A set of related RDF triples (RDF graph) named with a URI
+	\item[Named graph] A set of related RDF triples (RDF graph) named with a URI\footnote{\url{http://www.w3.org/2004/03/trix/}}
 	\item[RDF quad] An RDF triple plus named graph URI (subject, predicate, object, named graph)
 	\item[Ontology] Representation of the meaning of terms in a vocabulary and of their interrelationships
 	\item[OWL] The Web Ontology Language\footnote{\url{http://www.w3.org/TR/owl-features/}}
+	\item[SPARQL] A RDF query language\footnote{\url{http://www.w3.org/TR/rdf-sparql-query/}}
 \end{glossarylist}
 
 \section*{Data \& Data Quality}
