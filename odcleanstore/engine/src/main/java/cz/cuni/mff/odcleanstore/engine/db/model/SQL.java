@@ -193,7 +193,7 @@ class SQL {
 	 */
 	static final String INSERT_GRAPH_IN_ERROR = 
 			  " INSERT"  
-			+ " INTO ODCLEANSTORE.EN_WORKING_ADDED_GRAPHS(graphId, errorTypeId, errorMessage)"
+			+ " INTO ODCLEANSTORE.EN_GRAPHS_IN_ERROR(graphId, errorTypeId, errorMessage)"
 			+ " VALUES(?,?,?)";
 	
 	static final String ERROR_INSERT_GRAPH_IN_ERROR = "Error during inserting graph in graphs in error";
