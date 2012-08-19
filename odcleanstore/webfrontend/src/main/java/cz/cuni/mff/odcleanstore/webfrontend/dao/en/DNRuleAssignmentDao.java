@@ -6,6 +6,9 @@ import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.RuleAssignment;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
 
 public class DNRuleAssignmentDao extends DaoForEntityWithSurrogateKey<RuleAssignment>
@@ -34,15 +37,16 @@ public class DNRuleAssignmentDao extends DaoForEntityWithSurrogateKey<RuleAssign
 	}
 
 	@Override
-	public List<RuleAssignment> loadAllRawBy(String columnName, Object value)
+	public List<RuleAssignment> loadAllBy(QueryCriteria criteria)
 	{
-		String query = 
+		String query =
 			"SELECT A.id, transformerInstanceId, groupId, G.label as groupLabel, G.description as groupDescription " +
 			"FROM " + getTableName() + " AS A " +
-			"JOIN " + QARulesGroupDao.TABLE_NAME + " AS G ON (A.groupId = G.id) " +
-			"WHERE " + columnName + " = ?";
+			"JOIN " + DNRulesGroupDao.TABLE_NAME + " AS G ON (A.groupId = G.id) " +
+			criteria.buildWhereClause() +
+			criteria.buildOrderByClause();
 		
-		Object[] params = { value };
+		Object[] params = criteria.buildWhereClauseParams();
 		
 		return getJdbcTemplate().query(query, params, getRowMapper());
 	}
@@ -53,7 +57,7 @@ public class DNRuleAssignmentDao extends DaoForEntityWithSurrogateKey<RuleAssign
 		String query = 
 			"SELECT A.id, transformerInstanceId, groupId, G.label as groupLabel, G.description as groupDescription " +
 			"FROM " + getTableName() + " AS A " +
-			"JOIN " + QARulesGroupDao.TABLE_NAME + " AS G ON (A.groupId = G.id) " +
+			"JOIN " + DNRulesGroupDao.TABLE_NAME + " AS G ON (A.groupId = G.id) " +
 			"WHERE " + columnName + " = ?";
 		
 		Object[] params = { value };

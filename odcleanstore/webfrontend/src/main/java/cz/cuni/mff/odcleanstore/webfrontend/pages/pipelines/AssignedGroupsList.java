@@ -2,13 +2,17 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
 
 import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.RulesGroupEntity;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.RuleAssignment;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
+import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentSortableDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
+import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
@@ -63,12 +67,22 @@ public class AssignedGroupsList extends Panel
 		final Long transformerInstanceId, 
 		final Class<? extends FrontendPage> groupDetailPageClass) 
 	{
+		SortableDataProvider<RuleAssignment> data = new DependentSortableDataProvider<RuleAssignment>
+		(
+			assignedGroupsDao,
+			"label",
+			"transformerInstanceId",
+			transformerInstanceId
+		);
+		
+		/*
 		IDataProvider<RuleAssignment> data = new DependentDataProvider<RuleAssignment>
 		(
 			assignedGroupsDao, 
 			"transformerInstanceId", 
 			transformerInstanceId
 		); 
+		*/
 		
 		DataView<RuleAssignment> dataView = new DataView<RuleAssignment>("assignmentTable", data)
 		{
@@ -103,6 +117,8 @@ public class AssignedGroupsList extends Panel
 		};
 		
 		dataView.setItemsPerPage(10);
+		
+		add(new SortTableButton<RuleAssignment>("sortByLabel", "label", data, dataView));
 		
 		add(dataView);
 		
