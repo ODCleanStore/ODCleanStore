@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
 
+import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
 import org.apache.wicket.markup.repeater.Item;
@@ -13,8 +14,11 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
+import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentSortableDataProvider;
+import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
@@ -26,7 +30,6 @@ public class PipelineDetailPage extends FrontendPage
 	private static final long serialVersionUID = 1L;
 
 	private DaoForEntityWithSurrogateKey<Pipeline> pipelineDao;
-	private DaoForEntityWithSurrogateKey<Transformer> transformerDao;
 	private DaoForEntityWithSurrogateKey<TransformerInstance> transformerInstanceDao;
 
 	public PipelineDetailPage(final Long pipelineId) 
@@ -39,7 +42,6 @@ public class PipelineDetailPage extends FrontendPage
 		// prepare DAO objects
 		//
 		pipelineDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(PipelineDao.class);
-		transformerDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(TransformerDao.class);
 		transformerInstanceDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(TransformerInstanceDao.class);
 		
 		// register page components
@@ -47,12 +49,6 @@ public class PipelineDetailPage extends FrontendPage
 		addPipelineInformationSection(pipelineId);
 		addAssignmentSection(pipelineId);
 	}
-
-	/*
-	 	=======================================================================
-	 	Rule information section
-	 	=======================================================================
-	*/
 
 	private void addPipelineInformationSection(final Long pipelineId)
 	{
@@ -62,13 +58,7 @@ public class PipelineDetailPage extends FrontendPage
 		add(new Label("description"));
 		add(new Label("isDefault"));
 	}
-	
-	/*
-	 	=======================================================================
-	 	Implementace assignmentTable
-	 	=======================================================================
-	*/
-	
+
 	private void addAssignmentSection(final Long pipelineId) 
 	{
 		add(
@@ -84,13 +74,14 @@ public class PipelineDetailPage extends FrontendPage
 	
 	private void addAssignmentTable(final Long pipelineId) 
 	{
-		IDataProvider<TransformerInstance> data = new DependentDataProvider<TransformerInstance>
+		SortableDataProvider<TransformerInstance> data = new DependentSortableDataProvider<TransformerInstance>
 		(
-			transformerInstanceDao, 
+			transformerInstanceDao,
+			"label",
 			"pipelineId", 
 			pipelineId
 		);
-		
+
 		DataView<TransformerInstance> dataView = new DataView<TransformerInstance>("assignmentTable", data)
 		{
 			private static final long serialVersionUID = 1L;
@@ -102,9 +93,7 @@ public class PipelineDetailPage extends FrontendPage
 				
 				item.setModel(new CompoundPropertyModel<TransformerInstance>(transformerInstance));
 				
-				Transformer transformer = transformerDao.load(transformerInstance.getTransformerId());
-				item.add(new Label("label", transformer.getLabel()));
-				
+				item.add(new Label("label"));
 				item.add(new TruncatedLabel("workDirPath", MAX_LIST_COLUMN_TEXT_LENGTH));	
 				item.add(new TruncatedLabel("configuration", MAX_LIST_COLUMN_TEXT_LENGTH));
 				item.add(new Label("runOnCleanDB"));
@@ -142,6 +131,11 @@ public class PipelineDetailPage extends FrontendPage
 		};
 		
 		dataView.setItemsPerPage(10);
+		
+		add(new SortTableButton<TransformerInstance>("sortByLabel", "label", data, dataView));
+		add(new SortTableButton<TransformerInstance>("sortByWorkDirPath", "workDirPath", data, dataView));
+		add(new SortTableButton<TransformerInstance>("sortByRunOnCleanDB", "runOnCleanDB", data, dataView));
+		add(new SortTableButton<TransformerInstance>("sortByPriority", "priority", data, dataView));
 		
 		add(dataView);
 		

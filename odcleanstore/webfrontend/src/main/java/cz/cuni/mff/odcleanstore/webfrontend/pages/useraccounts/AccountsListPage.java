@@ -5,11 +5,15 @@ import javax.mail.MessagingException;
 import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
 import cz.cuni.mff.odcleanstore.webfrontend.configuration.Configuration;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
+import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentSortableDataProvider;
+import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
@@ -27,6 +31,7 @@ import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 
 @AuthorizeInstantiation({ "ADM" })
 public class AccountsListPage extends FrontendPage
@@ -53,7 +58,7 @@ public class AccountsListPage extends FrontendPage
 
 	private void addAccountsListTable()
 	{
-		IDataProvider<User> data = new DataProvider<User>(userDao);
+		SortableDataProvider<User> data = new GenericSortableDataProvider<User>(userDao, "username");
 		
 		DataView<User> dataView = new DataView<User>("accountsListTable", data)
 		{
@@ -98,6 +103,11 @@ public class AccountsListPage extends FrontendPage
 		};
 		
 		dataView.setItemsPerPage(10);
+		
+		add(new SortTableButton<User>("sortByUsername", "username", data, dataView));
+		add(new SortTableButton<User>("sortByEmail", "email", data, dataView));
+		add(new SortTableButton<User>("sortByFirstname", "firstname", data, dataView));
+		add(new SortTableButton<User>("sortBySurname", "surname", data, dataView));		
 		
 		add(dataView);
 		

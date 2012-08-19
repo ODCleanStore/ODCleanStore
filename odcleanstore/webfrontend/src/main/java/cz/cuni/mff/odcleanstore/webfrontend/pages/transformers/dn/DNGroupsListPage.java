@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
@@ -11,12 +12,15 @@ import org.apache.wicket.model.CompoundPropertyModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRulesGroup;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
+import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
@@ -54,15 +58,9 @@ public class DNGroupsListPage extends FrontendPage
 		addDNRulesGroupsTable();
 	}
 	
-	/*
-	 	=======================================================================
-	 	Implementace oiRulesGroupsTable
-	 	=======================================================================
-	*/
-	
 	private void addDNRulesGroupsTable()
 	{
-		IDataProvider<DNRulesGroup> data = new DataProvider<DNRulesGroup>(dnRulesGroupDao);
+		SortableDataProvider<DNRulesGroup> data = new GenericSortableDataProvider<DNRulesGroup>(dnRulesGroupDao, "label");
 		
 		DataView<DNRulesGroup> dataView = new DataView<DNRulesGroup>("dnRulesGroupsTable", data)
 		{
@@ -110,6 +108,8 @@ public class DNGroupsListPage extends FrontendPage
 		};
 
 		dataView.setItemsPerPage(10);
+
+		add(new SortTableButton<DNRulesGroup>("orderByLabel", "label", data, dataView));
 		
 		add(dataView);
 		

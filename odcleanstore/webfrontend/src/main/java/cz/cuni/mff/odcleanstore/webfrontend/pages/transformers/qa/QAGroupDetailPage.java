@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
 import org.apache.wicket.markup.repeater.Item;
@@ -8,13 +9,17 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
+import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentSortableDataProvider;
+import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
@@ -46,13 +51,7 @@ public class QAGroupDetailPage extends FrontendPage
 		addGroupInformationSection(groupId);
 		addQARulesSection(groupId);
 	}
-	
-	/*
-	 	=======================================================================
-	 	Implementace qaRulesTable
-	 	=======================================================================
-	*/
-	
+
 	private void addGroupInformationSection(final Long groupId)
 	{
 		setDefaultModel(createModelForOverview(qaRulesGroupDao, groupId));
@@ -76,7 +75,13 @@ public class QAGroupDetailPage extends FrontendPage
 	
 	private void addQARulesTable(final Long groupId)
 	{
-		IDataProvider<QARule> data = new DependentDataProvider<QARule>(qaRuleDao, "groupId", groupId);
+		SortableDataProvider<QARule> data = new DependentSortableDataProvider<QARule>
+		(
+			qaRuleDao, 
+			"coefficient", 
+			"groupId", 
+			groupId
+		);
 		
 		DataView<QARule> dataView = new DataView<QARule>("qaRulesTable", data)
 		{
@@ -125,6 +130,8 @@ public class QAGroupDetailPage extends FrontendPage
 		};
 		
 		dataView.setItemsPerPage(10);
+		
+		add(new SortTableButton<QARule>("sortByCoefficient", "coefficient", data, dataView));
 		
 		add(dataView);
 		

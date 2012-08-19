@@ -37,8 +37,8 @@ public class OIOutputDataProvider implements IDataProvider<OIOutput>
 		{
 			QueryCriteria criteria = new QueryCriteria();
 			
-			criteria.addCriterion("ruleId", ruleId);
-			criteria.addCriterion("outputTypeId", typeId);
+			criteria.addWhereClause("ruleId", ruleId);
+			criteria.addWhereClause("outputTypeId", typeId);
 			
 			data = dao.loadAllBy(criteria);
 		}
