@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
 import org.apache.wicket.markup.repeater.Item;
@@ -10,11 +11,14 @@ import org.apache.wicket.model.CompoundPropertyModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
+import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentSortableDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
@@ -69,8 +73,14 @@ public class OIGroupDetailPage extends FrontendPage
 	}
 
 	private void addOIRulesTable(final Long groupId) 
-	{		
-		IDataProvider<OIRule> data = new DependentDataProvider<OIRule>(oiRuleDao, "groupId", groupId);
+	{
+		SortableDataProvider<OIRule> data = new DependentSortableDataProvider<OIRule>
+		(
+			oiRuleDao, 
+			"label", 
+			"groupId", 
+			groupId
+		);
 		
 		DataView<OIRule> dataView = new DataView<OIRule>("oiRulesTable", data)
 		{
@@ -123,6 +133,13 @@ public class OIGroupDetailPage extends FrontendPage
 		};
 		
 		dataView.setItemsPerPage(10);
+		
+		add(new SortTableButton<OIRule>("sortByLabel", "label", data, dataView));
+		add(new SortTableButton<OIRule>("sortByLinkType", "linkType", data, dataView));
+		add(new SortTableButton<OIRule>("sortBySourceRestriction", "sourceRestriction", data, dataView));
+		add(new SortTableButton<OIRule>("sortByTargetRestriction", "targetRestriction", data, dataView));
+		add(new SortTableButton<OIRule>("sortByFilterThreshold", "filterThreshold", data, dataView));
+		add(new SortTableButton<OIRule>("sortByFilterLimit", "filterLimit", data, dataView));
 		
 		add(dataView);
 		
