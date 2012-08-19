@@ -4,6 +4,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
 import cz.cuni.mff.odcleanstore.util.Pair;
 
 import java.util.HashMap;
@@ -96,9 +97,11 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 	*/
 	
 	@Override
-	public List<User> loadAll() 
+	public List<User> loadAllBy(QueryCriteria criteria)
 	{
-		Map<Long, User> usersMapping = convertListToHashMap(loadAllRaw());
+		List<User> users = super.loadAllBy(criteria);
+		Map<Long, User> usersMapping = convertListToHashMap(users);
+		
 		Map<Long, Role> rolesMapping = convertListToHashMap(loadAllRolesRaw());
 
 		List<Pair<Long, Long>> assignedRoles = loadAllPermissionRecordsRaw();
@@ -113,8 +116,8 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 			targetUser.addRole(targetRole);
 		}
 		
-		return new LinkedList<User>(usersMapping.values());
-	}	
+		return new LinkedList<User>(users);
+	}
 	
 	private <T extends EntityWithSurrogateKey> Map<Long, T> convertListToHashMap(List<T> list)
 	{
