@@ -6,12 +6,15 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.*;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
+import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.*;
 
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
 import org.apache.wicket.markup.repeater.Item;
@@ -100,8 +103,12 @@ public class CRPropertiesListPage extends FrontendPage
 	
 	private void addPropertySettingsTable()
 	{
-		IDataProvider<PropertySettings> data = new DataProvider<PropertySettings>(propertySettingsDao);
-				
+		SortableDataProvider<PropertySettings> data = new GenericSortableDataProvider<PropertySettings>
+		(
+			propertySettingsDao, 
+			"property"
+		);
+			
 		DataView<PropertySettings> dataView = new DataView<PropertySettings>("propertySettingsTable", data)
 		{
 			private static final long serialVersionUID = 1L;
@@ -138,6 +145,10 @@ public class CRPropertiesListPage extends FrontendPage
 		};
 		
 		dataView.setItemsPerPage(10);
+		
+		add(new SortTableButton<PropertySettings>("sortByProperty", "property", data, dataView));
+		add(new SortTableButton<PropertySettings>("sortByMultivalueTypeId", "mtid", data, dataView));
+		add(new SortTableButton<PropertySettings>("sortByAggregationTypeId", "atid", data, dataView));
 		
 		add(dataView);
 		

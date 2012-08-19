@@ -6,6 +6,8 @@ import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.RuleAssignment;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
 
 public class QARuleAssignmentDao extends DaoForEntityWithSurrogateKey<RuleAssignment>
@@ -34,15 +36,16 @@ public class QARuleAssignmentDao extends DaoForEntityWithSurrogateKey<RuleAssign
 	}
 
 	@Override
-	public List<RuleAssignment> loadAllRawBy(String columnName, Object value)
+	public List<RuleAssignment> loadAllBy(QueryCriteria criteria)
 	{
-		String query = 
+		String query =
 			"SELECT A.id, transformerInstanceId, groupId, G.label as groupLabel, G.description as groupDescription " +
 			"FROM " + getTableName() + " AS A " +
 			"JOIN " + QARulesGroupDao.TABLE_NAME + " AS G ON (A.groupId = G.id) " +
-			"WHERE " + columnName + " = ?";
+			criteria.buildWhereClause() +
+			criteria.buildOrderByClause();
 		
-		Object[] params = { value };
+		Object[] params = criteria.buildWhereClauseParams();
 		
 		return getJdbcTemplate().query(query, params, getRowMapper());
 	}

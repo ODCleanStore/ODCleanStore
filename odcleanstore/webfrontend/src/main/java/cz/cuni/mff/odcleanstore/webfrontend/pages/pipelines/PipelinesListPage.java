@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
@@ -11,11 +12,14 @@ import org.apache.wicket.model.CompoundPropertyModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
+import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.EngineOperationsDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.OfficialPipelinesDao;
@@ -90,7 +94,7 @@ public class PipelinesListPage extends FrontendPage
 
 	private void addPipelinesTable()
 	{
-		IDataProvider<Pipeline> data = new DataProvider<Pipeline>(pipelineDao);
+		SortableDataProvider<Pipeline> data = new GenericSortableDataProvider<Pipeline>(pipelineDao, "label");
 		
 		DataView<Pipeline> dataView = new DataView<Pipeline>("pipelinesTable", data)
 		{
@@ -140,6 +144,9 @@ public class PipelinesListPage extends FrontendPage
 		};
 
 		dataView.setItemsPerPage(10);
+		
+		add(new SortTableButton<Pipeline>("sortByLabel", "label", data, dataView));
+		add(new SortTableButton<Pipeline>("sortByIsDefault", "isDefault", data, dataView));
 		
 		add(dataView);
 		

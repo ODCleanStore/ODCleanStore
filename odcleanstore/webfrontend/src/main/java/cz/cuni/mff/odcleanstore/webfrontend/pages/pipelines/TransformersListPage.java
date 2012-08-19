@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
 
+import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
 import org.apache.wicket.markup.repeater.Item;
@@ -8,11 +9,14 @@ import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
+import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
@@ -39,16 +43,10 @@ public class TransformersListPage extends FrontendPage
 		//
 		addTransformersTable();
 	}
-	
-	/*
-	 	=======================================================================
-	 	Implementace transformersTable
-	 	=======================================================================
-	*/
-	
+
 	private void addTransformersTable()
 	{
-		IDataProvider<Transformer> data = new DataProvider<Transformer>(transformerDao);
+		SortableDataProvider<Transformer> data = new GenericSortableDataProvider<Transformer>(transformerDao, "label");
 		
 		DataView<Transformer> dataView = new DataView<Transformer>("transformersTable", data)
 		{
@@ -96,6 +94,10 @@ public class TransformersListPage extends FrontendPage
 		};
 
 		dataView.setItemsPerPage(10);
+		
+		add(new SortTableButton<Transformer>("sortByLabel", "label", data, dataView));
+		add(new SortTableButton<Transformer>("sortByJARPath", "jarPath", data, dataView));
+		add(new SortTableButton<Transformer>("sortByFullClassName", "fullClassName", data, dataView));
 		
 		add(dataView);
 		

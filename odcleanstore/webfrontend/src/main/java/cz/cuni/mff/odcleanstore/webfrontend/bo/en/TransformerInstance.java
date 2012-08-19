@@ -8,18 +8,20 @@ public class TransformerInstance extends EntityWithSurrogateKey
 	
 	private Long transformerId;
 	private Long pipelineId;
+	private String label;
 	private String workDirPath;
 	private String configuration;
 	private Boolean runOnCleanDB;
 	private Integer priority;
 	
-	public TransformerInstance(Long id, Long transformerId, Long pipelineId, String workDirPath, 
-			String configuration, Boolean runOnCleanDB, Integer priority) 
+	public TransformerInstance(Long id, Long transformerId, Long pipelineId, String label,
+		String workDirPath, String configuration, Boolean runOnCleanDB, Integer priority) 
 	{
 		super(id);
 		
 		this.transformerId = transformerId;
 		this.pipelineId = pipelineId;
+		this.label = label;
 		this.workDirPath = workDirPath;
 		this.configuration = configuration;
 		this.runOnCleanDB = runOnCleanDB;
@@ -35,11 +37,33 @@ public class TransformerInstance extends EntityWithSurrogateKey
 	 * @param configuration
 	 * @param priority
 	 */
+	public TransformerInstance(Long transformerId, Long pipelineId, String label, 
+		String workDirPath, String configuration, Boolean runOnCleanDB, Integer priority) 
+	{
+		this.transformerId = transformerId;
+		this.pipelineId = pipelineId;
+		this.label = label;
+		this.workDirPath = workDirPath;
+		this.configuration = configuration;
+		this.runOnCleanDB = runOnCleanDB;
+		this.priority = priority;
+	}
+	
+
+	/**
+	 * 
+	 * @param transformerId
+	 * @param pipelineId
+	 * @param workDirPath
+	 * @param configuration
+	 * @param priority
+	 */
 	public TransformerInstance(Long transformerId, Long pipelineId, String workDirPath, 
 		String configuration, Boolean runOnCleanDB, Integer priority) 
 	{
 		this.transformerId = transformerId;
 		this.pipelineId = pipelineId;
+		this.label = label;
 		this.workDirPath = workDirPath;
 		this.configuration = configuration;
 		this.runOnCleanDB = runOnCleanDB;
@@ -87,6 +111,15 @@ public class TransformerInstance extends EntityWithSurrogateKey
 	public void setPipelineId(Long pipelineId)
 	{
 		this.pipelineId = pipelineId;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String getLabel()
+	{
+		return label;
 	}
 	
 	/**
