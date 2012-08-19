@@ -18,7 +18,7 @@ public class App {
 		Properties props = new Properties();
 		try {
 
-			sc = new OdcsService("http://localhost:8088/odcleanstore/scraper");
+			sc = new OdcsService("http://localhost:8088/inputws");
 			Metadata metadata = new Metadata();
 
 			props.load(new FileInputStream(args[0]));

@@ -1,6 +1,6 @@
 \include{header}
 \newcommand{\version}{0.1}
-\newcommand{\documentname}{User Manual}
+\newcommand{\documentname}{\refusermanual}
 
 \begin{document}
 
@@ -17,27 +17,27 @@
 \chapter{Introduction}
 \label{chap:introduction}
 
-The advent of Open Data\footnote{\url{http://opendatahandbook.org/}} and Linked Data\footnote{\url{http://www.w3.org/standards/semanticweb/data}; \url{http://linkeddata.org/}}  accelerates the evolution of the Web into an exponentially growing information space\footnote{See the Linked Open Data Cloud at \url{http://richard.cyganiak.de/2007/10/lod/}}) where the unprecedented volume of data will offer information consumers a level of information integration and aggregation agility that has up to now not been possible. Data consumers can now \quot{mashup} and readily integrate information in myriads of applications.
+The advent of Open Data\footnote{\url{http://opendatahandbook.org/}} and Linked Data\footnote{\url{http://www.w3.org/standards/semanticweb/data}; \url{http://linkeddata.org/}}  accelerates the evolution of the Web into an exponentially growing information space\footnote{See the Linked Open Data Cloud at \url{http://richard.cyganiak.de/2007/10/lod/}}) where the unprecedented volume of data will offer information consumers a~level of information integration and aggregation agility that has up to now not been possible. Data consumers can now \quot{mashup} and readily integrate information in myriads of applications.
 
 Indiscriminate addition of information, however, comes with inherent problems, such as the provision of poor quality, inaccurate, irrelevant or fraudulent information. All will come with an associate cost of the data integration which will ultimately affect data consumer's benefit and Linked Data applications usage and uptake.
 
-To overcome these issues, we present a framework enabling management of Linked Data -- data cleaning, linking, transformation and quality assessment -- and providing  applications with a possibility to consume the stored cleaned and integrated data, which reduces the costs of application development.
+To overcome these issues, we present a~framework enabling management of Linked Data -- data cleaning, linking, transformation and quality assessment -- and providing  applications with a~possibility to consume the stored cleaned and integrated data, which reduces the costs of application development.
 
 \section{How to Read This Document}
 
-This document is a user manual with basic description od ODCleanStore and detailed instructions on how to access and work with the application from the perspective of a user. Chapters \ref{chap:introduction} and \ref{chap:howItWorks} give a basic description of what ODCleanStore is and how it works, while Chapter \ref{chap:userRoles} describes user roles and will guide you to other parts of this manual relevant for your user role.
+This document is a~user manual with basic description od ODCleanStore and detailed instructions on how to access and work with the application from the perspective of a~user. Chapters \ref{chap:introduction} and \ref{chap:howItWorks} give a~basic description of what ODCleanStore is and how it works, while Chapter \ref{chap:userRoles} describes user roles and will guide you to other parts of this manual relevant for your user role.
 
-If more detailed information is needed, please refer to related documents \quot{Administrator's \& Installation Manual} and \quot{Programmer's Guide}.
+If more detailed information is needed, please refer to related documents \quot{\refadmimanual} and \quot{\refprogrammersguide}.
 
-\todo{what is imporntant, what is different from others, how do we support the goals}
+\todo{what is important, what is different from others, how do we support the goals}
 
 \section{What is ODCleanStore}
 
-ODCleanStore is a server application that stores RDF data, processes them and provides integrated views on the data.
+ODCleanStore is a~server application that stores RDF data, processes them and provides integrated views on the data.
 
-ODCleanStore accepts arbitrary RDF data through a webservice (together with provenance and other metadata). The data is processed by \term{transformers} in one of a set of customizable \term{pipelines} and stored to a persistent store. The stored data can be accessed again through a webservice. Linked Data consumers can send queries and custom query policies to this webservice and receive (aggregated/integrated) RDF data relevant for their query, together with information about provenance and data quality.
+ODCleanStore accepts arbitrary RDF data through a~webservice (together with provenance and other metadata). The data is processed by \term{transformers} in one of a~set of customizable \term{pipelines} and stored to a~persistent store. The stored data can be accessed again through a~webservice. Linked Data consumers can send queries and custom query policies to this webservice and receive (aggregated/integrated) RDF data relevant for their query, together with information about provenance and data quality.
 
-ODCleanStore is developed at the Charles University in Prague, Faculty of Mathematics and Physics as part of the \href{http://opendata.cz}{OpenData.cz} initiative and the \href{http://lod2.eu}{LOD2.eu} project and published as a free software under Apache License 2.0. The project is hosted at SourceForge at
+ODCleanStore is developed at the Charles University in Prague, Faculty of Mathematics and Physics as part of the \href{http://opendata.cz}{OpenData.cz} initiative and the \href{http://lod2.eu}{LOD2.eu} project and published as a~free software under Apache License 2.0. The project is hosted at SourceForge at
 \begin{center}
   \url{http://sourceforge.net/p/odcleanstore/}.
 \end{center}
@@ -46,13 +46,13 @@ ODCleanStore is developed at the Charles University in Prague, Faculty of Mathem
 
 \section{Linked Data Framework}
 
-The goal of the \href{http://opendata.cz}{OpenData.cz} initiative is to build an open data infrastructure in The Czech Republic. It would provide public data in a form that allows access to anyone at any time and allows to combine it freely. This would allow the creation of applications that the public really needs.
+The goal of the \href{http://opendata.cz}{OpenData.cz} initiative is to build an open data infrastructure in The Czech Republic. It would provide public data in a~form that allows access to anyone at any time and allows to combine it freely. This would allow the creation of applications that the public really needs.
 
-ODCleanStore is a part of the Linked Data Framework developed under the OpenData.cz initiative. The main three parts of the framework are \term{Data Acquisition} module, \term{Data Aggregation and Cleaning} module and \term{Data Visualization and Analysis} module.
+ODCleanStore is a~part of the Linked Data Framework developed under the OpenData.cz initiative. The main three parts of the framework are \term{Data Acquisition} module, \term{Data Aggregation and Cleaning} module and \term{Data Visualization and Analysis} module.
 
 \todo{picture}
 
-The Data Acquisition module\footnote{\url{http://strigil.sourceforge.net/}} will be able to crawl webpages and scrape structured data from webpages and other sources (such as XLS spreadsheets). This data is converted to RDF and sent to the Data Aggregation and Cleaning module represented by ODCleanStore. ODCleanStore processes the data, stores it and provides access to it. The Visualization and Analysis module will query ODCleanStore and provide a human-friendly interface to end users.
+The Data Acquisition module\footnote{\url{http://strigil.sourceforge.net/}} will be able to crawl webpages and scrape structured data from webpages and other sources (such as XLS spreadsheets). This data is converted to RDF and sent to the Data Aggregation and Cleaning module represented by ODCleanStore. ODCleanStore processes the data, stores it and provides access to it. The Visualization and Analysis module will query ODCleanStore and provide a~human-friendly interface to end users.
 
 
 \section{Examples of Deployment}
@@ -68,7 +68,7 @@ A real-world deployment is planned for storing public contracts data published b
 \chapter{How It Works}
 \label{chap:howItWorks}
 
-ODCleanStore consists of \term{Engine}, \term{Input Webservice} and \term{Output Webservice} (both run as part of the Engine), and administration webfrontend. The Engine processes incoming and stored data using \term{transformers}. A transformer is a pluggable Java class implementing a defined interface; several transformers ship with ODCleanStore, such as Quality Assessment, Object Identification or Data Normalization.
+ODCleanStore consists of \term{Engine}, \term{Input Webservice} and \term{Output Webservice} (both run as part of the Engine), and administration webfrontend. The Engine processes incoming and stored data using \term{transformers}. A~transformer is a~pluggable Java class implementing a~defined interface; several transformers ship with ODCleanStore, such as Quality Assessment, Object Identification or Data Normalization.
 
 \todo{picture, EA diagramy}
 
@@ -77,13 +77,13 @@ ODCleanStore consists of \term{Engine}, \term{Input Webservice} and \term{Output
 The lifecycle of data inside ODCleanStore is as follows:
 
 \begin{enumerate}
-  \item RDF data (and additional metadata) is accepted by Input Webservice and stored as a single named graph to the \term{dirty database}. Data can be uploaded by any third-party application registered in ODCleanStore.
-  \item Engine successively processes named graphs in the dirty database by applying a pipeline of transformers to it; the applied pipeline is selected according to the input metadata.
+  \item RDF data (and additional metadata) is accepted by Input Webservice and stored as a~single named graph to the \term{dirty database}. Data can be uploaded by any third-party application registered in ODCleanStore.
+  \item Engine successively processes named graphs in the dirty database by applying a~pipeline of transformers to it; the applied pipeline is selected according to the input metadata.
   \item Each transformer in the pipeline may modify the named graph or attach new related named graphs (such as named graph with mappings to other resources or results of quality assessment).
   \item When the pipeline finishes, the augmented RDF data are populated to the \term{clean database} together with any auxiliary data and metadata created during the pipeline execution.
-  \item Data consumers can use Output Webservice to query data in the clean database. Output Webservice provides two basic types of queries -- URI query and keyword query -- and additionally metadata about a given named graph can be requested. The response to a query consists of relevant RDF triples together with their provenance information and quality estimate. The query can be further customized by user-defined conflict resolution policies.\\
+  \item Data consumers can use Output Webservice to query data in the clean database. Output Webservice provides two basic types of queries -- URI query and keyword query -- and additionally metadata about a~given named graph can be requested. The response to a~query consists of relevant RDF triples together with their provenance information and quality estimate. The query can be further customized by user-defined conflict resolution policies.\\
 	Data in the clean database can be also queried using the SPARQL query language. While SPARQL queries are more expressive, there is no direct support for provenance tracking and quality estimation. 
-  \item When transformer rules change, the administrator may choose to re-run a pipeline on data already stored in the clean database. Copy of this data is created in the dirty database where it is processed by the pipeline. After that the processed version of data replaces the original in the clean database.
+  \item When transformer rules change, the administrator may choose to re-run a~pipeline on data already stored in the clean database. Copy of this data is created in the dirty database where it is processed by the pipeline. After that the processed version of data replaces the original in the clean database.
 \end{enumerate}
 
 \section{Administration Frontend Features}
@@ -99,14 +99,14 @@ The administration webfrontend enables
 \section{Summary of Features}
 
 \begin{itemize}
-  \item Administration in a simple web interface.
+  \item Administration in a~simple web interface.
   \item Input and Output Webservices communicate in standard formats - Input Webservice accepts RDF/XML or TTL, Output Webservice provides results in the TriG format. \todo{also RDF/XML}
   \item Highly customizable pipelines for incoming data processing. Different pipelines can be used for different data sources.
-  \item Data can be processed before they are stored to a persistent store but also when they are already stored if neccessary.
-  \item Ships with several predefined transformers for use in data-processing pipelines: Data Normalization (transformations of data), Quality Assesment (estimates quality of data based on a set of rules), Object Identification (links RDF resources representing the same entity or otherwise related). All these transformers can be managed in the web administration interface.
+  \item Data can be processed before they are stored to a~persistent store but also when they are already stored if neccessary.
+  \item Ships with several predefined transformers for use in data-processing pipelines: Data Normalization (transformations of data), Quality Assesment (estimates quality of data based on a~set of rules), Object Identification (links RDF resources representing the same entity or otherwise related). All these transformers can be managed in the web administration interface.
   \item Support for ontology management. Mappings between ontologies can be defined in order to integrate heterogeneous data. Also, rules for data-processing transformers can be automatically generated from ontologies.
-  \item Data consumers can query for all data about a given resource or use the keyword search.
-  \item Response to a query includes provenance information and quality estimate of each RDF triple in the result. More provenance metadata can be requested.
+  \item Data consumers can query for all data about a~given resource or use the keyword search.
+  \item Response to a~query includes provenance information and quality estimate of each RDF triple in the result. More provenance metadata can be requested.
 \end{itemize}
 
 
@@ -117,7 +117,7 @@ The administration webfrontend enables
 
 \todo{use-case diagram}
 
-Data consumers accessing the Output Webservice (see Section \ref{sec:outputWS}) do not need to have an account in ODCleanStore; these users have a special role User (USR). Other users working with ODCleanStore need to have an account and their permissions are based on the roles they are assigned. This chapter describes all the roles recognized by ODCleanStore.
+Data consumers accessing the Output Webservice (see Section \ref{sec:outputWS}) do not need to have an account in ODCleanStore; these users have a~special role User (USR). Other users working with ODCleanStore need to have an account and their permissions are based on the roles they are assigned. This chapter describes all the roles recognized by ODCleanStore.
 
 \section[Administrator]{Administrator (ADM)}
 
@@ -130,7 +130,7 @@ Data consumers accessing the Output Webservice (see Section \ref{sec:outputWS}) 
 
 	In addition, the administrator is authorized to edit pipelines and rules created by pipeline creators.
 
-	More information, e.g. about adding transformers, can be found in the related document Administrator's \& Installation Manual.
+	More information, e.g. about adding transformers, can be found in the related document \refadmimanual.
 
 	\paragraph{Most relevant sections of this document:} Chapter \ref{chap:administrationFrontend} \nameref{chap:administrationFrontend}.
 
@@ -142,7 +142,7 @@ Data consumers accessing the Output Webservice (see Section \ref{sec:outputWS}) 
 \section[Pipeline Creator]{Pipeline Creator (PIC)}
 	The pipeline creator can create input data processing pipelines. This includes creating new pipelines and assigning transformers to them (Section \ref{sec:pipelineManagement}) and also creating rules for the transformers (Section \ref{sec:transformerRules}).
 
-	Every pipeline creator is allowed to create custom pipelines and rule groups for predefined transformers. The pipeline creator has a read-only access to other creators' pipelines and rules (and can use such rules in custom pipelines), however rules and pipelines can only be edited by their author. The only exception is the administrator, who can edit arbitrary pipelines and rule groups.
+	Every pipeline creator is allowed to create custom pipelines and rule groups for predefined transformers. The pipeline creator has a~read-only access to other creators' pipelines and rules (and can use such rules in custom pipelines), however rules and pipelines can only be edited by their author. The only exception is the administrator, who can edit arbitrary pipelines and rule groups.
 
 	\paragraph{Most relevant sections of this document:} Sections \ref{sec:pipelineManagement} \nameref{sec:pipelineManagement} and \ref{sec:transformerRules} \nameref{sec:transformerRules}.
 	
@@ -174,11 +174,11 @@ Data consumers accessing the Output Webservice (see Section \ref{sec:outputWS}) 
 \section{Transformer Rules}
 \label{sec:transformerRules}
 
-\subsection*{Quality Assessment}
+\subsection{Quality Assessment}
 
-\subsection*{Data Normalization}
+\subsection{Data Normalization}
 
-\subsection*{Object Identification}
+\subsection{Object Identification}
 
 \section{Ontology Management}
 \label{sec:ontologyManagement}
@@ -197,28 +197,28 @@ Data consumers accessing the Output Webservice (see Section \ref{sec:outputWS}) 
 
 \section{Web Services Overview}
 
-\section{Data Publisher}
+\section{Data Producer}
 \label{sec:inputWS}
 
 \section{Data Consumer}
 \label{sec:outputWS}
 
-A consumer of data stored in ODCleanStore can query the database through the \term{Output Webservice}. The Output Webservice can be queried for data about a given URI resource, queried by keywords or queried for metadata of a given named graph. Conflicts in data returned in response to a query are resolved and the data are fused using policies provided by the user or by the administrator.
+A consumer of data stored in ODCleanStore can query the database through the Output Webservice. The Output Webservice can be queried for data about a~given URI resource, queried by keywords or queried for metadata of a~given named graph. Conflicts in data returned in response to a~query are resolved and the data are fused using policies provided by the user or by the administrator.
 
 Additionally, the user can access the data in the clean database directly using the SPARQL endpoint powered by Virtuoso. This way the data consumer can use the full power of the SPARQL query language, however conflict resolution and provenance tracking is not supported for this type of queries.
 
-\todo{specify where the SPARQL endpoint can be accessed}
+\todo{specify where the SPARQL endpoint can be accessed, link to Virtuoso documentation; mention it is read-only}
 
 \section*{Output Webservice}
 
-The Output Webservice is a REST webservice which can be accessed using both GET and POST HTTP methods equivalently.
+The Output Webservice is a~REST webservice which can be accessed using both GET and POST HTTP methods equivalently.
 
 \subsection{Types of queries}
 
 The Output Webservice can be queried for:
 
 \begin{enumerate}
-	\item a resource URI
+	\item a~resource URI
 	\item keyword(s)
 	\item named graph metadata
 \end{enumerate}
@@ -227,10 +227,9 @@ Table \ref{tbl:queryTypes} lists where each type of query can be accessed.
 
 \begin{table}[h]
 \centering
-\label{tbl:queryTypes}
 \begin{tabular}{|l|l|p{7.5cm}|}
 	\hline
-	Query & URI & Example of a query \\
+	Query & URI & Example of a~query \\
 	\hline \hline
 	URI & \varcode{host}\code{/uri} & \mbox{http://localhost:8087/uri} \mbox{?uri=http\%3A\%2F\%2Fexample.com} \\
 	\hline
@@ -240,17 +239,17 @@ Table \ref{tbl:queryTypes} lists where each type of query can be accessed.
 	\hline
 \end{tabular}
 \caption{Types of queries}
+\label{tbl:queryTypes}
 \end{table} 
 
 More information is available in the Query Execition specification. \todo{reference}
 
 \subsection{Request format}
 
-The following table lists (either GET or POST) parameters than can be used with the URI and keyword queries:
+Table \ref{tbl:requestFormatUK} lists (either GET or POST) parameters than can be used with the URI and keyword queries.
 
 \begin{table}[h!]
 \centering
-\label{tbl:requestFormatUK}
 \begin{tabularx}{\textwidth}{|l|X|p{2cm}|p{2cm}|}
 	\hline
 	Name & Description & Possible values & Default value \\
@@ -274,13 +273,13 @@ The following table lists (either GET or POST) parameters than can be used with 
 	\hline
 \end{tabularx}
 \caption{URI and keyword query parameters}
+\label{tbl:requestFormatUK}
 \end{table} 
 
-The next table lists parameters that can be used with the named graph metadata query:
+Table \ref{tbl:requestFormatNG} lists parameters that can be used with the named graph metadata query.
 
 \begin{table}[h!]
 \centering
-\label{tbl:requestFormatNG}
 \begin{tabular}{|l|l|l|l|}
 	\hline
 	Name & Description & Possible values & Default value \\
@@ -291,6 +290,7 @@ The next table lists parameters that can be used with the named graph metadata q
 	\hline
 \end{tabular}
 \caption{Named graph metadata query parameters}
+\label{tbl:requestFormatNG}
 \end{table}
 
 For all queries, parameters and values are case-sensitive. Property names may be either full URIs, or prefixed names (e.g. \code{rdfs:label}). Available prefixes are managed in the administration frontend (see section \ref{sec:frontendPrefixMgmt}).
@@ -307,7 +307,7 @@ For more information about aggregation settings, see the corresponding section o
 	\item[LATEST]
 		value with the newest timestamp; in case of equality, the highest aggregate quality is preferred
 	\item[ANY]
-		returns a single arbitrary value
+		returns a~single arbitrary value
 	\item[CONCAT]
 		concatenation of conflicting values separated by \quot{\code{;\ }}
 	\item[NONE]
@@ -346,35 +346,35 @@ For more information about aggregation settings, see the corresponding section o
 \end{description}
 
 \subsubsection*{Error strategy}
-The error strategy determines how to handle values that cannot be aggregated by the given aggregation method, e.g. when applying MEDIAN aggregation to a mix of numeric and date values.
+The error strategy determines how to handle values that cannot be aggregated by the given aggregation method, e.g. when applying MEDIAN aggregation to a~mix of numeric and date values.
 
-Note that for some aggregations, an untyped literal may be converted to a numeric literal (\code{xsd:double}) if possible.
+Note that for some aggregations, an untyped literal may be converted to a~numeric literal (\code{xsd:double}) if possible.
 
 \subsubsection*{Multivalie parameter}
-The multivalue parameter determines whether differences with other conflicting values decrease quality (\code{multivalue=0}), or not (\code{multivalue=1}). Setting multivalue to false (0) is appropriate for properties with a single value (e.g. \code{dbprop:population}), setting it to true (1) is appropriate for propertiees with multiple possible values (e.g. \code{rdf:type}).
+The multivalue parameter determines whether differences with other conflicting values decrease quality (\code{multivalue=0}), or not (\code{multivalue=1}). Setting multivalue to false (0) is appropriate for properties with a~single value (e.g. \code{dbprop:population}), setting it to true (1) is appropriate for propertiees with multiple possible values (e.g. \code{rdf:type}).
 
 \todo{content-negotiation}
 
 \subsection{Query Format}
 
 \subsubsection{URI Query \& Named Graph Metadata Query}
-The value of the \code{uri} parameter must be either a full valid URI, or a prefixed name (e.g. \code{dbpedia:Berlin}).  Available prefixes are managed in the administration frontend (see section \ref{sec:frontendPrefixMgmt}).
+The value of the \code{uri} parameter must be either a~full valid URI, or a~prefixed name (e.g. \code{dbpedia:Berlin}).  Available prefixes are managed in the administration frontend (see section \ref{sec:frontendPrefixMgmt}).
 
 \subsubsection{Keyword Query}
-The \code{kw} parameter can contain one or more keywords separated by whitespace. If a keyword itself contains spaces, it may be enclosed in double quotes. Query Execution looks for literals that contain all of the keywords. Keywords can also contain the \code{*} wildcard, but they must begin with at least four non-wildcard characters if a wildcard is to be used.
+The \code{kw} parameter can contain one or more keywords separated by whitespace. If a~keyword itself contains spaces, it may be enclosed in double quotes. Query Execution looks for literals that contain all of the keywords. Keywords can also contain the \code{*} wildcard, but they must begin with at least four non-wildcard characters if a~wildcard is to be used.
 
-Query Execution also looks for an exact match of the entire \code{kw} value (i.e. without any division to keywords). If the \code{kw} value is a number, then numeric typed literals will match; if the \code{kw} value is formatted as \code{xsd:dateTime}\footnote{\url{http://www.w3.org/TR/xmlschema-2/\#dateTime-lexical-representation}}, then \code{xsd:dateTime} typed literals will match.
+Query Execution also looks for an exact match of the entire \code{kw} value (i.e. without any division to keywords). If the \code{kw} value is a~number, then numeric typed literals will match; if the \code{kw} value is formatted as \code{xsd:dateTime}\footnote{\url{http://www.w3.org/TR/xmlschema-2/\#dateTime-lexical-representation}}, then \code{xsd:dateTime} typed literals will match.
 
 \subsection{Results Format for URI \& Keyword Queries}
 The result contains triples returned in response to the query, including relevant labels of URI resources in the result, and metadata for the triples.
 
 \subsubsection{HTML}
 
-The result in HTML format contains results in a human-readable form. It contains
+The result in HTML format contains results in a~human-readable form. It contains
 
 \begin{itemize}
-	\item a table with all triples in the result together with their aggregated quality and named graphs from which the triple was selected or calculated,
-  \item  a table with metadata of named graphs occuring in the first table.
+	\item a~table with all triples in the result together with their aggregated quality and named graphs from which the triple was selected or calculated,
+  \item  a~table with metadata of named graphs occuring in the first table.
 \end{itemize}
 
 \subsubsection{TriG}
@@ -382,13 +382,13 @@ The result in HTML format contains results in a human-readable form. It contains
 The result contains triples (quads) serialized in the TriG\footnote{\url{http://www4.wiwiss.fu-berlin.de/bizer/trig/}} format. The result includes:
 
 \begin{itemize}
-	\item triples returned in response to the query, each one placed in a unique named graph
+	\item triples returned in response to the query, each one placed in a~unique named graph
   \item aggregated quality (\code{odcs:quality}) and source named graphs (\code{w3p:source}) of the above triples; subjects of these statements are the unique named graphs where the respective triples are placed
   \item  metadata of source named graphs; they may include where the data were extracted from (\code{w3p:source}), Quality Assesment score of the named graph (\code{odcs:score}) and its publisher (\code{odcs:publisherScore}), the publisher of the data (\code{w3p:publishedBy}), timestamp (\code{w3p:insertedAt}), licence (\code{dc:licence})
-  \item  metadata about the query response itself -- a title (\code{dc:title}), date (\code{dc:date}), number of result triples (\code{odcs:totalResults}), the query (\code{odcs:query}) and link to each result item (\code{odcs:result})
+  \item  metadata about the query response itself -- a~title (\code{dc:title}), date (\code{dc:date}), number of result triples (\code{odcs:totalResults}), the query (\code{odcs:query}) and link to each result item (\code{odcs:result})
 \end{itemize}
 
-\pagebreak
+\pagebreak[3]
 
 An example:
 
@@ -452,25 +452,27 @@ An example:
 
 \chapter{Glossary}
 
-\section*{RDF related}
+\section*{RDF-related}
 \begin{glossarylist}
-	\item[RDF] Resource Description Framework, a language for representing information about resources in the World Wide Web\footnote{\url{http://www.w3.org/RDF/}}
-	\item[RDF triple] Statement about a resource expressed in the form of subject-predicate-object expression
+	\item[RDF] Resource Description Framework, a~language for representing information about resources in the World Wide Web\footnote{\url{http://www.w3.org/RDF/}}
+	\item[RDF triple] Statement about a~resource expressed in the form of subject-predicate-object expression
 	\item[URI] Uniform Resource Identifier, identifies RDF resources
-	\item[Named graph] A set of related RDF triples (RDF graph) named with a URI\footnote{\url{http://www.w3.org/2004/03/trix/}}
+	\item[Named graph] A~set of related RDF triples (RDF graph) named with a~URI\footnote{\url{http://www.w3.org/2004/03/trix/}}
 	\item[RDF quad] An RDF triple plus named graph URI (subject, predicate, object, named graph)
-	\item[Ontology] Representation of the meaning of terms in a vocabulary and of their interrelationships
+	\item[Ontology] Representation of the meaning of terms in a~vocabulary and of their interrelationships
 	\item[OWL] The Web Ontology Language\footnote{\url{http://www.w3.org/TR/owl-features/}}
-	\item[SPARQL] A RDF query language\footnote{\url{http://www.w3.org/TR/rdf-sparql-query/}}
+	\item[SPARQL] RDF query language\footnote{\url{http://www.w3.org/TR/rdf-sparql-query/}}
+	\item[RDF/XML] An XML-based serialization format for RDF graphs\footnote{\url{http://www.w3.org/TR/rdf-syntax-grammar/}}
+	\item[TTL] Turtle -- Terse RDF Triple Language\footnote{\url{http://www.w3.org/TeamSubmission/turtle/}}; a~human-friendly alternative to RDF/XML 
 \end{glossarylist}
 
 \section*{Data \& Data Quality}
 \begin{glossarylist}
-	\item[Dirty (staging) database] Database where incoming data are stored until they are processed by a processing pipeline (e.g. clean, linked to other data, etc.)
+	\item[Dirty (staging) database] Database where incoming data are stored until they are processed by a~processing pipeline (e.g. clean, linked to other data, etc.)
 	\item[Clean database] Database where incoming data are stored after they are successfully processed by the respective processing pipeline; this database can be accessed using the Output Webservice
-	\item[Named graph score (\code{odcs:score})] Quality of a single named graph estimated by the Quality Assesment component and stored in the database, expressed as a number from interval [0,1]
-	\item[Publisher score] Average score of named graphs from a publisher
-	\item[Aggregate quality] Quality of a triple in the results calculated by the Conflict Resolution component during query time, expressed as a number from interval [0,1]
+	\item[Named graph score (\code{odcs:score})] Quality of a~single named graph estimated by the Quality Assesment component and stored in the database, expressed as a~number from interval [0,1]
+	\item[Publisher score] Average score of named graphs from a~publisher
+	\item[Aggregate quality] Quality of a~triple in the results calculated by the Conflict Resolution component during query time, expressed as a~number from interval [0,1]
 \end{glossarylist}
 
 \section*{User Roles}

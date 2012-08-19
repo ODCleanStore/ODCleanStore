@@ -25,7 +25,7 @@ public class InputWSConfigTest {
         Properties properties = Mockito.mock(Properties.class);
 
         Mockito.when(properties.getProperty(GROUP_NAME + ".input_dir_path")).thenReturn("inputWS");
-        Mockito.when(properties.getProperty(GROUP_NAME + ".endpoint_url")).thenReturn("http://localhost:8088/odcleanstore/scraper");
+        Mockito.when(properties.getProperty(GROUP_NAME + ".endpoint_url")).thenReturn("http://localhost:8088/inputws");
         Mockito.when(properties.getProperty(GROUP_NAME + ".clean_jdbc_connection_string")).thenReturn("jdbc:virtuoso://localhost:1113");
         Mockito.when(properties.getProperty(GROUP_NAME + ".clean_jdbc_username")).thenReturn("dba");
         Mockito.when(properties.getProperty(GROUP_NAME + ".clean_jdbc_password")).thenReturn("dba");
@@ -39,7 +39,7 @@ public class InputWSConfigTest {
 
         assertEquals("inputWS" + File.separator, inputWSConfig.getInputDirPath());
 
-        assertEquals(new URL("http://localhost:8088/odcleanstore/scraper"), inputWSConfig.getSparqlEndpointConnectionCredentials()
+        assertEquals(new URL("http://localhost:8088/inputws"), inputWSConfig.getSparqlEndpointConnectionCredentials()
                 .getUrl());
     }
 }
