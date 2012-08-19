@@ -2,6 +2,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.cr;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.PropertySettings;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
 
 import java.util.List;
 
@@ -77,19 +78,26 @@ public class PropertySettingsDao extends DaoForEntityWithSurrogateKey<PropertySe
 	}
 
 	@Override
-	public List<PropertySettings> loadAll() 
+	public List<PropertySettings> loadAllBy(QueryCriteria criteria)
 	{
 		String query = 
-			"SELECT * " +
+			"SELECT " +
+			"	P.id as id, P.property as property, " +
+			"	AT.id as atid, AT.label as atlbl, AT.description as atdescr, " +
+			"	MT.id as mtid, MT.label as mtlbl, MT.description as mtdescr " +
 			"FROM " + PropertySettingsDao.TABLE_NAME + " as P " +
 			"JOIN " + AggregationTypeDao.TABLE_NAME + " as AT " +
 			"ON P.aggregationTypeId = AT.id " +
 			"JOIN " + MultivalueTypeDao.TABLE_NAME + " as MT " +
-			"ON P.multivalueTypeId = MT.id";
+			"ON P.multivalueTypeId = MT.id " +
+			criteria.buildWhereClause() +
+			criteria.buildOrderByClause();
 		
-		return getJdbcTemplate().query(query, getRowMapper());
+		Object[] params = criteria.buildWhereClauseParams();
+		
+		return getJdbcTemplate().query(query, params, getRowMapper());
 	}
-	
+
 	@Override
 	public PropertySettings load(Long id)
 	{
