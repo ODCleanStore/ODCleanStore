@@ -10,61 +10,32 @@ import org.apache.log4j.Logger;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.Service;
-import cz.cuni.mff.odcleanstore.engine.common.ModuleState;
 import cz.cuni.mff.odcleanstore.engine.common.Utils;
 import cz.cuni.mff.odcleanstore.engine.common.Utils.DirectoryException;
 
 /**
  *  @author Petr Jerman
  */
-public final class InputWSService extends Service implements Runnable {
+public final class InputWSService extends Service {
 
 	private static final Logger LOG = Logger.getLogger(InputWSService.class);
 	
-	private Endpoint _endpoint;
+	private Endpoint endpoint;
 
 	public InputWSService(Engine engine) {
-		super(engine);
-	}
-	
-	@Override
-	public void shutdown() {
-		if(_endpoint != null) {
-			_endpoint.stop();
-		}
+		super(engine, "InputWSService");
 	}
 
 	@Override
-	public void run() {
-		try {
-			synchronized (this) {
-				if (getModuleState() != ModuleState.NEW) {
-					return;
-				}
-				LOG.info("InputWSService initializing");
-				setModuleState(ModuleState.INITIALIZING);
-			}
-			initialize();
-			// setModuleState(ModuleState.RECOVERY);
-			recovery();
-			_endpoint = Endpoint.publish(ConfigLoader.getConfig().getInputWSGroup().getEndpointURL().toString(), new InputWS());
-			LOG.info("InputWSService running");
-			setModuleState(ModuleState.RUNNING);
-		} catch (Exception e) {
-			String message = String.format("InputWSService crashed - %s", e.getMessage());
-			LOG.fatal(message);
-			e.printStackTrace();
-			setModuleState(ModuleState.CRASHED);
-		}
-	}
-	
-	private void initialize() throws Exception {
+	protected void initialize() throws Exception {
+		recovery();
 		String inputDirectory =  ConfigLoader.getConfig().getInputWSGroup().getInputDirPath();
 		try {
 			Utils.satisfyDirectory(inputDirectory);
 		} catch (DirectoryException e) {
 			throw new InputWSException("Input directory checking error", e);
 		}
+		endpoint = Endpoint.publish(ConfigLoader.getConfig().getInputWSGroup().getEndpointURL().toString(), new InputWS());
 	}
 
 	private void recovery() throws Exception {
@@ -80,6 +51,13 @@ public final class InputWSService extends Service implements Runnable {
 			}
 			importedInputGraphStates.deleteAllImportingGraphUuids();
 			LOG.info("InputWSService ends recovery");
+		}
+	}
+	
+	@Override
+	public void shutdown() throws Exception {
+		if (endpoint != null) {
+			endpoint.stop();
 		}
 	}
 }

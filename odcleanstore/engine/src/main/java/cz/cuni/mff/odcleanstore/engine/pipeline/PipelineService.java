@@ -1,15 +1,11 @@
 package cz.cuni.mff.odcleanstore.engine.pipeline;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.apache.log4j.Logger;
 
 import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.Service;
+import cz.cuni.mff.odcleanstore.engine.ServiceState;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
-import cz.cuni.mff.odcleanstore.engine.common.ModuleState;
 import cz.cuni.mff.odcleanstore.engine.db.model.GraphStates;
 import cz.cuni.mff.odcleanstore.engine.db.model.PipelineErrorTypes;
 
@@ -21,61 +17,71 @@ public final class PipelineService extends Service implements Runnable {
 	private static final Logger LOG = Logger.getLogger(PipelineService.class);
 	
 	private Object waitForGraphLock;
-	private Set<PipelineGraphTransformerExecutor> activeTransformerExecutors;
+	private Object waitPenaltyLock;
+	private PipelineGraphTransformerExecutor activeTransformerExecutor;
 	
 	public PipelineService(Engine engine) {
-		super(engine);
+		super(engine, "PipelineService");
 		this.waitForGraphLock = new Object();
-		this.activeTransformerExecutors = Collections.synchronizedSet(new HashSet<PipelineGraphTransformerExecutor>());
-	}
-	
-	@Override
-	public void shutdown() {
-		try {
-		}
-		catch(Exception e) {}
+		this.waitPenaltyLock = new Object();
+		this.activeTransformerExecutor = null;
 	}
 
-	public void signalGraphForPipeline() {
+	@Override
+	public void shutdown() throws Exception {
+		synchronized (waitForGraphLock) {
+			waitForGraphLock.notify();
+		}
+		synchronized (waitPenaltyLock) {
+			waitPenaltyLock.notify();
+		}
+		if (activeTransformerExecutor != null) {
+			activeTransformerExecutor.shutdown();
+		}
+	}
+
+	public void notifyAboutGraphForPipeline() {
 		synchronized (waitForGraphLock) {
 			waitForGraphLock.notify();
 		}
 	}
 	
 	private PipelineGraphStatus waitForGraphForPipeline() throws PipelineGraphStatusException, InterruptedException {
-		synchronized (waitForGraphLock) {
-			PipelineGraphStatus pipelineGraphStatus = null;
-			while ((pipelineGraphStatus = PipelineGraphStatus.getNextGraphForPipeline(engineUuid)) == null) {
-				waitForGraphLock.wait();
+		while(getServiceState() == ServiceState.RUNNING) {
+			PipelineGraphStatus status  = PipelineGraphStatus.getNextGraphForPipeline(engine.getEngineUuid());
+			if (status != null) {
+				return status;
 			}
-			return pipelineGraphStatus;
+			synchronized (waitForGraphLock) {
+				if (getServiceState() == ServiceState.RUNNING) {
+					waitForGraphLock.wait();
+				}
+			}
 		}
+		return null;	
 	}
 	
 	@Override
-	public void run() {
-		LOG.info("PipelineService initializing");
-		setModuleState(ModuleState.INITIALIZING);
+	public void execute() {
 		long _waitPenalty = 0;
-		while (true) {
+		while (getServiceState() == ServiceState.RUNNING) {
 			try {
 				if (_waitPenalty > 1) {
-					// TODO to global config
-					Thread.sleep(80000);
+					synchronized (waitPenaltyLock) {
+						if (getServiceState() == ServiceState.RUNNING) {
+							// TODO to global config
+							waitPenaltyLock.wait(80000);
+						}
+					}
 				}
-				LOG.info("PipelineService running");
-				setModuleState(ModuleState.RUNNING);
-				
 				PipelineGraphStatus status = null;				
 				while ((status = waitForGraphForPipeline()) != null) {
 					executePipeline(status);
+					_waitPenalty = 0;
 				}
-				_waitPenalty = 0;
 			} catch (Exception e) {
-				// TODO: try catch this
 					_waitPenalty++;
-					setModuleState(ModuleState.CRASHED);
-					LOG.error(FormatHelper.formatExceptionForLog(e, "PipelineService crashed"));
+					LOG.error(FormatHelper.formatExceptionForLog(e, "Pipeline crashed"));
 			}
 		}
 	}
@@ -84,7 +90,7 @@ public final class PipelineService extends Service implements Runnable {
 			throws PipelineGraphManipulatorException, PipelineGraphTransformerExecutorException, PipelineGraphStatusException {
 		
 		PipelineGraphManipulator manipulator = new PipelineGraphManipulator(status); 
-		while (true) {
+		while (getServiceState() == ServiceState.RUNNING) {
 			switch (status.getState()) {
 				case DELETING:
 					executeStateDeleting(manipulator, status);
@@ -144,8 +150,10 @@ public final class PipelineService extends Service implements Runnable {
 		try {
 			manipulator.loadGraphsIntoDirtyDB();
 		} catch (PipelineGraphManipulatorException e) {
-			String message = FormatHelper.formatExceptionForLog(e, format("data loading failure", status));
-			status.setDirtyState(PipelineErrorTypes.DATA_LOADING_FAILURE, message);
+			if(getServiceState() == ServiceState.RUNNING) {
+				String message = FormatHelper.formatExceptionForLog(e, format("data loading failure", status));
+				status.setDirtyState(PipelineErrorTypes.DATA_LOADING_FAILURE, message);
+			}
 			throw e; 		
 		}
 	}
@@ -153,20 +161,18 @@ public final class PipelineService extends Service implements Runnable {
 	private void executeStateProcessingTransformers(PipelineGraphStatus status)
 			throws PipelineGraphTransformerExecutorException, PipelineGraphStatusException  {
 
-		PipelineGraphTransformerExecutor executor = null;
 		try {
-			executor = new PipelineGraphTransformerExecutor(status);
-			this.activeTransformerExecutors.add(executor);
-			executor.execute();
+			this.activeTransformerExecutor = new PipelineGraphTransformerExecutor(status);
+			activeTransformerExecutor.execute();
 		} catch (PipelineGraphTransformerExecutorException e) {
-			String message = FormatHelper.formatExceptionForLog(e, format("transformer processing failure", status));
-			status.setDirtyState(PipelineErrorTypes.TRANSFORMER_FAILURE, message);
+			if(getServiceState() == ServiceState.RUNNING) {
+				String message = FormatHelper.formatExceptionForLog(e, format("transformer processing failure", status));
+				status.setDirtyState(PipelineErrorTypes.TRANSFORMER_FAILURE, message);
+			}
 			throw e;
 		}
 		finally {
-			if (executor != null) {
-				this.activeTransformerExecutors.remove(executor);
-			}
+			this.activeTransformerExecutor = null;
 		}
 	}
 	

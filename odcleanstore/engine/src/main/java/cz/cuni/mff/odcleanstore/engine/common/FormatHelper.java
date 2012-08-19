@@ -72,25 +72,13 @@ public class FormatHelper {
 				sb.append(exception.getClass().getSimpleName());
 				sb.append(" - ");
 				sb.append(exception.getMessage());
-				String prev = null;
-				int cc = 0;
 				for(int i = exception.getStackTrace().length - 1; i >=0 ; i--) {
 					StackTraceElement st = exception.getStackTrace()[i];
 					String row = st.toString();
-					if(row.startsWith(ODCS_NAMESPACE)) {
-						if (prev != null) {
-							cc++;
+					if(row.startsWith(ODCS_NAMESPACE) && rows.add(row)) {
 							sb.append("\n              ");
-							sb.append(prev);
-						}
-						if (rows.add(row)) {
-							prev = row;
-						}
+							sb.append(row);
 					}
-				}
-				if (cc == 0) {
-					sb.append("\n              ");
-					sb.append(prev);
 				}
 				exception = exception.getCause();
 			}

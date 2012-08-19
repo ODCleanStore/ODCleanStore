@@ -15,6 +15,7 @@ import cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.Transformer;
+import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 
 public class PipelineGraphTransformerExecutor {
 	
@@ -37,6 +38,13 @@ public class PipelineGraphTransformerExecutor {
 	
 	PipelineGraphTransformerExecutor(PipelineGraphStatus graphStatus) {
 		this.graphStatus = graphStatus;
+	}
+	
+	void shutdown() throws TransformerException {
+		Transformer transformer = currentTransformer;
+		if (transformer != null) {
+			currentTransformer.shutdown();
+		}
 	}
 
 	void execute() throws PipelineGraphTransformerExecutorException {
