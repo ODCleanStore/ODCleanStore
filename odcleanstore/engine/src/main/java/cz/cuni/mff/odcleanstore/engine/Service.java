@@ -11,19 +11,21 @@ import cz.cuni.mff.odcleanstore.engine.common.ModuleState;
  */
 public abstract class Service extends Module {
 	
-	private final Engine _engine;
+	private final Engine engine;
+	protected final String engineUuid;
 
 	protected Service(Engine engine) {
 		if (engine == null) {
 			throw new IllegalArgumentException();
 		}
-		this._engine = engine;
+		this.engine = engine;
+		this.engineUuid = engine.getEngineUuid();
 	}
 
 	@Override
 	protected final void setModuleState(ModuleState _moduleState) {
 		super.setModuleState(_moduleState);
-		_engine.onServiceStateChanged(this);
+		engine.onServiceStateChanged(this);
 	}
 	
 	public abstract void shutdown(); 

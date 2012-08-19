@@ -1,28 +1,17 @@
 package cz.cuni.mff.odcleanstore.engine.pipeline;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.ObjectInputStream;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import cz.cuni.mff.odcleanstore.configuration.BackendConfig;
-import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
-import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.engine.Engine;
-import cz.cuni.mff.odcleanstore.engine.InputGraphState;
 import cz.cuni.mff.odcleanstore.engine.Service;
+import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
 import cz.cuni.mff.odcleanstore.engine.common.ModuleState;
-import cz.cuni.mff.odcleanstore.engine.common.Utils;
-import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.Metadata;
-import cz.cuni.mff.odcleanstore.transformer.Transformer;
-import cz.cuni.mff.odcleanstore.vocabulary.DC;
-import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
-import cz.cuni.mff.odcleanstore.vocabulary.W3P;
+import cz.cuni.mff.odcleanstore.engine.db.model.GraphStates;
+import cz.cuni.mff.odcleanstore.engine.db.model.PipelineErrorTypes;
 
 /**
  *  @author Petr Jerman
@@ -31,321 +20,185 @@ public final class PipelineService extends Service implements Runnable {
 
 	private static final Logger LOG = Logger.getLogger(PipelineService.class);
 	
-	private TransformedGraphStatus _workingInputGraphStatus;
-	private TransformedGraphManipulation _workingInputGraph;
+	private Object waitForGraphLock;
+	private Set<PipelineGraphTransformerExecutor> activeTransformerExecutors;
 	
-	private int _pipelineWaitPenalty = 0;
-	
-	private Transformer _currentTransformer;
-
 	public PipelineService(Engine engine) {
 		super(engine);
+		this.waitForGraphLock = new Object();
+		this.activeTransformerExecutors = Collections.synchronizedSet(new HashSet<PipelineGraphTransformerExecutor>());
 	}
 	
 	@Override
 	public void shutdown() {
 		try {
-			Transformer currentTransformer = _currentTransformer; 
-			if (currentTransformer != null) {
-				currentTransformer.shutdown();
-			}
 		}
 		catch(Exception e) {}
 	}
 
-	private Object fromInputWSLocks = new Object();
-
-	public void signalInput() {
-		synchronized (fromInputWSLocks) {
-			fromInputWSLocks.notify();
+	public void signalGraphForPipeline() {
+		synchronized (waitForGraphLock) {
+			waitForGraphLock.notify();
 		}
 	}
-
-	private String waitForInput() {
-		synchronized (fromInputWSLocks) {
-			try {
-				String uuid;
-				for (uuid = _workingInputGraphStatus.getNextProcessingGraphUuid(); uuid == null; uuid = _workingInputGraphStatus.getNextProcessingGraphUuid()) {
-					fromInputWSLocks.wait();
-				}
-				return uuid;
-			} catch (Exception e) {
-				return null;
+	
+	private PipelineGraphStatus waitForGraphForPipeline() throws PipelineGraphStatusException, InterruptedException {
+		synchronized (waitForGraphLock) {
+			PipelineGraphStatus pipelineGraphStatus = null;
+			while ((pipelineGraphStatus = PipelineGraphStatus.getNextGraphForPipeline(engineUuid)) == null) {
+				waitForGraphLock.wait();
 			}
+			return pipelineGraphStatus;
 		}
 	}
 	
 	@Override
 	public void run() {
+		LOG.info("PipelineService initializing");
+		setModuleState(ModuleState.INITIALIZING);
+		long _waitPenalty = 0;
 		while (true) {
 			try {
-				synchronized (this) {
-					if (getModuleState() != ModuleState.NEW && getModuleState() != ModuleState.CRASHED) {
-						return;
-					}
-					
-					Thread.sleep(_pipelineWaitPenalty);
-					// TODO pridat parametr do config
-					_pipelineWaitPenalty = 30000;
-
-					LOG.info("PipelineService initializing");
-					setModuleState(ModuleState.INITIALIZING);
+				if (_waitPenalty > 1) {
+					// TODO to global config
+					Thread.sleep(80000);
 				}
-
-				_workingInputGraphStatus = new TransformedGraphStatus("DB.ODCLEANSTORE");
-				_workingInputGraph = new TransformedGraphManipulation();
-
-				String graphsForRecoveryUuid = _workingInputGraphStatus.getWorkingTransformedGraphUuid();
-				if (graphsForRecoveryUuid != null) {
-					LOG.info("PipelineService starts recovery");
-					setModuleState(ModuleState.RECOVERY);
-					
-					recovery(graphsForRecoveryUuid);
-				}
-				
-				_pipelineWaitPenalty = 0;
 				LOG.info("PipelineService running");
 				setModuleState(ModuleState.RUNNING);
-				runPipeline();
-				LOG.info("PipelineService stopped");
-				setModuleState(ModuleState.STOPPED);
-
+				
+				PipelineGraphStatus status = null;				
+				while ((status = waitForGraphForPipeline()) != null) {
+					executePipeline(status);
+				}
+				_waitPenalty = 0;
 			} catch (Exception e) {
-				_workingInputGraphStatus.setWorkingTransformedGraph(null);
-				String message = String.format("PipelineService crashed - %s", e.getMessage());
-				LOG.error(message);
-				e.printStackTrace();
-				setModuleState(ModuleState.CRASHED);
+				// TODO: try catch this
+					_waitPenalty++;
+					setModuleState(ModuleState.CRASHED);
+					LOG.error(FormatHelper.formatExceptionForLog(e, "PipelineService crashed"));
 			}
 		}
 	}
 	
-	private void recovery(String uuid) throws Exception {
+	private void executePipeline(PipelineGraphStatus status) 
+			throws PipelineGraphManipulatorException, PipelineGraphTransformerExecutorException, PipelineGraphStatusException {
 		
-		int state = _workingInputGraphStatus.getState(uuid);
-		BackendConfig backendConfig = ConfigLoader.getConfig().getBackendGroup();
-
-		switch (state) {
-		case InputGraphState.PROCESSING:
-			_workingInputGraph.deleteGraphsFromDirtyDB(_workingInputGraphStatus.getWorkingAttachedGraphNames());
-			_workingInputGraph.deleteGraphFromDirtyDB(backendConfig.getDataGraphURIPrefix() + uuid);
-			_workingInputGraph.deleteGraphFromDirtyDB(backendConfig.getMetadataGraphURIPrefix() + uuid);
-			_workingInputGraph.deleteGraphFromDirtyDB(backendConfig.getProvenanceMetadataGraphURIPrefix() + uuid);
-
-			_workingInputGraphStatus.deleteWorkingAttachedGraphNames();
-			_workingInputGraphStatus.setState(uuid, InputGraphState.QUEUED);
-			LOG.info("PipelineService ends recovery from interrupted processing");
-			break;
-		case InputGraphState.PROCESSED:
-			processProcessedState(uuid);
-		case InputGraphState.PROPAGATED:
-			processPropagatedState(uuid);
-			LOG.info("PipelineService ends recovery from interrupted copying graph from dirty to clean database instance");
-			break;
-		case InputGraphState.QUEUED_FOR_DELETE:
-			processDeletingState(uuid);
-			LOG.info("PipelineService ends recovery from interrupted deleting graph");
-			break;
-		case InputGraphState.DIRTY:
-			_workingInputGraph.deleteGraphsFromDirtyDB(_workingInputGraphStatus.getWorkingAttachedGraphNames());
-			_workingInputGraph.deleteGraphFromDirtyDB(backendConfig.getDataGraphURIPrefix() + uuid);
-			_workingInputGraph.deleteGraphFromDirtyDB(backendConfig.getMetadataGraphURIPrefix() + uuid);
-			_workingInputGraph.deleteGraphFromDirtyDB(backendConfig.getProvenanceMetadataGraphURIPrefix() + uuid);
-			
-			_workingInputGraphStatus.deleteWorkingAttachedGraphNames();
-			_workingInputGraphStatus.setState(uuid, InputGraphState.WRONG);
-			LOG.info("PipelineService ends recovery from crashed pipeline proccesing");
-			break;
-		}
-	}
-
-	private void runPipeline() throws Exception {
-		String uuid = null;
-
-		while ((uuid = waitForInput()) != null) {
-			TransformedGraphImpl transformedGraphImpl = null;
-			
-			try {
-				LOG.info(String.format("PipelineService starts processing graph %s", uuid));
-				int dbKeyId = _workingInputGraphStatus.getGraphDbKeyId(uuid);
-				int pipelineId = _workingInputGraphStatus.getGraphPipelineId(uuid);
-				Collection<TransformerCommand> TransformerCommands = TransformerCommand.getActualPlan("DB.ODCLEANSTORE", pipelineId);
-				loadData(uuid);
-				LOG.info(String.format("PipelineService ends data loading for graph %s", uuid));
-				for (TransformerCommand transformerCommand : TransformerCommands) {
-					transformedGraphImpl = transformedGraphImpl == null ? new TransformedGraphImpl(_workingInputGraphStatus, dbKeyId, uuid) : new TransformedGraphImpl(transformedGraphImpl);
-					processTransformer(transformerCommand, transformedGraphImpl);
-					if (transformedGraphImpl.isDeleted()) {
-						break;
-					}
-				}
-			} catch (Exception e) {
-				_workingInputGraphStatus.setWorkingTransformedGraph(null);
-				_workingInputGraphStatus.setState(uuid, InputGraphState.DIRTY);
-				throw e;
-			}
-
-			if (transformedGraphImpl != null && transformedGraphImpl.isDeleted()) {
-				processDeletingState(uuid);
-			} else {
-				_workingInputGraphStatus.setState(uuid, InputGraphState.PROCESSED);
-				processProcessedState(uuid);
-				processPropagatedState(uuid);
-			}
-		}
-	}
-
-	private void loadData(String uuid) throws Exception {
-		BackendConfig backendConfig = ConfigLoader.getConfig().getBackendGroup();
-		
-		FileInputStream fin = null;
-		ObjectInputStream ois = null;
-		String inserted = null;
-		Metadata metadata = null;
-		String payload = null;
-		try {
-			String inputDirPath = ConfigLoader.getConfig().getInputWSGroup().getInputDirPath();
-			fin = new FileInputStream(inputDirPath + uuid + ".dat");
-			ois = new ObjectInputStream(fin);
-			inserted = (String) ois.readObject();
-			metadata = (Metadata) ois.readObject();
-			payload = (String) ois.readObject();
-		} finally {
-			if (ois != null) {
-				ois.close();
-			}
-			if (fin != null) {
-				fin.close();
-			}
-		}
-
-		VirtuosoConnectionWrapper con = null;
-		try {
-			con = VirtuosoConnectionWrapper.createTransactionalLevelConnection(ConfigLoader.getConfig().getBackendGroup().getDirtyDBJDBCConnectionCredentials());
-			String dataGraphURI = backendConfig.getDataGraphURIPrefix() + uuid;
-			String metadataGraphURI = backendConfig.getMetadataGraphURIPrefix() + uuid;
-			String provenanceGraphURI = backendConfig.getProvenanceMetadataGraphURIPrefix() + uuid;
-
-			con.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.metadataGraph + ">", "<" + metadataGraphURI + ">", "<" + metadataGraphURI + ">");
-			
-			con.insertQuad("<" + dataGraphURI + ">", "<" + W3P.insertedAt + ">", inserted, "<" + metadataGraphURI + ">");
-			con.insertQuad("<" + dataGraphURI + ">", "<" + W3P.insertedBy + ">", "'scraper'", "<" + metadataGraphURI + ">");
-			for (String source : metadata.source) {
-				con.insertQuad("<" + dataGraphURI + ">", "<" + W3P.source + ">", "<" + source + ">", "<" + metadataGraphURI + ">");
-			}
-			for (String publishedBy : metadata.publishedBy) {
-				con.insertQuad("<" + dataGraphURI + ">", "<" + W3P.publishedBy + ">", "<" + publishedBy + ">", "<" + metadataGraphURI + ">");
-			}
-			if (metadata.license != null) {
-				for (String license : metadata.license) {
-					con.insertQuad("<" + dataGraphURI + ">", "<" + DC.license + ">", "<" + license + ">", "<" + metadataGraphURI + ">");
-				}
-			}
-			if (metadata.provenance != null) {
-				con.insertRdfXmlOrTtl(metadata.dataBaseUrl, metadata.provenance, provenanceGraphURI);
-				con.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.provenanceMetadataGraph + ">", "<" + provenanceGraphURI + ">", "<" + metadataGraphURI + ">");
-			}
-			con.insertRdfXmlOrTtl(metadata.dataBaseUrl, payload, dataGraphURI);
-			con.commit();
-		} finally {
-			if (con != null) {
-				con.close();
+		PipelineGraphManipulator manipulator = new PipelineGraphManipulator(status); 
+		while (true) {
+			switch (status.getState()) {
+				case DELETING:
+					executeStateDeleting(manipulator, status);
+					break;
+				case PROCESSING:
+					executeStateProcessing(manipulator, status);
+					break;
+				case PROCESSED:
+					executeStateProcessed(manipulator, status);
+					break;
+				case PROPAGATED:
+					executeStatePropagated(manipulator, status);
+					break;
+				case DIRTY:
+					executeStateDirty(manipulator, status);
+					break;
+				default:
+					return;
 			}
 		}
 	}
 	
-	private Transformer loadCustomTransformer(TransformerCommand transformerCommand) throws Exception {
-		
-		URL url = new File(transformerCommand.getJarPath()).toURI().toURL();
-		URLClassLoader loader = new URLClassLoader(new URL[]{url}, getClass().getClassLoader());
-		Class<?> trida = Class.forName(transformerCommand.getFullClassName(), true, loader);
-		Object obj = trida.getConstructor(new Class[]{}).newInstance(new Object[]{});
-		return  obj instanceof Transformer ? (Transformer) obj : null;
-	}
+	private void executeStateDeleting(PipelineGraphManipulator manipulator, PipelineGraphStatus status)
+			throws PipelineGraphManipulatorException, PipelineGraphStatusException {
 
-	private void processTransformer(TransformerCommand transformerCommand, TransformedGraphImpl transformedGraphImpl) throws Exception {
-		_currentTransformer = null;
+		LOG.info(format("deleting started", status));
+		manipulator.deleteGraphsInCleanDB();
+		manipulator.deleteGraphsInDirtyDB();
+		manipulator.deleteInputFile();
+		status.setNoDirtyState(GraphStates.DELETED);
+		LOG.info(format("deleting successfully finished", status));
+	}
+	
+	private void executeStateProcessing(PipelineGraphManipulator manipulator, PipelineGraphStatus status)
+			throws PipelineGraphManipulatorException, PipelineGraphStatusException, PipelineGraphTransformerExecutorException {
 		
-		if (!transformerCommand.getJarPath().equals(".")) {
-			_currentTransformer = loadCustomTransformer(transformerCommand);
+		LOG.info(format("processing in dirty db started", status));
+		manipulator.deleteGraphsInDirtyDB();
+		if (!status.isInCleanDb()) {
+			status.deleteAttachedGraphs();
+		}
+		executeStateProcessingLoadData(manipulator, status);
+		executeStateProcessingTransformers(status);
+		if (status.isMarkedForDeleting()) {
+			status.setNoDirtyState(GraphStates.DELETING);
+			LOG.info(format("processing in dirty db successfully finished, graph is marked for deleting", status));
 		}
 		else {
-			if (transformerCommand.getFullClassName().equals("cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl")) {
-				_currentTransformer = new cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl(ConfigLoader.getConfig().getObjectIdentificationConfig());
-			} else if (transformerCommand.getFullClassName().equals("cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl")) {
-				//TODO: This is HOTFIX. Engine needs to pass proper groupIds or groupLabels in constructor of QAImpl
-				//This only makes common ids be selected (as groupId is IDENTITY (AUTOINCREMENT starting at 1))
-				_currentTransformer = new cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl(0, 1, 2, 3, 4, 5);
-			}	
-		}
-
-		if (_currentTransformer != null) {
-			String path = checkTransformerWorkingDirectory(transformerCommand.getWorkDirPath());
-			TransformationContextImpl context = new TransformationContextImpl(transformerCommand.getConfiguration(), path);
-
-			_workingInputGraphStatus.setWorkingTransformedGraph(transformedGraphImpl);
-			_currentTransformer.transformNewGraph(transformedGraphImpl, context);
-			_currentTransformer.shutdown();
-			_currentTransformer = null;
-			LOG.info(String.format("PipelineService ends proccesing %s transformer on graph %s", transformerCommand.getFullClassName(), transformedGraphImpl.getGraphId()));
-			_workingInputGraphStatus.setWorkingTransformedGraph(null);
-		} else {
-			LOG.warn(String.format("PipelineService - unknown transformer %s ignored", transformerCommand.getFullClassName()));
+			status.setNoDirtyState(GraphStates.PROCESSED);
+			LOG.info(format("processing in dirty db successfully finished", status));
 		}
 	}
 	
-	private String checkTransformerWorkingDirectory(String dirName) throws PipelineException {
+	private void executeStateProcessingLoadData(PipelineGraphManipulator manipulator, PipelineGraphStatus status)
+			throws PipelineGraphManipulatorException, PipelineGraphStatusException {
+
 		try {
-			return Utils.satisfyDirectory(dirName);
-		} catch (Utils.DirectoryException e) {
-			throw new PipelineException("Transformer working directory checking error", e);
+			manipulator.loadGraphsIntoDirtyDB();
+		} catch (PipelineGraphManipulatorException e) {
+			String message = FormatHelper.formatExceptionForLog(e, format("data loading failure", status));
+			status.setDirtyState(PipelineErrorTypes.DATA_LOADING_FAILURE, message);
+			throw e; 		
 		}
 	}
+	
+	private void executeStateProcessingTransformers(PipelineGraphStatus status)
+			throws PipelineGraphTransformerExecutorException, PipelineGraphStatusException  {
 
-	private void processDeletingState(String uuid) throws Exception {
-		BackendConfig backendConfig = ConfigLoader.getConfig().getBackendGroup();
-		ArrayList<String> graphs = new ArrayList<String>();
-		graphs.addAll(_workingInputGraphStatus.getWorkingAttachedGraphNames());
-		graphs.add(backendConfig.getDataGraphURIPrefix() + uuid);
-		graphs.add(backendConfig.getMetadataGraphURIPrefix() + uuid);
-		graphs.add(backendConfig.getProvenanceMetadataGraphURIPrefix() + uuid);
-		_workingInputGraph.deleteGraphsFromDirtyDB(graphs);
+		PipelineGraphTransformerExecutor executor = null;
+		try {
+			executor = new PipelineGraphTransformerExecutor(status);
+			this.activeTransformerExecutors.add(executor);
+			executor.execute();
+		} catch (PipelineGraphTransformerExecutorException e) {
+			String message = FormatHelper.formatExceptionForLog(e, format("transformer processing failure", status));
+			status.setDirtyState(PipelineErrorTypes.TRANSFORMER_FAILURE, message);
+			throw e;
+		}
+		finally {
+			if (executor != null) {
+				this.activeTransformerExecutors.remove(executor);
+			}
+		}
+	}
+	
+	private void executeStateProcessed(PipelineGraphManipulator manipulator, PipelineGraphStatus status) 
+			throws PipelineGraphManipulatorException, PipelineGraphStatusException {
 		
-		String inputDirPath = ConfigLoader.getConfig().getInputWSGroup().getInputDirPath();
-		File inputFile = new File(inputDirPath + uuid + ".dat");
-		inputFile.delete();
-		
-		_workingInputGraphStatus.deleteGraphAndWorkingAttachedGraphNames(uuid);
-		LOG.info(String.format("PipelineService ends deleting graph %s", uuid));
+		LOG.info(format("replacing from dirty to clean db started", status));
+		manipulator.replaceGraphsInCleanDBFromDirtyDB();
+		status.setNoDirtyState(GraphStates.PROPAGATED);
+		LOG.info(format("replacing from dirty to clean db successfully finished", status));
 	}
 
-	private void processProcessedState(String uuid) throws Exception {
-		BackendConfig backendConfig = ConfigLoader.getConfig().getBackendGroup();
-		ArrayList<String> graphs = new ArrayList<String>();
-		graphs.addAll(_workingInputGraphStatus.getWorkingAttachedGraphNames());
-		graphs.add(backendConfig.getDataGraphURIPrefix() + uuid);
-		graphs.add(backendConfig.getMetadataGraphURIPrefix() + uuid);
-		graphs.add(backendConfig.getProvenanceMetadataGraphURIPrefix() + uuid);
+	private void executeStatePropagated(PipelineGraphManipulator manipulator, PipelineGraphStatus status)
+			throws PipelineGraphManipulatorException, PipelineGraphStatusException {
 
-		_workingInputGraph.copyGraphsFromDirtyDBToCleanDB(graphs);
-
-		_workingInputGraphStatus.setState(uuid, InputGraphState.PROPAGATED);
+		LOG.info(format("cleaning dirty db after moving graph to clean db started", status));
+		manipulator.deleteGraphsInDirtyDB();
+		manipulator.deleteInputFile();
+		status.setNoDirtyState(GraphStates.FINISHED);
+		LOG.info(format("pipeline for graph successfully finished", status));
 	}
 
-	private void processPropagatedState(String uuid) throws Exception {
-		BackendConfig backendConfig = ConfigLoader.getConfig().getBackendGroup();
-		ArrayList<String> graphs = new ArrayList<String>();
-		graphs.addAll(_workingInputGraphStatus.getWorkingAttachedGraphNames());
-		graphs.add(backendConfig.getDataGraphURIPrefix() + uuid);
-		graphs.add(backendConfig.getMetadataGraphURIPrefix() + uuid);
-		graphs.add(backendConfig.getProvenanceMetadataGraphURIPrefix() + uuid);
-		_workingInputGraph.deleteGraphsFromDirtyDB(graphs);
-		
-		String inputDirPath = ConfigLoader.getConfig().getInputWSGroup().getInputDirPath();
-		File inputFile = new File(inputDirPath + uuid + ".dat");
-		inputFile.delete();
+	private void executeStateDirty(PipelineGraphManipulator manipulator, PipelineGraphStatus status)
+			throws PipelineGraphManipulatorException, PipelineGraphStatusException {
 
-		_workingInputGraphStatus.setState(uuid, InputGraphState.FINISHED);
-		LOG.info(String.format("PipelineService has finished graph %s", uuid));
+		LOG.info(format("cleaning dirty graph started", status));
+		manipulator.deleteGraphsInDirtyDB();
+		status.setNoDirtyState(GraphStates.WRONG);
+		LOG.info(format("cleaning dirty graph successfully finished, graph moved to WRONG state", status));
+	}
+	
+	private String format(String message, PipelineGraphStatus status) {
+		return FormatHelper.formatGraphMessage(message, status.getUuid());
 	}
 }

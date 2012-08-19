@@ -7,7 +7,6 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
-import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.engine.common.Module;
 import cz.cuni.mff.odcleanstore.engine.common.ModuleState;
 import cz.cuni.mff.odcleanstore.engine.inputws.InputWSService;
@@ -62,7 +61,7 @@ public final class Engine extends Module {
 	private void init(String[] args) throws Exception {
 		checkJavaVersion();
 		loadConfiguration(args);
-	
+			
 		_executor = new ScheduledThreadPoolExecutor(4);
 
 		_outputWSService = new OutputWSService(this);
@@ -88,7 +87,7 @@ public final class Engine extends Module {
 			}
 		}
 	}
-	
+
 	private void shutdown() {
 		try {
 			// TODO pridat timeout a parametr do config
@@ -106,9 +105,7 @@ public final class Engine extends Module {
 			if(_outputWSService != null) {
 				_outputWSService.shutdown();
 			}
-			
-		    VirtuosoConnectionWrapper.shutdown();
-			
+		
 			LOG.info("Engine shutdown");
 			LogManager.shutdown();
 		} catch (Exception e) {
@@ -160,7 +157,12 @@ public final class Engine extends Module {
 
 	public static void signalToPipelineService() {
 		if (_engine != null && _engine._pipelineService != null) {
-			_engine._pipelineService.signalInput();
+			_engine._pipelineService.signalGraphForPipeline();
 		}
+	}
+	
+	public String getEngineUuid() {
+		// TODO secure by caller
+		return "88888888-8888-8888-8888-888888888888";
 	}
 }

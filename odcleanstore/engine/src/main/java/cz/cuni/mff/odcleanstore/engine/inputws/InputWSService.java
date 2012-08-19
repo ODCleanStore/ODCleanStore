@@ -45,7 +45,7 @@ public final class InputWSService extends Service implements Runnable {
 				setModuleState(ModuleState.INITIALIZING);
 			}
 			initialize();
-			setModuleState(ModuleState.RECOVERY);
+			// setModuleState(ModuleState.RECOVERY);
 			recovery();
 			_endpoint = Endpoint.publish(ConfigLoader.getConfig().getInputWSGroup().getEndpointURL().toString(), new InputWS());
 			LOG.info("InputWSService running");
@@ -53,6 +53,7 @@ public final class InputWSService extends Service implements Runnable {
 		} catch (Exception e) {
 			String message = String.format("InputWSService crashed - %s", e.getMessage());
 			LOG.fatal(message);
+			e.printStackTrace();
 			setModuleState(ModuleState.CRASHED);
 		}
 	}
