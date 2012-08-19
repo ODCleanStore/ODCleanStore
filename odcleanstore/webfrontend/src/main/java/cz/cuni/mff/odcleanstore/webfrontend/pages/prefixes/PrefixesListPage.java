@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.prefixes;
 
+import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
@@ -9,7 +10,10 @@ import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.prefixes.Prefix;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.prefixes.PrefixDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
@@ -37,15 +41,9 @@ public class PrefixesListPage extends FrontendPage
 		addPrefixesTable();
 	}
 	
-	/*
-	 	=======================================================================
-	 	Implementace transformersTable
-	 	=======================================================================
-	*/
-	
 	private void addPrefixesTable()
 	{
-		IDataProvider<Prefix> data = new PrefixDataProvider(prefixMappingDao);
+		SortableDataProvider<Prefix> data = new SortablePrefixDataProvider(prefixMappingDao, "NS_PREFIX");
 		
 		DataView<Prefix> dataView = new DataView<Prefix>("prefixesTable", data)
 		{
@@ -67,6 +65,9 @@ public class PrefixesListPage extends FrontendPage
 		
 		dataView.setItemsPerPage(10);
 
+		add(new SortTableButton<Prefix>("sortByPrefix", "NS_PREFIX", data, dataView));
+		add(new SortTableButton<Prefix>("sortByURL", "NS_URL", data, dataView));
+		
 		add(dataView);
 		
 		add(new PagingNavigator("navigator", dataView));
