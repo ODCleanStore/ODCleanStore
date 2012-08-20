@@ -77,7 +77,7 @@ ODCleanStore consists of \term{Engine}, \term{Input Webservice} and \term{Output
 The lifecycle of data inside ODCleanStore is as follows:
 
 \begin{enumerate}
-  \item RDF data (and additional metadata) is accepted by Input Webservice and stored as a~single named graph to the \term{dirty database}. Data can be uploaded by any third-party application registered in ODCleanStore.
+  \item RDF data (and additional metadata) is accepted by Input Webservice and stored as a~named graph to the \term{dirty database}. Data can be uploaded by any third-party application registered in ODCleanStore.
   \item Engine successively processes named graphs in the dirty database by applying a~pipeline of transformers to it; the applied pipeline is selected according to the input metadata.
   \item Each transformer in the pipeline may modify the named graph or attach new related named graphs (such as named graph with mappings to other resources or results of quality assessment).
   \item When the pipeline finishes, the augmented RDF data are populated to the \term{clean database} together with any auxiliary data and metadata created during the pipeline execution.
@@ -194,11 +194,172 @@ Data consumers accessing the Output Webservice (see Section \ref{sec:outputWS}) 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \chapter{Web Services}
-
 \section{Web Services Overview}
+ODCleanStore communicates with third-party applications via webservices. Data producers can store data to ODCleanStore through \term{Input Webservice}, while data consumers may use \term{Output Webservice} to query the stored \& processed data. In addition, stored data can be accessed through a~public SPARQL endpoint. Input Webservice requires authorization, Output Webservice and the SPARQL endpoint do not.
 
 \section{Data Producer}
 \label{sec:inputWS}
+
+New data can be stored to ODCleanStore through Input Webservice, a~SOAP multithreaded webservice that accepts RDF data serialized as RDF/XML\footnote{\url{http://www.w3.org/TR/rdf-syntax-grammar/}} or TTL\footnote{TTL or Turtle -- Terse RDF Triple Language; \url{http://www.w3.org/TeamSubmission/turtle/}} and additional metadata. The webservice requires authorization with a~valid user name and password.
+
+The location of Input Webservice can be configured by the \code{input\_ws.endpoint\_url} configuration option (see \refadmimanual); by default, it is:
+\begin{center}
+\varcode{host}\code{:8080/inputws}
+\end{center}
+
+See Section \ref{sec:inputProcessing} for more information about how the inserted data is processed and stored.
+
+\subsection{Request parameters}
+\label{sec:inputWSParams}
+
+Table \ref{tbl:inputWSParams} enumerates parameters of Input Webservice. All the parameters are required.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|l|l|}
+	\hline
+	Name & Description & Type \\
+	\hline \hline
+	\code{user} & user login name & \vartext{string}  \\
+	\hline
+	\code{password} & user password  & \vartext{string} \\
+	\hline
+	\code{payload} & inserted data serialized as RDF/XML or TTL & \vartext{string} \\
+	\hline
+	\code{metadata} & metadata about \code{payload} & see Table \ref{tbl:inputWSMetadata} \\
+	\hline
+\end{tabular}
+\caption{Input Webservice parameters}
+\label{tbl:inputWSParams}
+\end{table}
+
+\subsubsection{Metadata}
+Table \ref{tbl:inputWSMetadata} lists fields that the \code{metadata} parameter consists of.
+
+\begin{table}[h!]
+\centering
+\begin{tabularx}{\textwidth}{|l|X|p{2.2cm}|c|}
+	\hline
+	Name & Description & Type & Cardinality\\
+	\hline \hline
+	\code{uuid} & UUID string unique for the current request & UUID & 1 \\
+	\hline
+	\code{dataBaseUrl} & base URI for resolution of relative URIs in \code{payload} & URI & 1 \\
+	\hline
+	\code{source} & location of where the data were retrieved from & URI & 1..* \\
+	\hline
+	\code{publishedBy} & identifier(s) of the publisher(s) of the data & URI & 1..* \\
+	\hline
+	\code{license} & license(s) under which the data are published & URI & 0..* \\
+	\hline
+	\code{provenance} & additional provenance metadata serialized as RDF/XML or TTL & RDF/XML\newline or TTL & 0..1 \\
+    \hline
+	\code{pipelineName} & identifier of the pipeline that should process the inserted data & \vartext{string} & 0..1  \\
+	\hline
+\end{tabularx}
+\caption{Input Webservice \code{metadata} fields}
+\label{tbl:inputWSMetadata}
+\end{table}
+
+Each request is identified by a~unique UUID generated on the client side and sent in the \code{uuid} field.
+The client side is responsible for generating different UUIDs for new requests.
+UUID doesn't change during the shole message transfer nor in case of a~repeated request after an exception.
+\todo{PJ: popsat proč a jak; doplnit popis odolnosti vůči vícenásobným uuid}
+
+The \code{dataBaseUrl} field is the base URI for \code{payload}.
+
+The \code{source} field is a~list or URIs the data were retrieved from. Typically, this would be URI(s) of webpage(s) the data were scraped from but in general it can be any URI.
+
+The \code{publishedBy} field is a~list of URIs representing the publisher of the data. It can be a~well known URI, or, for example, the host part of the source URI (e.g. \linebreak[4]\code{http://en.wikipedia.org/} for data scraped from the English Wikipedia).
+
+The \code{license} field may specify URI(s) representing the licence(s) under which \code{payload} contents and any additional  metadata being inserted are published. 
+
+The optional \code{provenance} field can contain additional RDF provenance metadata about contents of \code{payload}.\footnote{The suggested vocabulary for these purposes is W3P (\url{http://code.google.com/p/od-w3p/})} Base URI for the provenance metadata is the URI of the named graph where \code{payload} is stored in ODCleanStore.
+
+The optional \code{pipelineName} field can contain a~string identifier of an existing pipeline in ODCleanStore that should be used to process the inserted data. If omitted, the default pipeline is used. \todo{reference na příslušnou sekci Admin manual}
+
+\subsection{Exceptions}
+\todo{PJ: nejsem si jistý, jak u WS výjimky fungují -> upravit, aby to odpovídalo skutečnosti, doplnit a učesat}
+
+Error during a~request to Input Webservice is indicated by throwing an exception. Table \ref{tbl:inputWSExceptions} summarizes exceptions that can occur. In case of such exception, no data or \code{uuid} value for the interrupted request are stored.
+
+\todo{PJ: jak se indikuje úspěch?}
+
+\begin{table}[h!]
+\centering
+\begin{tabularx}{\textwidth}{|l|c|X|}
+	\hline
+	Exception & Code & Description \\
+	\hline \hline
+	SERVICE\_BUSY & 1 & Service busy -- occurs when maximum limit of concurrent connections is exceeded \\
+	\hline
+	BAD\_CREDENTIALS & 2 & Bad credentials (invalid \code{user} or \code{password}) \\
+	\hline
+	NOT\_AUTHORIZED & 3 & Not authorized -- user doesn't have SCR role \mbox{assigned} \\
+	\hline
+	DUPLICATED\_UUID & 4 & Duplicate uuid -- another request with the same \code{uuid} value has already successfully finished\\
+	\hline
+	UUID\_BAD\_FORMAT & 5 & Wrong format of the \code{uuid} field\\
+	\hline
+	UNKNOWN\_PIPELINENAME & 6 & No pipeline with name as given in \code{pipelineName} \mbox{exists} \\
+	\hline
+	OTHER\_ERROR & 7 & Other error; when a~new transmission with the same \code{uuid} as the current \code{uuid} is started before the current transmission finishes, OTHER\_ERROR is thrown; the new transmission will continue \\
+	\hline
+	FATAL\_ERROR & 8 & Fatal error\\
+	\hline
+	METADATA\_ERROR & 9 & Invalid metadata -- a~field has a~wrong format or a~required field is missing \\
+	\hline
+\end{tabularx}
+\caption{Input Webservice exceptions}
+\label{tbl:inputWSExceptions}
+\end{table}
+
+\FloatBarrier
+
+\subsection{Java API}
+Third-party applications can access Input Webservice directly, or use the Java client library provided in ODCleanStore distribution. \todo{location on the CD}
+Add \code{odcs-inputclient-}\textit{version}\code{.jar} library to your project and use class \code{OdcsService} to access Input Webservice programmatically.
+
+\lstlistingname~\ref{lst:clientLibrary} gives an example of how the client library can be used.
+
+\begin{lstlisting}[caption={Example usage of Input Webservice client library},label=lst:clientLibrary]
+try {
+  final int BUFFER_SIZE = 1024 * 4;
+  char[] buffer = new char[BUFFER_SIZE];
+  int count = 0;
+
+  StringBuilder  payload = new StringBuilder();
+  InputStreamReader payloadReader = new InputStreamReader(
+          new FileInputStream("data.rdf"), "UTF-8");
+  while (-1 != (count = payloadReader.read(buffer, 0, BUFFER_SIZE))) {
+      payload.append(buffer, 0, count);
+  }
+  payloadReader.close();
+
+  StringBuilder  provenancePayload = new StringBuilder();
+  InputStreamReader provenanceReader = new InputStreamReader(
+          new FileInputStream("provenance-metadata.rdf"), "UTF-8");
+  while (-1 != (count = provenanceReader.read(buffer, 0, BUFFER_SIZE))) {
+      provenancePayload.append(buffer, 0, count);
+  }
+  provenancePayload.close();
+
+
+  Metadata metadata = new Metadata();
+  metadata.setUuid(UUID.randomUUID());
+  metadata.setDataBaseUrl(new URI("http://en.wikipedia.org/wiki/Berlin"));
+  metadata.getSource().add(new URI("http://en.wikipedia.org/wiki/Berlin"));
+  metadata.getPublishedBy().add(new URI("http://en.wikipedia.org"));
+  metadata.getLicense().add(new URI("http://creativecommons.org/licenses/by-sa/3.0/")); 
+  metadata.setPipelineName("examplePipeline"); 
+  metadata.setProvenance(provenancePayload.toString()); 
+
+  OdcsService service = new OdcsService("http://localhost:8088/inputws");
+  service.insert("username", "password", metadata, payload.toString());
+} catch (Exception e) {
+  e.printStackTrace();
+}
+\end{lstlisting}
 
 \section{Data Consumer}
 \label{sec:outputWS}
@@ -242,7 +403,7 @@ Table \ref{tbl:queryTypes} lists where each type of query can be accessed.
 \label{tbl:queryTypes}
 \end{table} 
 
-More information is available in the Query Execition specification. \todo{reference}
+More information is available in the Query Execution specification. \todo{reference}
 
 \subsection{Request format}
 
@@ -392,7 +553,7 @@ The result contains triples (quads) serialized in the TriG\footnote{\url{http://
 
 An example:
 
-\begin{lstlisting}[caption={Example of query response in TriG}]
+\begin{lstlisting}[caption={Example of query response in TriG},label=lst:trigResponse]
 @prefix :        <#> .
 @prefix odcs:    <http://opendata.cz/infrastructure/odcleanstore/> .
 @prefix w3p:     <http://purl.org/provenance#> .
@@ -443,8 +604,105 @@ An example:
 \todo{Error handling!}
 \todo{Examples}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\chapwithtoc{References}
+\chapter{Stored Data}
+\section{Input Processing}
+\label{sec:inputProcessing}
+\todo{PJ: zkontrolovat, jestli odpovida realite, a naopak, ze vse potrebne je implementovano}
+When a new request is sent to Input Webservice, the stored data \& metadata go through several phases.
+
+\begin{enumerate}
+
+  \item First, data \& metadata are validated. \code{Payload} data and optional \code{provenance} metadata (see Section~\ref{sec:inputWSParams} \nameref{sec:inputWSParams}) should be valid RDF/XML or TTL, all required metadata fields must have the proper cardinality and valid format. An exception is thrown and the request interrupted if validation fails.
+
+  \item If all data are valid, the request is queued, Input Webservice indicates success and the transmission successfully finishes.
+
+  \item Engine, independently on Input Webservice, successively takes requests from the input queue and processes it. RDF data from \code{payload} are stored to a single named graph, \code{provenance} metadata to a separate named graph and other metadata to another separate named graph called \term{metadata graph}, all in the dirty (staging) database. The format of RDF triples in the metadata graph is described in Section \ref{sec:storedDataStructure}.
+
+  \item Because some predicates are reserved for purposes of internal metadata representation in ODCleanStore, RDF triples that contain these predicates are removed from \code{payload} and \code{provenance} named graphs. Table \ref{tbl:reservedPredicates} lists all reserved predicates.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|}
+	\hline 
+	\code{odcs:score} \\
+	\hline
+	\code{odcs:publisherScore} \\
+	\hline
+	\code{odcs:scoreTrace} \\
+	\hline
+	\code{odcs:metadataGraph} \\
+	\hline
+	\code{odcs:provenanceMetadataGraph} \\
+	\hline
+	\code{w3p:insertedAt} \\
+	\hline
+	\code{w3p:insertedBy} \\
+	\hline
+	\code{w3p:source} \\
+	\hline
+	\code{w3p:publishedBy} \\
+	\hline
+\end{tabular}
+\caption{Reserved RDF predicates}
+\label{tbl:reservedPredicates}
+\end{table}
+\todo{check it is up-to-date}
+
+  \item Next, the processing pipeline is selected -- if \code{pipelineName} was present, pipeline with the given name is used, the default pipeline is used otherwise. Engine runs each transformer in the pipeline on the stored data. Transformers can modify the inserted named graphs or attach new named graphs (\term{attached named graph}). See \refadmimanual{} for more information about transformers.
+
+  \item If all transformers in the pipeline finish successfully, the \code{payload} graph, \code{provenance} graph, metadata graph and any new attached graphs are moved from the dirty database to the clean database, while the respective request is removed from the queue.
+
+  \todo{popsat, co se deje, kdyz nastane chyba}
+
+\end{enumerate}
+
+\section{Stored Data Structure}
+\label{sec:storedDataStructure}
+
+Data originating from a single request to Input Webservice can be stored in several named graphs.
+
+RDF data given in the \code{payload} parameter are stored in one named graph (\code{payload} graph). If \code{provenance} RDF metadata are given, they are stored in another named graph (\code{provenance} graph). Other metadata (such as the source of data, timestamp, etc.) are stored in yet another named graph (\term{metadata graph}). In addition, transformers in the respective pipeline may add more related RDF data to one or more named graphs, e.g. results of quality assessment, or mappings for resources in \code{payload} (\term{attached graphs}). 
+
+While contents of the \code{payload}, \code{provenance} and attached graphs may be arbitrary, the metadata graph has a set structure. Table \ref{tbl:metadataGraph} describes the structure of a metadata graph. In the table, \varcode{payload-graph} stands for the name of the respective \code{payload} graph, \varcode{provenance-graph} and \varcode{metadata-graph} analogously.
+
+
+\begin{table}[h!]
+\centering
+\begin{tabularx}{\textwidth}{|l|p{5cm}|X|c|}
+	\hline
+	Subject & Predicate & Object & Cardinality\\
+	\hline \hline
+	\varcode{payload-graph} & \code{odcs:metadataGraph} & \varcode{metadata-graph} & 1 \\
+	\hline
+	\varcode{payload-graph} & \code{odcs:} \code{provenanceMetadataGraph} & \varcode{provenance-graph} & 0..1 \\
+	\hline
+	\varcode{payload-graph} & \code{odcs:attachedGraph} & URIs of attached graphs & 0..* \\
+	\hline
+	\varcode{payload-graph} & \code{w3p:insertedAt} & insertion time & 1 \\
+	\hline
+	\varcode{payload-graph} & \code{w3p:insertedBy} & name of the user who inserted the data & 1 \\ \todo{PJ: jmeno nebo ID?}
+	\hline
+	\varcode{payload-graph} & \code{w3p:source} & source of the data (values  from the \code{source} field) & 1..* \\
+	\hline
+	\varcode{payload-graph} & \code{w3p:publishedBy} & identifier of the publisher of the data (values  from the \code{publishedBy} field) & 1..* \\
+	\hline
+	\varcode{payload-graph} & \code{dc:license} & license of the data (values from the \code{license} field) & 0..* \\
+	\hline
+\end{tabularx}
+\caption{RDF triples in a metadata graph}
+\label{tbl:metadataGraph}
+\end{table}
+
+Note that transformers may add triples to the metadata graph too. For example, Quality Assessment adds these two triples:
+\begin{itemize}
+  \item \varcode{payload-graph} -- \code{odcs:score} -- \varcode{QA-score}
+  \item \varcode{payload-graph} -- \code{odcs:scoreTrace} -- \varcode{QA-score-explanation}
+\end{itemize}
+
+\section{Executing Pipelines on the Clean Database}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -470,7 +728,11 @@ An example:
 \begin{glossarylist}
 	\item[Dirty (staging) database] Database where incoming data are stored until they are processed by a~processing pipeline (e.g. clean, linked to other data, etc.)
 	\item[Clean database] Database where incoming data are stored after they are successfully processed by the respective processing pipeline; this database can be accessed using the Output Webservice
-	\item[Named graph score (\code{odcs:score})] Quality of a~single named graph estimated by the Quality Assesment component and stored in the database, expressed as a~number from interval [0,1]
+	\item[\code{Payload} graph] Named graph where the actual inserted data, given in the \code{payload} parameter of Input Webservice, are stored
+	\item[\code{Provenance} graph] Named graph where additional provenance metadata, given in the \code{provenance} field of Input Web Service, are stored
+	\item[Metadata graph] Named graph where other metadata about a \code{payload} graph (such as source, timestamp, licence, etc.) are stored
+	\item[Attached graph] Named graph attached to a \code{payload} graph by a transformer
+	\item[Named graph score (\code{odcs:score})] Quality of a~single (\code{payload}) named graph estimated by the Quality Assesment component and stored in the database, expressed as a~number from interval [0,1]
 	\item[Publisher score] Average score of named graphs from a~publisher
 	\item[Aggregate quality] Quality of a~triple in the results calculated by the Conflict Resolution component during query time, expressed as a~number from interval [0,1]
 \end{glossarylist}
@@ -512,7 +774,7 @@ An example:
 	dbprop & http://dbpedia.org/property/ \\
 	\hline
 \end{tabular}
-%\caption{List of used XML namespaces}
+\caption{List of used XML namespaces}
 \end{table} 
 
 \end{document}
