@@ -702,8 +702,14 @@ Note that transformers may add triples to the metadata graph too. For example, Q
 \end{itemize}
 
 \section{Executing Pipelines on the Clean Database}
+The administrator \todo{proper user role} can decide to re-run transformer pipeline on some named graphs that are already in the clean database, e.g. when the respective transformer rules changed.\todo{reference to administration documentation} In that case, all such named graphs are queued for processing and Engine successively runs the pipeline on each queued graph:
 
-
+\begin{enumerate}
+  \item First, a copy of the \code{payload}, \code{provenance}, metadata and any attached graphs is created in the dirty database.
+  \item The same processing pipeline that was used when the data came through Input Webservice is run on this copy. Transformers can modify any of the graphs and attach new graphs.
+	\todo{what if the pipeline fails?}
+  \item In a transaction, the old version in the clean database is deleted and the processed copy (together with any new attached graphs) is moved from the dirty database to the clean database.
+\end{enumerate}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \appendix
