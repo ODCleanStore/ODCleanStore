@@ -3,14 +3,11 @@ package cz.cuni.mff.odcleanstore.engine.outputws;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.restlet.data.CharacterSet;
+import org.apache.log4j.Logger;
 import org.restlet.data.Form;
-import org.restlet.data.Language;
-import org.restlet.data.MediaType;
 import org.restlet.data.Reference;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 import org.restlet.resource.ServerResource;
@@ -19,15 +16,20 @@ import cz.cuni.mff.odcleanstore.configuration.OutputWSConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationType;
+import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
 import cz.cuni.mff.odcleanstore.engine.outputws.output.HTMLFormatter;
 import cz.cuni.mff.odcleanstore.engine.outputws.output.QueryResultFormatter;
 import cz.cuni.mff.odcleanstore.engine.outputws.output.TriGFormatter;
+import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
 import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 
 /**
  *  @author Petr Jerman
  */
 public abstract class QueryExecutorResourceBase extends ServerResource {
+	
+	private static final Logger LOG = Logger.getLogger(QueryExecutorResourceBase.class);
 
 	private static final String DEFAULT_AGGREGATION_PARAM = "aggr";
 	private static final String DEFAULT_MULTIVALUE_PARAM = "multivalue";
@@ -59,16 +61,35 @@ public abstract class QueryExecutorResourceBase extends ServerResource {
 	@Get
 	public Representation executeGet() {
 		_form = this.getQuery();
-		return execute();
+		return executeInternal();
 	}
 
 	@Post
 	public Representation executePost(Representation entity) {
 		_form = new Form(entity);
-		return execute();
+		return executeInternal();
 	}
 	
-	protected abstract Representation execute();
+	private Representation executeInternal() {
+		try {
+			return execute();
+		}
+		catch(ResultEmptyException e) {
+			LOG.warn("Response has no content");
+			getResponse().setStatus(Status.SUCCESS_NO_CONTENT);
+		}
+		catch(QueryExecutionException e) {
+			LOG.warn(FormatHelper.formatExceptionForLog(e, "Client error bad request"));
+			getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST, e.getMessage());
+		}
+		catch(Exception e) {
+			LOG.error(FormatHelper.formatExceptionForLog(e, "Server error internal"));
+			getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
+		}
+		return null;		
+	}
+	
+	protected abstract Representation execute() throws QueryExecutionException, ResultEmptyException, TransformerException;
 	
 	/**
 	 * Returns an appropriate formatter of the result.
@@ -130,10 +151,5 @@ public abstract class QueryExecutorResourceBase extends ServerResource {
 		aggregationSpec.setPropertyAggregations(propertyAggregations);
 		aggregationSpec.setPropertyMultivalue(propertyMultivalue);
 		return aggregationSpec;
-	}
-
-	protected Representation return404() {
-		setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-		return new StringRepresentation("Error", MediaType.TEXT_PLAIN, Language.ALL, CharacterSet.UTF_8);
 	}
 }

@@ -19,6 +19,7 @@ public class Root extends Application {
      */
 	public Root(OutputWSConfig outputWSConfig) {
 		this.outputWSConfig = outputWSConfig;
+		setStatusService(new StatusService());
 	}
 
 	/**

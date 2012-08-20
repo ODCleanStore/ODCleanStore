@@ -8,14 +8,14 @@ import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryConstraintSpec;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecution;
+import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
 
 /**
  *  @author Petr Jerman
  */
 public class UriQueryExecutorResource extends QueryExecutorResourceBase {
 
-	protected Representation execute() {
-		try {
+	protected Representation execute() throws QueryExecutionException, ResultEmptyException{
 			String uri = getFormValue("uri");
 			AggregationSpec aggregationSpec = getAggregationSpec();
 			JDBCConnectionCredentials connectionCredentials = 
@@ -24,11 +24,8 @@ public class UriQueryExecutorResource extends QueryExecutorResourceBase {
 			final BasicQueryResult result = queryExecution.findURI(uri, new QueryConstraintSpec(), aggregationSpec);
 
 			if (result == null)
-				return return404();
+				throw new ResultEmptyException("Result is empty");
 
 			return getFormatter(ConfigLoader.getConfig().getOutputWSGroup()).format(result, getRequestReference());
-		} catch (Exception e) {
-			return return404();
-		}
 	}
 }

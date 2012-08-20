@@ -8,14 +8,15 @@ import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl.GraphScoreWithTrace;
 import cz.cuni.mff.odcleanstore.queryexecution.NamedGraphMetadataQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecution;
+import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
+import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 
 /**
  *  @author Jan Michelfeit
  */
 public class NamedGraphQueryExecutorResource extends QueryExecutorResourceBase {
 
-	protected Representation execute() {
-		try {
+	protected Representation execute() throws QueryExecutionException, ResultEmptyException, TransformerException  {
 			String namedGraphURI = getFormValue("uri");
 			JDBCConnectionCredentials connectionCredentials = 
 					ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials();
@@ -32,14 +33,11 @@ public class NamedGraphQueryExecutorResource extends QueryExecutorResourceBase {
 			GraphScoreWithTrace qaResult = qualityAssessor.getGraphScoreWithTrace(namedGraphURI, connectionCredentials);
 			
 			if (metadataResult == null || qaResult == null)
-				return return404();
+				throw new ResultEmptyException("Result is empty");
 			
 			long totalTime = System.currentTimeMillis() - qaStartTime + metadataResult.getExecutionTime();
 
 			return getFormatter(ConfigLoader.getConfig().getOutputWSGroup()).format(
 					metadataResult, qaResult, totalTime, getRequestReference());
-		} catch (Exception e) {
-			return return404();
-		}
 	}
 }
