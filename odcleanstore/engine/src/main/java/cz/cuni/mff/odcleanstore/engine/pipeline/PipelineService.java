@@ -54,6 +54,7 @@ public final class PipelineService extends Service implements Runnable {
 			}
 			synchronized (waitForGraphLock) {
 				if (getServiceState() == ServiceState.RUNNING) {
+					// TODO to global config					
 					waitForGraphLock.wait(8000);
 				}
 			}

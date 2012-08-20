@@ -7,7 +7,9 @@ import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
  * @author Jan Michelfeit
  */
 public class QueryExecutionException extends ODCleanStoreException {
-    private final EnumQueryError errorType;
+	private static final long serialVersionUID = 3420323334894817996L;
+	
+	private final EnumQueryError errorType;
 
     /**
      * Constructs a new exception with the given cause.
