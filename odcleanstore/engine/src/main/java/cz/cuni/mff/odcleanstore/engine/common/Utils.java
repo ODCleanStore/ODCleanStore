@@ -12,6 +12,7 @@ import java.io.IOException;
 @SuppressWarnings("serial")
 public final class Utils {
 	
+	
 	public static String removeInitialBOMXml(String src) {
 		return src != null && src.startsWith("\ufeff<?xml") ? src.substring(1) : src;
 	}
@@ -86,6 +87,7 @@ public final class Utils {
 		}
 		return canonicalPath;
 	}
+	
 	
 	
 	

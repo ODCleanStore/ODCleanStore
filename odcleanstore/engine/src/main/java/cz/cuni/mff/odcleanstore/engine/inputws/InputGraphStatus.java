@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
-import cz.cuni.mff.odcleanstore.engine.InputGraphState;
+import cz.cuni.mff.odcleanstore.engine.db.model.GraphStates;
 
 /**
  *  @author Petr Jerman
@@ -40,8 +40,8 @@ public final class InputGraphStatus {
 	Collection<String> getAllImportingGraphUuids() throws Exception {
 		VirtuosoConnectionWrapper con = null;
 		try {
-			con = VirtuosoConnectionWrapper.createTransactionalLevelConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
-			String sqlStatement = String.format("Select uuid from %s.EN_INPUT_GRAPHS WHERE stateId=%d", DB_SCHEMA_PREFIX, InputGraphState.IMPORTING);
+			con = VirtuosoConnectionWrapper.createConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
+			String sqlStatement = String.format("Select uuid from %s.EN_INPUT_GRAPHS WHERE stateId=%d", DB_SCHEMA_PREFIX, GraphStates.IMPORTING.toId());
 			WrappedResultSet resultSet = con.executeSelect(sqlStatement);
 			LinkedList<String> retVal = new LinkedList<String>();
 			while(resultSet.next()) {
@@ -58,8 +58,8 @@ public final class InputGraphStatus {
 	void deleteAllImportingGraphUuids() throws Exception {
 		VirtuosoConnectionWrapper con = null;
 		try {
-			con = VirtuosoConnectionWrapper.createTransactionalLevelConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
-			String sqlStatement = String.format("Delete from %s.EN_INPUT_GRAPHS WHERE stateId=%d", DB_SCHEMA_PREFIX, InputGraphState.IMPORTING);
+			con = VirtuosoConnectionWrapper.createConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
+			String sqlStatement = String.format("Delete from %s.EN_INPUT_GRAPHS WHERE stateId=%d", DB_SCHEMA_PREFIX, GraphStates.IMPORTING.toId());
 			con.execute(sqlStatement);
 			con.commit();
 		} finally {
@@ -75,7 +75,7 @@ public final class InputGraphStatus {
 		}
 		VirtuosoConnectionWrapper con = null; 
 		try {
-			con = VirtuosoConnectionWrapper.createTransactionalLevelConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
+			con = VirtuosoConnectionWrapper.createConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
 			
 			String sqlStatement = String.format("Select uuid from %s.EN_INPUT_GRAPHS WHERE uuid='%s'", DB_SCHEMA_PREFIX, graphUuid);
 			WrappedResultSet resultSet = con.executeSelect(sqlStatement);
@@ -95,7 +95,7 @@ public final class InputGraphStatus {
 			}
 			String pipelineId = resultSet.getString(1);
 			
-			sqlStatement = String.format("Insert into %s.EN_INPUT_GRAPHS(uuid, pipelineId, stateId) VALUES('%s', '%s', %d)", DB_SCHEMA_PREFIX, graphUuid, pipelineId , InputGraphState.IMPORTING);
+			sqlStatement = String.format("Insert into %s.EN_INPUT_GRAPHS(uuid, pipelineId, stateId) VALUES('%s', '%s', %d)", DB_SCHEMA_PREFIX, graphUuid, pipelineId , GraphStates.IMPORTING.toId());
 			con.execute(sqlStatement);
 			con.commit();
 
@@ -115,8 +115,8 @@ public final class InputGraphStatus {
 
 		VirtuosoConnectionWrapper con = null;
 		try {
-			con = VirtuosoConnectionWrapper.createTransactionalLevelConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
-			String sqlStatement = String.format("Update %s.EN_INPUT_GRAPHS SET stateId=%d WHERE uuid='%s'", DB_SCHEMA_PREFIX, InputGraphState.QUEUED, importUuid);
+			con = VirtuosoConnectionWrapper.createConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
+			String sqlStatement = String.format("Update %s.EN_INPUT_GRAPHS SET stateId=%d WHERE uuid='%s'", DB_SCHEMA_PREFIX, GraphStates.QUEUED.toId(), importUuid);
 			con.execute(sqlStatement);
 			con.commit();
 			_actualImportingGraphUuid = null;
@@ -134,7 +134,7 @@ public final class InputGraphStatus {
 
 		VirtuosoConnectionWrapper con = null;
 		try {
-			con = VirtuosoConnectionWrapper.createTransactionalLevelConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
+			con = VirtuosoConnectionWrapper.createConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
 			String sqlStatement = String.format("Delete from %s.EN_INPUT_GRAPHS(uuid) VALUES('%s')", DB_SCHEMA_PREFIX, importUuid);
 			con.execute(sqlStatement);
 			con.commit();

@@ -1,15 +1,12 @@
 package cz.cuni.mff.odcleanstore.engine;
 
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
-import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
-import cz.cuni.mff.odcleanstore.engine.common.Module;
-import cz.cuni.mff.odcleanstore.engine.common.ModuleState;
+import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
 import cz.cuni.mff.odcleanstore.engine.inputws.InputWSService;
 import cz.cuni.mff.odcleanstore.engine.outputws.OutputWSService;
 import cz.cuni.mff.odcleanstore.engine.pipeline.PipelineService;
@@ -17,23 +14,28 @@ import cz.cuni.mff.odcleanstore.engine.pipeline.PipelineService;
 /**
  * @author Petr Jerman
  */
-public final class Engine extends Module {
+public final class Engine {
 
 	private static final Logger LOG = Logger.getLogger(Engine.class);
-	private static Engine _engine;
+	private static Engine engine;
 
+	private ScheduledThreadPoolExecutor executor;
+
+	private PipelineService pipelineService;
+	private InputWSService inputWSService;
+	private OutputWSService outputWSService;
+	
+	private boolean canRunDecision;
+	private boolean shutdownIsInitiated;
+	private Object startupLock;
+	private Object shutdownLock;
+	
 	public static void main(String[] args) {
-		if (_engine == null) {
-			_engine = new Engine();
-			_engine.run(args);
+		if (engine == null) {
+			engine = new Engine();
+			engine.run(args);
 		}
 	}
-	
-	private ScheduledThreadPoolExecutor _executor;
-
-	private PipelineService _pipelineService;
-	private InputWSService _inputWSService;
-	private OutputWSService _outputWSService;
 
 	private Engine() {
 	}
@@ -62,105 +64,145 @@ public final class Engine extends Module {
 	private void init(String[] args) throws Exception {
 		checkJavaVersion();
 		loadConfiguration(args);
-	
-		_executor = new ScheduledThreadPoolExecutor(4);
+		
+		canRunDecision = false;
+		shutdownIsInitiated = false;
+		startupLock = new Object();
+		shutdownLock = new Object();
+		
+		executor = new ScheduledThreadPoolExecutor(5);
 
-		_outputWSService = new OutputWSService(this);
-		_inputWSService = new InputWSService(this);
-		_pipelineService = new PipelineService(this);
+		outputWSService = new OutputWSService(this);
+		inputWSService = new InputWSService(this);
+		pipelineService = new PipelineService(this);
 	}
 
 	private void run(String[] args) {
 		try {
 			LOG.info("Engine initializing");
-			setModuleState(ModuleState.INITIALIZING);
 			init(args);
-			_executor.execute(_inputWSService);
+			executor.execute(outputWSService);
+			executor.execute(inputWSService);
+			executor.execute(pipelineService);
+			synchronized(startupLock) {
+				if (isAnyServiceNewOrInitializing()) {
+					// TODO to global config
+					startupLock.wait(30000);
+				}
+				if(canRunDecision == false) {
+					LOG.info("Not all services initialized");
+					startupLock.notifyAll();
+					shutdown();
+				}
+			}
+			LOG.info("Engine running");
+		} catch (Exception e) {
+			LOG.fatal(FormatHelper.formatExceptionForLog(e, "Engine crashed"));
+			shutdown();
+		}
+	}
+
+	private void shutdown() {
+		try {
+			synchronized(shutdownLock) {
+				if(shutdownIsInitiated) {
+					return;
+				}
+				shutdownIsInitiated = true;
+			}
+			LOG.info("Engine initiate shutdown");
+			if (inputWSService != null) {
+				inputWSService.initiateShutdown(executor);
+			}
+			if (outputWSService != null) {
+				outputWSService.initiateShutdown(executor);
+			}
+			if (pipelineService != null) {
+				pipelineService.initiateShutdown(executor);
+			}
+			synchronized(shutdownLock) {
+				if (!isAllServiceEnded()) {
+					// TODO to global config
+					shutdownLock.wait(30000);
+				}
+				if (isAllServiceStopped()) {
+					LOG.info("Engine properly shutdown");
+				} else {
+					LOG.info("Engine shutdown, but not all services properly shutdown");
+				}
+				LogManager.shutdown();
+				System.exit(0);
+			}
 		} catch (Exception e) {
 			try {
-				String message = String.format("Engine crashed - %s", e.getMessage());
-				LOG.fatal(message);
-				e.printStackTrace();
-				setModuleState(ModuleState.CRASHED);
+				LOG.fatal(FormatHelper.formatExceptionForLog(e, "Engine shutdown crashed"));
+				LogManager.shutdown();
+			} finally {
+				System.exit(0);
 			}
-			finally {
-				shutdown();
+		}
+	}
+
+	void onServiceStateChanged(Service service, ServiceState oldState) {
+		if (oldState.isNewOrInitializing() && !service.getServiceState().isNewOrInitializing()) {
+			synchronized(startupLock) {
+				 if (!isAnyServiceNewOrInitializing()) {
+					 canRunDecision = isAllServiceInitialized();
+					 startupLock.notifyAll();
+				 }
+			}
+			
+		} else if(!oldState.isEnded() && service.getServiceState().isEnded()) {
+			synchronized(shutdownLock) {
+				 if (isAllServiceEnded()) {
+					 shutdownLock.notifyAll();
+				 }
 			}
 		}
 	}
 	
-	private void shutdown() {
-		try {
-			// TODO pridat timeout a parametr do config
-			LOG.info("Engine shutdown init");
-			
-			if(_executor != null) {
-				_executor.shutdown();
+	boolean waitForCanRunDecision() throws InterruptedException {
+		synchronized(startupLock) {
+			if (isAnyServiceNewOrInitializing()) {
+				startupLock.wait();
 			}
-			if(_inputWSService != null) {
-				_inputWSService.shutdown();
-			}
-			if(_pipelineService != null) {
-				_pipelineService.shutdown();
-			}
-			if(_outputWSService != null) {
-				_outputWSService.shutdown();
-			}
-			
-		    VirtuosoConnectionWrapper.shutdown();
-			
-			LOG.info("Engine shutdown");
-			LogManager.shutdown();
-		} catch (Exception e) {
-			String message = String.format("Engine crashed - %s", e.getMessage());
-			LOG.fatal(message);
-			e.printStackTrace();
-			setModuleState(ModuleState.CRASHED);
-		} finally {
-			System.exit(0);
+			return canRunDecision;
 		}
 	}
-
-	void onServiceStateChanged(Service service) {
-		try {
-			if (service == _inputWSService && service.getModuleState() == ModuleState.RUNNING) {
-				_executor.execute(_outputWSService);
-		
-				_executor.execute(_pipelineService);
-				_executor.scheduleAtFixedRate(new Runnable() {
-					@Override
-					public void run() {
-						signalToPipelineService();
-					}
-				}, 1, 1, TimeUnit.SECONDS);
-			}
-			else if (service == _inputWSService && service.getModuleState() == ModuleState.CRASHED) {
-				shutdown();
-			}
-			else if (service == _outputWSService && service.getModuleState() == ModuleState.RUNNING) {
-				LOG.info("Engine running");
-				setModuleState(ModuleState.RUNNING);
-			}
-			else if (service == _outputWSService && service.getModuleState() == ModuleState.CRASHED) {
-				shutdown();
-			}
-		}
-		catch (Exception e) {
-			try {
-				String message = String.format("Engine crashed - %s", e.getMessage());
-				LOG.fatal(message);
-				e.printStackTrace();
-				setModuleState(ModuleState.CRASHED);
-			}
-			finally {
-				shutdown();
-			}
-		}
+	
+	private boolean isAnyServiceNewOrInitializing() {
+		return pipelineService.getServiceState().isNewOrInitializing() ||
+			   inputWSService.getServiceState().isNewOrInitializing() ||
+			   outputWSService.getServiceState().isNewOrInitializing(); 
+	}
+	
+	private boolean isAllServiceInitialized() {
+		return pipelineService.getServiceState() == ServiceState.INITIALIZED &&
+			   inputWSService.getServiceState() == ServiceState.INITIALIZED &&
+			   outputWSService.getServiceState() == ServiceState.INITIALIZED; 
+	}
+	
+	private boolean isAllServiceEnded() {
+		return pipelineService.getServiceState().isEnded() &&
+			   inputWSService.getServiceState().isEnded() &&
+			   outputWSService.getServiceState().isEnded(); 
+	}
+	
+	private boolean isAllServiceStopped() {
+		return pipelineService.getServiceState() == ServiceState.STOPPED &&
+			   inputWSService.getServiceState() == ServiceState.STOPPED &&
+			   outputWSService.getServiceState() == ServiceState.STOPPED;  
 	}
 
 	public static void signalToPipelineService() {
-		if (_engine != null && _engine._pipelineService != null) {
-			_engine._pipelineService.signalInput();
+		if (engine != null && engine.pipelineService != null) {
+			engine.pipelineService.notifyAboutGraphForPipeline();
 		}
 	}
+		
+	public String getEngineUuid() {
+		return "88888888-8888-8888-8888-888888888888";
+	}
+	
+
 }

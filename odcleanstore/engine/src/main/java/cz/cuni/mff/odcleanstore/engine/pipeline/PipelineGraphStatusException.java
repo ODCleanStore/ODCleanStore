@@ -3,28 +3,20 @@ package cz.cuni.mff.odcleanstore.engine.pipeline;
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 
 /**
- * A exception arising from Pipeline code.
+ * A exception arising from PipelineGraphManipulation class.
  * 
  * @author Petr Jerman
  */
-public class PipelineException extends ODCleanStoreException {
+public class PipelineGraphStatusException extends ODCleanStoreException {
 
-	private static final long serialVersionUID = 1551176048380588306L;
+	private static final long serialVersionUID = -7628445944871159626L;
 
 	/**
      * Constructs a new exception with the given message.
      * @param message the detail message
      */
-	PipelineException(String message) {
+	PipelineGraphStatusException(String message) {
 		super(message);
-	}
-
-	/**
-     * Constructs a new exception with the given cause.
-     * @param cause the cause
-     */
-	PipelineException(Throwable cause) {
-		super(cause);
 	}
 	
 	/**
@@ -32,7 +24,7 @@ public class PipelineException extends ODCleanStoreException {
      * @param message the detail message
      * @param cause the cause
      */
-	PipelineException(String message, Throwable cause) {
+	PipelineGraphStatusException(String message, Throwable cause) {
         super(message, cause);
     }
 }
