@@ -57,6 +57,11 @@ public final class ODCS {
     		"http://opendata.cz/infrastructure/odcleanstore/provenanceMetadataGraph";
     
     /**
+     * Property linking a data graph to its attached graphs added by transformers. 
+     */
+    public static final String attachedGraph = "http://opendata.cz/infrastructure/odcleanstore/attachedGraph";
+    
+    /**
      * Class of resources describing a result of a query. 
      */
     public static final String queryResponse = "http://opendata.cz/infrastructure/odcleanstore/QueryResponse";
