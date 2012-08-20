@@ -14,7 +14,7 @@ public final class TransformedGraph implements cz.cuni.mff.odcleanstore.transfor
 
 	private static final Logger LOG = Logger.getLogger(TransformedGraph.class);
 	
-	public static final String ERROR_NOT_ACTIVE_PIPELINE = "Operation is permitted only for transformed graph in active pipeline";
+	public static final String ERROR_NOT_ACTIVE_TRANSFORMER = "Operation is permitted only for active transformation context in active pipeline";
 	public static final String ERROR_ATTACH_GRAPH = "Error during adding attached graph";
 
 	private PipelineGraphStatus graphStatus;
@@ -32,8 +32,8 @@ public final class TransformedGraph implements cz.cuni.mff.odcleanstore.transfor
 	public String getGraphName() {
 		PipelineGraphStatus graphStatus = this.graphStatus;
 		if(graphStatus == null) {
-			LOG.error(ERROR_NOT_ACTIVE_PIPELINE);
-			throw new TransformedGraphRuntimeException(ERROR_NOT_ACTIVE_PIPELINE);
+			LOG.error(ERROR_NOT_ACTIVE_TRANSFORMER);
+			throw new TransformedGraphRuntimeException(ERROR_NOT_ACTIVE_TRANSFORMER);
 		}
 		return ConfigLoader.getConfig().getBackendGroup().getDataGraphURIPrefix() + graphStatus.getUuid();
 	}
@@ -42,8 +42,8 @@ public final class TransformedGraph implements cz.cuni.mff.odcleanstore.transfor
 	public String getGraphId() {
 		PipelineGraphStatus graphStatus = this.graphStatus;
 		if(graphStatus == null) {
-			LOG.error(ERROR_NOT_ACTIVE_PIPELINE);
-			throw new TransformedGraphRuntimeException(ERROR_NOT_ACTIVE_PIPELINE);
+			LOG.error(ERROR_NOT_ACTIVE_TRANSFORMER);
+			throw new TransformedGraphRuntimeException(ERROR_NOT_ACTIVE_TRANSFORMER);
 		}
 		return graphStatus.getUuid();
 	}
@@ -52,8 +52,8 @@ public final class TransformedGraph implements cz.cuni.mff.odcleanstore.transfor
 	public String getMetadataGraphName() {
 		PipelineGraphStatus graphStatus = this.graphStatus;
 		if(graphStatus == null) {
-			LOG.error(ERROR_NOT_ACTIVE_PIPELINE);
-			throw new TransformedGraphRuntimeException(ERROR_NOT_ACTIVE_PIPELINE);
+			LOG.error(ERROR_NOT_ACTIVE_TRANSFORMER);
+			throw new TransformedGraphRuntimeException(ERROR_NOT_ACTIVE_TRANSFORMER);
 		}
 		return ConfigLoader.getConfig().getBackendGroup().getMetadataGraphURIPrefix() + graphStatus.getUuid();
 	}
@@ -62,8 +62,8 @@ public final class TransformedGraph implements cz.cuni.mff.odcleanstore.transfor
 	public Collection<String> getAttachedGraphNames() {
 		PipelineGraphStatus graphStatus = this.graphStatus;
 		if(graphStatus == null) {
-			LOG.error(ERROR_NOT_ACTIVE_PIPELINE);
-			throw new TransformedGraphRuntimeException(ERROR_NOT_ACTIVE_PIPELINE);
+			LOG.error(ERROR_NOT_ACTIVE_TRANSFORMER);
+			throw new TransformedGraphRuntimeException(ERROR_NOT_ACTIVE_TRANSFORMER);
 		}
 		return graphStatus.getAttachedGraphs();
 	}
@@ -72,8 +72,8 @@ public final class TransformedGraph implements cz.cuni.mff.odcleanstore.transfor
 	public void addAttachedGraph(String attachedGraphName) throws TransformedGraphException {
 		PipelineGraphStatus graphStatus = this.graphStatus;
 		if (graphStatus == null) {
-			LOG.error(ERROR_NOT_ACTIVE_PIPELINE);
-			throw new TransformedGraphRuntimeException(ERROR_NOT_ACTIVE_PIPELINE);
+			LOG.error(ERROR_NOT_ACTIVE_TRANSFORMER);
+			throw new TransformedGraphRuntimeException(ERROR_NOT_ACTIVE_TRANSFORMER);
 		}
 		try {
 			graphStatus.addAttachedGraph(attachedGraphName);
@@ -87,8 +87,8 @@ public final class TransformedGraph implements cz.cuni.mff.odcleanstore.transfor
 	public void deleteGraph() throws TransformedGraphException {
 		PipelineGraphStatus graphStatus = this.graphStatus;
 		if (graphStatus == null) {
-			LOG.error(ERROR_NOT_ACTIVE_PIPELINE);
-			throw new TransformedGraphRuntimeException(ERROR_NOT_ACTIVE_PIPELINE);
+			LOG.error(ERROR_NOT_ACTIVE_TRANSFORMER);
+			throw new TransformedGraphRuntimeException(ERROR_NOT_ACTIVE_TRANSFORMER);
 		}
 		graphStatus.markForDeleting();
 	}
@@ -97,8 +97,8 @@ public final class TransformedGraph implements cz.cuni.mff.odcleanstore.transfor
 	public boolean isDeleted() {
 		PipelineGraphStatus graphStatus = this.graphStatus;
 		if(graphStatus == null) {
-			LOG.error(ERROR_NOT_ACTIVE_PIPELINE);
-			throw new TransformedGraphRuntimeException(ERROR_NOT_ACTIVE_PIPELINE);
+			LOG.error(ERROR_NOT_ACTIVE_TRANSFORMER);
+			throw new TransformedGraphRuntimeException(ERROR_NOT_ACTIVE_TRANSFORMER);
 		}
 		return graphStatus.isMarkedForDeleting();
 	}

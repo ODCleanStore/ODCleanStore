@@ -15,7 +15,7 @@ public class TransformationContext implements cz.cuni.mff.odcleanstore.transform
 	
 	private static final Logger LOG = Logger.getLogger(TransformationContext.class);
 	
-	public static final String ERROR_NOT_ACTIVE_PIPELINE = "Operation is permitted only for transformation context in active pipeline";
+	public static final String ERROR_NOT_ACTIVE_TRANSFORMER = "Operation is permitted only for active transformation context in active pipeline";
 
 	private String configuration;
 	private String path;
@@ -39,8 +39,8 @@ public class TransformationContext implements cz.cuni.mff.odcleanstore.transform
 	@Override
 	public JDBCConnectionCredentials getDirtyDatabaseCredentials() {
 		if(!this.active) {
-			LOG.error(ERROR_NOT_ACTIVE_PIPELINE);
-			throw new TransformationContextRuntimeException(ERROR_NOT_ACTIVE_PIPELINE);
+			LOG.error(ERROR_NOT_ACTIVE_TRANSFORMER);
+			throw new TransformationContextRuntimeException(ERROR_NOT_ACTIVE_TRANSFORMER);
 		}
 		return ConfigLoader.getConfig().getInputWSGroup().getDirtyDBJDBCConnectionCredentials();
 	}
@@ -48,8 +48,8 @@ public class TransformationContext implements cz.cuni.mff.odcleanstore.transform
 	@Override
 	public JDBCConnectionCredentials getCleanDatabaseCredentials() {
 		if(!this.active) {
-			LOG.error(ERROR_NOT_ACTIVE_PIPELINE);
-			throw new TransformationContextRuntimeException(ERROR_NOT_ACTIVE_PIPELINE);
+			LOG.error(ERROR_NOT_ACTIVE_TRANSFORMER);
+			throw new TransformationContextRuntimeException(ERROR_NOT_ACTIVE_TRANSFORMER);
 		}
 		return ConfigLoader.getConfig().getInputWSGroup().getCleanDBJDBCConnectionCredentials();
 	}
@@ -58,8 +58,8 @@ public class TransformationContext implements cz.cuni.mff.odcleanstore.transform
 	public String getTransformerConfiguration() {
 		String configuration = this.configuration;
 		if(!this.active) {
-			LOG.error(ERROR_NOT_ACTIVE_PIPELINE);
-			throw new TransformationContextRuntimeException(ERROR_NOT_ACTIVE_PIPELINE);
+			LOG.error(ERROR_NOT_ACTIVE_TRANSFORMER);
+			throw new TransformationContextRuntimeException(ERROR_NOT_ACTIVE_TRANSFORMER);
 		}
 		return configuration;
 	}
@@ -68,8 +68,8 @@ public class TransformationContext implements cz.cuni.mff.odcleanstore.transform
 	public File getTransformerDirectory() {
 		String path = this.path;
 		if(!this.active) {
-			LOG.error(ERROR_NOT_ACTIVE_PIPELINE);
-			throw new TransformationContextRuntimeException(ERROR_NOT_ACTIVE_PIPELINE);
+			LOG.error(ERROR_NOT_ACTIVE_TRANSFORMER);
+			throw new TransformationContextRuntimeException(ERROR_NOT_ACTIVE_TRANSFORMER);
 		}
 		return new File(path);
 	}
@@ -78,8 +78,8 @@ public class TransformationContext implements cz.cuni.mff.odcleanstore.transform
 	public EnumTransformationType getTransformationType() {
 		EnumTransformationType type = this.type;
 		if(!this.active) {
-			LOG.error(ERROR_NOT_ACTIVE_PIPELINE);
-			throw new TransformationContextRuntimeException(ERROR_NOT_ACTIVE_PIPELINE);
+			LOG.error(ERROR_NOT_ACTIVE_TRANSFORMER);
+			throw new TransformationContextRuntimeException(ERROR_NOT_ACTIVE_TRANSFORMER);
 		}
 		return type;
 	}

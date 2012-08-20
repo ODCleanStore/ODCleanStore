@@ -82,8 +82,22 @@ public abstract class QueryExecutorResourceBase extends ServerResource {
 			getResponse().setStatus(Status.SUCCESS_NO_CONTENT);
 		}
 		catch(QueryExecutionException e) {
-			LOG.warn(FormatHelper.formatExceptionForLog(e, "Client error bad request"));
-			getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST, e.getMessage());
+			switch ( e.getErrorType()) {
+				case QUERY_TOO_LONG:
+				case INVALID_QUERY_FORMAT:
+				case DEFAULT_AGGREGATION_SETTINGS_INVALID:
+				case AGGREGATION_SETTINGS_INVALID:
+				case QUERY_EXECUTION_SETTINGS_INVALID:
+				case UNKNOWN_PREFIX: // TODO : what is this?
+					LOG.warn(FormatHelper.formatExceptionForLog(e, "Client error bad request"));
+					getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST, e.getMessage());
+					break;
+				case DATABASE_ERROR:
+				case CONFLICT_RESOLUTION_ERROR:
+				default:
+					LOG.error(FormatHelper.formatExceptionForLog(e, "Server error internal"));
+					getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
+		    	}
 		}
 		catch(Exception e) {
 			LOG.error(FormatHelper.formatExceptionForLog(e, "Server error internal"));
