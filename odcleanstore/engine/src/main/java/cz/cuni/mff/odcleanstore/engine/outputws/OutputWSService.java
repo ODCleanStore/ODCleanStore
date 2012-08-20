@@ -25,7 +25,7 @@ public final class OutputWSService extends Service {
 			System.setProperty("org.restlet.engine.loggerFacadeClass", "org.restlet.ext.slf4j.Slf4jLoggerFacade");
 			component = new Component();
 			component.getServers().add(Protocol.HTTP, outputWSConfig.getPort());
-			component.getDefaultHost().attach(new Root(outputWSConfig));
+			component.getDefaultHost().attach(new Root(outputWSConfig, this));
 			component.start();
 	}
 	

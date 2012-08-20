@@ -32,7 +32,6 @@ public class StatusService extends org.restlet.service.StatusService {
 
 	@Override
 	public Representation getRepresentation(Status status, Request request,	Response response) {
-		;
 		return new StringRepresentation(String.format(HTML_ERROR_RESPONSE_PATTERN, status.getReasonPhrase(), status.getDescription()),
 				MediaType.TEXT_HTML, Language.ALL, CharacterSet.UTF_8);
 	}

@@ -72,7 +72,10 @@ public abstract class QueryExecutorResourceBase extends ServerResource {
 	
 	private Representation executeInternal() {
 		try {
-			return execute();
+			if(((Root) getApplication()).canServeRequest()) {
+				return execute();
+			}
+			getResponse().setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
 		}
 		catch(ResultEmptyException e) {
 			LOG.warn("Response has no content");
