@@ -1,13 +1,11 @@
 #container
 {
-	border: 1px black solid;
 	margin: 0px auto;
 	width: 1280px;
 }
 
 #header
 {
-	border: 1px black solid;
 	font-size: 250%;
 	text-align: center;
 	padding: 30px;
@@ -15,21 +13,18 @@
 
 #menu
 {
-	border: 1px black solid;
 	float: left;
 	width: 276px;
 }
 
 #content
 {
-	border: 1px black solid;
 	float: right;
 	width: 1000px;
 }
 
 #content #top
 {
-	border-bottom: 1px black solid;
 	padding: 5px 10px;
 }
 

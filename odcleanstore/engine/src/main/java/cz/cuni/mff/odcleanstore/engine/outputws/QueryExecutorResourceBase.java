@@ -1,3 +1,4 @@
+
 package cz.cuni.mff.odcleanstore.engine.outputws;
 
 import java.util.Map;

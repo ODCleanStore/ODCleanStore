@@ -26,13 +26,21 @@ public class StatusService extends org.restlet.service.StatusService {
 			"<body>" +
 			"	<p style=\"font-size: 1.2em;font-weight: bold;margin: 1em 0px;\"> %s</p>" +
 		    "	<p> %s </p>" +
-		    "	<p>You can get technical details <a href=\"http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1\">here</a>.<br>" +
+		    "	%s" +
 			"</body>" +
 		    "</html>";
+	
+	private static final String HTML_ERROR_RESPONSE_PATTERN_URI =
+			" <p>You can get technical details <a href=\"%s\">here</a>.<br></p>";
 
 	@Override
 	public Representation getRepresentation(Status status, Request request,	Response response) {
-		return new StringRepresentation(String.format(HTML_ERROR_RESPONSE_PATTERN, status.getReasonPhrase(), status.getDescription()),
+		String reasonPhrase = status.getReasonPhrase() != null ? status.getReasonPhrase() : "";
+		String description = status.getDescription() != null ? status.getDescription() : "";
+		String uri = status.getUri() != null ? String.format(HTML_ERROR_RESPONSE_PATTERN_URI, status.getUri()) : "";
+		
+		
+		return new StringRepresentation(String.format(HTML_ERROR_RESPONSE_PATTERN, reasonPhrase, description, uri),
 				MediaType.TEXT_HTML, Language.ALL, CharacterSet.UTF_8);
 	}
 	
