@@ -69,7 +69,7 @@ public class QueryExecution {
             throws QueryExecutionException {
 
         if (keywords == null) {
-            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, "keywords must not be null");
+            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, "Keywords must not be empty");
         } else if (constraints == null || aggregationSpec == null) {
             throw new IllegalArgumentException();
         }
@@ -100,7 +100,7 @@ public class QueryExecution {
             throws QueryExecutionException {
 
         if (uri == null) {
-            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, "URI must not be null");
+            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, "URI must not be empty");
         } else if (constraints == null || aggregationSpec == null) {
             throw new IllegalArgumentException();
         }
@@ -130,7 +130,7 @@ public class QueryExecution {
      */
     public NamedGraphMetadataQueryResult findNamedGraphMetadata(String namedGraphURI) throws QueryExecutionException {
         if (namedGraphURI == null) {
-            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, "Named graph URI must not be null");
+            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, "Named graph URI must not be empty");
         }
 
         String expandedNamedGraphURI = Utils.isPrefixedName(namedGraphURI)

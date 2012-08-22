@@ -85,14 +85,14 @@ public abstract class QueryExecutorResourceBase extends ServerResource {
 			switch ( e.getErrorType()) {
 				case QUERY_TOO_LONG:
 				case INVALID_QUERY_FORMAT:
-				case DEFAULT_AGGREGATION_SETTINGS_INVALID:
 				case AGGREGATION_SETTINGS_INVALID:
-				case QUERY_EXECUTION_SETTINGS_INVALID:
-				case UNKNOWN_PREFIX: // TODO : what is this?
+				case UNKNOWN_PREFIX:
 					LOG.warn(FormatHelper.formatExceptionForLog(e, "Client error bad request"));
 					getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST, e.getMessage());
 					break;
 				case DATABASE_ERROR:
+				case DEFAULT_AGGREGATION_SETTINGS_INVALID:
+				case QUERY_EXECUTION_SETTINGS_INVALID:
 				case CONFLICT_RESOLUTION_ERROR:
 				default:
 					LOG.error(FormatHelper.formatExceptionForLog(e, "Server error internal"));
