@@ -207,7 +207,7 @@ To be able to manage user accounts one has to have \term{ADM} user role (section
 
 	Each incoming data chunk (in form of a named graph) is passed through a \term{pipeline} consisting of \term{transformers}. In this section of the administration frontend it is possible for the user to specify different \term{pipelines}. Individual \term{pipelines} can incorporate different already existing \term{transformers}. To edit the structure of a \term{pipeline} see its detail. As the gravity of data modification that the pipelines can cause differs based on what database it is running upon, it is left for the user to decide whether a concrete \term{transformer} should be allowed to run on clean database (in addition to running on dirty database). Some transformations do not even make sense when working with clean database.
 	
-	The order of application of \term{transformers} to a named graph processed by the related \term{pipeline} is determined by \term{priority}.
+	The order of application of \term{transformers} to a named graph processed by the related \term{pipeline} is determined by \term{priority} in ascending order. \term{Transformer} runs before \term{transformers} with greater priority number.
 	
 	\textbf{Note:} Any changes done in this section need to be commited to ever take effect. To do so, please, click the "Commit settings" button.
 
