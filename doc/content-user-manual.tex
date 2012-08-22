@@ -120,6 +120,7 @@ The administration webfrontend enables
 Data consumers accessing Output Webservice (see Section \ref{sec:outputWS}) do not need to have an account in ODCleanStore; these users have a~special role User (USR). Other users working with ODCleanStore need to have an account and their permissions are based on the roles they are assigned. This chapter describes all the roles recognized by ODCleanStore.
 
 \section[Administrator]{Administrator (ADM)}
+\label{sec:adm}
 
 	Administrator has privileges to manage user accounts, assign roles and manage system-wide settings such as
 	\begin{itemize}
@@ -130,16 +131,20 @@ Data consumers accessing Output Webservice (see Section \ref{sec:outputWS}) do n
 
 	In addition, the administrator is authorized to edit pipelines and rules created by pipeline creators.
 
+	The administrator is responsible for ensuring that not more than one instance of the storage and its web frontend is connected to one instance of database.
+
 	More information, e.g. about adding transformers, can be found in the related document \refadmimanual.
 
 	\paragraph{Most relevant sections of this document:} Chapter \ref{chap:administrationFrontend} \nameref{chap:administrationFrontend}.
 
 \section[Ontology Creator]{Ontology Creator (ONC)}
+\label{sec:onc}
 	The ontology creator can import and edit ontologies registered in the system. The ontology creator is also responsible for inserting mappings (\code{owl:sameAs} links) between ontologies.
 
 	\paragraph{Most relevant sections of this document:} Section \ref{sec:ontologyManagement} \nameref{sec:ontologyManagement}.
 
 \section[Pipeline Creator]{Pipeline Creator (PIC)}
+\label{sec:pic}
 	The pipeline creator can create input data processing pipelines. This includes creating new pipelines and assigning transformers to them (Section \ref{sec:pipelineManagement}) and also creating rules for the transformers (Section \ref{sec:transformerRules}).
 
 	Every pipeline creator is allowed to create custom pipelines and rule groups for predefined transformers. The pipeline creator has a~read-only access to other creators' pipelines and rules (and can use such rules in custom pipelines), however rules and pipelines can only be edited by their author. The only exception is the administrator, who can edit arbitrary pipelines and rule groups.
@@ -147,11 +152,13 @@ Data consumers accessing Output Webservice (see Section \ref{sec:outputWS}) do n
 	\paragraph{Most relevant sections of this document:} Sections \ref{sec:pipelineManagement} \nameref{sec:pipelineManagement},\linebreak[4] \ref{sec:transformerRules} \nameref{sec:transformerRules} and \ref{sec:pipelinesOnCleanDB} \nameref{sec:pipelinesOnCleanDB}.
 	
 \section[Data Producer]{Data Producer (SCR)} \todo{SCR? DAP?}
+\label{sec:scr}
   The data producer can use Input Webservice (Section \ref{sec:inputWS}) to insert new data to ODCleanStore. The system keeps track of which data were inserted by which data producer.
 
   \paragraph{Most relevant sections of this document:} Sections \ref{sec:inputWS} \nameref{sec:inputWS} and \linebreak[4] \ref{sec:inputProcessing}~\nameref{sec:inputProcessing}.
 
 \section[Data Consumer]{Data Consumer (USR)} \todo{USR? DAC?}
+\label{sec:usr}
   The data consumer can use Output Webservice (Section \ref{sec:outputWS}) to ask queries over the data in the clean database. This role is special in that users in this role do not need to have an account (any user using the Output Webservice is automatically assigned the USR role).
 
   \paragraph{Most relevant sections of this document:} Sections \ref{sec:outputWS} \nameref{sec:outputWS} and \linebreak[4] \ref{sec:storedDataStructure}~\nameref{sec:storedDataStructure}.
@@ -163,25 +170,106 @@ Data consumers accessing Output Webservice (see Section \ref{sec:outputWS}) do n
 
 \section{Administration Frontend Overview}
 
+Administration Frontend is the official tool for managing ODCleanStore. It covers configuration of all standard components.
+
 \section{User Accounts Administration}
+
+To be able to manage user accounts one has to have \term{ADM} user role (section \ref{sec:adm}) assosiated with his account. It is possible to view currently active accounts and modify them or to add new accounts to the system from this page. The modification is limited to changes of user roles and resetting the password for safety reasons. The newly generated passwords are sent to the e-mail address of the affected account.
 
 \section{Transformer Management}
 \label{sec:transformerManagement}
 
-\section{Pipeline Management}
+	\term{Transformer} is a component responsible for data refinement, cleaning, aggregation and other transformations applied to incoming or stored data.
+
+	The transformer management screen allows registered users to add, edit or remove \term{transformers}. These can be then added to \term{pipelines} (Section \ref{sec:pipelineManagement}).
+	
+	Each \term{transformer} definition consists of:
+	\begin{itemize}
+		\item \textbf{required} label
+		
+		Unique identifier of the \term{transformer}.
+		
+		\item \textbf{optional but recommended} description
+		
+		Description of what the purpose of the \term{transformer} is.
+		
+		\item \textbf{required} JAR path
+		
+		Path to a Java Archive containing the \term{transformer} declaration.
+		
+		\item \textbf{required} Full classname
+		
+		Name of the class implementing the \term{transformer}.
+	\end{itemize}
+
+\section{Pipeline management}
 \label{sec:pipelineManagement}
 
-\section{Transformer Rules}
+	Each incoming data chunk (in form of a named graph) is passed through a \term{pipeline} consisting of \term{transformers}. In this section of the administration frontend it is possible for the user to specify different \term{pipelines}. Individual \term{pipelines} can incorporate different already existing \term{transformers}. To edit the structure of a \term{pipeline} see its detail. As the gravity of data modification that the pipelines can cause differs based on what database it is running upon, it is left for the user to decide whether a concrete \term{transformer} should be allowed to run on clean database (in addition to running on dirty database). Some transformations do not even make sense when working with clean database.
+	
+	The order of application of \term{transformers} to a named graph processed by the related \term{pipeline} is determined by \term{priority}.
+	
+	\textbf{Note:} Any changes done in this section need to be commited to ever take effect. To do so, please, click the "Commit settings" button.
+
+\section{Transformer rules}
 \label{sec:transformerRules}
 
+	There are a few types of \term{transformers} predefined for most common data handling in pipelines. Namely:
+	\begin{itemize}
+		\item \term{Quality Assessessment} \term{transformer} (Section \ref{sub:qualityAssessment})
+		\item \term{Data Normalization} \term{transformer}  (Section \ref{sub:dataNormalization})
+		\item \term{Object Identification} \term{transformer} (Section \ref{sub:objectIdentification})
+	\end{itemize}
+	
+	These \term{transformers} are configured through groups of rules. Each instance of any of these predefined \term{transformers} can accept multiple groups of rules. That way it is possible to simply assign all interrelated rules to a certain instance of a transformer while it is still possible to avoid duplication of rules in different groups.
+
 \subsection{Quality Assessment}
+\label{sub:qualityAssessment}
+
+\term{Quality Assessor} is a special \term{transformer} that assigns a score to each graph based on coefficients of different patterns present in the graph to reflect to what degree the data contained in it comply to a certain policy.
+
+To be able to configure individual instances of \term{Quality Assessor} a group of rules needs to exist. To create one enter the QA subsection of the rules management page for the backend.
+
+Here the user can prepare groups of rules to be assigned to instances of \term{Quality Assessor}. Each group is identified by its label and can (and should) come with a description of its semantical significance.
+
+On the detail page one can specify individual rules contained in the related group. Each rule is of form:
+
+\begin{table}[!h]
+	\centering
+	\begin{tabular}{c@{\hspace{8mm}}c@{\hspace{8mm}}c}
+		\textbf{Filter} & \textbf{Coefficient} & \textbf{Description} \\
+		\code{GroupGraphPattern}\footnotemark[1] [\code{GROUP BY \ldots} [\code{HAVING \ldots}]] & $ x \in [0, 1] $ & description
+	\end{tabular}
+\end{table}
+
+\footnotetext[1]{http://www.w3.org/TR/rdf-sparql-query/#rGroupGraphPattern}
 
 \subsection{Data Normalization}
+\label{sub:dataNormalization}
+
+\term{Data Normalizer} is a special type of \term{transformer} aimed to be applied early in the whole data evaluation process to simplify work of other \term{transformers}. Its main goal is to remove inconsistencies in forms the data is provided in. Therefore \term{Data Normalizers} are limited to dirty database only.
+
+In the DN subsection of rules management page of the backend one can prepare groups of rules to be assigned to instances of \term{Data Normalizer}. Each group is identified by its label and can (and should) come with a description of its semantical significance.
+
+The detail page of a group serves the user as means of specification of individual rules contained in the selected group. Each rule is essentially a sequence of \term{SPARUL}\footnote{http://www.w3.org/Submission/SPARQL-Update} \term{Inserts} and/or \term{Deletes}. New rule represents an empty sequence upon its creation.
+
+Similarly as with the rules themselves the detail page of a rule allows the user to construct any arbitrary sequence of \term{Inserts} and/or \term{Deletes}. Components of the rule (members of the sequence) can be added by specifying their type (either \code{INSERT} or \code{DELETE}), modification (\term{SPARUL} snippet stripped off of initial \code{INSERT INTO} / \code{DELETE FROM} clauses); e.g.,
+
+\begin{center}
+	\code{\{?s ?p1 ?o2\} WHERE \{GRAPH \$\$graph\$\$ \{?s ?p1 ?o1. ?o1 ?p2 ?o2.\}\}},
+\end{center}
+
+where \code{\$\$graph\$\$} is a place holder for name of the graph being currently processed. Expectedly triples (\code{?s ?p1 ?o2} in the example) are inserted into (deleted from) the current graph when the type of the component is \code{INSERT} (\code{DELETE}). Effects are immediate in respect to consecutive applications of other components to the graph.
 
 \subsection{Object Identification}
+\label{sub:objectIdentification}
+
+\term{Object Identification Linker} is a special implementation of a \term{trasformer}. The main purpose of this component is to interlink URIs which represent the same real-world entity by generating \code{owl:sameAs} links. It can be also used for creating other types of links between differently related URIs. \term{Silk framework}\footnote{http://www4.wiwiss.fu-berlin.de/bizer/silk} is used as the linking engine. Sets of linkage rules for the engine are written in \term{Silk-LSL}\footnote{http://www.assembla.com/wiki/show/silk/Link\_Specification\_Language} and stored in database.
 
 \section{Ontology Management}
 \label{sec:ontologyManagement}
+
+Ontologies can be used to produce common rules for QA, DN \term{transformers}. To load one into the storage one can provide an explicit definition through a text field or by uploading a file containing a valid \term{RDF/XML} ontology definition. The process of rules generation will automatically take place upon ontology submission.
 
 \section{Other Settings}
 
@@ -461,53 +549,45 @@ For all queries, parameters and values are case-sensitive. Property names may be
 
 For more information about aggregation settings, see the corresponding section of Conflict Resolution specification\todo{reference}.
 
+\newpage % just for the tables to fit better
+
 \subsubsection*{General aggregation methods}
 
-\begin{description}
-	\item[ALL]
-		returns all conflicting values
-	\item[BEST]
-		value with the highest aggregated quality; in case of equality, the newest timestamp is preferred
-	\item[LATEST]
-		value with the newest timestamp; in case of equality, the highest aggregate quality is preferred
-	\item[ANY]
-		returns a~single arbitrary value
-	\item[CONCAT]
-		concatenation of conflicting values separated by \quot{\code{;\ }}
-	\item[NONE]
-		retruns all conflicting values including duplicities
-\end{description}
+\enumtable
+{
+	ALL & returns all conflicting values \\
+	BEST & value with the highest aggregated quality; in case of equality, the newest timestamp is preferred \\
+	LATEST & value with the newest timestamp; in case of equality, the highest aggregate quality is preferred \\
+	ANY & returns a~single arbitrary value \\
+	CONCAT & concatenation of conflicting values separated by \quot{\code{;\ }} \\
+	NONE & returns all conflicting values including duplicities
+}
 
 \subsubsection*{Numeric aggregation methods}
 
-\begin{description}
-	\item[MIN]
-		minimum of conflicting values
-	\item[MAX]
-		maximum of conflicting values
-	\item[AVG]
-		average of conflicting values
-	\item[MEDIAN]
-		median of conflicting values
-\end{description}
+\enumtable
+{
+	MIN & minimum of conflicting values \\
+	MAX & maximum of conflicting values \\
+	AVG & average of conflicting values \\
+	MEDIAN & median of conflicting values
+}
 
 \subsubsection*{Date aggregation methods}
 
-\begin{description}
-	\item[MIN]
-		the earliest date
-	\item[MAX]
-		the latest date
-\end{description}
+\enumtable
+{
+	MIN & the earliest date \\
+	MAX & the latest date
+}
 
 \subsubsection*{String aggregation methods}
 
-\begin{description}
-	\item[SHORTEST]
-		the shortest string
-	\item[LONGEST]
-		the longest string
-\end{description}
+\enumtable
+{
+	SHORTEST & the shortest string \\
+	LONGEST & the longest string
+}
 
 \subsubsection*{Error strategy}
 The error strategy determines how to handle values that cannot be aggregated by the given aggregation method, e.g. when applying MEDIAN aggregation to a~mix of numeric and date values.
