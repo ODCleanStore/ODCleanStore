@@ -162,7 +162,7 @@ class SQL {
 	 */
 	static final String SELECT_QA_GROUPS = 
 			  " SELECT qa.transformerInstanceId, qa.groupId"
-			+ " FROM ODCLEANSTORE.DN_RULES_ASSIGNMENT qa, ODCLEANSTORE.PIPELINES p, ODCLEANSTORE.TRANSFORMER_INSTANCES ti"
+			+ " FROM ODCLEANSTORE.QA_RULES_ASSIGNMENT qa, ODCLEANSTORE.PIPELINES p, ODCLEANSTORE.TRANSFORMER_INSTANCES ti"
 			+ " WHERE qa.transformerInstanceId = ti.transformerId AND ti.pipelineId = p.id" 
 			+ " AND p.id= ?" 
 			+ " ORDER BY qa.transformerInstanceId, qa.groupId";
