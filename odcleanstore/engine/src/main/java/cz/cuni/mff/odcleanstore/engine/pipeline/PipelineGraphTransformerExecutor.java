@@ -4,7 +4,8 @@ import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl;
@@ -19,7 +20,7 @@ import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 
 public class PipelineGraphTransformerExecutor {
 	
-	private static final Logger LOG = Logger.getLogger(PipelineGraphTransformerExecutor.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PipelineGraphTransformerExecutor.class);
 	
 	static final String ERROR_WORKING_DIRECTORY_CHECK = "transformer working directory checking error"; 
 	static final String ERROR_LOAD_CUSTOM_TRANSFORMER = "custom transformer loading error";

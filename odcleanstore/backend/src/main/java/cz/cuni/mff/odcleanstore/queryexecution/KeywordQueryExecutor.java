@@ -77,7 +77,8 @@ import java.util.regex.Pattern;
             + "\n       {"
             + "\n         GRAPH ?graph {"
             + "\n           ?s ?p ?o."
-            + "\n           FILTER (?o = %2$s)"
+           // fix of SPARQL compiler error: "sparp_gp_deprecate(): equiv replaces filter but under deprecation"
+            + "\n           FILTER (?o IN (%2$s, %2$s))"
             + "\n         }"
             + "\n       }"
             + "\n       %3$s"
@@ -117,7 +118,8 @@ import java.util.regex.Pattern;
             + "\n         {"
             + "\n           GRAPH ?graph {"
             + "\n             ?s ?p ?o."
-            + "\n             FILTER (?o = %2$s)"
+            // fix of SPARQL compiler error: "sparp_gp_deprecate(): equiv replaces filter but under deprecation"
+            + "\n             FILTER (?o IN (%2$s, %2$s))"
             + "\n           }"
             + "\n         }"
             + "\n         %3$s"
@@ -142,7 +144,8 @@ import java.util.regex.Pattern;
             + "\n             {"
             + "\n               GRAPH ?graph {"
             + "\n                 ?r ?p ?o."
-            + "\n                 FILTER (?o = %2$s)"
+            // fix of SPARQL compiler error: "sparp_gp_deprecate(): equiv replaces filter but under deprecation"
+            + "\n                 FILTER (?o IN (%2$s, %2$s))"
             + "\n               }"
             + "\n             }"
             + "\n             UNION"
@@ -157,7 +160,8 @@ import java.util.regex.Pattern;
             + "\n             {"
             + "\n               GRAPH ?graph {"
             + "\n                 ?s ?r ?o."
-            + "\n                 FILTER (?o = %2$s)"
+            // fix of SPARQL compiler error: "sparp_gp_deprecate(): equiv replaces filter but under deprecation"
+            + "\n                 FILTER (?o IN (%2$s, %2$s))"
             + "\n               }"
             + "\n             }"
             + "\n             %3$s"
@@ -215,7 +219,8 @@ import java.util.regex.Pattern;
             + "\n       {"
             + "\n         GRAPH ?graph {"
             + "\n           ?r ?p ?o."
-            + "\n           FILTER (?o = %2$s)"
+           // fix of SPARQL compiler error: "sparp_gp_deprecate(): equiv replaces filter but under deprecation"
+            + "\n           FILTER (?o IN (%2$s, %2$s))"
             + "\n         }"
             + "\n       }"
             + "\n       UNION"
@@ -230,7 +235,8 @@ import java.util.regex.Pattern;
             + "\n       {"
             + "\n         GRAPH ?graph {"
             + "\n           ?s ?r ?o."
-            + "\n           FILTER (?o = %2$s)"
+            // fix of SPARQL compiler error: "sparp_gp_deprecate(): equiv replaces filter but under deprecation"
+            + "\n           FILTER (?o IN (%2$s, %2$s))"
             + "\n         }"
             + "\n       }"
             + "\n       %3$s"
@@ -504,7 +510,7 @@ import java.util.regex.Pattern;
      */
     private Collection<Quad> getKeywordOccurrences(String containsMatchExpr, String exactMatchExpr)
             throws DatabaseException {
-        String query = String.format(KEYWORD_OCCURENCES_QUERY, containsMatchExpr, exactMatchExpr,
+        String query = String.format(Locale.ROOT, KEYWORD_OCCURENCES_QUERY, containsMatchExpr, exactMatchExpr,
                 getGraphFilterClause(), maxLimit);
         return getQuadsFromQuery(query, "getKeywordOccurrences()");
     }

@@ -2,7 +2,8 @@ package cz.cuni.mff.odcleanstore.engine.pipeline;
 
 import java.util.Collection;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraphException;
@@ -12,7 +13,7 @@ import cz.cuni.mff.odcleanstore.transformer.TransformedGraphException;
  */
 public final class TransformedGraph implements cz.cuni.mff.odcleanstore.transformer.TransformedGraph {
 
-	private static final Logger LOG = Logger.getLogger(TransformedGraph.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TransformedGraph.class);
 	
 	public static final String ERROR_NOT_ACTIVE_TRANSFORMER = "Operation is permitted only for active transformation context in active pipeline";
 	public static final String ERROR_ATTACH_GRAPH = "Error during adding attached graph";

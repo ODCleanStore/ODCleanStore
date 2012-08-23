@@ -159,7 +159,8 @@ import java.util.Set;
             + "\n             {"
             + "\n               GRAPH ?graph {"
             + "\n                 ?s ?r ?o."
-            + "\n                 FILTER (?o = <%1$s>)"
+            // fix of SPARQL compiler error: "sparp_gp_deprecate(): equiv replaces filter but under deprecation"
+            + "\n                 FILTER (?o IN (<%1$s>, <%1$s>))"
             + "\n               }"
             + "\n               %2$s"
             + "\n             }"
@@ -236,7 +237,8 @@ import java.util.Set;
             + "\n       {"
             + "\n         GRAPH ?graph {"
             + "\n           ?s ?r ?o."
-            + "\n           FILTER (?o = <%1$s>)"
+            // fix of SPARQL compiler error: "sparp_gp_deprecate(): equiv replaces filter but under deprecation"
+            + "\n                 FILTER (?o IN (<%1$s>, <%1$s>))"
             + "\n         }"
             + "\n         %2$s"
             + "\n       }"
@@ -370,7 +372,7 @@ import java.util.Set;
      * @throws DatabaseException query error
      */
     private Collection<Quad> getURIOccurrences(String uri) throws DatabaseException {
-        String query = String.format(URI_OCCURENCES_QUERY, uri, getGraphFilterClause(), maxLimit);
+        String query = String.format(Locale.ROOT, URI_OCCURENCES_QUERY, uri, getGraphFilterClause(), maxLimit);
         return getQuadsFromQuery(query, "getURIOccurrences()");
     }
 

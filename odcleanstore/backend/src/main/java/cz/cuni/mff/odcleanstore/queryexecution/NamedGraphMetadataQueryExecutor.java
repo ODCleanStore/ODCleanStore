@@ -149,7 +149,7 @@ import java.util.Locale;
      * @throws DatabaseException query error
      */
     private Collection<Quad> getProvenanceMetadata(String namedGraphURI) throws DatabaseException {
-        String query = String.format(PROVENANCE_METADATA_QUERY, namedGraphURI, maxLimit);
+        String query = String.format(Locale.ROOT, PROVENANCE_METADATA_QUERY, namedGraphURI, maxLimit);
         return getQuadsFromQuery(query, "getProvenanceMetadata()");
     }
 

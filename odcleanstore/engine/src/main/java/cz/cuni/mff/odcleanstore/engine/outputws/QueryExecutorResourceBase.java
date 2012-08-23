@@ -4,7 +4,6 @@ package cz.cuni.mff.odcleanstore.engine.outputws;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.log4j.Logger;
 import org.restlet.data.Form;
 import org.restlet.data.Reference;
 import org.restlet.data.Status;
@@ -12,6 +11,8 @@ import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 import org.restlet.resource.ServerResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cz.cuni.mff.odcleanstore.configuration.OutputWSConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
@@ -30,7 +31,7 @@ import cz.cuni.mff.odcleanstore.transformer.TransformerException;
  */
 public abstract class QueryExecutorResourceBase extends ServerResource {
 	
-	private static final Logger LOG = Logger.getLogger(QueryExecutorResourceBase.class);
+	private static final Logger LOG = LoggerFactory.getLogger(QueryExecutorResourceBase.class);
 
 	private static final String DEFAULT_AGGREGATION_PARAM = "aggr";
 	private static final String DEFAULT_MULTIVALUE_PARAM = "multivalue";

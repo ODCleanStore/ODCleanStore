@@ -3,6 +3,7 @@ package cz.cuni.mff.odcleanstore.engine.outputws.output;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Date;
+import java.util.Locale;
 
 import org.restlet.data.CharacterSet;
 import org.restlet.data.MediaType;

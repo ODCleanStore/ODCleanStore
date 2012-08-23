@@ -5,7 +5,8 @@ import java.util.Collection;
 
 import javax.xml.ws.Endpoint;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.engine.Engine;
@@ -18,7 +19,7 @@ import cz.cuni.mff.odcleanstore.engine.common.Utils.DirectoryException;
  */
 public final class InputWSService extends Service {
 
-	private static final Logger LOG = Logger.getLogger(InputWSService.class);
+	private static final Logger LOG = LoggerFactory.getLogger(InputWSService.class);
 	
 	private Endpoint endpoint;
 
