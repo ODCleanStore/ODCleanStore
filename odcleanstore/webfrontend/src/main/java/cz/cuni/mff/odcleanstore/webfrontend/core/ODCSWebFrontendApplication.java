@@ -36,6 +36,8 @@ public class ODCSWebFrontendApplication extends AuthenticatedWebApplication
 	/** Application configuration */
 	private Configuration configuration;
 	
+	private URLRouter urlRouter;
+	
 	@Override
 	public Class<HomePage> getHomePage() 
 	{
@@ -64,13 +66,8 @@ public class ODCSWebFrontendApplication extends AuthenticatedWebApplication
 		configuration = (Configuration) ctx.getBean("appConfig");
 		daoLookupFactory = new DaoLookupFactory(configuration.getConnectionCoords());
 		
-		mountPage(WEB_URL_PREFIX + "/login", LogInPage.class);
-		mountPage(WEB_URL_PREFIX + "/user-accounts", UserAccountsPage.class);
-		mountPage(WEB_URL_PREFIX + "/backend/pipelines", PipelinesListPage.class);
-		mountPage(WEB_URL_PREFIX + "/backend/transformers", TransformersListPage.class);
-		mountPage(WEB_URL_PREFIX + "/backend/rules/oi", OIGroupsListPage.class);
-		mountPage(WEB_URL_PREFIX + "/backend/rules/qa", QAGroupDetailPage.class);
-		mountPage(WEB_URL_PREFIX + "/output-ws/aggregations", CRPropertiesListPage.class);
+		urlRouter = new URLRouter(WEB_URL_PREFIX);
+		urlRouter.setupRouting(this);
 	}
 	
 	@Override
@@ -81,7 +78,7 @@ public class ODCSWebFrontendApplication extends AuthenticatedWebApplication
 			@Override 
 			public String getNamespace() 
 			{
-				return "odcs-web-frontend"; 
+				return WEB_URL_PREFIX; 
 			}
 		};
 	}
