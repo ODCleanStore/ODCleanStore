@@ -1,5 +1,7 @@
 package cz.cuni.mff.odcleanstore.qualityassessment.rules;
 
+import java.util.Locale;
+
 /**
  * Quality Assessment rule consisting of a filter capturing unwanted
  * patterns in named graphs (any snippet of sparql query that can
@@ -24,7 +26,7 @@ public class QualityAssessmentRule {
 	public Long getId() {
 		return id;
 	}
-	
+
 	public Long getGroupId() {
 		return groupId;
 	}
@@ -38,7 +40,7 @@ public class QualityAssessmentRule {
 	 * @return the SPARQL
 	 */
 	public String toString(String graphName) {
-		return String.format("SPARQL SELECT COUNT(*) FROM <%s> WHERE %s", graphName, filter);
+		return String.format(Locale.ROOT, "SPARQL SELECT COUNT(*) FROM <%s> WHERE %s", graphName, filter);
 	}
 
 	public Double getCoefficient() {

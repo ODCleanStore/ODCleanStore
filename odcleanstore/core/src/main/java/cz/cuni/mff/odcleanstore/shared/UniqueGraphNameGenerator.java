@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.shared;
 
 import java.sql.SQLException;
+import java.util.Locale;
 
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
@@ -68,8 +69,8 @@ public class UniqueGraphNameGenerator implements UniqueURIGenerator {
 	public String nextURI(Integer start) {
 		try
 		{
-			//System.err.println(String.format(uriSuffixQueryFormat, uriBase));
-			WrappedResultSet resultSet = getConnection().executeSelect(String.format(uriSuffixQueryFormat, uriBase));
+			//System.err.println(String.format(Locale.ROOT, uriSuffixQueryFormat, uriBase));
+			WrappedResultSet resultSet = getConnection().executeSelect(String.format(Locale.ROOT, uriSuffixQueryFormat, uriBase));
 			
 			Integer id = -1;
 			

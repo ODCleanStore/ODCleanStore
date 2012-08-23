@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Locale;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
@@ -205,7 +206,7 @@ public final class VirtuosoConnectionWrapper {
      */
     public void adjustTransactionLevel(EnumLogLevel logLevel, boolean autoCommit) throws ConnectionException {
         try {
-            CallableStatement statement = connection.prepareCall(String.format("log_enable(%d)", logLevel.getBits()));
+            CallableStatement statement = connection.prepareCall(String.format(Locale.ROOT, "log_enable(%d)", logLevel.getBits()));
             statement.execute();
             connection.setAutoCommit(autoCommit);
         } catch (SQLException e) {

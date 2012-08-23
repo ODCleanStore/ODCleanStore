@@ -372,7 +372,7 @@ import java.util.Set;
      * @throws DatabaseException query error
      */
     private Collection<Quad> getURIOccurrences(String uri) throws DatabaseException {
-        String query = String.format(URI_OCCURENCES_QUERY, uri, getGraphFilterClause(), maxLimit);
+        String query = String.format(Locale.ROOT, URI_OCCURENCES_QUERY, uri, getGraphFilterClause(), maxLimit);
         return getQuadsFromQuery(query, "getURIOccurrences()");
     }
 

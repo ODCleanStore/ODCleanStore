@@ -45,7 +45,7 @@ public final class VirtuosoJdbc4ConnectionForRdf {
                     connectionCredentials.getUsername(),
                     connectionCredentials.getPassword());
         
-            		CallableStatement statement = connection.prepareCall(String.format("log_enable(%d)", 1));
+            		CallableStatement statement = connection.prepareCall(String.format(Locale.ROOT, "log_enable(%d)", 1));
             		statement.execute();
             		connection.setAutoCommit(false);
         } catch (SQLException e) {
@@ -62,7 +62,7 @@ public final class VirtuosoJdbc4ConnectionForRdf {
 	 * @throws QueryException query error
 	 */
 	public void insertQuad(String subject, String predicate, String object, String graphName) throws QueryException {
-		execute(String.format("SPARQL INSERT INTO GRAPH %s { %s %s %s }", graphName, subject, predicate, object));
+		execute(String.format(Locale.ROOT, "SPARQL INSERT INTO GRAPH %s { %s %s %s }", graphName, subject, predicate, object));
 	}
 	
 	/**
@@ -71,7 +71,7 @@ public final class VirtuosoJdbc4ConnectionForRdf {
 	 * @throws QueryException query error  
 	 */
 	public void clearGraph(String graphName) throws QueryException {
-		execute(String.format("SPARQL CLEAR GRAPH %s", graphName));
+		execute(String.format(Locale.ROOT, "SPARQL CLEAR GRAPH %s", graphName));
 	}
 	
 	/**

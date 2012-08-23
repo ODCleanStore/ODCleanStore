@@ -1,5 +1,7 @@
 package cz.cuni.mff.odcleanstore.engine.db.model;
 
+import java.util.Locale;
+
 class SQL {
 	
 	/**
@@ -14,7 +16,7 @@ class SQL {
 	 * Select oldest working graph for given engine uuid.
 	 * @param first Engine UUID
 	 */
-	static final String SELECT_WORKING_GRAPH = String.format(
+	static final String SELECT_WORKING_GRAPH = String.format(Locale.ROOT, 
 			  " SELECT TOP 1 ig.id, ig.uuid, ig.stateId, ig.pipelineId, ig.isInCleanDB, ae.uuid" 
 			+ " FROM ODCLEANSTORE.EN_INPUT_GRAPHS ig"
 			+ " LEFT JOIN ODCLEANSTORE.EN_ATTACHED_ENGINES ae ON ig.engineId = ae.id"
@@ -33,7 +35,7 @@ class SQL {
 	 * Select oldest queued graph for given engine uuid.	
 	 * @param first Engine UUID
 	 */	
-	static final String SELECT_QUEUD_GRAPH = String.format(
+	static final String SELECT_QUEUD_GRAPH = String.format(Locale.ROOT, 
 			  " SELECT TOP 1 ig.id, ig.uuid, ig.stateId, ig.pipelineId, ig.isInCleanDB, ae.uuid" 
 			+ " FROM ODCLEANSTORE.EN_INPUT_GRAPHS ig"
 			+ " LEFT JOIN ODCLEANSTORE.EN_ATTACHED_ENGINES ae ON ig.engineId = ae.id"
@@ -54,7 +56,7 @@ class SQL {
 	 * @param second Graph ID
 	 * @param third Engine UUID
 	 */
-	static final String UPDATE_ATTACHED_ENGINE = String.format(
+	static final String UPDATE_ATTACHED_ENGINE = String.format(Locale.ROOT, 
 			  " UPDATE ODCLEANSTORE.EN_INPUT_GRAPHS\n"
 			+ " SET engineId = (SELECT id FROM ODCLEANSTORE.EN_ATTACHED_ENGINES WHERE uuid = ?)\n"
 			+ " WHERE id = ?\n"
@@ -68,7 +70,7 @@ class SQL {
 	 * @param first Graph stateId
 	 * @param second Graph ID
 	 */
-	static final String UPDATE_GRAPH_STATE = String.format(
+	static final String UPDATE_GRAPH_STATE = String.format(Locale.ROOT, 
 			  " UPDATE ODCLEANSTORE.EN_INPUT_GRAPHS" 
 			+ " SET stateId = ?"
 			+ " WHERE Id = ?");
@@ -82,7 +84,7 @@ class SQL {
 	 * @param second isInCleanDb 
 	 * @param third Graph ID
 	 */
-	static final String UPDATE_GRAPH_STATE_AND_ISINCLEANDB = String.format(
+	static final String UPDATE_GRAPH_STATE_AND_ISINCLEANDB = String.format(Locale.ROOT, 
 			  " UPDATE ODCLEANSTORE.EN_INPUT_GRAPHS" 
 			+ " SET stateId = ?, isInCleanDb = ?"
 			+ " WHERE Id = ?");
@@ -95,7 +97,7 @@ class SQL {
 	 * Select all attached graphs for given graph id.
 	 * @param first Graph ID
 	 */
-	static final String SELECT_ATTACHED_GRAPHS = String.format(
+	static final String SELECT_ATTACHED_GRAPHS = String.format(Locale.ROOT, 
 			  " SELECT name" 
 			+ " FROM ODCLEANSTORE.EN_WORKING_ADDED_GRAPHS"
 			+ " WHERE graphId = ?");
@@ -108,7 +110,7 @@ class SQL {
 	 * @param first Graph ID
 	 * @param second Name of graph
 	 */
-	static final String INSERT_ATTACHED_GRAPH = String.format(
+	static final String INSERT_ATTACHED_GRAPH = String.format(Locale.ROOT, 
 			  " INSERT"  
 			+ " INTO ODCLEANSTORE.EN_WORKING_ADDED_GRAPHS(graphId, name)"
 			+ " VALUES(?,?)");
@@ -120,7 +122,7 @@ class SQL {
 	 * Delete all attached graphs for given graph id.
 	 * @param first Graph ID
 	 */
-	static final String DELETE_ATTACHED_GRAPHS = String.format(
+	static final String DELETE_ATTACHED_GRAPHS = String.format(Locale.ROOT, 
 			  " DELETE"  
 			+ " FROM ODCLEANSTORE.EN_WORKING_ADDED_GRAPHS"
 			+ " WHERE graphId = ?");

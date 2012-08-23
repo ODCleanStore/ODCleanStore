@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.engine.outputws.output;
 
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * An abstract base class for query result formatters.
@@ -16,7 +17,7 @@ public abstract class ResultFormatterBase implements QueryResultFormatter {
 	 * @return formatted execution time
 	 */
 	protected String formatExecutionTime(long executionTime) {
-		return String.format("%.3f s", executionTime / SECOND_MS);
+		return String.format(Locale.ROOT, "%.3f s", executionTime / SECOND_MS);
 	}
 	
 	/**
@@ -25,7 +26,7 @@ public abstract class ResultFormatterBase implements QueryResultFormatter {
 	 * @return formatted score
 	 */
 	protected String formatScore(double score) {
-		return String.format("%.5f", score); 
+		return String.format(Locale.ROOT, "%.5f", score); 
 	}
 	
 	/**
