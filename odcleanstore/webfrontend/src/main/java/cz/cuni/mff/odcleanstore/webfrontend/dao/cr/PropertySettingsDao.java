@@ -102,7 +102,10 @@ public class PropertySettingsDao extends DaoForEntityWithSurrogateKey<PropertySe
 	public PropertySettings load(Long id)
 	{
 		String query = 
-			"SELECT * " +
+			"SELECT " +
+			"	P.id as id, P.property as property, " +
+			"	AT.id as atid, AT.label as atlbl, AT.description as atdescr, " +
+			"	MT.id as mtid, MT.label as mtlbl, MT.description as mtdescr " +
 			"FROM " + PropertySettingsDao.TABLE_NAME + " as P " +
 			"JOIN " + AggregationTypeDao.TABLE_NAME + " as AT " +
 			"ON P.aggregationTypeId = AT.id " +
