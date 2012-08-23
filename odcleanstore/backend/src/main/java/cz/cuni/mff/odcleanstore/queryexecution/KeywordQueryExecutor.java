@@ -508,7 +508,7 @@ import java.util.regex.Pattern;
      */
     private Collection<Quad> getKeywordOccurrences(String containsMatchExpr, String exactMatchExpr)
             throws DatabaseException {
-        String query = String.format(KEYWORD_OCCURENCES_QUERY, containsMatchExpr, exactMatchExpr,
+        String query = String.format(Locale.ROOT, KEYWORD_OCCURENCES_QUERY, containsMatchExpr, exactMatchExpr,
                 getGraphFilterClause(), maxLimit);
         return getQuadsFromQuery(query, "getKeywordOccurrences()");
     }

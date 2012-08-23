@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.engine.pipeline;
 
 import java.util.Collection;
+import java.util.Locale;
 
 import cz.cuni.mff.odcleanstore.engine.InputGraphState;
 import cz.cuni.mff.odcleanstore.engine.common.SimpleVirtuosoAccess;
@@ -23,7 +24,7 @@ final class WorkingInputGraphStatus {
 		try {
 			sva = SimpleVirtuosoAccess.createCleanDBConnection();
 			Collection<String[]> rows;
-			String sqlStatement = String.format("Select uuid from %s.EN_INPUT_GRAPHS" + " WHERE state='PROCESSING' OR state='PROCESSED' OR state ='PROPAGATED' OR state ='DELETING' OR state ='DIRTY'",
+			String sqlStatement = String.format(Locale.ROOT, "Select uuid from %s.EN_INPUT_GRAPHS" + " WHERE state='PROCESSING' OR state='PROCESSED' OR state ='PROPAGATED' OR state ='DELETING' OR state ='DIRTY'",
 					_dbSchemaPrefix);
 			rows = sva.getRowFromSqlStatement(sqlStatement);
 			return Utils.selectScalar(rows);
@@ -39,7 +40,7 @@ final class WorkingInputGraphStatus {
 		try {
 			sva = SimpleVirtuosoAccess.createCleanDBConnection();
 			Collection<String[]> rows;
-			String sqlStatement = String.format("Select pipelineId from %s.EN_INPUT_GRAPHS WHERE uuid='%s'",
+			String sqlStatement = String.format(Locale.ROOT, "Select pipelineId from %s.EN_INPUT_GRAPHS WHERE uuid='%s'",
 					_dbSchemaPrefix, uuid);
 			rows = sva.getRowFromSqlStatement(sqlStatement);
 			return Integer.parseInt(Utils.selectScalar(rows));
@@ -55,7 +56,7 @@ final class WorkingInputGraphStatus {
 		try {
 			sva = SimpleVirtuosoAccess.createCleanDBConnection();
 			Collection<String[]> rows;
-			String sqlStatement = String.format("Select name from %s.EN_WORKING_ADDED_GRAPHS", _dbSchemaPrefix);
+			String sqlStatement = String.format(Locale.ROOT, "Select name from %s.EN_WORKING_ADDED_GRAPHS", _dbSchemaPrefix);
 			rows = sva.getRowFromSqlStatement(sqlStatement);
 			return Utils.selectColumn(rows, 0);
 		} finally {
@@ -69,7 +70,7 @@ final class WorkingInputGraphStatus {
 		SimpleVirtuosoAccess sva = null;
 		try {
 			sva = SimpleVirtuosoAccess.createCleanDBConnection();
-			String sqlStatement = String.format("Delete from %s.EN_WORKING_ADDED_GRAPHS", _dbSchemaPrefix);
+			String sqlStatement = String.format(Locale.ROOT, "Delete from %s.EN_WORKING_ADDED_GRAPHS", _dbSchemaPrefix);
 			sva.executeStatement(sqlStatement);
 			sva.commit();
 		} finally {
@@ -83,9 +84,9 @@ final class WorkingInputGraphStatus {
 		SimpleVirtuosoAccess sva = null;
 		try {
 			sva = SimpleVirtuosoAccess.createCleanDBConnection();
-			String sqlStatement = String.format("Delete from %s.EN_WORKING_ADDED_GRAPHS", _dbSchemaPrefix);
+			String sqlStatement = String.format(Locale.ROOT, "Delete from %s.EN_WORKING_ADDED_GRAPHS", _dbSchemaPrefix);
 			sva.executeStatement(sqlStatement);
-			sqlStatement = String.format("Delete from %s.EN_INPUT_GRAPHS WHERE uuid='%s'", _dbSchemaPrefix, uuid);
+			sqlStatement = String.format(Locale.ROOT, "Delete from %s.EN_INPUT_GRAPHS WHERE uuid='%s'", _dbSchemaPrefix, uuid);
 			sva.executeStatement(sqlStatement);
 			sva.commit();
 		} finally {
@@ -99,7 +100,7 @@ final class WorkingInputGraphStatus {
 		SimpleVirtuosoAccess sva = null;
 		try {
 			sva = SimpleVirtuosoAccess.createCleanDBConnection();
-			String sqlStatement = String.format("Select state from %s.EN_INPUT_GRAPHS WHERE uuid='%s'", _dbSchemaPrefix, uuid);
+			String sqlStatement = String.format(Locale.ROOT, "Select state from %s.EN_INPUT_GRAPHS WHERE uuid='%s'", _dbSchemaPrefix, uuid);
 			Collection<String[]> rows = sva.getRowFromSqlStatement(sqlStatement);
 			return InputGraphState.valueOf(Utils.selectScalar(rows));
 		} finally {
@@ -113,7 +114,7 @@ final class WorkingInputGraphStatus {
 		SimpleVirtuosoAccess sva = null;
 		try {
 			sva = SimpleVirtuosoAccess.createCleanDBConnection();
-			String sqlStatement = String.format("Update %s.EN_INPUT_GRAPHS SET state='%S' WHERE uuid='%s'", _dbSchemaPrefix, newState.toString(), uuid);
+			String sqlStatement = String.format(Locale.ROOT, "Update %s.EN_INPUT_GRAPHS SET state='%S' WHERE uuid='%s'", _dbSchemaPrefix, newState.toString(), uuid);
 			sva.getRowFromSqlStatement(sqlStatement);
 			sva.commit();
 		} finally {
@@ -129,18 +130,18 @@ final class WorkingInputGraphStatus {
 		try {
 			sva = SimpleVirtuosoAccess.createCleanDBConnection();
 			Collection<String[]> rows;
-			String sqlStatement = String.format("Select uuid from %s.EN_INPUT_GRAPHS WHERE state='PROCESSING'", _dbSchemaPrefix);
+			String sqlStatement = String.format(Locale.ROOT, "Select uuid from %s.EN_INPUT_GRAPHS WHERE state='PROCESSING'", _dbSchemaPrefix);
 			rows = sva.getRowFromSqlStatement(sqlStatement);
 			uuid = Utils.selectScalar(rows);
 			if (uuid != null) {
 				return uuid;
 			}
 
-			sqlStatement = String.format("Select uuid from %s.EN_INPUT_GRAPHS WHERE state='IMPORTED'", _dbSchemaPrefix, uuid);
+			sqlStatement = String.format(Locale.ROOT, "Select uuid from %s.EN_INPUT_GRAPHS WHERE state='IMPORTED'", _dbSchemaPrefix, uuid);
 			rows = sva.getRowFromSqlStatement(sqlStatement);
 			uuid = Utils.selectScalar(rows);
 			if (uuid != null) {
-				sqlStatement = String.format("Update %s.EN_INPUT_GRAPHS SET state='%S' WHERE uuid='%s'", _dbSchemaPrefix, InputGraphState.PROCESSING, uuid);
+				sqlStatement = String.format(Locale.ROOT, "Update %s.EN_INPUT_GRAPHS SET state='%S' WHERE uuid='%s'", _dbSchemaPrefix, InputGraphState.PROCESSING, uuid);
 				sva.getRowFromSqlStatement(sqlStatement);
 				sva.commit();
 				return uuid;
@@ -166,7 +167,7 @@ final class WorkingInputGraphStatus {
 		SimpleVirtuosoAccess sva = null;
 		try {
 			sva = SimpleVirtuosoAccess.createCleanDBConnection();
-			String sqlStatement = String.format("Insert into %s.EN_WORKING_ADDED_GRAPHS(name) VALUES('%s')", _dbSchemaPrefix, attachedGraphName);
+			String sqlStatement = String.format(Locale.ROOT, "Insert into %s.EN_WORKING_ADDED_GRAPHS(name) VALUES('%s')", _dbSchemaPrefix, attachedGraphName);
 			sva.executeStatement(sqlStatement);
 			sva.commit();
 		} finally {

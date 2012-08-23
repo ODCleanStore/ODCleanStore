@@ -1,5 +1,7 @@
 package cz.cuni.mff.odcleanstore.simpletransformer;
 
+import java.util.Locale;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,10 +38,10 @@ public class CustomTransformer implements Transformer {
         try {
             connection = VirtuosoConnectionWrapper.createConnection(context.getDirtyDatabaseCredentials());
             for (String property : FILTERED_PROPERTIES) {
-                String query = String.format(DELETE_QUERY, inputGraph.getGraphName(), property);
+                String query = String.format(Locale.ROOT, DELETE_QUERY, inputGraph.getGraphName(), property);
                 connection.execute(query);
 
-                //query = String.format(DELETE_QUERY, inputGraph.getMetadataGraphName(), property);
+                //query = String.format(Locale.ROOT, DELETE_QUERY, inputGraph.getMetadataGraphName(), property);
                 //connection.execute(query);
             }
 

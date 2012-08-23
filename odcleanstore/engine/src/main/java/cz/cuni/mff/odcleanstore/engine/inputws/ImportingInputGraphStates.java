@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.engine.inputws;
 
 import java.util.Collection;
+import java.util.Locale;
 
 import cz.cuni.mff.odcleanstore.engine.InputGraphState;
 import cz.cuni.mff.odcleanstore.engine.common.SimpleVirtuosoAccess;
@@ -39,7 +40,7 @@ public final class ImportingInputGraphStates {
 		SimpleVirtuosoAccess sva = null;
 		try {
 			sva = SimpleVirtuosoAccess.createCleanDBConnection();
-			String sqlStatement = String.format("Select uuid from %s.EN_INPUT_GRAPHS WHERE state='IMPORTING'", DB_SCHEMA_PREFIX);
+			String sqlStatement = String.format(Locale.ROOT, "Select uuid from %s.EN_INPUT_GRAPHS WHERE state='IMPORTING'", DB_SCHEMA_PREFIX);
 			Collection<String[]> rows = sva.getRowFromSqlStatement(sqlStatement);
 			return Utils.selectColumn(rows, 0);
 		} finally {
@@ -53,7 +54,7 @@ public final class ImportingInputGraphStates {
 		SimpleVirtuosoAccess sva = null;
 		try {
 			sva = SimpleVirtuosoAccess.createCleanDBConnection();
-			String sqlStatement = String.format("Delete from %s.EN_INPUT_GRAPHS WHERE state='IMPORTING'", DB_SCHEMA_PREFIX);
+			String sqlStatement = String.format(Locale.ROOT, "Delete from %s.EN_INPUT_GRAPHS WHERE state='IMPORTING'", DB_SCHEMA_PREFIX);
 			sva.executeStatement(sqlStatement);
 			sva.commit();
 		} finally {
@@ -73,16 +74,16 @@ public final class ImportingInputGraphStates {
 		try {
 			sva = SimpleVirtuosoAccess.createCleanDBConnection();
 
-			String sqlStatement = String.format("Select uuid from %s.EN_INPUT_GRAPHS WHERE uuid='%s'", DB_SCHEMA_PREFIX, graphUuid);
+			String sqlStatement = String.format(Locale.ROOT, "Select uuid from %s.EN_INPUT_GRAPHS WHERE uuid='%s'", DB_SCHEMA_PREFIX, graphUuid);
 			if (sva.getRowFromSqlStatement(sqlStatement).size() != 0) {
 				throw new DuplicatedUuid();
 			}
 			
 			if (pipelineName == null || pipelineName.isEmpty())	{
-				sqlStatement = String.format("Select id from %s.PIPELINES WHERE label='%s'", DB_SCHEMA_PREFIX, DEFAULT_PIPELINE_NAME);
+				sqlStatement = String.format(Locale.ROOT, "Select id from %s.PIPELINES WHERE label='%s'", DB_SCHEMA_PREFIX, DEFAULT_PIPELINE_NAME);
 			}
 			else {
-				sqlStatement = String.format("Select id from %s.PIPELINES WHERE label='%s'", DB_SCHEMA_PREFIX, pipelineName);
+				sqlStatement = String.format(Locale.ROOT, "Select id from %s.PIPELINES WHERE label='%s'", DB_SCHEMA_PREFIX, pipelineName);
 			}
 			
 			Collection<String[]> pipelineRows = sva.getRowFromSqlStatement(sqlStatement);
@@ -92,7 +93,7 @@ public final class ImportingInputGraphStates {
 			}
 			
 			String pipelineId = pipelineRows.iterator().next()[0];
-			sqlStatement = String.format("Insert into %s.EN_INPUT_GRAPHS(uuid, pipelineId, state) VALUES('%s', '%s', '%s')", DB_SCHEMA_PREFIX, graphUuid, pipelineId , InputGraphState.IMPORTING);
+			sqlStatement = String.format(Locale.ROOT, "Insert into %s.EN_INPUT_GRAPHS(uuid, pipelineId, state) VALUES('%s', '%s', '%s')", DB_SCHEMA_PREFIX, graphUuid, pipelineId , InputGraphState.IMPORTING);
 			sva.executeStatement(sqlStatement);
 			sva.commit();
 
@@ -113,7 +114,7 @@ public final class ImportingInputGraphStates {
 		SimpleVirtuosoAccess sva = null;
 		try {
 			sva = SimpleVirtuosoAccess.createCleanDBConnection();
-			String sqlStatement = String.format("Update %s.EN_INPUT_GRAPHS SET state='%s' WHERE uuid='%s'", DB_SCHEMA_PREFIX, InputGraphState.IMPORTED, importUuid);
+			String sqlStatement = String.format(Locale.ROOT, "Update %s.EN_INPUT_GRAPHS SET state='%s' WHERE uuid='%s'", DB_SCHEMA_PREFIX, InputGraphState.IMPORTED, importUuid);
 			sva.executeStatement(sqlStatement);
 			sva.commit();
 			_actualImportingGraphUuid = null;
@@ -132,7 +133,7 @@ public final class ImportingInputGraphStates {
 		SimpleVirtuosoAccess sva = null;
 		try {
 			sva = SimpleVirtuosoAccess.createCleanDBConnection();
-			String sqlStatement = String.format("Delete from %s.EN_INPUT_GRAPHS(uuid) VALUES('%s')", DB_SCHEMA_PREFIX, importUuid);
+			String sqlStatement = String.format(Locale.ROOT, "Delete from %s.EN_INPUT_GRAPHS(uuid) VALUES('%s')", DB_SCHEMA_PREFIX, importUuid);
 			sva.executeStatement(sqlStatement);
 			sva.commit();
 			_actualImportingGraphUuid = null;

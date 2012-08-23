@@ -8,7 +8,8 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.InputGraphState;
@@ -25,7 +26,7 @@ import cz.cuni.mff.odcleanstore.vocabulary.W3P;
  */
 public final class PipelineService extends Service implements Runnable {
 
-	private static final Logger LOG = Logger.getLogger(PipelineService.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PipelineService.class);
 	
 	private WorkingInputGraphStatus _workingInputGraphStatus;
 	private WorkingInputGraph _workingInputGraph;
@@ -85,9 +86,8 @@ public final class PipelineService extends Service implements Runnable {
 			} catch (Exception e) {
 				_workingInputGraphStatus.setWorkingTransformedGraph(null);
 				setModuleState(ModuleState.CRASHED);
-				String message = String.format("PipelineService crashed - %s", e.getMessage());
 				e.printStackTrace();
-				LOG.error(message);
+				LOG.error("PipelineService crashed - {}", e.getMessage());
 			}
 		}
 	}
@@ -135,11 +135,11 @@ public final class PipelineService extends Service implements Runnable {
 		while ((uuid = waitForInput()) != null) {
 		TransformedGraphImpl transformedGraphImpl = null;
 			try {
-				LOG.info(String.format("PipelineService starts processing graph %s", uuid));
+				LOG.info("PipelineService starts processing graph {}", uuid);
 				int pipelineId = _workingInputGraphStatus.getGraphPipelineId(uuid);
 				Collection<TransformerCommand> TransformerCommands = TransformerCommand.getActualPlan("DB.ODCLEANSTORE", pipelineId);
 				loadData(uuid);
-				LOG.info(String.format("PipelineService ends data loading for graph %s", uuid));
+				LOG.info("PipelineService ends data loading for graph {}", uuid);
 				for (TransformerCommand transformerCommand : TransformerCommands) {
 					transformedGraphImpl = transformedGraphImpl == null ? new TransformedGraphImpl(_workingInputGraphStatus, uuid) : new TransformedGraphImpl(transformedGraphImpl);
 					processTransformer(transformerCommand, transformedGraphImpl);
@@ -243,10 +243,10 @@ public final class PipelineService extends Service implements Runnable {
 
 			_workingInputGraphStatus.setWorkingTransformedGraph(transformedGraphImpl);
 			transformer.transformNewGraph(transformedGraphImpl, context);
-			LOG.info(String.format("PipelineService ends proccesing %s transformer on graph %s", transformerCommand.getFullClassName(), transformedGraphImpl.getGraphId()));
+			LOG.info("PipelineService ends proccesing {} transformer on graph {}", transformerCommand.getFullClassName(), transformedGraphImpl.getGraphId());
 			_workingInputGraphStatus.setWorkingTransformedGraph(null);
 		} else {
-			LOG.warn(String.format("PipelineService - unknown transformer %s ignored", transformerCommand.getFullClassName()));
+			LOG.warn("PipelineService - unknown transformer {} ignored", transformerCommand.getFullClassName());
 		}
 	}
 	
@@ -296,7 +296,7 @@ public final class PipelineService extends Service implements Runnable {
 		_workingInputGraph.deleteGraphFromDirtyDB(Engine.METADATA_PREFIX + uuid);
 
 		_workingInputGraphStatus.deleteGraphAndWorkingAttachedGraphNames(uuid);
-		LOG.info(String.format("PipelineService ends deleting graph %s", uuid));
+		LOG.info("PipelineService ends deleting graph {}", uuid);
 	}
 
 	private void processProcessedState(String uuid) throws Exception {
@@ -322,6 +322,6 @@ public final class PipelineService extends Service implements Runnable {
 
 		_workingInputGraphStatus.deleteWorkingAttachedGraphNames();
 		_workingInputGraphStatus.setState(uuid, InputGraphState.FINISHED);
-		LOG.info(String.format("PipelineService has finished graph %s", uuid));
+		LOG.info("PipelineService has finished graph {}", uuid);
 	}
 }

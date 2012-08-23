@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URLEncoder;
+import java.util.Locale;
 
 import org.restlet.data.CharacterSet;
 import org.restlet.data.MediaType;
@@ -112,7 +113,7 @@ public class HTMLFormatter extends ResultFormatterBase {
 				writer.write("</td><td>");
 				writeNode(writer, crQuad.getQuad().getObject());
 				writer.write("</td><td>");
-				writer.write(String.format("%.5f", crQuad.getQuality()));
+				writer.write(String.format(Locale.ROOT, "%.5f", crQuad.getQuality()));
 				writer.write("</td><td>");
 				boolean first = true;
 				for (String sourceURI : crQuad.getSourceNamedGraphURIs()) {

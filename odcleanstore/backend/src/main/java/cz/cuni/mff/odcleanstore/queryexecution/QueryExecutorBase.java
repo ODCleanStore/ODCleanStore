@@ -406,7 +406,7 @@ import java.util.Locale;
      */
     protected void addSameAsLinksForURI(String uri, Collection<Triple> triples) throws DatabaseException {
         long startTime = System.currentTimeMillis();
-        String query = String.format(URI_SYNONYMS_QUERY, uri, MAX_SAMEAS_PATH_LENGTH, maxLimit);
+        String query = String.format(Locale.ROOT, URI_SYNONYMS_QUERY, uri, MAX_SAMEAS_PATH_LENGTH, maxLimit);
         WrappedResultSet resultSet = getConnection().executeSelect(query);
         LOG.debug("Query Execution: getURISynonyms() query took {} ms", System.currentTimeMillis() - startTime);
         try {

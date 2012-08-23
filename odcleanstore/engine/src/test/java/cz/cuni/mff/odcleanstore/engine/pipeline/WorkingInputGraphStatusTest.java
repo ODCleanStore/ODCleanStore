@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.engine.pipeline;
 
 import java.util.Collection;
+import java.util.Locale;
 import java.util.UUID;
 
 import junit.framework.Assert;
@@ -120,7 +121,7 @@ public class WorkingInputGraphStatusTest {
 		SimpleVirtuosoAccess sva = null;
 		try {
 			sva = SimpleVirtuosoAccess.createCleanDBConnection();
-			String sqlStatement = String.format("Insert into %s.EN_INPUT_GRAPHS(uuid, state) VALUES('%s', '%s')", _dbSchemaPrefix, uuid, inputGraphState.toString());
+			String sqlStatement = String.format(Locale.ROOT, "Insert into %s.EN_INPUT_GRAPHS(uuid, state) VALUES('%s', '%s')", _dbSchemaPrefix, uuid, inputGraphState.toString());
 			sva.executeStatement(sqlStatement);
 			sva.commit();
 		} finally {
@@ -135,19 +136,19 @@ public class WorkingInputGraphStatusTest {
 		String sqlStatement = null;
 		try {
 			sva = SimpleVirtuosoAccess.createCleanDBConnection();
-			sqlStatement = String.format("DROP TABLE  %s.EN_INPUT_GRAPHS", _dbSchemaPrefix);
+			sqlStatement = String.format(Locale.ROOT, "DROP TABLE  %s.EN_INPUT_GRAPHS", _dbSchemaPrefix);
 			try {
 				sva.executeStatement(sqlStatement);
 			} catch (Exception e) {
 			}
-			sqlStatement = String.format("DROP TABLE  %s.EN_WORKING_ADDED_GRAPHS", _dbSchemaPrefix);
+			sqlStatement = String.format(Locale.ROOT, "DROP TABLE  %s.EN_WORKING_ADDED_GRAPHS", _dbSchemaPrefix);
 			try {
 				sva.executeStatement(sqlStatement);
 			} catch (Exception e) {
 			}
-			sqlStatement = String.format("CREATE TABLE %s.EN_INPUT_GRAPHS (uuid VARCHAR(48) PRIMARY KEY,state VARCHAR(16) NOT NULL)", _dbSchemaPrefix);
+			sqlStatement = String.format(Locale.ROOT, "CREATE TABLE %s.EN_INPUT_GRAPHS (uuid VARCHAR(48) PRIMARY KEY,state VARCHAR(16) NOT NULL)", _dbSchemaPrefix);
 			sva.executeStatement(sqlStatement);
-			sqlStatement = String.format("CREATE TABLE  %s.EN_WORKING_ADDED_GRAPHS (name VARCHAR PRIMARY KEY)", _dbSchemaPrefix);
+			sqlStatement = String.format(Locale.ROOT, "CREATE TABLE  %s.EN_WORKING_ADDED_GRAPHS (name VARCHAR PRIMARY KEY)", _dbSchemaPrefix);
 			sva.executeStatement(sqlStatement);
 			sva.commit();
 		} finally {

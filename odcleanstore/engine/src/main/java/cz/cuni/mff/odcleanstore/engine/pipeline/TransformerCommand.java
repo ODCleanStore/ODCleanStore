@@ -6,6 +6,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Locale;
 
 import cz.cuni.mff.odcleanstore.engine.common.RowListener;
 import cz.cuni.mff.odcleanstore.engine.common.SimpleVirtuosoAccess;
@@ -47,7 +48,7 @@ public final class TransformerCommand {
 
 			sva = SimpleVirtuosoAccess.createCleanDBConnection();
 			String sqlStatement = String
-					.format("Select t.jarPath, t.fullClassName, tp.workDirPath, tp.configuration \n" +
+					.format(Locale.ROOT, "Select t.jarPath, t.fullClassName, tp.workDirPath, tp.configuration \n" +
 							"FROM %s.TRANSFORMERS t, %s.PIPELINES p, %s.TRANSFORMERS_TO_PIPELINES_ASSIGNMENT tp \n" +
 							"WHERE t.id = tp.transformerId AND tp.pipelineId = p.id \n" +
 							"AND p.id='%s' AND p.runOnCleanDB = 0 \n" +

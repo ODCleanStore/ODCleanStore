@@ -3,6 +3,7 @@ package cz.cuni.mff.odcleanstore.engine.outputws.output;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Date;
+import java.util.Locale;
 
 import org.restlet.data.CharacterSet;
 import org.restlet.data.MediaType;
@@ -168,11 +169,11 @@ public class TriGFormatter extends ResultFormatterBase {
         
         String title;
         if (queryResult.getQueryType() ==EnumQueryType.KEYWORD) {
-    		title = String.format(TITLE_KW, queryResult.getQuery());
+    		title = String.format(Locale.ROOT, TITLE_KW, queryResult.getQuery());
         } else if (queryResult.getQueryType() ==EnumQueryType.URI) {
-    		title = String.format(TITLE_URI, queryResult.getQuery());
+    		title = String.format(Locale.ROOT, TITLE_URI, queryResult.getQuery());
         } else {
-    		title = String.format(TITLE_GENERAL, queryResult.getQuery());
+    		title = String.format(Locale.ROOT, TITLE_GENERAL, queryResult.getQuery());
     	}
         metadataGraph.add(new Triple(queryURI, TITLE_PROPERTY, Node.createLiteral(title)));
 

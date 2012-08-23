@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Locale;
 
 import cz.cuni.mff.odcleanstore.engine.Engine;
 
@@ -94,7 +95,7 @@ public class SimpleVirtuosoAccess {
 	 * @throws SQLException
 	 */
 	public void deleteGraph(String graphName) throws SQLException {
-		String statement = String.format("SPARQL CLEAR GRAPH %s", graphName);
+		String statement = String.format(Locale.ROOT, "SPARQL CLEAR GRAPH %s", graphName);
 		executeStatement(statement);
 	}
 
@@ -109,7 +110,7 @@ public class SimpleVirtuosoAccess {
 	 * @throws SQLException
 	 */
 	public void insertQuad(String subject, String predicate, String object, String graph) throws SQLException {
-		String statement = String.format("SPARQL INSERT INTO GRAPH %s { %s %s %s }", graph, subject, predicate, object);
+		String statement = String.format(Locale.ROOT, "SPARQL INSERT INTO GRAPH %s { %s %s %s }", graph, subject, predicate, object);
 		executeStatement(statement);
 	}
 
@@ -217,7 +218,7 @@ public class SimpleVirtuosoAccess {
 	 */
 	private void adjustTransactionLevel(String virtusoLogEnableValue, boolean autoCommitValue) throws SQLException {
 
-		CallableStatement cst = _con.prepareCall(String.format("log_enable(%s)", virtusoLogEnableValue));
+		CallableStatement cst = _con.prepareCall(String.format(Locale.ROOT, "log_enable(%s)", virtusoLogEnableValue));
 		cst.execute();
 		_con.setAutoCommit(autoCommitValue);
 	}
