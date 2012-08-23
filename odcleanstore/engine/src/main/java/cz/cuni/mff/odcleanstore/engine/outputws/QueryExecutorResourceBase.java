@@ -61,28 +61,29 @@ public abstract class QueryExecutorResourceBase extends ServerResource {
 		
 	@Get
 	public Representation executeGet() {
-		try {
-			_form = this.getQuery();
-		}
-		catch(Exception e) {
-			LOG.warn(FormatHelper.formatExceptionForLog(e, "Client error bad request"));
-			getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST, e.getMessage());
-			return null;
-		}
-		return executeInternal();
+		return parseRequest(false, null) ? executeInternal() : null;
 	}
 
 	@Post
 	public Representation executePost(Representation entity) {
+		return parseRequest(true, entity) ? executeInternal() : null;
+	}
+	
+	private boolean parseRequest(boolean isPost, Representation entity) {
 		try {
-			_form = new Form(entity);
+			if (isPost) {
+				_form = new Form(entity);
+			}
+			else {
+				_form = this.getQuery(); 
+			}
+			return true;
 		}
 		catch(Exception e) {
 			LOG.warn(FormatHelper.formatExceptionForLog(e, "Client error bad request"));
 			getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST, e.getMessage());
-			return null;
-		}
-		return executeInternal();
+			return false;
+		}	
 	}
 	
 	private Representation executeInternal() {
