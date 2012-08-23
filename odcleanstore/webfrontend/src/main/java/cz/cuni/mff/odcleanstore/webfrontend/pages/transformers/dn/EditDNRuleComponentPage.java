@@ -32,8 +32,8 @@ public class EditDNRuleComponentPage extends FrontendPage
 	public EditDNRuleComponentPage(Long ruleComponentId) 
 	{
 		super(
-				"Home >DN > Rules groups > Group > Rules > Rule > Components > Create", 
-				"Add a new DN rule component"
+			"Home > Backend > DN > Groups > Rules > Components > Edit", 
+			"Edit a DN rule component"
 		);
 
 		// prepare DAO objects

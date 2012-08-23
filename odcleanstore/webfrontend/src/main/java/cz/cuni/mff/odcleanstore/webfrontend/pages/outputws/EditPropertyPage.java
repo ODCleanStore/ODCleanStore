@@ -24,8 +24,8 @@ public class EditPropertyPage extends FrontendPage
 	public EditPropertyPage(final Long propertyId) 
 	{
 		super(
-			"Home > Output WS > CR > Aggregation Settings > Properties > Create", 
-			"Register a new property"
+			"Home > Output WS > Aggregation Properties > Edit", 
+			"Edit a property"
 		);
 
 		// prepare DAO objects

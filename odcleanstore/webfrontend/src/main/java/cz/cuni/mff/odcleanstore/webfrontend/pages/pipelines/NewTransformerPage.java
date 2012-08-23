@@ -20,7 +20,7 @@ public class NewTransformerPage extends FrontendPage
 	{
 		super
 		(
-			"Home > Transformers > Create", 
+			"Home > Backend > Transformers > New", 
 			"Register a new transformer"
 		);
 		

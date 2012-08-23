@@ -19,8 +19,8 @@ public class NewOIGroupPage extends FrontendPage
 	public NewOIGroupPage() 
 	{
 		super(
-			"Home > OI > Rules groups > Create", 
-			"Add a new rules group"
+			"Home > Backend > OI > Groups > New", 
+			"Add a new rules' group"
 		);
 
 		// prepare DAO objects

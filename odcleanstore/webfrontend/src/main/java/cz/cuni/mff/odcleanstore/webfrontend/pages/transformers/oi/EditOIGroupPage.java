@@ -19,8 +19,8 @@ public class EditOIGroupPage extends FrontendPage
 	public EditOIGroupPage(final Long groupId) 
 	{
 		super(
-			"Home > OI > Rules groups > Edit", 
-			"Add a new rules group"
+			"Home > Backend > OI > Groups > Edit", 
+			"Edit a rules' group"
 		);
 
 		// prepare DAO objects

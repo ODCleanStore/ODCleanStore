@@ -41,8 +41,8 @@ public class PipelinesListPage extends FrontendPage
 	{
 		super
 		(
-			"Home > Pipelines > List", 
-			"Registered pipelines configuration"
+			"Home > Backend > Pipelines > List", 
+			"List all pipelines"
 		);
 		
 		// prepare DAO objects

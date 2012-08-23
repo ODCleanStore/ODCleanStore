@@ -24,8 +24,8 @@ public class NewPropertyPage extends FrontendPage
 	public NewPropertyPage() 
 	{
 		super(
-			"Home > Output WS > CR > Aggregation Settings > Properties > Create", 
-			"Register a new property"
+			"Home > Output WS > Aggregation Properties > New", 
+			"Add a new property"
 		);
 
 		// prepare DAO objects

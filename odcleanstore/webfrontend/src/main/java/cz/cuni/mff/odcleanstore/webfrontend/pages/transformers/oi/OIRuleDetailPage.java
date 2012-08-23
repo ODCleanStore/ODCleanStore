@@ -34,8 +34,8 @@ public class OIRuleDetailPage extends FrontendPage
 	public OIRuleDetailPage(final Long ruleId) 
 	{
 		super(
-			"Home > OI > Rules groups > Group > Rules > Rule > Detail", 
-			"OI rule detail"
+			"Home > Backend > OI > Groups > Rules > Detail", 
+			"Show OI rule detail"
 		);
 		
 		// prepare DAO objects

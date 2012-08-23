@@ -15,11 +15,15 @@ public class OntologyDetailPage extends FrontendPage
 
 	public OntologyDetailPage(final Long ontologyId) 
 	{
-		super("Home > Ontologies > Detail", "Ontology Detail");
+		super(
+			"Home > Ontologies > Detail", 
+			"Show ontology detail"
+		);
 		
 		// prepare DAO object
 		//
 		ontologyDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OntologyDao.class);
+		
 		// register page components
 		//		
 		addOntologyInformationSection(ontologyId);

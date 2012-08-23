@@ -22,7 +22,7 @@ public class NewOIRulePage extends FrontendPage
 	public NewOIRulePage(final Long groupId) 
 	{
 		super(
-			"Home > OI > Rules groups > Group > Rules > Create", 
+			"Home > Backend > OI > Groups > Rules > New", 
 			"Add a new OI rule"
 		);
 		

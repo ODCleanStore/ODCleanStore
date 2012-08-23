@@ -36,8 +36,8 @@ public class DNGroupDetailPage extends FrontendPage
 	public DNGroupDetailPage(final Long groupId) 
 	{
 		super(
-			"Home > DN > Rules groups > Group > Detail", 
-			"DN Rules management"
+			"Home > Backend > DN > Groups > Detail", 
+			"Show DN rules' group detail"
 		);
 		
 		// prepare DAO objects

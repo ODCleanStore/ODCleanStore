@@ -21,8 +21,8 @@ public class EditDNGroupPage extends FrontendPage
 	public EditDNGroupPage(final Long groupId) 
 	{
 		super(
-			"Home > DN > Rules groups > Create", 
-			"Add a new rules group"
+			"Home > Backend > DN > Groups > Edit", 
+			"Edit a rules' group"
 		);
 
 		// prepare DAO objects

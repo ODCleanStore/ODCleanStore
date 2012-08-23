@@ -20,8 +20,8 @@ public class NewPipelinePage extends FrontendPage
 	{
 		super
 		(
-			"Home > Pipelines > Create", 
-			"Register a new pipeline"
+			"Home > Backend > Pipelines > New", 
+			"Create a new pipeline"
 		);
 		
 

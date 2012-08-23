@@ -37,8 +37,8 @@ public class QAGroupDetailPage extends FrontendPage
 	public QAGroupDetailPage(final Long groupId) 
 	{
 		super(
-			"Home > QA > Rules groups > Group > Detail", 
-			"QA Rules management"
+			"Home > Backend > QA > Groups > Detail", 
+			"Show QA rules' group detail"
 		);
 		
 		// prepare DAO objects

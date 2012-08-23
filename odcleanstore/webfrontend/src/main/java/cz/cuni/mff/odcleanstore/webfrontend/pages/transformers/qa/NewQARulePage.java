@@ -23,7 +23,7 @@ public class NewQARulePage extends FrontendPage
 	public NewQARulePage(final Long groupId) 
 	{
 		super(
-			"Home > QA > Rules groups > Group > Rules > Create", 
+			"Home > Backend > QA > Groups > Rules > New", 
 			"Add a new QA rule"
 		);
 		

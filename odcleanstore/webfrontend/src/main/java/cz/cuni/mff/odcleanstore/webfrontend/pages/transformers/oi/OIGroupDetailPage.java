@@ -36,8 +36,8 @@ public class OIGroupDetailPage extends FrontendPage
 	public OIGroupDetailPage(final Long groupId) 
 	{
 		super(
-			"Home > OI > Rules groups > Group > Detail", 
-			"Manage OI rules"
+			"Home > Backend > OI > Groups > Detail", 
+			"Show OI rules' group detail"
 		);
 		
 		// prepare DAO objects

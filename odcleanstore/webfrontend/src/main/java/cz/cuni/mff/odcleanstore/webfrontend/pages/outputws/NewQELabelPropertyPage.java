@@ -22,8 +22,8 @@ public class NewQELabelPropertyPage extends FrontendPage
 	public NewQELabelPropertyPage() 
 	{
 		super(
-			"Home > Output WS > CR > Label properties > Create", 
-			"Register a new label property"
+			"Home > Output WS > Label Properties > New", 
+			"Add a new label property"
 		);
 		
 

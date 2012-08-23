@@ -41,8 +41,8 @@ public class QAGroupsListPage extends FrontendPage
 	public QAGroupsListPage() 
 	{
 		super(
-			"Home > QA > Rules groups > List", 
-			"OI Rules management"
+			"Home > Backend > QA > Groups > List", 
+			"Show all QA rules' groups"
 		);
 		
 		// prepare DAO objects

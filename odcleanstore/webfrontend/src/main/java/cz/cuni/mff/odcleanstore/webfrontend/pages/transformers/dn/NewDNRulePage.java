@@ -25,7 +25,7 @@ public class NewDNRulePage extends FrontendPage
 	public NewDNRulePage(final Long groupId) 
 	{
 		super(
-			"Home >DN > Rules groups > Group > Rules > Create", 
+			"Home > Backend > DN > Groups > Rules > New", 
 			"Add a new DN rule"
 		);
 		

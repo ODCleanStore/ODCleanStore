@@ -31,8 +31,8 @@ public class TransformersListPage extends FrontendPage
 	{
 		super
 		(
-			"Home > Transformers > List", 
-			"Registered transformers configuration"
+			"Home > Backend > Transformers > List", 
+			"List all transformers"
 		);
 		
 		// prepare DAO objects

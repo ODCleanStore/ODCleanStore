@@ -19,8 +19,8 @@ public class NewQAGroupPage extends FrontendPage
 	public NewQAGroupPage() 
 	{
 		super(
-			"Home > QA > Rules groups > Create", 
-			"Add a new rules group"
+			"Home > Backend > QA > Groups > New", 
+			"Add a new rules' group"
 		);
 
 		// prepare DAO objects

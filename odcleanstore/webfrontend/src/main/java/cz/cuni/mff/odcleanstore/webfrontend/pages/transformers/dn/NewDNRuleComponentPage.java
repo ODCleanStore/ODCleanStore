@@ -28,8 +28,8 @@ public class NewDNRuleComponentPage extends FrontendPage
 	public NewDNRuleComponentPage(Long ruleId) 
 	{
 		super(
-				"Home >DN > Rules groups > Group > Rules > Rule > Components > Create", 
-				"Add a new DN rule component"
+			"Home > Backend > DN > Groups > Rules > Components > New", 
+			"Add a new DN rule component"
 		);
 
 		// prepare DAO objects
