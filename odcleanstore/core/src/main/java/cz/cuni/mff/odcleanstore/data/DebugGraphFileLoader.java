@@ -48,7 +48,7 @@ public class DebugGraphFileLoader {
 		try {
 			return loadImpl(new MultipleFormatLoader().load(input, getInputBaseURI(this.temporaryGraphURIPrefix, discriminator)), discriminator);
 		} catch (Exception e) {
-			LOG.error(String.format("Could not finish loading debug graphs from input: %s", e.getMessage()));
+			LOG.error("Could not finish loading debug graphs from input: {}", e.getMessage());
 				
 			throw e;
 		}
@@ -125,7 +125,7 @@ public class DebugGraphFileLoader {
 					temporaryGraph.add(triple);
 				}
 			
-				LOG.info(String.format("Input debug graph <%s> copied into <%s>", name, temporaryName));
+				LOG.info("Input debug graph <{}> copied into <{}>", name, temporaryName);
 			}
 		} catch (Exception e) {
 			
@@ -158,7 +158,7 @@ public class DebugGraphFileLoader {
 
 				unmarkTemporaryGraph(graphs.get(key));
 				
-				LOG.info(String.format("Temporary copy <%s> of input debug graph <%s> cleared", graphs.get(key), key));
+				LOG.info("Temporary copy <{}> of input debug graph <{}> cleared", graphs.get(key), key);
 			} catch (Exception e) {
 			}
 		}

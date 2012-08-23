@@ -1,6 +1,8 @@
 package cz.cuni.mff.odcleanstore.engine.pipeline;
 
-import org.apache.log4j.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.Service;
@@ -14,7 +16,7 @@ import cz.cuni.mff.odcleanstore.engine.db.model.PipelineErrorTypes;
  */
 public final class PipelineService extends Service implements Runnable {
 
-	private static final Logger LOG = Logger.getLogger(PipelineService.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PipelineService.class);
 	
 	private Object waitForGraphLock;
 	private Object waitPenaltyLock;

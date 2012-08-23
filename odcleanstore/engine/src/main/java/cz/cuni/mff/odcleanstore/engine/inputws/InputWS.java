@@ -11,7 +11,8 @@ import java.util.UUID;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.engine.Engine;
@@ -27,7 +28,7 @@ import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.Metadata;
 @WebService
 public class InputWS implements IInputWS {
 
-	private static final Logger LOG = Logger.getLogger(InputWS.class);
+	private static final Logger LOG = LoggerFactory.getLogger(InputWS.class);
 
 	private static InputGraphStatus _importedInputGraphStates = new InputGraphStatus();
 	
@@ -64,25 +65,25 @@ public class InputWS implements IInputWS {
 			saveFiles(metadata, payload);
 			_importedInputGraphStates.commitImportSession(sessionUuid);
 			Engine.signalToPipelineService();
-			LOG.info(String.format("InputWS webservice ends processing for input graph %s",metadata.uuid));
+			LOG.info("InputWS webservice ends processing for input graph {}",metadata.uuid);
 
 		} catch (InsertException e) {
-			LOG.warn(String.format("InputWS webservice - insert exception %s : %s", e.getMessage(), e.getMoreInfo()));
+			LOG.warn("InputWS webservice - insert exception {} : {}", e.getMessage(), e.getMoreInfo());
 			throw e;
 		} catch (InputGraphStatus.ServiceBusyException e) {
-			LOG.warn(String.format("InputWS webservice - insert exception %s : %s", InsertException.SERVICE_BUSY.getMessage(), InsertException.SERVICE_BUSY.getMoreInfo()));
+			LOG.warn("InputWS webservice - insert exception {} : {}", InsertException.SERVICE_BUSY.getMessage(), InsertException.SERVICE_BUSY.getMoreInfo());
 			throw InsertException.SERVICE_BUSY;
 		} catch (InputGraphStatus.DuplicatedUuid e) {
-			LOG.warn(String.format("InputWS webservice - insert exception %s : %s", InsertException.DUPLICATED_UUID.getMessage(), InsertException.DUPLICATED_UUID.getMoreInfo()));
+			LOG.warn("InputWS webservice - insert exception {} : {}", InsertException.DUPLICATED_UUID.getMessage(), InsertException.DUPLICATED_UUID.getMoreInfo());
 			throw InsertException.DUPLICATED_UUID;
 		} catch (InputGraphStatus.UnknownPipelineName e) {
-			LOG.warn(String.format("InputWS webservice - insert exception %s : %s", InsertException.UNKNOWN_PIPELINENAME.getMessage(), InsertException.UNKNOWN_PIPELINENAME.getMoreInfo()));
+			LOG.warn("InputWS webservice - insert exception {} : {}", InsertException.UNKNOWN_PIPELINENAME.getMessage(), InsertException.UNKNOWN_PIPELINENAME.getMoreInfo());
 			throw InsertException.UNKNOWN_PIPELINENAME;
 		} catch (InputGraphStatus.UnknownPipelineDefaultName e) {
-			LOG.warn(String.format("InputWS webservice - insert exception %s : %s", InsertException.FATAL_ERROR.getMessage(), "Unknown pipeline default name"));
+			LOG.warn("InputWS webservice - insert exception {} : {}", InsertException.FATAL_ERROR.getMessage(), "Unknown pipeline default name");
 			throw InsertException.FATAL_ERROR;
 		} catch (Exception e) {
-			LOG.warn(String.format("InputWS webservice - insert exception %s : %s", InsertException.FATAL_ERROR.getMessage(), InsertException.FATAL_ERROR.getMoreInfo()));
+			LOG.warn("InputWS webservice - insert exception {} : {}", InsertException.FATAL_ERROR.getMessage(), InsertException.FATAL_ERROR.getMoreInfo());
 			throw InsertException.FATAL_ERROR;
 		}
 	}

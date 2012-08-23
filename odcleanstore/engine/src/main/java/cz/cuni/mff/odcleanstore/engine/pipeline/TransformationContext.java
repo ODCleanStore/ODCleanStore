@@ -2,7 +2,8 @@ package cz.cuni.mff.odcleanstore.engine.pipeline;
 
 import java.io.File;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
@@ -13,7 +14,7 @@ import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
  */
 public class TransformationContext implements cz.cuni.mff.odcleanstore.transformer.TransformationContext {
 	
-	private static final Logger LOG = Logger.getLogger(TransformationContext.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TransformationContext.class);
 	
 	public static final String ERROR_NOT_ACTIVE_TRANSFORMER = "Operation is permitted only for active transformation context in active pipeline";
 

@@ -327,7 +327,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 			closeDirtyConnection();
 		}
 
-		LOG.info(String.format("Data Normalization applied to graph %s", inputGraph.getGraphName()));
+		LOG.info("Data Normalization applied to graph {}", inputGraph.getGraphName());
 	}
 
 	/**
@@ -486,7 +486,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 			rules = model.getRules(groupLabels);
 		}
 
-		LOG.info(String.format("Data Normalization selected %d rules.", rules.size()));
+		LOG.info("Data Normalization selected {} rules.", rules.size());
 	}
 
 	/**
