@@ -9,6 +9,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Locale;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
@@ -22,6 +25,8 @@ import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
  * @author Jan Michelfeit
  */
 public final class VirtuosoConnectionWrapper {
+	private static final Logger LOG = LoggerFactory.getLogger(VirtuosoConnectionWrapper.class);
+	
     /**
      * Query timeout in seconds.
      * Loaded from global configuration settings.
@@ -45,6 +50,7 @@ public final class VirtuosoConnectionWrapper {
             throw new ConnectionException("Couldn't load Virtuoso jdbc driver", e);
         }
         try {
+        	LOG.debug("VirtuosoConnectionWrapper: creating connection");
             Connection connection = DriverManager.getConnection(
                     connectionCredentials.getConnectionString(),
                     connectionCredentials.getUsername(),
@@ -237,6 +243,7 @@ public final class VirtuosoConnectionWrapper {
      */
     public void close() throws ConnectionException {
         try {
+        	LOG.debug("VirtuosoConnectionWrapper: closing connection");
             connection.close();
         } catch (SQLException e) {
             throw new ConnectionException(e);
