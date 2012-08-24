@@ -123,7 +123,15 @@ public abstract class QueryExecutorResourceBase extends ServerResource {
 		return null;		
 	}
 	
-	protected abstract Representation execute() throws QueryExecutionException, ResultEmptyException, TransformerException;
+	/**
+	 * Serve the current request.
+	 * @return response to the current request
+	 * @throws QueryExecutionException exception
+	 * @throws ResultEmptyException exception
+	 * @throws TransformerException exception
+	 */
+	protected abstract Representation execute()
+	        throws QueryExecutionException, ResultEmptyException, TransformerException;
 	
 	/**
 	 * Returns an appropriate formatter of the result.

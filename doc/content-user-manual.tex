@@ -551,7 +551,7 @@ For all queries, parameters and values are case-sensitive. Property names may be
 
 For more information about aggregation settings, see the corresponding section of Conflict Resolution specification\todo{reference}.
 
-\newpage % just for the tables to fit better
+%\newpage % just for the tables to fit better
 
 \subsubsection*{General aggregation methods}
 
@@ -603,13 +603,16 @@ The multivalue parameter determines whether differences with other conflicting v
 
 \subsection{Query Format}
 
-\subsubsection{URI Query \& Named Graph Metadata Query}
+\subsubsection{URI Query}
 The value of the \code{uri} parameter must be either a~full valid URI, or a~prefixed name (e.g. \code{dbpedia:Berlin}).  Available prefixes are managed in the administration frontend (see section \ref{sec:frontendPrefixMgmt}).
 
 \subsubsection{Keyword Query}
 The \code{kw} parameter can contain one or more keywords separated by whitespace. If a~keyword itself contains spaces, it may be enclosed in double quotes. Query Execution looks for literals that contain all of the keywords. Keywords can also contain the \code{*} wildcard, but they must begin with at least four non-wildcard characters if a~wildcard is to be used.
 
 Query Execution also looks for an exact match of the entire \code{kw} value (i.e. without any division to keywords). If the \code{kw} value is a~number, then numeric typed literals will also match; if the \code{kw} value is formatted as \code{xsd:dateTime}\footnote{\url{http://www.w3.org/TR/xmlschema-2/\#dateTime-lexical-representation}}, then \code{xsd:dateTime} typed literals will also match.
+
+\subsubsection{Named Graph Metadata Query}
+The value of the \code{uri} parameter must be a~valid URI.
 
 \subsection{Results Format for URI \& Keyword Queries}
 The result contains triples returned in response to the query, including relevant labels of URI resources in the result, and metadata for the triples.
