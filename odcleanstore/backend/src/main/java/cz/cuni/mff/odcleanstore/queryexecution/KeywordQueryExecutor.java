@@ -9,6 +9,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
+import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
 import cz.cuni.mff.odcleanstore.vocabulary.DC;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.W3P;
@@ -418,7 +419,9 @@ import java.util.regex.Pattern;
         checkValidSettings();
 
         if (keywordsQuery.length() > MAX_QUERY_LENGTH) {
-            throw new QueryExecutionException(EnumQueryError.QUERY_TOO_LONG,
+            throw new QueryExecutionException(
+                    EnumQueryError.QUERY_TOO_LONG,
+                    ErrorCodes.QE_INPUT_FORMAT_ERR,
                     "The requested keyword query is longer than " + MAX_QUERY_LENGTH + " characters.");
         }
 
@@ -450,9 +453,13 @@ import java.util.regex.Pattern;
 
             return createResult(resolvedQuads, metadata, canonicalQuery, System.currentTimeMillis() - startTime);
         } catch (ConflictResolutionException e) {
-            throw new QueryExecutionException(EnumQueryError.CONFLICT_RESOLUTION_ERROR, e);
+            throw new QueryExecutionException(
+                    EnumQueryError.CONFLICT_RESOLUTION_ERROR,
+                    ErrorCodes.QE_CR_ERR,
+                    "Internal error during conflict resolution",
+                    e);
         } catch (DatabaseException e) {
-            throw new QueryExecutionException(EnumQueryError.DATABASE_ERROR, e);
+            throw new QueryExecutionException(EnumQueryError.DATABASE_ERROR, ErrorCodes.QE_DATABASE_ERR, "Database error", e);
         } finally {
             closeConnectionQuietly();
         }

@@ -2,6 +2,7 @@ package cz.cuni.mff.odcleanstore.queryexecution.impl;
 
 import cz.cuni.mff.odcleanstore.queryexecution.EnumQueryError;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
+import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
 
 import java.util.Map;
 
@@ -45,7 +46,8 @@ import java.util.Map;
         String prefix = prefixedName.substring(0, colon);
         String expandedPrefix = get(prefix);
         if (expandedPrefix == null) {
-            throw new QueryExecutionException(EnumQueryError.UNKNOWN_PREFIX, "Unkown prefix " + prefix + ":");
+            throw new QueryExecutionException(
+                    EnumQueryError.UNKNOWN_PREFIX, ErrorCodes.QE_PREFIX_MAPPING_UNKNOWN_ERR, "Unkown prefix " + prefix + ":");
         }
         return expandedPrefix + prefixedName.substring(colon + 1);
     }

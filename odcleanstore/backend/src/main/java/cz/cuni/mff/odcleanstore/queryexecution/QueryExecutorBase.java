@@ -11,6 +11,7 @@ import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
+import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
@@ -265,13 +266,13 @@ import java.util.Locale;
         // Check that settings contain valid URIs
         for (String property : aggregationSpec.getPropertyAggregations().keySet()) {
             if (!Utils.isValidIRI(property)) {
-                throw new QueryExecutionException(EnumQueryError.AGGREGATION_SETTINGS_INVALID,
+                throw new QueryExecutionException(EnumQueryError.AGGREGATION_SETTINGS_INVALID, ErrorCodes.QE_INPUT_FORMAT_ERR,
                         "'" + property + "' is not a valid URI.");
             }
         }
         for (String property : aggregationSpec.getPropertyMultivalue().keySet()) {
             if (!Utils.isValidIRI(property)) {
-                throw new QueryExecutionException(EnumQueryError.AGGREGATION_SETTINGS_INVALID,
+                throw new QueryExecutionException(EnumQueryError.AGGREGATION_SETTINGS_INVALID, ErrorCodes.QE_INPUT_FORMAT_ERR,
                         "'" + property + "' is not a valid URI.");
             }
         }
@@ -280,7 +281,8 @@ import java.util.Locale;
         int settingsPropertyCount = aggregationSpec.getPropertyAggregations().size()
                 + aggregationSpec.getPropertyMultivalue().size();
         if (settingsPropertyCount > MAX_PROPERTY_SETTINGS_SIZE) {
-            throw new QueryExecutionException(EnumQueryError.QUERY_TOO_LONG, "Too many explicit property settings.");
+            throw new QueryExecutionException(EnumQueryError.QUERY_TOO_LONG, ErrorCodes.QE_INPUT_FORMAT_ERR,
+                    "Too many explicit property settings.");
         }
 
         // Log a warning if using this debug option
