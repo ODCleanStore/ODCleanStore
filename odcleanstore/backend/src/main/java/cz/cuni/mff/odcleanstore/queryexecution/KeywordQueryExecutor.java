@@ -259,7 +259,7 @@ import java.util.regex.Pattern;
      * @see #getContainsMatchExpr(String)
      * @see #CONTAINS_FILTER_PATTERN2
      */
-    private static final Pattern CONTAINS_FILTER_PATTERN1 = Pattern.compile("[\\x00-\\x09\\x0E-\\x1F'`]+");
+    private static final Pattern CONTAINS_FILTER_PATTERN1 = Pattern.compile("[\\x00-\\x09\\x0E-\\x1F'`\\\\]+");
 
     /**
      * Second stage of {@link #CONTAINS_FILTER_PATTERN1}.
@@ -279,7 +279,7 @@ import java.util.regex.Pattern;
      * Must remove quotes (single and double).
      * @see #getExactMatchExpr(String)
      */
-    private static final Pattern EXACT_MATCH_FILTER_PATTERN = Pattern.compile("[\\x00-\\x09\\x0E-\\x1F\"'`]+");
+    private static final Pattern EXACT_MATCH_FILTER_PATTERN = Pattern.compile("[\\x00-\\x09\\x0E-\\x1F\"'`\\\\]+");
 
     // CHECKSTYLE:OFF
     /** Pattern matching a valid xsd:dateTime value. */
