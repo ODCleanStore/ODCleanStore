@@ -2,10 +2,10 @@ package cz.cuni.mff.odcleanstore.engine.db;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Locale;
+import java.util.Properties;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
@@ -21,6 +21,8 @@ public final class VirtuosoJdbc4ConnectionForRdf {
     /** Database connection. */
     private Connection connection;
     
+    private virtuoso.jdbc4.Driver jdbcDriver;
+
 	public static VirtuosoJdbc4ConnectionForRdf createCleanDbConnection() throws ConnectionException {
 		return new VirtuosoJdbc4ConnectionForRdf(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
 	}
@@ -36,21 +38,22 @@ public final class VirtuosoJdbc4ConnectionForRdf {
      */
     private VirtuosoJdbc4ConnectionForRdf(JDBCConnectionCredentials connectionCredentials) throws ConnectionException {
     	try {
-            Class.forName("virtuoso.jdbc3.Driver");
+            Class.forName("virtuoso.jdbc4.Driver");
         } catch (ClassNotFoundException e) {
             throw new ConnectionException("Couldn't load Virtuoso jdbc4 driver", e);
         }
         try {
-            connection = DriverManager.getConnection(
-                    connectionCredentials.getConnectionString(),
-                    connectionCredentials.getUsername(),
-                    connectionCredentials.getPassword());
-        
-            		CallableStatement statement = connection.prepareCall(String.format(Locale.ROOT, "log_enable(%d)", 1));
-            		statement.execute();
-            		connection.setAutoCommit(false);
+       		jdbcDriver = new virtuoso.jdbc4.Driver();
+        	
+        	Properties properties = new Properties();
+        	properties.setProperty("user", connectionCredentials.getUsername());
+        	properties.setProperty("password", connectionCredentials.getPassword());
+        	connection = jdbcDriver.connect(connectionCredentials.getConnectionString(), properties);
+       		CallableStatement statement = connection.prepareCall(String.format(Locale.ROOT, "log_enable(%d)", 1));
+       		statement.execute();
+       		connection.setAutoCommit(false);
         } catch (SQLException e) {
-            throw new ConnectionException(e);
+            throw new ConnectionException(e);	
         }
     }
     
@@ -130,34 +133,15 @@ public final class VirtuosoJdbc4ConnectionForRdf {
     public void commit() throws SQLException {
         connection.commit();
     }
- 
-    /**
-     * Closes the connection.
-     * @throws ConnectionException connection error
-     */
-    public void close() throws ConnectionException {
-        try {
-            if (connection != null) {
-                connection.close();
-                connection = null;
-            }
-        } catch (SQLException e) {
-            throw new ConnectionException(e);
-        }
-    }
     
-    /**
-     * Close connection on finalize().
-     */
-    @Override
-    protected void finalize() {
-        try {
-            close();
-            super.finalize();
-        } catch (Throwable e) {
-            // do nothing
-        }
-    }
+	public void closeQuietly() {
+		if (connection != null) {
+			try {
+				connection.rollback();
+				connection.close();	
+			} catch(Throwable e) {}
+		}
+	}
     
     /**
      * Executes a general SQL/SPARQL query.

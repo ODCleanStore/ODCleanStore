@@ -5,9 +5,12 @@ import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 
 import virtuoso.jena.driver.VirtModel;
 
+import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.rdf.model.Model;
 
 import cz.cuni.mff.odcleanstore.configuration.BackendConfig;
@@ -71,33 +74,48 @@ final class PipelineGraphManipulator {
 		}
 	}
 
-	// TODO: complete replace for Virtuosojdbc4 driver on dst side which support transaction for SPARQL !!!
+
+	
 	void replaceGraphsInCleanDBFromDirtyDB() throws PipelineGraphManipulatorException {
+		VirtuosoJdbc4ConnectionForRdf con = null;
 		try {
-			deleteGraphsInCleanDB();
-			
-			BackendConfig backendConfig = ConfigLoader.getConfig().getBackendGroup();
-			JDBCConnectionCredentials creditClean = backendConfig.getCleanDBJDBCConnectionCredentials();
-			JDBCConnectionCredentials creditDirty = backendConfig.getDirtyDBJDBCConnectionCredentials();
 			Collection<String> graphs = getAllGraphNames();
+			JDBCConnectionCredentials creditDirty = ConfigLoader.getConfig().getBackendGroup().getDirtyDBJDBCConnectionCredentials();
+			//JDBCConnectionCredentials creditClean = ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials();
+			con = VirtuosoJdbc4ConnectionForRdf.createCleanDbConnection();
+			
 			for (String graphName : graphs) {
-				Model dstModel = null;
 				Model srcModel = null;
+				// Model dstModel = null;
+				con.clearGraph("<" + graphName + ">");
 				try {
 					srcModel = VirtModel.openDatabaseModel(graphName, creditDirty.getConnectionString(), creditDirty.getUsername(), creditDirty.getPassword());
-					dstModel = VirtModel.openDatabaseModel(graphName, creditClean.getConnectionString(), creditClean.getUsername(), creditClean.getPassword());
-					dstModel.add(srcModel);
+					// dstModel = VirtModel.openDatabaseModel(graphName, creditClean.getConnectionString(), creditClean.getUsername(), creditClean.getPassword());
+					Iterator<Triple> triples = srcModel.getGraph().find(null,null,null);
+					while(triples.hasNext()) {
+						Triple t = triples.next();
+						con.insertQuad(nodeToString(t.getSubject()), nodeToString(t.getPredicate()), nodeToString(t.getObject()), "<" + graphName + ">");
+					}
+					// dstModel.add(srcModel);
+					// dstModel.close();
+					
 				} finally {
 					if (srcModel != null) {
 						srcModel.close();
 					}
-					if (dstModel != null) {
-						dstModel.close();
-					}
+					// if (dstModel != null) {
+					//	dstModel.close();
+					//}
 				}
 			}
+			con.commit();
 		} catch(Exception e) { 
 			throw new PipelineGraphManipulatorException(format(ERROR_REPLACE_GRAPHS_IN_CLEANDB), e);
+		}
+		finally {
+			if (con != null) {
+				con.closeQuietly();
+			}
 		}
 	}
 	
@@ -144,7 +162,7 @@ final class PipelineGraphManipulator {
 		} 
 		finally {
 			if (con != null) {
-				con.close();
+				con.closeQuietly();
 			}
 		}
 	}
@@ -204,7 +222,7 @@ final class PipelineGraphManipulator {
 			con.commit();
 		} finally {
 			if (con != null) {
-				con.close();
+				con.closeQuietly();
 			}
 		}
 	}
@@ -231,6 +249,28 @@ final class PipelineGraphManipulator {
 					}
 				}
 			}
+	}
+	
+	private String nodeToString(Node node) {
+		if (node.isBlank()) {
+			return "<_:" + node.getBlankNodeLabel() + ">";
+		}
+		else if( node.isURI()) {
+			return "<" + node.getURI() + ">";
+		}
+		else if (node.isLiteral()) {
+			String literal = "\"" + node.getLiteralLexicalForm() + "\"";
+			String dataTypeURI = node.getLiteralDatatypeURI();
+			if (dataTypeURI != null && dataTypeURI.length() > 0) {
+				literal = literal + "^^<" + dataTypeURI + ">";
+			}
+			String language = node.getLiteralLanguage();
+			if (language != null && language.length() > 0) {
+				literal = literal + "@" + language;
+			}
+			return literal;
+		}
+		return node.toString();
 	}
 	
 	private String format(String message) {
