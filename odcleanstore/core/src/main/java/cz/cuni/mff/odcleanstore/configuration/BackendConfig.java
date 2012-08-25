@@ -28,10 +28,10 @@ import java.util.Properties;
  *
  */
 public class BackendConfig extends ConfigGroup {
-    /** database-name prefix for configuration values related to the dirty database */
+    /** Database-name prefix for configuration values related to the dirty database. */
     private static final String DIRTY_DB_NAME = "dirty";
 
-    /** database-name prefix for configuration values related to the clean database */
+    /** Database-name prefix for configuration values related to the clean database. */
     private static final String CLEAN_DB_NAME = "clean";
 
     static
@@ -88,11 +88,15 @@ public class BackendConfig extends ConfigGroup {
      */
     public static BackendConfig load(Properties properties)
             throws ParameterNotAvailableException, IllegalParameterFormatException {
-        SparqlEndpointConnectionCredentials dirtySparqlConnectionCredentials = loadSparqlEndpointConnectionCredentials(properties, DIRTY_DB_NAME);
-        JDBCConnectionCredentials dirtyJDBCConnectionCredentials = loadJDBCConnectionCredentials(properties, DIRTY_DB_NAME);
-
-        SparqlEndpointConnectionCredentials cleanSparqlConnectionCredentials = loadSparqlEndpointConnectionCredentials(properties, CLEAN_DB_NAME);
-        JDBCConnectionCredentials cleanJDBCConnectionCredentials = loadJDBCConnectionCredentials(properties, CLEAN_DB_NAME);
+        
+        SparqlEndpointConnectionCredentials dirtySparqlConnectionCredentials =
+                loadSparqlEndpointConnectionCredentials(properties, DIRTY_DB_NAME);
+        JDBCConnectionCredentials dirtyJDBCConnectionCredentials = 
+                loadJDBCConnectionCredentials(properties, DIRTY_DB_NAME);
+        SparqlEndpointConnectionCredentials cleanSparqlConnectionCredentials =
+                loadSparqlEndpointConnectionCredentials(properties, CLEAN_DB_NAME);
+        JDBCConnectionCredentials cleanJDBCConnectionCredentials =
+                loadJDBCConnectionCredentials(properties, CLEAN_DB_NAME);
 
         ParameterFormat<Integer> formatInteger = new FormatInteger();
         Integer queryTimeout = loadParam(properties, "query_timeout", formatInteger);
@@ -128,8 +132,8 @@ public class BackendConfig extends ConfigGroup {
      * @throws ParameterNotAvailableException
      * @throws IllegalParameterFormatException
      */
-    private static SparqlEndpointConnectionCredentials loadSparqlEndpointConnectionCredentials(Properties properties, String dbName)
-            throws ParameterNotAvailableException, IllegalParameterFormatException {
+    private static SparqlEndpointConnectionCredentials loadSparqlEndpointConnectionCredentials(
+            Properties properties, String dbName) throws ParameterNotAvailableException, IllegalParameterFormatException {
         ParameterFormat<URL> formatURL = new FormatURL();
 
         URL url = loadParam(properties, dbName + "_sparql_endpoint_url", formatURL);

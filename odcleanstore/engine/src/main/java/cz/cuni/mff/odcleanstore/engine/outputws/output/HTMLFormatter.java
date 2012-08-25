@@ -138,7 +138,8 @@ public class HTMLFormatter extends ResultFormatterBase {
          */
         protected void writeMetadata(Writer writer, NamedGraphMetadataMap metadataMap) throws IOException {
             writer.write(" <table border=\"1\" cellspacing=\"0\" cellpadding=\"2\">\n");
-            writer.write("  <tr><th>Named graph</th><th>Data source</th><th>Inserted at</th><th>Graph score</th><th>License</th></tr>");
+            writer.write("  <tr><th>Named graph</th><th>Data source</th><th>Inserted at</th>"
+                    + "<th>Graph score</th><th>License</th></tr>");
             for (NamedGraphMetadata metadata : metadataMap.listMetadata()) {
                 writer.write("  <tr><td>");
                 writeRelativeLink(
@@ -317,7 +318,8 @@ public class HTMLFormatter extends ResultFormatterBase {
          */
         private void writeResultQuads(Writer writer) throws IOException {
             writer.write(" <table border=\"1\" cellspacing=\"0\" cellpadding=\"2\">\n");
-            writer.write("  <tr><th>Subject</th><th>Predicate</th><th>Object</th><th>Quality</th><th>Source named graphs</th></tr>\n");
+            writer.write("  <tr><th>Subject</th><th>Predicate</th><th>Object</th>"
+                    + "<th>Quality</th><th>Source named graphs</th></tr>\n");
             for (CRQuad crQuad : queryResult.getResultQuads()) {
                 writer.write("  <tr><td>");
                 writeNode(writer, crQuad.getQuad().getSubject());

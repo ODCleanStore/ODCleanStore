@@ -9,13 +9,13 @@ import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
  */
 public class ResultEmptyException extends ODCleanStoreException {
 
-	private static final long serialVersionUID = -6884923392473006245L;
+    private static final long serialVersionUID = -6884923392473006245L;
 
-	/**
+    /**
      * Constructs a new exception with the given message.
      * @param message the detail message
      */
-	ResultEmptyException(String message) {
-		super(message);
-	}
+    ResultEmptyException(String message) {
+        super(message);
+    }
 }

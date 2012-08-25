@@ -183,9 +183,9 @@ public class WrappedResultSet {
      * @throws SQLException exception
      */
     public BigDecimal getBigDecimal(String columnLabel) throws SQLException {
-    	return resultSet.getBigDecimal(columnLabel);
+        return resultSet.getBigDecimal(columnLabel);
     }
-    
+
     /**
      * Retrieves the value of the designated column in the current row of this ResultSet object as a BigDecimal.
      * @param columnIndex the first column is 1, the second is 2, ...
@@ -193,8 +193,8 @@ public class WrappedResultSet {
      * @throws SQLException exception
      */
     public BigDecimal getBigDecimal(int columnIndex) throws SQLException {
-    	return resultSet.getBigDecimal(columnIndex);
-    }    
+        return resultSet.getBigDecimal(columnIndex);
+    }
 
     /**
      * Retrieves the value of the designated column in the current row of this ResultSet object as a java

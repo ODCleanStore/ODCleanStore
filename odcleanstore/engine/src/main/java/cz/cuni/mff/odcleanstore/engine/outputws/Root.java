@@ -18,27 +18,33 @@ public class Root extends Application {
     /**
      * Creates a new instance.
      * @param outputWSConfig configuration of the output webservice from the global configuration file
+     * @param outputWSService OutputWSService instance
      */
-	public Root(OutputWSConfig outputWSConfig, OutputWSService outputWSService) {
-		this.outputWSConfig = outputWSConfig;
-		this.outputWSService = outputWSService;
-		setStatusService(new StatusService());
-	}
+    public Root(OutputWSConfig outputWSConfig, OutputWSService outputWSService) {
+        this.outputWSConfig = outputWSConfig;
+        this.outputWSService = outputWSService;
+        setStatusService(new StatusService());
+    }
 
-	/**
-	 * Creates a root Restlet that will receive all incoming calls.
-	 */
-	@Override
-	public synchronized Restlet createInboundRoot() {
+    /**
+     * Creates a root Restlet that will receive all incoming calls.
+     * @return router
+     */
+    @Override
+    public synchronized Restlet createInboundRoot() {
 
-		Router router = new Router(getContext());
-		router.attach("/" + outputWSConfig.getKeywordPath(), KeywordQueryExecutorResource.class);
-		router.attach("/" + outputWSConfig.getUriPath(), UriQueryExecutorResource.class);
-		router.attach("/" + outputWSConfig.getNamedGraphPath(), NamedGraphQueryExecutorResource.class);
-		return router;
-	}
-	
-	public boolean canServeRequest() {
-		return outputWSService.getServiceState() == ServiceState.RUNNING;
-	}
+        Router router = new Router(getContext());
+        router.attach("/" + outputWSConfig.getKeywordPath(), KeywordQueryExecutorResource.class);
+        router.attach("/" + outputWSConfig.getUriPath(), UriQueryExecutorResource.class);
+        router.attach("/" + outputWSConfig.getNamedGraphPath(), NamedGraphQueryExecutorResource.class);
+        return router;
+    }
+
+    /**
+     * Indicates whether hte service is running and can serve requests.
+     * @return true iff the srevice is running
+     */
+    public boolean canServeRequest() {
+        return outputWSService.getServiceState() == ServiceState.RUNNING;
+    }
 }

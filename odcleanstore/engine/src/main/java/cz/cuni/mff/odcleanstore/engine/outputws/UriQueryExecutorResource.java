@@ -11,21 +11,23 @@ import cz.cuni.mff.odcleanstore.queryexecution.QueryExecution;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
 
 /**
- *  @author Petr Jerman
+ * @author Petr Jerman
  */
 public class UriQueryExecutorResource extends QueryExecutorResourceBase {
 
-	protected Representation execute() throws QueryExecutionException, ResultEmptyException{
-			String uri = getFormValue("uri");
-			AggregationSpec aggregationSpec = getAggregationSpec();
-			JDBCConnectionCredentials connectionCredentials = 
-					ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials();
-			QueryExecution queryExecution = new QueryExecution(connectionCredentials, ConfigLoader.getConfig());
-			final BasicQueryResult result = queryExecution.findURI(uri, new QueryConstraintSpec(), aggregationSpec);
+    @Override
+    protected Representation execute() throws QueryExecutionException, ResultEmptyException {
+        String uri = getFormValue("uri");
+        AggregationSpec aggregationSpec = getAggregationSpec();
+        JDBCConnectionCredentials connectionCredentials =
+                ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials();
+        QueryExecution queryExecution = new QueryExecution(connectionCredentials, ConfigLoader.getConfig());
+        final BasicQueryResult result = queryExecution.findURI(uri, new QueryConstraintSpec(), aggregationSpec);
 
-			if (result == null)
-				throw new ResultEmptyException("Result is empty");
+        if (result == null) {
+            throw new ResultEmptyException("Result is empty");
+        }
 
-			return getFormatter(ConfigLoader.getConfig().getOutputWSGroup()).format(result, getRequestReference());
-	}
+        return getFormatter(ConfigLoader.getConfig().getOutputWSGroup()).format(result, getRequestReference());
+    }
 }

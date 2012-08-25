@@ -17,10 +17,10 @@ import java.util.Properties;
 // Vytvorit spolecnou kolekci nainstanciovanych format objektu
 // namisto vytvareni potrebnych formatu v kazde load metode?
 public abstract class ConfigGroup {
-    /** the name of the represented group formatted as it occurs in the properties */
+    /** The name of the represented group formatted as it occurs in the properties. */
     protected static String GROUP_NAME;
 
-    /** the delimiter between the group name and property name in the properties */
+    /** The delimiter between the group name and property name in the properties. */
     protected static String NAME_DELIMITER = ".";
 
     /**

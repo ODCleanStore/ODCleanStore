@@ -74,17 +74,17 @@ public final class Config {
         InputWSConfig inputWSGroup = InputWSConfig.load(properties);
 
         return new Config(backendConfigGroup, dataNormalizationGroup, qualityAssessmentGroup, objectIdentificationGroup,
-        		queryExecutionGroup, conflictResolutionGroup, outputWSGroup, inputWSGroup);
+                queryExecutionGroup, conflictResolutionGroup, outputWSGroup, inputWSGroup);
     }
 
     /**
      * Extracts configuration values from the given file and returns them encapsulated
      * in a Config instance.
-     *
+     * 
      * The format of the given file is supposed to adhere to the Java Properties rules
      * (see <a href="http://docs.oracle.com/javase/1.4.2/docs/api/java/util/Properties.html">
      * Java SE javadoc</a> for more information on properties).
-     *
+     * 
      * @param file file to load configuration from
      * @return configuration holder instance
      * @throws ConfigurationException exception
@@ -113,10 +113,10 @@ public final class Config {
      * Returns DN configuration.
      * @return DN configuration
      */
-	public DataNormalizationConfig getDataNormalizationGroup() {
-		return dataNormalizationGroup;
-	}
-    
+    public DataNormalizationConfig getDataNormalizationGroup() {
+        return dataNormalizationGroup;
+    }
+
     /**
      * Returns QA configuration.
      * @return QA configuration
