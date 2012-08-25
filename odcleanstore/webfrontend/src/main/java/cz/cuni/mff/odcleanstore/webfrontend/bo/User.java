@@ -178,4 +178,14 @@ public class User extends EntityWithSurrogateKey
 	{
 		return this.roles.contains(role);
 	}
+	
+	@Override
+	public String toString()
+	{
+		return 
+			"user - username: " + username + 
+			", email: " + email + 
+			", firstname: " + firstname + 
+			", surname: " + surname;
+	}
 }

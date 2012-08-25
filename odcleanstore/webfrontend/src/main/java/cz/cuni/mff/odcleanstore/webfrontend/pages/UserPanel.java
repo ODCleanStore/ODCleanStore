@@ -23,6 +23,7 @@ public class UserPanel extends Panel
 		addUsernameLabel();
 		addRolesListLabel();
 		addLogoutLink(logoutPageClass);
+		addMyAccountLink();
 		addLoginLink();
 	}
 		
@@ -46,6 +47,20 @@ public class UserPanel extends Panel
 		params.add(LogOutPage.REDIRECT_PAGE_PARAM_KEY, logoutPageClass.getName());
 		
 		add(new BookmarkablePageLink<Object>("logout", LogOutPage.class, params)
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isVisible()
+			{
+				return ODCSWebFrontendSession.get().isAuthenticated();
+			}
+		});
+	}
+	
+	private void addMyAccountLink()
+	{
+		add(new BookmarkablePageLink<Object>("myAccount", MyAccountPage.class)
 		{
 			private static final long serialVersionUID = 1L;
 
