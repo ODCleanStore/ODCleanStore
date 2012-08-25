@@ -8,6 +8,8 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
 
 /**
@@ -81,6 +83,28 @@ public abstract class Service implements Runnable {
 		} catch (Exception e) {
 			LOG.error(FormatHelper.formatExceptionForLog(e, format("shutdown crashed")));
 			setServiceState(ServiceState.CRASHED);
+		}
+	}
+	
+	public final boolean isRunnningAndDbInstancesAvailable(boolean includeDirty) {
+		try {
+			if (getServiceState() != ServiceState.RUNNING) {
+				return false;
+			}
+
+			VirtuosoConnectionWrapper con = VirtuosoConnectionWrapper.createConnection(
+			   ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
+			con.closeQuietly();
+			if (includeDirty) {
+				con = VirtuosoConnectionWrapper.createConnection(
+						ConfigLoader.getConfig().getBackendGroup().getDirtyDBJDBCConnectionCredentials());
+				con.closeQuietly();
+			}
+			
+			return true;
+		}
+		catch(Exception e) {
+			return false;
 		}
 	}
 	

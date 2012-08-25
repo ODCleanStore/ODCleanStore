@@ -5,7 +5,6 @@ import org.restlet.Restlet;
 import org.restlet.routing.Router;
 
 import cz.cuni.mff.odcleanstore.configuration.OutputWSConfig;
-import cz.cuni.mff.odcleanstore.engine.ServiceState;
 
 /**
  *  @author Petr Jerman
@@ -45,6 +44,6 @@ public class Root extends Application {
      * @return true iff the srevice is running
      */
     public boolean canServeRequest() {
-        return outputWSService.getServiceState() == ServiceState.RUNNING;
+        return outputWSService.isRunnningAndDbInstancesAvailable(false);
     }
 }
