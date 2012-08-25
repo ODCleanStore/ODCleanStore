@@ -1,15 +1,15 @@
 package cz.cuni.mff.odcleanstore.test;
 
-import java.util.Collection;
-import java.util.UUID;
-
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraphException;
 
+import java.util.Collection;
+import java.util.UUID;
+
 public class TransformedGraphTestImpl implements TransformedGraph {
-	
+
 	private String graphName;
-	
+
 	public TransformedGraphTestImpl(String graphName) {
 		this.graphName = graphName;
 	}
@@ -31,6 +31,12 @@ public class TransformedGraphTestImpl implements TransformedGraph {
 	}
 
 	@Override
+    public String getProvenanceMetadataGraphName() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+	@Override
 	public Collection<String> getAttachedGraphNames() {
 		// TODO Auto-generated method stub
 		return null;
@@ -40,13 +46,13 @@ public class TransformedGraphTestImpl implements TransformedGraph {
 	public void addAttachedGraph(String attachedGraphName)
 			throws TransformedGraphException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void deleteGraph() throws TransformedGraphException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override

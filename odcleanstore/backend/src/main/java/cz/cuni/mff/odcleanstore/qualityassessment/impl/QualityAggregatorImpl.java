@@ -76,6 +76,12 @@ public class QualityAggregatorImpl implements QualityAggregator {
 					return false;
 				}
 
+                @Override
+                public String getProvenanceMetadataGraphName() {
+                 // TODO Auto-generated method stub
+                    return "http://opendata.cz/data/provenanceMetadata";
+                }
+
 			}, new TransformationContext() {
 
 				@Override

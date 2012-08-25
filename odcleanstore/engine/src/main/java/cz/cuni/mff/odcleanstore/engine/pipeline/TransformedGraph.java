@@ -32,7 +32,7 @@ public final class TransformedGraph implements cz.cuni.mff.odcleanstore.transfor
 	@Override
 	public String getGraphName() {
 		PipelineGraphStatus graphStatus = this.graphStatus;
-		if(graphStatus == null) {
+		if (graphStatus == null) {
 			LOG.error(ERROR_NOT_ACTIVE_TRANSFORMER);
 			throw new TransformedGraphRuntimeException(ERROR_NOT_ACTIVE_TRANSFORMER);
 		}
@@ -42,27 +42,37 @@ public final class TransformedGraph implements cz.cuni.mff.odcleanstore.transfor
 	@Override
 	public String getGraphId() {
 		PipelineGraphStatus graphStatus = this.graphStatus;
-		if(graphStatus == null) {
+		if (graphStatus == null) {
 			LOG.error(ERROR_NOT_ACTIVE_TRANSFORMER);
 			throw new TransformedGraphRuntimeException(ERROR_NOT_ACTIVE_TRANSFORMER);
 		}
 		return graphStatus.getUuid();
 	}
 
-	@Override
-	public String getMetadataGraphName() {
-		PipelineGraphStatus graphStatus = this.graphStatus;
-		if(graphStatus == null) {
-			LOG.error(ERROR_NOT_ACTIVE_TRANSFORMER);
-			throw new TransformedGraphRuntimeException(ERROR_NOT_ACTIVE_TRANSFORMER);
-		}
-		return ConfigLoader.getConfig().getBackendGroup().getMetadataGraphURIPrefix() + graphStatus.getUuid();
-	}
+    @Override
+    public String getMetadataGraphName() {
+        PipelineGraphStatus graphStatus = this.graphStatus;
+        if (graphStatus == null) {
+            LOG.error(ERROR_NOT_ACTIVE_TRANSFORMER);
+            throw new TransformedGraphRuntimeException(ERROR_NOT_ACTIVE_TRANSFORMER);
+        }
+        return ConfigLoader.getConfig().getBackendGroup().getMetadataGraphURIPrefix() + graphStatus.getUuid();
+    }
 
-	@Override
-	public Collection<String> getAttachedGraphNames() {
+    @Override
+    public String getProvenanceMetadataGraphName() {
+        PipelineGraphStatus graphStatus = this.graphStatus;
+        if (graphStatus == null) {
+            LOG.error(ERROR_NOT_ACTIVE_TRANSFORMER);
+            throw new TransformedGraphRuntimeException(ERROR_NOT_ACTIVE_TRANSFORMER);
+        }
+        return ConfigLoader.getConfig().getBackendGroup().getProvenanceMetadataGraphURIPrefix() + graphStatus.getUuid();
+    }
+
+    @Override
+    public Collection<String> getAttachedGraphNames() {
 		PipelineGraphStatus graphStatus = this.graphStatus;
-		if(graphStatus == null) {
+		if (graphStatus == null) {
 			LOG.error(ERROR_NOT_ACTIVE_TRANSFORMER);
 			throw new TransformedGraphRuntimeException(ERROR_NOT_ACTIVE_TRANSFORMER);
 		}
@@ -97,7 +107,7 @@ public final class TransformedGraph implements cz.cuni.mff.odcleanstore.transfor
 	@Override
 	public boolean isDeleted() {
 		PipelineGraphStatus graphStatus = this.graphStatus;
-		if(graphStatus == null) {
+		if (graphStatus == null) {
 			LOG.error(ERROR_NOT_ACTIVE_TRANSFORMER);
 			throw new TransformedGraphRuntimeException(ERROR_NOT_ACTIVE_TRANSFORMER);
 		}

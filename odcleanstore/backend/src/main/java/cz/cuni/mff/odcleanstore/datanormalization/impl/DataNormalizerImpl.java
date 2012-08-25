@@ -197,6 +197,10 @@ public class DataNormalizerImpl implements DataNormalizer {
 				return null;
 			}
 			@Override
+            public String getProvenanceMetadataGraphName() {
+                return null;
+            }
+			@Override
 			public Collection<String> getAttachedGraphNames() {
 				return null;
 			}

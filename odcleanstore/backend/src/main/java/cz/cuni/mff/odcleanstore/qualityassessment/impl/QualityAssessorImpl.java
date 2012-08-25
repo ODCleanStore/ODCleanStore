@@ -138,7 +138,8 @@ public class QualityAssessorImpl implements QualityAssessor {
 		}
 	}
 
-	private static TransformedGraph prepareInputGraph (final String name, final String metadataName) {
+	private static TransformedGraph prepareInputGraph (
+	        final String name, final String metadataName, final String provenanceMetadataName) {
 		return new TransformedGraph() {
 
 			@Override
@@ -152,6 +153,10 @@ public class QualityAssessorImpl implements QualityAssessor {
 			@Override
 			public String getMetadataGraphName() {
 				return metadataName;
+			}
+			@Override
+			public String getProvenanceMetadataGraphName() {
+			    return provenanceMetadataName;
 			}
 			@Override
 			public Collection<String> getAttachedGraphNames() {
@@ -320,7 +325,7 @@ public class QualityAssessorImpl implements QualityAssessor {
 			final JDBCConnectionCredentials source)
 		throws TransformerException {
 
-		this.inputGraph = prepareInputGraph(graphName, null);
+		this.inputGraph = prepareInputGraph(graphName, null, null);
 
 		this.context = prepareContext(clean, source);
 

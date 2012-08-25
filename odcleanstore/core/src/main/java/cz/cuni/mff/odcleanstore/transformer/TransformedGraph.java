@@ -9,22 +9,29 @@ import java.util.Collection;
  */
 public interface TransformedGraph {
     /**
-     * Returns URI of the transformed named graph.
+     * Returns URI of the transformed ("payload") named graph.
      * @return named graph URI
      */
     String getGraphName();
 
     /**
-     * Returns unique identifier in ODCS of the transform named graph.
+     * Returns the unique identifier of the transform named graph in ODCS.
      * @return id string
      */
     String getGraphId();
-
+    
     /**
-     * Returns URI of the named graph containing (provenance) metadata about the transformed graph.
-     * @return named graph URI
+     * Returns URI of the named graph containing OCDS metadata about the transformed graph.
+     * @return ODCS metadata graph URI
      */
     String getMetadataGraphName();
+    
+    /**
+     * Returns URI of the named graph containing provenance metadata about the transformed graph
+     * (given to Input Webservice).
+     * @return provenance metadata graph URI
+     */
+    String getProvenanceMetadataGraphName();
 
     /**
      * Returns a collection of graphs attached to the transformed graph registered by
