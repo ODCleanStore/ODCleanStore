@@ -52,6 +52,8 @@ public class TriGFormatter extends ResultFormatterBase {
     private static final Node SCORE_PROPERTY = Node.createURI(ODCS.score);
     /** {@ ODCS#publisherScore} as a {@link Node}. */
     private static final Node PUBLISHER_SCORE_PROPERTY = Node.createURI(ODCS.publisherScore);
+    /** {@ ODCS#sourceGraph} as a {@link Node}. */
+    private static final Node SOURCE_GRAPH_PROPERTY = Node.createURI(ODCS.sourceGraph);
     /** {@ W3P#source} as a {@link Node}. */
     private static final Node SOURCE_PROPERTY = Node.createURI(W3P.source);
     /** {@ W3P#insertedAt} as a {@link Node}. */
@@ -145,7 +147,8 @@ public class TriGFormatter extends ResultFormatterBase {
             for (String sourceNamedGraph : crQuad.getSourceNamedGraphURIs()) {
                 metadataGraph.add(new Triple(
                         crQuad.getQuad().getGraphName(), 
-                        SOURCE_PROPERTY, Node.createURI(sourceNamedGraph)));
+                        SOURCE_GRAPH_PROPERTY, 
+                        Node.createURI(sourceNamedGraph)));
             }
             metadataGraph.add(new Triple(queryURI, RESULT_PROPERTY, crQuad.getQuad().getGraphName()));
         }

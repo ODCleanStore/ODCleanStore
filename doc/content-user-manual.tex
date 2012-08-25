@@ -632,7 +632,7 @@ The result contains triples (quads) serialized in the TriG\footnote{\url{http://
 
 \begin{itemize}
 	\item triples returned in response to the query, each one placed in a~unique named graph
-  \item aggregated quality (\code{odcs:quality}) and source named graphs (\code{w3p:source}) of the above triples; subjects of these statements are the unique named graphs where the respective triples are placed
+  \item aggregated quality (\code{odcs:quality}) and source named graphs (\code{odcs:sourceGraph}) of the above triples; subjects of these statements are the unique named graphs where the respective triples are placed
   \item  metadata of source named graphs; they may include where the data were extracted from (\code{w3p:source}), Quality Assesment score of the named graph (\code{odcs:score}) and of its publisher (\code{odcs:publisherScore}), the publisher of the data (\code{w3p:publishedBy}), timestamp (\code{w3p:insertedAt}), licence (\code{dc:licence})
   \item  metadata about the query response itself -- a~title (\code{dc:title}), date (\code{dc:date}), number of result triples (\code{odcs:totalResults}), the query (\code{odcs:query}) and link to each result item (\code{odcs:result})
 \end{itemize}
@@ -723,6 +723,8 @@ When a new request is sent to Input Webservice, the stored data \& metadata go t
 	\code{odcs:metadataGraph} \\
 	\hline
 	\code{odcs:provenanceMetadataGraph} \\
+	\hline
+	\code{odcs:sourceGraph} \\
 	\hline
 	\code{w3p:insertedAt} \\
 	\hline

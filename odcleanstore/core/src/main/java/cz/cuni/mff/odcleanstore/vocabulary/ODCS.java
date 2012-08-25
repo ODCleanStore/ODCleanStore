@@ -90,11 +90,18 @@ public final class ODCS {
      * Coefficient of a Quality Assessment rule.
      */
     public static final String coefficient = "http://opendata.cz/infrastructure/odcleanstore/coefficient";
+
+    /**
+     * Property linking a query result triple (the named graph it is placed in, respectively) to
+     * named graphs the triple was selected or calculated from.
+     */
+    public static final String sourceGraph = "http://opendata.cz/infrastructure/odcleanstore/sourceGraph";
     
     /**
      * Class of resources describing a Quality Assessment rule. 
      */
     public static final String QARule = "http://opendata.cz/infrastructure/odcleanstore/QARule";
+    
     
     // CHECKSTYLE:ON
 }
