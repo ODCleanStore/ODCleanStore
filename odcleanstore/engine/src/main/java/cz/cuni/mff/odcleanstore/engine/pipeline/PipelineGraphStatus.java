@@ -147,22 +147,31 @@ public final class PipelineGraphStatus {
 		assert state != GraphStates.DIRTY;
 		try {
 			context = new DbOdcsContext();
+			
 			if (state == GraphStates.DELETED || (state == GraphStates.WRONG && !graph.isInCleanDb)) {
 				context.deleteAttachedGraphs(graph.id);
 			}
-			if (state == GraphStates.FINISHED) {
+			if (state == GraphStates.PROPAGATED) {
 				context.updateStateAndIsInCleanDb(graph.id, state, true);
+			} else if (state == GraphStates.DELETING) {
+				context.updateStateAndIsInCleanDb(graph.id, state, false);
 			} else {
 				context.updateState(graph.id, state);
 			}
+			
 			context.commit();
+			
+			graph.state = state;
+			
 			if (state == GraphStates.DELETED || (state == GraphStates.WRONG && !graph.isInCleanDb)) {
 				attachedGraphs.clear();
 			}
-			if (state == GraphStates.FINISHED) {
+			if (state == GraphStates.PROPAGATED) {
 				graph.isInCleanDb = true;
 			}
-			graph.state = state;
+			else if (state == GraphStates.DELETING) {
+				graph.isInCleanDb = false;
+			}
 		} catch( Exception e) {
 			throw new PipelineGraphStatusException(format(ERROR_SET_STATE, state), e);
 		}
