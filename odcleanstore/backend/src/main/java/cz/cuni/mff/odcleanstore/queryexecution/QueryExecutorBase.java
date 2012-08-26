@@ -15,7 +15,6 @@ import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
-import cz.cuni.mff.odcleanstore.vocabulary.W3P;
 import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 
 import com.hp.hpl.jena.graph.Node;
@@ -94,7 +93,7 @@ import java.util.Set;
      * Must be formatted with the date given as an argument.
      */
     private static final String INSERTED_AT_FILTER_CLAUSE = " OPTIONAL"
-            + " { ?graph <" + W3P.insertedAt + "> ?_insertedAt }"
+            + " { ?graph <" + ODCS.insertedAt + "> ?_insertedAt }"
             + " FILTER(?_insertedAt >= \"%s\"^^<" + XMLSchema.dateTimeType + ">)";
 
     /**

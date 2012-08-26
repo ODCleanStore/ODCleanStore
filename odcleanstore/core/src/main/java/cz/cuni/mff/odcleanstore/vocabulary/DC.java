@@ -28,22 +28,22 @@ public final class DC {
     /**
      * A legal document giving official permission to do something with the resource.
      */
-    public static final String license = "http://purl.org/dc/terms/license";
+    public static final String license = NS + "license";
     
     /**
      * A name given to the resource.
      */
-    public static final String title = "http://purl.org/dc/terms/title";
+    public static final String title = NS + "title";
     
     /**
      * Description.
      */
-    public static final String description = "http://purl.org/dc/terms/description";
+    public static final String description = NS + "description";
     
     /**
      * A point or period of time associated with an event in the lifecycle of the resource.
      */
-    public static final String date = "http://purl.org/dc/terms/date";
+    public static final String date = NS + "date";
 
     // CHECKSTYLE:ON
 }

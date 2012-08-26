@@ -11,10 +11,8 @@ import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
 import cz.cuni.mff.odcleanstore.shared.Utils;
-import cz.cuni.mff.odcleanstore.vocabulary.DC;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
-import cz.cuni.mff.odcleanstore.vocabulary.W3P;
 
 import com.hp.hpl.jena.graph.Triple;
 
@@ -81,13 +79,13 @@ import java.util.Set;
             + "\n SELECT DISTINCT"
             + "\n   <%1$s> AS ?resGraph ?source ?score ?insertedAt ?insertedBy ?license ?publishedBy ?publisherScore"
             + "\n WHERE {"
-            + "\n   OPTIONAL { <%1$s> <" + W3P.source + "> ?source }"
+            + "\n   OPTIONAL { <%1$s> <" + ODCS.source + "> ?source }"
             + "\n   OPTIONAL { <%1$s> <" + ODCS.score + "> ?score }"
-            + "\n   OPTIONAL { <%1$s> <" + W3P.insertedAt + "> ?insertedAt }"
-            + "\n   OPTIONAL { <%1$s> <" + W3P.insertedBy + "> ?insertedBy }"
-            + "\n   OPTIONAL { <%1$s> <" + DC.license + "> ?license }"
-            + "\n   OPTIONAL { <%1$s> <" + W3P.publishedBy + "> ?publishedBy }"
-            + "\n   OPTIONAL { <%1$s> <" + W3P.publishedBy + "> ?publishedBy. "
+            + "\n   OPTIONAL { <%1$s> <" + ODCS.insertedAt + "> ?insertedAt }"
+            + "\n   OPTIONAL { <%1$s> <" + ODCS.insertedBy + "> ?insertedBy }"
+            + "\n   OPTIONAL { <%1$s> <" + ODCS.license + "> ?license }"
+            + "\n   OPTIONAL { <%1$s> <" + ODCS.publishedBy + "> ?publishedBy }"
+            + "\n   OPTIONAL { <%1$s> <" + ODCS.publishedBy + "> ?publishedBy. "
             + "\n     ?publishedBy <" + ODCS.publisherScore + "> ?publisherScore }"
             + "\n   %2$s"
             + "\n   FILTER (bound(?source))"

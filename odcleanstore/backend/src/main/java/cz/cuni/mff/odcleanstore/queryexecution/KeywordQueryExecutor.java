@@ -10,9 +10,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolution
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
-import cz.cuni.mff.odcleanstore.vocabulary.DC;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
-import cz.cuni.mff.odcleanstore.vocabulary.W3P;
 import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 
 import com.hp.hpl.jena.graph.Triple;
@@ -176,13 +174,13 @@ import java.util.regex.Pattern;
             + "\n       LIMIT %6$d"
             + "\n     }"
             + "\n   }"
-            + "\n   OPTIONAL { ?resGraph <" + W3P.source + "> ?source }"
+            + "\n   OPTIONAL { ?resGraph <" + ODCS.source + "> ?source }"
             + "\n   OPTIONAL { ?resGraph <" + ODCS.score + "> ?score }"
-            + "\n   OPTIONAL { ?resGraph <" + W3P.insertedAt + "> ?insertedAt }"
-            + "\n   OPTIONAL { ?resGraph <" + W3P.insertedBy + "> ?insertedBy }"
-            + "\n   OPTIONAL { ?resGraph <" + DC.license + "> ?license }"
-            + "\n   OPTIONAL { ?resGraph <" + W3P.publishedBy + "> ?publishedBy }"
-            + "\n   OPTIONAL { ?resGraph <" + W3P.publishedBy + "> ?publishedBy. "
+            + "\n   OPTIONAL { ?resGraph <" + ODCS.insertedAt + "> ?insertedAt }"
+            + "\n   OPTIONAL { ?resGraph <" + ODCS.insertedBy + "> ?insertedBy }"
+            + "\n   OPTIONAL { ?resGraph <" + ODCS.license + "> ?license }"
+            + "\n   OPTIONAL { ?resGraph <" + ODCS.publishedBy + "> ?publishedBy }"
+            + "\n   OPTIONAL { ?resGraph <" + ODCS.publishedBy + "> ?publishedBy. "
             + "\n     ?publishedBy <" + ODCS.publisherScore + "> ?publisherScore }"
             + "\n   %5$s"
             + "\n   FILTER (bound(?source))"

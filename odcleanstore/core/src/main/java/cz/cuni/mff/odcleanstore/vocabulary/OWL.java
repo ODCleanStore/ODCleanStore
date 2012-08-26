@@ -24,12 +24,12 @@ public final class OWL {
     /* Vocabulary properties: */
 
     // CHECKSTYLE:OFF
-    public static final String sameAs = "http://www.w3.org/2002/07/owl#sameAs";
+    public static final String sameAs = NS + "sameAs";
 
-    public static final String maxCardinality = "http://www.w3.org/2002/07/owl#maxCardinality";
+    public static final String maxCardinality = NS + "maxCardinality";
 
-    public static final String minCardinality = "http://www.w3.org/2002/07/owl#minCardinality";
+    public static final String minCardinality = NS + "minCardinality";
 
-    public static final String cardinality = "http://www.w3.org/2002/07/owl#cardinality";
+    public static final String cardinality = NS + "cardinality";
     // CHECKSTYLE:ON
 }
