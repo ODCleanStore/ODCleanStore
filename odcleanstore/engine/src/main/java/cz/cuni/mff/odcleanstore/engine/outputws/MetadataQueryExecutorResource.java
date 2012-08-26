@@ -70,8 +70,10 @@ public class MetadataQueryExecutorResource extends QueryExecutorResourceBase {
         String graphUuid = extractUUID(namedGraphURI, config.getBackendGroup().getDataGraphURIPrefix().toString());
         if (graphUuid != null) {
             Integer[] qaGroupIDs = qaRuleGroupsForGraph(graphUuid, connectionCredentials);
-            QualityAssessorImpl qualityAssessor = new QualityAssessorImpl(qaGroupIDs);
-            qaResult = qualityAssessor.getGraphScoreWithTrace(namedGraphURI, connectionCredentials);
+            if (qaGroupIDs.length > 0) {
+                QualityAssessorImpl qualityAssessor = new QualityAssessorImpl(qaGroupIDs);
+                qaResult = qualityAssessor.getGraphScoreWithTrace(namedGraphURI, connectionCredentials);
+            }
         }
 
         long totalTime = System.currentTimeMillis() - qaStartTime + metadataResult.getExecutionTime();

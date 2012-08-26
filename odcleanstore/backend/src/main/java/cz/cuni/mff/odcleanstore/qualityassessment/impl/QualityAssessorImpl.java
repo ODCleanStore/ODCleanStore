@@ -294,7 +294,7 @@ public class QualityAssessorImpl implements QualityAssessor {
 				inputGraph.getGraphName(), rules.size(), violations, score));
 	}
 
-	public class GraphScoreWithTrace {
+	public static class GraphScoreWithTrace {
 		private Double score;
 		private Collection<QualityAssessmentRule> trace;
 
