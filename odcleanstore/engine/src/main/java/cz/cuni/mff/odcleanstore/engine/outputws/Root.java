@@ -37,6 +37,7 @@ public class Root extends Application {
         router.attach("/" + outputWSConfig.getKeywordPath(), KeywordQueryExecutorResource.class);
         router.attach("/" + outputWSConfig.getUriPath(), UriQueryExecutorResource.class);
         router.attach("/" + outputWSConfig.getMetadataPath(), MetadataQueryExecutorResource.class);
+        router.attach("/" + outputWSConfig.getNamedGraphPath(), NamedGraphQueryExecutorResource.class);
         return router;
     }
 

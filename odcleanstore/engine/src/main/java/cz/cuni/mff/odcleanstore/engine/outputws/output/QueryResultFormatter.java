@@ -4,7 +4,7 @@ import org.restlet.data.Reference;
 import org.restlet.representation.Representation;
 
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl.GraphScoreWithTrace;
-import cz.cuni.mff.odcleanstore.queryexecution.NamedGraphMetadataQueryResult;
+import cz.cuni.mff.odcleanstore.queryexecution.MetadataQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
 
 /**
@@ -28,6 +28,6 @@ public interface QueryResultFormatter {
      * @param requestReference representation of the requested URI
      * @return representation of the formatted output
      */
-    Representation format(NamedGraphMetadataQueryResult metadataResult, GraphScoreWithTrace qaResult, long totalTime,
+    Representation format(MetadataQueryResult metadataResult, GraphScoreWithTrace qaResult, long totalTime,
             Reference requestReference);
 }

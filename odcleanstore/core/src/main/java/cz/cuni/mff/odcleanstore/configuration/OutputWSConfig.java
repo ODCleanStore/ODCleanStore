@@ -35,6 +35,7 @@ public class OutputWSConfig extends ConfigGroup {
     private String keywordPath;
     private String uriPath;
     private String metadataPath;
+    private String namedGraphPath;
 
     /**
      *
@@ -44,15 +45,17 @@ public class OutputWSConfig extends ConfigGroup {
      * @param keywordPath Relative path fragment for the keyword query over the output webservice
      * @param uriPath Relative path fragment for the uri query over the output webservice
      * @param metadataPath Relative path fragment for the metadata query over the output webservice
+     * @param namedGraphPath Relative path fragment for the named graph query over the output webservice
      */
     public OutputWSConfig(URI metadataGraphURIPrefix, String qaRuleURIPrefix, Integer port,
-            String keywordPath, String uriPath, String metadataPath) {
+            String keywordPath, String uriPath, String metadataPath, String namedGraphPath) {
         this.metadataGraphURIPrefix = metadataGraphURIPrefix;
         this.qaRuleURIPrefix = qaRuleURIPrefix;
         this.port = port;
         this.keywordPath = keywordPath;
         this.uriPath = uriPath;
         this.metadataPath = metadataPath;
+        this.namedGraphPath = namedGraphPath;
     }
 
     /**
@@ -77,6 +80,7 @@ public class OutputWSConfig extends ConfigGroup {
         String keywordPath = loadParam(properties, "keyword_path", formatString);
         String uriPath = loadParam(properties, "uri_path", formatString);
         String metadataPath = loadParam(properties, "metadata_path", formatString);
+        String namedGraphPath = loadParam(properties, "named_graph_path", formatString);
 
         return new OutputWSConfig(
                 metadataGraphURIPrefix,
@@ -84,12 +88,13 @@ public class OutputWSConfig extends ConfigGroup {
                 port,
                 keywordPath,
                 uriPath,
-                metadataPath);
+                metadataPath,
+                namedGraphPath);
     }
 
     /**
      *
-     * @return
+     * @return URI of named graph where metadata in the output are stored
      */
     public URI getMetadataGraphURIPrefix() {
         return metadataGraphURIPrefix;
@@ -97,7 +102,7 @@ public class OutputWSConfig extends ConfigGroup {
 
     /**
     *
-    * @return
+    * @return Prefix or URIs identifying a Quality Assessment rule
     */
    public String getQARuleURIPrefix() {
        return qaRuleURIPrefix;
@@ -106,7 +111,7 @@ public class OutputWSConfig extends ConfigGroup {
     
     /**
      *
-     * @return
+     * @return Port of the output webservice
      */
     public Integer getPort() {
         return port;
@@ -114,7 +119,7 @@ public class OutputWSConfig extends ConfigGroup {
 
     /**
      *
-     * @return
+     * @return Relative path fragment for the keyword query over the output webservice
      */
     public String getKeywordPath() {
         return keywordPath;
@@ -122,7 +127,7 @@ public class OutputWSConfig extends ConfigGroup {
 
     /**
      *
-     * @return
+     * @return Relative path fragment for the uri query over the output webservice
      */
     public String getUriPath() {
         return uriPath;
@@ -136,5 +141,11 @@ public class OutputWSConfig extends ConfigGroup {
        return metadataPath;
    }
     
-
+    /**
+    *
+    * @return Relative path fragment for the named graph query over the output webservice
+    */
+   public String getNamedGraphPath() {
+       return namedGraphPath;
+   }
 }

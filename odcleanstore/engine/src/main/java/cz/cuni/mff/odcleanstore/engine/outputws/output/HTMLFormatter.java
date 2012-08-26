@@ -22,7 +22,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl.GraphScoreWithTrace;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRule;
 import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
-import cz.cuni.mff.odcleanstore.queryexecution.NamedGraphMetadataQueryResult;
+import cz.cuni.mff.odcleanstore.queryexecution.MetadataQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryResultBase;
 import de.fuberlin.wiwiss.ng4j.Quad;
 
@@ -53,10 +53,10 @@ public class HTMLFormatter extends ResultFormatterBase {
     }
 
     @Override
-    public Representation format(NamedGraphMetadataQueryResult metadataResult, GraphScoreWithTrace qaResult,
+    public Representation format(MetadataQueryResult metadataResult, GraphScoreWithTrace qaResult,
             long totalTime, Reference requestReference) {
 
-        WriterRepresentation representation = new NamedGraphQueryHTMLRepresentation(
+        WriterRepresentation representation = new MetadataQueryHTMLRepresentation(
                 metadataResult, qaResult, totalTime, requestReference);
         representation.setCharacterSet(CharacterSet.UTF_8);
         return representation;
@@ -116,6 +116,11 @@ public class HTMLFormatter extends ResultFormatterBase {
                     writer.write(queryResult.getQuery());
                     writer.write("&gt;.");
                     break;
+                case NAMED_GRAPH:
+                    writer.write("Named graph query for &lt;");
+                    writer.write(queryResult.getQuery());
+                    writer.write("&gt;.");
+                    break;
                 default:
                     writer.write("Query <code>");
                     writer.write(queryResult.getQuery());
@@ -144,8 +149,9 @@ public class HTMLFormatter extends ResultFormatterBase {
                 writer.write("  <tr><td>");
                 writeRelativeLink(
                         writer, 
-                        getRequestForNamedGraph(metadata.getNamedGraphURI()),
-                        metadata.getNamedGraphURI());
+                        getRequestForMetadata(metadata.getNamedGraphURI()),
+                        metadata.getNamedGraphURI(),
+                        "Metadata query");
                 writer.write("</td><td>");
                 if (metadata.getSource() != null) {
                     writeAbsoluteLink(writer, metadata.getSource(), metadata.getSource());
@@ -184,9 +190,9 @@ public class HTMLFormatter extends ResultFormatterBase {
          */
         protected void writeNode(Writer writer, Node node) throws IOException {
             if (node.isURI()) {
-                writeRelativeLink(writer, getRequestForURI(node.getURI()), node.toString());
+                writeRelativeLink(writer, getRequestForURI(node.getURI()), node.toString(), "URI query");
             } else if (node.isLiteral()) {
-                writeRelativeLink(writer, getRequestForKeyword(node.getLiteralLexicalForm()), node.toString());
+                writeRelativeLink(writer, getRequestForKeyword(node.getLiteralLexicalForm()), node.toString(), "Keyword query");
             } else {
                 writer.write(node.toString());
             }
@@ -197,10 +203,13 @@ public class HTMLFormatter extends ResultFormatterBase {
          * @param writer output writer
          * @param uri URI of the hyperlink
          * @param text text of the hyperlink
+         * @param title title of the hyperlink
          * @throws IOException if an I/O error occurs
          */
-        protected void writeRelativeLink(Writer writer, CharSequence uri, String text) throws IOException {
-            writer.append("<a href=\"/")
+        protected void writeRelativeLink(Writer writer, CharSequence uri, String text, String title) throws IOException {
+            writer.append("<a title=\"")
+                    .append(title)
+                    .append("\" href=\"/")
                     .append(escapeHTML(uri))
                     .append("\">")
                     .append(text)
@@ -254,6 +263,21 @@ public class HTMLFormatter extends ResultFormatterBase {
             return result.toString();
         }
 
+        /**
+         * Returns a URI of a metadata query request.
+         * @param namedGraphURI the requested named graph
+         * @return URI of the metadata request
+         * @throws UnsupportedEncodingException exception
+         */
+        protected CharSequence getRequestForMetadata(String namedGraphURI) throws UnsupportedEncodingException {
+            StringBuilder result = new StringBuilder();
+            result.append(outputWSConfig.getMetadataPath());
+            result.append("?uri=");
+            result.append(URLEncoder.encode(namedGraphURI, "UTF-8"));
+            result.append("&format=HTML");
+            return result.toString();
+        }
+        
         /**
          * Returns a URI of a named graph query request.
          * @param namedGraphURI the requested named graph
@@ -336,7 +360,7 @@ public class HTMLFormatter extends ResultFormatterBase {
                         writer.write(", ");
                     }
                     first = false;
-                    writeRelativeLink(writer, getRequestForNamedGraph(sourceURI), sourceURI);
+                    writeRelativeLink(writer, getRequestForNamedGraph(sourceURI), sourceURI, "Named graph query");
                 }
                 writer.write("</td></tr>\n");
             }
@@ -345,11 +369,11 @@ public class HTMLFormatter extends ResultFormatterBase {
     }
 
     /**
-     * Response representation for named graph provenance query.
+     * Response representation for metadata query.
      */
-    private class NamedGraphQueryHTMLRepresentation extends HTMLRepresentationBase {
+    private class MetadataQueryHTMLRepresentation extends HTMLRepresentationBase {
         /** Result of metadata query about the requested named graph. */
-        private NamedGraphMetadataQueryResult metadataResult;
+        private MetadataQueryResult metadataResult;
 
         /** Result of quality assessment over the given named graph. Can be null. */
         private GraphScoreWithTrace qaResult;
@@ -364,7 +388,7 @@ public class HTMLFormatter extends ResultFormatterBase {
          * @param totalTime execution time of the query
          * @param requestReference representation of the requested URI
          */
-        public NamedGraphQueryHTMLRepresentation(NamedGraphMetadataQueryResult metadataResult,
+        public MetadataQueryHTMLRepresentation(MetadataQueryResult metadataResult,
                 GraphScoreWithTrace qaResult, long totalTime, Reference requestReference) {
 
             super(metadataResult, requestReference);

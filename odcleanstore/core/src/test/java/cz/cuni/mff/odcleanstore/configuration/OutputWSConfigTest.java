@@ -31,6 +31,7 @@ public class OutputWSConfigTest {
         Mockito.when(properties.getProperty(GROUP_NAME + ".keyword_path")).thenReturn("keyword");
         Mockito.when(properties.getProperty(GROUP_NAME + ".uri_path")).thenReturn("uri");
         Mockito.when(properties.getProperty(GROUP_NAME + ".metadata_path")).thenReturn("metadata");
+        Mockito.when(properties.getProperty(GROUP_NAME + ".named_graph_path")).thenReturn("namedGraph");
 
         OutputWSConfig outputWSConfig = OutputWSConfig.load(properties);
 
@@ -41,5 +42,6 @@ public class OutputWSConfigTest {
         assertEquals("keyword", outputWSConfig.getKeywordPath());
         assertEquals("uri", outputWSConfig.getUriPath());
         assertEquals("metadata", outputWSConfig.getMetadataPath());
+        assertEquals("namedGraph", outputWSConfig.getNamedGraphPath());
     }
 }

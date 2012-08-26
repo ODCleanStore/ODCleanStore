@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
@@ -446,7 +445,7 @@ import java.util.regex.Pattern;
             // Apply conflict resolution
             NamedGraphMetadataMap metadata = getMetadata(containsMatchExpr, exactMatchExpr);
             Iterator<Triple> sameAsLinks = getSameAsLinks().iterator();
-            Set<String> preferredURIs = getPreferredURIs();
+            Set<String> preferredURIs = getSettingsPreferredURIs();
             ConflictResolver conflictResolver =
                     conflictResolverFactory.createResolver(aggregationSpec, metadata, sameAsLinks, preferredURIs);
             Collection<CRQuad> resolvedQuads = conflictResolver.resolveConflicts(quads);
@@ -463,27 +462,6 @@ import java.util.regex.Pattern;
         } finally {
             closeConnectionQuietly();
         }
-    }
-
-    /**
-     * Returns preferred URIs for the result.
-     * These include the properties explicitly listed in aggregation settings.
-     * @return preferred URIs
-     */
-    private Set<String> getPreferredURIs() {
-        Set<String> aggregationProperties = aggregationSpec.getPropertyAggregations() == null
-                ? Collections.<String>emptySet()
-                : aggregationSpec.getPropertyAggregations().keySet();
-        Set<String> multivalueProperties = aggregationSpec.getPropertyMultivalue() == null
-                ? Collections.<String>emptySet()
-                : aggregationSpec.getPropertyMultivalue().keySet();
-        if (aggregationProperties.isEmpty() && multivalueProperties.isEmpty()) {
-            return Collections.<String>emptySet();
-        }
-        Set<String> preferredURIs = new HashSet<String>(aggregationProperties.size() + multivalueProperties.size());
-        preferredURIs.addAll(aggregationProperties);
-        preferredURIs.addAll(multivalueProperties);
-        return preferredURIs;
     }
 
     /**

@@ -8,7 +8,7 @@ import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl.GraphScoreWithTrace;
 import cz.cuni.mff.odcleanstore.queryexecution.EnumQueryError;
-import cz.cuni.mff.odcleanstore.queryexecution.NamedGraphMetadataQueryResult;
+import cz.cuni.mff.odcleanstore.queryexecution.MetadataQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecution;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
 import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
@@ -16,16 +16,21 @@ import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 
 import org.restlet.representation.Representation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * ServerResource for (named graph) metadata query.
  * @author Jan Michelfeit
  */
 public class MetadataQueryExecutorResource extends QueryExecutorResourceBase {
 
+    private static final Logger LOG = LoggerFactory.getLogger(MetadataQueryExecutorResource.class);
+    
     private static final Pattern UUID_PATTERN = 
             Pattern.compile("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
     
@@ -53,8 +58,9 @@ public class MetadataQueryExecutorResource extends QueryExecutorResourceBase {
 
         // Get metadata
         QueryExecution queryExecution = new QueryExecution(connectionCredentials, config);
-        NamedGraphMetadataQueryResult metadataResult = queryExecution.findNamedGraphMetadata(namedGraphURI);
+        MetadataQueryResult metadataResult = queryExecution.findNamedGraphMetadata(namedGraphURI);
         if (metadataResult == null) {
+            LOG.error("Query result is empty");
             throw new ResultEmptyException("Result is empty");
         }
 

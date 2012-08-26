@@ -13,7 +13,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl.GraphScoreWithTrace;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRule;
-import cz.cuni.mff.odcleanstore.queryexecution.NamedGraphMetadataQueryResult;
+import cz.cuni.mff.odcleanstore.queryexecution.MetadataQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
 import de.fuberlin.wiwiss.ng4j.Quad;
 
@@ -74,7 +74,7 @@ public class DebugFormatter extends ResultFormatterBase {
     }
 
     @Override
-    public Representation format(final NamedGraphMetadataQueryResult metadataResult,
+    public Representation format(final MetadataQueryResult metadataResult,
             final GraphScoreWithTrace qaResult, final long totalTime, Reference requestReference) {
 
         WriterRepresentation representation = new WriterRepresentation(MediaType.TEXT_PLAIN) {

@@ -30,8 +30,11 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * The base class of query executors.
@@ -410,5 +413,24 @@ import java.util.Locale;
         } finally {
             resultSet.closeQuietly();
         }
+    }
+
+    /**
+     * Returns preferred URIs for the result based on aggregation settings.
+     * These include the properties explicitly listed in aggregation settings.
+     * @return preferred URIs
+     */
+    protected Set<String> getSettingsPreferredURIs() {
+        Set<String> aggregationProperties = aggregationSpec.getPropertyAggregations() == null
+                ? Collections.<String>emptySet()
+                : aggregationSpec.getPropertyAggregations().keySet();
+        Set<String> multivalueProperties = aggregationSpec.getPropertyMultivalue() == null
+                ? Collections.<String>emptySet()
+                : aggregationSpec.getPropertyMultivalue().keySet();
+        Set<String> preferredURIs = new HashSet<String>(
+                aggregationProperties.size() + multivalueProperties.size() + 1); // +1 for URI added in some types of queries
+        preferredURIs.addAll(aggregationProperties);
+        preferredURIs.addAll(multivalueProperties);
+        return preferredURIs;
     }
 }

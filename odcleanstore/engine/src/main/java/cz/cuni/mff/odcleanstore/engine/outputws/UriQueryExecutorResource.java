@@ -1,6 +1,8 @@
 package cz.cuni.mff.odcleanstore.engine.outputws;
 
 import org.restlet.representation.Representation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
@@ -11,10 +13,13 @@ import cz.cuni.mff.odcleanstore.queryexecution.QueryExecution;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
 
 /**
+ * ServerResource for URI query.
  * @author Petr Jerman
  */
 public class UriQueryExecutorResource extends QueryExecutorResourceBase {
 
+    private static final Logger LOG = LoggerFactory.getLogger(UriQueryExecutorResource.class);
+    
     @Override
     protected Representation execute() throws QueryExecutionException, ResultEmptyException {
         String uri = getFormValue("uri");
@@ -25,6 +30,7 @@ public class UriQueryExecutorResource extends QueryExecutorResourceBase {
         final BasicQueryResult result = queryExecution.findURI(uri, new QueryConstraintSpec(), aggregationSpec);
 
         if (result == null) {
+            LOG.error("Query result is empty");
             throw new ResultEmptyException("Result is empty");
         }
 

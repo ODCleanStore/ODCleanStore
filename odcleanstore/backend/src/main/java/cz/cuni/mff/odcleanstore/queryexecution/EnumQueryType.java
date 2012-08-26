@@ -21,5 +21,11 @@ public enum EnumQueryType {
      * Named graph metadata query.
      * @see QueryExecution#getNamedGraphMetadata()
      */
-    METADATA
+    METADATA,
+
+    /**
+     * Named graph query.
+     * @see QueryExecution# TODO
+     */
+    NAMED_GRAPH
 }

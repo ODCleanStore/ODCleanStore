@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
@@ -307,7 +306,8 @@ import java.util.Set;
             // Apply conflict resolution
             NamedGraphMetadataMap metadata = getMetadata(uri);
             Iterator<Triple> sameAsLinks = getSameAsLinks(uri).iterator();
-            Set<String> preferredURIs = getPreferredURIs(uri);
+            Set<String> preferredURIs = getSettingsPreferredURIs();
+            preferredURIs.add(uri);
             ConflictResolver conflictResolver =
                     conflictResolverFactory.createResolver(aggregationSpec, metadata, sameAsLinks, preferredURIs);
             Collection<CRQuad> resolvedQuads = conflictResolver.resolveConflicts(quads);
@@ -324,29 +324,6 @@ import java.util.Set;
         } finally {
             closeConnectionQuietly();
         }
-    }
-
-    /**
-     * Returns preferred URIs for the result.
-     * These include the searched URI and properties explicitly listed in aggregation settings.
-     * @param uri searched URI
-     * @return preferred URIs
-     */
-    private Set<String> getPreferredURIs(String uri) {
-        Set<String> aggregationProperties = aggregationSpec.getPropertyAggregations() == null
-                ? Collections.<String>emptySet()
-                : aggregationSpec.getPropertyAggregations().keySet();
-        Set<String> multivalueProperties = aggregationSpec.getPropertyMultivalue() == null
-                ? Collections.<String>emptySet()
-                : aggregationSpec.getPropertyMultivalue().keySet();
-        if (aggregationProperties.isEmpty() && multivalueProperties.isEmpty()) {
-            return Collections.singleton(uri);
-        }
-        Set<String> preferredURIs = new HashSet<String>(aggregationProperties.size() + multivalueProperties.size() + 1);
-        preferredURIs.add(uri);
-        preferredURIs.addAll(aggregationProperties);
-        preferredURIs.addAll(multivalueProperties);
-        return preferredURIs;
     }
 
     /**

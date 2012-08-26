@@ -28,7 +28,7 @@ import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl.Graph
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRule;
 import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.EnumQueryType;
-import cz.cuni.mff.odcleanstore.queryexecution.NamedGraphMetadataQueryResult;
+import cz.cuni.mff.odcleanstore.queryexecution.MetadataQueryResult;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.vocabulary.DC;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
@@ -183,7 +183,7 @@ public class TriGFormatter extends ResultFormatterBase {
     }
 
     @Override
-    public Representation format(final NamedGraphMetadataQueryResult metadataResult,
+    public Representation format(final MetadataQueryResult metadataResult,
             final GraphScoreWithTrace qaResult, final long totalTime, final Reference requestReference) {
 
         WriterRepresentation representation = new WriterRepresentation(MediaType.APPLICATION_RDF_TRIG) {
@@ -205,7 +205,7 @@ public class TriGFormatter extends ResultFormatterBase {
      * @param requestReference Representation of the requested URI
      * @return representation of the result as quads in a NamedGraphSet
      */
-    private NamedGraphSet metadataConvertToNGSet(NamedGraphMetadataQueryResult metadataResult,
+    private NamedGraphSet metadataConvertToNGSet(MetadataQueryResult metadataResult,
             GraphScoreWithTrace qaResult, long totalTime, Reference requestReference) {
 
         Node queryURI = Node.createURI(requestReference.toString(true, false));
