@@ -362,7 +362,7 @@ The \code{source} field is a~list or URIs the data were retrieved from. Typicall
 
 The \code{publishedBy} field is a~list of URIs representing the publisher of the data. It can be a~well known URI, or, for example, the host part of the source URI (e.g. \linebreak[4]\code{http://en.wikipedia.org/} for data scraped from the English Wikipedia).
 
-The \code{license} field may specify URI(s) representing the licence(s) under which \code{payload} contents and any additional  metadata being inserted are published. 
+The \code{license} field may specify URI(s) representing the license(s) under which \code{payload} contents and any additional  metadata being inserted are published. 
 
 The optional \code{provenance} field can contain additional RDF provenance metadata about contents of \code{payload}.\footnote{The suggested vocabulary for these purposes is W3P (\url{http://code.google.com/p/od-w3p/}).} Base URI for the provenance metadata is the URI of the named graph where \code{payload} is stored in ODCleanStore.
 
@@ -642,7 +642,7 @@ The result contains triples (quads) serialized in the TriG\footnote{\url{http://
 \begin{itemize}
 	\item triples returned in response to the query, each one placed in a~unique named graph
   \item aggregated quality (\code{odcs:quality}) and source named graphs (\code{odcs:sourceGraph}) of the above triples; subjects of these statements are the unique named graphs where the respective triples are placed
-  \item  metadata of source named graphs; they may include where the data were extracted from (\code{w3p:source}), Quality Assesment score of the named graph (\code{odcs:score}) and of its publisher (\code{odcs:publisherScore}), the publisher of the data (\code{w3p:publishedBy}), timestamp (\code{w3p:insertedAt}), licence (\code{dc:licence})
+  \item  metadata of source named graphs; they may include where the data were extracted from (\code{w3p:source}), Quality Assesment score of the named graph (\code{odcs:score}) and of its publisher (\code{odcs:publisherScore}), the publisher of the data (\code{w3p:publishedBy}), timestamp (\code{w3p:insertedAt}), license (\code{dc:license})
   \item  metadata about the query response itself -- a~title (\code{dc:title}), date (\code{dc:date}), number of result triples (\code{odcs:totalResults}), the query (\code{odcs:query}) and link to each result item (\code{odcs:result})
 \end{itemize}
 
@@ -819,13 +819,15 @@ When a new request is sent to Input Webservice, the stored data \& metadata go t
 	\hline
 	\code{odcs:sourceGraph} \\
 	\hline
-	\code{w3p:insertedAt} \\
+	\code{odcs:insertedAt} \\
 	\hline
-	\code{w3p:insertedBy} \\
+	\code{odcs:insertedBy} \\
 	\hline
-	\code{w3p:source} \\
+	\code{odcs:source} \\
 	\hline
-	\code{w3p:publishedBy} \\
+	\code{odcs:publishedBy} \\
+	\hline
+	\code{odcs:license} \\
 	\hline
 \end{tabular}
 \caption{Reserved RDF predicates}
@@ -861,15 +863,15 @@ While contents of the \code{payload}, \code{provenance} and attached graphs may 
 	\hline
 	\varcode{payload-graph} & \code{odcs:attachedGraph} & URIs of attached graphs & 0..* \\
 	\hline
-	\varcode{payload-graph} & \code{w3p:insertedAt} & insertion time & 1 \\
+	\varcode{payload-graph} & \code{odcs:insertedAt} & insertion time & 1 \\
 	\hline
-	\varcode{payload-graph} & \code{w3p:insertedBy} & name of the user who inserted the data & 1 \\ \todo{PJ: jmeno nebo ID?}
+	\varcode{payload-graph} & \code{odcs:insertedBy} & name of the user who inserted the data & 1 \\ \todo{PJ: jmeno nebo ID?}
 	\hline
-	\varcode{payload-graph} & \code{w3p:source} & source of the data (values  from the \code{source} field) & 1..* \\
+	\varcode{payload-graph} & \code{odcs:source} & source of the data (values  from the \code{source} field) & 1..* \\
 	\hline
-	\varcode{payload-graph} & \code{w3p:publishedBy} & identifier of the publisher of the data (values  from the \code{publishedBy} field) & 1..* \\
+	\varcode{payload-graph} & \code{odcs:publishedBy} & identifier of the publisher of the data (values  from the \code{publishedBy} field) & 1..* \\
 	\hline
-	\varcode{payload-graph} & \code{dc:license} & license of the data (values from the \code{license} field) & 0..* \\
+	\varcode{payload-graph} & \code{odcs:license} & license of the data (values from the \code{license} field) & 0..* \\
 	\hline
 \end{tabularx}
 \caption{RDF triples in a metadata graph}
@@ -919,7 +921,7 @@ The administrator \todo{proper user role} can decide to re-run a transformer pip
 	\item[Clean database] Database where incoming data are stored after they are successfully processed by the respective processing pipeline; this database can be accessed using the Output Webservice
 	\item[\code{Payload} graph] Named graph where the actual inserted data, given in the \code{payload} parameter of Input Webservice, are stored
 	\item[\code{Provenance} graph] Named graph where additional provenance metadata, given in the \code{provenance} field of Input Web Service, are stored
-	\item[Metadata graph] Named graph where other metadata about a \code{payload} graph (such as source, timestamp, licence, etc.) are stored
+	\item[Metadata graph] Named graph where other metadata about a \code{payload} graph (such as source, timestamp, license, etc.) are stored
 	\item[Attached graph] Named graph attached to a \code{payload} graph by a transformer
 	\item[Named graph score] Quality of a~single (\code{payload}) named graph estimated by the Quality Assesment component and stored in the database, expressed as a~number from interval [0,1]
 	\item[Publisher score] Average score of named graphs from a~publisher
