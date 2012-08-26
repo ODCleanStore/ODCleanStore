@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 /**
  * @author Jan Michelfeit
  */
-public class NamedGraphQueryExecutorResource extends QueryExecutorResourceBase {
+public class MetadataQueryExecutorResource extends QueryExecutorResourceBase {
 
     private static final Pattern UUID_PATTERN = 
             Pattern.compile("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
@@ -44,9 +44,7 @@ public class NamedGraphQueryExecutorResource extends QueryExecutorResourceBase {
             + "\n   AND transformers.fullClassName = '" + QualityAssessorImpl.class.getCanonicalName() + "'"
             + "\n   AND input_graphs.isInCleanDB = 1";
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     protected Representation execute() throws QueryExecutionException, ResultEmptyException, TransformerException {
         String namedGraphURI = getFormValue("uri");
         Config config = ConfigLoader.getConfig();

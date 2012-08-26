@@ -36,7 +36,7 @@ public class Root extends Application {
         Router router = new Router(getContext());
         router.attach("/" + outputWSConfig.getKeywordPath(), KeywordQueryExecutorResource.class);
         router.attach("/" + outputWSConfig.getUriPath(), UriQueryExecutorResource.class);
-        router.attach("/" + outputWSConfig.getNamedGraphPath(), NamedGraphQueryExecutorResource.class);
+        router.attach("/" + outputWSConfig.getMetadataPath(), MetadataQueryExecutorResource.class);
         return router;
     }
 

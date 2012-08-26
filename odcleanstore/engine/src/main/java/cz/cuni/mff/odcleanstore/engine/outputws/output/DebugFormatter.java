@@ -18,8 +18,7 @@ import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
 import de.fuberlin.wiwiss.ng4j.Quad;
 
 /**
- * Returns a representation of a query result serialized to the TriG format.
- * (See http://www4.wiwiss.fu-berlin.de/bizer/TriG/ .)
+ * Returns a simple representation of the query result for debugging purposes.
  * 
  * @author Jan Michelfeit
  */

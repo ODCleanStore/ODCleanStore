@@ -111,7 +111,7 @@ public class HTMLFormatter extends ResultFormatterBase {
                     writer.write(queryResult.getQuery());
                     writer.write("&gt;.");
                     break;
-                case NAMED_GRAPH:
+                case METADATA:
                     writer.write("Metadata query for named graph &lt;");
                     writer.write(queryResult.getQuery());
                     writer.write("&gt;.");
