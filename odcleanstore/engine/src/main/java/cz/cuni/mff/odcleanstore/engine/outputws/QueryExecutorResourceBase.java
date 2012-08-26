@@ -1,8 +1,19 @@
 
 package cz.cuni.mff.odcleanstore.engine.outputws;
 
-import java.util.Map;
-import java.util.TreeMap;
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.configuration.OutputWSConfig;
+import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
+import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
+import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationType;
+import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
+import cz.cuni.mff.odcleanstore.engine.outputws.output.HTMLFormatter;
+import cz.cuni.mff.odcleanstore.engine.outputws.output.QueryResultFormatter;
+import cz.cuni.mff.odcleanstore.engine.outputws.output.TriGFormatter;
+import cz.cuni.mff.odcleanstore.queryexecution.QueryExecution;
+import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
+import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 
 import org.restlet.data.Form;
 import org.restlet.data.Reference;
@@ -14,17 +25,8 @@ import org.restlet.resource.ServerResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cz.cuni.mff.odcleanstore.configuration.OutputWSConfig;
-import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
-import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
-import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationType;
-import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
-import cz.cuni.mff.odcleanstore.engine.outputws.output.HTMLFormatter;
-import cz.cuni.mff.odcleanstore.engine.outputws.output.QueryResultFormatter;
-import cz.cuni.mff.odcleanstore.engine.outputws.output.TriGFormatter;
-import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
-import cz.cuni.mff.odcleanstore.shared.Utils;
-import cz.cuni.mff.odcleanstore.transformer.TransformerException;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  *  @author Petr Jerman
@@ -41,9 +43,33 @@ public abstract class QueryExecutorResourceBase extends ServerResource {
     private static final String PROPERTY_MULTIVALUE_PARAM = "pmultivalue[";
 
     private static final String TRUE_LITERAL = "1";
+    
+    /**
+     * Class implementing the "initialize-on-demand holder class" idiom.
+     * Used to lazily initialize QueryExecution (when the config is already loaded).
+     * @see http://en.wikipedia.org/wiki/Initialization-on-demand_holder_idiom
+     */
+    private static class QueryExecutionHolder {
+        /**
+         * Cached instance of QueryExecution.
+         * Query Execution is thread safe and should be maintained between requests because 
+         * it can keep cached data of its own.
+         */
+        static final QueryExecution QUERY_EXECUTION = new QueryExecution(
+                ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials(),
+                ConfigLoader.getConfig());
+    }
 
+    /**
+     * Returns the singleton instance of {@link QueryExecution}.
+     * @return QueryExecution instance
+     */
+    protected static QueryExecution getQueryExecution() {
+        return QueryExecutionHolder.QUERY_EXECUTION;
+    }
+    
     private Form form;
-
+    
     protected String getFormValue(String key) {
         return form.getFirstValue(key);
     }

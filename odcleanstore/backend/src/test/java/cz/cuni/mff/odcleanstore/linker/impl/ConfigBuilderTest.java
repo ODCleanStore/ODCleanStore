@@ -1,22 +1,7 @@
 package cz.cuni.mff.odcleanstore.linker.impl;
 
-import static org.junit.Assert.*;
-
-import java.io.File;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.junit.Test;
-import org.mockito.Mockito;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import cz.cuni.mff.odcleanstore.configuration.ObjectIdentificationConfig;
 import cz.cuni.mff.odcleanstore.configuration.exceptions.ConfigurationException;
@@ -27,8 +12,24 @@ import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import java.io.File;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+
 public class ConfigBuilderTest {
-	
+
 	private static final String GROUP_NAME = "object_identification";
 	private static final String RULE_LABEL = "testRule";
 	private static final String RULE_TYPE = "owl:sameAs";
@@ -39,9 +40,9 @@ public class ConfigBuilderTest {
 	private static final String RULE_LINKAGE_RULE = "<LinkageRule>ruleContent</LinkageRule>";
 	private static final BigDecimal RULE_MIN_CONFIDENCE = new BigDecimal("0.95");
 	private static final BigDecimal RULE_MAX_CONFIDENCE = new BigDecimal("0.98");
-	
+
 	@Test
-	public void testCreateConfigFile() throws TransformerException, ParserConfigurationException, SAXException, 
+	public void testCreateConfigFile() throws TransformerException, ParserConfigurationException, SAXException,
 	IOException, ConfigurationException {
 		List<SilkRule> rules = new ArrayList<SilkRule>();
 		SilkRule rule = new SilkRule();
@@ -52,23 +53,23 @@ public class ConfigBuilderTest {
 		rule.setFilterLimit(RULE_FILTER_LIMIT);
 		rule.setFilterThreshold(RULE_FILTER_THRESHOLD);
 		rule.setLinkageRule(RULE_LINKAGE_RULE);
-		
+
 		List<Output> outputs = new ArrayList<Output>();
 		Output output = new Output();
 		output.setMinConfidence(RULE_MIN_CONFIDENCE);
 		output.setMaxConfidence(RULE_MAX_CONFIDENCE);
 		outputs.add(output);
 		rule.setOutputs(outputs);
-		
+
 		rules.add(rule);
-		
+
 		List<RDFprefix> prefixes = new ArrayList<RDFprefix>();
 		prefixes.add(new RDFprefix("rdf:", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"));
 		prefixes.add(new RDFprefix("rdfs:", "http://www.w3.org/2000/01/rdf-schema#"));
-				
+
 		TransformedGraph graph = new TransformedGraphMock("http://odcs.mff.cuni.cz/transformedGraph");
 		TransformationContext context = new TransformationContextMock("target/linkerTest");
-		
+
 		Properties properties = Mockito.mock(Properties.class);
 		Mockito.when(properties.getProperty(GROUP_NAME + ".links_graph_uri_prefix")).thenReturn("http://www.seznam.cz");
         Mockito.when(properties.getProperty(GROUP_NAME + ".clean_sparql_endpoint_url")).thenReturn("http://www.google.cz");
@@ -76,22 +77,22 @@ public class ConfigBuilderTest {
         Mockito.when(properties.getProperty(GROUP_NAME + ".dirty_sparql_endpoint_username")).thenReturn("Pepa");
 	    Mockito.when(properties.getProperty(GROUP_NAME + ".dirty_sparql_endpoint_password")).thenReturn("heslo");
 	    ObjectIdentificationConfig config = ObjectIdentificationConfig.load(properties);
-		
+
 	    DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-		File configFile = ConfigBuilder.createLinkConfigFile(rules, prefixes, graph, 
+		File configFile = ConfigBuilder.createLinkConfigFile(rules, prefixes, graph,
 				context, config);
 		Document configDoc = builder.parse(configFile);
-		
+
 		File expectedFile = new File("src/test/resources/expectedLinkConfig.xml");
 		Document expectedDoc = builder.parse(expectedFile);
-		
+
 		assertTrue(configDoc.isEqualNode(expectedDoc));
 	}
-	
+
 	@Test
-	public void testParseRule() 
+	public void testParseRule()
 			throws javax.xml.transform.TransformerException, ParserConfigurationException, SAXException, IOException {
-		
+
 		SilkRule rule = ConfigBuilder.parseRule(new File("src/test/resources/expectedLinkConfig.xml"));
 		assertEquals(RULE_LABEL, rule.getLabel());
 		assertEquals(RULE_TYPE, rule.getLinkType());

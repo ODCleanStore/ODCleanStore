@@ -9,7 +9,6 @@ import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl.GraphScoreWithTrace;
 import cz.cuni.mff.odcleanstore.queryexecution.EnumQueryError;
 import cz.cuni.mff.odcleanstore.queryexecution.MetadataQueryResult;
-import cz.cuni.mff.odcleanstore.queryexecution.QueryExecution;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
 import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
 import cz.cuni.mff.odcleanstore.shared.Utils;
@@ -52,13 +51,9 @@ public class MetadataQueryExecutorResource extends QueryExecutorResourceBase {
     @Override
     protected Representation execute() throws QueryExecutionException, ResultEmptyException, TransformerException {
         String namedGraphURI = getFormValue("uri");
-        Config config = ConfigLoader.getConfig();
-        JDBCConnectionCredentials connectionCredentials = 
-                config.getBackendGroup().getCleanDBJDBCConnectionCredentials();
 
         // Get metadata
-        QueryExecution queryExecution = new QueryExecution(connectionCredentials, config);
-        MetadataQueryResult metadataResult = queryExecution.findNamedGraphMetadata(namedGraphURI);
+        MetadataQueryResult metadataResult = getQueryExecution().findNamedGraphMetadata(namedGraphURI);
         if (metadataResult == null) {
             LOG.error("Query result is empty");
             throw new ResultEmptyException("Result is empty");
@@ -66,9 +61,11 @@ public class MetadataQueryExecutorResource extends QueryExecutorResourceBase {
 
         // Get QA results
         long qaStartTime = System.currentTimeMillis();
+        Config config = ConfigLoader.getConfig();
         GraphScoreWithTrace qaResult = null;
         String graphUuid = extractUUID(namedGraphURI, config.getBackendGroup().getDataGraphURIPrefix().toString());
         if (graphUuid != null) {
+            JDBCConnectionCredentials connectionCredentials = config.getBackendGroup().getCleanDBJDBCConnectionCredentials();
             Integer[] qaGroupIDs = qaRuleGroupsForGraph(graphUuid, connectionCredentials);
             if (qaGroupIDs.length > 0) {
                 QualityAssessorImpl qualityAssessor = new QualityAssessorImpl(qaGroupIDs);

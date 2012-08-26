@@ -11,6 +11,9 @@ import cz.cuni.mff.odcleanstore.queryexecution.impl.QueryExecutionHelper;
 import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Access point (facade) of the Query Execution component.
  * Provides access to methods provided by each QueryExecutor.
@@ -24,6 +27,8 @@ import cz.cuni.mff.odcleanstore.shared.Utils;
  * @author Jan Michelfeit
  */
 public class QueryExecution {
+    private static final Logger LOG = LoggerFactory.getLogger(QueryExecution.class);
+
     /** JDBC connection settings for the SPARQL endpoint that will be queried. */
     private final JDBCConnectionCredentials connectionCredentials;
 
@@ -47,6 +52,7 @@ public class QueryExecution {
      * @param globalConfig container for QE & CR configuration loaded from the global configuration file
      */
     public QueryExecution(JDBCConnectionCredentials connectionCredentials, Config globalConfig) {
+        LOG.info("Initializing QueryExecution instance");
         this.connectionCredentials = connectionCredentials;
         this.globalConfig = globalConfig;
         this.prefixMappingCache = new PrefixMappingCache(connectionCredentials);
