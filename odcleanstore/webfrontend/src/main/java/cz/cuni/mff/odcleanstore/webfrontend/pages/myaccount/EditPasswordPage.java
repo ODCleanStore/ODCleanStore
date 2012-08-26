@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.webfrontend.pages;
+package cz.cuni.mff.odcleanstore.webfrontend.pages.myaccount;
 
 import java.security.NoSuchAlgorithmException;
 
@@ -16,6 +16,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.ODCSWebFrontendSession;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LogInPage;
 import cz.cuni.mff.odcleanstore.webfrontend.util.PasswordHandling;
 import cz.cuni.mff.odcleanstore.webfrontend.validators.OldPasswordValidator;
 
@@ -65,7 +66,7 @@ class ChangePasswordForm extends Form
 {
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger(LogInForm.class);
+	private static Logger logger = Logger.getLogger(ChangePasswordForm.class);
 
 	private DaoForEntityWithSurrogateKey<User> userDao;
 	private User user;

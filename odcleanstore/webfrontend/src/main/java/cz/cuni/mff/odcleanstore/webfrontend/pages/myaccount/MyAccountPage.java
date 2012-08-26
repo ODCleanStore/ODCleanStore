@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.webfrontend.pages;
+package cz.cuni.mff.odcleanstore.webfrontend.pages.myaccount;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.RestartResponseException;
@@ -9,6 +9,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.core.ODCSWebFrontendSession;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LogInPage;
 
 public class MyAccountPage extends FrontendPage 
 {

@@ -3,6 +3,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages;
 import cz.cuni.mff.odcleanstore.util.ArrayUtils;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.core.ODCSWebFrontendSession;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.myaccount.MyAccountPage;
 
 import org.apache.wicket.Page;
 import org.apache.wicket.RestartResponseAtInterceptPageException;
