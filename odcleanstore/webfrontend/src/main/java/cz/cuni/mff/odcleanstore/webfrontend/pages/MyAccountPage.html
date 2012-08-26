@@ -1,5 +1,12 @@
 <wicket:extend>
 
+<wicket:link>
+<div>
+	<a class="placedright" href="EditPasswordPage.html">Edit my password</a>
+	<div class="clear">&nbsp;</div>
+</div>
+</wicket:link>
+
 <div class="datalistitem">
 	<strong class="block">Username:</strong>
 	<span wicket:id="username">[username]</span>
@@ -19,23 +26,5 @@
 	<strong class="block">Surname:</strong>
 	<span wicket:id="surname">[surname]</span>
 </div>
-
-<h2>Change password</h2>
-
-<form wicket:id="changePasswordForm">
-	<p>
-		<label for="oldPassword">Old password:</label>
-		<input wicket:id="oldPassword" id="oldPassword" type="password" class="required"/>
-	</p>
-	<p>
-		<label for="newPassword">New password:</label>
-		<input wicket:id="newPassword" id="newPassword" type="password" class="required"/>
-	</p>
-	<p>
-		<label for="newPasswordAgain">New password again:</label>
-		<input wicket:id="newPasswordAgain" id="newPasswordAgain" type="password" class="required"/>
-	</p>
-	<input type="submit" value="Submit" />
-</form>
 
 </wicket:extend>
