@@ -183,7 +183,7 @@ import java.util.Set;
             + "\n   OPTIONAL { ?resGraph <" + ODCS.publishedBy + "> ?publishedBy. "
             + "\n     ?publishedBy <" + ODCS.publisherScore + "> ?publisherScore }"
             + "\n   %4$s"
-            + "\n   FILTER (bound(?source))"
+            //+ "\n   FILTER (bound(?source))"
             + "\n }"
             + "\n LIMIT %5$d";
 

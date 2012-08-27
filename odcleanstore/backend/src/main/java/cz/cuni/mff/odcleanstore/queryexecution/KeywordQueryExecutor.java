@@ -183,7 +183,7 @@ import java.util.regex.Pattern;
             + "\n   OPTIONAL { ?resGraph <" + ODCS.publishedBy + "> ?publishedBy. "
             + "\n     ?publishedBy <" + ODCS.publisherScore + "> ?publisherScore }"
             + "\n   %5$s"
-            + "\n   FILTER (bound(?source))"
+            //+ "\n   FILTER (bound(?source))"
             + "\n }"
             + "\n LIMIT %6$d";
 

@@ -88,7 +88,7 @@ import java.util.Set;
             + "\n   OPTIONAL { <%1$s> <" + ODCS.publishedBy + "> ?publishedBy. "
             + "\n     ?publishedBy <" + ODCS.publisherScore + "> ?publisherScore }"
             + "\n   %2$s"
-            + "\n   FILTER (bound(?source))"
+            //+ "\n   FILTER (bound(?source))"
             + "\n }"
             + "\n LIMIT %3$d";
 
