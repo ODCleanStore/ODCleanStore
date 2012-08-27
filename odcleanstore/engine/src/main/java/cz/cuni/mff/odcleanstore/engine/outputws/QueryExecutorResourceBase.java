@@ -25,6 +25,7 @@ import org.restlet.resource.ServerResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -121,21 +122,22 @@ public abstract class QueryExecutorResourceBase extends ServerResource {
             LOG.warn("Response has no content");
             getResponse().setStatus(Status.SUCCESS_NO_CONTENT);
         } catch (QueryExecutionException e) {
+        	String message = String.format(Locale.ROOT, "%s (error code:%d)", e.getMessage(), e.getErrorCode());
             switch (e.getErrorType()) {
             case QUERY_TOO_LONG:
             case INVALID_QUERY_FORMAT:
             case AGGREGATION_SETTINGS_INVALID:
             case UNKNOWN_PREFIX:
-                LOG.warn(FormatHelper.formatExceptionForLog(e, "Client error bad request"));
-                getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST, e.getMessage());
+                LOG.warn(FormatHelper.formatExceptionForLog(e, "Client error bad request: " + message));
+                getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST, message);
                 break;
             case DATABASE_ERROR:
             case DEFAULT_AGGREGATION_SETTINGS_INVALID:
             case QUERY_EXECUTION_SETTINGS_INVALID:
             case CONFLICT_RESOLUTION_ERROR:
             default:
-                LOG.error(FormatHelper.formatExceptionForLog(e, "Server error internal"));
-                getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
+                LOG.error(FormatHelper.formatExceptionForLog(e, "Server error internal: "  + message));
+                getResponse().setStatus(Status.SERVER_ERROR_INTERNAL, message);
             }
         } catch (Exception e) {
             LOG.error(FormatHelper.formatExceptionForLog(e, "Server error internal"));
