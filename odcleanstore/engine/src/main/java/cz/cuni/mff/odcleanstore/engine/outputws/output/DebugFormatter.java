@@ -69,7 +69,7 @@ public class DebugFormatter extends ResultFormatterBase {
                 }
             }
         };
-        representation.setCharacterSet(CharacterSet.UTF_8);
+        representation.setCharacterSet(OUTPUT_CHARSET);
         return representation;
     }
 
@@ -124,7 +124,7 @@ public class DebugFormatter extends ResultFormatterBase {
 
             }
         };
-        representation.setCharacterSet(CharacterSet.UTF_8);
+        representation.setCharacterSet(OUTPUT_CHARSET);
         return representation;
     }
 

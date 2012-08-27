@@ -9,6 +9,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationType;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
 import cz.cuni.mff.odcleanstore.engine.outputws.output.HTMLFormatter;
 import cz.cuni.mff.odcleanstore.engine.outputws.output.QueryResultFormatter;
+import cz.cuni.mff.odcleanstore.engine.outputws.output.RDFXMLFormatter;
 import cz.cuni.mff.odcleanstore.engine.outputws.output.TriGFormatter;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecution;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
@@ -166,6 +167,8 @@ public abstract class QueryExecutorResourceBase extends ServerResource {
         if (formatName != null && !formatName.isEmpty()) {
             if (formatName.equalsIgnoreCase("trig")) {
                 return new TriGFormatter(outputWSConfig);
+            } else if (formatName.equalsIgnoreCase("rdfxml")) {
+                return new RDFXMLFormatter(outputWSConfig);
             }
         }
         return new HTMLFormatter(outputWSConfig);
