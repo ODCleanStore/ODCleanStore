@@ -15,7 +15,6 @@ import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
-import cz.cuni.mff.odcleanstore.vocabulary.W3P;
 import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 
 import com.hp.hpl.jena.graph.Node;
@@ -30,8 +29,11 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * The base class of query executors.
@@ -91,7 +93,7 @@ import java.util.Locale;
      * Must be formatted with the date given as an argument.
      */
     private static final String INSERTED_AT_FILTER_CLAUSE = " OPTIONAL"
-            + " { ?graph <" + W3P.insertedAt + "> ?_insertedAt }"
+            + " { ?graph <" + ODCS.insertedAt + "> ?_insertedAt }"
             + " FILTER(?_insertedAt >= \"%s\"^^<" + XMLSchema.dateTimeType + ">)";
 
     /**
@@ -410,5 +412,24 @@ import java.util.Locale;
         } finally {
             resultSet.closeQuietly();
         }
+    }
+
+    /**
+     * Returns preferred URIs for the result based on aggregation settings.
+     * These include the properties explicitly listed in aggregation settings.
+     * @return preferred URIs
+     */
+    protected Set<String> getSettingsPreferredURIs() {
+        Set<String> aggregationProperties = aggregationSpec.getPropertyAggregations() == null
+                ? Collections.<String>emptySet()
+                : aggregationSpec.getPropertyAggregations().keySet();
+        Set<String> multivalueProperties = aggregationSpec.getPropertyMultivalue() == null
+                ? Collections.<String>emptySet()
+                : aggregationSpec.getPropertyMultivalue().keySet();
+        Set<String> preferredURIs = new HashSet<String>(
+                aggregationProperties.size() + multivalueProperties.size() + 1); // +1 for URI added in some types of queries
+        preferredURIs.addAll(aggregationProperties);
+        preferredURIs.addAll(multivalueProperties);
+        return preferredURIs;
     }
 }

@@ -12,7 +12,6 @@ import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraphException;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
-import cz.cuni.mff.odcleanstore.vocabulary.W3P;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -427,7 +426,7 @@ public class QualityAssessorImplTest extends TestCase {
 			checkGraphScoreTrace(graph.name, trace);
 		}
 
-		WrappedResultSet remaining = connection.executeSelect("SPARQL SELECT * FROM <" + metadataGraphName + "> WHERE {{?s ?p ?o} FILTER (?p != <" + W3P.publishedBy + ">)}");
+		WrappedResultSet remaining = connection.executeSelect("SPARQL SELECT * FROM <" + metadataGraphName + "> WHERE {{?s ?p ?o} FILTER (?p != <" + ODCS.publishedBy + ">)}");
 
 		Assert.assertFalse(remaining.next());
 	}

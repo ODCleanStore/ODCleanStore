@@ -81,7 +81,7 @@ The lifecycle of data inside ODCleanStore is as follows:
   \item Engine successively processes named graphs in the dirty database by applying a~pipeline of transformers to it; the applied pipeline is selected according to the input metadata.
   \item Each transformer in the pipeline may modify the named graph or attach new related named graphs (such as a named graph with mappings to other resources or results of quality assessment).
   \item When the pipeline finishes, the augmented RDF data are populated to the \term{clean database} together with any auxiliary data and metadata created during the pipeline execution.
-  \item Data consumers can use Output Webservice to query data in the clean database. Output Webservice provides two basic types of queries -- URI query and keyword query; in addition, metadata about a~given named graph can be requested. The response to a~query consists of relevant RDF triples together with their provenance information and quality estimate. The query can be further customized by user-defined conflict resolution policies.\\
+  \item Data consumers can use Output Webservice to query data in the clean database. Output Webservice provides several basic types of queries -- URI query, keyword and named graph query; in addition, metadata about a~given named graph can be requested. The response to a~query consists of relevant RDF triples together with their provenance information and quality estimate. The query can be further customized by user-defined conflict resolution policies.\\
 	Data in the clean database can be also queried using the SPARQL query language. While SPARQL queries are more expressive, there is no direct support for provenance tracking and quality estimation. 
   \item When transformer rules change, the administrator may choose to re-run a~pipeline on data already stored in the clean database. Copy of this data is created in the dirty database where it is processed by the pipeline. After that, the processed version of data replaces the original in the clean database.
 \end{enumerate}
@@ -117,7 +117,7 @@ The administration webfrontend enables
 
 \todo{use-case diagram}
 
-Data consumers accessing Output Webservice (see Section \ref{sec:outputWS}) do not need to have an account in ODCleanStore; these users have a~special role User (USR). Other users working with ODCleanStore need to have an account and their permissions are based on the roles they are assigned. This chapter describes all the roles recognized by ODCleanStore.
+Data consumers accessing Output Webservice (see Section~\ref{sec:outputWS}) do not need to have an account in ODCleanStore; these users have a~special role User (USR). Other users working with ODCleanStore need to have an account and their permissions are based on the roles they are assigned. This chapter describes all the roles recognized by ODCleanStore.
 
 \section[Administrator]{Administrator (ADM)}
 \label{sec:adm}
@@ -362,7 +362,7 @@ The \code{source} field is a~list or URIs the data were retrieved from. Typicall
 
 The \code{publishedBy} field is a~list of URIs representing the publisher of the data. It can be a~well known URI, or, for example, the host part of the source URI (e.g. \linebreak[4]\code{http://en.wikipedia.org/} for data scraped from the English Wikipedia).
 
-The \code{license} field may specify URI(s) representing the licence(s) under which \code{payload} contents and any additional  metadata being inserted are published. 
+The \code{license} field may specify URI(s) representing the license(s) under which \code{payload} contents and any additional  metadata being inserted are published. 
 
 The optional \code{provenance} field can contain additional RDF provenance metadata about contents of \code{payload}.\footnote{The suggested vocabulary for these purposes is W3P (\url{http://code.google.com/p/od-w3p/}).} Base URI for the provenance metadata is the URI of the named graph where \code{payload} is stored in ODCleanStore.
 
@@ -454,7 +454,7 @@ try {
 \section{Data Consumer}
 \label{sec:outputWS}
 
-A consumer of data stored in ODCleanStore can query the database through Output Webservice. The Output Webservice can be queried for data about a~given URI resource, queried by keywords or queried for metadata of a~given named graph. Conflicts in data returned in response to a~query are resolved and the data are fused using policies provided by the user or by the administrator.
+A consumer of data stored in ODCleanStore can query the database through Output Webservice. The Output Webservice can be queried for data about a~given URI resource, queried by keywords, queried for contents of a~given named graphs or queried for metadata of a~named graph. Conflicts in data returned in response to a~query are resolved and the data are fused using policies provided by the user or by the administrator.
 
 Additionally, the user can access the data in the clean database directly using the SPARQL endpoint powered by Virtuoso.\footnote{\url{http://virtuoso.openlinksw.com/}} This way the data consumer can use the full power of the SPARQL query language, however conflict resolution and provenance tracking is not supported for this type of queries.
 
@@ -469,12 +469,13 @@ The Output Webservice is a~REST webservice which can be accessed using both GET 
 The Output Webservice can be queried for:
 
 \begin{enumerate}
-	\item a~resource URI
-	\item keyword(s)
-	\item named graph metadata
+	\item a~resource URI -- \term{URI query}
+	\item keyword(s) -- \term{keyword query}
+	\item named graph contents -- \term{named graph query}
+	\item named graph metadata -- \term{metadata query}
 \end{enumerate}
 
-Table \ref{tbl:queryTypes} lists where each type of query can be accessed.
+Table \ref{tbl:queryTypes} lists where each type of query can be accessed by default. The exact address can be configured.
 
 \begin{table}[h]
 \centering
@@ -484,9 +485,11 @@ Table \ref{tbl:queryTypes} lists where each type of query can be accessed.
 	\hline \hline
 	URI & \varcode{host}\code{/uri} & \mbox{http://localhost:8087/uri} \mbox{?uri=http\%3A\%2F\%2Fexample.com} \\
 	\hline
-	Keyword & \varcode{host}\code{/keyword} & http://localhost:8087/keyword ?kw=keyword\\
+	Keyword & \varcode{host}\code{/keyword} & http://localhost:8087/keyword?kw=keyword\\
 	\hline
-	Named graph metadata & \varcode{host}\code{/namedGraph} & \mbox{http://localhost:8087/namedGraph} \mbox{?uri=http\%3A\%2F\%2Fexample.com} \\
+	Named graph & \varcode{host}\code{/namedGraph} & http://localhost:8087/namedGraph \mbox{?uri=http\%3A\%2F\%2Fexample.com}\\
+	\hline
+	Metadata & \varcode{host}\code{/metadata} & \mbox{http://localhost:8087/metadata} \mbox{?uri=http\%3A\%2F\%2Fexample.com} \\
 	\hline
 \end{tabularx}
 \caption{Types of queries}
@@ -497,7 +500,7 @@ More information is available in the Query Execution specification. \todo{refere
 
 \subsection{Request format}
 
-Table \ref{tbl:requestFormatUK} lists (either GET or POST) parameters than can be used with the URI and keyword queries. The \code{uri} parameter is required for URI query, \code{kw} parameter for keyword query. Other parameters are optional.
+Table \ref{tbl:requestFormatUK} lists (either GET or POST) parameters than can be used with the URI, keyword and named graph queries. The \code{uri} parameter is required for URI query, \code{kw} parameter for keyword query. Other parameters are optional.
 
 \begin{table}[h!]
 \centering
@@ -505,7 +508,7 @@ Table \ref{tbl:requestFormatUK} lists (either GET or POST) parameters than can b
 	\hline
 	Name & Description & Possible values & Default value \\
 	\hline \hline
-	\code{uri} & searched URI; \newline \textit{used only with URI query} & \vartext{string} & \vartext{N/A} \\
+	\code{uri} & searched URI; \newline \textit{used only with URI and named graph query} & \vartext{string} & \vartext{N/A} \\
 	\hline
 	\code{kw} & searched keyword(s); \newline \textit{used only with keyword query} & \vartext{string} & \vartext{N/A} \\
 	\hline
@@ -526,11 +529,11 @@ Table \ref{tbl:requestFormatUK} lists (either GET or POST) parameters than can b
 	  \code{pmultivalue[rdf\%3Atype]=1} & 0, 1 & \vartext{N/A} \\
 	\hline
 \end{tabularx}
-\caption{URI and keyword query parameters}
+\caption{URI, keyword and named graph query parameters}
 \label{tbl:requestFormatUK}
 \end{table} 
 
-Table \ref{tbl:requestFormatNG} lists parameters that can be used with the named graph metadata query.
+Table \ref{tbl:requestFormatNG} lists parameters that can be used with the metadata query.
 
 \begin{table}[h!]
 \centering
@@ -543,7 +546,7 @@ Table \ref{tbl:requestFormatNG} lists parameters that can be used with the named
 	\code{format} & format of the result & \code{html}, \code{trig} & \code{html} & no \\
 	\hline
 \end{tabular}
-\caption{Named graph metadata query parameters}
+\caption{Metadata query parameters}
 \label{tbl:requestFormatNG}
 \end{table}
 
@@ -611,10 +614,15 @@ The \code{kw} parameter can contain one or more keywords separated by whitespace
 
 Query Execution also looks for an exact match of the entire \code{kw} value (i.e. without any division to keywords). If the \code{kw} value is a~number, then numeric typed literals will also match; if the \code{kw} value is formatted as \code{xsd:dateTime}\footnote{\url{http://www.w3.org/TR/xmlschema-2/\#dateTime-lexical-representation}}, then \code{xsd:dateTime} typed literals will also match.
 
-\subsubsection{Named Graph Metadata Query}
-The value of the \code{uri} parameter must be a~valid URI.
+\subsubsection{Named Graph Query}
+The value of the \code{uri} parameter must be either a~valid URI, or a prefixed name, of an existing named graph.
+
+\subsubsection{Metadata Query}
+The value of the \code{uri} parameter must be a~valid URI of an existing named graph.
 
 \subsection{Results Format for URI \& Keyword Queries}
+\label{sec:URIKWResultsFormat}
+
 The result contains triples returned in response to the query, including relevant labels of URI resources in the result, and metadata for the triples.
 
 \subsubsection{HTML}
@@ -627,13 +635,14 @@ The result in HTML format contains results in a~human-readable form. It contains
 \end{itemize}
 
 \subsubsection{TriG}
+\label{sec:URIKWTrig}
 
 The result contains triples (quads) serialized in the TriG\footnote{\url{http://www4.wiwiss.fu-berlin.de/bizer/trig/}} format. The result includes:
 
 \begin{itemize}
 	\item triples returned in response to the query, each one placed in a~unique named graph
-  \item aggregated quality (\code{odcs:quality}) and source named graphs (\code{w3p:source}) of the above triples; subjects of these statements are the unique named graphs where the respective triples are placed
-  \item  metadata of source named graphs; they may include where the data were extracted from (\code{w3p:source}), Quality Assesment score of the named graph (\code{odcs:score}) and of its publisher (\code{odcs:publisherScore}), the publisher of the data (\code{w3p:publishedBy}), timestamp (\code{w3p:insertedAt}), licence (\code{dc:licence})
+  \item aggregated quality (\code{odcs:quality}) and source named graphs (\code{odcs:sourceGraph}) of the above triples; subjects of these statements are the unique named graphs where the respective triples are placed
+  \item  metadata of source named graphs; they may include where the data were extracted from (\code{w3p:source}), Quality Assesment score of the named graph (\code{odcs:score}) and of its publisher (\code{odcs:publisherScore}), the publisher of the data (\code{w3p:publishedBy}), timestamp (\code{w3p:insertedAt}), license (\code{dc:license})
   \item  metadata about the query response itself -- a~title (\code{dc:title}), date (\code{dc:date}), number of result triples (\code{odcs:totalResults}), the query (\code{odcs:query}) and link to each result item (\code{odcs:result})
 \end{itemize}
 
@@ -641,7 +650,88 @@ The result contains triples (quads) serialized in the TriG\footnote{\url{http://
 
 An example:
 
-\begin{lstlisting}[caption={Example of query response in TriG},label=lst:trigResponse]
+\begin{lstlisting}[caption={Example of URI or keyword query response in TriG},label=lst:URIKWTrigResponse]
+@prefix :        <#> .
+@prefix odcs:    <http://opendata.cz/infrastructure/odcleanstore/> .
+@prefix w3p:     <http://purl.org/provenance#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix dbpedia:     <http://dbpedia.org/ontology/> .
+
+<http://opendata.cz/infrastructure/odcleanstore/query/results/1> {
+  <http://dbpedia.org/resource/Berlin> rdfs:label "Berlin"@en .
+}
+
+<http://opendata.cz/infrastructure/odcleanstore/query/results/2> {
+  <http://dbpedia.org/resource/Berlin> dbpedia:populationTotal
+    "3420768"^^<http://www.w3.org/2001/XMLSchema#int> .
+}
+
+<http://opendata.cz/infrastructure/odcleanstore/query/metadata/> {
+  <http://opendata.cz/infrastructure/odcleanstore/query/results/1>
+    odcs:quality 0.92 ;
+    w3p:source <http://opendata.cz/infrastructure/odcleanstore/data/e0cdc9d7-e2d8-4bde> ;
+    w3p:source <http://opendata.cz/infrastructure/odcleanstore/data/b68e21f7-363f-4bfd> .
+
+  <http://opendata.cz/infrastructure/odcleanstore/query/results/2>
+    odcs:quality 0.8966325468133597 ;
+    w3p:source <http://opendata.cz/infrastructure/odcleanstore/data/b68e21f7-363f-4bfd> .
+
+  <http://opendata.cz/infrastructure/odcleanstore/data/e0cdc9d7-e2d8-4bde>
+    odcs:score 0.9 ;
+    w3p:insertedAt "2012-04-01 12:34:56.0"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
+    w3p:source <http://dbpedia.org/page/Berlin> ;
+    w3p:publishedBy <http://dbpedia.org/> ;
+    odcs:publisherScore 0.9 .
+
+  <http://opendata.cz/infrastructure/odcleanstore/data/b68e21f7-363f-4bfd>
+    odcs:score 0.8 ;
+    w3p:insertedAt "2012-04-04 12:34:56.0"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
+    w3p:source <http://linkedgeodata.org/page/node240109189> .
+
+  <http://localhost:8087/uri?uri=http%3A%2F%2Fdbpedia.org%2Fresource%2FBerlin>
+    a odcs:QueryResponse ;
+    dc:title "URI search: http://dbpedia.org/resource/Berlin" ;
+    dc:date "2012-08-01T10:20:30+01:00" ;
+    odcs:totalResults 2 ;
+    odcs:query "http://dbpedia.org/resource/Berlin" ;
+    odcs:result <http://opendata.cz/infrastructure/odcleanstore/query/results/1> ;
+    odcs:result <http://opendata.cz/infrastructure/odcleanstore/query/results/2> .
+}
+
+
+\end{lstlisting}
+
+\subsubsection{Paging of results}
+\label{sec:URIKWPaging}
+As of now, all results are returned on a single page. The approximate maximum number of triples in the result is 500 by default (and can be set in the configuration file, see \refadmimanual).
+
+\subsection{Results Format for Named Graph Query}
+Named graph query selects all triples stored in the given named graph and is intended mainly for debugging purposes.
+The format of results for the named graph query is exactly the same as for URI or keyword queries (see Section~\ref{sec:URIKWResultsFormat}). The only difference is that labels for URI resources in the result are not retrieved (unless they are contained in the named graph). Also, conflict resolution considers only the named graph and not any other conflicting (or same) values that may be stored in other graphs.
+
+\subsection{Results Format for Metadata Query}
+The result contains metadata and Quality Assessment results for a given named graph. The metadata include metadata maintained by ODCleanStore (e.g. \code{odcs:insertedAt}) and data from the \code{provenance} metadata graph. Quality Assessment is executed on the named graph at query time, with rules that would be applied to it in its respective pipeline.
+
+\subsubsection{HTML}
+
+The result in HTML format contains results in a~human-readable form. It contains
+
+\begin{itemize}
+  \item a table with ODCleanStore metadata,
+  \item the results of Quality Assessment, i.e. the resulting score and all QA rules the named graph violated and thus its score was decreased by the respective coefficient (only if there is at least one QA rule group applicable to the named graph),
+  \item \code{provenance} metadata, if available.
+\end{itemize}
+
+
+\subsubsection{TriG}
+The result contains triples (quads) serialized in the TriG format. Again, the result contains ODCleanStore metadata, additional \code{provenance} metadata, results of Quality Assessment and also metadata about the query response itself. The meaning of used predicate is as described in Section \ref{sec:URIKWTrig}
+
+\pagebreak[3]
+
+An example:
+
+\begin{lstlisting}[caption={Example of metadata query response in TriG},label=lst:metadataTrigResponse]
 @prefix :        <#> .
 @prefix odcs:    <http://opendata.cz/infrastructure/odcleanstore/> .
 @prefix w3p:     <http://purl.org/provenance#> .
@@ -688,6 +778,9 @@ An example:
 }
 \end{lstlisting}
 
+\subsubsection{Paging of results}
+See Section~\ref{sec:URIKWPaging}.
+
 \todo{JSON}
 \todo{Error handling!}
 \todo{Examples}
@@ -706,9 +799,9 @@ When a new request is sent to Input Webservice, the stored data \& metadata go t
 
   \item If all data are valid, the request is queued, Input Webservice indicates success and the transmission successfully finishes.
 
-  \item Engine, independently on Input Webservice, successively takes requests from the input queue and processes them. RDF data from \code{payload} are stored to a single named graph, \code{provenance} metadata to a separate named graph and other metadata to another separate named graph called \term{metadata graph}, all in the dirty (staging) database. The format of RDF triples in the metadata graph is described in Section \ref{sec:storedDataStructure}.
+  \item Engine, independently on Input Webservice, successively takes requests from the input queue and processes them. RDF data from \code{payload} are stored to a single named graph, \code{provenance} metadata to a separate named graph and other metadata to another separate named graph called \term{metadata graph}, all in the dirty (staging) database. The format of RDF triples in the metadata graph is described in Section~\ref{sec:storedDataStructure}.
 
-  \item Because some predicates are reserved for purposes of internal metadata representation in ODCleanStore, RDF triples that contain these predicates are removed from \code{payload} and \code{provenance} named graphs. Table \ref{tbl:reservedPredicates} lists all reserved predicates.
+  \item Because some predicates are reserved for purposes of internal metadata representation in ODCleanStore, RDF triples that contain these predicates are removed from \code{payload} and \code{provenance} named graphs. Table~\ref{tbl:reservedPredicates} lists all reserved predicates.
 
 \begin{table}[h!]
 \centering
@@ -724,13 +817,17 @@ When a new request is sent to Input Webservice, the stored data \& metadata go t
 	\hline
 	\code{odcs:provenanceMetadataGraph} \\
 	\hline
-	\code{w3p:insertedAt} \\
+	\code{odcs:sourceGraph} \\
 	\hline
-	\code{w3p:insertedBy} \\
+	\code{odcs:insertedAt} \\
 	\hline
-	\code{w3p:source} \\
+	\code{odcs:insertedBy} \\
 	\hline
-	\code{w3p:publishedBy} \\
+	\code{odcs:source} \\
+	\hline
+	\code{odcs:publishedBy} \\
+	\hline
+	\code{odcs:license} \\
 	\hline
 \end{tabular}
 \caption{Reserved RDF predicates}
@@ -738,7 +835,7 @@ When a new request is sent to Input Webservice, the stored data \& metadata go t
 \end{table}
 \todo{check it is up-to-date}
 
-  \item Next, the processing pipeline is selected -- if \code{pipelineName} was present, pipeline with the given name is used, the default pipeline is used otherwise. Engine runs each transformer in the pipeline on the stored data. Transformers can modify the inserted named graphs or attach new named graphs (\term{attached named graph}). See \refadmimanual{} for more information about transformers.
+  \item Next, the processing pipeline is selected -- if \code{pipelineName} was present, pipeline with the given name is used, the default pipeline is used otherwise. Engine runs each transformer in the pipeline on the stored data. Transformers can modify the inserted named graphs or attach new named graphs (\term{attached named graph}). See~\refadmimanual{} for more information about transformers.
 
   \item If all transformers in the pipeline finish successfully, the \code{payload} graph, \code{provenance} graph, metadata graph and any new attached graphs are moved from the dirty database to the clean database, while the respective request is removed from the queue.
 
@@ -751,7 +848,7 @@ When a new request is sent to Input Webservice, the stored data \& metadata go t
 
 Data originating from a single request to Input Webservice can be stored in several named graphs. RDF data given in the \code{payload} parameter are stored in one named graph (\code{payload} graph). If \code{provenance} RDF metadata are given, they are stored in another named graph (\code{provenance} graph). Other metadata (such as the source of data, timestamp, etc.) are stored in yet another named graph (\term{metadata graph}). In addition, transformers in the respective pipeline may add more related RDF data to one or more named graphs (\term{attached graphs}), e.g. results of quality assessment, or mappings for resources in \code{payload}. 
 
-While contents of the \code{payload}, \code{provenance} and attached graphs may be arbitrary, the metadata graph has a set structure. Table \ref{tbl:metadataGraph} describes the structure of a metadata graph. In the table, \varcode{payload-graph} stands for the name of the respective \code{payload} graph, \varcode{provenance-graph} and \varcode{metadata-graph} analogously.
+While contents of the \code{payload}, \code{provenance} and attached graphs may be arbitrary, the metadata graph has a set structure. Table~\ref{tbl:metadataGraph} describes the structure of a metadata graph. In the table, \varcode{payload-graph} stands for the name of the respective \code{payload} graph, \varcode{provenance-graph} and \varcode{metadata-graph} analogously.
 
 
 \begin{table}[h!]
@@ -766,15 +863,15 @@ While contents of the \code{payload}, \code{provenance} and attached graphs may 
 	\hline
 	\varcode{payload-graph} & \code{odcs:attachedGraph} & URIs of attached graphs & 0..* \\
 	\hline
-	\varcode{payload-graph} & \code{w3p:insertedAt} & insertion time & 1 \\
+	\varcode{payload-graph} & \code{odcs:insertedAt} & insertion time & 1 \\
 	\hline
-	\varcode{payload-graph} & \code{w3p:insertedBy} & name of the user who inserted the data & 1 \\ \todo{PJ: jmeno nebo ID?}
+	\varcode{payload-graph} & \code{odcs:insertedBy} & name of the user who inserted the data & 1 \\ \todo{PJ: jmeno nebo ID?}
 	\hline
-	\varcode{payload-graph} & \code{w3p:source} & source of the data (values  from the \code{source} field) & 1..* \\
+	\varcode{payload-graph} & \code{odcs:source} & source of the data (values  from the \code{source} field) & 1..* \\
 	\hline
-	\varcode{payload-graph} & \code{w3p:publishedBy} & identifier of the publisher of the data (values  from the \code{publishedBy} field) & 1..* \\
+	\varcode{payload-graph} & \code{odcs:publishedBy} & identifier of the publisher of the data (values  from the \code{publishedBy} field) & 1..* \\
 	\hline
-	\varcode{payload-graph} & \code{dc:license} & license of the data (values from the \code{license} field) & 0..* \\
+	\varcode{payload-graph} & \code{odcs:license} & license of the data (values from the \code{license} field) & 0..* \\
 	\hline
 \end{tabularx}
 \caption{RDF triples in a metadata graph}
@@ -824,7 +921,7 @@ The administrator \todo{proper user role} can decide to re-run a transformer pip
 	\item[Clean database] Database where incoming data are stored after they are successfully processed by the respective processing pipeline; this database can be accessed using the Output Webservice
 	\item[\code{Payload} graph] Named graph where the actual inserted data, given in the \code{payload} parameter of Input Webservice, are stored
 	\item[\code{Provenance} graph] Named graph where additional provenance metadata, given in the \code{provenance} field of Input Web Service, are stored
-	\item[Metadata graph] Named graph where other metadata about a \code{payload} graph (such as source, timestamp, licence, etc.) are stored
+	\item[Metadata graph] Named graph where other metadata about a \code{payload} graph (such as source, timestamp, license, etc.) are stored
 	\item[Attached graph] Named graph attached to a \code{payload} graph by a transformer
 	\item[Named graph score] Quality of a~single (\code{payload}) named graph estimated by the Quality Assesment component and stored in the database, expressed as a~number from interval [0,1]
 	\item[Publisher score] Average score of named graphs from a~publisher

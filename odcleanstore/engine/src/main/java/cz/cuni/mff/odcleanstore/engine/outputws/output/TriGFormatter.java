@@ -28,7 +28,7 @@ import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl.Graph
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRule;
 import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.EnumQueryType;
-import cz.cuni.mff.odcleanstore.queryexecution.NamedGraphMetadataQueryResult;
+import cz.cuni.mff.odcleanstore.queryexecution.MetadataQueryResult;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.vocabulary.DC;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
@@ -52,6 +52,8 @@ public class TriGFormatter extends ResultFormatterBase {
     private static final Node SCORE_PROPERTY = Node.createURI(ODCS.score);
     /** {@ ODCS#publisherScore} as a {@link Node}. */
     private static final Node PUBLISHER_SCORE_PROPERTY = Node.createURI(ODCS.publisherScore);
+    /** {@ ODCS#sourceGraph} as a {@link Node}. */
+    private static final Node SOURCE_GRAPH_PROPERTY = Node.createURI(ODCS.sourceGraph);
     /** {@ W3P#source} as a {@link Node}. */
     private static final Node SOURCE_PROPERTY = Node.createURI(W3P.source);
     /** {@ W3P#insertedAt} as a {@link Node}. */
@@ -92,7 +94,7 @@ public class TriGFormatter extends ResultFormatterBase {
     private static final String TITLE_KW = "Keyword query for '%s'";
 
     /** Title for a named graph metadata query. */
-    private static final String TITLE_NAMED_GRAPH = "Metadata query for named graph <%s>";
+    private static final String TITLE_METADATA = "Metadata query for named graph <%s>";
 
     /** Title for an unknown type of query. */
     private static final String TITLE_GENERAL = "Query %s";
@@ -145,7 +147,8 @@ public class TriGFormatter extends ResultFormatterBase {
             for (String sourceNamedGraph : crQuad.getSourceNamedGraphURIs()) {
                 metadataGraph.add(new Triple(
                         crQuad.getQuad().getGraphName(), 
-                        SOURCE_PROPERTY, Node.createURI(sourceNamedGraph)));
+                        SOURCE_GRAPH_PROPERTY, 
+                        Node.createURI(sourceNamedGraph)));
             }
             metadataGraph.add(new Triple(queryURI, RESULT_PROPERTY, crQuad.getQuad().getGraphName()));
         }
@@ -180,13 +183,13 @@ public class TriGFormatter extends ResultFormatterBase {
     }
 
     @Override
-    public Representation format(final NamedGraphMetadataQueryResult metadataResult,
+    public Representation format(final MetadataQueryResult metadataResult,
             final GraphScoreWithTrace qaResult, final long totalTime, final Reference requestReference) {
 
         WriterRepresentation representation = new WriterRepresentation(MediaType.APPLICATION_RDF_TRIG) {
             @Override
             public void write(Writer writer) throws IOException {
-                namedGraphConvertToNGSet(metadataResult, qaResult, totalTime, requestReference)
+                metadataConvertToNGSet(metadataResult, qaResult, totalTime, requestReference)
                     .write(writer, "TRIG", "" /* baseURI */);
             };
         };
@@ -195,14 +198,14 @@ public class TriGFormatter extends ResultFormatterBase {
     }
 
     /**
-     * Returns a formatted representation of a named graph query result.
+     * Returns a formatted representation of a metadata query result.
      * @param metadataResult result of metadata query about the requested named graph
      * @param qaResult result of quality assessment over the given named graph; can be null
      * @param totalTime execution time of the query
      * @param requestReference Representation of the requested URI
      * @return representation of the result as quads in a NamedGraphSet
      */
-    private NamedGraphSet namedGraphConvertToNGSet(NamedGraphMetadataQueryResult metadataResult,
+    private NamedGraphSet metadataConvertToNGSet(MetadataQueryResult metadataResult,
             GraphScoreWithTrace qaResult, long totalTime, Reference requestReference) {
 
         Node queryURI = Node.createURI(requestReference.toString(true, false));
@@ -234,7 +237,7 @@ public class TriGFormatter extends ResultFormatterBase {
         // Metadata about the query
         metadataGraph.add(new Triple(queryURI, TYPE_PROPERTY, QUERY_RESPONSE_CLASS));
 
-        String title = String.format(TITLE_NAMED_GRAPH, metadataResult.getQuery());
+        String title = String.format(TITLE_METADATA, metadataResult.getQuery());
         metadataGraph.add(new Triple(queryURI, TITLE_PROPERTY, Node.createLiteral(title)));
 
         RDFDatatype dateTimeDatatype = TypeMapper.getInstance().getSafeTypeByName(XSD.dateTime.getURI());

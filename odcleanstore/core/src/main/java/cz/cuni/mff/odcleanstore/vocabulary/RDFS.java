@@ -24,7 +24,7 @@ public final class RDFS {
     /* Vocabulary properties: */
 
     // CHECKSTYLE:OFF
-    public static final String label = "http://www.w3.org/2000/01/rdf-schema#label";
+    public static final String label = NS + "label";
 
     // CHECKSTYLE:ON
 }

@@ -11,7 +11,7 @@ import java.util.Collection;
  * Provides access to all important information about query result such as the result quads, metadata or query settings.
  * @author Jan Michelfeit
  */
-public class NamedGraphMetadataQueryResult extends QueryResultBase {
+public class MetadataQueryResult extends QueryResultBase {
     /** The provenance metadata given to the input webservice as value of provenance parameter. */
     private Collection<Quad> provenanceMetadata;
 
@@ -25,7 +25,7 @@ public class NamedGraphMetadataQueryResult extends QueryResultBase {
      * @param query the query string
      * @param queryType type of the query
      */
-    public NamedGraphMetadataQueryResult(
+    public MetadataQueryResult(
             Collection<Quad> provenanceMetadata,
             NamedGraphMetadataMap metadata,
             String query,

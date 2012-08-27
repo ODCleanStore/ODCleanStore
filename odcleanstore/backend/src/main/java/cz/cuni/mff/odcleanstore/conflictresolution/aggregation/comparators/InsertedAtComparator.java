@@ -7,7 +7,7 @@ import de.fuberlin.wiwiss.ng4j.Quad;
 
 /**
  * Comparator of quads by their w3p:insertedAt time.
- * @see cz.cuni.mff.odcleanstore.vocabulary.W3P#insertedAt
+ * @see cz.cuni.mff.odcleanstore.vocabulary.ODCS#insertedAt
  * @author Jan Michelfeit
  */
 public class InsertedAtComparator implements AggregationComparator {

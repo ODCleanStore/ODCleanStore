@@ -13,13 +13,12 @@ import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl.GraphScoreWithTrace;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRule;
-import cz.cuni.mff.odcleanstore.queryexecution.NamedGraphMetadataQueryResult;
+import cz.cuni.mff.odcleanstore.queryexecution.MetadataQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
 import de.fuberlin.wiwiss.ng4j.Quad;
 
 /**
- * Returns a representation of a query result serialized to the TriG format.
- * (See http://www4.wiwiss.fu-berlin.de/bizer/TriG/ .)
+ * Returns a simple representation of the query result for debugging purposes.
  * 
  * @author Jan Michelfeit
  */
@@ -75,7 +74,7 @@ public class DebugFormatter extends ResultFormatterBase {
     }
 
     @Override
-    public Representation format(final NamedGraphMetadataQueryResult metadataResult,
+    public Representation format(final MetadataQueryResult metadataResult,
             final GraphScoreWithTrace qaResult, final long totalTime, Reference requestReference) {
 
         WriterRepresentation representation = new WriterRepresentation(MediaType.TEXT_PLAIN) {

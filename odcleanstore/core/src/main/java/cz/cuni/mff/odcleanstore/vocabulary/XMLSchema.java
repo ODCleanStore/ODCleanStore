@@ -24,26 +24,26 @@ public final class XMLSchema {
     /* Vocabulary properties: */
 
     // CHECKSTYLE:OFF
-    public static final String stringType = "http://www.w3.org/2001/XMLSchema#string";
+    public static final String stringType = NS + "string";
 
-    public static final String booleanType = "http://www.w3.org/2001/XMLSchema#boolean";
+    public static final String booleanType = NS + "boolean";
 
-    public static final String decimalType = "http://www.w3.org/2001/XMLSchema#decimal";
+    public static final String decimalType = NS + "decimal";
 
-    public static final String floatType = "http://www.w3.org/2001/XMLSchema#float";
+    public static final String floatType = NS + "float";
 
-    public static final String doubleType = "http://www.w3.org/2001/XMLSchema#double";
+    public static final String doubleType = NS + "double";
 
-    public static final String intType = "http://www.w3.org/2001/XMLSchema#int";
+    public static final String intType = NS + "int";
 
-    public static final String integerType = "http://www.w3.org/2001/XMLSchema#integer";
+    public static final String integerType = NS + "integer";
 
-    public static final String longType = "http://www.w3.org/2001/XMLSchema#long";
+    public static final String longType = NS + "long";
 
-    public static final String timeType = "http://www.w3.org/2001/XMLSchema#time";
+    public static final String timeType = NS + "time";
 
-    public static final String dateType = "http://www.w3.org/2001/XMLSchema#date";
+    public static final String dateType = NS + "date";
 
-    public static final String dateTimeType = "http://www.w3.org/2001/XMLSchema#dateTime";
+    public static final String dateTimeType = NS + "dateTime";
     // CHECKSTYLE:ON
 }

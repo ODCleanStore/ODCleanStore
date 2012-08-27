@@ -6,9 +6,7 @@ import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.Transformer;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
-import cz.cuni.mff.odcleanstore.vocabulary.DC;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
-import cz.cuni.mff.odcleanstore.vocabulary.W3P;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,8 +22,8 @@ public class ODCSPropertyFilterTransformer implements Transformer {
     private static final Logger LOG = LoggerFactory.getLogger(ODCSPropertyFilterTransformer.class);
 
     private static final String[] FILTERED_PROPERTIES = new String[] { ODCS.score, ODCS.publisherScore, ODCS.scoreTrace,
-            ODCS.metadataGraph, ODCS.provenanceMetadataGraph, W3P.insertedAt, W3P.insertedBy, W3P.source,
-            W3P.publishedBy, DC.license };
+            ODCS.metadataGraph, ODCS.provenanceMetadataGraph, ODCS.sourceGraph, ODCS.insertedAt, ODCS.insertedBy,
+            ODCS.source, ODCS.publishedBy, ODCS.license };
 
     private static final String FILTERED_PROPERTIES_LIST;
 

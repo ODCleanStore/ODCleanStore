@@ -18,8 +18,14 @@ public enum EnumQueryType {
     KEYWORD,
 
     /**
-     * Keyword query.
+     * Named graph metadata query.
      * @see QueryExecution#getNamedGraphMetadata()
+     */
+    METADATA,
+
+    /**
+     * Named graph query.
+     * @see QueryExecution# TODO
      */
     NAMED_GRAPH
 }

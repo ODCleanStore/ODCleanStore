@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.webfrontend.pages;
+package cz.cuni.mff.odcleanstore.webfrontend.pages.myaccount;
 
 import java.security.NoSuchAlgorithmException;
 
@@ -16,22 +16,23 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.ODCSWebFrontendSession;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LogInPage;
 import cz.cuni.mff.odcleanstore.webfrontend.util.PasswordHandling;
 import cz.cuni.mff.odcleanstore.webfrontend.validators.OldPasswordValidator;
 
-public class MyAccountPage extends FrontendPage 
+public class EditPasswordPage extends FrontendPage 
 {
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger(MyAccountPage.class);
+	private static Logger logger = Logger.getLogger(EditPasswordPage.class);
 	
 	private DaoForEntityWithSurrogateKey<User> userDao;
 	
-	public MyAccountPage() 
+	public EditPasswordPage() 
 	{
 		super(
-			"Home > My account > Detail", 
-			"Show my account details"
+			"Home > My account > Edit", 
+			"Edit my password"
 		);
 		
 		// prepare DAO objects
@@ -42,7 +43,6 @@ public class MyAccountPage extends FrontendPage
 		//
 		User user = getUser();
 		
-		addAccountInformationSection(user);
 		addChangePasswordForm(user);
 	}
 
@@ -56,19 +56,6 @@ public class MyAccountPage extends FrontendPage
 		return ODCSWebFrontendSession.get().getUser();
 	}
 	
-	private void addAccountInformationSection(User user)
-	{
-		
-		logger.debug("Building account information section for user: [" + user + "].");
-		
-		setDefaultModel(new CompoundPropertyModel<User>(user));
-		
-		add(new Label("username"));
-		add(new Label("email"));
-		add(new Label("firstname"));
-		add(new Label("surname"));
-	}
-	
 	private void addChangePasswordForm(User user)
 	{
 		add(new ChangePasswordForm("changePasswordForm", userDao, user));
@@ -79,7 +66,7 @@ class ChangePasswordForm extends Form
 {
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger(LogInForm.class);
+	private static Logger logger = Logger.getLogger(ChangePasswordForm.class);
 
 	private DaoForEntityWithSurrogateKey<User> userDao;
 	private User user;
@@ -130,7 +117,7 @@ class ChangePasswordForm extends Form
 		catch (NoSuchAlgorithmException ex) 
 		{
 			getSession().error("Could not change the password due to an unexpected error.");
-			setResponsePage(MyAccountPage.class);
+			setResponsePage(EditPasswordPage.class);
 			
 			return;
 		}
