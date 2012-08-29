@@ -4,6 +4,7 @@ package cz.cuni.mff.odcleanstore.engine.pipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.Service;
 import cz.cuni.mff.odcleanstore.engine.ServiceState;
@@ -56,8 +57,7 @@ public final class PipelineService extends Service implements Runnable {
 			}
 			synchronized (waitForGraphLock) {
 				if (getServiceState() == ServiceState.RUNNING) {
-					// TODO to global config					
-					waitForGraphLock.wait(8000);
+					waitForGraphLock.wait(ConfigLoader.getConfig().getPipelineGroup().getLookForGraphInterval());
 				}
 			}
 		}
@@ -72,8 +72,7 @@ public final class PipelineService extends Service implements Runnable {
 				if (_waitPenalty > 1) {
 					synchronized (waitPenaltyLock) {
 						if (getServiceState() == ServiceState.RUNNING) {
-							// TODO to global config
-							waitPenaltyLock.wait(80000);
+							waitPenaltyLock.wait(ConfigLoader.getConfig().getPipelineGroup().getSecondCrashPenalty());
 						}
 					}
 				}

@@ -1,11 +1,11 @@
 package cz.cuni.mff.odcleanstore.configuration;
 
-import cz.cuni.mff.odcleanstore.configuration.exceptions.ConfigurationException;
-
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
+
+import cz.cuni.mff.odcleanstore.configuration.exceptions.ConfigurationException;
 
 /**
  * Encapsulates application configuration values.
@@ -31,6 +31,8 @@ public final class Config {
     private ConflictResolutionConfig conflictResolutionGroup;
     private OutputWSConfig outputWSGroup;
     private InputWSConfig inputWSGroup;
+    private EngineConfig engineGroup;
+    private PipelineConfig pipelineGroup;
 
     /**
      * Create a new instance with the given configuration values.
@@ -40,11 +42,14 @@ public final class Config {
      * @param objectIdentificationGroup Object Identification configuration
      * @param outputWSGroup input webservice configuration
      * @param inputWSGroup output webservice configuration
+     * @param engineGroup engine configuration
+     * @param pipelineGroup pipeline configuration 
      */
     private Config(BackendConfig backendConfigGroup, DataNormalizationConfig dataNormalizationGroup,
             QualityAssessmentConfig qualityAssessmentGroup, ObjectIdentificationConfig objectIdentificationGroup,
             QueryExecutionConfig queryExecutionGroup, ConflictResolutionConfig conflictResolutionGroup,
-            OutputWSConfig outputWSGroup, InputWSConfig inputWSGroup) {
+            OutputWSConfig outputWSGroup, InputWSConfig inputWSGroup, EngineConfig engineGroup,
+            PipelineConfig pipelineGroup) {
         this.backendConfigGroup = backendConfigGroup;
         this.dataNormalizationGroup = dataNormalizationGroup;
         this.qualityAssessmentGroup = qualityAssessmentGroup;
@@ -53,6 +58,8 @@ public final class Config {
         this.conflictResolutionGroup = conflictResolutionGroup;
         this.outputWSGroup = outputWSGroup;
         this.inputWSGroup = inputWSGroup;
+        this.engineGroup = engineGroup;
+        this.pipelineGroup = pipelineGroup;
     }
 
     /**
@@ -72,9 +79,11 @@ public final class Config {
         ConflictResolutionConfig conflictResolutionGroup = ConflictResolutionConfig.load(properties);
         OutputWSConfig outputWSGroup = OutputWSConfig.load(properties);
         InputWSConfig inputWSGroup = InputWSConfig.load(properties);
+        EngineConfig engineConfig = EngineConfig.load(properties);
+        PipelineConfig pipelineConfig = PipelineConfig.load(properties);
 
         return new Config(backendConfigGroup, dataNormalizationGroup, qualityAssessmentGroup, objectIdentificationGroup,
-                queryExecutionGroup, conflictResolutionGroup, outputWSGroup, inputWSGroup);
+                queryExecutionGroup, conflictResolutionGroup, outputWSGroup, inputWSGroup, engineConfig, pipelineConfig);
     }
 
     /**
@@ -164,4 +173,21 @@ public final class Config {
     public InputWSConfig getInputWSGroup() {
         return inputWSGroup;
     }
+    
+    /**
+     * Returns engine configuration.
+     * @return engine configuration
+     */
+    public EngineConfig getEngineGroup() {
+        return engineGroup;
+    }
+    
+    /**
+     * Returns pipeline configuration.
+     * @return pipeline configuration
+     */
+    public PipelineConfig getPipelineGroup() {
+        return pipelineGroup;
+    }
+
 }
