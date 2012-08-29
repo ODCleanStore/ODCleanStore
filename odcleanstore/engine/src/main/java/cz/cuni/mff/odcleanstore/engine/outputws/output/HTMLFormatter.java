@@ -1,20 +1,5 @@
 package cz.cuni.mff.odcleanstore.engine.outputws.output;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
-import java.net.URLEncoder;
-import java.util.Collection;
-import java.util.Locale;
-
-import org.restlet.data.CharacterSet;
-import org.restlet.data.MediaType;
-import org.restlet.data.Reference;
-import org.restlet.representation.Representation;
-import org.restlet.representation.WriterRepresentation;
-
-import com.hp.hpl.jena.graph.Node;
-
 import cz.cuni.mff.odcleanstore.configuration.OutputWSConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
@@ -24,7 +9,22 @@ import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRule;
 import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.MetadataQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryResultBase;
+
+import com.hp.hpl.jena.graph.Node;
+
 import de.fuberlin.wiwiss.ng4j.Quad;
+
+import org.restlet.data.MediaType;
+import org.restlet.data.Reference;
+import org.restlet.representation.Representation;
+import org.restlet.representation.WriterRepresentation;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
+import java.net.URLEncoder;
+import java.util.Collection;
+import java.util.Locale;
 
 /**
  * Returns a representation of a query result in a user-friendly HTML document.
@@ -48,7 +48,7 @@ public class HTMLFormatter extends ResultFormatterBase {
     @Override
     public Representation format(BasicQueryResult result, Reference requestReference) {
         WriterRepresentation representation = new BasicQueryHTMLRepresentation(result, requestReference);
-        representation.setCharacterSet(CharacterSet.UTF_8);
+        representation.setCharacterSet(OUTPUT_CHARSET);
         return representation;
     }
 
@@ -58,7 +58,7 @@ public class HTMLFormatter extends ResultFormatterBase {
 
         WriterRepresentation representation = new MetadataQueryHTMLRepresentation(
                 metadataResult, qaResult, totalTime, requestReference);
-        representation.setCharacterSet(CharacterSet.UTF_8);
+        representation.setCharacterSet(OUTPUT_CHARSET);
         return representation;
     }
 
