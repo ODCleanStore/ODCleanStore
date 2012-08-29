@@ -30,6 +30,8 @@ public class DaoLookupFactory implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 	
+	private static final String CONNECTION_ENCODING = "UTF-8";
+	
 	private static Logger logger = Logger.getLogger(DaoLookupFactory.class);
 	
 	private ConnectionCredentials connectionCoords;
@@ -171,6 +173,7 @@ public class DaoLookupFactory implements Serializable
 			dataSource.setServerName(connectionCoords.getUri());
 			dataSource.setUser(connectionCoords.getUsername());
 			dataSource.setPassword(connectionCoords.getPassword());
+			dataSource.setCharset(CONNECTION_ENCODING);
 		}
 		
 		return dataSource;
