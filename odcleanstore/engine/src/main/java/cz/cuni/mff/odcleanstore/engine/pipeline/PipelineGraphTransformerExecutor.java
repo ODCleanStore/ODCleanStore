@@ -7,7 +7,6 @@ import java.net.URLClassLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
 import cz.cuni.mff.odcleanstore.engine.common.Utils;
@@ -30,7 +29,7 @@ public class PipelineGraphTransformerExecutor {
 	static final String ERROR_TRANSFORMER_RUN = "error during running transformer";
 	static final String ERROR_TRANSFORMER_UNKNOWN = "unknown transformer";
 	
-	static final String TRANSFORMER_LINK_FULL_CLASS_PATH = "cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl";
+	static final String TRANSFORMER_OI_FULL_CLASS_PATH = "cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl";
 	static final String TRANSFORMER_QA_FULL_CLASS_PATH = "cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl";
 	static final String TRANSFORMER_DN_FULL_CLASS_PATH = "cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl";
 	
@@ -118,8 +117,8 @@ public class PipelineGraphTransformerExecutor {
 		Transformer transformer = null;
 		if (!command.jarPath.equals(".")) {
 			transformer = loadCustomTransformer(command);
-		} else if (command.fullClassName.equals(TRANSFORMER_LINK_FULL_CLASS_PATH)) {
-			transformer = new LinkerImpl(ConfigLoader.getConfig().getObjectIdentificationConfig());
+		} else if (command.fullClassName.equals(TRANSFORMER_OI_FULL_CLASS_PATH)) {
+			transformer = new LinkerImpl(this.graphStatus.getOiGroups(command.transformerInstanceID));
 		} else if (command.fullClassName.equals(TRANSFORMER_QA_FULL_CLASS_PATH)) {
 			transformer = new QualityAssessorImpl(this.graphStatus.getQaGroups(command.transformerInstanceID));
 		} else if (command.fullClassName.equals(TRANSFORMER_DN_FULL_CLASS_PATH)) {

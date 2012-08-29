@@ -3,6 +3,7 @@ package cz.cuni.mff.odcleanstore.engine.db.model;
 import java.util.Locale;
 
 import cz.cuni.mff.odcleanstore.datanormalization.DataNormalizer;
+import cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
 
 class SQL {
@@ -191,6 +192,22 @@ class SQL {
 			DataNormalizer.class.getCanonicalName());
 	
 	static final String ERROR_SELECT_DN_GROUPS = "Error during selecting dn groups";
+	
+	/**
+	 * Select oi groups for given pipelineId.
+	 * @param first pipelineId
+	 */
+	static final String SELECT_OI_GROUPS =  String.format(Locale.ROOT,
+			  " SELECT oi.transformerInstanceId, oi.groupId"
+			+ " FROM ODCLEANSTORE.OI_RULES_ASSIGNMENT oi"
+			+ " JOIN DB.ODCLEANSTORE.TRANSFORMER_INSTANCES ti ON oi.transformerInstanceId = ti.id"
+            + " JOIN DB.ODCLEANSTORE.TRANSFORMERS t ON ti.transformerId = t.id" 
+			+ " WHERE ti.pipelineId= ? AND t.fullClassName = '%s'" 
+			+ " ORDER BY oi.transformerInstanceId, oi.groupId",
+			LinkerImpl.class.getCanonicalName());
+	
+	static final String ERROR_SELECT_OI_GROUPS = "Error during selecting oi groups";
+	
 	
 	//-----------------------------------------------------------------------------------------------//
 	

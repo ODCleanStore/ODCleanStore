@@ -24,6 +24,7 @@ import org.w3c.dom.NodeList;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.sparql.core.Quad;
 
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.configuration.ObjectIdentificationConfig;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
@@ -62,6 +63,11 @@ public class LinkerImpl implements Linker {
 	private static final String LABEL_URI = "rdfs:label";
 	
 	private ObjectIdentificationConfig globalConfig;
+	
+	// TODO added by PJ
+	public LinkerImpl(Integer... groupIds) { 
+		 this(ConfigLoader.getConfig().getObjectIdentificationConfig());
+	}
 	
 	public LinkerImpl(ObjectIdentificationConfig config) {
 		globalConfig = config;

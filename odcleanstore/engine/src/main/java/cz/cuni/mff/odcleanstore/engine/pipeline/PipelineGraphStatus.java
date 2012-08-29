@@ -27,6 +27,7 @@ public final class PipelineGraphStatus {
 	private PipelineCommand pipelineCommands[] = null; 
 	private GroupRule  qaRules[] = null;
 	private GroupRule  dnRules[] = null;
+	private GroupRule  oiRules[] = null;
 	private boolean markedForDeleting = false;
 
 	private static final Object lockForGetNextGraphForPipeline = new Object();
@@ -99,6 +100,7 @@ public final class PipelineGraphStatus {
 		pipelineCommands = context.selectPipelineCommands(pipelineId);
 		qaRules = context.selectQaRules(pipelineId);
 		dnRules = context.selectDnRules(pipelineId);
+		oiRules = context.selectOiRules(pipelineId);
 	}
 
 	String getUuid() {
@@ -132,6 +134,10 @@ public final class PipelineGraphStatus {
 	
 	Integer[] getDnGroups(int transformerInstanceId) {
 		return GroupRule.selectDeepClone(dnRules, transformerInstanceId);
+	}
+	
+	Integer[] getOiGroups(int transformerInstanceId) {
+		return GroupRule.selectDeepClone(oiRules, transformerInstanceId);
 	}
 	
 	void markForDeleting() {

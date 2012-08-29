@@ -176,6 +176,23 @@ public class DbOdcsContext extends DbContext {
 		}
 	}
 	
+	public GroupRule[] selectOiRules(int pipelineId) throws DbOdcsException  {
+		WrappedResultSet resultSet = null;
+		try {
+			ArrayList<GroupRule> groupRules = new ArrayList<GroupRule>();
+			resultSet = select(SQL.SELECT_OI_GROUPS, pipelineId);
+			while(resultSet.next()) {
+				GroupRule mbr = new GroupRule();
+				mbr.transformerInstanceId = resultSet.getInt(1);
+				mbr.groupId = resultSet.getInt(2);
+				groupRules.add(mbr);
+			}
+			return groupRules.toArray(new GroupRule[0]);
+		} catch (Exception e) {
+			throw new DbOdcsException(SQL.ERROR_SELECT_OI_GROUPS, e);
+		}
+	}
+	
 	public Integer selectDefaultPipelineId() throws DbOdcsException {
 		WrappedResultSet resultSet = null;
 		try {
