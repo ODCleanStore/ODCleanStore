@@ -63,14 +63,11 @@ public class LinkerImpl implements Linker {
 	private static final String LABEL_URI = "rdfs:label";
 	
 	private ObjectIdentificationConfig globalConfig;
+	private Integer[] groupIds;
 	
-	// TODO added by PJ
-	public LinkerImpl(Integer... groupIds) { 
-		 this(ConfigLoader.getConfig().getObjectIdentificationConfig());
-	}
-	
-	public LinkerImpl(ObjectIdentificationConfig config) {
-		globalConfig = config;
+	public LinkerImpl(Integer... groupIds) {
+		this.globalConfig = ConfigLoader.getConfig().getObjectIdentificationConfig();
+		this.groupIds = groupIds;
 	}
 	
 	 /**
@@ -87,33 +84,27 @@ public class LinkerImpl implements Linker {
 	@Override
 	public void transformNewGraph(TransformedGraph inputGraph, TransformationContext context) throws TransformerException {
 		LOG.info("Linking new graph: {}", inputGraph.getGraphName());
-		String config = context.getTransformerConfiguration();
-		if (config == null || config.isEmpty()) {
-			LOG.info("No configuration specified, using XML files in directory {}", context.getTransformerDirectory().getAbsolutePath());
-			linkByConfigFiles(context);
-		} else {
-			File configFile = null;
-			try {				
-				List<SilkRule> rules = loadRules(context);
-				List<RDFprefix> prefixes = RDFPrefixesLoader.loadPrefixes(context.getCleanDatabaseCredentials());
-				
-				configFile = ConfigBuilder.createLinkConfigFile(rules, prefixes, inputGraph, context, globalConfig);
-				
-				inputGraph.addAttachedGraph(getLinksGraphId(inputGraph));
-				
-				LOG.info("Calling Silk with temporary configuration file: {}", configFile.getAbsolutePath());
-				Silk.executeFile(configFile, null, Silk.DefaultThreads(), true);
-				LOG.info("Linking finished.");
-				
+		File configFile = null;
+		try {				
+			List<SilkRule> rules = loadRules(context);
+			List<RDFprefix> prefixes = RDFPrefixesLoader.loadPrefixes(context.getCleanDatabaseCredentials());
+			
+			configFile = ConfigBuilder.createLinkConfigFile(rules, prefixes, inputGraph, context, globalConfig);
+			
+			inputGraph.addAttachedGraph(getLinksGraphId(inputGraph));
+			
+			LOG.info("Calling Silk with temporary configuration file: {}", configFile.getAbsolutePath());
+			Silk.executeFile(configFile, null, Silk.DefaultThreads(), true);
+			LOG.info("Linking finished.");
+			
+			configFile.delete();
+		} catch (DatabaseException e) {
+			throw new TransformerException(e);
+		} catch (TransformedGraphException e) {
+			throw new TransformerException(e);
+		} finally {
+			if (configFile != null) {
 				configFile.delete();
-			} catch (DatabaseException e) {
-				throw new TransformerException(e);
-			} catch (TransformedGraphException e) {
-				throw new TransformerException(e);
-			} finally {
-				if (configFile != null) {
-					configFile.delete();
-				}
 			}
 		}
 	}
@@ -181,11 +172,9 @@ public class LinkerImpl implements Linker {
 	 */
 	private List<SilkRule> loadRules(TransformationContext context) 
 			throws ConnectionException, QueryException {
-		LOG.info("Loading rule groups: {}", context.getTransformerConfiguration());
+		LOG.info("Loading rule groups: {}", groupIds);
 		LinkerDao dao = LinkerDao.getInstance(context.getCleanDatabaseCredentials(), context.getDirtyDatabaseCredentials());
-		String[] ruleGroupArray = context.getTransformerConfiguration().split(",");
-
-		return dao.loadRules(ruleGroupArray);
+		return dao.loadRules(groupIds);
 	}
 	
 	private String getLinksGraphId(TransformedGraph inputGraph) {

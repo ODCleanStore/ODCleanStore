@@ -79,7 +79,7 @@ public class LinkerDao {
 	 * @throws SQLException
 	 * @throws ConnectionException 
 	 */
-	public List<SilkRule> loadRules(String[] groups) throws QueryException, ConnectionException {
+	public List<SilkRule> loadRules(Integer[] groups) throws QueryException, ConnectionException {
 		List<SilkRule> ruleList = new ArrayList<SilkRule>();
 		VirtuosoConnectionWrapper connection = null;
 		WrappedResultSet resultSet = null;
@@ -160,9 +160,9 @@ public class LinkerDao {
 	 * @param groups list of group IDs
 	 * @return IN part in format (id1,id2,...)
 	 */
-	private String createInPart(String[] members) {
+	private String createInPart(Integer[] members) {
 		String result = "(";
-		for (String member : members) {
+		for (Integer member : members) {
 			result += member + ",";
 		}
 		return result.substring(0, result.length()-1) + ")";
