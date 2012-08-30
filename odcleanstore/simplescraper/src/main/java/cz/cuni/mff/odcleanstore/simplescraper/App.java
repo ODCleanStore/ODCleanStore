@@ -1,12 +1,16 @@
 package cz.cuni.mff.odcleanstore.simplescraper;
 
-import java.io.FileInputStream;
-import java.net.URI;
-import java.util.Properties;
-import java.util.UUID;
-
 import cz.cuni.mff.odcleanstore.wsclient.Metadata;
 import cz.cuni.mff.odcleanstore.wsclient.OdcsService;
+
+import org.mockito.cglib.transform.impl.AddPropertyTransformer;
+
+import java.io.FileInputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Properties;
+import java.util.UUID;
 
 /**
  * Simple odcs-inputclient webservice client for testing purposes.
@@ -32,8 +36,9 @@ public class App {
 			}
 			metadata.setUuid(uuid);
 
-			metadata.getPublishedBy().add(new URI(props.getProperty("publishedby")));
-			metadata.getSource().add(new URI(props.getProperty("source")));
+			addPropertiesToList("publishedby", props, metadata.getPublishedBy());
+			addPropertiesToList("source", props, metadata.getSource());
+			addPropertiesToList("license", props, metadata.getLicense());
 			
 			metadata.setPipelineName(props.getProperty("pipelineName"));
 			
@@ -54,5 +59,21 @@ public class App {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private static void addPropertiesToList(String property, Properties props, List<URI> list) throws URISyntaxException {
+	    String value = props.getProperty(property);
+	    if (value != null) {
+	        list.add(new URI(value));
+	    }
+        for (int i = 1; true; i++) {
+            value = props.getProperty(property + Integer.toString(i));
+            if (value != null) {
+                list.add(new URI(value));
+            } else {
+                break;
+            }
+        }
+        
 	}
 }
