@@ -100,7 +100,7 @@ The administration webfrontend enables
 
 \begin{itemize}
   \item Administration in a~simple web interface.
-  \item Input and Output Webservices communicate in standard formats - Input Webservice accepts RDF/XML or TTL, Output Webservice provides results in the TriG format. \todo{also RDF/XML}
+  \item Input and Output Webservices communicate in standard formats - Input Webservice accepts RDF/XML or TTL, Output Webservice provides results in HTML, TriG and RDF/XML formats.
   \item Highly customizable pipelines for incoming data processing. Different pipelines can be used for different data sources.
   \item Data can be processed before they are stored to a~persistent store but also when they are already stored if neccessary.
   \item Ships with several predefined transformers for use in data-processing pipelines: Data Normalization (transformations of data), Quality Assesment (estimates quality of data based on a~set of rules), Object Identification (links RDF resources representing the same entity or otherwise related). All these transformers can be managed in the web administration interface.
@@ -512,7 +512,7 @@ Table \ref{tbl:requestFormatUK} lists (either GET or POST) parameters than can b
 	\hline
 	\code{kw} & searched keyword(s); \newline \textit{used only with keyword query} & \vartext{string} & \vartext{N/A} \\
 	\hline
-	\code{format} & format of the response & \code{html}, \code{trig} & \code{html} \\
+	\code{format} & format of the response & \code{html}, \code{trig}, \code{rdfxml} & \code{html} \\
 	\hline
 	\code{aggr} & default aggregation method & \vartext{string} & \code{ALL} \\
 	\hline
@@ -543,7 +543,7 @@ Table \ref{tbl:requestFormatNG} lists parameters that can be used with the metad
 	\hline \hline
 	\code{uri} & URI of the requested named graph & \vartext{string} & \vartext{N/A}  & yes\\
 	\hline
-	\code{format} & format of the result & \code{html}, \code{trig} & \code{html} & no \\
+	\code{format} & format of the result & \code{html}, \code{trig}, \code{rdfxml} & \code{html} & no \\
 	\hline
 \end{tabular}
 \caption{Metadata query parameters}
@@ -637,7 +637,7 @@ The result in HTML format contains results in a~human-readable form. It contains
 \subsubsection{TriG}
 \label{sec:URIKWTrig}
 
-The result contains triples (quads) serialized in the TriG\footnote{\url{http://www4.wiwiss.fu-berlin.de/bizer/trig/}} format. The result includes:
+If the \code{format} parameter is set to \code{trig}, the result contains triples (quads) serialized in the TriG\footnote{\url{http://www4.wiwiss.fu-berlin.de/bizer/trig/}} format. The result includes:
 
 \begin{itemize}
 	\item triples returned in response to the query, each one placed in a~unique named graph
@@ -698,9 +698,19 @@ An example:
     odcs:result <http://opendata.cz/infrastructure/odcleanstore/query/results/1> ;
     odcs:result <http://opendata.cz/infrastructure/odcleanstore/query/results/2> .
 }
-
-
 \end{lstlisting}
+
+\subsubsection{RDF/XML}
+\label{sec:URIKWRDFXML}
+
+If the \code{format} parameter is set to \code{rdfxml}, then the result will be formatted in RDF/XML.\footnote{\url{http://www.w3.org/TR/REC-rdf-syntax/}} The returned triples contain
+
+\begin{itemize}
+  \item triples returned in response to the query,
+  \item  metadata about the query response itself
+\end{itemize}
+
+as in case of TriG output, however no metadata about quality of triples or about source named graphs are included.
 
 \subsubsection{Paging of results}
 \label{sec:URIKWPaging}
@@ -725,7 +735,10 @@ The result in HTML format contains results in a~human-readable form. It contains
 
 
 \subsubsection{TriG}
-The result contains triples (quads) serialized in the TriG format. Again, the result contains ODCleanStore metadata, additional \code{provenance} metadata, results of Quality Assessment and also metadata about the query response itself. The meaning of used predicate is as described in Section \ref{sec:URIKWTrig}
+\label{sec:metadataTriG}
+The result contains triples (quads) serialized in the TriG format. Again, the result contains ODCleanStore metadata, additional \code{provenance} metadata, results of Quality Assessment and also metadata about the query response itself. The meaning of used predicates is as described in Section \ref{sec:URIKWTrig}.
+
+The \code{provenance} metadata are contained in one named graph and a triple \varcode{payload-graph}-\code{odcs:provenanceMetadataGraph}-\varcode{provenance-graph} points to it; all other data are placed in another named graph.
 
 \pagebreak[3]
 
@@ -777,6 +790,9 @@ An example:
     w3p:provenanceMetadataProperty2 "provenanceMetadataValue2".
 }
 \end{lstlisting}
+
+\subsubsection{RDF/XML}
+The result for a metadata query serialized in RDF/XML contains the same triples as in case of TriG (Section \ref{sec:metadataTriG}) except that triples are not divided into named graphs.
 
 \subsubsection{Paging of results}
 See Section~\ref{sec:URIKWPaging}.
