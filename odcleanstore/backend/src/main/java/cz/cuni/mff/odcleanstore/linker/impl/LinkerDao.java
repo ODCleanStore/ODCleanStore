@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -80,6 +81,11 @@ public class LinkerDao {
 	 * @throws ConnectionException 
 	 */
 	public List<SilkRule> loadRules(Integer[] groups) throws QueryException, ConnectionException {
+	    if (groups == null || groups.length == 0) {
+	        LOG.info("Loaded 0 linkage rules.");
+	        return Collections.<SilkRule>emptyList();
+	    }
+
 		List<SilkRule> ruleList = new ArrayList<SilkRule>();
 		VirtuosoConnectionWrapper connection = null;
 		WrappedResultSet resultSet = null;

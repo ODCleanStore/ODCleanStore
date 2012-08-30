@@ -87,17 +87,21 @@ public class LinkerImpl implements Linker {
 		File configFile = null;
 		try {				
 			List<SilkRule> rules = loadRules(context);
-			List<RDFprefix> prefixes = RDFPrefixesLoader.loadPrefixes(context.getCleanDatabaseCredentials());
+			if (rules.isEmpty()) {
+			    LOG.info("Nothing to link.");
+			} else {
+    			List<RDFprefix> prefixes = RDFPrefixesLoader.loadPrefixes(context.getCleanDatabaseCredentials());
 			
-			configFile = ConfigBuilder.createLinkConfigFile(rules, prefixes, inputGraph, context, globalConfig);
+    			configFile = ConfigBuilder.createLinkConfigFile(rules, prefixes, inputGraph, context, globalConfig);
 			
-			inputGraph.addAttachedGraph(getLinksGraphId(inputGraph));
+    			inputGraph.addAttachedGraph(getLinksGraphId(inputGraph));
 			
-			LOG.info("Calling Silk with temporary configuration file: {}", configFile.getAbsolutePath());
-			Silk.executeFile(configFile, null, Silk.DefaultThreads(), true);
-			LOG.info("Linking finished.");
+    			LOG.info("Calling Silk with temporary configuration file: {}", configFile.getAbsolutePath());
+    			Silk.executeFile(configFile, null, Silk.DefaultThreads(), true);
+    			LOG.info("Linking finished.");
 			
-			configFile.delete();
+    			configFile.delete();
+			}
 		} catch (DatabaseException e) {
 			throw new TransformerException(e);
 		} catch (TransformedGraphException e) {
