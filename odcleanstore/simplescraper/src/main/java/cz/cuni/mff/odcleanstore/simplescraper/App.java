@@ -3,8 +3,6 @@ package cz.cuni.mff.odcleanstore.simplescraper;
 import cz.cuni.mff.odcleanstore.wsclient.Metadata;
 import cz.cuni.mff.odcleanstore.wsclient.OdcsService;
 
-import org.mockito.cglib.transform.impl.AddPropertyTransformer;
-
 import java.io.FileInputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
