@@ -154,7 +154,7 @@ public class HTMLFormatter extends ResultFormatterBase {
                         metadata.getNamedGraphURI(),
                         "Metadata query");
                 writer.write("</td><td>");
-                List<String> sourceList = metadata.getSources();
+                Collection<String> sourceList = metadata.getSources();
                 if (sourceList != null) {
                     boolean isFirst = true;
                     for (String source : sourceList) {

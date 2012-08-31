@@ -16,7 +16,7 @@ import org.restlet.representation.WriterRepresentation;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.List;
+import java.util.Collection;
 
 /**
  * Returns a simple representation of the query result for debugging purposes.
@@ -54,7 +54,7 @@ public class DebugFormatter extends ResultFormatterBase {
                     writer.write('\n');
                     if (metadata.getSources() != null) {
                         writer.write("\tSource: ");
-                        writer.write(formatList(metadata.getSources()));
+                        writer.write(formatCollection(metadata.getSources()));
                         writer.write('\n');
                     }
                     if (metadata.getInsertedAt() != null) {
@@ -103,7 +103,7 @@ public class DebugFormatter extends ResultFormatterBase {
                     writer.write('\n');
                     if (metadata.getSources() != null) {
                         writer.write("\tSource: ");
-                        writer.write(formatList(metadata.getSources()));
+                        writer.write(formatCollection(metadata.getSources()));
                         writer.write('\n');
                     }
                     if (metadata.getInsertedAt() != null) {
@@ -129,15 +129,15 @@ public class DebugFormatter extends ResultFormatterBase {
         return representation;
     }
     
-    private <T> String formatList(List<T> list) {
-        if (list == null || list.isEmpty()) {
+    private <T> String formatCollection(Collection<T> collection) {
+        if (collection == null || collection.isEmpty()) {
             return "";
-        } else if (list.size() == 1) {
-            return list.get(0).toString();
+        } else if (collection.size() == 1) {
+            return collection.iterator().next().toString();
         } else {
             final String separator = ", ";
             StringBuilder result = new StringBuilder();
-            for (T value : list) {
+            for (T value : collection) {
                 result.append(value.toString());
                 result.append(separator);
             }

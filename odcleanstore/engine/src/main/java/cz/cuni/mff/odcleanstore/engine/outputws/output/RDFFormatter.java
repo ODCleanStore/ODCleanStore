@@ -21,6 +21,7 @@ import com.hp.hpl.jena.graph.impl.LiteralLabel;
 import com.hp.hpl.jena.graph.impl.LiteralLabelFactory;
 import com.hp.hpl.jena.vocabulary.XSD;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -101,7 +102,7 @@ public abstract class RDFFormatter extends ResultFormatterBase {
     protected void addODCSNamedGraphMetadata(NamedGraphMetadataMap metadata, Graph graph, boolean addScore) {
         for (NamedGraphMetadata graphMetadata : metadata.listMetadata()) {
             Node namedGraphURI = Node.createURI(graphMetadata.getNamedGraphURI());
-            List<String> dataSourceList = graphMetadata.getSources();
+            Collection<String> dataSourceList = graphMetadata.getSources();
             if (dataSourceList != null) {
                 for (String dataSource : dataSourceList) {
                     graph.add(new Triple(namedGraphURI, SOURCE_PROPERTY, Node.createURI(dataSource)));
