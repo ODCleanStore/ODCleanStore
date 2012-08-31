@@ -16,22 +16,31 @@ import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.Transformer;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
+import cz.cuni.mff.odcleanstore.transformer.odcs.ODCSPropertyFilterTransformer;
 
 public class PipelineGraphTransformerExecutor {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(PipelineGraphTransformerExecutor.class);
 	
-	static final String ERROR_WORKING_DIRECTORY_CHECK = "transformer working directory checking error"; 
-	static final String ERROR_LOAD_CUSTOM_TRANSFORMER = "custom transformer loading error";
-	static final String ERROR_ITERATE_TRANSFORMERS = "error during iterate transformers"; 
-	static final String ERROR_TRANSFORMER_PROCESSING = "error during processing transformer";
-	static final String ERROR_TRANSFORMER_SHUTDOWN = "error during shutdowning transformer";
-	static final String ERROR_TRANSFORMER_RUN = "error during running transformer";
-	static final String ERROR_TRANSFORMER_UNKNOWN = "unknown transformer";
+	private static final String ERROR_WORKING_DIRECTORY_CHECK = "transformer working directory checking error"; 
+	private static final String ERROR_LOAD_CUSTOM_TRANSFORMER = "custom transformer loading error";
+	private static final String ERROR_ITERATE_TRANSFORMERS = "error during iterate transformers"; 
+	private static final String ERROR_TRANSFORMER_PROCESSING = "error during processing transformer";
+	private static final String ERROR_TRANSFORMER_SHUTDOWN = "error during shutdowning transformer";
+	private static final String ERROR_TRANSFORMER_RUN = "error during running transformer";
+	private static final String ERROR_TRANSFORMER_UNKNOWN = "unknown transformer";
 	
-	static final String TRANSFORMER_OI_FULL_CLASS_PATH = "cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl";
-	static final String TRANSFORMER_QA_FULL_CLASS_PATH = "cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl";
-	static final String TRANSFORMER_DN_FULL_CLASS_PATH = "cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl";
+	private static final PipelineCommand ODCSPropertyFilterTransformerCommand;
+	
+	static {
+		ODCSPropertyFilterTransformerCommand = new PipelineCommand();
+		ODCSPropertyFilterTransformerCommand.jarPath = ".";
+		ODCSPropertyFilterTransformerCommand.fullClassName = ODCSPropertyFilterTransformer.class.getCanonicalName();
+		ODCSPropertyFilterTransformerCommand.transformerInstanceID = 0;
+		ODCSPropertyFilterTransformerCommand.configuration ="";
+		ODCSPropertyFilterTransformerCommand.runOnCleanDB = true;
+		ODCSPropertyFilterTransformerCommand.workDirPath = "ODCSPropertyFilterTransformerCommand";
+	}
 	
 	private PipelineGraphStatus graphStatus = null;
 	private Transformer currentTransformer = null;
@@ -49,8 +58,9 @@ public class PipelineGraphTransformerExecutor {
 
 	void execute() throws PipelineGraphTransformerExecutorException {
 		try {
+			executeTransformer(ODCSPropertyFilterTransformerCommand, true);
 			for (PipelineCommand pipelineCommand : this.graphStatus.getPipelineCommands()) {
-				executeTransformer(pipelineCommand);
+				executeTransformer(pipelineCommand, false);
 			}
 		} catch(PipelineGraphTransformerExecutorException e) {
 			throw e;
@@ -58,8 +68,8 @@ public class PipelineGraphTransformerExecutor {
 			throw new PipelineGraphTransformerExecutorException(format(ERROR_ITERATE_TRANSFORMERS), e);
 		}
 	}
-
-	private void executeTransformer(PipelineCommand command) throws PipelineGraphTransformerExecutorException {
+	
+	private void executeTransformer(PipelineCommand command, boolean isInternal) throws PipelineGraphTransformerExecutorException {
 		TransformationContext context = null;
 		TransformedGraph graph = null;
 		try {
@@ -67,7 +77,7 @@ public class PipelineGraphTransformerExecutor {
 				return;
 			}
 			LOG.info(format("start processing", command));
-			if ((this.currentTransformer = getTransformerForCommand(command)) == null) {
+			if ((this.currentTransformer = getTransformerForCommand(command, isInternal)) == null) {
 				throw new PipelineGraphTransformerExecutorException(format(ERROR_TRANSFORMER_UNKNOWN, command));
 			}
 						
@@ -112,17 +122,19 @@ public class PipelineGraphTransformerExecutor {
 		}
 	}
 
-	private Transformer getTransformerForCommand(PipelineCommand command) throws PipelineGraphTransformerExecutorException  {
+	private Transformer getTransformerForCommand(PipelineCommand command, boolean isInternal) throws PipelineGraphTransformerExecutorException  {
 		
 		Transformer transformer = null;
 		if (!command.jarPath.equals(".")) {
 			transformer = loadCustomTransformer(command);
-		} else if (command.fullClassName.equals(TRANSFORMER_OI_FULL_CLASS_PATH)) {
+		} else if (command.fullClassName.equals(LinkerImpl.class.getCanonicalName())) {
 			transformer = new LinkerImpl(this.graphStatus.getOiGroups(command.transformerInstanceID));
-		} else if (command.fullClassName.equals(TRANSFORMER_QA_FULL_CLASS_PATH)) {
+		} else if (command.fullClassName.equals(QualityAssessorImpl.class.getCanonicalName())) {
 			transformer = new QualityAssessorImpl(this.graphStatus.getQaGroups(command.transformerInstanceID));
-		} else if (command.fullClassName.equals(TRANSFORMER_DN_FULL_CLASS_PATH)) {
+		} else if (command.fullClassName.equals(DataNormalizerImpl.class.getCanonicalName())) {
 			transformer = new DataNormalizerImpl(this.graphStatus.getDnGroups(command.transformerInstanceID));
+		} else if (command.fullClassName.equals(ODCSPropertyFilterTransformer.class.getCanonicalName()) && isInternal) {
+			transformer = new ODCSPropertyFilterTransformer();
 		}
 		return transformer;
 	}
@@ -144,7 +156,7 @@ public class PipelineGraphTransformerExecutor {
 			return  obj instanceof Transformer ? (Transformer) obj : null;
 		}
 		catch(Exception e) {
-			throw new PipelineGraphTransformerExecutorException(format("ERROR_LOAD_CUSTOM_TRANSFORMER", command), e); 
+			throw new PipelineGraphTransformerExecutorException(format(ERROR_LOAD_CUSTOM_TRANSFORMER, command), e); 
 		}
 	}
 

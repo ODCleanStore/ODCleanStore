@@ -3,7 +3,7 @@ package cz.cuni.mff.odcleanstore.engine.pipeline;
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 
 /**
- * A exception arising from PipelineGraphManipulation class.
+ * A exception arising from PipelineGraphTransformerExecutor class.
  * 
  * @author Petr Jerman
  */
