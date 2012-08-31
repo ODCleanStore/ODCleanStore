@@ -32,8 +32,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * The base class of query executors.
@@ -332,16 +334,18 @@ import java.util.Set;
 
     /**
      * Extract named graph metadata from the result of the given SPARQL SELECT query.
-     * The query must contain these variables in the result: resGraph, source, score, insertedAt, insertedBy, license,
-     * publishedBy, publisherScore. Values of these variables may be null.
-     * @param sparqlQuery a SPARQL SELECT query that has these variables in the result: resGraph, source, score,
-     *        insertedAt, insertedBy, license, publishedBy, publisherScore
+     * The query must contain three variables in the result, exactly in this order: named graph, property, value
+     * @param sparqlQuery a SPARQL SELECT query with three variables in the result: resGraph, property, value
      * @param debugName named of the query used for debug log
      * @return map of named graph metadata
      * @throws DatabaseException database error
      */
     protected NamedGraphMetadataMap getMetadataFromQuery(String sparqlQuery, String debugName)
             throws DatabaseException {
+
+        final int graphIndex = 1;
+        final int propertyIndex = 2;
+        final int valueIndex = 3;
         long startTime = System.currentTimeMillis();
         WrappedResultSet resultSet = getConnection().executeSelect(sparqlQuery);
         LOG.debug("Query Execution: {} query took {} ms", debugName, System.currentTimeMillis() - startTime);
@@ -350,34 +354,41 @@ import java.util.Set;
         try {
             NamedGraphMetadataMap metadata = new NamedGraphMetadataMap();
             while (resultSet.next()) {
-                NamedGraphMetadata graphMetadata = new NamedGraphMetadata(resultSet.getString("resGraph"));
-
-                try {
-                    String source = resultSet.getString("source");
-                    graphMetadata.setSource(source);
-
-                    Double score = resultSet.getDouble("score");
-                    graphMetadata.setScore(score);
-
-                    Date insertedAt = resultSet.getJavaDate("insertedAt");
-                    graphMetadata.setInsertedAt(insertedAt);
-
-                    String insertedBy = resultSet.getString("insertedBy");
-                    graphMetadata.setInsertedBy(insertedBy);
-
-                    String license = resultSet.getString("license");
-                    graphMetadata.setLicence(license);
-
-                    String publishedBy = resultSet.getString("publishedBy");
-                    graphMetadata.setPublisher(publishedBy);
-
-                    Double publisherScore = resultSet.getDouble("publisherScore");
-                    graphMetadata.setPublisherScore(publisherScore);
-                } catch (SQLException e) {
-                    LOG.warn("Query Execution: invalid metadata for graph {}", graphMetadata.getNamedGraphURI());
+                String namedGraphURI = resultSet.getString(graphIndex);
+                NamedGraphMetadata graphMetadata = metadata.getMetadata(namedGraphURI);
+                if (graphMetadata == null) {
+                    graphMetadata = new NamedGraphMetadata(namedGraphURI);
+                    metadata.addMetadata(graphMetadata);
                 }
 
-                metadata.addMetadata(graphMetadata);
+                try {
+                    String property = resultSet.getString(propertyIndex);
+
+                    if (ODCS.source.equals(property)) {
+                        String object = resultSet.getString(valueIndex);
+                        graphMetadata.setSources(addToSetNullProof(object, graphMetadata.getSources()));
+                    } else if (ODCS.score.equals(property)) {
+                        Double score = resultSet.getDouble(valueIndex);
+                        graphMetadata.setScore(score);
+                    } else if (ODCS.insertedAt.equals(property)) {
+                        Date insertedAt = resultSet.getJavaDate(valueIndex);
+                        graphMetadata.setInsertedAt(insertedAt);
+                    } else if (ODCS.insertedBy.equals(property)) {
+                        String insertedBy = resultSet.getString(valueIndex);
+                        graphMetadata.setInsertedBy(insertedBy);
+                    } else if (ODCS.publishedBy.equals(property)) {
+                        String object = resultSet.getString(valueIndex);
+                        graphMetadata.setPublishers(addToListNullProof(object, graphMetadata.getPublishers()));
+                    } else if (ODCS.publisherScore.equals(property)) {
+                        Double object = resultSet.getDouble(valueIndex);
+                        graphMetadata.setPublisherScores(addToListNullProof(object, graphMetadata.getPublisherScores()));
+                    } else if (ODCS.license.equals(property)) {
+                        String object = resultSet.getString(valueIndex);
+                        graphMetadata.setLicences(addToListNullProof(object, graphMetadata.getLicences()));
+                    }
+                } catch (SQLException e) {
+                    LOG.warn("Query Execution: invalid metadata for graph {}", namedGraphURI);
+                }
             }
             LOG.debug("Query Execution: {} in {} ms", debugName, System.currentTimeMillis() - startTime);
             return metadata;
@@ -386,6 +397,37 @@ import java.util.Set;
         } finally {
             resultSet.closeQuietly();
         }
+    }
+
+    /**
+     * Add a value to the set given in parameter and return modified set; if set is null, create new instance.
+     * @param value value to add to the set
+     * @param set set to add to or null
+     * @return set containing the given value
+     */
+    private <T> Set<T> addToSetNullProof(T value, Set<T> set) {
+        Set<T> result = set;
+        if (result == null) {
+            result = new TreeSet<T>();
+        }
+        result.add(value);
+        return result;
+    }
+
+    /**
+     * Add a value to the list given in parameter and return modified list; if list is null, create new instance.
+     * @param value value to add to the list
+     * @param list list to add to or null
+     * @return list containing the given value
+     */
+    private <T> List<T> addToListNullProof(T value, List<T> list) {
+        final int defaultListSize = 1;
+        List<T> result = list;
+        if (result == null) {
+            result = new ArrayList<T>(defaultListSize);
+        }
+        result.add(value);
+        return result;
     }
 
     /**

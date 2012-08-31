@@ -54,24 +54,28 @@ import java.util.Locale;
      * SPARQL query that gets ODCS metadata for the given named graph.
      * OPTIONAL clauses for fetching ?graph properties are necessary (probably due to Virtuoso inference processing).
      *
-     * Must be formatted with arguments: (1) the requested named graph
+     * Must be formatted with arguments: (1) the requested named graph, (2) limit
      *
      * TODO: omit metadata for additional labels?
      */
     private static final String ODCS_METADATA_QUERY = "SPARQL"
             + "\n SELECT "
-            + "\n   <%1$s> as ?resGraph ?source ?score ?insertedAt ?insertedBy ?license ?publishedBy ?publisherScore"
+            + "\n   <%1$s> as ?resGraph ?p ?o"
             + "\n WHERE {"
-            + "\n   OPTIONAL { <%1$s> <" + ODCS.source + "> ?source }"
-            + "\n   OPTIONAL { <%1$s> <" + ODCS.score + "> ?score }"
-            + "\n   OPTIONAL { <%1$s> <" + ODCS.insertedAt + "> ?insertedAt }"
-            + "\n   OPTIONAL { <%1$s> <" + ODCS.insertedBy + "> ?insertedBy }"
-            + "\n   OPTIONAL { <%1$s> <" + ODCS.license + "> ?license }"
-            + "\n   OPTIONAL { <%1$s> <" + ODCS.publishedBy + "> ?publishedBy }"
-            + "\n   OPTIONAL { <%1$s> <" + ODCS.publishedBy + "> ?publishedBy. "
-            + "\n     ?publishedBy <" + ODCS.publisherScore + "> ?publisherScore }"
+            + "\n   {"
+            + "\n     <%1$s> <" + ODCS.metadataGraph + "> ?metadataGraph"
+            + "\n     GRAPH ?metadataGraph {"
+            + "\n       <%1$s> ?p ?o"
+            + "\n     }"
+            + "\n   }"
+            + "\n   UNION"
+            + "\n   {"
+            + "\n     <%1$s> <" + ODCS.publishedBy + "> ?publishedBy."
+            + "\n     ?publishedBy ?p ?o."
+            + "\n     FILTER (?p = <" + ODCS.publisherScore + ">)"
+            + "\n   }"
             + "\n }"
-            + "\n LIMIT 1";
+            + "\n LIMIT %2$d";
 
     /**
      * Creates a new instance of NamedGraphMetadataQueryExecutor.
@@ -161,7 +165,7 @@ import java.util.Locale;
      * @throws DatabaseException query error
      */
     private NamedGraphMetadataMap getODCSMetadata(String namedGraphURI) throws DatabaseException {
-        String query = String.format(Locale.ROOT, ODCS_METADATA_QUERY, namedGraphURI);
+        String query = String.format(Locale.ROOT, ODCS_METADATA_QUERY, namedGraphURI, maxLimit);
         return getMetadataFromQuery(query, "getODCSMetadata()");
     }
 }

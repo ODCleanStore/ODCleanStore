@@ -1,20 +1,22 @@
 package cz.cuni.mff.odcleanstore.engine.outputws.output;
 
-import java.io.IOException;
-import java.io.Writer;
-
-import org.restlet.data.MediaType;
-import org.restlet.data.Reference;
-import org.restlet.representation.Representation;
-import org.restlet.representation.WriterRepresentation;
-
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl.GraphScoreWithTrace;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRule;
 import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.MetadataQueryResult;
+
 import de.fuberlin.wiwiss.ng4j.Quad;
+
+import org.restlet.data.MediaType;
+import org.restlet.data.Reference;
+import org.restlet.representation.Representation;
+import org.restlet.representation.WriterRepresentation;
+
+import java.io.IOException;
+import java.io.Writer;
+import java.util.List;
 
 /**
  * Returns a simple representation of the query result for debugging purposes.
@@ -50,9 +52,9 @@ public class DebugFormatter extends ResultFormatterBase {
                 for (NamedGraphMetadata metadata : result.getMetadata().listMetadata()) {
                     writer.write(metadata.getNamedGraphURI());
                     writer.write('\n');
-                    if (metadata.getSource() != null) {
+                    if (metadata.getSources() != null) {
                         writer.write("\tSource: ");
-                        writer.write(metadata.getSource());
+                        writer.write(formatList(metadata.getSources()));
                         writer.write('\n');
                     }
                     if (metadata.getInsertedAt() != null) {
@@ -99,9 +101,9 @@ public class DebugFormatter extends ResultFormatterBase {
                 for (NamedGraphMetadata metadata : metadataResult.getMetadata().listMetadata()) {
                     writer.write(metadata.getNamedGraphURI());
                     writer.write('\n');
-                    if (metadata.getSource() != null) {
+                    if (metadata.getSources() != null) {
                         writer.write("\tSource: ");
-                        writer.write(metadata.getSource());
+                        writer.write(formatList(metadata.getSources()));
                         writer.write('\n');
                     }
                     if (metadata.getInsertedAt() != null) {
@@ -126,5 +128,20 @@ public class DebugFormatter extends ResultFormatterBase {
         representation.setCharacterSet(OUTPUT_CHARSET);
         return representation;
     }
-
+    
+    private <T> String formatList(List<T> list) {
+        if (list == null || list.isEmpty()) {
+            return "";
+        } else if (list.size() == 1) {
+            return list.get(0).toString();
+        } else {
+            final String separator = ", ";
+            StringBuilder result = new StringBuilder();
+            for (T value : list) {
+                result.append(value.toString());
+                result.append(separator);
+            }
+            return result.substring(0, result.length() - separator.length());
+        }
+    }
 }

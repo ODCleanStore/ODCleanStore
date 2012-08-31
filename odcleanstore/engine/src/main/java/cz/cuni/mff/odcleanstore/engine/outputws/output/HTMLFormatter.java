@@ -24,6 +24,7 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URLEncoder;
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -153,8 +154,16 @@ public class HTMLFormatter extends ResultFormatterBase {
                         metadata.getNamedGraphURI(),
                         "Metadata query");
                 writer.write("</td><td>");
-                if (metadata.getSource() != null) {
-                    writeAbsoluteLink(writer, metadata.getSource(), metadata.getSource());
+                List<String> sourceList = metadata.getSources();
+                if (sourceList != null) {
+                    boolean isFirst = true;
+                    for (String source : sourceList) {
+                        if (!isFirst) {
+                            writer.write(", ");
+                        }
+                        writeAbsoluteLink(writer, source, source);
+                        isFirst = false;
+                    }
                 }
                 writer.write("</td><td>");
                 if (metadata.getInsertedAt() != null) {
@@ -165,8 +174,16 @@ public class HTMLFormatter extends ResultFormatterBase {
                     writer.write(metadata.getScore().toString());
                 }
                 writer.write("</td><td>");
-                if (metadata.getLicence() != null) {
-                    writer.write(metadata.getLicence());
+                List<String> licenseList = metadata.getLicences();
+                if (licenseList != null) {
+                    boolean isFirst = true;
+                    for (String license : licenseList) {
+                        if (!isFirst) {
+                            writer.write(", ");
+                        }
+                        writer.write(license);
+                        isFirst = false;
+                    }
                 }
                 writer.write("</td></tr>\n");
             }

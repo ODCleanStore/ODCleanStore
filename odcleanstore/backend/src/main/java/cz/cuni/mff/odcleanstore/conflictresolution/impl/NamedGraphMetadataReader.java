@@ -12,10 +12,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
  * Class providing static method for loading ODCleanStore named graph metadata
@@ -51,7 +55,7 @@ public final class NamedGraphMetadataReader {
             if (predicateURI.equals(ODCS.publishedBy)) {
                 NamedGraphMetadata metadata = getMetadataObject(subject, result);
                 if (quad.getObject().isURI()) {
-                    metadata.setPublisher(quad.getObject().getURI());
+                    metadata.setPublishers(addToListNullProof(quad.getObject().getURI(), metadata.getPublishers()));
                 } else {
                     LOG.warn("Invalid provenance metadata - unexpected value '{}' of <{}>",
                             quad.getObject(), ODCS.publishedBy);
@@ -69,7 +73,7 @@ public final class NamedGraphMetadataReader {
             } else if (predicateURI.equals(ODCS.source)) {
                 NamedGraphMetadata metadata = getMetadataObject(subject, result);
                 if (quad.getObject().isURI()) {
-                    metadata.setSource(quad.getObject().getURI());
+                    metadata.setSources(addToSetNullProof(quad.getObject().getURI(), metadata.getSources()));
                 } else {
                     LOG.warn("Invalid provenance metadata - unexpected value '{}' of <{}>",
                             quad.getObject(), ODCS.source);
@@ -96,7 +100,7 @@ public final class NamedGraphMetadataReader {
                 }
             } else if (predicateURI.equals(ODCS.license)) {
                 NamedGraphMetadata metadata = getMetadataObject(subject, result);
-                metadata.setLicence(quad.getObject().toString());
+                metadata.setLicences(addToListNullProof(quad.getObject().toString(), metadata.getLicences()));
             } else if (predicateURI.equals(ODCS.insertedBy)) {
                 NamedGraphMetadata metadata = getMetadataObject(subject, result);
                 metadata.setInsertedBy(quad.getObject().toString());
@@ -105,9 +109,14 @@ public final class NamedGraphMetadataReader {
 
         if (!publisherScores.isEmpty()) {
             for (NamedGraphMetadata metadata : result.listMetadata()) {
-                String publisherURI = metadata.getPublisher();
-                if (publisherScores.containsKey(publisherURI)) {
-                    metadata.setPublisherScore(publisherScores.get(publisherURI));
+                if (metadata.getPublishers() == null) {
+                    continue;
+                }
+                for (String publisherURI : metadata.getPublishers()) {
+                    if (publisherScores.containsKey(publisherURI)) {
+                        metadata.setPublisherScores(
+                                addToListNullProof(publisherScores.get(publisherURI), metadata.getPublisherScores()));
+                    }
                 }
             }
         }
@@ -133,5 +142,36 @@ public final class NamedGraphMetadataReader {
             metadataMap.addMetadata(metadata);
         }
         return metadata;
+    }
+
+    /**
+     * Add a value to the set given in parameter and return modified set; if set is null, create new instance.
+     * @param value value to add to the set
+     * @param set set to add to or null
+     * @return set containing the given value
+     */
+    private static <T> Set<T> addToSetNullProof(T value, Set<T> set) {
+        Set<T> result = set;
+        if (result == null) {
+            result = new TreeSet<T>();
+        }
+        result.add(value);
+        return result;
+    }
+
+    /**
+     * Add a value to the list given in parameter and return modified list; if list is null, create new instance.
+     * @param value value to add to the list
+     * @param list list to add to or null
+     * @return list containing the given value
+     */
+    private static <T> List<T> addToListNullProof(T value, List<T> list) {
+        final int defaultListSize = 1;
+        List<T> result = list;
+        if (result == null) {
+            result = new ArrayList<T>(defaultListSize);
+        }
+        result.add(value);
+        return result;
     }
 }

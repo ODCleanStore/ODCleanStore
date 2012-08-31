@@ -15,6 +15,7 @@ import java.util.Locale;
 
 /**
  * Transformer for filtering of reserved properties from incoming payload data and provenance metadata.
+ * List of filtered properties is in {@link #FILTERED_PROPERTIES}.
  *
  * @author Jan Michelfeit
  */

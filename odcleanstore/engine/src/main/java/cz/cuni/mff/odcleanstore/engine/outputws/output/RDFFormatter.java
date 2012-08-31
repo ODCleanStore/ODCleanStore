@@ -22,6 +22,7 @@ import com.hp.hpl.jena.graph.impl.LiteralLabelFactory;
 import com.hp.hpl.jena.vocabulary.XSD;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * An abstract base class for formatters having a serialized form of RDF as their output.
@@ -100,9 +101,11 @@ public abstract class RDFFormatter extends ResultFormatterBase {
     protected void addODCSNamedGraphMetadata(NamedGraphMetadataMap metadata, Graph graph, boolean addScore) {
         for (NamedGraphMetadata graphMetadata : metadata.listMetadata()) {
             Node namedGraphURI = Node.createURI(graphMetadata.getNamedGraphURI());
-            String dataSource = graphMetadata.getSource();
-            if (dataSource != null) {
-                graph.add(new Triple(namedGraphURI, SOURCE_PROPERTY, Node.createURI(dataSource)));
+            List<String> dataSourceList = graphMetadata.getSources();
+            if (dataSourceList != null) {
+                for (String dataSource : dataSourceList) {
+                    graph.add(new Triple(namedGraphURI, SOURCE_PROPERTY, Node.createURI(dataSource)));
+                }
             }
 
             Double score = graphMetadata.getScore();
@@ -118,23 +121,29 @@ public abstract class RDFFormatter extends ResultFormatterBase {
                 graph.add(new Triple(namedGraphURI, INSERTED_AT_PROPERTY, Node.createLiteral(literal)));
             }
 
-            String publisher = graphMetadata.getPublisher();
-            if (publisher != null) {
-                graph.add(new Triple(namedGraphURI, PUBLISHED_BY_PROPERTY, Node.createURI(publisher)));
+            List<String> publisherList = graphMetadata.getPublishers();
+            if (publisherList != null) {
+                for (String publisher : publisherList) {
+                    graph.add(new Triple(namedGraphURI, PUBLISHED_BY_PROPERTY, Node.createURI(publisher)));
+                }
             }
 
-            String license = graphMetadata.getLicence();
-            if (license != null) {
-                Node licenseNode = license.startsWith("http://") && Utils.isValidIRI(license) 
-                        ? Node.createURI(license)
-                        : Node.createLiteral(license);
-                        graph.add(new Triple(namedGraphURI, LICENSE_PROPERTY, licenseNode));
+            List<String> licenseList = graphMetadata.getLicences();
+            if (licenseList != null) {
+                for (String license : licenseList) {
+                    Node licenseNode = license.startsWith("http://") && Utils.isValidIRI(license)
+                            ? Node.createURI(license)
+                            : Node.createLiteral(license);
+                    graph.add(new Triple(namedGraphURI, LICENSE_PROPERTY, licenseNode));
+                }
             }
 
-            Double publisherScore = graphMetadata.getPublisherScore();
-            if (publisherScore != null) {
-                LiteralLabel literal = LiteralLabelFactory.create(publisherScore);
-                graph.add(new Triple(namedGraphURI, PUBLISHER_SCORE_PROPERTY, Node.createLiteral(literal)));
+            List<Double> publisherScoreList = graphMetadata.getPublisherScores();
+            if (publisherScoreList != null) {
+                for (Double publisherScore : publisherScoreList) {
+                    LiteralLabel literal = LiteralLabelFactory.create(publisherScore);
+                    graph.add(new Triple(namedGraphURI, PUBLISHER_SCORE_PROPERTY, Node.createLiteral(literal)));
+                }
             }
         }
     }
