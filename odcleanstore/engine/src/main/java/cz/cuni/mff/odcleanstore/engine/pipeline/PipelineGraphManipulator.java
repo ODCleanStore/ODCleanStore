@@ -14,7 +14,7 @@ import cz.cuni.mff.odcleanstore.configuration.EngineConfig;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
-import cz.cuni.mff.odcleanstore.engine.db.VirtuosoJdbc4ConnectionForRdf;
+import cz.cuni.mff.odcleanstore.engine.db.VirtuosoJdbcConnectionForRdf;
 import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.Metadata;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 
@@ -132,11 +132,11 @@ final class PipelineGraphManipulator {
 	
 	private void deleteGraphsFromDB( boolean fromCleanDB) throws Exception  {
 		Collection<String> graphs = getAllGraphNames();
-		VirtuosoJdbc4ConnectionForRdf con = null;
+		VirtuosoJdbcConnectionForRdf con = null;
 		try {
 			con = fromCleanDB ? 
-					VirtuosoJdbc4ConnectionForRdf.createCleanDbConnection()
-				 : VirtuosoJdbc4ConnectionForRdf.createDirtyDbConnection();
+					VirtuosoJdbcConnectionForRdf.createCleanDbConnection()
+				 : VirtuosoJdbcConnectionForRdf.createDirtyDbConnection();
 			for (String graphName : graphs) {
 				con.clearGraph("<" + graphName + ">");
 			}
@@ -178,9 +178,9 @@ final class PipelineGraphManipulator {
 		String metadataGraphURI = engineConfig.getMetadataGraphURIPrefix() + uuid;
 		String provenanceGraphURI = engineConfig.getProvenanceMetadataGraphURIPrefix() + uuid;
 			
-		VirtuosoJdbc4ConnectionForRdf con = null;
+		VirtuosoJdbcConnectionForRdf con = null;
 		try {
-			con = VirtuosoJdbc4ConnectionForRdf.createDirtyDbConnection();
+			con = VirtuosoJdbcConnectionForRdf.createDirtyDbConnection();
 			con.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.metadataGraph + ">", "<" + metadataGraphURI + ">", "<" + metadataGraphURI + ">");
 			
 			con.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.insertedAt + ">", inserted, "<" + metadataGraphURI + ">");
