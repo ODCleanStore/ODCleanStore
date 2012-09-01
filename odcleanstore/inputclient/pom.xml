@@ -8,13 +8,13 @@
 	
 	<groupId>cz.cuni.mff.odcleanstore</groupId>
 	<artifactId>odcs-inputclient</artifactId>
-	<version>0.2-SNAPSHOT</version>
+	<version>0.3-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	
 	<parent>
 		<groupId>cz.cuni.mff.odcleanstore</groupId>
 		<artifactId>odcs</artifactId>
-		<version>0.2-SNAPSHOT</version>
+		<version>0.3-SNAPSHOT</version>
 	</parent>
 
 	<name>ODCleanStore - Input Client</name>
