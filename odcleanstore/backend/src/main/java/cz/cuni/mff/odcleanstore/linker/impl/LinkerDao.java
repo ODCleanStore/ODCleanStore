@@ -42,6 +42,8 @@ public class LinkerDao {
 	 * connection credentials to the dirty DB
 	 */
 	private static JDBCConnectionCredentials dirtyDBCredentials;
+	
+	private static final int IN_COUNT_LIMIT = 1000;
 
 	/**
 	 * Private constructor used by the getInstance method.
@@ -188,17 +190,28 @@ public class LinkerDao {
 	}
 	
 	public void loadLabels(Map<String, String> uriLabelMap) throws QueryException, ConnectionException {
-		String uriList = createUriListString(uriLabelMap.keySet().iterator());
-		LOG.info("Loading labels for URIs: {}", uriList);
+		if (uriLabelMap == null || uriLabelMap.isEmpty()) {
+			LOG.info("No URIs to load labels for.");
+			return;
+		}
+		
+		Iterator<String> uriIt = uriLabelMap.keySet().iterator();
 		VirtuosoConnectionWrapper connection = null;
 		WrappedResultSet resultSet = null;
 		try {
 			connection = VirtuosoConnectionWrapper.createConnection(cleanDBCredentials);
-			resultSet = connection.executeSelect(
-				"SPARQL SELECT ?uri ?label WHERE {?uri <http://www.w3.org/2000/01/rdf-schema#label> ?label " +
-				"FILTER (?uri IN " + uriList + ")}"); 
-			while (resultSet.next()) {
-				uriLabelMap.put(resultSet.getString("uri"), resultSet.getString("label"));
+			while (uriIt.hasNext()) {
+				String uriList = createUriListString(uriIt);
+				LOG.info("Loading labels for URIs: {}", uriList);					
+				resultSet = connection.executeSelect(
+					"SPARQL SELECT ?uri ?label WHERE {?uri <http://www.w3.org/2000/01/rdf-schema#label> ?label " +
+					"FILTER (?uri IN " + uriList + ")}"); 
+				while (resultSet.next()) {
+					uriLabelMap.put(resultSet.getString("uri"), resultSet.getString("label"));
+				}
+				if (resultSet != null) {
+					resultSet.closeQuietly();
+				}
 			}
 		} catch (SQLException e) {
 			throw new QueryException(e);
@@ -213,9 +226,11 @@ public class LinkerDao {
 	}
 	
 	public String createUriListString(Iterator<String> iterator) {
+		int count = 1;
 		String result = "(";
-		while (iterator.hasNext()) {
+		while (iterator.hasNext() && count < IN_COUNT_LIMIT) {
 			result += "<" + iterator.next() + ">, ";
+			count++;
 		}
 		return result.substring(0, result.length()-2) + ")";
 	}
