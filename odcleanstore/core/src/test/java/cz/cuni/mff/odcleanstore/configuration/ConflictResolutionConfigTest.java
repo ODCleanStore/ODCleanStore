@@ -16,7 +16,7 @@ import java.util.Properties;
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
-public class ConflictResolutionConfigTest extends ConfigTestBase{
+public class ConflictResolutionConfigTest extends ConfigTestBase {
     @Test
     public void testCorrectConfiguration() throws ConfigurationException {
         Properties properties = Mockito.mock(Properties.class);

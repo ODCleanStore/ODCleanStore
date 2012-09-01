@@ -23,7 +23,7 @@ import java.util.Properties;
  */
 public class ConflictResolutionConfig extends ConfigGroup {
     /** Prefix of names of properties belonging to this group. */
-    public static final String GROUP_PREFIX = "query_execution" + NAME_DELIMITER;
+    public static final String GROUP_PREFIX = "conflict_resolution" + NAME_DELIMITER;
 
     private Double agreeCoeficient;
     private Double scoreIfUnknown;

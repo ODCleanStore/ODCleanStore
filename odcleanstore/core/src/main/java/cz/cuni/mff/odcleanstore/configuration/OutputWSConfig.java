@@ -25,7 +25,7 @@ import java.util.Properties;
  */
 public class OutputWSConfig extends ConfigGroup {
     /** Prefix of names of properties belonging to this group. */
-    public static final String GROUP_PREFIX = "input_ws" + NAME_DELIMITER;
+    public static final String GROUP_PREFIX = "output_ws" + NAME_DELIMITER;
 
     private URI metadataGraphURIPrefix;
     private String qaRuleURIPrefix;
