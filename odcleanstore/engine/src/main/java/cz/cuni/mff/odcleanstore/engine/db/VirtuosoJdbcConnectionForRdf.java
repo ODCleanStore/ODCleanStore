@@ -2,10 +2,10 @@ package cz.cuni.mff.odcleanstore.engine.db;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Locale;
-import java.util.Properties;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
@@ -16,19 +16,17 @@ import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
  * Non-static methods are not thread-safe.
  * @author Jan Petr Jerman
  */
-public final class VirtuosoJdbc4ConnectionForRdf {
+public final class VirtuosoJdbcConnectionForRdf {
  
     /** Database connection. */
     private Connection connection;
     
-    private virtuoso.jdbc4.Driver jdbcDriver;
-
-	public static VirtuosoJdbc4ConnectionForRdf createCleanDbConnection() throws ConnectionException {
-		return new VirtuosoJdbc4ConnectionForRdf(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
+	public static VirtuosoJdbcConnectionForRdf createCleanDbConnection() throws ConnectionException {
+		return new VirtuosoJdbcConnectionForRdf(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
 	}
 	
-	public static VirtuosoJdbc4ConnectionForRdf createDirtyDbConnection() throws ConnectionException {
-		return new VirtuosoJdbc4ConnectionForRdf(ConfigLoader.getConfig().getBackendGroup().getDirtyDBJDBCConnectionCredentials());
+	public static VirtuosoJdbcConnectionForRdf createDirtyDbConnection() throws ConnectionException {
+		return new VirtuosoJdbcConnectionForRdf(ConfigLoader.getConfig().getBackendGroup().getDirtyDBJDBCConnectionCredentials());
 	}
 
     /**
@@ -36,19 +34,17 @@ public final class VirtuosoJdbc4ConnectionForRdf {
      * @see #createConnection(JDBCConnectionCredentials)
      * @param connection a connection to a Virtuoso database
      */
-    private VirtuosoJdbc4ConnectionForRdf(JDBCConnectionCredentials connectionCredentials) throws ConnectionException {
+    private VirtuosoJdbcConnectionForRdf(JDBCConnectionCredentials connectionCredentials) throws ConnectionException {
     	try {
-            Class.forName("virtuoso.jdbc4.Driver");
+            Class.forName("virtuoso.jdbc3.Driver");
         } catch (ClassNotFoundException e) {
-            throw new ConnectionException("Couldn't load Virtuoso jdbc4 driver", e);
+            throw new ConnectionException("Couldn't load Virtuoso jdbc3 driver", e);
         }
         try {
-       		jdbcDriver = new virtuoso.jdbc4.Driver();
-        	
-        	Properties properties = new Properties();
-        	properties.setProperty("user", connectionCredentials.getUsername());
-        	properties.setProperty("password", connectionCredentials.getPassword());
-        	connection = jdbcDriver.connect(connectionCredentials.getConnectionString(), properties);
+            connection = DriverManager.getConnection(
+                    connectionCredentials.getConnectionString(),
+                    connectionCredentials.getUsername(),
+                    connectionCredentials.getPassword());
        		CallableStatement statement = connection.prepareCall(String.format(Locale.ROOT, "log_enable(%d)", 1));
        		statement.execute();
        		connection.setAutoCommit(false);
