@@ -43,7 +43,7 @@ public class TransformationContext implements cz.cuni.mff.odcleanstore.transform
 			LOG.error(ERROR_NOT_ACTIVE_TRANSFORMER);
 			throw new TransformationContextRuntimeException(ERROR_NOT_ACTIVE_TRANSFORMER);
 		}
-		return ConfigLoader.getConfig().getBackendGroup().getDirtyDBJDBCConnectionCredentials();
+		return ConfigLoader.getConfig().getEngineGroup().getDirtyDBJDBCConnectionCredentials();
 	}
 
 	@Override
@@ -52,7 +52,7 @@ public class TransformationContext implements cz.cuni.mff.odcleanstore.transform
 			LOG.error(ERROR_NOT_ACTIVE_TRANSFORMER);
 			throw new TransformationContextRuntimeException(ERROR_NOT_ACTIVE_TRANSFORMER);
 		}
-		return ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials();
+		return ConfigLoader.getConfig().getEngineGroup().getCleanDBJDBCConnectionCredentials();
 	}
 
 	@Override

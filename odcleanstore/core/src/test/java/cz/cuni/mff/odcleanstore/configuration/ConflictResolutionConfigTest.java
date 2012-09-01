@@ -16,18 +16,21 @@ import java.util.Properties;
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
-public class ConflictResolutionConfigTest {
-    private static final String GROUP_NAME = "conflict_resolution";
-
+public class ConflictResolutionConfigTest extends ConfigTestBase{
     @Test
     public void testCorrectConfiguration() throws ConfigurationException {
         Properties properties = Mockito.mock(Properties.class);
 
-        Mockito.when(properties.getProperty(GROUP_NAME + ".agree_coefficient")).thenReturn("4");
-        Mockito.when(properties.getProperty(GROUP_NAME + ".score_if_unknown")).thenReturn("1");
-        Mockito.when(properties.getProperty(GROUP_NAME + ".named_graph_score_weight")).thenReturn("0.8");
-        Mockito.when(properties.getProperty(GROUP_NAME + ".publisher_score_weight")).thenReturn("0.2");
-        Mockito.when(properties.getProperty(GROUP_NAME + ".max_date_difference")).thenReturn("31622400");
+        Mockito.when(properties.getProperty(
+                ConflictResolutionConfig.GROUP_PREFIX + "agree_coefficient")).thenReturn("4");
+        Mockito.when(properties.getProperty(
+                ConflictResolutionConfig.GROUP_PREFIX + "score_if_unknown")).thenReturn("1");
+        Mockito.when(properties.getProperty(
+                ConflictResolutionConfig.GROUP_PREFIX + "named_graph_score_weight")).thenReturn("0.8");
+        Mockito.when(properties.getProperty(
+                ConflictResolutionConfig.GROUP_PREFIX + "publisher_score_weight")).thenReturn("0.2");
+        Mockito.when(properties.getProperty(
+                ConflictResolutionConfig.GROUP_PREFIX + "max_date_difference")).thenReturn("31622400");
 
         ConflictResolutionConfig crConfig = ConflictResolutionConfig.load(properties);
 
@@ -42,11 +45,16 @@ public class ConflictResolutionConfigTest {
     public void testMissingAgreeCoeficient() throws ConfigurationException {
         Properties properties = Mockito.mock(Properties.class);
 
-        Mockito.when(properties.getProperty(GROUP_NAME + ".agree_coefficient")).thenReturn(null);
-        Mockito.when(properties.getProperty(GROUP_NAME + ".score_if_unknown")).thenReturn("1");
-        Mockito.when(properties.getProperty(GROUP_NAME + ".named_graph_score_weight")).thenReturn("0.8");
-        Mockito.when(properties.getProperty(GROUP_NAME + ".publisher_score_weight")).thenReturn("0.2");
-        Mockito.when(properties.getProperty(GROUP_NAME + ".max_date_difference")).thenReturn("31622400");
+        Mockito.when(properties.getProperty(
+                ConflictResolutionConfig.GROUP_PREFIX + "agree_coefficient")).thenReturn(null);
+        Mockito.when(properties.getProperty(
+                ConflictResolutionConfig.GROUP_PREFIX + "score_if_unknown")).thenReturn("1");
+        Mockito.when(properties.getProperty(
+                ConflictResolutionConfig.GROUP_PREFIX + "named_graph_score_weight")).thenReturn("0.8");
+        Mockito.when(properties.getProperty(
+                ConflictResolutionConfig.GROUP_PREFIX + "publisher_score_weight")).thenReturn("0.2");
+        Mockito.when(properties.getProperty(
+                ConflictResolutionConfig.GROUP_PREFIX + "max_date_difference")).thenReturn("31622400");
 
         ConflictResolutionConfig.load(properties);
     }
@@ -55,11 +63,16 @@ public class ConflictResolutionConfigTest {
     public void testMalformedAgreeCoeficient() throws ConfigurationException {
         Properties properties = Mockito.mock(Properties.class);
 
-        Mockito.when(properties.getProperty(GROUP_NAME + ".agree_coefficient")).thenReturn("4k");
-        Mockito.when(properties.getProperty(GROUP_NAME + ".score_if_unknown")).thenReturn("1");
-        Mockito.when(properties.getProperty(GROUP_NAME + ".named_graph_score_weight")).thenReturn("0.8");
-        Mockito.when(properties.getProperty(GROUP_NAME + ".publisher_score_weight")).thenReturn("0.2");
-        Mockito.when(properties.getProperty(GROUP_NAME + ".max_date_difference")).thenReturn("31622400");
+        Mockito.when(properties.getProperty(
+                ConflictResolutionConfig.GROUP_PREFIX + "agree_coefficient")).thenReturn("4k");
+        Mockito.when(properties.getProperty(
+                ConflictResolutionConfig.GROUP_PREFIX + "score_if_unknown")).thenReturn("1");
+        Mockito.when(properties.getProperty(
+                ConflictResolutionConfig.GROUP_PREFIX + "named_graph_score_weight")).thenReturn("0.8");
+        Mockito.when(properties.getProperty(
+                ConflictResolutionConfig.GROUP_PREFIX + "publisher_score_weight")).thenReturn("0.2");
+        Mockito.when(properties.getProperty(
+                ConflictResolutionConfig.GROUP_PREFIX + "max_date_difference")).thenReturn("31622400");
 
         ConflictResolutionConfig.load(properties);
     }
@@ -68,11 +81,16 @@ public class ConflictResolutionConfigTest {
     public void testMalformedMaxDateDifference() throws ConfigurationException {
         Properties properties = Mockito.mock(Properties.class);
 
-        Mockito.when(properties.getProperty(GROUP_NAME + ".agree_coefficient")).thenReturn("4");
-        Mockito.when(properties.getProperty(GROUP_NAME + ".score_if_unknown")).thenReturn("1");
-        Mockito.when(properties.getProperty(GROUP_NAME + ".named_graph_score_weight")).thenReturn("0.8");
-        Mockito.when(properties.getProperty(GROUP_NAME + ".publisher_score_weight")).thenReturn("0.2");
-        Mockito.when(properties.getProperty(GROUP_NAME + ".max_date_difference")).thenReturn("316.22400");
+        Mockito.when(properties.getProperty(
+                ConflictResolutionConfig.GROUP_PREFIX + "agree_coefficient")).thenReturn("4");
+        Mockito.when(properties.getProperty(
+                ConflictResolutionConfig.GROUP_PREFIX + "score_if_unknown")).thenReturn("1");
+        Mockito.when(properties.getProperty(
+                ConflictResolutionConfig.GROUP_PREFIX + "named_graph_score_weight")).thenReturn("0.8");
+        Mockito.when(properties.getProperty(
+                ConflictResolutionConfig.GROUP_PREFIX + "publisher_score_weight")).thenReturn("0.2");
+        Mockito.when(properties.getProperty(
+                ConflictResolutionConfig.GROUP_PREFIX + "max_date_difference")).thenReturn("316.22400");
 
         ConflictResolutionConfig.load(properties);
     }

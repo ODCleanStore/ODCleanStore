@@ -24,15 +24,11 @@ import cz.cuni.mff.odcleanstore.configuration.formats.ParameterFormat;
  *
  */
 public class InputWSConfig extends ConfigGroup {
+    /** Prefix of names of properties belonging to this group. */
+    public static final String GROUP_PREFIX = "input_ws" + NAME_DELIMITER;
     
-    static
-    {
-        GROUP_NAME = "input_ws";
-    }
-
     private URL endpointURL;
-    // TODO: doresit jak se konfiguruje instalacni adresar
-    private String inputDirPath;
+    private String inputDirPath; // TODO: doresit jak se konfiguruje instalacni adresar
 
     /**
      *
@@ -40,9 +36,9 @@ public class InputWSConfig extends ConfigGroup {
      * @param inputDirPath
      */
     public InputWSConfig(
-    		URL endpointURL,
-    		String inputDirPath) {
-    	this.endpointURL = endpointURL;
+            URL endpointURL,
+            String inputDirPath) {
+        this.endpointURL = endpointURL;
         this.inputDirPath = inputDirPath;
     }
 
@@ -59,16 +55,16 @@ public class InputWSConfig extends ConfigGroup {
             throws ParameterNotAvailableException, IllegalParameterFormatException
     {
         ParameterFormat<String> formatString = new FormatString();
-        String inputDirPath = loadParam(properties, "input_dir_path", formatString);
-        if(!inputDirPath.endsWith(File.separator)) {
-        	inputDirPath = inputDirPath +  File.separator;
+        String inputDirPath = loadParam(properties, GROUP_PREFIX + "input_dir_path", formatString);
+        if (!inputDirPath.endsWith(File.separator)) {
+            inputDirPath = inputDirPath +  File.separator;
         }
 
         ParameterFormat<URL> formatURL = new FormatURL();
-        URL endpointURL = loadParam(properties, "endpoint_url", formatURL);
+        URL endpointURL = loadParam(properties, GROUP_PREFIX + "endpoint_url", formatURL);
 
         return new InputWSConfig(
-        		endpointURL,
+                endpointURL,
                 inputDirPath);
     }
    
@@ -77,7 +73,7 @@ public class InputWSConfig extends ConfigGroup {
     * @return
     */
     public URL getEndpointURL() {
-    	return endpointURL;
+        return endpointURL;
     }
     
     /**

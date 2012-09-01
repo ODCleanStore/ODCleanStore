@@ -10,17 +10,14 @@ import cz.cuni.mff.odcleanstore.configuration.exceptions.IllegalParameterFormatE
  */
 public class FormatDouble extends ParameterFormat<Double> {
     @Override
-    public Double convertValue(String groupName, String paramName, String value)
-            throws IllegalParameterFormatException {
-        assert groupName != null && paramName != null;
-        assert value != null;
+    public Double convertValue(String paramName, String value) throws IllegalParameterFormatException {
+        assert value != null && paramName != null;
 
         try {
             return Double.parseDouble(value);
         } catch (NumberFormatException ex) {
             throw new IllegalParameterFormatException(
-                    "Parameter value [" + value + "] could not be converted to Double for group/param: "
-                     + groupName + "/" + paramName);
+                    "Parameter value [" + value + "] could not be converted to Double for param: " + paramName);
         }
     }
 }

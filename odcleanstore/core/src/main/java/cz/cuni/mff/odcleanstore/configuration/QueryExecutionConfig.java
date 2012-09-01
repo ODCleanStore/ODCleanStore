@@ -5,6 +5,7 @@ import cz.cuni.mff.odcleanstore.configuration.exceptions.ParameterNotAvailableEx
 import cz.cuni.mff.odcleanstore.configuration.formats.FormatLong;
 import cz.cuni.mff.odcleanstore.configuration.formats.FormatURI;
 import cz.cuni.mff.odcleanstore.configuration.formats.ParameterFormat;
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 
 import java.net.URI;
 import java.util.Properties;
@@ -23,22 +24,25 @@ import java.util.Properties;
  *
  */
 public class QueryExecutionConfig extends ConfigGroup {
-    static
-    {
-        GROUP_NAME = "query_execution";
-    }
+    /** Prefix of names of properties belonging to this group. */
+    public static final String GROUP_PREFIX = "query_execution" + NAME_DELIMITER;
 
     private Long maxQueryResultSize;
     private URI resultGraphURIPrefix;
+    private final JDBCConnectionCredentials cleanDBJDBCConnectionCredentials;
 
     /**
      *
      * @param maxQueryResultSize
      * @param resultGraphURIPrefix
      */
-    public QueryExecutionConfig(Long maxQueryResultSize, URI resultGraphURIPrefix) {
+    public QueryExecutionConfig(
+            Long maxQueryResultSize, 
+            URI resultGraphURIPrefix, 
+            JDBCConnectionCredentials cleanDBJDBCConnectionCredentials) {
         this.maxQueryResultSize = maxQueryResultSize;
         this.resultGraphURIPrefix = resultGraphURIPrefix;
+        this.cleanDBJDBCConnectionCredentials = cleanDBJDBCConnectionCredentials;
     }
 
     /**
@@ -53,14 +57,18 @@ public class QueryExecutionConfig extends ConfigGroup {
     public static QueryExecutionConfig load(Properties properties)
             throws ParameterNotAvailableException, IllegalParameterFormatException {
         ParameterFormat<Long> formatLong = new FormatLong();
-        Long maxQueryResultSize = loadParam(properties, "max_query_result_size", formatLong);
+        Long maxQueryResultSize = loadParam(properties, GROUP_PREFIX + "max_query_result_size", formatLong);
 
         ParameterFormat<URI> formatURI = new FormatURI();
-        URI resultGraphURIPrefix = loadParam(properties, "result_graph_uri_prefix", formatURI);
+        URI resultGraphURIPrefix = loadParam(properties, GROUP_PREFIX + "result_graph_uri_prefix", formatURI);
+        
+        JDBCConnectionCredentials cleanJDBCConnectionCredentials =
+                loadJDBCConnectionCredentials(properties,  EnumDbConnectionType.CLEAN);
 
         return new QueryExecutionConfig(
                 maxQueryResultSize,
-                resultGraphURIPrefix);
+                resultGraphURIPrefix,
+                cleanJDBCConnectionCredentials);
     }
 
     /**
@@ -78,4 +86,12 @@ public class QueryExecutionConfig extends ConfigGroup {
     public URI getResultGraphURIPrefix() {
         return resultGraphURIPrefix;
     }
+    
+    /**
+    *
+    * @return
+    */
+   public JDBCConnectionCredentials getCleanDBJDBCConnectionCredentials() {
+       return cleanDBJDBCConnectionCredentials;
+   }
 }

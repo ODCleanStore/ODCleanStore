@@ -36,7 +36,7 @@ public final class TransformedGraph implements cz.cuni.mff.odcleanstore.transfor
 			LOG.error(ERROR_NOT_ACTIVE_TRANSFORMER);
 			throw new TransformedGraphRuntimeException(ERROR_NOT_ACTIVE_TRANSFORMER);
 		}
-		return ConfigLoader.getConfig().getBackendGroup().getDataGraphURIPrefix() + graphStatus.getUuid();
+		return ConfigLoader.getConfig().getEngineGroup().getDataGraphURIPrefix() + graphStatus.getUuid();
 	}
 
 	@Override
@@ -56,7 +56,7 @@ public final class TransformedGraph implements cz.cuni.mff.odcleanstore.transfor
             LOG.error(ERROR_NOT_ACTIVE_TRANSFORMER);
             throw new TransformedGraphRuntimeException(ERROR_NOT_ACTIVE_TRANSFORMER);
         }
-        return ConfigLoader.getConfig().getBackendGroup().getMetadataGraphURIPrefix() + graphStatus.getUuid();
+        return ConfigLoader.getConfig().getEngineGroup().getMetadataGraphURIPrefix() + graphStatus.getUuid();
     }
 
     @Override
@@ -66,7 +66,7 @@ public final class TransformedGraph implements cz.cuni.mff.odcleanstore.transfor
             LOG.error(ERROR_NOT_ACTIVE_TRANSFORMER);
             throw new TransformedGraphRuntimeException(ERROR_NOT_ACTIVE_TRANSFORMER);
         }
-        return ConfigLoader.getConfig().getBackendGroup().getProvenanceMetadataGraphURIPrefix() + graphStatus.getUuid();
+        return ConfigLoader.getConfig().getEngineGroup().getProvenanceMetadataGraphURIPrefix() + graphStatus.getUuid();
     }
 
     @Override

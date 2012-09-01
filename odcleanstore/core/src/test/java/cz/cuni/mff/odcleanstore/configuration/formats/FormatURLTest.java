@@ -16,7 +16,6 @@ import java.net.URL;
  *
  */
 public class FormatURLTest {
-    private static final String GROUP_NAME = "group_name";
     private static final String PARAM_NAME = "param_name";
 
     private ParameterFormat<URL> formatter;
@@ -29,11 +28,11 @@ public class FormatURLTest {
     @Test
     public void testValidURI() throws IllegalParameterFormatException, MalformedURLException {
         assertEquals(new URL("http://java.sun.com/j2se/1.3/"),
-                formatter.convertValue(GROUP_NAME, PARAM_NAME, "http://java.sun.com/j2se/1.3/"));
+                formatter.convertValue(PARAM_NAME, "http://java.sun.com/j2se/1.3/"));
     }
 
     @Test(expected = IllegalParameterFormatException.class)
     public void testURINotURL() throws IllegalParameterFormatException {
-        formatter.convertValue(GROUP_NAME, PARAM_NAME, "urn:issn:1535-3613");
+        formatter.convertValue(PARAM_NAME, "urn:issn:1535-3613");
     }
 }

@@ -22,10 +22,8 @@ import java.util.Properties;
  *
  */
 public class ConflictResolutionConfig extends ConfigGroup {
-    static
-    {
-        GROUP_NAME = "conflict_resolution";
-    }
+    /** Prefix of names of properties belonging to this group. */
+    public static final String GROUP_PREFIX = "query_execution" + NAME_DELIMITER;
 
     private Double agreeCoeficient;
     private Double scoreIfUnknown;
@@ -64,13 +62,13 @@ public class ConflictResolutionConfig extends ConfigGroup {
             throws ParameterNotAvailableException, IllegalParameterFormatException {
         ParameterFormat<Double> formatDouble = new FormatDouble();
 
-        Double agreeCoeficient = loadParam(properties, "agree_coefficient", formatDouble);
-        Double scoreIfUnknown = loadParam(properties, "score_if_unknown", formatDouble);
-        Double namedGraphScoreWeight = loadParam(properties, "named_graph_score_weight", formatDouble);
-        Double publisherScoreWeight = loadParam(properties, "publisher_score_weight", formatDouble);
+        Double agreeCoeficient = loadParam(properties, GROUP_PREFIX + "agree_coefficient", formatDouble);
+        Double scoreIfUnknown = loadParam(properties, GROUP_PREFIX + "score_if_unknown", formatDouble);
+        Double namedGraphScoreWeight = loadParam(properties, GROUP_PREFIX + "named_graph_score_weight", formatDouble);
+        Double publisherScoreWeight = loadParam(properties, GROUP_PREFIX + "publisher_score_weight", formatDouble);
 
         ParameterFormat<Long> formatLong = new FormatLong();
-        Long maxDateDifference = loadParam(properties, "max_date_difference", formatLong);
+        Long maxDateDifference = loadParam(properties, GROUP_PREFIX + "max_date_difference", formatLong);
 
         return new ConflictResolutionConfig(
                 agreeCoeficient,

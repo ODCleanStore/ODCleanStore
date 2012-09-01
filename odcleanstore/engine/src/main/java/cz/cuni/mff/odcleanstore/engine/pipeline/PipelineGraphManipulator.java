@@ -10,7 +10,7 @@ import virtuoso.jena.driver.VirtModel;
 
 import com.hp.hpl.jena.rdf.model.Model;
 
-import cz.cuni.mff.odcleanstore.configuration.BackendConfig;
+import cz.cuni.mff.odcleanstore.configuration.EngineConfig;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
@@ -76,8 +76,8 @@ final class PipelineGraphManipulator {
 			deleteGraphsInCleanDB();
 
 			Collection<String> graphs = getAllGraphNames();
-			JDBCConnectionCredentials creditDirty = ConfigLoader.getConfig().getBackendGroup().getDirtyDBJDBCConnectionCredentials();
-			JDBCConnectionCredentials creditClean = ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials();
+			JDBCConnectionCredentials creditDirty = ConfigLoader.getConfig().getEngineGroup().getDirtyDBJDBCConnectionCredentials();
+			JDBCConnectionCredentials creditClean = ConfigLoader.getConfig().getEngineGroup().getCleanDBJDBCConnectionCredentials();
 			
 			for (String graphName : graphs) {
 				Model srcModel = null;
@@ -119,13 +119,13 @@ final class PipelineGraphManipulator {
 	}
 	
 	private HashSet<String> getAllGraphNames() {
-		BackendConfig backendConfig = ConfigLoader.getConfig().getBackendGroup();
+		EngineConfig engineConfig = ConfigLoader.getConfig().getEngineGroup();
 		String uuid = graphStatus.getUuid();
 		
 		HashSet<String> graphs = graphStatus.getAttachedGraphs();
-		graphs.add(backendConfig.getDataGraphURIPrefix() + uuid);
-		graphs.add(backendConfig.getMetadataGraphURIPrefix() + uuid);
-		graphs.add(backendConfig.getProvenanceMetadataGraphURIPrefix() + uuid);
+		graphs.add(engineConfig.getDataGraphURIPrefix() + uuid);
+		graphs.add(engineConfig.getMetadataGraphURIPrefix() + uuid);
+		graphs.add(engineConfig.getProvenanceMetadataGraphURIPrefix() + uuid);
 		
 		return graphs;
 	}
@@ -173,10 +173,10 @@ final class PipelineGraphManipulator {
 			}
 		}
 		
-		BackendConfig backendConfig = ConfigLoader.getConfig().getBackendGroup();
-		String dataGraphURI = backendConfig.getDataGraphURIPrefix() + uuid;
-		String metadataGraphURI = backendConfig.getMetadataGraphURIPrefix() + uuid;
-		String provenanceGraphURI = backendConfig.getProvenanceMetadataGraphURIPrefix() + uuid;
+		EngineConfig engineConfig = ConfigLoader.getConfig().getEngineGroup();
+		String dataGraphURI = engineConfig.getDataGraphURIPrefix() + uuid;
+		String metadataGraphURI = engineConfig.getMetadataGraphURIPrefix() + uuid;
+		String provenanceGraphURI = engineConfig.getProvenanceMetadataGraphURIPrefix() + uuid;
 			
 		VirtuosoJdbc4ConnectionForRdf con = null;
 		try {
@@ -210,9 +210,9 @@ final class PipelineGraphManipulator {
 	}
 
 	private void loadGraphsIntoDirtyDBFromCleanDB() throws Exception {
-			BackendConfig backendConfig = ConfigLoader.getConfig().getBackendGroup();
-			JDBCConnectionCredentials creditClean = backendConfig.getCleanDBJDBCConnectionCredentials();
-			JDBCConnectionCredentials creditDirty = backendConfig.getDirtyDBJDBCConnectionCredentials();
+			EngineConfig engineConfig = ConfigLoader.getConfig().getEngineGroup();
+			JDBCConnectionCredentials creditClean = engineConfig.getCleanDBJDBCConnectionCredentials();
+			JDBCConnectionCredentials creditDirty = engineConfig.getDirtyDBJDBCConnectionCredentials();
 			Collection<String> graphs = getAllGraphNames();
 		
 			for (String graphName : graphs) {

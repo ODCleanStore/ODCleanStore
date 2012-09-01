@@ -58,7 +58,7 @@ public abstract class QueryExecutorResourceBase extends ServerResource {
          * it can keep cached data of its own.
          */
         static final QueryExecution QUERY_EXECUTION = new QueryExecution(
-                ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials(),
+                ConfigLoader.getConfig().getQueryExecutionGroup().getCleanDBJDBCConnectionCredentials(),
                 ConfigLoader.getConfig());
     }
 

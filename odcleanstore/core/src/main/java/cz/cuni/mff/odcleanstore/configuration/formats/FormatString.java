@@ -10,7 +10,7 @@ import cz.cuni.mff.odcleanstore.configuration.exceptions.IllegalParameterFormatE
  */
 public class FormatString extends ParameterFormat<String> {
     @Override
-    public String convertValue(String groupName, String paramName, String value)
+    public String convertValue(String paramName, String value)
             throws IllegalParameterFormatException {
         return value;
     }
