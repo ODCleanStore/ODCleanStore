@@ -26,4 +26,21 @@ public class ErrorStrategy extends EntityWithSurrogateKey
 	{
 		return description;
 	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (!(obj instanceof ErrorStrategy))
+			return false;
+		
+		ErrorStrategy other = (ErrorStrategy) obj;
+		
+		return this.id.equals(other.id);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return this.id.hashCode();
+	}
 }

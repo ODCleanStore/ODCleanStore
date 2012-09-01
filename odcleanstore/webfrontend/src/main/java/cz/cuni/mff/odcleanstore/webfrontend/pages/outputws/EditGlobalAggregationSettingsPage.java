@@ -43,7 +43,8 @@ public class EditGlobalAggregationSettingsPage extends FrontendPage
 	private void addEditGlobalSettingsForm()
 	{
 		IModel<GlobalAggregationSettings> formModel = new CompoundPropertyModel<GlobalAggregationSettings>(
-			new GlobalAggregationSettings()
+			// new GlobalAggregationSettings()
+			globalAggregationSettingsDao.loadFirstRaw()
 		);
 		
 		Form<GlobalAggregationSettings> form = new Form<GlobalAggregationSettings>("editGlobalSettingsForm", formModel)
