@@ -48,7 +48,7 @@ public final class VirtuosoJdbcConnectionForRdf {
                     connectionCredentials.getConnectionString(),
                     connectionCredentials.getUsername(),
                     connectionCredentials.getPassword());
-       		CallableStatement statement = connection.prepareCall(String.format(Locale.ROOT, "log_enable(%d)", 1));
+       		CallableStatement statement = connection.prepareCall("log_enable(1)");
        		statement.execute();
        		connection.setAutoCommit(false);
         } catch (SQLException e) {
@@ -68,6 +68,17 @@ public final class VirtuosoJdbcConnectionForRdf {
 		execute(String.format(Locale.ROOT, "SPARQL INSERT INTO GRAPH %s { %s %s %s }", graphName, subject, predicate, object));
 	}
 	
+	/**
+	 * Rename graph.
+	 * @param srcGraphName graph
+	 * @param dstGraphName graph
+	 * @throws QueryException query error
+	 */
+	public void renameGraph(String srcGraphName, String dstGraphName) throws QueryException {
+		execute("DELETE FROM DB.DBA.RDF_QUAD WHERE g = iri_to_id (?)", dstGraphName);
+		execute("UPDATE DB.DBA.RDF_QUAD SET g = iri_to_id (?) WHERE g = iri_to_id (?)", dstGraphName, srcGraphName);
+	}
+		
 	/**
 	 * Delete graph from the database.
 	 * @param graphName name of the graph to delete

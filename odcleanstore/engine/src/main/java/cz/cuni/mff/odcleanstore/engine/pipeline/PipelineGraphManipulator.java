@@ -27,6 +27,7 @@ final class PipelineGraphManipulator {
 	private static final String ERROR_INPUT_FILE_STILL_EXIST = ERROR_DELETE_INPUT_FILE + ", file still exists.";
 	private static final String ERROR_DELETE_GRAPHS_FROM_DIRTYDB = "deleting graphs from dirty db";
 	private static final String ERROR_DELETE_GRAPHS_FROM_CLEANDB = "deleting graphs from clean db";
+	private static final String ERROR_DELETE_TEMP_GRAPHS_FROM_CLEANDB = "deleting temporary graphs from clean db";
 	private static final String ERROR_REPLACE_GRAPHS_IN_CLEANDB = "replacing graphs in clean db from dirty db";
 	private static final String ERROR_LOAD_GRAPHS_FROM_FILE = "loading graphs into clean db from input file";
 	private static final String ERROR_LOAD_GRAPHS_FROM_CLEAN_DB = "loading graphs into dirty db from clean db";
@@ -54,27 +55,31 @@ final class PipelineGraphManipulator {
 	
 	void deleteGraphsInDirtyDB() throws PipelineGraphManipulatorException {
 		try {
-			deleteGraphsFromDB(false);
+			deleteGraphsFromDB(false, false);
 		} catch(Exception e) {
 			throw new PipelineGraphManipulatorException(format(ERROR_DELETE_GRAPHS_FROM_DIRTYDB), e);
 			
 		}
 	}
 	
-	void deleteGraphsInCleanDB() throws PipelineGraphManipulatorException {
+	 void deleteGraphsInCleanDB() throws PipelineGraphManipulatorException {
 		try {
-			deleteGraphsFromDB(true);
+			deleteGraphsFromDB(true, false);
 		} catch(Exception e) {
 			throw new PipelineGraphManipulatorException(format(ERROR_DELETE_GRAPHS_FROM_CLEANDB), e);
 		}
 	}
-
-
 	
 	void replaceGraphsInCleanDBFromDirtyDB() throws PipelineGraphManipulatorException {
 		try {
-			deleteGraphsInCleanDB();
-
+			// delete temporary graphs in clean DB
+			deleteGraphsFromDB(true, true);
+		} catch(Exception e) {
+			throw new PipelineGraphManipulatorException(format(ERROR_DELETE_TEMP_GRAPHS_FROM_CLEANDB), e);
+		}
+		
+		// copy graphs from dirty to clean DB with temporary names
+		try {
 			Collection<String> graphs = getAllGraphNames();
 			JDBCConnectionCredentials creditDirty = ConfigLoader.getConfig().getEngineGroup().getDirtyDBJDBCConnectionCredentials();
 			JDBCConnectionCredentials creditClean = ConfigLoader.getConfig().getEngineGroup().getCleanDBJDBCConnectionCredentials();
@@ -84,7 +89,7 @@ final class PipelineGraphManipulator {
 				Model dstModel = null;
 				try {
 					srcModel = VirtModel.openDatabaseModel(graphName, creditDirty.getConnectionString(), creditDirty.getUsername(), creditDirty.getPassword());
-					dstModel = VirtModel.openDatabaseModel(graphName, creditClean.getConnectionString(), creditClean.getUsername(), creditClean.getPassword());
+					dstModel = VirtModel.openDatabaseModel(ODCS.temp + "/" + graphName, creditClean.getConnectionString(), creditClean.getUsername(), creditClean.getPassword());
 					
 					dstModel.add(srcModel);
 				} finally {
@@ -96,6 +101,14 @@ final class PipelineGraphManipulator {
 					}
 				}
 			}
+
+			// transactional processing - delete graph and replace it with temporary graphs in clean DB
+			VirtuosoJdbcConnectionForRdf con = VirtuosoJdbcConnectionForRdf.createCleanDbConnection();
+			for (String graphName : graphs) {
+				con.renameGraph(ODCS.temp + "/" + graphName, graphName);
+			}
+			con.commit();
+			
 		} catch(Exception e) { 
 			throw new PipelineGraphManipulatorException(format(ERROR_REPLACE_GRAPHS_IN_CLEANDB), e);
 		}
@@ -130,14 +143,17 @@ final class PipelineGraphManipulator {
 		return graphs;
 	}
 	
-	private void deleteGraphsFromDB( boolean fromCleanDB) throws Exception  {
-		Collection<String> graphs = getAllGraphNames();
+	private void deleteGraphsFromDB(boolean fromCleanDB, boolean temporaryGraphs) throws Exception  {
 		VirtuosoJdbcConnectionForRdf con = null;
 		try {
+			Collection<String> graphs = getAllGraphNames();
 			con = fromCleanDB ? 
 					VirtuosoJdbcConnectionForRdf.createCleanDbConnection()
 				 : VirtuosoJdbcConnectionForRdf.createDirtyDbConnection();
 			for (String graphName : graphs) {
+				if (temporaryGraphs) {
+					graphName = ODCS.temp  + "/" + graphName; 
+				}
 				con.clearGraph("<" + graphName + ">");
 			}
 			con.commit();

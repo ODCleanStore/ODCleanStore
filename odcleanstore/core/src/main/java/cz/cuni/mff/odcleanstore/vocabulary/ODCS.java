@@ -127,6 +127,11 @@ public final class ODCS {
      */
     public static final String QARule = NS + "QARule";
     
+    /**
+     * Prefix for temporary graphs in clean database. 
+     */
+    public static final String temp = NS + "temp";
+    
     
     // CHECKSTYLE:ON
 }

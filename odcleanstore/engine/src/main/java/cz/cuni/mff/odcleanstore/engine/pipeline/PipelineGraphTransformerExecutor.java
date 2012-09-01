@@ -39,7 +39,7 @@ public class PipelineGraphTransformerExecutor {
 		ODCSPropertyFilterTransformerCommand.transformerInstanceID = 0;
 		ODCSPropertyFilterTransformerCommand.configuration ="";
 		ODCSPropertyFilterTransformerCommand.runOnCleanDB = true;
-		ODCSPropertyFilterTransformerCommand.workDirPath = "ODCSPropertyFilterTransformerCommand";
+		ODCSPropertyFilterTransformerCommand.workDirPath = "transformers-working-dir/odcsPropertyFilterTransformer";
 	}
 	
 	private PipelineGraphStatus graphStatus = null;
