@@ -1,5 +1,13 @@
 package cz.cuni.mff.odcleanstore.connection;
 
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
+import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
+import cz.cuni.mff.odcleanstore.shared.Utils;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -8,13 +16,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Locale;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
-import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
-import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 
 /**
  * A wrapper for SQL {@link Connection} to a Virtuoso database.
@@ -46,7 +47,7 @@ public final class VirtuosoConnectionWrapper {
             queryTimeout = ConfigLoader.getConfig().getBackendGroup().getQueryTimeout();
         }
         try {
-            Class.forName("virtuoso.jdbc3.Driver");
+            Class.forName(Utils.JDBC_DRIVER);
         } catch (ClassNotFoundException e) {
             throw new ConnectionException("Couldn't load Virtuoso jdbc driver", e);
         }

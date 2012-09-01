@@ -1,17 +1,22 @@
 package cz.cuni.mff.odcleanstore.shared;
 
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 
-import virtuoso.jdbc3.VirtuosoDataSource;
 import virtuoso.jena.driver.VirtGraph;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 
 public class GraphLoader {
-	public static String loadGrap(String graphName, String format, VirtuosoDataSource datasource) {
-		VirtGraph graph = new VirtGraph(graphName, datasource);
+	public static String loadGrap(String graphName, String format, JDBCConnectionCredentials connectionCredentials) {
+		VirtGraph graph = new VirtGraph(
+		        graphName,
+		        connectionCredentials.getConnectionString(), 
+		        connectionCredentials.getUsername(),
+		        connectionCredentials.getPassword());
 		Model model = ModelFactory.createModelForGraph(graph);
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		model.write(stream, format);

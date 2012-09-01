@@ -1,14 +1,14 @@
 package cz.cuni.mff.odcleanstore.webfrontend.configuration;
 
-import cz.cuni.mff.odcleanstore.data.ConnectionCredentials;
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 
 public class Configuration 
 {
-	private ConnectionCredentials connectionCoords;
+	private JDBCConnectionCredentials connectionCoords;
 	private String gmailAddress;
 	private String gmailPassword;
 	
-	public Configuration(ConnectionCredentials connectionCoords, String gmailAddress, 
+	public Configuration(JDBCConnectionCredentials connectionCoords, String gmailAddress, 
 		String gmailPassword)
 	{
 		this.connectionCoords = connectionCoords;
@@ -16,7 +16,7 @@ public class Configuration
 		this.gmailPassword = gmailPassword;
 	}
 
-	public ConnectionCredentials getConnectionCoords() 
+	public JDBCConnectionCredentials getConnectionCoords() 
 	{
 		return connectionCoords;
 	}

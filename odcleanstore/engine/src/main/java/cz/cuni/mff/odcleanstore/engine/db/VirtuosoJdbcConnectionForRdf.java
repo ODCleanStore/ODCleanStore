@@ -12,6 +12,9 @@ import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 
+import cz.cuni.mff.odcleanstore.shared.Utils;
+
+
 /**
  * Non-static methods are not thread-safe.
  * @author Jan Petr Jerman
@@ -36,9 +39,9 @@ public final class VirtuosoJdbcConnectionForRdf {
      */
     private VirtuosoJdbcConnectionForRdf(JDBCConnectionCredentials connectionCredentials) throws ConnectionException {
     	try {
-            Class.forName("virtuoso.jdbc3.Driver");
+            Class.forName(Utils.JDBC_DRIVER);
         } catch (ClassNotFoundException e) {
-            throw new ConnectionException("Couldn't load Virtuoso jdbc3 driver", e);
+            throw new ConnectionException("Couldn't load Virtuoso jdbc driver", e);
         }
         try {
             connection = DriverManager.getConnection(
