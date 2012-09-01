@@ -35,7 +35,7 @@ public final class Utils {
     public static final long DAY_HOURS = 24;
     
     /** Jdbc driver class. */
-    public static final String JDBC_DRIVER = "virtuoso.jdbc4.Driver";
+    public static final String JDBC_DRIVER = "virtuoso.jdbc3.Driver";
 
     /**
      * Compare two values which may be null. Null is considered less than all non-null values.
