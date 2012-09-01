@@ -63,9 +63,10 @@ public class MetadataQueryExecutorResource extends QueryExecutorResourceBase {
         long qaStartTime = System.currentTimeMillis();
         Config config = ConfigLoader.getConfig();
         GraphScoreWithTrace qaResult = null;
-        String graphUuid = extractUUID(namedGraphURI, config.getBackendGroup().getDataGraphURIPrefix().toString());
+        String graphUuid = extractUUID(namedGraphURI, config.getEngineGroup().getDataGraphURIPrefix().toString());
         if (graphUuid != null) {
-            JDBCConnectionCredentials connectionCredentials = config.getBackendGroup().getCleanDBJDBCConnectionCredentials();
+            JDBCConnectionCredentials connectionCredentials =
+                    config.getQueryExecutionGroup().getCleanDBJDBCConnectionCredentials();
             Integer[] qaGroupIDs = qaRuleGroupsForGraph(graphUuid, connectionCredentials);
             if (qaGroupIDs.length > 0) {
                 QualityAssessorImpl qualityAssessor = new QualityAssessorImpl(qaGroupIDs);
@@ -82,7 +83,7 @@ public class MetadataQueryExecutorResource extends QueryExecutorResourceBase {
      * Extracts the UUID part from a data named graph URI.
      * @param namedGraphURI URI of a payload data named graph
      * @param dataGraphPrefix prefix common to all data graphs' URIs
-     *      (see {@link cz.cuni.mff.odcleanstore.configuration.BackendConfig#getDataGraphURIPrefix()})
+     *      (see {@link cz.cuni.mff.odcleanstore.configuration.EngineConfig#getDataGraphURIPrefix()})
      * @return the UUID part or null if it the named graph doesn't have the correct format
      */
     private String extractUUID(String namedGraphURI, String dataGraphPrefix) {

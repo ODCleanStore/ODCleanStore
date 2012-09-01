@@ -2,32 +2,34 @@ package cz.cuni.mff.odcleanstore.configuration;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.util.Properties;
+import cz.cuni.mff.odcleanstore.configuration.exceptions.ConfigurationException;
 
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import cz.cuni.mff.odcleanstore.configuration.exceptions.ConfigurationException;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Properties;
 
 /**
  *
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
-public class InputWSConfigTest {
-    private static final String GROUP_NAME = "input_ws";
-
+public class InputWSConfigTest extends ConfigTestBase {
     @Test
     public void testCorrectConfiguration() throws ConfigurationException, MalformedURLException {
         Properties properties = Mockito.mock(Properties.class);
 
-        Mockito.when(properties.getProperty(GROUP_NAME + ".input_dir_path")).thenReturn("inputWS");
-        Mockito.when(properties.getProperty(GROUP_NAME + ".endpoint_url")).thenReturn("http://localhost:8088/inputws");
+        Mockito.when(properties.getProperty(
+                InputWSConfig.GROUP_PREFIX + "input_dir_path")).thenReturn("inputWS");
+        Mockito.when(properties.getProperty(
+                InputWSConfig.GROUP_PREFIX + "endpoint_url")).thenReturn("http://localhost:8088/inputws");
         
         InputWSConfig inputWSConfig = InputWSConfig.load(properties);
 
         assertEquals("inputWS" + File.separator, inputWSConfig.getInputDirPath());
+        assertEquals(new URL("http://localhost:8088/inputws"), inputWSConfig.getEndpointURL());
     }
 }

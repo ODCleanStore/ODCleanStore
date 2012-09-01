@@ -13,16 +13,15 @@ import java.net.URISyntaxException;
  */
 public class FormatURI extends ParameterFormat<URI> {
     @Override
-    public URI convertValue(String groupName, String paramName, String value)
+    public URI convertValue(String paramName, String value)
             throws IllegalParameterFormatException {
-        assert groupName != null && paramName != null;
-        assert value != null;
+        assert value != null && paramName != null;
 
         try {
             return new URI(value);
         } catch (URISyntaxException e) {
-            throw new IllegalParameterFormatException("Parameter value [" + value
-                    + "] could not be converted to URI for group/param: " + groupName + "/" + paramName);
+            throw new IllegalParameterFormatException(
+                    "Parameter value [" + value + "] could not be converted to URI for param: " + paramName);
         }
     }
 }

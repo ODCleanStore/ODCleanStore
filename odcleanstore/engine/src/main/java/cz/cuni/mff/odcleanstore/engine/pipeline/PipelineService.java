@@ -57,7 +57,7 @@ public final class PipelineService extends Service implements Runnable {
 			}
 			synchronized (waitForGraphLock) {
 				if (getServiceState() == ServiceState.RUNNING) {
-					waitForGraphLock.wait(ConfigLoader.getConfig().getPipelineGroup().getLookForGraphInterval());
+					waitForGraphLock.wait(ConfigLoader.getConfig().getEngineGroup().getLookForGraphInterval());
 				}
 			}
 		}
@@ -72,7 +72,7 @@ public final class PipelineService extends Service implements Runnable {
 				if (_waitPenalty > 1) {
 					synchronized (waitPenaltyLock) {
 						if (getServiceState() == ServiceState.RUNNING) {
-							waitPenaltyLock.wait(ConfigLoader.getConfig().getPipelineGroup().getSecondCrashPenalty());
+							waitPenaltyLock.wait(ConfigLoader.getConfig().getEngineGroup().getSecondCrashPenalty());
 						}
 					}
 				}

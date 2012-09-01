@@ -1,11 +1,14 @@
 package cz.cuni.mff.odcleanstore.configuration;
 
+import java.net.URI;
 import java.util.Properties;
 
 import cz.cuni.mff.odcleanstore.configuration.exceptions.IllegalParameterFormatException;
 import cz.cuni.mff.odcleanstore.configuration.exceptions.ParameterNotAvailableException;
 import cz.cuni.mff.odcleanstore.configuration.formats.FormatLong;
+import cz.cuni.mff.odcleanstore.configuration.formats.FormatURI;
 import cz.cuni.mff.odcleanstore.configuration.formats.ParameterFormat;
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 
 /**
  * Encapsulates Engine configuration.
@@ -21,27 +24,46 @@ import cz.cuni.mff.odcleanstore.configuration.formats.ParameterFormat;
  *
  */
 public class EngineConfig extends ConfigGroup {
+    /** Prefix of names of properties belonging to this group. */
+    public static final String GROUP_PREFIX = "engine" + NAME_DELIMITER;
     
-    static
-    {
-        GROUP_NAME = "engine";
-    }
-
-    
-    private Long startupTimeout;
-    private Long shutdownTimeout;
+    private final JDBCConnectionCredentials dirtyDBJDBCConnectionCredentials;
+    private final JDBCConnectionCredentials cleanDBJDBCConnectionCredentials;
+    private final Long startupTimeout;
+    private final Long shutdownTimeout;
+    private final URI dataGraphURIPrefix;
+    private final URI metadataGraphURIPrefix;
+    private final URI provenanceMetadataGraphURIPrefix;
+    private Long lookForGraphInterval;
+    private Long secondCrashPenalty;
 
     /**
      *
      * @param startupTimeout
      * @param shutdownTimeout
      */
+    // CHECKSTYLE:OFF
     public EngineConfig(
-    		Long startupTimeout,
-    		Long shutdownTimeout) {
-    	this.startupTimeout = startupTimeout;
+            JDBCConnectionCredentials dirtyDBJDBCConnectionCredentials, 
+            JDBCConnectionCredentials cleanDBJDBCConnectionCredentials,
+            Long startupTimeout,
+            Long shutdownTimeout,
+            URI dataGraphURIPrefix, 
+            URI metadataGraphURIPrefix,
+            URI provenanceMetadataGraphURIPrefix,
+            Long lookForGraphInterval,
+            Long secondCrashPenalty) {
+        this.dirtyDBJDBCConnectionCredentials = dirtyDBJDBCConnectionCredentials;
+        this.cleanDBJDBCConnectionCredentials = cleanDBJDBCConnectionCredentials;
+        this.startupTimeout = startupTimeout;
         this.shutdownTimeout = shutdownTimeout;
+        this.dataGraphURIPrefix = dataGraphURIPrefix;
+        this.metadataGraphURIPrefix = metadataGraphURIPrefix;
+        this.provenanceMetadataGraphURIPrefix = provenanceMetadataGraphURIPrefix;
+        this.lookForGraphInterval = lookForGraphInterval;
+        this.secondCrashPenalty = secondCrashPenalty;
     }
+    // CHECKSTYLE:ON
 
     /**
      * Extracts Engine configuration values from the given Properties instance.
@@ -55,29 +77,104 @@ public class EngineConfig extends ConfigGroup {
     public static EngineConfig load(Properties properties)
             throws ParameterNotAvailableException, IllegalParameterFormatException
     {
-    	ParameterFormat<Long> formatLong = new FormatLong();
-        Long startupTimeout = loadParam(properties, "startup_timeout", formatLong);
-        Long shutdownTimeout = loadParam(properties, "shutdown_timeout", formatLong);
+        JDBCConnectionCredentials dirtyJDBCConnectionCredentials = 
+                loadJDBCConnectionCredentials(properties,  EnumDbConnectionType.DIRTY);
+        JDBCConnectionCredentials cleanJDBCConnectionCredentials =
+                loadJDBCConnectionCredentials(properties,  EnumDbConnectionType.CLEAN);
+        
+        ParameterFormat<Long> formatLong = new FormatLong();
+        Long startupTimeout = loadParam(properties, GROUP_PREFIX + "startup_timeout", formatLong);
+        Long shutdownTimeout = loadParam(properties, GROUP_PREFIX + "shutdown_timeout", formatLong);
+        Long lookForGraphInterval = loadParam(properties, GROUP_PREFIX + "look_for_graph_interval", formatLong);
+        Long secondCrashPenalty = loadParam(properties, GROUP_PREFIX + "second_crash_penalty", formatLong);
+        
+        ParameterFormat<URI> formatURI = new FormatURI();
+        URI dataGraphURIPrefix = loadParam(properties, GROUP_PREFIX + "data_graph_uri_prefix", formatURI);
+        URI metadataGraphURIPrefix = loadParam(properties, GROUP_PREFIX + "metadata_graph_uri_prefix", formatURI);
+        URI provenanceMetadataGraphURIPrefix = loadParam(
+                properties, GROUP_PREFIX + "provenance_metadata_graph_uri_prefix", formatURI);
         
         return new EngineConfig(
-        		startupTimeout,
-        		shutdownTimeout);
+                dirtyJDBCConnectionCredentials,
+                cleanJDBCConnectionCredentials,
+                startupTimeout,
+                shutdownTimeout,
+                dataGraphURIPrefix,
+                metadataGraphURIPrefix,
+                provenanceMetadataGraphURIPrefix,
+                lookForGraphInterval,
+                secondCrashPenalty);
     }
-   
+    
     /**
     *
     * @return
     */
-   public Long getStartupTimeout() {
-       return startupTimeout;
+   public JDBCConnectionCredentials getDirtyDBJDBCConnectionCredentials() {
+       return dirtyDBJDBCConnectionCredentials;
+   }
+
+   /**
+    *
+    * @return
+    */
+   public JDBCConnectionCredentials getCleanDBJDBCConnectionCredentials() {
+       return cleanDBJDBCConnectionCredentials;
+   }
+   
+    /**
+     * 
+     * @return
+     */
+    public Long getStartupTimeout() {
+        return startupTimeout;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public Long getShutdownTimeout() {
+        return shutdownTimeout;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public URI getDataGraphURIPrefix() {
+        return dataGraphURIPrefix;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public URI getMetadataGraphURIPrefix() {
+        return metadataGraphURIPrefix;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public URI getProvenanceMetadataGraphURIPrefix() {
+        return provenanceMetadataGraphURIPrefix;
+    }
+    
+    /**
+    *
+    * @return
+    */
+   public Long getLookForGraphInterval() {
+       return lookForGraphInterval;
    }
    
    /**
    *
    * @return
    */
-  public Long getShutdownTimeout() {
-      return shutdownTimeout;
+  public Long getSecondCrashPenalty() {
+      return secondCrashPenalty;
   }
-
 }

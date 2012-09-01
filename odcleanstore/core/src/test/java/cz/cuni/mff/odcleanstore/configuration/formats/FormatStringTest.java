@@ -13,7 +13,6 @@ import org.junit.Test;
  *
  */
 public class FormatStringTest {
-    private static final String GROUP_NAME = "group_name";
     private static final String PARAM_NAME = "param_name";
 
     private ParameterFormat<String> formatter;
@@ -25,8 +24,8 @@ public class FormatStringTest {
 
     @Test
     public void testStringToString() throws IllegalParameterFormatException {
-        assertEquals("pes", formatter.convertValue(GROUP_NAME, PARAM_NAME, "pes"));
+        assertEquals("pes", formatter.convertValue(PARAM_NAME, "pes"));
 
-        assertEquals("3.14159265", formatter.convertValue(GROUP_NAME, PARAM_NAME, "3.14159265"));
+        assertEquals("3.14159265", formatter.convertValue(PARAM_NAME, "3.14159265"));
     }
 }

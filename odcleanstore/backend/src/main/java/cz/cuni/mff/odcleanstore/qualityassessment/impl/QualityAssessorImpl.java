@@ -2,7 +2,7 @@ package cz.cuni.mff.odcleanstore.qualityassessment.impl;
 
 import cz.cuni.mff.odcleanstore.configuration.BackendConfig;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
-import cz.cuni.mff.odcleanstore.configuration.DataNormalizationConfig;
+import cz.cuni.mff.odcleanstore.configuration.QualityAssessmentConfig;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
@@ -201,12 +201,14 @@ public class QualityAssessorImpl implements QualityAssessor {
 		};
 	}
 
-	public Map<String, GraphScoreWithTrace> debugRules (InputStream source, String commonMetadataGraph, TransformationContext context)
+	public Map<String, GraphScoreWithTrace> debugRules(
+	        InputStream source, String commonMetadataGraph, TransformationContext context)
 			throws TransformerException {
 		HashMap<String, String> graphs = new HashMap<String, String>();
-		DataNormalizationConfig config = ConfigLoader.getConfig().getDataNormalizationGroup();
+		QualityAssessmentConfig config = ConfigLoader.getConfig().getQualityAssessmentGroup();
 
-		DebugGraphFileLoader loader = new DebugGraphFileLoader(config.getTemporaryGraphURIPrefix(), context.getDirtyDatabaseCredentials());
+		DebugGraphFileLoader loader = new DebugGraphFileLoader(
+		        config.getTemporaryGraphURIPrefix(), context.getDirtyDatabaseCredentials());
 
 		try {
 			graphs = loader.load(source, this.getClass().getSimpleName());

@@ -93,11 +93,11 @@ public abstract class Service implements Runnable {
 			}
 
 			VirtuosoConnectionWrapper con = VirtuosoConnectionWrapper.createConnection(
-			   ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
+			   ConfigLoader.getConfig().getEngineGroup().getCleanDBJDBCConnectionCredentials());
 			con.closeQuietly();
 			if (includeDirty) {
 				con = VirtuosoConnectionWrapper.createConnection(
-						ConfigLoader.getConfig().getBackendGroup().getDirtyDBJDBCConnectionCredentials());
+						ConfigLoader.getConfig().getEngineGroup().getDirtyDBJDBCConnectionCredentials());
 				con.closeQuietly();
 			}
 			

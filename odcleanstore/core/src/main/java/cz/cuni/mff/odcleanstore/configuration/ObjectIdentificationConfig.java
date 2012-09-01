@@ -2,14 +2,11 @@ package cz.cuni.mff.odcleanstore.configuration;
 
 import cz.cuni.mff.odcleanstore.configuration.exceptions.IllegalParameterFormatException;
 import cz.cuni.mff.odcleanstore.configuration.exceptions.ParameterNotAvailableException;
-import cz.cuni.mff.odcleanstore.configuration.formats.FormatString;
 import cz.cuni.mff.odcleanstore.configuration.formats.FormatURI;
-import cz.cuni.mff.odcleanstore.configuration.formats.FormatURL;
 import cz.cuni.mff.odcleanstore.configuration.formats.ParameterFormat;
 import cz.cuni.mff.odcleanstore.connection.SparqlEndpointConnectionCredentials;
 
 import java.net.URI;
-import java.net.URL;
 import java.util.Properties;
 
 /**
@@ -26,10 +23,8 @@ import java.util.Properties;
  *
  */
 public class ObjectIdentificationConfig extends ConfigGroup {
-    static
-    {
-        GROUP_NAME = "object_identification";
-    }
+    /** Prefix of names of properties belonging to this group. */
+    public static final String GROUP_PREFIX = "object_identification" + NAME_DELIMITER;
 
     private URI linksGraphURIPrefix;
     private SparqlEndpointConnectionCredentials cleanDBSparqlConnectionCredentials;
@@ -43,8 +38,8 @@ public class ObjectIdentificationConfig extends ConfigGroup {
      * @param dirtySparqlEndpointPassword
      */
     public ObjectIdentificationConfig(URI linksGraphURIPrefix, 
-    		SparqlEndpointConnectionCredentials cleanDBSparqlConnectionCredentials,
-    		SparqlEndpointConnectionCredentials dirtyDBSparqlConnectionCredentials) {
+            SparqlEndpointConnectionCredentials cleanDBSparqlConnectionCredentials,
+            SparqlEndpointConnectionCredentials dirtyDBSparqlConnectionCredentials) {
         this.linksGraphURIPrefix = linksGraphURIPrefix;
         this.cleanDBSparqlConnectionCredentials = cleanDBSparqlConnectionCredentials;
         this.dirtyDBSparqlConnectionCredentials = dirtyDBSparqlConnectionCredentials;
@@ -62,30 +57,15 @@ public class ObjectIdentificationConfig extends ConfigGroup {
     public static ObjectIdentificationConfig load(Properties properties)
             throws ParameterNotAvailableException, IllegalParameterFormatException {
         ParameterFormat<URI> formatURI = new FormatURI();
-        URI linksGraphURIPrefix = loadParam(properties, "links_graph_uri_prefix", formatURI);
-        SparqlEndpointConnectionCredentials cleanDBSparqlConnectionCredentials = loadCleanDbCredentials(properties);
-        SparqlEndpointConnectionCredentials dirtyDBSparqlConnectionCredentials = loadDirtyDbCredentials(properties);
-        
+        URI linksGraphURIPrefix = loadParam(properties, GROUP_PREFIX + "links_graph_uri_prefix", formatURI);
+        SparqlEndpointConnectionCredentials cleanDBSparqlConnectionCredentials = 
+                loadSparqlEndpointConnectionCredentials(properties, EnumDbConnectionType.CLEAN, false);
+        SparqlEndpointConnectionCredentials dirtyDBSparqlConnectionCredentials = 
+                loadSparqlEndpointConnectionCredentials(properties, EnumDbConnectionType.DIRTY_UPDATE, true);
         return new ObjectIdentificationConfig(
-        		linksGraphURIPrefix, cleanDBSparqlConnectionCredentials, dirtyDBSparqlConnectionCredentials);
+                linksGraphURIPrefix, cleanDBSparqlConnectionCredentials, dirtyDBSparqlConnectionCredentials);
     }
     
-    private static SparqlEndpointConnectionCredentials loadCleanDbCredentials(Properties properties) 
-    		throws ParameterNotAvailableException, IllegalParameterFormatException {
-        URL url = loadParam(properties, "clean_sparql_endpoint_url", new FormatURL());
-
-        return new SparqlEndpointConnectionCredentials(url);
-    }
-    
-    private static SparqlEndpointConnectionCredentials loadDirtyDbCredentials(Properties properties) 
-    		throws ParameterNotAvailableException, IllegalParameterFormatException {
-        URL url = loadParam(properties, "dirty_sparql_endpoint_url", new FormatURL());
-        String username = loadParam(properties, "dirty_sparql_endpoint_username", new FormatString());
-        String password = loadParam(properties, "dirty_sparql_endpoint_password", new FormatString());
-
-        return new SparqlEndpointConnectionCredentials(url, username, password);
-    }
-
     /**
      *
      * @return
@@ -94,11 +74,11 @@ public class ObjectIdentificationConfig extends ConfigGroup {
         return linksGraphURIPrefix;
     }
 
-	public SparqlEndpointConnectionCredentials getCleanDBSparqlConnectionCredentials() {
-		return cleanDBSparqlConnectionCredentials;
-	}
+    public SparqlEndpointConnectionCredentials getCleanDBSparqlConnectionCredentials() {
+        return cleanDBSparqlConnectionCredentials;
+    }
 
-	public SparqlEndpointConnectionCredentials getDirtyDBSparqlConnectionCredentials() {
-		return dirtyDBSparqlConnectionCredentials;
-	}
+    public SparqlEndpointConnectionCredentials getDirtyDBSparqlConnectionCredentials() {
+        return dirtyDBSparqlConnectionCredentials;
+    }
 }

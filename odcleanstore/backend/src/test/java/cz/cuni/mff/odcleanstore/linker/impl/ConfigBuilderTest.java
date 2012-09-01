@@ -30,7 +30,6 @@ import java.util.Properties;
 
 public class ConfigBuilderTest {
 
-	private static final String GROUP_NAME = "object_identification";
 	private static final String RULE_LABEL = "testRule";
 	private static final String RULE_TYPE = "owl:sameAs";
 	private static final String RULE_SOURCE_RESTRICTION = "?a rdf:type foo .";
@@ -71,11 +70,11 @@ public class ConfigBuilderTest {
 		TransformationContext context = new TransformationContextMock("target/linkerTest");
 
 		Properties properties = Mockito.mock(Properties.class);
-		Mockito.when(properties.getProperty(GROUP_NAME + ".links_graph_uri_prefix")).thenReturn("http://www.seznam.cz");
-        Mockito.when(properties.getProperty(GROUP_NAME + ".clean_sparql_endpoint_url")).thenReturn("http://www.google.cz");
-        Mockito.when(properties.getProperty(GROUP_NAME + ".dirty_sparql_endpoint_url")).thenReturn("http://www.yahoo.com");
-        Mockito.when(properties.getProperty(GROUP_NAME + ".dirty_sparql_endpoint_username")).thenReturn("Pepa");
-	    Mockito.when(properties.getProperty(GROUP_NAME + ".dirty_sparql_endpoint_password")).thenReturn("heslo");
+		Mockito.when(properties.getProperty(ObjectIdentificationConfig.GROUP_PREFIX + "links_graph_uri_prefix")).thenReturn("http://www.seznam.cz");
+        Mockito.when(properties.getProperty("clean_sparql_endpoint_url")).thenReturn("http://www.google.cz");
+        Mockito.when(properties.getProperty("dirty_update_sparql_endpoint_url")).thenReturn("http://www.yahoo.com");
+        Mockito.when(properties.getProperty("dirty_update_sparql_endpoint_username")).thenReturn("Pepa");
+	    Mockito.when(properties.getProperty("dirty_update_sparql_endpoint_password")).thenReturn("heslo");
 	    ObjectIdentificationConfig config = ObjectIdentificationConfig.load(properties);
 
 	    DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();

@@ -13,10 +13,10 @@ import cz.cuni.mff.odcleanstore.configuration.exceptions.ConfigurationException;
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
-public class ConfigLoader {
-	private static final Logger LOG = LoggerFactory.getLogger(ConfigLoader.class);
-	
-    /** Default path to the configuration file */
+public final class ConfigLoader {
+    private static final Logger LOG = LoggerFactory.getLogger(ConfigLoader.class);
+    
+    /** Default path to the configuration file. */
     private static final String DEFAULT_CONFIG_PATH = "odcs.ini";
 
     private static Config config;
@@ -29,8 +29,8 @@ public class ConfigLoader {
      * @throws ConfigurationException
      */
     public static void loadConfig(String configPath) throws ConfigurationException {
-    	File configFile = new File(configPath);
-    	LOG.info("Loading global configuration from {}", configFile.getAbsolutePath());
+        File configFile = new File(configPath);
+        LOG.info("Loading global configuration from {}", configFile.getAbsolutePath());
         config = Config.load(configFile);
     }
 
@@ -43,7 +43,7 @@ public class ConfigLoader {
      * @throws ConfigurationException
      */
     public static void loadConfig() throws ConfigurationException {
-    	loadConfig(DEFAULT_CONFIG_PATH);
+        loadConfig(DEFAULT_CONFIG_PATH);
     }
 
     /**
@@ -58,5 +58,9 @@ public class ConfigLoader {
         }
 
         return config;
+    }
+    
+    /** Disable constructor for a utility class. */
+    private ConfigLoader() {
     }
 }
