@@ -42,6 +42,6 @@ public class PropertySettings extends EntityWithSurrogateKey
 	@Override
 	public String toString()
 	{
-		return "[" + id + "; " + property + "; " + multivalueType + "; " + aggregationType + "]";
+		return "[ id: " + id + "; property: " + property + "; multivalue: " + multivalueType + "; aggregation: " + aggregationType + "]";
 	}
 }

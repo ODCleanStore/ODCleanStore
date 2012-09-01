@@ -73,11 +73,11 @@ public class EditGlobalAggregationSettingsPage extends FrontendPage
 				setResponsePage(CRPropertiesListPage.class);
 			}
 		};
-
+		
 		form.add(createEnumSelectbox(multivalueTypeDao, "defaultMultivalueType"));
 		form.add(createEnumSelectbox(aggregationTypeDao, "defaultAggregationType"));
 		form.add(createEnumSelectbox(errorStrategyDao, "defaultErrorStrategy"));
-
+		
 		add(form);
 	}
 }

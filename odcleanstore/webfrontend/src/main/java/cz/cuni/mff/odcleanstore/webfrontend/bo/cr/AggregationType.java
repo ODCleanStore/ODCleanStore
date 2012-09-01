@@ -26,4 +26,27 @@ public class AggregationType extends EntityWithSurrogateKey
 	{
 		return description;
 	}
+
+	@Override
+	public String toString()
+	{
+		return "[ id: " + id + ", label: " + label + ", description: " + description + "]";
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (!(obj instanceof AggregationType))
+			return false;
+		
+		AggregationType other = (AggregationType) obj;
+		
+		return this.id.equals(other.id);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return this.id.hashCode();
+	}
 }

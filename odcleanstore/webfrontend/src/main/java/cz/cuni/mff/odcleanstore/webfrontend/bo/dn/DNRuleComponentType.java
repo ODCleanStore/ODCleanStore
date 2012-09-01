@@ -31,4 +31,21 @@ public class DNRuleComponentType extends EntityWithSurrogateKey
 	{
 		return description;
 	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (!(obj instanceof DNRuleComponentType))
+			return false;
+		
+		DNRuleComponentType other = (DNRuleComponentType) obj;
+		
+		return this.id.equals(other.id);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return this.id.hashCode();
+	}
 }
