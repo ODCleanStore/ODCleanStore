@@ -58,6 +58,13 @@ import java.util.TreeSet;
      * If the value is null, there is now restriction on named graph URIs.
      * This constant is only for debugging purposes and should be null in production environment.
      */
+    private static final String ENGINE_TEMP_GRAPH_PREFIX = ODCS.engineTemporaryGraph;
+
+    /**
+     * (Debug) Only named graph having URI starting with this prefix can be included in query result.
+     * If the value is null, there is now restriction on named graph URIs.
+     * This constant is only for debugging purposes and should be null in production environment.
+     */
     private static final String GRAPH_PREFIX_FILTER = null; //"http://odcs.mff.cuni.cz/namedGraph/qe-test/";
 
     /**
@@ -102,7 +109,13 @@ import java.util.TreeSet;
      * SPARQL snippet restricting a variable to start with the given string.
      * Must be formatted with a string argument.
      */
-    private static final String PREFIX_FILTER_CLAUSE = " FILTER regex(?%s, \"^%s\")";
+    private static final String PREFIX_FILTER_CLAUSE = " FILTER (bif:starts_with(?%s, '%s'))";
+
+    /**
+     * SPARQL snippet restricting a variable NOT to start with the given string.
+     * Must be formatted with a string argument.
+     */
+    private static final String PREFIX_FILTER_CLAUSE_NEGATIVE = " FILTER (!bif:starts_with(?%s, '%s'))";
 
     /**
      * SPARQL query for retrieving all synonyms (i.e. resources connected by an owl:sameAs path) of a given URI.
@@ -133,11 +146,11 @@ import java.util.TreeSet;
      * @return SPARQL query snippet
      */
     protected static String getGraphPrefixFilter(String graphVariable) {
-        if (GRAPH_PREFIX_FILTER == null) {
-            return "";
-        } else {
-            return String.format(Locale.ROOT, PREFIX_FILTER_CLAUSE, graphVariable, GRAPH_PREFIX_FILTER);
+        String result = String.format(Locale.ROOT, PREFIX_FILTER_CLAUSE_NEGATIVE, graphVariable, ENGINE_TEMP_GRAPH_PREFIX);
+        if (GRAPH_PREFIX_FILTER != null) {
+            result += String.format(Locale.ROOT, PREFIX_FILTER_CLAUSE, graphVariable, GRAPH_PREFIX_FILTER);
         }
+        return result;
     }
 
     /**
@@ -146,8 +159,8 @@ import java.util.TreeSet;
      * @return SPARQL query snippet
      */
     private static CharSequence buildGraphFilterClause(QueryConstraintSpec constraints) {
-        if (constraints.getMinScore() == null && constraints.getOldestTime() == null && GRAPH_PREFIX_FILTER == null) {
-            return "";
+        if (constraints.getMinScore() == null && constraints.getOldestTime() == null) {
+            return getGraphPrefixFilter("graph");
         }
         StringBuilder sb = new StringBuilder();
         if (constraints.getMinScore() != null) {
@@ -157,9 +170,7 @@ import java.util.TreeSet;
             java.sql.Timestamp oldestTime = new Timestamp(constraints.getOldestTime().getTime());
             sb.append(String.format(Locale.ROOT, INSERTED_AT_FILTER_CLAUSE, oldestTime.toString()));
         }
-        if (GRAPH_PREFIX_FILTER != null) {
-            sb.append(getGraphPrefixFilter("graph"));
-        }
+        sb.append(getGraphPrefixFilter("graph"));
         return sb;
     }
 

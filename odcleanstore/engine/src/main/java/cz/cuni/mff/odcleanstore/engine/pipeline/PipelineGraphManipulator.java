@@ -89,7 +89,7 @@ final class PipelineGraphManipulator {
 				Model dstModel = null;
 				try {
 					srcModel = VirtModel.openDatabaseModel(graphName, creditDirty.getConnectionString(), creditDirty.getUsername(), creditDirty.getPassword());
-					dstModel = VirtModel.openDatabaseModel(ODCS.temp + "/" + graphName, creditClean.getConnectionString(), creditClean.getUsername(), creditClean.getPassword());
+					dstModel = VirtModel.openDatabaseModel(ODCS.engineTemporaryGraph + "/" + graphName, creditClean.getConnectionString(), creditClean.getUsername(), creditClean.getPassword());
 					
 					dstModel.add(srcModel);
 				} finally {
@@ -105,7 +105,7 @@ final class PipelineGraphManipulator {
 			// transactional processing - delete graph and replace it with temporary graphs in clean DB
 			VirtuosoJdbcConnectionForRdf con = VirtuosoJdbcConnectionForRdf.createCleanDbConnection();
 			for (String graphName : graphs) {
-				con.renameGraph(ODCS.temp + "/" + graphName, graphName);
+				con.renameGraph(ODCS.engineTemporaryGraph + "/" + graphName, graphName);
 			}
 			con.commit();
 			
@@ -152,7 +152,7 @@ final class PipelineGraphManipulator {
 				 : VirtuosoJdbcConnectionForRdf.createDirtyDbConnection();
 			for (String graphName : graphs) {
 				if (temporaryGraphs) {
-					graphName = ODCS.temp  + "/" + graphName; 
+					graphName = ODCS.engineTemporaryGraph  + "/" + graphName; 
 				}
 				con.clearGraph("<" + graphName + ">");
 			}

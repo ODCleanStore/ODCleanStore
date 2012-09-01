@@ -130,7 +130,7 @@ public final class ODCS {
     /**
      * Prefix for temporary graphs in clean database. 
      */
-    public static final String temp = NS + "temp";
+    public static final String engineTemporaryGraph = NS + "engineTemporaryGraph";
     
     
     // CHECKSTYLE:ON
