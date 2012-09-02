@@ -153,7 +153,7 @@ public final class PipelineService extends Service implements Runnable {
 			manipulator.loadGraphsIntoDirtyDB();
 		} catch (PipelineGraphManipulatorException e) {
 			if(isRunnningAndDbInstancesAvailable(true)) {
-				String message = FormatHelper.formatExceptionForLog(e, format("data loading failure", status));
+				String message = FormatHelper.formatExceptionForDB(e, format("data loading failure", status));
 				status.setDirtyState(PipelineErrorTypes.DATA_LOADING_FAILURE, message);
 			}
 			throw e; 		
@@ -168,7 +168,7 @@ public final class PipelineService extends Service implements Runnable {
 			activeTransformerExecutor.execute();
 		} catch (PipelineGraphTransformerExecutorException e) {
 			if(isRunnningAndDbInstancesAvailable(true)) {
-				String message = FormatHelper.formatExceptionForLog(e, format("transformer processing failure", status));
+				String message = FormatHelper.formatExceptionForDB(e, format("transformer processing failure", status));
 				status.setDirtyState(PipelineErrorTypes.TRANSFORMER_FAILURE, message);
 			}
 			throw e;

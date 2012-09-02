@@ -88,6 +88,28 @@ public class FormatHelper {
 			return  message;
 		}
 	}
+	
+	public static String formatExceptionForDB(Throwable exception, String firstMessage, Object... args) {
+		try {
+			if (args.length > 0) {
+				firstMessage = String.format(firstMessage, args);
+			}
+			
+			StringBuilder sb = new StringBuilder();
+			sb.append(firstMessage);
+			while(exception != null) {
+				sb.append("\n        ");
+				sb.append(exception.getClass().getSimpleName());
+				sb.append(" - ");
+				sb.append(exception.getMessage());
+				exception = exception.getCause();
+			}
+			sb.append('\n');
+			return sb.toString();
+		} catch(Exception ie) {
+			return  firstMessage;
+		}
+	}
 
 	public static String formatGraphMessage(String message, String graphUuid, Object... args) {
 		try {
