@@ -120,7 +120,7 @@ public final class PipelineService extends Service implements Runnable {
 
 		LOG.info(format("deleting started", status));
 		manipulator.deleteGraphsInCleanDB();
-		manipulator.deleteGraphsInDirtyDB();
+		manipulator.clearGraphsInDirtyDB();
 		manipulator.deleteInputFile();
 		status.setNoDirtyState(GraphStates.DELETED);
 		LOG.info(format("deleting successfully finished", status));
@@ -130,7 +130,7 @@ public final class PipelineService extends Service implements Runnable {
 			throws PipelineGraphManipulatorException, PipelineGraphStatusException, PipelineGraphTransformerExecutorException {
 		
 		LOG.info(format("processing in dirty db started", status));
-		manipulator.deleteGraphsInDirtyDB();
+		manipulator.clearGraphsInDirtyDB();
 		if (!status.isInCleanDb()) {
 			status.deleteAttachedGraphs();
 		}
@@ -191,7 +191,7 @@ public final class PipelineService extends Service implements Runnable {
 			throws PipelineGraphManipulatorException, PipelineGraphStatusException {
 
 		LOG.info(format("cleaning dirty db after moving graph to clean db started", status));
-		manipulator.deleteGraphsInDirtyDB();
+		manipulator.clearGraphsInDirtyDB();
 		manipulator.deleteInputFile();
 		status.setNoDirtyState(GraphStates.FINISHED);
 		LOG.info(format("pipeline for graph successfully finished", status));
@@ -201,7 +201,7 @@ public final class PipelineService extends Service implements Runnable {
 			throws PipelineGraphManipulatorException, PipelineGraphStatusException {
 
 		LOG.info(format("cleaning dirty graph started", status));
-		manipulator.deleteGraphsInDirtyDB();
+		manipulator.clearGraphsInDirtyDB();
 		status.setNoDirtyState(GraphStates.WRONG);
 		LOG.info(format("cleaning dirty graph successfully finished, graph moved to WRONG state", status));
 	}
