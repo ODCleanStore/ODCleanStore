@@ -250,6 +250,10 @@ final class PipelineGraphManipulator {
 	}
 	
 	private String format(String message) {
-		return FormatHelper.formatGraphMessage(message, graphStatus.getUuid());
+		try {
+			return FormatHelper.formatGraphMessage(message, graphStatus.getUuid());
+		} catch(Exception e) {
+			return message;
+		}
 	}
 }

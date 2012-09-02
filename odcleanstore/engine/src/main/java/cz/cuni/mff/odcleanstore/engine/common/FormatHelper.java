@@ -85,15 +85,37 @@ public class FormatHelper {
 			sb.append('\n');
 			return sb.toString();
 		} catch(Exception ie) {
-			return ERROR_FORMAT_EXCEPTION  + message;
+			return  message;
+		}
+	}
+	
+	public static String formatExceptionForDB(Throwable exception, String firstMessage, Object... args) {
+		try {
+			if (args.length > 0) {
+				firstMessage = String.format(firstMessage, args);
+			}
+			
+			StringBuilder sb = new StringBuilder();
+			sb.append(firstMessage);
+			while(exception != null) {
+				sb.append("\n        ");
+				sb.append(exception.getClass().getSimpleName());
+				sb.append(" - ");
+				sb.append(exception.getMessage());
+				exception = exception.getCause();
+			}
+			sb.append('\n');
+			return sb.toString();
+		} catch(Exception ie) {
+			return  firstMessage;
 		}
 	}
 
 	public static String formatGraphMessage(String message, String graphUuid, Object... args) {
 		try {
-			return String.format("Graph %s - %s", graphUuid, String.format(message, args));
+			return String.format("%s for graph %s", String.format(message, args), graphUuid);
 		} catch(Exception ie) {
-			return  ERROR_FORMAT_EXCEPTION + message;
+			return  message;
 		}
 	}
 }

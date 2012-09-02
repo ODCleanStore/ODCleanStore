@@ -51,12 +51,14 @@ public class DbOdcsContext extends DbContext {
 		resultSet = select(query, engineUuid);
 		if(resultSet.next()) {
 			Graph dbGraph = new Graph();
+			dbGraph.pipeline = new Pipeline();
 			dbGraph.id = resultSet.getInt(1);
 			dbGraph.uuid = resultSet.getString(2);
 			dbGraph.state = GraphStates.fromId(resultSet.getInt(3));
-			dbGraph.pipelineId = resultSet.getInt(4);
-			dbGraph.isInCleanDb  = resultSet.getInt(5) != 0;
-			dbGraph.engineUuid = resultSet.getString(6);
+			dbGraph.pipeline.id = resultSet.getInt(4);
+			dbGraph.pipeline.label = resultSet.getString(5);
+			dbGraph.isInCleanDb  = resultSet.getInt(6) != 0;
+			dbGraph.engineUuid = resultSet.getString(7);
 			return dbGraph;
 		}
 		return null;
@@ -134,6 +136,7 @@ public class DbOdcsContext extends DbContext {
 				mbr.configuration = resultSet.getNString(4);
 				mbr.runOnCleanDB = resultSet.getInt(5) != 0;
 				mbr.transformerInstanceID = resultSet.getInt(6);
+				mbr.transformerLabel = resultSet.getString(7);
 				dbPipelineCommands.add(mbr);
 			}
 			return dbPipelineCommands.toArray( new PipelineCommand[0]);
@@ -193,12 +196,15 @@ public class DbOdcsContext extends DbContext {
 		}
 	}
 	
-	public Integer selectDefaultPipelineId() throws DbOdcsException {
+	public Pipeline selectDefaultPipeline() throws DbOdcsException {
 		WrappedResultSet resultSet = null;
 		try {
 			resultSet = select(SQL.SELECT_DEFAULT_PIPELINE);
 			if(resultSet.next()) {
-				return resultSet.getInt(1);
+				Pipeline pipeline = new Pipeline();
+				pipeline.id = resultSet.getInt(1);
+				pipeline.label = resultSet.getString(2);
+				return pipeline;
 			}
 			return null;
 		} catch (Exception e) {
