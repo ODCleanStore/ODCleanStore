@@ -8,6 +8,8 @@ public class PipelineCommand {
 	public String configuration;
 	public boolean runOnCleanDB;
 	public int transformerInstanceID;
+	public String transformerLabel;
+	
 	
 	public static PipelineCommand[] deepClone(PipelineCommand[] src) {
 		if ( src == null) {
@@ -23,6 +25,7 @@ public class PipelineCommand {
 			mbr.configuration = src[i].configuration;
 			mbr.runOnCleanDB = src[i].runOnCleanDB;
 			mbr.transformerInstanceID = src[i].transformerInstanceID;
+			mbr.transformerLabel = src[i].transformerLabel;
 			dst[i] = mbr; 
 		}
 		return dst;

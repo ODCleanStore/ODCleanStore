@@ -5,7 +5,7 @@ public final class Graph {
 	public int id;
 	public String uuid;
 	public GraphStates state;
-	public Integer pipelineId;
+	public Pipeline pipeline;
 	public boolean isInCleanDb;
 	public String engineUuid;
 }

@@ -176,86 +176,86 @@ Administration Frontend is the official tool for managing ODCleanStore. It cover
 
 \section{User Accounts Administration}
 
-To be able to manage user accounts one has to have \term{ADM} user role (section \ref{sec:adm}) assosiated with his account. It is possible to view currently active accounts and modify them or to add new accounts to the system from this page. The modification is limited to changes of user roles and resetting the password for safety reasons. The newly generated passwords are sent to the e-mail address of the affected account.
+To be able to manage user accounts one has to have \term{ADM} user role (section \ref{sec:adm}) associated with his account. It is possible to view currently active accounts and modify them or to add new accounts to the system from this page. The modification is limited to changes of user roles and resetting of passwords for safety reasons. A newly generated password is sent to the e-mail address of the affected user.
 
 \section{Transformer Management}
 \label{sec:transformerManagement}
 
 	\term{Transformer} is a component responsible for data refinement, cleaning, aggregation and other transformations applied to incoming or stored data.
 
-	The transformer management screen allows registered users to add, edit or remove \term{transformers}. These can be then added to \term{pipelines} (Section \ref{sec:pipelineManagement}).
+	The transformer management screen allows registered users to add, edit or remove {transformers}. These can be then added to \term{pipelines} (Section \ref{sec:pipelineManagement}).
 	
-	Each \term{transformer} definition consists of:
+	Each {transformer} definition consists of:
 	\begin{itemize}
 		\item \textbf{required} label
 		
-		Unique identifier of the \term{transformer}.
+		Unique identifier of the {transformer}.
 		
 		\item \textbf{optional but recommended} description
 		
-		Description of what the purpose of the \term{transformer} is.
+		Description of what the purpose of the {transformer} is.
 		
 		\item \textbf{required} JAR path
 		
-		Path to a Java Archive containing the \term{transformer} declaration.
+		Path to a Java Archive containing the {transformer} declaration.
 		
 		\item \textbf{required} Full classname
 		
-		Name of the class implementing the \term{transformer}.
+		Name of the class implementing the {transformer}.
 	\end{itemize}
 
 \section{Pipeline management}
 \label{sec:pipelineManagement}
 
-	Each incoming data chunk (in form of a named graph) is passed through a \term{pipeline} consisting of \term{transformers}. In this section of the administration frontend it is possible for the user to specify different \term{pipelines}. Individual \term{pipelines} can incorporate different already existing \term{transformers}. To edit the structure of a \term{pipeline} see its detail. As the gravity of data modification that the pipelines can cause differs based on what database it is running upon, it is left for the user to decide whether a concrete \term{transformer} should be allowed to run on clean database (in addition to running on dirty database). Some transformations do not even make sense when working with clean database.
+	New incoming data (in form of a named graph) accepted by Input Webservice are passed through a {pipeline} consisting of {transformers}. In this section of the administration frontend it is possible for the user to specify different {pipelines}. Individual {pipelines} can incorporate different already existing {transformers}. To edit the structure of a {pipeline}, view its detail. As the importance of data modification that the pipelines can cause differs based on what database it is running upon, it is left for the user to decide whether a concrete {transformer} should be allowed to run on clean database (in addition to running on dirty database). Some transformations do not make sense when working with clean database.
 	
-	The order of application of \term{transformers} to a named graph processed by the related \term{pipeline} is determined by \term{priority} in ascending order. \term{Transformer} runs before \term{transformers} with greater priority number.
-	
-	\textbf{Note:} Any changes done in this section need to be commited to ever take effect. To do so, please, click the "Commit settings" button.
+	The order of application of {transformers} to a named graph processed by the related {pipeline} is determined by its \term{priority} in ascending order. Every {transformer} runs before {transformers} with greater priority number.
+
+\paragraph{Important note:} Any changes done in this section need to be commited to ever take effect. To do so, please, click the "Commit settings" button.
 
 \section{Transformer rules}
 \label{sec:transformerRules}
 
-	There are a few types of \term{transformers} predefined for most common data handling in pipelines. Namely:
+	There are a few types of {transformers} predefined for most common data handling in pipelines. Namely:
 	\begin{itemize}
-		\item \term{Quality Assessessment} \term{transformer} (Section \ref{sub:qualityAssessment})
-		\item \term{Data Normalization} \term{transformer}  (Section \ref{sub:dataNormalization})
-		\item \term{Object Identification} \term{transformer} (Section \ref{sub:objectIdentification})
+		\item \term{Quality Assessessment} {transformer} (Section \ref{sub:qualityAssessment})
+		\item \term{Data Normalization} {transformer}  (Section \ref{sub:dataNormalization})
+		\item \term{Object Identification} {transformer} (Section \ref{sub:objectIdentification})
 	\end{itemize}
 	
-	These \term{transformers} are configured through groups of rules. Each instance of any of these predefined \term{transformers} can accept multiple groups of rules. That way it is possible to simply assign all interrelated rules to a certain instance of a transformer while it is still possible to avoid duplication of rules in different groups.
+	These {transformers} are configured through groups of rules. Each instance of any of these predefined {transformers} can accept multiple groups of rules. That way it is possible to simply assign all interrelated rules to a certain instance of a transformer while it is still possible to avoid duplication of rules in different groups.
 
 \subsection{Quality Assessment}
 \label{sub:qualityAssessment}
 
-\term{Quality Assessor} is a special \term{transformer} that assigns a score to each graph based on coefficients of different patterns present in the graph to reflect to what degree the data contained in it comply to a certain policy.
+\term{Quality Assessor} is a special {transformer} that assigns a score to each graph based on coefficients of different patterns present in the graph to reflect to what degree the data contained in it comply to a certain policy.
 
-To be able to configure individual instances of \term{Quality Assessor} a group of rules needs to exist. To create one enter the QA subsection of the rules management page for the backend.
+To be able to configure individual instances of {Quality Assessor} a group of rules needs to exist. To create one enter the QA subsection of the rules management page for the backend.
 
-Here the user can prepare groups of rules to be assigned to instances of \term{Quality Assessor}. Each group is identified by its label and can (and should) come with a description of its semantical significance.
+Here the user can prepare groups of rules to be assigned to instances of {Quality Assessor}. Each group is identified by its label and can (and should) come with a description of its semantical significance.
 
-On the detail page one can specify individual rules contained in the related group. Each rule is of form:
+On the detail page, one can specify individual rules contained in the related group. Each rule consists of a \code{GroupGraphPattern}\footnote{\url{http://www.w3.org/TR/rdf-sparql-query/\#rGroupGraphPattern}} filter, quality decrease coefficient and description, as described in Table \ref{tbl:qaFields}.
 
 \begin{table}[!h]
 	\centering
 	\begin{tabular}{c@{\hspace{8mm}}c@{\hspace{8mm}}c}
 		\textbf{Filter} & \textbf{Coefficient} & \textbf{Description} \\
-		\code{GroupGraphPattern}\footnotemark[1] [\code{GROUP BY \ldots} [\code{HAVING \ldots}]] & $ x \in [0, 1] $ & description
+		\code{GroupGraphPattern} [\code{GROUP BY \ldots} [\code{HAVING \ldots}]] & $ x \in [0, 1] $ & description
 	\end{tabular}
+	\caption{Quality Assessment rule fields}
+	\label{tbl:qaFields}
 \end{table}
-
-\footnotetext[1]{http://www.w3.org/TR/rdf-sparql-query/\#rGroupGraphPattern}
 
 \subsection{Data Normalization}
 \label{sub:dataNormalization}
 
-\term{Data Normalizer} is a special type of \term{transformer} aimed to be applied early in the whole data evaluation process to simplify work of other \term{transformers}. Its main goal is to remove inconsistencies in forms the data is provided in. Therefore \term{Data Normalizers} are limited to dirty database only.
+\term{Data Normalizer} is a special type of {transformer} aimed to be applied early in the whole data evaluation process to simplify work of other {transformers}. Its main goal is to remove inconsistencies in forms the data is provided in. Therefore {Data Normalizer} instances are limited to dirty database only.
 
-In the DN subsection of rules management page of the backend one can prepare groups of rules to be assigned to instances of \term{Data Normalizer}. Each group is identified by its label and can (and should) come with a description of its semantical significance.
+In the DN subsection of rules management page of the backend, one can prepare groups of rules to be assigned to instances of {Data Normalizer}. Each group is identified by its label and can (and should) come with a description of its semantical significance.
 
-The detail page of a group serves the user as means of specification of individual rules contained in the selected group. Each rule is essentially a sequence of \term{SPARUL}\footnote{http://www.w3.org/Submission/SPARQL-Update} \term{Inserts} and/or \term{Deletes}. New rule represents an empty sequence upon its creation.
+The detail page of a group serves the user as means of specification of individual rules contained in the selected group. Each rule is essentially a sequence of \term{SPARUL}\footnote{\url{http://www.w3.org/Submission/SPARQL-Update}} \term{Inserts} and/or \term{Deletes}. New rule represents an empty sequence upon its creation.
 
-Similarly as with the rules themselves the detail page of a rule allows the user to construct any arbitrary sequence of \term{Inserts} and/or \term{Deletes}. Components of the rule (members of the sequence) can be added by specifying their type (either \code{INSERT} or \code{DELETE}), modification (\term{SPARUL} snippet stripped off of initial \code{INSERT INTO} / \code{DELETE FROM} clauses); e.g.,
+Similarly as with the rules themselves the detail page of a rule allows the user to construct any arbitrary sequence of {Inserts} and/or {Deletes}. Components of the rule (members of the sequence) can be added by specifying their type (either \code{INSERT} or \code{DELETE}), modification ({SPARUL} snippet stripped off of initial \code{INSERT INTO} / \code{DELETE FROM} clauses); e.g.,
 
 \begin{center}
 	\code{\{?s ?p1 ?o2\} WHERE \{GRAPH \$\$graph\$\$ \{?s ?p1 ?o1. ?o1 ?p2 ?o2.\}\}},
@@ -266,12 +266,12 @@ where \code{\$\$graph\$\$} is a place holder for name of the graph being current
 \subsection{Object Identification}
 \label{sub:objectIdentification}
 
-\term{Object Identification Linker} is a special implementation of a \term{trasformer}. The main purpose of this component is to interlink URIs which represent the same real-world entity by generating \code{owl:sameAs} links. It can be also used for creating other types of links between differently related URIs. \term{Silk framework}\footnote{http://www4.wiwiss.fu-berlin.de/bizer/silk} is used as the linking engine. Sets of linkage rules for the engine are written in \term{Silk-LSL}\footnote{http://www.assembla.com/wiki/show/silk/Link\_Specification\_Language} and stored in database.
+\term{Object Identification Linker} is a special implementation of a {trasformer}. The main purpose of this component is to interlink URIs which represent the same real-world entity by generating \code{owl:sameAs} links. It can be also used for creating other types of links between differently related URIs. {Silk framework}\footnote{\url{http://www4.wiwiss.fu-berlin.de/bizer/silk}} is used as the linking engine. Sets of linkage rules for the engine are written in {Silk-LSL}\footnote{\url{http://www.assembla.com/wiki/show/silk/Link\_Specification\_Language}} and stored in database.
 
 \section{Ontology Management}
 \label{sec:ontologyManagement}
 
-Ontologies can be used to produce common rules for QA, DN \term{transformers}. To load one into the storage one can provide an explicit definition through a text field or by uploading a file containing a valid \term{RDF/XML} ontology definition. The process of rules generation will automatically take place upon ontology submission.
+Ontologies can be used to produce common rules for QA, DN {transformers}. To load one into the storage one can provide an explicit definition through a text field or by uploading a file containing a valid {RDF/XML} ontology definition. The process of rules generation will automatically take place upon ontology submission.
 
 \section{Other Settings}
 

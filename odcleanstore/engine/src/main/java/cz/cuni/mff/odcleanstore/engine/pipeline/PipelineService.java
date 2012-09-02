@@ -68,6 +68,7 @@ public final class PipelineService extends Service implements Runnable {
 	public void execute() {
 		long _waitPenalty = 0;
 		while (getServiceState() == ServiceState.RUNNING) {
+			PipelineGraphStatus status = null;
 			try {
 				if (_waitPenalty > 1) {
 					synchronized (waitPenaltyLock) {
@@ -76,14 +77,13 @@ public final class PipelineService extends Service implements Runnable {
 						}
 					}
 				}
-				PipelineGraphStatus status = null;				
 				while ((status = waitForGraphForPipeline()) != null) {
 					executePipeline(status);
 					_waitPenalty = 0;
 				}
 			} catch (Exception e) {
 					_waitPenalty++;
-					LOG.error(FormatHelper.formatExceptionForLog(e, "Pipeline crashed"));
+					LOG.error(FormatHelper.formatExceptionForLog(e, format("crashed", status)));
 			}
 		}
 	}
@@ -120,7 +120,7 @@ public final class PipelineService extends Service implements Runnable {
 
 		LOG.info(format("deleting started", status));
 		manipulator.deleteGraphsInCleanDB();
-		manipulator.deleteGraphsInDirtyDB();
+		manipulator.clearGraphsInDirtyDB();
 		manipulator.deleteInputFile();
 		status.setNoDirtyState(GraphStates.DELETED);
 		LOG.info(format("deleting successfully finished", status));
@@ -130,7 +130,7 @@ public final class PipelineService extends Service implements Runnable {
 			throws PipelineGraphManipulatorException, PipelineGraphStatusException, PipelineGraphTransformerExecutorException {
 		
 		LOG.info(format("processing in dirty db started", status));
-		manipulator.deleteGraphsInDirtyDB();
+		manipulator.clearGraphsInDirtyDB();
 		if (!status.isInCleanDb()) {
 			status.deleteAttachedGraphs();
 		}
@@ -153,7 +153,7 @@ public final class PipelineService extends Service implements Runnable {
 			manipulator.loadGraphsIntoDirtyDB();
 		} catch (PipelineGraphManipulatorException e) {
 			if(isRunnningAndDbInstancesAvailable(true)) {
-				String message = FormatHelper.formatExceptionForLog(e, format("data loading failure", status));
+				String message = FormatHelper.formatExceptionForDB(e, format("data loading failure", status));
 				status.setDirtyState(PipelineErrorTypes.DATA_LOADING_FAILURE, message);
 			}
 			throw e; 		
@@ -168,7 +168,7 @@ public final class PipelineService extends Service implements Runnable {
 			activeTransformerExecutor.execute();
 		} catch (PipelineGraphTransformerExecutorException e) {
 			if(isRunnningAndDbInstancesAvailable(true)) {
-				String message = FormatHelper.formatExceptionForLog(e, format("transformer processing failure", status));
+				String message = FormatHelper.formatExceptionForDB(e, format("transformer processing failure", status));
 				status.setDirtyState(PipelineErrorTypes.TRANSFORMER_FAILURE, message);
 			}
 			throw e;
@@ -191,7 +191,7 @@ public final class PipelineService extends Service implements Runnable {
 			throws PipelineGraphManipulatorException, PipelineGraphStatusException {
 
 		LOG.info(format("cleaning dirty db after moving graph to clean db started", status));
-		manipulator.deleteGraphsInDirtyDB();
+		manipulator.clearGraphsInDirtyDB();
 		manipulator.deleteInputFile();
 		status.setNoDirtyState(GraphStates.FINISHED);
 		LOG.info(format("pipeline for graph successfully finished", status));
@@ -201,12 +201,26 @@ public final class PipelineService extends Service implements Runnable {
 			throws PipelineGraphManipulatorException, PipelineGraphStatusException {
 
 		LOG.info(format("cleaning dirty graph started", status));
-		manipulator.deleteGraphsInDirtyDB();
+		manipulator.clearGraphsInDirtyDB();
 		status.setNoDirtyState(GraphStates.WRONG);
 		LOG.info(format("cleaning dirty graph successfully finished, graph moved to WRONG state", status));
 	}
 	
 	private String format(String message, PipelineGraphStatus status) {
-		return FormatHelper.formatGraphMessage(message, status.getUuid());
+		try {
+			StringBuilder sb = new StringBuilder();
+			if (status != null) {
+				if(status.getPipelineId() != null) {
+					sb.append("Pipeline ");
+					sb.append(status.getPipelineLabel());
+					sb.append(" - ");
+				}
+				sb.append(message);
+				return FormatHelper.formatGraphMessage(sb.toString(), status.getUuid());
+			}
+			return  message;
+		} catch(Exception ie) {
+			return  message;
+		} 
 	}
 }

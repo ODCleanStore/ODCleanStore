@@ -31,7 +31,6 @@ public final class InputGraphStatus {
 	}
 
 	private final static String DB_SCHEMA_PREFIX = "DB.ODCLEANSTORE";
-	private final static String DEFAULT_PIPELINE_NAME = "Dirty";
 	
 	private String _actualImportingGraphUuid;
 	
@@ -85,7 +84,7 @@ public final class InputGraphStatus {
 			}
 			
 			if (pipelineName == null || pipelineName.isEmpty())	{
-				sqlStatement = String.format(Locale.ROOT, "Select id from %s.PIPELINES WHERE label='%s'", DB_SCHEMA_PREFIX, DEFAULT_PIPELINE_NAME);
+				sqlStatement = String.format(Locale.ROOT, "Select id from %s.PIPELINES WHERE isDefault <> 0", DB_SCHEMA_PREFIX);
 			}
 			else {
 				sqlStatement = String.format(Locale.ROOT, "Select id from %s.PIPELINES WHERE label='%s'", DB_SCHEMA_PREFIX, pipelineName);

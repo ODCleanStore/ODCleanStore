@@ -21,9 +21,10 @@ class SQL {
 	 * @param first Engine uuid
 	 */
 	static final String SELECT_WORKING_GRAPH = String.format(Locale.ROOT, 
-			  " SELECT TOP 1 ig.id, ig.uuid, ig.stateId, ig.pipelineId, ig.isInCleanDB, ae.uuid" 
+			  " SELECT TOP 1 ig.id, ig.uuid, ig.stateId, ig.pipelineId, pi.label, ig.isInCleanDB, ae.uuid" 
 			+ " FROM ODCLEANSTORE.EN_INPUT_GRAPHS ig"
 			+ " LEFT JOIN ODCLEANSTORE.EN_ATTACHED_ENGINES ae ON ig.engineId = ae.id"
+			+ " LEFT JOIN ODCLEANSTORE.PIPELINES pi ON ig.pipelineId = pi.id"
 			+ " WHERE (ae.uuid = ? OR ae.uuid IS NULL) AND ig.stateId IN(%s,%s,%s,%s,%s)"
 			+ " ORDER BY ig.stateId, ig.updated",
 			GraphStates.DIRTY.toId(),
@@ -40,9 +41,10 @@ class SQL {
 	 * @param first Engine uuid
 	 */	
 	static final String SELECT_QUEUD_GRAPH = String.format(Locale.ROOT, 
-			  " SELECT TOP 1 ig.id, ig.uuid, ig.stateId, ig.pipelineId, ig.isInCleanDB, ae.uuid" 
+			  " SELECT TOP 1 ig.id, ig.uuid, ig.stateId, ig.pipelineId, pi.label, ig.isInCleanDB, ae.uuid" 
 			+ " FROM ODCLEANSTORE.EN_INPUT_GRAPHS ig"
 			+ " LEFT JOIN ODCLEANSTORE.EN_ATTACHED_ENGINES ae ON ig.engineId = ae.id"
+			+ " LEFT JOIN ODCLEANSTORE.PIPELINES pi ON ig.pipelineId = pi.id"
 			+ " WHERE (ae.uuid = ? OR ae.uuid IS NULL) AND ig.stateId IN(%s,%s,%s)"
 			+ " ORDER BY ig.stateId, ig.updated",
 			GraphStates.QUEUED_FOR_DELETE.toId(),
@@ -140,7 +142,7 @@ class SQL {
 	 * Select default pipelineId.
 	 */
 	static final String SELECT_DEFAULT_PIPELINE = 
-			  " SELECT TOP 1 id"
+			  " SELECT TOP 1 id, label"
 			+ " FROM ODCLEANSTORE.PIPELINES"
 			+ " WHERE isDefault <> 0"; 
 	
@@ -151,7 +153,7 @@ class SQL {
 	 * @param first pipelineId
 	 */
 	static final String SELECT_PIPELINE_COMMANDS = 
-			  " SELECT t.jarPath, t.fullClassName, ti.workDirPath, ti.configuration, ti.runOnCleanDB, ti.id"
+			  " SELECT t.jarPath, t.fullClassName, ti.workDirPath, ti.configuration, ti.runOnCleanDB, ti.id, t.label"
 			+ " FROM ODCLEANSTORE.TRANSFORMERS t"
 			+ " JOIN ODCLEANSTORE.TRANSFORMER_INSTANCES ti ON t.id = ti.transformerId" 
 			+ " AND ti.pipelineId = ?" 

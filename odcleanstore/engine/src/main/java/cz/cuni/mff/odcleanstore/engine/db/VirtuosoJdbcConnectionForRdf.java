@@ -69,7 +69,7 @@ public final class VirtuosoJdbcConnectionForRdf {
 	}
 	
 	/**
-	 * Rename graph.
+	 * Rename graph in DB.DBA.RDF_QUAD.
 	 * @param srcGraphName graph
 	 * @param dstGraphName graph
 	 * @throws QueryException query error
@@ -78,10 +78,19 @@ public final class VirtuosoJdbcConnectionForRdf {
 		execute("DELETE FROM DB.DBA.RDF_QUAD WHERE g = iri_to_id (?)", dstGraphName);
 		execute("UPDATE DB.DBA.RDF_QUAD SET g = iri_to_id (?) WHERE g = iri_to_id (?)", dstGraphName, srcGraphName);
 	}
+	
+	/**
+	 * Delete graph from DB.DBA.RDF_QUAD.
+	 * @param graphName name of the graph to delete
+	 * @throws QueryException query error  
+	 */
+	public void deleteGraph(String graphName) throws QueryException {
+		execute("DELETE FROM DB.DBA.RDF_QUAD WHERE g = iri_to_id (?)", graphName);
+	}
 		
 	/**
-	 * Delete graph from the database.
-	 * @param graphName name of the graph to delete
+	 * Clear graph from the database.
+	 * @param graphName name of the graph to clear
 	 * @throws QueryException query error  
 	 */
 	public void clearGraph(String graphName) throws QueryException {

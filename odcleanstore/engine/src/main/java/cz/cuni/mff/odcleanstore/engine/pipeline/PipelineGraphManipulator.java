@@ -53,7 +53,7 @@ final class PipelineGraphManipulator {
 		}
 	}
 	
-	void deleteGraphsInDirtyDB() throws PipelineGraphManipulatorException {
+	void clearGraphsInDirtyDB() throws PipelineGraphManipulatorException {
 		try {
 			deleteGraphsFromDB(false, false);
 		} catch(Exception e) {
@@ -64,7 +64,12 @@ final class PipelineGraphManipulator {
 	
 	 void deleteGraphsInCleanDB() throws PipelineGraphManipulatorException {
 		try {
-			deleteGraphsFromDB(true, false);
+			Collection<String> graphs = getAllGraphNames();
+			VirtuosoJdbcConnectionForRdf con = VirtuosoJdbcConnectionForRdf.createCleanDbConnection();
+			for (String graphName : graphs) {
+				con.deleteGraph(graphName);
+			}
+			con.commit();
 		} catch(Exception e) {
 			throw new PipelineGraphManipulatorException(format(ERROR_DELETE_GRAPHS_FROM_CLEANDB), e);
 		}
@@ -250,6 +255,10 @@ final class PipelineGraphManipulator {
 	}
 	
 	private String format(String message) {
-		return FormatHelper.formatGraphMessage(message, graphStatus.getUuid());
+		try {
+			return FormatHelper.formatGraphMessage(message, graphStatus.getUuid());
+		} catch(Exception e) {
+			return message;
+		}
 	}
 }
