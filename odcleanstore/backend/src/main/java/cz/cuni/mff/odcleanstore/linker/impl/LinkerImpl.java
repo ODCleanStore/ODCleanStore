@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -138,34 +139,6 @@ public class LinkerImpl implements Linker {
     }
 	
 	/**
-	 * {@inheritDoc}
-	 *
-	 * @param context {@inheritDoc}
-	 */
-	@Override
-	public void linkCleanDatabase(TransformationContext context) {
-		// TODO Auto-generated method stub		
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @param context {@inheritDoc}
-	 */
-	@Override
-	public void linkByConfigFiles(TransformationContext context) {
-		File[] files = context.getTransformerDirectory().listFiles();
-		LOG.info("{} configuration files found", files.length);
-		for (File file:files) {
-			if (file.getName().endsWith(".xml")) {
-				LOG.info("Calling Silk with configuration file: {}", file.getAbsolutePath());
-				Silk.executeFile(file, null, Silk.DefaultThreads(), true);
-				LOG.info("Linking finished.");
-			}
-		}
-	}
-	
-	/**
 	 * Loads list of rules from database.
 	 * 
 	 * Parses transformer configuration to obtain rule groups.
@@ -203,6 +176,7 @@ public class LinkerImpl implements Linker {
 						inputFile.getAbsolutePath(), resultFileName);
 				Silk.executeFile(configFile, null, Silk.DefaultThreads(), true);
 				List<LinkedPair> linkedPairs = parseLinkedPairs(resultFileName);
+				deleteFile(resultFileName);
 				loadLabels(inputFile, linkedPairs);
 				loadLabels(context.getCleanDatabaseCredentials(), context.getDirtyDatabaseCredentials(), linkedPairs);
 				resultList.add(new DebugResult(rule, linkedPairs));
@@ -216,7 +190,7 @@ public class LinkerImpl implements Linker {
 	}
 	
 	private String createFileName(SilkRule rule, File transformerDirectory, String fileName) {
-		return transformerDirectory.getAbsolutePath() + rule.getId() + fileName;
+		return transformerDirectory.getAbsolutePath() + rule.getId() + UUID.randomUUID().toString() + fileName;
 	}
 	
 	private List<LinkedPair> parseLinkedPairs(String resultFileName) throws TransformerException {
@@ -354,5 +328,12 @@ public class LinkerImpl implements Linker {
 			uriLabelMap.put(pair.getSecondUri(), pair.getSecondLabel());
 		}
 		return uriLabelMap;
+	}
+	
+	private void deleteFile(String fileName) {
+		File file = new File(fileName);
+		if (!file.delete()) {
+			LOG.warn("Failed to delete file {}", fileName);
+		}
 	}
 }
