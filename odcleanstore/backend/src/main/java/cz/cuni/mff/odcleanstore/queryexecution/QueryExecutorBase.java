@@ -109,13 +109,13 @@ import java.util.TreeSet;
      * SPARQL snippet restricting a variable to start with the given string.
      * Must be formatted with a string argument.
      */
-    private static final String PREFIX_FILTER_CLAUSE = " FILTER (bif:starts_with(?%s, '%s'))";
+    private static final String PREFIX_FILTER_CLAUSE = " FILTER (bif:starts_with(str(?%s), '%s'))";
 
     /**
      * SPARQL snippet restricting a variable NOT to start with the given string.
      * Must be formatted with a string argument.
      */
-    private static final String PREFIX_FILTER_CLAUSE_NEGATIVE = " FILTER (!bif:starts_with(?%s, '%s'))";
+    private static final String PREFIX_FILTER_CLAUSE_NEGATIVE = " FILTER (!bif:starts_with(str(?%s), '%s'))";
 
     /**
      * SPARQL query for retrieving all synonyms (i.e. resources connected by an owl:sameAs path) of a given URI.
