@@ -40,6 +40,7 @@ public class PipelineGraphTransformerExecutor {
 		ODCSPropertyFilterTransformerCommand.configuration ="";
 		ODCSPropertyFilterTransformerCommand.runOnCleanDB = true;
 		ODCSPropertyFilterTransformerCommand.workDirPath = "transformers-working-dir/odcsPropertyFilterTransformer";
+		ODCSPropertyFilterTransformerCommand.transformerLabel = "OdcsPropertyFilterTransformer";
 	}
 	
 	private PipelineGraphStatus graphStatus = null;
@@ -77,6 +78,7 @@ public class PipelineGraphTransformerExecutor {
 				return;
 			}
 			LOG.info(format("start processing", command));
+			
 			if ((this.currentTransformer = getTransformerForCommand(command, isInternal)) == null) {
 				throw new PipelineGraphTransformerExecutorException(format(ERROR_TRANSFORMER_UNKNOWN, command));
 			}
@@ -106,6 +108,7 @@ public class PipelineGraphTransformerExecutor {
 		finally {
 			Transformer transformer = this.currentTransformer;
 			this.currentTransformer = null;
+
 			if (graph != null) {
 				graph.deactivate();
 			}
@@ -161,10 +164,23 @@ public class PipelineGraphTransformerExecutor {
 	}
 
 	private String format(String message) {
-		return FormatHelper.formatGraphMessage(message, this.graphStatus.getUuid());
+		try {
+			return FormatHelper.formatGraphMessage(message, graphStatus.getUuid());
+		}
+		catch(Exception e) {
+			return message;
+		}
 	}
 	
 	private String format(String message, PipelineCommand command) {
-		return FormatHelper.formatGraphMessage(message + " for transformer " + command.fullClassName, this.graphStatus.getUuid());
-	}	
+		try {
+			StringBuilder sb = new StringBuilder();
+			sb.append(command.transformerLabel);
+			sb.append(" - ");
+			sb.append(message);
+			return FormatHelper.formatGraphMessage(sb.toString(), graphStatus.getUuid());
+		} catch(Exception e) {
+			return message;
+		}
+	}
 }
