@@ -14,7 +14,7 @@ public class QARuleAssignmentDao extends DaoForEntityWithSurrogateKey<RuleAssign
 {
 	private static final long serialVersionUID = 1L;
 
-	public static final String TABLE_NAME = TABLE_NAME_PREFIX + BACKUP_TABLE_PREFIX + "QA_RULES_ASSIGNMENT";
+	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "QA_RULES_ASSIGNMENT";
 	
 	private ParameterizedRowMapper<RuleAssignment> rowMapper;
 	
