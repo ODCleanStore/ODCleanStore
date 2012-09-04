@@ -34,6 +34,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * The default quality assessor.
@@ -463,7 +464,11 @@ public class QualityAssessorImpl implements QualityAssessor {
 			while (iterator.hasNext()) {
 				String escapedTrace = iterator.next();
 
-				escapedTrace = escapedTrace.replaceAll("'", "\\\\'");
+				Pattern charsToBeRemoved = Pattern.compile("[\\x00-\\x09\\x0E-\\x1F]");
+				Pattern charsToBeEscaped = Pattern.compile("([\"'`\\\\])");
+
+				escapedTrace = charsToBeRemoved.matcher(escapedTrace).replaceAll("");
+				escapedTrace = charsToBeEscaped.matcher(escapedTrace).replaceAll("\\$1");
 
 				final String storeNewScoreTrace = String.format(Locale.ROOT, storeNewScoreTraceQueryFormat,
 						metadataGraph,
