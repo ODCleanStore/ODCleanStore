@@ -11,10 +11,10 @@ import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
+import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
-import cz.cuni.mff.odcleanstore.vocabulary.W3P;
 import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 
 import com.hp.hpl.jena.graph.Node;
@@ -29,8 +29,13 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * The base class of query executors.
@@ -47,6 +52,13 @@ import java.util.Locale;
 
     /** Maximum allowed length of a URI query. */
     public static final int MAX_URI_LENGTH = 1024;
+
+    /**
+     * (Debug) Only named graph having URI starting with this prefix can be included in query result.
+     * If the value is null, there is now restriction on named graph URIs.
+     * This constant is only for debugging purposes and should be null in production environment.
+     */
+    private static final String ENGINE_TEMP_GRAPH_PREFIX = ODCS.engineTemporaryGraph;
 
     /**
      * (Debug) Only named graph having URI starting with this prefix can be included in query result.
@@ -90,14 +102,20 @@ import java.util.Locale;
      * Must be formatted with the date given as an argument.
      */
     private static final String INSERTED_AT_FILTER_CLAUSE = " OPTIONAL"
-            + " { ?graph <" + W3P.insertedAt + "> ?_insertedAt }"
+            + " { ?graph <" + ODCS.insertedAt + "> ?_insertedAt }"
             + " FILTER(?_insertedAt >= \"%s\"^^<" + XMLSchema.dateTimeType + ">)";
 
     /**
      * SPARQL snippet restricting a variable to start with the given string.
      * Must be formatted with a string argument.
      */
-    private static final String PREFIX_FILTER_CLAUSE = " FILTER regex(?%s, \"^%s\")";
+    private static final String PREFIX_FILTER_CLAUSE = " FILTER (bif:starts_with(str(?%s), '%s'))";
+
+    /**
+     * SPARQL snippet restricting a variable NOT to start with the given string.
+     * Must be formatted with a string argument.
+     */
+    private static final String PREFIX_FILTER_CLAUSE_NEGATIVE = " FILTER (!bif:starts_with(str(?%s), '%s'))";
 
     /**
      * SPARQL query for retrieving all synonyms (i.e. resources connected by an owl:sameAs path) of a given URI.
@@ -128,11 +146,11 @@ import java.util.Locale;
      * @return SPARQL query snippet
      */
     protected static String getGraphPrefixFilter(String graphVariable) {
-        if (GRAPH_PREFIX_FILTER == null) {
-            return "";
-        } else {
-            return String.format(Locale.ROOT, PREFIX_FILTER_CLAUSE, graphVariable, GRAPH_PREFIX_FILTER);
+        String result = String.format(Locale.ROOT, PREFIX_FILTER_CLAUSE_NEGATIVE, graphVariable, ENGINE_TEMP_GRAPH_PREFIX);
+        if (GRAPH_PREFIX_FILTER != null) {
+            result += String.format(Locale.ROOT, PREFIX_FILTER_CLAUSE, graphVariable, GRAPH_PREFIX_FILTER);
         }
+        return result;
     }
 
     /**
@@ -141,8 +159,8 @@ import java.util.Locale;
      * @return SPARQL query snippet
      */
     private static CharSequence buildGraphFilterClause(QueryConstraintSpec constraints) {
-        if (constraints.getMinScore() == null && constraints.getOldestTime() == null && GRAPH_PREFIX_FILTER == null) {
-            return "";
+        if (constraints.getMinScore() == null && constraints.getOldestTime() == null) {
+            return getGraphPrefixFilter("graph");
         }
         StringBuilder sb = new StringBuilder();
         if (constraints.getMinScore() != null) {
@@ -152,9 +170,7 @@ import java.util.Locale;
             java.sql.Timestamp oldestTime = new Timestamp(constraints.getOldestTime().getTime());
             sb.append(String.format(Locale.ROOT, INSERTED_AT_FILTER_CLAUSE, oldestTime.toString()));
         }
-        if (GRAPH_PREFIX_FILTER != null) {
-            sb.append(getGraphPrefixFilter("graph"));
-        }
+        sb.append(getGraphPrefixFilter("graph"));
         return sb;
     }
 
@@ -265,13 +281,13 @@ import java.util.Locale;
         // Check that settings contain valid URIs
         for (String property : aggregationSpec.getPropertyAggregations().keySet()) {
             if (!Utils.isValidIRI(property)) {
-                throw new QueryExecutionException(EnumQueryError.AGGREGATION_SETTINGS_INVALID,
+                throw new QueryExecutionException(EnumQueryError.AGGREGATION_SETTINGS_INVALID, ErrorCodes.QE_INPUT_FORMAT_ERR,
                         "'" + property + "' is not a valid URI.");
             }
         }
         for (String property : aggregationSpec.getPropertyMultivalue().keySet()) {
             if (!Utils.isValidIRI(property)) {
-                throw new QueryExecutionException(EnumQueryError.AGGREGATION_SETTINGS_INVALID,
+                throw new QueryExecutionException(EnumQueryError.AGGREGATION_SETTINGS_INVALID, ErrorCodes.QE_INPUT_FORMAT_ERR,
                         "'" + property + "' is not a valid URI.");
             }
         }
@@ -280,7 +296,8 @@ import java.util.Locale;
         int settingsPropertyCount = aggregationSpec.getPropertyAggregations().size()
                 + aggregationSpec.getPropertyMultivalue().size();
         if (settingsPropertyCount > MAX_PROPERTY_SETTINGS_SIZE) {
-            throw new QueryExecutionException(EnumQueryError.QUERY_TOO_LONG, "Too many explicit property settings.");
+            throw new QueryExecutionException(EnumQueryError.QUERY_TOO_LONG, ErrorCodes.QE_INPUT_FORMAT_ERR,
+                    "Too many explicit property settings.");
         }
 
         // Log a warning if using this debug option
@@ -328,16 +345,18 @@ import java.util.Locale;
 
     /**
      * Extract named graph metadata from the result of the given SPARQL SELECT query.
-     * The query must contain these variables in the result: resGraph, source, score, insertedAt, insertedBy, license,
-     * publishedBy, publisherScore. Values of these variables may be null.
-     * @param sparqlQuery a SPARQL SELECT query that has these variables in the result: resGraph, source, score,
-     *        insertedAt, insertedBy, license, publishedBy, publisherScore
+     * The query must contain three variables in the result, exactly in this order: named graph, property, value
+     * @param sparqlQuery a SPARQL SELECT query with three variables in the result: resGraph, property, value
      * @param debugName named of the query used for debug log
      * @return map of named graph metadata
      * @throws DatabaseException database error
      */
     protected NamedGraphMetadataMap getMetadataFromQuery(String sparqlQuery, String debugName)
             throws DatabaseException {
+
+        final int graphIndex = 1;
+        final int propertyIndex = 2;
+        final int valueIndex = 3;
         long startTime = System.currentTimeMillis();
         WrappedResultSet resultSet = getConnection().executeSelect(sparqlQuery);
         LOG.debug("Query Execution: {} query took {} ms", debugName, System.currentTimeMillis() - startTime);
@@ -346,34 +365,41 @@ import java.util.Locale;
         try {
             NamedGraphMetadataMap metadata = new NamedGraphMetadataMap();
             while (resultSet.next()) {
-                NamedGraphMetadata graphMetadata = new NamedGraphMetadata(resultSet.getString("resGraph"));
-
-                try {
-                    String source = resultSet.getString("source");
-                    graphMetadata.setSource(source);
-
-                    Double score = resultSet.getDouble("score");
-                    graphMetadata.setScore(score);
-
-                    Date insertedAt = resultSet.getJavaDate("insertedAt");
-                    graphMetadata.setInsertedAt(insertedAt);
-
-                    String insertedBy = resultSet.getString("insertedBy");
-                    graphMetadata.setInsertedBy(insertedBy);
-
-                    String license = resultSet.getString("license");
-                    graphMetadata.setLicence(license);
-
-                    String publishedBy = resultSet.getString("publishedBy");
-                    graphMetadata.setPublisher(publishedBy);
-
-                    Double publisherScore = resultSet.getDouble("publisherScore");
-                    graphMetadata.setPublisherScore(publisherScore);
-                } catch (SQLException e) {
-                    LOG.warn("Query Execution: invalid metadata for graph {}", graphMetadata.getNamedGraphURI());
+                String namedGraphURI = resultSet.getString(graphIndex);
+                NamedGraphMetadata graphMetadata = metadata.getMetadata(namedGraphURI);
+                if (graphMetadata == null) {
+                    graphMetadata = new NamedGraphMetadata(namedGraphURI);
+                    metadata.addMetadata(graphMetadata);
                 }
 
-                metadata.addMetadata(graphMetadata);
+                try {
+                    String property = resultSet.getString(propertyIndex);
+
+                    if (ODCS.source.equals(property)) {
+                        String object = resultSet.getString(valueIndex);
+                        graphMetadata.setSources(addToSetNullProof(object, graphMetadata.getSources()));
+                    } else if (ODCS.score.equals(property)) {
+                        Double score = resultSet.getDouble(valueIndex);
+                        graphMetadata.setScore(score);
+                    } else if (ODCS.insertedAt.equals(property)) {
+                        Date insertedAt = resultSet.getJavaDate(valueIndex);
+                        graphMetadata.setInsertedAt(insertedAt);
+                    } else if (ODCS.insertedBy.equals(property)) {
+                        String insertedBy = resultSet.getString(valueIndex);
+                        graphMetadata.setInsertedBy(insertedBy);
+                    } else if (ODCS.publishedBy.equals(property)) {
+                        String object = resultSet.getString(valueIndex);
+                        graphMetadata.setPublishers(addToListNullProof(object, graphMetadata.getPublishers()));
+                    } else if (ODCS.publisherScore.equals(property)) {
+                        Double object = resultSet.getDouble(valueIndex);
+                        graphMetadata.setPublisherScores(addToListNullProof(object, graphMetadata.getPublisherScores()));
+                    } else if (ODCS.license.equals(property)) {
+                        String object = resultSet.getString(valueIndex);
+                        graphMetadata.setLicences(addToListNullProof(object, graphMetadata.getLicences()));
+                    }
+                } catch (SQLException e) {
+                    LOG.warn("Query Execution: invalid metadata for graph {}", namedGraphURI);
+                }
             }
             LOG.debug("Query Execution: {} in {} ms", debugName, System.currentTimeMillis() - startTime);
             return metadata;
@@ -382,6 +408,37 @@ import java.util.Locale;
         } finally {
             resultSet.closeQuietly();
         }
+    }
+
+    /**
+     * Add a value to the set given in parameter and return modified set; if set is null, create new instance.
+     * @param value value to add to the set
+     * @param set set to add to or null
+     * @return set containing the given value
+     */
+    private <T> Set<T> addToSetNullProof(T value, Set<T> set) {
+        Set<T> result = set;
+        if (result == null) {
+            result = new TreeSet<T>();
+        }
+        result.add(value);
+        return result;
+    }
+
+    /**
+     * Add a value to the list given in parameter and return modified list; if list is null, create new instance.
+     * @param value value to add to the list
+     * @param list list to add to or null
+     * @return list containing the given value
+     */
+    private <T> List<T> addToListNullProof(T value, List<T> list) {
+        final int defaultListSize = 1;
+        List<T> result = list;
+        if (result == null) {
+            result = new ArrayList<T>(defaultListSize);
+        }
+        result.add(value);
+        return result;
     }
 
     /**
@@ -395,7 +452,7 @@ import java.util.Locale;
      */
     protected void addSameAsLinksForURI(String uri, Collection<Triple> triples) throws DatabaseException {
         long startTime = System.currentTimeMillis();
-        String query = String.format(URI_SYNONYMS_QUERY, uri, MAX_SAMEAS_PATH_LENGTH, maxLimit);
+        String query = String.format(Locale.ROOT, URI_SYNONYMS_QUERY, uri, MAX_SAMEAS_PATH_LENGTH, maxLimit);
         WrappedResultSet resultSet = getConnection().executeSelect(query);
         LOG.debug("Query Execution: getURISynonyms() query took {} ms", System.currentTimeMillis() - startTime);
         try {
@@ -408,5 +465,24 @@ import java.util.Locale;
         } finally {
             resultSet.closeQuietly();
         }
+    }
+
+    /**
+     * Returns preferred URIs for the result based on aggregation settings.
+     * These include the properties explicitly listed in aggregation settings.
+     * @return preferred URIs
+     */
+    protected Set<String> getSettingsPreferredURIs() {
+        Set<String> aggregationProperties = aggregationSpec.getPropertyAggregations() == null
+                ? Collections.<String>emptySet()
+                : aggregationSpec.getPropertyAggregations().keySet();
+        Set<String> multivalueProperties = aggregationSpec.getPropertyMultivalue() == null
+                ? Collections.<String>emptySet()
+                : aggregationSpec.getPropertyMultivalue().keySet();
+        Set<String> preferredURIs = new HashSet<String>(
+                aggregationProperties.size() + multivalueProperties.size() + 1); // +1 for URI added in some types of queries
+        preferredURIs.addAll(aggregationProperties);
+        preferredURIs.addAll(multivalueProperties);
+        return preferredURIs;
     }
 }

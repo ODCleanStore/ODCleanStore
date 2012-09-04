@@ -31,8 +31,8 @@ public class QELabelPropertiesListPage extends FrontendPage
 	public QELabelPropertiesListPage() 
 	{
 		super(
-			"Home > Output WS > QE > Label properties > List", 
-			"Adjust label properties"
+			"Home > Output WS > Label Properties > List", 
+			"List all label properties"
 		);
 		
 		// prepare DAO objects

@@ -20,7 +20,7 @@ public class EditPipelinePage extends FrontendPage
 	{
 		super
 		(
-			"Home > Pipelines > Edit", 
+			"Home > Backend > Pipelines > Edit", 
 			"Edit a pipeline"
 		);
 		

@@ -92,7 +92,7 @@ public class SelectedValueAggregationTest {
         NamedGraphMetadataMap metadataMap = new NamedGraphMetadataMap();
         NamedGraphMetadata metadata = new NamedGraphMetadata(quad.getGraphName().getURI());
         metadata.setScore(score);
-        metadata.setPublisherScore(score);
+        metadata.setPublisherScores(Collections.singletonList(score));
         metadataMap.addMetadata(metadata);
 
         double computedQuality = instance.computeQualitySelected(
@@ -125,7 +125,7 @@ public class SelectedValueAggregationTest {
         NamedGraphMetadata lowerMetadata =
                 new NamedGraphMetadata(lowerQuad.getGraphName().getURI());
         lowerMetadata.setScore(lowerScore);
-        lowerMetadata.setPublisherScore(lowerScore);
+        lowerMetadata.setPublisherScores(Collections.singletonList(lowerScore));
         metadataMap.addMetadata(lowerMetadata);
         conflictingQuads.add(lowerQuad);
 
@@ -133,7 +133,7 @@ public class SelectedValueAggregationTest {
         NamedGraphMetadata higherMetadata =
                 new NamedGraphMetadata(higherQuad.getGraphName().getURI());
         higherMetadata.setScore(higherScore);
-        higherMetadata.setPublisherScore(higherScore);
+        higherMetadata.setPublisherScores(Collections.singletonList(higherScore));
         metadataMap.addMetadata(higherMetadata);
         conflictingQuads.add(higherQuad);
 

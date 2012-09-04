@@ -21,8 +21,8 @@ public class QARuleDetailPage extends FrontendPage
 	public QARuleDetailPage(final Long ruleId) 
 	{
 		super(
-			"Home > QA > Rules groups > Group > Detail", 
-			"QA Rules management"
+			"Home > Backend > QA > Groups > Rules > Detail", 
+			"Show a QA rule detail"
 		);
 		
 		// prepare DAO objects

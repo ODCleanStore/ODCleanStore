@@ -10,6 +10,7 @@ import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.queryexecution.EnumQueryError;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
+import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,6 +70,7 @@ import java.sql.SQLException;
             } else {
                 throw new QueryExecutionException(
                         EnumQueryError.DEFAULT_AGGREGATION_SETTINGS_INVALID,
+                        ErrorCodes.QE_DEFAULT_CONFIG_ERR,
                         "No default aggregation settings in the database");
             }
             resultSet.closeQuietly();
@@ -120,7 +122,9 @@ import java.sql.SQLException;
         } catch (IllegalArgumentException e) {
             LOG.error("Invalid value {} in database for aggregation method.", value);
             throw new QueryExecutionException(EnumQueryError.DEFAULT_AGGREGATION_SETTINGS_INVALID,
-                    "Invalid value of aggregation type '" + value + "' in the database", e);
+                    ErrorCodes.QE_DEFAULT_CONFIG_AGGREGATION_ERR,
+                    "Invalid value of aggregation type '" + value + "' in the database",
+                    e);
         }
     }
 
@@ -136,7 +140,9 @@ import java.sql.SQLException;
         } catch (IllegalArgumentException e) {
             LOG.error("Invalid value {} in database for aggregation error strategy.", value);
             throw new QueryExecutionException(EnumQueryError.DEFAULT_AGGREGATION_SETTINGS_INVALID,
-                    "Invalid value for aggregation error strategy '" + value + "' in the database", e);
+                    ErrorCodes.QE_DEFAULT_CONFIG_ES_ERR,
+                    "Invalid value for aggregation error strategy '" + value + "' in the database",
+                    e);
         }
     }
 
@@ -155,6 +161,7 @@ import java.sql.SQLException;
             return null;
         } else {
             throw new QueryExecutionException(EnumQueryError.DEFAULT_AGGREGATION_SETTINGS_INVALID,
+                    ErrorCodes.QE_DEFAULT_CONFIG_MULTIVALUE_ERR,
                     "Invalid value for multivalue '" + value + "' in the database");
         }
     }

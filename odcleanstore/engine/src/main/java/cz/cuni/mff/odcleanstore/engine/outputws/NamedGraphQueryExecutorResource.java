@@ -1,43 +1,34 @@
 package cz.cuni.mff.odcleanstore.engine.outputws;
 
-import org.restlet.representation.Representation;
-
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
-import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
-import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
-import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl.GraphScoreWithTrace;
-import cz.cuni.mff.odcleanstore.queryexecution.NamedGraphMetadataQueryResult;
-import cz.cuni.mff.odcleanstore.queryexecution.QueryExecution;
+import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
+import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
+import cz.cuni.mff.odcleanstore.queryexecution.QueryConstraintSpec;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
-import cz.cuni.mff.odcleanstore.transformer.TransformerException;
+
+import org.restlet.representation.Representation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- *  @author Jan Michelfeit
+ * ServerResource for named graph query.
+ * @author Jan Michelfeit
  */
 public class NamedGraphQueryExecutorResource extends QueryExecutorResourceBase {
+    
+    private static final Logger LOG = LoggerFactory.getLogger(NamedGraphQueryExecutorResource.class);
 
-	protected Representation execute() throws QueryExecutionException, ResultEmptyException, TransformerException  {
-			String namedGraphURI = getFormValue("uri");
-			JDBCConnectionCredentials connectionCredentials = 
-					ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials();
+    @Override
+    protected Representation execute() throws QueryExecutionException, ResultEmptyException {
+        String namedGraphURI = getFormValue("uri");
+        AggregationSpec aggregationSpec = getAggregationSpec();
+        BasicQueryResult result = getQueryExecution().findNamedGraph(namedGraphURI, new QueryConstraintSpec(), aggregationSpec);
 
-			// Get metadata
-			QueryExecution queryExecution = new QueryExecution(connectionCredentials, ConfigLoader.getConfig());
-			NamedGraphMetadataQueryResult metadataResult = queryExecution.findNamedGraphMetadata(namedGraphURI);
-			
-			// Get QA results
-			long qaStartTime = System.currentTimeMillis();
-			//TODO: This is HOTFIX. NamedGraphQueryExecutorResource needs to pass proper groupIds or groupLabels in constructor of QAImpl
-			//This only makes common ids be selected (as groupId is IDENTITY (AUTOINCREMENT starting at 1))
-			QualityAssessorImpl qualityAssessor = new QualityAssessorImpl(0, 1, 2, 3, 4, 5);
-			GraphScoreWithTrace qaResult = qualityAssessor.getGraphScoreWithTrace(namedGraphURI, connectionCredentials);
-			
-			if (metadataResult == null || qaResult == null)
-				throw new ResultEmptyException("Result is empty");
-			
-			long totalTime = System.currentTimeMillis() - qaStartTime + metadataResult.getExecutionTime();
+        if (result == null) {
+            LOG.error("Query result is empty");
+            throw new ResultEmptyException("Result is empty");
+        }
 
-			return getFormatter(ConfigLoader.getConfig().getOutputWSGroup()).format(
-					metadataResult, qaResult, totalTime, getRequestReference());
-	}
+        return getFormatter(ConfigLoader.getConfig().getOutputWSGroup()).format(result, getRequestReference());
+    }
 }

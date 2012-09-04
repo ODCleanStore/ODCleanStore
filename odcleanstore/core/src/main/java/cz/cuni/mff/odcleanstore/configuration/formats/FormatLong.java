@@ -10,16 +10,15 @@ import cz.cuni.mff.odcleanstore.configuration.exceptions.IllegalParameterFormatE
  */
 public class FormatLong extends ParameterFormat<Long> {
     @Override
-    public Long convertValue(String groupName, String paramName, String value)
+    public Long convertValue(String paramName, String value)
             throws IllegalParameterFormatException {
-        assert groupName != null && paramName != null;
-        assert value != null;
+        assert value != null && paramName != null;
 
         try {
             return Long.parseLong(value);
         } catch (NumberFormatException ex) {
-            throw new IllegalParameterFormatException("Parameter value [" + value
-                    + "] could not be converted to Long for group/param: " + groupName + "/" + paramName);
+            throw new IllegalParameterFormatException(
+                    "Parameter value [" + value + "] could not be converted to Long for param: " + paramName);
         }
     }
 }

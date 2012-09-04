@@ -78,7 +78,7 @@ public class AggregationMethodBaseTest {
                 subjectURI, predicateURI, TestUtils.getUniqueURI()));
 
         ConflictResolutionConfig globalConfig = TestUtils.createConflictResolutionConfigMock();
-        AggregationMethodBase instance = new AggregationMethodBaseImpl (
+        AggregationMethodBase instance = new AggregationMethodBaseImpl(
                 new AggregationSpec(),
                 URI_GENERATOR,
                 new DistanceMetricImpl(globalConfig),

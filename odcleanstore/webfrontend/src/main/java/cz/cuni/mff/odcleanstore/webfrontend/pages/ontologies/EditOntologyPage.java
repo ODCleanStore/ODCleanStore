@@ -21,8 +21,13 @@ public class EditOntologyPage extends FrontendPage
 	
 	private DaoForEntityWithSurrogateKey<Ontology> ontologyDao;
 
-	public EditOntologyPage(final Long ontologyId) {
-		super("Home > Ontologies > Edit", "Edit ontology");
+	public EditOntologyPage(final Long ontologyId) 
+	{
+		super(
+			"Home > Ontologies > Edit", 
+			"Edit an ontology"
+		);
+		
 		// prepare DAO objects
 		//
 		this.ontologyDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OntologyDao.class);

@@ -24,14 +24,14 @@ public class SparqlEndpointConnectionCredentials {
     
     /**
      * Creates a new instance.
-     * @param url
-     * @param username
-     * @param password
+     * @param url SPARQL endpoint location
+     * @param username username
+     * @param password password
      */
     public SparqlEndpointConnectionCredentials(URL url, String username, String password) {
-    	this.url = url;
-    	this.username = username;
-    	this.password = password;
+        this.url = url;
+        this.username = username;
+        this.password = password;
     }
 
     /**

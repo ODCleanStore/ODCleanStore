@@ -13,7 +13,6 @@ import org.junit.Test;
  *
  */
 public class FormatLongTest {
-    private static final String GROUP_NAME = "group_name";
     private static final String PARAM_NAME = "param_name";
 
     private ParameterFormat<Long> formatter;
@@ -25,16 +24,16 @@ public class FormatLongTest {
 
     @Test
     public void testIntegerToLong() throws IllegalParameterFormatException {
-        assertEquals(new Long(3), formatter.convertValue(GROUP_NAME, PARAM_NAME, "3"));
+        assertEquals(new Long(3), formatter.convertValue(PARAM_NAME, "3"));
     }
 
     @Test(expected = IllegalParameterFormatException.class)
     public void testDoubleToLong() throws IllegalParameterFormatException {
-        formatter.convertValue(GROUP_NAME, PARAM_NAME, "3.14159265");
+        formatter.convertValue(PARAM_NAME, "3.14159265");
     }
 
     @Test(expected = IllegalParameterFormatException.class)
     public void testMisstypedNumberError() throws IllegalParameterFormatException {
-        formatter.convertValue(GROUP_NAME, PARAM_NAME, "31415GF");
+        formatter.convertValue(PARAM_NAME, "31415GF");
     }
 }

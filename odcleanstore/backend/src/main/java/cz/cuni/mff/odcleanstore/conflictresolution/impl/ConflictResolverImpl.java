@@ -11,7 +11,6 @@ import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationMethod
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationMethodFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationNotImplementedException;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
-import cz.cuni.mff.odcleanstore.shared.Utils;
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
@@ -23,8 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -45,49 +42,6 @@ public class ConflictResolverImpl implements ConflictResolver {
      * Settings for the conflict resolution process.
      */
     private final ConflictResolverSpec crSpec;
-
-    /**
-     * Comparator of {@link Quad Quads} comparing first by objects, second
-     * by data source in metadata, third by descending stored date in metadata.
-     */
-    protected static class ObjectSourceStoredComparator implements Comparator<Quad> {
-        /** Metadata for named graphs occurring in compared quads. */
-        private NamedGraphMetadataMap namedGraphMetadata;
-
-        /**
-         * @param metadata metadata for named graphs occurring in compared quads; must not be null
-         */
-        public ObjectSourceStoredComparator(NamedGraphMetadataMap metadata) {
-            assert metadata != null;
-            this.namedGraphMetadata = metadata;
-        }
-
-        @Override
-        public int compare(Quad q1, Quad q2) {
-            // Compare by object
-            int objectComparison = NodeComparator.compare(q1.getObject(), q2.getObject());
-            if (objectComparison != 0) {
-                return objectComparison;
-            }
-
-            // Get metadata
-            NamedGraphMetadata metadata1 = namedGraphMetadata.getMetadata(q1.getGraphName());
-            NamedGraphMetadata metadata2 = namedGraphMetadata.getMetadata(q2.getGraphName());
-
-            // Compare by data source
-            String dataSource1 = (metadata1 != null) ? metadata1.getSource() : null;
-            String dataSource2 = (metadata2 != null) ? metadata2.getSource() : null;
-            int dataSourceComparison = Utils.nullProofCompare(dataSource1, dataSource2);
-            if (dataSourceComparison != 0) {
-                return dataSourceComparison;
-            }
-
-            // Compare by stored time in *descending order*
-            Date stored1 = (metadata1 != null) ? metadata1.getInsertedAt() : null;
-            Date stored2 = (metadata2 != null) ? metadata2.getInsertedAt() : null;
-            return Utils.nullProofCompare(stored2, stored1); // switched arguments
-        }
-    }
 
     /**
      * Global configuration values for conflict resolution.
@@ -218,7 +172,7 @@ public class ConflictResolverImpl implements ConflictResolver {
      * A triple from named graph A is removed iff
      * <ul>
      * <li>(1) it is identical to another triple from a different named graph B,</li>
-     * <li>(2) named graphs A and B have the same data source in metadata,</li>
+     * <li>(2) named graphs A and B have the same data sources in metadata,</li>
      * <li>(3) named graph A has an older stored date than named graph B,</li>
      * <li>(4) named graphs A and B were inserted by the same user.</li>
      * </ul>
@@ -257,13 +211,13 @@ public class ConflictResolverImpl implements ConflictResolver {
                 NamedGraphMetadata quadMetadata = metadata.getMetadata(quad.getGraphName());
                 if (lastMetadata != null
                         && quadMetadata != null
-                        && quadMetadata.getSource() != null
-                        && quadMetadata.getSource().equals(lastMetadata.getSource()) // (2) holds
                         && quadMetadata.getInsertedAt() != null
                         && lastMetadata.getInsertedAt() != null
                         && quadMetadata.getInsertedAt().before(lastMetadata.getInsertedAt()) // (3) holds
                         && quadMetadata.getInsertedBy() != null
-                        && quadMetadata.getInsertedBy().equals(lastMetadata.getInsertedBy())) { // (4) holds
+                        && quadMetadata.getInsertedBy().equals(lastMetadata.getInsertedBy()) // (4) holds
+                        && quadMetadata.getSources() != null
+                        && quadMetadata.getSources().equals(lastMetadata.getSources())) { // (2) holds
                     resultIterator.remove();
                     removed = true;
                     LOG.debug("Filtered a triple from an outdated named graph {}.", quad.getGraphName().getURI());
@@ -290,18 +244,18 @@ public class ConflictResolverImpl implements ConflictResolver {
      */
     private boolean hasPotentialOldVersions(NamedGraphMetadataMap metadataMap) {
         Collection<NamedGraphMetadata> metadataCollection = metadataMap.listMetadata();
-        Set<String> sourceSet = new HashSet<String>(metadataCollection.size());
+        Set<Integer> sourceHashesSet = new HashSet<Integer>(metadataCollection.size());
 
         for (NamedGraphMetadata metadata : metadataCollection) {
             assert metadata != null;
-            if (metadata.getInsertedAt() == null | metadata.getInsertedBy() == null | metadata.getSource() == null) {
+            if (metadata.getInsertedAt() == null | metadata.getInsertedBy() == null | metadata.getSources() == null) {
                 // If any of the tested properties is null, the named graph cannot be marked as an update
                 continue;
-            } else if (sourceSet.contains(metadata.getSource())) {
+            } else if (sourceHashesSet.contains(metadata.getSources().hashCode())) {
                 // Occurrence of named graphs sharing a common data source
                 return true;
             } else {
-                sourceSet.add(metadata.getSource());
+                sourceHashesSet.add(metadata.getSources().hashCode());
             }
         }
         return false;

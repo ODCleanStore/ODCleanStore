@@ -28,7 +28,10 @@ public class OntologiesListPage extends FrontendPage
 
 	public OntologiesListPage() 
 	{
-		super("Home > Ontologies > List", "Ontologies management");
+		super(
+			"Home > Ontologies > List", 
+			"List all ontologies"
+		);
 		
 		// prepare DAO objects
 		//

@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -115,12 +116,7 @@ import java.util.Set;
             namedGraphScore = globalConfig.getScoreIfUnknown();
         }
 
-        Double publisherScore = metadata.getPublisherScore();
-        if (publisherScore == null) {
-            LOG.debug("No score for the publisher of named graph {}, using named graph score.",
-                    metadata.getNamedGraphURI());
-            publisherScore = namedGraphScore;
-        }
+        double publisherScore = calculatePublisherScore(metadata, namedGraphScore);
 
         double ngScoreWeight = globalConfig.getNamedGraphScoreWeight();
         double publisherScoreWeight = globalConfig.getPublisherScoreWeight();
@@ -128,6 +124,26 @@ import java.util.Set;
         double quality = namedGraphScore * ngScoreWeight + publisherScore * publisherScoreWeight;
         quality /= ngScoreWeight + publisherScoreWeight;
         return quality;
+    }
+
+    /**
+     * Calculates effective average publisher score - returns average of publisher scores or
+     * namedGraphScore if there is none.
+     * @param metadata named graph metadata; must not be null
+     * @param namedGraphScore score of named graph
+     * @return effective publisher score
+     */
+    private double calculatePublisherScore(NamedGraphMetadata metadata, double namedGraphScore) {
+        List<Double> publisherScores = metadata.getPublisherScores();
+        if (publisherScores == null || publisherScores.isEmpty()) {
+            return namedGraphScore;
+        }
+
+        double result = 0;
+        for (int i = 0; i < publisherScores.size(); i++) {
+            result += publisherScores.get(i);
+        }
+        return result / publisherScores.size();
     }
 
     /**

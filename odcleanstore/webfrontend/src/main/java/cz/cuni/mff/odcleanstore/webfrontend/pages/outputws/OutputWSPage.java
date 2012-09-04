@@ -8,6 +8,10 @@ public class OutputWSPage extends FrontendPage
 
 	public OutputWSPage() 
 	{
-		super("Home > Output WS", "Output webservice configuration");
+		super
+		(
+			"Home > Output WS", 
+			"Output webservice configuration"
+		);
 	}
 }

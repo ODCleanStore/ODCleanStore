@@ -8,24 +8,29 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.*;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 
 public class EditPropertyPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
+	private static Logger logger = Logger.getLogger(EditPropertyPage.class);
+	
 	private DaoForEntityWithSurrogateKey<PropertySettings> propertySettingsDao;
 	private DaoForEntityWithSurrogateKey<AggregationType> aggregationTypeDao;
 	private DaoForEntityWithSurrogateKey<MultivalueType> multivalueTypeDao;
-	
+
 	public EditPropertyPage(final Long propertyId) 
 	{
 		super(
-			"Home > Output WS > CR > Aggregation Settings > Properties > Create", 
-			"Register a new property"
+			"Home > Output WS > Aggregation Properties > Edit", 
+			"Edit a property"
 		);
 
 		// prepare DAO objects

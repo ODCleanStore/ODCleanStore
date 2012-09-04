@@ -1,5 +1,13 @@
 package cz.cuni.mff.odcleanstore.connection;
 
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
+import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
+import cz.cuni.mff.odcleanstore.shared.Utils;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -7,26 +15,25 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
-import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
-import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
-import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
+import java.util.Locale;
 
 /**
  * A wrapper for SQL {@link Connection} to a Virtuoso database.
  * Wraps {@link SQLException} an ODCleanStoreException and serves as a factory class
  * for {@link WrappedResultSet}.
- *
+ * 
  * Non-static methods are not thread-safe.
  * @author Jan Michelfeit
  */
 public final class VirtuosoConnectionWrapper {
+    private static final Logger LOG = LoggerFactory.getLogger(VirtuosoConnectionWrapper.class);
+
     /**
      * Query timeout in seconds.
      * Loaded from global configuration settings.
      */
-    private static int query_timeout = -1;
-    
+    private static int queryTimeout = -1;
+
     /**
      * Create a new connection and return its wrapper.
      * Should be used only for connection to a Virtuoso instance.
@@ -34,16 +41,18 @@ public final class VirtuosoConnectionWrapper {
      * @return wrapper of the newly created connection
      * @throws ConnectionException database connection error
      */
-    public static VirtuosoConnectionWrapper createConnection(JDBCConnectionCredentials connectionCredentials) throws ConnectionException {
-    	if(query_timeout < 0) {
-    		query_timeout = ConfigLoader.getConfig().getBackendGroup().getQueryTimeout();
-    	}
+    public static VirtuosoConnectionWrapper createConnection(JDBCConnectionCredentials connectionCredentials)
+            throws ConnectionException {
+        if (queryTimeout < 0) {
+            queryTimeout = ConfigLoader.getConfig().getBackendGroup().getQueryTimeout();
+        }
         try {
-            Class.forName("virtuoso.jdbc3.Driver");
+            Class.forName(Utils.JDBC_DRIVER);
         } catch (ClassNotFoundException e) {
             throw new ConnectionException("Couldn't load Virtuoso jdbc driver", e);
         }
         try {
+            LOG.debug("VirtuosoConnectionWrapper: creating connection");
             Connection connection = DriverManager.getConnection(
                     connectionCredentials.getConnectionString(),
                     connectionCredentials.getUsername(),
@@ -53,7 +62,7 @@ public final class VirtuosoConnectionWrapper {
             throw new ConnectionException(e);
         }
     }
- 
+
     /** Database connection. */
     private Connection connection;
 
@@ -75,7 +84,7 @@ public final class VirtuosoConnectionWrapper {
     public WrappedResultSet executeSelect(String query) throws QueryException {
         try {
             Statement statement = connection.createStatement();
-            statement.setQueryTimeout(query_timeout);
+            statement.setQueryTimeout(queryTimeout);
             statement.execute(query);
             return new WrappedResultSet(statement);
         } catch (SQLException e) {
@@ -98,7 +107,7 @@ public final class VirtuosoConnectionWrapper {
                 statement.setObject(i + 1, objects[i]);
             }
 
-            statement.setQueryTimeout(query_timeout);
+            statement.setQueryTimeout(queryTimeout);
             statement.execute();
             return new WrappedResultSet(statement);
         } catch (SQLException e) {
@@ -116,7 +125,7 @@ public final class VirtuosoConnectionWrapper {
         ResultSet resultSet = null;
         try {
             Statement statement = connection.createStatement();
-            statement.setQueryTimeout(query_timeout);
+            statement.setQueryTimeout(queryTimeout);
             statement.execute(query);
             resultSet = statement.getResultSet();
             if (!resultSet.next()) {
@@ -139,12 +148,13 @@ public final class VirtuosoConnectionWrapper {
     /**
      * Executes a general SQL/SPARQL query.
      * @param query SQL/SPARQL query
+     * @return update count
      * @throws QueryException query error
      */
     public int execute(String query) throws QueryException {
         try {
             Statement statement = connection.createStatement();
-            statement.setQueryTimeout(query_timeout);
+            statement.setQueryTimeout(queryTimeout);
             statement.execute(query);
             int updatedCount = statement.getUpdateCount();
             return updatedCount < 0 ? 0 : updatedCount;
@@ -168,7 +178,7 @@ public final class VirtuosoConnectionWrapper {
                 statement.setObject(i + 1, objects[i]);
             }
 
-            statement.setQueryTimeout(query_timeout);
+            statement.setQueryTimeout(queryTimeout);
             statement.execute();
             int updatedCount = statement.getUpdateCount();
             return updatedCount < 0 ? 0 : updatedCount; 
@@ -205,7 +215,8 @@ public final class VirtuosoConnectionWrapper {
      */
     public void adjustTransactionLevel(EnumLogLevel logLevel, boolean autoCommit) throws ConnectionException {
         try {
-            CallableStatement statement = connection.prepareCall(String.format("log_enable(%d)", logLevel.getBits()));
+            CallableStatement statement = connection.prepareCall(
+                    String.format(Locale.ROOT, "log_enable(%d)", logLevel.getBits()));
             statement.execute();
             connection.setAutoCommit(autoCommit);
         } catch (SQLException e) {
@@ -215,10 +226,10 @@ public final class VirtuosoConnectionWrapper {
     
     /**
      * Adjust transaction isolation level.
-     * @param level - one of the following Connection constants:</br>
-     *  Connection.TRANSACTION_READ_UNCOMMITTED,</br>
-     *  Connection.TRANSACTION_READ_COMMITTED, </br>
-     *  Connection.TRANSACTION_REPEATABLE_READ, </br>
+     * @param level - one of the following Connection constants:<br />
+     *  Connection.TRANSACTION_READ_UNCOMMITTED,<br />
+     *  Connection.TRANSACTION_READ_COMMITTED, <br />
+     *  Connection.TRANSACTION_REPEATABLE_READ, <br />
      *  or Connection.TRANSACTION_SERIALIZABLE.
      * @throws ConnectionException database error
      */
@@ -236,18 +247,19 @@ public final class VirtuosoConnectionWrapper {
      */
     public void close() throws ConnectionException {
         try {
+            LOG.debug("VirtuosoConnectionWrapper: closing connection");
             connection.close();
         } catch (SQLException e) {
             throw new ConnectionException(e);
         }
     }
-    
+
     /**
      * Closes the wrapped connection without throwing an exception.
      */
     public void closeQuietly() {
         try {
-        	close();
+            close();
         } catch (ConnectionException e) {
             // Do nothing
         }

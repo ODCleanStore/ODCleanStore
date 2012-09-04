@@ -69,7 +69,7 @@ public class ConflictResolverImplTest {
         NamedGraphMetadata otherQuadMetadata =
                 new NamedGraphMetadata(otherQuad.getGraphName().getURI());
         // otherQuadMetadata.setScore();
-        otherQuadMetadata.setSource(TestUtils.getUniqueURI());
+        otherQuadMetadata.setSources(Collections.singleton(TestUtils.getUniqueURI()));
         otherQuadMetadata.setInsertedAt(date.getTime());
         otherQuadMetadata.setInsertedBy(insertedBy);
         metadata.addMetadata(otherQuadMetadata);
@@ -78,7 +78,7 @@ public class ConflictResolverImplTest {
         NamedGraphMetadata oldVersionMetadata =
                 new NamedGraphMetadata(oldVersionQuad.getGraphName().getURI());
         // oldVersionMetadata.setScore();
-        oldVersionMetadata.setSource(updatedQuadDataSource);
+        oldVersionMetadata.setSources(Collections.singleton(updatedQuadDataSource));
         oldVersionMetadata.setInsertedAt(date.getTime());
         oldVersionMetadata.setInsertedBy(insertedBy);
         metadata.addMetadata(oldVersionMetadata);
@@ -87,7 +87,7 @@ public class ConflictResolverImplTest {
         NamedGraphMetadata newVersionMetadata =
                 new NamedGraphMetadata(newVersionQuad.getGraphName().getURI());
         // newVersionMetadata.setScore();
-        newVersionMetadata.setSource(updatedQuadDataSource);
+        newVersionMetadata.setSources(Collections.singleton(updatedQuadDataSource));
         newVersionMetadata.setInsertedAt(date.getTime());
         newVersionMetadata.setInsertedBy(insertedBy);
         metadata.addMetadata(newVersionMetadata);

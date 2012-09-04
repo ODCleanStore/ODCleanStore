@@ -29,7 +29,7 @@ public class PrefixesListPage extends FrontendPage
 		super
 		(
 			"Home > URI Prefixes > List", 
-			"URI prefixes configuration"
+			"List all URI prefixes"
 		);
 		
 		// prepare DAO objects

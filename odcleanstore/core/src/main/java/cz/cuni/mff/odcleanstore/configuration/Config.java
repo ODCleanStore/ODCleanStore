@@ -1,11 +1,11 @@
 package cz.cuni.mff.odcleanstore.configuration;
 
-import cz.cuni.mff.odcleanstore.configuration.exceptions.ConfigurationException;
-
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
+
+import cz.cuni.mff.odcleanstore.configuration.exceptions.ConfigurationException;
 
 /**
  * Encapsulates application configuration values.
@@ -31,6 +31,7 @@ public final class Config {
     private ConflictResolutionConfig conflictResolutionGroup;
     private OutputWSConfig outputWSGroup;
     private InputWSConfig inputWSGroup;
+    private EngineConfig engineGroup;
 
     /**
      * Create a new instance with the given configuration values.
@@ -40,11 +41,13 @@ public final class Config {
      * @param objectIdentificationGroup Object Identification configuration
      * @param outputWSGroup input webservice configuration
      * @param inputWSGroup output webservice configuration
+     * @param engineGroup engine configuration
      */
+    // CHECKSTYLE:OFF
     private Config(BackendConfig backendConfigGroup, DataNormalizationConfig dataNormalizationGroup,
             QualityAssessmentConfig qualityAssessmentGroup, ObjectIdentificationConfig objectIdentificationGroup,
             QueryExecutionConfig queryExecutionGroup, ConflictResolutionConfig conflictResolutionGroup,
-            OutputWSConfig outputWSGroup, InputWSConfig inputWSGroup) {
+            OutputWSConfig outputWSGroup, InputWSConfig inputWSGroup, EngineConfig engineGroup) {
         this.backendConfigGroup = backendConfigGroup;
         this.dataNormalizationGroup = dataNormalizationGroup;
         this.qualityAssessmentGroup = qualityAssessmentGroup;
@@ -53,7 +56,9 @@ public final class Config {
         this.conflictResolutionGroup = conflictResolutionGroup;
         this.outputWSGroup = outputWSGroup;
         this.inputWSGroup = inputWSGroup;
+        this.engineGroup = engineGroup;
     }
+    // CHECKSTYLE:ON
 
     /**
      * Extracts configuration values from the given Properties instance and returns them
@@ -72,19 +77,20 @@ public final class Config {
         ConflictResolutionConfig conflictResolutionGroup = ConflictResolutionConfig.load(properties);
         OutputWSConfig outputWSGroup = OutputWSConfig.load(properties);
         InputWSConfig inputWSGroup = InputWSConfig.load(properties);
+        EngineConfig engineConfig = EngineConfig.load(properties);
 
         return new Config(backendConfigGroup, dataNormalizationGroup, qualityAssessmentGroup, objectIdentificationGroup,
-        		queryExecutionGroup, conflictResolutionGroup, outputWSGroup, inputWSGroup);
+                queryExecutionGroup, conflictResolutionGroup, outputWSGroup, inputWSGroup, engineConfig);
     }
 
     /**
      * Extracts configuration values from the given file and returns them encapsulated
      * in a Config instance.
-     *
+     * 
      * The format of the given file is supposed to adhere to the Java Properties rules
      * (see <a href="http://docs.oracle.com/javase/1.4.2/docs/api/java/util/Properties.html">
      * Java SE javadoc</a> for more information on properties).
-     *
+     * 
      * @param file file to load configuration from
      * @return configuration holder instance
      * @throws ConfigurationException exception
@@ -113,10 +119,10 @@ public final class Config {
      * Returns DN configuration.
      * @return DN configuration
      */
-	public DataNormalizationConfig getDataNormalizationGroup() {
-		return dataNormalizationGroup;
-	}
-    
+    public DataNormalizationConfig getDataNormalizationGroup() {
+        return dataNormalizationGroup;
+    }
+
     /**
      * Returns QA configuration.
      * @return QA configuration
@@ -163,5 +169,13 @@ public final class Config {
      */
     public InputWSConfig getInputWSGroup() {
         return inputWSGroup;
+    }
+    
+    /**
+     * Returns engine configuration.
+     * @return engine configuration
+     */
+    public EngineConfig getEngineGroup() {
+        return engineGroup;
     }
 }

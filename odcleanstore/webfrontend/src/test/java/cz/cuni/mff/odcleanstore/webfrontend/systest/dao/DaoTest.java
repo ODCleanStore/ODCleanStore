@@ -1,7 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.systest.dao;
 
 import java.io.*;
-import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
@@ -13,6 +12,8 @@ import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
+
+import cz.cuni.mff.odcleanstore.shared.Utils;
 
 public abstract class DaoTest
 {
@@ -28,7 +29,7 @@ public abstract class DaoTest
 	{
 		ctx = new FileSystemXmlApplicationContext(TEST_SPRING_CONFIG_LOCATION);
 
-		Class.forName("virtuoso.jdbc3.Driver");
+		Class.forName(Utils.JDBC_DRIVER);
 		
 		jdbcConnection = DriverManager.getConnection
 		(

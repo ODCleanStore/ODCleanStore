@@ -8,17 +8,17 @@
 	
 	<groupId>cz.cuni.mff.odcleanstore</groupId>
 	<artifactId>odcs-backend</artifactId>
-	<version>0.2-SNAPSHOT</version>
+	<version>0.3-SNAPSHOT</version>
 	<packaging>jar</packaging>
   
 	<properties>
-		<odcs-core-version>0.2-SNAPSHOT</odcs-core-version>
+		<odcs-core-version>0.3-SNAPSHOT</odcs-core-version>
 	</properties>
 
 	<parent>
 		<groupId>cz.cuni.mff.odcleanstore</groupId>
 		<artifactId>odcs</artifactId>
-		<version>0.2-SNAPSHOT</version>
+		<version>0.3-SNAPSHOT</version>
 	</parent>
 
 	<name>ODCleanStore - Backend</name>

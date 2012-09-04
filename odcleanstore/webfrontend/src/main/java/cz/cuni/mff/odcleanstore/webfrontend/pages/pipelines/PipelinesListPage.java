@@ -41,8 +41,8 @@ public class PipelinesListPage extends FrontendPage
 	{
 		super
 		(
-			"Home > Pipelines > List", 
-			"Registered pipelines configuration"
+			"Home > Backend > Pipelines > List", 
+			"List all pipelines"
 		);
 		
 		// prepare DAO objects
@@ -53,45 +53,9 @@ public class PipelinesListPage extends FrontendPage
 		
 		// register page components
 		//
-		addCommitSettingsLink();
 		addPipelinesTable();
 	}
 	
-	private void addCommitSettingsLink() 
-	{
-		Link link = new Link("commitPipelinesSettings")
-		{
-			@Override
-			public void onClick() 
-			{
-				try {
-					officialPipelinesDao.commitPipelinesRelatedTables();
-				}
-				catch (Exception ex)
-				{
-					logger.error(ex.getMessage());
-					
-					getSession().error(
-						"The changes could not be commited due to an unexpected error."
-					);
-					
-					return;
-				}
-				
-				getSession().info("The changes were successfuly commited.");
-				setResponsePage(PipelinesListPage.class);
-			}
-		};
-		
-		link.add(
-			new ConfirmationBoxRenderer(
-				"Are you sure you want to commit all pipeline related changes?"
-			)
-		);
-		
-		add(link);
-	}
-
 	private void addPipelinesTable()
 	{
 		SortableDataProvider<Pipeline> data = new GenericSortableDataProvider<Pipeline>(pipelineDao, "label");

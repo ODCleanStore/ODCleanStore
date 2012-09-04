@@ -20,6 +20,8 @@ import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentEx
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRulesModel;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.Ontology;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
 
 public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology> 
 {	
@@ -28,8 +30,6 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 	private static final String ENCODING = "UTF-8";
 	private static final String GRAPH_NAME_PREFIX = "http://opendata.cz/infrastructure/odcleanstore/ontologies/";
 	private static final String RULE_GROUP_PREFIX = "Generated from ontology: ";
-	private static final String QA_GROUPS_TABLE_NAME = "QA_RULES_GROUPS";
-	private static final String DN_GROUPS_TABLE_NAME = "DN_RULES_GROUPS";
 	private static final String QA_MAPPING_TABLE_NAME = "QA_RULES_GROUPS_TO_ONTOLOGIES_MAP";
 	private static final String DN_MAPPING_TABLE_NAME = "DN_RULES_GROUPS_TO_ONTOLOGIES_MAP";
 	
@@ -114,8 +114,8 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		{
 			ConfigLoader.loadConfig();
 		
-			generateRules(QA_GROUPS_TABLE_NAME, item.getLabel());
-			generateRules(DN_GROUPS_TABLE_NAME, item.getLabel());
+			generateRules(QARulesGroupDao.TABLE_NAME, item.getLabel());
+			generateRules(DNRulesGroupDao.TABLE_NAME, item.getLabel());
 		} catch (ConfigurationException e) {
 			// TODO:
 		}
@@ -187,7 +187,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		
 		createMapping(createMappingTableName(tableName), groupId, ontologyId);
 	
-		if (QA_GROUPS_TABLE_NAME.equals(tableName)) {
+		if (QARulesGroupDao.TABLE_NAME.equals(tableName)) {
 			QualityAssessmentRulesModel rulesModel = new QualityAssessmentRulesModel(this.lookupFactory.getDataSource());
 			
 			try {
@@ -195,7 +195,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 			} catch (QualityAssessmentException e) {
 				// TODO: Handle it properly
 			}
-		} else {
+		} else if (DNRulesGroupDao.TABLE_NAME.equals(tableName)){
 			DataNormalizationRulesModel rulesModel = new DataNormalizationRulesModel(this.lookupFactory.getDataSource());
 
 			try {
@@ -203,6 +203,8 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 			} catch (DataNormalizationException e) {
 				// TODO: Handle it properly
 			}
+		} else {
+			throw new AssertionError("Unexpected rules-group table name provided: " + tableName);
 		}
 	}
 	
@@ -224,10 +226,12 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 	
 	private String createMappingTableName(String groupTableName) 
 	{
-		if (QA_GROUPS_TABLE_NAME.equals(groupTableName)) {
+		if (QARulesGroupDao.TABLE_NAME.equals(groupTableName)) {
 			return QA_MAPPING_TABLE_NAME;
-		} else {
+		} else if (QARulesGroupDao.TABLE_NAME.equals(groupTableName)){
 			return DN_MAPPING_TABLE_NAME;
+		} else {
+			throw new AssertionError("Unexpected rules-group table name provided: " + groupTableName);
 		}
 	}
 	

@@ -1,19 +1,5 @@
 package cz.cuni.mff.odcleanstore.systest.qualityassessment.impl;
 
-import java.io.File;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-
-import junit.framework.TestCase;
-
-import org.junit.Assert;
-import org.junit.Test;
-
-import scala.actors.threadpool.Arrays;
-
 import cz.cuni.mff.odcleanstore.TestUtils;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
@@ -26,24 +12,37 @@ import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraphException;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
-import cz.cuni.mff.odcleanstore.vocabulary.W3P;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import scala.actors.threadpool.Arrays;
+
+import java.io.File;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+
+import junit.framework.TestCase;
 
 class Triple {
 	Object subject;
 	Object predicate;
 	Object object;
-	
+
 	private boolean isURL (String value) {
 		try {
 			new URL(value);
-			
+
 			return true;
 		} catch (Exception e) {
 		}
-		
+
 		return false;
 	}
-	
+
 	private Object wrapLiteral (Object value) {
 
 		if (value instanceof String) {
@@ -53,10 +52,10 @@ class Triple {
 				return "\"" + value + "\"";
 			}
 		}
-		
+
 		return value;
 	}
-	
+
 	public Triple (Object subject, Object predicate, Object object) {
 
 		this.subject = wrapLiteral(subject);
@@ -68,7 +67,7 @@ class Triple {
 class Graph {
 	public String name = null;
 	public List<Triple> triples = new ArrayList<Triple>();
-	
+
 	public Graph (Triple[] triples) {
 		this.triples = Arrays.asList(triples);
 	}
@@ -78,7 +77,7 @@ class TestInstance {
 	public Graph graph;
 	public Double score;
 	public String[] trace;
-	
+
 	public TestInstance (Graph graph, Double score, String[] trace) {
 		this.graph = graph;
 		this.score = score;
@@ -89,7 +88,7 @@ class TestInstance {
 public class QualityAssessorImplTest extends TestCase {
 	private JDBCConnectionCredentials sparqlEndpoint = new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1113/UID=dba/PWD=dba", "dba", "dba");
 	private VirtuosoConnectionWrapper connection;
-	
+
 	private TestInstance[] tests = new TestInstance[] {
 		new TestInstance(
 				new Graph(new Triple[] {
@@ -109,16 +108,17 @@ public class QualityAssessorImplTest extends TestCase {
 				})
 
 	};
-	
+
 	private String metadataGraphName;
-	
+	private String provenanceMetadataGraphName;
+
 	private List<Object[]> groupsBackup;
 	private List<Object[]> rulesBackup;
-	
+
 	private static final Object[][] groups = {
 		{0, "Skupina 1", "Testovaci skupina"}
 	};
-	
+
 	private static final Object[][] rules = {
 		{0, 0, "{{?s <http://purl.org/procurement#referenceNumber> ?o} FILTER (bif:regexp_like(?o, \'[a-zA-Z]\'))}", 0.9, "PROCUREMENT REFERENCE NUMBER CONSISTS OF UNANTICIPATED CHARACTERS"},
 		{1, 0, "{{?s <http://purl.org/procurement#procedureType> ?o}} GROUP BY ?g ?s HAVING count(?o) > 1", 0.75, "PROCEDURE TYPE AMBIGUOUS"},
@@ -133,17 +133,18 @@ public class QualityAssessorImplTest extends TestCase {
 
 	public QualityAssessorImplTest (String name) throws DatabaseException {
 		super(name);
-		
+
 		connection = VirtuosoConnectionWrapper.createConnection(sparqlEndpoint);
-		
+
 		metadataGraphName = TestUtils.getUniqueURI();
+		provenanceMetadataGraphName = TestUtils.getUniqueURI();
 	}
-	
+
 	private void backupGroups() throws Exception {
 		WrappedResultSet groups = connection.executeSelect("SELECT * FROM DB.ODCLEANSTORE.QA_RULES_GROUPS");
-		
+
 		groupsBackup = new ArrayList<Object[]>();
-		
+
 		while (groups.next()) {
 			Object[] publisher = {
 					groups.getInt("id"),
@@ -154,12 +155,12 @@ public class QualityAssessorImplTest extends TestCase {
 			groupsBackup.add(publisher);
 		}
 	}
-	
+
 	private void backupRules() throws Exception {
 		WrappedResultSet rules = connection.executeSelect("SELECT * FROM DB.ODCLEANSTORE.QA_RULES");
-		
+
 		rulesBackup = new ArrayList<Object[]>();
-		
+
 		while (rules.next()) {
 			Object[] publisher = {
 					rules.getInt("id"),
@@ -172,65 +173,65 @@ public class QualityAssessorImplTest extends TestCase {
 			rulesBackup.add(publisher);
 		}
 	}
-	
+
 	private void dropGroups() throws Exception {
 		connection.execute("DELETE FROM DB.ODCLEANSTORE.QA_RULES_GROUPS");
 	}
-	
+
 	private void dropRules() throws Exception {
 		connection.execute("DELETE FROM DB.ODCLEANSTORE.QA_RULES");
 	}
-	
+
 	private void loadTestingGroups() throws Exception {
 		for (int i = 0; i < groups.length; ++i) {
 			connection.execute("INSERT INTO DB.ODCLEANSTORE.QA_RULES_GROUPS (id, label, description) VALUES (?, ?, ?)", groups[i]);
 		}
 	}
-	
+
 	private void loadTestingRules() throws Exception {
 		for (int i = 0; i < rules.length; ++i) {
 			connection.execute("INSERT INTO DB.ODCLEANSTORE.QA_RULES (id, groupId, filter, coefficient, description) VALUES (?, ?, ?, ?, ?)", rules[i]);
 		}
 	}
-	
+
 	private void restoreGroups() throws Exception {
 		Iterator<Object[]> objects = groupsBackup.iterator();
-		
+
 		while (objects.hasNext()) {
 			connection.execute("INSERT INTO DB.ODCLEANSTORE.QA_RULES_GROUPS (id, label, description) VALUES (?, ?, ?)", objects.next());
 		}
 	}
-	
+
 	private void restoreRules() throws Exception {
 		Iterator<Object[]> objects = rulesBackup.iterator();
-		
+
 		while (objects.hasNext()) {
 			connection.execute("INSERT INTO DB.ODCLEANSTORE.QA_RULES (id, groupId, filter, coefficient, description) VALUES (?, ?, ?, ?, ?)", objects.next());
 		}
 	}
-	
+
 	private void createGraphs() throws Exception {
 		for (int i = 0; i < tests.length; ++i) {
 			Graph graph = tests[i].graph;
-			
+
 			graph.name = TestUtils.getUniqueURI();
-			
+
 			connection.execute("SPARQL CREATE GRAPH <" + graph.name + ">");
-			
+
 			Iterator<Triple> iterator = graph.triples.iterator();
-			
+
 			while (iterator.hasNext()) {
 				Triple triple = iterator.next();
-				
+
 				connection.execute("SPARQL INSERT INTO <" + graph.name + "> {" + triple.subject + " " + triple.predicate + " " + triple.object + "}");
 			}
 		}
 	}
-	
+
 	private void createMetadataGraph() throws Exception {
 		connection.execute("SPARQL CREATE GRAPH <" + metadataGraphName + ">");
 	}
-	
+
 	private void dropGraphs() throws Exception {
 		for (int i = 0; i < tests.length; ++i) {
 			Graph graph = tests[i].graph;
@@ -238,11 +239,11 @@ public class QualityAssessorImplTest extends TestCase {
 			connection.execute("SPARQL DROP GRAPH <" + graph.name + ">");
 		}
 	}
-	
+
 	private void dropMetadataGraph() throws Exception {
 		connection.execute("SPARQL DROP GRAPH <" + metadataGraphName + ">");
 	}
-	
+
 	@Override
 	protected void setUp() throws Exception {
 		backupGroups();
@@ -250,14 +251,14 @@ public class QualityAssessorImplTest extends TestCase {
 
 		dropGroups();
 		dropRules();
-		
+
 		loadTestingGroups();
 		loadTestingRules();
-		
+
 		createGraphs();
 		createMetadataGraph();
 	}
-	
+
 	@Override
 	protected void tearDown() throws Exception {
 		dropMetadataGraph();
@@ -265,14 +266,15 @@ public class QualityAssessorImplTest extends TestCase {
 
 		dropGroups();
 		dropRules();
-		
+
 		restoreGroups();
 		restoreRules();
 	}
-	
+
 	private TransformedGraph prepareGraph (final String graphName) {
 		final String metadataGraphName = this.metadataGraphName;
-		
+		final String provenanceMetadataGraphName = this.provenanceMetadataGraphName;
+
 		return new TransformedGraph() {
 
 			@Override
@@ -291,27 +293,32 @@ public class QualityAssessorImplTest extends TestCase {
 			}
 
 			@Override
+            public String getProvenanceMetadataGraphName() {
+                return provenanceMetadataGraphName;
+            }
+
+			@Override
 			public Collection<String> getAttachedGraphNames() {
 				return null;
 			}
 
 			@Override
 			public void addAttachedGraph(String attachedGraphName)
-					throws TransformedGraphException {		
+					throws TransformedGraphException {
 			}
 
 			@Override
-			public void deleteGraph() throws TransformedGraphException {		
+			public void deleteGraph() throws TransformedGraphException {
 			}
 
 			@Override
 			public boolean isDeleted() {
 				return false;
 			}
-			
+
 		};
 	}
-	
+
 	private TransformationContext prepareContext() {
 		return new TransformationContext() {
 
@@ -339,21 +346,21 @@ public class QualityAssessorImplTest extends TestCase {
 			public EnumTransformationType getTransformationType() {
 				return null;
 			}
-			
+
 		};
 	}
-	
+
 	private void checkGraphScore (String graphName, Double expectedScore) throws Exception {
 		WrappedResultSet result;
-		
+
 		/**
 		 * Determine the ambiguity of score
 		 */
 		result = connection.executeSelect("SPARQL SELECT COUNT(?score) AS ?count FROM <" + metadataGraphName + "> WHERE {<" + graphName + "> <" + ODCS.score + "> ?score}");
 		result.next();
-		
+
 		Integer count = result.getInt("count");
-		
+
 		Assert.assertTrue(count == 1);
 
 		/**
@@ -371,15 +378,15 @@ public class QualityAssessorImplTest extends TestCase {
 		 */
 		connection.execute("SPARQL DELETE FROM <" + metadataGraphName + "> {<" + graphName + "> <" + ODCS.score + "> ?score} WHERE {<" + graphName + "> <" + ODCS.score + "> ?score}");
 	}
-	
+
 	private void checkGraphScoreTrace(String graphName, String... trace) throws Exception {
 		WrappedResultSet result;
-		
+
 		for (int i = 0; i < trace.length; ++i) {
 			String escapedTrace = trace[i];
-			
+
 			escapedTrace = escapedTrace.replaceAll("'", "\\\\'");
-			
+
 			/**
 			 * Determine the presence of score trace
 			 */
@@ -387,7 +394,7 @@ public class QualityAssessorImplTest extends TestCase {
 			result.next();
 
 			Integer count = result.getInt("count");
-			
+
 			Assert.assertTrue(count == 1);
 
 			/**
@@ -396,31 +403,31 @@ public class QualityAssessorImplTest extends TestCase {
 			connection.execute("SPARQL DELETE FROM <" + metadataGraphName + "> {<" + graphName + "> <" + ODCS.scoreTrace + "> '" + escapedTrace + "'^^xsd:string}");
 		}
 	}
-	
+
 	@Test
 	public void test () throws Exception {
 		for (int i = 0; i < tests.length; ++i) {
 			Graph graph = tests[i].graph;
-			
+
 			TransformedGraph inputGraph = prepareGraph(graph.name);
 			TransformationContext context = prepareContext();
-			
+
 			QualityAssessor qualityAssessor = new QualityAssessorImpl((Integer)groups[0][0]);
-			
+
 			qualityAssessor.transformExistingGraph(inputGraph, context);
 		}
-		
+
 		for (int i = 0; i < tests.length; ++i) {
 			Graph graph = tests[i].graph;
 			Double score = tests[i].score;
 			String[] trace = tests[i].trace;
-			
+
 			checkGraphScore(graph.name, score);
 			checkGraphScoreTrace(graph.name, trace);
 		}
-		
-		WrappedResultSet remaining = connection.executeSelect("SPARQL SELECT * FROM <" + metadataGraphName + "> WHERE {{?s ?p ?o} FILTER (?p != <" + W3P.publishedBy + ">)}");
-		
+
+		WrappedResultSet remaining = connection.executeSelect("SPARQL SELECT * FROM <" + metadataGraphName + "> WHERE {{?s ?p ?o} FILTER (?p != <" + ODCS.publishedBy + ">)}");
+
 		Assert.assertFalse(remaining.next());
 	}
 }

@@ -9,9 +9,8 @@ import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
-import cz.cuni.mff.odcleanstore.vocabulary.DC;
+import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
-import cz.cuni.mff.odcleanstore.vocabulary.W3P;
 import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 
 import com.hp.hpl.jena.graph.Triple;
@@ -24,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
@@ -77,7 +75,8 @@ import java.util.regex.Pattern;
             + "\n       {"
             + "\n         GRAPH ?graph {"
             + "\n           ?s ?p ?o."
-            + "\n           FILTER (?o = %2$s)"
+           // fix of SPARQL compiler error: "sparp_gp_deprecate(): equiv replaces filter but under deprecation"
+            + "\n           FILTER (?o IN (%2$s, %2$s))"
             + "\n         }"
             + "\n       }"
             + "\n       %3$s"
@@ -100,7 +99,7 @@ import java.util.regex.Pattern;
     private static final String METADATA_QUERY = "SPARQL"
             + "\n DEFINE input:same-as \"yes\""
             + "\n SELECT DISTINCT"
-            + "\n   ?resGraph ?source ?score ?insertedAt ?insertedBy ?license ?publishedBy ?publisherScore"
+            + "\n   ?resGraph ?p ?o"
             + "\n WHERE {"
             + "\n   {"
             + "\n     {"
@@ -117,7 +116,8 @@ import java.util.regex.Pattern;
             + "\n         {"
             + "\n           GRAPH ?graph {"
             + "\n             ?s ?p ?o."
-            + "\n             FILTER (?o = %2$s)"
+            // fix of SPARQL compiler error: "sparp_gp_deprecate(): equiv replaces filter but under deprecation"
+            + "\n             FILTER (?o IN (%2$s, %2$s))"
             + "\n           }"
             + "\n         }"
             + "\n         %3$s"
@@ -142,7 +142,8 @@ import java.util.regex.Pattern;
             + "\n             {"
             + "\n               GRAPH ?graph {"
             + "\n                 ?r ?p ?o."
-            + "\n                 FILTER (?o = %2$s)"
+            // fix of SPARQL compiler error: "sparp_gp_deprecate(): equiv replaces filter but under deprecation"
+            + "\n                 FILTER (?o IN (%2$s, %2$s))"
             + "\n               }"
             + "\n             }"
             + "\n             UNION"
@@ -157,7 +158,8 @@ import java.util.regex.Pattern;
             + "\n             {"
             + "\n               GRAPH ?graph {"
             + "\n                 ?s ?r ?o."
-            + "\n                 FILTER (?o = %2$s)"
+            // fix of SPARQL compiler error: "sparp_gp_deprecate(): equiv replaces filter but under deprecation"
+            + "\n                 FILTER (?o IN (%2$s, %2$s))"
             + "\n               }"
             + "\n             }"
             + "\n             %3$s"
@@ -172,16 +174,22 @@ import java.util.regex.Pattern;
             + "\n       LIMIT %6$d"
             + "\n     }"
             + "\n   }"
-            + "\n   OPTIONAL { ?resGraph <" + W3P.source + "> ?source }"
-            + "\n   OPTIONAL { ?resGraph <" + ODCS.score + "> ?score }"
-            + "\n   OPTIONAL { ?resGraph <" + W3P.insertedAt + "> ?insertedAt }"
-            + "\n   OPTIONAL { ?resGraph <" + W3P.insertedBy + "> ?insertedBy }"
-            + "\n   OPTIONAL { ?resGraph <" + DC.license + "> ?license }"
-            + "\n   OPTIONAL { ?resGraph <" + W3P.publishedBy + "> ?publishedBy }"
-            + "\n   OPTIONAL { ?resGraph <" + W3P.publishedBy + "> ?publishedBy. "
-            + "\n     ?publishedBy <" + ODCS.publisherScore + "> ?publisherScore }"
+            + "\n   {"
+            + "\n     {"
+            + "\n       ?resGraph <" + ODCS.metadataGraph + "> ?metadataGraph"
+            + "\n       GRAPH ?metadataGraph {"
+            + "\n         ?resGraph ?p ?o"
+            + "\n       }"
+            + "\n     }"
+            + "\n     UNION"
+            + "\n     {"
+            + "\n       ?resGraph <" + ODCS.publishedBy + "> ?publishedBy."
+            + "\n       ?publishedBy ?p ?o."
+            + "\n       FILTER (?p = <" + ODCS.publisherScore + ">)"
+            + "\n     }"
+            + "\n   }"
             + "\n   %5$s"
-            + "\n   FILTER (bound(?source))"
+            //+ "\n   FILTER (bound(?source))"
             + "\n }"
             + "\n LIMIT %6$d";
 
@@ -215,7 +223,8 @@ import java.util.regex.Pattern;
             + "\n       {"
             + "\n         GRAPH ?graph {"
             + "\n           ?r ?p ?o."
-            + "\n           FILTER (?o = %2$s)"
+           // fix of SPARQL compiler error: "sparp_gp_deprecate(): equiv replaces filter but under deprecation"
+            + "\n           FILTER (?o IN (%2$s, %2$s))"
             + "\n         }"
             + "\n       }"
             + "\n       UNION"
@@ -230,7 +239,8 @@ import java.util.regex.Pattern;
             + "\n       {"
             + "\n         GRAPH ?graph {"
             + "\n           ?s ?r ?o."
-            + "\n           FILTER (?o = %2$s)"
+            // fix of SPARQL compiler error: "sparp_gp_deprecate(): equiv replaces filter but under deprecation"
+            + "\n           FILTER (?o IN (%2$s, %2$s))"
             + "\n         }"
             + "\n       }"
             + "\n       %3$s"
@@ -252,7 +262,7 @@ import java.util.regex.Pattern;
      * @see #getContainsMatchExpr(String)
      * @see #CONTAINS_FILTER_PATTERN2
      */
-    private static final Pattern CONTAINS_FILTER_PATTERN1 = Pattern.compile("[\\x00-\\x09\\x0E-\\x1F'`]+");
+    private static final Pattern CONTAINS_FILTER_PATTERN1 = Pattern.compile("[\\x00-\\x09\\x0E-\\x1F'`\\\\]+");
 
     /**
      * Second stage of {@link #CONTAINS_FILTER_PATTERN1}.
@@ -272,7 +282,7 @@ import java.util.regex.Pattern;
      * Must remove quotes (single and double).
      * @see #getExactMatchExpr(String)
      */
-    private static final Pattern EXACT_MATCH_FILTER_PATTERN = Pattern.compile("[\\x00-\\x09\\x0E-\\x1F\"'`]+");
+    private static final Pattern EXACT_MATCH_FILTER_PATTERN = Pattern.compile("[\\x00-\\x09\\x0E-\\x1F\"'`\\\\]+");
 
     // CHECKSTYLE:OFF
     /** Pattern matching a valid xsd:dateTime value. */
@@ -412,7 +422,9 @@ import java.util.regex.Pattern;
         checkValidSettings();
 
         if (keywordsQuery.length() > MAX_QUERY_LENGTH) {
-            throw new QueryExecutionException(EnumQueryError.QUERY_TOO_LONG,
+            throw new QueryExecutionException(
+                    EnumQueryError.QUERY_TOO_LONG,
+                    ErrorCodes.QE_INPUT_FORMAT_ERR,
                     "The requested keyword query is longer than " + MAX_QUERY_LENGTH + " characters.");
         }
 
@@ -437,40 +449,23 @@ import java.util.regex.Pattern;
             // Apply conflict resolution
             NamedGraphMetadataMap metadata = getMetadata(containsMatchExpr, exactMatchExpr);
             Iterator<Triple> sameAsLinks = getSameAsLinks().iterator();
-            Set<String> preferredURIs = getPreferredURIs();
+            Set<String> preferredURIs = getSettingsPreferredURIs();
             ConflictResolver conflictResolver =
                     conflictResolverFactory.createResolver(aggregationSpec, metadata, sameAsLinks, preferredURIs);
             Collection<CRQuad> resolvedQuads = conflictResolver.resolveConflicts(quads);
 
             return createResult(resolvedQuads, metadata, canonicalQuery, System.currentTimeMillis() - startTime);
         } catch (ConflictResolutionException e) {
-            throw new QueryExecutionException(EnumQueryError.CONFLICT_RESOLUTION_ERROR, e);
+            throw new QueryExecutionException(
+                    EnumQueryError.CONFLICT_RESOLUTION_ERROR,
+                    ErrorCodes.QE_CR_ERR,
+                    "Internal error during conflict resolution",
+                    e);
         } catch (DatabaseException e) {
-            throw new QueryExecutionException(EnumQueryError.DATABASE_ERROR, e);
+            throw new QueryExecutionException(EnumQueryError.DATABASE_ERROR, ErrorCodes.QE_DATABASE_ERR, "Database error", e);
         } finally {
             closeConnectionQuietly();
         }
-    }
-
-    /**
-     * Returns preferred URIs for the result.
-     * These include the properties explicitly listed in aggregation settings.
-     * @return preferred URIs
-     */
-    private Set<String> getPreferredURIs() {
-        Set<String> aggregationProperties = aggregationSpec.getPropertyAggregations() == null
-                ? Collections.<String>emptySet()
-                : aggregationSpec.getPropertyAggregations().keySet();
-        Set<String> multivalueProperties = aggregationSpec.getPropertyMultivalue() == null
-                ? Collections.<String>emptySet()
-                : aggregationSpec.getPropertyMultivalue().keySet();
-        if (aggregationProperties.isEmpty() && multivalueProperties.isEmpty()) {
-            return Collections.<String>emptySet();
-        }
-        Set<String> preferredURIs = new HashSet<String>(aggregationProperties.size() + multivalueProperties.size());
-        preferredURIs.addAll(aggregationProperties);
-        preferredURIs.addAll(multivalueProperties);
-        return preferredURIs;
     }
 
     /**
@@ -504,7 +499,7 @@ import java.util.regex.Pattern;
      */
     private Collection<Quad> getKeywordOccurrences(String containsMatchExpr, String exactMatchExpr)
             throws DatabaseException {
-        String query = String.format(KEYWORD_OCCURENCES_QUERY, containsMatchExpr, exactMatchExpr,
+        String query = String.format(Locale.ROOT, KEYWORD_OCCURENCES_QUERY, containsMatchExpr, exactMatchExpr,
                 getGraphFilterClause(), maxLimit);
         return getQuadsFromQuery(query, "getKeywordOccurrences()");
     }

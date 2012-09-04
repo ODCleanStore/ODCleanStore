@@ -6,13 +6,14 @@ import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.queryexecution.EnumQueryError;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
+import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -47,7 +48,7 @@ public class LabelPropertiesListCache extends CacheHolderBase<String> {
 
     @Override
     protected String loadCachedValue() throws QueryExecutionException {
-        List<String> labelProperties = new ArrayList<String>();
+        List<String> labelProperties = new LinkedList<String>();
 
         VirtuosoConnectionWrapper connection = null;
         WrappedResultSet resultSet = null;
@@ -64,24 +65,34 @@ public class LabelPropertiesListCache extends CacheHolderBase<String> {
                 }
             }
 
-            LOG.info("Loaded {} label properties.", labelProperties.size());
-            if (labelProperties.isEmpty()) {
-                throw new QueryExecutionException(EnumQueryError.QUERY_EXECUTION_SETTINGS_INVALID,
-                        "There must be at least one label property defined");
-            }
-
+            int propertyCount = 0;
             StringBuilder sb = new StringBuilder();
             for (String property : labelProperties) {
+                if (!Utils.isValidIRI(property)) {
+                    continue;
+                }
+                propertyCount++;
                 sb.append('<');
                 sb.append(property);
                 sb.append(">, ");
             }
+
+            LOG.info("Loaded {} label properties.", propertyCount);
+            if (propertyCount == 0) {
+                throw new QueryExecutionException(
+                        EnumQueryError.QUERY_EXECUTION_SETTINGS_INVALID,
+                        ErrorCodes.QE_LABEL_PROPS_EMPTY_ERR,
+                        "There must be at least one valid label property defined");
+            }
+
             return sb.substring(0, sb.length() - 2);
 
         } catch (DatabaseException e) {
-            throw new QueryExecutionException(EnumQueryError.DATABASE_ERROR, e);
+            throw new QueryExecutionException(
+                    EnumQueryError.DATABASE_ERROR, ErrorCodes.QE_LABEL_PROPS_DB_ERR, "Database error", e);
         } catch (SQLException e) {
-            throw new QueryExecutionException(EnumQueryError.DATABASE_ERROR, e);
+            throw new QueryExecutionException(
+                    EnumQueryError.DATABASE_ERROR, ErrorCodes.QE_LABEL_PROPS_DB_ERR, "Database error", e);
         } finally {
             if (resultSet != null) {
                 resultSet.closeQuietly();

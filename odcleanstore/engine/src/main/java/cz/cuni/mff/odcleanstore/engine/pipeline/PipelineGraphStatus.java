@@ -8,6 +8,7 @@ import cz.cuni.mff.odcleanstore.engine.db.model.DbOdcsContext;
 import cz.cuni.mff.odcleanstore.engine.db.model.Graph;
 import cz.cuni.mff.odcleanstore.engine.db.model.GraphStates;
 import cz.cuni.mff.odcleanstore.engine.db.model.GroupRule;
+import cz.cuni.mff.odcleanstore.engine.db.model.Pipeline;
 import cz.cuni.mff.odcleanstore.engine.db.model.PipelineCommand;
 import cz.cuni.mff.odcleanstore.engine.db.model.PipelineErrorTypes;
 
@@ -23,10 +24,11 @@ public final class PipelineGraphStatus {
 	
 	private Graph graph = null;
 	private HashSet<String> attachedGraphs = null;
-	private Integer pipelineId = null;
+	private Pipeline pipeline = null;
 	private PipelineCommand pipelineCommands[] = null; 
 	private GroupRule  qaRules[] = null;
 	private GroupRule  dnRules[] = null;
+	private GroupRule  oiRules[] = null;
 	private boolean markedForDeleting = false;
 
 	private static final Object lockForGetNextGraphForPipeline = new Object();
@@ -92,13 +94,14 @@ public final class PipelineGraphStatus {
 	private PipelineGraphStatus(DbOdcsContext context, Graph dbGraph) throws Exception {
 		this.graph = dbGraph;
 		this.attachedGraphs = context.selectAttachedGraphs(dbGraph.id);
-		pipelineId = graph.pipelineId != null ? graph.pipelineId : context.selectDefaultPipelineId();
-		if (pipelineId == null) {
+		pipeline = graph.pipeline != null ? graph.pipeline : context.selectDefaultPipeline();
+		if (pipeline == null) {
 			throw new PipelineGraphStatusException(ERROR_SELECT_DEFAULT_PIPELINE);
 		}
-		pipelineCommands = context.selectPipelineCommands(pipelineId);
-		qaRules = context.selectQaRules(pipelineId);
-		dnRules = context.selectDnRules(pipelineId);
+		pipelineCommands = context.selectPipelineCommands(pipeline.id);
+		qaRules = context.selectQaRules(pipeline.id);
+		dnRules = context.selectDnRules(pipeline.id);
+		oiRules = context.selectOiRules(pipeline.id);
 	}
 
 	String getUuid() {
@@ -114,7 +117,11 @@ public final class PipelineGraphStatus {
 	}
 	
 	Integer getPipelineId() {
-		return new Integer(pipelineId);
+		return new Integer(pipeline.id);
+	}
+	
+	String getPipelineLabel() {
+		return pipeline.label;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -134,6 +141,10 @@ public final class PipelineGraphStatus {
 		return GroupRule.selectDeepClone(dnRules, transformerInstanceId);
 	}
 	
+	Integer[] getOiGroups(int transformerInstanceId) {
+		return GroupRule.selectDeepClone(oiRules, transformerInstanceId);
+	}
+	
 	void markForDeleting() {
 		markedForDeleting = true;
 	}
@@ -147,22 +158,31 @@ public final class PipelineGraphStatus {
 		assert state != GraphStates.DIRTY;
 		try {
 			context = new DbOdcsContext();
+			
 			if (state == GraphStates.DELETED || (state == GraphStates.WRONG && !graph.isInCleanDb)) {
 				context.deleteAttachedGraphs(graph.id);
 			}
-			if (state == GraphStates.FINISHED) {
+			if (state == GraphStates.PROPAGATED) {
 				context.updateStateAndIsInCleanDb(graph.id, state, true);
+			} else if (state == GraphStates.DELETING) {
+				context.updateStateAndIsInCleanDb(graph.id, state, false);
 			} else {
 				context.updateState(graph.id, state);
 			}
+			
 			context.commit();
+			
+			graph.state = state;
+			
 			if (state == GraphStates.DELETED || (state == GraphStates.WRONG && !graph.isInCleanDb)) {
 				attachedGraphs.clear();
 			}
-			if (state == GraphStates.FINISHED) {
+			if (state == GraphStates.PROPAGATED) {
 				graph.isInCleanDb = true;
 			}
-			graph.state = state;
+			else if (state == GraphStates.DELETING) {
+				graph.isInCleanDb = false;
+			}
 		} catch( Exception e) {
 			throw new PipelineGraphStatusException(format(ERROR_SET_STATE, state), e);
 		}
@@ -229,10 +249,19 @@ public final class PipelineGraphStatus {
 	}
 
 	private String format(String message, GraphStates state) {
-		return FormatHelper.formatGraphMessage(message + " " + state.toString(), graph.uuid);
+		try {
+			return FormatHelper.formatGraphMessage(message + " " + state.toString(), graph.uuid);
+		} catch(Exception e) {
+			return message;
+		}
+
 	}
 	
 	private String format(String message) {
-		return FormatHelper.formatGraphMessage(message, graph.uuid);
+		try {
+			return FormatHelper.formatGraphMessage(message, graph.uuid);
+		} catch(Exception e) {
+			return message;
+		}
 	}
 }

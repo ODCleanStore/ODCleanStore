@@ -81,7 +81,7 @@ The lifecycle of data inside ODCleanStore is as follows:
   \item Engine successively processes named graphs in the dirty database by applying a~pipeline of transformers to it; the applied pipeline is selected according to the input metadata.
   \item Each transformer in the pipeline may modify the named graph or attach new related named graphs (such as a named graph with mappings to other resources or results of quality assessment).
   \item When the pipeline finishes, the augmented RDF data are populated to the \term{clean database} together with any auxiliary data and metadata created during the pipeline execution.
-  \item Data consumers can use Output Webservice to query data in the clean database. Output Webservice provides two basic types of queries -- URI query and keyword query; in addition, metadata about a~given named graph can be requested. The response to a~query consists of relevant RDF triples together with their provenance information and quality estimate. The query can be further customized by user-defined conflict resolution policies.\\
+  \item Data consumers can use Output Webservice to query data in the clean database. Output Webservice provides several basic types of queries -- URI query, keyword and named graph query; in addition, metadata about a~given named graph can be requested. The response to a~query consists of relevant RDF triples together with their provenance information and quality estimate. The query can be further customized by user-defined conflict resolution policies.\\
 	Data in the clean database can be also queried using the SPARQL query language. While SPARQL queries are more expressive, there is no direct support for provenance tracking and quality estimation. 
   \item When transformer rules change, the administrator may choose to re-run a~pipeline on data already stored in the clean database. Copy of this data is created in the dirty database where it is processed by the pipeline. After that, the processed version of data replaces the original in the clean database.
 \end{enumerate}
@@ -100,7 +100,7 @@ The administration webfrontend enables
 
 \begin{itemize}
   \item Administration in a~simple web interface.
-  \item Input and Output Webservices communicate in standard formats - Input Webservice accepts RDF/XML or TTL, Output Webservice provides results in the TriG format. \todo{also RDF/XML}
+  \item Input and Output Webservices communicate in standard formats - Input Webservice accepts RDF/XML or TTL, Output Webservice provides results in HTML, TriG and RDF/XML formats.
   \item Highly customizable pipelines for incoming data processing. Different pipelines can be used for different data sources.
   \item Data can be processed before they are stored to a~persistent store but also when they are already stored if neccessary.
   \item Ships with several predefined transformers for use in data-processing pipelines: Data Normalization (transformations of data), Quality Assesment (estimates quality of data based on a~set of rules), Object Identification (links RDF resources representing the same entity or otherwise related). All these transformers can be managed in the web administration interface.
@@ -117,7 +117,7 @@ The administration webfrontend enables
 
 \todo{use-case diagram}
 
-Data consumers accessing Output Webservice (see Section \ref{sec:outputWS}) do not need to have an account in ODCleanStore; these users have a~special role User (USR). Other users working with ODCleanStore need to have an account and their permissions are based on the roles they are assigned. This chapter describes all the roles recognized by ODCleanStore.
+Data consumers accessing Output Webservice (see Section~\ref{sec:outputWS}) do not need to have an account in ODCleanStore; these users have a~special role User (USR). Other users working with ODCleanStore need to have an account and their permissions are based on the roles they are assigned. This chapter describes all the roles recognized by ODCleanStore.
 
 \section[Administrator]{Administrator (ADM)}
 \label{sec:adm}
@@ -131,7 +131,9 @@ Data consumers accessing Output Webservice (see Section \ref{sec:outputWS}) do n
 
 	In addition, the administrator is authorized to edit pipelines and rules created by pipeline creators.
 
-	The administrator is responsible for ensuring that not more than one instance of the storage and its web frontend is connected to one instance of database.
+% TODO Tohle bych dal do admin manualu, ma to na starost administrator ODCS jako takovy, coz neni nutne uzivatel s roli ADM:
+%	The administrator is responsible for ensuring that not more than one instance of the storage and its web frontend is connected to one instance of database.
+
 
 	More information, e.g. about adding transformers, can be found in the related document \refadmimanual.
 
@@ -174,86 +176,86 @@ Administration Frontend is the official tool for managing ODCleanStore. It cover
 
 \section{User Accounts Administration}
 
-To be able to manage user accounts one has to have \term{ADM} user role (section \ref{sec:adm}) assosiated with his account. It is possible to view currently active accounts and modify them or to add new accounts to the system from this page. The modification is limited to changes of user roles and resetting the password for safety reasons. The newly generated passwords are sent to the e-mail address of the affected account.
+To be able to manage user accounts one has to have \term{ADM} user role (section \ref{sec:adm}) associated with his account. It is possible to view currently active accounts and modify them or to add new accounts to the system from this page. The modification is limited to changes of user roles and resetting of passwords for safety reasons. A newly generated password is sent to the e-mail address of the affected user.
 
 \section{Transformer Management}
 \label{sec:transformerManagement}
 
 	\term{Transformer} is a component responsible for data refinement, cleaning, aggregation and other transformations applied to incoming or stored data.
 
-	The transformer management screen allows registered users to add, edit or remove \term{transformers}. These can be then added to \term{pipelines} (Section \ref{sec:pipelineManagement}).
+	The transformer management screen allows registered users to add, edit or remove {transformers}. These can be then added to \term{pipelines} (Section \ref{sec:pipelineManagement}).
 	
-	Each \term{transformer} definition consists of:
+	Each {transformer} definition consists of:
 	\begin{itemize}
 		\item \textbf{required} label
 		
-		Unique identifier of the \term{transformer}.
+		Unique identifier of the {transformer}.
 		
 		\item \textbf{optional but recommended} description
 		
-		Description of what the purpose of the \term{transformer} is.
+		Description of what the purpose of the {transformer} is.
 		
 		\item \textbf{required} JAR path
 		
-		Path to a Java Archive containing the \term{transformer} declaration.
+		Path to a Java Archive containing the {transformer} declaration.
 		
 		\item \textbf{required} Full classname
 		
-		Name of the class implementing the \term{transformer}.
+		Name of the class implementing the {transformer}.
 	\end{itemize}
 
 \section{Pipeline management}
 \label{sec:pipelineManagement}
 
-	Each incoming data chunk (in form of a named graph) is passed through a \term{pipeline} consisting of \term{transformers}. In this section of the administration frontend it is possible for the user to specify different \term{pipelines}. Individual \term{pipelines} can incorporate different already existing \term{transformers}. To edit the structure of a \term{pipeline} see its detail. As the gravity of data modification that the pipelines can cause differs based on what database it is running upon, it is left for the user to decide whether a concrete \term{transformer} should be allowed to run on clean database (in addition to running on dirty database). Some transformations do not even make sense when working with clean database.
+	New incoming data (in form of a named graph) accepted by Input Webservice are passed through a {pipeline} consisting of {transformers}. In this section of the administration frontend it is possible for the user to specify different {pipelines}. Individual {pipelines} can incorporate different already existing {transformers}. To edit the structure of a {pipeline}, view its detail. As the importance of data modification that the pipelines can cause differs based on what database it is running upon, it is left for the user to decide whether a concrete {transformer} should be allowed to run on clean database (in addition to running on dirty database). Some transformations do not make sense when working with clean database.
 	
-	The order of application of \term{transformers} to a named graph processed by the related \term{pipeline} is determined by \term{priority} in ascending order. \term{Transformer} runs before \term{transformers} with greater priority number.
-	
-	\textbf{Note:} Any changes done in this section need to be commited to ever take effect. To do so, please, click the "Commit settings" button.
+	The order of application of {transformers} to a named graph processed by the related {pipeline} is determined by its \term{priority} in ascending order. Every {transformer} runs before {transformers} with greater priority number.
+
+\paragraph{Important note:} Any changes done in this section need to be commited to ever take effect. To do so, please, click the "Commit settings" button.
 
 \section{Transformer rules}
 \label{sec:transformerRules}
 
-	There are a few types of \term{transformers} predefined for most common data handling in pipelines. Namely:
+	There are a few types of {transformers} predefined for most common data handling in pipelines. Namely:
 	\begin{itemize}
-		\item \term{Quality Assessessment} \term{transformer} (Section \ref{sub:qualityAssessment})
-		\item \term{Data Normalization} \term{transformer}  (Section \ref{sub:dataNormalization})
-		\item \term{Object Identification} \term{transformer} (Section \ref{sub:objectIdentification})
+		\item \term{Quality Assessessment} {transformer} (Section \ref{sub:qualityAssessment})
+		\item \term{Data Normalization} {transformer}  (Section \ref{sub:dataNormalization})
+		\item \term{Object Identification} {transformer} (Section \ref{sub:objectIdentification})
 	\end{itemize}
 	
-	These \term{transformers} are configured through groups of rules. Each instance of any of these predefined \term{transformers} can accept multiple groups of rules. That way it is possible to simply assign all interrelated rules to a certain instance of a transformer while it is still possible to avoid duplication of rules in different groups.
+	These {transformers} are configured through groups of rules. Each instance of any of these predefined {transformers} can accept multiple groups of rules. That way it is possible to simply assign all interrelated rules to a certain instance of a transformer while it is still possible to avoid duplication of rules in different groups.
 
 \subsection{Quality Assessment}
 \label{sub:qualityAssessment}
 
-\term{Quality Assessor} is a special \term{transformer} that assigns a score to each graph based on coefficients of different patterns present in the graph to reflect to what degree the data contained in it comply to a certain policy.
+\term{Quality Assessor} is a special {transformer} that assigns a score to each graph based on coefficients of different patterns present in the graph to reflect to what degree the data contained in it comply to a certain policy.
 
-To be able to configure individual instances of \term{Quality Assessor} a group of rules needs to exist. To create one enter the QA subsection of the rules management page for the backend.
+To be able to configure individual instances of {Quality Assessor} a group of rules needs to exist. To create one enter the QA subsection of the rules management page for the backend.
 
-Here the user can prepare groups of rules to be assigned to instances of \term{Quality Assessor}. Each group is identified by its label and can (and should) come with a description of its semantical significance.
+Here the user can prepare groups of rules to be assigned to instances of {Quality Assessor}. Each group is identified by its label and can (and should) come with a description of its semantical significance.
 
-On the detail page one can specify individual rules contained in the related group. Each rule is of form:
+On the detail page, one can specify individual rules contained in the related group. Each rule consists of a \code{GroupGraphPattern}\footnote{\url{http://www.w3.org/TR/rdf-sparql-query/\#rGroupGraphPattern}} filter, quality decrease coefficient and description, as described in Table \ref{tbl:qaFields}.
 
 \begin{table}[!h]
 	\centering
 	\begin{tabular}{c@{\hspace{8mm}}c@{\hspace{8mm}}c}
 		\textbf{Filter} & \textbf{Coefficient} & \textbf{Description} \\
-		\code{GroupGraphPattern}\footnotemark[1] [\code{GROUP BY \ldots} [\code{HAVING \ldots}]] & $ x \in [0, 1] $ & description
+		\code{GroupGraphPattern} [\code{GROUP BY \ldots} [\code{HAVING \ldots}]] & $ x \in [0, 1] $ & description
 	\end{tabular}
+	\caption{Quality Assessment rule fields}
+	\label{tbl:qaFields}
 \end{table}
-
-\footnotetext[1]{http://www.w3.org/TR/rdf-sparql-query/#rGroupGraphPattern}
 
 \subsection{Data Normalization}
 \label{sub:dataNormalization}
 
-\term{Data Normalizer} is a special type of \term{transformer} aimed to be applied early in the whole data evaluation process to simplify work of other \term{transformers}. Its main goal is to remove inconsistencies in forms the data is provided in. Therefore \term{Data Normalizers} are limited to dirty database only.
+\term{Data Normalizer} is a special type of {transformer} aimed to be applied early in the whole data evaluation process to simplify work of other {transformers}. Its main goal is to remove inconsistencies in forms the data is provided in. Therefore {Data Normalizer} instances are limited to dirty database only.
 
-In the DN subsection of rules management page of the backend one can prepare groups of rules to be assigned to instances of \term{Data Normalizer}. Each group is identified by its label and can (and should) come with a description of its semantical significance.
+In the DN subsection of rules management page of the backend, one can prepare groups of rules to be assigned to instances of {Data Normalizer}. Each group is identified by its label and can (and should) come with a description of its semantical significance.
 
-The detail page of a group serves the user as means of specification of individual rules contained in the selected group. Each rule is essentially a sequence of \term{SPARUL}\footnote{http://www.w3.org/Submission/SPARQL-Update} \term{Inserts} and/or \term{Deletes}. New rule represents an empty sequence upon its creation.
+The detail page of a group serves the user as means of specification of individual rules contained in the selected group. Each rule is essentially a sequence of \term{SPARUL}\footnote{\url{http://www.w3.org/Submission/SPARQL-Update}} \term{Inserts} and/or \term{Deletes}. New rule represents an empty sequence upon its creation.
 
-Similarly as with the rules themselves the detail page of a rule allows the user to construct any arbitrary sequence of \term{Inserts} and/or \term{Deletes}. Components of the rule (members of the sequence) can be added by specifying their type (either \code{INSERT} or \code{DELETE}), modification (\term{SPARUL} snippet stripped off of initial \code{INSERT INTO} / \code{DELETE FROM} clauses); e.g.,
+Similarly as with the rules themselves the detail page of a rule allows the user to construct any arbitrary sequence of {Inserts} and/or {Deletes}. Components of the rule (members of the sequence) can be added by specifying their type (either \code{INSERT} or \code{DELETE}), modification ({SPARUL} snippet stripped off of initial \code{INSERT INTO} / \code{DELETE FROM} clauses); e.g.,
 
 \begin{center}
 	\code{\{?s ?p1 ?o2\} WHERE \{GRAPH \$\$graph\$\$ \{?s ?p1 ?o1. ?o1 ?p2 ?o2.\}\}},
@@ -264,12 +266,12 @@ where \code{\$\$graph\$\$} is a place holder for name of the graph being current
 \subsection{Object Identification}
 \label{sub:objectIdentification}
 
-\term{Object Identification Linker} is a special implementation of a \term{trasformer}. The main purpose of this component is to interlink URIs which represent the same real-world entity by generating \code{owl:sameAs} links. It can be also used for creating other types of links between differently related URIs. \term{Silk framework}\footnote{http://www4.wiwiss.fu-berlin.de/bizer/silk} is used as the linking engine. Sets of linkage rules for the engine are written in \term{Silk-LSL}\footnote{http://www.assembla.com/wiki/show/silk/Link\_Specification\_Language} and stored in database.
+\term{Object Identification Linker} is a special implementation of a {trasformer}. The main purpose of this component is to interlink URIs which represent the same real-world entity by generating \code{owl:sameAs} links. It can be also used for creating other types of links between differently related URIs. {Silk framework}\footnote{\url{http://www4.wiwiss.fu-berlin.de/bizer/silk}} is used as the linking engine. Sets of linkage rules for the engine are written in {Silk-LSL}\footnote{\url{http://www.assembla.com/wiki/show/silk/Link\_Specification\_Language}} and stored in database.
 
 \section{Ontology Management}
 \label{sec:ontologyManagement}
 
-Ontologies can be used to produce common rules for QA, DN \term{transformers}. To load one into the storage one can provide an explicit definition through a text field or by uploading a file containing a valid \term{RDF/XML} ontology definition. The process of rules generation will automatically take place upon ontology submission.
+Ontologies can be used to produce common rules for QA, DN {transformers}. To load one into the storage one can provide an explicit definition through a text field or by uploading a file containing a valid {RDF/XML} ontology definition. The process of rules generation will automatically take place upon ontology submission.
 
 \section{Other Settings}
 
@@ -362,7 +364,7 @@ The \code{source} field is a~list or URIs the data were retrieved from. Typicall
 
 The \code{publishedBy} field is a~list of URIs representing the publisher of the data. It can be a~well known URI, or, for example, the host part of the source URI (e.g. \linebreak[4]\code{http://en.wikipedia.org/} for data scraped from the English Wikipedia).
 
-The \code{license} field may specify URI(s) representing the licence(s) under which \code{payload} contents and any additional  metadata being inserted are published. 
+The \code{license} field may specify URI(s) representing the license(s) under which \code{payload} contents and any additional  metadata being inserted are published. 
 
 The optional \code{provenance} field can contain additional RDF provenance metadata about contents of \code{payload}.\footnote{The suggested vocabulary for these purposes is W3P (\url{http://code.google.com/p/od-w3p/}).} Base URI for the provenance metadata is the URI of the named graph where \code{payload} is stored in ODCleanStore.
 
@@ -454,7 +456,7 @@ try {
 \section{Data Consumer}
 \label{sec:outputWS}
 
-A consumer of data stored in ODCleanStore can query the database through Output Webservice. The Output Webservice can be queried for data about a~given URI resource, queried by keywords or queried for metadata of a~given named graph. Conflicts in data returned in response to a~query are resolved and the data are fused using policies provided by the user or by the administrator.
+A consumer of data stored in ODCleanStore can query the database through Output Webservice. The Output Webservice can be queried for data about a~given URI resource, queried by keywords, queried for contents of a~given named graphs or queried for metadata of a~named graph. Conflicts in data returned in response to a~query are resolved and the data are fused using policies provided by the user or by the administrator.
 
 Additionally, the user can access the data in the clean database directly using the SPARQL endpoint powered by Virtuoso.\footnote{\url{http://virtuoso.openlinksw.com/}} This way the data consumer can use the full power of the SPARQL query language, however conflict resolution and provenance tracking is not supported for this type of queries.
 
@@ -469,12 +471,13 @@ The Output Webservice is a~REST webservice which can be accessed using both GET 
 The Output Webservice can be queried for:
 
 \begin{enumerate}
-	\item a~resource URI
-	\item keyword(s)
-	\item named graph metadata
+	\item a~resource URI -- \term{URI query}
+	\item keyword(s) -- \term{keyword query}
+	\item named graph contents -- \term{named graph query}
+	\item named graph metadata -- \term{metadata query}
 \end{enumerate}
 
-Table \ref{tbl:queryTypes} lists where each type of query can be accessed.
+Table \ref{tbl:queryTypes} lists where each type of query can be accessed by default. The exact address can be configured.
 
 \begin{table}[h]
 \centering
@@ -484,9 +487,11 @@ Table \ref{tbl:queryTypes} lists where each type of query can be accessed.
 	\hline \hline
 	URI & \varcode{host}\code{/uri} & \mbox{http://localhost:8087/uri} \mbox{?uri=http\%3A\%2F\%2Fexample.com} \\
 	\hline
-	Keyword & \varcode{host}\code{/keyword} & http://localhost:8087/keyword ?kw=keyword\\
+	Keyword & \varcode{host}\code{/keyword} & http://localhost:8087/keyword?kw=keyword\\
 	\hline
-	Named graph metadata & \varcode{host}\code{/namedGraph} & \mbox{http://localhost:8087/namedGraph} \mbox{?uri=http\%3A\%2F\%2Fexample.com} \\
+	Named graph & \varcode{host}\code{/namedGraph} & http://localhost:8087/namedGraph \mbox{?uri=http\%3A\%2F\%2Fexample.com}\\
+	\hline
+	Metadata & \varcode{host}\code{/metadata} & \mbox{http://localhost:8087/metadata} \mbox{?uri=http\%3A\%2F\%2Fexample.com} \\
 	\hline
 \end{tabularx}
 \caption{Types of queries}
@@ -497,7 +502,7 @@ More information is available in the Query Execution specification. \todo{refere
 
 \subsection{Request format}
 
-Table \ref{tbl:requestFormatUK} lists (either GET or POST) parameters than can be used with the URI and keyword queries. The \code{uri} parameter is required for URI query, \code{kw} parameter for keyword query. Other parameters are optional.
+Table \ref{tbl:requestFormatUK} lists (either GET or POST) parameters than can be used with the URI, keyword and named graph queries. The \code{uri} parameter is required for URI query, \code{kw} parameter for keyword query. Other parameters are optional.
 
 \begin{table}[h!]
 \centering
@@ -505,11 +510,11 @@ Table \ref{tbl:requestFormatUK} lists (either GET or POST) parameters than can b
 	\hline
 	Name & Description & Possible values & Default value \\
 	\hline \hline
-	\code{uri} & searched URI; \newline \textit{used only with URI query} & \vartext{string} & \vartext{N/A} \\
+	\code{uri} & searched URI; \newline \textit{used only with URI and named graph query} & \vartext{string} & \vartext{N/A} \\
 	\hline
 	\code{kw} & searched keyword(s); \newline \textit{used only with keyword query} & \vartext{string} & \vartext{N/A} \\
 	\hline
-	\code{format} & format of the response & \code{html}, \code{trig} & \code{html} \\
+	\code{format} & format of the response & \code{html}, \code{trig}, \code{rdfxml} & \code{html} \\
 	\hline
 	\code{aggr} & default aggregation method & \vartext{string} & \code{ALL} \\
 	\hline
@@ -526,11 +531,11 @@ Table \ref{tbl:requestFormatUK} lists (either GET or POST) parameters than can b
 	  \code{pmultivalue[rdf\%3Atype]=1} & 0, 1 & \vartext{N/A} \\
 	\hline
 \end{tabularx}
-\caption{URI and keyword query parameters}
+\caption{URI, keyword and named graph query parameters}
 \label{tbl:requestFormatUK}
 \end{table} 
 
-Table \ref{tbl:requestFormatNG} lists parameters that can be used with the named graph metadata query.
+Table \ref{tbl:requestFormatNG} lists parameters that can be used with the metadata query.
 
 \begin{table}[h!]
 \centering
@@ -540,10 +545,10 @@ Table \ref{tbl:requestFormatNG} lists parameters that can be used with the named
 	\hline \hline
 	\code{uri} & URI of the requested named graph & \vartext{string} & \vartext{N/A}  & yes\\
 	\hline
-	\code{format} & format of the result & \code{html}, \code{trig} & \code{html} & no \\
+	\code{format} & format of the result & \code{html}, \code{trig}, \code{rdfxml} & \code{html} & no \\
 	\hline
 \end{tabular}
-\caption{Named graph metadata query parameters}
+\caption{Metadata query parameters}
 \label{tbl:requestFormatNG}
 \end{table}
 
@@ -551,7 +556,7 @@ For all queries, parameters and values are case-sensitive. Property names may be
 
 For more information about aggregation settings, see the corresponding section of Conflict Resolution specification\todo{reference}.
 
-\newpage % just for the tables to fit better
+%\newpage % just for the tables to fit better
 
 \subsubsection*{General aggregation methods}
 
@@ -603,7 +608,7 @@ The multivalue parameter determines whether differences with other conflicting v
 
 \subsection{Query Format}
 
-\subsubsection{URI Query \& Named Graph Metadata Query}
+\subsubsection{URI Query}
 The value of the \code{uri} parameter must be either a~full valid URI, or a~prefixed name (e.g. \code{dbpedia:Berlin}).  Available prefixes are managed in the administration frontend (see section \ref{sec:frontendPrefixMgmt}).
 
 \subsubsection{Keyword Query}
@@ -611,7 +616,15 @@ The \code{kw} parameter can contain one or more keywords separated by whitespace
 
 Query Execution also looks for an exact match of the entire \code{kw} value (i.e. without any division to keywords). If the \code{kw} value is a~number, then numeric typed literals will also match; if the \code{kw} value is formatted as \code{xsd:dateTime}\footnote{\url{http://www.w3.org/TR/xmlschema-2/\#dateTime-lexical-representation}}, then \code{xsd:dateTime} typed literals will also match.
 
+\subsubsection{Named Graph Query}
+The value of the \code{uri} parameter must be either a~valid URI, or a prefixed name, of an existing named graph.
+
+\subsubsection{Metadata Query}
+The value of the \code{uri} parameter must be a~valid URI of an existing named graph.
+
 \subsection{Results Format for URI \& Keyword Queries}
+\label{sec:URIKWResultsFormat}
+
 The result contains triples returned in response to the query, including relevant labels of URI resources in the result, and metadata for the triples.
 
 \subsubsection{HTML}
@@ -624,13 +637,14 @@ The result in HTML format contains results in a~human-readable form. It contains
 \end{itemize}
 
 \subsubsection{TriG}
+\label{sec:URIKWTrig}
 
-The result contains triples (quads) serialized in the TriG\footnote{\url{http://www4.wiwiss.fu-berlin.de/bizer/trig/}} format. The result includes:
+If the \code{format} parameter is set to \code{trig}, the result contains triples (quads) serialized in the TriG\footnote{\url{http://www4.wiwiss.fu-berlin.de/bizer/trig/}} format. The result includes:
 
 \begin{itemize}
 	\item triples returned in response to the query, each one placed in a~unique named graph
-  \item aggregated quality (\code{odcs:quality}) and source named graphs (\code{w3p:source}) of the above triples; subjects of these statements are the unique named graphs where the respective triples are placed
-  \item  metadata of source named graphs; they may include where the data were extracted from (\code{w3p:source}), Quality Assesment score of the named graph (\code{odcs:score}) and of its publisher (\code{odcs:publisherScore}), the publisher of the data (\code{w3p:publishedBy}), timestamp (\code{w3p:insertedAt}), licence (\code{dc:licence})
+  \item aggregated quality (\code{odcs:quality}) and source named graphs (\code{odcs:sourceGraph}) of the above triples; subjects of these statements are the unique named graphs where the respective triples are placed
+  \item  metadata of source named graphs; they may include where the data were extracted from (\code{w3p:source}), Quality Assesment score of the named graph (\code{odcs:score}) and of its publisher (\code{odcs:publisherScore}), the publisher of the data (\code{w3p:publishedBy}), timestamp (\code{w3p:insertedAt}), license (\code{dc:license})
   \item  metadata about the query response itself -- a~title (\code{dc:title}), date (\code{dc:date}), number of result triples (\code{odcs:totalResults}), the query (\code{odcs:query}) and link to each result item (\code{odcs:result})
 \end{itemize}
 
@@ -638,7 +652,101 @@ The result contains triples (quads) serialized in the TriG\footnote{\url{http://
 
 An example:
 
-\begin{lstlisting}[caption={Example of query response in TriG},label=lst:trigResponse]
+\begin{lstlisting}[caption={Example of URI or keyword query response in TriG},label=lst:URIKWTrigResponse]
+@prefix :        <#> .
+@prefix odcs:    <http://opendata.cz/infrastructure/odcleanstore/> .
+@prefix w3p:     <http://purl.org/provenance#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix dbpedia:     <http://dbpedia.org/ontology/> .
+
+<http://opendata.cz/infrastructure/odcleanstore/query/results/1> {
+  <http://dbpedia.org/resource/Berlin> rdfs:label "Berlin"@en .
+}
+
+<http://opendata.cz/infrastructure/odcleanstore/query/results/2> {
+  <http://dbpedia.org/resource/Berlin> dbpedia:populationTotal
+    "3420768"^^<http://www.w3.org/2001/XMLSchema#int> .
+}
+
+<http://opendata.cz/infrastructure/odcleanstore/query/metadata/> {
+  <http://opendata.cz/infrastructure/odcleanstore/query/results/1>
+    odcs:quality 0.92 ;
+    w3p:source <http://opendata.cz/infrastructure/odcleanstore/data/e0cdc9d7-e2d8-4bde> ;
+    w3p:source <http://opendata.cz/infrastructure/odcleanstore/data/b68e21f7-363f-4bfd> .
+
+  <http://opendata.cz/infrastructure/odcleanstore/query/results/2>
+    odcs:quality 0.8966325468133597 ;
+    w3p:source <http://opendata.cz/infrastructure/odcleanstore/data/b68e21f7-363f-4bfd> .
+
+  <http://opendata.cz/infrastructure/odcleanstore/data/e0cdc9d7-e2d8-4bde>
+    odcs:score 0.9 ;
+    w3p:insertedAt "2012-04-01 12:34:56.0"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
+    w3p:source <http://dbpedia.org/page/Berlin> ;
+    w3p:publishedBy <http://dbpedia.org/> ;
+    odcs:publisherScore 0.9 .
+
+  <http://opendata.cz/infrastructure/odcleanstore/data/b68e21f7-363f-4bfd>
+    odcs:score 0.8 ;
+    w3p:insertedAt "2012-04-04 12:34:56.0"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
+    w3p:source <http://linkedgeodata.org/page/node240109189> .
+
+  <http://localhost:8087/uri?uri=http%3A%2F%2Fdbpedia.org%2Fresource%2FBerlin>
+    a odcs:QueryResponse ;
+    dc:title "URI search: http://dbpedia.org/resource/Berlin" ;
+    dc:date "2012-08-01T10:20:30+01:00" ;
+    odcs:totalResults 2 ;
+    odcs:query "http://dbpedia.org/resource/Berlin" ;
+    odcs:result <http://opendata.cz/infrastructure/odcleanstore/query/results/1> ;
+    odcs:result <http://opendata.cz/infrastructure/odcleanstore/query/results/2> .
+}
+\end{lstlisting}
+
+\subsubsection{RDF/XML}
+\label{sec:URIKWRDFXML}
+
+If the \code{format} parameter is set to \code{rdfxml}, then the result will be formatted in RDF/XML.\footnote{\url{http://www.w3.org/TR/REC-rdf-syntax/}} The returned triples contain
+
+\begin{itemize}
+  \item triples returned in response to the query,
+  \item  metadata about the query response itself
+\end{itemize}
+
+as in case of TriG output, however no metadata about quality of triples or about source named graphs are included.
+
+\subsubsection{Paging of results}
+\label{sec:URIKWPaging}
+As of now, all results are returned on a single page. The approximate maximum number of triples in the result is 500 by default (and can be set in the configuration file, see \refadmimanual).
+
+\subsection{Results Format for Named Graph Query}
+Named graph query selects all triples stored in the given named graph and is intended mainly for debugging purposes.
+The format of results for the named graph query is exactly the same as for URI or keyword queries (see Section~\ref{sec:URIKWResultsFormat}). The only difference is that labels for URI resources in the result are not retrieved (unless they are contained in the named graph). Also, conflict resolution considers only the named graph and not any other conflicting (or same) values that may be stored in other graphs.
+
+\subsection{Results Format for Metadata Query}
+The result contains metadata and Quality Assessment results for a given named graph. The metadata include metadata maintained by ODCleanStore (e.g. \code{odcs:insertedAt}) and data from the \code{provenance} metadata graph. Quality Assessment is executed on the named graph at query time, with rules that would be applied to it in its respective pipeline.
+
+\subsubsection{HTML}
+
+The result in HTML format contains results in a~human-readable form. It contains
+
+\begin{itemize}
+  \item a table with ODCleanStore metadata,
+  \item the results of Quality Assessment, i.e. the resulting score and all QA rules the named graph violated and thus its score was decreased by the respective coefficient (only if there is at least one QA rule group applicable to the named graph),
+  \item \code{provenance} metadata, if available.
+\end{itemize}
+
+
+\subsubsection{TriG}
+\label{sec:metadataTriG}
+The result contains triples (quads) serialized in the TriG format. Again, the result contains ODCleanStore metadata, additional \code{provenance} metadata, results of Quality Assessment and also metadata about the query response itself. The meaning of used predicates is as described in Section \ref{sec:URIKWTrig}.
+
+The \code{provenance} metadata are contained in one named graph and a triple \varcode{payload-graph}-\code{odcs:provenanceMetadataGraph}-\varcode{provenance-graph} points to it; all other data are placed in another named graph.
+
+\pagebreak[3]
+
+An example:
+
+\begin{lstlisting}[caption={Example of metadata query response in TriG},label=lst:metadataTrigResponse]
 @prefix :        <#> .
 @prefix odcs:    <http://opendata.cz/infrastructure/odcleanstore/> .
 @prefix w3p:     <http://purl.org/provenance#> .
@@ -685,6 +793,12 @@ An example:
 }
 \end{lstlisting}
 
+\subsubsection{RDF/XML}
+The result for a metadata query serialized in RDF/XML contains the same triples as in case of TriG (Section \ref{sec:metadataTriG}) except that triples are not divided into named graphs.
+
+\subsubsection{Paging of results}
+See Section~\ref{sec:URIKWPaging}.
+
 \todo{JSON}
 \todo{Error handling!}
 \todo{Examples}
@@ -703,9 +817,9 @@ When a new request is sent to Input Webservice, the stored data \& metadata go t
 
   \item If all data are valid, the request is queued, Input Webservice indicates success and the transmission successfully finishes.
 
-  \item Engine, independently on Input Webservice, successively takes requests from the input queue and processes them. RDF data from \code{payload} are stored to a single named graph, \code{provenance} metadata to a separate named graph and other metadata to another separate named graph called \term{metadata graph}, all in the dirty (staging) database. The format of RDF triples in the metadata graph is described in Section \ref{sec:storedDataStructure}.
+  \item Engine, independently on Input Webservice, successively takes requests from the input queue and processes them. RDF data from \code{payload} are stored to a single named graph, \code{provenance} metadata to a separate named graph and other metadata to another separate named graph called \term{metadata graph}, all in the dirty (staging) database. The format of RDF triples in the metadata graph is described in Section~\ref{sec:storedDataStructure}.
 
-  \item Because some predicates are reserved for purposes of internal metadata representation in ODCleanStore, RDF triples that contain these predicates are removed from \code{payload} and \code{provenance} named graphs. Table \ref{tbl:reservedPredicates} lists all reserved predicates.
+  \item Because some predicates are reserved for purposes of internal metadata representation in ODCleanStore, RDF triples that contain these predicates are removed from \code{payload} and \code{provenance} named graphs. Table~\ref{tbl:reservedPredicates} lists all reserved predicates.
 
 \begin{table}[h!]
 \centering
@@ -721,13 +835,17 @@ When a new request is sent to Input Webservice, the stored data \& metadata go t
 	\hline
 	\code{odcs:provenanceMetadataGraph} \\
 	\hline
-	\code{w3p:insertedAt} \\
+	\code{odcs:sourceGraph} \\
 	\hline
-	\code{w3p:insertedBy} \\
+	\code{odcs:insertedAt} \\
 	\hline
-	\code{w3p:source} \\
+	\code{odcs:insertedBy} \\
 	\hline
-	\code{w3p:publishedBy} \\
+	\code{odcs:source} \\
+	\hline
+	\code{odcs:publishedBy} \\
+	\hline
+	\code{odcs:license} \\
 	\hline
 \end{tabular}
 \caption{Reserved RDF predicates}
@@ -735,7 +853,7 @@ When a new request is sent to Input Webservice, the stored data \& metadata go t
 \end{table}
 \todo{check it is up-to-date}
 
-  \item Next, the processing pipeline is selected -- if \code{pipelineName} was present, pipeline with the given name is used, the default pipeline is used otherwise. Engine runs each transformer in the pipeline on the stored data. Transformers can modify the inserted named graphs or attach new named graphs (\term{attached named graph}). See \refadmimanual{} for more information about transformers.
+  \item Next, the processing pipeline is selected -- if \code{pipelineName} was present, pipeline with the given name is used, the default pipeline is used otherwise. Engine runs each transformer in the pipeline on the stored data. Transformers can modify the inserted named graphs or attach new named graphs (\term{attached named graph}). See~\refadmimanual{} for more information about transformers.
 
   \item If all transformers in the pipeline finish successfully, the \code{payload} graph, \code{provenance} graph, metadata graph and any new attached graphs are moved from the dirty database to the clean database, while the respective request is removed from the queue.
 
@@ -748,7 +866,7 @@ When a new request is sent to Input Webservice, the stored data \& metadata go t
 
 Data originating from a single request to Input Webservice can be stored in several named graphs. RDF data given in the \code{payload} parameter are stored in one named graph (\code{payload} graph). If \code{provenance} RDF metadata are given, they are stored in another named graph (\code{provenance} graph). Other metadata (such as the source of data, timestamp, etc.) are stored in yet another named graph (\term{metadata graph}). In addition, transformers in the respective pipeline may add more related RDF data to one or more named graphs (\term{attached graphs}), e.g. results of quality assessment, or mappings for resources in \code{payload}. 
 
-While contents of the \code{payload}, \code{provenance} and attached graphs may be arbitrary, the metadata graph has a set structure. Table \ref{tbl:metadataGraph} describes the structure of a metadata graph. In the table, \varcode{payload-graph} stands for the name of the respective \code{payload} graph, \varcode{provenance-graph} and \varcode{metadata-graph} analogously.
+While contents of the \code{payload}, \code{provenance} and attached graphs may be arbitrary, the metadata graph has a set structure. Table~\ref{tbl:metadataGraph} describes the structure of a metadata graph. In the table, \varcode{payload-graph} stands for the name of the respective \code{payload} graph, \varcode{provenance-graph} and \varcode{metadata-graph} analogously.
 
 
 \begin{table}[h!]
@@ -763,15 +881,15 @@ While contents of the \code{payload}, \code{provenance} and attached graphs may 
 	\hline
 	\varcode{payload-graph} & \code{odcs:attachedGraph} & URIs of attached graphs & 0..* \\
 	\hline
-	\varcode{payload-graph} & \code{w3p:insertedAt} & insertion time & 1 \\
+	\varcode{payload-graph} & \code{odcs:insertedAt} & insertion time & 1 \\
 	\hline
-	\varcode{payload-graph} & \code{w3p:insertedBy} & name of the user who inserted the data & 1 \\ \todo{PJ: jmeno nebo ID?}
+	\varcode{payload-graph} & \code{odcs:insertedBy} & name of the user who inserted the data & 1 \\ \todo{PJ: jmeno nebo ID?}
 	\hline
-	\varcode{payload-graph} & \code{w3p:source} & source of the data (values  from the \code{source} field) & 1..* \\
+	\varcode{payload-graph} & \code{odcs:source} & source of the data (values  from the \code{source} field) & 1..* \\
 	\hline
-	\varcode{payload-graph} & \code{w3p:publishedBy} & identifier of the publisher of the data (values  from the \code{publishedBy} field) & 1..* \\
+	\varcode{payload-graph} & \code{odcs:publishedBy} & identifier of the publisher of the data (values  from the \code{publishedBy} field) & 1..* \\
 	\hline
-	\varcode{payload-graph} & \code{dc:license} & license of the data (values from the \code{license} field) & 0..* \\
+	\varcode{payload-graph} & \code{odcs:license} & license of the data (values from the \code{license} field) & 0..* \\
 	\hline
 \end{tabularx}
 \caption{RDF triples in a metadata graph}
@@ -821,7 +939,7 @@ The administrator \todo{proper user role} can decide to re-run a transformer pip
 	\item[Clean database] Database where incoming data are stored after they are successfully processed by the respective processing pipeline; this database can be accessed using the Output Webservice
 	\item[\code{Payload} graph] Named graph where the actual inserted data, given in the \code{payload} parameter of Input Webservice, are stored
 	\item[\code{Provenance} graph] Named graph where additional provenance metadata, given in the \code{provenance} field of Input Web Service, are stored
-	\item[Metadata graph] Named graph where other metadata about a \code{payload} graph (such as source, timestamp, licence, etc.) are stored
+	\item[Metadata graph] Named graph where other metadata about a \code{payload} graph (such as source, timestamp, license, etc.) are stored
 	\item[Attached graph] Named graph attached to a \code{payload} graph by a transformer
 	\item[Named graph score] Quality of a~single (\code{payload}) named graph estimated by the Quality Assesment component and stored in the database, expressed as a~number from interval [0,1]
 	\item[Publisher score] Average score of named graphs from a~publisher

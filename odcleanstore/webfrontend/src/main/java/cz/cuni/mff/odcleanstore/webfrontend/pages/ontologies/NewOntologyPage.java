@@ -26,7 +26,11 @@ public class NewOntologyPage extends FrontendPage
 	
 	public NewOntologyPage() 
 	{
-		super("Home > Ontologies > Create", "Add a new ontology");
+		super(
+			"Home > Ontologies > New", 
+			"Add a new ontology"
+		);
+		
 		// prepare DAO objects
 		//
 		this.ontologyDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OntologyDao.class);

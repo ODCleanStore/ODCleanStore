@@ -9,11 +9,10 @@ import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
+import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
 import cz.cuni.mff.odcleanstore.shared.Utils;
-import cz.cuni.mff.odcleanstore.vocabulary.DC;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
-import cz.cuni.mff.odcleanstore.vocabulary.W3P;
 
 import com.hp.hpl.jena.graph.Triple;
 
@@ -25,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
@@ -97,7 +95,7 @@ import java.util.Set;
     private static final String METADATA_QUERY = "SPARQL"
             + "\n DEFINE input:same-as \"yes\""
             + "\n SELECT DISTINCT"
-            + "\n   ?resGraph ?source ?score ?insertedAt ?insertedBy ?license ?publishedBy ?publisherScore"
+            + "\n   ?resGraph ?p ?o"
             + "\n WHERE {"
             + "\n   {"
             + "\n     {"
@@ -159,7 +157,8 @@ import java.util.Set;
             + "\n             {"
             + "\n               GRAPH ?graph {"
             + "\n                 ?s ?r ?o."
-            + "\n                 FILTER (?o = <%1$s>)"
+            // fix of SPARQL compiler error: "sparp_gp_deprecate(): equiv replaces filter but under deprecation"
+            + "\n                 FILTER (?o IN (<%1$s>, <%1$s>))"
             + "\n               }"
             + "\n               %2$s"
             + "\n             }"
@@ -175,16 +174,22 @@ import java.util.Set;
             + "\n       LIMIT %5$d"
             + "\n     }"
             + "\n   }"
-            + "\n   OPTIONAL { ?resGraph <" + W3P.source + "> ?source }"
-            + "\n   OPTIONAL { ?resGraph <" + ODCS.score + "> ?score }"
-            + "\n   OPTIONAL { ?resGraph <" + W3P.insertedAt + "> ?insertedAt }"
-            + "\n   OPTIONAL { ?resGraph <" + W3P.insertedBy + "> ?insertedBy }"
-            + "\n   OPTIONAL { ?resGraph <" + DC.license + "> ?license }"
-            + "\n   OPTIONAL { ?resGraph <" + W3P.publishedBy + "> ?publishedBy }"
-            + "\n   OPTIONAL { ?resGraph <" + W3P.publishedBy + "> ?publishedBy. "
-            + "\n     ?publishedBy <" + ODCS.publisherScore + "> ?publisherScore }"
+            + "\n   {"
+            + "\n     {"
+            + "\n       ?resGraph <" + ODCS.metadataGraph + "> ?metadataGraph"
+            + "\n       GRAPH ?metadataGraph {"
+            + "\n         ?resGraph ?p ?o"
+            + "\n       }"
+            + "\n     }"
+            + "\n     UNION"
+            + "\n     {"
+            + "\n       ?resGraph <" + ODCS.publishedBy + "> ?publishedBy."
+            + "\n       ?publishedBy ?p ?o."
+            + "\n       FILTER (?p = <" + ODCS.publisherScore + ">)"
+            + "\n     }"
+            + "\n   }"
             + "\n   %4$s"
-            + "\n   FILTER (bound(?source))"
+            //+ "\n   FILTER (bound(?source))"
             + "\n }"
             + "\n LIMIT %5$d";
 
@@ -236,7 +241,8 @@ import java.util.Set;
             + "\n       {"
             + "\n         GRAPH ?graph {"
             + "\n           ?s ?r ?o."
-            + "\n           FILTER (?o = <%1$s>)"
+            // fix of SPARQL compiler error: "sparp_gp_deprecate(): equiv replaces filter but under deprecation"
+            + "\n                 FILTER (?o IN (<%1$s>, <%1$s>))"
             + "\n         }"
             + "\n         %2$s"
             + "\n       }"
@@ -284,11 +290,12 @@ import java.util.Set;
 
         // Check that the URI is valid (must not be empty or null, should match '<' ([^<>"{}|^`\]-[#x00-#x20])* '>' )
         if (uri.length() > MAX_URI_LENGTH) {
-            throw new QueryExecutionException(EnumQueryError.QUERY_TOO_LONG,
+            throw new QueryExecutionException(EnumQueryError.QUERY_TOO_LONG, ErrorCodes.QE_INPUT_FORMAT_ERR,
                     "The requested URI is longer than " + MAX_URI_LENGTH + " characters.");
         }
         if (!Utils.isValidIRI(uri)) {
-            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, "The query is not a valid URI.");
+            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, ErrorCodes.QE_INPUT_FORMAT_ERR,
+                    "The query is not a valid URI.");
         }
 
         try {
@@ -303,42 +310,24 @@ import java.util.Set;
             // Apply conflict resolution
             NamedGraphMetadataMap metadata = getMetadata(uri);
             Iterator<Triple> sameAsLinks = getSameAsLinks(uri).iterator();
-            Set<String> preferredURIs = getPreferredURIs(uri);
+            Set<String> preferredURIs = getSettingsPreferredURIs();
+            preferredURIs.add(uri);
             ConflictResolver conflictResolver =
                     conflictResolverFactory.createResolver(aggregationSpec, metadata, sameAsLinks, preferredURIs);
             Collection<CRQuad> resolvedQuads = conflictResolver.resolveConflicts(quads);
 
             return createResult(resolvedQuads, metadata, uri, System.currentTimeMillis() - startTime);
         } catch (ConflictResolutionException e) {
-            throw new QueryExecutionException(EnumQueryError.CONFLICT_RESOLUTION_ERROR, e);
+            throw new QueryExecutionException(
+                    EnumQueryError.CONFLICT_RESOLUTION_ERROR,
+                    ErrorCodes.QE_CR_ERR,
+                    "Internal error during conflict resolution",
+                    e);
         } catch (DatabaseException e) {
-           throw new QueryExecutionException(EnumQueryError.DATABASE_ERROR, e);
+            throw new QueryExecutionException(EnumQueryError.DATABASE_ERROR, ErrorCodes.QE_DATABASE_ERR, "Database error", e);
         } finally {
             closeConnectionQuietly();
         }
-    }
-
-    /**
-     * Returns preferred URIs for the result.
-     * These include the searched URI and properties explicitly listed in aggregation settings.
-     * @param uri searched URI
-     * @return preferred URIs
-     */
-    private Set<String> getPreferredURIs(String uri) {
-        Set<String> aggregationProperties = aggregationSpec.getPropertyAggregations() == null
-                ? Collections.<String>emptySet()
-                : aggregationSpec.getPropertyAggregations().keySet();
-        Set<String> multivalueProperties = aggregationSpec.getPropertyMultivalue() == null
-                ? Collections.<String>emptySet()
-                : aggregationSpec.getPropertyMultivalue().keySet();
-        if (aggregationProperties.isEmpty() && multivalueProperties.isEmpty()) {
-            return Collections.singleton(uri);
-        }
-        Set<String> preferredURIs = new HashSet<String>(aggregationProperties.size() + multivalueProperties.size() + 1);
-        preferredURIs.add(uri);
-        preferredURIs.addAll(aggregationProperties);
-        preferredURIs.addAll(multivalueProperties);
-        return preferredURIs;
     }
 
     /**
@@ -370,7 +359,7 @@ import java.util.Set;
      * @throws DatabaseException query error
      */
     private Collection<Quad> getURIOccurrences(String uri) throws DatabaseException {
-        String query = String.format(URI_OCCURENCES_QUERY, uri, getGraphFilterClause(), maxLimit);
+        String query = String.format(Locale.ROOT, URI_OCCURENCES_QUERY, uri, getGraphFilterClause(), maxLimit);
         return getQuadsFromQuery(query, "getURIOccurrences()");
     }
 

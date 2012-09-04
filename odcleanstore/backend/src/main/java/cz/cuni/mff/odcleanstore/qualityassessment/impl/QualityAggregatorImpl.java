@@ -1,18 +1,11 @@
 package cz.cuni.mff.odcleanstore.qualityassessment.impl;
 
-import java.io.File;
-import java.sql.SQLException;
-import java.util.Collection;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
-import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.qualityassessment.QualityAggregator;
 import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
@@ -21,12 +14,19 @@ import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraphException;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
-import cz.cuni.mff.odcleanstore.vocabulary.W3P;
 import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.sql.SQLException;
+import java.util.Collection;
+import java.util.Locale;
+
 public class QualityAggregatorImpl implements QualityAggregator {
-	private static final Logger LOG = LoggerFactory.getLogger(QualityAggregatorImpl.class);	
-	
+	private static final Logger LOG = LoggerFactory.getLogger(QualityAggregatorImpl.class);
+
 	public static void main(String[] args) {
 		try {
 			ConfigLoader.loadConfig();
@@ -60,13 +60,13 @@ public class QualityAggregatorImpl implements QualityAggregator {
 				public void addAttachedGraph(String attachedGraphName)
 						throws TransformedGraphException {
 					// TODO Auto-generated method stub
-					
+
 				}
 
 				@Override
 				public void deleteGraph() throws TransformedGraphException {
 					// TODO Auto-generated method stub
-					
+
 				}
 
 				@Override
@@ -74,7 +74,13 @@ public class QualityAggregatorImpl implements QualityAggregator {
 					// TODO Auto-generated method stub
 					return false;
 				}
-				
+
+                @Override
+                public String getProvenanceMetadataGraphName() {
+                 // TODO Auto-generated method stub
+                    return "http://opendata.cz/data/provenanceMetadata";
+                }
+
 			}, new TransformationContext() {
 
 				@Override
@@ -105,22 +111,22 @@ public class QualityAggregatorImpl implements QualityAggregator {
 					// TODO Auto-generated method stub
 					return null;
 				}
-				
+
 			});
 		} catch (Exception e) {
 			LOG.error(e.getMessage());
 		}
 	}
-	
+
 	//TODO: null is just a special graph (might be replaced by something more configurable)
-	
+
 	private final static String dropOutdatedQueryFormat = "SPARQL DELETE FROM <null> {?publisher <" + ODCS.publisherScore + "> ?score} WHERE {?publisher <" + ODCS.publisherScore + "> ?score. FILTER (?publisher = <%s>)}";
-	private final static String computeSumUpdatedQueryFormat = "SPARQL SELECT SUM(?score) WHERE {?graph <" + ODCS.score + "> ?score; <" + W3P.publishedBy + "> <%s>}";
-	private final static String computeCountUpdatedQueryFormat = "SPARQL SELECT COUNT(?score) WHERE {?graph <" + ODCS.score + "> ?score; <" + W3P.publishedBy + "> <%s>}";
+	private final static String computeSumUpdatedQueryFormat = "SPARQL SELECT SUM(?score) WHERE {?graph <" + ODCS.score + "> ?score; <" + ODCS.publishedBy + "> <%s>}";
+	private final static String computeCountUpdatedQueryFormat = "SPARQL SELECT COUNT(?score) WHERE {?graph <" + ODCS.score + "> ?score; <" + ODCS.publishedBy + "> <%s>}";
 	private final static String storeUpdatedQueryFormat = "SPARQL INSERT DATA INTO <%s> {<%s> <" + ODCS.publisherScore + "> \"%f\"^^<" + XMLSchema.doubleType + ">}";
-	private final static String graphPublisherQueryFormat = "SPARQL SELECT ?publisher FROM <%s> WHERE {<%s> <" + W3P.publishedBy + "> ?publisher}";
+	private final static String graphPublisherQueryFormat = "SPARQL SELECT ?publisher FROM <%s> WHERE {<%s> <" + ODCS.publishedBy + "> ?publisher}";
 	private final static String graphScoreQueryFormat = "SPARQL SELECT ?score FROM <%s> WHERE {<%s> <" + ODCS.score + "> ?score}";
-	
+
 	private TransformationContext context;
 
 	/**
@@ -131,7 +137,7 @@ public class QualityAggregatorImpl implements QualityAggregator {
 	public void transformNewGraph(TransformedGraph inputGraph,
 			TransformationContext context) throws TransformerException {
 		this.context = context;
-		
+
 		try
 		{
 			Double newScore = getGraphScore(inputGraph.getGraphName(), inputGraph.getMetadataGraphName(), getDirtyConnection());
@@ -157,12 +163,12 @@ public class QualityAggregatorImpl implements QualityAggregator {
 	public void transformExistingGraph(TransformedGraph inputGraph,
 			TransformationContext context) throws TransformerException {
 		this.context = context;
-		
+
 		try
 		{
 			Double outdatedScore = getGraphScore(inputGraph.getGraphName(), inputGraph.getMetadataGraphName(), getCleanConnection());
 			Double updatedScore = getGraphScore(inputGraph.getGraphName(), inputGraph.getMetadataGraphName(), getDirtyConnection());
-			
+
 			updatePublisherScore(inputGraph.getGraphName(),
 					inputGraph.getMetadataGraphName(),
 					updatedScore - outdatedScore,
@@ -176,7 +182,7 @@ public class QualityAggregatorImpl implements QualityAggregator {
 			closeDirtyConnection();
 		}
 	}
-	
+
 	/**
 	 * Takes all the graphs from clean database that share the publisher with the input graph. Adds delta (score of deltaCount other graphs) into the average.
 	 */
@@ -187,12 +193,12 @@ public class QualityAggregatorImpl implements QualityAggregator {
 		try
 		{
 			final String publisher = getGraphPublisher(graph, metadataGraph);
-			
+
 			if (publisher != null) {
-				try {					
-					final String computeSumUpdated = String.format(computeSumUpdatedQueryFormat, publisher);
-					final String computeCountUpdated = String.format(computeCountUpdatedQueryFormat, publisher);
-					
+				try {
+					final String computeSumUpdated = String.format(Locale.ROOT, computeSumUpdatedQueryFormat, publisher);
+					final String computeCountUpdated = String.format(Locale.ROOT, computeCountUpdatedQueryFormat, publisher);
+
 					WrappedResultSet rsSum = getCleanConnection().executeSelect(computeSumUpdated);
 					WrappedResultSet rsCount = getCleanConnection().executeSelect(computeCountUpdated);
 
@@ -200,20 +206,20 @@ public class QualityAggregatorImpl implements QualityAggregator {
 
 					if (rsSum.next() && rsCount.next()) {
 						score = (rsSum.getDouble(1) + delta) / (rsCount.getDouble(1) + deltaCount);
-					
+
 						LOG.info("Publisher <" + publisher + "> scored " + score + ".");
 					} else {
 						throw new QualityAssessmentException("Publisher has no score.");
 					}
-					
+
 					getCleanConnection().adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL, false);
-					
-					final String dropOutdated = String.format(dropOutdatedQueryFormat, publisher);
+
+					final String dropOutdated = String.format(Locale.ROOT, dropOutdatedQueryFormat, publisher);
 					getCleanConnection().execute(dropOutdated);
 
-					final String storeUpdated = String.format(storeUpdatedQueryFormat, ConfigLoader.getConfig().getQualityAssessmentGroup().getAggregatedPublisherScoreGraphURI(), publisher, score);
+					final String storeUpdated = String.format(Locale.ROOT, storeUpdatedQueryFormat, ConfigLoader.getConfig().getQualityAssessmentGroup().getAggregatedPublisherScoreGraphURI(), publisher, score);
 					getCleanConnection().execute(storeUpdated);
-					
+
 					getCleanConnection().commit();
 				} catch (DatabaseException e) {
 					throw new TransformerException(e);
@@ -229,7 +235,7 @@ public class QualityAggregatorImpl implements QualityAggregator {
 	@Override
 	public void shutdown() throws TransformerException {
 	}
-	
+
 	private VirtuosoConnectionWrapper cleanConnection;
 	private VirtuosoConnectionWrapper dirtyConnection;
 
@@ -250,7 +256,7 @@ public class QualityAggregatorImpl implements QualityAggregator {
 			cleanConnection = null;
 		}
 	}
-	
+
 	private VirtuosoConnectionWrapper getDirtyConnection () throws DatabaseException {
         if (dirtyConnection == null) {
         	dirtyConnection = VirtuosoConnectionWrapper.createConnection(context.getDirtyDatabaseCredentials());
@@ -268,15 +274,15 @@ public class QualityAggregatorImpl implements QualityAggregator {
 			dirtyConnection = null;
 		}
 	}
-	
+
 	/**
 	 * @param graph
 	 * @param metadataGraph
 	 * @return The publisher of the given graph.
 	 * @throws QualityAssessmentException
 	 */
-	private String getGraphPublisher (final String graph, final String metadataGraph) throws QualityAssessmentException {	
-		final String query = String.format(graphPublisherQueryFormat, metadataGraph, graph);
+	private String getGraphPublisher (final String graph, final String metadataGraph) throws QualityAssessmentException {
+		final String query = String.format(Locale.ROOT, graphPublisherQueryFormat, metadataGraph, graph);
 		WrappedResultSet results = null;
 		String publisher = null;
 
@@ -296,11 +302,11 @@ public class QualityAggregatorImpl implements QualityAggregator {
 				results.closeQuietly();
 			}
 		}
-		
+
 		return publisher;
 	}
-	
-	/** 
+
+	/**
 	 * @param graph
 	 * @param metadataGraph
 	 * @return Score of the given graph.
@@ -309,7 +315,7 @@ public class QualityAggregatorImpl implements QualityAggregator {
 	private Double getGraphScore (final String graph,
 			final String metadataGraph,
 			final VirtuosoConnectionWrapper connection) throws QualityAssessmentException {
-		final String query = String.format(graphScoreQueryFormat, metadataGraph, graph);
+		final String query = String.format(Locale.ROOT, graphScoreQueryFormat, metadataGraph, graph);
 		WrappedResultSet results = null;
 		Double score = 0.0;
 
@@ -329,7 +335,7 @@ public class QualityAggregatorImpl implements QualityAggregator {
 				results.closeQuietly();
 			}
 		}
-		
+
 		return score;
 	}
 }

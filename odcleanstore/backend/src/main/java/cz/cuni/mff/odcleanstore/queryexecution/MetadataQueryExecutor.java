@@ -6,10 +6,9 @@ import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
+import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
 import cz.cuni.mff.odcleanstore.shared.Utils;
-import cz.cuni.mff.odcleanstore.vocabulary.DC;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
-import cz.cuni.mff.odcleanstore.vocabulary.W3P;
 
 import de.fuberlin.wiwiss.ng4j.Quad;
 
@@ -27,8 +26,8 @@ import java.util.Locale;
  *
  * @author Jan Michelfeit
  */
-/*package*/class NamedGraphMetadataQueryExecutor extends QueryExecutorBase {
-    private static final Logger LOG = LoggerFactory.getLogger(NamedGraphMetadataQueryExecutor.class);
+/*package*/class MetadataQueryExecutor extends QueryExecutorBase {
+    private static final Logger LOG = LoggerFactory.getLogger(MetadataQueryExecutor.class);
 
     private static final QueryConstraintSpec EMPTY_QUERY_CONSTRAINT_SPEC = new QueryConstraintSpec();
     private static final AggregationSpec EMPTY_AGGREGATION_SPEC = new AggregationSpec();
@@ -55,24 +54,28 @@ import java.util.Locale;
      * SPARQL query that gets ODCS metadata for the given named graph.
      * OPTIONAL clauses for fetching ?graph properties are necessary (probably due to Virtuoso inference processing).
      *
-     * Must be formatted with arguments: (1) the requested named graph
+     * Must be formatted with arguments: (1) the requested named graph, (2) limit
      *
      * TODO: omit metadata for additional labels?
      */
     private static final String ODCS_METADATA_QUERY = "SPARQL"
             + "\n SELECT "
-            + "\n   <%1$s> as ?resGraph ?source ?score ?insertedAt ?insertedBy ?license ?publishedBy ?publisherScore"
+            + "\n   <%1$s> as ?resGraph ?p ?o"
             + "\n WHERE {"
-            + "\n   OPTIONAL { <%1$s> <" + W3P.source + "> ?source }"
-            + "\n   OPTIONAL { <%1$s> <" + ODCS.score + "> ?score }"
-            + "\n   OPTIONAL { <%1$s> <" + W3P.insertedAt + "> ?insertedAt }"
-            + "\n   OPTIONAL { <%1$s> <" + W3P.insertedBy + "> ?insertedBy }"
-            + "\n   OPTIONAL { <%1$s> <" + DC.license + "> ?license }"
-            + "\n   OPTIONAL { <%1$s> <" + W3P.publishedBy + "> ?publishedBy }"
-            + "\n   OPTIONAL { <%1$s> <" + W3P.publishedBy + "> ?publishedBy. "
-            + "\n     ?publishedBy <" + ODCS.publisherScore + "> ?publisherScore }"
+            + "\n   {"
+            + "\n     <%1$s> <" + ODCS.metadataGraph + "> ?metadataGraph"
+            + "\n     GRAPH ?metadataGraph {"
+            + "\n       <%1$s> ?p ?o"
+            + "\n     }"
+            + "\n   }"
+            + "\n   UNION"
+            + "\n   {"
+            + "\n     <%1$s> <" + ODCS.publishedBy + "> ?publishedBy."
+            + "\n     ?publishedBy ?p ?o."
+            + "\n     FILTER (?p = <" + ODCS.publisherScore + ">)"
+            + "\n   }"
             + "\n }"
-            + "\n LIMIT 1";
+            + "\n LIMIT %2$d";
 
     /**
      * Creates a new instance of NamedGraphMetadataQueryExecutor.
@@ -81,7 +84,7 @@ import java.util.Locale;
      * @param labelPropertiesList list of label properties formatted as a string for use in a query
      * @param globalConfig global conflict resolution settings
      */
-    public NamedGraphMetadataQueryExecutor(
+    public MetadataQueryExecutor(
             JDBCConnectionCredentials connectionCredentials,
             ConflictResolverFactory conflictResolverFactory,
             String labelPropertiesList,
@@ -98,17 +101,18 @@ import java.util.Locale;
      * @return query result holder
      * @throws QueryExecutionException database error or the query was invalid
      */
-    public NamedGraphMetadataQueryResult getMetadata(String namedGraphURI) throws QueryExecutionException {
-        LOG.info("Named graph metadata query for <{}>", namedGraphURI);
+    public MetadataQueryResult getMetadata(String namedGraphURI) throws QueryExecutionException {
+        LOG.info("Metadata query for <{}>", namedGraphURI);
         long startTime = System.currentTimeMillis();
 
         // Check that the URI is valid (must not be empty or null, should match '<' ([^<>"{}|^`\]-[#x00-#x20])* '>' )
         if (namedGraphURI.length() > MAX_URI_LENGTH) {
-            throw new QueryExecutionException(EnumQueryError.QUERY_TOO_LONG,
+            throw new QueryExecutionException(EnumQueryError.QUERY_TOO_LONG, ErrorCodes.QE_INPUT_FORMAT_ERR,
                     "The requested URI is longer than " + MAX_URI_LENGTH + " characters.");
         }
         if (!Utils.isValidIRI(namedGraphURI)) {
-            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, "The query is not a valid URI.");
+            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, ErrorCodes.QE_INPUT_FORMAT_ERR,
+                    "The query is not a valid URI.");
         }
 
         try {
@@ -117,7 +121,8 @@ import java.util.Locale;
 
             return createResult(provenanceMetadata, metadata, namedGraphURI, System.currentTimeMillis() - startTime);
         } catch (DatabaseException e) {
-            throw new QueryExecutionException(EnumQueryError.DATABASE_ERROR, e);
+            throw new QueryExecutionException(
+                    EnumQueryError.DATABASE_ERROR, ErrorCodes.QE_NG_METADATA_DB_ERR, "Database error", e);
         } finally {
             closeConnectionQuietly();
         }
@@ -131,13 +136,13 @@ import java.util.Locale;
      * @param executionTime query execution time in ms
      * @return query result holder
      */
-    private NamedGraphMetadataQueryResult createResult(Collection<Quad> provenanceMetadata,
+    private MetadataQueryResult createResult(Collection<Quad> provenanceMetadata,
             NamedGraphMetadataMap metadata, String query, long executionTime) {
 
         LOG.debug("Query Execution: getMetadata() in {} ms", executionTime);
         // Format and return result
-        NamedGraphMetadataQueryResult queryResult = new NamedGraphMetadataQueryResult(
-                provenanceMetadata, metadata, query, EnumQueryType.NAMED_GRAPH);
+        MetadataQueryResult queryResult = new MetadataQueryResult(
+                provenanceMetadata, metadata, query, EnumQueryType.METADATA);
         queryResult.setExecutionTime(executionTime);
         return queryResult;
     }
@@ -149,7 +154,7 @@ import java.util.Locale;
      * @throws DatabaseException query error
      */
     private Collection<Quad> getProvenanceMetadata(String namedGraphURI) throws DatabaseException {
-        String query = String.format(PROVENANCE_METADATA_QUERY, namedGraphURI, maxLimit);
+        String query = String.format(Locale.ROOT, PROVENANCE_METADATA_QUERY, namedGraphURI, maxLimit);
         return getQuadsFromQuery(query, "getProvenanceMetadata()");
     }
 
@@ -160,7 +165,7 @@ import java.util.Locale;
      * @throws DatabaseException query error
      */
     private NamedGraphMetadataMap getODCSMetadata(String namedGraphURI) throws DatabaseException {
-        String query = String.format(Locale.ROOT, ODCS_METADATA_QUERY, namedGraphURI);
+        String query = String.format(Locale.ROOT, ODCS_METADATA_QUERY, namedGraphURI, maxLimit);
         return getMetadataFromQuery(query, "getODCSMetadata()");
     }
 }

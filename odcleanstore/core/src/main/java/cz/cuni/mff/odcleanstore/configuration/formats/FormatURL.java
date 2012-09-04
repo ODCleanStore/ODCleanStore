@@ -13,16 +13,15 @@ import java.net.URL;
  */
 public class FormatURL extends ParameterFormat<URL> {
     @Override
-    public URL convertValue(String groupName, String paramName, String value)
+    public URL convertValue(String paramName, String value)
             throws IllegalParameterFormatException {
-        assert groupName != null && paramName != null;
-        assert value != null;
+        assert value != null && paramName != null;
 
         try {
             return new URL(value);
         } catch (MalformedURLException e) {
-            throw new IllegalParameterFormatException("Parameter value [" + value
-                    + "] could not be converted to URI for group/param: " + groupName + "/" + paramName);
+            throw new IllegalParameterFormatException(
+                    "Parameter value [" + value + "] could not be converted to URI for param: " + paramName);
         }
     }
 }

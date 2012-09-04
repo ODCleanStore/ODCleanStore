@@ -88,3 +88,15 @@
 \newcommand{\refusermanual}{User Manual}
 \newcommand{\refadmimanual}{Administrator's \& Installation Manual}
 \newcommand{\refprogrammersguide}{Programmer's Guide}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Aligned enumeration tables
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\enumtable}[1]
+{
+	\begin{table}[!h]
+		\begin{tabular}{>{\textbf\bgroup}l<{\egroup}p{14cm}}
+			#1
+		\end{tabular}
+	\end{table}
+}

@@ -5,27 +5,31 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Locale;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 
+import cz.cuni.mff.odcleanstore.shared.Utils;
+
+
 /**
  * Non-static methods are not thread-safe.
  * @author Jan Petr Jerman
  */
-public final class VirtuosoJdbc4ConnectionForRdf {
+public final class VirtuosoJdbcConnectionForRdf {
  
     /** Database connection. */
     private Connection connection;
     
-	public static VirtuosoJdbc4ConnectionForRdf createCleanDbConnection() throws ConnectionException {
-		return new VirtuosoJdbc4ConnectionForRdf(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
+	public static VirtuosoJdbcConnectionForRdf createCleanDbConnection() throws ConnectionException {
+		return new VirtuosoJdbcConnectionForRdf(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
 	}
 	
-	public static VirtuosoJdbc4ConnectionForRdf createDirtyDbConnection() throws ConnectionException {
-		return new VirtuosoJdbc4ConnectionForRdf(ConfigLoader.getConfig().getBackendGroup().getDirtyDBJDBCConnectionCredentials());
+	public static VirtuosoJdbcConnectionForRdf createDirtyDbConnection() throws ConnectionException {
+		return new VirtuosoJdbcConnectionForRdf(ConfigLoader.getConfig().getBackendGroup().getDirtyDBJDBCConnectionCredentials());
 	}
 
     /**
@@ -33,23 +37,22 @@ public final class VirtuosoJdbc4ConnectionForRdf {
      * @see #createConnection(JDBCConnectionCredentials)
      * @param connection a connection to a Virtuoso database
      */
-    private VirtuosoJdbc4ConnectionForRdf(JDBCConnectionCredentials connectionCredentials) throws ConnectionException {
+    private VirtuosoJdbcConnectionForRdf(JDBCConnectionCredentials connectionCredentials) throws ConnectionException {
     	try {
-            Class.forName("virtuoso.jdbc3.Driver");
+            Class.forName(Utils.JDBC_DRIVER);
         } catch (ClassNotFoundException e) {
-            throw new ConnectionException("Couldn't load Virtuoso jdbc4 driver", e);
+            throw new ConnectionException("Couldn't load Virtuoso jdbc driver", e);
         }
         try {
             connection = DriverManager.getConnection(
                     connectionCredentials.getConnectionString(),
                     connectionCredentials.getUsername(),
                     connectionCredentials.getPassword());
-        
-            		CallableStatement statement = connection.prepareCall(String.format("log_enable(%d)", 1));
-            		statement.execute();
-            		connection.setAutoCommit(false);
+       		CallableStatement statement = connection.prepareCall("log_enable(1)");
+       		statement.execute();
+       		connection.setAutoCommit(false);
         } catch (SQLException e) {
-            throw new ConnectionException(e);
+            throw new ConnectionException(e);	
         }
     }
     
@@ -62,16 +65,36 @@ public final class VirtuosoJdbc4ConnectionForRdf {
 	 * @throws QueryException query error
 	 */
 	public void insertQuad(String subject, String predicate, String object, String graphName) throws QueryException {
-		execute(String.format("SPARQL INSERT INTO GRAPH %s { %s %s %s }", graphName, subject, predicate, object));
+		execute(String.format(Locale.ROOT, "SPARQL INSERT INTO GRAPH %s { %s %s %s }", graphName, subject, predicate, object));
 	}
 	
 	/**
-	 * Delete graph from the database.
+	 * Rename graph in DB.DBA.RDF_QUAD.
+	 * @param srcGraphName graph
+	 * @param dstGraphName graph
+	 * @throws QueryException query error
+	 */
+	public void renameGraph(String srcGraphName, String dstGraphName) throws QueryException {
+		execute("DELETE FROM DB.DBA.RDF_QUAD WHERE g = iri_to_id (?)", dstGraphName);
+		execute("UPDATE DB.DBA.RDF_QUAD SET g = iri_to_id (?) WHERE g = iri_to_id (?)", dstGraphName, srcGraphName);
+	}
+	
+	/**
+	 * Delete graph from DB.DBA.RDF_QUAD.
 	 * @param graphName name of the graph to delete
 	 * @throws QueryException query error  
 	 */
+	public void deleteGraph(String graphName) throws QueryException {
+		execute("DELETE FROM DB.DBA.RDF_QUAD WHERE g = iri_to_id (?)", graphName);
+	}
+		
+	/**
+	 * Clear graph from the database.
+	 * @param graphName name of the graph to clear
+	 * @throws QueryException query error  
+	 */
 	public void clearGraph(String graphName) throws QueryException {
-		execute(String.format("SPARQL CLEAR GRAPH %s", graphName));
+		execute(String.format(Locale.ROOT, "SPARQL CLEAR GRAPH %s", graphName));
 	}
 	
 	/**
@@ -129,34 +152,15 @@ public final class VirtuosoJdbc4ConnectionForRdf {
     public void commit() throws SQLException {
         connection.commit();
     }
- 
-    /**
-     * Closes the connection.
-     * @throws ConnectionException connection error
-     */
-    public void close() throws ConnectionException {
-        try {
-            if (connection != null) {
-                connection.close();
-                connection = null;
-            }
-        } catch (SQLException e) {
-            throw new ConnectionException(e);
-        }
-    }
     
-    /**
-     * Close connection on finalize().
-     */
-    @Override
-    protected void finalize() {
-        try {
-            close();
-            super.finalize();
-        } catch (Throwable e) {
-            // do nothing
-        }
-    }
+	public void closeQuietly() {
+		if (connection != null) {
+			try {
+				connection.rollback();
+				connection.close();	
+			} catch(Throwable e) {}
+		}
+	}
     
     /**
      * Executes a general SQL/SPARQL query.

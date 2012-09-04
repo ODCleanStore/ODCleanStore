@@ -10,15 +10,13 @@ import virtuoso.jena.driver.VirtModel;
 
 import com.hp.hpl.jena.rdf.model.Model;
 
-import cz.cuni.mff.odcleanstore.configuration.BackendConfig;
+import cz.cuni.mff.odcleanstore.configuration.EngineConfig;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
-import cz.cuni.mff.odcleanstore.engine.db.VirtuosoJdbc4ConnectionForRdf;
+import cz.cuni.mff.odcleanstore.engine.db.VirtuosoJdbcConnectionForRdf;
 import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.Metadata;
-import cz.cuni.mff.odcleanstore.vocabulary.DC;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
-import cz.cuni.mff.odcleanstore.vocabulary.W3P;
 
 /**
  *  @author Petr Jerman
@@ -29,6 +27,7 @@ final class PipelineGraphManipulator {
 	private static final String ERROR_INPUT_FILE_STILL_EXIST = ERROR_DELETE_INPUT_FILE + ", file still exists.";
 	private static final String ERROR_DELETE_GRAPHS_FROM_DIRTYDB = "deleting graphs from dirty db";
 	private static final String ERROR_DELETE_GRAPHS_FROM_CLEANDB = "deleting graphs from clean db";
+	private static final String ERROR_DELETE_TEMP_GRAPHS_FROM_CLEANDB = "deleting temporary graphs from clean db";
 	private static final String ERROR_REPLACE_GRAPHS_IN_CLEANDB = "replacing graphs in clean db from dirty db";
 	private static final String ERROR_LOAD_GRAPHS_FROM_FILE = "loading graphs into clean db from input file";
 	private static final String ERROR_LOAD_GRAPHS_FROM_CLEAN_DB = "loading graphs into dirty db from clean db";
@@ -54,38 +53,49 @@ final class PipelineGraphManipulator {
 		}
 	}
 	
-	void deleteGraphsInDirtyDB() throws PipelineGraphManipulatorException {
+	void clearGraphsInDirtyDB() throws PipelineGraphManipulatorException {
 		try {
-			deleteGraphsFromDB(false);
+			deleteGraphsFromDB(false, false);
 		} catch(Exception e) {
 			throw new PipelineGraphManipulatorException(format(ERROR_DELETE_GRAPHS_FROM_DIRTYDB), e);
 			
 		}
 	}
 	
-	void deleteGraphsInCleanDB() throws PipelineGraphManipulatorException {
+	 void deleteGraphsInCleanDB() throws PipelineGraphManipulatorException {
 		try {
-			deleteGraphsFromDB(true);
+			Collection<String> graphs = getAllGraphNames();
+			VirtuosoJdbcConnectionForRdf con = VirtuosoJdbcConnectionForRdf.createCleanDbConnection();
+			for (String graphName : graphs) {
+				con.deleteGraph(graphName);
+			}
+			con.commit();
 		} catch(Exception e) {
 			throw new PipelineGraphManipulatorException(format(ERROR_DELETE_GRAPHS_FROM_CLEANDB), e);
 		}
 	}
-
-	// TODO: complete replace for Virtuosojdbc4 driver on dst side which support transaction for SPARQL !!!
+	
 	void replaceGraphsInCleanDBFromDirtyDB() throws PipelineGraphManipulatorException {
 		try {
-			deleteGraphsInCleanDB();
-			
-			BackendConfig backendConfig = ConfigLoader.getConfig().getBackendGroup();
-			JDBCConnectionCredentials creditClean = backendConfig.getCleanDBJDBCConnectionCredentials();
-			JDBCConnectionCredentials creditDirty = backendConfig.getDirtyDBJDBCConnectionCredentials();
+			// delete temporary graphs in clean DB
+			deleteGraphsFromDB(true, true);
+		} catch(Exception e) {
+			throw new PipelineGraphManipulatorException(format(ERROR_DELETE_TEMP_GRAPHS_FROM_CLEANDB), e);
+		}
+		
+		// copy graphs from dirty to clean DB with temporary names
+		try {
 			Collection<String> graphs = getAllGraphNames();
+			JDBCConnectionCredentials creditDirty = ConfigLoader.getConfig().getEngineGroup().getDirtyDBJDBCConnectionCredentials();
+			JDBCConnectionCredentials creditClean = ConfigLoader.getConfig().getEngineGroup().getCleanDBJDBCConnectionCredentials();
+			
 			for (String graphName : graphs) {
-				Model dstModel = null;
 				Model srcModel = null;
+				Model dstModel = null;
 				try {
 					srcModel = VirtModel.openDatabaseModel(graphName, creditDirty.getConnectionString(), creditDirty.getUsername(), creditDirty.getPassword());
-					dstModel = VirtModel.openDatabaseModel(graphName, creditClean.getConnectionString(), creditClean.getUsername(), creditClean.getPassword());
+					dstModel = VirtModel.openDatabaseModel(ODCS.engineTemporaryGraph + "/" + graphName, creditClean.getConnectionString(), creditClean.getUsername(), creditClean.getPassword());
+					
 					dstModel.add(srcModel);
 				} finally {
 					if (srcModel != null) {
@@ -96,6 +106,14 @@ final class PipelineGraphManipulator {
 					}
 				}
 			}
+
+			// transactional processing - delete graph and replace it with temporary graphs in clean DB
+			VirtuosoJdbcConnectionForRdf con = VirtuosoJdbcConnectionForRdf.createCleanDbConnection();
+			for (String graphName : graphs) {
+				con.renameGraph(ODCS.engineTemporaryGraph + "/" + graphName, graphName);
+			}
+			con.commit();
+			
 		} catch(Exception e) { 
 			throw new PipelineGraphManipulatorException(format(ERROR_REPLACE_GRAPHS_IN_CLEANDB), e);
 		}
@@ -119,32 +137,35 @@ final class PipelineGraphManipulator {
 	}
 	
 	private HashSet<String> getAllGraphNames() {
-		BackendConfig backendConfig = ConfigLoader.getConfig().getBackendGroup();
+		EngineConfig engineConfig = ConfigLoader.getConfig().getEngineGroup();
 		String uuid = graphStatus.getUuid();
 		
 		HashSet<String> graphs = graphStatus.getAttachedGraphs();
-		graphs.add(backendConfig.getDataGraphURIPrefix() + uuid);
-		graphs.add(backendConfig.getMetadataGraphURIPrefix() + uuid);
-		graphs.add(backendConfig.getProvenanceMetadataGraphURIPrefix() + uuid);
+		graphs.add(engineConfig.getDataGraphURIPrefix() + uuid);
+		graphs.add(engineConfig.getMetadataGraphURIPrefix() + uuid);
+		graphs.add(engineConfig.getProvenanceMetadataGraphURIPrefix() + uuid);
 		
 		return graphs;
 	}
 	
-	private void deleteGraphsFromDB( boolean fromCleanDB) throws Exception  {
-		Collection<String> graphs = getAllGraphNames();
-		VirtuosoJdbc4ConnectionForRdf con = null;
+	private void deleteGraphsFromDB(boolean fromCleanDB, boolean temporaryGraphs) throws Exception  {
+		VirtuosoJdbcConnectionForRdf con = null;
 		try {
+			Collection<String> graphs = getAllGraphNames();
 			con = fromCleanDB ? 
-					VirtuosoJdbc4ConnectionForRdf.createCleanDbConnection()
-				 : VirtuosoJdbc4ConnectionForRdf.createDirtyDbConnection();
+					VirtuosoJdbcConnectionForRdf.createCleanDbConnection()
+				 : VirtuosoJdbcConnectionForRdf.createDirtyDbConnection();
 			for (String graphName : graphs) {
+				if (temporaryGraphs) {
+					graphName = ODCS.engineTemporaryGraph  + "/" + graphName; 
+				}
 				con.clearGraph("<" + graphName + ">");
 			}
 			con.commit();
 		} 
 		finally {
 			if (con != null) {
-				con.close();
+				con.closeQuietly();
 			}
 		}
 	}
@@ -173,27 +194,27 @@ final class PipelineGraphManipulator {
 			}
 		}
 		
-		BackendConfig backendConfig = ConfigLoader.getConfig().getBackendGroup();
-		String dataGraphURI = backendConfig.getDataGraphURIPrefix() + uuid;
-		String metadataGraphURI = backendConfig.getMetadataGraphURIPrefix() + uuid;
-		String provenanceGraphURI = backendConfig.getProvenanceMetadataGraphURIPrefix() + uuid;
+		EngineConfig engineConfig = ConfigLoader.getConfig().getEngineGroup();
+		String dataGraphURI = engineConfig.getDataGraphURIPrefix() + uuid;
+		String metadataGraphURI = engineConfig.getMetadataGraphURIPrefix() + uuid;
+		String provenanceGraphURI = engineConfig.getProvenanceMetadataGraphURIPrefix() + uuid;
 			
-		VirtuosoJdbc4ConnectionForRdf con = null;
+		VirtuosoJdbcConnectionForRdf con = null;
 		try {
-			con = VirtuosoJdbc4ConnectionForRdf.createDirtyDbConnection();
+			con = VirtuosoJdbcConnectionForRdf.createDirtyDbConnection();
 			con.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.metadataGraph + ">", "<" + metadataGraphURI + ">", "<" + metadataGraphURI + ">");
 			
-			con.insertQuad("<" + dataGraphURI + ">", "<" + W3P.insertedAt + ">", inserted, "<" + metadataGraphURI + ">");
-			con.insertQuad("<" + dataGraphURI + ">", "<" + W3P.insertedBy + ">", "'scraper'", "<" + metadataGraphURI + ">");
+			con.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.insertedAt + ">", inserted, "<" + metadataGraphURI + ">");
+			con.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.insertedBy + ">", "'scraper'", "<" + metadataGraphURI + ">");
 			for (String source : metadata.source) {
-				con.insertQuad("<" + dataGraphURI + ">", "<" + W3P.source + ">", "<" + source + ">", "<" + metadataGraphURI + ">");
+				con.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.source + ">", "<" + source + ">", "<" + metadataGraphURI + ">");
 			}
 			for (String publishedBy : metadata.publishedBy) {
-				con.insertQuad("<" + dataGraphURI + ">", "<" + W3P.publishedBy + ">", "<" + publishedBy + ">", "<" + metadataGraphURI + ">");
+				con.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.publishedBy + ">", "<" + publishedBy + ">", "<" + metadataGraphURI + ">");
 			}
 			if (metadata.license != null) {
 				for (String license : metadata.license) {
-					con.insertQuad("<" + dataGraphURI + ">", "<" + DC.license + ">", "<" + license + ">", "<" + metadataGraphURI + ">");
+					con.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.license + ">", "<" + license + ">", "<" + metadataGraphURI + ">");
 				}
 			}
 			if (metadata.provenance != null) {
@@ -204,15 +225,15 @@ final class PipelineGraphManipulator {
 			con.commit();
 		} finally {
 			if (con != null) {
-				con.close();
+				con.closeQuietly();
 			}
 		}
 	}
 
 	private void loadGraphsIntoDirtyDBFromCleanDB() throws Exception {
-			BackendConfig backendConfig = ConfigLoader.getConfig().getBackendGroup();
-			JDBCConnectionCredentials creditClean = backendConfig.getCleanDBJDBCConnectionCredentials();
-			JDBCConnectionCredentials creditDirty = backendConfig.getDirtyDBJDBCConnectionCredentials();
+			EngineConfig engineConfig = ConfigLoader.getConfig().getEngineGroup();
+			JDBCConnectionCredentials creditClean = engineConfig.getCleanDBJDBCConnectionCredentials();
+			JDBCConnectionCredentials creditDirty = engineConfig.getDirtyDBJDBCConnectionCredentials();
 			Collection<String> graphs = getAllGraphNames();
 		
 			for (String graphName : graphs) {
@@ -234,6 +255,10 @@ final class PipelineGraphManipulator {
 	}
 	
 	private String format(String message) {
-		return FormatHelper.formatGraphMessage(message, graphStatus.getUuid());
+		try {
+			return FormatHelper.formatGraphMessage(message, graphStatus.getUuid());
+		} catch(Exception e) {
+			return message;
+		}
 	}
 }

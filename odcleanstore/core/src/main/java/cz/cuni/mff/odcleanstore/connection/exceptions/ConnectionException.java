@@ -8,9 +8,9 @@ package cz.cuni.mff.odcleanstore.connection.exceptions;
  * @author Jan Michelfeit
  */
 public class ConnectionException extends DatabaseException {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	/**
+    /**
      * Creates a new exception.
      * @param cause cause
      */

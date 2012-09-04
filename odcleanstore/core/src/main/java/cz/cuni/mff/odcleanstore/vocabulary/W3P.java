@@ -28,22 +28,22 @@ public final class W3P {
     /**
      * Publisher of data.
      */
-    public static final String publishedBy = "http://purl.org/provenance#publishedBy";
+    public static final String publishedBy = NS + "publishedBy";
 
     /**
-     * A SourcePage is a source (page) of the given ExtractedArtifact.
+     * An Artifact has another Artifact as its source.
      */
-    public static final String source = "http://purl.org/provenance#source";
+    public static final String source = NS + "source";
 
     /**
      * An Artifact was inserted to the data store by a User.
      */
-    public static final String insertedBy = "http://purl.org/provenance#insertedBy";
+    public static final String insertedBy = NS + "insertedBy";
 
     /**
      * The data was inserted at.
      */
-    public static final String insertedAt = "http://purl.org/provenance#insertedAt";
+    public static final String insertedAt = NS + "insertedAt";
     
     // CHECKSTYLE:ON
 }

@@ -7,39 +7,47 @@ import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
  * @author Jan Michelfeit
  */
 public class QueryExecutionException extends ODCleanStoreException {
-	private static final long serialVersionUID = 3420323334894817996L;
-	
-	private final EnumQueryError errorType;
+    private static final long serialVersionUID = 3420323334894817996L;
+
+    private final EnumQueryError errorType;
+
+    private final Integer errorCode;
 
     /**
      * Constructs a new exception with the given cause.
      * @param errorType type of the error
+     * @param errorCode code of the error
      * @param cause the cause
      */
-    public QueryExecutionException(EnumQueryError errorType, Throwable cause) {
+    public QueryExecutionException(EnumQueryError errorType, Integer errorCode, Throwable cause) {
         super(cause);
         this.errorType = errorType;
+        this.errorCode = errorCode;
     }
 
     /**
      * Constructs a new exception with the given message and cause.
      * @param errorType type of the error
+     * @param errorCode code of the error
      * @param message the detail message
      * @param cause the cause
      */
-    public QueryExecutionException(EnumQueryError errorType, String message, Throwable cause) {
+    public QueryExecutionException(EnumQueryError errorType, Integer errorCode, String message, Throwable cause) {
         super(message, cause);
         this.errorType = errorType;
+        this.errorCode = errorCode;
     }
 
     /**
      * Constructs a new exception with the given message.
      * @param errorType type of the error
+     * @param errorCode code of the error
      * @param message the detail message
      */
-    public QueryExecutionException(EnumQueryError errorType, String message) {
+    public QueryExecutionException(EnumQueryError errorType, Integer errorCode, String message) {
         super(message);
         this.errorType = errorType;
+        this.errorCode = errorCode;
     }
 
     /**
@@ -49,5 +57,14 @@ public class QueryExecutionException extends ODCleanStoreException {
      */
     public EnumQueryError getErrorType() {
         return errorType;
+    }
+
+    /**
+     * Return the error code of the error.
+     * @see cz.cuni.mff.odcleanstore.shared.ErrorCodes
+     * @return error code or null
+     */
+    public Integer getErrorCode() {
+        return errorCode;
     }
 }

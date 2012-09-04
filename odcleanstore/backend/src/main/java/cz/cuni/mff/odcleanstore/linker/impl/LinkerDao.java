@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,8 @@ public class LinkerDao {
 	 * connection credentials to the dirty DB
 	 */
 	private static JDBCConnectionCredentials dirtyDBCredentials;
+	
+	private static final int IN_COUNT_LIMIT = 500;
 
 	/**
 	 * Private constructor used by the getInstance method.
@@ -79,7 +82,12 @@ public class LinkerDao {
 	 * @throws SQLException
 	 * @throws ConnectionException 
 	 */
-	public List<SilkRule> loadRules(String[] groups) throws QueryException, ConnectionException {
+	public List<SilkRule> loadRules(Integer[] groups) throws QueryException, ConnectionException {
+	    if (groups == null || groups.length == 0) {
+	        LOG.info("Loaded 0 linkage rules.");
+	        return Collections.<SilkRule>emptyList();
+	    }
+
 		List<SilkRule> ruleList = new ArrayList<SilkRule>();
 		VirtuosoConnectionWrapper connection = null;
 		WrappedResultSet resultSet = null;
@@ -160,9 +168,9 @@ public class LinkerDao {
 	 * @param groups list of group IDs
 	 * @return IN part in format (id1,id2,...)
 	 */
-	private String createInPart(String[] members) {
+	private String createInPart(Integer[] members) {
 		String result = "(";
-		for (String member : members) {
+		for (Integer member : members) {
 			result += member + ",";
 		}
 		return result.substring(0, result.length()-1) + ")";
@@ -182,17 +190,28 @@ public class LinkerDao {
 	}
 	
 	public void loadLabels(Map<String, String> uriLabelMap) throws QueryException, ConnectionException {
-		String uriList = createUriListString(uriLabelMap.keySet().iterator());
-		LOG.info("Loading labels for URIs: {}", uriList);
+		if (uriLabelMap == null || uriLabelMap.isEmpty()) {
+			LOG.info("No URIs to load labels for.");
+			return;
+		}
+		
+		Iterator<String> uriIt = uriLabelMap.keySet().iterator();
 		VirtuosoConnectionWrapper connection = null;
 		WrappedResultSet resultSet = null;
 		try {
 			connection = VirtuosoConnectionWrapper.createConnection(cleanDBCredentials);
-			resultSet = connection.executeSelect(
-				"SPARQL SELECT ?uri ?label WHERE {?uri <http://www.w3.org/2000/01/rdf-schema#label> ?label " +
-				"FILTER (?uri IN " + uriList + ")}"); 
-			while (resultSet.next()) {
-				uriLabelMap.put(resultSet.getString("uri"), resultSet.getString("label"));
+			while (uriIt.hasNext()) {
+				String uriList = createUriListString(uriIt);
+				LOG.info("Loading labels for URIs: {}", uriList);					
+				resultSet = connection.executeSelect(
+					"SPARQL SELECT ?uri ?label WHERE {?uri <http://www.w3.org/2000/01/rdf-schema#label> ?label " +
+					"FILTER (?uri IN " + uriList + ")}"); 
+				while (resultSet.next()) {
+					uriLabelMap.put(resultSet.getString("uri"), resultSet.getString("label"));
+				}
+				if (resultSet != null) {
+					resultSet.closeQuietly();
+				}
 			}
 		} catch (SQLException e) {
 			throw new QueryException(e);
@@ -207,9 +226,11 @@ public class LinkerDao {
 	}
 	
 	public String createUriListString(Iterator<String> iterator) {
+		int count = 0;
 		String result = "(";
-		while (iterator.hasNext()) {
+		while (iterator.hasNext() && count < IN_COUNT_LIMIT) {
 			result += "<" + iterator.next() + ">, ";
+			count++;
 		}
 		return result.substring(0, result.length()-2) + ")";
 	}

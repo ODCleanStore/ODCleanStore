@@ -13,7 +13,7 @@ public class OIRuleAssignmentDao extends DaoForEntityWithSurrogateKey<RuleAssign
 {
 	private static final long serialVersionUID = 1L;
 
-	public static final String TABLE_NAME = TABLE_NAME_PREFIX + BACKUP_TABLE_PREFIX + "OI_RULES_ASSIGNMENT";
+	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "OI_RULES_ASSIGNMENT";
 	
 	private ParameterizedRowMapper<RuleAssignment> rowMapper;
 	
@@ -38,7 +38,7 @@ public class OIRuleAssignmentDao extends DaoForEntityWithSurrogateKey<RuleAssign
 	public List<RuleAssignment> loadAllBy(QueryCriteria criteria)
 	{
 		String query =
-			"SELECT A.id, transformerInstanceId, groupId, G.label as groupLabel, G.description as groupDescription " +
+			"SELECT A.id as id, transformerInstanceId, groupId, G.label as groupLabel, G.description as groupDescription " +
 			"FROM " + getTableName() + " AS A " +
 			"JOIN " + OIRulesGroupDao.TABLE_NAME + " AS G ON (A.groupId = G.id) " +
 			criteria.buildWhereClause() +
@@ -53,7 +53,7 @@ public class OIRuleAssignmentDao extends DaoForEntityWithSurrogateKey<RuleAssign
 	public RuleAssignment loadRawBy(String columnName, Object value)
 	{
 		String query = 
-			"SELECT A.id, transformerInstanceId, groupId, G.label as groupLabel, G.description as groupDescription " +
+			"SELECT A.id as id, transformerInstanceId, groupId, G.label as groupLabel, G.description as groupDescription " +
 			"FROM " + getTableName() + " AS A " +
 			"JOIN " + OIRulesGroupDao.TABLE_NAME + " AS G ON (A.groupId = G.id) " +
 			"WHERE " + columnName + " = ?";

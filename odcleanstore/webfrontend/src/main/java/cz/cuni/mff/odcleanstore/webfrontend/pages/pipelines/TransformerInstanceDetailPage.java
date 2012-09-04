@@ -30,7 +30,7 @@ public class TransformerInstanceDetailPage extends FrontendPage
 	public TransformerInstanceDetailPage(final Long transformerInstanceId) 
 	{
 		super(
-			"Home > Pipelines > Pipeline > Transformer Instances > Transformer Instance > Detail", 
+			"Home > Backend > Pipelines > Transformer Instances > Detail", 
 			"Show transformer instance detail"
 		);
 		

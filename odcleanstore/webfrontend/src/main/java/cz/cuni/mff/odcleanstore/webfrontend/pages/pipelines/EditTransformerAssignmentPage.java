@@ -35,8 +35,8 @@ public class EditTransformerAssignmentPage extends FrontendPage
 	{
 		super
 		(
-			"Home > Pipelines > Pipeline > Transformer instances > Create", 
-			"Add a new transformer instance"
+			"Home > Backend > Pipelines > Transformer Instances > Edit", 
+			"Edit a transformer instance"
 		);
 		
 

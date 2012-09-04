@@ -25,9 +25,17 @@ public final class Utils {
     private static final Pattern PREFIXED_NAME_PATTERN =
             Pattern.compile("^(" + PN_PREFIX_PATTERN + ")?:(" + PN_LOCAL_PATTERN + ")?$");
 
+    /** Milliseconds in a second. */
     public static final long MILLISECONDS = 1000;
+    
+    /** Time unit 60. */
     public static final long TIME_UNIT_60 = 60;
+    
+    /** Number of hours in a day. */
     public static final long DAY_HOURS = 24;
+    
+    /** Jdbc driver class. */
+    public static final String JDBC_DRIVER = "virtuoso.jdbc3.Driver";
 
     /**
      * Compare two values which may be null. Null is considered less than all non-null values.

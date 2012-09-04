@@ -5,8 +5,11 @@ package cz.cuni.mff.odcleanstore.engine;
 
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
 
 /**
@@ -14,7 +17,7 @@ import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
  */
 public abstract class Service implements Runnable {
 	
-	private static final Logger LOG = Logger.getLogger(Service.class);
+	private static final Logger LOG = LoggerFactory.getLogger(Service.class);
 	
 	protected final Engine engine;
 	protected final String serviceName;
@@ -54,7 +57,7 @@ public abstract class Service implements Runnable {
 				execute();
 			}
 		} catch (Exception e) {
-			LOG.fatal(FormatHelper.formatExceptionForLog(e, format("crashed")));
+			LOG.error(FormatHelper.formatExceptionForLog(e, format("crashed")));
 			setServiceState(ServiceState.CRASHED);
 		}
 	}
@@ -72,14 +75,36 @@ public abstract class Service implements Runnable {
 							LOG.info(format("shutdown completed"));
 							setServiceState(ServiceState.STOPPED);
 						} catch(Exception e) {
-							LOG.fatal(FormatHelper.formatExceptionForLog(e, format("shutdown crashed")));
+							LOG.error(FormatHelper.formatExceptionForLog(e, format("shutdown crashed")));
 							setServiceState(ServiceState.CRASHED);
 						}
 					}});
 			}
 		} catch (Exception e) {
-			LOG.fatal(FormatHelper.formatExceptionForLog(e, format("shutdown crashed")));
+			LOG.error(FormatHelper.formatExceptionForLog(e, format("shutdown crashed")));
 			setServiceState(ServiceState.CRASHED);
+		}
+	}
+	
+	public final boolean isRunnningAndDbInstancesAvailable(boolean includeDirty) {
+		try {
+			if (getServiceState() != ServiceState.RUNNING) {
+				return false;
+			}
+
+			VirtuosoConnectionWrapper con = VirtuosoConnectionWrapper.createConnection(
+			   ConfigLoader.getConfig().getEngineGroup().getCleanDBJDBCConnectionCredentials());
+			con.closeQuietly();
+			if (includeDirty) {
+				con = VirtuosoConnectionWrapper.createConnection(
+						ConfigLoader.getConfig().getEngineGroup().getDirtyDBJDBCConnectionCredentials());
+				con.closeQuietly();
+			}
+			
+			return true;
+		}
+		catch(Exception e) {
+			return false;
 		}
 	}
 	

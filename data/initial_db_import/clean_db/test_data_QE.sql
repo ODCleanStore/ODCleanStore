@@ -88,24 +88,38 @@ SPARQL INSERT INTO <http://odcs.mff.cuni.cz/namedGraph/qe-test/property-labels> 
 	<http://dbpedia.org/ontology/abstract>	<http://www.w3.org/2000/01/rdf-schema#label>	"Abstract".
 };
 
-SPARQL INSERT INTO <http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/metadata> {
-	<http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/dbpedia>	<http://purl.org/provenance#insertedAt>	"2012-04-01T12:34:56"^^<http://www.w3.org/2001/XMLSchema#dateTime>.
-	<http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/freebase>	<http://purl.org/provenance#insertedAt>	"2012-04-02T12:34:56"^^<http://www.w3.org/2001/XMLSchema#dateTime>.
-	<http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/geonames>	<http://purl.org/provenance#insertedAt>	"2012-04-03T12:34:56"^^<http://www.w3.org/2001/XMLSchema#dateTime>.
-	<http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/linkedgeodata>	<http://purl.org/provenance#insertedAt>	"2012-04-04T12:34:56"^^<http://www.w3.org/2001/XMLSchema#dateTime>.
-	<http://odcs.mff.cuni.cz/namedGraph/qe-test/germany/dbpedia>	<http://purl.org/provenance#insertedAt>	"2012-04-05T12:34:56"^^<http://www.w3.org/2001/XMLSchema#dateTime>.
-
+SPARQL INSERT INTO <http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/metadata/dbpedia> {
+	<http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/dbpedia>	<http://opendata.cz/infrastructure/odcleanstore/metadataGraph> <http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/metadata/dbpedia>.
+	<http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/dbpedia>	<http://opendata.cz/infrastructure/odcleanstore/insertedAt>	"2012-04-01T12:34:56"^^<http://www.w3.org/2001/XMLSchema#dateTime>.
 	<http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/dbpedia>	<http://opendata.cz/infrastructure/odcleanstore/score>	"0.9"^^<http://www.w3.org/2001/XMLSchema#double>.
+	<http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/dbpedia>	<http://opendata.cz/infrastructure/odcleanstore/source>	<http://dbpedia.org/page/Berlin>.
+};
+SPARQL INSERT INTO <http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/metadata/freebase> {
+	<http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/freebase>	<http://opendata.cz/infrastructure/odcleanstore/metadataGraph> <http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/metadata/freebase>.
+	<http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/freebase>	<http://opendata.cz/infrastructure/odcleanstore/insertedAt>	"2012-04-02T12:34:56"^^<http://www.w3.org/2001/XMLSchema#dateTime>.
 	<http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/freebase>	<http://opendata.cz/infrastructure/odcleanstore/score>	"0.8"^^<http://www.w3.org/2001/XMLSchema#double>.
+	<http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/freebase>	<http://opendata.cz/infrastructure/odcleanstore/source>	<http://www.freebase.com/view/en/berlin>.
+};
+SPARQL INSERT INTO <http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/metadata/geonames> {
+	<http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/geonames>	<http://opendata.cz/infrastructure/odcleanstore/metadataGraph> <http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/metadata/geonames>.
+	<http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/geonames>	<http://opendata.cz/infrastructure/odcleanstore/insertedAt>	"2012-04-03T12:34:56"^^<http://www.w3.org/2001/XMLSchema#dateTime>.
 	<http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/geonames>	<http://opendata.cz/infrastructure/odcleanstore/score>	"0.8"^^<http://www.w3.org/2001/XMLSchema#double>.
+	<http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/geonames>	<http://opendata.cz/infrastructure/odcleanstore/source> <http://www.geonames.org/2950159/berlin.html>	.
+};
+SPARQL INSERT INTO <http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/metadata/linkedgeodata> {
+	<http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/linkedgeodata>	<http://opendata.cz/infrastructure/odcleanstore/metadataGraph> <http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/metadata/linkedgeodata>.
+	<http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/linkedgeodata>	<http://opendata.cz/infrastructure/odcleanstore/insertedAt>	"2012-04-04T12:34:56"^^<http://www.w3.org/2001/XMLSchema#dateTime>.
 	<http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/linkedgeodata>	<http://opendata.cz/infrastructure/odcleanstore/score>	"0.8"^^<http://www.w3.org/2001/XMLSchema#double>.
+	<http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/linkedgeodata>	<http://opendata.cz/infrastructure/odcleanstore/source>	<http://linkedgeodata.org/page/node240109189>.
+};
+SPARQL INSERT INTO <http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/metadata/error> {
+	<http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/error>	<http://opendata.cz/infrastructure/odcleanstore/metadataGraph> <http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/metadata/error>.
 	<http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/error>	<http://opendata.cz/infrastructure/odcleanstore/score>	"0.8"^^<http://www.w3.org/2001/XMLSchema#double>.
+	<http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/error>	<http://opendata.cz/infrastructure/odcleanstore/source>		<http://example.com>.
+};
+SPARQL INSERT INTO <http://odcs.mff.cuni.cz/namedGraph/qe-test/germany/metadata/dbpedia> {
+	<http://odcs.mff.cuni.cz/namedGraph/qe-test/germany/dbpedia>	<http://opendata.cz/infrastructure/odcleanstore/metadataGraph> <http://odcs.mff.cuni.cz/namedGraph/qe-test/germany/metadata/dbpedia>.
+	<http://odcs.mff.cuni.cz/namedGraph/qe-test/germany/dbpedia>	<http://opendata.cz/infrastructure/odcleanstore/insertedAt>	"2012-04-05T12:34:56"^^<http://www.w3.org/2001/XMLSchema#dateTime>.
 	<http://odcs.mff.cuni.cz/namedGraph/qe-test/germany/dbpedia>	<http://opendata.cz/infrastructure/odcleanstore/score>	"0.9"^^<http://www.w3.org/2001/XMLSchema#double>.
-
-	<http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/dbpedia>	<http://purl.org/provenance#source>	<http://dbpedia.org/page/Berlin>.
-	<http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/freebase>	<http://purl.org/provenance#source>	<http://www.freebase.com/view/en/berlin>.
-	<http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/geonames>	<http://purl.org/provenance#source> <http://www.geonames.org/2950159/berlin.html>	.
-	<http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/linkedgeodata>	<http://purl.org/provenance#source>	<http://linkedgeodata.org/page/node240109189>.
-	<http://odcs.mff.cuni.cz/namedGraph/qe-test/berlin/error>	<http://purl.org/provenance#source>		<http://example.com>.
-	<http://odcs.mff.cuni.cz/namedGraph/qe-test/germany/dbpedia>	<http://purl.org/provenance#source>	<http://dbpedia.org/page/Germany>.
+	<http://odcs.mff.cuni.cz/namedGraph/qe-test/germany/dbpedia>	<http://opendata.cz/infrastructure/odcleanstore/source>	<http://dbpedia.org/page/Germany>.
 };

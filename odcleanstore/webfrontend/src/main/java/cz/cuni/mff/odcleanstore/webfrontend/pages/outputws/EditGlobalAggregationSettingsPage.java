@@ -24,7 +24,7 @@ public class EditGlobalAggregationSettingsPage extends FrontendPage
 	public EditGlobalAggregationSettingsPage() 
 	{
 		super(
-			"Home > Output WS > CR > Aggregation Settings > Global settings > Edit", 
+			"Home > Output WS > Aggregation Properties > Global > Edit", 
 			"Edit global aggregation settings"
 		);
 
@@ -43,7 +43,7 @@ public class EditGlobalAggregationSettingsPage extends FrontendPage
 	private void addEditGlobalSettingsForm()
 	{
 		IModel<GlobalAggregationSettings> formModel = new CompoundPropertyModel<GlobalAggregationSettings>(
-			new GlobalAggregationSettings()
+			globalAggregationSettingsDao.loadFirstRaw()
 		);
 		
 		Form<GlobalAggregationSettings> form = new Form<GlobalAggregationSettings>("editGlobalSettingsForm", formModel)
@@ -73,11 +73,11 @@ public class EditGlobalAggregationSettingsPage extends FrontendPage
 				setResponsePage(CRPropertiesListPage.class);
 			}
 		};
-
+		
 		form.add(createEnumSelectbox(multivalueTypeDao, "defaultMultivalueType"));
 		form.add(createEnumSelectbox(aggregationTypeDao, "defaultAggregationType"));
 		form.add(createEnumSelectbox(errorStrategyDao, "defaultErrorStrategy"));
-
+		
 		add(form);
 	}
 }

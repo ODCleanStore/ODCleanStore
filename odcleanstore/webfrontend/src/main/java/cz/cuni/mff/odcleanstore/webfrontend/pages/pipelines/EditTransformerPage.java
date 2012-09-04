@@ -20,7 +20,7 @@ public class EditTransformerPage extends FrontendPage
 	{
 		super
 		(
-			"Home > Transformers > Edit", 
+			"Home > Backend > Transformers > Edit", 
 			"Edit a transformer"
 		);
 		

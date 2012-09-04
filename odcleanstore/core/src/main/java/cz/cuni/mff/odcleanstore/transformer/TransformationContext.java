@@ -12,7 +12,7 @@ import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
  */
 public interface TransformationContext {
     /**
-     * Reference to the dirty database.
+     * Reference to the dirty database, i.e. where the transformed graph is located.
      * The dirty database contains new incoming named graphs.
      * @return reference to the dirty database connection credentials
      */

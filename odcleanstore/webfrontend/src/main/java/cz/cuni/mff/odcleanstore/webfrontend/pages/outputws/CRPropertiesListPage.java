@@ -39,8 +39,8 @@ public class CRPropertiesListPage extends FrontendPage
 	public CRPropertiesListPage() 
 	{
 		super(
-			"Home > Output WS > CR > Aggregation Settings", 
-			"Adjust aggregation settings"
+			"Home > Output WS > Aggregation Properties > List", 
+			"List all aggregation properties"
 		);
 		
 		// prepare DAO objects

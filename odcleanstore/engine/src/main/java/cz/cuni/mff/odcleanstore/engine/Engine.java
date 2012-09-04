@@ -86,8 +86,7 @@ public final class Engine {
 			executor.execute(pipelineService);
 			synchronized(startupLock) {
 				if (isAnyServiceNewOrInitializing()) {
-					// TODO to global config
-					startupLock.wait(30000);
+					startupLock.wait(ConfigLoader.getConfig().getEngineGroup().getStartupTimeout());
 				}
 				if(canRunDecision == false) {
 					LOG.info("Not all services initialized");
@@ -122,8 +121,8 @@ public final class Engine {
 			}
 			synchronized(shutdownLock) {
 				if (!isAllServiceEnded()) {
-					// TODO to global config
-					shutdownLock.wait(30000);
+					
+					shutdownLock.wait(ConfigLoader.getConfig().getEngineGroup().getShutdownTimeout());
 				}
 				if (isAllServiceStopped()) {
 					LOG.info("Engine properly shutdown");

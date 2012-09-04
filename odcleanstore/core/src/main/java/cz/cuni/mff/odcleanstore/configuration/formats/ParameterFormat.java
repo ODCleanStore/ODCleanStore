@@ -13,12 +13,11 @@ public abstract class ParameterFormat<T> {
     /**
      * Converts the given String value of the given group/parameter to the represented format.
      *
-     * @param groupName configuration group
      * @param paramName configuration parameter name
      * @param value configuration value as string
      * @return converted configuration value
      * @throws IllegalParameterFormatException if the given value could not be converted
      */
-    public abstract T convertValue(String groupName, String paramName, String value)
+    public abstract T convertValue(String paramName, String value)
             throws IllegalParameterFormatException;
 }

@@ -10,9 +10,9 @@ import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
  * @author Petr Jerman
  */
 public class TransformedGraphException extends ODCleanStoreException {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	/**
+    /**
      * Constructs a new exception with the given cause.
      * @param cause the cause
      */

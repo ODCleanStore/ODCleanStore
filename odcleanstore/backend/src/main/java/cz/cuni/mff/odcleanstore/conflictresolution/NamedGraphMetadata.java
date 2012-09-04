@@ -1,6 +1,8 @@
 package cz.cuni.mff.odcleanstore.conflictresolution;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Metadata for a single named graph in the RDF store.
@@ -12,17 +14,17 @@ public class NamedGraphMetadata {
     /** URI of the named graph for which this objects contains metadata. */
     private String namedGraphURI;
 
-    /** URI of the data source the named graph was retrieved from. */
-    private String source;
+    /** URIs of data sources the named graph was retrieved from. */
+    private Set<String> sources;
 
-    /** URI of the publisher of data in the named graph. */
-    private String publisher;
+    /** URIs of publishers of data in the named graph. */
+    private List<String> publishers;
 
     /** (Error localization) score of the named graph. */
     private Double score;
 
-    /** (Error localization) score of the publisher (see {@link #publisher}). */
-    private Double publisherScore;
+    /** (Error localization) scores of publishers (see {@link #publishers}). */
+    private List<Double> publisherScores;
 
     /** Date the named graph was stored to the RDF store. */
     private Date insertedAt;
@@ -30,8 +32,8 @@ public class NamedGraphMetadata {
     /** The user that inserted the named graph. */
     private String insertedBy;
 
-    /** The license of the data. */
-    private String license;
+    /** Licenses of the data. */
+    private List<String> licenses;
 
     /**
      * Creates a new container of metadata for a named graph with the selected URI.
@@ -50,39 +52,38 @@ public class NamedGraphMetadata {
     }
 
     /**
-     * Return data source the named graph was retrieved from.
+     * Return data sources the named graph was retrieved from.
      * Returns null if the data source is unknown
-     * @return URI identifying the source of the named graph
-     * @todo return set/collection of String
+     * @return list of URIs identifying sources of the named graph
      */
-    public final String getSource() {
-        return source;
+    public final Set<String> getSources() {
+        return sources;
     }
 
     /**
-     * Set data source the named graph was retrieved from.
-     * @param source URI of the data source
+     * Set data sources the named graph was retrieved from.
+     * @param sources URIs of data source
      */
-    public final void setSource(String source) {
-        this.source = source;
+    public final void setSources(Set<String> sources) {
+        this.sources = sources;
     }
 
     /**
-     * Return String identifying the publisher of data in the named graph.
+     * Return URIs identifying publishers of data in the named graph.
      * Returns null if the publisher is unknown.
-     * @return URI of the publisher or null
+     * @return URIs of publishers or null
      */
-    public final String getPublisher() {
-        return publisher;
+    public final List<String> getPublishers() {
+        return publishers;
     }
 
     /**
-     * Set URI identifying the publisher of data in the named graph in these metadata.
-     * Null if the publisher is unknown.
-     * @param publisher URI of the publisher
+     * Set URIs identifying the publishers of data in the named graph in these metadata.
+     * Null if the publishers is unknown.
+     * @param publishers URIs of publishers
      */
-    public final void setPublisher(String publisher) {
-        this.publisher = publisher;
+    public final void setPublishers(List<String> publishers) {
+        this.publishers = publishers;
     }
 
     /**
@@ -102,20 +103,20 @@ public class NamedGraphMetadata {
     }
 
     /**
-     * Return (error localization) score of the publisher.
-     * @return score of the publisher of the named graph or null if the score is unknown
+     * Return (Quality Assessment) score of the publishers.
+     * @return scores of publishers of the named graph or null if the score is unknown
      */
-    public final Double getPublisherScore() {
-        return publisherScore;
+    public final List<Double> getPublisherScores() {
+        return publisherScores;
     }
 
     /**
-     * Set (error localization) score of the publisher.
-     * @param publisherScore score of the publisher of the named graph or null
+     * Set (Quality Assessment) scores of the publishers.
+     * @param publisherScores scores of the publishers of the named graph or null
      *        if the score is unknown
      */
-    public final void setPublisherScore(Double publisherScore) {
-        this.publisherScore = publisherScore;
+    public final void setPublisherScores(List<Double> publisherScores) {
+        this.publisherScores = publisherScores;
     }
 
     /**
@@ -149,29 +150,29 @@ public class NamedGraphMetadata {
     }
 
     /**
-     * @return license of named graph data
+     * @return licenses of named graph data
      */
-    public String getLicence() {
-        return license;
+    public List<String> getLicences() {
+        return licenses;
     }
 
     /**
-     * @param license of named graph data
+     * @param licenses of named graph data
      */
-    public void setLicence(String license) {
-        this.license = license;
+    public void setLicences(List<String> licenses) {
+        this.licenses = licenses;
     }
 
     @Override
     public String toString() {
         return "Metadata for " + namedGraphURI
-                + " { Source: " + toStringWithNull(source)
-                + "; Publisher: " + toStringWithNull(publisher)
+                + " { Source: " + toStringWithNull(sources)
+                + "; Publisher: " + toStringWithNull(publishers)
                 + "; Score: " + toStringWithNull(score)
-                + "; Publisher score: " + toStringWithNull(publisherScore)
+                + "; Publisher score: " + toStringWithNull(publisherScores)
                 + "; Inserted at: " + toStringWithNull(insertedAt)
                 + "; Inserted by: " + toStringWithNull(insertedBy)
-                + "; License: " + toStringWithNull(license)
+                + "; License: " + toStringWithNull(licenses)
                 + " }";
     }
 

@@ -25,7 +25,7 @@ public final class RDF {
 
     // CHECKSTYLE:OFF
     /** The subject is an instance of a class. */
-    public static final String type = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+    public static final String type = NS + "type";
 
     // CHECKSTYLE:ON
 }

@@ -5,6 +5,7 @@ import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.data.RDFprefix;
 import cz.cuni.mff.odcleanstore.queryexecution.EnumQueryError;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
+import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
 import cz.cuni.mff.odcleanstore.shared.RDFPrefixesLoader;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 
@@ -39,7 +40,8 @@ public class PrefixMappingCache extends CacheHolderBase<PrefixMapping> {
         try {
             prefixList = RDFPrefixesLoader.loadPrefixes(connectionCredentials);
         } catch (DatabaseException e) {
-            throw new QueryExecutionException(EnumQueryError.DATABASE_ERROR, e);
+            throw new QueryExecutionException(
+                    EnumQueryError.DATABASE_ERROR, ErrorCodes.QE_PREFIX_MAPPING_DB_ERR, "Database error", e);
         }
         Map<String, String> prefixMap = new HashMap<String, String>(prefixList.size());
         for (RDFprefix prefix : prefixList) {

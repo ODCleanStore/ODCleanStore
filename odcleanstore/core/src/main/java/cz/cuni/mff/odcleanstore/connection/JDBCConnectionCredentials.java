@@ -1,13 +1,18 @@
 package cz.cuni.mff.odcleanstore.connection;
 
+import java.io.Serializable;
+
 /**
  * Encapsulates the coordinates of a JDBC connection.
  *
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
-public class JDBCConnectionCredentials {
-    private String connectionString;
+public class JDBCConnectionCredentials implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
+	
+	private String connectionString;
     private String username;
     private String password;
 

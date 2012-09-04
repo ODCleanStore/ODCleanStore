@@ -23,8 +23,8 @@ public class EditQARulePage extends FrontendPage
 	public EditQARulePage(final Long ruleId) 
 	{
 		super(
-			"Home > QA > Rules groups > Group > Rules > Create", 
-			"Add a new QA rule"
+			"Home > Backend > QA > Groups > Rules > Edt", 
+			"Edit a QA rule"
 		);
 		
 		// prepare DAO objects

@@ -83,7 +83,7 @@ public abstract class FrontendPage extends WebPage
 		DaoForEntityWithSurrogateKey<EnumBO> dao, String componentName, boolean required)
 	{
 		// create the model
-		IModel<List<EnumBO>> model = createModelForListView(dao);
+		IModel<List<EnumBO>> choices = createModelForListView(dao);
 		
 		// prepare the select-box renderer
 		ChoiceRenderer<EnumBO> renderer = new ChoiceRenderer<EnumBO>("label", "id");
@@ -92,7 +92,7 @@ public abstract class FrontendPage extends WebPage
 		DropDownChoice<EnumBO> selectBox = new DropDownChoice<EnumBO>
 		(
 			componentName,
-			model,
+			choices,
 			renderer
 		);
 		

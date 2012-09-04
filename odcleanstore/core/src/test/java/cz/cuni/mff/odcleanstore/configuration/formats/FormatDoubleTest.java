@@ -13,7 +13,6 @@ import org.junit.Test;
  *
  */
 public class FormatDoubleTest {
-    private static final String GROUP_NAME = "group_name";
     private static final String PARAM_NAME = "param_name";
 
     private ParameterFormat<Double> formatter;
@@ -25,21 +24,21 @@ public class FormatDoubleTest {
 
     @Test
     public void testDoubleToDouble() throws IllegalParameterFormatException {
-        assertEquals(new Double(3.14159265), formatter.convertValue(GROUP_NAME, PARAM_NAME, "3.14159265"));
+        assertEquals(new Double(3.14159265), formatter.convertValue(PARAM_NAME, "3.14159265"));
     }
 
     @Test
     public void testIntToDouble() throws IllegalParameterFormatException {
-        assertEquals(new Double(3), formatter.convertValue(GROUP_NAME, PARAM_NAME, "3"));
+        assertEquals(new Double(3), formatter.convertValue( PARAM_NAME, "3"));
     }
 
     @Test(expected = IllegalParameterFormatException.class)
     public void testTwoDecimalPointsError() throws IllegalParameterFormatException {
-        formatter.convertValue(GROUP_NAME, PARAM_NAME, "3.14.159265");
+        formatter.convertValue(PARAM_NAME, "3.14.159265");
     }
 
     @Test(expected = IllegalParameterFormatException.class)
     public void testMisstypedNumberError() throws IllegalParameterFormatException {
-        formatter.convertValue(GROUP_NAME, PARAM_NAME, "31415GF");
+        formatter.convertValue(PARAM_NAME, "31415GF");
     }
 }

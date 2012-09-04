@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -24,6 +25,7 @@ import org.w3c.dom.NodeList;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.sparql.core.Quad;
 
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.configuration.ObjectIdentificationConfig;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
@@ -62,9 +64,11 @@ public class LinkerImpl implements Linker {
 	private static final String LABEL_URI = "rdfs:label";
 	
 	private ObjectIdentificationConfig globalConfig;
+	private Integer[] groupIds;
 	
-	public LinkerImpl(ObjectIdentificationConfig config) {
-		globalConfig = config;
+	public LinkerImpl(Integer... groupIds) {
+		this.globalConfig = ConfigLoader.getConfig().getObjectIdentificationConfig();
+		this.groupIds = groupIds;
 	}
 	
 	 /**
@@ -81,33 +85,31 @@ public class LinkerImpl implements Linker {
 	@Override
 	public void transformNewGraph(TransformedGraph inputGraph, TransformationContext context) throws TransformerException {
 		LOG.info("Linking new graph: {}", inputGraph.getGraphName());
-		String config = context.getTransformerConfiguration();
-		if (config == null || config.isEmpty()) {
-			LOG.info("No configuration specified, using XML files in directory {}", context.getTransformerDirectory().getAbsolutePath());
-			linkByConfigFiles(context);
-		} else {
-			File configFile = null;
-			try {				
-				List<SilkRule> rules = loadRules(context);
-				List<RDFprefix> prefixes = RDFPrefixesLoader.loadPrefixes(context.getCleanDatabaseCredentials());
-				
-				configFile = ConfigBuilder.createLinkConfigFile(rules, prefixes, inputGraph, context, globalConfig);
-				
-				inputGraph.addAttachedGraph(getLinksGraphId(inputGraph));
-				
-				LOG.info("Calling Silk with temporary configuration file: {}", configFile.getAbsolutePath());
-				Silk.executeFile(configFile, null, Silk.DefaultThreads(), true);
-				LOG.info("Linking finished.");
-				
+		File configFile = null;
+		try {				
+			List<SilkRule> rules = loadRules(context);
+			if (rules.isEmpty()) {
+			    LOG.info("Nothing to link.");
+			} else {
+    			List<RDFprefix> prefixes = RDFPrefixesLoader.loadPrefixes(context.getCleanDatabaseCredentials());
+			
+    			configFile = ConfigBuilder.createLinkConfigFile(rules, prefixes, inputGraph, context, globalConfig);
+			
+    			inputGraph.addAttachedGraph(getLinksGraphId(inputGraph));
+			
+    			LOG.info("Calling Silk with temporary configuration file: {}", configFile.getAbsolutePath());
+    			Silk.executeFile(configFile, null, Silk.DefaultThreads(), true);
+    			LOG.info("Linking finished.");
+			
+    			configFile.delete();
+			}
+		} catch (DatabaseException e) {
+			throw new TransformerException(e);
+		} catch (TransformedGraphException e) {
+			throw new TransformerException(e);
+		} finally {
+			if (configFile != null) {
 				configFile.delete();
-			} catch (DatabaseException e) {
-				throw new TransformerException(e);
-			} catch (TransformedGraphException e) {
-				throw new TransformerException(e);
-			} finally {
-				if (configFile != null) {
-					configFile.delete();
-				}
 			}
 		}
 	}
@@ -137,34 +139,6 @@ public class LinkerImpl implements Linker {
     }
 	
 	/**
-	 * {@inheritDoc}
-	 *
-	 * @param context {@inheritDoc}
-	 */
-	@Override
-	public void linkCleanDatabase(TransformationContext context) {
-		// TODO Auto-generated method stub		
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @param context {@inheritDoc}
-	 */
-	@Override
-	public void linkByConfigFiles(TransformationContext context) {
-		File[] files = context.getTransformerDirectory().listFiles();
-		LOG.info("{} configuration files found", files.length);
-		for (File file:files) {
-			if (file.getName().endsWith(".xml")) {
-				LOG.info("Calling Silk with configuration file: {}", file.getAbsolutePath());
-				Silk.executeFile(file, null, Silk.DefaultThreads(), true);
-				LOG.info("Linking finished.");
-			}
-		}
-	}
-	
-	/**
 	 * Loads list of rules from database.
 	 * 
 	 * Parses transformer configuration to obtain rule groups.
@@ -175,11 +149,9 @@ public class LinkerImpl implements Linker {
 	 */
 	private List<SilkRule> loadRules(TransformationContext context) 
 			throws ConnectionException, QueryException {
-		LOG.info("Loading rule groups: {}", context.getTransformerConfiguration());
+		LOG.info("Loading rule groups: {}", groupIds);
 		LinkerDao dao = LinkerDao.getInstance(context.getCleanDatabaseCredentials(), context.getDirtyDatabaseCredentials());
-		String[] ruleGroupArray = context.getTransformerConfiguration().split(",");
-
-		return dao.loadRules(ruleGroupArray);
+		return dao.loadRules(groupIds);
 	}
 	
 	private String getLinksGraphId(TransformedGraph inputGraph) {
@@ -204,6 +176,7 @@ public class LinkerImpl implements Linker {
 						inputFile.getAbsolutePath(), resultFileName);
 				Silk.executeFile(configFile, null, Silk.DefaultThreads(), true);
 				List<LinkedPair> linkedPairs = parseLinkedPairs(resultFileName);
+				deleteFile(resultFileName);
 				loadLabels(inputFile, linkedPairs);
 				loadLabels(context.getCleanDatabaseCredentials(), context.getDirtyDatabaseCredentials(), linkedPairs);
 				resultList.add(new DebugResult(rule, linkedPairs));
@@ -217,7 +190,7 @@ public class LinkerImpl implements Linker {
 	}
 	
 	private String createFileName(SilkRule rule, File transformerDirectory, String fileName) {
-		return transformerDirectory.getAbsolutePath() + rule.getId() + fileName;
+		return transformerDirectory.getAbsolutePath() + rule.getId() + UUID.randomUUID().toString() + fileName;
 	}
 	
 	private List<LinkedPair> parseLinkedPairs(String resultFileName) throws TransformerException {
@@ -355,5 +328,12 @@ public class LinkerImpl implements Linker {
 			uriLabelMap.put(pair.getSecondUri(), pair.getSecondLabel());
 		}
 		return uriLabelMap;
+	}
+	
+	private void deleteFile(String fileName) {
+		File file = new File(fileName);
+		if (!file.delete()) {
+			LOG.warn("Failed to delete file {}", fileName);
+		}
 	}
 }

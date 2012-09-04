@@ -27,7 +27,7 @@ public class NewGroupAssignmentPage extends FrontendPage
 	{
 		super
 		(
-			"Home > Pipelines > Pipeline > Transformer instances > Instance > Assigned Groups > Create", 
+			"Home > Backend > Pipelines > Transformer Instances > Assigned Groups > New", 
 			"Assign a new group"
 		);
 		

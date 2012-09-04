@@ -35,7 +35,7 @@ public class PipelineDetailPage extends FrontendPage
 	public PipelineDetailPage(final Long pipelineId) 
 	{
 		super(
-			"Home > Pipelines > Pipeline > Detail", 
+			"Home > Backend > Pipelines > Detail", 
 			"Show pipeline detail"
 		);
 		
