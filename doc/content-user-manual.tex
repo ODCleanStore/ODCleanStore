@@ -174,6 +174,25 @@ Data consumers accessing Output Webservice (see Section~\ref{sec:outputWS}) do n
 
 Administration Frontend is the official tool for managing ODCleanStore. It covers configuration of all standard components.
 
+Several terms and designations are used repeatedly in the frontend, however, their meanings do not change too much, therefore make sure to be familiar with them as they might not be described hereafter.
+
+\subsection*{Attributes}
+
+\enumtable
+{
+	label & A unique human readable identifier of the related entity\\
+	description & A description for user's purposes and better comprehension of semantics of the related entity
+}
+
+\subsection*{Actions}
+
+\enumtable
+{
+	Edit & edit attributes of the related entity\\
+	Delete & remove the related entity irrevertably from the system\\
+	Detail & view entities and configurations related to the related entity
+}
+
 \section{User Accounts Administration}
 
 To be able to manage user accounts one has to have \term{ADM} user role (section \ref{sec:adm}) associated with his account. It is possible to view currently active accounts and modify them or to add new accounts to the system from this page. The modification is limited to changes of user roles and resetting of passwords for safety reasons. A newly generated password is sent to the e-mail address of the affected user.
@@ -186,23 +205,14 @@ To be able to manage user accounts one has to have \term{ADM} user role (section
 	The transformer management screen allows registered users to add, edit or remove {transformers}. These can be then added to \term{pipelines} (Section \ref{sec:pipelineManagement}).
 	
 	Each {transformer} definition consists of:
-	\begin{itemize}
-		\item \textbf{required} label
-		
-		Unique identifier of the {transformer}.
-		
-		\item \textbf{optional but recommended} description
-		
-		Description of what the purpose of the {transformer} is.
-		
-		\item \textbf{required} JAR path
-		
-		Path to a Java Archive containing the {transformer} declaration.
-		
-		\item \textbf{required} Full classname
-		
-		Name of the class implementing the {transformer}.
-	\end{itemize}
+
+	\fieldtable
+	{
+		required & label & \\
+		optional & description & \\
+		required & JAR path & Path to a Java Archive containing the {transformer} declaration.\\
+		required & Full classname & Name of the class implementing the {transformer}.
+	}
 
 \section{Pipeline management}
 \label{sec:pipelineManagement}
@@ -238,9 +248,11 @@ On the detail page, one can specify individual rules contained in the related gr
 
 \begin{table}[!h]
 	\centering
-	\begin{tabular}{c@{\hspace{8mm}}c@{\hspace{8mm}}c}
-		\textbf{Filter} & \textbf{Coefficient} & \textbf{Description} \\
-		\code{GroupGraphPattern} [\code{GROUP BY \ldots} [\code{HAVING \ldots}]] & $ x \in [0, 1] $ & description
+	\begin{tabular}{rl@{\hspace{8mm}}c@{\hspace{8mm}}c}
+		& \textbf{Filter} & \textbf{Coefficient} & \textbf{Description} \\
+		& \code{GroupGraphPattern} [\code{GROUP BY \ldots} [\code{HAVING \ldots}]] & $ x \in [0, 1] $ & description \\
+		\\
+		ex: & \code{\{\{?s anatomy:limbs ?o\} FILTER (?o > 4)\}} & $ 0.4 $ & To many limbs
 	\end{tabular}
 	\caption{Quality Assessment rule fields}
 	\label{tbl:qaFields}
@@ -261,7 +273,7 @@ Similarly as with the rules themselves the detail page of a rule allows the user
 	\code{\{?s ?p1 ?o2\} WHERE \{GRAPH \$\$graph\$\$ \{?s ?p1 ?o1. ?o1 ?p2 ?o2.\}\}},
 \end{center}
 
-where \code{\$\$graph\$\$} is a place holder for name of the graph being currently processed. Expectedly triples (\code{?s ?p1 ?o2} in the example) are inserted into (deleted from) the current graph when the type of the component is \code{INSERT} (\code{DELETE}). Effects are immediate in respect to consecutive applications of other components to the graph.
+where \code{\$\$graph\$\$} is a place holder for name of the graph being currently processed. Expectedly triples (\code{?s ?p1 ?o2} in the example) are inserted into (deleted from) the current graph when the type of the component is \code{INSERT} (\code{DELETE}). Effects are immediate in respect to consecutive applications of other components of the same rule or other rules to the graph.
 
 \subsection{Object Identification}
 \label{sub:objectIdentification}
@@ -282,6 +294,61 @@ Ontologies can be used to produce common rules for QA, DN {transformers}. To loa
 \label{sec:frontendPrefixMgmt}
 
 To avoid obligation of full manual URI expansion in \term{transformer} rules or queries it is possible to maintain set of global \term{RDF} prefixes that storage recognizes.
+
+\section{Configuration Example}
+
+In this section a basic concept of ODCleanStore configuration will be illustrated.
+
+{
+%%TODO: choose one:
+%%After the installation of the storage there will be a user account \emph{adm} with password \emph{adm} allowing the user to access the administration account in its full potential. It is necessary to log into the system and it is advisable to change users email address and then reset the password right away.
+
+It is necessary to log into the frontend with credentials given during the installation. All of the following operations will be possible to be done with the initial user account.
+}
+
+There need to be transformers for the storage to be able to handle incoming data. ODCleanStore comes with its built in transformers that are accessible from the frontend right after the installation. Custom transformers need to be added at this point.
+
+Add the ODCSPropertyFilterTransformer by following steps:
+
+\begin{enumerate}
+	\item[] \textbf{Prepare transformer}
+	\item Choose \code{Backend/Transformers} from the frontend menu
+	\item Click "Add a new transformer"
+	\item Fill in label of your choice:
+	
+	ODCSPropertyFilterTransformer
+	
+	\item Describe its purpose:
+	
+	Removes reserved properties from the processed graph
+	
+	\item Select the path to the backend JAR:
+	
+	.
+	
+	\item Fill in the classname:
+	
+	cz.cuni.mff.odcleanstore.transformer.odcs.ODCSPropertyFilterTransformer
+	
+	\item[] \textbf{Prepare rules for standard transformer}
+	\item Choose \code{Backend/Rules/DN} from the frontend menu
+	\item Click "Add a new group"
+	\item Fill in necessary information and submit it
+	\item Click "Detail" in the row of the group created in the previous step
+	\item Click "Add a new rule", fill in its description and submit
+	\item Click "Detail" in the row of the rule created in the previous step
+	\item Click "Add a new rule component"
+	\item Choose the type of the data transformation (INSERT/DELETE)
+	\item Specify the triples that will modify the graph
+	
+	ex: \code{\{?s prefix1:property1 ?o\} WHERE \{?s prefix2:property2 ?o\}}
+	
+	\item Describe the meaning of this transformation and submit it
+	\item Repeat until the rule is complete
+	
+	\item[] \textbf{Prepare pipeline}
+
+\end{enumerate}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

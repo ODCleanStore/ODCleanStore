@@ -100,3 +100,15 @@
 		\end{tabular}
 	\end{table}
 }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Aligned field description tables
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\fieldtable}[1]
+{
+	\begin{table}[!h]
+		\begin{tabular}{>{\textbf\bgroup}l<{\egroup}p{3cm}p{11cm}}
+			#1
+		\end{tabular}
+	\end{table}
+}
