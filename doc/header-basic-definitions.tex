@@ -95,9 +95,9 @@
 \newcommand{\enumtable}[1]
 {
 	\begin{table}[!h]
-		\begin{tabular}{>{\textbf\bgroup}l<{\egroup}p{14cm}}
+		\begin{tabularx}{\linewidth}{>{\textbf\bgroup}l<{\egroup}X}
 			#1
-		\end{tabular}
+		\end{tabularx}
 	\end{table}
 }
 
@@ -107,8 +107,8 @@
 \newcommand{\fieldtable}[1]
 {
 	\begin{table}[!h]
-		\begin{tabular}{>{\textbf\bgroup}l<{\egroup}p{3cm}p{11cm}}
+		\begin{tabularx}{\linewidth}{>{\textbf\bgroup}l<{\egroup}p{3cm}X}
 			#1
-		\end{tabular}
+		\end{tabularx}
 	\end{table}
 }
