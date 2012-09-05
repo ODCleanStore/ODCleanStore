@@ -120,7 +120,7 @@ public class QualityAggregatorImpl implements QualityAggregator {
 
 	//TODO: null is just a special graph (might be replaced by something more configurable)
 
-	private final static String dropOutdatedQueryFormat = "SPARQL DELETE FROM <null> {?publisher <" + ODCS.publisherScore + "> ?score} WHERE {?publisher <" + ODCS.publisherScore + "> ?score. FILTER (?publisher = <%s>)}";
+	private final static String dropOutdatedQueryFormat = "SPARQL DELETE FROM <%s> {?publisher <" + ODCS.publisherScore + "> ?score} WHERE {?publisher <" + ODCS.publisherScore + "> ?score. FILTER (?publisher = <%s>)}";
 	private final static String computeSumUpdatedQueryFormat = "SPARQL SELECT SUM(?score) WHERE {?graph <" + ODCS.score + "> ?score; <" + ODCS.publishedBy + "> <%s>}";
 	private final static String computeCountUpdatedQueryFormat = "SPARQL SELECT COUNT(?score) WHERE {?graph <" + ODCS.score + "> ?score; <" + ODCS.publishedBy + "> <%s>}";
 	private final static String storeUpdatedQueryFormat = "SPARQL INSERT DATA INTO <%s> {<%s> <" + ODCS.publisherScore + "> \"%f\"^^<" + XMLSchema.doubleType + ">}";
@@ -205,6 +205,8 @@ public class QualityAggregatorImpl implements QualityAggregator {
 					Double score;
 
 					if (rsSum.next() && rsCount.next()) {
+						//Clean DB: the graph is also present in clean DB (only its score may change for the copy in dirty DB) => no division by zero
+						//Dirty DB: deltaCount == 1 => no division by zero
 						score = (rsSum.getDouble(1) + delta) / (rsCount.getDouble(1) + deltaCount);
 
 						LOG.info("Publisher <" + publisher + "> scored " + score + ".");
@@ -214,7 +216,7 @@ public class QualityAggregatorImpl implements QualityAggregator {
 
 					getCleanConnection().adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL, false);
 
-					final String dropOutdated = String.format(Locale.ROOT, dropOutdatedQueryFormat, publisher);
+					final String dropOutdated = String.format(Locale.ROOT, dropOutdatedQueryFormat, ConfigLoader.getConfig().getQualityAssessmentGroup().getAggregatedPublisherScoreGraphURI(), publisher);
 					getCleanConnection().execute(dropOutdated);
 
 					final String storeUpdated = String.format(Locale.ROOT, storeUpdatedQueryFormat, ConfigLoader.getConfig().getQualityAssessmentGroup().getAggregatedPublisherScoreGraphURI(), publisher, score);
