@@ -27,7 +27,7 @@ To overcome these issues, we present a~framework enabling management of Linked D
 
 This document is a~user manual with basic description od ODCleanStore and detailed instructions on how to access and work with the application from the perspective of a~user. Chapters \ref{chap:introduction} and \ref{chap:howItWorks} give a~basic description of what ODCleanStore is and how it works, while Chapter \ref{chap:userRoles} describes user roles and will guide you to other parts of this manual relevant for your user role.
 
-If more detailed information is needed, please refer to related documents \quot{\refadmimanual} and \quot{\refprogrammersguide}.
+If more detailed information is needed, please refer to related documents \quot{\refadminmanual} and \quot{\refprogrammersguide}.
 
 \todo{what is important, what is different from others, how do we support the goals}
 
@@ -135,7 +135,7 @@ Data consumers accessing Output Webservice (see Section~\ref{sec:outputWS}) do n
 %	The administrator is responsible for ensuring that not more than one instance of the storage and its web frontend is connected to one instance of database.
 
 
-	More information, e.g. about adding transformers, can be found in the related document \refadmimanual.
+	More information, e.g. about adding transformers, can be found in the related document \refadminmanual.
 
 	\paragraph{Most relevant sections of this document:} Chapter \ref{chap:administrationFrontend} \nameref{chap:administrationFrontend}.
 
@@ -275,7 +275,7 @@ On the detail page, one can specify individual rules contained in the related gr
 	\label{tbl:qaFields}
 \end{table}
 
-Any snippet of SPARQL\footnote{\url{http://www.w3.org/TR/rdf-sparql-query/#grammar}} to which \quot{\code{SELECT * FROM ... WHERE}} can be prepended is a valid filter and describes a property of a named graph that the author of the rule finds defective.
+Any snippet of SPARQL\footnote{\url{http://www.w3.org/TR/rdf-sparql-query/\#grammar}} to which \quot{\code{SELECT * FROM ... WHERE}} can be prepended is a valid filter and describes a property of a named graph that the author of the rule finds defective.
 %%TODO: mention/omit: The use of SPARQL 1.1 features depends on underlaying Virtuoso OpenSource version.
 
 \subsection{Data Normalization}
@@ -332,10 +332,9 @@ There need to be transformers for the storage to be able to handle incoming data
 
 Add the ODCSPropertyFilterTransformer by following steps:
 
+\subsection*{Prepare transformer}
+\label{sec:prepareTransformer}
 \begin{enumerate}
-	\item[] \subsection*{Prepare transformer}
-	\label{sec:prepareTransformer}
-
 	\item Choose \code{Backend/Transformers} from the frontend menu
 	\item Click \quot{Add a new transformer}
 	\item Fill in label of your choice:
@@ -353,8 +352,11 @@ Add the ODCSPropertyFilterTransformer by following steps:
 	\item Fill in the classname:
 	
 	cz.cuni.mff.odcleanstore.transformer.odcs.ODCSPropertyFilterTransformer
-	
-	\item[]\item[] \subsection*{Prepare rules for standard transformer}
+
+\end{enumerate}
+
+\subsection*{Prepare rules for standard transformer}
+\begin{enumerate}[resume]
 	\item Choose \code{Backend/Rules/DN} from the frontend menu
 	\item Click \quot{Add a new group}
 	\item Fill in necessary information and submit it
@@ -369,15 +371,17 @@ Add the ODCSPropertyFilterTransformer by following steps:
 	
 	\item Describe the meaning of this transformation and submit it
 	\item Repeat until the rule is complete
-	
-	\item[]\item[] \subsection*{Prepare pipeline}
-	
+\end{enumerate}
+
+  
+\subsection*{Prepare pipeline}
+\begin{enumerate}[resume]
 	\item Click \quot{Add a new pipeline}, fill in the label and description and submit it
 	\item Click \quot{Detail} in the row of the pipeline created in the previous step
 	\item Click \quot{Assign a transformer}
 	\item Select one of the transformers
 	
-	\emph{If there is no option then go back to the} \textbf{\hyperref[sec:prepareTransformer]{Prepare transformer}} \empth{section}
+	\emph{If there is no option then go back to the} \textbf{\hyperref[sec:prepareTransformer]{Prepare transformer}} \emph{section}
 	
 	To be able to assign rule groups select one of the standard transformers (QA, DN, OI)
 	
@@ -407,7 +411,7 @@ ODCleanStore communicates with third-party applications via webservices. Data pr
 
 New data can be stored to ODCleanStore through Input Webservice, a~SOAP multithreaded webservice that accepts RDF data serialized as RDF/XML\footnote{\url{http://www.w3.org/TR/rdf-syntax-grammar/}} or TTL\footnote{TTL or Turtle -- Terse RDF Triple Language; \url{http://www.w3.org/TeamSubmission/turtle/}} and additional metadata. The webservice requires authorization with a~valid user name and password.
 
-The location of Input Webservice can be configured by the \code{input\_ws.endpoint\_url} configuration option (see \refadmimanual); by default, it is:
+The location of Input Webservice can be configured by the \code{input\_ws.endpoint\_url} configuration option (see \refadminmanual); by default, it is:
 \begin{center}
 \varcode{host}\code{:8080/inputws}
 \end{center}
@@ -577,7 +581,7 @@ Additionally, the user can access the data in the clean database directly using 
 
 \section*{Output Webservice}
 
-The Output Webservice is a~REST webservice which can be accessed using both GET and POST HTTP methods equivalently. The port where the webservice resides can be configured by the \code{output\_ws.port} configuration option (see \refadmimanual); by default, it is on port \code{8087}.
+The Output Webservice is a~REST webservice which can be accessed using both GET and POST HTTP methods equivalently. The port where the webservice resides can be configured by the \code{output\_ws.port} configuration option (see \refadminmanual); by default, it is on port \code{8087}.
 
 \subsection{Types of queries}
 
@@ -771,7 +775,8 @@ An example:
 @prefix w3p:     <http://purl.org/provenance#> .
 @prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix dbpedia:     <http://dbpedia.org/ontology/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dbpedia: <http://dbpedia.org/ontology/> .
 
 <http://opendata.cz/infrastructure/odcleanstore/query/results/1> {
   <http://dbpedia.org/resource/Berlin> rdfs:label "Berlin"@en .
@@ -797,6 +802,7 @@ An example:
     w3p:insertedAt "2012-04-01 12:34:56.0"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
     w3p:source <http://dbpedia.org/page/Berlin> ;
     w3p:publishedBy <http://dbpedia.org/> ;
+    dcterms:license <http://creativecommons.org/licenses/by-sa/3.0/> ;
     odcs:publisherScore 0.9 .
 
   <http://opendata.cz/infrastructure/odcleanstore/data/b68e21f7-363f-4bfd>
@@ -829,7 +835,7 @@ as in case of TriG output, however no metadata about quality of triples or about
 
 \subsubsection{Paging of results}
 \label{sec:URIKWPaging}
-As of now, all results are returned on a single page. The approximate maximum number of triples in the result is 500 by default (and can be set in the configuration file, see \refadmimanual).
+As of now, all results are returned on a single page. The approximate maximum number of triples in the result is 500 by default (and can be set in the configuration file, see \refadminmanual).
 
 \subsection{Results Format for Named Graph Query}
 Named graph query selects all triples stored in the given named graph and is intended mainly for debugging purposes.
@@ -871,6 +877,7 @@ An example:
   <http://opendata.cz/infrastructure/odcleanstore/data/e0cdc9d7-e2d8-4bde>
     w3p:insertedAt "2012-04-01 12:34:56.0"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
     w3p:source <http://dbpedia.org/page/Berlin> ;
+    dc:license <http://creativecommons.org/licenses/by-sa/3.0/> ;
     w3p:publishedBy <http://dbpedia.org/> ;
     odcs:provenanceMetadataGraph
       <http://opendata.cz/infrastructure/odcleanstore/provenanceMetadata/e0cdc9d7-e2d8-4bde>;
@@ -966,7 +973,7 @@ When a new request is sent to Input Webservice, the stored data \& metadata go t
 \end{table}
 \todo{check it is up-to-date}
 
-  \item Next, the processing pipeline is selected -- if \code{pipelineName} was present, pipeline with the given name is used, the default pipeline is used otherwise. Engine runs each transformer in the pipeline on the stored data. Transformers can modify the inserted named graphs or attach new named graphs (\term{attached named graph}). See~\refadmimanual{} for more information about transformers.
+  \item Next, the processing pipeline is selected -- if \code{pipelineName} was present, pipeline with the given name is used, the default pipeline is used otherwise. Engine runs each transformer in the pipeline on the stored data. Transformers can modify the inserted named graphs or attach new named graphs (\term{attached named graph}). See~\refadminmanual{} for more information about transformers.
 
   \item If all transformers in the pipeline finish successfully, the \code{payload} graph, \code{provenance} graph, metadata graph and any new attached graphs are moved from the dirty database to the clean database, while the respective request is removed from the queue.
 
