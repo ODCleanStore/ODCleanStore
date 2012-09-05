@@ -468,7 +468,7 @@ public class QualityAssessorImpl implements QualityAssessor {
 				Pattern charsToBeEscaped = Pattern.compile("([\"'`\\\\])");
 
 				escapedTrace = charsToBeRemoved.matcher(escapedTrace).replaceAll("");
-				escapedTrace = charsToBeEscaped.matcher(escapedTrace).replaceAll("\\$1");
+				escapedTrace = charsToBeEscaped.matcher(escapedTrace).replaceAll("\\\\$1");
 
 				final String storeNewScoreTrace = String.format(Locale.ROOT, storeNewScoreTraceQueryFormat,
 						metadataGraph,
