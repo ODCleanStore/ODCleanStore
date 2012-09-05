@@ -207,6 +207,13 @@ public class QualityAggregatorImpl implements QualityAggregator {
 					if (rsSum.next() && rsCount.next()) {
 						//Clean DB: the graph is also present in clean DB (only its score may change for the copy in dirty DB) => no division by zero
 						//Dirty DB: deltaCount == 1 => no division by zero
+						
+						if (rsCount.getDouble(1) + deltaCount == 0)
+						{
+							//Very special cases => abort assignment of score for the current publisher
+							return;
+						}
+						
 						score = (rsSum.getDouble(1) + delta) / (rsCount.getDouble(1) + deltaCount);
 
 						LOG.info("Publisher <" + publisher + "> scored " + score + ".");
