@@ -318,6 +318,17 @@ public class DataNormalizerImpl implements DataNormalizer {
 	@Override
 	public void transformNewGraph(TransformedGraph inputGraph,
 			TransformationContext context) throws TransformerException {
+		transformExistingGraph(inputGraph, context);
+	}
+
+	/**
+	 * transforms graph in the dirty database (originally stored in clean db)
+	 * @param inputGraph the graph to be transformed
+	 * @param context the context specifying the connection credentials
+	 */
+	@Override
+	public void transformExistingGraph(TransformedGraph inputGraph,
+			TransformationContext context) throws TransformerException {
 		this.inputGraph = inputGraph;
 		this.context = context;
 
@@ -332,18 +343,6 @@ public class DataNormalizerImpl implements DataNormalizer {
 		}
 
 		LOG.info("Data Normalization applied to graph {}", inputGraph.getGraphName());
-	}
-
-	/**
-	 * Unsupported action
-	 *
-	 * The policy of ODCS does not allow cleaned graphs to be normalized again as normalization cannot be
-	 * reverted and multiple applications of the same rules may cause further changes (absence of idempotence)
-	 */
-	@Override
-	public void transformExistingGraph(TransformedGraph inputGraph,
-			TransformationContext context) throws TransformerException {
-		throw new TransformerException("Data normalization is supposed to be applied to new graphs.");
 	}
 
 	/**
