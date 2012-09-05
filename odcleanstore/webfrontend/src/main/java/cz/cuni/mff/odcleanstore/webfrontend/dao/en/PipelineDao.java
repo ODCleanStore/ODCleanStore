@@ -10,7 +10,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
 public class PipelineDao extends DaoForEntityWithSurrogateKey<Pipeline>
 {
-	public static final String TABLE_NAME = TABLE_NAME_PREFIX + BACKUP_TABLE_PREFIX + "PIPELINES";
+	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "PIPELINES";
 	
 	private static final long serialVersionUID = 1L;
 	

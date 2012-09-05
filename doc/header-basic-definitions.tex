@@ -3,7 +3,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \setitemize{noitemsep,topsep=2pt,leftmargin=30pt}
 \setenumerate{noitemsep,topsep=2pt,leftmargin=30pt}
-\setdescription{labelindent=\parindent,style=sameline,noitemsep}
+\setdescription{style=nextline,itemsep=8pt}
 %\setlength{\parindent}{0pt} % nastavuje odsazení prvniho radku
 %\setlength{\parskip}{1.2ex plus 0.5ex minus 0.2ex} % odstup mezi odstavci
 
@@ -86,7 +86,7 @@
 % Document-specific commands
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\refusermanual}{User Manual}
-\newcommand{\refadmimanual}{Administrator's \& Installation Manual}
+\newcommand{\refadminmanual}{Administrator's \& Installation Manual}
 \newcommand{\refprogrammersguide}{Programmer's Guide}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -95,8 +95,20 @@
 \newcommand{\enumtable}[1]
 {
 	\begin{table}[!h]
-		\begin{tabular}{>{\textbf\bgroup}l<{\egroup}p{14cm}}
+		\begin{tabularx}{\linewidth}{>{\textbf\bgroup}l<{\egroup}X}
 			#1
-		\end{tabular}
+		\end{tabularx}
+	\end{table}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Aligned field description tables
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\fieldtable}[1]
+{
+	\begin{table}[!h]
+		\begin{tabularx}{\linewidth}{>{\textbf\bgroup}l<{\egroup}p{3cm}X}
+			#1
+		\end{tabularx}
 	\end{table}
 }

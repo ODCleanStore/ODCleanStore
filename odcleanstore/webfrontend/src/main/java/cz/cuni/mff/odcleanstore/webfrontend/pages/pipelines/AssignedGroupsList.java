@@ -101,7 +101,7 @@ public class AssignedGroupsList extends Panel
 				item.add(
 					createDeleteButton(
 						transformerInstanceId, 
-						ruleAssignment.getGroupId()
+						ruleAssignment.getId()
 					)
 				);
 				

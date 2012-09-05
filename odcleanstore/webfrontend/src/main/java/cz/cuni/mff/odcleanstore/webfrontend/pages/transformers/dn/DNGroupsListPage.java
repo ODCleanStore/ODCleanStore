@@ -102,8 +102,6 @@ public class DNGroupsListPage extends FrontendPage
 						"showEditQAGroupPage"
 					)
 				);
-				
-				item.add(createRerunAffectedGraphsButton(group.getId()));
 			}
 		};
 
@@ -114,42 +112,5 @@ public class DNGroupsListPage extends FrontendPage
 		add(dataView);
 		
 		add(new PagingNavigator("navigator", dataView));
-	}
-
-	private Link createRerunAffectedGraphsButton(final Long groupId)
-	{
-		Link button = new Link("rerunAffectedGraphs")
-        {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-            public void onClick()
-            {
-				try {
-					engineOperationsDao.rerunGraphsForRulesGroup(DNRuleAssignmentDao.TABLE_NAME, groupId);
-				}
-				catch (Exception ex)
-				{
-					logger.error(ex.getMessage());
-					
-					getSession().error(
-						"The affected graphs could not be marked to be rerun due to an unexpected error."
-					);
-					
-					return;
-				}
-				
-				getSession().info("The affected graphs were successfuly marked to be rerun.");
-				setResponsePage(DNGroupsListPage.class);
-            }
-        };
-
-        button.add(
-        	new ConfirmationBoxRenderer(
-        		"Are you sure you want to rerun all affected graphs?"
-        	)
-        );
-        
-        return button;
 	}
 }
