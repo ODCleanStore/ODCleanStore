@@ -190,7 +190,8 @@ Several terms and designations are used repeatedly in the frontend, however, the
 {
 	Edit & edit attributes of the related entity\\
 	Delete & remove the related entity irrevertably from the system\\
-	Detail & view entities and configurations related to the related entity
+	Detail & view entities and configurations related to the related entity\\
+	Rerun affected graphs & due to a change of a configuration of a transformer (modification of a rule group) the stored data may be found in an inconsistent form, therefore it is possible for the user to identify such situations and decide to run the transformer again
 }
 
 \section{User Accounts Administration}
@@ -258,6 +259,9 @@ On the detail page, one can specify individual rules contained in the related gr
 	\label{tbl:qaFields}
 \end{table}
 
+Any snippet of SPARQL\footnote{\url{http://www.w3.org/TR/rdf-sparql-query/#grammar}} to which \quot{\code{SELECT * FROM ... WHERE}} can be prepended is a valid filter and describes a property of a named graph that the author of the rule finds defective.
+%%TODO: mention/omit: The use of SPARQL 1.1 features depends on underlaying Virtuoso OpenSource version.
+
 \subsection{Data Normalization}
 \label{sub:dataNormalization}
 
@@ -274,6 +278,8 @@ Similarly as with the rules themselves the detail page of a rule allows the user
 \end{center}
 
 where \code{\$\$graph\$\$} is a place holder for name of the graph being currently processed. Expectedly triples (\code{?s ?p1 ?o2} in the example) are inserted into (deleted from) the current graph when the type of the component is \code{INSERT} (\code{DELETE}). Effects are immediate in respect to consecutive applications of other components of the same rule or other rules to the graph.
+
+%%TODO: notice: use of GRAPH $$graph$$ is highly recommended in cases the other is not sure he tries to avoid restriction to the processed graph only
 
 \subsection{Object Identification}
 \label{sub:objectIdentification}
@@ -330,7 +336,7 @@ Add the ODCSPropertyFilterTransformer by following steps:
 	
 	cz.cuni.mff.odcleanstore.transformer.odcs.ODCSPropertyFilterTransformer
 	
-	\item[] \textbf{Prepare rules for standard transformer}
+	\item[]\item[] \textbf{Prepare rules for standard transformer}
 	\item Choose \code{Backend/Rules/DN} from the frontend menu
 	\item Click \quot{Add a new group}
 	\item Fill in necessary information and submit it
@@ -346,7 +352,7 @@ Add the ODCSPropertyFilterTransformer by following steps:
 	\item Describe the meaning of this transformation and submit it
 	\item Repeat until the rule is complete
 	
-	\item[] \textbf{Prepare pipeline}
+	\item[]\item[] \textbf{Prepare pipeline}
 	
 	%%TODO: backend/pipelines hazi chybu
 	
