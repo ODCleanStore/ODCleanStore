@@ -218,9 +218,22 @@ To be able to manage user accounts one has to have \term{ADM} user role (section
 \section{Pipeline management}
 \label{sec:pipelineManagement}
 
-	New incoming data (in form of a named graph) accepted by Input Webservice are passed through a {pipeline} consisting of {transformers}. In this section of the administration frontend it is possible for the user to specify different {pipelines}. Individual {pipelines} can incorporate different already existing {transformers}. To edit the structure of a {pipeline}, view its detail. As the importance of data modification that the pipelines can cause differs based on what database it is running upon, it is left for the user to decide whether a concrete {transformer} should be allowed to run on clean database (in addition to running on dirty database). Some transformations do not make sense when working with clean database.
-	
-	The order of application of {transformers} to a named graph processed by the related {pipeline} is determined by its \term{priority} in ascending order. Every {transformer} runs before {transformers} with greater priority number.
+	New incoming data (in form of a named graph) accepted by Input Webservice are passed through a {pipeline} consisting of {transformers}. In this section of the administration frontend it is possible for the user to specify different {pipelines}. Individual {pipelines} can incorporate different already existing {transformers}. To edit the structure of a {pipeline}, view its detail.
+
+\subsection*{Individual transformer instances}
+
+	In a detail page of any particular pipeline there is a list of transformers assigned to it. Each assignment composes of these fields:
+
+	\fieldtable
+	{
+		required & transformer/label & an existing transformer label\\
+		required & working dir & an existing directory designated to the above selected transformer\\
+		required & configuration & configuration passed to an instance of the above selected transformer\\
+		implied & allow to be run on clean DB & As the importance of data modification that the pipelines can cause differs based on what database it is running upon, it is left for the user to decide whether a concrete {transformer} should be allowed to run on clean database (in addition to running on dirty database). Some transformations do not even make sense when working with clean database.\\
+		required & priority & The order of application of {transformers} to a named graph processed by the related {pipeline} is determined by its \term{priority} in ascending order. Every {transformer} runs before {transformers} with greater priority number.
+	}
+
+	The detail page of the assigned QA, DN, OI transformers allows user to specify what rule groups are assigned to the transformer in the related pipeline.
 
 \paragraph{Important note:} Any changes done in this section need to be commited to ever take effect. To do so, please, click the \quot{Commit settings} button.
 
@@ -249,11 +262,14 @@ On the detail page, one can specify individual rules contained in the related gr
 
 \begin{table}[!h]
 	\centering
-	\begin{tabular}{rl@{\hspace{8mm}}c@{\hspace{8mm}}c}
+	\begin{tabular}{|rl@{\hspace{8mm}}c@{\hspace{8mm}}c|}
+		\hline
 		& \textbf{Filter} & \textbf{Coefficient} & \textbf{Description} \\
+		\hline
 		& \code{GroupGraphPattern} [\code{GROUP BY \ldots} [\code{HAVING \ldots}]] & $ x \in [0, 1] $ & description \\
-		\\
-		ex: & \code{\{\{?s anatomy:limbs ?o\} FILTER (?o > 4)\}} & $ 0.4 $ & To many limbs
+		&&&\\
+		ex: & \code{\{\{?s anatomy:limbs ?o\} FILTER (?o > 4)\}} & $ 0.4 $ & To many limbs\\
+		\hline
 	\end{tabular}
 	\caption{Quality Assessment rule fields}
 	\label{tbl:qaFields}
@@ -317,7 +333,9 @@ There need to be transformers for the storage to be able to handle incoming data
 Add the ODCSPropertyFilterTransformer by following steps:
 
 \begin{enumerate}
-	\item[] \textbf{Prepare transformer}
+	\item[] \subsection*{Prepare transformer}
+	\label{sec:prepareTransformer}
+
 	\item Choose \code{Backend/Transformers} from the frontend menu
 	\item Click \quot{Add a new transformer}
 	\item Fill in label of your choice:
@@ -336,7 +354,7 @@ Add the ODCSPropertyFilterTransformer by following steps:
 	
 	cz.cuni.mff.odcleanstore.transformer.odcs.ODCSPropertyFilterTransformer
 	
-	\item[]\item[] \textbf{Prepare rules for standard transformer}
+	\item[]\item[] \subsection*{Prepare rules for standard transformer}
 	\item Choose \code{Backend/Rules/DN} from the frontend menu
 	\item Click \quot{Add a new group}
 	\item Fill in necessary information and submit it
@@ -352,9 +370,25 @@ Add the ODCSPropertyFilterTransformer by following steps:
 	\item Describe the meaning of this transformation and submit it
 	\item Repeat until the rule is complete
 	
-	\item[]\item[] \textbf{Prepare pipeline}
+	\item[]\item[] \subsection*{Prepare pipeline}
 	
-	%%TODO: backend/pipelines hazi chybu
+	\item Click \quot{Add a new pipeline}, fill in the label and description and submit it
+	\item Click \quot{Detail} in the row of the pipeline created in the previous step
+	\item Click \quot{Assign a transformer}
+	\item Select one of the transformers
+	
+	\emph{If there is no option then go back to the} \textbf{\hyperref[sec:prepareTransformer]{Prepare transformer}} \empth{section}
+	
+	To be able to assign rule groups select one of the standard transformers (QA, DN, OI)
+	
+	\item Dedicate a working directory to the transformer by filling in its path
+	\item Fill in the configuration needed by the transformer
+	\item Allow or disallow running on clean DB
+	\item Fill in any positive integer as indicator of the transformer's priority
+
+	\item[]\item[] If you added a standard transformer
+	\item Click \quot{Detail} in the row of the transformer
+
 	
 	%%TODO: nahrani dat? odkaz na scraper?
 	
