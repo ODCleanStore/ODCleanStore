@@ -95,8 +95,20 @@
 \newcommand{\enumtable}[1]
 {
 	\begin{table}[!h]
-		\begin{tabular}{>{\textbf\bgroup}l<{\egroup}p{14cm}}
+		\begin{tabularx}{\linewidth}{>{\textbf\bgroup}l<{\egroup}X}
 			#1
-		\end{tabular}
+		\end{tabularx}
+	\end{table}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Aligned field description tables
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\fieldtable}[1]
+{
+	\begin{table}[!h]
+		\begin{tabularx}{\linewidth}{>{\textbf\bgroup}l<{\egroup}p{3cm}X}
+			#1
+		\end{tabularx}
 	\end{table}
 }
