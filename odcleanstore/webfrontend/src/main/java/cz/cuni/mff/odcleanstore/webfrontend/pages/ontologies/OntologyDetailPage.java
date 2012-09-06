@@ -25,7 +25,8 @@ public class OntologyDetailPage extends FrontendPage
 		ontologyDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OntologyDao.class);
 		
 		// register page components
-		//		
+		//
+		addHelpWindow(new OntologyHelpPanel("content"));
 		addOntologyInformationSection(ontologyId);
 	}
 	

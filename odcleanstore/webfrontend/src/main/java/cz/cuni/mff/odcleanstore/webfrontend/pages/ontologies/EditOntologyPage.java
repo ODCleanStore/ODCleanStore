@@ -34,6 +34,7 @@ public class EditOntologyPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new OntologyHelpPanel("content"));
 		addEditOntologyForm(ontologyId);
 	}
 	
