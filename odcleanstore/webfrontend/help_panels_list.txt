@@ -1,0 +1,6 @@
+	*	odcleanstore\webfrontend\src\main\java\cz\cuni\mff\odcleanstore\webfrontend\pages\useraccounts\UserAccountHelpPanel.html
+	*	odcleanstore\webfrontend\src\main\java\cz\cuni\mff\odcleanstore\webfrontend\pages\prefixes\URLPrefixHelpPanel.html
+	*	odcleanstore\webfrontend\src\main\java\cz\cuni\mff\odcleanstore\webfrontend\pages\outputws\LabelPropertyHelpPanel.html
+	*	odcleanstore\webfrontend\src\main\java\cz\cuni\mff\odcleanstore\webfrontend\pages\outputws\AggregationPropertyHelpPanel.html
+	*	odcleanstore\webfrontend\src\main\java\cz\cuni\mff\odcleanstore\webfrontend\pages\ontologies\OntologyHelpPanel.html
+	*	odcleanstore\webfrontend\src\main\java\cz\cuni\mff\odcleanstore\webfrontend\pages\pipelines\TransformerHelpPanel.html
