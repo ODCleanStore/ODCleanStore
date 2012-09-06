@@ -57,28 +57,8 @@ public class AccountsListPage extends FrontendPage
 		
 		// register page components
 		//
-		addHelpLink();
+		addHelpWindow(new UserAccountHelpPanel("content"));
 		addAccountsListTable();
-	}
-
-	private void addHelpLink()
-	{
-		final ModalWindow helpWindow = new HelpWindow(
-			"helpWindow", 
-			new UserAccountsListHelpPanel("content")
-		);
-		
-		add(helpWindow);
-		
-		add(new AjaxLink("openHelpWindow")
-		{
-			private static final long serialVersionUID = 1L;
-
-			public void onClick(AjaxRequestTarget target) 
-            {
-            	helpWindow.show(target);
-            }
-        });
 	}
 	
 	private void addAccountsListTable()

@@ -14,6 +14,7 @@ import org.apache.wicket.validation.validator.EmailAddressValidator;
 import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.configuration.Configuration;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.HelpWindow;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
@@ -21,7 +22,11 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.util.Mail;
 import cz.cuni.mff.odcleanstore.webfrontend.util.NewAccountMail;
 import cz.cuni.mff.odcleanstore.webfrontend.util.PasswordHandling;
+
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 
 @AuthorizeInstantiation({ "ADM" })
 public class NewAccountPage extends FrontendPage
@@ -43,9 +48,10 @@ public class NewAccountPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new UserAccountHelpPanel("content"));
 		addNewAccountForm();
 	}
-	
+		
 	private void addNewAccountForm()
 	{
 		IModel formModel = new CompoundPropertyModel<User>(new User());

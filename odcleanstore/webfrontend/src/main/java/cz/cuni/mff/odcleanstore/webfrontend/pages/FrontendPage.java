@@ -3,6 +3,9 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
@@ -11,6 +14,7 @@ import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
+import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -18,7 +22,9 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
 import cz.cuni.mff.odcleanstore.webfrontend.core.ODCSWebFrontendApplication;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.HelpWindow;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts.UserAccountHelpPanel;
 
 /**
  * An abstract base class for all WebFrontend page components, except for
@@ -186,6 +192,26 @@ public abstract class FrontendPage extends WebPage
 		OTHER HELPERS
 		=======================================================================
 	*/
+	
+	protected void addHelpWindow(Panel content)
+	{
+		final ModalWindow helpWindow = new HelpWindow(
+			"helpWindow",
+			content
+		);
+		
+		add(helpWindow);
+		
+		add(new AjaxLink("openHelpWindow")
+		{
+			private static final long serialVersionUID = 1L;
+
+			public void onClick(AjaxRequestTarget target) 
+            {
+            	helpWindow.show(target);
+            }
+        });
+	}
 	
 	protected <BO extends EntityWithSurrogateKey> IModel<List<BO>> createModelForListView(
 		final DaoForEntityWithSurrogateKey<BO> dao)
