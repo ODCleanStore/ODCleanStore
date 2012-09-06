@@ -11,4 +11,6 @@
 	*	odcleanstore\webfrontend\src\main\java\cz\cuni\mff\odcleanstore\webfrontend\pages\transformers\oi\OIRuleHelpPanel.html
 	*	odcleanstore\webfrontend\src\main\java\cz\cuni\mff\odcleanstore\webfrontend\pages\transformers\oi\DBOutputHelpPanel.html
 	*	odcleanstore\webfrontend\src\main\java\cz\cuni\mff\odcleanstore\webfrontend\pages\transformers\oi\FileOutputHelpPanel.html
+	*	odcleanstore\webfrontend\src\main\java\cz\cuni\mff\odcleanstore\webfrontend\pages\transformers\dn\DNRuleHelpPanel.html
+	*	odcleanstore\webfrontend\src\main\java\cz\cuni\mff\odcleanstore\webfrontend\pages\transformers\dn\DNRuleComponentHelpPanel.html
 	

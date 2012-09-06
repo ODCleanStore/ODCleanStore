@@ -15,6 +15,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.OIRuleHelpPanel;
 
 public class NewDNRulePage extends FrontendPage
 {
@@ -35,6 +36,8 @@ public class NewDNRulePage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new DNRuleHelpPanel("content"));
+		
 		add(
 			new RedirectButton(
 				DNGroupDetailPage.class,

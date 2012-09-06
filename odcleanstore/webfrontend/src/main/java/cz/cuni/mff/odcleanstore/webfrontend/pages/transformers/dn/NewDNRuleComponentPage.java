@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn;
 
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.OIRuleHelpPanel;
 import cz.cuni.mff.odcleanstore.webfrontend.validators.IRIValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.*;
@@ -39,6 +40,8 @@ public class NewDNRuleComponentPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new DNRuleComponentHelpPanel("content"));
+		
 		add(
 			new RedirectButton(
 				DNRuleDetailPage.class,
