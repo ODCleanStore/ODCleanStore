@@ -41,6 +41,7 @@ public class EditPropertyPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new AggregationPropertyHelpPanel("content"));
 		addEditPropertyForm(propertyId);
 	}
 	
