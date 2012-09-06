@@ -9,6 +9,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
 public class EditOIGroupPage extends FrontendPage
 {
@@ -29,6 +30,7 @@ public class EditOIGroupPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new RulesGroupHelpPanel("content"));
 		addEditOIRulesGroupForm(groupId);
 	}
 	

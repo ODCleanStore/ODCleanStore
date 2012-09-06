@@ -35,6 +35,8 @@ public class EditDNRulePage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new DNRuleHelpPanel("content"));
+		
 		DNRule rule = dnRuleDao.load(ruleId);
 		
 		add(

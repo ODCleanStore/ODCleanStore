@@ -36,6 +36,8 @@ public class NewDBOutputPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new DBOutputHelpPanel("content"));
+		
 		add(
 			new RedirectButton(
 				OIRuleDetailPage.class,

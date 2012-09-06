@@ -37,6 +37,7 @@ public class NewOntologyPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new OntologyHelpPanel("content"));
 		addNewOntologyForm();
 	}
 	

@@ -31,6 +31,7 @@ public class EditTransformerPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new TransformerHelpPanel("content"));
 		addNewTransformerForm(id);
 	}
 	

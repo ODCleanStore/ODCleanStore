@@ -40,6 +40,8 @@ public class NewFileOutputPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new FileOutputHelpPanel("content"));
+		
 		add(
 			new RedirectButton(
 				OIRuleDetailPage.class,

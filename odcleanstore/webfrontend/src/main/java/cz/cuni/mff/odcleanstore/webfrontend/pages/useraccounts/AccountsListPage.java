@@ -9,6 +9,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
 import cz.cuni.mff.odcleanstore.webfrontend.configuration.Configuration;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.HelpWindow;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
@@ -30,7 +31,10 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 
 @AuthorizeInstantiation({ "ADM" })
@@ -53,9 +57,10 @@ public class AccountsListPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new UserAccountHelpPanel("content"));
 		addAccountsListTable();
 	}
-
+	
 	private void addAccountsListTable()
 	{
 		SortableDataProvider<User> data = new GenericSortableDataProvider<User>(userDao, "username");

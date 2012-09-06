@@ -53,6 +53,8 @@ public class EditAccountPermissionsPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new UserAccountHelpPanel("content"));
+		
 		setDefaultModel(new CompoundPropertyModel<User>(user));
 		
 		add(new Label("username"));

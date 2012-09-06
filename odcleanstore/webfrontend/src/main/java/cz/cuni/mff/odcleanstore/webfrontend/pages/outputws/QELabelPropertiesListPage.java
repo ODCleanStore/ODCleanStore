@@ -19,6 +19,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvi
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qe.LabelPropertyDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.prefixes.URLPrefixHelpPanel;
 
 public class QELabelPropertiesListPage extends FrontendPage 
 {
@@ -41,6 +42,7 @@ public class QELabelPropertiesListPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new LabelPropertyHelpPanel("content"));
 		addLabelPropertiesTable();
 	}
 

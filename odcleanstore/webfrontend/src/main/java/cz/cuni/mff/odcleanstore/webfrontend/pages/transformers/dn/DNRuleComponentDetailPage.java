@@ -21,6 +21,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleComponentDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
 public class DNRuleComponentDetailPage extends FrontendPage
 {
@@ -39,6 +40,7 @@ public class DNRuleComponentDetailPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
+		addHelpWindow(new DNRuleComponentHelpPanel("content"));
 		dnRuleComponentDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNRuleComponentDao.class);
 		
 		// register page components

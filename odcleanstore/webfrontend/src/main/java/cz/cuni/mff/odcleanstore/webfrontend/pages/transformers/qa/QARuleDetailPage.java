@@ -31,6 +31,7 @@ public class QARuleDetailPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new QARuleHelpPanel("content"));
 		addRuleInformationSection(ruleId);
 	}
 	

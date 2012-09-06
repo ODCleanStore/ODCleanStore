@@ -17,6 +17,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvi
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.prefixes.PrefixDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts.UserAccountHelpPanel;
 
 public class PrefixesListPage extends FrontendPage
 {
@@ -38,6 +39,7 @@ public class PrefixesListPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new URLPrefixHelpPanel("content"));
 		addPrefixesTable();
 	}
 	

@@ -36,6 +36,7 @@ public class NewPropertyPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new AggregationPropertyHelpPanel("content"));
 		addNewPropertyForm();
 	}
 	

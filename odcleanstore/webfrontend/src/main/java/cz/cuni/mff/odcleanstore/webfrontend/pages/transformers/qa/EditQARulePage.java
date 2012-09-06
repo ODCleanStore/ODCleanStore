@@ -33,6 +33,8 @@ public class EditQARulePage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new QARuleHelpPanel("content"));
+		
 		QARule rule = qaRuleDao.load(ruleId);
 		
 		add(

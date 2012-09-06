@@ -12,6 +12,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.QARuleHelpPanel;
 
 public class NewOIRulePage extends FrontendPage 
 {
@@ -32,6 +33,8 @@ public class NewOIRulePage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new OIRuleHelpPanel("content"));
+		
 		add(
 			new RedirectButton(
 				OIGroupDetailPage.class,

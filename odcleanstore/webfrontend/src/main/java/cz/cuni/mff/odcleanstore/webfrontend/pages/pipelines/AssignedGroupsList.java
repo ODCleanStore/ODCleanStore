@@ -4,6 +4,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.RulesGroupEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.RuleAssignment;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.HelpWindow;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
@@ -11,7 +12,11 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentSortableDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
@@ -41,10 +46,31 @@ public class AssignedGroupsList extends Panel
 		this.groupsDao = groupsDao;
 		this.assignedGroupsDao = assignedGroupsDao;
 		
+		addHelpWindow();
 		addNewAssignmentLink(transformerInstanceId);
 		addAssignmentTable(transformerInstanceId, groupDetailPageClass);
 	}
+	
+	protected void addHelpWindow()
+	{
+		final ModalWindow helpWindow = new HelpWindow(
+			"rulesGroupHelpWindow",
+			new RulesGroupHelpPanel("content")
+		);
 		
+		add(helpWindow);
+		
+		add(new AjaxLink("openRulesGroupHelpWindow")
+		{
+			private static final long serialVersionUID = 1L;
+
+			public void onClick(AjaxRequestTarget target) 
+            {
+            	helpWindow.show(target);
+            }
+        });
+	}
+	
 	private void addNewAssignmentLink(final Long transformerInstanceId)
 	{
 		add(

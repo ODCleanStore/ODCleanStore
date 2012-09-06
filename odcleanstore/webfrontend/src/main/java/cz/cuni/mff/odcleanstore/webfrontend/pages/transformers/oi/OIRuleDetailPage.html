@@ -1,10 +1,16 @@
 <wicket:extend>
 
+<div wicket:id="oiRuleHelpWindow"></div>
+<div wicket:id="dbOutputHelpWindow"></div>
+<div wicket:id="fileOutputHelpWindow"></div>
+
 <div>
 	<a class="placedright" href="#" wicket:id="showOIRulesList">Back to the list of all group's rules</a>
 	<div class="clear">&nbsp;</div>
 </div>
-				
+
+<a wicket:id="openOIRuleHelpWindow">Help</a>
+			
 <div class="datalistitem">
 	<strong class="block">Label:</strong>
 	<span wicket:id="label">[label]</span>
@@ -48,6 +54,8 @@
 </div>
 
 <span wicket:id="dbOutputsNavigator">[dataview navigator]</span>
+<a wicket:id="openDBOutputHelpWindow">Help</a>
+
 <table border="1">
 	
 	<tr>
@@ -76,6 +84,8 @@
 </div>
 
 <span wicket:id="fileOutputsNavigator">[dataview navigator]</span>
+<a wicket:id="openFileOutputHelpWindow">Help</a>
+
 <table border="1">
 	
 	<tr>
