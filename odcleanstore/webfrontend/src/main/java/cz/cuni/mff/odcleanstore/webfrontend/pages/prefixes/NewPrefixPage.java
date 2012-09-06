@@ -33,6 +33,7 @@ public class NewPrefixPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new URLPrefixHelpPanel("content"));
 		addNewPrefixForm();
 	}
 	

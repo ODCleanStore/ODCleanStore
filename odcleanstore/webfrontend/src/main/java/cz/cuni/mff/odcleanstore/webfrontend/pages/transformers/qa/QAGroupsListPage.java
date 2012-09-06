@@ -27,7 +27,9 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.en.EngineOperationsDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.QARuleAssignmentDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.PipelineHelpPanel;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.PipelinesListPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
 public class QAGroupsListPage extends FrontendPage
 {
@@ -52,6 +54,7 @@ public class QAGroupsListPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new RulesGroupHelpPanel("content"));
 		addOIRulesGroupsTable();
 	}
 	

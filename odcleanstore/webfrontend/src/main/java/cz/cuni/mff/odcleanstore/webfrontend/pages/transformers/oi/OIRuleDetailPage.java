@@ -46,7 +46,11 @@ public class OIRuleDetailPage extends FrontendPage
 		oiOutputTypeDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIOutputTypeDao.class);
 		
 		// register page components
-		//		
+		//
+		addHelpWindow("oiRuleHelpWindow", "openOIRuleHelpWindow", new OIRuleHelpPanel("content"));
+		addHelpWindow("dbOutputHelpWindow", "openDBOutputHelpWindow", new DBOutputHelpPanel("content"));
+		addHelpWindow("fileOutputHelpWindow", "openFileOutputHelpWindow", new FileOutputHelpPanel("content"));
+		
 		addRuleInformationSection(ruleId);
 		addDBOutputsSection(ruleId);
 		addFileOutputsSection(ruleId);

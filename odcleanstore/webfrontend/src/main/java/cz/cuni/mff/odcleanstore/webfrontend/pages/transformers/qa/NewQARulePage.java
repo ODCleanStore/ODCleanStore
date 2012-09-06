@@ -13,6 +13,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
 public class NewQARulePage extends FrontendPage
 {
@@ -33,6 +34,8 @@ public class NewQARulePage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new QARuleHelpPanel("content"));
+		
 		add(
 			new RedirectButton(
 				QAGroupDetailPage.class,

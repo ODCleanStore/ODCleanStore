@@ -47,6 +47,8 @@ public class EditTransformerAssignmentPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new TransformerInstanceHelpPanel("content"));
+		
 		TransformerInstance transformerInstance = transformerInstanceDao.load(transformerInstanceId);
 		
 		add(

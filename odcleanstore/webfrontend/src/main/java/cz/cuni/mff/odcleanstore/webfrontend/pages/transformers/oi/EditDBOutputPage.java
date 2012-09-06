@@ -36,6 +36,8 @@ public class EditDBOutputPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new DBOutputHelpPanel("content"));
+		
 		OIOutput output = oiOutputDao.load(outputId);
 		
 		add(

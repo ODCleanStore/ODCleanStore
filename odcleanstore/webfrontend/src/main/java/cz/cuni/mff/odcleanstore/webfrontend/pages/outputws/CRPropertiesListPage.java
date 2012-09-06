@@ -50,6 +50,7 @@ public class CRPropertiesListPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new AggregationPropertyHelpPanel("content"));
 		addGlobalAggregationSettingsSection();
 		addPropertySettingsTable();
 	}
