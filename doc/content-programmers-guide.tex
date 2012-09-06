@@ -1,5 +1,5 @@
 \include{header}
-\newcommand{\version}{0.1}
+\newcommand{\version}{0.3.1}
 \newcommand{\documentname}{\refprogrammersguide}
 
 
@@ -17,6 +17,8 @@
 
 \chapwithtoc{Introduction}
 Lorem ipsum.
+
+\todo{že to je v javě}
 
 \chapter{ODCleanStore overview} 
 
@@ -39,13 +41,43 @@ Lorem ipsum.
 	\item webserver
 \end{itemize}
 
-\chapter{Setting up development environment}
+\chapter{Setting up Development Environment}
+
+\section{Quick Start}
+\subsection{Tools}
+	In order to to prepare environment for building ODCleanStore, first make sure to have installed all necessary tools:
 
 \begin{itemize}
-	\item repository
-	\item project structure
-	\item build
+	\item Java Development Kit\footnote{\url{www.oracle.com/technetwork/java/javase/downloads/}} version 6\todo{} or newer
+	\item Git version control system\footnote{\url{http://git-scm.com/}}
+	\item Apache Maven\footnote{\url{http://maven.apache.org/}}
 \end{itemize}
+
+Also, make sure you have all the binaries used in the following steps on your classpath. 
+
+\subsection{Obtaining sources} 
+ODCleanStore sources are hosted at SourceForge.\footnote{\url{http://sourceforge.net/p/odcleanstore/code/}} Use git to check out the sources:
+
+\begin{verbatim}
+      git clone git://git.code.sf.net/p/odcleanstore/code odcleanstore-code
+\end{verbatim}
+
+The above command will create a local clone of the repository in \code{odcleanstore-code} directory.
+
+\subsection{Building binaries}
+Move to directory \code{odcleanstore} within your local clone of the repository which contains the root maven project (\code{pom.xml}). Then build the project using maven:
+
+\begin{verbatim}
+      cd odcleanstore-code/odcleanstore
+      mvn clean package
+\end{verbatim}
+
+After that, Engine binaries can be found in directory \code{odcleanstore/engine/target} and the WAR file of Administration Frontend at \code{odcleanstore/webfrontend/target}. Now you can deploy the application as described in \refadminmanual. \todo{jestli tam bude jenom popis instalatoru, mel by se rucni deploy popsat tady}
+
+\section{Repository structure}
+directories, branches
+
+\section{Maven build}
 
 \chapter{Webservices \& Interfaces}
 
