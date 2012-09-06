@@ -33,6 +33,7 @@ public class NewQELabelPropertyPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new LabelPropertyHelpPanel("content"));
 		addNewPropertyForm();
 	}
 	
