@@ -12,6 +12,7 @@ import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
 import cz.cuni.mff.odcleanstore.engine.common.Utils;
 import cz.cuni.mff.odcleanstore.engine.db.model.PipelineCommand;
 import cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl;
+import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAggregatorImpl;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.Transformer;
@@ -138,6 +139,8 @@ public class PipelineGraphTransformerExecutor {
 			transformer = new DataNormalizerImpl(this.graphStatus.getDnGroups(command.transformerInstanceID));
 		} else if (command.fullClassName.equals(ODCSPropertyFilterTransformer.class.getCanonicalName()) && isInternal) {
 			transformer = new ODCSPropertyFilterTransformer();
+		} else if (command.fullClassName.equals(QualityAggregatorImpl.class.getCanonicalName())) {
+		    transformer = new QualityAggregatorImpl();
 		}
 		return transformer;
 	}
