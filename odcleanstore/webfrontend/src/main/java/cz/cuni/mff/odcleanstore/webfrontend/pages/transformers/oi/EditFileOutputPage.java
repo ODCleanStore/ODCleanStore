@@ -16,6 +16,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIFileFormatDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputTypeDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
 public class EditFileOutputPage extends FrontendPage 
 {
@@ -40,6 +41,8 @@ public class EditFileOutputPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new FileOutputHelpPanel("content"));
+		
 		OIOutput output = oiOutputDao.load(outputId);
 		
 		add(

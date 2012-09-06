@@ -13,6 +13,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.QARuleHelpPanel;
 
 public class EditOIRulePage extends FrontendPage 
 {
@@ -35,6 +36,8 @@ public class EditOIRulePage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new OIRuleHelpPanel("content"));
+		
 		OIRule rule = oiRuleDao.load(ruleId);
 		
 		add(
