@@ -46,6 +46,8 @@ public class PipelineDetailPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow("pipelineHelpWindow", "openPipelineHelpWindow", new PipelineHelpPanel("content"));
+		addHelpWindow("transformerInstanceHelpWindow", "openTransformerInstanceHelpWindow", new TransformerInstanceHelpPanel("content"));
 		addPipelineInformationSection(pipelineId);
 		addAssignmentSection(pipelineId);
 	}

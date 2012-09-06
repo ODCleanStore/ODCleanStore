@@ -195,14 +195,19 @@ public abstract class FrontendPage extends WebPage
 	
 	protected void addHelpWindow(Panel content)
 	{
+		addHelpWindow("helpWindow", "openHelpWindow", content);
+	}
+	
+	protected void addHelpWindow(String compName, String linkCompName, Panel content)
+	{
 		final ModalWindow helpWindow = new HelpWindow(
-			"helpWindow",
+			compName,
 			content
 		);
 		
 		add(helpWindow);
 		
-		add(new AjaxLink("openHelpWindow")
+		add(new AjaxLink(linkCompName)
 		{
 			private static final long serialVersionUID = 1L;
 

@@ -53,6 +53,7 @@ public class PipelinesListPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new PipelineHelpPanel("content"));
 		addPipelinesTable();
 	}
 	

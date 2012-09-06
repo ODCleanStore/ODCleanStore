@@ -46,6 +46,8 @@ public class NewTransformerAssignmentPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new TransformerInstanceHelpPanel("content"));
+		
 		add(
 			new RedirectButton(
 				PipelineDetailPage.class,

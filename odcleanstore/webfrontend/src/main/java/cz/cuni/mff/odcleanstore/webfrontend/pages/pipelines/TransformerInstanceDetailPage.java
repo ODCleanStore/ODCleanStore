@@ -46,6 +46,8 @@ public class TransformerInstanceDetailPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow("transformerInstanceHelpWindow", "openTransformerInstanceHelpWindow", new TransformerInstanceHelpPanel("content"));
+		
 		addTransformerInstanceInformationSection(transformerInstance, transformer);
 		addAssignedGroupsListSection(transformerInstance, transformer);
 	}

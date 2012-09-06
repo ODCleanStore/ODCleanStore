@@ -4,3 +4,6 @@
 	*	odcleanstore\webfrontend\src\main\java\cz\cuni\mff\odcleanstore\webfrontend\pages\outputws\AggregationPropertyHelpPanel.html
 	*	odcleanstore\webfrontend\src\main\java\cz\cuni\mff\odcleanstore\webfrontend\pages\ontologies\OntologyHelpPanel.html
 	*	odcleanstore\webfrontend\src\main\java\cz\cuni\mff\odcleanstore\webfrontend\pages\pipelines\TransformerHelpPanel.html
+	*	odcleanstore\webfrontend\src\main\java\cz\cuni\mff\odcleanstore\webfrontend\pages\pipelines\PipelineHelpPanel.html
+	*	odcleanstore\webfrontend\src\main\java\cz\cuni\mff\odcleanstore\webfrontend\pages\pipelines\TransformerInstanceHelpPanel.html
+	

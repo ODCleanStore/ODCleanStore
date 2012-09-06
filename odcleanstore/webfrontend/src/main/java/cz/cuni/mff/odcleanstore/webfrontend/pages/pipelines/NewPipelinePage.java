@@ -31,6 +31,7 @@ public class NewPipelinePage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new PipelineHelpPanel("content"));
 		addNewPipelineForm();
 	}
 	
