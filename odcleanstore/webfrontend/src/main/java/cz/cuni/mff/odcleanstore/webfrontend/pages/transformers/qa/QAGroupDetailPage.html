@@ -1,11 +1,17 @@
 <wicket:extend>
 
+<div wicket:id="rulesGroupHelpWindow"></div>
+<div wicket:id="qaRuleHelpWindow"></div>
+
 <wicket:link>
 <div>
 	<a class="placedright" href="QAGroupsListPage.html">Back to the list of OI rules' groups</a>
 	<div class="clear">&nbsp;</div>
 </div>
 </wicket:link>
+
+<a wicket:id="openRulesGroupHelpWindow">Help</a>
+
 <div class="datalistitem">
 	<strong class="block">Label:</strong>
 	<span wicket:id="label">[label]</span>
@@ -24,6 +30,8 @@
 </div>
 
 <span wicket:id="navigator">[dataview navigator]</span>
+<a wicket:id="openQARuleHelpWindow">Help</a>
+
 <table border="1">
 	
 	<tr>

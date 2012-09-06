@@ -6,4 +6,6 @@
 	*	odcleanstore\webfrontend\src\main\java\cz\cuni\mff\odcleanstore\webfrontend\pages\pipelines\TransformerHelpPanel.html
 	*	odcleanstore\webfrontend\src\main\java\cz\cuni\mff\odcleanstore\webfrontend\pages\pipelines\PipelineHelpPanel.html
 	*	odcleanstore\webfrontend\src\main\java\cz\cuni\mff\odcleanstore\webfrontend\pages\pipelines\TransformerInstanceHelpPanel.html
+	*	odcleanstore\webfrontend\src\main\java\cz\cuni\mff\odcleanstore\webfrontend\pages\transformers\RulesGroupHelpPanel.html
+	*	odcleanstore\webfrontend\src\main\java\cz\cuni\mff\odcleanstore\webfrontend\pages\transformers\qa\QARuleHelpPanel.html
 	
