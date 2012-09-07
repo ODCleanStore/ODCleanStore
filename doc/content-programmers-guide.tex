@@ -113,15 +113,40 @@ This is an outline of directory structure in the git repository:
 
 
 \section{Maven build}
-%There are two profiles in addition to the default one in the root maven configuration file (pom.xml).
+The project is divided into several artifacts. The root POM (\code{pom.xml}) in \code{odcleanstore} directory defines the parent project while each component of ODCleanStore is in a separate artifact in subdirectories of \code{odcleanstore}. These artifacts are:
 
-    %Profile javadoc - enables generation of javadoc (which is disabled in the default profile).
-    %Profile systest - enables unit tests in systest/ subdirectories, which test functionality related to database. In order to run these tests, a new Virtuoso instance with settings as in /data/virtuoso_configuration/virtuoso.ini-test must be set up first (see Virtuoso installation guide )
+\begin{itemize}
+	\item \code{odcs-core} -- common code shared by other artifacts; also defines interfaces for custom transformers
+	\item \code{odcs-backend} -- predefined transformers, Query Execution and Conflict Resolution
+	\item \code{odcs-engine} -- Engine component (running Input and Output Webservice and the data processing queue)
+	\item \code{odcs-webfrontend} -- Administration Frontend web application
+	\item \code{odcs-inputclient} -- client library for Input Webservice (provides a Java API for accessing the webservice)
+	\item \code{odcs-simplescraper} -- a simple command-line tool for importing data through Input Webservices
+	\item \code{odcs-simpletransformer} -- example of a custom transformer
+\end{itemize}
 
-%Maven build for the selected profile can be executed with command line option -P:
 
-%mvn clean package -P javadoc
-%mvn clean package -P systest
+It is recommended to always build using the root POM. Building from subprojects may require issuing \code{mvn install} on the root POM first. The entire project can be build with the following command:
+
+\begin{verbatim}
+      cd odcleanstore-code/odcleanstore
+      mvn clean package
+\end{verbatim}
+
+There are two profiles in addition to the default one in the root POM.
+
+\begin{itemize}
+	\item \code{javadoc} profile -- enables generation of javadoc (which is disabled in the default profile). 
+	\item \code{systest} profile -- enables unit tests in \code{systest/} subdirectories, which test functionality related to the database. In order to run these tests, a new Virtuoso instance with settings as in \code{/data/virtuoso\_configuration/virtuoso.ini-test} must be set up first. \todo{ref to Virtuoso installation guide}
+\end{itemize}
+
+Maven build for the selected profile can be executed with command line option \code{-P}:
+
+\begin{verbatim}
+      mvn clean package -P javadoc
+      mvn clean package -P systest	
+\end{verbatim}
+
 
 \chapter{Webservices \& Interfaces}
 
