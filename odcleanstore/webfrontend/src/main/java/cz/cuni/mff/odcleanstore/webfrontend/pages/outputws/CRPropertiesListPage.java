@@ -14,6 +14,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.*;
 
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
@@ -27,6 +28,7 @@ import org.apache.wicket.model.Model;
 
 import org.apache.log4j.Logger;
 
+@AuthorizeInstantiation({ "POC" })
 public class CRPropertiesListPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
