@@ -230,6 +230,9 @@ public class HTMLFormatter extends ResultFormatterBase {
                 String text = formatLiteral(node);
                 text = text.replace("^^", " ^^");
                 writeRelativeLink(writer, getRequestForKeyword(node.getLiteralLexicalForm()), text, "Keyword query");
+            } else if (node.isBlank()) {
+                String uri = "nodeID://" + node.getBlankNodeLabel();
+                writeRelativeLink(writer, getRequestForURI(uri), node.getBlankNodeLabel(), "URI query");
             } else {
                 writer.write(node.toString());
             }
@@ -241,8 +244,11 @@ public class HTMLFormatter extends ResultFormatterBase {
          * @return uri with namespace shortened to prefix if possible
          */
         protected String getPrefixedURI(String uri) {
-            int namespacePartLength = com.hp.hpl.jena.rdf.model.impl.Util.splitNamespace(uri);
-            String prefix = namespacePartLength  < uri.length()
+            if (Utils.isNullOrEmpty(uri)) {
+                return uri;
+            }
+            int namespacePartLength = Math.max(uri.lastIndexOf('/'), uri.lastIndexOf('#')) + 1; // use a simple heuristic
+            String prefix = 0 < namespacePartLength && namespacePartLength < uri.length()
                     ? prefixMapping.getPrefix(uri.substring(0, namespacePartLength))
                     : null;
             return (prefix == null)
