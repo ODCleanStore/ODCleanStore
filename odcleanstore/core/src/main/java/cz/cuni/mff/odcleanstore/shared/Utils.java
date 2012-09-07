@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.shared;
 
+import java.text.Normalizer;
 import java.util.regex.Pattern;
 
 
@@ -85,7 +86,21 @@ public final class Utils {
     public static boolean isNullOrEmpty(String s) {
         return s == null || s.length() == 0;
     }
-
+    
+    public static String toAscii(CharSequence str) {
+        final int asciiSize = 128;
+        String decomposed = Normalizer.normalize(str, Normalizer.Form.NFKD);
+        /* Build a new String with only ASCII characters. */
+        StringBuilder buf = new StringBuilder(str.length());
+        for (int idx = 0; idx < decomposed.length(); ++idx) {
+            char ch = decomposed.charAt(idx);
+            if (ch < asciiSize) {
+                buf.append(ch);
+            }
+        }
+        return buf.toString();
+    }
+        
     /** Disable constructor for a utility class. */
     private Utils() {
     }
