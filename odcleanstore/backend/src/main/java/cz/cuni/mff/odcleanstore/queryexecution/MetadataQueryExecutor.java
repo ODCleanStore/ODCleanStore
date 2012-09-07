@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Locale;
 
 /**
@@ -113,6 +114,9 @@ import java.util.Locale;
         if (!Utils.isValidIRI(namedGraphURI)) {
             throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, ErrorCodes.QE_INPUT_FORMAT_ERR,
                     "The query is not a valid URI.");
+        }
+        if (ENGINE_TEMP_GRAPH_PREFIX != null && namedGraphURI.startsWith(ENGINE_TEMP_GRAPH_PREFIX)) {
+           return createResult(Collections.<Quad>emptySet(), new NamedGraphMetadataMap(), namedGraphURI, 0);
         }
 
         try {
