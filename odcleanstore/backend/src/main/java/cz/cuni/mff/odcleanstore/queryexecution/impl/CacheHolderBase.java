@@ -2,6 +2,9 @@ package cz.cuni.mff.odcleanstore.queryexecution.impl;
 
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * Holder for a cached value, caching the value for the given lifetime.
@@ -10,6 +13,8 @@ import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
  * @author Jan Michelfeit
  */
 /*package*/abstract class CacheHolderBase<T> {
+    private static final Logger LOG = LoggerFactory.getLogger(CacheHolderBase.class);
+
     /** Lifetime of the cached value in milliseconds. Zero means no caching. */
     private final long cacheLifetime;
 
@@ -41,6 +46,7 @@ import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
             // CHECKSTYLE:OFF
             synchronized (this) {
                 if (System.currentTimeMillis() - lastRefreshTime > cacheLifetime) {
+                    LOG.debug("Refreshing {} cache", this.getClass().getSimpleName());
                     cachedValue = loadCachedValue();
                     lastRefreshTime = System.currentTimeMillis();
                 }

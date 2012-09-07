@@ -9,7 +9,10 @@ import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRule;
 import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.MetadataQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryResultBase;
+import cz.cuni.mff.odcleanstore.queryexecution.impl.PrefixMapping;
+import cz.cuni.mff.odcleanstore.shared.Utils;
 
+import com.hp.hpl.jena.datatypes.RDFDatatype;
 import com.hp.hpl.jena.graph.Node;
 
 import de.fuberlin.wiwiss.ng4j.Quad;
@@ -35,15 +38,25 @@ import java.util.Locale;
  * @author Jan Michelfeit
  */
 public class HTMLFormatter extends ResultFormatterBase {
+    
+    private static final String HTML_HEADER_COLOR = "FFE677";  
+    private static final String HTML_EVEN_COLOR = "FFEEA6";  
+    private static final String HTML_ODD_COLOR = "FFF5EC";  
+    
     /** Configuration of the output webservice from the global configuration file. */
     private OutputWSConfig outputWSConfig;
+    
+    /** Namespace prefix mappings. */
+    private PrefixMapping prefixMapping;
 
     /**
      * Creates a new instance.
      * @param outputWSConfig configuration of the output webservice from the global configuration file
+     * @param prefixMapping namespace prefix mappings
      */
-    public HTMLFormatter(OutputWSConfig outputWSConfig) {
+    public HTMLFormatter(OutputWSConfig outputWSConfig, PrefixMapping prefixMapping) {
         this.outputWSConfig = outputWSConfig;
+        this.prefixMapping = prefixMapping;
     }
 
     @Override
@@ -144,14 +157,18 @@ public class HTMLFormatter extends ResultFormatterBase {
          */
         protected void writeMetadata(Writer writer, NamedGraphMetadataMap metadataMap) throws IOException {
             writer.write(" <table border=\"1\" cellspacing=\"0\" cellpadding=\"2\">\n");
-            writer.write("  <tr><th>Named graph</th><th>Data source</th><th>Inserted at</th>"
+            writer.write("  <tr style=\"background-color: #");
+            writer.write(HTML_HEADER_COLOR);
+            writer.write(";\"><th>Named graph</th><th>Data source</th><th>Inserted at</th>"
                     + "<th>Graph score</th><th>License</th></tr>");
+            int row = 0;
             for (NamedGraphMetadata metadata : metadataMap.listMetadata()) {
-                writer.write("  <tr><td>");
+                writeOpeningTr(writer, ++row);
+                writer.write("<td>");
                 writeRelativeLink(
                         writer, 
                         getRequestForMetadata(metadata.getNamedGraphURI()),
-                        metadata.getNamedGraphURI(),
+                        getPrefixedURI(metadata.getNamedGraphURI()),
                         "Metadata query");
                 writer.write("</td><td>");
                 Collection<String> sourceList = metadata.getSources();
@@ -207,14 +224,54 @@ public class HTMLFormatter extends ResultFormatterBase {
          */
         protected void writeNode(Writer writer, Node node) throws IOException {
             if (node.isURI()) {
-                writeRelativeLink(writer, getRequestForURI(node.getURI()), node.toString(), "URI query");
+                String text = getPrefixedURI(node.getURI());
+                writeRelativeLink(writer, getRequestForURI(node.getURI()), text, "URI query");
             } else if (node.isLiteral()) {
-                writeRelativeLink(writer, getRequestForKeyword(node.getLiteralLexicalForm()), node.toString(), "Keyword query");
+                String text = formatLiteral(node);
+                text = text.replace("^^", " ^^");
+                writeRelativeLink(writer, getRequestForKeyword(node.getLiteralLexicalForm()), text, "Keyword query");
             } else {
                 writer.write(node.toString());
             }
         }
-
+        
+        /**
+         * Return uri with namespace shortened to prefix if possible.
+         * @param uri uri to format
+         * @return uri with namespace shortened to prefix if possible
+         */
+        protected String getPrefixedURI(String uri) {
+            int namespacePartLength = com.hp.hpl.jena.rdf.model.impl.Util.splitNamespace(uri);
+            String prefix = namespacePartLength  < uri.length()
+                    ? prefixMapping.getPrefix(uri.substring(0, namespacePartLength))
+                    : null;
+            return (prefix == null)
+                    ? uri
+                    : prefix + ":" + uri.substring(namespacePartLength);
+        }
+        
+        /**
+         * Format a literal value for output.
+         * @param literalNode a literal node (literalNode.isLiteral() must return true!)
+         * @return literal value formatted for output
+         */
+        protected String formatLiteral(Node literalNode) {
+            assert literalNode.isLiteral();
+            StringBuilder result = new StringBuilder();
+            String lang = literalNode.getLiteralLanguage();
+            RDFDatatype dtype = literalNode.getLiteralDatatype();
+            
+            result.append('"');
+            result.append(literalNode.getLiteralLexicalForm());
+            result.append('"');
+            if (!Utils.isNullOrEmpty(lang)) {
+                result.append("@").append(lang);
+            }
+            if (dtype != null) {
+                result.append(" ^^").append(getPrefixedURI(dtype.getURI()));
+            }
+            return result.toString();
+        }
         /**
          * Write a relative hyperlink.
          * @param writer output writer
@@ -324,6 +381,22 @@ public class HTMLFormatter extends ResultFormatterBase {
                     .replace("'", "&#x27;")
                     .replace("/", "&#x2F;");
         }
+        
+        /**
+         * Write an opening &lt;tr&gt; tag with the correct background color.
+         * @param writer writer
+         * @param rowIndex row index
+         * @throws IOException exception
+         */
+        protected void writeOpeningTr(Writer writer, int rowIndex) throws IOException {
+            writer.write("  <tr style=\"background-color: #");
+            if (rowIndex % 2 == 0) {
+                writer.write(HTML_EVEN_COLOR);
+            } else {
+                writer.write(HTML_ODD_COLOR);
+            }
+            writer.write(";\">");
+        }
     }
 
     /**
@@ -359,13 +432,17 @@ public class HTMLFormatter extends ResultFormatterBase {
          */
         private void writeResultQuads(Writer writer) throws IOException {
             writer.write(" <table border=\"1\" cellspacing=\"0\" cellpadding=\"2\">\n");
-            writer.write("  <tr><th>Subject</th><th>Predicate</th><th>Object</th>"
+            writer.write("  <tr style=\"background-color: #");
+            writer.write(HTML_HEADER_COLOR);
+            writer.write(";\"><th>Subject</th><th>Predicate</th><th>Object</th>"
                     + "<th>Quality</th><th>Source named graphs</th></tr>\n");
+            int row = 0;
             for (CRQuad crQuad : queryResult.getResultQuads()) {
-                writer.write("  <tr><td>");
+                writeOpeningTr(writer, ++row);
+                writer.write("<td>");
                 writeNode(writer, crQuad.getQuad().getSubject());
                 writer.write("</td><td>");
-                writer.write(crQuad.getQuad().getPredicate().toString());
+                writer.write(getPrefixedURI(crQuad.getQuad().getPredicate().toString()));
                 writer.write("</td><td>");
                 writeNode(writer, crQuad.getQuad().getObject());
                 writer.write("</td><td>");
@@ -377,7 +454,7 @@ public class HTMLFormatter extends ResultFormatterBase {
                         writer.write(", ");
                     }
                     first = false;
-                    writeRelativeLink(writer, getRequestForNamedGraph(sourceURI), sourceURI, "Named graph query");
+                    writeRelativeLink(writer, getRequestForNamedGraph(sourceURI), getPrefixedURI(sourceURI), "Named graph query");
                 }
                 writer.write("</td></tr>\n");
             }
@@ -449,12 +526,16 @@ public class HTMLFormatter extends ResultFormatterBase {
          */
         private void writeTriples(Writer writer, Collection<Quad> quads) throws IOException {
             writer.write(" <table border=\"1\" cellspacing=\"0\" cellpadding=\"2\">\n");
-            writer.write("  <tr><th>Subject</th><th>Predicate</th><th>Object</th></tr>\n");
+            writer.write("  <tr style=\"background-color: #");
+            writer.write(HTML_HEADER_COLOR);
+            writer.write(";\"><th>Subject</th><th>Predicate</th><th>Object</th></tr>\n");
+            int row = 0;
             for (Quad quad : quads) {
-                writer.write("  <tr><td>");
+                writeOpeningTr(writer, ++row);
+                writer.write("<td>");
                 writeNode(writer, quad.getSubject());
                 writer.write("</td><td>");
-                writer.write(quad.getPredicate().toString());
+                writer.write(getPrefixedURI(quad.getPredicate().toString()));
                 writer.write("</td><td>");
                 writeNode(writer, quad.getObject());
                 writer.write("</td></tr>\n");
@@ -470,9 +551,13 @@ public class HTMLFormatter extends ResultFormatterBase {
          */
         private void writeQARules(Writer writer, Collection<QualityAssessmentRule> qaRules) throws IOException {
             writer.write(" <table border=\"1\" cellspacing=\"0\" cellpadding=\"2\">\n");
-            writer.write("  <tr><th>Rule description</th><th>Score decreased by</th></tr>\n");
+            writer.write("  <tr style=\"background-color: #");
+            writer.write(HTML_HEADER_COLOR);
+            writer.write(";\"><th>Rule description</th><th>Score decreased by</th></tr>\n");
+            int row = 0;
             for (QualityAssessmentRule rule : qaRules) {
-                writer.write("  <tr><td>");
+                writeOpeningTr(writer, ++row);
+                writer.write("<td>");
                 writer.write(rule.getDescription());
                 writer.write("</td><td>");
                 writer.write(rule.getCoefficient().toString());

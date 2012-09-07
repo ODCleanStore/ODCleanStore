@@ -93,7 +93,7 @@ public class ConflictResolverImpl implements ConflictResolver {
                 ? new ObjectSourceStoredComparator(metadata)
                 : null;
         if (hasOldVersions) {
-            LOG.info("Resolved data include named graphs with multiple versions");
+            LOG.debug("Resolved data include named graphs with multiple versions");
         }
 
         // Resolve conflicts:
