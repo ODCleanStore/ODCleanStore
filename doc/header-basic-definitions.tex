@@ -63,20 +63,16 @@
 	}
 
 \newenvironment{glossarylist}
-	{
-		\begin{description}[style=nextline,itemsep=8pt]
-	}
-	{
-		\end{description}
-	}
+	{\begin{description}[style=nextline,itemsep=8pt]}
+	{\end{description}}
 
 \newenvironment{configlist}
-	{
-		\begin{description}[style=nextline,font=\ttfamily]
-	}
-	{
-		\end{description}
-	}
+	{\begin{description}[style=nextline,font=\ttfamily]}
+	{\end{description}}
+
+\newenvironment{dirlist}
+	{\begin{description}[style=sameline,font=\ttfamily]}
+	{\end{description}}
 	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Package settings

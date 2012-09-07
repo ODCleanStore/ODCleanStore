@@ -31,6 +31,8 @@ Lorem ipsum.
 
 \section{Used technologies}
 
+% https://sourceforge.net/p/odcleanstore/wiki/Technologies/
+
 \begin{itemize}
 	\item Java, platform (in)dependence
 	\item RDF, Virtuoso, relational database
@@ -72,12 +74,54 @@ Move to directory \code{odcleanstore} within your local clone of the repository 
       mvn clean package
 \end{verbatim}
 
-After that, Engine binaries can be found in directory \code{odcleanstore/engine/target} and the WAR file of Administration Frontend at \code{odcleanstore/webfrontend/target}. Now you can deploy the application as described in \refadminmanual. \todo{jestli tam bude jenom popis instalatoru, mel by se rucni deploy popsat tady}
+After that, Engine binaries can be found in directory \code{odcleanstore/engine/target} and the WAR file of Administration Frontend at \code{odcleanstore/webfrontend/target}. Now you can deploy the application as described in \refadminmanual. \todo{jestli tam bude jenom popis instalatoru, mel by se rucni deploy popsat tady a pridat referenci na instalaci Virtuosa}
 
 \section{Repository structure}
-directories, branches
+\subsection{Branches}
+There are several branches in the git repository. The latest development version of is on branch \code{master}. Then there are release branches for each release named \code{release-0.1.x}, \code{release-0.2.x} etc. which contain stable versions for  releases  packages. Each commit that where used to prepeare a release package is labeled with a tag \code{release}-\varcode{version}. Finally, there are feature branches prefixed with \code{feature-}.
+
+Common development takes place on branch \code{master}. New feature branches are created for features that may or may not be accepted or that need time to be finished before they are applied to \code{master}. When whey are finished, they are merged to \code{master} and the branch may be removed in time. Release branches stem from \code{master} for every new major release. Fixes and modifications for minor releases take place on release branches and may be merged from/to \code{master}.
+
+\subsection{Directory structure}
+This is an outline of directory structure in the git repository:
+
+\begin{dirlist}
+	\item[data/] \mbox{}
+		\begin{dirlist}
+			\item[initial\_db\_import/] -- database import files
+				\begin{dirlist}
+					\item[clean\_db/] -- SQL files to be imported to the clean database
+					\item[dirty\_db/] -- SQL files to be imported to the dirty database
+				\end{dirlist}
+			\item[odcs\_configuration/] -- the default ODCleanStore configuration file
+			\item[virtuoso\_configuration/] -- configuration files for Virtuoso database instances
+		\end{dirlist}
+	\item[doc/] -- documentation sources (in \LaTeX)
+	\item[odcleanstore/] -- Java sources
+		\begin{dirlist}
+			\item[backend/] -- sources of \code{odcs-backend} artifact (transformers, Query Execution, Conflict Resolution)
+			\item[conf/] -- configuration files for development in Eclipse
+			\item[core/] -- sources of \code{odcs-core} artifact (common code shared by other artifacts)
+			\item[engine/]  -- sources of \code{odcs-engine} artifact (Engine component)
+			\item[inputclient/]  -- sources of \code{odcs-imputclient} artifact (Java client for Input Webservice)
+			\item[simplescraper/]  -- simple Input Webservice import tool
+			\item[simpletransformer/]  -- example of a custom transformer
+			\item[webfrontend/]  -- sources of Administration Frontend
+			\item[pom.xml] -- the root maven POM file
+		\end{dirlist}
+\end{dirlist}
+
 
 \section{Maven build}
+%There are two profiles in addition to the default one in the root maven configuration file (pom.xml).
+
+    %Profile javadoc - enables generation of javadoc (which is disabled in the default profile).
+    %Profile systest - enables unit tests in systest/ subdirectories, which test functionality related to database. In order to run these tests, a new Virtuoso instance with settings as in /data/virtuoso_configuration/virtuoso.ini-test must be set up first (see Virtuoso installation guide )
+
+%Maven build for the selected profile can be executed with command line option -P:
+
+%mvn clean package -P javadoc
+%mvn clean package -P systest
 
 \chapter{Webservices \& Interfaces}
 
@@ -113,6 +157,9 @@ directories, branches
 \chapter{ODCS ontology}
 
 \chapter{Relational database schema}
+
+% TODO asi SQL create tables dotazy + popis významu jednotlivých tabulek v textu u každé komponenty, která je používá
+% https://sourceforge.net/p/odcleanstore/wiki/Relational%20database%20documentation/
 
 \chapter{(\quot{chronologicky popis prubehu praci na projektu})}
 
