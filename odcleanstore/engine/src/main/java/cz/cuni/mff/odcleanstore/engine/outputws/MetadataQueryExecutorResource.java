@@ -20,8 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * ServerResource for (named graph) metadata query.
@@ -30,9 +28,6 @@ import java.util.regex.Pattern;
 public class MetadataQueryExecutorResource extends QueryExecutorResourceBase {
 
     private static final Logger LOG = LoggerFactory.getLogger(MetadataQueryExecutorResource.class);
-    
-    private static final Pattern UUID_PATTERN = 
-            Pattern.compile("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
     
     /**
      * SPARQL query selecting all QA groups for given a named graph.
@@ -64,7 +59,7 @@ public class MetadataQueryExecutorResource extends QueryExecutorResourceBase {
         long qaStartTime = System.currentTimeMillis();
         Config config = ConfigLoader.getConfig();
         GraphScoreWithTrace qaResult = null;
-        String graphUuid = extractUUID(namedGraphURI, config.getEngineGroup().getDataGraphURIPrefix().toString());
+        String graphUuid = Utils.extractUUID(namedGraphURI);
         if (graphUuid != null && !namedGraphURI.startsWith(ODCS.engineTemporaryGraph)) {
             JDBCConnectionCredentials connectionCredentials =
                     config.getQueryExecutionGroup().getCleanDBJDBCConnectionCredentials();
@@ -78,21 +73,6 @@ public class MetadataQueryExecutorResource extends QueryExecutorResourceBase {
         long totalTime = System.currentTimeMillis() - qaStartTime + metadataResult.getExecutionTime();
         return getFormatter(config.getOutputWSGroup())
                 .format(metadataResult, qaResult, totalTime, getRequestReference());
-    }
-
-    /**
-     * Extracts the UUID part from a data named graph URI.
-     * @param namedGraphURI URI of a payload data named graph
-     * @param dataGraphPrefix prefix common to all data graphs' URIs
-     *      (see {@link cz.cuni.mff.odcleanstore.configuration.EngineConfig#getDataGraphURIPrefix()})
-     * @return the UUID part or null if it the named graph doesn't have the correct format
-     */
-    private String extractUUID(String namedGraphURI, String dataGraphPrefix) {
-        if (Utils.isNullOrEmpty(namedGraphURI)) {
-            return null;
-        }
-        Matcher matcher = UUID_PATTERN.matcher(namedGraphURI);
-        return matcher.find() ? matcher.group() : null;
     }
 
     /**
