@@ -293,6 +293,9 @@ import java.util.regex.Pattern;
     /** Pattern matching a numeric value. */
     private static final Pattern NUMERIC_PATTERN = Pattern.compile("^[+-]?[0-9]*\\.?[0-9]+$");
 
+    /** Maximum number of keyword in a contains query. */
+    private static final int MAX_CONTAINS_KEYWORDS = 10;
+
     /**
      * Parse the query string to a list of keywords. Double quotes enclosing a phrase are retained.
      * @param keywordsQuery the keyword query
@@ -348,7 +351,11 @@ import java.util.regex.Pattern;
         StringBuilder expr = new StringBuilder();
         expr.append('\'');
         boolean hasMatch = false;
+        int count = 0;
         for (String keyword : keywords) {
+            if (++count > MAX_CONTAINS_KEYWORDS) {
+                break;
+            }
             String keywordAscii = Utils.toAscii(keyword);
             if (!hasMatch) {
                 hasMatch = true;
