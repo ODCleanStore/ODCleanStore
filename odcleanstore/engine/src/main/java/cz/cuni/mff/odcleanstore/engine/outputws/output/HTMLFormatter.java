@@ -232,7 +232,7 @@ public class HTMLFormatter extends ResultFormatterBase {
                 writeRelativeLink(writer, getRequestForKeyword(node.getLiteralLexicalForm()), text, "Keyword query");
             } else if (node.isBlank()) {
                 String uri = "nodeID://" + node.getBlankNodeLabel();
-                writeRelativeLink(writer, getRequestForURI(uri), node.getBlankNodeLabel(), "URI query");
+                writeRelativeLink(writer, getRequestForURI(uri), "_:" + node.getBlankNodeLabel(), "URI query");
             } else {
                 writer.write(node.toString());
             }
