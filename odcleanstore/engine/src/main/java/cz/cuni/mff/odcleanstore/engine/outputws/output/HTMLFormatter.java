@@ -80,6 +80,9 @@ public class HTMLFormatter extends ResultFormatterBase {
     private abstract class HTMLRepresentationBase extends WriterRepresentation {
         /** Representation of the requested URI. */
         private Reference requestReference;
+        
+        /** Query result. */
+        private QueryResultBase queryResult;
 
         /**
          * Initialize.
@@ -89,6 +92,7 @@ public class HTMLFormatter extends ResultFormatterBase {
         public HTMLRepresentationBase(QueryResultBase queryResult, Reference requestReference) {
             super(MediaType.TEXT_HTML);
             this.requestReference = requestReference;
+            this.queryResult = queryResult;
         }
 
         @Override
@@ -225,14 +229,35 @@ public class HTMLFormatter extends ResultFormatterBase {
         protected void writeNode(Writer writer, Node node) throws IOException {
             if (node.isURI()) {
                 String text = getPrefixedURI(node.getURI());
-                writeRelativeLink(writer, getRequestForURI(node.getURI()), text, "URI query");
+                assert queryResult.getQuery() != null;
+                if (queryResult.getQuery().equals(text) || queryResult.getQuery().equals(node.getURI())) {
+                    writer.write("<em>");
+                    writeRelativeLink(writer, getRequestForURI(node.getURI()), text, "URI query");
+                    writer.write("</em>");
+                } else {
+                    writeRelativeLink(writer, getRequestForURI(node.getURI()), text, "URI query");
+                }
             } else if (node.isLiteral()) {
                 String text = formatLiteral(node);
-                text = text.replace("^^", " ^^");
-                writeRelativeLink(writer, getRequestForKeyword(node.getLiteralLexicalForm()), text, "Keyword query");
+                assert queryResult.getQuery() != null;
+                if (queryResult.getQuery().equals(node.getLiteralLexicalForm())) {
+                    writer.write("<em>");
+                    writeRelativeLink(writer, getRequestForKeyword(node.getLiteralLexicalForm()), text, "Keyword query");
+                    writer.write("</em>");                    
+                } else {
+                    writeRelativeLink(writer, getRequestForKeyword(node.getLiteralLexicalForm()), text, "Keyword query");
+                }
             } else if (node.isBlank()) {
                 String uri = "nodeID://" + node.getBlankNodeLabel();
-                writeRelativeLink(writer, getRequestForURI(uri), "_:" + node.getBlankNodeLabel(), "URI query");
+                assert queryResult.getQuery() != null;
+                if (queryResult.getQuery().equals(uri)) {
+                    writer.write("<em>");
+                    writeRelativeLink(writer, getRequestForURI(uri), "_:" + node.getBlankNodeLabel(), "URI query");
+                    writer.write("</em>");
+                } else {
+                    writeRelativeLink(writer, getRequestForURI(uri), "_:" + node.getBlankNodeLabel(), "URI query");
+                }
+                
             } else {
                 writer.write(node.toString());
             }
