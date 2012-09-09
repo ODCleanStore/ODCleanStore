@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
             // CHECKSTYLE:OFF
             synchronized (this) {
                 if (System.currentTimeMillis() - lastRefreshTime > cacheLifetime) {
-                    LOG.debug("Refreshing {} cache", this.getClass().getSimpleName());
+                    LOG.info("Refreshing {} cache", this.getClass().getSimpleName());
                     cachedValue = loadCachedValue();
                     lastRefreshTime = System.currentTimeMillis();
                 }

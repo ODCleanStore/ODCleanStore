@@ -120,15 +120,15 @@ public class ConfigBuilder {
 	 */
 	public static File createLinkConfigFile(List<SilkRule> rules, List<RDFprefix> prefixes, TransformedGraph inputGraph, 
 			TransformationContext context, ObjectIdentificationConfig config) throws TransformerException {
-		LOG.info("Creating link configuration file.");
+		LOG.debug("Creating link configuration file.");
 		Document configDoc;
 		File configFile;
 		try {
 			configDoc = createConfigDoc(rules, prefixes, inputGraph.getGraphName(), inputGraph.getGraphId(), config, 
 					context.getTransformerDirectory());
-			LOG.info("Created link configuration document.");
+			LOG.debug("Created link configuration document.");
 			configFile = storeConfigDoc(configDoc, context.getTransformerDirectory(), inputGraph.getGraphId());
-			LOG.info("Stored link configuration to temporary file {}", configFile.getAbsolutePath());
+			LOG.debug("Stored link configuration to temporary file {}", configFile.getAbsolutePath());
 		} catch (Exception e) {
 			throw new TransformerException(e);
 		}
@@ -520,7 +520,7 @@ public class ConfigBuilder {
 		int dotIndex = name.lastIndexOf('.');
 		String firstPart = name.substring(colonIndex + 1, dotIndex);
 		String thirdPart = name.substring(dotIndex);
-		return transformerDirectory.getAbsolutePath() + firstPart + graphId + thirdPart;
+		return transformerDirectory.getAbsolutePath() + firstPart + "." + graphId + thirdPart;
 	}
 	
 	/**

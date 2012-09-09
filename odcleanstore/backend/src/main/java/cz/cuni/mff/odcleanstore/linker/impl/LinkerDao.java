@@ -133,11 +133,11 @@ public class LinkerDao {
 		List<Output> outputs = new ArrayList<Output>();
 		WrappedResultSet resultSet = null;
 		try {
-			resultSet = connection.executeSelect(
-					"select t.label as type, o.minConfidence, o.maxConfidence, o.fileName, f.label as format " +
-					"from DB.ODCLEANSTORE.OI_OUTPUTS o join DB.ODCLEANSTORE.OI_OUTPUT_TYPES t on o.outputTypeId = t.id " +
-					"join DB.ODCLEANSTORE.OI_FILE_FORMATS f on o.fileFormatId = f.id " +
-					"where o.ruleId = " + ruleId);
+		    String query = "select t.label as type, o.minConfidence, o.maxConfidence, o.fileName, f.label as format " +
+                    "from DB.ODCLEANSTORE.OI_OUTPUTS o join DB.ODCLEANSTORE.OI_OUTPUT_TYPES t on o.outputTypeId = t.id " +
+                    "join DB.ODCLEANSTORE.OI_FILE_FORMATS f on o.fileFormatId = f.id " +
+                    "where o.ruleId = " + ruleId;
+			resultSet = connection.executeSelect(query);
 			while (resultSet.next()) {
 				Output output;
 				String ruleType = resultSet.getString("type");
