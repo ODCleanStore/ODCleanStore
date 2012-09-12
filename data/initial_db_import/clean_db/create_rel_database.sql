@@ -205,6 +205,7 @@ CREATE TABLE DB.ODCLEANSTORE.BACKUP_TRANSFORMERS
 DELETE FROM DB.ODCLEANSTORE.BACKUP_TRANSFORMERS;
 
 INSERT INTO DB.ODCLEANSTORE.BACKUP_TRANSFORMERS (label, description, jarPath, fullClassName) VALUES (n'Quality Assessment', n'The standard Quality Assessment transformer', n'.', n'cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl');
+INSERT INTO DB.ODCLEANSTORE.BACKUP_TRANSFORMERS (label, description, jarPath, fullClassName) VALUES (n'Quality Aggregator', n'The standard Quality Aggregator transformer', n'.', n'cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAggregatorImpl');
 INSERT INTO DB.ODCLEANSTORE.BACKUP_TRANSFORMERS (label, description, jarPath, fullClassName) VALUES (n'Linker', n'The standard Object Identification transformer',  n'.', n'cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl');
 INSERT INTO DB.ODCLEANSTORE.BACKUP_TRANSFORMERS (label, description, jarPath, fullClassName) VALUES (n'Data Normalization', n'The standard Data Normalization transformer', n'.', n'cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl');
 
