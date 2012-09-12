@@ -24,7 +24,7 @@ public class TransformerInstanceDetailPage extends FrontendPage
 		"cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl";
 	
 	private static final String DN_FULL_CLASS_NAME = 
-		"cz.cuni.mff.odcleanstore.datanormalization.DataNormalizer";
+		"cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl";
 
 	private DaoForEntityWithSurrogateKey<TransformerInstance> transformerInstanceDao;
 	private DaoForEntityWithSurrogateKey<Transformer> transformerDao;
