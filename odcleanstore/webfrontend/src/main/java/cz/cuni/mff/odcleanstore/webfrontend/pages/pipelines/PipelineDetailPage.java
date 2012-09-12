@@ -81,7 +81,7 @@ public class PipelineDetailPage extends FrontendPage
 		SortableDataProvider<TransformerInstance> data = new DependentSortableDataProvider<TransformerInstance>
 		(
 			transformerInstanceDao,
-			"label",
+			"priority",
 			"pipelineId", 
 			pipelineId
 		);
