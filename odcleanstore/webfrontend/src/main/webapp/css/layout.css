@@ -1,26 +1,8 @@
 #container
 {
-	margin: 0px auto;
+	left: 50%;
+	margin-left: -640px;
 	width: 1280px;
-}
-
-#header
-{
-	font-size: 250%;
-	text-align: center;
-	padding: 30px;
-}
-
-#menu
-{
-	float: left;
-	width: 276px;
-}
-
-#content
-{
-	float: right;
-	width: 1000px;
 }
 
 #content #top

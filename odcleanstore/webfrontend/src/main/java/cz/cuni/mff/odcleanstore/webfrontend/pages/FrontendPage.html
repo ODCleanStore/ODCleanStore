@@ -18,44 +18,44 @@
 
 		<div id="header">
 			<strong>Open Data Clean Store - Web frontend</strong>
-		</div id="header">
+		</div>
 
 		<div id="menu">
 			<wicket:link>
 			<ul>
 				<li>
-					<a href="HomePage.html">Home</a>
+					<a href="HomePage.html"><span>Home</span></a>
 				</li>
 				<li>
-					<a href="useraccounts/UserAccountsPage.html">User accounts</a>
+					<a href="useraccounts/UserAccountsPage.html"><span>User accounts</span></a>
 				</li>
-				<li>
-					Backend
+				<li class="has-sub ">
+					<a href="#"><span>Backend</span></a>
 					<ul>
-						<li><a href="pipelines/PipelinesListPage.html">Pipelines</a></li>
-						<li><a href="pipelines/TransformersListPage.html">Transformers</a></li>
-						<li>
-							Rules
+						<li><a href="pipelines/PipelinesListPage.html"><span>Pipelines</span></a></li>
+						<li><a href="pipelines/TransformersListPage.html"><span>Transformers</span></a></li>
+						<li class="has-sub ">
+							<a href="#"><span>Rules</span></a>
 							<ul>
-								<li><a href="transformers/oi/OIGroupsListPage.html">OI</a></li>
-								<li><a href="transformers/qa/QAGroupsListPage.html">QA</a></li>
-								<li><a href="transformers/dn/DNGroupsListPage.html">DN</a></li>
+								<li><a href="transformers/oi/OIGroupsListPage.html"><span>OI</span></a></li>
+								<li><a href="transformers/qa/QAGroupsListPage.html"><span>QA</span></a></li>
+								<li><a href="transformers/dn/DNGroupsListPage.html"><span>DN</span></a></li>
 							</ul>
 						</li>
 					</ul>
 				</li>
-				<li>
-					<a href="outputws/OutputWSPage.html">Output webservice</a>
+				<li class="has-sub ">
+					<a href="outputws/OutputWSPage.html"><span>Output webservice</span></a>
 					<ul>
-						<li><a href="outputws/CRPropertiesListPage.html">Aggregation</a></li>
-						<li><a href="outputws/QELabelPropertiesListPage.html">Label properties</a></li>
+						<li><a href="outputws/CRPropertiesListPage.html"><span>Aggregation</span></a></li>
+						<li><a href="outputws/QELabelPropertiesListPage.html"><span>Label properties</span></a></li>
 					</ul>
 				</li>
 				<li>
-					<a href="prefixes/PrefixesListPage.html">URL prefixes</a>
+					<a href="prefixes/PrefixesListPage.html"><span>URL prefixes</span></a>
 				</li>
 				<li>
-					<a href="ontologies/OntologiesListPage.html">Ontologies</a>
+					<a href="ontologies/OntologiesListPage.html"><span>Ontologies</span></a>
 				</li>
 			</ul>
 			</wicket:link> 
