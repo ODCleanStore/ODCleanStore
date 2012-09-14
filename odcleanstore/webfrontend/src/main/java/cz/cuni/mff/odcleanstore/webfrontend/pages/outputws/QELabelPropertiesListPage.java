@@ -78,7 +78,7 @@ public class QELabelPropertiesListPage extends FrontendPage
 			}
 		};
 
-		dataView.setItemsPerPage(10);
+		dataView.setItemsPerPage(ITEMS_PER_PAGE);
 		
 		add(new SortTableButton<LabelProperty>("orderByProperty", "property", data, dataView));
 		

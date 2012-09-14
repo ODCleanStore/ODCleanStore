@@ -18,6 +18,7 @@ public class TransformerRowMapper extends CustomRowMapper<Transformer>
 			blobToString(rs.getBlob("label")),
 			blobToString(rs.getBlob("description")),
 			blobToString(rs.getBlob("jarPath")),
+			blobToString(rs.getBlob("workDirPath")),
 			blobToString(rs.getBlob("fullClassName"))
 		);
 	}

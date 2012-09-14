@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -16,6 +17,8 @@ public class NewTransformerPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
+	private static Logger logger = Logger.getLogger(NewTransformerPage.class);
+	
 	private DaoForEntityWithSurrogateKey<Transformer> transformerDao;
 	
 	public NewTransformerPage() 
@@ -60,7 +63,7 @@ public class NewTransformerPage extends FrontendPage
 				}
 				catch (Exception ex)
 				{
-					// TODO: log the error
+					logger.error(ex.getMessage());
 					
 					getSession().error(
 						"The transformer could not be registered due to an unexpected error."
@@ -75,6 +78,7 @@ public class NewTransformerPage extends FrontendPage
 		};
 		
 		form.add(createTextfield("label"));
+		form.add(createTextfield("workDirPath"));
 		form.add(createTextarea("description", false));
 		form.add(createTextfield("jarPath"));
 		form.add(createTextfield("fullClassName"));

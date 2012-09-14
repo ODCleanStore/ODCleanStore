@@ -97,8 +97,7 @@ public class PipelineDetailPage extends FrontendPage
 				
 				item.setModel(new CompoundPropertyModel<TransformerInstance>(transformerInstance));
 				
-				item.add(new Label("label"));
-				item.add(new TruncatedLabel("workDirPath", MAX_LIST_COLUMN_TEXT_LENGTH));	
+				item.add(new Label("label"));	
 				item.add(new TruncatedLabel("configuration", MAX_LIST_COLUMN_TEXT_LENGTH));
 				item.add(new Label("runOnCleanDB"));
 				item.add(new Label("priority"));
@@ -134,10 +133,9 @@ public class PipelineDetailPage extends FrontendPage
 			}
 		};
 		
-		dataView.setItemsPerPage(10);
+		dataView.setItemsPerPage(ITEMS_PER_PAGE);
 		
 		add(new SortTableButton<TransformerInstance>("sortByLabel", "label", data, dataView));
-		add(new SortTableButton<TransformerInstance>("sortByWorkDirPath", "workDirPath", data, dataView));
 		add(new SortTableButton<TransformerInstance>("sortByRunOnCleanDB", "runOnCleanDB", data, dataView));
 		add(new SortTableButton<TransformerInstance>("sortByPriority", "priority", data, dataView));
 		

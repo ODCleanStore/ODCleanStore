@@ -36,7 +36,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts.UserAccountHelpPa
 public abstract class FrontendPage extends WebPage 
 {
 	public static final int MAX_LIST_COLUMN_TEXT_LENGTH = 100;
-	private static final int ITEMS_PER_PAGE = 25;
+	public static final int ITEMS_PER_PAGE = 25;
 	
 	private static final long serialVersionUID = 1L;
 

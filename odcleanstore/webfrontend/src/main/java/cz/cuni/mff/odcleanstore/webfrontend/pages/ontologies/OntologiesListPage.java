@@ -94,7 +94,7 @@ public class OntologiesListPage extends FrontendPage
 			}
 		};
 
-		dataView.setItemsPerPage(10);
+		dataView.setItemsPerPage(ITEMS_PER_PAGE);
 		
 		add(new SortTableButton<Ontology>("sortByLabel", "label", data, dataView));
 		add(new SortTableButton<Ontology>("sortByGraphName", "graphName", data, dataView));

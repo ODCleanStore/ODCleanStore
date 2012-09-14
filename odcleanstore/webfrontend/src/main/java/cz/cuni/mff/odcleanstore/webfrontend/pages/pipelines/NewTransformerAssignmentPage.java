@@ -105,7 +105,6 @@ public class NewTransformerAssignmentPage extends FrontendPage
 		};
 
 		form.add(createEnumSelectbox(transformerDao, "transformer"));
-		form.add(createTextfield("workDirPath"));
 		form.add(createTextarea("configuration", false));
 		form.add(createCheckbox("runOnCleanDB"));
 		addPriorityTextfield(form);

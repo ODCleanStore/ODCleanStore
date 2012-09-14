@@ -37,6 +37,7 @@ public class TransformerDetailPage extends FrontendPage
 		setDefaultModel(createModelForOverview(transformerDao, transformerId));
 		
 		add(new Label("label"));
+		add(new Label("workDirPath"));
 		add(new Label("description"));
 		add(new Label("jarPath"));
 		add(new Label("fullClassName"));
