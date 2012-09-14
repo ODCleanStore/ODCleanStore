@@ -10,6 +10,7 @@ import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
@@ -66,6 +67,7 @@ public class TransformersListPage extends FrontendPage
 				item.add(new Label("label"));
 				item.add(new TruncatedLabel("description", MAX_LIST_COLUMN_TEXT_LENGTH));
 				item.add(new TruncatedLabel("jarPath", MAX_LIST_COLUMN_TEXT_LENGTH));
+				item.add(new TruncatedLabel("workDirPath", MAX_LIST_COLUMN_TEXT_LENGTH));
 				item.add(new TruncatedLabel("fullClassName", MAX_LIST_COLUMN_TEXT_LENGTH));
 				
 				item.add(
@@ -101,6 +103,7 @@ public class TransformersListPage extends FrontendPage
 		
 		add(new SortTableButton<Transformer>("sortByLabel", "label", data, dataView));
 		add(new SortTableButton<Transformer>("sortByJARPath", "jarPath", data, dataView));
+		add(new SortTableButton<Transformer>("sortByWorkDirPath", "workDirPath", data, dataView));
 		add(new SortTableButton<Transformer>("sortByFullClassName", "fullClassName", data, dataView));
 		
 		add(dataView);

@@ -34,16 +34,23 @@ public class TransformerDao extends DaoForEntityWithSurrogateKey<Transformer>
 	public void save(Transformer item) 
 	{
 		String query = 
-			"INSERT INTO " + TABLE_NAME + " (label, description, jarPath, fullClassName) " +
-			"VALUES (?, ?, ?, ?)";
+			"INSERT INTO " + TABLE_NAME + " (label, description, jarPath, workDirPath, fullClassName) " +
+			"VALUES (?, ?, ?, ?, ?)";
 		
 		Object[] params =
 		{
 			item.getLabel(),
 			item.getDescription(),
 			item.getJarPath(),
+			item.getWorkDirPath(),
 			item.getFullClassName()
 		};
+		
+		logger.debug("label: " + item.getLabel());
+		logger.debug("description: " + item.getDescription());
+		logger.debug("jar path: " + item.getJarPath());
+		logger.debug("work dir path: " + item.getWorkDirPath());
+		logger.debug("full classname: " + item.getFullClassName());
 		
 		getJdbcTemplate().update(query, params);
 	}
@@ -56,15 +63,22 @@ public class TransformerDao extends DaoForEntityWithSurrogateKey<Transformer>
 		// transformer instances and changing it could lead into a non consistent content of DB
 		//
 		String query = 
-			"UPDATE " + TABLE_NAME + " SET label = ?, description = ?, jarPath = ? WHERE id = ?";
+			"UPDATE " + TABLE_NAME + " SET label = ?, description = ?, jarPath = ?, workDirPath = ? WHERE id = ?";
 		
 		Object[] params =
 		{
 			item.getLabel(),
 			item.getDescription(),
 			item.getJarPath(),
+			item.getWorkDirPath(),
 			item.getId()
 		};
+		
+		logger.debug("label: " + item.getLabel());
+		logger.debug("description: " + item.getDescription());
+		logger.debug("jar path: " + item.getJarPath());
+		logger.debug("work dir path: " + item.getWorkDirPath());
+		logger.debug("id: " + item.getId());
 		
 		getJdbcTemplate().update(query, params);
 	}

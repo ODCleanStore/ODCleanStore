@@ -184,14 +184,15 @@ CREATE TABLE DB.ODCLEANSTORE.TRANSFORMERS
 	label NVARCHAR(255) UNIQUE NOT NULL,
 	description LONG NVARCHAR,
 	jarPath NVARCHAR(255) NOT NULL,
+	workDirPath NVARCHAR(255) NOT NULL,
 	fullClassName NVARCHAR(255) NOT NULL
 );
 
 DELETE FROM DB.ODCLEANSTORE.TRANSFORMERS;
 
-INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS (label, description, jarPath, fullClassName) VALUES (n'Quality Assessment', n'The standard Quality Assessment transformer', n'.', n'cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl');
-INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS (label, description, jarPath, fullClassName) VALUES (n'Linker', n'The standard Object Identification transformer',  n'.', n'cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl');
-INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS (label, description, jarPath, fullClassName) VALUES (n'Data Normalization', n'The standard Data Normalization transformer', n'.', n'cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl');
+INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS (label, description, jarPath, workDirPath, fullClassName) VALUES (n'Quality Assessment', n'The standard Quality Assessment transformer', n'.', n'.', n'cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl');
+INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS (label, description, jarPath, workDirPath, fullClassName) VALUES (n'Linker', n'The standard Object Identification transformer',  n'.', n'.', n'cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl');
+INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS (label, description, jarPath, workDirPath, fullClassName) VALUES (n'Data Normalization', n'The standard Data Normalization transformer', n'.', n'.', n'cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl');
 
 CREATE TABLE DB.ODCLEANSTORE.PIPELINES
 (
@@ -206,7 +207,6 @@ CREATE TABLE DB.ODCLEANSTORE.TRANSFORMER_INSTANCES
 	id INTEGER NOT NULL IDENTITY PRIMARY KEY,
 	transformerId INTEGER NOT NULL,
 	pipelineId INTEGER NOT NULL,
-	workDirPath NVARCHAR(255) NOT NULL,
 	configuration LONG NVARCHAR,
 	runOnCleanDB SMALLINT NOT NULL DEFAULT 1,
 	priority INTEGER NOT NULL DEFAULT 0,

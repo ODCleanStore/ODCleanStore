@@ -64,14 +64,13 @@ public class TransformerInstanceDao extends DaoForEntityWithSurrogateKey<Transfo
 	{
 		String query = 
 			"INSERT INTO " + TABLE_NAME + " " +
-			"(pipelineId, transformerId, workDirPath, configuration, runOnCleanDB, priority) " +
-			"VALUES (?, ?, ?, ?, ?, ?)";
+			"(pipelineId, transformerId, configuration, runOnCleanDB, priority) " +
+			"VALUES (?, ?, ?, ?, ?)";
 		
 		Object[] params =
 		{
 			item.getPipelineId(),
 			item.getTransformerId(),
-			item.getWorkDirPath(),
 			item.getConfiguration(),
 			boolToSmallint(item.getRunOnCleanDB()),
 			item.getPriority()
@@ -84,12 +83,11 @@ public class TransformerInstanceDao extends DaoForEntityWithSurrogateKey<Transfo
 	{
 		String query = 
 			"UPDATE " + TABLE_NAME + 
-			" SET workDirPath = ?, configuration = ?, runOnCleanDB = ?, priority = ? " +
+			" SET configuration = ?, runOnCleanDB = ?, priority = ? " +
 			"WHERE id = ?";
 		
 		Object[] params =
 		{
-			item.getWorkDirPath(),
 			item.getConfiguration(),
 			boolToSmallint(item.getRunOnCleanDB()),
 			item.getPriority(),

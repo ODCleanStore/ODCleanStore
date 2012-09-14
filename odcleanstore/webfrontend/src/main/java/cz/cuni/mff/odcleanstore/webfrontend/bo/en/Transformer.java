@@ -9,6 +9,7 @@ public class Transformer extends EntityWithSurrogateKey
 	private String label;
 	private String description;
 	private String jarPath;
+	private String workDirPath;
 	private String fullClassName;
 	
 	/**
@@ -19,7 +20,7 @@ public class Transformer extends EntityWithSurrogateKey
 	 * @param jarPath
 	 * @param fullClassName
 	 */
-	public Transformer(Long id, String label, String description, String jarPath,
+	public Transformer(Long id, String label, String description, String jarPath, String workDirPath,
 		String fullClassName) 
 	{
 		super(id);
@@ -27,6 +28,7 @@ public class Transformer extends EntityWithSurrogateKey
 		this.label = label;
 		this.description = description;
 		this.jarPath = jarPath;
+		this.workDirPath = workDirPath;
 		this.fullClassName = fullClassName;
 	}
 	
@@ -64,6 +66,15 @@ public class Transformer extends EntityWithSurrogateKey
 		return jarPath;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
+	public String getWorkDirPath()
+	{
+		return workDirPath;
+	}
+	
 	/**
 	 * 
 	 * @return
