@@ -97,7 +97,7 @@ public class TransformersListPage extends FrontendPage
 			}
 		};
 
-		dataView.setItemsPerPage(10);
+		dataView.setItemsPerPage(ITEMS_PER_PAGE);
 		
 		add(new SortTableButton<Transformer>("sortByLabel", "label", data, dataView));
 		add(new SortTableButton<Transformer>("sortByJARPath", "jarPath", data, dataView));

@@ -134,7 +134,7 @@ public class QAGroupDetailPage extends FrontendPage
 			}
 		};
 		
-		dataView.setItemsPerPage(10);
+		dataView.setItemsPerPage(ITEMS_PER_PAGE);
 		
 		add(new SortTableButton<QARule>("sortByCoefficient", "coefficient", data, dataView));
 		

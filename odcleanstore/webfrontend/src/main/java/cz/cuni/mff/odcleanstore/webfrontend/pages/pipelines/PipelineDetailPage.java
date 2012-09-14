@@ -134,7 +134,7 @@ public class PipelineDetailPage extends FrontendPage
 			}
 		};
 		
-		dataView.setItemsPerPage(10);
+		dataView.setItemsPerPage(ITEMS_PER_PAGE);
 		
 		add(new SortTableButton<TransformerInstance>("sortByLabel", "label", data, dataView));
 		add(new SortTableButton<TransformerInstance>("sortByWorkDirPath", "workDirPath", data, dataView));
