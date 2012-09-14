@@ -33,7 +33,6 @@ a[wicket\:id="myAccount"], a[wicket\:id="login"],a[wicket\:id="logout"], a[wicke
 a[wicket\:id="openHelpWindow"] {margin-top: 8px; margin-bottom: 8px; float:right;}
 
 #header {padding: 28px; font-size: 32px;}
-#container {position: absolute; min-height: 100%;}
 
 a[wicket\:id="pageLink"], a[wicket\:id="first"], a[wicket\:id="prev"], a[wicket\:id="next"], a[wicket\:id="last"] {text-decoration: none;}
 
