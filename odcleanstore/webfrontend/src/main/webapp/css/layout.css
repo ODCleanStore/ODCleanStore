@@ -1,8 +1,12 @@
+body
+{
+	margin: 0; 
+	padding: 0;
+}
+
 #container
 {
-	left: 50%;
-	margin-left: -640px;
-	width: 1280px;
+	width: 960px;
 }
 
 #content #top
@@ -87,7 +91,7 @@ label
 
 textarea
 {
-	width:  976px;
+	width:  650px;
 	height: 100px;
 }
 

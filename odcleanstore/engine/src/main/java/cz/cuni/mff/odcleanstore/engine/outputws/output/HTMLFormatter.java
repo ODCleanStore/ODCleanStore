@@ -534,7 +534,7 @@ public class HTMLFormatter extends ResultFormatterBase {
             // QA results
             if (qaResult != null) {
                 writer.write("\n <br />Total Quality Assessment score: ");
-                writer.write(String.format("%.5f", qaResult.getScore()));
+                writer.write(String.format(Locale.ROOT, "%.5f", qaResult.getScore()));
                 writer.write("\n <br />Quality Assessment rule violations:\n");
                 writeQARules(writer, qaResult.getTrace());
             }
@@ -591,7 +591,7 @@ public class HTMLFormatter extends ResultFormatterBase {
                 writer.write("<td>");
                 writer.write(rule.getDescription());
                 writer.write("</td><td>");
-                writer.write(String.format("%.5f", rule.getCoefficient()));
+                writer.write(String.format(Locale.ROOT, "%.5f", rule.getCoefficient()));
                 writer.write("</td></tr>\n");
             }
             writer.write(" </table>\n");
