@@ -419,7 +419,7 @@ public class ConfigBuilder {
 			DocumentBuilder builder, ObjectIdentificationConfig config, File transformerDirectory) 
 					throws SAXException, IOException, DOMException, InvalidLinkageRuleException {
 		Element ruleElement = doc.createElement(CONFIG_XML_INTERLINK);
-		ruleElement.setAttribute(CONFIG_XML_ID, rule.getLabel());
+		ruleElement.setAttribute(CONFIG_XML_ID, rule.getId().toString());
 		
 		ruleElement.appendChild(createTextElement(doc, CONFIG_XML_LINK_TYPE, rule.getLinkType()));
 		
