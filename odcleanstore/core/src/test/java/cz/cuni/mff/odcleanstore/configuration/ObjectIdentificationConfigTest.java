@@ -26,6 +26,7 @@ public class ObjectIdentificationConfigTest extends ConfigTestBase {
 
         Mockito.when(properties.getProperty(
                 ObjectIdentificationConfig.GROUP_PREFIX + "links_graph_uri_prefix")).thenReturn("http://www.seznam.cz");
+        Mockito.when(properties.getProperty(ObjectIdentificationConfig.GROUP_PREFIX + "link_within_graph")).thenReturn("false");
         mockSparqlEndpointsConnectionCredentials(properties, EnumDbConnectionType.CLEAN, false);
         mockSparqlEndpointsConnectionCredentials(properties, EnumDbConnectionType.DIRTY_UPDATE, true);
         

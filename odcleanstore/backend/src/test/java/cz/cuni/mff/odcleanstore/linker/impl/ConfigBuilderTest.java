@@ -71,6 +71,7 @@ public class ConfigBuilderTest {
 
 		Properties properties = Mockito.mock(Properties.class);
 		Mockito.when(properties.getProperty(ObjectIdentificationConfig.GROUP_PREFIX + "links_graph_uri_prefix")).thenReturn("http://www.seznam.cz");
+		Mockito.when(properties.getProperty(ObjectIdentificationConfig.GROUP_PREFIX + "link_within_graph")).thenReturn("false");
         Mockito.when(properties.getProperty("clean_sparql_endpoint_url")).thenReturn("http://www.google.cz");
         Mockito.when(properties.getProperty("dirty_update_sparql_endpoint_url")).thenReturn("http://www.yahoo.com");
         Mockito.when(properties.getProperty("dirty_update_sparql_endpoint_username")).thenReturn("Pepa");
@@ -79,7 +80,7 @@ public class ConfigBuilderTest {
 
 	    DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 		File configFile = ConfigBuilder.createLinkConfigFile(rules, prefixes, graph,
-				context, config);
+				context, config, false);
 		Document configDoc = builder.parse(configFile);
 
 		File expectedFile = new File("src/test/resources/expectedLinkConfig.xml");
@@ -93,7 +94,6 @@ public class ConfigBuilderTest {
 			throws javax.xml.transform.TransformerException, ParserConfigurationException, SAXException, IOException {
 
 		SilkRule rule = ConfigBuilder.parseRule(new File("src/test/resources/expectedLinkConfig.xml"));
-		assertEquals(RULE_LABEL, rule.getLabel());
 		assertEquals(RULE_TYPE, rule.getLinkType());
 		assertEquals(RULE_SOURCE_RESTRICTION, rule.getSourceRestriction());
 		assertEquals(RULE_TARGET_RESTRICTION, rule.getTargetRestriction());
