@@ -16,7 +16,7 @@ import org.apache.wicket.model.Model;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.RoleDao;
@@ -101,7 +101,7 @@ class UserPermissionsForm extends Form
 			addRoleCheckBox(role);
 		
 		add(
-			new RedirectButton
+			new RedirectWithParamButton
 			(
 				EditAccountPermissionsPage.class, 
 				userId, 

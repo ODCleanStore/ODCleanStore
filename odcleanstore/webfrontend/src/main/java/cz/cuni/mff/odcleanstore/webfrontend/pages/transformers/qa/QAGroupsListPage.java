@@ -17,7 +17,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
@@ -90,7 +90,7 @@ public class QAGroupsListPage extends FrontendPage
 				);
 				
 				item.add(
-					new RedirectButton(
+					new RedirectWithParamButton(
 						QAGroupDetailPage.class,
 						group.getId(), 
 						"manageRules"
@@ -98,7 +98,7 @@ public class QAGroupsListPage extends FrontendPage
 				);
 				
 				item.add(
-					new RedirectButton(
+					new RedirectWithParamButton(
 						EditQAGroupPage.class,
 						group.getId(),
 						"showEditQAGroupPage"
@@ -109,7 +109,7 @@ public class QAGroupsListPage extends FrontendPage
 			}
 		};
 
-		dataView.setItemsPerPage(10);
+		dataView.setItemsPerPage(ITEMS_PER_PAGE);
 		
 		add(dataView);
 		

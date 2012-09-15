@@ -5,12 +5,12 @@
 
 <wicket:link>
 <div>
-	<a class="placedright" href="PipelinesListPage.html">Back to the list of pipelines</a>
+	<a class="placedright button" href="PipelinesListPage.html">Back to the list of pipelines</a>
 	<div class="clear">&nbsp;</div>
 </div>
 </wicket:link>
 
-<a wicket:id="openPipelineHelpWindow">Help</a>
+<a wicket:id="openPipelineHelpWindow"class="help">Help</a>
 
 <div class="datalistitem">
 	<strong class="block">Label:</strong>
@@ -30,19 +30,18 @@
 <h2>Assigned transformers</h2>
 
 <div>
-	<a class="placedright" href="#" wicket:id="newAssignmentLink">Assign a transformer</a>
+	<a class="placedright button" href="#" wicket:id="newAssignmentLink">Assign a transformer</a>
 	<div class="clear">&nbsp;</div>
 </div>
 
 
 <span wicket:id="navigator">[dataview navigator]</span>
-<a wicket:id="openTransformerInstanceHelpWindow">Help</a>
+<a wicket:id="openTransformerInstanceHelpWindow"class="help">Help</a>
 
 <table border="1">
 	
 	<tr>
 		<th wicket:id="sortByLabel">Label</th>
-		<th wicket:id="sortByWorkDirPath">Working directory</th>
 		<th>Configuration</th>
 		<th wicket:id="sortByRunOnCleanDB">Allow to be run on clean DB</th>
 		<th wicket:id="sortByPriority">Priority</th>
@@ -52,7 +51,6 @@
 	<tr  wicket:id="assignmentTable">
 	
 		<td wicket:id="label">[label]</td>
-		<td wicket:id="workDirPath">[working directory]</td>
 		<td wicket:id="configuration">[configuration]</td>
 		<td wicket:id="runOnCleanDB">[run on clean db]</td>
 		<td wicket:id="priority">[priority]</td>

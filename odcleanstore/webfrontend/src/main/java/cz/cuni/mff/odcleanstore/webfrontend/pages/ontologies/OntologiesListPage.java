@@ -12,7 +12,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.Ontology;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
@@ -77,7 +77,7 @@ public class OntologiesListPage extends FrontendPage
 				);
 				
 				item.add(
-					new RedirectButton(
+					new RedirectWithParamButton(
 						OntologyDetailPage.class,
 						ontology.getId(), 
 						"ontologyDetail"
@@ -85,7 +85,7 @@ public class OntologiesListPage extends FrontendPage
 				);
 				
 				item.add(
-					new RedirectButton(
+					new RedirectWithParamButton(
 						EditOntologyPage.class,
 						ontology.getId(),
 						"showEditOntologyPage"
@@ -94,7 +94,7 @@ public class OntologiesListPage extends FrontendPage
 			}
 		};
 
-		dataView.setItemsPerPage(10);
+		dataView.setItemsPerPage(ITEMS_PER_PAGE);
 		
 		add(new SortTableButton<Ontology>("sortByLabel", "label", data, dataView));
 		add(new SortTableButton<Ontology>("sortByGraphName", "graphName", data, dataView));

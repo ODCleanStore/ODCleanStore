@@ -10,7 +10,7 @@ import org.apache.wicket.validation.validator.RangeValidator;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIFileFormat;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutput;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutputType;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIFileFormatDao;
@@ -45,7 +45,7 @@ public class NewFileOutputPage extends FrontendPage
 		addHelpWindow(new FileOutputHelpPanel("content"));
 		
 		add(
-			new RedirectButton(
+			new RedirectWithParamButton(
 				OIRuleDetailPage.class,
 				ruleId, 
 				"showOIRuleDetail"

@@ -5,7 +5,7 @@ import org.apache.wicket.authroles.authorization.strategies.role.annotations.Aut
 import org.apache.wicket.markup.html.basic.Label;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DetachableModel;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
@@ -48,7 +48,7 @@ public class QARuleDetailPage extends FrontendPage
 		add(new Label("description"));
 		
 		add(
-			new RedirectButton(
+			new RedirectWithParamButton(
 				QAGroupDetailPage.class, 
 				rule.getGroupId(),
 				"showQAGroupDetailPage"

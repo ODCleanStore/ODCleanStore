@@ -4,17 +4,21 @@
 
 <wicket:link>
 <div>
-	<a class="placedright" href="TransformersListPage.html">Back to the list of registered transformers</a>
+	<a class="placedright button" href="TransformersListPage.html">Back to the list of registered transformers</a>
 	<div class="clear">&nbsp;</div>
 </div>
 </wicket:link>
 
-<a wicket:id="openHelpWindow">Help</a>
+<a wicket:id="openHelpWindow"class="help">Help</a>
 
 <form wicket:id="editTransformerForm">
 	<p>
 		<label for="label">Label:</label>
 		<input wicket:id="label" id="label" type="text" class="required" />
+	</p>
+	<p>
+		<label for="workDirPath">Working directory:</label>
+		<input wicket:id="workDirPath" id="workDirPath" type="text" class="required"/>
 	</p>
 	<p>
 		<label for="description">Description:</label>

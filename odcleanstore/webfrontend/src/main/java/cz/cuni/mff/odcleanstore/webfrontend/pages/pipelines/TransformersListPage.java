@@ -10,10 +10,11 @@ import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
@@ -66,6 +67,7 @@ public class TransformersListPage extends FrontendPage
 				item.add(new Label("label"));
 				item.add(new TruncatedLabel("description", MAX_LIST_COLUMN_TEXT_LENGTH));
 				item.add(new TruncatedLabel("jarPath", MAX_LIST_COLUMN_TEXT_LENGTH));
+				item.add(new TruncatedLabel("workDirPath", MAX_LIST_COLUMN_TEXT_LENGTH));
 				item.add(new TruncatedLabel("fullClassName", MAX_LIST_COLUMN_TEXT_LENGTH));
 				
 				item.add(
@@ -80,7 +82,7 @@ public class TransformersListPage extends FrontendPage
 				);
 				
 				item.add(
-					new RedirectButton(
+					new RedirectWithParamButton(
 						TransformerDetailPage.class, 
 						transformer.getId(), 
 						"showTransformerDetailPage"
@@ -88,7 +90,7 @@ public class TransformersListPage extends FrontendPage
 				);
 				
 				item.add(
-					new RedirectButton(
+					new RedirectWithParamButton(
 						EditTransformerPage.class, 
 						transformer.getId(), 
 						"showEditTransformerPage"
@@ -97,10 +99,11 @@ public class TransformersListPage extends FrontendPage
 			}
 		};
 
-		dataView.setItemsPerPage(10);
+		dataView.setItemsPerPage(ITEMS_PER_PAGE);
 		
 		add(new SortTableButton<Transformer>("sortByLabel", "label", data, dataView));
 		add(new SortTableButton<Transformer>("sortByJARPath", "jarPath", data, dataView));
+		add(new SortTableButton<Transformer>("sortByWorkDirPath", "workDirPath", data, dataView));
 		add(new SortTableButton<Transformer>("sortByFullClassName", "fullClassName", data, dataView));
 		
 		add(dataView);

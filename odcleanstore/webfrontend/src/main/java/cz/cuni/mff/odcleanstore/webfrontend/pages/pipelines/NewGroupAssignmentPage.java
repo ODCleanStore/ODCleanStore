@@ -7,7 +7,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.RulesGroupEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.RuleAssignment;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
@@ -47,7 +47,7 @@ public class NewGroupAssignmentPage extends FrontendPage
 	private void addGoBackButton(final Long transformerInstanceId)
 	{
 		add(
-			new RedirectButton(
+			new RedirectWithParamButton(
 				TransformerInstanceDetailPage.class, 
 				transformerInstanceId, 
 				"showTransformerInstanceDetailPage"

@@ -114,7 +114,10 @@ public class QueryExecution {
             throw new IllegalArgumentException();
         }
 
-        String expandedURI = Utils.isPrefixedName(uri) ? prefixMappingCache.getCachedValue().expandPrefix(uri) : uri;
+        String trimmedURI = uri.trim();
+        String expandedURI = Utils.isPrefixedName(trimmedURI)
+                ? prefixMappingCache.getCachedValue().expandPrefix(trimmedURI)
+                : trimmedURI;
         AggregationSpec expandedAggregationSpec = QueryExecutionHelper.expandPropertyNames(
                 aggregationSpec, prefixMappingCache.getCachedValue());
         UriQueryExecutor queryExecutor = new UriQueryExecutor(
@@ -147,9 +150,10 @@ public class QueryExecution {
             throw new IllegalArgumentException();
         }
 
-        String expandedURI = Utils.isPrefixedName(namedGraphURI)
-                ? prefixMappingCache.getCachedValue().expandPrefix(namedGraphURI)
-                : namedGraphURI;
+        String trimmedURI = namedGraphURI.trim();
+        String expandedURI = Utils.isPrefixedName(trimmedURI)
+                ? prefixMappingCache.getCachedValue().expandPrefix(trimmedURI)
+                : trimmedURI;
         AggregationSpec expandedAggregationSpec = QueryExecutionHelper.expandPropertyNames(
                 aggregationSpec, prefixMappingCache.getCachedValue());
         NamedGraphQueryExecutor queryExecutor = new NamedGraphQueryExecutor(
@@ -179,9 +183,10 @@ public class QueryExecution {
                     "Named graph URI must not be empty");
         }
 
-        String expandedNamedGraphURI = Utils.isPrefixedName(namedGraphURI)
-                ? prefixMappingCache.getCachedValue().expandPrefix(namedGraphURI)
-                : namedGraphURI;
+        String trimmedURI = namedGraphURI.trim();
+        String expandedNamedGraphURI = Utils.isPrefixedName(trimmedURI)
+                ? prefixMappingCache.getCachedValue().expandPrefix(trimmedURI)
+                : trimmedURI;
         MetadataQueryExecutor queryExecutor = new MetadataQueryExecutor(
                 connectionCredentials,
                 createConflictResolverFactory(),

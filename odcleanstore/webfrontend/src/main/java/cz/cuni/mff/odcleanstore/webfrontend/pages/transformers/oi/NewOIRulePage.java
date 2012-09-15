@@ -8,7 +8,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.validation.validator.RangeValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
@@ -38,7 +38,7 @@ public class NewOIRulePage extends FrontendPage
 		addHelpWindow(new OIRuleHelpPanel("content"));
 		
 		add(
-			new RedirectButton(
+			new RedirectWithParamButton(
 				OIGroupDetailPage.class,
 				groupId, 
 				"manageGroupRules"

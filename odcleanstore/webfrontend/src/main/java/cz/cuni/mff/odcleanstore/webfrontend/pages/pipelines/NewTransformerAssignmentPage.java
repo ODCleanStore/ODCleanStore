@@ -9,7 +9,7 @@ import org.apache.wicket.validation.validator.RangeValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
@@ -51,7 +51,7 @@ public class NewTransformerAssignmentPage extends FrontendPage
 		addHelpWindow(new TransformerInstanceHelpPanel("content"));
 		
 		add(
-			new RedirectButton(
+			new RedirectWithParamButton(
 				PipelineDetailPage.class,
 				pipelineId, 
 				"managePipelineTransformers"
@@ -105,7 +105,6 @@ public class NewTransformerAssignmentPage extends FrontendPage
 		};
 
 		form.add(createEnumSelectbox(transformerDao, "transformer"));
-		form.add(createTextfield("workDirPath"));
 		form.add(createTextarea("configuration", false));
 		form.add(createCheckbox("runOnCleanDB"));
 		addPriorityTextfield(form);
