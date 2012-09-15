@@ -14,7 +14,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
@@ -66,7 +66,7 @@ public class PipelineDetailPage extends FrontendPage
 	private void addAssignmentSection(final Long pipelineId) 
 	{
 		add(
-			new RedirectButton(
+			new RedirectWithParamButton(
 				NewTransformerAssignmentPage.class, 
 				pipelineId, 
 				"newAssignmentLink"
@@ -114,7 +114,7 @@ public class PipelineDetailPage extends FrontendPage
 				);
 				
 				item.add(
-					new RedirectButton
+					new RedirectWithParamButton
 					(
 						TransformerInstanceDetailPage.class,
 						transformerInstance.getId(),
@@ -123,7 +123,7 @@ public class PipelineDetailPage extends FrontendPage
 				);
 				
 				item.add(
-					new RedirectButton
+					new RedirectWithParamButton
 					(
 						EditTransformerAssignmentPage.class,
 						transformerInstance.getId(),

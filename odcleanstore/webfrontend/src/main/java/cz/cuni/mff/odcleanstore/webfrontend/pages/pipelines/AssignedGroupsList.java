@@ -6,6 +6,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.RuleAssignment;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.HelpWindow;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
@@ -41,7 +42,8 @@ public class AssignedGroupsList extends Panel
 		final Long transformerInstanceId,
 		final DaoForEntityWithSurrogateKey<RulesGroupEntity> groupsDao,
 		final DaoForEntityWithSurrogateKey<RuleAssignment> assignedGroupsDao,
-		final Class<? extends FrontendPage> groupDetailPageClass)
+		final Class<? extends FrontendPage> groupDetailPageClass,
+		final Class<? extends FrontendPage> newGroupPageClass)
 	{
 		super(id);
 		
@@ -50,6 +52,7 @@ public class AssignedGroupsList extends Panel
 		
 		addHelpWindow();
 		addNewAssignmentLink(transformerInstanceId);
+		addNewGroupLink(newGroupPageClass);
 		addAssignmentTable(transformerInstanceId, groupDetailPageClass);
 	}
 	
@@ -91,6 +94,11 @@ public class AssignedGroupsList extends Panel
 		);
 	}
 	
+	private void addNewGroupLink(final Class<? extends FrontendPage> newGroupPageClass)
+	{
+		add(new RedirectButton(newGroupPageClass, "showNewGroupPage"));
+	}
+	
 	private void addAssignmentTable(
 		final Long transformerInstanceId, 
 		final Class<? extends FrontendPage> groupDetailPageClass) 
@@ -125,7 +133,7 @@ public class AssignedGroupsList extends Panel
 				);
 				
 				item.add(
-					new RedirectButton
+					new RedirectWithParamButton
 					(
 						groupDetailPageClass,
 						ruleAssignment.getGroupId(),

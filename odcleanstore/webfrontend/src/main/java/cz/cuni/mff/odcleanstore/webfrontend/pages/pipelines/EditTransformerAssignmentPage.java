@@ -10,7 +10,7 @@ import org.apache.wicket.validation.validator.RangeValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
@@ -54,7 +54,7 @@ public class EditTransformerAssignmentPage extends FrontendPage
 		TransformerInstance transformerInstance = transformerInstanceDao.load(transformerInstanceId);
 		
 		add(
-			new RedirectButton(
+			new RedirectWithParamButton(
 				PipelineDetailPage.class,
 				transformerInstance.getPipelineId(), 
 				"managePipelineTransformers"

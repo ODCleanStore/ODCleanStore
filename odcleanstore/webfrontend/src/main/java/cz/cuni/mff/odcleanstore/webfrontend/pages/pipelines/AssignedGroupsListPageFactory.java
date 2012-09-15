@@ -9,9 +9,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.en.OIRuleAssignmentDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.QARuleAssignmentDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.NewOIGroupPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.OIGroupDetailPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.NewQAGroupPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.QAGroupDetailPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.DNGroupDetailPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.NewDNGroupPage;
 
 @AuthorizeInstantiation({ "POC" })
 public class AssignedGroupsListPageFactory 
@@ -25,7 +28,8 @@ public class AssignedGroupsListPageFactory
 			transformerInstanceId, 
 			daoLookupFactory.getDaoForEntityWithSurrogateKey(QARulesGroupDao.class), 
 			daoLookupFactory.getDaoForEntityWithSurrogateKey(QARuleAssignmentDao.class), 
-			QAGroupDetailPage.class
+			QAGroupDetailPage.class,
+			NewQAGroupPage.class
 		);
 	}
 	
@@ -38,7 +42,8 @@ public class AssignedGroupsListPageFactory
 			transformerInstanceId, 
 			daoLookupFactory.getDaoForEntityWithSurrogateKey(OIRulesGroupDao.class), 
 			daoLookupFactory.getDaoForEntityWithSurrogateKey(OIRuleAssignmentDao.class), 
-			OIGroupDetailPage.class
+			OIGroupDetailPage.class,
+			NewOIGroupPage.class
 		);
 	}
 	
@@ -51,7 +56,8 @@ public class AssignedGroupsListPageFactory
 			transformerInstanceId, 
 			daoLookupFactory.getDaoForEntityWithSurrogateKey(DNRulesGroupDao.class), 
 			daoLookupFactory.getDaoForEntityWithSurrogateKey(DNRuleAssignmentDao.class), 
-			DNGroupDetailPage.class
+			DNGroupDetailPage.class,
+			NewDNGroupPage.class
 		);
 	}
 }

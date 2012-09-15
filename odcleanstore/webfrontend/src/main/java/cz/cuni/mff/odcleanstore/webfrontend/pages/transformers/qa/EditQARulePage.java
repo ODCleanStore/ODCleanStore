@@ -8,7 +8,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.validation.validator.RangeValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
@@ -40,7 +40,7 @@ public class EditQARulePage extends FrontendPage
 		QARule rule = qaRuleDao.load(ruleId);
 		
 		add(
-			new RedirectButton(
+			new RedirectWithParamButton(
 				QAGroupDetailPage.class,
 				rule.getGroupId(), 
 				"manageGroupRules"

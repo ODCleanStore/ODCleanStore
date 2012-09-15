@@ -6,17 +6,20 @@ import org.apache.wicket.markup.html.link.Link;
 
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-public class RedirectButton extends Link
+public class RedirectWithParamButton extends Link
 {
 	private static final long serialVersionUID = 1L;
 	
 	private Class<? extends FrontendPage> redirectPage;
+	private Long param;
 	
-	public RedirectButton(final Class<? extends FrontendPage> redirectPage,final String compName) 
+	public RedirectWithParamButton(final Class<? extends FrontendPage> redirectPage, 
+		final Long param, final String compName) 
 	{
 		super(compName);
 
 		this.redirectPage = redirectPage;
+		this.param = param;
 	}
 
 	@Override
@@ -29,9 +32,10 @@ public class RedirectButton extends Link
 			// using reflection here (instead of passing the page instance as an costructor
 			// argument) is necessary in order to postpone creating the page instance
 			// to when onClick is called
-			Constructor<? extends FrontendPage> constructor = redirectPage.getConstructor();
+			Constructor<? extends FrontendPage> constructor = 
+				redirectPage.getConstructor(new Class[]{Long.class});
 			
-			page = (FrontendPage) constructor.newInstance();
+			page = (FrontendPage) constructor.newInstance(param);
 		} 
 		catch (Exception ex) 
 		{

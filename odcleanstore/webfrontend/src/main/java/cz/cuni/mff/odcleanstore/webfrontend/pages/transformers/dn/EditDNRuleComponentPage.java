@@ -6,7 +6,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.validators.IRIValidator;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.*;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponent;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponentType;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.*;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleComponentDao;
@@ -50,7 +50,7 @@ public class EditDNRuleComponentPage extends FrontendPage
 		DNRuleComponent component = dnRuleComponentDao.load(ruleComponentId);
 		
 		add(
-			new RedirectButton(
+			new RedirectWithParamButton(
 				DNRuleDetailPage.class,
 				component.getRuleId(), 
 				"showDNRuleDetailPage"

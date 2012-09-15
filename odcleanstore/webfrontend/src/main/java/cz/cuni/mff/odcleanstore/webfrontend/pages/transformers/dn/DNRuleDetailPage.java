@@ -13,7 +13,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponent;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
@@ -62,7 +62,7 @@ public class DNRuleDetailPage extends FrontendPage
 		add(new Label("description"));
 		
 		add(
-			new RedirectButton(
+			new RedirectWithParamButton(
 				DNGroupDetailPage.class, 
 				rule.getGroupId(),
 				"showDNGroupDetailPage"
@@ -73,7 +73,7 @@ public class DNRuleDetailPage extends FrontendPage
 	private void addRuleComponentsSection(Long ruleId) 
 	{
 		add(
-			new RedirectButton(
+			new RedirectWithParamButton(
 				NewDNRuleComponentPage.class,
 				ruleId, 
 				"addNewComponentLink"
@@ -118,7 +118,7 @@ public class DNRuleDetailPage extends FrontendPage
 				);
 
 				item.add(
-					new RedirectButton
+					new RedirectWithParamButton
 					(
 						DNRuleComponentDetailPage.class, 
 						component.getId(), 
@@ -127,7 +127,7 @@ public class DNRuleDetailPage extends FrontendPage
 				);
 				
 				item.add(
-					new RedirectButton
+					new RedirectWithParamButton
 					(
 						EditDNRuleComponentPage.class,
 						component.getId(),

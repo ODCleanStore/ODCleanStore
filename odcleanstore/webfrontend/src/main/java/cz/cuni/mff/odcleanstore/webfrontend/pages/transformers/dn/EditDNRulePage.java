@@ -9,7 +9,7 @@ import org.apache.wicket.validation.validator.RangeValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleDao;
@@ -42,7 +42,7 @@ public class EditDNRulePage extends FrontendPage
 		DNRule rule = dnRuleDao.load(ruleId);
 		
 		add(
-			new RedirectButton(
+			new RedirectWithParamButton(
 				DNGroupDetailPage.class,
 				rule.getGroupId(), 
 				"manageGroupRules"

@@ -15,7 +15,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
@@ -68,7 +68,7 @@ public class QAGroupDetailPage extends FrontendPage
 	private void addQARulesSection(final Long groupId) 
 	{
 		add(
-			new RedirectButton(
+			new RedirectWithParamButton(
 				NewQARulePage.class,
 				groupId, 
 				"addNewRuleLink"
@@ -115,7 +115,7 @@ public class QAGroupDetailPage extends FrontendPage
 				);
 				
 				item.add(
-					new RedirectButton
+					new RedirectWithParamButton
 					(
 						QARuleDetailPage.class, 
 						rule.getId(), 
@@ -124,7 +124,7 @@ public class QAGroupDetailPage extends FrontendPage
 				);
 				
 				item.add(
-					new RedirectButton
+					new RedirectWithParamButton
 					(
 						EditQARulePage.class,
 						rule.getId(),
