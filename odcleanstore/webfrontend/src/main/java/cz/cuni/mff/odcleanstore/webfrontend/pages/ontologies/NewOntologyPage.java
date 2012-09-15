@@ -66,7 +66,7 @@ public class NewOntologyPage extends FrontendPage
 					// TODO: log the error
 					
 					getSession().error(
-						"The group could not be registered due to an unexpected error."
+						"The ontology could not be created due to an unexpected error."
 					);
 					
 					return;
