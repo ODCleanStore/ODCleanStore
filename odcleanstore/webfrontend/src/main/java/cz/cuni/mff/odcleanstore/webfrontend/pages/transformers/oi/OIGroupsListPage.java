@@ -107,7 +107,7 @@ public class OIGroupsListPage extends FrontendPage
 			}
 		};
 
-		dataView.setItemsPerPage(10);
+		dataView.setItemsPerPage(ITEMS_PER_PAGE);
 		
 		add(new SortTableButton<OIRulesGroup>("orderByLabel", "label", data, dataView));
 		

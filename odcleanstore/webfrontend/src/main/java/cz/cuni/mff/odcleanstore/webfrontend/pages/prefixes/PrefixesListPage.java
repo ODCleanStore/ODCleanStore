@@ -67,7 +67,7 @@ public class PrefixesListPage extends FrontendPage
 			}
 		};
 		
-		dataView.setItemsPerPage(10);
+		dataView.setItemsPerPage(ITEMS_PER_PAGE);
 
 		add(new SortTableButton<Prefix>("sortByPrefix", "NS_PREFIX", data, dataView));
 		add(new SortTableButton<Prefix>("sortByURL", "NS_URL", data, dataView));

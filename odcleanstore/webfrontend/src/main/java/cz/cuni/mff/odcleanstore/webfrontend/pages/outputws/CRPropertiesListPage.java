@@ -147,7 +147,7 @@ public class CRPropertiesListPage extends FrontendPage
 			}
 		};
 		
-		dataView.setItemsPerPage(10);
+		dataView.setItemsPerPage(ITEMS_PER_PAGE);
 		
 		add(new SortTableButton<PropertySettings>("sortByProperty", "property", data, dataView));
 		add(new SortTableButton<PropertySettings>("sortByMultivalueTypeId", "mtid", data, dataView));

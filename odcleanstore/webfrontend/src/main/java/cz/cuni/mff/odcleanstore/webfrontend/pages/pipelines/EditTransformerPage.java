@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -16,6 +17,8 @@ public class EditTransformerPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
+	private static Logger logger = Logger.getLogger(EditTransformerPage.class);
+	
 	private DaoForEntityWithSurrogateKey<Transformer> transformerDao;
 	
 	public EditTransformerPage(final Long id) 
@@ -34,10 +37,10 @@ public class EditTransformerPage extends FrontendPage
 		// register page components
 		//
 		addHelpWindow(new TransformerHelpPanel("content"));
-		addNewTransformerForm(id);
+		addEditTransformerForm(id);
 	}
 	
-	private void addNewTransformerForm(final Long id)
+	private void addEditTransformerForm(final Long id)
 	{
 		Transformer transformer = transformerDao.load(id);
 		IModel<Transformer> formModel = new CompoundPropertyModel<Transformer>(transformer);
@@ -61,7 +64,7 @@ public class EditTransformerPage extends FrontendPage
 				}
 				catch (Exception ex)
 				{
-					// TODO: log the error
+					logger.error(ex.getMessage());
 					
 					getSession().error(
 						"The transformer could not be updated due to an unexpected error."
@@ -76,6 +79,7 @@ public class EditTransformerPage extends FrontendPage
 		};
 		
 		form.add(createTextfield("label"));
+		form.add(createTextfield("workDirPath"));
 		form.add(createTextarea("description", false));
 		form.add(createTextfield("jarPath"));
 		

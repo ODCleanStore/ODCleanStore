@@ -9,20 +9,18 @@ public class TransformerInstance extends EntityWithSurrogateKey
 	private Long transformerId;
 	private Long pipelineId;
 	private String label;
-	private String workDirPath;
 	private String configuration;
 	private Boolean runOnCleanDB;
 	private Integer priority;
 	
 	public TransformerInstance(Long id, Long transformerId, Long pipelineId, String label,
-		String workDirPath, String configuration, Boolean runOnCleanDB, Integer priority) 
+		String configuration, Boolean runOnCleanDB, Integer priority) 
 	{
 		super(id);
 		
 		this.transformerId = transformerId;
 		this.pipelineId = pipelineId;
 		this.label = label;
-		this.workDirPath = workDirPath;
 		this.configuration = configuration;
 		this.runOnCleanDB = runOnCleanDB;
 		this.priority = priority;
@@ -33,17 +31,15 @@ public class TransformerInstance extends EntityWithSurrogateKey
 	 * @param transformerId
 	 * @param pipelineId
 	 * @param label
-	 * @param workDirPath
 	 * @param configuration
 	 * @param priority
 	 */
 	public TransformerInstance(Long transformerId, Long pipelineId, String label, 
-		String workDirPath, String configuration, Boolean runOnCleanDB, Integer priority) 
+		String configuration, Boolean runOnCleanDB, Integer priority) 
 	{
 		this.transformerId = transformerId;
 		this.pipelineId = pipelineId;
 		this.label = label;
-		this.workDirPath = workDirPath;
 		this.configuration = configuration;
 		this.runOnCleanDB = runOnCleanDB;
 		this.priority = priority;
@@ -54,17 +50,15 @@ public class TransformerInstance extends EntityWithSurrogateKey
 	 * 
 	 * @param transformerId
 	 * @param pipelineId
-	 * @param workDirPath
 	 * @param configuration
 	 * @param priority
 	 */
-	public TransformerInstance(Long transformerId, Long pipelineId, String workDirPath, 
+	public TransformerInstance(Long transformerId, Long pipelineId,  
 		String configuration, Boolean runOnCleanDB, Integer priority) 
 	{
 		this.transformerId = transformerId;
 		this.pipelineId = pipelineId;
 		this.label = label;
-		this.workDirPath = workDirPath;
 		this.configuration = configuration;
 		this.runOnCleanDB = runOnCleanDB;
 		this.priority = priority;
@@ -120,15 +114,6 @@ public class TransformerInstance extends EntityWithSurrogateKey
 	public String getLabel()
 	{
 		return label;
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public String getWorkDirPath() 
-	{
-		return workDirPath;
 	}
 
 	/**

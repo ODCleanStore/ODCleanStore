@@ -33,6 +33,7 @@ span[wicket\:id="navigator"] a:hover {color: white;}
 .help {float: right;}
 
 #header {padding: 28px; font-size: 32px;}
+
 #container {margin: 0 auto; min-height: 100%;}
 
 a[wicket\:id="pageLink"], a[wicket\:id="first"], a[wicket\:id="prev"], a[wicket\:id="next"], a[wicket\:id="last"] {text-decoration: none;}

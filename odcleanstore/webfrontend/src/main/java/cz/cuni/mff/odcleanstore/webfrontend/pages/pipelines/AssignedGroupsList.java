@@ -103,15 +103,6 @@ public class AssignedGroupsList extends Panel
 			transformerInstanceId
 		);
 		
-		/*
-		IDataProvider<RuleAssignment> data = new DependentDataProvider<RuleAssignment>
-		(
-			assignedGroupsDao, 
-			"transformerInstanceId", 
-			transformerInstanceId
-		); 
-		*/
-		
 		DataView<RuleAssignment> dataView = new DataView<RuleAssignment>("assignmentTable", data)
 		{
 			private static final long serialVersionUID = 1L;
@@ -144,7 +135,7 @@ public class AssignedGroupsList extends Panel
 			}
 		};
 		
-		dataView.setItemsPerPage(10);
+		dataView.setItemsPerPage(FrontendPage.ITEMS_PER_PAGE);
 		
 		add(new SortTableButton<RuleAssignment>("sortByLabel", "label", data, dataView));
 		

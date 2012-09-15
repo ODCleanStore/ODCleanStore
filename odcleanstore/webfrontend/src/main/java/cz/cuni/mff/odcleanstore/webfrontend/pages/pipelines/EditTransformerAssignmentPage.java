@@ -100,7 +100,6 @@ public class EditTransformerAssignmentPage extends FrontendPage
 			}
 		};
 
-		form.add(createTextfield("workDirPath"));
 		form.add(createTextarea("configuration", false));
 		form.add(createCheckbox("runOnCleanDB"));
 		addPriorityTextfield(form);
