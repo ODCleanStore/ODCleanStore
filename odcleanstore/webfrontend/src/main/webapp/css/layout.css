@@ -1,8 +1,6 @@
 #container
 {
-	left: 50%;
-	margin-left: -640px;
-	width: 1280px;
+	width: 960px;
 }
 
 #content #top
@@ -87,8 +85,8 @@ label
 
 textarea
 {
-	width:  976px;
-	height: 100px;
+	width: 100%;
+	height: 4em;
 }
 
 .required
