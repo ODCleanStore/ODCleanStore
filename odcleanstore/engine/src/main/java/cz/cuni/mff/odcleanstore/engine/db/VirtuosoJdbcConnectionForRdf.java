@@ -1,5 +1,10 @@
 package cz.cuni.mff.odcleanstore.engine.db;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -9,10 +14,14 @@ import java.util.Locale;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 
 import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
+
+import virtuoso.jena.driver.VirtModel;
 
 
 /**
@@ -105,12 +114,42 @@ public final class VirtuosoJdbcConnectionForRdf {
 	 * @throws QueryException query error
 	 */
 	public void insertRdfXmlOrTtl(String relativeBase, String payload, String graphName) throws QueryException {
+	    OutputStreamWriter out = null;
+	    File tempFile = new File(
+                ConfigLoader.getConfig().getInputWSGroup().getInputDirPath(), 
+                Utils.extractUUID(graphName) + ".rdf");
+        try {
+            
+            out = new OutputStreamWriter(new FileOutputStream(tempFile), Charset.forName("UTF-8"));
+            out.write(payload);
+            out.close();
+        } catch (IOException e) {
+            throw new QueryException(e);
+        } finally {
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                }
+            }
+        }
+	    
+        String query = null;
+        String escapedFilename = tempFile.getAbsolutePath().replace("\\", "\\\\");
 		if (payload.startsWith("<?xml")){
-			insertRdfXml(relativeBase, payload, graphName);
+			//insertRdfXml(relativeBase, payload, graphName);
+		    query = relativeBase != null ?
+	                "{call DB.DBA.RDF_LOAD_RDFXML(file_to_string_output('" + escapedFilename + "'), '" + relativeBase + "', '" + graphName + "')}" :
+	                "{call DB.DBA.RDF_LOAD_RDFXML(file_to_string_output('" + escapedFilename + "'), '' , '" + graphName + "')}";
 		}
 		else {
-			insertTtl(relativeBase, payload, graphName);
+			//insertTtl(relativeBase, payload, graphName);
+		    query = relativeBase != null ?
+	                "{call DB.DBA.TTLP(file_to_string_output('" + escapedFilename + "'), '" + relativeBase + "', '" + graphName + "', 0)}" :
+	                "{call DB.DBA.TTLP(file_to_string_output('" + escapedFilename + "'), '' , '"   + graphName + "', 0)}";
 		}
+		executeCall(query);
+		tempFile.delete();
 	}
 
 	/**

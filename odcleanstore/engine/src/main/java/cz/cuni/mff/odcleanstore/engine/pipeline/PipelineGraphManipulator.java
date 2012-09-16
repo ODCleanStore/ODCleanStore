@@ -2,10 +2,15 @@ package cz.cuni.mff.odcleanstore.engine.pipeline;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.HashSet;
 
+import scala.collection.immutable.Stream.StreamWithFilter;
 import virtuoso.jena.driver.VirtModel;
 
 import com.hp.hpl.jena.rdf.model.Model;
@@ -13,9 +18,11 @@ import com.hp.hpl.jena.rdf.model.Model;
 import cz.cuni.mff.odcleanstore.configuration.EngineConfig;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
 import cz.cuni.mff.odcleanstore.engine.db.VirtuosoJdbcConnectionForRdf;
 import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.Metadata;
+import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 
 /**
@@ -90,20 +97,25 @@ final class PipelineGraphManipulator {
 			JDBCConnectionCredentials creditClean = ConfigLoader.getConfig().getEngineGroup().getCleanDBJDBCConnectionCredentials();
 			
 			for (String graphName : graphs) {
-				Model srcModel = null;
-				Model dstModel = null;
+				OutputStreamWriter out = null;
+				File tempFile = new File(ConfigLoader.getConfig().getInputWSGroup().getInputDirPath(), Utils.extractUUID(graphName) + ".ttl");
+				String destGraph = ODCS.engineTemporaryGraph + "/" + graphName;
 				try {
-					srcModel = VirtModel.openDatabaseModel(graphName, creditDirty.getConnectionString(), creditDirty.getUsername(), creditDirty.getPassword());
-					dstModel = VirtModel.openDatabaseModel(ODCS.engineTemporaryGraph + "/" + graphName, creditClean.getConnectionString(), creditClean.getUsername(), creditClean.getPassword());
-					
-					dstModel.add(srcModel);
+				    VirtuosoConnectionWrapper dirtyConnection = VirtuosoConnectionWrapper.createConnection(ConfigLoader.getConfig().getEngineGroup().getDirtyDBJDBCConnectionCredentials());
+				    String query = "CALL dump_graph_ttl('" + graphName + "', '" + tempFile.getAbsolutePath().replace("\\", "\\\\") + "')";
+				    dirtyConnection.execute(query);
+
+				    VirtuosoConnectionWrapper cleanConnection = VirtuosoConnectionWrapper.createConnection(ConfigLoader.getConfig().getEngineGroup().getCleanDBJDBCConnectionCredentials());
+			        query = "DB.DBA.TTLP (file_to_string_output ('" + tempFile.getAbsolutePath().replace("\\", "\\\\") + "'), '" + destGraph + "', '" + destGraph + "',0)";
+			        cleanConnection.execute(query);
+			        
+			        dirtyConnection.closeQuietly();
+			        cleanConnection.closeQuietly();
 				} finally {
-					if (srcModel != null) {
-						srcModel.close();
-					}
-					if (dstModel != null) {
-						dstModel.close();
-					}
+				    if (out != null) {
+				        out.close();
+				    }
+				    tempFile.delete();
 				}
 			}
 
@@ -236,22 +248,30 @@ final class PipelineGraphManipulator {
 			JDBCConnectionCredentials creditDirty = engineConfig.getDirtyDBJDBCConnectionCredentials();
 			Collection<String> graphs = getAllGraphNames();
 		
-			for (String graphName : graphs) {
-				Model dstModel = null;
-				Model srcModel = null;
-				try {
-					srcModel = VirtModel.openDatabaseModel(graphName, creditClean.getConnectionString(), creditClean.getUsername(), creditClean.getPassword());
-					dstModel = VirtModel.openDatabaseModel(graphName, creditDirty.getConnectionString(), creditDirty.getUsername(), creditDirty.getPassword());
-					dstModel.add(srcModel);
-				} finally {
-					if (srcModel != null) {
-						srcModel.close();
-					}
-					if (dstModel != null) {
-						dstModel.close();
-					}
-				}
-			}
+        for (String graphName : graphs) {
+            OutputStreamWriter out = null;
+            File tempFile = new File(ConfigLoader.getConfig().getInputWSGroup().getInputDirPath(), Utils.extractUUID(graphName) + ".ttl");
+            try {
+
+                VirtuosoConnectionWrapper dirtyConnection = VirtuosoConnectionWrapper.createConnection(
+                        ConfigLoader.getConfig().getEngineGroup().getCleanDBJDBCConnectionCredentials());
+                String query = "CALL dump_graph_ttl('" + graphName + "', '" + tempFile.getAbsolutePath().replace("\\", "\\\\") + "')";
+                dirtyConnection.execute(query);
+
+                VirtuosoConnectionWrapper cleanConnection = VirtuosoConnectionWrapper.createConnection(
+                        ConfigLoader.getConfig().getEngineGroup().getDirtyDBJDBCConnectionCredentials());
+                query = "DB.DBA.TTLP (file_to_string_output ('" + tempFile.getAbsolutePath().replace("\\", "\\\\") + "'), '" + graphName + "', '" + graphName + "',0)";
+                cleanConnection.execute(query);
+
+                dirtyConnection.closeQuietly();
+                cleanConnection.closeQuietly();
+            } finally {
+                if (out != null) {
+                    out.close();
+                }
+                tempFile.delete();
+            }
+        }
 	}
 	
 	private String format(String message) {
