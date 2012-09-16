@@ -1,16 +1,16 @@
 <wicket:extend>
 
-<h2>Registered transformers</h2>
+<div wicket:id="helpWindow"></div>
 
 <wicket:link>
 <div>
-	<a class="placedright" href="NewTransformerPage.html">Add a new transformer</a>
+	<a class="placedright button" href="NewTransformerPage.html">Add a new transformer</a>
 	<div class="clear">&nbsp;</div>
 </div>
 </wicket:link>
 
-
 <span wicket:id="navigator">[dataview navigator]</span>
+<a wicket:id="openHelpWindow"class="help">Help</a>
 
 <table border="1">
 	
@@ -18,6 +18,7 @@
 		<th wicket:id="sortByLabel">Label</th>
 		<th>Description</th>
 		<th wicket:id="sortByJARPath">JAR path</th>
+		<th wicket:id="sortByWorkDirPath">Working directory</th>
 		<th wicket:id="sortByFullClassName">Full classname</th>
 		<th>Action</th>
 	</tr>
@@ -27,6 +28,7 @@
 		<td wicket:id="label">[label]</td>
 		<td wicket:id="description">[description]</td>
 		<td wicket:id="jarPath">[jarPath]</td>
+		<td wicket:id="workDirPath">[working directory]</td>
 		<td wicket:id="fullClassName">[fullClassName]</td>
 		
 		<td class="centered">

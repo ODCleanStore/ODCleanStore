@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
 import org.apache.wicket.markup.repeater.Item;
@@ -14,13 +15,14 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutputType;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputTypeDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
+@AuthorizeInstantiation({ "POC" })
 public class OIRuleDetailPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
@@ -46,7 +48,11 @@ public class OIRuleDetailPage extends FrontendPage
 		oiOutputTypeDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIOutputTypeDao.class);
 		
 		// register page components
-		//		
+		//
+		addHelpWindow("oiRuleHelpWindow", "openOIRuleHelpWindow", new OIRuleHelpPanel("content"));
+		addHelpWindow("dbOutputHelpWindow", "openDBOutputHelpWindow", new DBOutputHelpPanel("content"));
+		addHelpWindow("fileOutputHelpWindow", "openFileOutputHelpWindow", new FileOutputHelpPanel("content"));
+		
 		addRuleInformationSection(ruleId);
 		addDBOutputsSection(ruleId);
 		addFileOutputsSection(ruleId);
@@ -57,7 +63,7 @@ public class OIRuleDetailPage extends FrontendPage
 		IModel<OIRule> model = createModelForOverview(oiRuleDao, ruleId); 
 		
 		add(
-			new RedirectButton
+			new RedirectWithParamButton
 			(
 				OIGroupDetailPage.class, 
 				model.getObject().getGroupId(), 
@@ -79,7 +85,7 @@ public class OIRuleDetailPage extends FrontendPage
 	private void addDBOutputsSection(final Long ruleId) 
 	{
 		add(
-			new RedirectButton(
+			new RedirectWithParamButton(
 				NewDBOutputPage.class,
 				ruleId, 
 				"showNewDBOutputPage"
@@ -122,7 +128,7 @@ public class OIRuleDetailPage extends FrontendPage
 				);	
 				
 				item.add(
-					new RedirectButton(
+					new RedirectWithParamButton(
 						EditDBOutputPage.class, 
 						output.getId(), 
 						"showEditDBOutputPage"
@@ -131,7 +137,7 @@ public class OIRuleDetailPage extends FrontendPage
 			}
 		};
 		
-		dataView.setItemsPerPage(10);
+		dataView.setItemsPerPage(ITEMS_PER_PAGE);
 		
 		add(dataView);
 		
@@ -141,7 +147,7 @@ public class OIRuleDetailPage extends FrontendPage
 	private void addFileOutputsSection(final Long ruleId) 
 	{
 		add(
-			new RedirectButton(
+			new RedirectWithParamButton(
 				NewFileOutputPage.class,
 				ruleId, 
 				"showNewFileOutputPage"
@@ -186,7 +192,7 @@ public class OIRuleDetailPage extends FrontendPage
 				);
 				
 				item.add(
-					new RedirectButton(
+					new RedirectWithParamButton(
 						EditFileOutputPage.class, 
 						output.getId(), 
 						"showEditFileOutputPage"

@@ -3,7 +3,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \setitemize{noitemsep,topsep=2pt,leftmargin=30pt}
 \setenumerate{noitemsep,topsep=2pt,leftmargin=30pt}
-\setdescription{style=nextline,itemsep=8pt}
+\setdescription{style=sameline}
 %\setlength{\parindent}{0pt} % nastavuje odsazení prvniho radku
 %\setlength{\parskip}{1.2ex plus 0.5ex minus 0.2ex} % odstup mezi odstavci
 
@@ -63,12 +63,16 @@
 	}
 
 \newenvironment{glossarylist}
-	{
-		\begin{description}[style=nextline,itemsep=8pt]
-	}
-	{
-		\end{description}
-	}
+	{\begin{description}[style=nextline,itemsep=8pt]}
+	{\end{description}}
+
+\newenvironment{configlist}
+	{\begin{description}[style=nextline,font=\ttfamily]}
+	{\end{description}}
+
+\newenvironment{dirlist}
+	{\begin{description}[style=sameline,font=\ttfamily]}
+	{\end{description}}
 	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Package settings
@@ -88,6 +92,7 @@
 \newcommand{\refusermanual}{User Manual}
 \newcommand{\refadminmanual}{Administrator's \& Installation Manual}
 \newcommand{\refprogrammersguide}{Programmer's Guide}
+\newcommand{\configdefault}[1]{\newline\textit{Default value:}~\code{#1}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Aligned enumeration tables

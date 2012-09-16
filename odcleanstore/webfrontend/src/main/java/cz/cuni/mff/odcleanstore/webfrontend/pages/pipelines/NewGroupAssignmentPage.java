@@ -1,16 +1,19 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
 
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.RulesGroupEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.RuleAssignment;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
+@AuthorizeInstantiation({ "POC" })
 public class NewGroupAssignmentPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
@@ -36,6 +39,7 @@ public class NewGroupAssignmentPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new RulesGroupHelpPanel("content"));
 		addGoBackButton(transformerInstanceId);
 		addNewAssignmentForm(transformerInstanceId);
 	}
@@ -43,7 +47,7 @@ public class NewGroupAssignmentPage extends FrontendPage
 	private void addGoBackButton(final Long transformerInstanceId)
 	{
 		add(
-			new RedirectButton(
+			new RedirectWithParamButton(
 				TransformerInstanceDetailPage.class, 
 				transformerInstanceId, 
 				"showTransformerInstanceDetailPage"

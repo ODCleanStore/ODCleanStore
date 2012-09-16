@@ -1,26 +1,12 @@
+body
+{
+	margin: 0; 
+	padding: 0;
+}
+
 #container
 {
-	margin: 0px auto;
-	width: 1280px;
-}
-
-#header
-{
-	font-size: 250%;
-	text-align: center;
-	padding: 30px;
-}
-
-#menu
-{
-	float: left;
-	width: 276px;
-}
-
-#content
-{
-	float: right;
-	width: 1000px;
+	width: 960px;
 }
 
 #content #top
@@ -105,7 +91,7 @@ label
 
 textarea
 {
-	width:  976px;
+	width:  650px;
 	height: 100px;
 }
 

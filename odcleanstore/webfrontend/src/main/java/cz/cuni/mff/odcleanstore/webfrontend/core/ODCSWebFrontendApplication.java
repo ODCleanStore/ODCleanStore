@@ -61,6 +61,8 @@ public class ODCSWebFrontendApplication extends AuthenticatedWebApplication
 	{
 		super.init();
 		
+		getDebugSettings().setAjaxDebugModeEnabled(false);
+		
 		ctx = new ClassPathXmlApplicationContext(SPRING_CONFIG_LOCATION);
 
 		configuration = (Configuration) ctx.getBean("appConfig");

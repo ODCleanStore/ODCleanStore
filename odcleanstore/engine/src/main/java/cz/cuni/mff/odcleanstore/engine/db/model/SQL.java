@@ -3,6 +3,7 @@ package cz.cuni.mff.odcleanstore.engine.db.model;
 import java.util.Locale;
 
 import cz.cuni.mff.odcleanstore.datanormalization.DataNormalizer;
+import cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl;
 import cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
 
@@ -191,7 +192,7 @@ class SQL {
             + " JOIN DB.ODCLEANSTORE.TRANSFORMERS t ON ti.transformerId = t.id" 
 			+ " WHERE ti.pipelineId= ? AND t.fullClassName = '%s'" 
 			+ " ORDER BY dn.transformerInstanceId, dn.groupId",
-			DataNormalizer.class.getCanonicalName());
+			DataNormalizerImpl.class.getCanonicalName());
 	
 	static final String ERROR_SELECT_DN_GROUPS = "Error during selecting dn groups";
 	

@@ -1,10 +1,16 @@
 <wicket:extend>
 
+<div wicket:id="oiRuleHelpWindow"></div>
+<div wicket:id="dbOutputHelpWindow"></div>
+<div wicket:id="fileOutputHelpWindow"></div>
+
 <div>
-	<a class="placedright" href="#" wicket:id="showOIRulesList">Back to the list of all group's rules</a>
+	<a class="placedright button" href="#" wicket:id="showOIRulesList">Back to the list of all group's rules</a>
 	<div class="clear">&nbsp;</div>
 </div>
-				
+
+<a wicket:id="openOIRuleHelpWindow" class="help">Help</a>
+			
 <div class="datalistitem">
 	<strong class="block">Label:</strong>
 	<span wicket:id="label">[label]</span>
@@ -43,11 +49,13 @@
 <h2>Registered database outputs</h2>
 
 <div>
-	<a class="placedright" href="#" wicket:id="showNewDBOutputPage">Add a new database output</a>
+	<a class="placedright button" href="#" wicket:id="showNewDBOutputPage">Add a new database output</a>
 	<div class="clear">&nbsp;</div>
 </div>
 
 <span wicket:id="dbOutputsNavigator">[dataview navigator]</span>
+<a wicket:id="openDBOutputHelpWindow" class="help">Help</a>
+
 <table border="1">
 	
 	<tr>
@@ -71,11 +79,13 @@
 <h2>Registered file outputs</h2>
 
 <div>
-	<a class="placedright" href="#" wicket:id="showNewFileOutputPage">Add a new file output</a>
+	<a class="placedright button" href="#" wicket:id="showNewFileOutputPage">Add a new file output</a>
 	<div class="clear">&nbsp;</div>
 </div>
 
 <span wicket:id="fileOutputsNavigator">[dataview navigator]</span>
+<a wicket:id="openFileOutputHelpWindow"class="help">Help</a>
+
 <table border="1">
 	
 	<tr>

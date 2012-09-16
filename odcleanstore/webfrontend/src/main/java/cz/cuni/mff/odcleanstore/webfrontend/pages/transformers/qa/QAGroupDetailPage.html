@@ -1,11 +1,17 @@
 <wicket:extend>
 
+<div wicket:id="rulesGroupHelpWindow"></div>
+<div wicket:id="qaRuleHelpWindow"></div>
+
 <wicket:link>
 <div>
-	<a class="placedright" href="QAGroupsListPage.html">Back to the list of QA rules' groups</a>
+	<a class="placedright button" href="QAGroupsListPage.html">Back to the list of QA rules' groups</a>
 	<div class="clear">&nbsp;</div>
 </div>
 </wicket:link>
+
+<a wicket:id="openRulesGroupHelpWindow" class="help">Help</a>
+
 <div class="datalistitem">
 	<strong class="block">Label:</strong>
 	<span wicket:id="label">[label]</span>
@@ -19,11 +25,13 @@
 <h2>Related rules</h2>
 
 <div>
-	<a class="placedright" href="#" wicket:id="addNewRuleLink">Add a new rule</a>
+	<a class="placedright button" href="#" wicket:id="addNewRuleLink">Add a new rule</a>
 	<div class="clear">&nbsp;</div>
 </div>
 
 <span wicket:id="navigator">[dataview navigator]</span>
+<a wicket:id="openQARuleHelpWindow" class="help">Help</a>
+
 <table border="1">
 	
 	<tr>

@@ -6,11 +6,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.UUID;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -63,6 +65,8 @@ public class LinkerImpl implements Linker {
 	
 	private static final String LABEL_URI = "rdfs:label";
 	
+	private static final String LINK_WITHIN_GRAPH_KEY = "linkWithinGraph";
+	
 	private ObjectIdentificationConfig globalConfig;
 	private Integer[] groupIds;
 	
@@ -83,7 +87,8 @@ public class LinkerImpl implements Linker {
      * @param context {@inheritDoc}
      */
 	@Override
-	public void transformNewGraph(TransformedGraph inputGraph, TransformationContext context) throws TransformerException {
+	public void transformNewGraph(TransformedGraph inputGraph, TransformationContext context) 
+			throws TransformerException {
 		LOG.info("Linking new graph: {}", inputGraph.getGraphName());
 		File configFile = null;
 		try {				
@@ -92,8 +97,12 @@ public class LinkerImpl implements Linker {
 			    LOG.info("Nothing to link.");
 			} else {
     			List<RDFprefix> prefixes = RDFPrefixesLoader.loadPrefixes(context.getCleanDatabaseCredentials());
-			
-    			configFile = ConfigBuilder.createLinkConfigFile(rules, prefixes, inputGraph, context, globalConfig);
+    			
+    			Properties transformerProperties = parseProperties(context.getTransformerConfiguration());
+    			boolean linkWithinGraph = isLinkWithinGraph(transformerProperties);
+    			
+    			configFile = ConfigBuilder.createLinkConfigFile(
+    					rules, prefixes, inputGraph, context, globalConfig, linkWithinGraph);
 			
     			inputGraph.addAttachedGraph(getLinksGraphId(inputGraph));
 			
@@ -334,6 +343,25 @@ public class LinkerImpl implements Linker {
 		File file = new File(fileName);
 		if (!file.delete()) {
 			LOG.warn("Failed to delete file {}", fileName);
+		}
+	}
+	
+	private Properties parseProperties(String input) {
+		Properties properties = new Properties();
+		try {
+			properties.load(new StringReader(input));
+		} catch (IOException e) {
+			LOG.warn("Failed to parse properties from transformerConfiguration.");
+		}
+		return properties;
+	}
+	
+	private boolean isLinkWithinGraph(Properties properties) {
+		String property = (String)properties.get(LINK_WITHIN_GRAPH_KEY);
+		if (property != null) {
+			return Boolean.parseBoolean(property);
+		} else {
+			return globalConfig.isLinkWithinGraph();
 		}
 	}
 }

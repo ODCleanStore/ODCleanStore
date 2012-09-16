@@ -5,7 +5,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.*;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvider;
@@ -14,6 +14,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.*;
 
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
@@ -27,6 +28,7 @@ import org.apache.wicket.model.Model;
 
 import org.apache.log4j.Logger;
 
+@AuthorizeInstantiation({ "POC" })
 public class CRPropertiesListPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
@@ -50,6 +52,7 @@ public class CRPropertiesListPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new AggregationPropertyHelpPanel("content"));
 		addGlobalAggregationSettingsSection();
 		addPropertySettingsTable();
 	}
@@ -135,7 +138,7 @@ public class CRPropertiesListPage extends FrontendPage
 				);
 				
 				item.add(
-					new RedirectButton(
+					new RedirectWithParamButton(
 						EditPropertyPage.class, 
 						property.getId(), 
 						"showEditGlobalAggregationSettingsPage"
@@ -144,7 +147,7 @@ public class CRPropertiesListPage extends FrontendPage
 			}
 		};
 		
-		dataView.setItemsPerPage(10);
+		dataView.setItemsPerPage(ITEMS_PER_PAGE);
 		
 		add(new SortTableButton<PropertySettings>("sortByProperty", "property", data, dataView));
 		add(new SortTableButton<PropertySettings>("sortByMultivalueTypeId", "mtid", data, dataView));

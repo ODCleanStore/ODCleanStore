@@ -10,6 +10,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolution
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
+import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 
@@ -292,6 +293,9 @@ import java.util.regex.Pattern;
     /** Pattern matching a numeric value. */
     private static final Pattern NUMERIC_PATTERN = Pattern.compile("^[+-]?[0-9]*\\.?[0-9]+$");
 
+    /** Maximum number of keyword in a contains query. */
+    private static final int MAX_CONTAINS_KEYWORDS = 10;
+
     /**
      * Parse the query string to a list of keywords. Double quotes enclosing a phrase are retained.
      * @param keywordsQuery the keyword query
@@ -322,7 +326,7 @@ import java.util.regex.Pattern;
         }
         StringBuilder result = new StringBuilder();
         for (String keyword : keywords) {
-            result.append(keyword);
+            result.append(Utils.toAscii(keyword));
             result.append(' ');
         }
         return result.substring(0, result.length() - 1).toString();
@@ -347,19 +351,24 @@ import java.util.regex.Pattern;
         StringBuilder expr = new StringBuilder();
         expr.append('\'');
         boolean hasMatch = false;
+        int count = 0;
         for (String keyword : keywords) {
+            if (++count > MAX_CONTAINS_KEYWORDS) {
+                break;
+            }
+            String keywordAscii = Utils.toAscii(keyword);
             if (!hasMatch) {
                 hasMatch = true;
             } else {
                 expr.append(" AND ");
             }
-            if (keyword.startsWith("\"")) {
-                assert keyword.length() > 2;
-                expr.append(keyword);
+            if (keywordAscii.startsWith("\"")) {
+                assert keywordAscii.length() > 2;
+                expr.append(keywordAscii);
             } else {
-                assert keyword.length() > 0;
+                assert keywordAscii.length() > 0;
                 expr.append('"');
-                expr.append(keyword);
+                expr.append(keywordAscii);
                 expr.append('"');
             }
         }
@@ -389,7 +398,8 @@ import java.util.regex.Pattern;
                     ? '"' + keywordsQuery + "\"^^<" + XMLSchema.dateTimeType + '>'
                     : '"' + keywordsQuery + "Z\"^^<" + XMLSchema.dateTimeType + '>'; // Virtuoso won't match without 'Z'
         }
-        return '"' + EXACT_MATCH_FILTER_PATTERN.matcher(keywordsQuery).replaceAll("") + '"';
+        String asciiQuery = Utils.toAscii(EXACT_MATCH_FILTER_PATTERN.matcher(keywordsQuery).replaceAll(""));
+        return '"' + asciiQuery + '"';
     }
 
     /**

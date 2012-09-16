@@ -1,15 +1,17 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.basic.Label;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DetachableModel;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
+@AuthorizeInstantiation({ "POC" })
 public class QARuleDetailPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
@@ -31,6 +33,7 @@ public class QARuleDetailPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new QARuleHelpPanel("content"));
 		addRuleInformationSection(ruleId);
 	}
 	
@@ -45,7 +48,7 @@ public class QARuleDetailPage extends FrontendPage
 		add(new Label("description"));
 		
 		add(
-			new RedirectButton(
+			new RedirectWithParamButton(
 				QAGroupDetailPage.class, 
 				rule.getGroupId(),
 				"showQAGroupDetailPage"

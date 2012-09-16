@@ -1,23 +1,26 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn;
 
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.OIRuleHelpPanel;
 import cz.cuni.mff.odcleanstore.webfrontend.validators.IRIValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.*;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponent;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponentType;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.*;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleComponentDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleComponentTypeDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
+@AuthorizeInstantiation({ "POC" })
 public class NewDNRuleComponentPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
@@ -39,8 +42,10 @@ public class NewDNRuleComponentPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new DNRuleComponentHelpPanel("content"));
+		
 		add(
-			new RedirectButton(
+			new RedirectWithParamButton(
 				DNRuleDetailPage.class,
 				ruleId, 
 				"showDNRuleDetailPage"

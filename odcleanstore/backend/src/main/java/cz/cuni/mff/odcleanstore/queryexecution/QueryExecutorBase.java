@@ -58,7 +58,7 @@ import java.util.TreeSet;
      * If the value is null, there is now restriction on named graph URIs.
      * This constant is only for debugging purposes and should be null in production environment.
      */
-    private static final String ENGINE_TEMP_GRAPH_PREFIX = ODCS.engineTemporaryGraph;
+    protected static final String ENGINE_TEMP_GRAPH_PREFIX = ODCS.engineTemporaryGraph;
 
     /**
      * (Debug) Only named graph having URI starting with this prefix can be included in query result.
@@ -415,6 +415,7 @@ import java.util.TreeSet;
      * @param value value to add to the set
      * @param set set to add to or null
      * @return set containing the given value
+     * @param <T> item type
      */
     private <T> Set<T> addToSetNullProof(T value, Set<T> set) {
         Set<T> result = set;
@@ -430,6 +431,7 @@ import java.util.TreeSet;
      * @param value value to add to the list
      * @param list list to add to or null
      * @return list containing the given value
+     * @param <T> item type
      */
     private <T> List<T> addToListNullProof(T value, List<T> list) {
         final int defaultListSize = 1;

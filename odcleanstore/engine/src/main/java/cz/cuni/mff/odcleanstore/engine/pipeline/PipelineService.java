@@ -129,6 +129,7 @@ public final class PipelineService extends Service implements Runnable {
 	private void executeStateProcessing(PipelineGraphManipulator manipulator, PipelineGraphStatus status)
 			throws PipelineGraphManipulatorException, PipelineGraphStatusException, PipelineGraphTransformerExecutorException {
 		
+	    LOG.info("----------------------------------------");
 		LOG.info(format("processing in dirty db started", status));
 		manipulator.clearGraphsInDirtyDB();
 		if (!status.isInCleanDb()) {
