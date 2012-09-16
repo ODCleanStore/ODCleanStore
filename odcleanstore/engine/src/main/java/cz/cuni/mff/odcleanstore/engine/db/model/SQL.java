@@ -154,7 +154,7 @@ class SQL {
 	 * @param first pipelineId
 	 */
 	static final String SELECT_PIPELINE_COMMANDS = 
-			  " SELECT t.jarPath, t.fullClassName, ti.workDirPath, ti.configuration, ti.runOnCleanDB, ti.id, t.label"
+			  " SELECT t.jarPath, t.fullClassName, t.workDirPath, ti.configuration, ti.runOnCleanDB, ti.id, t.label"
 			+ " FROM ODCLEANSTORE.TRANSFORMERS t"
 			+ " JOIN ODCLEANSTORE.TRANSFORMER_INSTANCES ti ON t.id = ti.transformerId" 
 			+ " AND ti.pipelineId = ?" 
