@@ -133,7 +133,8 @@ public class DbOdcsContext extends DbContext {
 				mbr.jarPath = resultSet.getString(1);
 				mbr.fullClassName = resultSet.getString(2);
 				mbr.workDirPath = resultSet.getString(3);
-				mbr.configuration = resultSet.getNString(4);
+				String configuration = resultSet.getNString(4); // configuration should not be null
+				mbr.configuration = configuration != null ? configuration : "";
 				mbr.runOnCleanDB = resultSet.getInt(5) != 0;
 				mbr.transformerInstanceID = resultSet.getInt(6);
 				mbr.transformerLabel = resultSet.getString(7);
