@@ -190,9 +190,10 @@ CREATE TABLE DB.ODCLEANSTORE.TRANSFORMERS
 
 DELETE FROM DB.ODCLEANSTORE.TRANSFORMERS;
 
-INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS (label, description, jarPath, workDirPath, fullClassName) VALUES (n'Quality Assessment', n'The standard Quality Assessment transformer', n'.', n'.', n'cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl');
-INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS (label, description, jarPath, workDirPath, fullClassName) VALUES (n'Linker', n'The standard Object Identification transformer',  n'.', n'.', n'cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl');
-INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS (label, description, jarPath, workDirPath, fullClassName) VALUES (n'Data Normalization', n'The standard Data Normalization transformer', n'.', n'.', n'cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl');
+INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS (label, description, jarPath, workDirPath, fullClassName) VALUES (n'Quality Assessment', n'The standard Quality Assessment transformer', n'.', n'transformers-working-dir/qassessment', n'cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl');
+INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS (label, description, jarPath, workDirPath, fullClassName) VALUES (n'Quality Aggregator', n'The standard Quality Aggregator transformer', n'.', n'transformers-working-dir/qagregator', n'cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAggregatorImpl');
+INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS (label, description, jarPath, workDirPath, fullClassName) VALUES (n'Linker', n'The standard Object Identification transformer',  n'.', n'transformers-working-dir/link', n'cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl');
+INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS (label, description, jarPath, workDirPath, fullClassName) VALUES (n'Data Normalization', n'The standard Data Normalization transformer', n'.', n'transformers-working-dir/dn', n'cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl');
 
 CREATE TABLE DB.ODCLEANSTORE.PIPELINES
 (
@@ -270,6 +271,8 @@ CREATE TABLE DB.ODCLEANSTORE.EN_ATTACHED_ENGINES
 	uuid VARCHAR(36) UNIQUE NOT NULL,
 	updated TIMESTAMP
 );
+
+INSERT INTO DB.ODCLEANSTORE.EN_ATTACHED_ENGINES (uuid) VALUES ('88888888-8888-8888-8888-888888888888');
 
 CREATE TABLE DB.ODCLEANSTORE.EN_INPUT_GRAPHS
 (
