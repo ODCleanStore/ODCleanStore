@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.engine;
 
+import java.io.File;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import org.apache.log4j.LogManager;
@@ -232,7 +233,8 @@ public final class Engine {
 			
 			WrappedResultSet resultSet = con.executeSelect("SELECT server_root()");
 			resultSet.next();
-			return Utils.satisfyDirectory(cleanDBImportExportDir, resultSet.getString(1));
+			String path  = Utils.satisfyDirectory(cleanDBImportExportDir, resultSet.getString(1)) + File.separator;
+			return path.replace("\\", "/");
 		} catch (Exception e) {
 			throw new EngineException(e);
 		} finally {
@@ -255,7 +257,8 @@ public final class Engine {
 			
 			WrappedResultSet resultSet = con.executeSelect("SELECT server_root()");
 			resultSet.next();
-			return Utils.satisfyDirectory(dirtyDBImportExportDir, resultSet.getString(1));
+			String path =  Utils.satisfyDirectory(dirtyDBImportExportDir, resultSet.getString(1)) + File.separator;
+			return path.replace("\\", "/");
 		} catch (Exception e) {
 			throw new EngineException(e);
 		} finally {

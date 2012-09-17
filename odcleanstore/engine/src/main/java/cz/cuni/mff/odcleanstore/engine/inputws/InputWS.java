@@ -3,9 +3,12 @@
  */
 package cz.cuni.mff.odcleanstore.engine.inputws;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.ObjectOutputStream;
+import java.io.Writer;
 import java.net.URI;
 import java.util.UUID;
 
@@ -136,18 +139,51 @@ public class InputWS implements IInputWS {
 		FileOutputStream fout = null;
 		ObjectOutputStream oos = null;
 		String inputDirectory =  Engine.getCurrent().getDirtyDBImportExportDir();
+		boolean isPayloadRdfXml = payload.startsWith("<?xml");
+		String provenance = metadata.provenance;
+		metadata.provenance = null;
+		boolean containProvenance = provenance != null;
+		boolean isProvenanceRdfXml = containProvenance && provenance.startsWith("<?xml");
+		
+		
 		try {
-			fout = new FileOutputStream(inputDirectory + File.separator + metadata.uuid + ".dat");
+			fout = new FileOutputStream(inputDirectory + metadata.uuid + ".hdr");
 			oos = new ObjectOutputStream(fout);
 			oos.writeObject(FormatHelper.getTypedW3CDTFCurrent());
 			oos.writeObject(metadata);
-			oos.writeObject(payload);
+			oos.writeBoolean(isPayloadRdfXml);
+			oos.writeBoolean(containProvenance);
+			oos.writeBoolean(isProvenanceRdfXml);
 		} finally {
 			if (oos != null) {
 				oos.close();
 			}
 			if (fout != null) {
 				fout.close();
+			}
+		}
+			
+		Writer output = null;
+
+		if (containProvenance) {
+			try {
+				File file = new File(inputDirectory + metadata.uuid + (isProvenanceRdfXml ? "-pvm.rdf" : "-pvm.ttl"));
+				output = new BufferedWriter(new FileWriter(file));
+				output.write(provenance);
+			} finally {
+				if (output != null) {
+					output.close();
+				}
+			}
+		}
+		
+		try {
+			File file = new File(inputDirectory + metadata.uuid + (isPayloadRdfXml ? ".rdf" : ".ttl"));
+			output = new BufferedWriter(new FileWriter(file));
+			output.write(payload);
+		} finally {
+			if (output != null) {
+				output.close();
 			}
 		}
 	}

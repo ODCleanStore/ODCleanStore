@@ -10,15 +10,14 @@ import virtuoso.jena.driver.VirtModel;
 
 import com.hp.hpl.jena.rdf.model.Model;
 
-import cz.cuni.mff.odcleanstore.configuration.EngineConfig;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.configuration.EngineConfig;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
 import cz.cuni.mff.odcleanstore.engine.db.VirtuosoJdbcConnectionForRdf;
 import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.Metadata;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
-
 /**
  *  @author Petr Jerman
  */
@@ -42,8 +41,25 @@ final class PipelineGraphManipulator {
 	void deleteInputFile() throws PipelineGraphManipulatorException {
 		try {
 			String inputDirPath = Engine.getCurrent().getDirtyDBImportExportDir();
-			File inputFile = new File(inputDirPath + graphStatus.getUuid() + ".dat");
+			File inputFile = null;
 			
+			inputFile = new File(inputDirPath  + graphStatus.getUuid() + ".hdr");
+			if (!inputFile.delete() && inputFile.exists()) {
+				throw new PipelineGraphManipulatorException(format(ERROR_INPUT_FILE_STILL_EXIST));
+			}
+			inputFile = new File(inputDirPath + graphStatus.getUuid() + ".rdf");
+			if (!inputFile.delete() && inputFile.exists()) {
+				throw new PipelineGraphManipulatorException(format(ERROR_INPUT_FILE_STILL_EXIST));
+			}
+			inputFile = new File(inputDirPath + graphStatus.getUuid() + ".ttl");
+			if (!inputFile.delete() && inputFile.exists()) {
+				throw new PipelineGraphManipulatorException(format(ERROR_INPUT_FILE_STILL_EXIST));
+			}
+			inputFile = new File(inputDirPath + graphStatus.getUuid() + "-pvm.rdf");
+			if (!inputFile.delete() && inputFile.exists()) {
+				throw new PipelineGraphManipulatorException(format(ERROR_INPUT_FILE_STILL_EXIST));
+			}
+			inputFile = new File(inputDirPath + graphStatus.getUuid() + "-pvm.ttl");
 			if (!inputFile.delete() && inputFile.exists()) {
 				throw new PipelineGraphManipulatorException(format(ERROR_INPUT_FILE_STILL_EXIST));
 			}
@@ -174,18 +190,22 @@ final class PipelineGraphManipulator {
 	private void loadGraphsIntoDirtyDBFromInputFile() throws Exception {
 		String inserted = null;
 		Metadata metadata = null;
-		String payload = null;
 		String uuid = graphStatus.getUuid();
 		FileInputStream fin = null;
 		ObjectInputStream ois = null;
 		String inputDirPath = Engine.getCurrent().getDirtyDBImportExportDir();
+		boolean isPayloadRdfXml;
+		boolean containProvenance;
+		boolean isProvenanceRdfXml;
 		try {
-			String inputFileName = inputDirPath + File.separator + uuid + ".dat";
+			String inputFileName = inputDirPath + uuid + ".hdr";
 			fin = new FileInputStream(inputFileName);
 			ois = new ObjectInputStream(fin);
 			inserted = (String) ois.readObject();
 			metadata = (Metadata) ois.readObject();
-			payload = (String) ois.readObject();
+			isPayloadRdfXml = ois.readBoolean();
+			containProvenance = ois.readBoolean();
+			isProvenanceRdfXml = ois.readBoolean();
 		} finally {
 			if (ois != null) {
 				ois.close();
@@ -218,11 +238,19 @@ final class PipelineGraphManipulator {
 					con.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.license + ">", "<" + license + ">", "<" + metadataGraphURI + ">");
 				}
 			}
-			if (metadata.provenance != null) {
-				con.insertRdfXmlOrTtl(metadata.dataBaseUrl, metadata.provenance, provenanceGraphURI);
+			if (containProvenance) {
+				if (isProvenanceRdfXml) {
+					con.insertRdfXmlFromFile(metadata.dataBaseUrl, inputDirPath + uuid + "-pvm.rdf", provenanceGraphURI);
+				} else {
+					con.insertTtlFromFile(metadata.dataBaseUrl, inputDirPath + uuid + "-pvm.ttl", provenanceGraphURI);
+				}
 				con.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.provenanceMetadataGraph + ">", "<" + provenanceGraphURI + ">", "<" + metadataGraphURI + ">");
 			}
-			con.insertRdfXmlOrTtl(metadata.dataBaseUrl, payload, dataGraphURI);
+			if (isPayloadRdfXml) {
+				con.insertRdfXmlFromFile(metadata.dataBaseUrl, inputDirPath + uuid + ".rdf", dataGraphURI);
+			} else {
+				con.insertTtlFromFile(metadata.dataBaseUrl, inputDirPath + uuid + ".ttl", dataGraphURI);
+			}
 			con.commit();
 		} finally {
 			if (con != null) {
