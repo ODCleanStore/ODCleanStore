@@ -1,8 +1,8 @@
 package cz.cuni.mff.odcleanstore.datanormalization.rules;
 
-import java.util.ArrayList;
-
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
+
+import java.util.ArrayList;
 
 public class DataNormalizationRule {
 	/**
@@ -11,12 +11,14 @@ public class DataNormalizationRule {
 	 */
 	public enum EnumRuleComponentType {
 		RULE_COMPONENT_INSERT {
-			public String toString() {
+			@Override
+            public String toString() {
 				return "INSERT";
 			}
 		},
 		RULE_COMPONENT_DELETE {
-			public String toString() {
+			@Override
+            public String toString() {
 				return "DELETE";
 			}
 		}
@@ -27,25 +29,25 @@ public class DataNormalizationRule {
 	 * @author Jakub Daniel
 	 */
 	public class Component {
-		
+
 		public Component(EnumRuleComponentType type, String modification, String description) {
 			this.type = type;
 			this.modification = modification;
 			this.description = description;
 		}
-		
+
 		private EnumRuleComponentType type;
 		private String modification;
 		private String description;
-		
+
 		public EnumRuleComponentType getType() {
 			return type;
 		}
-		
+
 		public String getModification() {
 			return modification;
 		}
-		
+
 		public String getDescription() {
 			return description;
 		}
@@ -64,13 +66,13 @@ public class DataNormalizationRule {
 
 			switch (type) {
 			case RULE_COMPONENT_INSERT:
-				output = "SPARQL INSERT INTO " + output;
+				output = "SPARQL DEFINE input:default-graph-uri <" + graph + "> INSERT INTO " + output;
 				break;
 			case RULE_COMPONENT_DELETE:
-				output = "SPARQL DELETE FROM " + output;
+				output = "SPARQL DEFINE input:default-graph-uri <" + graph + "> DELETE FROM " + output;
 				break;
 			}
-			
+
 			return output;
 		}
 	}
@@ -94,28 +96,28 @@ public class DataNormalizationRule {
 		this.description = description;
 
 		if (components.length % 3 != 0) throw new DataNormalizationException("Incomplete rule initialization list");
-		
+
 		for (int i = 0; i < components.length; i += 3) {
 			addComponent(components[i], components[i + 1], components[i + 2]);
 		}
 	}
-	
+
 	public Long getId() {
 		return id;
 	}
-	
+
 	public Long getGroupId() {
 		return groupId;
 	}
-	
+
 	public String getDescription() {
 		return description;
 	}
-	
+
 	public Component[] getComponents() {
 		return components.toArray(new Component[this.components.size()]);
 	}
-	
+
 	/**
 	 * constructs SPARULs for all the components restricted to a concrete graph
 	 * @param graph the graph name to restrict the SPARULs to
@@ -123,13 +125,13 @@ public class DataNormalizationRule {
 	 */
 	public String[] getComponents(String graph) {
 		String[] componentStrings = new String[this.components.size()];
-		
+
 		Component[] components = this.components.toArray(new Component[this.components.size()]);
-		
+
 		for (int i = 0; i < components.length; ++i) {
 			componentStrings[i] = components[i].toString(graph);
 		}
-		
+
 		return componentStrings;
 	}
 
@@ -137,7 +139,7 @@ public class DataNormalizationRule {
 	 * adds new component to a rule
 	 * @param type the type of the component (either "INSERT" or "DELETE")
 	 * @param modification the code of the component
-	 * @param description the description explaining what the component should do 
+	 * @param description the description explaining what the component should do
 	 * @throws DataNormalizationException
 	 */
 	public void addComponent(String type, String modification, String description) throws DataNormalizationException {
@@ -154,7 +156,7 @@ public class DataNormalizationRule {
 	 * adds new component to a rule
 	 * @param type the type of the component
 	 * @param modification the code of the component
-	 * @param description the description explaining what the component should do 
+	 * @param description the description explaining what the component should do
 	 * @throws DataNormalizationException
 	 */
 	public void addComponent(EnumRuleComponentType type, String modification, String description) {
