@@ -1,10 +1,8 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages;
 
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteTextField;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
@@ -181,22 +179,6 @@ public abstract class FrontendPage extends WebPage
 		label.setEscapeModelStrings(false);
 		
 		return label;
-	}
-	
-	protected  <EnumBO extends EntityWithSurrogateKey> AutoCompleteTextField<EnumBO> createAutoCompleteTextField(
-			final DaoForEntityWithSurrogateKey<EnumBO> dao, String componentName)
-	{		
-		AutoCompleteTextField<EnumBO> textField = new AutoCompleteTextField<EnumBO>(componentName)
-		{
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected Iterator<EnumBO> getChoices(String input) {
-				return dao.loadAll().iterator();
-			}					
-		};
-
-		return textField;
 	}
 	
 	/*

@@ -1,5 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.onto;
 
+import java.util.List;
+
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.RelationType;
@@ -29,5 +31,20 @@ public class OntologyMappingDao extends DaoForEntityWithSurrogateKey<RelationTyp
 	{
 		return rowMapper;
 	}
+	
+	public List<String> loadEntityURIs(String ontoGraphName)
+	{	
+		String query = "SPARQL SELECT ?x FROM <" + ontoGraphName +
+				"> WHERE {?x <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?y}";
+		
+		return getJdbcTemplate().queryForList(query, String.class);
+	}
 
+	public void addMapping(String graphName, String sourceUri, String relationType, String targetUri)
+	{
+		//FIXME: virtuoso.jdbc3.VirtuosoException: executeUpdate can execute only update/insert/delete queries
+		String query = "SPARQL INSERT INTO <" + graphName + "> {<" + sourceUri + "> <" + relationType + "> <" + targetUri + ">}";
+		
+		getJdbcTemplate().update(query);
+	}
 }
