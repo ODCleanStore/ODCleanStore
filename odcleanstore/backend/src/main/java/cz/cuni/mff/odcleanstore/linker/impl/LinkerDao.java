@@ -135,7 +135,7 @@ public class LinkerDao {
 		try {
 		    String query = "select t.label as type, o.minConfidence, o.maxConfidence, o.fileName, f.label as format " +
                     "from DB.ODCLEANSTORE.OI_OUTPUTS o join DB.ODCLEANSTORE.OI_OUTPUT_TYPES t on o.outputTypeId = t.id " +
-                    "join DB.ODCLEANSTORE.OI_FILE_FORMATS f on o.fileFormatId = f.id " +
+                    "left join DB.ODCLEANSTORE.OI_FILE_FORMATS f on o.fileFormatId = f.id " +
                     "where o.ruleId = " + ruleId;
 			resultSet = connection.executeSelect(query);
 			while (resultSet.next()) {
