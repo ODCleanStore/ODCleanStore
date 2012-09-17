@@ -48,9 +48,9 @@ public final class VirtuosoJdbcConnectionForRdf {
                     connectionCredentials.getConnectionString(),
                     connectionCredentials.getUsername(),
                     connectionCredentials.getPassword());
-       		CallableStatement statement = connection.prepareCall("log_enable(1)");
+       		CallableStatement statement = connection.prepareCall("log_enable(3)");
        		statement.execute();
-       		connection.setAutoCommit(false);
+       		connection.setAutoCommit(true);
         } catch (SQLException e) {
             throw new ConnectionException(e);	
         }
@@ -73,8 +73,9 @@ public final class VirtuosoJdbcConnectionForRdf {
 	 * @param srcGraphName graph
 	 * @param dstGraphName graph
 	 * @throws QueryException query error
+	 * @throws SQLException 
 	 */
-	public void renameGraph(String srcGraphName, String dstGraphName) throws QueryException {
+	public void renameGraph(String srcGraphName, String dstGraphName) throws QueryException, SQLException {
 		execute("DELETE FROM DB.DBA.RDF_QUAD WHERE g = iri_to_id (?)", dstGraphName);
 		execute("UPDATE DB.DBA.RDF_QUAD SET g = iri_to_id (?) WHERE g = iri_to_id (?)", dstGraphName, srcGraphName);
 	}
