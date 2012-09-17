@@ -109,8 +109,6 @@ public class LinkerImpl implements Linker {
     			LOG.info("Calling Silk with temporary configuration file: {}", configFile.getAbsolutePath());
     			Silk.executeFile(configFile, null, Silk.DefaultThreads(), true);
     			LOG.info("Linking finished.");
-			
-    			configFile.delete();
 			}
 		} catch (DatabaseException e) {
 			throw new TransformerException(e);

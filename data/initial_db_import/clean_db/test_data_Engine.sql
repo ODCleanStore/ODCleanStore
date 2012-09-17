@@ -1,53 +1,30 @@
-set_identity_column('DB.ODCLEANSTORE.TRANSFORMERS','id', 1);
-set_identity_column('DB.ODCLEANSTORE.PIPELINES','id', 1);
-
---
--- fill official tables
---
-
 INSERT INTO DB.ODCLEANSTORE.PIPELINES (label, description, isDefault)
-VALUES (n'Dirty', n'A basic dirty pipeline', 0);
-
-INSERT INTO DB.ODCLEANSTORE.PIPELINES (label, description, isDefault)
-VALUES (n'Clean', n'A basic clean pipeline', 1);
+VALUES (n'example-pipeline', n'An example pipeline', 1);
 
 INSERT INTO DB.ODCLEANSTORE.TRANSFORMER_INSTANCES (transformerId, pipelineId, configuration, runOnCleanDB, priority) VALUES (
-	(SELECT id FROM DB.ODCLEANSTORE.TRANSFORMERS WHERE label = 'Quality Assessment'),
-	(SELECT id FROM DB.ODCLEANSTORE.BACKUP_PIPELINES WHERE label = 'Dirty'),
-	n'', 
-	1,
+	(SELECT TOP 1 id FROM DB.ODCLEANSTORE.TRANSFORMERS WHERE fullClassName = n'cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl'),
+	(SELECT id FROM DB.ODCLEANSTORE.PIPELINES WHERE label = 'example-pipeline'),
+	n'',
+	0, 
 	1);
 
 INSERT INTO DB.ODCLEANSTORE.TRANSFORMER_INSTANCES (transformerId, pipelineId, configuration, runOnCleanDB, priority) VALUES (
-	(SELECT id FROM DB.ODCLEANSTORE.TRANSFORMERS WHERE label = 'Linker'),
-	(SELECT id FROM DB.ODCLEANSTORE.PIPELINES WHERE label = 'Dirty'),
-	n'1',
+	(SELECT TOP 1 id FROM DB.ODCLEANSTORE.TRANSFORMERS WHERE fullClassName = n'cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl'),
+	(SELECT id FROM DB.ODCLEANSTORE.PIPELINES WHERE label = 'example-pipeline'),
+	n'linkWithinGraph=true',
 	1, 
 	2);
-
+	
 INSERT INTO DB.ODCLEANSTORE.TRANSFORMER_INSTANCES (transformerId, pipelineId, configuration, runOnCleanDB, priority) VALUES (
-	(SELECT id FROM DB.ODCLEANSTORE.TRANSFORMERS WHERE label = 'Data Normalization'),
-	(SELECT id FROM DB.ODCLEANSTORE.PIPELINES WHERE label = 'Dirty'),
-	n'',
-	0, 
+	(SELECT TOP 1 id FROM DB.ODCLEANSTORE.TRANSFORMERS WHERE fullClassName = n'cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl'),
+	(SELECT id FROM DB.ODCLEANSTORE.PIPELINES WHERE label = 'example-pipeline'),
+	n'', 
+	1,
 	3);
 
 INSERT INTO DB.ODCLEANSTORE.TRANSFORMER_INSTANCES (transformerId, pipelineId, configuration, runOnCleanDB, priority) VALUES (
-	(SELECT id FROM DB.ODCLEANSTORE.TRANSFORMERS WHERE label = 'Quality Assessment'),
-	(SELECT id FROM DB.ODCLEANSTORE.PIPELINES WHERE label = 'Clean'),
-	n'',
-	1, 
-	1);
-
-INSERT INTO DB.ODCLEANSTORE.TRANSFORMER_INSTANCES (transformerId, pipelineId, configuration, runOnCleanDB, priority) VALUES (
-	(SELECT id FROM DB.ODCLEANSTORE.TRANSFORMERS WHERE label = 'Linker'),
-	(SELECT id FROM DB.ODCLEANSTORE.PIPELINES WHERE label = 'Clean'),
-	n'',
-	1, 
-	1);
-
---
--- attached engines
---
-
-INSERT INTO DB.ODCLEANSTORE.EN_ATTACHED_ENGINES (uuid) VALUES ('88888888-8888-8888-8888-888888888888');
+	(SELECT TOP 1 id FROM DB.ODCLEANSTORE.TRANSFORMERS WHERE fullClassName = n'cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAggregatorImpl'),
+	(SELECT id FROM DB.ODCLEANSTORE.PIPELINES WHERE label = 'example-pipeline'),
+	n'', 
+	1,
+	4);
