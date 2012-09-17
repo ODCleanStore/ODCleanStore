@@ -54,7 +54,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 	@Override
 	protected ParameterizedRowMapper<Ontology> getRowMapper() 
 	{
-		return this.rowMapper;
+		return rowMapper;
 	}
 	
 	@Override

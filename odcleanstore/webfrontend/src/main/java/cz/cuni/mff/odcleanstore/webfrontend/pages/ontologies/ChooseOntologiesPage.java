@@ -43,13 +43,13 @@ public class ChooseOntologiesPage extends FrontendPage {
 			@Override
 			protected void onSubmit()
 			{	
-				AddMappingPage page = new AddMappingPage(
-						sourceOntology.getGraphName(), targetOntology.getGraphName());
+				AddMappingPage page = new AddMappingPage(sourceOntology.getGraphName(),
+						targetOntology != null ? targetOntology.getGraphName() : null);
 				setResponsePage(page);
 			}
 		};
 		form.add(createEnumSelectbox(ontologyDao, "sourceOntology"));
-		form.add(createEnumSelectbox(ontologyDao, "targetOntology"));
+		form.add(createEnumSelectbox(ontologyDao, "targetOntology", false));
 		
 		add(form);
 	}
