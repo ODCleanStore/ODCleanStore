@@ -3,6 +3,7 @@
  */
 package cz.cuni.mff.odcleanstore.engine.inputws;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 import java.net.URI;
@@ -14,7 +15,6 @@ import javax.jws.WebService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
 import cz.cuni.mff.odcleanstore.engine.common.Utils;
@@ -64,7 +64,7 @@ public class InputWS implements IInputWS {
 			String sessionUuid = _importedInputGraphStates.beginImportSession(metadata.uuid, metadata.pipelineName, null);
 			saveFiles(metadata, payload);
 			_importedInputGraphStates.commitImportSession(sessionUuid);
-			Engine.signalToPipelineService();
+			Engine.getCurrent().signalToPipelineService();
 			LOG.info("InputWS webservice ends processing for input graph {}",metadata.uuid);
 
 		} catch (InsertException e) {
@@ -135,9 +135,9 @@ public class InputWS implements IInputWS {
 	private void saveFiles(Metadata metadata, String payload) throws Exception {
 		FileOutputStream fout = null;
 		ObjectOutputStream oos = null;
-		String inputDirectory =  ConfigLoader.getConfig().getInputWSGroup().getInputDirPath();
+		String inputDirectory =  Engine.getCurrent().getDirtyDBImportExportDir();
 		try {
-			fout = new FileOutputStream(inputDirectory + metadata.uuid + ".dat");
+			fout = new FileOutputStream(inputDirectory + File.separator + metadata.uuid + ".dat");
 			oos = new ObjectOutputStream(fout);
 			oos.writeObject(FormatHelper.getTypedW3CDTFCurrent());
 			oos.writeObject(metadata);

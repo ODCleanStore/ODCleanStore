@@ -30,6 +30,8 @@ public class EngineConfigTest extends ConfigTestBase {
         Mockito.when(properties.getProperty(EngineConfig.GROUP_PREFIX + "shutdown_timeout")).thenReturn("40000");
         Mockito.when(properties.getProperty(EngineConfig.GROUP_PREFIX + "look_for_graph_interval")).thenReturn("50000");
         Mockito.when(properties.getProperty(EngineConfig.GROUP_PREFIX + "second_crash_penalty")).thenReturn("60000");
+        Mockito.when(properties.getProperty(EngineConfig.GROUP_PREFIX + "dirty_import_export_dir")).thenReturn("dirty/");
+        Mockito.when(properties.getProperty(EngineConfig.GROUP_PREFIX + "clean_import_export_dir")).thenReturn("clean/");
         
         mockGraphUriPrefixes(properties);
         mockJDBCConnectionCredentials(properties, EnumDbConnectionType.CLEAN);
@@ -41,6 +43,8 @@ public class EngineConfigTest extends ConfigTestBase {
         assertEquals(new Long(40000), enConfig.getShutdownTimeout());
         assertEquals(new Long(50000), enConfig.getLookForGraphInterval());
         assertEquals(new Long(60000), enConfig.getSecondCrashPenalty());
+        assertEquals(new String("dirty/"), enConfig.getDirtyImportExportDir());
+        assertEquals(new String("clean/"), enConfig.getCleanImportExportDir());
         checkGraphUriPrefixes(enConfig);
         checkJDBCConnectionCredentials(
                 enConfig.getCleanDBJDBCConnectionCredentials(), EnumDbConnectionType.CLEAN);
@@ -57,7 +61,8 @@ public class EngineConfigTest extends ConfigTestBase {
         Mockito.when(properties.getProperty("ngine.shutdown_timeout")).thenReturn("40000");
         Mockito.when(properties.getProperty("ngine.look_for_graph_interval")).thenReturn("50000");
         Mockito.when(properties.getProperty("ngine.second_crash_penalty")).thenReturn("60000");
-
+        Mockito.when(properties.getProperty("ngine.dirty_import_export_dir")).thenReturn("dirty/");
+        Mockito.when(properties.getProperty("ngine.clean_import_export_dir")).thenReturn("clean/");
         EngineConfig.load(properties);
     }
     

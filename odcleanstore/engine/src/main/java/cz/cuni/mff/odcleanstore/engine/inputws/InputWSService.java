@@ -11,8 +11,6 @@ import org.slf4j.LoggerFactory;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.Service;
-import cz.cuni.mff.odcleanstore.engine.common.Utils;
-import cz.cuni.mff.odcleanstore.engine.common.Utils.DirectoryException;
 
 /**
  *  @author Petr Jerman
@@ -30,24 +28,18 @@ public final class InputWSService extends Service {
 	@Override
 	protected void initialize() throws Exception {
 		recovery();
-		String inputDirectory =  ConfigLoader.getConfig().getInputWSGroup().getInputDirPath();
-		try {
-			Utils.satisfyDirectory(inputDirectory);
-		} catch (DirectoryException e) {
-			throw new InputWSException("Input directory checking error", e);
-		}
 		endpoint = Endpoint.publish(ConfigLoader.getConfig().getInputWSGroup().getEndpointURL().toString(), new InputWS());
 	}
 
 	private void recovery() throws Exception {
-		String inputDirectory =  ConfigLoader.getConfig().getInputWSGroup().getInputDirPath();
+		String inputDirectory =  engine.getDirtyDBImportExportDir();
 		
 		InputGraphStatus importedInputGraphStates = new InputGraphStatus();
 		Collection<String> importingGraphUuids = importedInputGraphStates.getAllImportingGraphUuids();
 		if (importingGraphUuids != null && !importingGraphUuids.isEmpty()) {
 			LOG.info("InputWSService starts recovery");
 			for (String uuid : importingGraphUuids) {
-				File inputFile = new File(inputDirectory + uuid + ".dat");
+				File inputFile = new File(inputDirectory + File.separator + uuid + ".dat");
 				inputFile.delete();
 			}
 			importedInputGraphStates.deleteAllImportingGraphUuids();

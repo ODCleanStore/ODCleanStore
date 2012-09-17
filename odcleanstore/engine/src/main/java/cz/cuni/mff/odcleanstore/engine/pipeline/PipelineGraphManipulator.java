@@ -13,6 +13,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 import cz.cuni.mff.odcleanstore.configuration.EngineConfig;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
 import cz.cuni.mff.odcleanstore.engine.db.VirtuosoJdbcConnectionForRdf;
 import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.Metadata;
@@ -40,7 +41,7 @@ final class PipelineGraphManipulator {
 	
 	void deleteInputFile() throws PipelineGraphManipulatorException {
 		try {
-			String inputDirPath = ConfigLoader.getConfig().getInputWSGroup().getInputDirPath();
+			String inputDirPath = Engine.getCurrent().getDirtyDBImportExportDir();
 			File inputFile = new File(inputDirPath + graphStatus.getUuid() + ".dat");
 			
 			if (!inputFile.delete() && inputFile.exists()) {
@@ -177,9 +178,9 @@ final class PipelineGraphManipulator {
 		String uuid = graphStatus.getUuid();
 		FileInputStream fin = null;
 		ObjectInputStream ois = null;
-		String inputDirPath = ConfigLoader.getConfig().getInputWSGroup().getInputDirPath();
+		String inputDirPath = Engine.getCurrent().getDirtyDBImportExportDir();
 		try {
-			String inputFileName = inputDirPath + uuid + ".dat";
+			String inputFileName = inputDirPath + File.separator + uuid + ".dat";
 			fin = new FileInputStream(inputFileName);
 			ois = new ObjectInputStream(fin);
 			inserted = (String) ois.readObject();

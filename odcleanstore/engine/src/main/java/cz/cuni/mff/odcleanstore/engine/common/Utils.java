@@ -26,20 +26,10 @@ public final class Utils {
 			super(cause);
 		}
 	}
-	
-	public static String checkDirectory(String dirName) throws DirectoryException {
-		try {
-			return checkDirectoryAndReturnCanonicalPath(createFileObject(dirName));
-		} catch (DirectoryException e) {
-			throw e;
-		} catch (Exception e) {
-			throw new DirectoryException(e);
-		}
-	}
-	
+
 	public static String satisfyDirectory(String dirName) throws DirectoryException {
 		try {
-			File file = createFileObject(dirName);
+			File file = createFileObject(dirName, "");
 				
 	 		if (!file.exists()) {
 	 			satisfyParentDirectoryExist(file);
@@ -54,10 +44,27 @@ public final class Utils {
 		}
 	}
 	
-	private static File createFileObject(String fileName) {
+	public static String satisfyDirectory(String dirName, String baseForRelativePath) throws DirectoryException {
+		try {
+			File file = createFileObject(dirName, baseForRelativePath);
+				
+	 		if (!file.exists()) {
+	 			satisfyParentDirectoryExist(file);
+				file.mkdir();
+			}
+	 		
+			return checkDirectoryAndReturnCanonicalPath(file);
+		} catch (DirectoryException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new DirectoryException(e);
+		}
+	}
+	
+	private static File createFileObject(String fileName, String baseForRelativePath) {
 		File file = new File(fileName);
 		if (!file.isAbsolute()) {
-			File curdir = new File("");
+			File curdir = new File(baseForRelativePath);
 			file = new File(curdir.getAbsolutePath() + File.separator + file.getPath());
 		}
 		return file;
