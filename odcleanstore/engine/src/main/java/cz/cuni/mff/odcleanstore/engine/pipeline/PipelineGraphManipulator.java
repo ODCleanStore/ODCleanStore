@@ -3,21 +3,20 @@ package cz.cuni.mff.odcleanstore.engine.pipeline;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
+import java.io.OutputStreamWriter;
 import java.util.Collection;
 import java.util.HashSet;
 
-import virtuoso.jena.driver.VirtModel;
-
-import com.hp.hpl.jena.rdf.model.Model;
-
-import cz.cuni.mff.odcleanstore.configuration.EngineConfig;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.configuration.EngineConfig;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
+import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
 import cz.cuni.mff.odcleanstore.engine.db.VirtuosoJdbcConnectionForRdf;
 import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.Metadata;
+import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
-
 /**
  *  @author Petr Jerman
  */
@@ -27,7 +26,7 @@ final class PipelineGraphManipulator {
 	private static final String ERROR_INPUT_FILE_STILL_EXIST = ERROR_DELETE_INPUT_FILE + ", file still exists.";
 	private static final String ERROR_DELETE_GRAPHS_FROM_DIRTYDB = "deleting graphs from dirty db";
 	private static final String ERROR_DELETE_GRAPHS_FROM_CLEANDB = "deleting graphs from clean db";
-	private static final String ERROR_DELETE_TEMP_GRAPHS_FROM_CLEANDB = "deleting temporary graphs from clean db";
+	// private static final String ERROR_DELETE_TEMP_GRAPHS_FROM_CLEANDB = "deleting temporary graphs from clean db";
 	private static final String ERROR_REPLACE_GRAPHS_IN_CLEANDB = "replacing graphs in clean db from dirty db";
 	private static final String ERROR_LOAD_GRAPHS_FROM_FILE = "loading graphs into clean db from input file";
 	private static final String ERROR_LOAD_GRAPHS_FROM_CLEAN_DB = "loading graphs into dirty db from clean db";
@@ -40,9 +39,26 @@ final class PipelineGraphManipulator {
 	
 	void deleteInputFile() throws PipelineGraphManipulatorException {
 		try {
-			String inputDirPath = ConfigLoader.getConfig().getInputWSGroup().getInputDirPath();
-			File inputFile = new File(inputDirPath + graphStatus.getUuid() + ".dat");
+			String inputDirPath = Engine.getCurrent().getDirtyDBImportExportDir();
+			File inputFile = null;
 			
+			inputFile = new File(inputDirPath  + graphStatus.getUuid() + ".hdr");
+			if (!inputFile.delete() && inputFile.exists()) {
+				throw new PipelineGraphManipulatorException(format(ERROR_INPUT_FILE_STILL_EXIST));
+			}
+			inputFile = new File(inputDirPath + graphStatus.getUuid() + ".rdf");
+			if (!inputFile.delete() && inputFile.exists()) {
+				throw new PipelineGraphManipulatorException(format(ERROR_INPUT_FILE_STILL_EXIST));
+			}
+			inputFile = new File(inputDirPath + graphStatus.getUuid() + ".ttl");
+			if (!inputFile.delete() && inputFile.exists()) {
+				throw new PipelineGraphManipulatorException(format(ERROR_INPUT_FILE_STILL_EXIST));
+			}
+			inputFile = new File(inputDirPath + graphStatus.getUuid() + "-pvm.rdf");
+			if (!inputFile.delete() && inputFile.exists()) {
+				throw new PipelineGraphManipulatorException(format(ERROR_INPUT_FILE_STILL_EXIST));
+			}
+			inputFile = new File(inputDirPath + graphStatus.getUuid() + "-pvm.ttl");
 			if (!inputFile.delete() && inputFile.exists()) {
 				throw new PipelineGraphManipulatorException(format(ERROR_INPUT_FILE_STILL_EXIST));
 			}
@@ -62,7 +78,7 @@ final class PipelineGraphManipulator {
 		}
 	}
 	
-	 void deleteGraphsInCleanDB() throws PipelineGraphManipulatorException {
+	void deleteGraphsInCleanDB() throws PipelineGraphManipulatorException {
 		try {
 			Collection<String> graphs = getAllGraphNames();
 			VirtuosoJdbcConnectionForRdf con = VirtuosoJdbcConnectionForRdf.createCleanDbConnection();
@@ -75,49 +91,81 @@ final class PipelineGraphManipulator {
 		}
 	}
 	
+	// TODO must be refactored!
 	void replaceGraphsInCleanDBFromDirtyDB() throws PipelineGraphManipulatorException {
-		try {
-			// delete temporary graphs in clean DB
-			deleteGraphsFromDB(true, true);
-		} catch(Exception e) {
-			throw new PipelineGraphManipulatorException(format(ERROR_DELETE_TEMP_GRAPHS_FROM_CLEANDB), e);
-		}
-		
-		// copy graphs from dirty to clean DB with temporary names
+		//		// delete temporary graphs in clean DB
+		//		try {
+		//		deleteGraphsFromDB(true, true);
+		//		} catch(Exception e) {
+		//		throw new PipelineGraphManipulatorException(format(ERROR_DELETE_TEMP_GRAPHS_FROM_CLEANDB), e);
+		//		}
+			
+		// copy graphs from dirty to clean DB
 		try {
 			Collection<String> graphs = getAllGraphNames();
 			JDBCConnectionCredentials creditDirty = ConfigLoader.getConfig().getEngineGroup().getDirtyDBJDBCConnectionCredentials();
 			JDBCConnectionCredentials creditClean = ConfigLoader.getConfig().getEngineGroup().getCleanDBJDBCConnectionCredentials();
-			
+				
 			for (String graphName : graphs) {
-				Model srcModel = null;
-				Model dstModel = null;
-				try {
-					srcModel = VirtModel.openDatabaseModel(graphName, creditDirty.getConnectionString(), creditDirty.getUsername(), creditDirty.getPassword());
-					dstModel = VirtModel.openDatabaseModel(ODCS.engineTemporaryGraph + "/" + graphName, creditClean.getConnectionString(), creditClean.getUsername(), creditClean.getPassword());
 					
-					dstModel.add(srcModel);
+				File srcFile = null;
+				File dstFile = null;
+				OutputStreamWriter out = null;
+				VirtuosoConnectionWrapper dirtyConnection = null;
+				VirtuosoConnectionWrapper cleanConnection = null;
+				try {
+					String tempFileName = Utils.extractUUID(graphName) + "-temp.ttl";
+					srcFile = new File(Engine.getCurrent().getDirtyDBImportExportDir() + tempFileName);
+					dstFile = new File(Engine.getCurrent().getCleanDBImportExportDir() + tempFileName);
+					srcFile.delete();
+					dstFile.delete();
+						
+					// String destGraph = ODCS.engineTemporaryGraph + "/" + graphName;
+
+					dirtyConnection = VirtuosoConnectionWrapper.createConnection(creditDirty);
+					String query = "CALL dump_graph_ttl('" + graphName + "', '" + srcFile.getAbsolutePath().replace("\\", "/") + "')";
+					dirtyConnection.execute(query);
+					    
+					// move file if neccessary
+					if(!srcFile.getCanonicalFile().equals(dstFile.getCanonicalFile())) {
+						srcFile.renameTo(dstFile);
+					}
+					cleanConnection = VirtuosoConnectionWrapper.createConnection(creditClean);
+					cleanConnection.execute("DELETE FROM DB.DBA.RDF_QUAD WHERE g = iri_to_id (?)", graphName);
+				    // query = "DB.DBA.TTLP (file_to_string_output ('" + dstFile.getAbsolutePath().replace("\\", "/") + "'), '" + destGraph + "', '" + destGraph + "',0)";
+					query = "DB.DBA.TTLP (file_to_string_output ('" + dstFile.getAbsolutePath().replace("\\", "/") + "'), '" + graphName + "', '" + graphName + "',0)";
+				    cleanConnection.execute(query);
 				} finally {
-					if (srcModel != null) {
-						srcModel.close();
+					if (srcFile != null) {
+						srcFile.delete();
 					}
-					if (dstModel != null) {
-						dstModel.close();
+					if (dstFile != null) {
+						dstFile.delete();
 					}
+				    if (out != null) {
+				        out.close();
+				    }
+				    if (dirtyConnection != null) {
+				    	dirtyConnection.closeQuietly();
+				    }
+				    if (cleanConnection != null) {
+				    	cleanConnection.closeQuietly();
+				    }
 				}
 			}
 
 			// transactional processing - delete graph and replace it with temporary graphs in clean DB
-			VirtuosoJdbcConnectionForRdf con = VirtuosoJdbcConnectionForRdf.createCleanDbConnection();
-			for (String graphName : graphs) {
-				con.renameGraph(ODCS.engineTemporaryGraph + "/" + graphName, graphName);
-			}
-			con.commit();
+			// VirtuosoJdbcConnectionForRdf con = VirtuosoJdbcConnectionForRdf.createCleanDbConnection();
+			// for (String graphName : graphs) {
+				// con.renameGraph(ODCS.engineTemporaryGraph + "/" + graphName, graphName);
+				// con.commit();
+			// }
 			
 		} catch(Exception e) { 
 			throw new PipelineGraphManipulatorException(format(ERROR_REPLACE_GRAPHS_IN_CLEANDB), e);
 		}
 	}
+
 	
 	void loadGraphsIntoDirtyDB() throws PipelineGraphManipulatorException {
 		String errorMessage = null;
@@ -173,18 +221,22 @@ final class PipelineGraphManipulator {
 	private void loadGraphsIntoDirtyDBFromInputFile() throws Exception {
 		String inserted = null;
 		Metadata metadata = null;
-		String payload = null;
 		String uuid = graphStatus.getUuid();
 		FileInputStream fin = null;
 		ObjectInputStream ois = null;
-		String inputDirPath = ConfigLoader.getConfig().getInputWSGroup().getInputDirPath();
+		String inputDirPath = Engine.getCurrent().getDirtyDBImportExportDir();
+		boolean isPayloadRdfXml;
+		boolean containProvenance;
+		boolean isProvenanceRdfXml;
 		try {
-			String inputFileName = inputDirPath + uuid + ".dat";
+			String inputFileName = inputDirPath + uuid + ".hdr";
 			fin = new FileInputStream(inputFileName);
 			ois = new ObjectInputStream(fin);
 			inserted = (String) ois.readObject();
 			metadata = (Metadata) ois.readObject();
-			payload = (String) ois.readObject();
+			isPayloadRdfXml = ois.readBoolean();
+			containProvenance = ois.readBoolean();
+			isProvenanceRdfXml = ois.readBoolean();
 		} finally {
 			if (ois != null) {
 				ois.close();
@@ -217,11 +269,19 @@ final class PipelineGraphManipulator {
 					con.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.license + ">", "<" + license + ">", "<" + metadataGraphURI + ">");
 				}
 			}
-			if (metadata.provenance != null) {
-				con.insertRdfXmlOrTtl(metadata.dataBaseUrl, metadata.provenance, provenanceGraphURI);
+			if (containProvenance) {
+				if (isProvenanceRdfXml) {
+					con.insertRdfXmlFromFile(metadata.dataBaseUrl, inputDirPath + uuid + "-pvm.rdf", provenanceGraphURI);
+				} else {
+					con.insertTtlFromFile(metadata.dataBaseUrl, inputDirPath + uuid + "-pvm.ttl", provenanceGraphURI);
+				}
 				con.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.provenanceMetadataGraph + ">", "<" + provenanceGraphURI + ">", "<" + metadataGraphURI + ">");
 			}
-			con.insertRdfXmlOrTtl(metadata.dataBaseUrl, payload, dataGraphURI);
+			if (isPayloadRdfXml) {
+				con.insertRdfXmlFromFile(metadata.dataBaseUrl, inputDirPath + uuid + ".rdf", dataGraphURI);
+			} else {
+				con.insertTtlFromFile(metadata.dataBaseUrl, inputDirPath + uuid + ".ttl", dataGraphURI);
+			}
 			con.commit();
 		} finally {
 			if (con != null) {
@@ -231,27 +291,58 @@ final class PipelineGraphManipulator {
 	}
 
 	private void loadGraphsIntoDirtyDBFromCleanDB() throws Exception {
-			EngineConfig engineConfig = ConfigLoader.getConfig().getEngineGroup();
-			JDBCConnectionCredentials creditClean = engineConfig.getCleanDBJDBCConnectionCredentials();
-			JDBCConnectionCredentials creditDirty = engineConfig.getDirtyDBJDBCConnectionCredentials();
+		try {
 			Collection<String> graphs = getAllGraphNames();
-		
+			JDBCConnectionCredentials creditDirty = ConfigLoader.getConfig().getEngineGroup().getDirtyDBJDBCConnectionCredentials();
+			JDBCConnectionCredentials creditClean = ConfigLoader.getConfig().getEngineGroup().getCleanDBJDBCConnectionCredentials();
+				
 			for (String graphName : graphs) {
-				Model dstModel = null;
-				Model srcModel = null;
+					
+				File srcFile = null;
+				File dstFile = null;
+				OutputStreamWriter out = null;
+				VirtuosoConnectionWrapper srcConnection = null;
+				VirtuosoConnectionWrapper dstConnection = null;
 				try {
-					srcModel = VirtModel.openDatabaseModel(graphName, creditClean.getConnectionString(), creditClean.getUsername(), creditClean.getPassword());
-					dstModel = VirtModel.openDatabaseModel(graphName, creditDirty.getConnectionString(), creditDirty.getUsername(), creditDirty.getPassword());
-					dstModel.add(srcModel);
+					String tempFileName = Utils.extractUUID(graphName) + "-temp.ttl";
+					srcFile = new File(Engine.getCurrent().getCleanDBImportExportDir() + tempFileName);
+					dstFile = new File(Engine.getCurrent().getDirtyDBImportExportDir() + tempFileName);
+					srcFile.delete();
+					dstFile.delete();
+						
+					srcConnection = VirtuosoConnectionWrapper.createConnection(creditClean);
+					String query = "CALL dump_graph_ttl('" + graphName + "', '" + srcFile.getAbsolutePath().replace("\\", "/") + "')";
+					srcConnection.execute(query);
+					    
+					// move file if neccessary
+					if(!srcFile.getCanonicalFile().equals(dstFile.getCanonicalFile())) {
+						srcFile.renameTo(dstFile);
+					}
+					dstConnection = VirtuosoConnectionWrapper.createConnection(creditDirty);
+					dstConnection.execute("DELETE FROM DB.DBA.RDF_QUAD WHERE g = iri_to_id (?)", graphName);
+					query = "DB.DBA.TTLP (file_to_string_output ('" + dstFile.getAbsolutePath().replace("\\", "/") + "'), '" + graphName + "', '" + graphName + "',0)";
+				    dstConnection.execute(query);
 				} finally {
-					if (srcModel != null) {
-						srcModel.close();
+					if (srcFile != null) {
+						srcFile.delete();
 					}
-					if (dstModel != null) {
-						dstModel.close();
+					if (dstFile != null) {
+						dstFile.delete();
 					}
+				    if (out != null) {
+				        out.close();
+				    }
+				    if (srcConnection != null) {
+				    	srcConnection.closeQuietly();
+				    }
+				    if (dstConnection != null) {
+				    	dstConnection.closeQuietly();
+				    }
 				}
 			}
+		} catch(Exception e) { 
+			throw new PipelineGraphManipulatorException(format(ERROR_LOAD_GRAPHS_FROM_CLEAN_DB), e);
+		}
 	}
 	
 	private String format(String message) {
