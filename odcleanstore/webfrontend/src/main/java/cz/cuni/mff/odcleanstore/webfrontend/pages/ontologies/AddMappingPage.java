@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteSettings;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -13,6 +14,8 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.RelationType;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DetachableAutoCompleteTextField;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.onto.OntologyMappingDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.validators.EnumValidator;
+import cz.cuni.mff.odcleanstore.webfrontend.validators.IRIValidator;
 
 public class AddMappingPage extends FrontendPage {
 	
@@ -38,7 +41,7 @@ public class AddMappingPage extends FrontendPage {
 		addMappingForm(sourceOntoGraphName, targetOntoGraphName);
 	}
 
-	private void addMappingForm(final String sourceOntoGraphName, String targetOntoGraphName)
+	private void addMappingForm(final String sourceOntoGraphName, final String targetOntoGraphName)
 	{
 		Form<AddMappingPage> form = new Form<AddMappingPage>(
 			"addMappingForm", new CompoundPropertyModel<AddMappingPage>(this))
@@ -48,16 +51,43 @@ public class AddMappingPage extends FrontendPage {
 			@Override
 			protected void onSubmit()
 			{
-				mappingDao.addMapping(sourceOntoGraphName, sourceUri, relationType, targetUri);
+				try 
+				{
+					mappingDao.addMapping(sourceOntoGraphName, sourceUri, relationType, targetUri);
+				} catch (Exception e) 
+				{	
+					// TODO: log the error
+					getSession().error("Mapping could not be created due to an unexpected error.");
+					return;
+				}
+				getSession().info("The mapping was successfuly created.");
+				setResponsePage(new AddMappingPage(sourceOntoGraphName, targetOntoGraphName));
 			}
 		};
-		form.add(new DetachableAutoCompleteTextField("sourceUri", createModel(sourceOntoGraphName)));
+		IModel<List<String>> model = createModel(sourceOntoGraphName);
+		TextField<String> field = new DetachableAutoCompleteTextField("sourceUri", model);
+		field.add(new EnumValidator(model));
+		form.add(field);
 		
 		AutoCompleteSettings settings = new AutoCompleteSettings();
 		settings.setShowListOnEmptyInput(true);
-		form.add(new DetachableAutoCompleteTextField("relationType", settings, createModel()));
+		model = createModel();
+		field = new DetachableAutoCompleteTextField("relationType", settings, model);
+		field.add(new IRIValidator());
+		form.add(field);
 		
-		form.add(new DetachableAutoCompleteTextField("targetUri", createModel(targetOntoGraphName)));
+		if (targetOntoGraphName != null)
+		{	
+			model = createModel(targetOntoGraphName);
+			field = new DetachableAutoCompleteTextField("targetUri", model);
+			field.add(new EnumValidator(model));
+			
+		} else
+		{
+			field = new TextField<String>("targetUri");
+			field.add(new IRIValidator());
+		}
+		form.add(field);
 		
 		add(form);
 	}

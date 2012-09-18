@@ -4,6 +4,10 @@ import java.util.List;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
+import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
+import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.RelationType;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
@@ -40,11 +44,24 @@ public class OntologyMappingDao extends DaoForEntityWithSurrogateKey<RelationTyp
 		return getJdbcTemplate().queryForList(query, String.class);
 	}
 
-	public void addMapping(String graphName, String sourceUri, String relationType, String targetUri)
-	{
-		//FIXME: virtuoso.jdbc3.VirtuosoException: executeUpdate can execute only update/insert/delete queries
-		String query = "SPARQL INSERT INTO <" + graphName + "> {<" + sourceUri + "> <" + relationType + "> <" + targetUri + ">}";
+	public void addMapping(String graphName, String sourceUri, String relationType, String targetUri) 
+			throws ConnectionException, QueryException
+	{	
+		String query = "SPARQL INSERT INTO <" + graphName + "> {`iri(??)` `iri(??)` `iri(??)`}";
 		
-		getJdbcTemplate().update(query);
+		VirtuosoConnectionWrapper con = null;
+		try
+		{
+			con = VirtuosoConnectionWrapper.createConnection(
+					ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
+			
+			con.execute(query, sourceUri, relationType, targetUri);
+		} finally
+		{
+			if (con != null)
+			{
+				con.closeQuietly();
+			}
+		}		
 	}
 }
