@@ -169,6 +169,9 @@ public class InputWS implements IInputWS {
 			try {
 				File file = new File(inputDirectory + metadata.uuid + (isProvenanceRdfXml ? "-pvm.rdf" : "-pvm.ttl"));
 				output = new BufferedWriter(new FileWriter(file));
+				if(!isProvenanceRdfXml) {
+					provenance = Utils.unicodeToAscii(provenance); 
+				}
 				output.write(provenance);
 			} finally {
 				if (output != null) {
@@ -180,6 +183,9 @@ public class InputWS implements IInputWS {
 		try {
 			File file = new File(inputDirectory + metadata.uuid + (isPayloadRdfXml ? ".rdf" : ".ttl"));
 			output = new BufferedWriter(new FileWriter(file));
+			if (!isPayloadRdfXml) {
+				payload = Utils.unicodeToAscii(payload);
+			}
 			output.write(payload);
 		} finally {
 			if (output != null) {

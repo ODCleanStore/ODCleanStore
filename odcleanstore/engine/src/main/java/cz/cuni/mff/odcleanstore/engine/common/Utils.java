@@ -14,7 +14,7 @@ public final class Utils {
 	
 	
 	public static String removeInitialBOMXml(String src) {
-		return src != null && src.startsWith("\ufeff<?xml") ? src.substring(1) : src;
+		return src != null && src.startsWith("\ufeff") ? src.substring(1) : src;
 	}
 
 	public static class DirectoryException extends Exception {
@@ -96,6 +96,31 @@ public final class Utils {
 	}
 	
 	
-	
-	
+	/**
+	 * Translates native string into ASCII code.
+	 * 
+	 * @param src the native java unicode string
+	 * @return src with non-ascii characters replaced with ASCII code
+	 */
+	public static String unicodeToAscii(String src) {
+		if (src == null) {
+			return null;
+		}
+		
+		StringBuffer buffer = new StringBuffer( src.length());
+		for (int i = 0; i < src.length(); i++) {
+            char c = src.charAt(i);
+            if (c <= 0x7E) { 
+                buffer.append(c);
+            } else {
+            	buffer.append("\\u");
+            	String hex = Integer.toHexString(c);
+            	for (int j = hex.length(); j < 4; j++ ) {
+            		buffer.append( '0' );
+            	}
+            	buffer.append( hex );
+            }
+        }
+		return buffer.toString();
+	}
 }
