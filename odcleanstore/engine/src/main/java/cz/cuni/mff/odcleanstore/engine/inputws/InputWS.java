@@ -4,10 +4,9 @@
 package cz.cuni.mff.odcleanstore.engine.inputws;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.ObjectOutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.URI;
 import java.util.UUID;
@@ -167,10 +166,12 @@ public class InputWS implements IInputWS {
 
 		if (containProvenance) {
 			try {
-				File file = new File(inputDirectory + metadata.uuid + (isProvenanceRdfXml ? "-pvm.rdf" : "-pvm.ttl"));
-				output = new BufferedWriter(new FileWriter(file));
+				String fullFileName = inputDirectory + metadata.uuid + (isProvenanceRdfXml ? "-pvm.rdf" : "-pvm.ttl");
 				if(!isProvenanceRdfXml) {
-					provenance = Utils.unicodeToAscii(provenance); 
+					provenance = Utils.unicodeToAscii(provenance);
+					output = new BufferedWriter(new OutputStreamWriter( new FileOutputStream(fullFileName), "US-ASCII"));
+				} else {
+					output = new BufferedWriter(new OutputStreamWriter( new FileOutputStream(fullFileName), "UTF-8"));
 				}
 				output.write(provenance);
 			} finally {
@@ -180,11 +181,14 @@ public class InputWS implements IInputWS {
 			}
 		}
 		
+		output = null;
 		try {
-			File file = new File(inputDirectory + metadata.uuid + (isPayloadRdfXml ? ".rdf" : ".ttl"));
-			output = new BufferedWriter(new FileWriter(file));
+			String fullFileName = inputDirectory + metadata.uuid + (isPayloadRdfXml ? ".rdf" : ".ttl");
 			if (!isPayloadRdfXml) {
 				payload = Utils.unicodeToAscii(payload);
+				output = new BufferedWriter(new OutputStreamWriter( new FileOutputStream(fullFileName), "US-ASCII"));
+			} else {
+				output = new BufferedWriter(new OutputStreamWriter( new FileOutputStream(fullFileName), "UTF-8"));
 			}
 			output.write(payload);
 		} finally {

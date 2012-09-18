@@ -115,10 +115,10 @@ public final class Utils {
             } else {
             	buffer.append("\\u");
             	String hex = Integer.toHexString(c);
-            	for (int j = hex.length(); j < 4; j++ ) {
-            		buffer.append( '0' );
+            	for (int j = hex.length(); j < 4; j++) {
+            		buffer.append('0');
             	}
-            	buffer.append( hex );
+            	buffer.append(hex);
             }
         }
 		return buffer.toString();
