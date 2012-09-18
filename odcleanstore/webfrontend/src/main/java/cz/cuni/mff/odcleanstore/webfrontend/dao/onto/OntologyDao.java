@@ -12,8 +12,6 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 
 import virtuoso.jena.driver.VirtGraph;
 
-import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
-import cz.cuni.mff.odcleanstore.configuration.exceptions.ConfigurationException;
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
 import cz.cuni.mff.odcleanstore.datanormalization.rules.DataNormalizationRulesModel;
 import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
@@ -110,15 +108,8 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		
 		storeRdfXml(item.getRdfData(), item.getGraphName());
 		
-		try
-		{
-			ConfigLoader.loadConfig();
-		
-			generateRules(QARulesGroupDao.TABLE_NAME, item.getLabel());
-			generateRules(DNRulesGroupDao.TABLE_NAME, item.getLabel());
-		} catch (ConfigurationException e) {
-			// TODO:
-		}
+		generateRules(QARulesGroupDao.TABLE_NAME, item.getLabel());
+		generateRules(DNRulesGroupDao.TABLE_NAME, item.getLabel());
 	}
 	
 	private void createGraphName(Ontology item) 
@@ -215,7 +206,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 	
 	private void createRulesGroup(String tableName, String groupLabel) 
 	{
-		String query = "INSERT INTO " + TABLE_NAME_PREFIX + tableName + " (label) VALUES (?)";
+		String query = "INSERT INTO " + tableName + " (label) VALUES (?)";
 		
 		Object[] params = { groupLabel };
 		
@@ -228,7 +219,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 	{
 		if (QARulesGroupDao.TABLE_NAME.equals(groupTableName)) {
 			return QA_MAPPING_TABLE_NAME;
-		} else if (QARulesGroupDao.TABLE_NAME.equals(groupTableName)){
+		} else if (DNRulesGroupDao.TABLE_NAME.equals(groupTableName)){
 			return DN_MAPPING_TABLE_NAME;
 		} else {
 			throw new AssertionError("Unexpected rules-group table name provided: " + groupTableName);
@@ -237,7 +228,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 	
 	private Long getGroupId(String tableName, String groupLabel) 
 	{
-		String query = "SELECT id FROM " + TABLE_NAME_PREFIX + tableName + " WHERE label = ?";
+		String query = "SELECT id FROM " + tableName + " WHERE label = ?";
 		
 		Object[] params = { groupLabel };
 		
