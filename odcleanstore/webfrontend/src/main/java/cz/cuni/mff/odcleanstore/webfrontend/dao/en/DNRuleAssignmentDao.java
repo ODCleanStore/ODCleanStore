@@ -48,7 +48,7 @@ public class DNRuleAssignmentDao extends DaoForEntityWithSurrogateKey<RuleAssign
 		
 		Object[] params = criteria.buildWhereClauseParams();
 		
-		return getJdbcTemplate().query(query, params, getRowMapper());
+		return getCleanJdbcTemplate().query(query, params, getRowMapper());
 	}
 	
 	@Override
@@ -62,7 +62,7 @@ public class DNRuleAssignmentDao extends DaoForEntityWithSurrogateKey<RuleAssign
 		
 		Object[] params = { value };
 		
-		return getJdbcTemplate().queryForObject(query, params, getRowMapper());
+		return getCleanJdbcTemplate().queryForObject(query, params, getRowMapper());
 	}
 	
 	@Override
@@ -78,6 +78,6 @@ public class DNRuleAssignmentDao extends DaoForEntityWithSurrogateKey<RuleAssign
 			item.getGroupId()
 		};
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 	}
 }

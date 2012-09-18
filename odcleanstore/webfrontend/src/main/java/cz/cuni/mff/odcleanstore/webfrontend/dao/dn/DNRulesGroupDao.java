@@ -46,7 +46,7 @@ public class DNRulesGroupDao extends DaoForEntityWithSurrogateKey<DNRulesGroup>
 		logger.debug("label: " + item.getLabel());
 		logger.debug("description: " + item.getDescription());
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 	}
 
 	@Override
@@ -65,6 +65,6 @@ public class DNRulesGroupDao extends DaoForEntityWithSurrogateKey<DNRulesGroup>
 		logger.debug("description: " + item.getDescription());
 		logger.debug("id: " + item.getId());
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 	}
 }

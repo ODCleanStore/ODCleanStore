@@ -34,7 +34,8 @@ public abstract class Dao<T extends BusinessEntity> implements Serializable
 	
 	protected DaoLookupFactory lookupFactory;
 	
-	private transient JdbcTemplate jdbcTemplate;
+	private transient JdbcTemplate cleanJDBCTemplate;
+	private transient JdbcTemplate dirtyJDBCTemplate;
 	private transient TransactionTemplate transactionTemplate;
 	
 	/**
@@ -62,15 +63,30 @@ public abstract class Dao<T extends BusinessEntity> implements Serializable
 	 * 
 	 * @return
 	 */
-	protected JdbcTemplate getJdbcTemplate()
+	protected JdbcTemplate getCleanJdbcTemplate()
 	{
-		if (jdbcTemplate == null)
+		if (cleanJDBCTemplate == null)
 		{
-			DataSource dataSource = lookupFactory.getDataSource();
-			jdbcTemplate = new JdbcTemplate(dataSource);
+			DataSource dataSource = lookupFactory.getCleanDataSource();
+			cleanJDBCTemplate = new JdbcTemplate(dataSource);
 		}
 		
-		return jdbcTemplate;
+		return cleanJDBCTemplate;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	protected JdbcTemplate getDirtyJdbcTemplate()
+	{
+		if (dirtyJDBCTemplate == null)
+		{
+			DataSource dataSource = lookupFactory.getDirtyDataSource();
+			dirtyJDBCTemplate = new JdbcTemplate(dataSource);
+		}
+		
+		return dirtyJDBCTemplate;
 	}
 	
 	/**
@@ -107,13 +123,13 @@ public abstract class Dao<T extends BusinessEntity> implements Serializable
 	public List<T> loadAllRaw()
 	{
 		String query = "SELECT * FROM " + getTableName();
-		return getJdbcTemplate().query(query, getRowMapper());
+		return getCleanJdbcTemplate().query(query, getRowMapper());
 	}
 	
 	public T loadFirstRaw()
 	{
 		String query = "SELECT TOP 1 * FROM " + getTableName();
-		return getJdbcTemplate().queryForObject(query, getRowMapper());
+		return getCleanJdbcTemplate().queryForObject(query, getRowMapper());
 	}
 	
 	/**
@@ -129,7 +145,7 @@ public abstract class Dao<T extends BusinessEntity> implements Serializable
 		
 		logger.debug("value: " + value);
 		
-		return getJdbcTemplate().query(query, params, getRowMapper());
+		return getCleanJdbcTemplate().query(query, params, getRowMapper());
 	}
 	
 	/**
@@ -157,7 +173,7 @@ public abstract class Dao<T extends BusinessEntity> implements Serializable
 		
 		Object[] params = criteria.buildWhereClauseParams();
 		
-		return getJdbcTemplate().query(query, params, getRowMapper());
+		return getCleanJdbcTemplate().query(query, params, getRowMapper());
 	}
 	
 	/**
@@ -173,7 +189,7 @@ public abstract class Dao<T extends BusinessEntity> implements Serializable
 		
 		logger.debug("value: " + value);
 		
-		return (T) getJdbcTemplate().queryForObject(query, params, getRowMapper());
+		return (T) getCleanJdbcTemplate().queryForObject(query, params, getRowMapper());
 	}
 	
 	/**

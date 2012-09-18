@@ -66,7 +66,11 @@ public class ODCSWebFrontendApplication extends AuthenticatedWebApplication
 		ctx = new ClassPathXmlApplicationContext(SPRING_CONFIG_LOCATION);
 
 		configuration = (Configuration) ctx.getBean("appConfig");
-		daoLookupFactory = new DaoLookupFactory(configuration.getConnectionCoords());
+		
+		daoLookupFactory = new DaoLookupFactory(
+			configuration.getCleanConnectionCoords(),
+			configuration.getDirtyConnectionCoords()
+		);
 		
 		urlRouter = new URLRouter(WEB_URL_PREFIX);
 		urlRouter.setupRouting(this);

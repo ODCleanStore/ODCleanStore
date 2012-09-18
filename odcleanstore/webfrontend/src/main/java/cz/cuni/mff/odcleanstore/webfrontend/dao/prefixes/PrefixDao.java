@@ -36,7 +36,7 @@ public class PrefixDao extends Dao<Prefix>
 		String query = "DELETE FROM " + TABLE_NAME + " WHERE NS_PREFIX = ?";
 		Object[] params = { item.getPrefix() };
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 	}
 	
 	@Override
@@ -45,6 +45,6 @@ public class PrefixDao extends Dao<Prefix>
 		String query = "INSERT INTO " + TABLE_NAME + " (NS_PREFIX, NS_URL) VALUES (?, ?)";
 		Object[] params = { item.getPrefix(), item.getUrl() };
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 	}
 }
