@@ -45,7 +45,7 @@ public class QARulesGroupDao extends DaoForEntityWithSurrogateKey<QARulesGroup>
 		logger.debug("label: " + item.getLabel());
 		logger.debug("description: " + item.getDescription());
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 	}
 
 	@Override
@@ -64,6 +64,6 @@ public class QARulesGroupDao extends DaoForEntityWithSurrogateKey<QARulesGroup>
 		logger.debug("description: " + item.getDescription());
 		logger.debug("id: " + item.getId());
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 	}
 }

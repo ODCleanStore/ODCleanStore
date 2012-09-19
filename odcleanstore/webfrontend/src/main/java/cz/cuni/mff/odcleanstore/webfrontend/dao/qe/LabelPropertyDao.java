@@ -44,6 +44,6 @@ public class LabelPropertyDao extends DaoForEntityWithSurrogateKey<LabelProperty
 		String query = "INSERT INTO " + getTableName() + " (property) VALUES (?)";
 		Object[] params = { item.getProperty() };
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 	}
 }

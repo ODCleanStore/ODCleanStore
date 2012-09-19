@@ -51,7 +51,7 @@ public class QARuleDao extends DaoForEntityWithSurrogateKey<QARule>
 		logger.debug("description: " + item.getDescription());
 		logger.debug("coefficient: " + item.getCoefficient());
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 	}
 	
 	@Override
@@ -73,6 +73,6 @@ public class QARuleDao extends DaoForEntityWithSurrogateKey<QARule>
 		logger.debug("coefficient: " + item.getCoefficient());
 		logger.debug("id: " + item.getId());
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 	}
 }

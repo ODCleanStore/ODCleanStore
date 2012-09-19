@@ -4,21 +4,30 @@ import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 
 public class Configuration 
 {
-	private JDBCConnectionCredentials connectionCoords;
+	private JDBCConnectionCredentials cleanConnectionCoords;
+	private JDBCConnectionCredentials dirtyConnectionCoords;
 	private String gmailAddress;
 	private String gmailPassword;
 	
-	public Configuration(JDBCConnectionCredentials connectionCoords, String gmailAddress, 
-		String gmailPassword)
+	public Configuration(
+		JDBCConnectionCredentials cleanConnectionCoords,
+		JDBCConnectionCredentials dirtyConnectionCoords,
+		String gmailAddress, String gmailPassword)
 	{
-		this.connectionCoords = connectionCoords;
+		this.cleanConnectionCoords = cleanConnectionCoords;
+		this.dirtyConnectionCoords = dirtyConnectionCoords;
 		this.gmailAddress = gmailAddress;
 		this.gmailPassword = gmailPassword;
 	}
 
-	public JDBCConnectionCredentials getConnectionCoords() 
+	public JDBCConnectionCredentials getCleanConnectionCoords() 
 	{
-		return connectionCoords;
+		return cleanConnectionCoords;
+	}
+	
+	public JDBCConnectionCredentials getDirtyConnectionCoords()
+	{
+		return dirtyConnectionCoords;
 	}
 
 

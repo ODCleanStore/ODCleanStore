@@ -52,7 +52,7 @@ public class TransformerDao extends DaoForEntityWithSurrogateKey<Transformer>
 		logger.debug("work dir path: " + item.getWorkDirPath());
 		logger.debug("full classname: " + item.getFullClassName());
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 	}
 	
 	@Override
@@ -80,6 +80,6 @@ public class TransformerDao extends DaoForEntityWithSurrogateKey<Transformer>
 		logger.debug("work dir path: " + item.getWorkDirPath());
 		logger.debug("id: " + item.getId());
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 	}
 }

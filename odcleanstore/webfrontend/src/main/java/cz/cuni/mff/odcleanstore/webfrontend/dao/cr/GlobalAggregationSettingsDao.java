@@ -43,7 +43,7 @@ public class GlobalAggregationSettingsDao extends Dao<GlobalAggregationSettings>
 			"join DB.ODCLEANSTORE.CR_MULTIVALUE_TYPES as M on S.defaultMultivalueTypeId = M.id " +
 			"join DB.ODCLEANSTORE.CR_ERROR_STRaTEGIES as E on S.defaultErrorStrategyId = E.id";
 		
-		return getJdbcTemplate().queryForObject(query, getRowMapper());
+		return getCleanJdbcTemplate().queryForObject(query, getRowMapper());
 	}
 	
 	public void save(GlobalAggregationSettings settings)
@@ -61,6 +61,6 @@ public class GlobalAggregationSettingsDao extends Dao<GlobalAggregationSettings>
 			settings.getDefaultErrorStrategy().getId()
 		};
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 	}
 }

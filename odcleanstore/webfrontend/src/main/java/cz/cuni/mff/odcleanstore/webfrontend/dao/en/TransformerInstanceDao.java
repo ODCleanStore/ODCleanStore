@@ -44,7 +44,7 @@ public class TransformerInstanceDao extends DaoForEntityWithSurrogateKey<Transfo
 		
 		Object[] params = criteria.buildWhereClauseParams();
 		
-		return getJdbcTemplate().query(query, params, getRowMapper());
+		return getCleanJdbcTemplate().query(query, params, getRowMapper());
 	}
 	
 	@Override
@@ -57,7 +57,7 @@ public class TransformerInstanceDao extends DaoForEntityWithSurrogateKey<Transfo
 		
 		Object[] params = { id };
 		
-		return getJdbcTemplate().queryForObject(query, params, getRowMapper());
+		return getCleanJdbcTemplate().queryForObject(query, params, getRowMapper());
 	}
 	
 	public void save(TransformerInstance item)
@@ -76,7 +76,7 @@ public class TransformerInstanceDao extends DaoForEntityWithSurrogateKey<Transfo
 			item.getPriority()
 		};
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 	}
 	
 	public void update(TransformerInstance item)
@@ -94,6 +94,6 @@ public class TransformerInstanceDao extends DaoForEntityWithSurrogateKey<Transfo
 			item.getId()
 		};
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 	}
 }
