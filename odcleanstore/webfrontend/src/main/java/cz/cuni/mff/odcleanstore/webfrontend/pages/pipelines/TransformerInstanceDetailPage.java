@@ -73,6 +73,7 @@ public class TransformerInstanceDetailPage extends FrontendPage
 			)
 		);
 		
+		add(new Label("id"));
 		add(new Label("label", transformer.getLabel()));
 		add(new Label("configuration"));
 		add(new Label("runOnCleanDB"));
