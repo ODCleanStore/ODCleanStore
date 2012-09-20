@@ -15,6 +15,6 @@ public class HomePage extends FrontendPage
 	 */
 	public HomePage() 
 	{
-		super("Home", "Welcome to ODCleanStore Web Frontend");
+		super("Home", "Welcome to ODCleanStore Administration");
 	}
 }

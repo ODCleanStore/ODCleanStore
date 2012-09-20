@@ -107,7 +107,7 @@ public final class Utils {
 			return null;
 		}
 		
-		StringBuffer buffer = new StringBuffer( src.length());
+		StringBuilder buffer = new StringBuilder( src.length());
 		for (int i = 0; i < src.length(); i++) {
             char c = src.charAt(i);
             if (c <= 0x7E) { 
