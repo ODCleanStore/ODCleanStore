@@ -49,9 +49,10 @@ public class NewPipelinePage extends FrontendPage
 			protected void onSubmit()
 			{
 				Pipeline pipeline = this.getModelObject();
-				
-				try {
-					pipelineDao.save(pipeline);
+				long insertId;
+				try 
+				{
+					insertId = pipelineDao.saveAndGetKey(pipeline);
 				}
 				catch (DaoException ex)
 				{
@@ -70,7 +71,7 @@ public class NewPipelinePage extends FrontendPage
 				}
 				
 				getSession().info("The pipeline was successfuly registered.");
-				setResponsePage(PipelinesListPage.class);
+				setResponsePage(new PipelineDetailPage(insertId));
 			}
 		};
 		

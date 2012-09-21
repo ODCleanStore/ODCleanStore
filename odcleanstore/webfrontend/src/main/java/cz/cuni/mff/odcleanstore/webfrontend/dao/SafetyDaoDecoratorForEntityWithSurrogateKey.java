@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.mail.MessagingException;
 
-import org.apache.log4j.Logger;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -18,8 +17,23 @@ public class SafetyDaoDecoratorForEntityWithSurrogateKey<T extends EntityWithSur
 	extends DaoForEntityWithSurrogateKey<T>
 {
 	private static final long serialVersionUID = 1L;
+	
+	//private static Logger logger = Logger.getLogger(SafetyDaoDecoratorForEntityWithSurrogateKey.class);
+	
+	private static class KeyHolder
+	{
+		private long key;
 
-	private static Logger logger = Logger.getLogger(SafetyDaoDecoratorForEntityWithSurrogateKey.class);
+		public long getKey()
+		{
+			return key;
+		}
+
+		public void setKey(long key)
+		{
+			this.key = key;
+		}
+	}
 	
 	private DaoForEntityWithSurrogateKey<T> dao;
 	private List<DaoExceptionHandler> exceptionHandlers;
@@ -125,6 +139,37 @@ public class SafetyDaoDecoratorForEntityWithSurrogateKey<T extends EntityWithSur
 			handleException(ex);
 			throw ex;
 		}	
+	}
+	
+	@Override
+	public long saveAndGetKey(final T item) throws Exception
+	{
+		
+		final KeyHolder keyHolder = new KeyHolder();
+		try
+		{
+			dao.getTransactionTemplate().execute(new TransactionCallbackWithoutResult() 
+			{
+				@Override
+				protected void doInTransactionWithoutResult(TransactionStatus status) 
+				{
+					try {
+						dao.save(item);
+						long insertId = dao.getLastInsertId();
+						keyHolder.setKey(insertId);
+					}
+					catch (Exception ex) {
+						throw new RuntimeException(ex.getMessage(), ex);
+					}
+				}
+			});
+		}
+		catch (Exception ex)
+		{
+			handleException(ex);
+			throw ex;
+		}
+		return keyHolder.getKey();
 	}
 	
 	@Override
@@ -288,5 +333,11 @@ public class SafetyDaoDecoratorForEntityWithSurrogateKey<T extends EntityWithSur
 		}
 		
 		return null;
+	}
+	
+	// TODO: only temporary
+	public DaoForEntityWithSurrogateKey<T> getWrappedDao() 
+	{
+		return dao;
 	}
 }

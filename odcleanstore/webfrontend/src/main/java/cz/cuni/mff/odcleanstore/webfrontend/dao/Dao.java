@@ -1,7 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao;
 
 import cz.cuni.mff.odcleanstore.util.CodeSnippet;
-import cz.cuni.mff.odcleanstore.util.Pair;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
 
@@ -264,5 +263,16 @@ public abstract class Dao<T extends BusinessEntity> implements Serializable
 		throw new UnsupportedOperationException(
 			"Cannot delete rows from table: " + getTableName() + "."
 		);
+	}
+	
+	/**
+	 * Returns the last assigned identity column value in the clean database instance.
+	 * @return last assigned identity column value
+	 * @throws Exception
+	 */
+	protected long getLastInsertId() throws Exception
+	{
+		String query = "SELECT identity_value()";
+		return getCleanJdbcTemplate().queryForLong(query);
 	}
 }
