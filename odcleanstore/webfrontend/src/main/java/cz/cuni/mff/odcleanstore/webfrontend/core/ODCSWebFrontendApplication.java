@@ -11,12 +11,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import cz.cuni.mff.odcleanstore.webfrontend.configuration.Configuration;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.HomePage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LogInPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.outputws.CRPropertiesListPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.PipelinesListPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.TransformersListPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.OIGroupsListPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.QAGroupDetailPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts.UserAccountsPage;
 
 /**
  * Web Frontend Application object.
