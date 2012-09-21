@@ -16,6 +16,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputTypeDao;
@@ -141,7 +142,7 @@ public class OIRuleDetailPage extends FrontendPage
 		
 		add(dataView);
 		
-		add(new PagingNavigator("dbOutputsNavigator", dataView));
+		add(new UnobtrusivePagingNavigator("dbOutputsNavigator", dataView));
 	}
 	
 	private void addFileOutputsSection(final Long ruleId) 
@@ -205,6 +206,6 @@ public class OIRuleDetailPage extends FrontendPage
 		
 		add(dataView);
 		
-		add(new PagingNavigator("fileOutputsNavigator", dataView));
+		add(new UnobtrusivePagingNavigator("fileOutputsNavigator", dataView));
 	}
 }
