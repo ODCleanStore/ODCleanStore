@@ -8,6 +8,8 @@ import java.sql.SQLException;
 
 public class MultivalueTypeRowMapper extends CustomRowMapper<MultivalueType>
 {
+	private static final long serialVersionUID = 1L;
+	
 	public MultivalueType mapRow(ResultSet rs, int rowNum) throws SQLException 
 	{
 		return new MultivalueType(

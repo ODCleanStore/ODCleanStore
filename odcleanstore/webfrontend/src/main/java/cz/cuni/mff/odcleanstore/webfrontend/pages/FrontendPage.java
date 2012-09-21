@@ -2,7 +2,6 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -24,7 +23,6 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
 import cz.cuni.mff.odcleanstore.webfrontend.core.ODCSWebFrontendApplication;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.HelpWindow;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts.UserAccountHelpPanel;
 
 /**
  * An abstract base class for all WebFrontend page components, except for
@@ -40,7 +38,7 @@ public abstract class FrontendPage extends WebPage
 	
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger(FrontendPage.class);
+	//private static Logger logger = Logger.getLogger(FrontendPage.class);
 	
 	protected DaoLookupFactory daoLookupFactory;
 	

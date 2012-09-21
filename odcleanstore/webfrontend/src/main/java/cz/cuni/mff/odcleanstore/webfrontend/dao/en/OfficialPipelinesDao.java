@@ -6,7 +6,6 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import org.apache.log4j.Logger;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.AbstractPlatformTransactionManager;
@@ -19,7 +18,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 
 public class OfficialPipelinesDao 
 {
-	private static Logger logger = Logger.getLogger(OfficialPipelinesDao.class);
+	//private static Logger logger = Logger.getLogger(OfficialPipelinesDao.class);
 	
 	// note that the tables must be listed in the correct order 
 	// to avoid errors when deleting a table which is referenced

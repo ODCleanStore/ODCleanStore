@@ -1,10 +1,9 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.dn;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.AggregationType;
+import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponentType;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
-
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 /**
  * 

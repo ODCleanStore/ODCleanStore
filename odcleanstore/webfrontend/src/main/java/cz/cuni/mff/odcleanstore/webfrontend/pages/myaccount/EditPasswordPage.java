@@ -4,10 +4,8 @@ import java.security.NoSuchAlgorithmException;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.RestartResponseException;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.PasswordTextField;
-import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.form.validation.EqualInputValidator;
 import org.apache.wicket.model.CompoundPropertyModel;
 
@@ -24,7 +22,7 @@ public class EditPasswordPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger(EditPasswordPage.class);
+	//private static Logger logger = Logger.getLogger(EditPasswordPage.class);
 	
 	private DaoForEntityWithSurrogateKey<User> userDao;
 	

@@ -25,6 +25,8 @@ public class HomePage extends FrontendPage
 		DaoForEntityWithSurrogateKey<User> userDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(UserDao.class);
 		add(new LogInPanel("logInForm", userDao) 
 		{
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public boolean isVisible() {
 				return  !ODCSWebFrontendSession.get().isAuthenticated();
