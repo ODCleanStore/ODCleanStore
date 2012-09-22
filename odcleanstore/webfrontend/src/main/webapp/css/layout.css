@@ -71,6 +71,7 @@ body
 .datalistitem strong
 {
 	display: block;
+	margin-bottom: 5px;
 }
 
 table
