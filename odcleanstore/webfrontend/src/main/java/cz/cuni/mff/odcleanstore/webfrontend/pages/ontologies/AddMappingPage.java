@@ -15,7 +15,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.DetachableAutoComple
 import cz.cuni.mff.odcleanstore.webfrontend.dao.onto.OntologyMappingDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.validators.EnumValidator;
-import cz.cuni.mff.odcleanstore.webfrontend.validators.IRIValidator;
+import cz.cuni.mff.odcleanstore.webfrontend.validators.JenaURIValidator;
 
 public class AddMappingPage extends FrontendPage {
 	
@@ -73,7 +73,7 @@ public class AddMappingPage extends FrontendPage {
 		settings.setShowListOnEmptyInput(true);
 		model = createModel();
 		field = new DetachableAutoCompleteTextField("relationType", settings, model);
-		field.add(new IRIValidator());
+		field.add(new JenaURIValidator());
 		form.add(field);
 		
 		if (targetOntoGraphName != null)
@@ -85,7 +85,7 @@ public class AddMappingPage extends FrontendPage {
 		} else
 		{
 			field = new TextField<String>("targetUri");
-			field.add(new IRIValidator());
+			field.add(new JenaURIValidator());
 		}
 		form.add(field);
 		
