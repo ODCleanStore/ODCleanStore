@@ -149,8 +149,10 @@ public class PipelineGraphTransformerExecutor {
 	}
 
 	private String checkTransformerWorkingDirectory(PipelineCommand command) throws PipelineGraphTransformerExecutorException {
+	    File file = new File(command.workDirPath, Integer.toString(command.transformerInstanceID));
+	    String path = file.getPath();
 		try {
-			return Utils.satisfyDirectory(command.workDirPath);
+			return Utils.satisfyDirectory(path);
 		} catch (Exception e) {
 			throw new PipelineGraphTransformerExecutorException(format(ERROR_WORKING_DIRECTORY_CHECK, command), e);
 		}

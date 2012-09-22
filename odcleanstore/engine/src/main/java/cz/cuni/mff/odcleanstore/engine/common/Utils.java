@@ -65,7 +65,7 @@ public final class Utils {
 		File file = new File(fileName);
 		if (!file.isAbsolute()) {
 			File curdir = new File(baseForRelativePath);
-			file = new File(curdir.getAbsolutePath() + File.separator + file.getPath());
+			file = new File(curdir.getAbsolutePath(), file.getPath());
 		}
 		return file;
 	}
