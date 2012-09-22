@@ -107,6 +107,10 @@ class LogInForm extends Form<User>
 		ODCSWebFrontendSession.get().setUser(user);
 		
 		getSession().info("User successfuly logged in.");
-		setResponsePage(getApplication().getHomePage());
+		boolean redirected = continueToOriginalDestination();
+		if (!redirected) 
+		{
+			setResponsePage(getApplication().getHomePage());
+		}
 	}
 }
