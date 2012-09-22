@@ -63,7 +63,6 @@ public class URLRouter
 	
 	private void setupUserAccountsRoutes(WebApplication app) 
 	{
-		app.mountPage(webUrlPrefix + "/user-accounts", UserAccountsPage.class);
 		app.mountPage(webUrlPrefix + "/user-accounts/list", AccountsListPage.class);
 		app.mountPage(webUrlPrefix + "/user-accounts/new", NewAccountPage.class);
 		app.mountPage(webUrlPrefix + "/user-accounts/edit", EditAccountPermissionsPage.class);	

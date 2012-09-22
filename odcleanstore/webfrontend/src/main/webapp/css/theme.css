@@ -65,11 +65,11 @@ h2 { margin-top: 30px; }
 #menu{height:37px; display:block; padding:0; margin:0; border:1px solid; border-radius:5px;}
 #menu > ul {list-style:inside none; padding:0; margin:0;}
 #menu > ul > li {list-style:inside none; padding:0; margin:0; float:left; display:block; position:relative;}
-#menu > ul > li > a, #menu > ul > li > span > em{outline:none; display:block; position:relative; padding:12px 20px; font:bold 13px/100% Arial, Helvetica, sans-serif; text-align:center; text-decoration:none; text-shadow:1px 1px 0 rgba(0,0,0, 0.4);}
+#menu > ul > li > a, #menu > ul > li > span > em{outline:none; display:block; position:relative; padding: 12px 18px 12px 12px; font:bold 13px/100% Arial, Helvetica, sans-serif; text-align:center; text-decoration:none; text-shadow:1px 1px 0 rgba(0,0,0, 0.4);}
 #menu > ul > li:first-child > a, #menu > ul > li:first-child > span > em{border-radius:5px 0 0 5px;}
 #menu > ul > li > a:after, #menu > ul > li > span > em:after{content:''; position:absolute; border-right:1px solid; top:-1px; bottom:-1px; right:-2px; z-index:99;}
 #menu ul li.has-sub:hover > a:after, #menu ul li.has-sub:hover > span > em:after{top:0; bottom:0;}
-#menu > ul > li.has-sub > a:before, #menu > ul > li.has-sub > span > em:before, #menu > ul > li.has-sub > ul > li.has-sub > a:before, #menu > ul > li.has-sub > ul > li.has-sub > span > em:before{content:''; position:absolute; top:18px; right:6px; border:5px solid transparent; border-top:5px solid #fff;}
+#menu > ul > li.has-sub > a:before, #menu > ul > li.has-sub > span > em:before, #menu > ul > li.has-sub > ul > li.has-sub > a:before, #menu > ul > li.has-sub > ul > li.has-sub > span > em:before{content:''; position:absolute; top:18px; right:4px; border:5px solid transparent; border-top:5px solid #fff;}
 #menu > ul > li.has-sub:hover > a:before, #menu > ul > li.has-sub:hover > span > em:before{top:19px;}
 #menu ul li.has-sub:hover > a, #menu ul li.has-sub:hover > span > em{background:#3f3f3f; border-color:#3f3f3f; padding-bottom:13px; padding-top:13px; top:-1px; z-index:999;}
 #menu ul li.has-sub:hover > ul, #menu ul li.has-sub:hover > div{display:block;}
