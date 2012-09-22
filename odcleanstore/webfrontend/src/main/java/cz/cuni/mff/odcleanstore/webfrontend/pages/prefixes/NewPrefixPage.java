@@ -24,8 +24,8 @@ public class NewPrefixPage extends FrontendPage
 	{
 		super
 		(
-			"Home > URI Prefixes > New", 
-			"Add a new URI prefix"
+			"Home > Namespace Prefixes > New", 
+			"Add a new namespace prefix"
 		);
 		
 

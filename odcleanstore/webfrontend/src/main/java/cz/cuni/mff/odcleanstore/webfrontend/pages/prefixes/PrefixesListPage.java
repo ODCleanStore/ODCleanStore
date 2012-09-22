@@ -32,8 +32,8 @@ public class PrefixesListPage extends FrontendPage
 	{
 		super
 		(
-			"Home > URI Prefixes > List", 
-			"List all URI prefixes"
+			"Home > Namespace Prefixes > List", 
+			"List all namespace prefixes"
 		);
 		
 		// prepare DAO objects

@@ -21,7 +21,7 @@ public class LogInPage extends FrontendPage
 	 */
 	public LogInPage() throws AssertionError 
 	{
-		super("Home > LogIn", "Log in");
+		super("Home > Log In", "Log in");
 
 		DaoForEntityWithSurrogateKey<User> userDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(UserDao.class);
 		add(new LogInPanel("logInForm", userDao));
