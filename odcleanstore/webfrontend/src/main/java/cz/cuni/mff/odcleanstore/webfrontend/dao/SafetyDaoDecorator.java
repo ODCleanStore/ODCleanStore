@@ -119,37 +119,6 @@ public class SafetyDaoDecorator<T extends BusinessEntity> extends Dao<T>
 	}
 	
 	@Override
-	public long saveAndGetKey(final T item) throws Exception
-	{
-		
-		final SimpleKeyHolder keyHolder = new SimpleKeyHolder();
-		try
-		{
-			dao.getTransactionTemplate().execute(new TransactionCallbackWithoutResult() 
-			{
-				@Override
-				protected void doInTransactionWithoutResult(TransactionStatus status) 
-				{
-					try {
-						dao.save(item);
-						long insertId = dao.getLastInsertId();
-						keyHolder.setKey(insertId);
-					}
-					catch (Exception ex) {
-						throw new RuntimeException(ex.getMessage(), ex);
-					}
-				}
-			});
-		}
-		catch (Exception ex)
-		{
-			handleException(ex);
-			throw ex;
-		}
-		return keyHolder.getKey();
-	}
-
-	@Override
 	public void update(final T item, final CodeSnippet doAfter) throws Exception
 	{
 		try
