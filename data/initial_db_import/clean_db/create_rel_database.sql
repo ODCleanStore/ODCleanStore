@@ -190,10 +190,11 @@ CREATE TABLE DB.ODCLEANSTORE.TRANSFORMERS
 
 DELETE FROM DB.ODCLEANSTORE.TRANSFORMERS;
 
-INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS (label, description, jarPath, workDirPath, fullClassName) VALUES (n'Quality Assessment', n'The standard Quality Assessment transformer', n'.', n'transformers-working-dir/qassessment', n'cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl');
-INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS (label, description, jarPath, workDirPath, fullClassName) VALUES (n'Quality Aggregator', n'The standard Quality Aggregator transformer', n'.', n'transformers-working-dir/qagregator', n'cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAggregatorImpl');
-INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS (label, description, jarPath, workDirPath, fullClassName) VALUES (n'Linker', n'The standard Object Identification transformer',  n'.', n'transformers-working-dir/link', n'cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl');
-INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS (label, description, jarPath, workDirPath, fullClassName) VALUES (n'Data Normalization', n'The standard Data Normalization transformer', n'.', n'transformers-working-dir/dn', n'cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl');
+INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS (label, description, jarPath, workDirPath, fullClassName) VALUES (n'Quality Assessment', n'ODCS Quality Assessment transformer', n'.', n'transformers-working-dir/qassessment', n'cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl');
+INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS (label, description, jarPath, workDirPath, fullClassName) VALUES (n'Quality Aggregator', n'ODCS Quality Aggregator transformer', n'.', n'transformers-working-dir/qagregator', n'cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAggregatorImpl');
+INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS (label, description, jarPath, workDirPath, fullClassName) VALUES (n'Linker', n'ODCS Object Identification transformer',  n'.', n'transformers-working-dir/link', n'cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl');
+INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS (label, description, jarPath, workDirPath, fullClassName) VALUES (n'Data Normalization', n'ODCS Data Normalization transformer', n'.', n'transformers-working-dir/dn', n'cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl');
+INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS (label, description, jarPath, workDirPath, fullClassName) VALUES (n'Blank node remover', n'ODCS transformer for replacing blank nodes by new URI resources', n'.', n'transformers-working-dir/bnode-remover', n'cz.cuni.mff.odcleanstore.transformer.odcs.ODCSBNodeToResourceTransformer');
 
 CREATE TABLE DB.ODCLEANSTORE.PIPELINES
 (
