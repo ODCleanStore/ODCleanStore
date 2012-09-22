@@ -17,7 +17,7 @@ public abstract class DaoForEntityWithSurrogateKey<T extends EntityWithSurrogate
 		
 		logger.debug("id: " + id);
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 	}
 		
 	public T loadRaw(Long id)

@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa;
 
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
@@ -9,7 +10,9 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
+@AuthorizeInstantiation({ "POC" })
 public class EditQAGroupPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
@@ -29,6 +32,7 @@ public class EditQAGroupPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new RulesGroupHelpPanel("content"));
 		addEditOIRulesGroupForm(groupId);
 	}
 	

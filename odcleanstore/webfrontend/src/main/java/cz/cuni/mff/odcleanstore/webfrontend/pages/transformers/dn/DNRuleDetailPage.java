@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
 import org.apache.wicket.markup.repeater.Item;
@@ -12,14 +13,17 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponent;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleComponentDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.DBOutputHelpPanel;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.OIRuleHelpPanel;
 
+@AuthorizeInstantiation({ "POC" })
 public class DNRuleDetailPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
@@ -43,6 +47,8 @@ public class DNRuleDetailPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow("dnRuleHelpWindow", "openDNRuleHelpWindow", new DNRuleHelpPanel("content"));
+		addHelpWindow("dnRuleComponentHelpWindow", "openDNRuleComponentHelpWindow", new DNRuleComponentHelpPanel("content"));
 		addRuleInformationSection(ruleId);
 		addRuleComponentsSection(ruleId);
 	}
@@ -56,7 +62,7 @@ public class DNRuleDetailPage extends FrontendPage
 		add(new Label("description"));
 		
 		add(
-			new RedirectButton(
+			new RedirectWithParamButton(
 				DNGroupDetailPage.class, 
 				rule.getGroupId(),
 				"showDNGroupDetailPage"
@@ -67,7 +73,7 @@ public class DNRuleDetailPage extends FrontendPage
 	private void addRuleComponentsSection(Long ruleId) 
 	{
 		add(
-			new RedirectButton(
+			new RedirectWithParamButton(
 				NewDNRuleComponentPage.class,
 				ruleId, 
 				"addNewComponentLink"
@@ -112,7 +118,7 @@ public class DNRuleDetailPage extends FrontendPage
 				);
 
 				item.add(
-					new RedirectButton
+					new RedirectWithParamButton
 					(
 						DNRuleComponentDetailPage.class, 
 						component.getId(), 
@@ -121,7 +127,7 @@ public class DNRuleDetailPage extends FrontendPage
 				);
 				
 				item.add(
-					new RedirectButton
+					new RedirectWithParamButton
 					(
 						EditDNRuleComponentPage.class,
 						component.getId(),
@@ -131,7 +137,7 @@ public class DNRuleDetailPage extends FrontendPage
 			}
 		};
 		
-		dataView.setItemsPerPage(10);
+		dataView.setItemsPerPage(ITEMS_PER_PAGE);
 		
 		add(dataView);
 		

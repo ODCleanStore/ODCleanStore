@@ -1,5 +1,5 @@
 \include{header}
-\newcommand{\version}{0.1}
+\newcommand{\version}{0.3.1}
 \newcommand{\documentname}{\refusermanual}
 
 \begin{document}
@@ -27,7 +27,7 @@ To overcome these issues, we present a~framework enabling management of Linked D
 
 This document is a~user manual with basic description od ODCleanStore and detailed instructions on how to access and work with the application from the perspective of a~user. Chapters \ref{chap:introduction} and \ref{chap:howItWorks} give a~basic description of what ODCleanStore is and how it works, while Chapter \ref{chap:userRoles} describes user roles and will guide you to other parts of this manual relevant for your user role.
 
-If more detailed information is needed, please refer to related documents \quot{\refadmimanual} and \quot{\refprogrammersguide}.
+If more detailed information is needed, please refer to related documents \quot{\refadminmanual} and \quot{\refprogrammersguide}.
 
 \todo{what is important, what is different from others, how do we support the goals}
 
@@ -135,7 +135,7 @@ Data consumers accessing Output Webservice (see Section~\ref{sec:outputWS}) do n
 %	The administrator is responsible for ensuring that not more than one instance of the storage and its web frontend is connected to one instance of database.
 
 
-	More information, e.g. about adding transformers, can be found in the related document \refadmimanual.
+	More information, e.g. about adding transformers, can be found in the related document \refadminmanual.
 
 	\paragraph{Most relevant sections of this document:} Chapter \ref{chap:administrationFrontend} \nameref{chap:administrationFrontend}.
 
@@ -174,6 +174,26 @@ Data consumers accessing Output Webservice (see Section~\ref{sec:outputWS}) do n
 
 Administration Frontend is the official tool for managing ODCleanStore. It covers configuration of all standard components.
 
+Several terms and designations are used repeatedly in the frontend, however, their meanings do not change too much, therefore make sure to be familiar with them as they might not be described hereafter.
+
+\subsection*{Attributes}
+
+\enumtable
+{
+	label & A unique human readable identifier of the related entity\\
+	description & A description for user's purposes and better comprehension of semantics of the related entity
+}
+
+\subsection*{Actions}
+
+\enumtable
+{
+	Edit & edit attributes of the related entity\\
+	Delete & remove the related entity irrevertably from the system\\
+	Detail & view entities and configurations related to the related entity\\
+	Rerun affected graphs & due to a change of a configuration of a transformer (modification of a rule group) the stored data may be found in an inconsistent form, therefore it is possible for the user to identify such situations and decide to run the transformer again
+}
+
 \section{User Accounts Administration}
 
 To be able to manage user accounts one has to have \term{ADM} user role (section \ref{sec:adm}) associated with his account. It is possible to view currently active accounts and modify them or to add new accounts to the system from this page. The modification is limited to changes of user roles and resetting of passwords for safety reasons. A newly generated password is sent to the e-mail address of the affected user.
@@ -186,32 +206,36 @@ To be able to manage user accounts one has to have \term{ADM} user role (section
 	The transformer management screen allows registered users to add, edit or remove {transformers}. These can be then added to \term{pipelines} (Section \ref{sec:pipelineManagement}).
 	
 	Each {transformer} definition consists of:
-	\begin{itemize}
-		\item \textbf{required} label
-		
-		Unique identifier of the {transformer}.
-		
-		\item \textbf{optional but recommended} description
-		
-		Description of what the purpose of the {transformer} is.
-		
-		\item \textbf{required} JAR path
-		
-		Path to a Java Archive containing the {transformer} declaration.
-		
-		\item \textbf{required} Full classname
-		
-		Name of the class implementing the {transformer}.
-	\end{itemize}
+
+	\fieldtable
+	{
+		required & label & \\
+		optional & description & \\
+		required & JAR path & Path to a Java Archive containing the {transformer} declaration.\\
+		required & Full classname & Name of the class implementing the {transformer}.
+	}
 
 \section{Pipeline management}
 \label{sec:pipelineManagement}
 
-	New incoming data (in form of a named graph) accepted by Input Webservice are passed through a {pipeline} consisting of {transformers}. In this section of the administration frontend it is possible for the user to specify different {pipelines}. Individual {pipelines} can incorporate different already existing {transformers}. To edit the structure of a {pipeline}, view its detail. As the importance of data modification that the pipelines can cause differs based on what database it is running upon, it is left for the user to decide whether a concrete {transformer} should be allowed to run on clean database (in addition to running on dirty database). Some transformations do not make sense when working with clean database.
-	
-	The order of application of {transformers} to a named graph processed by the related {pipeline} is determined by its \term{priority} in ascending order. Every {transformer} runs before {transformers} with greater priority number.
+	New incoming data (in form of a named graph) accepted by Input Webservice are passed through a {pipeline} consisting of {transformers}. In this section of the administration frontend it is possible for the user to specify different {pipelines}. Individual {pipelines} can incorporate different already existing {transformers}. To edit the structure of a {pipeline}, view its detail.
 
-\paragraph{Important note:} Any changes done in this section need to be commited to ever take effect. To do so, please, click the "Commit settings" button.
+\subsection*{Individual transformer instances}
+
+	In a detail page of any particular pipeline there is a list of transformers assigned to it. Each assignment composes of these fields:
+
+	\fieldtable
+	{
+		required & transformer/label & an existing transformer label\\
+		required & working dir & an existing directory designated to the above selected transformer\\
+		required & configuration & configuration passed to an instance of the above selected transformer\\
+		implied & allow to be run on clean DB & As the importance of data modification that the pipelines can cause differs based on what database it is running upon, it is left for the user to decide whether a concrete {transformer} should be allowed to run on clean database (in addition to running on dirty database). Some transformations do not even make sense when working with clean database.\\
+		required & priority & The order of application of {transformers} to a named graph processed by the related {pipeline} is determined by its \term{priority} in ascending order. Every {transformer} runs before {transformers} with greater priority number.
+	}
+
+	The detail page of the assigned QA, DN, OI transformers allows user to specify what rule groups are assigned to the transformer in the related pipeline.
+
+\paragraph{Important note:} Any changes done in this section need to be commited to ever take effect. To do so, please, click the \quot{Commit settings} button.
 
 \section{Transformer rules}
 \label{sec:transformerRules}
@@ -238,13 +262,21 @@ On the detail page, one can specify individual rules contained in the related gr
 
 \begin{table}[!h]
 	\centering
-	\begin{tabular}{c@{\hspace{8mm}}c@{\hspace{8mm}}c}
-		\textbf{Filter} & \textbf{Coefficient} & \textbf{Description} \\
-		\code{GroupGraphPattern} [\code{GROUP BY \ldots} [\code{HAVING \ldots}]] & $ x \in [0, 1] $ & description
+	\begin{tabular}{|rl@{\hspace{8mm}}c@{\hspace{8mm}}c|}
+		\hline
+		& \textbf{Filter} & \textbf{Coefficient} & \textbf{Description} \\
+		\hline
+		& \code{GroupGraphPattern} [\code{GROUP BY \ldots} [\code{HAVING \ldots}]] & $ x \in [0, 1] $ & description \\
+		&&&\\
+		ex: & \code{\{\{?s anatomy:limbs ?o\} FILTER (?o > 4)\}} & $ 0.4 $ & To many limbs\\
+		\hline
 	\end{tabular}
 	\caption{Quality Assessment rule fields}
 	\label{tbl:qaFields}
 \end{table}
+
+Any snippet of SPARQL\footnote{\url{http://www.w3.org/TR/rdf-sparql-query/\#grammar}} to which \quot{\code{SELECT * FROM ... WHERE}} can be prepended is a valid filter and describes a property of a named graph that the author of the rule finds defective.
+%%TODO: mention/omit: The use of SPARQL 1.1 features depends on underlaying Virtuoso OpenSource version.
 
 \subsection{Data Normalization}
 \label{sub:dataNormalization}
@@ -261,7 +293,9 @@ Similarly as with the rules themselves the detail page of a rule allows the user
 	\code{\{?s ?p1 ?o2\} WHERE \{GRAPH \$\$graph\$\$ \{?s ?p1 ?o1. ?o1 ?p2 ?o2.\}\}},
 \end{center}
 
-where \code{\$\$graph\$\$} is a place holder for name of the graph being currently processed. Expectedly triples (\code{?s ?p1 ?o2} in the example) are inserted into (deleted from) the current graph when the type of the component is \code{INSERT} (\code{DELETE}). Effects are immediate in respect to consecutive applications of other components to the graph.
+where \code{\$\$graph\$\$} is a place holder for name of the graph being currently processed. Expectedly triples (\code{?s ?p1 ?o2} in the example) are inserted into (deleted from) the current graph when the type of the component is \code{INSERT} (\code{DELETE}). Effects are immediate in respect to consecutive applications of other components of the same rule or other rules to the graph.
+
+%%TODO: notice: use of GRAPH $$graph$$ is highly recommended in cases the other is not sure he tries to avoid restriction to the processed graph only
 
 \subsection{Object Identification}
 \label{sub:objectIdentification}
@@ -283,6 +317,89 @@ Ontologies can be used to produce common rules for QA, DN {transformers}. To loa
 
 To avoid obligation of full manual URI expansion in \term{transformer} rules or queries it is possible to maintain set of global \term{RDF} prefixes that storage recognizes.
 
+\section{Configuration Example}
+
+In this section a basic concept of ODCleanStore configuration will be illustrated.
+
+{
+%%TODO: choose one:
+%%After the installation of the storage there will be a user account \emph{adm} with password \emph{adm} allowing the user to access the administration account in its full potential. It is necessary to log into the system and it is advisable to change users email address and then reset the password right away.
+
+It is necessary to log into the frontend with credentials given during the installation. All of the following operations will be possible to be done with the initial user account.
+}
+
+There need to be transformers for the storage to be able to handle incoming data. ODCleanStore comes with its built in transformers that are accessible from the frontend right after the installation. Custom transformers need to be added at this point.
+
+Add the ODCSPropertyFilterTransformer by following steps:
+
+\subsection*{Prepare transformer}
+\label{sec:prepareTransformer}
+\begin{enumerate}
+	\item Choose \code{Backend/Transformers} from the frontend menu
+	\item Click \quot{Add a new transformer}
+	\item Fill in label of your choice:
+	
+	ODCSPropertyFilterTransformer
+	
+	\item Describe its purpose:
+	
+	Removes reserved properties from the processed graph
+	
+	\item Select the path to the backend JAR:
+	
+	.
+	
+	\item Fill in the classname:
+	
+	cz.cuni.mff.odcleanstore.transformer.odcs.ODCSPropertyFilterTransformer
+
+\end{enumerate}
+
+\subsection*{Prepare rules for standard transformer}
+\begin{enumerate}[resume]
+	\item Choose \code{Backend/Rules/DN} from the frontend menu
+	\item Click \quot{Add a new group}
+	\item Fill in necessary information and submit it
+	\item Click \quot{Detail} in the row of the group created in the previous step
+	\item Click \quot{Add a new rule}, fill in its description and submit
+	\item Click \quot{Detail} in the row of the rule created in the previous step
+	\item Click \quot{Add a new rule component}
+	\item Choose the type of the data transformation (INSERT/DELETE)
+	\item Specify the triples that will modify the graph
+	
+	ex: \code{\{?s prefix1:property1 ?o\} WHERE \{?s prefix2:property2 ?o\}}
+	
+	\item Describe the meaning of this transformation and submit it
+	\item Repeat until the rule is complete
+\end{enumerate}
+
+  
+\subsection*{Prepare pipeline}
+\begin{enumerate}[resume]
+	\item Click \quot{Add a new pipeline}, fill in the label and description and submit it
+	\item Click \quot{Detail} in the row of the pipeline created in the previous step
+	\item Click \quot{Assign a transformer}
+	\item Select one of the transformers
+	
+	\emph{If there is no option then go back to the} \textbf{\hyperref[sec:prepareTransformer]{Prepare transformer}} \emph{section}
+	
+	To be able to assign rule groups select one of the standard transformers (QA, DN, OI)
+	
+	\item Dedicate a working directory to the transformer by filling in its path
+	\item Fill in the configuration needed by the transformer
+	\item Allow or disallow running on clean DB
+	\item Fill in any positive integer as indicator of the transformer's priority
+
+	\item[]\item[] If you added a standard transformer
+	\item Click \quot{Detail} in the row of the transformer
+
+	
+	%%TODO: nahrani dat? odkaz na scraper?
+	
+	%%TODO: debugging ... neni jeste hotov
+
+\end{enumerate}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \chapter{Web Services}
@@ -294,7 +411,7 @@ ODCleanStore communicates with third-party applications via webservices. Data pr
 
 New data can be stored to ODCleanStore through Input Webservice, a~SOAP multithreaded webservice that accepts RDF data serialized as RDF/XML\footnote{\url{http://www.w3.org/TR/rdf-syntax-grammar/}} or TTL\footnote{TTL or Turtle -- Terse RDF Triple Language; \url{http://www.w3.org/TeamSubmission/turtle/}} and additional metadata. The webservice requires authorization with a~valid user name and password.
 
-The location of Input Webservice can be configured by the \code{input\_ws.endpoint\_url} configuration option (see \refadmimanual); by default, it is:
+The location of Input Webservice can be configured by the \code{input\_ws.endpoint\_url} configuration option (see \refadminmanual); by default, it is:
 \begin{center}
 \varcode{host}\code{:8080/inputws}
 \end{center}
@@ -464,7 +581,7 @@ Additionally, the user can access the data in the clean database directly using 
 
 \section*{Output Webservice}
 
-The Output Webservice is a~REST webservice which can be accessed using both GET and POST HTTP methods equivalently. The port where the webservice resides can be configured by the \code{output\_ws.port} configuration option (see \refadmimanual); by default, it is on port \code{8087}.
+The Output Webservice is a~REST webservice which can be accessed using both GET and POST HTTP methods equivalently. The port where the webservice resides can be configured by the \code{output\_ws.port} configuration option (see \refadminmanual); by default, it is on port \code{8087}.
 
 \subsection{Types of queries}
 
@@ -658,7 +775,8 @@ An example:
 @prefix w3p:     <http://purl.org/provenance#> .
 @prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix dbpedia:     <http://dbpedia.org/ontology/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dbpedia: <http://dbpedia.org/ontology/> .
 
 <http://opendata.cz/infrastructure/odcleanstore/query/results/1> {
   <http://dbpedia.org/resource/Berlin> rdfs:label "Berlin"@en .
@@ -684,6 +802,7 @@ An example:
     w3p:insertedAt "2012-04-01 12:34:56.0"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
     w3p:source <http://dbpedia.org/page/Berlin> ;
     w3p:publishedBy <http://dbpedia.org/> ;
+    dcterms:license <http://creativecommons.org/licenses/by-sa/3.0/> ;
     odcs:publisherScore 0.9 .
 
   <http://opendata.cz/infrastructure/odcleanstore/data/b68e21f7-363f-4bfd>
@@ -716,7 +835,7 @@ as in case of TriG output, however no metadata about quality of triples or about
 
 \subsubsection{Paging of results}
 \label{sec:URIKWPaging}
-As of now, all results are returned on a single page. The approximate maximum number of triples in the result is 500 by default (and can be set in the configuration file, see \refadmimanual).
+As of now, all results are returned on a single page. The approximate maximum number of triples in the result is 500 by default (and can be set in the configuration file, see \refadminmanual).
 
 \subsection{Results Format for Named Graph Query}
 Named graph query selects all triples stored in the given named graph and is intended mainly for debugging purposes.
@@ -758,6 +877,7 @@ An example:
   <http://opendata.cz/infrastructure/odcleanstore/data/e0cdc9d7-e2d8-4bde>
     w3p:insertedAt "2012-04-01 12:34:56.0"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
     w3p:source <http://dbpedia.org/page/Berlin> ;
+    dc:license <http://creativecommons.org/licenses/by-sa/3.0/> ;
     w3p:publishedBy <http://dbpedia.org/> ;
     odcs:provenanceMetadataGraph
       <http://opendata.cz/infrastructure/odcleanstore/provenanceMetadata/e0cdc9d7-e2d8-4bde>;
@@ -853,7 +973,7 @@ When a new request is sent to Input Webservice, the stored data \& metadata go t
 \end{table}
 \todo{check it is up-to-date}
 
-  \item Next, the processing pipeline is selected -- if \code{pipelineName} was present, pipeline with the given name is used, the default pipeline is used otherwise. Engine runs each transformer in the pipeline on the stored data. Transformers can modify the inserted named graphs or attach new named graphs (\term{attached named graph}). See~\refadmimanual{} for more information about transformers.
+  \item Next, the processing pipeline is selected -- if \code{pipelineName} was present, pipeline with the given name is used, the default pipeline is used otherwise. Engine runs each transformer in the pipeline on the stored data. Transformers can modify the inserted named graphs or attach new named graphs (\term{attached named graph}). See~\refadminmanual{} for more information about transformers.
 
   \item If all transformers in the pipeline finish successfully, the \code{payload} graph, \code{provenance} graph, metadata graph and any new attached graphs are moved from the dirty database to the clean database, while the respective request is removed from the queue.
 

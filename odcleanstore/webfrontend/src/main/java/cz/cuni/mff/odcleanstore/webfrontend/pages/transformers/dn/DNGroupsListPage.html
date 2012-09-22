@@ -1,15 +1,17 @@
 <wicket:extend>
 
-<h2>Registered QA rules groups</h2>
+<div wicket:id="helpWindow"></div>
 
 <wicket:link>
 <div>
-	<a class="placedright" href="NewDNGroupPage.html">Add a new rules group</a>
+	<a class="placedright button" href="NewDNGroupPage.html">Add a new rules group</a>
 	<div class="clear">&nbsp;</div>
 </div>
 </wicket:link>
 
-<span wicket:id="navigator">[dataview navigator]</span>
+<span class="navigation" wicket:id="navigator">[dataview navigator]</span>
+<a wicket:id="openHelpWindow"class="help">Help</a>
+
 <table border="1">
 	
 	<tr>
@@ -26,7 +28,7 @@
 		<td class="centered">
 			<input wicket:id="deleteGroup" type="button" value="Delete" />
 			<input wicket:id="manageRules" type="button" value="Detail" />
-			<input wicket:id="showEditQAGroupPage" type="button" value="Edit" />
+			<input wicket:id="showEditDNGroupPage" type="button" value="Edit" />
 			<input wicket:id="rerunAffectedGraphs" type="button" value="Rerun affected graphs" />
 		</td>
 	</tr>

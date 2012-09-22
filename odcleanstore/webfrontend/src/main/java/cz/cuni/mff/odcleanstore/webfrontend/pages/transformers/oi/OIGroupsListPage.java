@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.OrderByBorder;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
@@ -15,7 +16,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
@@ -26,8 +27,10 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.en.OIRuleAssignmentDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.QARuleAssignmentDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.QAGroupsListPage;
 
+@AuthorizeInstantiation({ "POC" })
 public class OIGroupsListPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
@@ -51,6 +54,7 @@ public class OIGroupsListPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new RulesGroupHelpPanel("content"));
 		addOIRulesGroupsTable();
 	}
 
@@ -84,7 +88,7 @@ public class OIGroupsListPage extends FrontendPage
 				);
 				
 				item.add(
-					new RedirectButton(
+					new RedirectWithParamButton(
 						OIGroupDetailPage.class,
 						group.getId(), 
 						"manageRules"
@@ -92,7 +96,7 @@ public class OIGroupsListPage extends FrontendPage
 				);
 				
 				item.add(
-					new RedirectButton(
+					new RedirectWithParamButton(
 						EditOIGroupPage.class,
 						group.getId(),
 						"showEditOIGroupPage"
@@ -103,7 +107,7 @@ public class OIGroupsListPage extends FrontendPage
 			}
 		};
 
-		dataView.setItemsPerPage(10);
+		dataView.setItemsPerPage(ITEMS_PER_PAGE);
 		
 		add(new SortTableButton<OIRulesGroup>("orderByLabel", "label", data, dataView));
 		

@@ -13,6 +13,8 @@ import cz.cuni.mff.odcleanstore.engine.outputws.output.RDFXMLFormatter;
 import cz.cuni.mff.odcleanstore.engine.outputws.output.TriGFormatter;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecution;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
+import cz.cuni.mff.odcleanstore.queryexecution.impl.PrefixMapping;
+import cz.cuni.mff.odcleanstore.queryexecution.impl.PrefixMappingCache;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 
@@ -26,6 +28,7 @@ import org.restlet.resource.ServerResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
@@ -47,7 +50,7 @@ public abstract class QueryExecutorResourceBase extends ServerResource {
     private static final String TRUE_LITERAL = "1";
     
     /**
-     * Class implementing the "initialize-on-demand holder class" idiom.
+     * Class implementing the "initialize-on-demand holder class" idiom for QueryExecution.
      * Used to lazily initialize QueryExecution (when the config is already loaded).
      * @see http://en.wikipedia.org/wiki/Initialization-on-demand_holder_idiom
      */
@@ -61,6 +64,18 @@ public abstract class QueryExecutorResourceBase extends ServerResource {
                 ConfigLoader.getConfig().getQueryExecutionGroup().getCleanDBJDBCConnectionCredentials(),
                 ConfigLoader.getConfig());
     }
+    
+    /**
+     * Class implementing the "initialize-on-demand holder class" idiom for PrefixMappingCache.
+     */
+    private static class PrefixMappingHolder {
+        /**
+         * Cached instance of PrefixMappingCache.
+         * PrefixMappingCache is thread safe.
+         */
+        static final PrefixMappingCache PREFIX_MAPPING_CACHE = new PrefixMappingCache(
+                ConfigLoader.getConfig().getQueryExecutionGroup().getCleanDBJDBCConnectionCredentials());
+    }
 
     /**
      * Returns the singleton instance of {@link QueryExecution}.
@@ -71,6 +86,19 @@ public abstract class QueryExecutorResourceBase extends ServerResource {
     }
     
     private Form form;
+    
+    /**
+     * Returns prefix mapping. The returned value is cached.
+     * @return PrefixMapping instance
+     */
+    protected PrefixMapping getPrefixMapping() {
+        try {
+            return PrefixMappingHolder.PREFIX_MAPPING_CACHE.getCachedValue();
+        } catch (QueryExecutionException e) {
+            LOG.error("Could not load prefix mappings.");
+            return new PrefixMapping(Collections.<String, String>emptyMap());
+        }
+    }
     
     protected String getFormValue(String key) {
         return form.getFirstValue(key);
@@ -173,7 +201,7 @@ public abstract class QueryExecutorResourceBase extends ServerResource {
                 return new RDFXMLFormatter(outputWSConfig);
             }
         }
-        return new HTMLFormatter(outputWSConfig);
+        return new HTMLFormatter(outputWSConfig, getPrefixMapping());
     }
 
     /**

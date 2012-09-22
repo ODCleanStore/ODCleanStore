@@ -59,7 +59,7 @@ public class OIRuleDao extends DaoForEntityWithSurrogateKey<OIRule>
 		logger.debug("filterThreshold: " + item.getFilterThreshold());
 		logger.debug("filterLimit: " + item.getFilterLimit());
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 	}
 	
 	@Override
@@ -91,6 +91,6 @@ public class OIRuleDao extends DaoForEntityWithSurrogateKey<OIRule>
 		logger.debug("filterLimit: " + item.getFilterLimit());
 		logger.debug("id: " + item.getId());
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 	}
 }

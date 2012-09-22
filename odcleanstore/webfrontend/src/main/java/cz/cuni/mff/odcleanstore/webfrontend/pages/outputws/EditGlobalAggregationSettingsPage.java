@@ -8,10 +8,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.*;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
+@AuthorizeInstantiation({ "POC" })
 public class EditGlobalAggregationSettingsPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;

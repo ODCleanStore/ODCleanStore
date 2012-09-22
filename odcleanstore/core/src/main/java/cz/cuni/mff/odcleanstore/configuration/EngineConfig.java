@@ -6,6 +6,7 @@ import java.util.Properties;
 import cz.cuni.mff.odcleanstore.configuration.exceptions.IllegalParameterFormatException;
 import cz.cuni.mff.odcleanstore.configuration.exceptions.ParameterNotAvailableException;
 import cz.cuni.mff.odcleanstore.configuration.formats.FormatLong;
+import cz.cuni.mff.odcleanstore.configuration.formats.FormatString;
 import cz.cuni.mff.odcleanstore.configuration.formats.FormatURI;
 import cz.cuni.mff.odcleanstore.configuration.formats.ParameterFormat;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
@@ -34,8 +35,10 @@ public class EngineConfig extends ConfigGroup {
     private final URI dataGraphURIPrefix;
     private final URI metadataGraphURIPrefix;
     private final URI provenanceMetadataGraphURIPrefix;
-    private Long lookForGraphInterval;
-    private Long secondCrashPenalty;
+    private final Long lookForGraphInterval;
+    private final Long secondCrashPenalty;
+    private final String dirtyImportExportDir;
+    private final String cleanImportExportDir;
 
     /**
      *
@@ -52,7 +55,9 @@ public class EngineConfig extends ConfigGroup {
             URI metadataGraphURIPrefix,
             URI provenanceMetadataGraphURIPrefix,
             Long lookForGraphInterval,
-            Long secondCrashPenalty) {
+            Long secondCrashPenalty,
+            String dirtyImportExportDir,
+            String cleanImportExportDir) {
         this.dirtyDBJDBCConnectionCredentials = dirtyDBJDBCConnectionCredentials;
         this.cleanDBJDBCConnectionCredentials = cleanDBJDBCConnectionCredentials;
         this.startupTimeout = startupTimeout;
@@ -62,7 +67,10 @@ public class EngineConfig extends ConfigGroup {
         this.provenanceMetadataGraphURIPrefix = provenanceMetadataGraphURIPrefix;
         this.lookForGraphInterval = lookForGraphInterval;
         this.secondCrashPenalty = secondCrashPenalty;
+        this.dirtyImportExportDir = dirtyImportExportDir;
+        this.cleanImportExportDir = cleanImportExportDir;
     }
+    
     // CHECKSTYLE:ON
 
     /**
@@ -94,6 +102,10 @@ public class EngineConfig extends ConfigGroup {
         URI provenanceMetadataGraphURIPrefix = loadParam(
                 properties, GROUP_PREFIX + "provenance_metadata_graph_uri_prefix", formatURI);
         
+        ParameterFormat<String> formatString = new FormatString();
+        String dirtyImportExportDir = loadParam(properties, GROUP_PREFIX + "dirty_import_export_dir", formatString);
+        String cleanImportExportDir = loadParam(properties, GROUP_PREFIX + "clean_import_export_dir", formatString);
+        
         return new EngineConfig(
                 dirtyJDBCConnectionCredentials,
                 cleanJDBCConnectionCredentials,
@@ -103,7 +115,9 @@ public class EngineConfig extends ConfigGroup {
                 metadataGraphURIPrefix,
                 provenanceMetadataGraphURIPrefix,
                 lookForGraphInterval,
-                secondCrashPenalty);
+                secondCrashPenalty,
+                dirtyImportExportDir,
+                cleanImportExportDir);
     }
     
     /**
@@ -176,5 +190,21 @@ public class EngineConfig extends ConfigGroup {
    */
   public Long getSecondCrashPenalty() {
       return secondCrashPenalty;
+  }
+
+  /**
+  *
+  * @return Gets directory for dirty db import export files.
+  */
+  public String getDirtyImportExportDir() {
+      return dirtyImportExportDir;
+  }
+
+  /**
+  *
+  * @return Gets directory for clean db import export files.
+  */
+  public String getCleanImportExportDir() {
+      return cleanImportExportDir;
   }
 }

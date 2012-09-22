@@ -63,7 +63,7 @@ public class ODCSWebFrontendApplication extends AuthenticatedWebApplication
 	public void init() 
 	{
 		super.init();
-		
+
 		String odcsConfigPath = null;
 		try {
 			Properties props = loadProperties();
@@ -74,11 +74,17 @@ public class ODCSWebFrontendApplication extends AuthenticatedWebApplication
 		} catch (IOException e) {
 			throw new RuntimeException("Loading application properties failed: " + APP_PROPERTIES_LOCATION);
 		}
+
+		getDebugSettings().setAjaxDebugModeEnabled(false);
 		
 		ctx = new ClassPathXmlApplicationContext(SPRING_CONFIG_LOCATION);
 
 		configuration = (Configuration) ctx.getBean("appConfig");
-		daoLookupFactory = new DaoLookupFactory(configuration.getConnectionCoords());
+		
+		daoLookupFactory = new DaoLookupFactory(
+			configuration.getCleanConnectionCoords(),
+			configuration.getDirtyConnectionCoords()
+		);
 		
 		urlRouter = new URLRouter(WEB_URL_PREFIX);
 		urlRouter.setupRouting(this);

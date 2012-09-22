@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -8,13 +9,14 @@ import org.apache.wicket.validation.validator.RangeValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
+@AuthorizeInstantiation({ "POC" })
 public class NewTransformerAssignmentPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
@@ -46,8 +48,10 @@ public class NewTransformerAssignmentPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new TransformerInstanceHelpPanel("content"));
+		
 		add(
-			new RedirectButton(
+			new RedirectWithParamButton(
 				PipelineDetailPage.class,
 				pipelineId, 
 				"managePipelineTransformers"
@@ -101,8 +105,7 @@ public class NewTransformerAssignmentPage extends FrontendPage
 		};
 
 		form.add(createEnumSelectbox(transformerDao, "transformer"));
-		form.add(createTextfield("workDirPath"));
-		form.add(createTextarea("configuration"));
+		form.add(createTextarea("configuration", false));
 		form.add(createCheckbox("runOnCleanDB"));
 		addPriorityTextfield(form);
 		

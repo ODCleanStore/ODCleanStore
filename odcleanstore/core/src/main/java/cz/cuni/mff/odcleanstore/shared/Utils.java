@@ -1,5 +1,7 @@
 package cz.cuni.mff.odcleanstore.shared;
 
+import java.text.Normalizer;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
@@ -24,6 +26,9 @@ public final class Utils {
     private static final Pattern IRI_PATTERN = Pattern.compile("^[^<>\"{}|^`\\x00-\\x20]*$");
     private static final Pattern PREFIXED_NAME_PATTERN =
             Pattern.compile("^(" + PN_PREFIX_PATTERN + ")?:(" + PN_LOCAL_PATTERN + ")?$");
+    
+    private static final Pattern UUID_PATTERN = 
+            Pattern.compile("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
 
     /** Milliseconds in a second. */
     public static final long MILLISECONDS = 1000;
@@ -85,7 +90,39 @@ public final class Utils {
     public static boolean isNullOrEmpty(String s) {
         return s == null || s.length() == 0;
     }
-
+    
+    /**
+     * Extracts the UUID part from a data named graph URI.
+     * @param namedGraphURI URI of a payload/metadata/provenanceMetadata named graph
+     * @return the UUID part or null if it the named graph doesn't have the correct format
+     */
+    public static String extractUUID(String namedGraphURI) {
+        if (Utils.isNullOrEmpty(namedGraphURI)) {
+            return null;
+        }
+        Matcher matcher = UUID_PATTERN.matcher(namedGraphURI);
+        return matcher.find() ? matcher.group() : null;
+    }
+    
+    /**
+     * Convert the given string to ASCII characters, removing diacritical marks.
+     * @param str string to convert
+     * @return string containing only ASCII characters
+     */
+    public static String toAscii(CharSequence str) {
+        final int asciiSize = 128;
+        String decomposed = Normalizer.normalize(str, Normalizer.Form.NFKD);
+        /* Build a new String with only ASCII characters. */
+        StringBuilder buf = new StringBuilder(str.length());
+        for (int idx = 0; idx < decomposed.length(); ++idx) {
+            char ch = decomposed.charAt(idx);
+            if (ch < asciiSize) {
+                buf.append(ch);
+            }
+        }
+        return buf.toString();
+    }
+        
     /** Disable constructor for a utility class. */
     private Utils() {
     }

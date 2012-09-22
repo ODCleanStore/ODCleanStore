@@ -44,7 +44,7 @@ public class TransformerInstanceDao extends DaoForEntityWithSurrogateKey<Transfo
 		
 		Object[] params = criteria.buildWhereClauseParams();
 		
-		return getJdbcTemplate().query(query, params, getRowMapper());
+		return getCleanJdbcTemplate().query(query, params, getRowMapper());
 	}
 	
 	@Override
@@ -57,45 +57,43 @@ public class TransformerInstanceDao extends DaoForEntityWithSurrogateKey<Transfo
 		
 		Object[] params = { id };
 		
-		return getJdbcTemplate().queryForObject(query, params, getRowMapper());
+		return getCleanJdbcTemplate().queryForObject(query, params, getRowMapper());
 	}
 	
 	public void save(TransformerInstance item)
 	{
 		String query = 
 			"INSERT INTO " + TABLE_NAME + " " +
-			"(pipelineId, transformerId, workDirPath, configuration, runOnCleanDB, priority) " +
-			"VALUES (?, ?, ?, ?, ?, ?)";
+			"(pipelineId, transformerId, configuration, runOnCleanDB, priority) " +
+			"VALUES (?, ?, ?, ?, ?)";
 		
 		Object[] params =
 		{
 			item.getPipelineId(),
 			item.getTransformerId(),
-			item.getWorkDirPath(),
 			item.getConfiguration(),
 			boolToSmallint(item.getRunOnCleanDB()),
 			item.getPriority()
 		};
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 	}
 	
 	public void update(TransformerInstance item)
 	{
 		String query = 
 			"UPDATE " + TABLE_NAME + 
-			" SET workDirPath = ?, configuration = ?, runOnCleanDB = ?, priority = ? " +
+			" SET configuration = ?, runOnCleanDB = ?, priority = ? " +
 			"WHERE id = ?";
 		
 		Object[] params =
 		{
-			item.getWorkDirPath(),
 			item.getConfiguration(),
 			boolToSmallint(item.getRunOnCleanDB()),
 			item.getPriority(),
 			item.getId()
 		};
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 	}
 }

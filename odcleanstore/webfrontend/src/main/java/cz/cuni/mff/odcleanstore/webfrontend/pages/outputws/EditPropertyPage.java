@@ -9,6 +9,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.*;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -16,6 +17,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 
+@AuthorizeInstantiation({ "POC" })
 public class EditPropertyPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
@@ -41,6 +43,7 @@ public class EditPropertyPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new AggregationPropertyHelpPanel("content"));
 		addEditPropertyForm(propertyId);
 	}
 	

@@ -329,7 +329,7 @@ public class QualityAssessmentRulesModel {
 			while (enumerations.hasNext()) {	
 				Statement conceptStmt = enumerations.next();
 
-				if (model.contains(conceptStmt.getObject().asResource(), RDF.type, model.createProperty(skosNS, "Concept"))) {
+				//if (model.contains(conceptStmt.getObject().asResource(), RDF.type, model.createProperty(skosNS, "Concept"))) {
 					valueList.append(conceptStmt.getObject().asNode().getURI());
 					filter.append("?o != <" + conceptStmt.getObject().asNode().getURI() + ">");
 					
@@ -337,15 +337,15 @@ public class QualityAssessmentRulesModel {
 						valueList.append(", ");
 						filter.append(" AND ");
 					}
-				} else {
-					throw new QualityAssessmentException("Missing definition of a Concept in ConceptScheme");
-				}
+				//} else {
+				//	throw new QualityAssessmentException("Missing definition of a Concept in ConceptScheme");
+				//}
 			}
 
 			/**
 			 * Generate rules for all properties with enumerated range
 			 */
-			QueryExecution queryExecution = QueryExecutionFactory.create("SELECT ?s WHERE {?s <" + RDFS.range + "> [<" + OWL.hasValue + "> <" + resource.getURI() + ">].}", model);
+			QueryExecution queryExecution = QueryExecutionFactory.create("SELECT ?s WHERE {?s <" + RDFS.range + "> ?o. ?o <" + OWL.hasValue + "> <" + resource.getURI() + ">.}", model);
 			
 			com.hp.hpl.jena.query.ResultSet resultSet = queryExecution.execSelect();
 			

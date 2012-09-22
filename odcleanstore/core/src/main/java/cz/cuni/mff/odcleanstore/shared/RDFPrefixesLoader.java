@@ -30,7 +30,7 @@ public final class RDFPrefixesLoader {
      * @throws DatabaseException database error occurred
      */
     public static List<RDFprefix> loadPrefixes(JDBCConnectionCredentials connectionCredentials) throws DatabaseException {
-        LOG.info("Loading RDF prefixes from: {}", connectionCredentials.getConnectionString());
+        LOG.debug("Loading RDF prefixes from: {}", connectionCredentials.getConnectionString());
         VirtuosoConnectionWrapper connection = null;
         List<RDFprefix> prefixList = new ArrayList<RDFprefix>();
         try {
@@ -46,7 +46,7 @@ public final class RDFPrefixesLoader {
         } finally {
             connection.closeQuietly();
         }
-        LOG.info("Loaded {} prefixes.", prefixList.size());
+        LOG.debug("Loaded {} prefixes.", prefixList.size());
         return prefixList;
     }
     

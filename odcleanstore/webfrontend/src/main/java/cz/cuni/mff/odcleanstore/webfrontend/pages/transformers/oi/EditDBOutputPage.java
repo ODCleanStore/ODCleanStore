@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi;
 
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -8,13 +9,14 @@ import org.apache.wicket.validation.validator.RangeValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutput;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutputType;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputTypeDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
+@AuthorizeInstantiation({ "POC" })
 public class EditDBOutputPage extends FrontendPage 
 {
 	private static final long serialVersionUID = 1L;
@@ -36,10 +38,12 @@ public class EditDBOutputPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new DBOutputHelpPanel("content"));
+		
 		OIOutput output = oiOutputDao.load(outputId);
 		
 		add(
-			new RedirectButton(
+			new RedirectWithParamButton(
 				OIRuleDetailPage.class,
 				output.getRuleId(), 
 				"showOIRuleDetail"

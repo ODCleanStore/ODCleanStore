@@ -54,7 +54,7 @@ public class DNRuleComponentDao extends DaoForEntityWithSurrogateKey<DNRuleCompo
 			"JOIN " + DNRuleComponentTypeDao.TABLE_NAME + " as CT " +
 			"ON CT.id = C.typeId ";
 		
-		return getJdbcTemplate().query(query, getRowMapper());
+		return getCleanJdbcTemplate().query(query, getRowMapper());
 	}
 	
 	@Override
@@ -70,7 +70,7 @@ public class DNRuleComponentDao extends DaoForEntityWithSurrogateKey<DNRuleCompo
 		
 		Object[] params = { value };
 		
-		return getJdbcTemplate().query(query, params, getRowMapper());
+		return getCleanJdbcTemplate().query(query, params, getRowMapper());
 	}
 	
 	@Override
@@ -86,7 +86,7 @@ public class DNRuleComponentDao extends DaoForEntityWithSurrogateKey<DNRuleCompo
 		
 		Object[] params = { id };
 			
-		return getJdbcTemplate().queryForObject(query, params, getRowMapper());
+		return getCleanJdbcTemplate().queryForObject(query, params, getRowMapper());
 	}
 	
 	@Override
@@ -109,7 +109,7 @@ public class DNRuleComponentDao extends DaoForEntityWithSurrogateKey<DNRuleCompo
 		logger.debug("modification: " + item.getModification());
 		logger.debug("description: " + item.getDescription());
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 	}
 
 	@Override
@@ -132,6 +132,6 @@ public class DNRuleComponentDao extends DaoForEntityWithSurrogateKey<DNRuleCompo
 		logger.debug("description: " + item.getDescription());
 		logger.debug("id: " + item.getId());
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 	}
 }

@@ -1,16 +1,18 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
 
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
+@AuthorizeInstantiation({ "POC" })
 public class TransformerInstanceDetailPage extends FrontendPage 
 {
 	private static final long serialVersionUID = 1L;
@@ -22,7 +24,7 @@ public class TransformerInstanceDetailPage extends FrontendPage
 		"cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl";
 	
 	private static final String DN_FULL_CLASS_NAME = 
-		"cz.cuni.mff.odcleanstore.datanormalization.DataNormalizer";
+		"cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl";
 
 	private DaoForEntityWithSurrogateKey<TransformerInstance> transformerInstanceDao;
 	private DaoForEntityWithSurrogateKey<Transformer> transformerDao;
@@ -46,6 +48,8 @@ public class TransformerInstanceDetailPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow("transformerInstanceHelpWindow", "openTransformerInstanceHelpWindow", new TransformerInstanceHelpPanel("content"));
+		
 		addTransformerInstanceInformationSection(transformerInstance, transformer);
 		addAssignedGroupsListSection(transformerInstance, transformer);
 	}
@@ -61,7 +65,7 @@ public class TransformerInstanceDetailPage extends FrontendPage
 		setDefaultModel(model);
 		
 		add(
-			new RedirectButton
+			new RedirectWithParamButton
 			(
 				PipelineDetailPage.class,
 				transformerInstance.getPipelineId(),
@@ -70,7 +74,6 @@ public class TransformerInstanceDetailPage extends FrontendPage
 		);
 		
 		add(new Label("label", transformer.getLabel()));
-		add(new Label("workDirPath"));
 		add(new Label("configuration"));
 		add(new Label("runOnCleanDB"));
 		add(new Label("priority"));

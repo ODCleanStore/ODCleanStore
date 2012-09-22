@@ -56,7 +56,7 @@ public class OfficialPipelinesDao
 	{
 		if (jdbcTemplate == null)
 		{
-			DataSource dataSource = lookupFactory.getDataSource();
+			DataSource dataSource = lookupFactory.getCleanDataSource();
 			jdbcTemplate = new JdbcTemplate(dataSource);
 		}
 		

@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
@@ -16,7 +17,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
@@ -29,9 +30,11 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.en.EngineOperationsDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.OIRuleAssignmentDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.OIGroupsListPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.QAGroupsListPage;
 
+@AuthorizeInstantiation({ "POC" })
 public class DNGroupsListPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
@@ -55,6 +58,7 @@ public class DNGroupsListPage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new RulesGroupHelpPanel("content"));
 		addDNRulesGroupsTable();
 	}
 	
@@ -88,7 +92,7 @@ public class DNGroupsListPage extends FrontendPage
 				);
 				
 				item.add(
-					new RedirectButton(
+					new RedirectWithParamButton(
 						DNGroupDetailPage.class,
 						group.getId(), 
 						"manageRules"
@@ -96,10 +100,10 @@ public class DNGroupsListPage extends FrontendPage
 				);
 				
 				item.add(
-					new RedirectButton(
+					new RedirectWithParamButton(
 						EditDNGroupPage.class,
 						group.getId(),
-						"showEditQAGroupPage"
+						"showEditDNGroupPage"
 					)
 				);
 				
@@ -107,7 +111,7 @@ public class DNGroupsListPage extends FrontendPage
 			}
 		};
 
-		dataView.setItemsPerPage(10);
+		dataView.setItemsPerPage(ITEMS_PER_PAGE);
 
 		add(new SortTableButton<DNRulesGroup>("orderByLabel", "label", data, dataView));
 		
@@ -115,41 +119,41 @@ public class DNGroupsListPage extends FrontendPage
 		
 		add(new PagingNavigator("navigator", dataView));
 	}
-
+	
 	private Link createRerunAffectedGraphsButton(final Long groupId)
 	{
 		Link button = new Link("rerunAffectedGraphs")
-        {
+		{
 			private static final long serialVersionUID = 1L;
 
 			@Override
-            public void onClick()
-            {
+			public void onClick()
+			{
 				try {
 					engineOperationsDao.rerunGraphsForRulesGroup(DNRuleAssignmentDao.TABLE_NAME, groupId);
 				}
 				catch (Exception ex)
 				{
 					logger.error(ex.getMessage());
-					
+
 					getSession().error(
 						"The affected graphs could not be marked to be rerun due to an unexpected error."
 					);
-					
+
 					return;
 				}
-				
+
 				getSession().info("The affected graphs were successfuly marked to be rerun.");
 				setResponsePage(DNGroupsListPage.class);
-            }
-        };
+			}
+		};
 
-        button.add(
-        	new ConfirmationBoxRenderer(
-        		"Are you sure you want to rerun all affected graphs?"
-        	)
-        );
-        
-        return button;
+		button.add(
+			new ConfirmationBoxRenderer(
+				"Are you sure you want to rerun all affected graphs?"
+			)
+		);
+
+		return button;
 	}
 }

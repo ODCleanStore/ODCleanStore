@@ -3,8 +3,11 @@
  */
 package cz.cuni.mff.odcleanstore.engine.inputws;
 
+import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.net.URI;
 import java.util.UUID;
 
@@ -14,7 +17,6 @@ import javax.jws.WebService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
 import cz.cuni.mff.odcleanstore.engine.common.Utils;
@@ -64,7 +66,7 @@ public class InputWS implements IInputWS {
 			String sessionUuid = _importedInputGraphStates.beginImportSession(metadata.uuid, metadata.pipelineName, null);
 			saveFiles(metadata, payload);
 			_importedInputGraphStates.commitImportSession(sessionUuid);
-			Engine.signalToPipelineService();
+			Engine.getCurrent().signalToPipelineService();
 			LOG.info("InputWS webservice ends processing for input graph {}",metadata.uuid);
 
 		} catch (InsertException e) {
@@ -135,19 +137,63 @@ public class InputWS implements IInputWS {
 	private void saveFiles(Metadata metadata, String payload) throws Exception {
 		FileOutputStream fout = null;
 		ObjectOutputStream oos = null;
-		String inputDirectory =  ConfigLoader.getConfig().getInputWSGroup().getInputDirPath();
+		String inputDirectory =  Engine.getCurrent().getDirtyDBImportExportDir();
+		boolean isPayloadRdfXml = payload.startsWith("<?xml");
+		String provenance = metadata.provenance;
+		metadata.provenance = null;
+		boolean containProvenance = provenance != null;
+		boolean isProvenanceRdfXml = containProvenance && provenance.startsWith("<?xml");
+		
+		
 		try {
-			fout = new FileOutputStream(inputDirectory + metadata.uuid + ".dat");
+			fout = new FileOutputStream(inputDirectory + metadata.uuid + ".hdr");
 			oos = new ObjectOutputStream(fout);
 			oos.writeObject(FormatHelper.getTypedW3CDTFCurrent());
 			oos.writeObject(metadata);
-			oos.writeObject(payload);
+			oos.writeBoolean(isPayloadRdfXml);
+			oos.writeBoolean(containProvenance);
+			oos.writeBoolean(isProvenanceRdfXml);
 		} finally {
 			if (oos != null) {
 				oos.close();
 			}
 			if (fout != null) {
 				fout.close();
+			}
+		}
+			
+		Writer output = null;
+
+		if (containProvenance) {
+			try {
+				String fullFileName = inputDirectory + metadata.uuid + (isProvenanceRdfXml ? "-pvm.rdf" : "-pvm.ttl");
+				if(!isProvenanceRdfXml) {
+					provenance = Utils.unicodeToAscii(provenance);
+					output = new BufferedWriter(new OutputStreamWriter( new FileOutputStream(fullFileName), "US-ASCII"));
+				} else {
+					output = new BufferedWriter(new OutputStreamWriter( new FileOutputStream(fullFileName), "UTF-8"));
+				}
+				output.write(provenance);
+			} finally {
+				if (output != null) {
+					output.close();
+				}
+			}
+		}
+		
+		output = null;
+		try {
+			String fullFileName = inputDirectory + metadata.uuid + (isPayloadRdfXml ? ".rdf" : ".ttl");
+			if (!isPayloadRdfXml) {
+				payload = Utils.unicodeToAscii(payload);
+				output = new BufferedWriter(new OutputStreamWriter( new FileOutputStream(fullFileName), "US-ASCII"));
+			} else {
+				output = new BufferedWriter(new OutputStreamWriter( new FileOutputStream(fullFileName), "UTF-8"));
+			}
+			output.write(payload);
+		} finally {
+			if (output != null) {
+				output.close();
 			}
 		}
 	}

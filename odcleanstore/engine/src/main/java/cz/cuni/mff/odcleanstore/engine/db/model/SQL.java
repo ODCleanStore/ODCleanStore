@@ -2,7 +2,7 @@ package cz.cuni.mff.odcleanstore.engine.db.model;
 
 import java.util.Locale;
 
-import cz.cuni.mff.odcleanstore.datanormalization.DataNormalizer;
+import cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl;
 import cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
 
@@ -153,7 +153,7 @@ class SQL {
 	 * @param first pipelineId
 	 */
 	static final String SELECT_PIPELINE_COMMANDS = 
-			  " SELECT t.jarPath, t.fullClassName, ti.workDirPath, ti.configuration, ti.runOnCleanDB, ti.id, t.label"
+			  " SELECT t.jarPath, t.fullClassName, t.workDirPath, ti.configuration, ti.runOnCleanDB, ti.id, t.label"
 			+ " FROM ODCLEANSTORE.TRANSFORMERS t"
 			+ " JOIN ODCLEANSTORE.TRANSFORMER_INSTANCES ti ON t.id = ti.transformerId" 
 			+ " AND ti.pipelineId = ?" 
@@ -191,7 +191,7 @@ class SQL {
             + " JOIN DB.ODCLEANSTORE.TRANSFORMERS t ON ti.transformerId = t.id" 
 			+ " WHERE ti.pipelineId= ? AND t.fullClassName = '%s'" 
 			+ " ORDER BY dn.transformerInstanceId, dn.groupId",
-			DataNormalizer.class.getCanonicalName());
+			DataNormalizerImpl.class.getCanonicalName());
 	
 	static final String ERROR_SELECT_DN_GROUPS = "Error during selecting dn groups";
 	

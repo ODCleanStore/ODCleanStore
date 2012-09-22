@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -8,12 +9,14 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.validation.validator.RangeValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.QARuleHelpPanel;
 
+@AuthorizeInstantiation({ "POC" })
 public class EditOIRulePage extends FrontendPage 
 {
 	private static final long serialVersionUID = 1L;
@@ -35,10 +38,12 @@ public class EditOIRulePage extends FrontendPage
 		
 		// register page components
 		//
+		addHelpWindow(new OIRuleHelpPanel("content"));
+		
 		OIRule rule = oiRuleDao.load(ruleId);
 		
 		add(
-			new RedirectButton(
+			new RedirectWithParamButton(
 				OIGroupDetailPage.class,
 				rule.getGroupId(), 
 				"manageGroupRules"
