@@ -6,6 +6,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.ConflictResolverImpl;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 
 import com.hp.hpl.jena.graph.Node;
@@ -339,7 +340,7 @@ import java.util.Set;
         String firstNamedGraph = null;
 
         for (Quad quad : conflictingQuads) {
-            if (!object.sameValueAs(quad.getObject())) { // intentionally sameValueAs()
+            if (!ConflictResolverImpl.crSameNodes(object, quad.getObject())) {
                 continue;
             }
 

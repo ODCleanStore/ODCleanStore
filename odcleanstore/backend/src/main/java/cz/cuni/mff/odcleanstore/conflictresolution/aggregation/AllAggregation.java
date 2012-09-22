@@ -4,6 +4,7 @@ import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.ConflictResolverImpl;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 
 import com.hp.hpl.jena.graph.Node;
@@ -68,7 +69,7 @@ import java.util.Collection;
         ArrayList<String> sourceNamedGraphs = null; // sources for lastQuad
         for (Quad quad : sortedQuads) {
             Node object = quad.getObject();
-            boolean isNewObject = !object.sameValueAs(lastObject); // intentionally sameValueAs()
+            boolean isNewObject = !ConflictResolverImpl.crSameNodes(object,  lastObject);
 
             if (isNewObject && lastQuad != null) {
                 // Add lastQuad to result

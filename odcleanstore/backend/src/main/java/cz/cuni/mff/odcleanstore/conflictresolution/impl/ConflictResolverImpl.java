@@ -12,6 +12,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationMethod
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationNotImplementedException;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
 
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 
@@ -39,6 +40,11 @@ public class ConflictResolverImpl implements ConflictResolver {
     private static final Logger LOG = LoggerFactory.getLogger(ConflictResolverImpl.class);
 
     /**
+     * If set to true, language tag is ignored when comparing literals.
+     */
+    private static final boolean IGNORE_LANGUAGE_TAG = true;
+
+    /**
      * Settings for the conflict resolution process.
      */
     private final ConflictResolverSpec crSpec;
@@ -56,6 +62,41 @@ public class ConflictResolverImpl implements ConflictResolver {
     public ConflictResolverImpl(ConflictResolverSpec crSpec, ConflictResolutionConfig globalConfig) {
         this.crSpec = crSpec;
         this.globalConfig = globalConfig;
+    }
+
+    /**
+     * Comparison of node equality with regard to conflict resolution.
+     * Behaves like {@link Node#sameValueAs(Object)} except that languages for plain string literal are not distinguished.
+     * @param node1 first compared node
+     * @param node2 second compared node
+     * @return true if the two nodes are to be considered equal for conflict resolution
+     */
+    public static boolean crSameNodes(Node node1, Node node2) {
+        if (IGNORE_LANGUAGE_TAG) {
+            if (node1 == node2) {
+                return true;
+            } else if (node1 == null || node2 == null) {
+                return false;
+            } else if (isPlainStringLiteral(node1) && isPlainStringLiteral(node2)) {
+                String lex1 = node1.getLiteralLexicalForm();
+                String lex2 = node2.getLiteralLexicalForm();
+                return lex1.equals(lex2); // intentionally not comparing language
+            } else {
+                return node1.sameValueAs(node2);
+            }
+        } else {
+            return node1.sameValueAs(node2);
+        }
+    }
+
+    /**
+     * Returns true if the given node is an untyped literal or xsd:string literal.
+     * @param literalNode testedNode
+     * @return true if the given node is an untyped literal or xsd:string literal
+     */
+    private static boolean isPlainStringLiteral(Node literalNode) {
+        return literalNode.isLiteral()
+                && (literalNode.getLiteralDatatype() == null || literalNode.getLiteralDatatype().equals(XSDDatatype.XSDstring));
     }
 
     /**
@@ -205,7 +246,7 @@ public class ConflictResolverImpl implements ConflictResolver {
         while (resultIterator.hasNext()) {
             boolean removed = false;
             Quad quad = resultIterator.next();
-            if (quad.getObject().sameValueAs(lastObject) && !quad.getGraphName().sameValueAs(lastNamedGraph)) {
+            if (crSameNodes(quad.getObject(), lastObject) && !quad.getGraphName().sameValueAs(lastNamedGraph)) {
                 // (1) holds
                 NamedGraphMetadata lastMetadata = metadata.getMetadata(lastNamedGraph);
                 NamedGraphMetadata quadMetadata = metadata.getMetadata(quad.getGraphName());
