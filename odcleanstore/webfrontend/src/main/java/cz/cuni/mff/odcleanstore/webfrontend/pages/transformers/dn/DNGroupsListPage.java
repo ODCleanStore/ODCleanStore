@@ -35,7 +35,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPan
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.OIGroupsListPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.QAGroupsListPage;
 
-@AuthorizeInstantiation({ "POC" })
+@AuthorizeInstantiation({ "PIC" })
 public class DNGroupsListPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;

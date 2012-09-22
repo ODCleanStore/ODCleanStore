@@ -25,7 +25,7 @@ DELETE FROM DB.ODCLEANSTORE.ROLES;
 
 INSERT INTO DB.ODCLEANSTORE.ROLES (label, description) VALUES (n'SCR', n'Scraper');
 INSERT INTO DB.ODCLEANSTORE.ROLES (label, description) VALUES (n'ONC', n'Ontology creator');
-INSERT INTO DB.ODCLEANSTORE.ROLES (label, description) VALUES (n'POC', n'Policy creator');
+INSERT INTO DB.ODCLEANSTORE.ROLES (label, description) VALUES (n'PIC', n'Pipeline creator');
 INSERT INTO DB.ODCLEANSTORE.ROLES (label, description) VALUES (n'ADM', n'Administrator');
 
 CREATE TABLE DB.ODCLEANSTORE.ROLES_ASSIGNED_TO_USERS

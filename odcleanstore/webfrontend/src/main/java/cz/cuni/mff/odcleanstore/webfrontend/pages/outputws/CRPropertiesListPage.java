@@ -29,7 +29,7 @@ import org.apache.wicket.model.Model;
 
 import org.apache.log4j.Logger;
 
-@AuthorizeInstantiation({ "POC" })
+@AuthorizeInstantiation({ "PIC" })
 public class CRPropertiesListPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;

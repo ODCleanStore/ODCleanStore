@@ -15,7 +15,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.QARuleHelpPanel;
 
-@AuthorizeInstantiation({ "POC" })
+@AuthorizeInstantiation({ "PIC" })
 public class NewOIRulePage extends FrontendPage 
 {
 	private static final long serialVersionUID = 1L;

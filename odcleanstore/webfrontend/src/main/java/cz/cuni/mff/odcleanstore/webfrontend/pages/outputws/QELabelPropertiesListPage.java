@@ -17,7 +17,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qe.LabelPropertyDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-@AuthorizeInstantiation({ "POC" })
+@AuthorizeInstantiation({ "PIC" })
 public class QELabelPropertiesListPage extends FrontendPage 
 {
 	private static final long serialVersionUID = 1L;

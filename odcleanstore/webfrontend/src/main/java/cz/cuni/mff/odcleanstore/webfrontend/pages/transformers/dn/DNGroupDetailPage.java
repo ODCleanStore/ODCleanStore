@@ -28,7 +28,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.OIRuleHelpPanel;
 
-@AuthorizeInstantiation({ "POC" })
+@AuthorizeInstantiation({ "PIC" })
 public class DNGroupDetailPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;

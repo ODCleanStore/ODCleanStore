@@ -33,7 +33,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.PipelineHelpPanel;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.PipelinesListPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
-@AuthorizeInstantiation({ "POC" })
+@AuthorizeInstantiation({ "PIC" })
 public class QAGroupsListPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;

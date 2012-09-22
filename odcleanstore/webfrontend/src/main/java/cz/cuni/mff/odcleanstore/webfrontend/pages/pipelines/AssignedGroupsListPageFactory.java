@@ -16,7 +16,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.QAGroupDetailP
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.DNGroupDetailPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.NewDNGroupPage;
 
-@AuthorizeInstantiation({ "POC" })
+@AuthorizeInstantiation({ "PIC" })
 public class AssignedGroupsListPageFactory 
 {
 	public static AssignedGroupsList createAssignedQAGroupsList(

@@ -23,7 +23,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputTypeDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-@AuthorizeInstantiation({ "POC" })
+@AuthorizeInstantiation({ "PIC" })
 public class OIRuleDetailPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;

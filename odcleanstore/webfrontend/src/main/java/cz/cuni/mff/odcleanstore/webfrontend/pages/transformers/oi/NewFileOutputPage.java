@@ -18,7 +18,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputTypeDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-@AuthorizeInstantiation({ "POC" })
+@AuthorizeInstantiation({ "PIC" })
 public class NewFileOutputPage extends FrontendPage 
 {
 	private static final long serialVersionUID = 1L;
