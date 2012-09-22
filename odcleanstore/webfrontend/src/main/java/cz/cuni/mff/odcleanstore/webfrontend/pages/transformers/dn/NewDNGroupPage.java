@@ -25,7 +25,7 @@ public class NewDNGroupPage extends FrontendPage
 	{
 		super(
 			"Home > Backend > DN > Groups > New", 
-			"Add a new DN rules' group"
+			"Add a new DN rule group"
 		);
 
 		// prepare DAO objects

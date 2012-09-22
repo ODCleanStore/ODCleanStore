@@ -49,7 +49,7 @@ public class DNGroupsListPage extends FrontendPage
 	{
 		super(
 			"Home > Backend > DN > Groups > List", 
-			"List all DN rules' groups"
+			"List all DN rule groups"
 		);
 		
 		// prepare DAO objects

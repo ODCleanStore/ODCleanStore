@@ -42,7 +42,7 @@ public class OIGroupDetailPage extends FrontendPage
 	{
 		super(
 			"Home > Backend > OI > Groups > Detail", 
-			"Show OI rules' group detail"
+			"Show OI rule group detail"
 		);
 		
 		// prepare DAO objects

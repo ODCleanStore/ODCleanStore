@@ -23,7 +23,7 @@ public class EditOIGroupPage extends FrontendPage
 	{
 		super(
 			"Home > Backend > OI > Groups > Edit", 
-			"Edit a rules' group"
+			"Edit a rule group"
 		);
 
 		// prepare DAO objects

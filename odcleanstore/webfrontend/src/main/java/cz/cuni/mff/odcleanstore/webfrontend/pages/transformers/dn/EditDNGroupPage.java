@@ -25,7 +25,7 @@ public class EditDNGroupPage extends FrontendPage
 	{
 		super(
 			"Home > Backend > DN > Groups > Edit", 
-			"Edit a rules' group"
+			"Edit a rule group"
 		);
 
 		// prepare DAO objects

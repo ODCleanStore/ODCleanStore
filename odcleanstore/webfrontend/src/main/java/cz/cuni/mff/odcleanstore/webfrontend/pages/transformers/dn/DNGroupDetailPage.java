@@ -42,7 +42,7 @@ public class DNGroupDetailPage extends FrontendPage
 	{
 		super(
 			"Home > Backend > DN > Groups > Detail", 
-			"Show DN rules' group detail"
+			"Show DN rule group detail"
 		);
 		
 		// prepare DAO objects
