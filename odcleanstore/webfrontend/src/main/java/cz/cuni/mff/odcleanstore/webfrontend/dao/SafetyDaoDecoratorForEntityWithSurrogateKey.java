@@ -20,21 +20,6 @@ public class SafetyDaoDecoratorForEntityWithSurrogateKey<T extends EntityWithSur
 	
 	//private static Logger logger = Logger.getLogger(SafetyDaoDecoratorForEntityWithSurrogateKey.class);
 	
-	private static class KeyHolder
-	{
-		private long key;
-
-		public long getKey()
-		{
-			return key;
-		}
-
-		public void setKey(long key)
-		{
-			this.key = key;
-		}
-	}
-	
 	private DaoForEntityWithSurrogateKey<T> dao;
 	private List<DaoExceptionHandler> exceptionHandlers;
 	
@@ -142,10 +127,16 @@ public class SafetyDaoDecoratorForEntityWithSurrogateKey<T extends EntityWithSur
 	}
 	
 	@Override
+	public void save(T item) throws Exception 
+	{
+		this.save(item, new EmptyCodeSnippet());
+	}
+	
+	@Override
 	public long saveAndGetKey(final T item) throws Exception
 	{
 		
-		final KeyHolder keyHolder = new KeyHolder();
+		final SimpleKeyHolder keyHolder = new SimpleKeyHolder();
 		try
 		{
 			dao.getTransactionTemplate().execute(new TransactionCallbackWithoutResult() 
@@ -170,12 +161,6 @@ public class SafetyDaoDecoratorForEntityWithSurrogateKey<T extends EntityWithSur
 			throw ex;
 		}
 		return keyHolder.getKey();
-	}
-	
-	@Override
-	public void save(T item) throws Exception 
-	{
-		this.save(item, new EmptyCodeSnippet());
 	}
 
 	@Override

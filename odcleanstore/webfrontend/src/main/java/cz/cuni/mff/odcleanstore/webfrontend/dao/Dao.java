@@ -228,6 +228,19 @@ public abstract class Dao<T extends BusinessEntity> implements Serializable
 	}
 	
 	/**
+	 * 
+	 * @param item
+	 * @param doAfter
+	 * @throws Exception
+	 */
+	public long saveAndGetKey(final T item) throws Exception
+	{
+		throw new UnsupportedOperationException(
+			"Cannot insert rows into table:" + getTableName() + "."
+		);
+	}
+	
+	/**
 	 * Updates the given item in the database.
 	 * 
 	 * @param item
