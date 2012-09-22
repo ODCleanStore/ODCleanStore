@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.en;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -16,10 +17,12 @@ import org.springframework.transaction.support.TransactionTemplate;
 import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 
-public class OfficialPipelinesDao 
+public class OfficialPipelinesDao implements Serializable
 {
 	//private static Logger logger = Logger.getLogger(OfficialPipelinesDao.class);
 	
+	private static final long serialVersionUID = 1L;
+
 	// note that the tables must be listed in the correct order 
 	// to avoid errors when deleting a table which is referenced
 	// by a foreign key from another table
