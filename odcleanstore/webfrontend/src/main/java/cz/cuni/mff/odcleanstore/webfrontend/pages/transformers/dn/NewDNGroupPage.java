@@ -51,8 +51,9 @@ public class NewDNGroupPage extends FrontendPage
 			{
 				DNRulesGroup group = this.getModelObject();
 				
+				long insertId;
 				try {
-					dnRulesGroupDao.save(group);
+					insertId = dnRulesGroupDao.saveAndGetKey(group);
 				}
 				catch (DaoException ex)
 				{
@@ -71,7 +72,7 @@ public class NewDNGroupPage extends FrontendPage
 				}
 				
 				getSession().info("The group was successfuly registered.");
-				setResponsePage(DNGroupsListPage.class);
+				setResponsePage(new DNGroupDetailPage(insertId));
 			}
 		};
 		

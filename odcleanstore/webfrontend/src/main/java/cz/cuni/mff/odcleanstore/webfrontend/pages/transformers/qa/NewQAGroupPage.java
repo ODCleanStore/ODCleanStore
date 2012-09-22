@@ -49,8 +49,9 @@ public class NewQAGroupPage extends FrontendPage
 			{
 				QARulesGroup group = this.getModelObject();
 				
+				long insertId;
 				try {
-					qaRulesGroupDao.save(group);
+					insertId = qaRulesGroupDao.saveAndGetKey(group);
 				}
 				catch (DaoException ex)
 				{
@@ -69,7 +70,7 @@ public class NewQAGroupPage extends FrontendPage
 				}
 				
 				getSession().info("The group was successfuly registered.");
-				setResponsePage(QAGroupsListPage.class);
+				setResponsePage(new QAGroupDetailPage(insertId));
 			}
 		};
 		

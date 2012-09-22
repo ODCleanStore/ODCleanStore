@@ -49,8 +49,9 @@ public class NewOIGroupPage extends FrontendPage
 			{
 				OIRulesGroup group = this.getModelObject();
 				
+				long insertId;
 				try {
-					oiRulesGroupDao.save(group);
+					insertId = oiRulesGroupDao.saveAndGetKey(group);
 				}
 				catch (DaoException ex)
 				{
@@ -69,7 +70,7 @@ public class NewOIGroupPage extends FrontendPage
 				}
 				
 				getSession().info("The group was successfuly registered.");
-				setResponsePage(OIGroupsListPage.class);
+				setResponsePage(new OIGroupDetailPage(insertId));
 			}
 		};
 		

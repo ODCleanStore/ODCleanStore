@@ -51,7 +51,7 @@ public class NewTransformerAssignmentPage extends FrontendPage
 		addHelpWindow(new TransformerInstanceHelpPanel("content"));
 		
 		add(
-			new RedirectWithParamButton(
+			new RedirectWithParamButton<String>(
 				PipelineDetailPage.class,
 				pipelineId, 
 				"managePipelineTransformers"
@@ -63,7 +63,8 @@ public class NewTransformerAssignmentPage extends FrontendPage
 	
 	private void addNewAssignmentForm(final Long pipelineId)
 	{
-		Form form = new Form("newAssignmentForm", new CompoundPropertyModel(this))
+		Form<NewTransformerAssignmentPage> form = 
+			new Form<NewTransformerAssignmentPage>("newAssignmentForm", new CompoundPropertyModel<NewTransformerAssignmentPage>(this))
 		{
 			private static final long serialVersionUID = 1L;
 
@@ -80,8 +81,9 @@ public class NewTransformerAssignmentPage extends FrontendPage
 					priority
 				);
 
+				long insertId;
 				try {
-					transformerInstanceDao.save(assignment);
+					insertId = transformerInstanceDao.saveAndGetKey(assignment);
 				}
 				catch (DaoException ex)
 				{
@@ -100,7 +102,7 @@ public class NewTransformerAssignmentPage extends FrontendPage
 				}
 				
 				getSession().info("The assignment was successfuly registered.");
-				setResponsePage(new PipelineDetailPage(pipelineId));
+				setResponsePage(new TransformerInstanceDetailPage(insertId));
 			}
 		};
 
@@ -112,7 +114,7 @@ public class NewTransformerAssignmentPage extends FrontendPage
 		add(form);
 	}
 
-	private void addPriorityTextfield(Form form)
+	private void addPriorityTextfield(Form<NewTransformerAssignmentPage> form)
 	{
 		TextField<String> textfield = new TextField<String>("priority");
 		
