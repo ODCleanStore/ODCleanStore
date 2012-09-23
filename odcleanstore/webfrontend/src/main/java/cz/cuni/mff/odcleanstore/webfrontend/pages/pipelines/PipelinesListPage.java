@@ -5,26 +5,22 @@ import org.apache.wicket.authroles.authorization.strategies.role.annotations.Aut
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
-import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.Model;
 
 import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
-import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.EngineOperationsDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.en.OfficialPipelinesDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
@@ -37,7 +33,7 @@ public class PipelinesListPage extends FrontendPage
 	private static Logger logger = Logger.getLogger(PipelinesListPage.class);
 	
 	private DaoForEntityWithSurrogateKey<Pipeline> pipelineDao;
-	private OfficialPipelinesDao officialPipelinesDao;
+	//private OfficialPipelinesDao officialPipelinesDao;
 	private EngineOperationsDao engineOperationsDao;
 
 	public PipelinesListPage() 
@@ -51,7 +47,7 @@ public class PipelinesListPage extends FrontendPage
 		// prepare DAO objects
 		//
 		pipelineDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(PipelineDao.class);
-		officialPipelinesDao = daoLookupFactory.getOfficialPipelinesDao();
+		//officialPipelinesDao = daoLookupFactory.getOfficialPipelinesDao();
 		engineOperationsDao = daoLookupFactory.getEngineOperationsDao();
 		
 		// register page components
@@ -78,6 +74,7 @@ public class PipelinesListPage extends FrontendPage
 				item.add(new Label("label"));
 				item.add(new TruncatedLabel("description", MAX_LIST_COLUMN_TEXT_LENGTH));
 				item.add(new Label("isDefault"));
+				item.add(new Label("isLocked"));
 				
 				item.add(
 					new DeleteRawButton<Pipeline>
@@ -107,6 +104,8 @@ public class PipelinesListPage extends FrontendPage
 				);
 				
 				addMarkPipelineDefaultButton(item, pipeline);
+				addToggleLockButton(item, pipeline, true);
+				addToggleLockButton(item, pipeline, false);
 				addRerunAssociatedGraphsButton(item, pipeline.getId());
 			}
 		};
@@ -115,6 +114,7 @@ public class PipelinesListPage extends FrontendPage
 		
 		add(new SortTableButton<Pipeline>("sortByLabel", "label", data, dataView));
 		add(new SortTableButton<Pipeline>("sortByIsDefault", "isDefault", data, dataView));
+		add(new SortTableButton<Pipeline>("sortByIsLocked", "isLocked", data, dataView));
 		
 		add(dataView);
 		
@@ -123,7 +123,7 @@ public class PipelinesListPage extends FrontendPage
 	
 	private void addMarkPipelineDefaultButton(Item<Pipeline> item, final Pipeline pipeline)
 	{
-		Link button = new Link("markPipelineDefault")
+		Link<String> button = new Link<String>("markPipelineDefault", new Model<String>("XXX"))
         {
 			private static final long serialVersionUID = 1L;
 
@@ -165,9 +165,43 @@ public class PipelinesListPage extends FrontendPage
 		item.add(button);
 	}
 	
+	private void addToggleLockButton(Item<Pipeline> item, final Pipeline pipeline, final boolean lock)
+	{
+		final String status = lock ? "lock" : "unlock";
+		item.add(new Link<String>(status + "Pipeline")
+        {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+            public void onClick()
+            {
+				pipeline.setLocked(lock);
+				
+				try 
+				{
+					pipelineDao.update(pipeline);
+				}
+				catch (Exception ex)
+				{
+					getSession().error("The pipeline could not be " + status + "ed due to an unexpected error.");
+					return;
+				}
+				
+				getSession().info("The pipeline was successfuly " + status + "ed.");
+				setResponsePage(PipelinesListPage.class);
+            }
+			
+			@Override
+			public boolean isVisible()
+			{
+				return pipeline.isLocked() != lock && pipeline.isLocked() != null;
+			}
+        });
+	}
+	
 	private void addRerunAssociatedGraphsButton(final Item<Pipeline> item, final Long pipelineId)
 	{
-		Link button = new Link("rerunAssociatedGraphs")
+		Link<String> button = new Link<String>("rerunAssociatedGraphs")
         {
 			private static final long serialVersionUID = 1L;
 
