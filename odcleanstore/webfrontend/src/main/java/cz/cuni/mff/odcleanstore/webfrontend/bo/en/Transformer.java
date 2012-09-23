@@ -83,4 +83,13 @@ public class Transformer extends EntityWithSurrogateKey
 	{
 		return fullClassName;
 	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String getSimpleClassName() 
+	{
+		return fullClassName.substring(fullClassName.lastIndexOf('.') + 1);
+	}
 }

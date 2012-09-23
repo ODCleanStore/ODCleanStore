@@ -1,3 +1,5 @@
+th wicket\:body, th wicket\:border {background-color: transparent; font-weight: bold;}
+
 /* DEVELOPMENT MODE */
 #menu{height:37px; display:block; padding:0; margin:0; border:1px solid; border-radius:5px;}
 #menu > wicket\:link > ul {list-style:inside none; padding:0; margin:0;}
@@ -22,7 +24,7 @@
 #menu > wicket\:link > ul > li > a:hover, #menu > wicket\:link > ul > li > span > em:hover{background:#36acd2;}
 
 .wicket_orderUp wicket\:body {display: inline-block; position: relative; text-align:center; text-decoration:none; text-shadow:1px 1px 0 rgba(0,0,0, 0.4);}
-.wicket_orderUp wicket\:body:before {content:''; margin-right: -24px; margin-top: -20px; position:absolute; top:18px; right:6px; border:5px solid transparent; border-bottom:5px solid #fff;}
+.wicket_orderUp wicket\:body:before {content:''; margin-right: -19px; margin-top: -18px; position:absolute; top:18px; right:3px; border:5px solid transparent; border-bottom:5px solid #fff;}
 
 .wicket_orderDown wicket\:body {display: inline-block; position: relative; text-align:center; text-decoration:none; text-shadow:1px 1px 0 rgba(0,0,0, 0.4);}
-.wicket_orderDown wicket\:body:before {content:''; margin-right: -24px; margin-top: -12px; position:absolute; top:18px; right:6px; border:5px solid transparent; border-top:5px solid #fff;}
+.wicket_orderDown wicket\:body:before {content:''; margin-right: -19px; margin-top: -10px; position:absolute; top:18px; right:3px; border:5px solid transparent; border-top:5px solid #fff;}

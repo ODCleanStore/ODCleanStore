@@ -69,7 +69,7 @@ public class TransformersListPage extends FrontendPage
 				item.add(new TruncatedLabel("description", MAX_LIST_COLUMN_TEXT_LENGTH));
 				item.add(new TruncatedLabel("jarPath", MAX_LIST_COLUMN_TEXT_LENGTH));
 				item.add(new TruncatedLabel("workDirPath", MAX_LIST_COLUMN_TEXT_LENGTH));
-				item.add(new TruncatedLabel("fullClassName", MAX_LIST_COLUMN_TEXT_LENGTH));
+				item.add(new TruncatedLabel("simpleClassName", MAX_LIST_COLUMN_TEXT_LENGTH));
 				
 				item.add(
 					new DeleteRawButton<Transformer>
