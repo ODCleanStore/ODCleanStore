@@ -2,9 +2,11 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages;
 
 import java.util.List;
 
+import org.apache.wicket.RuntimeConfigurationType;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.markup.html.WebComponent;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
@@ -68,6 +70,17 @@ public abstract class FrontendPage extends WebPage
 		add(new Label("pageTitle", pageTitle));
 		add(new UserPanel("userPanel", LogOutPage.class));
 		add(new FeedbackPanel("feedback"));
+		
+		// show development stylesheet only in development mode
+		add(new WebComponent("developmentCss") {
+			private static final long serialVersionUID = 1L;
+			
+			@Override
+			public boolean isVisible()
+			{
+				return getApp().getConfigurationType() == RuntimeConfigurationType.DEVELOPMENT;
+			}
+		});
 		
 		// set up menu
 		add(new MenuGroupComponent("pipelinesMenuGroup", PipelinesListPage.class));
