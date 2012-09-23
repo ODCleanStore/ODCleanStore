@@ -26,3 +26,4 @@ SPARQL INSERT INTO <http://opendata.cz/data/namedGraph/2> {
     
 /*INSERT INTO DB.DBA.SYS_XML_PERSISTENT_NS_DECL VALUES ('purl','http://purl.org/procurement#');*/
 
+

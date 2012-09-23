@@ -37,3 +37,6 @@ CREATE PROCEDURE dump_graph_ttl (
         string_to_file (out_file, ses, -1);
     }
 };
+
+
+
