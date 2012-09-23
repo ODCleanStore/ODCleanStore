@@ -3,8 +3,6 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.cr;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.apache.log4j.Logger;
-
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.AggregationType;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.MultivalueType;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.PropertySettings;
@@ -14,7 +12,7 @@ public class PropertySettingsRowMapper extends CustomRowMapper<PropertySettings>
 {
 	private static final long serialVersionUID = 1L;
 	
-	private static Logger logger = Logger.getLogger(PropertySettingsRowMapper.class);
+	//private static Logger logger = Logger.getLogger(PropertySettingsRowMapper.class);
 	
 	public PropertySettings mapRow(ResultSet rs, int rowNum) throws SQLException 
 	{

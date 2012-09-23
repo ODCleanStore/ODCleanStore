@@ -17,6 +17,8 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 public class UserPanel extends Panel
 {
+	private static final long serialVersionUID = 1L;
+
 	public UserPanel(String id, Class<? extends Page> logoutPageClass) 
 	{
 		super(id);

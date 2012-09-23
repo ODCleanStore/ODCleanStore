@@ -44,7 +44,7 @@ public class EngineOperationsDao implements Serializable
 	{
 		if (jdbcTemplate == null)
 		{
-			DataSource dataSource = lookupFactory.getDataSource();
+			DataSource dataSource = lookupFactory.getCleanDataSource();
 			jdbcTemplate = new JdbcTemplate(dataSource);
 		}
 		
@@ -76,7 +76,7 @@ public class EngineOperationsDao implements Serializable
 	
 	/**
 	 * Updates DB contents to signal Engine to rerun all graphs associated with all pipelines
-	 * that have a transformer which is assigned the rules' group given by id.
+	 * that have a transformer which is assigned the rule group given by id.
 	 * 
 	 * @param assignmentDao
 	 * @param groupId

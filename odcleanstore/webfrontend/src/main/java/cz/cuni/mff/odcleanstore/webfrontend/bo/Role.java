@@ -1,5 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,20 +14,38 @@ import java.util.List;
 
 public class Role extends EntityWithSurrogateKey
 {
-	/** an enumeration of standard frontend roles */
-	public static List<Role> standardRoles;
+	private static final long serialVersionUID = 1L;
+	
+	/** Administrator. */
+	public static final String ADM = "ADM";
+	
+	/** Pipeline creator. */
+	public static final String PIC = "PIC";
+	
+	/** Ontology creator. */
+	public static final String ONC = "ONC";
+	
+	/** Scraper. */
+	public static final String SCR = "SCR";
+	
+	/** An enumeration of standard frontend roles */
+	private static final List<Role> standardRoles;
 	
 	static 
 	{
-		standardRoles = new LinkedList<Role>();
+		List<Role> roles = new ArrayList<Role>();
 		
-		standardRoles.add(new Role("SCR", "Scraper"));
-		standardRoles.add(new Role("ONC", "Ontology Creator"));
-		standardRoles.add(new Role("POC", "Policy Creator"));
-		standardRoles.add(new Role("ADM", "Administrator"));
+		roles.add(new Role(SCR, "Scraper"));
+		roles.add(new Role(ONC, "Ontology Creator"));
+		roles.add(new Role(PIC, "Pipeline Creator"));
+		roles.add(new Role(ADM, "Administrator"));
+		
+		standardRoles = Collections.unmodifiableList(roles);
 	}
 	
-	private static final long serialVersionUID = 1L;
+	public static List<Role> getStandardRoles() {
+		return standardRoles;
+	}
 	
 	private String label;
 	private String description;
@@ -87,6 +107,6 @@ public class Role extends EntityWithSurrogateKey
 	@Override
 	public int hashCode()
 	{
-		return label.length();
+		return label.hashCode();
 	}
 }

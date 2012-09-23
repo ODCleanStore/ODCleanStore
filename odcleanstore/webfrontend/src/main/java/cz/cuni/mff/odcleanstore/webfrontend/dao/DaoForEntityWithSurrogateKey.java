@@ -17,7 +17,7 @@ public abstract class DaoForEntityWithSurrogateKey<T extends EntityWithSurrogate
 		
 		logger.debug("id: " + id);
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 	}
 		
 	public T loadRaw(Long id)
@@ -35,5 +35,16 @@ public abstract class DaoForEntityWithSurrogateKey<T extends EntityWithSurrogate
 		throw new UnsupportedOperationException(
 			"Cannot delete rows from table: " + getTableName() + "."
 		);
+	}
+	
+	/**
+	 * Returns the last assigned identity column value in the clean database instance.
+	 * @return last assigned identity column value
+	 * @throws Exception
+	 */
+	protected long getLastInsertId() throws Exception
+	{
+		String query = "SELECT identity_value()";
+		return getCleanJdbcTemplate().queryForLong(query);
 	}
 }

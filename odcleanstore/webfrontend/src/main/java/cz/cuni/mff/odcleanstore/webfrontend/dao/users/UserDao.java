@@ -86,7 +86,7 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 		
 		Object[] params = { userId };
 		
-		List<Role> rolesList = getJdbcTemplate().query(query, params, new RoleRowMapper());
+		List<Role> rolesList = getCleanJdbcTemplate().query(query, params, new RoleRowMapper());
 		return new HashSet<Role>(rolesList);
 	}
 	
@@ -132,14 +132,14 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 	private List<Role> loadAllRolesRaw()
 	{
 		String query = "SELECT * FROM " + RoleDao.TABLE_NAME;
-		return getJdbcTemplate().query(query, new RoleRowMapper());
+		return getCleanJdbcTemplate().query(query, new RoleRowMapper());
 	}
 	
 	
 	private List<Pair<Long, Long>> loadAllPermissionRecordsRaw()
 	{
 		String query = "SELECT * FROM " + PERMISSIONS_TABLE_NAME;
-		return getJdbcTemplate().query(query,new RolesAssignedToUsersRowMapping());
+		return getCleanJdbcTemplate().query(query,new RolesAssignedToUsersRowMapping());
 	}
 	
 	/*
@@ -166,7 +166,7 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 			item.getSurname()
 		};
 		
-		getJdbcTemplate().update(query, arguments);
+		getCleanJdbcTemplate().update(query, arguments);
 	}
 
 	@Override
@@ -195,14 +195,14 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 			user.getId()
 		};
 		
-		getJdbcTemplate().update(query, arguments);
+		getCleanJdbcTemplate().update(query, arguments);
 	}
 	
 	private void clearRolesMappingForUser(User user)
 	{
 		String query = "DELETE FROM " + PERMISSIONS_TABLE_NAME + " WHERE userId = ?";
 		Object[] arguments = { user.getId()	};
-		getJdbcTemplate().update(query, arguments);
+		getCleanJdbcTemplate().update(query, arguments);
 	}
 	
 	private void addAllRolesToRolesMappingForUser(User user)
@@ -217,7 +217,7 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 				role.getId()
 			};
 			
-			getJdbcTemplate().update(
+			getCleanJdbcTemplate().update(
 				"INSERT INTO " + PERMISSIONS_TABLE_NAME + " VALUES (?, ?)", 
 				arguments
 			);

@@ -51,7 +51,7 @@ public class PropertySettingsDao extends DaoForEntityWithSurrogateKey<PropertySe
 		logger.debug("multivalueTypeId: " + item.getMultivalueType().getId());
 		logger.debug("aggregationTypeId: " + item.getAggregationType().getId());
 		
-		getJdbcTemplate().update(query, arguments);
+		getCleanJdbcTemplate().update(query, arguments);
 	}
 	
 	@Override
@@ -74,7 +74,7 @@ public class PropertySettingsDao extends DaoForEntityWithSurrogateKey<PropertySe
 		logger.debug("aggregationTypeId: " + item.getAggregationType().getId());
 		logger.debug("id: " + item.getId());
 		
-		getJdbcTemplate().update(query, arguments);
+		getCleanJdbcTemplate().update(query, arguments);
 	}
 
 	@Override
@@ -95,7 +95,7 @@ public class PropertySettingsDao extends DaoForEntityWithSurrogateKey<PropertySe
 		
 		Object[] params = criteria.buildWhereClauseParams();
 		
-		return getJdbcTemplate().query(query, params, getRowMapper());
+		return getCleanJdbcTemplate().query(query, params, getRowMapper());
 	}
 
 	@Override
@@ -115,6 +115,6 @@ public class PropertySettingsDao extends DaoForEntityWithSurrogateKey<PropertySe
 		
 		Object[] params = { id };
 			
-		return getJdbcTemplate().queryForObject(query, params, getRowMapper());
+		return getCleanJdbcTemplate().queryForObject(query, params, getRowMapper());
 	}
 }

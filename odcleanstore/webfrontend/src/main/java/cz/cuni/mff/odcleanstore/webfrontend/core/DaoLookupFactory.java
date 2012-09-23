@@ -32,25 +32,34 @@ public class DaoLookupFactory implements Serializable
 	
 	private static final String CONNECTION_ENCODING = "UTF-8";
 	
-	private static Logger logger = Logger.getLogger(DaoLookupFactory.class);
+	//private static Logger logger = Logger.getLogger(DaoLookupFactory.class);
 	
-	private JDBCConnectionCredentials connectionCoords;
+	private JDBCConnectionCredentials cleanConnectionCoords;
+	private transient VirtuosoDataSource cleanDataSource;
 	
-	private transient VirtuosoDataSource dataSource;
+	private JDBCConnectionCredentials dirtyConnectionCoords;
+	private transient VirtuosoDataSource dirtyDataSource;
+	
 	private transient AbstractPlatformTransactionManager transactionManager;
 	
-	private HashMap<Class<? extends Dao>, Dao> daos;
+	private HashMap<Class<? extends Dao<?>>, Dao<?>> daos;
 	
-	private GlobalAggregationSettingsDao globalAggregationSettingsDao;
+	//private GlobalAggregationSettingsDao globalAggregationSettingsDao;
 	private TransformerInstanceDao transformerInstanceDao;
 	
 	/**
 	 * 
+	 * @param cleanConnectionCoords
+	 * @param dirtyConnectionCoords
 	 */
-	public DaoLookupFactory(JDBCConnectionCredentials connectionCoords)
+	public DaoLookupFactory(
+		JDBCConnectionCredentials cleanConnectionCoords,
+		JDBCConnectionCredentials dirtyConnectionCoords)
 	{
-		this.connectionCoords = connectionCoords;
-		this.daos = new HashMap<Class<? extends Dao>, Dao>();
+		this.cleanConnectionCoords = cleanConnectionCoords;
+		this.dirtyConnectionCoords = dirtyConnectionCoords;
+		
+		this.daos = new HashMap<Class<? extends Dao<?>>, Dao<?>>();
 	}
 	
 	/**
@@ -64,13 +73,13 @@ public class DaoLookupFactory implements Serializable
 	 * @return
 	 * @throws AssertionError
 	 */
-	public Dao getDao(Class<? extends Dao> daoClass) throws AssertionError
+	public Dao getDao(Class<? extends Dao<?>> daoClass) throws AssertionError
 	{
 		if (daos.containsKey(daoClass))
 			return daos.get(daoClass);
 		
-		Dao daoInstance = createDaoInstance(daoClass);
-		Dao safeDaoInstance = new SafetyDaoDecorator(daoInstance);
+		Dao<?> daoInstance = createDaoInstance(daoClass);
+		Dao<?> safeDaoInstance = new SafetyDaoDecorator(daoInstance);
 		
 		daos.put(daoClass, safeDaoInstance);
 		
@@ -83,14 +92,14 @@ public class DaoLookupFactory implements Serializable
 	 * @return
 	 * @throws AssertionError
 	 */
-	public DaoForEntityWithSurrogateKey getDaoForEntityWithSurrogateKey(Class daoClass) 
+	public DaoForEntityWithSurrogateKey getDaoForEntityWithSurrogateKey(Class<? extends Dao<?>> daoClass) 
 		throws AssertionError
 	{
 		if (daos.containsKey(daoClass))
-			return (DaoForEntityWithSurrogateKey) daos.get(daoClass);
+			return (DaoForEntityWithSurrogateKey<?>) daos.get(daoClass);
 		
-		DaoForEntityWithSurrogateKey daoInstance = (DaoForEntityWithSurrogateKey) createDaoInstance(daoClass);
-		DaoForEntityWithSurrogateKey safeDaoInstance = new SafetyDaoDecoratorForEntityWithSurrogateKey(daoInstance);
+		DaoForEntityWithSurrogateKey<?> daoInstance = (DaoForEntityWithSurrogateKey<?>) createDaoInstance(daoClass);
+		DaoForEntityWithSurrogateKey<?> safeDaoInstance = new SafetyDaoDecoratorForEntityWithSurrogateKey(daoInstance);
 		
 		daos.put(daoClass, safeDaoInstance);
 		
@@ -108,7 +117,7 @@ public class DaoLookupFactory implements Serializable
 	 * @return
 	 * @throws AssertionError
 	 */
-	public Dao getUnsafeDao(Class<? extends Dao> daoClass) throws AssertionError
+	public Dao<?> getUnsafeDao(Class<? extends Dao<?>> daoClass) throws AssertionError
 	{
 		return createDaoInstance(daoClass);
 	}
@@ -120,9 +129,9 @@ public class DaoLookupFactory implements Serializable
 	 * @return
 	 * @throws AssertionError
 	 */
-	private Dao createDaoInstance(Class<? extends Dao> daoClass) throws AssertionError
+	private Dao<?> createDaoInstance(Class<? extends Dao<?>> daoClass) throws AssertionError
 	{
-		Dao daoInstance;
+		Dao<?> daoInstance;
 		
 		try {
 			daoInstance = daoClass.newInstance();
@@ -165,18 +174,36 @@ public class DaoLookupFactory implements Serializable
 	 * 
 	 * @return
 	 */
-	public VirtuosoDataSource getDataSource()
+	public VirtuosoDataSource getCleanDataSource()
 	{
-		if (dataSource == null)
+		if (cleanDataSource == null)
 		{
-			dataSource = new VirtuosoDataSource();
-			dataSource.setServerName(connectionCoords.getConnectionString());
-			dataSource.setUser(connectionCoords.getUsername());
-			dataSource.setPassword(connectionCoords.getPassword());
-			dataSource.setCharset(CONNECTION_ENCODING);
+			cleanDataSource = new VirtuosoDataSource();
+			cleanDataSource.setServerName(cleanConnectionCoords.getConnectionString());
+			cleanDataSource.setUser(cleanConnectionCoords.getUsername());
+			cleanDataSource.setPassword(cleanConnectionCoords.getPassword());
+			cleanDataSource.setCharset(CONNECTION_ENCODING);
 		}
 		
-		return dataSource;
+		return cleanDataSource;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public VirtuosoDataSource getDirtyDataSource()
+	{
+		if (dirtyDataSource == null)
+		{
+			dirtyDataSource = new VirtuosoDataSource();
+			dirtyDataSource.setServerName(dirtyConnectionCoords.getConnectionString());
+			dirtyDataSource.setUser(dirtyConnectionCoords.getUsername());
+			dirtyDataSource.setPassword(dirtyConnectionCoords.getPassword());
+			dirtyDataSource.setCharset(CONNECTION_ENCODING);
+		}
+		
+		return dirtyDataSource;
 	}
 	
 	/**
@@ -186,7 +213,7 @@ public class DaoLookupFactory implements Serializable
 	public AbstractPlatformTransactionManager getTransactionManager()
 	{
 		if (transactionManager == null)
-			transactionManager = new DataSourceTransactionManager(getDataSource());
+			transactionManager = new DataSourceTransactionManager(getCleanDataSource());
 		
 		return transactionManager;
 	}

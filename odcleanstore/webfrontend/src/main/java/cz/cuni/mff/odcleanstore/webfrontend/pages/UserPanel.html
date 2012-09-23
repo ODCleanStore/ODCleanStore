@@ -1,12 +1,11 @@
 <wicket:panel>
 	<wicket:enclosure child="logout">
-		<span wicket:id="username">[username]</span>
-		-
-		<span wicket:id="rolesList">[roles-list]</span>
-		(
-			<a wicket:id="myAccount" class="button">My Account</a>,
+		<div><strong>User: </strong> <span wicket:id="username">[username]</span></div>
+		<div><strong>Roles:</strong> <span wicket:id="rolesList">[roles-list]</span></div>
+		<div>
+			<a wicket:id="myAccount" class="button">My Account</a>
 			<a wicket:id="logout" class="button">Log out</a>
-		)
+        </div>		
 	</wicket:enclosure>
-	<a wicket:id="login" class="button">Log in</a>
+	<div><a wicket:id="login" class="button">Log in</a></div>
 </wicket:panel>

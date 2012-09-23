@@ -2,7 +2,6 @@ package cz.cuni.mff.odcleanstore.engine.db.model;
 
 import java.util.Locale;
 
-import cz.cuni.mff.odcleanstore.datanormalization.DataNormalizer;
 import cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl;
 import cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
@@ -26,7 +25,8 @@ class SQL {
 			+ " FROM ODCLEANSTORE.EN_INPUT_GRAPHS ig"
 			+ " LEFT JOIN ODCLEANSTORE.EN_ATTACHED_ENGINES ae ON ig.engineId = ae.id"
 			+ " LEFT JOIN ODCLEANSTORE.PIPELINES pi ON ig.pipelineId = pi.id"
-			+ " WHERE (ae.uuid = ? OR ae.uuid IS NULL) AND ig.stateId IN(%s,%s,%s,%s,%s)"
+			+ " WHERE (ae.uuid = ? OR ae.uuid IS NULL) AND ig.stateId IN (%s,%s,%s,%s,%s)"
+			+ "   AND (pi.isLocked = 0 OR pi.isLocked IS NULL)"
 			+ " ORDER BY ig.stateId, ig.updated",
 			GraphStates.DIRTY.toId(),
 			GraphStates.PROPAGATED.toId(),
@@ -46,7 +46,8 @@ class SQL {
 			+ " FROM ODCLEANSTORE.EN_INPUT_GRAPHS ig"
 			+ " LEFT JOIN ODCLEANSTORE.EN_ATTACHED_ENGINES ae ON ig.engineId = ae.id"
 			+ " LEFT JOIN ODCLEANSTORE.PIPELINES pi ON ig.pipelineId = pi.id"
-			+ " WHERE (ae.uuid = ? OR ae.uuid IS NULL) AND ig.stateId IN(%s,%s,%s)"
+			+ " WHERE (ae.uuid = ? OR ae.uuid IS NULL) AND ig.stateId IN (%s,%s,%s)"
+			+ "   AND (pi.isLocked = 0 OR pi.isLocked IS NULL)"
 			+ " ORDER BY ig.stateId, ig.updated",
 			GraphStates.QUEUED_FOR_DELETE.toId(),
 			GraphStates.QUEUED_URGENT.toId(),

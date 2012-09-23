@@ -9,7 +9,7 @@
 </div>
 </wicket:link>
 
-<span wicket:id="navigator">[dataview navigator]</span>
+<span class="navigation" wicket:id="navigator">[dataview navigator]</span>
 <a wicket:id="openHelpWindow"class="help">Help</a>
 
 <table border="1">
@@ -18,6 +18,7 @@
 		<th wicket:id="sortByLabel">Label</th>
 		<th>Description</th>
 		<th wicket:id="sortByIsDefault">Default</th>
+		<th wicket:id="sortByIsLocked">Locked</th>
 		<th>Action</th>
 	</tr>
 	
@@ -26,13 +27,16 @@
 		<td wicket:id="label">[label]</td>
 		<td wicket:id="description">[description]</td>
 		<td wicket:id="isDefault">[is default]</td>
+		<td wicket:id="isLocked">[is locked]</td>
 		
 		<td class="centered">
 			<input wicket:id="deletePipeline" type="button" value="Delete" />
 			<input wicket:id="managePipelineTransformers" type="button" value="Detail" />
 			<input wicket:id="showEditPipelinePage" type="button" value="Edit" />
-			<input wicket:id="markPipelineDefault" type="button" value="Mark as default" />
-			<input wicket:id="rerunAssociatedGraphs" type="button" value="Rerun associated graphs" />
+			<input wicket:id="markPipelineDefault" type="button" title="Mark as the default pipeline" value="Make default" />
+			<input wicket:id="lockPipeline" type="button" title="Lock pipeline for graph processing" value="Lock" />
+			<input wicket:id="unlockPipeline" type="button" title="Unlock pipeline for graph processing" value="Unlock" />
+			<input wicket:id="rerunAssociatedGraphs" type="button" title="Rerun pipeline on associated graphs in clean database" value="Rerun" />
 		</td>
 	</tr>
 </table>

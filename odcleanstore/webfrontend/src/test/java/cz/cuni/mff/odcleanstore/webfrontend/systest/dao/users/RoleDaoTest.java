@@ -51,8 +51,8 @@ public class RoleDaoTest extends DaoTest
 	{
 		Role role = roleDao.load(1L);
 		
-		assertEquals("SCR", role.getLabel());
-		assertEquals("Scrapper", role.getDescription());
+		assertEquals(Role.SCR, role.getLabel());
+		assertEquals("Scraper", role.getDescription());
 	}
 	
 	@Test
@@ -62,9 +62,9 @@ public class RoleDaoTest extends DaoTest
 		
 		assertEquals(4, roles.size());
 		
-		assertEquals("SCR", roles.get(0).getLabel());
-		assertEquals("ONC", roles.get(1).getLabel());
-		assertEquals("POC", roles.get(2).getLabel());
-		assertEquals("ADM", roles.get(3).getLabel());
+		assertEquals(Role.SCR, roles.get(0).getLabel());
+		assertEquals(Role.ONC, roles.get(1).getLabel());
+		assertEquals(Role.PIC, roles.get(2).getLabel());
+		assertEquals(Role.ADM, roles.get(3).getLabel());
 	}
 }

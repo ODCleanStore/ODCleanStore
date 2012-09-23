@@ -71,7 +71,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 	{	
 		logger.debug("Loading RDF graph: " + graphName);
 		
-		VirtGraph graph = new VirtGraph(graphName, this.lookupFactory.getDataSource());
+		VirtGraph graph = new VirtGraph(graphName, this.lookupFactory.getCleanDataSource());
 		Model model = ModelFactory.createModelForGraph(graph);
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		model.write(stream, OUTPUT_LANGUAGE);
@@ -103,7 +103,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		logger.debug("description: " + item.getDescription());
 		logger.debug("graphName" + item.getGraphName());
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 		
 		// to be able to drop a graph in Virtuoso, it has to be explicitly created before
 		createGraph(item.getGraphName());
@@ -136,7 +136,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		
 		Object[] params = { graphName };
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 	}
 	
 	private void storeRdfXml(String rdfData, String graphName) 
@@ -149,7 +149,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 			graphName
 		};
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 	}
 	
 	@Override
@@ -166,7 +166,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		
 		Object[] params = { graphName };
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 	}
 	
 	@Override
@@ -188,7 +188,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		createMapping(createMappingTableName(tableName), groupId, ontologyId);
 	
 		if (QARulesGroupDao.TABLE_NAME.equals(tableName)) {
-			QualityAssessmentRulesModel rulesModel = new QualityAssessmentRulesModel(this.lookupFactory.getDataSource());
+			QualityAssessmentRulesModel rulesModel = new QualityAssessmentRulesModel(this.lookupFactory.getCleanDataSource());
 			
 			try {
 				rulesModel.compileOntologyToRules(ontologyId, groupId);
@@ -196,7 +196,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 				// TODO: Handle it properly
 			}
 		} else if (DNRulesGroupDao.TABLE_NAME.equals(tableName)){
-			DataNormalizationRulesModel rulesModel = new DataNormalizationRulesModel(this.lookupFactory.getDataSource());
+			DataNormalizationRulesModel rulesModel = new DataNormalizationRulesModel(this.lookupFactory.getCleanDataSource());
 
 			try {
 				rulesModel.compileOntologyToRules(ontologyId, groupId);
@@ -221,7 +221,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		
 		logger.debug("groupName" + groupLabel);
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 	}
 	
 	private String createMappingTableName(String groupTableName) 
@@ -241,7 +241,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		
 		Object[] params = { groupLabel };
 		
-		return getJdbcTemplate().queryForObject(query, params, Long.class);
+		return getCleanJdbcTemplate().queryForObject(query, params, Long.class);
 	}
 	
 	private void createMapping(String tableName, Long groupId, Long ontologyId)
@@ -257,6 +257,6 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		logger.debug("groupId" + groupId);
 		logger.debug("ontologyId" + ontologyId);
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 	}
 }

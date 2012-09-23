@@ -1,5 +1,11 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
+import cz.cuni.mff.odcleanstore.webfrontend.core.ODCSWebFrontendSession;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.LogInPanel;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
+
 /**
  * WebFrontend home page component.
  * 
@@ -15,6 +21,16 @@ public class HomePage extends FrontendPage
 	 */
 	public HomePage() 
 	{
-		super("Home", "Welcome to ODCleanStore Web Frontend");
+		super("Home", "Welcome to ODCleanStore Administration");
+		DaoForEntityWithSurrogateKey<User> userDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(UserDao.class);
+		add(new LogInPanel("logInForm", userDao) 
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isVisible() {
+				return  !ODCSWebFrontendSession.get().isAuthenticated();
+			}
+		});
 	}
 }

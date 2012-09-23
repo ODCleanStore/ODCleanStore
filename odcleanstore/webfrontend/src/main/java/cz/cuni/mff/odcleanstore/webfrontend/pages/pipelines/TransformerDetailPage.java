@@ -3,12 +3,13 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.basic.Label;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-@AuthorizeInstantiation({ "POC" })
+@AuthorizeInstantiation({ Role.ADM })
 public class TransformerDetailPage extends FrontendPage 
 {
 	private static final long serialVersionUID = 1L;

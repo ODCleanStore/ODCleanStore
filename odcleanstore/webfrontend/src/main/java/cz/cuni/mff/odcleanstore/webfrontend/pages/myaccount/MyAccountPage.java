@@ -7,7 +7,6 @@ import org.apache.wicket.model.CompoundPropertyModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.core.ODCSWebFrontendSession;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LogInPage;
 
@@ -17,7 +16,7 @@ public class MyAccountPage extends FrontendPage
 
 	private static Logger logger = Logger.getLogger(MyAccountPage.class);
 	
-	private DaoForEntityWithSurrogateKey<User> userDao;
+	//private DaoForEntityWithSurrogateKey<User> userDao;
 	
 	public MyAccountPage() 
 	{

@@ -1,34 +1,36 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.outputws;
 
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
-
-import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.*;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
-import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
-import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvider;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.*;
-
+import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
-import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 
-import org.apache.log4j.Logger;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.AggregationType;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.ErrorStrategy;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.GlobalAggregationSettings;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.MultivalueType;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.PropertySettings;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
+import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvider;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.GlobalAggregationSettingsDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.PropertySettingsDao;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-@AuthorizeInstantiation({ "POC" })
+@AuthorizeInstantiation({ Role.PIC })
 public class CRPropertiesListPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
@@ -155,7 +157,7 @@ public class CRPropertiesListPage extends FrontendPage
 		
 		add(dataView);
 		
-		add(new PagingNavigator("navigator", dataView));
+		add(new UnobtrusivePagingNavigator("navigator", dataView));
 	}
 	
 	private void addPropertyLabel(Item<PropertySettings> item)

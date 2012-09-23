@@ -53,7 +53,7 @@ public class PipelineDao extends DaoForEntityWithSurrogateKey<Pipeline>
 		
 		Object[] params = { pipelineId };
 		
-		return getJdbcTemplate().query(query, params, new TransformerInstanceRowMapper());
+		return getCleanJdbcTemplate().query(query, params, new TransformerInstanceRowMapper());
 	}
 	
 	@Override
@@ -70,7 +70,7 @@ public class PipelineDao extends DaoForEntityWithSurrogateKey<Pipeline>
 			Boolean.FALSE
 		};
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 	}
 	
 	@Override
@@ -80,6 +80,7 @@ public class PipelineDao extends DaoForEntityWithSurrogateKey<Pipeline>
 		
 		if (item.isDefault())
 		{
+			// TODO: transaction 
 			dropRunOnCleanDBForAllRows();
 			setRunOnCleanDB(item.getId());
 		}
@@ -88,7 +89,7 @@ public class PipelineDao extends DaoForEntityWithSurrogateKey<Pipeline>
 	private void dropRunOnCleanDBForAllRows()
 	{
 		String query = "UPDATE " + TABLE_NAME + " SET isDefault = 0";
-		getJdbcTemplate().update(query);
+		getCleanJdbcTemplate().update(query);
 	}
 	
 	private void setRunOnCleanDB(Long pipelineId)
@@ -96,20 +97,22 @@ public class PipelineDao extends DaoForEntityWithSurrogateKey<Pipeline>
 		String query = "UPDATE " + TABLE_NAME + " SET isDefault = 1 WHERE id = ?";
 		Object[] params = { pipelineId };
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 	}
 	
 	private void updateRaw(Pipeline item)
 	{
-		String query = "UPDATE " + TABLE_NAME + " SET label = ?, description = ? WHERE id = ?";
+		// TODO: method setLocked() would be nicer
+		String query = "UPDATE " + TABLE_NAME + " SET label = ?, description = ?, isLocked = ? WHERE id = ?";
 		
 		Object[] params =
 		{
 			item.getLabel(),
 			item.getDescription(),
+			item.isLocked(),
 			item.getId()
 		};
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 	}
 }

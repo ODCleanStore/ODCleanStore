@@ -4,15 +4,8 @@ import java.util.List;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.PropertySettings;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponent;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRulesGroup;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.AggregationTypeDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.MultivalueTypeDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.PropertySettingsDao;
 
 /**
  * 
@@ -54,7 +47,7 @@ public class DNRuleComponentDao extends DaoForEntityWithSurrogateKey<DNRuleCompo
 			"JOIN " + DNRuleComponentTypeDao.TABLE_NAME + " as CT " +
 			"ON CT.id = C.typeId ";
 		
-		return getJdbcTemplate().query(query, getRowMapper());
+		return getCleanJdbcTemplate().query(query, getRowMapper());
 	}
 	
 	@Override
@@ -70,7 +63,7 @@ public class DNRuleComponentDao extends DaoForEntityWithSurrogateKey<DNRuleCompo
 		
 		Object[] params = { value };
 		
-		return getJdbcTemplate().query(query, params, getRowMapper());
+		return getCleanJdbcTemplate().query(query, params, getRowMapper());
 	}
 	
 	@Override
@@ -86,7 +79,7 @@ public class DNRuleComponentDao extends DaoForEntityWithSurrogateKey<DNRuleCompo
 		
 		Object[] params = { id };
 			
-		return getJdbcTemplate().queryForObject(query, params, getRowMapper());
+		return getCleanJdbcTemplate().queryForObject(query, params, getRowMapper());
 	}
 	
 	@Override
@@ -109,7 +102,7 @@ public class DNRuleComponentDao extends DaoForEntityWithSurrogateKey<DNRuleCompo
 		logger.debug("modification: " + item.getModification());
 		logger.debug("description: " + item.getDescription());
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 	}
 
 	@Override
@@ -132,6 +125,6 @@ public class DNRuleComponentDao extends DaoForEntityWithSurrogateKey<DNRuleCompo
 		logger.debug("description: " + item.getDescription());
 		logger.debug("id: " + item.getId());
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 	}
 }

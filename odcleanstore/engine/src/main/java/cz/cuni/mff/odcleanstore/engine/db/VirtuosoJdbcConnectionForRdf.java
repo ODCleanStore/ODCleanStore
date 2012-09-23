@@ -1,10 +1,5 @@
 package cz.cuni.mff.odcleanstore.engine.db;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.charset.Charset;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -14,14 +9,10 @@ import java.util.Locale;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
-import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 
 import cz.cuni.mff.odcleanstore.shared.Utils;
-import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
-
-import virtuoso.jena.driver.VirtModel;
 
 
 /**
@@ -57,9 +48,9 @@ public final class VirtuosoJdbcConnectionForRdf {
                     connectionCredentials.getConnectionString(),
                     connectionCredentials.getUsername(),
                     connectionCredentials.getPassword());
-       		CallableStatement statement = connection.prepareCall("log_enable(1)");
+       		CallableStatement statement = connection.prepareCall("log_enable(3)");
        		statement.execute();
-       		connection.setAutoCommit(false);
+       		connection.setAutoCommit(true);
         } catch (SQLException e) {
             throw new ConnectionException(e);	
         }
@@ -82,8 +73,9 @@ public final class VirtuosoJdbcConnectionForRdf {
 	 * @param srcGraphName graph
 	 * @param dstGraphName graph
 	 * @throws QueryException query error
+	 * @throws SQLException 
 	 */
-	public void renameGraph(String srcGraphName, String dstGraphName) throws QueryException {
+	public void renameGraph(String srcGraphName, String dstGraphName) throws QueryException, SQLException {
 		execute("DELETE FROM DB.DBA.RDF_QUAD WHERE g = iri_to_id (?)", dstGraphName);
 		execute("UPDATE DB.DBA.RDF_QUAD SET g = iri_to_id (?) WHERE g = iri_to_id (?)", dstGraphName, srcGraphName);
 	}
@@ -107,62 +99,16 @@ public final class VirtuosoJdbcConnectionForRdf {
 	}
 	
 	/**
-	 * Insert RDF data in RdfXml or Ttl format to the database.
-	 * @param relativeBase relative URI base for payload
-	 * @param payload payload in RdfXml or Ttl format
-	 * @param graphName name of the graph to insert
-	 * @throws QueryException query error
-	 */
-	public void insertRdfXmlOrTtl(String relativeBase, String payload, String graphName) throws QueryException {
-	    OutputStreamWriter out = null;
-	    File tempFile = new File(
-                ConfigLoader.getConfig().getInputWSGroup().getInputDirPath(), 
-                Utils.extractUUID(graphName) + ".rdf");
-        try {
-            
-            out = new OutputStreamWriter(new FileOutputStream(tempFile), Charset.forName("UTF-8"));
-            out.write(payload);
-            out.close();
-        } catch (IOException e) {
-            throw new QueryException(e);
-        } finally {
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException e) {
-                }
-            }
-        }
-	    
-        String query = null;
-        String escapedFilename = tempFile.getAbsolutePath().replace("\\", "\\\\");
-		if (payload.startsWith("<?xml")){
-			//insertRdfXml(relativeBase, payload, graphName);
-		    query = relativeBase != null ?
-	                "{call DB.DBA.RDF_LOAD_RDFXML(file_to_string_output('" + escapedFilename + "'), '" + relativeBase + "', '" + graphName + "')}" :
-	                "{call DB.DBA.RDF_LOAD_RDFXML(file_to_string_output('" + escapedFilename + "'), '' , '" + graphName + "')}";
-		}
-		else {
-			//insertTtl(relativeBase, payload, graphName);
-		    query = relativeBase != null ?
-	                "{call DB.DBA.TTLP(file_to_string_output('" + escapedFilename + "'), '" + relativeBase + "', '" + graphName + "', 0)}" :
-	                "{call DB.DBA.TTLP(file_to_string_output('" + escapedFilename + "'), '' , '"   + graphName + "', 0)}";
-		}
-		executeCall(query);
-		tempFile.delete();
-	}
-
-	/**
 	 * Insert RDF data in rdfXml format to the database.
 	 * @param relativeBase relative URI base for payload
-	 * @param rdfXml payload in RdfXml format
+	 * @param payload payload in RdfXml format
 	 * @param graphName name of the graph to insert
 	 * @throws QueryException query error
 	 */
-	public void insertRdfXml(String relativeBase, String rdfXml, String graphName) throws QueryException {
+	public void insertRdfXml(String relativeBase, String payload, String graphName) throws QueryException {
 		String statement = relativeBase != null ?
-				"{call DB.DBA.RDF_LOAD_RDFXML('" + rdfXml + "', '" + relativeBase + "', '" + graphName + "')}" :
-				"{call DB.DBA.RDF_LOAD_RDFXML('" + rdfXml + "', '' , '"	+ graphName + "')}";
+				"{call DB.DBA.RDF_LOAD_RDFXML('" + payload + "', '" + relativeBase + "', '" + graphName + "')}" :
+				"{call DB.DBA.RDF_LOAD_RDFXML('" + payload + "', '' , '"	+ graphName + "')}";
 
 		executeCall(statement);
 	}
@@ -170,18 +116,48 @@ public final class VirtuosoJdbcConnectionForRdf {
 	/**
 	 * Insert RDF data in TTL format to the database.
 	 * @param relativeBase relative URI base for payload
-	 * @param ttl payload in Ttl format
+	 * @param payload payload in Ttl format
 	 * @param graphName name of the graph to insert
 	 * @throws QueryException query error
 	 */
-	public void insertTtl(String relativeBase, String ttl, String graphName) throws QueryException {
+	public void insertTtl(String relativeBase, String payload, String graphName) throws QueryException {
 		String statement = relativeBase != null ?
-				"{call DB.DBA.TTLP('" + ttl + "', '" + relativeBase + "', '" + graphName + "', 0)}" :
-				"{call DB.DBA.TTLP('" + ttl + "', '' , '"	+ graphName + "', 0)}";
+				"{call DB.DBA.TTLP('" + payload + "', '" + relativeBase + "', '" + graphName + "', 0)}" :
+				"{call DB.DBA.TTLP('" + payload + "', '' , '"  + graphName + "', 0)}";
 
 		executeCall(statement);
 	}
+	
+	/**
+	 * Insert RDF data from file in rdfXml  format to the database.
+	 * @param relativeBase relative URI base for payload
+	 * @param rdfXmlFileName file name with payload in RdfXml format
+	 * @param graphName name of the graph to insert
+	 * @throws QueryException query error
+	 */
+	public void insertRdfXmlFromFile(String relativeBase, String rdfXmlFileName, String graphName) throws QueryException {
+		String statement = relativeBase != null ?
+				"{call DB.DBA.RDF_LOAD_RDFXML(file_to_string_output('" + rdfXmlFileName + "'), '" + relativeBase + "', '" + graphName + "')}" :
+				"{call DB.DBA.RDF_LOAD_RDFXML(file_to_string_output('" + rdfXmlFileName + "'), '' , '"	+ graphName + "')}";
 
+		executeCall(statement);
+	}
+	
+	/**
+	 * Insert RDF data from file in TTL format to the database.
+	 * @param relativeBase relative URI base for payload
+	 * @param ttlFileName file name with payload in Ttl format
+	 * @param graphName name of the graph to insert
+	 * @throws QueryException query error
+	 */
+	public void insertTtlFromFile(String relativeBase, String ttlFileName, String graphName) throws QueryException {
+		String statement = relativeBase != null ?
+				"{call DB.DBA.TTLP(file_to_string_output('" + ttlFileName + "'), '" + relativeBase + "', '" + graphName + "', 0)}" :
+				"{call DB.DBA.TTLP(file_to_string_output('" + ttlFileName + "'), '' , '"	+ graphName + "', 0)}";
+
+		executeCall(statement);
+	}
+	
     /**
      * Commit changes to the database.
      * @throws SQLException if a database access error occurs, this method is called while participating in a

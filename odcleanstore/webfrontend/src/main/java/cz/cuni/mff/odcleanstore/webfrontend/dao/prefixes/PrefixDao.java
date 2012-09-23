@@ -36,7 +36,12 @@ public class PrefixDao extends Dao<Prefix>
 		String query = "DELETE FROM " + TABLE_NAME + " WHERE NS_PREFIX = ?";
 		Object[] params = { item.getPrefix() };
 		
-		getJdbcTemplate().update(query, params);
+		// the delete in the clean DB must preceed the delete in the dirty DB in order
+		// for the transactional behavior to work correctly
+		// (the operation is surrounded by a transaction on the clean JDBC template)
+		//
+		getCleanJdbcTemplate().update(query, params);
+		getDirtyJdbcTemplate().update(query, params);
 	}
 	
 	@Override
@@ -44,7 +49,12 @@ public class PrefixDao extends Dao<Prefix>
 	{
 		String query = "INSERT INTO " + TABLE_NAME + " (NS_PREFIX, NS_URL) VALUES (?, ?)";
 		Object[] params = { item.getPrefix(), item.getUrl() };
-		
-		getJdbcTemplate().update(query, params);
+
+		// the save in the clean DB must preceed the save in the dirty DB in order
+		// for the transactional behavior to work correctly
+		// (the operation is surrounded by a transaction on the clean JDBC template)
+		//
+		getCleanJdbcTemplate().update(query, params);
+		getDirtyJdbcTemplate().update(query, params);
 	}
 }

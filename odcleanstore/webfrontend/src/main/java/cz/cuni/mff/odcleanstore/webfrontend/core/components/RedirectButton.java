@@ -6,7 +6,7 @@ import org.apache.wicket.markup.html.link.Link;
 
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-public class RedirectButton extends Link
+public class RedirectButton<T> extends Link<T>
 {
 	private static final long serialVersionUID = 1L;
 	

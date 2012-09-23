@@ -1,0 +1,30 @@
+th wicket\:body, th wicket\:border {background-color: transparent; font-weight: bold;}
+
+/* DEVELOPMENT MODE */
+#menu{height:37px; display:block; padding:0; margin:0; border:1px solid; border-radius:5px;}
+#menu > wicket\:link > ul {list-style:inside none; padding:0; margin:0;}
+#menu > wicket\:link > ul > li {list-style:inside none; padding:0; margin:0; float:left; display:block; position:relative;}
+#menu > wicket\:link > ul > li > a, #menu > wicket\:link > ul > li > span > em{outline:none; display:block; position:relative; padding:12px 20px; font:bold 13px/100% Arial, Helvetica, sans-serif; text-align:center; text-decoration:none; text-shadow:1px 1px 0 rgba(0,0,0, 0.4);}
+#menu > wicket\:link > ul > li:first-child > a, #menu > wicket\:link > ul > li:first-child > span > em{border-radius:5px 0 0 5px;}
+#menu > wicket\:link > ul > li > a:after, #menu > wicket\:link > ul > li > span > em:after{content:''; position:absolute; border-right:1px solid; top:-1px; bottom:-1px; right:-2px; z-index:99;}
+#menu wicket\:link ul li.has-sub:hover > a:after, #menu wicket\:link ul li.has-sub:hover > span > em:after{top:0; bottom:0;}
+#menu > wicket\:link > ul > li.has-sub > a:before, #menu > wicket\:link > ul > li.has-sub > span > em:before, #menu > wicket\:link > ul > li.has-sub > ul > li.has-sub > a:before, #menu > wicket\:link > ul > li.has-sub > ul > li.has-sub > span > em:before{content:''; position:absolute; top:18px; right:6px; border:5px solid transparent; border-top:5px solid #fff;}
+#menu > wicket\:link > ul > li.has-sub:hover > a:before, #menu > wicket\:link > ul > li.has-sub:hover > span > em:before{top:19px;}
+#menu wicket\:link ul li.has-sub:hover > a, #menu wicket\:link ul li.has-sub:hover > span > em{background:#3f3f3f; border-color:#3f3f3f; padding-bottom:13px; padding-top:13px; top:-1px; z-index:999;}
+#menu wicket\:link ul li.has-sub:hover > ul, #menu wicket\:link ul li.has-sub:hover > div{display:block;}
+#menu wicket\:link ul li.has-sub > a:hover, #menu wicket\:link ul li.has-sub > span > em:hover{background:#3f3f3f; border-color:#3f3f3f;}
+#menu wicket\:link ul li > ul, #menu wicket\:link ul li > div{display:none; width:auto; position:absolute; top:38px; padding:10px 0; background:#3f3f3f; border-radius:0 0 5px 5px; z-index:999;}
+#menu wicket\:link ul li > ul{width:200px;}
+#menu wicket\:link ul li > ul li{display:block; list-style:inside none; padding:0; margin:0; position:relative;}
+#menu wicket\:link ul li > ul li a, #menu wicket\:link ul li > ul li span em{outline:none; display:block; position:relative; margin:0; padding:13px 20px; font:10pt Arial, Helvetica, sans-serif; color:#fff; text-decoration:none; text-shadow:1px 1px 0 rgba(0,0,0, 0.5);}
+#menu, #menu > wicket\:link > ul > li > ul > li a:hover, #menu > wicket\:link > ul > li > ul > li span em:hover{background:#4fbdf0; background:-moz-linear-gradient(top, #4fbdf0 0%, #45b2d2 100%); background:-webkit-gradient(linear, left top, left bottom, color-stop(0%,#4fbdf0), color-stop(100%,#45b2d2)); background:-webkit-linear-gradient(top, #4fbdf0 0%,#45b2d2 100%); background:-o-linear-gradient(top, #4fbdf0 0%,#45b2d2 100%); background:-ms-linear-gradient(top, #4fbdf0 0%,#45b2d2 100%); background:linear-gradient(top, #4fbdf0 0%,#45b2d2 100%); filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#4fbdf0', endColorstr='#45b2d2',GradientType=0);}
+#menu{border-color:#3589a1;}
+#menu > wicket\:link > ul > li > a, #menu > wicket\:link > ul > li > span > em{border-right:1px solid #3589a1; color:#fff;}
+#menu > wicket\:link > ul > li > a:after, #menu > wicket\:link > ul > li > span > em:after{border-color:#6ed1ff;}
+#menu > wicket\:link > ul > li > a:hover, #menu > wicket\:link > ul > li > span > em:hover{background:#36acd2;}
+
+.wicket_orderUp wicket\:body {display: inline-block; position: relative; text-align:center; text-decoration:none; text-shadow:1px 1px 0 rgba(0,0,0, 0.4);}
+.wicket_orderUp wicket\:body:before {content:''; margin-right: -19px; margin-top: -18px; position:absolute; top:18px; right:3px; border:5px solid transparent; border-bottom:5px solid #fff;}
+
+.wicket_orderDown wicket\:body {display: inline-block; position: relative; text-align:center; text-decoration:none; text-shadow:1px 1px 0 rgba(0,0,0, 0.4);}
+.wicket_orderDown wicket\:body:before {content:''; margin-right: -19px; margin-top: -10px; position:absolute; top:18px; right:3px; border:5px solid transparent; border-top:5px solid #fff;}

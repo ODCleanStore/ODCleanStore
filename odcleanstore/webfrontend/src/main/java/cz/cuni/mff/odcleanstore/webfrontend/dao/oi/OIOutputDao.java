@@ -48,7 +48,7 @@ public class OIOutputDao extends DaoForEntityWithSurrogateKey<OIOutput>
 		
 		Object[] params = criteria.buildWhereClauseParams();
 		
-		return getJdbcTemplate().query(query, params, getRowMapper());
+		return getCleanJdbcTemplate().query(query, params, getRowMapper());
 	}
 	
 	@Override
@@ -66,7 +66,7 @@ public class OIOutputDao extends DaoForEntityWithSurrogateKey<OIOutput>
 			
 		Object[] params = { id };
 		
-		return getJdbcTemplate().queryForObject(query, params, getRowMapper());
+		return getCleanJdbcTemplate().queryForObject(query, params, getRowMapper());
 	}
 	
 	@Override
@@ -92,7 +92,7 @@ public class OIOutputDao extends DaoForEntityWithSurrogateKey<OIOutput>
 		logger.debug("minConfidence: " + output.getMinConfidence());
 		logger.debug("maxConfidence: " + output.getMaxConfidence());
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 	}
 	
 	@Override
@@ -118,6 +118,6 @@ public class OIOutputDao extends DaoForEntityWithSurrogateKey<OIOutput>
 		logger.debug("maxConfidence: " + output.getMaxConfidence());
 		logger.debug("id: " + output.getId());
 		
-		getJdbcTemplate().update(query, params);
+		getCleanJdbcTemplate().update(query, params);
 	}
 }

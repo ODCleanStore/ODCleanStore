@@ -117,7 +117,7 @@ public class SafetyDaoDecorator<T extends BusinessEntity> extends Dao<T>
 	{
 		this.save(item, new EmptyCodeSnippet());
 	}
-
+	
 	@Override
 	public void update(final T item, final CodeSnippet doAfter) throws Exception
 	{

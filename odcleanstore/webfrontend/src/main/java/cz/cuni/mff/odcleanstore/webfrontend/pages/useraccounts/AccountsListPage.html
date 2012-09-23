@@ -9,7 +9,7 @@
 </div>
 </wicket:link>
 
-<span wicket:id="navigator">[dataview navigator]</span>
+<span class="navigation" wicket:id="navigator">[dataview navigator]</span>
 <a wicket:id="openHelpWindow" class="help">Help</a>
 
 <table border="1">
@@ -25,7 +25,7 @@
 	<tr>
 		<th>SRC</th>
 		<th>ONC</th>
-		<th>POC</th>
+		<th>PIC</th>
 		<th>ADM</th>
 	</tr>
 	
@@ -38,13 +38,13 @@
 		
 		<td wicket:id="roleSCR" class="centered">X</td>
 		<td wicket:id="roleONC" class="centered">&nbsp;</td>
-		<td wicket:id="rolePOC" class="centered">&nbsp;</td>
+		<td wicket:id="rolePIC" class="centered">&nbsp;</td>
 		<td wicket:id="roleADM" class="centered">&nbsp;</td>
 		
 		<td class="centered">
 			<input wicket:id="deleteUser" type="button" value="Delete" />
-			<input wicket:id="managePermissions" type="button" value="Manage permissions" />
-			<input wicket:id="sendNewPassword" type="button" value="Send new password" />
+			<input wicket:id="managePermissions" type="button" title="Manage permissions" value="Roles" />
+			<input wicket:id="sendNewPassword" type="button" title="Generate and send new password" value="New password" />
 		</td>
 	</tr>
 </table>
