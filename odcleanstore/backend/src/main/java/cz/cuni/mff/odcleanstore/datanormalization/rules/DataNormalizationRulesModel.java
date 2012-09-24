@@ -182,10 +182,22 @@ public class DataNormalizationRulesModel {
 				String modification = new String(modificationBlob.getBytes(1, (int)modificationBlob.length()));
 
 				Blob descriptionBlob = result.getBlob("description");
-				String description = new String(descriptionBlob.getBytes(1, (int)descriptionBlob.length()));
+				String description;
+
+				if (descriptionBlob != null && !result.wasNull()) {
+					description = new String(descriptionBlob.getBytes(1, (int)descriptionBlob.length()));
+				} else {
+					description = null;
+				}
 
 				Blob componentDescriptionBlob = result.getBlob("componentDescription");
-				String componentDescription = new String(componentDescriptionBlob.getBytes(1, (int)componentDescriptionBlob.length()));
+				String componentDescription;
+				
+				if (componentDescriptionBlob != null && !result.wasNull()) {
+					componentDescription = new String(componentDescriptionBlob.getBytes(1, (int)componentDescriptionBlob.length()));
+				} else {
+					componentDescription = null;
+				}
 
 				if (rules.containsKey(id)) {
 					DataNormalizationRule rule = rules.get(id);
@@ -208,9 +220,9 @@ public class DataNormalizationRulesModel {
 
 	/**
 	 * selects rules that belong to groups whose IDs are among groupIds
-     * @param groupIds IDs of the rule groups from which the rules are selected
-     * @return a collection of the selected rules
-     */
+	 * @param groupIds IDs of the rule groups from which the rules are selected
+	 * @return a collection of the selected rules
+	 */
 	public Collection<DataNormalizationRule> getRules (Integer... groupIds) throws DataNormalizationException {
 		Set<DataNormalizationRule> rules = new HashSet<DataNormalizationRule>();
 
@@ -225,9 +237,9 @@ public class DataNormalizationRulesModel {
 
 	/**
 	 * selects rules that belong to groups whose labels are among groupLabels
-     * @param groupLabels set of labels of groups from which the rules are selected
-     * @return a collection of the selected rules
-     */
+	 * @param groupLabels set of labels of groups from which the rules are selected
+	 * @return a collection of the selected rules
+	 */
 	public Collection<DataNormalizationRule> getRules (String... groupLabels) throws DataNormalizationException {
 		Set<DataNormalizationRule> rules = new HashSet<DataNormalizationRule>();
 

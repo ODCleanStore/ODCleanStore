@@ -151,7 +151,13 @@ public class QualityAssessmentRulesModel {
 				Double coefficient = result.getDouble("coefficient");
 				
 				Blob descriptionBlob = result.getBlob("description");
-				String description = new String(descriptionBlob.getBytes(1, (int)descriptionBlob.length()));
+				String description;
+				
+				if (descriptionBlob != null && !result.wasNull()) {
+					description = new String(descriptionBlob.getBytes(1, (int)descriptionBlob.length()));
+				} else {
+					description = null;
+				}
 				
 				rules.add(new QualityAssessmentRule(id, groupId, filter, coefficient, description));
 			}
@@ -167,8 +173,8 @@ public class QualityAssessmentRulesModel {
 	}
 	
 	/**
-     * @param groupIds IDs of the rule groups from which the rules are selected
-     */
+	 * @param groupIds IDs of the rule groups from which the rules are selected
+	 */
 	public Collection<QualityAssessmentRule> getRules (Integer... groupIds) throws QualityAssessmentException {
 		Set<QualityAssessmentRule> rules = new HashSet<QualityAssessmentRule>();
 		
@@ -182,8 +188,8 @@ public class QualityAssessmentRulesModel {
 	}
 	
 	/**
-     * @param groupLabels set of labels of groups from which the rules are selected
-     */
+	 * @param groupLabels set of labels of groups from which the rules are selected
+	 */
 	public Collection<QualityAssessmentRule> getRules (String... groupLabels) throws QualityAssessmentException {
 		Set<QualityAssessmentRule> rules = new HashSet<QualityAssessmentRule>();
 		
