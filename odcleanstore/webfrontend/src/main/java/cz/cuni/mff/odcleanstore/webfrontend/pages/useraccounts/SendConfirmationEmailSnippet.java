@@ -3,12 +3,12 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts;
 import javax.mail.MessagingException;
 
 import cz.cuni.mff.odcleanstore.util.CodeSnippet;
-import cz.cuni.mff.odcleanstore.webfrontend.configuration.Configuration;
+import cz.cuni.mff.odcleanstore.configuration.WebFrontendConfig;
 import cz.cuni.mff.odcleanstore.webfrontend.util.Mail;
 
 public class SendConfirmationEmailSnippet extends CodeSnippet
 {
-	private Configuration config;
+	private WebFrontendConfig config;
 	private Mail mail;
 	
 	/**
@@ -16,7 +16,7 @@ public class SendConfirmationEmailSnippet extends CodeSnippet
 	 * @param user
 	 * @param password
 	 */
-	public SendConfirmationEmailSnippet(Configuration config, Mail mail)
+	public SendConfirmationEmailSnippet(WebFrontendConfig config, Mail mail)
 	{
 		this.config = config;
 		this.mail = mail;
