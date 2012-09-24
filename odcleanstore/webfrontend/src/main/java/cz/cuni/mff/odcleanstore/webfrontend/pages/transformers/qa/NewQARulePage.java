@@ -22,7 +22,7 @@ public class NewQARulePage extends FrontendPage
 	
 	private DaoForEntityWithSurrogateKey<QARule> qaRuleDao;
 	
-	public NewQARulePage(final Long groupId) 
+	public NewQARulePage(final Integer groupId) 
 	{
 		super(
 			"Home > Backend > QA > Groups > Rules > New", 
@@ -48,7 +48,7 @@ public class NewQARulePage extends FrontendPage
 		addNewQARuleForm(groupId);
 	}
 
-	private void addNewQARuleForm(final Long groupId)
+	private void addNewQARuleForm(final Integer groupId)
 	{
 		IModel<QARule> formModel = new CompoundPropertyModel<QARule>(new QARule());
 		

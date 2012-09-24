@@ -20,7 +20,7 @@ public class EditOIGroupPage extends FrontendPage
 
 	private DaoForEntityWithSurrogateKey<OIRulesGroup> oiRulesGroupDao;
 	
-	public EditOIGroupPage(final Long groupId) 
+	public EditOIGroupPage(final Integer groupId) 
 	{
 		super(
 			"Home > Backend > OI > Groups > Edit", 
@@ -37,7 +37,7 @@ public class EditOIGroupPage extends FrontendPage
 		addEditOIRulesGroupForm(groupId);
 	}
 	
-	private void addEditOIRulesGroupForm(final Long groupId)
+	private void addEditOIRulesGroupForm(final Integer groupId)
 	{
 		OIRulesGroup group = oiRulesGroupDao.load(groupId);
 		IModel<OIRulesGroup> formModel = new CompoundPropertyModel<OIRulesGroup>(group);

@@ -13,7 +13,7 @@ public class OIRulesGroup extends RulesGroupEntity
 	private String description;
 	private List<OIRule> rules;
 	
-	public OIRulesGroup(Long id, String label, String description) 
+	public OIRulesGroup(Integer id, String label, String description) 
 	{
 		super(id);
 		

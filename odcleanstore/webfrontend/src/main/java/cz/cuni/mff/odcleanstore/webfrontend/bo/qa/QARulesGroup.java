@@ -9,7 +9,7 @@ public class QARulesGroup extends RulesGroupEntity
 	private String label;
 	private String description;
 	
-	public QARulesGroup(Long id, String label, String description) 
+	public QARulesGroup(Integer id, String label, String description) 
 	{
 		super(id);
 		

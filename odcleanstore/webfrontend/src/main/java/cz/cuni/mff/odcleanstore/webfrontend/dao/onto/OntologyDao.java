@@ -173,8 +173,8 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		createRulesGroup(tableName, groupLabel);
 		
 		Ontology ontologyWithId = super.loadRawBy("label", ontologyLabel);
-		Long ontologyId = ontologyWithId.getId();
-		Long groupId = getGroupId(tableName, groupLabel);
+		Integer ontologyId = ontologyWithId.getId();
+		Integer groupId = getGroupId(tableName, groupLabel);
 		
 		createMapping(createMappingTableName(tableName), groupId, ontologyId);
 	
@@ -226,16 +226,16 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		}
 	}
 	
-	private Long getGroupId(String tableName, String groupLabel) 
+	private Integer getGroupId(String tableName, String groupLabel) 
 	{
 		String query = "SELECT id FROM " + tableName + " WHERE label = ?";
 		
 		Object[] params = { groupLabel };
 		
-		return getCleanJdbcTemplate().queryForObject(query, params, Long.class);
+		return getCleanJdbcTemplate().queryForObject(query, params, Integer.class);
 	}
 	
-	private void createMapping(String tableName, Long groupId, Long ontologyId)
+	private void createMapping(String tableName, Integer groupId, Integer ontologyId)
 	{
 		String query = "INSERT INTO " + TABLE_NAME_PREFIX + tableName + " (groupId, ontologyId) VALUES (?, ?)";
 		

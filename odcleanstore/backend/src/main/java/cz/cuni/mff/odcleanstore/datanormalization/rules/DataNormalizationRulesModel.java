@@ -160,7 +160,7 @@ public class DataNormalizationRulesModel {
 	 * @throws DataNormalizationException
 	 */
 	private Collection<DataNormalizationRule> queryRules (String query, Object... objects) throws DataNormalizationException {
-		Map<Long, DataNormalizationRule> rules = new HashMap<Long, DataNormalizationRule>();
+		Map<Integer, DataNormalizationRule> rules = new HashMap<Integer, DataNormalizationRule>();
 
 		try {
 			WrappedResultSet results = getCleanConnection().executeSelect(query, objects);
@@ -171,9 +171,9 @@ public class DataNormalizationRulesModel {
 			while (results.next()) {
 				ResultSet result = results.getCurrentResultSet();
 
-				Long id = result.getLong("id");
+				Integer id = result.getInt("id");
 
-				Long groupId = result.getLong("groupId");
+				Integer groupId = result.getInt("groupId");
 
 				Blob typeBlob = result.getBlob("type");
 				String type = new String(typeBlob.getBytes(1, (int)typeBlob.length()));
@@ -252,13 +252,13 @@ public class DataNormalizationRulesModel {
 		return rules;
 	}
 
-	private Long getGroupId(String groupLabel) throws DataNormalizationException {
+	private Integer getGroupId(String groupLabel) throws DataNormalizationException {
 		try {
 			WrappedResultSet resultSet = getCleanConnection().executeSelect(groupIdQuery, groupLabel);
 
 			if (!resultSet.next()) throw new DataNormalizationException("No '" + groupLabel + "' QA Rule group.");
 
-			return resultSet.getCurrentResultSet().getLong("id");
+			return resultSet.getCurrentResultSet().getInt("id");
 		} catch (DatabaseException e) {
 			throw new DataNormalizationException(e);
 		} catch (SQLException e) {
@@ -266,13 +266,13 @@ public class DataNormalizationRulesModel {
 		}
 	}
 
-	private Long getOntologyId(String ontologyLabel) throws DataNormalizationException {
+	private Integer getOntologyId(String ontologyLabel) throws DataNormalizationException {
 		try {
 			WrappedResultSet resultSet = getCleanConnection().executeSelect(ontologyIdQuery, ontologyLabel);
 
 			if (!resultSet.next()) throw new DataNormalizationException("No '" + ontologyLabel + "' ontology.");
 
-			return resultSet.getCurrentResultSet().getLong("id");
+			return resultSet.getCurrentResultSet().getInt("id");
 		} catch (DatabaseException e) {
 			throw new DataNormalizationException(e);
 		} catch (SQLException e) {
@@ -280,7 +280,7 @@ public class DataNormalizationRulesModel {
 		}
 	}
 
-	private String getOntologyGraphURI(Long ontologyId) throws DataNormalizationException {
+	private String getOntologyGraphURI(Integer ontologyId) throws DataNormalizationException {
 		try {
 			WrappedResultSet resultSet = getCleanConnection().executeSelect(ontologyGraphURIQuery, ontologyId);
 
@@ -294,7 +294,7 @@ public class DataNormalizationRulesModel {
 		}
 	}
 
-	private void mapGroupToOntology(Long groupId, Long ontologyId) throws DataNormalizationException {
+	private void mapGroupToOntology(Integer groupId, Integer ontologyId) throws DataNormalizationException {
 		try {
 			getCleanConnection().execute(mapGroupToOntology, groupId, ontologyId);
 		} catch (DatabaseException e) {
@@ -304,8 +304,8 @@ public class DataNormalizationRulesModel {
 
 	public void compileOntologyToRules(String ontologyLabel, String groupLabel) throws DataNormalizationException {
 		try {
-			Long groupId = getGroupId(groupLabel);
-			Long ontologyId = getOntologyId(ontologyLabel);
+			Integer groupId = getGroupId(groupLabel);
+			Integer ontologyId = getOntologyId(ontologyLabel);
 
 			compileOntologyToRules(ontologyId, groupId);
 		} finally {
@@ -319,7 +319,7 @@ public class DataNormalizationRulesModel {
 	 * @param groupId the ID of a rule group to which the new rules should be stored
 	 * @throws DataNormalizationException
 	 */
-	public void compileOntologyToRules(Long ontologyId, Long groupId) throws DataNormalizationException {
+	public void compileOntologyToRules(Integer ontologyId, Integer groupId) throws DataNormalizationException {
 		try {
 			String ontologyGraphURI = getOntologyGraphURI(ontologyId);
 
@@ -357,7 +357,7 @@ public class DataNormalizationRulesModel {
 	 * @param ontology the uri of the ontology to which the deleted rules are to be mapped
 	 * @throws DataNormalizationException
 	 */
-	private void dropRules(Long groupId, Long ontologyId) throws DataNormalizationException {
+	private void dropRules(Integer groupId, Integer ontologyId) throws DataNormalizationException {
 		try {
 			getCleanConnection().execute(deleteRulesByOntology, ontologyId);
 			getCleanConnection().execute(deleteMapping, groupId, ontologyId);
@@ -374,7 +374,7 @@ public class DataNormalizationRulesModel {
 	 * @param groupId the ID of the rule group to store the rules to
 	 * @throws DataNormalizationException
 	 */
-	private void processOntologyResource(Resource resource, Model model, String ontology, Long groupId) throws DataNormalizationException {
+	private void processOntologyResource(Resource resource, Model model, String ontology, Integer groupId) throws DataNormalizationException {
 		if (model.contains(resource, RDFS.range, model.asRDFNode(Node.ANY))) {
 
 			/**

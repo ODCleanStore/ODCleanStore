@@ -56,7 +56,7 @@ public class Role extends EntityWithSurrogateKey
 	 * @param label
 	 * @param description
 	 */
-	public Role(Long id, String label, String description)
+	public Role(Integer id, String label, String description)
 	{
 		super(id);
 		

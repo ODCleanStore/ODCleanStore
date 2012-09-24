@@ -99,7 +99,7 @@ public class PropertySettingsDao extends DaoForEntityWithSurrogateKey<PropertySe
 	}
 
 	@Override
-	public PropertySettings load(Long id)
+	public PropertySettings load(Integer id)
 	{
 		String query = 
 			"SELECT " +

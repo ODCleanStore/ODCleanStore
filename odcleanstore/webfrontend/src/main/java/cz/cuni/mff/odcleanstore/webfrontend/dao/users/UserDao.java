@@ -62,7 +62,7 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 	*/
 	
 	@Override
-	public User load(Long id) 
+	public User load(Integer id) 
 	{	
 		User user = loadRaw(id);
 		user.setRoles(loadRolesForUser(id));
@@ -77,7 +77,7 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 		return user;
 	}
 	
-	private Set<Role> loadRolesForUser(Long userId)
+	private Set<Role> loadRolesForUser(Integer userId)
 	{
 		String query = 
 			"SELECT * FROM " + PERMISSIONS_TABLE_NAME + " AS P " +
@@ -100,15 +100,15 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 	public List<User> loadAllBy(QueryCriteria criteria)
 	{
 		List<User> users = super.loadAllBy(criteria);
-		Map<Long, User> usersMapping = convertListToHashMap(users);
+		Map<Integer, User> usersMapping = convertListToHashMap(users);
 		
-		Map<Long, Role> rolesMapping = convertListToHashMap(loadAllRolesRaw());
+		Map<Integer, Role> rolesMapping = convertListToHashMap(loadAllRolesRaw());
 
-		List<Pair<Long, Long>> assignedRoles = loadAllPermissionRecordsRaw();
+		List<Pair<Integer, Integer>> assignedRoles = loadAllPermissionRecordsRaw();
 		
 		// assign rules to users according to the assignment
 		//
-		for (Pair<Long, Long> assignment : assignedRoles)
+		for (Pair<Integer, Integer> assignment : assignedRoles)
 		{
 			User targetUser = usersMapping.get(assignment.getFirst());
 			Role targetRole = rolesMapping.get(assignment.getSecond());
@@ -119,9 +119,9 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 		return new LinkedList<User>(users);
 	}
 	
-	private <T extends EntityWithSurrogateKey> Map<Long, T> convertListToHashMap(List<T> list)
+	private <T extends EntityWithSurrogateKey> Map<Integer, T> convertListToHashMap(List<T> list)
 	{
-		Map<Long, T> mapping = new HashMap<Long, T>();
+		Map<Integer, T> mapping = new HashMap<Integer, T>();
 		
 		for (T item : list)
 			mapping.put(item.getId(), item);
@@ -136,7 +136,7 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 	}
 	
 	
-	private List<Pair<Long, Long>> loadAllPermissionRecordsRaw()
+	private List<Pair<Integer, Integer>> loadAllPermissionRecordsRaw()
 	{
 		String query = "SELECT * FROM " + PERMISSIONS_TABLE_NAME;
 		return getCleanJdbcTemplate().query(query,new RolesAssignedToUsersRowMapping());

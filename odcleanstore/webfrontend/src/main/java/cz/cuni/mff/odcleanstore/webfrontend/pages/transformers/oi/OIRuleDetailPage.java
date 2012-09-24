@@ -34,7 +34,7 @@ public class OIRuleDetailPage extends FrontendPage
 	private DaoForEntityWithSurrogateKey<OIOutput> oiOutputDao;
 	private DaoForEntityWithSurrogateKey<OIOutputType> oiOutputTypeDao;
 	
-	public OIRuleDetailPage(final Long ruleId) 
+	public OIRuleDetailPage(final Integer ruleId) 
 	{
 		super(
 			"Home > Backend > OI > Groups > Rules > Detail", 
@@ -59,7 +59,7 @@ public class OIRuleDetailPage extends FrontendPage
 		addFileOutputsSection(ruleId);
 	}
 
-	private void addRuleInformationSection(final Long ruleId)
+	private void addRuleInformationSection(final Integer ruleId)
 	{
 		IModel<OIRule> model = createModelForOverview(oiRuleDao, ruleId); 
 		
@@ -83,7 +83,7 @@ public class OIRuleDetailPage extends FrontendPage
 		add(new Label("filterLimit"));
 	}
 	
-	private void addDBOutputsSection(final Long ruleId) 
+	private void addDBOutputsSection(final Integer ruleId) 
 	{
 		add(
 			new RedirectWithParamButton(
@@ -98,7 +98,7 @@ public class OIRuleDetailPage extends FrontendPage
 		addDBOutputsTable(ruleId, outputType.getId());
 	}
 
-	private void addDBOutputsTable(final Long ruleId, final Long typeId) 
+	private void addDBOutputsTable(final Integer ruleId, final Integer typeId) 
 	{		
 		IDataProvider<OIOutput> data = new OIOutputDataProvider(oiOutputDao, ruleId, typeId);
 		
@@ -145,7 +145,7 @@ public class OIRuleDetailPage extends FrontendPage
 		add(new UnobtrusivePagingNavigator("dbOutputsNavigator", dataView));
 	}
 	
-	private void addFileOutputsSection(final Long ruleId) 
+	private void addFileOutputsSection(final Integer ruleId) 
 	{
 		add(
 			new RedirectWithParamButton(
@@ -160,7 +160,7 @@ public class OIRuleDetailPage extends FrontendPage
 		addFileOutputsTable(ruleId, outputType.getId());
 	}
 
-	private void addFileOutputsTable(final Long ruleId, final Long typeId) 
+	private void addFileOutputsTable(final Integer ruleId, final Integer typeId) 
 	{	
 		IDataProvider<OIOutput> data = new OIOutputDataProvider(oiOutputDao, ruleId, typeId);
 		

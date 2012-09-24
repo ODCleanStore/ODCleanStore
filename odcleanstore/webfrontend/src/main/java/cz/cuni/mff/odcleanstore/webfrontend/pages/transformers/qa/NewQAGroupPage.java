@@ -50,7 +50,7 @@ public class NewQAGroupPage extends FrontendPage
 			{
 				QARulesGroup group = this.getModelObject();
 				
-				long insertId;
+				int insertId;
 				try {
 					insertId = qaRulesGroupDao.saveAndGetKey(group);
 				}

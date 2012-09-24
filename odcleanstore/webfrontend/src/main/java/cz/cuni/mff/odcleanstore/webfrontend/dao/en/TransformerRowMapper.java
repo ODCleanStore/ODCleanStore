@@ -14,7 +14,7 @@ public class TransformerRowMapper extends CustomRowMapper<Transformer>
 	{
 		return new Transformer
 		(
-			rs.getLong("id"),
+			rs.getInt("id"),
 			blobToString(rs.getBlob("label")),
 			blobToString(rs.getBlob("description")),
 			blobToString(rs.getBlob("jarPath")),

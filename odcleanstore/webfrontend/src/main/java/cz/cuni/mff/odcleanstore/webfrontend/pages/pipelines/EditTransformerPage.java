@@ -22,7 +22,7 @@ public class EditTransformerPage extends FrontendPage
 	
 	private DaoForEntityWithSurrogateKey<Transformer> transformerDao;
 	
-	public EditTransformerPage(final Long id) 
+	public EditTransformerPage(final Integer id) 
 	{
 		super
 		(
@@ -41,7 +41,7 @@ public class EditTransformerPage extends FrontendPage
 		addEditTransformerForm(id);
 	}
 	
-	private void addEditTransformerForm(final Long id)
+	private void addEditTransformerForm(final Integer id)
 	{
 		Transformer transformer = transformerDao.load(id);
 		IModel<Transformer> formModel = new CompoundPropertyModel<Transformer>(transformer);

@@ -12,7 +12,7 @@ public class OIOutputType extends EntityWithSurrogateKey
 	private String label;
 	private String description;
 	
-	public OIOutputType(Long id, String label, String description) 
+	public OIOutputType(Integer id, String label, String description) 
 	{
 		super(id);
 		

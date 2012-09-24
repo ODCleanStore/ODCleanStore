@@ -13,7 +13,7 @@ public class DNRuleComponentTypeRowMapper extends CustomRowMapper<DNRuleComponen
 	public DNRuleComponentType mapRow(ResultSet rs, int rowNum) throws SQLException 
 	{
 		return new DNRuleComponentType(
-			rs.getLong("id"),
+			rs.getInt("id"),
 			rs.getString("label"),
 			blobToString(rs.getBlob("description"))
 		);

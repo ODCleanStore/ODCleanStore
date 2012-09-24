@@ -36,7 +36,7 @@ public class PipelineDetailPage extends FrontendPage
 	private DaoForEntityWithSurrogateKey<Pipeline> pipelineDao;
 	private DaoForEntityWithSurrogateKey<TransformerInstance> transformerInstanceDao;
 
-	public PipelineDetailPage(final Long pipelineId) 
+	public PipelineDetailPage(final Integer pipelineId) 
 	{
 		super(
 			"Home > Backend > Pipelines > Detail", 
@@ -56,7 +56,7 @@ public class PipelineDetailPage extends FrontendPage
 		addAssignmentSection(pipelineId);
 	}
 
-	private void addPipelineInformationSection(final Long pipelineId)
+	private void addPipelineInformationSection(final Integer pipelineId)
 	{
 		setDefaultModel(createModelForOverview(pipelineDao, pipelineId));
 		
@@ -65,7 +65,7 @@ public class PipelineDetailPage extends FrontendPage
 		add(new Label("isDefault"));
 	}
 
-	private void addAssignmentSection(final Long pipelineId) 
+	private void addAssignmentSection(final Integer pipelineId) 
 	{
 		add(
 			new RedirectWithParamButton(
@@ -78,7 +78,7 @@ public class PipelineDetailPage extends FrontendPage
 		addAssignmentTable(pipelineId);
 	}
 	
-	private void addAssignmentTable(final Long pipelineId) 
+	private void addAssignmentTable(final Integer pipelineId) 
 	{
 		SortableDataProvider<TransformerInstance> data = new DependentSortableDataProvider<TransformerInstance>
 		(

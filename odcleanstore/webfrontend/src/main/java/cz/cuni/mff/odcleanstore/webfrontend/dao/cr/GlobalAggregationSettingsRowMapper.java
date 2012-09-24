@@ -17,21 +17,21 @@ public class GlobalAggregationSettingsRowMapper extends CustomRowMapper<GlobalAg
 	{
 		ErrorStrategy defaultErrorStrategy = new ErrorStrategy
 		(
-			rs.getLong("esid"), 
+			rs.getInt("esid"), 
 			rs.getString("eslabel"), 
 			rs.getString("esdescr")
 		);
 		
 		MultivalueType defaultMultivalueType = new MultivalueType
 		(
-			rs.getLong("mid"), 
+			rs.getInt("mid"), 
 			rs.getString("mlabel"), 
 			rs.getString("mdescr")
 		);
 		
 		AggregationType defaultAggregationType = new AggregationType
 		(
-			rs.getLong("aid"), 
+			rs.getInt("aid"), 
 			rs.getString("alabel"), 
 			rs.getString("adescr")
 		);

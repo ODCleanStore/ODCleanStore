@@ -34,14 +34,14 @@ public class PipelineDao extends DaoForEntityWithSurrogateKey<Pipeline>
 	}
 
 	@Override
-	public Pipeline load(Long id)
+	public Pipeline load(Integer id)
 	{
 		Pipeline pipeline = loadRaw(id);
 		pipeline.setTransformers(loadTransformers(id));
 		return pipeline;
 	}
 	
-	private List<TransformerInstance> loadTransformers(Long pipelineId)
+	private List<TransformerInstance> loadTransformers(Integer pipelineId)
 	{
 		String query = 
 			"SELECT T.label, TA.* " +
@@ -92,7 +92,7 @@ public class PipelineDao extends DaoForEntityWithSurrogateKey<Pipeline>
 		getCleanJdbcTemplate().update(query);
 	}
 	
-	private void setRunOnCleanDB(Long pipelineId)
+	private void setRunOnCleanDB(Integer pipelineId)
 	{
 		String query = "UPDATE " + TABLE_NAME + " SET isDefault = 1 WHERE id = ?";
 		Object[] params = { pipelineId };

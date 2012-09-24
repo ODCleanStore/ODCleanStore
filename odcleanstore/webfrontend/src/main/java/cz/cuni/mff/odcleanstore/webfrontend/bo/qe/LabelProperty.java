@@ -18,7 +18,7 @@ public class LabelProperty extends EntityWithSurrogateKey
 	 * @param id
 	 * @param property
 	 */
-	public LabelProperty(Long id, String property) 
+	public LabelProperty(Integer id, String property) 
 	{
 		super(id);
 		this.property = property;

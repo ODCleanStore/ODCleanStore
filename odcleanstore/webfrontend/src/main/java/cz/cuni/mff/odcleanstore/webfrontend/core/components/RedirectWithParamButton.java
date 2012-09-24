@@ -11,10 +11,10 @@ public class RedirectWithParamButton<T> extends Link<T>
 	private static final long serialVersionUID = 1L;
 	
 	private Class<? extends FrontendPage> redirectPage;
-	private Long param;
+	private Integer param;
 	
 	public RedirectWithParamButton(final Class<? extends FrontendPage> redirectPage, 
-		final Long param, final String compName) 
+		final Integer param, final String compName) 
 	{
 		super(compName);
 
@@ -33,7 +33,7 @@ public class RedirectWithParamButton<T> extends Link<T>
 			// argument) is necessary in order to postpone creating the page instance
 			// to when onClick is called
 			Constructor<? extends FrontendPage> constructor = 
-				redirectPage.getConstructor(new Class[]{Long.class});
+				redirectPage.getConstructor(new Class[]{Integer.class});
 			
 			page = (FrontendPage) constructor.newInstance(param);
 		} 

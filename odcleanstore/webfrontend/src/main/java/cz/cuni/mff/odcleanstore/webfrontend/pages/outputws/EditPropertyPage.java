@@ -29,7 +29,7 @@ public class EditPropertyPage extends FrontendPage
 	private DaoForEntityWithSurrogateKey<AggregationType> aggregationTypeDao;
 	private DaoForEntityWithSurrogateKey<MultivalueType> multivalueTypeDao;
 
-	public EditPropertyPage(final Long propertyId) 
+	public EditPropertyPage(final Integer propertyId) 
 	{
 		super(
 			"Home > Output WS > Aggregation Properties > Edit", 
@@ -48,7 +48,7 @@ public class EditPropertyPage extends FrontendPage
 		addEditPropertyForm(propertyId);
 	}
 	
-	private void addEditPropertyForm(final Long propertyId)
+	private void addEditPropertyForm(final Integer propertyId)
 	{
 		PropertySettings property = propertySettingsDao.load(propertyId);
 		

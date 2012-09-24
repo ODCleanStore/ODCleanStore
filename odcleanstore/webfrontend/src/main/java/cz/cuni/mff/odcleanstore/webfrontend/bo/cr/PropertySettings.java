@@ -10,7 +10,7 @@ public class PropertySettings extends EntityWithSurrogateKey
 	private MultivalueType multivalueType;
 	private AggregationType aggregationType;
 	
-	public PropertySettings(Long id, String property, 
+	public PropertySettings(Integer id, String property, 
 		MultivalueType multivalueType, AggregationType aggregationType) 
 	{
 		super(id);

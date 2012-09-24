@@ -20,7 +20,7 @@ public class DNRuleComponentDetailPage extends FrontendPage
 	
 	private DaoForEntityWithSurrogateKey<DNRuleComponent> dnRuleComponentDao;
 
-	public DNRuleComponentDetailPage(final Long ruleComponentId) 
+	public DNRuleComponentDetailPage(final Integer ruleComponentId) 
 	{
 		super(
 			"Home > Backend > DN > Groups > Rules > Components > Detail", 
@@ -37,7 +37,7 @@ public class DNRuleComponentDetailPage extends FrontendPage
 		addRuleComponentInformationSection(ruleComponentId);
 	}
 
-	private void addRuleComponentInformationSection(final Long ruleComponentId)
+	private void addRuleComponentInformationSection(final Integer ruleComponentId)
 	{
 		DNRuleComponent component = dnRuleComponentDao.load(ruleComponentId);
 		

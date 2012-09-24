@@ -9,7 +9,7 @@ public class RulesGroupEntity extends EntityWithSurrogateKey
 {
 	private static final long serialVersionUID = 1L;
 	
-	public RulesGroupEntity(Long id)
+	public RulesGroupEntity(Integer id)
 	{
 		super(id);
 	}

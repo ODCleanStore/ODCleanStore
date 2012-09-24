@@ -20,7 +20,7 @@ public class EditQAGroupPage extends FrontendPage
 
 	private DaoForEntityWithSurrogateKey<QARulesGroup> qaRulesGroupDao;
 	
-	public EditQAGroupPage(final Long groupId) 
+	public EditQAGroupPage(final Integer groupId) 
 	{
 		super(
 			"Home > Backend > QA > Groups > Edit", 
@@ -37,7 +37,7 @@ public class EditQAGroupPage extends FrontendPage
 		addEditOIRulesGroupForm(groupId);
 	}
 	
-	private void addEditOIRulesGroupForm(final Long groupId)
+	private void addEditOIRulesGroupForm(final Integer groupId)
 	{
 		QARulesGroup group = qaRulesGroupDao.load(groupId);
 		IModel<QARulesGroup> formModel = new CompoundPropertyModel<QARulesGroup>(group);

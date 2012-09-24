@@ -14,7 +14,7 @@ public class UserRowMapper extends CustomRowMapper<User>
 	public User mapRow(ResultSet rs, int rowNum) throws SQLException 
 	{
 		User user = new User(
-			rs.getLong("id"),
+			rs.getInt("id"),
 			rs.getString("username"),
 			rs.getString("email"),
 			rs.getString("firstname"),

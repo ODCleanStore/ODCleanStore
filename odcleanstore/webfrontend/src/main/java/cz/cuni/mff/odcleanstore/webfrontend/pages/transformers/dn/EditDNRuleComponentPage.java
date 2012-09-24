@@ -27,7 +27,7 @@ public class EditDNRuleComponentPage extends FrontendPage
 	 * 
 	 * @param ruleId
 	 */
-	public EditDNRuleComponentPage(Long ruleComponentId) 
+	public EditDNRuleComponentPage(Integer ruleComponentId) 
 	{
 		super(
 			"Home > Backend > DN > Groups > Rules > Components > Edit", 

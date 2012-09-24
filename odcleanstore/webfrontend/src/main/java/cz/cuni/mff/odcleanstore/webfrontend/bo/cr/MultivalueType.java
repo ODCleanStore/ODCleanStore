@@ -9,7 +9,7 @@ public class MultivalueType extends EntityWithSurrogateKey
 	private String label;
 	private String description;
 	
-	public MultivalueType(Long id, String label, String description) 
+	public MultivalueType(Integer id, String label, String description) 
 	{
 		super(id);
 		

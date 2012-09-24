@@ -33,7 +33,7 @@ public class EditAccountPermissionsPage extends FrontendPage
 	private DaoForEntityWithSurrogateKey<User> userDao;
 	private DaoForEntityWithSurrogateKey<Role> roleDao;
 		
-	public EditAccountPermissionsPage(final Long userId) 
+	public EditAccountPermissionsPage(final Integer userId) 
 	{
 		super(
 			"Home > User accounts > Edit roles", 
@@ -73,7 +73,7 @@ class UserPermissionsForm extends Form
 	private DaoForEntityWithSurrogateKey<User> userDao;
 	private DaoForEntityWithSurrogateKey<Role> roleDao;
 
-	private Long userId;
+	private Integer userId;
 	
 	private Map<Role, Boolean> currentRolesSettings;
 	
@@ -83,7 +83,7 @@ class UserPermissionsForm extends Form
 	 * @param userDao
 	 * @param roleDao
 	 */
-	public UserPermissionsForm(String id, Long userId,
+	public UserPermissionsForm(String id, Integer userId,
 		DaoForEntityWithSurrogateKey<User> userDao, DaoForEntityWithSurrogateKey<Role> roleDao) 
 	{
 		super(id);
@@ -158,7 +158,7 @@ class UserPermissionsForm extends Form
 	 * 
 	 * @param userId
 	 */
-	private void resetRolesSettings(final Long userId)
+	private void resetRolesSettings(final Integer userId)
 	{
 		currentRolesSettings = new HashMap<Role, Boolean>();
 		

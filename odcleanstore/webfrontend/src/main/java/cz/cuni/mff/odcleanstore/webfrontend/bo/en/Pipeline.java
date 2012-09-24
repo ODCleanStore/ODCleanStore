@@ -22,7 +22,7 @@ public class Pipeline extends EntityWithSurrogateKey
 	 * @param description
 	 * @param isDefault
 	 */
-	public Pipeline(Long id, String label, String description, Boolean isDefault, Boolean isLocked) 
+	public Pipeline(Integer id, String label, String description, Boolean isDefault, Boolean isLocked) 
 	{
 		super(id);
 		

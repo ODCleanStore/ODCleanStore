@@ -15,8 +15,8 @@ public class QARuleRowMapper extends CustomRowMapper<QARule>
 	{
 		return new QARule
 		(
-			rs.getLong("id"),
-			rs.getLong("groupId"),
+			rs.getInt("id"),
+			rs.getInt("groupId"),
 			blobToString(rs.getBlob("filter")),
 			blobToString(rs.getBlob("description")),
 			rs.getDouble("coefficient")

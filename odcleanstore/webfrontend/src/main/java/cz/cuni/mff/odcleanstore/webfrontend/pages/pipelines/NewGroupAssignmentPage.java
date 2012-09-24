@@ -26,7 +26,7 @@ public class NewGroupAssignmentPage extends FrontendPage
 	public NewGroupAssignmentPage(
 		final DaoForEntityWithSurrogateKey<RulesGroupEntity> groupsDao,
 		final DaoForEntityWithSurrogateKey<RuleAssignment> assignedGroupsDao,
-		final Long transformerInstanceId) 
+		final Integer transformerInstanceId) 
 	{
 		super
 		(
@@ -44,7 +44,7 @@ public class NewGroupAssignmentPage extends FrontendPage
 		addNewAssignmentForm(transformerInstanceId);
 	}
 	
-	private void addGoBackButton(final Long transformerInstanceId)
+	private void addGoBackButton(final Integer transformerInstanceId)
 	{
 		add(
 			new RedirectWithParamButton(
@@ -55,7 +55,7 @@ public class NewGroupAssignmentPage extends FrontendPage
 		);
 	}
 	
-	private void addNewAssignmentForm(final Long transformerInstanceId)
+	private void addNewAssignmentForm(final Integer transformerInstanceId)
 	{
 		Form form = new Form("newAssignmentForm", new CompoundPropertyModel(this))
 		{

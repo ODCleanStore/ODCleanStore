@@ -23,7 +23,7 @@ public class NewDNRuleComponentPage extends FrontendPage
 	private DaoForEntityWithSurrogateKey<DNRuleComponent> dnRuleComponentDao;
 	private DaoForEntityWithSurrogateKey<DNRuleComponentType> dnRuleComponentTypeDao;
 	
-	public NewDNRuleComponentPage(Long ruleId) 
+	public NewDNRuleComponentPage(Integer ruleId) 
 	{
 		super(
 			"Home > Backend > DN > Groups > Rules > Components > New", 
@@ -50,7 +50,7 @@ public class NewDNRuleComponentPage extends FrontendPage
 		addNewComponentForm(ruleId);
 	}
 	
-	private void addNewComponentForm(final Long ruleId)
+	private void addNewComponentForm(final Integer ruleId)
 	{
 		IModel<DNRuleComponent> formModel = new CompoundPropertyModel<DNRuleComponent>(new DNRuleComponent());
 		

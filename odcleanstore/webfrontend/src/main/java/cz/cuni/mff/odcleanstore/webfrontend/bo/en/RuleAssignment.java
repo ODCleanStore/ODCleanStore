@@ -6,8 +6,8 @@ public class RuleAssignment extends EntityWithSurrogateKey
 {
 	private static final long serialVersionUID = 1L;
 
-	private Long transformerInstanceId;
-	private Long groupId;
+	private Integer transformerInstanceId;
+	private Integer groupId;
 	private String groupLabel;
 	private String groupDescription;
 	
@@ -17,7 +17,7 @@ public class RuleAssignment extends EntityWithSurrogateKey
 	 * @param transformerInstanceId
 	 * @param groupId
 	 */
-	public RuleAssignment(Long id, Long transformerInstanceId, Long groupId, String groupLabel, String groupDescription) 
+	public RuleAssignment(Integer id, Integer transformerInstanceId, Integer groupId, String groupLabel, String groupDescription) 
 	{
 		super(id);
 		
@@ -32,7 +32,7 @@ public class RuleAssignment extends EntityWithSurrogateKey
 	 * @param transformerInstanceId
 	 * @param groupId
 	 */
-	public RuleAssignment(Long transformerInstanceId, Long groupId) 
+	public RuleAssignment(Integer transformerInstanceId, Integer groupId) 
 	{
 		this.transformerInstanceId = transformerInstanceId;
 		this.groupId = groupId;
@@ -50,7 +50,7 @@ public class RuleAssignment extends EntityWithSurrogateKey
 	 * 
 	 * @return
 	 */
-	public Long getTransformerInstanceId() 
+	public Integer getTransformerInstanceId() 
 	{
 		return transformerInstanceId;
 	}
@@ -59,7 +59,7 @@ public class RuleAssignment extends EntityWithSurrogateKey
 	 * 
 	 * @return
 	 */
-	public Long getGroupId() 
+	public Integer getGroupId() 
 	{
 		return groupId;
 	}

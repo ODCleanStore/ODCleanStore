@@ -14,7 +14,7 @@ public class RoleRowMapper extends CustomRowMapper<Role>
 	{
 		return new Role
 		(
-			rs.getLong("id"),
+			rs.getInt("id"),
 			blobToString(rs.getBlob("label")),
 			blobToString(rs.getBlob("description"))
 		);

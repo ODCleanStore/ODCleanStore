@@ -31,7 +31,7 @@ public class ErrorStrategyDao extends DaoForEntityWithSurrogateKey<ErrorStrategy
 	}
 	
 	@Override
-	public void deleteRaw(Long id)
+	public void deleteRaw(Integer id)
 	{
 		throw new UnsupportedOperationException(
 			"Cannot delete rows from table: " + getTableName() + "."

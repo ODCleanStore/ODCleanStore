@@ -49,7 +49,7 @@ public class RoleDaoTest extends DaoTest
 	@Test
 	public void testLoadingById() throws URISyntaxException 
 	{
-		Role role = roleDao.load(1L);
+		Role role = roleDao.load(1);
 		
 		assertEquals(Role.SCR, role.getLabel());
 		assertEquals("Scraper", role.getDescription());

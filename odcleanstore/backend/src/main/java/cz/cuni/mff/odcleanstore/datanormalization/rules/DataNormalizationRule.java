@@ -77,8 +77,8 @@ public class DataNormalizationRule {
 		}
 	}
 
-	Long id;
-	Long groupId;
+	Integer id;
+	Integer groupId;
 	String description;
 	ArrayList<Component> components = new ArrayList<Component>();
 
@@ -90,7 +90,7 @@ public class DataNormalizationRule {
 	 * @param components the list of triples (component type, component code, component description)
 	 * @throws DataNormalizationException
 	 */
-	public DataNormalizationRule(Long id, Long groupId, String description, String... components) throws DataNormalizationException {
+	public DataNormalizationRule(Integer id, Integer groupId, String description, String... components) throws DataNormalizationException {
 		this.id = id;
 		this.groupId = groupId;
 		this.description = description;
@@ -102,11 +102,11 @@ public class DataNormalizationRule {
 		}
 	}
 
-	public Long getId() {
+	public Integer getId() {
 		return id;
 	}
 
-	public Long getGroupId() {
+	public Integer getGroupId() {
 		return groupId;
 	}
 

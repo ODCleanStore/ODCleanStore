@@ -20,7 +20,7 @@ public class QARuleDetailPage extends FrontendPage
 	
 	private DaoForEntityWithSurrogateKey<QARule> qaRuleDao;
 
-	public QARuleDetailPage(final Long ruleId) 
+	public QARuleDetailPage(final Integer ruleId) 
 	{
 		super(
 			"Home > Backend > QA > Groups > Rules > Detail", 
@@ -37,7 +37,7 @@ public class QARuleDetailPage extends FrontendPage
 		addRuleInformationSection(ruleId);
 	}
 	
-	private void addRuleInformationSection(final Long ruleId)
+	private void addRuleInformationSection(final Integer ruleId)
 	{
 		QARule rule = qaRuleDao.load(ruleId);
 		

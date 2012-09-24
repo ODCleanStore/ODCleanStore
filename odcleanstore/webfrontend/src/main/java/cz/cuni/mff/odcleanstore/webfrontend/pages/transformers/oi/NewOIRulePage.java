@@ -22,7 +22,7 @@ public class NewOIRulePage extends FrontendPage
 	
 	private DaoForEntityWithSurrogateKey<OIRule> oiRuleDao;
 	
-	public NewOIRulePage(final Long groupId) 
+	public NewOIRulePage(final Integer groupId) 
 	{
 		super(
 			"Home > Backend > OI > Groups > Rules > New", 
@@ -48,7 +48,7 @@ public class NewOIRulePage extends FrontendPage
 		addNewOIRuleForm(groupId);
 	}
 
-	private void addNewOIRuleForm(final Long groupId)
+	private void addNewOIRuleForm(final Integer groupId)
 	{
 		IModel formModel = new CompoundPropertyModel(new OIRule());
 		

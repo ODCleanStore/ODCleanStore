@@ -9,7 +9,7 @@ public class AggregationType extends EntityWithSurrogateKey
 	private String label;
 	private String description;
 	
-	public AggregationType(Long id, String label, String description) 
+	public AggregationType(Integer id, String label, String description) 
 	{
 		super(id);
 		

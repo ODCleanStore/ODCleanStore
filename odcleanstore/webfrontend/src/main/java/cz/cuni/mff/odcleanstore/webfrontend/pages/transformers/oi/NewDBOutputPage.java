@@ -25,7 +25,7 @@ public class NewDBOutputPage extends FrontendPage
 	private DaoForEntityWithSurrogateKey<OIOutput> oiOutputDao;
 	private DaoForEntityWithSurrogateKey<OIOutputType> oiOutputTypeDao;
 	
-	public NewDBOutputPage(final Long ruleId) 
+	public NewDBOutputPage(final Integer ruleId) 
 	{
 		super(
 			"Home > Backend > OI > Groups > Rules > DB Outputs > New", 
@@ -52,7 +52,7 @@ public class NewDBOutputPage extends FrontendPage
 		addNewDBOutputForm(ruleId);
 	}
 
-	private void addNewDBOutputForm(final Long ruleId)
+	private void addNewDBOutputForm(final Integer ruleId)
 	{
 		IModel<OIOutput> formModel = new CompoundPropertyModel<OIOutput>(new OIOutput());
 		
