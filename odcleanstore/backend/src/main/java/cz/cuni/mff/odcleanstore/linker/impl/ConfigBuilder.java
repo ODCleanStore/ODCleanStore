@@ -470,10 +470,10 @@ public class ConfigBuilder {
 	
 	private static Element createFilter(Document doc, Integer limit, BigDecimal threshold) {
 		Element filterElement = doc.createElement(CONFIG_XML_FILTER);
-		if (limit != null) {
+		if (threshold != null) {
 			filterElement.setAttribute(CONFIG_XML_THRESHOLD, threshold.toString());
 		}
-		if (threshold != null) {
+		if (limit != null) {
 			filterElement.setAttribute(CONFIG_XML_LIMIT, limit.toString());
 		}
 		return filterElement;
