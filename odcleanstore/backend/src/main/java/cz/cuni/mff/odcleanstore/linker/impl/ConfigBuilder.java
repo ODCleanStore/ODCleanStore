@@ -100,6 +100,10 @@ public class ConfigBuilder {
 	private static final String CONFIG_XML_PASSWORD = "password";
 	private static final String CONFIG_XML_LINKAGE_RULE = "LinkageRule";
 	private static final String CONFIG_XML_ALIGNMENT = "alignment";
+	private static final String CONFIG_XML_INPUT = "Input";
+	private static final String CONFIG_XML_TRANSFORM_INPUT = "TransformInput";
+	private static final String CONFIG_XML_COMPARE = "Compare";
+	private static final String CONFIG_XML_AGGREGATE = "Aggregate";
 	
 	private static final String SOURCE_FORMAT = "RDF/XML";
 	
@@ -436,6 +440,8 @@ public class ConfigBuilder {
 		
 		Element linkageRuleElement = builder.parse(new InputSource(new StringReader(rule.getLinkageRule()))).
 				getDocumentElement();
+		filterIDs(linkageRuleElement);
+		
 		ruleElement.appendChild(doc.importNode(linkageRuleElement, true));
 		
 		ruleElement.appendChild(createFilter(doc, rule.getFilterLimit(), rule.getFilterThreshold()));
@@ -665,4 +671,18 @@ public class ConfigBuilder {
 		return sourceElement;
 	}
 	
+	private static void filterIDs(Element element) {
+		filterIDs(element.getElementsByTagName(CONFIG_XML_INPUT));
+		filterIDs(element.getElementsByTagName(CONFIG_XML_TRANSFORM_INPUT));
+		filterIDs(element.getElementsByTagName(CONFIG_XML_COMPARE));
+		filterIDs(element.getElementsByTagName(CONFIG_XML_AGGREGATE));
+	}
+	
+	private static void filterIDs(NodeList nodeList) {
+		int length = nodeList.getLength();
+		for (int i = 0; i < length; i++) {
+			Element element = (Element)nodeList.item(i);
+			element.removeAttribute(CONFIG_XML_ID);
+		}
+	}
 }
