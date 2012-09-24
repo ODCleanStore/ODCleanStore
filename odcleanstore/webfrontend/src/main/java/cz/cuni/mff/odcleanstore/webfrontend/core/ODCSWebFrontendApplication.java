@@ -2,7 +2,6 @@ package cz.cuni.mff.odcleanstore.webfrontend.core;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.Properties;
 
 import org.apache.wicket.DefaultMapperContext;
@@ -10,12 +9,10 @@ import org.apache.wicket.authroles.authentication.AbstractAuthenticatedWebSessio
 import org.apache.wicket.authroles.authentication.AuthenticatedWebApplication;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.request.mapper.IMapperContext;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.configuration.WebFrontendConfig;
 import cz.cuni.mff.odcleanstore.configuration.exceptions.ConfigurationException;
-import cz.cuni.mff.odcleanstore.webfrontend.configuration.Configuration;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.HomePage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LogInPage;
 
@@ -26,18 +23,14 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.LogInPage;
 public class ODCSWebFrontendApplication extends AuthenticatedWebApplication 
 {
 	private static final String WEB_URL_PREFIX = "odcs-web-frontend";
-	private static final String SPRING_CONFIG_LOCATION = "./config/spring.xml";
 	private static final String APP_PROPERTIES_LOCATION = "config/application.properties";
 	private static final String ODCS_PATH_PROPERTY = "odcs.config.path";
-
-	/** Spring context */
-	private ApplicationContext ctx;
 	
 	/** A factory to lookup Spring beans */
 	private DaoLookupFactory daoLookupFactory;
 	
 	/** Application configuration */
-	private Configuration configuration;
+	private WebFrontendConfig configuration;
 	
 	private URLRouter urlRouter;
 	
@@ -75,16 +68,14 @@ public class ODCSWebFrontendApplication extends AuthenticatedWebApplication
 			throw new RuntimeException("Loading application properties failed: " + APP_PROPERTIES_LOCATION);
 		}
 
-		getDebugSettings().setAjaxDebugModeEnabled(false);
-		
-		ctx = new ClassPathXmlApplicationContext(SPRING_CONFIG_LOCATION);
-
-		configuration = (Configuration) ctx.getBean("appConfig");
+		configuration = ConfigLoader.getConfig().getWebFrontendGroup();
 		
 		daoLookupFactory = new DaoLookupFactory(
-			configuration.getCleanConnectionCoords(),
-			configuration.getDirtyConnectionCoords()
+			configuration.getCleanDBJDBCConnectionCredentials(),
+			configuration.getDirtyDBJDBCConnectionCredentials()
 		);
+		
+		getDebugSettings().setAjaxDebugModeEnabled(false);
 		
 		urlRouter = new URLRouter(WEB_URL_PREFIX);
 		urlRouter.setupRouting(this);
@@ -121,7 +112,7 @@ public class ODCSWebFrontendApplication extends AuthenticatedWebApplication
 		return daoLookupFactory;
 	}
 	
-	public Configuration getConfiguration()
+	public WebFrontendConfig getConfiguration()
 	{
 		return configuration;
 	}
