@@ -4,7 +4,7 @@ VALUES (n'adm', n'adm@odcleanstore.cz', n'0e2aeeeb4125bea8d439c61050a08b52', n's
 
 /* username: pic, password: pic, roles: PIC */
 INSERT INTO DB.ODCLEANSTORE.USERS (username, email, passwordHash, salt, firstname, surname) 
-VALUES (n'pic', n'pic@odcleanstore.cz', n'f4371aa7c2147df3c3e17a738e9af5f7', n'salted', n'The', n'Policy Creator');
+VALUES (n'pic', n'pic@odcleanstore.cz', n'f4371aa7c2147df3c3e17a738e9af5f7', n'salted', n'The', n'Pipeline Creator');
 
 /* username: onc, password: onc, roles: ONC */
 INSERT INTO DB.ODCLEANSTORE.USERS (username, email, passwordHash, salt, firstname, surname)
