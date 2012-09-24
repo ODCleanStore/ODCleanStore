@@ -1,0 +1,26 @@
+<wicket:extend>
+
+<wicket:link>
+<div>
+	<a class="placedright" href="ChooseOntologiesPage.html">Back to ontologies choice</a>
+	<div class="clear">&nbsp;</div>
+</div>
+</wicket:link>
+
+<form wicket:id="addMappingForm">
+	<p>
+		<label for="sourceUri">Source URI:</label>
+		<input wicket:id="sourceUri" id="sourceUri" class="required uri-size" />
+	</p>
+	<p>
+		<label for="relationType">Relation type:</label>
+		<input wicket:id="relationType" id="relationType" class="required uri-size" />
+	</p>
+	<p>
+		<label for="targetUri">Target URI:</label>
+		<input wicket:id="targetUri" id="targetUri" class="required uri-size" />
+	</p>
+	<input type="submit" value="Submit" />
+</form>
+
+</wicket:extend>

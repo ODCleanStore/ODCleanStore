@@ -87,12 +87,34 @@ public abstract class ConfigGroup {
      * @throws ParameterNotAvailableException
      * @throws IllegalParameterFormatException
      */
-    protected static JDBCConnectionCredentials loadJDBCConnectionCredentials(Properties properties, EnumDbConnectionType dbType)
+    protected static JDBCConnectionCredentials loadJDBCConnectionCredentials(Properties properties,
+    		EnumDbConnectionType dbType) throws ParameterNotAvailableException, IllegalParameterFormatException
+    {
+        return loadJDBCConnectionCredentials(properties, dbType, false);
+    }
+    
+    /**
+     * Extracts JDBC configuration values for the database given by its name
+     * from the given Properties instance. Returns a JDBCConnectionCredentials object instantiated using
+     * the extracted values.
+     *
+     * @param properties
+     * @param dbName
+     * @param isVirtuosoDataset
+     * @return
+     * @throws ParameterNotAvailableException
+     * @throws IllegalParameterFormatException
+     */
+    protected static JDBCConnectionCredentials loadJDBCConnectionCredentials(Properties properties,
+    		EnumDbConnectionType dbType, boolean isVirtuosoDataset)
             throws ParameterNotAvailableException, IllegalParameterFormatException
     {
         ParameterFormat<String> formatString = new FormatString();
-
-        String connectionString = loadParam(properties, dbType.getConfigPrefix() + "jdbc_connection_string", formatString);
+        
+        String connectionStringPrefix = isVirtuosoDataset ? "dataset_" : "jdbc_";
+        
+        String connectionString = loadParam(properties, 
+        		dbType.getConfigPrefix() + connectionStringPrefix + "connection_string", formatString);
         String username = loadParam(properties, dbType.getConfigPrefix() + "jdbc_username", formatString);
         String password = loadParam(properties, dbType.getConfigPrefix() + "jdbc_password", formatString);
 

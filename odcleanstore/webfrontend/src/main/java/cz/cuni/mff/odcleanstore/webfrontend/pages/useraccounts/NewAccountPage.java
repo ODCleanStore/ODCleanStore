@@ -12,7 +12,7 @@ import org.apache.wicket.validation.validator.EmailAddressValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
-import cz.cuni.mff.odcleanstore.webfrontend.configuration.Configuration;
+import cz.cuni.mff.odcleanstore.configuration.WebFrontendConfig;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
@@ -55,7 +55,7 @@ public class NewAccountPage extends FrontendPage
 			protected void onSubmit()
 			{
 				User user = this.getModelObject();
-				Configuration config = NewAccountPage.this.getApp().getConfiguration();
+				WebFrontendConfig config = NewAccountPage.this.getApp().getConfiguration();
 				
 				try 
 				{

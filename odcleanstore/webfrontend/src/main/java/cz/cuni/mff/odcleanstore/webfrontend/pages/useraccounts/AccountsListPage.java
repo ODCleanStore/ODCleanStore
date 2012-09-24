@@ -13,7 +13,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
-import cz.cuni.mff.odcleanstore.webfrontend.configuration.Configuration;
+import cz.cuni.mff.odcleanstore.configuration.WebFrontendConfig;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
@@ -120,7 +120,7 @@ public class AccountsListPage extends FrontendPage
 			public void onClick() 
 			{
 				User user = userDao.load(userId);
-				Configuration config = AccountsListPage.this.getApp().getConfiguration();
+				WebFrontendConfig config = AccountsListPage.this.getApp().getConfiguration();
 				
 				try 
 				{

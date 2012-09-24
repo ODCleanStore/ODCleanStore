@@ -56,7 +56,8 @@ public class EditOntologyPage extends FrontendPage
 			{
 				Ontology ontology = this.getModelObject();
 				
-				try {
+				try 
+				{
 					ontologyDao.update(ontology);
 				}
 				catch (DaoException ex)
