@@ -38,7 +38,7 @@ public class DNGroupDetailPage extends FrontendPage
 	private DaoForEntityWithSurrogateKey<DNRulesGroup> dnRulesGroupDao;
 	private DaoForEntityWithSurrogateKey<DNRule> dnRuleDao;
 
-	public DNGroupDetailPage(final Long groupId) 
+	public DNGroupDetailPage(final Integer groupId) 
 	{
 		super(
 			"Home > Backend > DN > Groups > Detail", 
@@ -64,7 +64,7 @@ public class DNGroupDetailPage extends FrontendPage
 	 	=======================================================================
 	*/
 	
-	private void addGroupInformationSection(final Long groupId)
+	private void addGroupInformationSection(final Integer groupId)
 	{
 		setDefaultModel(createModelForOverview(dnRulesGroupDao, groupId));
 		
@@ -72,7 +72,7 @@ public class DNGroupDetailPage extends FrontendPage
 		add(new Label("description"));
 	}
 	
-	private void addDNRulesSection(final Long groupId) 
+	private void addDNRulesSection(final Integer groupId) 
 	{
 		add(
 			new RedirectWithParamButton(
@@ -85,7 +85,7 @@ public class DNGroupDetailPage extends FrontendPage
 		addDNRulesTable(groupId);
 	}
 	
-	private void addDNRulesTable(final Long groupId)
+	private void addDNRulesTable(final Integer groupId)
 	{
 		IDataProvider<DNRule> data = new DependentDataProvider<DNRule>(dnRuleDao, "groupId", groupId);
 		

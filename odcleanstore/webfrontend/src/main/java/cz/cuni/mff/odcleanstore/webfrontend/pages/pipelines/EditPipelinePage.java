@@ -18,7 +18,7 @@ public class EditPipelinePage extends FrontendPage
 
 	private DaoForEntityWithSurrogateKey<Pipeline> pipelineDao;
 	
-	public EditPipelinePage(final Long pipelineId) 
+	public EditPipelinePage(final Integer pipelineId) 
 	{
 		super
 		(
@@ -37,7 +37,7 @@ public class EditPipelinePage extends FrontendPage
 		addNewPipelineForm(pipelineId);
 	}
 	
-	private void addNewPipelineForm(final Long pipelineId)
+	private void addNewPipelineForm(final Integer pipelineId)
 	{
 		Pipeline pipeline = pipelineDao.load(pipelineId);
 		IModel<Pipeline> formModel = new CompoundPropertyModel<Pipeline>(pipeline);

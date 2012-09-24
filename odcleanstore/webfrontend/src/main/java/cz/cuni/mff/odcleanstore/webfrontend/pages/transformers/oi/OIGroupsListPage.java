@@ -117,7 +117,7 @@ public class OIGroupsListPage extends FrontendPage
 		add(new UnobtrusivePagingNavigator("navigator", dataView));
 	}
 	
-	private Link createRerunAffectedGraphsButton(final Long groupId)
+	private Link createRerunAffectedGraphsButton(final Integer groupId)
 	{
 		Link button = new Link("rerunAffectedGraphs")
         {

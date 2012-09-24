@@ -38,7 +38,7 @@ public class QAGroupDetailPage extends FrontendPage
 	private DaoForEntityWithSurrogateKey<QARulesGroup> qaRulesGroupDao;
 	private DaoForEntityWithSurrogateKey<QARule> qaRuleDao;
 
-	public QAGroupDetailPage(final Long groupId) 
+	public QAGroupDetailPage(final Integer groupId) 
 	{
 		super(
 			"Home > Backend > QA > Groups > Detail", 
@@ -58,7 +58,7 @@ public class QAGroupDetailPage extends FrontendPage
 		addQARulesSection(groupId);
 	}
 
-	private void addGroupInformationSection(final Long groupId)
+	private void addGroupInformationSection(final Integer groupId)
 	{
 		setDefaultModel(createModelForOverview(qaRulesGroupDao, groupId));
 		
@@ -66,7 +66,7 @@ public class QAGroupDetailPage extends FrontendPage
 		add(new Label("description"));
 	}
 	
-	private void addQARulesSection(final Long groupId) 
+	private void addQARulesSection(final Integer groupId) 
 	{
 		add(
 			new RedirectWithParamButton(
@@ -79,7 +79,7 @@ public class QAGroupDetailPage extends FrontendPage
 		addQARulesTable(groupId);
 	}
 	
-	private void addQARulesTable(final Long groupId)
+	private void addQARulesTable(final Integer groupId)
 	{
 		SortableDataProvider<QARule> data = new DependentSortableDataProvider<QARule>
 		(

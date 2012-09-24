@@ -20,15 +20,15 @@ public class DNRuleComponentRowMapper extends CustomRowMapper<DNRuleComponent>
 	{
 		DNRuleComponentType type = new DNRuleComponentType
 		(
-			rs.getLong("typeId"), 
+			rs.getInt("typeId"), 
 			rs.getString("typeLbl"), 
 			rs.getString("typeDescr")
 		);
 		
 		return new DNRuleComponent
 		(
-			rs.getLong("id"),
-			rs.getLong("ruleId"),
+			rs.getInt("id"),
+			rs.getInt("ruleId"),
 			type,
 			blobToString(rs.getBlob("modification")),
 			blobToString(rs.getBlob("description"))

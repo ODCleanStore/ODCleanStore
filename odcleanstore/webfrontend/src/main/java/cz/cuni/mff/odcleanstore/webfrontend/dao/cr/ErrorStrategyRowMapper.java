@@ -13,7 +13,7 @@ public class ErrorStrategyRowMapper extends CustomRowMapper<ErrorStrategy>
 	public ErrorStrategy mapRow(ResultSet rs, int rowNum) throws SQLException 
 	{
 		return new ErrorStrategy(
-			rs.getLong("id"),
+			rs.getInt("id"),
 			rs.getString("label"),
 			blobToString(rs.getBlob("description"))
 		);

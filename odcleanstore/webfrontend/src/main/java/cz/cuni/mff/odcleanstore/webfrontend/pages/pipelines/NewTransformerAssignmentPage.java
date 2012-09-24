@@ -32,7 +32,7 @@ public class NewTransformerAssignmentPage extends FrontendPage
 	private Boolean runOnCleanDB;
 	private Integer priority;
 	
-	public NewTransformerAssignmentPage(final Long pipelineId) 
+	public NewTransformerAssignmentPage(final Integer pipelineId) 
 	{
 		super
 		(
@@ -61,7 +61,7 @@ public class NewTransformerAssignmentPage extends FrontendPage
 		addNewAssignmentForm(pipelineId);
 	}
 	
-	private void addNewAssignmentForm(final Long pipelineId)
+	private void addNewAssignmentForm(final Integer pipelineId)
 	{
 		Form<NewTransformerAssignmentPage> form = 
 			new Form<NewTransformerAssignmentPage>("newAssignmentForm", new CompoundPropertyModel<NewTransformerAssignmentPage>(this))
@@ -81,7 +81,7 @@ public class NewTransformerAssignmentPage extends FrontendPage
 					priority
 				);
 
-				long insertId;
+				int insertId;
 				try {
 					insertId = transformerInstanceDao.saveAndGetKey(assignment);
 				}

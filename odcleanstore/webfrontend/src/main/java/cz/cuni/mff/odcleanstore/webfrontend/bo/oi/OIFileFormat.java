@@ -9,7 +9,7 @@ public class OIFileFormat extends EntityWithSurrogateKey
 	private String label;
 	private String description;
 	
-	public OIFileFormat(Long id, String label, String description) 
+	public OIFileFormat(Integer id, String label, String description) 
 	{
 		super(id);
 		

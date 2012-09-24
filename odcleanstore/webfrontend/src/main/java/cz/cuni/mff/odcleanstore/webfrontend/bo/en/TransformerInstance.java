@@ -6,14 +6,14 @@ public class TransformerInstance extends EntityWithSurrogateKey
 {
 	private static final long serialVersionUID = 1L;
 	
-	private Long transformerId;
-	private Long pipelineId;
+	private Integer transformerId;
+	private Integer pipelineId;
 	private String label;
 	private String configuration;
 	private Boolean runOnCleanDB;
 	private Integer priority;
 	
-	public TransformerInstance(Long id, Long transformerId, Long pipelineId, String label,
+	public TransformerInstance(Integer id, Integer transformerId, Integer pipelineId, String label,
 		String configuration, Boolean runOnCleanDB, Integer priority) 
 	{
 		super(id);
@@ -34,7 +34,7 @@ public class TransformerInstance extends EntityWithSurrogateKey
 	 * @param configuration
 	 * @param priority
 	 */
-	public TransformerInstance(Long transformerId, Long pipelineId, String label, 
+	public TransformerInstance(Integer transformerId, Integer pipelineId, String label, 
 		String configuration, Boolean runOnCleanDB, Integer priority) 
 	{
 		this.transformerId = transformerId;
@@ -53,7 +53,7 @@ public class TransformerInstance extends EntityWithSurrogateKey
 	 * @param configuration
 	 * @param priority
 	 */
-	public TransformerInstance(Long transformerId, Long pipelineId,  
+	public TransformerInstance(Integer transformerId, Integer pipelineId,  
 		String configuration, Boolean runOnCleanDB, Integer priority) 
 	{
 		this.transformerId = transformerId;
@@ -74,7 +74,7 @@ public class TransformerInstance extends EntityWithSurrogateKey
 	 * 
 	 * @return
 	 */
-	public Long getTransformerId()
+	public Integer getTransformerId()
 	{
 		return transformerId;
 	}
@@ -83,7 +83,7 @@ public class TransformerInstance extends EntityWithSurrogateKey
 	 * 
 	 * @param transformerId
 	 */
-	public void setTransformerId(Long transformerId)
+	public void setTransformerId(Integer transformerId)
 	{
 		this.transformerId = transformerId;
 	}
@@ -92,7 +92,7 @@ public class TransformerInstance extends EntityWithSurrogateKey
 	 * 
 	 * @return
 	 */
-	public Long getPipelineId()
+	public Integer getPipelineId()
 	{
 		return pipelineId;
 	}
@@ -101,7 +101,7 @@ public class TransformerInstance extends EntityWithSurrogateKey
 	 * 
 	 * @param pipelineId
 	 */
-	public void setPipelineId(Long pipelineId)
+	public void setPipelineId(Integer pipelineId)
 	{
 		this.pipelineId = pipelineId;
 	}

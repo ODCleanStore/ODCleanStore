@@ -27,7 +27,7 @@ public class NewFileOutputPage extends FrontendPage
 	private DaoForEntityWithSurrogateKey<OIOutputType> oiOutputTypeDao;
 	private DaoForEntityWithSurrogateKey<OIFileFormat> oiFileFormatDao;
 	
-	public NewFileOutputPage(final Long ruleId) 
+	public NewFileOutputPage(final Integer ruleId) 
 	{
 		super(
 			"Home > Backend > OI > Groups > Rules > File Outputs > New", 
@@ -55,7 +55,7 @@ public class NewFileOutputPage extends FrontendPage
 		addNewFileOutputForm(ruleId);
 	}
 
-	private void addNewFileOutputForm(final Long ruleId)
+	private void addNewFileOutputForm(final Integer ruleId)
 	{
 		IModel<OIOutput> formModel = new CompoundPropertyModel<OIOutput>(new OIOutput());
 		

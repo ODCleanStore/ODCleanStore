@@ -52,9 +52,9 @@ public class TransformerDaoTest extends DaoTest
 	@Test
 	public void testLoadingById() throws URISyntaxException 
 	{
-		Transformer transformer = transformerDao.load(1L);
+		Transformer transformer = transformerDao.load(1);
 		
-		assertTrue(1L == transformer.getId());
+		assertTrue(1 == transformer.getId());
 		assertEquals("QA", transformer.getLabel());
 		assertEquals("Standard quality assessment transformer", transformer.getDescription());
 		assertEquals(".", transformer.getJarPath());
@@ -97,7 +97,7 @@ public class TransformerDaoTest extends DaoTest
 	public void testDeleting() throws Exception
 	{
 		/*
-		Publisher publisher = new Publisher(2L, "Google", "http://www.google.com");
+		Publisher publisher = new Publisher(2, "Google", "http://www.google.com");
 		
 		publisherDao.delete(publisher);
 

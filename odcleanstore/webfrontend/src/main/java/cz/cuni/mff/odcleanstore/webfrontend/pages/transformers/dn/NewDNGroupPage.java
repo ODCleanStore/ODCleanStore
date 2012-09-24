@@ -51,7 +51,7 @@ public class NewDNGroupPage extends FrontendPage
 			{
 				DNRulesGroup group = this.getModelObject();
 				
-				long insertId;
+				int insertId;
 				try {
 					insertId = dnRulesGroupDao.saveAndGetKey(group);
 				}

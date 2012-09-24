@@ -16,9 +16,9 @@ public class TransformerInstanceRowMapper extends CustomRowMapper<TransformerIns
 	{
 		return new TransformerInstance
 		(
-			rs.getLong("id"),
-			rs.getLong("transformerId"),
-			rs.getLong("pipelineId"),
+			rs.getInt("id"),
+			rs.getInt("transformerId"),
+			rs.getInt("pipelineId"),
 			rs.getString("label"),
 			blobToString(rs.getBlob("configuration")),
 			rs.getBoolean("runOnCleanDB"),

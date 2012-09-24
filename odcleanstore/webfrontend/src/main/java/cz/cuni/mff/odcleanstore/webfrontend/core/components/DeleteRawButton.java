@@ -17,7 +17,7 @@ public class DeleteRawButton<BO extends EntityWithSurrogateKey> extends Abstract
 	 * @param message
 	 * @param redirectPage
 	 */
-	public DeleteRawButton(DaoForEntityWithSurrogateKey<BO> dao, Long boId, String compName,
+	public DeleteRawButton(DaoForEntityWithSurrogateKey<BO> dao, Integer boId, String compName,
 		String objName, DeleteConfirmationMessage message, FrontendPage redirectPage) 
 	{
 		super(dao, boId, compName, objName, message, redirectPage);
@@ -31,7 +31,7 @@ public class DeleteRawButton<BO extends EntityWithSurrogateKey> extends Abstract
 	 * @param message
 	 * @param redirectPage
 	 */
-	public DeleteRawButton(DaoForEntityWithSurrogateKey<BO> dao, Long boId, String objName,
+	public DeleteRawButton(DaoForEntityWithSurrogateKey<BO> dao, Integer boId, String objName,
 		DeleteConfirmationMessage message, FrontendPage redirectPage) 
 	{
 		this(dao, boId, createCompName(objName), objName, message, redirectPage);

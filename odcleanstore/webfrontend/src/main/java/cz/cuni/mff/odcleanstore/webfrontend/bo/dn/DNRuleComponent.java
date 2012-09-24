@@ -11,7 +11,7 @@ public class DNRuleComponent extends EntityWithSurrogateKey
 {
 	private static final long serialVersionUID = 1L;
 	
-	private Long ruleId;
+	private Integer ruleId;
 	private DNRuleComponentType type;
 	private String modification;
 	private String description;
@@ -24,7 +24,7 @@ public class DNRuleComponent extends EntityWithSurrogateKey
 	 * @param modification
 	 * @param description
 	 */
-	public DNRuleComponent(Long id, Long ruleId, DNRuleComponentType type, 
+	public DNRuleComponent(Integer id, Integer ruleId, DNRuleComponentType type, 
 		String modification, String description) 
 	{
 		super(id);
@@ -46,7 +46,7 @@ public class DNRuleComponent extends EntityWithSurrogateKey
 	 * 
 	 * @return
 	 */
-	public Long getRuleId() 
+	public Integer getRuleId() 
 	{
 		return ruleId;
 	}
@@ -55,7 +55,7 @@ public class DNRuleComponent extends EntityWithSurrogateKey
 	 * 
 	 * @param ruleId
 	 */
-	public void setRuleId(Long ruleId) 
+	public void setRuleId(Integer ruleId) 
 	{
 		this.ruleId = ruleId;
 	}

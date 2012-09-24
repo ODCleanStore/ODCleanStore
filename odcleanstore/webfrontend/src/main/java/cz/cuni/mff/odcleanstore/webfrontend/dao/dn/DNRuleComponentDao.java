@@ -67,7 +67,7 @@ public class DNRuleComponentDao extends DaoForEntityWithSurrogateKey<DNRuleCompo
 	}
 	
 	@Override
-	public DNRuleComponent load(Long id)
+	public DNRuleComponent load(Integer id)
 	{
 		String query = 
 			"SELECT C.id as id, ruleId, modification, C.description as description, " +

@@ -49,7 +49,7 @@ public class NewPipelinePage extends FrontendPage
 			protected void onSubmit()
 			{
 				Pipeline pipeline = this.getModelObject();
-				long insertId;
+				int insertId;
 				try 
 				{
 					insertId = pipelineDao.saveAndGetKey(pipeline);

@@ -23,7 +23,7 @@ public class EditOntologyPage extends FrontendPage
 	
 	private DaoForEntityWithSurrogateKey<Ontology> ontologyDao;
 
-	public EditOntologyPage(final Long ontologyId) 
+	public EditOntologyPage(final Integer ontologyId) 
 	{
 		super(
 			"Home > Ontologies > Edit", 
@@ -40,7 +40,7 @@ public class EditOntologyPage extends FrontendPage
 		addEditOntologyForm(ontologyId);
 	}
 	
-	private void addEditOntologyForm(final Long groupId)
+	private void addEditOntologyForm(final Integer groupId)
 	{	
 		Ontology ontology = ontologyDao.load(groupId);
 		

@@ -29,7 +29,7 @@ public class TransformerInstanceDetailPage extends FrontendPage
 	private DaoForEntityWithSurrogateKey<TransformerInstance> transformerInstanceDao;
 	private DaoForEntityWithSurrogateKey<Transformer> transformerDao;
 
-	public TransformerInstanceDetailPage(final Long transformerInstanceId) 
+	public TransformerInstanceDetailPage(final Integer transformerInstanceId) 
 	{
 		super(
 			"Home > Backend > Pipelines > Transformer Instances > Detail", 

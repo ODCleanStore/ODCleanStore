@@ -15,7 +15,7 @@ public class TransformerDetailPage extends FrontendPage
 
 	private DaoForEntityWithSurrogateKey<Transformer> transformerDao;
 
-	public TransformerDetailPage(final Long transformerId) 
+	public TransformerDetailPage(final Integer transformerId) 
 	{
 		super(
 			"Home > Pipelines > Pipeline > Detail", 
@@ -32,7 +32,7 @@ public class TransformerDetailPage extends FrontendPage
 		addTransformerInformationSection(transformerId);
 	}
 
-	private void addTransformerInformationSection(final Long transformerId)
+	private void addTransformerInformationSection(final Integer transformerId)
 	{
 		setDefaultModel(createModelForOverview(transformerDao, transformerId));
 		

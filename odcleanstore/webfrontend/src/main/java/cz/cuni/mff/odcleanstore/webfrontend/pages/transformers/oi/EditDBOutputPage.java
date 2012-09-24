@@ -24,7 +24,7 @@ public class EditDBOutputPage extends FrontendPage
 	private DaoForEntityWithSurrogateKey<OIOutput> oiOutputDao;
 	private DaoForEntityWithSurrogateKey<OIOutputType> oiOutputTypeDao;
 	
-	public EditDBOutputPage(final Long outputId) 
+	public EditDBOutputPage(final Integer outputId) 
 	{
 		super(
 			"Home > OI > Rules groups > Group > Rules > Rule > DB Outputs > Edit", 

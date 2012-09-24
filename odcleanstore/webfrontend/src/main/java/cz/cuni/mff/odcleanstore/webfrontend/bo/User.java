@@ -32,7 +32,7 @@ public class User extends EntityWithSurrogateKey
 	 * @param firstname
 	 * @param surname
 	 */
-	public User(Long id, String username, String email, String firstname, String surname)
+	public User(Integer id, String username, String email, String firstname, String surname)
 	{
 		super(id);
 

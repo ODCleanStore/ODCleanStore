@@ -49,7 +49,7 @@ public class NewOIGroupPage extends FrontendPage
 			{
 				OIRulesGroup group = this.getModelObject();
 				
-				long insertId;
+				int insertId;
 				try {
 					insertId = oiRulesGroupDao.saveAndGetKey(group);
 				}

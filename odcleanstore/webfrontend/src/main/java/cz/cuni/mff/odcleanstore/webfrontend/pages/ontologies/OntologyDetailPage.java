@@ -15,7 +15,7 @@ public class OntologyDetailPage extends FrontendPage
 	
 	private DaoForEntityWithSurrogateKey<Ontology> ontologyDao;
 
-	public OntologyDetailPage(final Long ontologyId) 
+	public OntologyDetailPage(final Integer ontologyId) 
 	{
 		super(
 			"Home > Ontologies > Detail", 
@@ -32,7 +32,7 @@ public class OntologyDetailPage extends FrontendPage
 		addOntologyInformationSection(ontologyId);
 	}
 	
-	private void addOntologyInformationSection(final Long ontologyId)
+	private void addOntologyInformationSection(final Integer ontologyId)
 	{
 		setDefaultModel(createModelForOverview(ontologyDao, ontologyId));
 		

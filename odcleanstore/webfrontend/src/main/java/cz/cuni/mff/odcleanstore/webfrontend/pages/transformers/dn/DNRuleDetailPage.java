@@ -34,7 +34,7 @@ public class DNRuleDetailPage extends FrontendPage
 	private DaoForEntityWithSurrogateKey<DNRule> dnRuleDao;
 	private DaoForEntityWithSurrogateKey<DNRuleComponent> dnRuleComponentDao;
 
-	public DNRuleDetailPage(final Long ruleId) 
+	public DNRuleDetailPage(final Integer ruleId) 
 	{
 		super(
 			"Home > Backend > DN > Groups > Rules > Detail", 
@@ -54,7 +54,7 @@ public class DNRuleDetailPage extends FrontendPage
 		addRuleComponentsSection(ruleId);
 	}
 
-	private void addRuleInformationSection(final Long ruleId)
+	private void addRuleInformationSection(final Integer ruleId)
 	{
 		DNRule rule = dnRuleDao.load(ruleId);
 		
@@ -71,7 +71,7 @@ public class DNRuleDetailPage extends FrontendPage
 		);
 	}
 	
-	private void addRuleComponentsSection(Long ruleId) 
+	private void addRuleComponentsSection(Integer ruleId) 
 	{
 		add(
 			new RedirectWithParamButton(
@@ -84,7 +84,7 @@ public class DNRuleDetailPage extends FrontendPage
 		addRuleComponentsTable(ruleId);
 	}
 
-	private void addRuleComponentsTable(Long ruleId) 
+	private void addRuleComponentsTable(Integer ruleId) 
 	{
 		IDataProvider<DNRuleComponent> data = new DependentDataProvider<DNRuleComponent>(
 			dnRuleComponentDao, 

@@ -18,13 +18,13 @@ public class DNRuleComponentDataProvider implements IDataProvider<DNRuleComponen
 	
 	private DaoForEntityWithSurrogateKey<DNRuleComponent> dao;
 	private List<DNRuleComponent> data;
-	private Long ruleId;
+	private Integer ruleId;
 	
 	/**
 	 * 
 	 * @param dao
 	 */
-	public DNRuleComponentDataProvider(DaoForEntityWithSurrogateKey<DNRuleComponent> dao, Long ruleId)
+	public DNRuleComponentDataProvider(DaoForEntityWithSurrogateKey<DNRuleComponent> dao, Integer ruleId)
 	{
 		this.dao = dao;
 		this.ruleId = ruleId;

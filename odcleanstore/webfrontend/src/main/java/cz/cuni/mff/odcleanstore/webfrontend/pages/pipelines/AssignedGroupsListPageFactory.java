@@ -20,7 +20,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.NewDNGroupPage
 public class AssignedGroupsListPageFactory 
 {
 	public static AssignedGroupsList createAssignedQAGroupsList(
-		DaoLookupFactory daoLookupFactory, Long transformerInstanceId
+		DaoLookupFactory daoLookupFactory, Integer transformerInstanceId
 	)
 	{
 		return new AssignedGroupsList(
@@ -34,7 +34,7 @@ public class AssignedGroupsListPageFactory
 	}
 	
 	public static AssignedGroupsList createAssignedOIGroupsList(
-		DaoLookupFactory daoLookupFactory, Long transformerInstanceId
+		DaoLookupFactory daoLookupFactory, Integer transformerInstanceId
 	)
 	{
 		return new AssignedGroupsList(
@@ -48,7 +48,7 @@ public class AssignedGroupsListPageFactory
 	}
 	
 	public static AssignedGroupsList createAssignedDNGroupsList(
-		DaoLookupFactory daoLookupFactory, Long transformerInstanceId
+		DaoLookupFactory daoLookupFactory, Integer transformerInstanceId
 	)
 	{
 		return new AssignedGroupsList(

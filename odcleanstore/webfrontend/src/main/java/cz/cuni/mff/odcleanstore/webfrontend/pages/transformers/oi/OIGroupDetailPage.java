@@ -38,7 +38,7 @@ public class OIGroupDetailPage extends FrontendPage
 	private DaoForEntityWithSurrogateKey<OIRulesGroup> oiRulesGroupDao;
 	private DaoForEntityWithSurrogateKey<OIRule> oiRuleDao;
 	
-	public OIGroupDetailPage(final Long groupId) 
+	public OIGroupDetailPage(final Integer groupId) 
 	{
 		super(
 			"Home > Backend > OI > Groups > Detail", 
@@ -58,7 +58,7 @@ public class OIGroupDetailPage extends FrontendPage
 		addOIRulesSection(groupId);
 	}
 	
-	private void addGroupInformationSection(final Long groupId)
+	private void addGroupInformationSection(final Integer groupId)
 	{
 		setDefaultModel(createModelForOverview(oiRulesGroupDao, groupId));
 		
@@ -66,7 +66,7 @@ public class OIGroupDetailPage extends FrontendPage
 		add(new Label("description"));
 	}
 	
-	private void addOIRulesSection(final Long groupId) 
+	private void addOIRulesSection(final Integer groupId) 
 	{
 		add(
 			new RedirectWithParamButton(
@@ -79,7 +79,7 @@ public class OIGroupDetailPage extends FrontendPage
 		addOIRulesTable(groupId);
 	}
 
-	private void addOIRulesTable(final Long groupId) 
+	private void addOIRulesTable(final Integer groupId) 
 	{
 		SortableDataProvider<OIRule> data = new DependentSortableDataProvider<OIRule>
 		(

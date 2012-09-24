@@ -48,7 +48,7 @@ public class TransformerInstanceDao extends DaoForEntityWithSurrogateKey<Transfo
 	}
 	
 	@Override
-	public TransformerInstance load(Long id)
+	public TransformerInstance load(Integer id)
 	{
 		String query = 
 			"SELECT T.label, TI.* FROM " + getTableName() + " AS TI " +

@@ -263,7 +263,7 @@ public abstract class FrontendPage extends WebPage
 	}
 	
 	protected <BO extends EntityWithSurrogateKey> IModel<BO> createModelForOverview(
-		final DaoForEntityWithSurrogateKey<BO> dao, final Long boId)
+		final DaoForEntityWithSurrogateKey<BO> dao, final Integer boId)
 	{
 		IModel<BO> model = new LoadableDetachableModel<BO>() 
 		{

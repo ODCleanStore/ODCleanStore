@@ -28,7 +28,7 @@ public class EditFileOutputPage extends FrontendPage
 	private DaoForEntityWithSurrogateKey<OIOutputType> oiOutputTypeDao;
 	private DaoForEntityWithSurrogateKey<OIFileFormat> oiFileFormatDao;
 	
-	public EditFileOutputPage(final Long outputId) 
+	public EditFileOutputPage(final Integer outputId) 
 	{
 		super(
 			"Home > OI > Rules groups > Group > Rules > Rule > File Outputs > Edit", 

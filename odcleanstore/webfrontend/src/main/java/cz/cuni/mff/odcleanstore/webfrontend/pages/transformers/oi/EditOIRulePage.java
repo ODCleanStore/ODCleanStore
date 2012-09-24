@@ -25,7 +25,7 @@ public class EditOIRulePage extends FrontendPage
 	
 	private DaoForEntityWithSurrogateKey<OIRule> oiRuleDao;
 	
-	public EditOIRulePage(final Long ruleId) 
+	public EditOIRulePage(final Integer ruleId) 
 	{
 		super(
 			"Home > Backend > OI > Groups > Rules > Edit", 

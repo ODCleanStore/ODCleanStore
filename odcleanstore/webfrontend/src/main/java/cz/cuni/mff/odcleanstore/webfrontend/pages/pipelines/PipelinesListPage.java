@@ -199,7 +199,7 @@ public class PipelinesListPage extends FrontendPage
         });
 	}
 	
-	private void addRerunAssociatedGraphsButton(final Item<Pipeline> item, final Long pipelineId)
+	private void addRerunAssociatedGraphsButton(final Item<Pipeline> item, final Integer pipelineId)
 	{
 		Link<String> button = new Link<String>("rerunAssociatedGraphs")
         {

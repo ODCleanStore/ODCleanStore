@@ -49,7 +49,7 @@ public class QARuleDaoTest extends DaoTest
 	@Test
 	public void testLoadingById() throws URISyntaxException 
 	{
-		QARule rule = ruleDao.load(1L);
+		QARule rule = ruleDao.load(1);
 		
 		assertEquals("Rule no. 1", rule.getDescription());
 		assertEquals("Filter for rule no. 1", rule.getFilter());

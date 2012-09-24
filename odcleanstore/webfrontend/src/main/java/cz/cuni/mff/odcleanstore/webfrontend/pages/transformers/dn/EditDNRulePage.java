@@ -24,7 +24,7 @@ public class EditDNRulePage extends FrontendPage
 	
 	private DaoForEntityWithSurrogateKey<DNRule> dnRuleDao;
 	
-	public EditDNRulePage(final Long ruleId) 
+	public EditDNRulePage(final Integer ruleId) 
 	{
 		super(
 			"Home > Backend > DN > Groups > Rules > Edit", 

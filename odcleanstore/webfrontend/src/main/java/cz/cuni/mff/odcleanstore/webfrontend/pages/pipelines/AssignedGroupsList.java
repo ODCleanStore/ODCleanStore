@@ -36,7 +36,7 @@ public class AssignedGroupsList extends Panel
 	
 	public AssignedGroupsList(
 		final String id, 
-		final Long transformerInstanceId,
+		final Integer transformerInstanceId,
 		final DaoForEntityWithSurrogateKey<RulesGroupEntity> groupsDao,
 		final DaoForEntityWithSurrogateKey<RuleAssignment> assignedGroupsDao,
 		final Class<? extends FrontendPage> groupDetailPageClass,
@@ -73,7 +73,7 @@ public class AssignedGroupsList extends Panel
         });
 	}
 	
-	private void addNewAssignmentLink(final Long transformerInstanceId)
+	private void addNewAssignmentLink(final Integer transformerInstanceId)
 	{
 		add(
 			new Link("showNewGroupAssignmentPage")
@@ -97,7 +97,7 @@ public class AssignedGroupsList extends Panel
 	}
 	
 	private void addAssignmentTable(
-		final Long transformerInstanceId, 
+		final Integer transformerInstanceId, 
 		final Class<? extends FrontendPage> groupDetailPageClass) 
 	{
 		SortableDataProvider<RuleAssignment> data = new DependentSortableDataProvider<RuleAssignment>
@@ -149,7 +149,7 @@ public class AssignedGroupsList extends Panel
 		add(new UnobtrusivePagingNavigator("navigator", dataView));
 	}
 	
-	private Link createDeleteButton(final Long transformerInstanceId, final Long groupAssignmentId)
+	private Link createDeleteButton(final Integer transformerInstanceId, final Integer groupAssignmentId)
 	{
 		Link button = new Link("deleteAssignment")
 		{

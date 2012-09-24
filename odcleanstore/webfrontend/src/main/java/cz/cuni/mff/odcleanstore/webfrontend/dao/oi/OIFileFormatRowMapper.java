@@ -13,7 +13,7 @@ public class OIFileFormatRowMapper extends CustomRowMapper<OIFileFormat>
 	public OIFileFormat mapRow(ResultSet rs, int rowNum) throws SQLException 
 	{
 		return new OIFileFormat(
-			rs.getLong("id"),
+			rs.getInt("id"),
 			rs.getString("label"),
 			blobToString(rs.getBlob("description"))
 		);

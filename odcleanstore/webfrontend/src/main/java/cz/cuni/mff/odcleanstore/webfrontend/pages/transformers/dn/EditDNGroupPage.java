@@ -21,7 +21,7 @@ public class EditDNGroupPage extends FrontendPage
 
 	private DaoForEntityWithSurrogateKey<DNRulesGroup> dnRulesGroupDao;
 	
-	public EditDNGroupPage(final Long groupId) 
+	public EditDNGroupPage(final Integer groupId) 
 	{
 		super(
 			"Home > Backend > DN > Groups > Edit", 
@@ -38,7 +38,7 @@ public class EditDNGroupPage extends FrontendPage
 		addEditDNRulesGroupForm(groupId);
 	}
 	
-	private void addEditDNRulesGroupForm(final Long groupId)
+	private void addEditDNRulesGroupForm(final Integer groupId)
 	{
 		DNRulesGroup group = dnRulesGroupDao.load(groupId);
 		IModel<DNRulesGroup> formModel = new CompoundPropertyModel<DNRulesGroup>(group);

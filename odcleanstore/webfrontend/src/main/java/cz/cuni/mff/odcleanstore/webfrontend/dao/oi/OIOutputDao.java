@@ -52,7 +52,7 @@ public class OIOutputDao extends DaoForEntityWithSurrogateKey<OIOutput>
 	}
 	
 	@Override
-	public OIOutput load(Long id)
+	public OIOutput load(Integer id)
 	{
 		String query = 
 				"SELECT " +

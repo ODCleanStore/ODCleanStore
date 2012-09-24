@@ -19,14 +19,14 @@ public class OIOutputDataProvider implements IDataProvider<OIOutput>
 	
 	private DaoForEntityWithSurrogateKey<OIOutput> dao;
 	private List<OIOutput> data;
-	private Long ruleId;
-	private Long typeId;
+	private Integer ruleId;
+	private Integer typeId;
 	
 	/**
 	 * 
 	 * @param dao
 	 */
-	public OIOutputDataProvider(DaoForEntityWithSurrogateKey<OIOutput> dao, Long ruleId, Long typeId)
+	public OIOutputDataProvider(DaoForEntityWithSurrogateKey<OIOutput> dao, Integer ruleId, Integer typeId)
 	{
 		this.dao = dao;
 		this.ruleId = ruleId;

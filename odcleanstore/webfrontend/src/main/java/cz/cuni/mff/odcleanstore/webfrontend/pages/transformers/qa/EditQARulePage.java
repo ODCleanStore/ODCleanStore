@@ -22,7 +22,7 @@ public class EditQARulePage extends FrontendPage
 	
 	private DaoForEntityWithSurrogateKey<QARule> qaRuleDao;
 	
-	public EditQARulePage(final Long ruleId) 
+	public EditQARulePage(final Integer ruleId) 
 	{
 		super(
 			"Home > Backend > QA > Groups > Rules > Edt", 

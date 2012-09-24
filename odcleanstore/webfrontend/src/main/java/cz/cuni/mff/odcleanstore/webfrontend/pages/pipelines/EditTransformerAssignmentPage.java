@@ -33,7 +33,7 @@ public class EditTransformerAssignmentPage extends FrontendPage
 	private Boolean runOnCleanDB;
 	private Integer priority;
 	
-	public EditTransformerAssignmentPage(final Long transformerInstanceId) 
+	public EditTransformerAssignmentPage(final Integer transformerInstanceId) 
 	{
 		super
 		(
