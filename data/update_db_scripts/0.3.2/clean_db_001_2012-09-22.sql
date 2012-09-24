@@ -1,0 +1,1 @@
+INSERT INTO DB.ODCLEANSTORE.TRANSFORMERS (label, description, jarPath, workDirPath, fullClassName) VALUES (n'Blank node remover', n'ODCS transformer for replacing blank nodes by new URI resources', n'.', n'transformers-working-dir/bnode-remover', n'cz.cuni.mff.odcleanstore.transformer.odcs.ODCSBNodeToResourceTransformer');

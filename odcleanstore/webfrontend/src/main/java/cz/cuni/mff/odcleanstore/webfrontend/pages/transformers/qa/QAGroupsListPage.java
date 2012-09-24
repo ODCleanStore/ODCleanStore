@@ -20,6 +20,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMe
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
@@ -32,7 +33,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.PipelineHelpPanel;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.PipelinesListPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
-@AuthorizeInstantiation({ "POC" })
+@AuthorizeInstantiation({ "PIC" })
 public class QAGroupsListPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
@@ -46,7 +47,7 @@ public class QAGroupsListPage extends FrontendPage
 	{
 		super(
 			"Home > Backend > QA > Groups > List", 
-			"Show all QA rules' groups"
+			"Show all QA rule groups"
 		);
 		
 		// prepare DAO objects
@@ -115,7 +116,7 @@ public class QAGroupsListPage extends FrontendPage
 		
 		add(new SortTableButton<QARulesGroup>("orderByLabel", "label", data, dataView));
 		
-		add(new PagingNavigator("navigator", dataView));
+		add(new UnobtrusivePagingNavigator("navigator", dataView));
 	}
 	
 	private Link createRerunAffectedGraphsButton(final Long groupId)

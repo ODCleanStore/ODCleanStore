@@ -15,6 +15,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMe
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleComponentDao;
@@ -23,7 +24,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.DBOutputHelpPanel;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.OIRuleHelpPanel;
 
-@AuthorizeInstantiation({ "POC" })
+@AuthorizeInstantiation({ "PIC" })
 public class DNRuleDetailPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
@@ -141,6 +142,6 @@ public class DNRuleDetailPage extends FrontendPage
 		
 		add(dataView);
 		
-		add(new PagingNavigator("navigator", dataView));
+		add(new UnobtrusivePagingNavigator("navigator", dataView));
 	}
 }

@@ -40,12 +40,12 @@ public abstract class QueryExecutorResourceBase extends ServerResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(QueryExecutorResourceBase.class);
 
-    private static final String DEFAULT_AGGREGATION_PARAM = "aggr";
-    private static final String DEFAULT_MULTIVALUE_PARAM = "multivalue";
-    private static final String ERROR_STRATEGY_PARAM = "es";
-    private static final String FORMAT_PARAM = "format";
-    private static final String PROPERTY_AGGREGATION_PARAM = "paggr[";
-    private static final String PROPERTY_MULTIVALUE_PARAM = "pmultivalue[";
+    public static final String DEFAULT_AGGREGATION_PARAM = "aggr";
+    public static final String DEFAULT_MULTIVALUE_PARAM = "multivalue";
+    public static final String ERROR_STRATEGY_PARAM = "es";
+    public static final String FORMAT_PARAM = "format";
+    public static final String PROPERTY_AGGREGATION_PARAM = "paggr[";
+    public static final String PROPERTY_MULTIVALUE_PARAM = "pmultivalue[";
 
     private static final String TRUE_LITERAL = "1";
     

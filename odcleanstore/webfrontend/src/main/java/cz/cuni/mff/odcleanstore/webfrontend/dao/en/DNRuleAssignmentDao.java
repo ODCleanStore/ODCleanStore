@@ -8,8 +8,6 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.en.RuleAssignment;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
 
 public class DNRuleAssignmentDao extends DaoForEntityWithSurrogateKey<RuleAssignment>
 {

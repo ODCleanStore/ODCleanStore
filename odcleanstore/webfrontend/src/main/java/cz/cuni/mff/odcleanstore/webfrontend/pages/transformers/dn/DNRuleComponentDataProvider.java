@@ -11,7 +11,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponent;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DetachableModel;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
-@AuthorizeInstantiation({ "POC" })
+@AuthorizeInstantiation({ "PIC" })
 public class DNRuleComponentDataProvider implements IDataProvider<DNRuleComponent>
 {
 	private static final long serialVersionUID = 1L;

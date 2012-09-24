@@ -19,6 +19,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMe
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
@@ -30,7 +31,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.QAGroupsListPage;
 
-@AuthorizeInstantiation({ "POC" })
+@AuthorizeInstantiation({ "PIC" })
 public class OIGroupsListPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
@@ -44,7 +45,7 @@ public class OIGroupsListPage extends FrontendPage
 	{
 		super(
 			"Home > Backend > OI > Groups > List", 
-			"List all OI rules' groups"
+			"List all OI rule groups"
 		);
 		
 		// prepare DAO objects
@@ -113,7 +114,7 @@ public class OIGroupsListPage extends FrontendPage
 		
 		add(dataView);
 		
-		add(new PagingNavigator("navigator", dataView));
+		add(new UnobtrusivePagingNavigator("navigator", dataView));
 	}
 	
 	private Link createRerunAffectedGraphsButton(final Long groupId)

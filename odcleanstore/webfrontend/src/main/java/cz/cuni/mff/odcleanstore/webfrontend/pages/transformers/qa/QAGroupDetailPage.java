@@ -18,6 +18,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMe
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentSortableDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvider;
@@ -27,7 +28,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
-@AuthorizeInstantiation({ "POC" })
+@AuthorizeInstantiation({ "PIC" })
 public class QAGroupDetailPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
@@ -41,7 +42,7 @@ public class QAGroupDetailPage extends FrontendPage
 	{
 		super(
 			"Home > Backend > QA > Groups > Detail", 
-			"Show QA rules' group detail"
+			"Show QA rule group detail"
 		);
 		
 		// prepare DAO objects
@@ -140,6 +141,6 @@ public class QAGroupDetailPage extends FrontendPage
 		
 		add(dataView);
 		
-		add(new PagingNavigator("navigator", dataView));
+		add(new UnobtrusivePagingNavigator("navigator", dataView));
 	}
 }

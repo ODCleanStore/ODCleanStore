@@ -58,7 +58,6 @@ public class TransformerInstance extends EntityWithSurrogateKey
 	{
 		this.transformerId = transformerId;
 		this.pipelineId = pipelineId;
-		this.label = label;
 		this.configuration = configuration;
 		this.runOnCleanDB = runOnCleanDB;
 		this.priority = priority;

@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+	  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 
@@ -8,58 +8,62 @@
 	
 	<link rel="stylesheet" href="/css/layout.css" type="text/css" media="screen" />
 	<link rel="stylesheet" href="/css/theme.css" type="text/css" media="screen" />
+	<link rel="stylesheet" href="/css/theme_development.css" type="text/css" media="screen" wicket:id="developmentCss" />
 	<link rel="stylesheet" href="/css/modal.css" type="text/css" media="screen" />
 	
-	<title>ODCleanStore Web Frontend</title>
+	<title>ODCleanStore Administration Frontend</title>
 </head>
 
 <body>
 	<div id="container">
 
 		<div id="header">
-			<strong>Open Data Clean Store - Web frontend</strong>
+			<strong>ODCleanStore - Administration</strong>
 		</div>
 
 		<div id="menu">
 			<wicket:link>
 			<ul>
 				<li>
-					<a href="HomePage.html"><span>Home</span></a>
+					<a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/HomePage.html"><span>Home</span></a>
 				</li>
-				<li>
-					<a href="useraccounts/UserAccountsPage.html"><span>User accounts</span></a>
+				<li wicket:id="pipelinesMenuGroup">
+					<a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/pipelines/PipelinesListPage.html"><span>Pipelines</span></a>
 				</li>
-				<li class="has-sub ">
-					<a href="#"><span>Backend</span></a>
+				<li class="has-sub" wicket:id="rulesMenuGroup">
+					<a href="#"><span>Rules</span></a>
 					<ul>
-						<li><a href="pipelines/PipelinesListPage.html"><span>Pipelines</span></a></li>
-						<li><a href="pipelines/TransformersListPage.html"><span>Transformers</span></a></li>
-						<li class="has-sub ">
-							<a href="#"><span>Rules</span></a>
-							<ul>
-								<li><a href="transformers/oi/OIGroupsListPage.html"><span>OI</span></a></li>
-								<li><a href="transformers/qa/QAGroupsListPage.html"><span>QA</span></a></li>
-								<li><a href="transformers/dn/DNGroupsListPage.html"><span>DN</span></a></li>
-							</ul>
-						</li>
+						<li><a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/transformers/oi/OIGroupsListPage.html"><span>OI</span></a></li>
+						<li><a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/transformers/qa/QAGroupsListPage.html"><span>QA</span></a></li>
+						<li><a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/transformers/dn/DNGroupsListPage.html"><span>DN</span></a></li>
 					</ul>
 				</li>
-				<li class="has-sub ">
-					<a href="outputws/OutputWSPage.html"><span>Output webservice</span></a>
+				<li class="has-sub" wicket:id="outputWSMenuGroup">
+					<a href="#"><span>Output webservice</span></a>
 					<ul>
-						<li><a href="outputws/CRPropertiesListPage.html"><span>Aggregation</span></a></li>
-						<li><a href="outputws/QELabelPropertiesListPage.html"><span>Label properties</span></a></li>
+						<li><a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/outputws/CRPropertiesListPage.html"><span>Aggregation</span></a></li>
+						<li><a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/outputws/QELabelPropertiesListPage.html"><span>Label properties</span></a></li>
 					</ul>
 				</li>
-				<li>
-					<a href="prefixes/PrefixesListPage.html"><span>URL prefixes</span></a>
-				</li>
-				<li class="has-sub">
+				<li class="has-sub" wicket:id="ontologyMenuGroup">
 					<a href="#"><span>Ontologies</span></a>
 					<ul>
 						<li><a href="ontologies/OntologiesListPage.html"><span>List</span></a></li>
 						<li><a href="ontologies/ChooseOntologiesPage.html"><span>Mapping</span></a></li>
 					</ul>
+				</li>
+				<li class="has-sub" wicket:id="userAccountsMenuGroup">
+					<a href="#"><span>User accounts</span></a>
+					<ul>
+						<li><a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/useraccounts/AccountsListPage.html"><span>List all accounts</span></a></li>
+						<li><a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/useraccounts/NewAccountPage.html"><span>Create a new account</span></a></li>
+					</ul>
+				</li>
+				<li wicket:id="transformersMenuGroup">
+					<a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/pipelines/TransformersListPage.html"><span>Transformers</span></a>
+				</li>
+				<li wicket:id="prefixesMenuGroup">
+					<a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/prefixes/PrefixesListPage.html"><span>Namespace prefixes</span></a>
 				</li>
 			</ul>
 			</wicket:link> 
@@ -67,8 +71,8 @@
 
 		<div id="content">
 			<div id="top">
-				<span wicket:id="pageCrumbs" id="crumbs">Crubms</span>
-				<span wicket:id="userPanel" id="user"></span>
+				<span wicket:id="pageCrumbs" id="crumbs">Crumbs</span>
+				<div wicket:id="userPanel" id="user"></div>
 				<div class="clear">&nbsp;</div>
 			</div>
 			<div id="center">

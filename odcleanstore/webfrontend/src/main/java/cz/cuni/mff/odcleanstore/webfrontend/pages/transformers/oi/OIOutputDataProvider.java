@@ -12,7 +12,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.models.DetachableModel;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
 
-@AuthorizeInstantiation({ "POC" })
+@AuthorizeInstantiation({ "PIC" })
 public class OIOutputDataProvider implements IDataProvider<OIOutput>
 {
 	private static final long serialVersionUID = 1L;

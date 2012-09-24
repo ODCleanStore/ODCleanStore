@@ -1,7 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao;
 
 import cz.cuni.mff.odcleanstore.util.CodeSnippet;
-import cz.cuni.mff.odcleanstore.util.Pair;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
 
@@ -222,6 +221,19 @@ public abstract class Dao<T extends BusinessEntity> implements Serializable
 	 * @throws Exception
 	 */
 	public void save(T item, CodeSnippet doAfter) throws Exception
+	{
+		throw new UnsupportedOperationException(
+			"Cannot insert rows into table:" + getTableName() + "."
+		);
+	}
+	
+	/**
+	 * 
+	 * @param item
+	 * @param doAfter
+	 * @throws Exception
+	 */
+	public long saveAndGetKey(final T item) throws Exception
 	{
 		throw new UnsupportedOperationException(
 			"Cannot insert rows into table:" + getTableName() + "."

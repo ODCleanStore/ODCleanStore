@@ -4,6 +4,7 @@ import cz.cuni.mff.odcleanstore.configuration.OutputWSConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
+import cz.cuni.mff.odcleanstore.engine.outputws.QueryExecutorResourceBase;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl.GraphScoreWithTrace;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRule;
 import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
@@ -18,6 +19,7 @@ import com.hp.hpl.jena.graph.Node;
 import de.fuberlin.wiwiss.ng4j.Quad;
 
 import org.restlet.data.MediaType;
+import org.restlet.data.Parameter;
 import org.restlet.data.Reference;
 import org.restlet.representation.Representation;
 import org.restlet.representation.WriterRepresentation;
@@ -27,8 +29,12 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URLEncoder;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Returns a representation of a query result in a user-friendly HTML document.
@@ -41,7 +47,16 @@ public class HTMLFormatter extends ResultFormatterBase {
     
     private static final String HTML_HEADER_COLOR = "FFE677";  
     private static final String HTML_EVEN_COLOR = "FFEEA6";  
-    private static final String HTML_ODD_COLOR = "FFF5EC";  
+    private static final String HTML_ODD_COLOR = "FFF5EC";
+
+    private static final String[] PROPAGATED_QUERY_PARAMS = {
+            QueryExecutorResourceBase.DEFAULT_AGGREGATION_PARAM,
+            QueryExecutorResourceBase.DEFAULT_MULTIVALUE_PARAM,
+            QueryExecutorResourceBase.ERROR_STRATEGY_PARAM,
+            QueryExecutorResourceBase.FORMAT_PARAM,
+            QueryExecutorResourceBase.PROPERTY_AGGREGATION_PARAM,
+            QueryExecutorResourceBase.PROPERTY_MULTIVALUE_PARAM
+    };
     
     /** Configuration of the output webservice from the global configuration file. */
     private OutputWSConfig outputWSConfig;
@@ -79,10 +94,13 @@ public class HTMLFormatter extends ResultFormatterBase {
     /** The actual representation of the result HTML document. */
     private abstract class HTMLRepresentationBase extends WriterRepresentation {
         /** Representation of the requested URI. */
-        private Reference requestReference;
+        //private Reference requestReference;
         
         /** Query result. */
         private QueryResultBase queryResult;
+        
+        /** Query string with aggregation properties to append to links. */
+        private String propagatedQueryString;
 
         /**
          * Initialize.
@@ -91,8 +109,44 @@ public class HTMLFormatter extends ResultFormatterBase {
          */
         public HTMLRepresentationBase(QueryResultBase queryResult, Reference requestReference) {
             super(MediaType.TEXT_HTML);
-            this.requestReference = requestReference;
+            //this.requestReference = requestReference;
             this.queryResult = queryResult;
+            
+            this.propagatedQueryString = buildPropagatedQueryString(requestReference);
+        }
+
+        /**
+         * Builds query string with aggregation properties.
+         * @param requestReference representation of the requested URI
+         * @return query string part
+         */
+        private String buildPropagatedQueryString(Reference requestReference) {
+            Iterator<Parameter> it = requestReference.getQueryAsForm().iterator();
+            Map<String, String> queryParams = new HashMap<String, String>();
+            StringBuilder result = new StringBuilder();
+
+            while (it.hasNext()) {
+                Parameter param = it.next();
+                String name = param.getName();
+                for (int i = 0; i < PROPAGATED_QUERY_PARAMS.length; i++) {
+                    if (name.startsWith(PROPAGATED_QUERY_PARAMS[i])) {
+                        queryParams.put(name, param.getValue());
+                    }
+                }
+            }
+
+            try {
+                for (Entry<String, String> entry : queryParams.entrySet()) {
+                    result.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
+                    result.append('=');
+                    result.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
+                    result.append('&');
+                }
+            } catch (UnsupportedEncodingException e) {
+                // do nothing
+            }
+            
+            return result.toString();
         }
 
         @Override
@@ -348,7 +402,7 @@ public class HTMLFormatter extends ResultFormatterBase {
             result.append("?uri=");
             result.append(URLEncoder.encode(uri, "UTF-8"));
             result.append("&");
-            result.append(requestReference.getQuery());
+            result.append(propagatedQueryString);
             return result.toString();
         }
 
@@ -364,7 +418,7 @@ public class HTMLFormatter extends ResultFormatterBase {
             result.append("?kw=");
             result.append(URLEncoder.encode(keyword, "UTF-8"));
             result.append("&");
-            result.append(requestReference.getQuery());
+            result.append(propagatedQueryString);
             return result.toString();
         }
 

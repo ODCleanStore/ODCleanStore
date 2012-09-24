@@ -80,6 +80,7 @@ public class PipelineDao extends DaoForEntityWithSurrogateKey<Pipeline>
 		
 		if (item.isDefault())
 		{
+			// TODO: transaction 
 			dropRunOnCleanDBForAllRows();
 			setRunOnCleanDB(item.getId());
 		}
@@ -101,12 +102,14 @@ public class PipelineDao extends DaoForEntityWithSurrogateKey<Pipeline>
 	
 	private void updateRaw(Pipeline item)
 	{
-		String query = "UPDATE " + TABLE_NAME + " SET label = ?, description = ? WHERE id = ?";
+		// TODO: method setLocked() would be nicer
+		String query = "UPDATE " + TABLE_NAME + " SET label = ?, description = ?, isLocked = ? WHERE id = ?";
 		
 		Object[] params =
 		{
 			item.getLabel(),
 			item.getDescription(),
+			item.isLocked(),
 			item.getId()
 		};
 		

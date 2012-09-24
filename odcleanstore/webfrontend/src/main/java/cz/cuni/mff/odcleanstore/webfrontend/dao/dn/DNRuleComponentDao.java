@@ -4,15 +4,8 @@ import java.util.List;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.PropertySettings;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponent;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRulesGroup;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.AggregationTypeDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.MultivalueTypeDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.PropertySettingsDao;
 
 /**
  * 

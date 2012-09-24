@@ -2,10 +2,11 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.wicket.RuntimeConfigurationType;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.markup.html.WebComponent;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
@@ -23,8 +24,15 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
 import cz.cuni.mff.odcleanstore.webfrontend.core.ODCSWebFrontendApplication;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.HelpWindow;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.MenuGroupComponent;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts.UserAccountHelpPanel;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.ontologies.OntologiesListPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.outputws.CRPropertiesListPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.PipelinesListPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.TransformersListPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.prefixes.PrefixesListPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.OIGroupsListPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts.AccountsListPage;
 
 /**
  * An abstract base class for all WebFrontend page components, except for
@@ -40,7 +48,7 @@ public abstract class FrontendPage extends WebPage
 	
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger(FrontendPage.class);
+	//private static Logger logger = Logger.getLogger(FrontendPage.class);
 	
 	protected DaoLookupFactory daoLookupFactory;
 	
@@ -62,6 +70,26 @@ public abstract class FrontendPage extends WebPage
 		add(new Label("pageTitle", pageTitle));
 		add(new UserPanel("userPanel", LogOutPage.class));
 		add(new FeedbackPanel("feedback"));
+		
+		// show development stylesheet only in development mode
+		add(new WebComponent("developmentCss") {
+			private static final long serialVersionUID = 1L;
+			
+			@Override
+			public boolean isVisible()
+			{
+				return getApp().getConfigurationType() == RuntimeConfigurationType.DEVELOPMENT;
+			}
+		});
+		
+		// set up menu
+		add(new MenuGroupComponent("pipelinesMenuGroup", PipelinesListPage.class));
+		add(new MenuGroupComponent("rulesMenuGroup", OIGroupsListPage.class));
+		add(new MenuGroupComponent("outputWSMenuGroup", CRPropertiesListPage.class));
+		add(new MenuGroupComponent("ontologyMenuGroup", OntologiesListPage.class));
+		add(new MenuGroupComponent("userAccountsMenuGroup", AccountsListPage.class));
+		add(new MenuGroupComponent("transformersMenuGroup", TransformersListPage.class));
+		add(new MenuGroupComponent("prefixesMenuGroup", PrefixesListPage.class));
 	}
 	
 	/**
@@ -208,7 +236,7 @@ public abstract class FrontendPage extends WebPage
 		
 		add(helpWindow);
 		
-		add(new AjaxLink(linkCompName)
+		add(new AjaxLink<String>(linkCompName)
 		{
 			private static final long serialVersionUID = 1L;
 
@@ -237,7 +265,7 @@ public abstract class FrontendPage extends WebPage
 	protected <BO extends EntityWithSurrogateKey> IModel<BO> createModelForOverview(
 		final DaoForEntityWithSurrogateKey<BO> dao, final Long boId)
 	{
-		IModel model = new LoadableDetachableModel<BO>() 
+		IModel<BO> model = new LoadableDetachableModel<BO>() 
 		{
 			private static final long serialVersionUID = 1L;
 

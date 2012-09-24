@@ -64,7 +64,7 @@ public class RoleDaoTest extends DaoTest
 		
 		assertEquals("SCR", roles.get(0).getLabel());
 		assertEquals("ONC", roles.get(1).getLabel());
-		assertEquals("POC", roles.get(2).getLabel());
+		assertEquals("PIC", roles.get(2).getLabel());
 		assertEquals("ADM", roles.get(3).getLabel());
 	}
 }

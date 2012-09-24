@@ -14,7 +14,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
-@AuthorizeInstantiation({ "POC" })
+@AuthorizeInstantiation({ "PIC" })
 public class NewDNGroupPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
@@ -25,7 +25,7 @@ public class NewDNGroupPage extends FrontendPage
 	{
 		super(
 			"Home > Backend > DN > Groups > New", 
-			"Add a new DN rules' group"
+			"Add a new DN rule group"
 		);
 
 		// prepare DAO objects
@@ -51,8 +51,9 @@ public class NewDNGroupPage extends FrontendPage
 			{
 				DNRulesGroup group = this.getModelObject();
 				
+				long insertId;
 				try {
-					dnRulesGroupDao.save(group);
+					insertId = dnRulesGroupDao.saveAndGetKey(group);
 				}
 				catch (DaoException ex)
 				{
@@ -71,7 +72,7 @@ public class NewDNGroupPage extends FrontendPage
 				}
 				
 				getSession().info("The group was successfuly registered.");
-				setResponsePage(DNGroupsListPage.class);
+				setResponsePage(new DNGroupDetailPage(insertId));
 			}
 		};
 		

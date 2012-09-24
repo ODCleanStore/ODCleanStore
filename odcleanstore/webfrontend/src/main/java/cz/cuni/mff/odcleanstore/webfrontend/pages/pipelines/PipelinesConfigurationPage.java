@@ -4,7 +4,7 @@ import org.apache.wicket.authroles.authorization.strategies.role.annotations.Aut
 
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-@AuthorizeInstantiation({ "POC" })
+@AuthorizeInstantiation({ "PIC" })
 public class PipelinesConfigurationPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;

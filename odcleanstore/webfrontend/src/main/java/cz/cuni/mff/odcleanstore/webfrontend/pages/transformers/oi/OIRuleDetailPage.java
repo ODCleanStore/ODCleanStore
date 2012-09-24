@@ -16,13 +16,14 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputTypeDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-@AuthorizeInstantiation({ "POC" })
+@AuthorizeInstantiation({ "PIC" })
 public class OIRuleDetailPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
@@ -141,7 +142,7 @@ public class OIRuleDetailPage extends FrontendPage
 		
 		add(dataView);
 		
-		add(new PagingNavigator("dbOutputsNavigator", dataView));
+		add(new UnobtrusivePagingNavigator("dbOutputsNavigator", dataView));
 	}
 	
 	private void addFileOutputsSection(final Long ruleId) 
@@ -205,6 +206,6 @@ public class OIRuleDetailPage extends FrontendPage
 		
 		add(dataView);
 		
-		add(new PagingNavigator("fileOutputsNavigator", dataView));
+		add(new UnobtrusivePagingNavigator("fileOutputsNavigator", dataView));
 	}
 }

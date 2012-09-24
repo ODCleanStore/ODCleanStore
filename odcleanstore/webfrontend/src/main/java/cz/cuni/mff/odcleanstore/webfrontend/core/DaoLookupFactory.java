@@ -32,7 +32,7 @@ public class DaoLookupFactory implements Serializable
 	
 	private static final String CONNECTION_ENCODING = "UTF-8";
 	
-	private static Logger logger = Logger.getLogger(DaoLookupFactory.class);
+	//private static Logger logger = Logger.getLogger(DaoLookupFactory.class);
 	
 	private JDBCConnectionCredentials cleanConnectionCoords;
 	private transient VirtuosoDataSource cleanDataSource;
@@ -42,9 +42,9 @@ public class DaoLookupFactory implements Serializable
 	
 	private transient AbstractPlatformTransactionManager transactionManager;
 	
-	private HashMap<Class<? extends Dao>, Dao> daos;
+	private HashMap<Class<? extends Dao<?>>, Dao<?>> daos;
 	
-	private GlobalAggregationSettingsDao globalAggregationSettingsDao;
+	//private GlobalAggregationSettingsDao globalAggregationSettingsDao;
 	private TransformerInstanceDao transformerInstanceDao;
 	
 	/**
@@ -59,7 +59,7 @@ public class DaoLookupFactory implements Serializable
 		this.cleanConnectionCoords = cleanConnectionCoords;
 		this.dirtyConnectionCoords = dirtyConnectionCoords;
 		
-		this.daos = new HashMap<Class<? extends Dao>, Dao>();
+		this.daos = new HashMap<Class<? extends Dao<?>>, Dao<?>>();
 	}
 	
 	/**
@@ -73,13 +73,13 @@ public class DaoLookupFactory implements Serializable
 	 * @return
 	 * @throws AssertionError
 	 */
-	public Dao getDao(Class<? extends Dao> daoClass) throws AssertionError
+	public Dao getDao(Class<? extends Dao<?>> daoClass) throws AssertionError
 	{
 		if (daos.containsKey(daoClass))
 			return daos.get(daoClass);
 		
-		Dao daoInstance = createDaoInstance(daoClass);
-		Dao safeDaoInstance = new SafetyDaoDecorator(daoInstance);
+		Dao<?> daoInstance = createDaoInstance(daoClass);
+		Dao<?> safeDaoInstance = new SafetyDaoDecorator(daoInstance);
 		
 		daos.put(daoClass, safeDaoInstance);
 		
@@ -92,14 +92,14 @@ public class DaoLookupFactory implements Serializable
 	 * @return
 	 * @throws AssertionError
 	 */
-	public DaoForEntityWithSurrogateKey getDaoForEntityWithSurrogateKey(Class daoClass) 
+	public DaoForEntityWithSurrogateKey getDaoForEntityWithSurrogateKey(Class<? extends Dao<?>> daoClass) 
 		throws AssertionError
 	{
 		if (daos.containsKey(daoClass))
-			return (DaoForEntityWithSurrogateKey) daos.get(daoClass);
+			return (DaoForEntityWithSurrogateKey<?>) daos.get(daoClass);
 		
-		DaoForEntityWithSurrogateKey daoInstance = (DaoForEntityWithSurrogateKey) createDaoInstance(daoClass);
-		DaoForEntityWithSurrogateKey safeDaoInstance = new SafetyDaoDecoratorForEntityWithSurrogateKey(daoInstance);
+		DaoForEntityWithSurrogateKey<?> daoInstance = (DaoForEntityWithSurrogateKey<?>) createDaoInstance(daoClass);
+		DaoForEntityWithSurrogateKey<?> safeDaoInstance = new SafetyDaoDecoratorForEntityWithSurrogateKey(daoInstance);
 		
 		daos.put(daoClass, safeDaoInstance);
 		
@@ -117,7 +117,7 @@ public class DaoLookupFactory implements Serializable
 	 * @return
 	 * @throws AssertionError
 	 */
-	public Dao getUnsafeDao(Class<? extends Dao> daoClass) throws AssertionError
+	public Dao<?> getUnsafeDao(Class<? extends Dao<?>> daoClass) throws AssertionError
 	{
 		return createDaoInstance(daoClass);
 	}
@@ -129,9 +129,9 @@ public class DaoLookupFactory implements Serializable
 	 * @return
 	 * @throws AssertionError
 	 */
-	private Dao createDaoInstance(Class<? extends Dao> daoClass) throws AssertionError
+	private Dao<?> createDaoInstance(Class<? extends Dao<?>> daoClass) throws AssertionError
 	{
-		Dao daoInstance;
+		Dao<?> daoInstance;
 		
 		try {
 			daoInstance = daoClass.newInstance();

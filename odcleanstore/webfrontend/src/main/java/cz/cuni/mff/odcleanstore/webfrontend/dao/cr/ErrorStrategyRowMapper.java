@@ -8,6 +8,8 @@ import java.sql.SQLException;
 
 public class ErrorStrategyRowMapper extends CustomRowMapper<ErrorStrategy>
 {
+	private static final long serialVersionUID = 1L;
+	
 	public ErrorStrategy mapRow(ResultSet rs, int rowNum) throws SQLException 
 	{
 		return new ErrorStrategy(

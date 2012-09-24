@@ -14,7 +14,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
-@AuthorizeInstantiation({ "POC" })
+@AuthorizeInstantiation({ "PIC" })
 public class EditDNGroupPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
@@ -25,7 +25,7 @@ public class EditDNGroupPage extends FrontendPage
 	{
 		super(
 			"Home > Backend > DN > Groups > Edit", 
-			"Edit a rules' group"
+			"Edit a rule group"
 		);
 
 		// prepare DAO objects

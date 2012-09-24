@@ -11,7 +11,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-@AuthorizeInstantiation({ "POC" })
+@AuthorizeInstantiation({ "PIC" })
 public class NewPipelinePage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
@@ -49,9 +49,10 @@ public class NewPipelinePage extends FrontendPage
 			protected void onSubmit()
 			{
 				Pipeline pipeline = this.getModelObject();
-				
-				try {
-					pipelineDao.save(pipeline);
+				long insertId;
+				try 
+				{
+					insertId = pipelineDao.saveAndGetKey(pipeline);
 				}
 				catch (DaoException ex)
 				{
@@ -70,7 +71,7 @@ public class NewPipelinePage extends FrontendPage
 				}
 				
 				getSession().info("The pipeline was successfuly registered.");
-				setResponsePage(PipelinesListPage.class);
+				setResponsePage(new PipelineDetailPage(insertId));
 			}
 		};
 		

@@ -12,7 +12,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-@AuthorizeInstantiation({ "POC" })
+@AuthorizeInstantiation({ "PIC" })
 public class TransformerInstanceDetailPage extends FrontendPage 
 {
 	private static final long serialVersionUID = 1L;
@@ -73,6 +73,7 @@ public class TransformerInstanceDetailPage extends FrontendPage
 			)
 		);
 		
+		add(new Label("id"));
 		add(new Label("label", transformer.getLabel()));
 		add(new Label("configuration"));
 		add(new Label("runOnCleanDB"));

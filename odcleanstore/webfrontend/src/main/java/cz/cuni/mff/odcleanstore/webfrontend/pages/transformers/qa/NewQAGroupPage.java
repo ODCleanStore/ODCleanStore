@@ -12,7 +12,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
-@AuthorizeInstantiation({ "POC" })
+@AuthorizeInstantiation({ "PIC" })
 public class NewQAGroupPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
@@ -23,7 +23,7 @@ public class NewQAGroupPage extends FrontendPage
 	{
 		super(
 			"Home > Backend > QA > Groups > New", 
-			"Add a new rules' group"
+			"Add a new rule group"
 		);
 
 		// prepare DAO objects
@@ -49,8 +49,9 @@ public class NewQAGroupPage extends FrontendPage
 			{
 				QARulesGroup group = this.getModelObject();
 				
+				long insertId;
 				try {
-					qaRulesGroupDao.save(group);
+					insertId = qaRulesGroupDao.saveAndGetKey(group);
 				}
 				catch (DaoException ex)
 				{
@@ -69,7 +70,7 @@ public class NewQAGroupPage extends FrontendPage
 				}
 				
 				getSession().info("The group was successfuly registered.");
-				setResponsePage(QAGroupsListPage.class);
+				setResponsePage(new QAGroupDetailPage(insertId));
 			}
 		};
 		

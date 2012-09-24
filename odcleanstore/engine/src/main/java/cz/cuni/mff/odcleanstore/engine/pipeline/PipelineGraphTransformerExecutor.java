@@ -17,6 +17,7 @@ import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.Transformer;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
+import cz.cuni.mff.odcleanstore.transformer.odcs.ODCSBNodeToResourceTransformer;
 import cz.cuni.mff.odcleanstore.transformer.odcs.ODCSPropertyFilterTransformer;
 
 public class PipelineGraphTransformerExecutor {
@@ -141,13 +142,17 @@ public class PipelineGraphTransformerExecutor {
 			transformer = new ODCSPropertyFilterTransformer();
 		} else if (command.fullClassName.equals(QualityAggregatorImpl.class.getCanonicalName())) {
 		    transformer = new QualityAggregatorImpl();
+		} else if (command.fullClassName.equals(ODCSBNodeToResourceTransformer.class.getCanonicalName())) {
+		    transformer = new ODCSBNodeToResourceTransformer();
 		}
 		return transformer;
 	}
 
 	private String checkTransformerWorkingDirectory(PipelineCommand command) throws PipelineGraphTransformerExecutorException {
+	    File file = new File(command.workDirPath, Integer.toString(command.transformerInstanceID));
+	    String path = file.getPath();
 		try {
-			return Utils.satisfyDirectory(command.workDirPath);
+			return Utils.satisfyDirectory(path);
 		} catch (Exception e) {
 			throw new PipelineGraphTransformerExecutorException(format(ERROR_WORKING_DIRECTORY_CHECK, command), e);
 		}

@@ -65,7 +65,7 @@ public final class Utils {
 		File file = new File(fileName);
 		if (!file.isAbsolute()) {
 			File curdir = new File(baseForRelativePath);
-			file = new File(curdir.getAbsolutePath() + File.separator + file.getPath());
+			file = new File(curdir.getAbsolutePath(), file.getPath());
 		}
 		return file;
 	}
@@ -107,7 +107,7 @@ public final class Utils {
 			return null;
 		}
 		
-		StringBuffer buffer = new StringBuffer( src.length());
+		StringBuilder buffer = new StringBuilder( src.length());
 		for (int i = 0; i < src.length(); i++) {
             char c = src.charAt(i);
             if (c <= 0x7E) { 

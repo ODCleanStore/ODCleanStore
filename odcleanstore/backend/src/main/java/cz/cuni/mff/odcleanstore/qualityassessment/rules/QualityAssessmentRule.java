@@ -40,7 +40,11 @@ public class QualityAssessmentRule {
 	 * @return the SPARQL
 	 */
 	public String toString(String graphName) {
-		String filter = this.filter.replaceAll("^\\s*([^{].*)\\s*$", "{$1}");
+	    // regex didn't work with multiline rules
+	    String filter = this.filter.trim();
+	    if (!filter.startsWith("{")) {
+	        filter = "{ " + filter + " }";
+	    }
 
 		return String.format(Locale.ROOT, "SPARQL SELECT COUNT(*) FROM <%s> WHERE %s", graphName, filter);
 	}

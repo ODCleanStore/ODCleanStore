@@ -8,6 +8,8 @@ import java.sql.SQLException;
 
 public class AggregationTypeRowMapper extends CustomRowMapper<AggregationType>
 {
+	private static final long serialVersionUID = 1L;
+
 	public AggregationType mapRow(ResultSet rs, int rowNum) throws SQLException 
 	{
 		return new AggregationType(

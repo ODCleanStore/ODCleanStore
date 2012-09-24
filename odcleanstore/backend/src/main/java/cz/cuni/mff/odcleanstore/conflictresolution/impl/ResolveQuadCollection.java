@@ -40,7 +40,7 @@ import java.util.ListIterator;
      *
      * The iterator becomes invalid whenever the quad collection contained in
      * {@linkplain ResolveQuadCollection the outer class} changes.
-     * @see Node#sameValueAs(Object)
+     * @see ConflictResolverImpl#crSameNodes(Node, Node)
      */
     private class ConflictingQuadsIterator implements Iterator<Collection<Quad>> {
         /**
@@ -72,8 +72,8 @@ import java.util.ListIterator;
             while (quadIterator.hasNext()) {
                 Quad next = quadIterator.next();
 
-                if (!next.getSubject().sameValueAs(first.getSubject())
-                        || !next.getPredicate().sameValueAs(first.getPredicate())) {
+                if (!ConflictResolverImpl.crSameNodes(next.getSubject(), first.getSubject())
+                        || !ConflictResolverImpl.crSameNodes(next.getPredicate(), first.getPredicate())) {
                     // We reached the next cluster of conflicting quads
                     // -> return quadIterator so that it points before the first
                     // quad from the next cluster

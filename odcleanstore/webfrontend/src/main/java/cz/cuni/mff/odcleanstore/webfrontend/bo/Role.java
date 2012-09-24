@@ -21,7 +21,7 @@ public class Role extends EntityWithSurrogateKey
 		
 		standardRoles.add(new Role("SCR", "Scraper"));
 		standardRoles.add(new Role("ONC", "Ontology Creator"));
-		standardRoles.add(new Role("POC", "Policy Creator"));
+		standardRoles.add(new Role("PIC", "Pipeline Creator"));
 		standardRoles.add(new Role("ADM", "Administrator"));
 	}
 	
