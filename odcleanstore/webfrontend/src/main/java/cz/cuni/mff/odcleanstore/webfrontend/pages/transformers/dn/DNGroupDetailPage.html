@@ -2,6 +2,7 @@
 
 <div wicket:id="rulesGroupHelpWindow"></div>
 <div wicket:id="dnRuleHelpWindow"></div>
+<div wicket:id="dnReplaceTemplateInstanceHelpWindow"></div>
 
 <wicket:link>
 <div>
@@ -22,14 +23,14 @@
 	<span wicket:id="description">[description]</span>
 </div>
 
-<h2>Rules in group</h2>
+<h2>Raw rules</h2>
 
 <div>
-	<a class="placedright button" href="#" wicket:id="addNewRuleLink">Add a new rule</a>
+	<a class="placedright button" href="#" wicket:id="addNewRuleLink">Add a new raw rule</a>
 	<div class="clear">&nbsp;</div>
 </div>
 
-<span class="navigation" wicket:id="navigator">[dataview navigator]</span>
+<span class="navigation" wicket:id="rawRulesNavigator">[dataview navigator]</span>
 <a wicket:id="openDNRuleHelpWindow"class="help">Help</a>
 
 <table border="1">
@@ -39,7 +40,7 @@
 		<th>Action</th>
 	</tr>
 	
-	<tr  wicket:id="dnRulesTable">
+	<tr wicket:id="dnRawRulesTable">
 	
 		<td wicket:id="description">[description]</td>
 		
@@ -47,6 +48,39 @@
 			<input wicket:id="deleteRule" type="button" value="Delete" />
 			<input wicket:id="showDNRuleDetailPage" type="button" value="Detail" />
 			<input wicket:id="showEditDNRulePage" type="button" value="Edit" />
+		</td>
+	</tr>
+</table>
+
+<h2>Replace rules</h2>
+
+<div>
+	<a class="placedright button" href="#" wicket:id="addNewReplaceTemplateInstanceLink">Add a new replace rule</a>
+	<div class="clear">&nbsp;</div>
+</div>
+
+<span class="navigation" wicket:id="replaceTemplateInstancesNavigator">[dataview navigator]</span>
+<a wicket:id="openDNReplaceTemplateInstanceHelpWindow"class="help">Help</a>
+
+<table border="1">
+	
+	<tr>
+		<th>Property name</th>
+		<th>Pattern</th>
+		<th>Replacement</th>
+		<th>Action</th>
+	</tr>
+	
+	<tr wicket:id="dnReplaceTemplateInstancesTable">
+	
+		<td wicket:id="propertyName">[property name]</td>
+		<td wicket:id="pattern">[pattern]</td>
+		<td wicket:id="replacement">[replacement]</td>
+		
+		<td class="centered">
+			<input wicket:id="deleteReplaceTemplateInstance" type="button" value="Delete" />
+			<input wicket:id="showDNReplaceTemplateInstanceDetailPage" type="button" value="Detail" />
+			<input wicket:id="showEditDNReplaceTemplateInstancePage" type="button" value="Edit" />
 		</td>
 	</tr>
 </table>

@@ -9,6 +9,7 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNReplaceTemplateInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
@@ -20,6 +21,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNReplaceTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
@@ -37,6 +39,7 @@ public class DNGroupDetailPage extends FrontendPage
 	
 	private DaoForEntityWithSurrogateKey<DNRulesGroup> dnRulesGroupDao;
 	private DaoForEntityWithSurrogateKey<DNRule> dnRuleDao;
+	private DaoForEntityWithSurrogateKey<DNReplaceTemplateInstance> dnReplaceTemplateInstanceDao;
 
 	public DNGroupDetailPage(final Long groupId) 
 	{
@@ -49,21 +52,20 @@ public class DNGroupDetailPage extends FrontendPage
 		//
 		dnRulesGroupDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNRulesGroupDao.class);
 		dnRuleDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNRuleDao.class);
+		dnReplaceTemplateInstanceDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNReplaceTemplateInstanceDao.class);
 		
 		// register page components
 		//
 		addHelpWindow("rulesGroupHelpWindow", "openRulesGroupHelpWindow", new RulesGroupHelpPanel("content"));
 		addHelpWindow("dnRuleHelpWindow", "openDNRuleHelpWindow", new DNRuleHelpPanel("content"));
+		addHelpWindow("dnReplaceTemplateInstanceHelpWindow", "openDNReplaceTemplateInstanceHelpWindow", new DNReplaceTemplateInstanceHelpPanel("content"));
+		
 		addGroupInformationSection(groupId);
-		addDNRulesSection(groupId);
+		
+		addDNRawRulesSection(groupId);
+		addDNReplaceTemplateInstancesSection(groupId);
 	}
-	
-	/*
-	 	=======================================================================
-	 	Implementace qaRulesTable
-	 	=======================================================================
-	*/
-	
+
 	private void addGroupInformationSection(final Long groupId)
 	{
 		setDefaultModel(createModelForOverview(dnRulesGroupDao, groupId));
@@ -72,7 +74,7 @@ public class DNGroupDetailPage extends FrontendPage
 		add(new Label("description"));
 	}
 	
-	private void addDNRulesSection(final Long groupId) 
+	private void addDNRawRulesSection(final Long groupId) 
 	{
 		add(
 			new RedirectWithParamButton(
@@ -82,14 +84,14 @@ public class DNGroupDetailPage extends FrontendPage
 			)
 		);
 		
-		addDNRulesTable(groupId);
+		addDNRawRulesTable(groupId);
 	}
 	
-	private void addDNRulesTable(final Long groupId)
+	private void addDNRawRulesTable(final Long groupId)
 	{
 		IDataProvider<DNRule> data = new DependentDataProvider<DNRule>(dnRuleDao, "groupId", groupId);
 		
-		DataView<DNRule> dataView = new DataView<DNRule>("dnRulesTable", data)
+		DataView<DNRule> dataView = new DataView<DNRule>("dnRawRulesTable", data)
 		{
 			private static final long serialVersionUID = 1L;
 			
@@ -137,6 +139,81 @@ public class DNGroupDetailPage extends FrontendPage
 		
 		add(dataView);
 		
-		add(new UnobtrusivePagingNavigator("navigator", dataView));
+		add(new UnobtrusivePagingNavigator("rawRulesNavigator", dataView));
+	}
+	
+	private void addDNReplaceTemplateInstancesSection(final Long groupId) 
+	{
+		add(
+			new RedirectWithParamButton(
+				NewDNReplaceTemplateInstancePage.class,
+				groupId, 
+				"addNewReplaceTemplateInstanceLink"
+			)
+		);
+		
+		addDNReplaceTemplateInstancesTable(groupId);
+	}
+	
+	private void addDNReplaceTemplateInstancesTable(final Long groupId)
+	{
+		IDataProvider<DNReplaceTemplateInstance> data = new DependentDataProvider<DNReplaceTemplateInstance>
+		(
+			dnReplaceTemplateInstanceDao, 
+			"groupId", 
+			groupId
+		);
+	
+		DataView<DNReplaceTemplateInstance> dataView = new DataView<DNReplaceTemplateInstance>("dnReplaceTemplateInstancesTable", data)
+		{
+			private static final long serialVersionUID = 1L;
+			
+			@Override
+			protected void populateItem(Item<DNReplaceTemplateInstance> item) 
+			{
+				DNReplaceTemplateInstance instance = item.getModelObject();
+				
+				item.setModel(new CompoundPropertyModel<DNReplaceTemplateInstance>(instance));
+	
+				item.add(new TruncatedLabel("propertyName", MAX_LIST_COLUMN_TEXT_LENGTH));
+				item.add(new TruncatedLabel("pattern", MAX_LIST_COLUMN_TEXT_LENGTH));
+				item.add(new TruncatedLabel("replacement", MAX_LIST_COLUMN_TEXT_LENGTH));
+				
+				item.add(
+					new DeleteRawButton<DNReplaceTemplateInstance>
+					(
+						dnReplaceTemplateInstanceDao,
+						instance.getId(),
+						"replaceTemplateInstance",
+						new DeleteConfirmationMessage("replace template instance"),
+						DNGroupDetailPage.this
+					)
+				);
+				
+				item.add(
+					new RedirectWithParamButton
+					(
+						DNRuleDetailPage.class, // TODO: the class is to be changed
+						instance.getId(), 
+						"showDNReplaceTemplateInstanceDetailPage"
+					)
+				);
+				
+				item.add(
+					new RedirectWithParamButton
+					(
+						EditDNRulePage.class, // TODO: the class is to be changed
+						instance.getId(),
+						"showEditDNReplaceTemplateInstancePage"
+					)
+				);
+			}
+		};
+		
+		dataView.setItemsPerPage(ITEMS_PER_PAGE);
+		
+		add(dataView);
+		
+		add(new UnobtrusivePagingNavigator("replaceTemplateInstancesNavigator", dataView));
 	}
 }
