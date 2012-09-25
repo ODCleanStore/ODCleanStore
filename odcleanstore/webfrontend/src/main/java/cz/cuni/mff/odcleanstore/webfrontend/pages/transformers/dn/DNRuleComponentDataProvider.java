@@ -7,24 +7,25 @@ import org.apache.wicket.authroles.authorization.strategies.role.annotations.Aut
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponent;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DetachableModel;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
-@AuthorizeInstantiation({ "PIC" })
+@AuthorizeInstantiation({ Role.PIC })
 public class DNRuleComponentDataProvider implements IDataProvider<DNRuleComponent>
 {
 	private static final long serialVersionUID = 1L;
 	
 	private DaoForEntityWithSurrogateKey<DNRuleComponent> dao;
 	private List<DNRuleComponent> data;
-	private Long ruleId;
+	private Integer ruleId;
 	
 	/**
 	 * 
 	 * @param dao
 	 */
-	public DNRuleComponentDataProvider(DaoForEntityWithSurrogateKey<DNRuleComponent> dao, Long ruleId)
+	public DNRuleComponentDataProvider(DaoForEntityWithSurrogateKey<DNRuleComponent> dao, Integer ruleId)
 	{
 		this.dao = dao;
 		this.ruleId = ruleId;

@@ -6,12 +6,12 @@ public class DNReplaceTemplateInstance extends EntityWithSurrogateKey
 {
 	private static final long serialVersionUID = 1L;
 	
-	private Long groupId;
+	private Integer groupId;
 	private String propertyName;
 	private String pattern;
 	private String replacement;
 	
-	public DNReplaceTemplateInstance(Long id, Long groupId, String propertyName, String pattern, String replacement) 
+	public DNReplaceTemplateInstance(Integer id, Integer groupId, String propertyName, String pattern, String replacement) 
 	{
 		super(id);
 		
@@ -25,12 +25,12 @@ public class DNReplaceTemplateInstance extends EntityWithSurrogateKey
 	{
 	}
 	
-	public void setGroupId(Long groupId)
+	public void setGroupId(Integer groupId)
 	{
 		this.groupId = groupId;
 	}
 
-	public Long getGroupId() 
+	public Integer getGroupId() 
 	{
 		return groupId;
 	}

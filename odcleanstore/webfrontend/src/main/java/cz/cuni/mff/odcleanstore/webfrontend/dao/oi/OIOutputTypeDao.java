@@ -31,7 +31,7 @@ public class OIOutputTypeDao extends DaoForEntityWithSurrogateKey<OIOutputType>
 	}
 	
 	@Override
-	public void deleteRaw(Long id)
+	public void deleteRaw(Integer id)
 	{
 		throw new UnsupportedOperationException(
 			"Cannot delete rows from table: " + getTableName() + "."

@@ -31,7 +31,7 @@ public class OIFileFormatDao extends DaoForEntityWithSurrogateKey<OIFileFormat>
 	}
 	
 	@Override
-	public void deleteRaw(Long id)
+	public void deleteRaw(Integer id)
 	{
 		throw new UnsupportedOperationException(
 			"Cannot delete rows from table: " + getTableName() + "."

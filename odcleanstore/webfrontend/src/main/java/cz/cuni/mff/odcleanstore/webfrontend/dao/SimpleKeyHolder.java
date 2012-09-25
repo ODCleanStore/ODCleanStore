@@ -6,14 +6,14 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao;
  */
 /*package*/class SimpleKeyHolder
 {
-	private long key;
+	private int key;
 
-	public long getKey()
+	public int getKey()
 	{
 		return key;
 	}
 
-	public void setKey(long key)
+	public void setKey(int key)
 	{
 		this.key = key;
 	}

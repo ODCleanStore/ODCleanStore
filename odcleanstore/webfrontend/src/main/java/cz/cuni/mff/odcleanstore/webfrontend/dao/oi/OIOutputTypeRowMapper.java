@@ -13,7 +13,7 @@ public class OIOutputTypeRowMapper extends CustomRowMapper<OIOutputType>
 	public OIOutputType mapRow(ResultSet rs, int rowNum) throws SQLException 
 	{
 		return new OIOutputType(
-			rs.getLong("id"),
+			rs.getInt("id"),
 			rs.getString("label"),
 			blobToString(rs.getBlob("description"))
 		);

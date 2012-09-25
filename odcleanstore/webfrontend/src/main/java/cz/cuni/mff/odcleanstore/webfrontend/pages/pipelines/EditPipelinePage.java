@@ -5,20 +5,21 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-@AuthorizeInstantiation({ "PIC" })
+@AuthorizeInstantiation({ Role.PIC })
 public class EditPipelinePage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
 	private DaoForEntityWithSurrogateKey<Pipeline> pipelineDao;
 	
-	public EditPipelinePage(final Long pipelineId) 
+	public EditPipelinePage(final Integer pipelineId) 
 	{
 		super
 		(
@@ -37,7 +38,7 @@ public class EditPipelinePage extends FrontendPage
 		addNewPipelineForm(pipelineId);
 	}
 	
-	private void addNewPipelineForm(final Long pipelineId)
+	private void addNewPipelineForm(final Integer pipelineId)
 	{
 		Pipeline pipeline = pipelineDao.load(pipelineId);
 		IModel<Pipeline> formModel = new CompoundPropertyModel<Pipeline>(pipeline);

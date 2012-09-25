@@ -7,6 +7,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.validation.validator.RangeValidator;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIFileFormat;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutput;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutputType;
@@ -18,7 +19,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputTypeDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-@AuthorizeInstantiation({ "PIC" })
+@AuthorizeInstantiation({ Role.PIC })
 public class NewFileOutputPage extends FrontendPage 
 {
 	private static final long serialVersionUID = 1L;
@@ -27,7 +28,7 @@ public class NewFileOutputPage extends FrontendPage
 	private DaoForEntityWithSurrogateKey<OIOutputType> oiOutputTypeDao;
 	private DaoForEntityWithSurrogateKey<OIFileFormat> oiFileFormatDao;
 	
-	public NewFileOutputPage(final Long ruleId) 
+	public NewFileOutputPage(final Integer ruleId) 
 	{
 		super(
 			"Home > Backend > OI > Groups > Rules > File Outputs > New", 
@@ -55,7 +56,7 @@ public class NewFileOutputPage extends FrontendPage
 		addNewFileOutputForm(ruleId);
 	}
 
-	private void addNewFileOutputForm(final Long ruleId)
+	private void addNewFileOutputForm(final Integer ruleId)
 	{
 		IModel<OIOutput> formModel = new CompoundPropertyModel<OIOutput>(new OIOutput());
 		

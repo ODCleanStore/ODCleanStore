@@ -56,7 +56,7 @@ public class EngineOperationsDao implements Serializable
 	 * 
 	 * @param pipelineId
 	 */
-	public void rerunGraphsForPipeline(final Long pipelineId)
+	public void rerunGraphsForPipeline(final Integer pipelineId)
 	{
 		String query =
 			"UPDATE " + INPUT_GRAPHS_TABLE_NAME + " " +
@@ -81,7 +81,7 @@ public class EngineOperationsDao implements Serializable
 	 * @param assignmentDao
 	 * @param groupId
 	 */
-	public void rerunGraphsForRulesGroup(final String assignmentTableName, final Long groupId)
+	public void rerunGraphsForRulesGroup(final String assignmentTableName, final Integer groupId)
 	{
 		String query =
 			"UPDATE " + INPUT_GRAPHS_TABLE_NAME + " " +

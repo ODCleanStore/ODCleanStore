@@ -8,6 +8,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.validation.validator.RangeValidator;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
@@ -17,7 +18,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-@AuthorizeInstantiation({ "PIC" })
+@AuthorizeInstantiation({ Role.PIC })
 public class EditTransformerAssignmentPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
@@ -33,7 +34,7 @@ public class EditTransformerAssignmentPage extends FrontendPage
 	private Boolean runOnCleanDB;
 	private Integer priority;
 	
-	public EditTransformerAssignmentPage(final Long transformerInstanceId) 
+	public EditTransformerAssignmentPage(final Integer transformerInstanceId) 
 	{
 		super
 		(

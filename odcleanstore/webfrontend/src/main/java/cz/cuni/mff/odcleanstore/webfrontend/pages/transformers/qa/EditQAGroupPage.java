@@ -5,6 +5,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
@@ -12,14 +13,14 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
-@AuthorizeInstantiation({ "PIC" })
+@AuthorizeInstantiation({ Role.PIC })
 public class EditQAGroupPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
 	private DaoForEntityWithSurrogateKey<QARulesGroup> qaRulesGroupDao;
 	
-	public EditQAGroupPage(final Long groupId) 
+	public EditQAGroupPage(final Integer groupId) 
 	{
 		super(
 			"Home > Backend > QA > Groups > Edit", 
@@ -36,7 +37,7 @@ public class EditQAGroupPage extends FrontendPage
 		addEditOIRulesGroupForm(groupId);
 	}
 	
-	private void addEditOIRulesGroupForm(final Long groupId)
+	private void addEditOIRulesGroupForm(final Integer groupId)
 	{
 		QARulesGroup group = qaRulesGroupDao.load(groupId);
 		IModel<QARulesGroup> formModel = new CompoundPropertyModel<QARulesGroup>(group);

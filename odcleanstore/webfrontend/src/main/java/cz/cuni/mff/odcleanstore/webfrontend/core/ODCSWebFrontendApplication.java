@@ -1,25 +1,22 @@
 package cz.cuni.mff.odcleanstore.webfrontend.core;
 
-import org.apache.wicket.Component;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
 import org.apache.wicket.DefaultMapperContext;
-import org.apache.wicket.Page;
-import org.apache.wicket.Session;
 import org.apache.wicket.WicketRuntimeException;
-import org.apache.wicket.application.IComponentInstantiationListener;
 import org.apache.wicket.authroles.authentication.AbstractAuthenticatedWebSession;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebApplication;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.request.IRequestHandler;
-import org.apache.wicket.request.Request;
-import org.apache.wicket.request.Url;
 import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
-import org.apache.wicket.request.cycle.IRequestCycleListener;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.mapper.IMapperContext;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import cz.cuni.mff.odcleanstore.webfrontend.configuration.Configuration;
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.configuration.WebFrontendConfig;
+import cz.cuni.mff.odcleanstore.configuration.exceptions.ConfigurationException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.HomePage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LogInPage;
 
@@ -30,16 +27,14 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.LogInPage;
 public class ODCSWebFrontendApplication extends AuthenticatedWebApplication 
 {
 	private static final String WEB_URL_PREFIX = "odcs-web-frontend";
-	private static final String SPRING_CONFIG_LOCATION = "./config/spring.xml";
-
-	/** Spring context */
-	private ApplicationContext ctx;
+	private static final String APP_PROPERTIES_LOCATION = "config/application.properties";
+	private static final String ODCS_PATH_PROPERTY = "odcs.config.path";
 	
 	/** A factory to lookup Spring beans */
 	private DaoLookupFactory daoLookupFactory;
 	
 	/** Application configuration */
-	private Configuration configuration;
+	private WebFrontendConfig configuration;
 	
 	private URLRouter urlRouter;
 	
@@ -89,17 +84,26 @@ public class ODCSWebFrontendApplication extends AuthenticatedWebApplication
 	public void init() 
 	{
 		super.init();
-		
-		getDebugSettings().setAjaxDebugModeEnabled(false);
-		
-		ctx = new ClassPathXmlApplicationContext(SPRING_CONFIG_LOCATION);
 
-		configuration = (Configuration) ctx.getBean("appConfig");
+		String odcsConfigPath = null;
+		try {
+			Properties props = loadProperties();
+			odcsConfigPath = props.getProperty(ODCS_PATH_PROPERTY);
+			ConfigLoader.loadConfig(odcsConfigPath);
+		} catch (ConfigurationException e) {
+			throw new RuntimeException("Loading global config failed: " + odcsConfigPath);
+		} catch (IOException e) {
+			throw new RuntimeException("Loading application properties failed: " + APP_PROPERTIES_LOCATION);
+		}
+
+		configuration = ConfigLoader.getConfig().getWebFrontendGroup();
 		
 		daoLookupFactory = new DaoLookupFactory(
-			configuration.getCleanConnectionCoords(),
-			configuration.getDirtyConnectionCoords()
+			configuration.getCleanDBJDBCConnectionCredentials(),
+			configuration.getDirtyDBJDBCConnectionCredentials()
 		);
+		
+		getDebugSettings().setAjaxDebugModeEnabled(false);
 		
 		urlRouter = new URLRouter(WEB_URL_PREFIX);
 		urlRouter.setupRouting(this);
@@ -118,6 +122,15 @@ public class ODCSWebFrontendApplication extends AuthenticatedWebApplication
 		};
 	}
 	
+	private Properties loadProperties() throws IOException
+	{	
+		Properties props = new Properties();
+		InputStream inStream = Thread.currentThread().getContextClassLoader()
+				.getResourceAsStream(APP_PROPERTIES_LOCATION);
+        props.load(inStream);
+        return props;
+	}
+	
 	/**
 	 * 
 	 * @return
@@ -127,7 +140,7 @@ public class ODCSWebFrontendApplication extends AuthenticatedWebApplication
 		return daoLookupFactory;
 	}
 	
-	public Configuration getConfiguration()
+	public WebFrontendConfig getConfiguration()
 	{
 		return configuration;
 	}

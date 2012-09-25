@@ -4,6 +4,7 @@ import org.apache.wicket.authroles.authorization.strategies.role.annotations.Aut
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.IModel;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
@@ -12,7 +13,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-@AuthorizeInstantiation({ "PIC" })
+@AuthorizeInstantiation({ Role.PIC })
 public class TransformerInstanceDetailPage extends FrontendPage 
 {
 	private static final long serialVersionUID = 1L;
@@ -29,7 +30,7 @@ public class TransformerInstanceDetailPage extends FrontendPage
 	private DaoForEntityWithSurrogateKey<TransformerInstance> transformerInstanceDao;
 	private DaoForEntityWithSurrogateKey<Transformer> transformerDao;
 
-	public TransformerInstanceDetailPage(final Long transformerInstanceId) 
+	public TransformerInstanceDetailPage(final Integer transformerInstanceId) 
 	{
 		super(
 			"Home > Backend > Pipelines > Transformer Instances > Detail", 

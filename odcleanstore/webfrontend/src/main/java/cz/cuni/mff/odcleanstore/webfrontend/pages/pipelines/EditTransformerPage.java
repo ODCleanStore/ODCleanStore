@@ -6,13 +6,14 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-@AuthorizeInstantiation({ "ADM" })
+@AuthorizeInstantiation({ Role.ADM })
 public class EditTransformerPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
@@ -21,7 +22,7 @@ public class EditTransformerPage extends FrontendPage
 	
 	private DaoForEntityWithSurrogateKey<Transformer> transformerDao;
 	
-	public EditTransformerPage(final Long id) 
+	public EditTransformerPage(final Integer id) 
 	{
 		super
 		(
@@ -40,7 +41,7 @@ public class EditTransformerPage extends FrontendPage
 		addEditTransformerForm(id);
 	}
 	
-	private void addEditTransformerForm(final Long id)
+	private void addEditTransformerForm(final Integer id)
 	{
 		Transformer transformer = transformerDao.load(id);
 		IModel<Transformer> formModel = new CompoundPropertyModel<Transformer>(transformer);

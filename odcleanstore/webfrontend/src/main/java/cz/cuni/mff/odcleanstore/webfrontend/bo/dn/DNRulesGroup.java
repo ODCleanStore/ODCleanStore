@@ -9,7 +9,7 @@ public class DNRulesGroup extends RulesGroupEntity
 	private String label;
 	private String description;
 	
-	public DNRulesGroup(Long id, String label, String description) 
+	public DNRulesGroup(Integer id, String label, String description) 
 	{
 		super(id);
 		

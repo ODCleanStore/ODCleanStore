@@ -9,6 +9,7 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
@@ -27,7 +28,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-@AuthorizeInstantiation({ "PIC" })
+@AuthorizeInstantiation({ Role.PIC })
 public class PipelineDetailPage extends FrontendPage 
 {
 	private static final long serialVersionUID = 1L;
@@ -35,7 +36,7 @@ public class PipelineDetailPage extends FrontendPage
 	private DaoForEntityWithSurrogateKey<Pipeline> pipelineDao;
 	private DaoForEntityWithSurrogateKey<TransformerInstance> transformerInstanceDao;
 
-	public PipelineDetailPage(final Long pipelineId) 
+	public PipelineDetailPage(final Integer pipelineId) 
 	{
 		super(
 			"Home > Backend > Pipelines > Detail", 
@@ -55,7 +56,7 @@ public class PipelineDetailPage extends FrontendPage
 		addAssignmentSection(pipelineId);
 	}
 
-	private void addPipelineInformationSection(final Long pipelineId)
+	private void addPipelineInformationSection(final Integer pipelineId)
 	{
 		setDefaultModel(createModelForOverview(pipelineDao, pipelineId));
 		
@@ -64,7 +65,7 @@ public class PipelineDetailPage extends FrontendPage
 		add(new Label("isDefault"));
 	}
 
-	private void addAssignmentSection(final Long pipelineId) 
+	private void addAssignmentSection(final Integer pipelineId) 
 	{
 		add(
 			new RedirectWithParamButton(
@@ -77,7 +78,7 @@ public class PipelineDetailPage extends FrontendPage
 		addAssignmentTable(pipelineId);
 	}
 	
-	private void addAssignmentTable(final Long pipelineId) 
+	private void addAssignmentTable(final Integer pipelineId) 
 	{
 		SortableDataProvider<TransformerInstance> data = new DependentSortableDataProvider<TransformerInstance>
 		(

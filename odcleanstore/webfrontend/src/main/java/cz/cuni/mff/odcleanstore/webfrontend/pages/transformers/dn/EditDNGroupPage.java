@@ -5,23 +5,22 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRulesGroup;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
-@AuthorizeInstantiation({ "PIC" })
+@AuthorizeInstantiation({ Role.PIC })
 public class EditDNGroupPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
 	private DaoForEntityWithSurrogateKey<DNRulesGroup> dnRulesGroupDao;
 	
-	public EditDNGroupPage(final Long groupId) 
+	public EditDNGroupPage(final Integer groupId) 
 	{
 		super(
 			"Home > Backend > DN > Groups > Edit", 
@@ -38,7 +37,7 @@ public class EditDNGroupPage extends FrontendPage
 		addEditDNRulesGroupForm(groupId);
 	}
 	
-	private void addEditDNRulesGroupForm(final Long groupId)
+	private void addEditDNRulesGroupForm(final Integer groupId)
 	{
 		DNRulesGroup group = dnRulesGroupDao.load(groupId);
 		IModel<DNRulesGroup> formModel = new CompoundPropertyModel<DNRulesGroup>(group);

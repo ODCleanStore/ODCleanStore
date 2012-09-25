@@ -9,6 +9,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.Ontology;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UploadButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
@@ -16,14 +17,14 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.onto.OntologyDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-@AuthorizeInstantiation({ "ONC" })
+@AuthorizeInstantiation({ Role.ONC })
 public class EditOntologyPage extends FrontendPage 
 {
 	private static final long serialVersionUID = 1L;
 	
 	private DaoForEntityWithSurrogateKey<Ontology> ontologyDao;
 
-	public EditOntologyPage(final Long ontologyId) 
+	public EditOntologyPage(final Integer ontologyId) 
 	{
 		super(
 			"Home > Ontologies > Edit", 
@@ -40,7 +41,7 @@ public class EditOntologyPage extends FrontendPage
 		addEditOntologyForm(ontologyId);
 	}
 	
-	private void addEditOntologyForm(final Long groupId)
+	private void addEditOntologyForm(final Integer groupId)
 	{	
 		Ontology ontology = ontologyDao.load(groupId);
 		
@@ -55,7 +56,8 @@ public class EditOntologyPage extends FrontendPage
 			{
 				Ontology ontology = this.getModelObject();
 				
-				try {
+				try 
+				{
 					ontologyDao.update(ontology);
 				}
 				catch (DaoException ex)

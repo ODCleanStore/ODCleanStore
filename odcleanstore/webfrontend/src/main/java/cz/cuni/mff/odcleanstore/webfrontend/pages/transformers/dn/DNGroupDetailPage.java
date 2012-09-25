@@ -3,19 +3,17 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn;
 import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNReplaceTemplateInstance;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRulesGroup;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARulesGroup;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
@@ -24,13 +22,10 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNReplaceTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.OIRuleHelpPanel;
 
-@AuthorizeInstantiation({ "PIC" })
+@AuthorizeInstantiation({ Role.PIC })
 public class DNGroupDetailPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
@@ -41,7 +36,7 @@ public class DNGroupDetailPage extends FrontendPage
 	private DaoForEntityWithSurrogateKey<DNRule> dnRuleDao;
 	private DaoForEntityWithSurrogateKey<DNReplaceTemplateInstance> dnReplaceTemplateInstanceDao;
 
-	public DNGroupDetailPage(final Long groupId) 
+	public DNGroupDetailPage(final Integer groupId) 
 	{
 		super(
 			"Home > Backend > DN > Groups > Detail", 
@@ -65,8 +60,14 @@ public class DNGroupDetailPage extends FrontendPage
 		addDNRawRulesSection(groupId);
 		addDNReplaceTemplateInstancesSection(groupId);
 	}
-
-	private void addGroupInformationSection(final Long groupId)
+	
+	/*
+	 	=======================================================================
+	 	Implementace qaRulesTable
+	 	=======================================================================
+	*/
+	
+	private void addGroupInformationSection(final Integer groupId)
 	{
 		setDefaultModel(createModelForOverview(dnRulesGroupDao, groupId));
 		
@@ -74,7 +75,7 @@ public class DNGroupDetailPage extends FrontendPage
 		add(new Label("description"));
 	}
 	
-	private void addDNRawRulesSection(final Long groupId) 
+	private void addDNRawRulesSection(final Integer groupId) 
 	{
 		add(
 			new RedirectWithParamButton(
@@ -86,8 +87,8 @@ public class DNGroupDetailPage extends FrontendPage
 		
 		addDNRawRulesTable(groupId);
 	}
-	
-	private void addDNRawRulesTable(final Long groupId)
+
+	private void addDNRawRulesTable(final Integer groupId)
 	{
 		IDataProvider<DNRule> data = new DependentDataProvider<DNRule>(dnRuleDao, "groupId", groupId);
 		
@@ -142,7 +143,7 @@ public class DNGroupDetailPage extends FrontendPage
 		add(new UnobtrusivePagingNavigator("rawRulesNavigator", dataView));
 	}
 	
-	private void addDNReplaceTemplateInstancesSection(final Long groupId) 
+	private void addDNReplaceTemplateInstancesSection(final Integer groupId) 
 	{
 		add(
 			new RedirectWithParamButton(
@@ -155,7 +156,7 @@ public class DNGroupDetailPage extends FrontendPage
 		addDNReplaceTemplateInstancesTable(groupId);
 	}
 	
-	private void addDNReplaceTemplateInstancesTable(final Long groupId)
+	private void addDNReplaceTemplateInstancesTable(final Integer groupId)
 	{
 		IDataProvider<DNReplaceTemplateInstance> data = new DependentDataProvider<DNReplaceTemplateInstance>
 		(

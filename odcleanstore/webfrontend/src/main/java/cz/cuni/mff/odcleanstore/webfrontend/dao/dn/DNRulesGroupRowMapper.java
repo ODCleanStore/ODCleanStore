@@ -14,7 +14,7 @@ public class DNRulesGroupRowMapper extends CustomRowMapper<DNRulesGroup>
 	{
 		return new DNRulesGroup
 		(
-			rs.getLong("id"),
+			rs.getInt("id"),
 			blobToString(rs.getBlob("label")),
 			blobToString(rs.getBlob("description"))
 		);

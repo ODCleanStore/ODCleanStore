@@ -30,7 +30,7 @@ public class NewDNReplaceTemplateInstancePage extends FrontendPage
 	
 	private DaoForEntityWithSurrogateKey<DNReplaceTemplateInstance> dnReplaceTemplateInstanceDao;
 	
-	public NewDNReplaceTemplateInstancePage(final Long groupId) 
+	public NewDNReplaceTemplateInstancePage(final Integer groupId) 
 	{
 		super(
 			"Home > Backend > DN > Groups > Replace template instances > New", 
@@ -56,7 +56,7 @@ public class NewDNReplaceTemplateInstancePage extends FrontendPage
 		addNewDNRuleForm(groupId);
 	}
 
-	private void addNewDNRuleForm(final Long groupId)
+	private void addNewDNRuleForm(final Integer groupId)
 	{
 		IModel<DNReplaceTemplateInstance> formModel = new CompoundPropertyModel<DNReplaceTemplateInstance>(
 			new DNReplaceTemplateInstance()

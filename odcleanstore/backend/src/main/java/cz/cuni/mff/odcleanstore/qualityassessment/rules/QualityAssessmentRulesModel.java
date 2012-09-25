@@ -141,9 +141,9 @@ public class QualityAssessmentRulesModel {
 			while (results.next()) {
 				ResultSet result = results.getCurrentResultSet();
 				
-				Long id = result.getLong("id");
+				Integer id = result.getInt("id");
 				
-				Long groupId = result.getLong("groupId");
+				Integer groupId = result.getInt("groupId");
 				
 				Blob filterBlob = result.getBlob("filter");
 				String filter = new String(filterBlob.getBytes(1, (int)filterBlob.length()));
@@ -151,7 +151,13 @@ public class QualityAssessmentRulesModel {
 				Double coefficient = result.getDouble("coefficient");
 				
 				Blob descriptionBlob = result.getBlob("description");
-				String description = new String(descriptionBlob.getBytes(1, (int)descriptionBlob.length()));
+				String description;
+				
+				if (descriptionBlob != null && !result.wasNull()) {
+					description = new String(descriptionBlob.getBytes(1, (int)descriptionBlob.length()));
+				} else {
+					description = null;
+				}
 				
 				rules.add(new QualityAssessmentRule(id, groupId, filter, coefficient, description));
 			}
@@ -167,8 +173,8 @@ public class QualityAssessmentRulesModel {
 	}
 	
 	/**
-     * @param groupIds IDs of the rule groups from which the rules are selected
-     */
+	 * @param groupIds IDs of the rule groups from which the rules are selected
+	 */
 	public Collection<QualityAssessmentRule> getRules (Integer... groupIds) throws QualityAssessmentException {
 		Set<QualityAssessmentRule> rules = new HashSet<QualityAssessmentRule>();
 		
@@ -182,8 +188,8 @@ public class QualityAssessmentRulesModel {
 	}
 	
 	/**
-     * @param groupLabels set of labels of groups from which the rules are selected
-     */
+	 * @param groupLabels set of labels of groups from which the rules are selected
+	 */
 	public Collection<QualityAssessmentRule> getRules (String... groupLabels) throws QualityAssessmentException {
 		Set<QualityAssessmentRule> rules = new HashSet<QualityAssessmentRule>();
 		
@@ -196,13 +202,13 @@ public class QualityAssessmentRulesModel {
 		return rules;
 	}
 	
-	private Long getGroupId(String groupLabel) throws QualityAssessmentException {
+	private Integer getGroupId(String groupLabel) throws QualityAssessmentException {
 		try {
 			WrappedResultSet resultSet = getCleanConnection().executeSelect(groupIdQuery, groupLabel);
 			
 			if (!resultSet.next()) throw new QualityAssessmentException("No '" + groupLabel + "' QA Rule group."); 
 		
-			return resultSet.getCurrentResultSet().getLong("id");
+			return resultSet.getCurrentResultSet().getInt("id");
 		} catch (DatabaseException e) {
 			throw new QualityAssessmentException(e);
 		} catch (SQLException e) {
@@ -210,13 +216,13 @@ public class QualityAssessmentRulesModel {
 		}
 	}
 	
-	private Long getOntologyId(String ontologyLabel) throws QualityAssessmentException {
+	private Integer getOntologyId(String ontologyLabel) throws QualityAssessmentException {
 		try {
 			WrappedResultSet resultSet = getCleanConnection().executeSelect(ontologyIdQuery, ontologyLabel);
 			
 			if (!resultSet.next()) throw new QualityAssessmentException("No '" + ontologyLabel + "' ontology."); 
 			
-			return resultSet.getCurrentResultSet().getLong("id");
+			return resultSet.getCurrentResultSet().getInt("id");
 		} catch (DatabaseException e) {
 			throw new QualityAssessmentException(e);
 		} catch (SQLException e) {
@@ -224,7 +230,7 @@ public class QualityAssessmentRulesModel {
 		}
 	}
 	
-	private String getOntologyGraphURI(Long ontologyId) throws QualityAssessmentException {
+	private String getOntologyGraphURI(Integer ontologyId) throws QualityAssessmentException {
 		try {
 			WrappedResultSet resultSet = getCleanConnection().executeSelect(ontologyGraphURIQuery, ontologyId);
 		
@@ -238,7 +244,7 @@ public class QualityAssessmentRulesModel {
 		}
 	}
 	
-	private void mapGroupToOntology(Long groupId, Long ontologyId) throws QualityAssessmentException {
+	private void mapGroupToOntology(Integer groupId, Integer ontologyId) throws QualityAssessmentException {
 		try {
 			getCleanConnection().execute(mapGroupToOntology, groupId, ontologyId);
 		} catch (DatabaseException e) {
@@ -248,8 +254,8 @@ public class QualityAssessmentRulesModel {
 	
 	public void compileOntologyToRules(String ontologyLabel, String groupLabel) throws QualityAssessmentException {
 		try {
-			Long groupId = getGroupId(groupLabel);
-			Long ontologyId = getOntologyId(ontologyLabel);
+			Integer groupId = getGroupId(groupLabel);
+			Integer ontologyId = getOntologyId(ontologyLabel);
 		
 			compileOntologyToRules(ontologyId, groupId);
 		} finally {
@@ -257,7 +263,7 @@ public class QualityAssessmentRulesModel {
 		}
 	}
 	
-	public void compileOntologyToRules(Long ontologyId, Long groupId) throws QualityAssessmentException {
+	public void compileOntologyToRules(Integer ontologyId, Integer groupId) throws QualityAssessmentException {
 		try {
 			String ontologyGraphURI = getOntologyGraphURI(ontologyId);
 
@@ -284,7 +290,7 @@ public class QualityAssessmentRulesModel {
 		}
 	}
 	
-	private void dropRules(Long groupId, Long ontologyId) throws QualityAssessmentException {
+	private void dropRules(Integer groupId, Integer ontologyId) throws QualityAssessmentException {
 		try {			
 			getCleanConnection().execute(deleteRulesByOntology, ontologyId);
 			getCleanConnection().execute(deleteMapping, groupId, ontologyId);
@@ -293,7 +299,7 @@ public class QualityAssessmentRulesModel {
 		}
 	}
 	
-	private void processOntologyResource(Resource resource, Model model, String ontology, Long groupId) throws QualityAssessmentException {
+	private void processOntologyResource(Resource resource, Model model, String ontology, Integer groupId) throws QualityAssessmentException {
 		final String skosNS = "http://www.w3.org/2004/02/skos/core#";
 
 		/**

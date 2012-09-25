@@ -1,20 +1,18 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts;
 
-import java.security.NoSuchAlgorithmException;
-
 import javax.mail.MessagingException;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.validation.validator.EmailAddressValidator;
 
-import cz.cuni.mff.odcleanstore.util.CodeSnippet;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
-import cz.cuni.mff.odcleanstore.webfrontend.configuration.Configuration;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.HelpWindow;
+import cz.cuni.mff.odcleanstore.configuration.WebFrontendConfig;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
@@ -23,12 +21,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.util.Mail;
 import cz.cuni.mff.odcleanstore.webfrontend.util.NewAccountMail;
 import cz.cuni.mff.odcleanstore.webfrontend.util.PasswordHandling;
 
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-
-@AuthorizeInstantiation({ "ADM" })
+@AuthorizeInstantiation({ Role.ADM })
 public class NewAccountPage extends FrontendPage
 {
 	private static Logger logger = Logger.getLogger(NewAccountPage.class);
@@ -62,7 +55,7 @@ public class NewAccountPage extends FrontendPage
 			protected void onSubmit()
 			{
 				User user = this.getModelObject();
-				Configuration config = NewAccountPage.this.getApp().getConfiguration();
+				WebFrontendConfig config = NewAccountPage.this.getApp().getConfiguration();
 				
 				try 
 				{

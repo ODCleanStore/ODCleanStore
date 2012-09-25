@@ -4,14 +4,14 @@ import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.basic.Label;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
-import cz.cuni.mff.odcleanstore.webfrontend.core.models.DetachableModel;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-@AuthorizeInstantiation({ "PIC" })
+@AuthorizeInstantiation({ Role.PIC })
 public class QARuleDetailPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
@@ -20,7 +20,7 @@ public class QARuleDetailPage extends FrontendPage
 	
 	private DaoForEntityWithSurrogateKey<QARule> qaRuleDao;
 
-	public QARuleDetailPage(final Long ruleId) 
+	public QARuleDetailPage(final Integer ruleId) 
 	{
 		super(
 			"Home > Backend > QA > Groups > Rules > Detail", 
@@ -37,7 +37,7 @@ public class QARuleDetailPage extends FrontendPage
 		addRuleInformationSection(ruleId);
 	}
 	
-	private void addRuleInformationSection(final Long ruleId)
+	private void addRuleInformationSection(final Integer ruleId)
 	{
 		QARule rule = qaRuleDao.load(ruleId);
 		

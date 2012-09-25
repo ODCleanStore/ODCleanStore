@@ -6,12 +6,12 @@ public class QARule extends EntityWithSurrogateKey
 {
 	private static final long serialVersionUID = 1L;
 
-	private Long groupId;
+	private Integer groupId;
 	private String filter;
 	private String description;
 	private Double coefficient;
 	
-	public QARule(Long id, Long groupId, String filter, String description, Double coefficient) 
+	public QARule(Integer id, Integer groupId, String filter, String description, Double coefficient) 
 	{
 		super(id);
 		
@@ -25,12 +25,12 @@ public class QARule extends EntityWithSurrogateKey
 	{
 	}
 
-	public Long getGroupId()
+	public Integer getGroupId()
 	{
 		return groupId;
 	}
 	
-	public void setGroupId(Long groupId)
+	public void setGroupId(Integer groupId)
 	{
 		this.groupId = groupId;
 	}

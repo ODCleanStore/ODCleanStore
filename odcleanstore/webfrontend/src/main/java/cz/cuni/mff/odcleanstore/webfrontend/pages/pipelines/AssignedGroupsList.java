@@ -13,6 +13,7 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.CompoundPropertyModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.RulesGroupEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.RuleAssignment;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.HelpWindow;
@@ -26,7 +27,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
-@AuthorizeInstantiation({ "PIC" })
+@AuthorizeInstantiation({ Role.PIC })
 public class AssignedGroupsList extends Panel
 {
 	private static final long serialVersionUID = 1L;
@@ -36,7 +37,7 @@ public class AssignedGroupsList extends Panel
 	
 	public AssignedGroupsList(
 		final String id, 
-		final Long transformerInstanceId,
+		final Integer transformerInstanceId,
 		final DaoForEntityWithSurrogateKey<RulesGroupEntity> groupsDao,
 		final DaoForEntityWithSurrogateKey<RuleAssignment> assignedGroupsDao,
 		final Class<? extends FrontendPage> groupDetailPageClass,
@@ -73,7 +74,7 @@ public class AssignedGroupsList extends Panel
         });
 	}
 	
-	private void addNewAssignmentLink(final Long transformerInstanceId)
+	private void addNewAssignmentLink(final Integer transformerInstanceId)
 	{
 		add(
 			new Link("showNewGroupAssignmentPage")
@@ -97,7 +98,7 @@ public class AssignedGroupsList extends Panel
 	}
 	
 	private void addAssignmentTable(
-		final Long transformerInstanceId, 
+		final Integer transformerInstanceId, 
 		final Class<? extends FrontendPage> groupDetailPageClass) 
 	{
 		SortableDataProvider<RuleAssignment> data = new DependentSortableDataProvider<RuleAssignment>
@@ -149,7 +150,7 @@ public class AssignedGroupsList extends Panel
 		add(new UnobtrusivePagingNavigator("navigator", dataView));
 	}
 	
-	private Link createDeleteButton(final Long transformerInstanceId, final Long groupAssignmentId)
+	private Link createDeleteButton(final Integer transformerInstanceId, final Integer groupAssignmentId)
 	{
 		Link button = new Link("deleteAssignment")
 		{

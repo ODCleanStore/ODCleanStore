@@ -9,13 +9,13 @@ import java.util.Locale;
  * explanation.
  */
 public class QualityAssessmentRule {
-	private Long id;
-	private Long groupId;
+	private Integer id;
+	private Integer groupId;
 	private String filter;
 	private Double coefficient;
 	private String description;
 
-	public QualityAssessmentRule (Long id, Long groupId, String filter, Double coefficient, String description) {
+	public QualityAssessmentRule (Integer id, Integer groupId, String filter, Double coefficient, String description) {
 		this.id = id;
 		this.groupId = groupId;
 		this.filter = filter;
@@ -23,11 +23,11 @@ public class QualityAssessmentRule {
 		this.description = description;
 	}
 
-	public Long getId() {
+	public Integer getId() {
 		return id;
 	}
 
-	public Long getGroupId() {
+	public Integer getGroupId() {
 		return groupId;
 	}
 	public String getFilter() {

@@ -29,7 +29,7 @@ public class EditDNReplaceTemplateInstancePage extends FrontendPage
 	
 	private DaoForEntityWithSurrogateKey<DNReplaceTemplateInstance> dnReplaceTemplateInstanceDao;
 	
-	public EditDNReplaceTemplateInstancePage(final Long ruleId) 
+	public EditDNReplaceTemplateInstancePage(final Integer ruleId) 
 	{
 		super(
 			"Home > Backend > DN > Groups > Replace template instances > Edit", 

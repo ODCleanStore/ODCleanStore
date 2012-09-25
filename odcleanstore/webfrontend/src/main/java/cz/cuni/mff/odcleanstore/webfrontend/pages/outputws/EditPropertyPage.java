@@ -6,6 +6,7 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.AggregationType;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.MultivalueType;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.PropertySettings;
@@ -17,7 +18,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.validators.IRIValidator;
 
-@AuthorizeInstantiation({ "PIC" })
+@AuthorizeInstantiation({ Role.PIC })
 public class EditPropertyPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
@@ -28,7 +29,7 @@ public class EditPropertyPage extends FrontendPage
 	private DaoForEntityWithSurrogateKey<AggregationType> aggregationTypeDao;
 	private DaoForEntityWithSurrogateKey<MultivalueType> multivalueTypeDao;
 
-	public EditPropertyPage(final Long propertyId) 
+	public EditPropertyPage(final Integer propertyId) 
 	{
 		super(
 			"Home > Output WS > Aggregation Properties > Edit", 
@@ -47,7 +48,7 @@ public class EditPropertyPage extends FrontendPage
 		addEditPropertyForm(propertyId);
 	}
 	
-	private void addEditPropertyForm(final Long propertyId)
+	private void addEditPropertyForm(final Integer propertyId)
 	{
 		PropertySettings property = propertySettingsDao.load(propertyId);
 		

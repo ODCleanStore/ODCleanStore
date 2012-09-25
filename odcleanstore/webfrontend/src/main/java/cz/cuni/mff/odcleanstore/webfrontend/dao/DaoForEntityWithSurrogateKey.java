@@ -10,7 +10,7 @@ public abstract class DaoForEntityWithSurrogateKey<T extends EntityWithSurrogate
 	
 	private static final long serialVersionUID = 1L;
 
-	public void deleteRaw(Long id) throws Exception
+	public void deleteRaw(Integer id) throws Exception
 	{
 		String query = "DELETE FROM " + getTableName() + " WHERE id = ?";
 		Object[] params = { id };
@@ -20,17 +20,17 @@ public abstract class DaoForEntityWithSurrogateKey<T extends EntityWithSurrogate
 		getCleanJdbcTemplate().update(query, params);
 	}
 		
-	public T loadRaw(Long id)
+	public T loadRaw(Integer id)
 	{
 		return loadRawBy("id", id);
 	}
 	
-	public T load(Long id)
+	public T load(Integer id)
 	{
 		return loadRaw(id);
 	}
 	
-	public void delete(final Long id) throws Exception
+	public void delete(final Integer id) throws Exception
 	{
 		throw new UnsupportedOperationException(
 			"Cannot delete rows from table: " + getTableName() + "."
@@ -42,9 +42,9 @@ public abstract class DaoForEntityWithSurrogateKey<T extends EntityWithSurrogate
 	 * @return last assigned identity column value
 	 * @throws Exception
 	 */
-	protected long getLastInsertId() throws Exception
+	protected int getLastInsertId() throws Exception
 	{
 		String query = "SELECT identity_value()";
-		return getCleanJdbcTemplate().queryForLong(query);
+		return getCleanJdbcTemplate().queryForInt(query);
 	}
 }

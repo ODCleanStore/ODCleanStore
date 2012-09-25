@@ -35,7 +35,7 @@ public class DNReplaceTemplateInstanceDetailPage extends FrontendPage
 	
 	private DaoForEntityWithSurrogateKey<DNReplaceTemplateInstance> dnReplaceTemplateInstanceDao;
 
-	public DNReplaceTemplateInstanceDetailPage(final Long ruleId) 
+	public DNReplaceTemplateInstanceDetailPage(final Integer ruleId) 
 	{
 		super(
 			"Home > Backend > DN > Groups > Rules > Detail", 
@@ -52,7 +52,7 @@ public class DNReplaceTemplateInstanceDetailPage extends FrontendPage
 		addReplaceTemplateInstanceInformationSection(ruleId);
 	}
 
-	private void addReplaceTemplateInstanceInformationSection(final Long ruleId)
+	private void addReplaceTemplateInstanceInformationSection(final Integer ruleId)
 	{
 		DNReplaceTemplateInstance instance = dnReplaceTemplateInstanceDao.load(ruleId);
 		

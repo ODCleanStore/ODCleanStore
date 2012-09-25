@@ -4,31 +4,27 @@ import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
-import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
-import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentSortableDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.QARuleHelpPanel;
 
-@AuthorizeInstantiation({ "PIC" })
+@AuthorizeInstantiation({ Role.PIC })
 public class OIGroupDetailPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
@@ -38,7 +34,7 @@ public class OIGroupDetailPage extends FrontendPage
 	private DaoForEntityWithSurrogateKey<OIRulesGroup> oiRulesGroupDao;
 	private DaoForEntityWithSurrogateKey<OIRule> oiRuleDao;
 	
-	public OIGroupDetailPage(final Long groupId) 
+	public OIGroupDetailPage(final Integer groupId) 
 	{
 		super(
 			"Home > Backend > OI > Groups > Detail", 
@@ -58,7 +54,7 @@ public class OIGroupDetailPage extends FrontendPage
 		addOIRulesSection(groupId);
 	}
 	
-	private void addGroupInformationSection(final Long groupId)
+	private void addGroupInformationSection(final Integer groupId)
 	{
 		setDefaultModel(createModelForOverview(oiRulesGroupDao, groupId));
 		
@@ -66,7 +62,7 @@ public class OIGroupDetailPage extends FrontendPage
 		add(new Label("description"));
 	}
 	
-	private void addOIRulesSection(final Long groupId) 
+	private void addOIRulesSection(final Integer groupId) 
 	{
 		add(
 			new RedirectWithParamButton(
@@ -79,7 +75,7 @@ public class OIGroupDetailPage extends FrontendPage
 		addOIRulesTable(groupId);
 	}
 
-	private void addOIRulesTable(final Long groupId) 
+	private void addOIRulesTable(final Integer groupId) 
 	{
 		SortableDataProvider<OIRule> data = new DependentSortableDataProvider<OIRule>
 		(

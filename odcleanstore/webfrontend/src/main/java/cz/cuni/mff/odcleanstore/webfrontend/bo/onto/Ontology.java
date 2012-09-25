@@ -3,7 +3,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo.onto;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.RDFGraphEntity;
 
 /**
- * Business entity reprezenting a ontology.
+ * Business entity representing a ontology.
  * 
  * @author Tomas Soukup
  */
@@ -14,7 +14,7 @@ public class Ontology extends RDFGraphEntity
 	private String label;
 	private String description;
 	
-	public Ontology(Long id, String label, String description, String graphName) 
+	public Ontology(Integer id, String label, String description, String graphName) 
 	{
 		super(id, graphName);
 		this.label = label;
@@ -23,6 +23,7 @@ public class Ontology extends RDFGraphEntity
 	
 	public Ontology()
 	{
+		super();
 	}
 	
 	public String getLabel() 

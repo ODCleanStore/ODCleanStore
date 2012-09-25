@@ -82,13 +82,13 @@ public class SafetyDaoDecoratorForEntityWithSurrogateKey<T extends EntityWithSur
 	}
 	
 	@Override
-	public T loadRaw(Long id)
+	public T loadRaw(Integer id)
 	{
 		return dao.loadRaw(id);
 	}
 	
 	@Override
-	public T load(Long id)
+	public T load(Integer id)
 	{
 		return dao.load(id);
 	}
@@ -133,7 +133,7 @@ public class SafetyDaoDecoratorForEntityWithSurrogateKey<T extends EntityWithSur
 	}
 	
 	@Override
-	public long saveAndGetKey(final T item) throws Exception
+	public int saveAndGetKey(final T item) throws Exception
 	{
 		
 		final SimpleKeyHolder keyHolder = new SimpleKeyHolder();
@@ -146,7 +146,7 @@ public class SafetyDaoDecoratorForEntityWithSurrogateKey<T extends EntityWithSur
 				{
 					try {
 						dao.save(item);
-						long insertId = dao.getLastInsertId();
+						int insertId = dao.getLastInsertId();
 						keyHolder.setKey(insertId);
 					}
 					catch (Exception ex) {
@@ -197,7 +197,7 @@ public class SafetyDaoDecoratorForEntityWithSurrogateKey<T extends EntityWithSur
 	}
 	
 	@Override
-	public void deleteRaw(Long id) throws Exception
+	public void deleteRaw(Integer id) throws Exception
 	{
 		// note that there is no need to surround the deleteRaw operation by 
 		// a transaction, as every delete is realized using a single
@@ -208,7 +208,7 @@ public class SafetyDaoDecoratorForEntityWithSurrogateKey<T extends EntityWithSur
 	}
 	
 	@Override
-	public void delete(final Long id) throws Exception
+	public void delete(final Integer id) throws Exception
 	{
 		try
 		{

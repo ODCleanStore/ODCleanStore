@@ -25,3 +25,5 @@ INSERT INTO DB.ODCLEANSTORE.DN_RULE_COMPONENTS (id, ruleId, typeId, modification
 	'{?a <http://example.com/#test> ?b} WHERE {GRAPH $$$$graph$$$$ {?a ?b ?c} FILTER (contains(str(?c), "*******"))}', 
 	'');
 
+
+
