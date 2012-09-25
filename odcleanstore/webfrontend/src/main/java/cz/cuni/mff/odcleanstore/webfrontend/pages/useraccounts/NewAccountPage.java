@@ -75,16 +75,19 @@ public class NewAccountPage extends FrontendPage
 				}
 				catch (DaoException ex) 
 				{
+					logger.error(ex.getMessage());
 					getSession().error(ex.getMessage());
 					return;
 				}
 				catch (MessagingException ex)
 				{
+					logger.error(ex.getMessage());
 					getSession().error(ex.getMessage());
 					return;
 				}
 				catch (Exception ex)
 				{
+					logger.error(ex.getMessage());
 					getSession().error("The user account could not be created due to an unexpected error.");
 					return;
 				}
