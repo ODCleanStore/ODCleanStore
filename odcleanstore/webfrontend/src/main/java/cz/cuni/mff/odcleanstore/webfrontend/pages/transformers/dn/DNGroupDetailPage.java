@@ -202,7 +202,7 @@ public class DNGroupDetailPage extends FrontendPage
 				item.add(
 					new RedirectWithParamButton
 					(
-						EditDNRulePage.class, // TODO: the class is to be changed
+						EditDNReplaceTemplateInstancePage.class,
 						instance.getId(),
 						"showEditDNReplaceTemplateInstancePage"
 					)
