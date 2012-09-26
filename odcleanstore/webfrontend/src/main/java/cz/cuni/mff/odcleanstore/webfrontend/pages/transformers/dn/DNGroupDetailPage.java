@@ -10,6 +10,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNReplaceTemplateInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRenameTemplateInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
@@ -19,6 +20,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRenameTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNReplaceTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
@@ -35,6 +37,7 @@ public class DNGroupDetailPage extends FrontendPage
 	private DaoForEntityWithSurrogateKey<DNRulesGroup> dnRulesGroupDao;
 	private DaoForEntityWithSurrogateKey<DNRule> dnRuleDao;
 	private DaoForEntityWithSurrogateKey<DNReplaceTemplateInstance> dnReplaceTemplateInstanceDao;
+	private DaoForEntityWithSurrogateKey<DNRenameTemplateInstance> dnRenameTemplateInstanceDao;
 
 	public DNGroupDetailPage(final Integer groupId) 
 	{
@@ -48,25 +51,22 @@ public class DNGroupDetailPage extends FrontendPage
 		dnRulesGroupDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNRulesGroupDao.class);
 		dnRuleDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNRuleDao.class);
 		dnReplaceTemplateInstanceDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNReplaceTemplateInstanceDao.class);
+		dnRenameTemplateInstanceDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNRenameTemplateInstanceDao.class);
 		
 		// register page components
 		//
 		addHelpWindow("rulesGroupHelpWindow", "openRulesGroupHelpWindow", new RulesGroupHelpPanel("content"));
 		addHelpWindow("dnRuleHelpWindow", "openDNRuleHelpWindow", new DNRuleHelpPanel("content"));
 		addHelpWindow("dnReplaceTemplateInstanceHelpWindow", "openDNReplaceTemplateInstanceHelpWindow", new DNReplaceTemplateInstanceHelpPanel("content"));
+		addHelpWindow("dnRenameTemplateInstanceHelpWindow", "openDNRenameTemplateInstanceHelpWindow", new DNRenameTemplateInstanceHelpPanel("content"));
 		
 		addGroupInformationSection(groupId);
 		
 		addDNRawRulesSection(groupId);
 		addDNReplaceTemplateInstancesSection(groupId);
+		addDNRenameTemplateInstancesSection(groupId);
 	}
-	
-	/*
-	 	=======================================================================
-	 	Implementace qaRulesTable
-	 	=======================================================================
-	*/
-	
+
 	private void addGroupInformationSection(final Integer groupId)
 	{
 		setDefaultModel(createModelForOverview(dnRulesGroupDao, groupId));
@@ -216,5 +216,79 @@ public class DNGroupDetailPage extends FrontendPage
 		add(dataView);
 		
 		add(new UnobtrusivePagingNavigator("replaceTemplateInstancesNavigator", dataView));
+	}
+	
+	private void addDNRenameTemplateInstancesSection(final Integer groupId) 
+	{
+		add(
+			new RedirectWithParamButton(
+				NewDNRenameTemplateInstancePage.class,
+				groupId, 
+				"addNewRenameTemplateInstanceLink"
+			)
+		);
+		
+		addDNRenameTemplateInstancesTable(groupId);
+	}
+	
+	private void addDNRenameTemplateInstancesTable(final Integer groupId)
+	{
+		IDataProvider<DNRenameTemplateInstance> data = new DependentDataProvider<DNRenameTemplateInstance>
+		(
+			dnRenameTemplateInstanceDao, 
+			"groupId", 
+			groupId
+		);
+	
+		DataView<DNRenameTemplateInstance> dataView = new DataView<DNRenameTemplateInstance>("dnRenameTemplateInstancesTable", data)
+		{
+			private static final long serialVersionUID = 1L;
+			
+			@Override
+			protected void populateItem(Item<DNRenameTemplateInstance> item) 
+			{
+				DNRenameTemplateInstance instance = item.getModelObject();
+				
+				item.setModel(new CompoundPropertyModel<DNRenameTemplateInstance>(instance));
+	
+				item.add(new TruncatedLabel("sourcePropertyName", MAX_LIST_COLUMN_TEXT_LENGTH));
+				item.add(new TruncatedLabel("targetPropertyName", MAX_LIST_COLUMN_TEXT_LENGTH));
+				
+				item.add(
+					new DeleteRawButton<DNRenameTemplateInstance>
+					(
+						dnRenameTemplateInstanceDao,
+						instance.getId(),
+						"renameTemplateInstance",
+						new DeleteConfirmationMessage("rename template instance"),
+						DNGroupDetailPage.this
+					)
+				);
+				
+				item.add(
+					new RedirectWithParamButton
+					(
+						DNRenameTemplateInstanceDetailPage.class,
+						instance.getId(), 
+						"showDNRenameTemplateInstanceDetailPage"
+					)
+				);
+				
+				item.add(
+					new RedirectWithParamButton
+					(
+						EditDNRenameTemplateInstancePage.class,
+						instance.getId(),
+						"showEditDNRenameTemplateInstancePage"
+					)
+				);
+			}
+		};
+		
+		dataView.setItemsPerPage(ITEMS_PER_PAGE);
+		
+		add(dataView);
+		
+		add(new UnobtrusivePagingNavigator("renameTemplateInstancesNavigator", dataView));
 	}
 }

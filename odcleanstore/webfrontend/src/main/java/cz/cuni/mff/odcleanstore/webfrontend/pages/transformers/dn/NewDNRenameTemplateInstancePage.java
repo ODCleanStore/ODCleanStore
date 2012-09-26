@@ -8,70 +8,74 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.validation.validator.RangeValidator;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRenameTemplateInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNReplaceTemplateInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRenameTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNReplaceTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.OIRuleHelpPanel;
 
 @AuthorizeInstantiation({ "PIC" })
-public class EditDNReplaceTemplateInstancePage extends FrontendPage
+public class NewDNRenameTemplateInstancePage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 	
-	private static Logger logger = Logger.getLogger(NewDNReplaceTemplateInstancePage.class);
+	private static Logger logger = Logger.getLogger(NewDNRenameTemplateInstancePage.class);
 	
-	private DaoForEntityWithSurrogateKey<DNReplaceTemplateInstance> dnReplaceTemplateInstanceDao;
+	private DaoForEntityWithSurrogateKey<DNRenameTemplateInstance> dnRenameTemplateInstanceDao;
 	
-	public EditDNReplaceTemplateInstancePage(final Integer ruleId) 
+	public NewDNRenameTemplateInstancePage(final Integer groupId) 
 	{
 		super(
-			"Home > Backend > DN > Groups > Replace template instances > Edit", 
-			"Edit a DN replace template instance"
+			"Home > Backend > DN > Groups > Rename template instances > New", 
+			"Add a new DN rename template instance"
 		);
 		
 		// prepare DAO objects
 		//
-		this.dnReplaceTemplateInstanceDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNReplaceTemplateInstanceDao.class);
+		this.dnRenameTemplateInstanceDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNRenameTemplateInstanceDao.class);
 		
 		// register page components
 		//
-		addHelpWindow(new DNReplaceTemplateInstanceHelpPanel("content"));
-		
-		DNReplaceTemplateInstance instance = dnReplaceTemplateInstanceDao.load(ruleId);
+		addHelpWindow(new DNRenameTemplateInstanceHelpPanel("content"));
 		
 		add(
 			new RedirectWithParamButton(
 				DNGroupDetailPage.class,
-				instance.getGroupId(), 
+				groupId, 
 				"manageGroupRules"
 			)
 		);
 		
-		addEditDNReplaceTemplateInstanceForm(instance);
+		addNewDNRuleForm(groupId);
 	}
 
-	private void addEditDNReplaceTemplateInstanceForm(final DNReplaceTemplateInstance instance)
+	private void addNewDNRuleForm(final Integer groupId)
 	{
-		IModel<DNReplaceTemplateInstance> formModel = new CompoundPropertyModel<DNReplaceTemplateInstance>(instance);
+		IModel<DNRenameTemplateInstance> formModel = new CompoundPropertyModel<DNRenameTemplateInstance>(
+			new DNRenameTemplateInstance()
+		);
 		
-		Form<DNReplaceTemplateInstance> form = new Form<DNReplaceTemplateInstance>("editDNReplaceTemplateInstanceForm", formModel)
+		Form<DNRenameTemplateInstance> form = new Form<DNRenameTemplateInstance>("newDNRenameTemplateInstanceForm", formModel)
 		{
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected void onSubmit()
 			{
-				DNReplaceTemplateInstance instance = this.getModelObject();
+				DNRenameTemplateInstance instance = this.getModelObject();
+				instance.setGroupId(groupId);
 				
 				try {
-					dnReplaceTemplateInstanceDao.update(instance);
+					dnRenameTemplateInstanceDao.save(instance);
 				}
 				catch (DaoException ex)
 				{
@@ -83,20 +87,19 @@ public class EditDNReplaceTemplateInstancePage extends FrontendPage
 					logger.error(ex.getMessage());
 					
 					getSession().error(
-						"The replace template instance could not be updated due to an unexpected error."
+						"The rename template instance could not be registered due to an unexpected error."
 					);
 					
 					return;
 				}
 				
-				getSession().info("The replace template instance was successfuly updated.");
-				setResponsePage(new DNGroupDetailPage(instance.getGroupId()));
+				getSession().info("The rename template instance was successfuly registered.");
+				setResponsePage(new DNGroupDetailPage(groupId));
 			}
 		};
 		
-		form.add(createTextfield("propertyName"));
-		form.add(createTextfield("pattern"));
-		form.add(createTextfield("replacement"));
+		form.add(createTextfield("sourcePropertyName"));
+		form.add(createTextfield("targetPropertyName"));
 		
 		add(form);
 	}

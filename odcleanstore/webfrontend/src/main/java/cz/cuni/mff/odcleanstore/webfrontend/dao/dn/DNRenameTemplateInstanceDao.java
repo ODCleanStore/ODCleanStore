@@ -35,8 +35,8 @@ public class DNRenameTemplateInstanceDao extends DaoForEntityWithSurrogateKey<DN
 	public void save(DNRenameTemplateInstance item) 
 	{
 		String query = 
-			"INSERT INTO " + TABLE_NAME + " (groupId, sourcePropertyName, targetPropertyName) " +
-			"VALUES (?, ?, ?, ?, ?)";
+			"INSERT INTO " + TABLE_NAME + " (groupId, rawRuleId, sourcePropertyName, targetPropertyName) " +
+			"VALUES (?, ?, ?, ?)";
 		
 		Object[] params =
 		{

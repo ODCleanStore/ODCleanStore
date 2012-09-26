@@ -3,6 +3,7 @@
 <div wicket:id="rulesGroupHelpWindow"></div>
 <div wicket:id="dnRuleHelpWindow"></div>
 <div wicket:id="dnReplaceTemplateInstanceHelpWindow"></div>
+<div wicket:id="dnRenameTemplateInstanceHelpWindow"></div>
 
 <wicket:link>
 <div>
@@ -81,6 +82,37 @@
 			<input wicket:id="deleteReplaceTemplateInstance" type="button" value="Delete" />
 			<input wicket:id="showDNReplaceTemplateInstanceDetailPage" type="button" value="Detail" />
 			<input wicket:id="showEditDNReplaceTemplateInstancePage" type="button" value="Edit" />
+		</td>
+	</tr>
+</table>
+
+<h2>Rename rules</h2>
+
+<div>
+	<a class="placedright button" href="#" wicket:id="addNewRenameTemplateInstanceLink">Add a new rename rule</a>
+	<div class="clear">&nbsp;</div>
+</div>
+
+<span class="navigation" wicket:id="renameTemplateInstancesNavigator">[dataview navigator]</span>
+<a wicket:id="openDNRenameTemplateInstanceHelpWindow"class="help">Help</a>
+
+<table border="1">
+	
+	<tr>
+		<th>Source property name</th>
+		<th>Target property name</th>
+		<th>Action</th>
+	</tr>
+	
+	<tr wicket:id="dnRenameTemplateInstancesTable">
+	
+		<td wicket:id="sourcePropertyName">[source property name]</td>
+		<td wicket:id="targetPropertyName">[target property name]</td>
+		
+		<td class="centered">
+			<input wicket:id="deleteRenameTemplateInstance" type="button" value="Delete" />
+			<input wicket:id="showDNRenameTemplateInstanceDetailPage" type="button" value="Detail" />
+			<input wicket:id="showEditDNRenameTemplateInstancePage" type="button" value="Edit" />
 		</td>
 	</tr>
 </table>
