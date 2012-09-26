@@ -2,7 +2,6 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -18,6 +17,13 @@ public class Role extends EntityWithSurrogateKey
 	
 	/** Administrator. */
 	public static final String ADM = "ADM";
+	
+	/** 
+	 * Administrator.
+	 * Same as administrator, but intended for use in @AuthorizeInstantiation for pages related to pipeline editing,
+	 * in order to make it easier to extract it to another role in future.  
+	 */
+	public static final String ADM_PIC = "ADM";
 	
 	/** Pipeline creator. */
 	public static final String PIC = "PIC";

@@ -22,7 +22,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-@AuthorizeInstantiation({ Role.PIC })
+@AuthorizeInstantiation({ Role.PIC, Role.ADM_PIC })
 public class PipelineDetailPage extends FrontendPage 
 {
 	private static final long serialVersionUID = 1L;
