@@ -1,11 +1,24 @@
 <wicket:panel>
 
 	<h1>QA rule</h1>
-	
-	<p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>
-	
-	<p>Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.</p>
-	
-	<p>Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.</p>
+
+	<wicket:link>
+		<p>Each rule consists of a <em>GroupGraphPattern</em><sup><a href="#GroupGraphPattern">1</a></sup> filter, quality decrease coefficient and description, as described in the following table.</p>
+
+		<table>
+			<tr><th>Filter</th><th>Coefficient</th><th>Description</th></tr>
+			<tr><td><em>GroupGraphPattern</em> [GROUP BY ... [HAVING ...]]</td><td>x in [0, 1]</td><td>description</td></tr>
+			<tr><th colspan="3">Example</th></tr>
+			<tr><td>{{?s anatomy:limbs ?o} FILTER (?o > 4)}</td><td>0.4</td><td>To many limbs</td></tr>
+		</table>
+
+		<p>Any snippet of SPARQL<sup><a href="#SPARQL">2</a></sup> to which "SELECT * FROM ... WHERE" can be prepended is a valid filter and describes a property of a named graph that the author of the rule finds defective.</p>
+		
+		<hr />
+		<ol>
+			<li><a id="GroupGraphPattern" href="http://www.w3.org/TR/rdf-sparql-query/#rGroupGraphPattern">http://www.w3.org/TR/rdf-sparql-query/#rGroupGraphPattern</a></li>
+			<li><a id="SPARQL" href="http://www.w3.org/TR/rdf-sparql-query/#grammar">http://www.w3.org/TR/rdf-sparql-query/#grammar</a></li>
+		</ol>
+	</wicket:link>
 
 </wicket:panel>
