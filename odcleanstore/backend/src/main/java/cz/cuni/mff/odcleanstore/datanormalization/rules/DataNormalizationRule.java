@@ -12,14 +12,20 @@ public class DataNormalizationRule {
 	public enum EnumRuleComponentType {
 		RULE_COMPONENT_INSERT {
 			@Override
-            public String toString() {
+			public String toString() {
 				return "INSERT";
 			}
 		},
 		RULE_COMPONENT_DELETE {
 			@Override
-            public String toString() {
+			public String toString() {
 				return "DELETE";
+			}
+		},
+		RULE_COMPONENT_MODIFY {
+			@Override
+			public String toString() {
+				return "MODIFY";
 			}
 		}
 	}
@@ -70,6 +76,9 @@ public class DataNormalizationRule {
 				break;
 			case RULE_COMPONENT_DELETE:
 				output = "SPARQL DEFINE input:default-graph-uri <" + graph + "> DELETE FROM " + output;
+				break;
+			case RULE_COMPONENT_MODIFY:
+				output = "SPARQL DEFINE input:default-graph-uri <" + graph + "> MODIFY " + output;
 				break;
 			}
 
@@ -147,6 +156,8 @@ public class DataNormalizationRule {
 			addComponent(EnumRuleComponentType.RULE_COMPONENT_INSERT, modification, description);
 		} else if (type.equals("DELETE")) {
 			addComponent(EnumRuleComponentType.RULE_COMPONENT_DELETE, modification, description);
+		} else if (type.equals("MODIFY")) {
+			addComponent(EnumRuleComponentType.RULE_COMPONENT_MODIFY, modification, description);
 		} else {
 			throw new DataNormalizationException("Unknown Data Normalization Rule type");
 		}

@@ -560,7 +560,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 			 */
 			DataNormalizationConfig config = ConfigLoader.getConfig().getDataNormalizationGroup();
 
-			UniqueGraphNameGenerator generator = new UniqueGraphNameGenerator(config.getTemporaryGraphURIPrefix() + "/" + this.getClass().getSimpleName() + "/diff/", context.getDirtyDatabaseCredentials());
+			UniqueGraphNameGenerator generator = new UniqueGraphNameGenerator(config.getTemporaryGraphURIPrefix() + this.getClass().getSimpleName() + "/diff/", context.getDirtyDatabaseCredentials());
 			String original = "";
 			String modified = "";
 

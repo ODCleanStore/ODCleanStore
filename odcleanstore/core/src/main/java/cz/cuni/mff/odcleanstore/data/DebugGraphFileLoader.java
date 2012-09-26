@@ -41,7 +41,7 @@ public class DebugGraphFileLoader {
 	}
 	
 	private static String getInputBaseURI(String temporaryGraphURIPrefix, String discriminator) {
-		return temporaryGraphURIPrefix + "/" + discriminator + "/input/";
+		return temporaryGraphURIPrefix + discriminator + "/input/";
 	}
 	
 	public HashMap<String, String> load(InputStream input, String discriminator) throws Exception {
