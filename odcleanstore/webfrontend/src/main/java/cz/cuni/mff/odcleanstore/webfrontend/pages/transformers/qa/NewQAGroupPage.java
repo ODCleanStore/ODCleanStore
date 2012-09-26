@@ -49,6 +49,7 @@ public class NewQAGroupPage extends FrontendPage
 			protected void onSubmit()
 			{
 				QARulesGroup group = this.getModelObject();
+				group.setAuthorId(getODCSSession().getUser().getId());
 				
 				int insertId;
 				try {

@@ -49,6 +49,7 @@ public class NewDNGroupPage extends FrontendPage
 			protected void onSubmit()
 			{
 				DNRulesGroup group = this.getModelObject();
+				group.setAuthorId(getODCSSession().getUser().getId());
 				
 				int insertId;
 				try {

@@ -49,6 +49,7 @@ public class NewOIGroupPage extends FrontendPage
 			protected void onSubmit()
 			{
 				OIRulesGroup group = this.getModelObject();
+				group.setAuthorId(getODCSSession().getUser().getId());
 				
 				int insertId;
 				try {

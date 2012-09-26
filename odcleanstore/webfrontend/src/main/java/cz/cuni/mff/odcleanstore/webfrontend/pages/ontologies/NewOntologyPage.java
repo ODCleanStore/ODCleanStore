@@ -56,6 +56,7 @@ public class NewOntologyPage extends FrontendPage
 			protected void onSubmit()
 			{
 				Ontology ontology = this.getModelObject();
+				ontology.setAuthorId(getODCSSession().getUser().getId());
 				
 				try {
 					ontologyDao.save(ontology);

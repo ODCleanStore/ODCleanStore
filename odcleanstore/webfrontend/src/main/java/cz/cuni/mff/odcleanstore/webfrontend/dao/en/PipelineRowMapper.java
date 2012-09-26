@@ -18,7 +18,8 @@ public class PipelineRowMapper extends CustomRowMapper<Pipeline>
 			blobToString(rs.getBlob("label")),
 			blobToString(rs.getBlob("description")),
 			rs.getBoolean("isDefault"),
-			rs.getBoolean("isLocked")
+			rs.getBoolean("isLocked"),
+			rs.getInt("authorId")
 		);
 	}
 }

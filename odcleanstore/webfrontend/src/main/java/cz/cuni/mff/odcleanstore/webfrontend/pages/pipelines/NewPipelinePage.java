@@ -50,6 +50,7 @@ public class NewPipelinePage extends FrontendPage
 			protected void onSubmit()
 			{
 				Pipeline pipeline = this.getModelObject();
+				pipeline.setAuthorId(getODCSSession().getUser().getId());
 				int insertId;
 				try 
 				{

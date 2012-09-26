@@ -36,6 +36,7 @@ public class PipelineDao extends DaoForEntityWithSurrogateKey<Pipeline>
 	@Override
 	public Pipeline load(Integer id)
 	{
+		// TODO: lazy loading?
 		Pipeline pipeline = loadRaw(id);
 		pipeline.setTransformers(loadTransformers(id));
 		return pipeline;
@@ -60,14 +61,15 @@ public class PipelineDao extends DaoForEntityWithSurrogateKey<Pipeline>
 	public void save(Pipeline item) 
 	{
 		String query = 
-			"INSERT INTO " + TABLE_NAME + " (label, description, isDefault) " +
-			"VALUES (?, ?, ?)";
+			"INSERT INTO " + TABLE_NAME + " (label, description, isDefault, authorId) " +
+			"VALUES (?, ?, ?, ?)";
 		
 		Object[] params =
 		{
 			item.getLabel(),
 			item.getDescription(),
-			Boolean.FALSE
+			Boolean.FALSE,
+			item.getAuthorId()
 		};
 		
 		getCleanJdbcTemplate().update(query, params);

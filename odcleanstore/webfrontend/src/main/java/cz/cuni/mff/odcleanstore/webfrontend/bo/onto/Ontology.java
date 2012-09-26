@@ -13,12 +13,14 @@ public class Ontology extends RDFGraphEntity
 	
 	private String label;
 	private String description;
+	private Integer authorId;
 	
-	public Ontology(Integer id, String label, String description, String graphName) 
+	public Ontology(Integer id, String label, String description, String graphName, Integer authorId) 
 	{
 		super(id, graphName);
 		this.label = label;
 		this.description = description;
+		this.authorId = authorId;
 	}
 	
 	public Ontology()
@@ -34,5 +36,19 @@ public class Ontology extends RDFGraphEntity
 	public String getDescription() 
 	{
 		return description;
+	}
+	
+	public Integer getAuthorId() 
+	{
+		return authorId;
+	}
+	
+	/**
+	 * 
+	 * @param authorId
+	 */
+	public void setAuthorId(Integer authorId) 
+	{
+		this.authorId = authorId;
 	}
 }

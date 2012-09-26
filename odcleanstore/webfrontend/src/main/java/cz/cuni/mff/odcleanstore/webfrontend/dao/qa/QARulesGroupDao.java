@@ -33,12 +33,13 @@ public class QARulesGroupDao extends DaoForEntityWithSurrogateKey<QARulesGroup>
 	@Override
 	public void save(QARulesGroup item)
 	{
-		String query = "INSERT INTO " + TABLE_NAME + " (label, description) VALUES (?, ?)";
+		String query = "INSERT INTO " + TABLE_NAME + " (label, description, authorId) VALUES (?, ?, ?)";
 		
 		Object[] params =
 		{
 			item.getLabel(),
-			item.getDescription()
+			item.getDescription(),
+			item.getAuthorId()
 		};
 		
 		logger.debug("label: " + item.getLabel());

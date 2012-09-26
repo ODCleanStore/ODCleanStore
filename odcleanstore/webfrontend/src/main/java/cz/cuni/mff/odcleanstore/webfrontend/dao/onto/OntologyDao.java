@@ -87,14 +87,15 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 	@Override
 	public void save(Ontology item) 
 	{
-		String query = "INSERT INTO " + TABLE_NAME + " (label, description, graphName) VALUES (?, ?, ?)";
+		String query = "INSERT INTO " + TABLE_NAME + " (label, description, graphName, authorId) VALUES (?, ?, ?, ?)";
 		
 		createGraphName(item);
 		Object[] params =
 		{
 			item.getLabel(),
 			item.getDescription(),
-			item.getGraphName()
+			item.getGraphName(),
+			item.getAuthorId()
 		};
 		
 		logger.debug("label: " + item.getLabel());

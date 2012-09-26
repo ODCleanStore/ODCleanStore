@@ -12,13 +12,15 @@ public class OIRulesGroup extends RulesGroupEntity
 	private String label;
 	private String description;
 	private List<OIRule> rules;
+	private Integer authorId;
 	
-	public OIRulesGroup(Integer id, String label, String description) 
+	public OIRulesGroup(Integer id, String label, String description, Integer authorId) 
 	{
 		super(id);
 		
 		this.label = label;
 		this.description = description;
+		this.authorId = authorId;
 		
 		this.rules = new LinkedList<OIRule>();
 	}
@@ -35,6 +37,20 @@ public class OIRulesGroup extends RulesGroupEntity
 	public String getDescription() 
 	{
 		return description;
+	}
+	
+	public Integer getAuthorId() 
+	{
+		return authorId;
+	}
+	
+	/**
+	 * 
+	 * @param authorId
+	 */
+	public void setAuthorId(Integer authorId) 
+	{
+		this.authorId = authorId;
 	}
 	
 	public void setRules(List<OIRule> rules)
