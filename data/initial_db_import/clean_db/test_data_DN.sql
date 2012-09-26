@@ -1,5 +1,5 @@
 -- GROUPS
-INSERT INTO DB.ODCLEANSTORE.DN_RULES_GROUPS (label, description) VALUES ('test group', 'this is a group for testing purposes');
+INSERT INTO DB.ODCLEANSTORE.DN_RULES_GROUPS (label, description, authorId) VALUES ('test group', 'this is a group for testing purposes', NULL);
 
 -- RULES
 INSERT INTO DB.ODCLEANSTORE.DN_RULES (id, groupId, description) VALUES (0, (SELECT id FROM DB.ODCLEANSTORE.DN_RULES_GROUPS WHERE label = 'test group'), '');
