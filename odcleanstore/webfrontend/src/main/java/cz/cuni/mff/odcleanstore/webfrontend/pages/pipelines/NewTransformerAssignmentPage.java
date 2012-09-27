@@ -53,7 +53,7 @@ public class NewTransformerAssignmentPage extends FrontendPage
 		
 		add(
 			new RedirectWithParamButton<String>(
-				PipelineDetailPage.class,
+				EditPipelinePage.class,
 				pipelineId, 
 				"managePipelineTransformers"
 			)

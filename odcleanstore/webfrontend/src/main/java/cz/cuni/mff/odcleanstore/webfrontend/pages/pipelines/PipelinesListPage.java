@@ -90,14 +90,6 @@ public class PipelinesListPage extends FrontendPage
 				
 				item.add(
 					new RedirectWithParamButton(
-						PipelineDetailPage.class,
-						pipeline.getId(), 
-						"managePipelineTransformers"
-					)
-				);
-				
-				item.add(
-					new RedirectWithParamButton(
 						EditPipelinePage.class,
 						pipeline.getId(), 
 						"showEditPipelinePage"

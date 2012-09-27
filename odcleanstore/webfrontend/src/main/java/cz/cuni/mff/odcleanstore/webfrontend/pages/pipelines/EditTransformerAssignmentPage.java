@@ -7,6 +7,7 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.validation.validator.RangeValidator;
+import org.dbunit.dataset.common.handlers.PipelineException;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
@@ -56,7 +57,7 @@ public class EditTransformerAssignmentPage extends FrontendPage
 		
 		add(
 			new RedirectWithParamButton(
-				PipelineDetailPage.class,
+				EditPipelinePage.class,
 				transformerInstance.getPipelineId(), 
 				"managePipelineTransformers"
 			)
@@ -97,7 +98,7 @@ public class EditTransformerAssignmentPage extends FrontendPage
 				}
 				
 				getSession().info("The assignment was successfuly updated.");
-				setResponsePage(new PipelineDetailPage(transformerInstance.getPipelineId()));
+				setResponsePage(new EditPipelinePage(transformerInstance.getPipelineId()));
 			}
 		};
 

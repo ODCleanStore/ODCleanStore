@@ -68,7 +68,7 @@ public class TransformerInstanceDetailPage extends FrontendPage
 		add(
 			new RedirectWithParamButton
 			(
-				PipelineDetailPage.class,
+				EditPipelinePage.class,
 				transformerInstance.getPipelineId(),
 				"showPipelineDetailPage"
 			)

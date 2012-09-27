@@ -32,13 +32,12 @@
 		<td wicket:id="isLocked" class="centered">[is locked]</td>
 		
 		<td class="actions">
-			<input wicket:id="deletePipeline" type="button" value="Delete" />
-			<input wicket:id="managePipelineTransformers" type="button" value="Detail" />
-			<input wicket:id="showEditPipelinePage" type="button" value="Edit" />
+			<input wicket:id="showEditPipelinePage" type="button" title="Edit pipeline and assigned transformers" value="Edit" />
 			<input wicket:id="markPipelineDefault" type="button" title="Mark as the default pipeline" value="Make default" />
 			<input wicket:id="lockPipeline" type="button" title="Lock pipeline for graph processing" value="Lock" />
 			<input wicket:id="unlockPipeline" type="button" title="Unlock pipeline for graph processing" value="Unlock" />
 			<input wicket:id="rerunAssociatedGraphs" type="button" title="Rerun pipeline on associated graphs in clean database" value="Rerun" />
+			<input wicket:id="deletePipeline" type="button" class="delete" title="Delete pipeline" value="Delete" />
 		</td>
 	</tr>
 </table>
