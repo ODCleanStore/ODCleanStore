@@ -37,7 +37,7 @@ public class NewDNRulePage extends FrontendPage
 		
 		add(
 			new RedirectWithParamButton(
-				DNGroupDetailPage.class,
+				EditDNGroupPage.class,
 				groupId, 
 				"manageGroupRules"
 			)

@@ -52,7 +52,7 @@ public class NewTransformerAssignmentPage extends FrontendPage
 		addHelpWindow(new TransformerInstanceHelpPanel("content"));
 		
 		add(
-			new RedirectWithParamButton<String>(
+			new RedirectWithParamButton(
 				EditPipelinePage.class,
 				pipelineId, 
 				"managePipelineTransformers"

@@ -66,7 +66,7 @@ public class OIRuleDetailPage extends FrontendPage
 		add(
 			new RedirectWithParamButton
 			(
-				OIGroupDetailPage.class, 
+				EditOIGroupPage.class, 
 				model.getObject().getGroupId(), 
 				"showOIRulesList"
 			)

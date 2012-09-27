@@ -62,7 +62,7 @@ public class DNRuleDetailPage extends FrontendPage
 		
 		add(
 			new RedirectWithParamButton(
-				DNGroupDetailPage.class, 
+				EditDNGroupPage.class, 
 				rule.getGroupId(),
 				"showDNGroupDetailPage"
 			)

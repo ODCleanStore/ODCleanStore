@@ -44,7 +44,7 @@ public class EditOIRulePage extends FrontendPage
 		
 		add(
 			new RedirectWithParamButton(
-				OIGroupDetailPage.class,
+				EditOIGroupPage.class,
 				rule.getGroupId(), 
 				"manageGroupRules"
 			)
@@ -86,7 +86,7 @@ public class EditOIRulePage extends FrontendPage
 				}
 				
 				getSession().info("The rule was successfuly updated.");
-				setResponsePage(new OIGroupDetailPage(rule.getGroupId()));
+				setResponsePage(new EditOIGroupPage(rule.getGroupId()));
 			}
 		};
 		

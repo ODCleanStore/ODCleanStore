@@ -49,7 +49,7 @@ public class QARuleDetailPage extends FrontendPage
 		
 		add(
 			new RedirectWithParamButton(
-				QAGroupDetailPage.class, 
+				EditQAGroupPage.class, 
 				rule.getGroupId(),
 				"showQAGroupDetailPage"
 			)

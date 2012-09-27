@@ -28,7 +28,6 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.TransformerInstanceD
 import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.TransformersListPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.prefixes.NewPrefixPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.prefixes.PrefixesListPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.DNGroupDetailPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.DNGroupsListPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.DNRuleComponentDetailPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.DNRuleDetailPage;
@@ -44,14 +43,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.NewDBOutputPag
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.NewFileOutputPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.NewOIGroupPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.NewOIRulePage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.OIGroupDetailPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.OIGroupsListPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.OIRuleDetailPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.EditQAGroupPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.EditQARulePage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.NewQAGroupPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.NewQARulePage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.QAGroupDetailPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.QAGroupsListPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.QARuleDetailPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts.AccountsListPage;
@@ -153,8 +150,7 @@ public class URLRouter
 	{
 		app.mountPage(webUrlPrefix + "/backend/oi/groups/list", OIGroupsListPage.class);
 		app.mountPage(webUrlPrefix + "/backend/oi/groups/new", NewOIGroupPage.class);
-		app.mountPage(webUrlPrefix + "/backend/oi/groups/edit", EditOIGroupPage.class);
-		app.mountPage(webUrlPrefix + "/backend/oi/groups/detail", OIGroupDetailPage.class);
+		app.mountPage(webUrlPrefix + "/backend/oi/groups/detail", EditOIGroupPage.class);
 		app.mountPage(webUrlPrefix + "/backend/oi/groups/rules/new", NewOIRulePage.class);
 		app.mountPage(webUrlPrefix + "/backend/oi/groups/rules/edit", EditOIRulePage.class);
 		app.mountPage(webUrlPrefix + "/backend/oi/groups/rules/detail", OIRuleDetailPage.class);
@@ -167,7 +163,6 @@ public class URLRouter
 		app.mountPage(webUrlPrefix + "/backend/qa/groups/list", QAGroupsListPage.class);
 		app.mountPage(webUrlPrefix + "/backend/qa/groups/new", NewQAGroupPage.class);
 		app.mountPage(webUrlPrefix + "/backend/qa/groups/edit", EditQAGroupPage.class);
-		app.mountPage(webUrlPrefix + "/backend/qa/groups/detail", QAGroupDetailPage.class);
 		app.mountPage(webUrlPrefix + "/backend/qa/groups/rules/new", NewQARulePage.class);
 		app.mountPage(webUrlPrefix + "/backend/qa/groups/rules/edit", EditQARulePage.class);
 		app.mountPage(webUrlPrefix + "/backend/qa/groups/rules/detail", QARuleDetailPage.class);
@@ -178,7 +173,6 @@ public class URLRouter
 		app.mountPage(webUrlPrefix + "/backend/dn/groups/list", DNGroupsListPage.class);
 		app.mountPage(webUrlPrefix + "/backend/dn/groups/new", NewDNGroupPage.class);
 		app.mountPage(webUrlPrefix + "/backend/dn/groups/edit", EditDNGroupPage.class);
-		app.mountPage(webUrlPrefix + "/backend/dn/groups/detail", DNGroupDetailPage.class);
 		app.mountPage(webUrlPrefix + "/backend/dn/groups/rules/new", NewDNRulePage.class);
 		app.mountPage(webUrlPrefix + "/backend/dn/groups/rules/edit", EditDNRulePage.class);
 		app.mountPage(webUrlPrefix + "/backend/dn/groups/rules/detail", DNRuleDetailPage.class);

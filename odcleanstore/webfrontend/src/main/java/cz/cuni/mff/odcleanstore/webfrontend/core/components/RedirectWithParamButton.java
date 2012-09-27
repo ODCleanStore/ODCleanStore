@@ -6,7 +6,7 @@ import org.apache.wicket.markup.html.link.Link;
 
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-public class RedirectWithParamButton<T> extends Link<T>
+public class RedirectWithParamButton extends Link<String>
 {
 	private static final long serialVersionUID = 1L;
 	
