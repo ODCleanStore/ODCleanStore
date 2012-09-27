@@ -1,6 +1,5 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa;
 
-import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
@@ -22,6 +21,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.TransformerInstanceDetailPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
 @AuthorizeInstantiation({ Role.PIC })
@@ -29,12 +29,17 @@ public class QAGroupDetailPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger(QAGroupDetailPage.class);
+	//private static Logger logger = Logger.getLogger(QAGroupDetailPage.class);
 	
 	private DaoForEntityWithSurrogateKey<QARulesGroup> qaRulesGroupDao;
 	private DaoForEntityWithSurrogateKey<QARule> qaRuleDao;
-
+	
 	public QAGroupDetailPage(final Integer groupId) 
+	{
+		this(groupId, null);
+	}
+
+	public QAGroupDetailPage(final Integer groupId, final Integer transformerInstanceId) 
 	{
 		super(
 			"Home > Backend > QA > Groups > Detail", 
@@ -48,10 +53,22 @@ public class QAGroupDetailPage extends FrontendPage
 		
 		// register page components
 		//
+		addBackToPipelineLink(transformerInstanceId);
 		addHelpWindow("rulesGroupHelpWindow", "openRulesGroupHelpWindow", new RulesGroupHelpPanel("content"));
 		addHelpWindow("qaRuleHelpWindow", "openQARuleHelpWindow", new QARuleHelpPanel("content"));
 		addGroupInformationSection(groupId);
 		addQARulesSection(groupId);
+	}
+	
+	private void addBackToPipelineLink(Integer transformerInstanceId) 
+	{
+		RedirectWithParamButton<String> link = new RedirectWithParamButton<String>(
+			TransformerInstanceDetailPage.class,
+			transformerInstanceId, 
+			"backToPipelineLink"
+		);
+		link.setVisible(transformerInstanceId != null);
+		add(link);
 	}
 
 	private void addGroupInformationSection(final Integer groupId)

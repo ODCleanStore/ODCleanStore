@@ -16,6 +16,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.RulesGroupEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.RuleAssignment;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AssignedGroupRedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.HelpWindow;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
@@ -131,10 +132,11 @@ public class AssignedGroupsList extends Panel
 				);
 				
 				item.add(
-					new RedirectWithParamButton
+					new AssignedGroupRedirectButton
 					(
 						groupDetailPageClass,
 						ruleAssignment.getGroupId(),
+						transformerInstanceId,
 						"showGroupDetailPage"
 					)
 				);

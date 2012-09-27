@@ -46,6 +46,11 @@ body
 	float: right;
 }
 
+div.placedright
+{
+	text-align: right;
+}
+
 .slim
 {
 	margin-top: 0px;
