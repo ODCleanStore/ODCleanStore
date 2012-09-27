@@ -179,7 +179,7 @@ public class DaoLookupFactory implements Serializable
 		if (cleanDataSource == null)
 		{
 			cleanDataSource = new VirtuosoDataSource();
-			cleanDataSource.setServerName(cleanConnectionCoords.getConnectionString());
+			cleanDataSource.setServerName(makeVirtuosoDataSourceConnectionString(cleanConnectionCoords.getConnectionString()));
 			cleanDataSource.setUser(cleanConnectionCoords.getUsername());
 			cleanDataSource.setPassword(cleanConnectionCoords.getPassword());
 			cleanDataSource.setCharset(CONNECTION_ENCODING);
@@ -197,13 +197,28 @@ public class DaoLookupFactory implements Serializable
 		if (dirtyDataSource == null)
 		{
 			dirtyDataSource = new VirtuosoDataSource();
-			dirtyDataSource.setServerName(dirtyConnectionCoords.getConnectionString());
+			dirtyDataSource.setServerName(makeVirtuosoDataSourceConnectionString(dirtyConnectionCoords.getConnectionString()));
 			dirtyDataSource.setUser(dirtyConnectionCoords.getUsername());
 			dirtyDataSource.setPassword(dirtyConnectionCoords.getPassword());
 			dirtyDataSource.setCharset(CONNECTION_ENCODING);
 		}
 		
 		return dirtyDataSource;
+	}
+
+	private String makeVirtuosoDataSourceConnectionString(String jdbcConnectionString) {
+		final String connectionPrefix = "jdbc:virtuoso://";
+		String result = jdbcConnectionString;
+		if (result.startsWith(connectionPrefix))
+		{
+			result = result.substring(connectionPrefix.length());
+		}
+		int paramsIndex = result.indexOf('/');
+		if (paramsIndex >= 0)
+		{
+			result = result.substring(0, paramsIndex);
+		}
+		return result;
 	}
 	
 	/**

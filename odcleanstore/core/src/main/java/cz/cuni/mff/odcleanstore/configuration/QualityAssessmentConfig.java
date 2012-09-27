@@ -29,7 +29,7 @@ public class QualityAssessmentConfig extends ConfigGroup {
         ParameterFormat<URI> formatURI = new FormatURI();
         URI aggregatedPublisherScoreGraphURI = loadParam(
                 properties, GROUP_PREFIX + "aggregated_publisher_score_graph_uri", formatURI);
-        URI temporaryGraphURIPrefix = loadParam(properties, "debug_temp_graph_uri_prefix", formatURI);
+        URI temporaryGraphURIPrefix = loadParam(properties, WebFrontendConfig.GROUP_PREFIX + "debug_temp_graph_uri_prefix", formatURI);
 
         return new QualityAssessmentConfig(aggregatedPublisherScoreGraphURI, temporaryGraphURIPrefix);
     }
