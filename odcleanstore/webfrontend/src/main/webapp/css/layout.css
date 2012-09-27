@@ -88,6 +88,7 @@ form
 label
 {
 	display: block;
+	padding-bottom: 5px;
 }
 
 textarea
