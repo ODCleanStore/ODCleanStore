@@ -3,14 +3,61 @@ package cz.cuni.mff.odcleanstore.webfrontend.core;
 import org.apache.wicket.protocol.http.WebApplication;
 
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LogInPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts.*;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.*;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.*;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.*;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.*;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.outputws.*;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.prefixes.*;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.ontologies.*;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.myaccount.EditPasswordPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.myaccount.MyAccountPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.ontologies.EditOntologyPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.ontologies.NewOntologyPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.ontologies.OntologiesListPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.ontologies.OntologyDetailPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.outputws.CRPropertiesListPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.outputws.EditGlobalAggregationSettingsPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.outputws.EditPropertyPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.outputws.NewPropertyPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.outputws.NewQELabelPropertyPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.outputws.QELabelPropertiesListPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.EditPipelinePage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.EditTransformerAssignmentPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.EditTransformerPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.NewGroupAssignmentPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.NewPipelinePage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.NewTransformerAssignmentPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.NewTransformerPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.PipelineDetailPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.PipelinesListPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.TransformerDetailPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.TransformerInstanceDetailPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.TransformersListPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.prefixes.NewPrefixPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.prefixes.PrefixesListPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.DNGroupDetailPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.DNGroupsListPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.DNRuleComponentDetailPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.DNRuleDetailPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.EditDNGroupPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.EditDNRuleComponentPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.EditDNRulePage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.NewDNGroupPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.NewDNRuleComponentPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.NewDNRulePage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.EditOIGroupPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.EditOIRulePage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.NewDBOutputPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.NewFileOutputPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.NewOIGroupPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.NewOIRulePage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.OIGroupDetailPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.OIGroupsListPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.OIRuleDetailPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.EditQAGroupPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.EditQARulePage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.NewQAGroupPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.NewQARulePage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.QAGroupDetailPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.QAGroupsListPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.QARuleDetailPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts.AccountsListPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts.EditAccountPermissionsPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts.NewAccountPage;
 
 /**
  * 
@@ -42,6 +89,7 @@ public class URLRouter
 		setupOutputWSRoutes(app);
 		setupURLPrefixesRoutes(app);
 		setupOntologiesRoutes(app);
+		setupMyAccountRoutes(app);
 	}
 
 	// 
@@ -191,5 +239,17 @@ public class URLRouter
 		app.mountPage(webUrlPrefix + "/ontologies/new", NewOntologyPage.class);
 		app.mountPage(webUrlPrefix + "/ontologies/edit", EditOntologyPage.class);
 		app.mountPage(webUrlPrefix + "/ontologies/detail", OntologyDetailPage.class);
+	}
+	
+	// 
+	// ------------------------------------------------------------------------
+	// MY ACCOUNT ROUTES
+	// ------------------------------------------------------------------------
+	//
+		
+	private void setupMyAccountRoutes(WebApplication app) 
+	{
+		app.mountPage(webUrlPrefix + "/user-account/my-account", MyAccountPage.class);
+		app.mountPage(webUrlPrefix + "/user-account/password", EditPasswordPage.class);
 	}
 }
