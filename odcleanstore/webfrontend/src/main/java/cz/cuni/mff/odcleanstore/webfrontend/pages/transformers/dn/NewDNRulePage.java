@@ -60,8 +60,9 @@ public class NewDNRulePage extends FrontendPage
 				DNRule rule = this.getModelObject();
 				rule.setGroupId(groupId);
 				
+				int insertId;
 				try {
-					dnRuleDao.save(rule);
+					insertId = dnRuleDao.saveAndGetKey(rule);
 				}
 				catch (DaoException ex)
 				{
@@ -80,7 +81,7 @@ public class NewDNRulePage extends FrontendPage
 				}
 				
 				getSession().info("The rule was successfuly registered.");
-				setResponsePage(new DNGroupDetailPage(groupId));
+				setResponsePage(new DNRuleDetailPage(insertId));
 			}
 		};
 		
