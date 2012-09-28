@@ -21,7 +21,7 @@
 		<th>Description</th>
 		<th wicket:id="sortByJARPath">JAR path</th>
 		<th wicket:id="sortByWorkDirPath">Working directory</th>
-		<th wicket:id="sortByFullClassName">Class</th>
+		<th wicket:id="sortByFullClassName">Java class</th>
 		<th>Action</th>
 	</tr>
 	
@@ -34,9 +34,8 @@
 		<td wicket:id="simpleClassName">[simpleClassName]</td>
 		
 		<td class="actions">
-			<input wicket:id="deleteTransformer" type="button" value="Delete" />
-			<input wicket:id="showTransformerDetailPage" type="button" value="Detail" />
 			<input wicket:id="showEditTransformerPage" type="button" value="Edit" />
+			<input wicket:id="deleteTransformer" type="button" value="Delete" class="delete" />
 		</td>
 	</tr>
 	

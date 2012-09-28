@@ -29,8 +29,8 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.ontologies.OntologiesListPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.outputws.AggregationSettingsPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.PipelinesListPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.TransformersListPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.prefixes.PrefixesListPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.TransformersListPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.OIGroupsListPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts.AccountsListPage;
 

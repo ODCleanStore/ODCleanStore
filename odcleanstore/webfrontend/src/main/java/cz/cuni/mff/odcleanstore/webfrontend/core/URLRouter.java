@@ -16,17 +16,16 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.outputws.NewQELabelPropertyPag
 import cz.cuni.mff.odcleanstore.webfrontend.pages.outputws.QELabelPropertiesListPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.EditPipelinePage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.EditTransformerAssignmentPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.EditTransformerPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.NewGroupAssignmentPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.NewPipelinePage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.NewTransformerAssignmentPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.NewTransformerPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.PipelinesListPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.TransformerDetailPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.TransformerInstanceDetailPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.TransformersListPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.prefixes.NewPrefixPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.prefixes.PrefixesListPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.EditTransformerPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.NewTransformerPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.TransformersListPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.DNGroupsListPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.DNRuleComponentDetailPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.DNRuleDetailPage;
@@ -131,7 +130,6 @@ public class URLRouter
 		app.mountPage(webUrlPrefix + "/backend/transformers/list", TransformersListPage.class);
 		app.mountPage(webUrlPrefix + "/backend/transformers/new", NewTransformerPage.class);
 		app.mountPage(webUrlPrefix + "/backend/transformers/edit", EditTransformerPage.class);
-		app.mountPage(webUrlPrefix + "/backend/transformers/detail", TransformerDetailPage.class);
 	}
 	
 	private void setupPipelinesRoutes(WebApplication app) 

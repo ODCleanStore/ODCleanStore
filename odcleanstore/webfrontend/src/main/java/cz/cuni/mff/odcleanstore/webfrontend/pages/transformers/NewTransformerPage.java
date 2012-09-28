@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
+package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
@@ -14,20 +14,20 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 @AuthorizeInstantiation({ Role.ADM })
-public class EditTransformerPage extends FrontendPage
+public class NewTransformerPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger(EditTransformerPage.class);
+	private static Logger logger = Logger.getLogger(NewTransformerPage.class);
 	
 	private DaoForEntityWithSurrogateKey<Transformer> transformerDao;
 	
-	public EditTransformerPage(final Integer id) 
+	public NewTransformerPage() 
 	{
 		super
 		(
-			"Home > Backend > Transformers > Edit", 
-			"Edit a transformer"
+			"Home > Backend > Transformers > New", 
+			"Register a new transformer"
 		);
 		
 
@@ -38,15 +38,14 @@ public class EditTransformerPage extends FrontendPage
 		// register page components
 		//
 		addHelpWindow(new TransformerHelpPanel("content"));
-		addEditTransformerForm(id);
+		addNewTransformerForm();
 	}
 	
-	private void addEditTransformerForm(final Integer id)
+	private void addNewTransformerForm()
 	{
-		Transformer transformer = transformerDao.load(id);
-		IModel<Transformer> formModel = new CompoundPropertyModel<Transformer>(transformer);
+		IModel<Transformer> formModel = new CompoundPropertyModel<Transformer>(new Transformer());
 		
-		Form<Transformer> form = new Form<Transformer>("editTransformerForm", formModel)
+		Form<Transformer> form = new Form<Transformer>("newTransformerForm", formModel)
 		{
 			private static final long serialVersionUID = 1L;
 
@@ -56,7 +55,7 @@ public class EditTransformerPage extends FrontendPage
 				Transformer transformer = this.getModelObject();
 				
 				try {
-					transformerDao.update(transformer);
+					transformerDao.save(transformer);
 				}
 				catch (DaoException ex)
 				{
@@ -68,13 +67,13 @@ public class EditTransformerPage extends FrontendPage
 					logger.error(ex.getMessage());
 					
 					getSession().error(
-						"The transformer could not be updated due to an unexpected error."
+						"The transformer could not be registered due to an unexpected error."
 					);
 					
 					return;
 				}
 				
-				getSession().info("The transformer was successfuly updated.");
+				getSession().info("The transformer was successfuly registered.");
 				setResponsePage(TransformersListPage.class);
 			}
 		};
@@ -83,6 +82,7 @@ public class EditTransformerPage extends FrontendPage
 		form.add(createTextfield("workDirPath"));
 		form.add(createTextarea("description", false));
 		form.add(createTextfield("jarPath"));
+		form.add(createTextfield("fullClassName"));
 		
 		add(form);
 	}
