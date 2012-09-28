@@ -105,8 +105,6 @@ public class EditPipelinePage extends FrontendPage
 	{
 		setDefaultModel(createModelForOverview(pipelineDao, pipelineId));
 		
-		add(new Label("label"));
-		add(new Label("description"));
 		add(new Label("isDefault"));
 	}
 
