@@ -10,6 +10,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNReplaceTemplateInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNFilterTemplateInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRenameTemplateInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRulesGroup;
@@ -20,6 +21,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNFilterTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRenameTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNReplaceTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleDao;
@@ -38,6 +40,7 @@ public class DNGroupDetailPage extends FrontendPage
 	private DaoForEntityWithSurrogateKey<DNRule> dnRuleDao;
 	private DaoForEntityWithSurrogateKey<DNReplaceTemplateInstance> dnReplaceTemplateInstanceDao;
 	private DaoForEntityWithSurrogateKey<DNRenameTemplateInstance> dnRenameTemplateInstanceDao;
+	private DaoForEntityWithSurrogateKey<DNFilterTemplateInstance> dnFilterTemplateInstanceDao;
 
 	public DNGroupDetailPage(final Integer groupId) 
 	{
@@ -52,6 +55,7 @@ public class DNGroupDetailPage extends FrontendPage
 		dnRuleDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNRuleDao.class);
 		dnReplaceTemplateInstanceDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNReplaceTemplateInstanceDao.class);
 		dnRenameTemplateInstanceDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNRenameTemplateInstanceDao.class);
+		dnFilterTemplateInstanceDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNFilterTemplateInstanceDao.class);
 		
 		// register page components
 		//
@@ -59,6 +63,7 @@ public class DNGroupDetailPage extends FrontendPage
 		addHelpWindow("dnRuleHelpWindow", "openDNRuleHelpWindow", new DNRuleHelpPanel("content"));
 		addHelpWindow("dnReplaceTemplateInstanceHelpWindow", "openDNReplaceTemplateInstanceHelpWindow", new DNReplaceTemplateInstanceHelpPanel("content"));
 		addHelpWindow("dnRenameTemplateInstanceHelpWindow", "openDNRenameTemplateInstanceHelpWindow", new DNRenameTemplateInstanceHelpPanel("content"));
+		addHelpWindow("dnFilterTemplateInstanceHelpWindow", "openDNFilterTemplateInstanceHelpWindow", new DNFilterTemplateInstanceHelpPanel("content"));
 		
 		addGroupInformationSection(groupId);
 		
@@ -303,6 +308,68 @@ public class DNGroupDetailPage extends FrontendPage
 			)
 		);
 		
-		// addDNRenameTemplateInstancesTable(groupId);
+		addDNFilterTemplateInstancesTable(groupId);
+	}
+	
+	private void addDNFilterTemplateInstancesTable(final Integer groupId)
+	{
+		IDataProvider<DNFilterTemplateInstance> data = new DependentDataProvider<DNFilterTemplateInstance>
+		(
+			dnFilterTemplateInstanceDao, 
+			"groupId", 
+			groupId
+		);
+	
+		DataView<DNFilterTemplateInstance> dataView = new DataView<DNFilterTemplateInstance>("dnFilterTemplateInstancesTable", data)
+		{
+			private static final long serialVersionUID = 1L;
+			
+			@Override
+			protected void populateItem(Item<DNFilterTemplateInstance> item) 
+			{
+				DNFilterTemplateInstance instance = item.getModelObject();
+				
+				item.setModel(new CompoundPropertyModel<DNFilterTemplateInstance>(instance));
+	
+				item.add(new TruncatedLabel("propertyName", MAX_LIST_COLUMN_TEXT_LENGTH));
+				item.add(new TruncatedLabel("pattern", MAX_LIST_COLUMN_TEXT_LENGTH));
+				item.add(new Label("keep"));
+				
+				item.add(
+					new DeleteRawButton<DNFilterTemplateInstance>
+					(
+						dnFilterTemplateInstanceDao,
+						instance.getId(),
+						"filterTemplateInstance",
+						new DeleteConfirmationMessage("filter template instance"),
+						DNGroupDetailPage.this
+					)
+				);
+				
+				item.add(
+					new RedirectWithParamButton
+					(
+						DNFilterTemplateInstanceDetailPage.class,
+						instance.getId(), 
+						"showDNFilterTemplateInstanceDetailPage"
+					)
+				);
+				
+				item.add(
+					new RedirectWithParamButton
+					(
+						EditDNFilterTemplateInstancePage.class,
+						instance.getId(),
+						"showEditDNFilterTemplateInstancePage"
+					)
+				);
+			}
+		};
+		
+		dataView.setItemsPerPage(ITEMS_PER_PAGE);
+		
+		add(dataView);
+		
+		add(new UnobtrusivePagingNavigator("filterTemplateInstancesNavigator", dataView));
 	}
 }
