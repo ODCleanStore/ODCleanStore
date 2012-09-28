@@ -1,46 +1,117 @@
 <wicket:extend>
 
-<div wicket:id="helpWindow"></div>
+<div wicket:id="oiRuleHelpWindow"></div>
+<div wicket:id="dbOutputHelpWindow"></div>
+<div wicket:id="fileOutputHelpWindow"></div>
 
 <div>
-	<a class="placedright button" href="#" wicket:id="manageGroupRules">Back to the group overview</a>
+	<a class="placedright button" href="#" wicket:id="showOIRulesList">Back to the group overview</a>
 	<div class="clear">&nbsp;</div>
 </div>
 
-<a wicket:id="openHelpWindow" class="help">Help</a>
+<a wicket:id="openOIRuleHelpWindow" class="help">Help</a>
 
+<div class="clear">&nbsp;</div>
+			
 <form wicket:id="editOIRuleForm">
-	<p>
-		<label for="label">Label:</label>
-		<input wicket:id="label" type="text" id="label" class="required" />
-	</p>
-	<p>
-		<label for="linkType">Link type:</label>
-		<input wicket:id="linkType" type="text" id="linkType" class="required" />
-	</p>
-	<p>
-		<label for="sourceRestriction">Source restriction:</label>
-		<input wicket:id="sourceRestriction" type="text" id="sourceRestriction" />
-	</p>
-	<p>
-		<label for="targetRestriction">Target restriction:</label>
-		<input wicket:id="targetRestriction" type="text" id="targetRestriction" />
-	</p>
-	<p>
-		<label for="linkageRule">Linkage rule:</label>
-		<textarea wicket:id="linkageRule" id="linkageRule" class="required"></textarea>
-	</p>
-	
-	<p>
-		<label for="filterThreshold">Filter threshold:</label>
-		<input wicket:id="filterThreshold" type="text" id="filterThreshold" />
-	</p>
-	<p>
-		<label for="filterLimit">Link limit:</label>
-		<input wicket:id="filterLimit" type="text" id="filterLimit" />
-	</p>
-	
-	<input type="submit" value="Submit" />
+    <p>
+        <label for="label">Label:</label>
+        <input wicket:id="label" type="text" id="label" class="required" />
+    </p>
+    <p>
+        <label for="linkType">Link type:</label>
+        <input wicket:id="linkType" type="text" id="linkType" class="required" />
+    </p>
+    <p>
+        <label for="sourceRestriction">Source restriction:</label>
+        <input wicket:id="sourceRestriction" type="text" id="sourceRestriction" />
+    </p>
+    <p>
+        <label for="targetRestriction">Target restriction:</label>
+        <input wicket:id="targetRestriction" type="text" id="targetRestriction" />
+    </p>
+    <p>
+        <label for="linkageRule">Linkage rule:</label>
+        <textarea wicket:id="linkageRule" id="linkageRule" class="required"></textarea>
+    </p>
+    
+    <p>
+        <label for="filterThreshold">Filter threshold:</label>
+        <input wicket:id="filterThreshold" type="text" id="filterThreshold" />
+    </p>
+    <p>
+        <label for="filterLimit">Link limit:</label>
+        <input wicket:id="filterLimit" type="text" id="filterLimit" />
+    </p>
+    
+    <input type="submit" value="Submit" />
 </form>
 
+<h2>Registered database outputs</h2>
+
+<div>
+	<a class="placedright button" href="#" wicket:id="showNewDBOutputPage">Add a new database output</a>
+	<div class="clear">&nbsp;</div>
+</div>
+
+<span wicket:id="dbOutputsNavigator">[dataview navigator]</span>
+<a wicket:id="openDBOutputHelpWindow" class="help">Help</a>
+
+<div class="clear">&nbsp;</div>
+
+<table border="1">
+	
+	<tr>
+		<th>Min confidence</th>
+		<th>Max confidence</th>
+		<th>Action</th>
+	</tr>
+	
+	<tr wicket:id="dbOutputsTable">
+	
+		<td wicket:id="minConfidence">[min confidence]</td>
+		<td wicket:id="maxConfidence">[max confidence]</td>
+		
+		<td class="actions">
+			<input wicket:id="showEditDBOutputPage" type="button" value="Edit" />
+			<input wicket:id="deleteDBOutput" type="button" value="Delete" class="delete" />
+		</td>
+	</tr>
+</table>
+
+<h2>Registered file outputs</h2>
+
+<div>
+	<a class="placedright button" href="#" wicket:id="showNewFileOutputPage">Add a new file output</a>
+	<div class="clear">&nbsp;</div>
+</div>
+
+<span wicket:id="fileOutputsNavigator">[dataview navigator]</span>
+<a wicket:id="openFileOutputHelpWindow"class="help">Help</a>
+
+<div class="clear">&nbsp;</div>
+
+<table border="1">
+	
+	<tr>
+		<th>Min confidence</th>
+		<th>Max confidence</th>
+		<th>Filename</th>
+		<th>File format</th>
+		<th>Action</th>
+	</tr>
+	
+	<tr wicket:id="fileOutputsTable">
+	
+		<td wicket:id="minConfidence">[min confidence]</td>
+		<td wicket:id="maxConfidence">[max confidence]</td>
+		<td wicket:id="filename">[filename]</td>
+		<td wicket:id="fileFormat">[file format]</td>
+		
+		<td class="actions">
+			<input wicket:id="showEditFileOutputPage" type="button" value="Edit" />
+			<input wicket:id="deleteFileOutput" type="button" value="Delete" class="delete"/>
+		</td>
+	</tr>
+</table>
 </wicket:extend>

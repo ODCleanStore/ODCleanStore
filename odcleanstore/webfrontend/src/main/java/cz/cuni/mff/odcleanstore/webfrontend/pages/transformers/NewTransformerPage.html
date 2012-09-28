@@ -11,7 +11,9 @@
 
 <a wicket:id="openHelpWindow"class="help">Help</a>
 
-<form wicket:id="editTransformerForm">
+<div class="clear">&nbsp;</div>
+
+<form wicket:id="newTransformerForm">
 	<p>
 		<label for="label">Label:</label>
 		<input wicket:id="label" id="label" type="text" class="required" />
@@ -27,6 +29,10 @@
 	<p>
 		<label for="jarPath">JAR path:</label>
 		<input wicket:id="jarPath" id="jarPath" type="text" class="required" />
+	</p>
+	<p>
+		<label for="fullClassName">Full classname:</label>
+		<input wicket:id="fullClassName" id="fullClassName" type="text" class="required" />
 	</p>
 	<input type="submit" value="Submit" />
 </form>

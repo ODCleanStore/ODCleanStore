@@ -16,9 +16,9 @@ import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.RulesGroupEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.RuleAssignment;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AssignedGroupRedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.HelpWindow;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
@@ -32,13 +32,13 @@ public class AssignedGroupsList extends Panel
 {
 	private static final long serialVersionUID = 1L;
 
-	private DaoForEntityWithSurrogateKey<RulesGroupEntity> groupsDao;
+	private DaoForEntityWithSurrogateKey<? extends RulesGroupEntity> groupsDao;
 	private DaoForEntityWithSurrogateKey<RuleAssignment> assignedGroupsDao;
 	
 	public AssignedGroupsList(
 		final String id, 
 		final Integer transformerInstanceId,
-		final DaoForEntityWithSurrogateKey<RulesGroupEntity> groupsDao,
+		final DaoForEntityWithSurrogateKey<? extends RulesGroupEntity> groupsDao,
 		final DaoForEntityWithSurrogateKey<RuleAssignment> assignedGroupsDao,
 		final Class<? extends FrontendPage> groupDetailPageClass,
 		final Class<? extends FrontendPage> newGroupPageClass)
@@ -63,7 +63,7 @@ public class AssignedGroupsList extends Panel
 		
 		add(helpWindow);
 		
-		add(new AjaxLink("openRulesGroupHelpWindow")
+		add(new AjaxLink<String>("openRulesGroupHelpWindow")
 		{
 			private static final long serialVersionUID = 1L;
 
@@ -77,8 +77,10 @@ public class AssignedGroupsList extends Panel
 	private void addNewAssignmentLink(final Integer transformerInstanceId)
 	{
 		add(
-			new Link("showNewGroupAssignmentPage")
+			new Link<String>("showNewGroupAssignmentPage")
 			{
+				private static final long serialVersionUID = 1L;
+
 				@Override
 				public void onClick() 
 				{
@@ -131,10 +133,11 @@ public class AssignedGroupsList extends Panel
 				);
 				
 				item.add(
-					new RedirectWithParamButton
+					new AssignedGroupRedirectButton
 					(
 						groupDetailPageClass,
 						ruleAssignment.getGroupId(),
+						transformerInstanceId,
 						"showGroupDetailPage"
 					)
 				);
@@ -150,10 +153,11 @@ public class AssignedGroupsList extends Panel
 		add(new UnobtrusivePagingNavigator("navigator", dataView));
 	}
 	
-	private Link createDeleteButton(final Integer transformerInstanceId, final Integer groupAssignmentId)
+	private Link<String> createDeleteButton(final Integer transformerInstanceId, final Integer groupAssignmentId)
 	{
-		Link button = new Link("deleteAssignment")
+		Link<String> button = new Link<String>("deleteAssignment")
 		{
+			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void onClick() 
@@ -171,7 +175,7 @@ public class AssignedGroupsList extends Panel
 				}
 		    	
 				getSession().info("The group assignment was successfuly deleted.");
-				setResponsePage(new TransformerInstanceDetailPage(transformerInstanceId));	
+				setResponsePage(new EditTransformerAssignmentPage(transformerInstanceId));	
 			}
 			
 		};

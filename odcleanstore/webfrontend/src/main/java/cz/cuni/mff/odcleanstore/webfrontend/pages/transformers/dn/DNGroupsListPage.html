@@ -12,6 +12,8 @@
 <span class="navigation" wicket:id="navigator">[dataview navigator]</span>
 <a wicket:id="openHelpWindow"class="help">Help</a>
 
+<div class="clear">&nbsp;</div>
+
 <table border="1">
 	
 	<tr>
@@ -25,11 +27,10 @@
 		<td wicket:id="label">[label]</td>
 		<td wicket:id="description">[description]</td>
 		
-		<td class="centered">
-			<input wicket:id="deleteGroup" type="button" value="Delete" />
-			<input wicket:id="manageRules" type="button" value="Detail" />
+		<td class="actions">
 			<input wicket:id="showEditDNGroupPage" type="button" value="Edit" />
 			<input wicket:id="rerunAffectedGraphs" type="button" value="Rerun affected graphs" />
+			<input wicket:id="deleteGroup" type="button" value="Delete" class="delete" />
 		</td>
 	</tr>
 </table>

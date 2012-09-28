@@ -2,7 +2,6 @@ package cz.cuni.mff.odcleanstore.webfrontend.validators;
 
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
 import org.apache.wicket.validation.IValidatable;
 
 public class IRIValidator extends CustomValidator
@@ -10,7 +9,7 @@ public class IRIValidator extends CustomValidator
 	private static final Pattern IRI_PATTERN = Pattern.compile("^[^<>\"{}|^`\\x00-\\x20]*$");
 	private static final long serialVersionUID = 1L;
 	
-	private static Logger logger = Logger.getLogger(IRIValidator.class);
+	//private static Logger logger = Logger.getLogger(IRIValidator.class);
 	
 	@Override
 	public void validate(IValidatable<String> validatable) 

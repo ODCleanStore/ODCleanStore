@@ -28,7 +28,7 @@ public class EditAccountPermissionsPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger(EditAccountPermissionsPage.class);
+	//private static Logger logger = Logger.getLogger(EditAccountPermissionsPage.class);
 	
 	private DaoForEntityWithSurrogateKey<User> userDao;
 	private DaoForEntityWithSurrogateKey<Role> roleDao;
@@ -64,7 +64,7 @@ public class EditAccountPermissionsPage extends FrontendPage
 	}
 }
 
-class UserPermissionsForm extends Form
+class UserPermissionsForm extends Form<UserPermissionsForm>
 {
 	private static final long serialVersionUID = 1L;
 

@@ -18,13 +18,13 @@ public class NewGroupAssignmentPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 	
-	private DaoForEntityWithSurrogateKey<RulesGroupEntity> groupsDao;
+	private DaoForEntityWithSurrogateKey<? extends RulesGroupEntity> groupsDao;
 	private DaoForEntityWithSurrogateKey<RuleAssignment> assignedGroupsDao;
 	
 	private RulesGroupEntity rulesGroup;
 	
 	public NewGroupAssignmentPage(
-		final DaoForEntityWithSurrogateKey<RulesGroupEntity> groupsDao,
+		final DaoForEntityWithSurrogateKey<? extends RulesGroupEntity> groupsDao,
 		final DaoForEntityWithSurrogateKey<RuleAssignment> assignedGroupsDao,
 		final Integer transformerInstanceId) 
 	{
@@ -48,7 +48,7 @@ public class NewGroupAssignmentPage extends FrontendPage
 	{
 		add(
 			new RedirectWithParamButton(
-				TransformerInstanceDetailPage.class, 
+				EditTransformerAssignmentPage.class, 
 				transformerInstanceId, 
 				"showTransformerInstanceDetailPage"
 			)
@@ -57,7 +57,7 @@ public class NewGroupAssignmentPage extends FrontendPage
 	
 	private void addNewAssignmentForm(final Integer transformerInstanceId)
 	{
-		Form form = new Form("newAssignmentForm", new CompoundPropertyModel(this))
+		Form<NewGroupAssignmentPage> form = new Form<NewGroupAssignmentPage>("newAssignmentForm", new CompoundPropertyModel<NewGroupAssignmentPage>(this))
 		{
 			private static final long serialVersionUID = 1L;
 
@@ -89,7 +89,7 @@ public class NewGroupAssignmentPage extends FrontendPage
 				}
 				
 				getSession().info("The group was successfuly assigned.");
-				setResponsePage(new TransformerInstanceDetailPage(transformerInstanceId));
+				setResponsePage(new EditTransformerAssignmentPage(transformerInstanceId));
 			}
 		};
 

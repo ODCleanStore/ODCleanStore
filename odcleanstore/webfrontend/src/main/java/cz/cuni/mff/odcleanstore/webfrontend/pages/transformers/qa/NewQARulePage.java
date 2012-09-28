@@ -39,7 +39,7 @@ public class NewQARulePage extends FrontendPage
 		
 		add(
 			new RedirectWithParamButton(
-				QAGroupDetailPage.class,
+				EditQAGroupPage.class,
 				groupId, 
 				"manageGroupRules"
 			)
@@ -82,7 +82,7 @@ public class NewQARulePage extends FrontendPage
 				}
 				
 				getSession().info("The rule was successfuly registered.");
-				setResponsePage(new QAGroupDetailPage(groupId));
+				setResponsePage(new EditQAGroupPage(groupId));
 			}
 		};
 		

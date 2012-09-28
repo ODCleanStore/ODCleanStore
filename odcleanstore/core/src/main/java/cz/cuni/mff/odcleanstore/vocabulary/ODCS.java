@@ -36,6 +36,21 @@ public final class ODCS {
     public static final String scoreTrace = NS + "scoreTrace";
 
     /**
+     * Property storing original values of particular property
+     */
+    public static final String propertyEndpointsBackup = NS + "propertyEndpointsBackup";
+
+    /**
+     * Property specifying subject of a property backup
+     */
+    public static final String propertySubjectBackup = NS + "propertySubjectBackup";
+
+    /**
+     * Property specifying object of a property backup
+     */
+    public static final String propertyObjectBackup = NS + "propertyObjectBackup";
+
+    /**
      * Property linking a publisher to its aggregated score.
      */
     public static final String publisherScore = NS + "publisherScore";

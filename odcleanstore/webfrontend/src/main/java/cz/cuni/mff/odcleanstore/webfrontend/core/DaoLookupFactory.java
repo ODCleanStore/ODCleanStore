@@ -3,22 +3,20 @@ package cz.cuni.mff.odcleanstore.webfrontend.core;
 import java.io.Serializable;
 import java.util.HashMap;
 
-
-import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.SafetyDaoDecorator;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.SafetyDaoDecoratorForEntityWithSurrogateKey;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.GlobalAggregationSettingsDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.en.OfficialPipelinesDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.en.EngineOperationsDao;
-
-import org.apache.log4j.Logger;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.support.AbstractPlatformTransactionManager;
 
 import virtuoso.jdbc3.VirtuosoDataSource;
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessEntity;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.SafetyDaoDecorator;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.SafetyDaoDecoratorForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.en.EngineOperationsDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.en.OfficialPipelinesDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 
 /**
  * A factory to lookup DAO Spring beans.
@@ -42,7 +40,7 @@ public class DaoLookupFactory implements Serializable
 	
 	private transient AbstractPlatformTransactionManager transactionManager;
 	
-	private HashMap<Class<? extends Dao<?>>, Dao<?>> daos;
+	private HashMap<Class<? extends Dao<? extends BusinessEntity>>, Dao<? extends BusinessEntity>> daos;
 	
 	//private GlobalAggregationSettingsDao globalAggregationSettingsDao;
 	private TransformerInstanceDao transformerInstanceDao;
@@ -59,7 +57,7 @@ public class DaoLookupFactory implements Serializable
 		this.cleanConnectionCoords = cleanConnectionCoords;
 		this.dirtyConnectionCoords = dirtyConnectionCoords;
 		
-		this.daos = new HashMap<Class<? extends Dao<?>>, Dao<?>>();
+		this.daos = new HashMap<Class<? extends Dao<? extends BusinessEntity>>, Dao<? extends BusinessEntity>>();
 	}
 	
 	/**
@@ -73,13 +71,14 @@ public class DaoLookupFactory implements Serializable
 	 * @return
 	 * @throws AssertionError
 	 */
-	public Dao getDao(Class<? extends Dao<?>> daoClass) throws AssertionError
+	@SuppressWarnings("unchecked")
+	public <T extends BusinessEntity> Dao<T> getDao(Class<? extends Dao<T>> daoClass) throws AssertionError
 	{
 		if (daos.containsKey(daoClass))
-			return daos.get(daoClass);
+			return (Dao<T>) daos.get(daoClass);
 		
-		Dao<?> daoInstance = createDaoInstance(daoClass);
-		Dao<?> safeDaoInstance = new SafetyDaoDecorator(daoInstance);
+		Dao<T> daoInstance = createDaoInstance(daoClass);
+		Dao<T> safeDaoInstance = new SafetyDaoDecorator<T>(daoInstance);
 		
 		daos.put(daoClass, safeDaoInstance);
 		
@@ -92,14 +91,15 @@ public class DaoLookupFactory implements Serializable
 	 * @return
 	 * @throws AssertionError
 	 */
-	public DaoForEntityWithSurrogateKey getDaoForEntityWithSurrogateKey(Class<? extends Dao<?>> daoClass) 
+	@SuppressWarnings("unchecked")
+	public <T extends EntityWithSurrogateKey> DaoForEntityWithSurrogateKey<T> getDaoForEntityWithSurrogateKey(Class<? extends Dao<T>> daoClass) 
 		throws AssertionError
 	{
 		if (daos.containsKey(daoClass))
-			return (DaoForEntityWithSurrogateKey<?>) daos.get(daoClass);
+			return (DaoForEntityWithSurrogateKey<T>) daos.get(daoClass);
 		
-		DaoForEntityWithSurrogateKey<?> daoInstance = (DaoForEntityWithSurrogateKey<?>) createDaoInstance(daoClass);
-		DaoForEntityWithSurrogateKey<?> safeDaoInstance = new SafetyDaoDecoratorForEntityWithSurrogateKey(daoInstance);
+		DaoForEntityWithSurrogateKey<T> daoInstance = (DaoForEntityWithSurrogateKey<T>) createDaoInstance(daoClass);
+		DaoForEntityWithSurrogateKey<T> safeDaoInstance = new SafetyDaoDecoratorForEntityWithSurrogateKey<T>(daoInstance);
 		
 		daos.put(daoClass, safeDaoInstance);
 		
@@ -117,7 +117,7 @@ public class DaoLookupFactory implements Serializable
 	 * @return
 	 * @throws AssertionError
 	 */
-	public Dao<?> getUnsafeDao(Class<? extends Dao<?>> daoClass) throws AssertionError
+	public <T extends BusinessEntity> Dao<T> getUnsafeDao(Class<? extends Dao<T>> daoClass) throws AssertionError
 	{
 		return createDaoInstance(daoClass);
 	}
@@ -129,9 +129,9 @@ public class DaoLookupFactory implements Serializable
 	 * @return
 	 * @throws AssertionError
 	 */
-	private Dao<?> createDaoInstance(Class<? extends Dao<?>> daoClass) throws AssertionError
+	private <T extends BusinessEntity> Dao<T> createDaoInstance(Class<? extends Dao<T>> daoClass) throws AssertionError
 	{
-		Dao<?> daoInstance;
+		Dao<T> daoInstance;
 		
 		try {
 			daoInstance = daoClass.newInstance();
@@ -179,7 +179,7 @@ public class DaoLookupFactory implements Serializable
 		if (cleanDataSource == null)
 		{
 			cleanDataSource = new VirtuosoDataSource();
-			cleanDataSource.setServerName(cleanConnectionCoords.getConnectionString());
+			cleanDataSource.setServerName(makeVirtuosoDataSourceConnectionString(cleanConnectionCoords.getConnectionString()));
 			cleanDataSource.setUser(cleanConnectionCoords.getUsername());
 			cleanDataSource.setPassword(cleanConnectionCoords.getPassword());
 			cleanDataSource.setCharset(CONNECTION_ENCODING);
@@ -197,13 +197,28 @@ public class DaoLookupFactory implements Serializable
 		if (dirtyDataSource == null)
 		{
 			dirtyDataSource = new VirtuosoDataSource();
-			dirtyDataSource.setServerName(dirtyConnectionCoords.getConnectionString());
+			dirtyDataSource.setServerName(makeVirtuosoDataSourceConnectionString(dirtyConnectionCoords.getConnectionString()));
 			dirtyDataSource.setUser(dirtyConnectionCoords.getUsername());
 			dirtyDataSource.setPassword(dirtyConnectionCoords.getPassword());
 			dirtyDataSource.setCharset(CONNECTION_ENCODING);
 		}
 		
 		return dirtyDataSource;
+	}
+
+	private String makeVirtuosoDataSourceConnectionString(String jdbcConnectionString) {
+		final String connectionPrefix = "jdbc:virtuoso://";
+		String result = jdbcConnectionString;
+		if (result.startsWith(connectionPrefix))
+		{
+			result = result.substring(connectionPrefix.length());
+		}
+		int paramsIndex = result.indexOf('/');
+		if (paramsIndex >= 0)
+		{
+			result = result.substring(0, paramsIndex);
+		}
+		return result;
 	}
 	
 	/**

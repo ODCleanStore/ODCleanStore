@@ -85,14 +85,6 @@ public class OIGroupsListPage extends FrontendPage
 				
 				item.add(
 					new RedirectWithParamButton(
-						OIGroupDetailPage.class,
-						group.getId(), 
-						"manageRules"
-					)
-				);
-				
-				item.add(
-					new RedirectWithParamButton(
 						EditOIGroupPage.class,
 						group.getId(),
 						"showEditOIGroupPage"
@@ -112,9 +104,9 @@ public class OIGroupsListPage extends FrontendPage
 		add(new UnobtrusivePagingNavigator("navigator", dataView));
 	}
 	
-	private Link createRerunAffectedGraphsButton(final Integer groupId)
+	private Link<String> createRerunAffectedGraphsButton(final Integer groupId)
 	{
-		Link button = new Link("rerunAffectedGraphs")
+		Link<String> button = new Link<String>("rerunAffectedGraphs")
         {
 			private static final long serialVersionUID = 1L;
 

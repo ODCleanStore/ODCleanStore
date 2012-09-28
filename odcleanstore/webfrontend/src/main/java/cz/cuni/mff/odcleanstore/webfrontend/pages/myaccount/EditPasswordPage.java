@@ -2,7 +2,6 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.myaccount;
 
 import java.security.NoSuchAlgorithmException;
 
-import org.apache.log4j.Logger;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.PasswordTextField;
@@ -60,17 +59,19 @@ public class EditPasswordPage extends FrontendPage
 	}
 }
 
-class ChangePasswordForm extends Form
+class ChangePasswordForm extends Form<ChangePasswordForm>
 {
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger(ChangePasswordForm.class);
+	//private static Logger logger = Logger.getLogger(ChangePasswordForm.class);
 
 	private DaoForEntityWithSurrogateKey<User> userDao;
 	private User user;
 	
+	@SuppressWarnings("unused")
 	private String oldPassword;
 	private String newPassword;
+	@SuppressWarnings("unused")
 	private String newPasswordAgain;
 
 	/**
@@ -86,7 +87,7 @@ class ChangePasswordForm extends Form
 		this.userDao = userDao;
 		this.user = user;
 		
-		setModel(new CompoundPropertyModel<Form>(this));
+		setModel(new CompoundPropertyModel<ChangePasswordForm>(this));
 		
 		add(createOldPasswordField(user));
 
