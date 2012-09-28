@@ -32,7 +32,7 @@ public class EditQAGroupPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	//private static Logger logger = Logger.getLogger(QAGroupDetailPage.class);
+	//private static Logger logger = Logger.getLogger(EditQAGroupPage.class);
 	
 	private DaoForEntityWithSurrogateKey<QARulesGroup> qaRulesGroupDao;
 	private DaoForEntityWithSurrogateKey<QARule> qaRuleDao;

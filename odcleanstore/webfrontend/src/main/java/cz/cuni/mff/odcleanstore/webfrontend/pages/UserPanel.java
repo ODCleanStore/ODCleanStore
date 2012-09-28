@@ -1,10 +1,5 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages;
 
-import cz.cuni.mff.odcleanstore.util.ArrayUtils;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
-import cz.cuni.mff.odcleanstore.webfrontend.core.ODCSWebFrontendSession;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.myaccount.MyAccountPage;
-
 import org.apache.wicket.Page;
 import org.apache.wicket.RestartResponseAtInterceptPageException;
 import org.apache.wicket.markup.html.basic.Label;
@@ -14,6 +9,11 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+
+import cz.cuni.mff.odcleanstore.util.ArrayUtils;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
+import cz.cuni.mff.odcleanstore.webfrontend.core.ODCSWebFrontendSession;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.myaccount.MyAccountPage;
 
 public class UserPanel extends Panel
 {
@@ -32,7 +32,7 @@ public class UserPanel extends Panel
 		
 	private void addUsernameLabel()
 	{
-		IModel model = new PropertyModel(this, "session.user.username");
+		IModel<String> model = new PropertyModel<String>(this, "session.user.username");
 		add(new Label("username", model));
 	}
 	
@@ -77,8 +77,10 @@ public class UserPanel extends Panel
 	
 	private void addLoginLink()
 	{
-		add(new Link("login")
+		add(new Link<String>("login")
 		{
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void onClick() 
 			{

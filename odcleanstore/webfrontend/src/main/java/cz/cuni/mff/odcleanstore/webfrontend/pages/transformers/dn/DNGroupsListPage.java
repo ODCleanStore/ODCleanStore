@@ -105,9 +105,9 @@ public class DNGroupsListPage extends FrontendPage
 		add(new UnobtrusivePagingNavigator("navigator", dataView));
 	}
 	
-	private Link createRerunAffectedGraphsButton(final Integer groupId)
+	private Link<String> createRerunAffectedGraphsButton(final Integer groupId)
 	{
-		Link button = new Link("rerunAffectedGraphs")
+		Link<String> button = new Link<String>("rerunAffectedGraphs")
 		{
 			private static final long serialVersionUID = 1L;
 

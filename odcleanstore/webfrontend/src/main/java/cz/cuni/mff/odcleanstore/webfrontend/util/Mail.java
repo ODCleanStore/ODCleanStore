@@ -3,13 +3,22 @@ package cz.cuni.mff.odcleanstore.webfrontend.util;
 import java.util.ArrayList;
 import java.util.Properties;
 
-import javax.mail.*;
-import javax.mail.internet.*;
-import javax.activation.*; 
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
+import javax.mail.BodyPart;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 
 import org.apache.log4j.Logger;
-
-import java.io.*;
 
 /**
  * A helper class to send emails.
@@ -36,7 +45,7 @@ public class Mail
 	 */
 	public Mail(String from, String to, String subject, String messageBody) 
 	{
-		this.attachements = new ArrayList();
+		this.attachements = new ArrayList<String>();
 		
 		this.from = from;
 		this.to = to;

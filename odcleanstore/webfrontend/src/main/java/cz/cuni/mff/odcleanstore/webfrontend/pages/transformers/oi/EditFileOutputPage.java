@@ -10,13 +10,11 @@ import org.apache.wicket.validation.validator.RangeValidator;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIFileFormat;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutput;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutputType;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIFileFormatDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputTypeDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 @AuthorizeInstantiation({ Role.PIC })
@@ -25,7 +23,7 @@ public class EditFileOutputPage extends FrontendPage
 	private static final long serialVersionUID = 1L;
 	
 	private DaoForEntityWithSurrogateKey<OIOutput> oiOutputDao;
-	private DaoForEntityWithSurrogateKey<OIOutputType> oiOutputTypeDao;
+	//private DaoForEntityWithSurrogateKey<OIOutputType> oiOutputTypeDao;
 	private DaoForEntityWithSurrogateKey<OIFileFormat> oiFileFormatDao;
 	
 	public EditFileOutputPage(final Integer outputId) 
@@ -38,7 +36,7 @@ public class EditFileOutputPage extends FrontendPage
 		// prepare DAO objects
 		//
 		oiOutputDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIOutputDao.class);
-		oiOutputTypeDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIOutputTypeDao.class);
+		//oiOutputTypeDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIOutputTypeDao.class);
 		oiFileFormatDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIFileFormatDao.class);
 		
 		// register page components

@@ -29,7 +29,7 @@ public class EditDNRulePage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	//private static Logger logger = Logger.getLogger(DNRuleDetailPage.class);
+	//private static Logger logger = Logger.getLogger(EditDNRulePage.class);
 	
 	private DaoForEntityWithSurrogateKey<DNRule> dnRuleDao;
 	private DaoForEntityWithSurrogateKey<DNRuleComponent> dnRuleComponentDao;

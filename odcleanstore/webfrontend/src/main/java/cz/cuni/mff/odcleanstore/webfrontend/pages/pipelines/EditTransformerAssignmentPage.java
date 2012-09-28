@@ -123,7 +123,7 @@ public class EditTransformerAssignmentPage extends FrontendPage
 		add(form);
 	}
 
-	private void addPriorityTextfield(Form form)
+	private void addPriorityTextfield(Form<TransformerInstance> form)
 	{
 		TextField<String> textfield = new TextField<String>("priority");
 		

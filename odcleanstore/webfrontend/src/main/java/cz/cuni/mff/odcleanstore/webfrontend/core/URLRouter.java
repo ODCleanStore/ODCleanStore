@@ -141,7 +141,7 @@ public class URLRouter
 	{
 		app.mountPage(webUrlPrefix + "/backend/oi/groups/list", OIGroupsListPage.class);
 		app.mountPage(webUrlPrefix + "/backend/oi/groups/new", NewOIGroupPage.class);
-		app.mountPage(webUrlPrefix + "/backend/oi/groups/detail", EditOIGroupPage.class);
+		app.mountPage(webUrlPrefix + "/backend/oi/groups/edit", EditOIGroupPage.class);
 		app.mountPage(webUrlPrefix + "/backend/oi/groups/rules/new", NewOIRulePage.class);
 		app.mountPage(webUrlPrefix + "/backend/oi/groups/rules/edit", EditOIRulePage.class);
 		app.mountPage(webUrlPrefix + "/backend/oi/groups/rules/db-outputs/new", NewDBOutputPage.class);

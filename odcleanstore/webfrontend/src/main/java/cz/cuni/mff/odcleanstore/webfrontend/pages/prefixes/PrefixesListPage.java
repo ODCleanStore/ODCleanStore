@@ -74,9 +74,9 @@ public class PrefixesListPage extends FrontendPage
 		add(new UnobtrusivePagingNavigator("navigator", dataView));
 	}
 	
-	private Link createDeletePrefixButton(final Prefix mapping)
+	private Link<String> createDeletePrefixButton(final Prefix mapping)
 	{
-		Link button = new Link("deletePrefix")
+		Link<String> button = new Link<String>("deletePrefix")
 	    {
 			private static final long serialVersionUID = 1L;
 	

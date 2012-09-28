@@ -1,6 +1,5 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.outputws;
 
-import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
@@ -10,7 +9,6 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
@@ -40,7 +38,7 @@ public class AggregationSettingsPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger(AggregationSettingsPage.class);
+	//private static Logger logger = Logger.getLogger(AggregationSettingsPage.class);
 	
 	private DaoForEntityWithSurrogateKey<PropertySettings> propertySettingsDao;
 	private Dao<GlobalAggregationSettings> globalAggregationSettingsDao;
@@ -109,35 +107,6 @@ public class AggregationSettingsPage extends FrontendPage
 		form.add(createEnumSelectbox(errorStrategyDao, "defaultErrorStrategy"));
 		
 		add(form);
-	}
-	
-	private void addDefaultAggregationTypeLabel(GlobalAggregationSettings settings)
-	{
-		AggregationType aggregationType = settings.getDefaultAggregationType();
-		
-		Label label = new Label("defaultAggregationType", aggregationType.getLabel());
-		label.add(new AttributeModifier("title", new Model<String>(aggregationType.getDescription())));
-		add(label);
-	}
-	
-	private void addDefaultMultivalueTypeLabel(GlobalAggregationSettings settings)
-	{
-		MultivalueType multivalueType = settings.getDefaultMultivalueType();
-		
-		Label label = new Label("defaultMultivalueType", multivalueType.getLabel());
-		label.add(new AttributeModifier("title", new Model<String>(multivalueType.getDescription())));
-		
-		add(label);
-	}
-	
-	private void addDefaultErrorStrategyLabel(GlobalAggregationSettings settings)
-	{
-		ErrorStrategy errorStrategy = settings.getDefaultErrorStrategy();
-		
-		Label label = new Label("defaultErrorStrategy", errorStrategy.getLabel());
-		label.add(new AttributeModifier("title", new Model<String>(errorStrategy.getDescription())));
-		
-		add(label);
 	}
 	
 	private void addPropertySettingsTable()

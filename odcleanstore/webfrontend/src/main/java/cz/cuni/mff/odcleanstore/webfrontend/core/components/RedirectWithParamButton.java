@@ -6,7 +6,6 @@ import org.apache.log4j.Logger;
 import org.apache.wicket.markup.html.link.Link;
 
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.EditTransformerAssignmentPage;
 
 public class RedirectWithParamButton extends Link<String>
 {

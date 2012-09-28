@@ -30,7 +30,7 @@ public class EditDNGroupPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	//private static Logger logger = Logger.getLogger(DNGroupDetailPage.class);
+	//private static Logger logger = Logger.getLogger(EditDNGroupPage.class);
 	
 	private DaoForEntityWithSurrogateKey<DNRulesGroup> dnRulesGroupDao;
 	private DaoForEntityWithSurrogateKey<DNRule> dnRuleDao;
