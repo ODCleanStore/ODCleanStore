@@ -170,15 +170,6 @@ public class EditQAGroupPage extends FrontendPage
 				item.add(
 					new RedirectWithParamButton
 					(
-						QARuleDetailPage.class, 
-						rule.getId(), 
-						"showQARuleDetailPage"
-					)
-				);
-				
-				item.add(
-					new RedirectWithParamButton
-					(
 						EditQARulePage.class,
 						rule.getId(),
 						"showEditQARulePage"

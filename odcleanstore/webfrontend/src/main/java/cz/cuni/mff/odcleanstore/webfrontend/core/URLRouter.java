@@ -47,7 +47,6 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.EditQARulePage
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.NewQAGroupPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.NewQARulePage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.QAGroupsListPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.QARuleDetailPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts.AccountsListPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts.EditAccountPermissionsPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts.NewAccountPage;
@@ -160,7 +159,6 @@ public class URLRouter
 		app.mountPage(webUrlPrefix + "/backend/qa/groups/edit", EditQAGroupPage.class);
 		app.mountPage(webUrlPrefix + "/backend/qa/groups/rules/new", NewQARulePage.class);
 		app.mountPage(webUrlPrefix + "/backend/qa/groups/rules/edit", EditQARulePage.class);
-		app.mountPage(webUrlPrefix + "/backend/qa/groups/rules/detail", QARuleDetailPage.class);
 	}
 
 	private void setupDNRulesRoutes(WebApplication app) 
