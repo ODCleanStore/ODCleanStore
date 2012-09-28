@@ -119,10 +119,21 @@ public class PipelinesListPage extends FrontendPage
 		Link<String> button = new Link<String>("markPipelineDefault", new Model<String>("XXX"))
         {
 			private static final long serialVersionUID = 1L;
+			
+			@Override
+			public boolean isVisible()
+			{
+				return AuthorizationHelper.isAuthorizedForSettingDefaultPipeline();
+			}
 
 			@Override
             public void onClick()
             {
+				if (!AuthorizationHelper.isAuthorizedForSettingDefaultPipeline()) 
+				{
+					return;
+				}
+				
 				pipeline.setDefault(true);
 				
 				try {
@@ -168,6 +179,11 @@ public class PipelinesListPage extends FrontendPage
 			@Override
             public void onClick()
             {
+				if (!AuthorizationHelper.isAuthorizedForEntityEditing(pipeline, Role.PIC)) 
+				{
+					return;
+				}
+				
 				pipeline.setLocked(lock);
 				
 				try 
@@ -187,7 +203,7 @@ public class PipelinesListPage extends FrontendPage
 			@Override
 			public boolean isVisible()
 			{
-				return pipeline.isLocked() != lock && pipeline.isLocked() != null;
+				return pipeline.isLocked() != lock && pipeline.isLocked() != null && AuthorizationHelper.isAuthorizedForEntityEditing(pipeline, Role.PIC);
 			}
         });
 	}
