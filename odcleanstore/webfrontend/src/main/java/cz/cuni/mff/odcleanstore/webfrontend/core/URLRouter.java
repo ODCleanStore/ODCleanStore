@@ -26,8 +26,6 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.EditTransformerPa
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.NewTransformerPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.TransformersListPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.DNGroupsListPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.DNRuleComponentDetailPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.DNRuleDetailPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.EditDNGroupPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.EditDNRuleComponentPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.EditDNRulePage;
@@ -41,7 +39,6 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.NewFileOutputP
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.NewOIGroupPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.NewOIRulePage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.OIGroupsListPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.EditOIRulePage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.EditQAGroupPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.EditQARulePage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.NewQAGroupPage;
@@ -167,10 +164,8 @@ public class URLRouter
 		app.mountPage(webUrlPrefix + "/backend/dn/groups/edit", EditDNGroupPage.class);
 		app.mountPage(webUrlPrefix + "/backend/dn/groups/rules/new", NewDNRulePage.class);
 		app.mountPage(webUrlPrefix + "/backend/dn/groups/rules/edit", EditDNRulePage.class);
-		app.mountPage(webUrlPrefix + "/backend/dn/groups/rules/detail", DNRuleDetailPage.class);
 		app.mountPage(webUrlPrefix + "/backend/dn/groups/rules/components/new", NewDNRuleComponentPage.class);
 		app.mountPage(webUrlPrefix + "/backend/dn/groups/rules/components/edit", EditDNRuleComponentPage.class);
-		app.mountPage(webUrlPrefix + "/backend/dn/groups/rules/components/detail", DNRuleComponentDetailPage.class);
 	}
 	
 	// 

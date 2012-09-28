@@ -81,7 +81,7 @@ public class NewDNRulePage extends FrontendPage
 				}
 				
 				getSession().info("The rule was successfuly registered.");
-				setResponsePage(new DNRuleDetailPage(insertId));
+				setResponsePage(new EditDNRulePage(insertId));
 			}
 		};
 		

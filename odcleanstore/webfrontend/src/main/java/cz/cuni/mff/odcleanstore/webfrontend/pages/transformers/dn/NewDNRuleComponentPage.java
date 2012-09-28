@@ -41,7 +41,7 @@ public class NewDNRuleComponentPage extends FrontendPage
 		
 		add(
 			new RedirectWithParamButton(
-				DNRuleDetailPage.class,
+				EditDNRulePage.class,
 				ruleId, 
 				"showDNRuleDetailPage"
 			)
@@ -84,7 +84,7 @@ public class NewDNRuleComponentPage extends FrontendPage
 				}
 				
 				getSession().info("The component was successfuly registered.");
-				setResponsePage(new DNRuleDetailPage(ruleId));
+				setResponsePage(new EditDNRulePage(ruleId));
 			}
 		};
 		

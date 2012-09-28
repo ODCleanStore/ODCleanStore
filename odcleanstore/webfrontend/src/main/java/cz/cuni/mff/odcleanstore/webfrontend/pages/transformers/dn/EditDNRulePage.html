@@ -1,22 +1,57 @@
 <wicket:extend>
 
-<div wicket:id="helpWindow"></div>
+<div wicket:id="dnRuleHelpWindow"></div>
+<div wicket:id="dnRuleComponentHelpWindow"></div>
 
 <div>
-	<a class="placedright button" href="#" wicket:id="manageGroupRules">Back to the group overview</a>
+	<a class="placedright button" href="#" wicket:id="showDNGroupDetailPage">Back to group overview</a>
 	<div class="clear">&nbsp;</div>
 </div>
 
-<a wicket:id="openHelpWindow"class="help">Help</a>
+<a wicket:id="openDNRuleHelpWindow"class="help">Help</a>
+
+<div class="clear">&nbsp;</div>
+	
+<form wicket:id="editDNRuleForm">
+    <p>
+        <label for="description">Description:</label>
+        <textarea wicket:id="description" id="description"></textarea>
+    </p>
+    <input type="submit" value="Submit" />
+</form>
+
+<h2>Rule components</h2>
+
+<div>
+	<a class="placedright button" href="#" wicket:id="addNewComponentLink">Add a new rule component</a>
+	<div class="clear">&nbsp;</div>
+</div>
+
+<span class="navigation" wicket:id="navigator">[dataview navigator]</span>
+<a wicket:id="openDNRuleComponentHelpWindow"class="help">Help</a>
 
 <div class="clear">&nbsp;</div>
 
-<form wicket:id="editDNRuleForm">
-	<p>
-		<label for="description">Description:</label>
-		<textarea wicket:id="description" id="description"></textarea>
-	</p>
-	<input type="submit" value="Submit" />
-</form>
+<table border="1">
+	
+	<tr>
+		<th>Type</th>
+		<th>Modification</th>
+		<th>Description</th>
+		<th>Action</th>
+	</tr>
+	
+	<tr  wicket:id="dnComponentsTable">
+	
+		<td wicket:id="type">[type]</td>
+		<td wicket:id="modification">[modification]</td>
+		<td wicket:id="description">[description]</td>
+		
+		<td class="actions">
+			<input wicket:id="showEditDNRuleComponentPage" type="button" value="Edit" />
+			<input wicket:id="deleteComponent" type="button" value="Delete" class="delete" />
+		</td>
+	</tr>
+</table>
 
 </wicket:extend>

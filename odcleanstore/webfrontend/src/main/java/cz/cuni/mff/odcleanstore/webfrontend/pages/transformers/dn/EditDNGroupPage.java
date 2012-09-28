@@ -163,14 +163,6 @@ public class EditDNGroupPage extends FrontendPage
 					)
 				);
 				
-				item.add(
-					new RedirectWithParamButton
-					(
-						DNRuleDetailPage.class, 
-						rule.getId(), 
-						"showDNRuleDetailPage"
-					)
-				);
 				
 				item.add(
 					new RedirectWithParamButton
