@@ -65,6 +65,7 @@ public class DNGroupDetailPage extends FrontendPage
 		addDNRawRulesSection(groupId);
 		addDNReplaceTemplateInstancesSection(groupId);
 		addDNRenameTemplateInstancesSection(groupId);
+		addDNFilterTemplateInstancesSection(groupId);
 	}
 
 	private void addGroupInformationSection(final Integer groupId)
@@ -290,5 +291,18 @@ public class DNGroupDetailPage extends FrontendPage
 		add(dataView);
 		
 		add(new UnobtrusivePagingNavigator("renameTemplateInstancesNavigator", dataView));
+	}
+	
+	private void addDNFilterTemplateInstancesSection(final Integer groupId) 
+	{
+		add(
+			new RedirectWithParamButton(
+				NewDNFilterTemplateInstancePage.class,
+				groupId, 
+				"addNewFilterTemplateInstanceLink"
+			)
+		);
+		
+		// addDNRenameTemplateInstancesTable(groupId);
 	}
 }
