@@ -22,7 +22,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.TransformerInstanceDetailPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.EditTransformerAssignmentPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
 @AuthorizeInstantiation({ Role.PIC })
@@ -64,7 +64,7 @@ public class EditDNGroupPage extends FrontendPage
 	private void addBackToPipelineLink(Integer transformerInstanceId) 
 	{
 		RedirectWithParamButton link = new RedirectWithParamButton(
-			TransformerInstanceDetailPage.class,
+			EditTransformerAssignmentPage.class,
 			transformerInstanceId, 
 			"backToPipelineLink"
 		);

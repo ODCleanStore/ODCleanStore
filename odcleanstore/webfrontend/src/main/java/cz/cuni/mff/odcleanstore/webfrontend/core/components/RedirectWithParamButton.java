@@ -2,13 +2,17 @@ package cz.cuni.mff.odcleanstore.webfrontend.core.components;
 
 import java.lang.reflect.Constructor;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.markup.html.link.Link;
 
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.EditTransformerAssignmentPage;
 
 public class RedirectWithParamButton extends Link<String>
 {
 	private static final long serialVersionUID = 1L;
+	
+	private static Logger logger = Logger.getLogger(RedirectWithParamButton.class);
 	
 	private Class<? extends FrontendPage> redirectPage;
 	private Integer param;
@@ -39,6 +43,7 @@ public class RedirectWithParamButton extends Link<String>
 		} 
 		catch (Exception ex) 
 		{
+			logger.error("Could not redirect to page", ex);
 			throw new AssertionError(
 				"Could not instantiate page class: " + redirectPage
 			);

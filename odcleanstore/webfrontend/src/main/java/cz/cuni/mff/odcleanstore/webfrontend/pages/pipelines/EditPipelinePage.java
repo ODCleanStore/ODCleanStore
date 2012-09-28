@@ -161,15 +161,6 @@ public class EditPipelinePage extends FrontendPage
 				item.add(
 					new RedirectWithParamButton
 					(
-						TransformerInstanceDetailPage.class,
-						transformerInstance.getId(),
-						"showTransformerInstanceDetailPage"
-					)
-				);
-				
-				item.add(
-					new RedirectWithParamButton
-					(
 						EditTransformerAssignmentPage.class,
 						transformerInstance.getId(),
 						"showEditTransformerInstancePage"

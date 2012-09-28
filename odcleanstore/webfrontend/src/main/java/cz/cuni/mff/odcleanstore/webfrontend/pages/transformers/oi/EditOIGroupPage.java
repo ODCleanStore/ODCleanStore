@@ -24,7 +24,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.TransformerInstanceDetailPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.EditTransformerAssignmentPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
 @AuthorizeInstantiation({ Role.PIC })
@@ -66,7 +66,7 @@ public class EditOIGroupPage extends FrontendPage
 	private void addBackToPipelineLink(Integer transformerInstanceId) 
 	{
 		RedirectWithParamButton link = new RedirectWithParamButton(
-			TransformerInstanceDetailPage.class,
+			EditTransformerAssignmentPage.class,
 			transformerInstanceId, 
 			"backToPipelineLink"
 		);

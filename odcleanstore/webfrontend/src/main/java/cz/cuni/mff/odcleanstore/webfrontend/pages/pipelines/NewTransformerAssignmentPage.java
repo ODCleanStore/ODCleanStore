@@ -103,7 +103,7 @@ public class NewTransformerAssignmentPage extends FrontendPage
 				}
 				
 				getSession().info("The assignment was successfuly registered.");
-				setResponsePage(new TransformerInstanceDetailPage(insertId));
+				setResponsePage(new EditTransformerAssignmentPage(insertId));
 			}
 		};
 

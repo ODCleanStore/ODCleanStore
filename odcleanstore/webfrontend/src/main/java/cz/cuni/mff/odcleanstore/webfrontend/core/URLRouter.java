@@ -20,7 +20,6 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.NewGroupAssignmentPa
 import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.NewPipelinePage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.NewTransformerAssignmentPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.PipelinesListPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.TransformerInstanceDetailPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.prefixes.NewPrefixPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.prefixes.PrefixesListPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.EditTransformerPage;
@@ -139,7 +138,6 @@ public class URLRouter
 		app.mountPage(webUrlPrefix + "/backend/pipelines/edit", EditPipelinePage.class);
 		app.mountPage(webUrlPrefix + "/backend/pipelines/transformer-instances/new", NewTransformerAssignmentPage.class);
 		app.mountPage(webUrlPrefix + "/backend/pipelines/transformer-instances/edit", EditTransformerAssignmentPage.class);
-		app.mountPage(webUrlPrefix + "/backend/pipelines/transformer-instances/detail", TransformerInstanceDetailPage.class);
 		app.mountPage(webUrlPrefix + "/backend/pipelines/transformer-instances/assigned-groups/new", NewGroupAssignmentPage.class);
 	}
 	
