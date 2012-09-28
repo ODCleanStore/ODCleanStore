@@ -69,7 +69,7 @@ public class AddMappingPage extends FrontendPage {
 		};
 		IModel<List<String>> model = createModel(sourceOntoGraphName);
 		TextField<String> field = new DetachableAutoCompleteTextField("sourceUri", model);
-		field.add(new EnumValidator(model));
+		field.add(new JenaURIValidator());
 		form.add(field);
 		
 		AutoCompleteSettings settings = new AutoCompleteSettings();
@@ -83,7 +83,7 @@ public class AddMappingPage extends FrontendPage {
 		{	
 			model = createModel(targetOntoGraphName);
 			field = new DetachableAutoCompleteTextField("targetUri", model);
-			field.add(new EnumValidator(model));
+			field.add(new JenaURIValidator());
 			
 		} else
 		{

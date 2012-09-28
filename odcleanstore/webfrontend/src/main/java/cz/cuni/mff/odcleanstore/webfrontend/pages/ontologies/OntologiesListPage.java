@@ -84,6 +84,14 @@ public class OntologiesListPage extends FrontendPage
 				
 				item.add(
 					new RedirectWithParamButton(
+						ChooseOntologiesPage.class,
+						ontology.getId(), 
+						"ontologyMapping"
+					)
+				);
+				
+				item.add(
+					new RedirectWithParamButton(
 						EditOntologyPage.class,
 						ontology.getId(),
 						"showEditOntologyPage"
