@@ -72,10 +72,10 @@ public class ConfigBuilderTest {
 		Properties properties = Mockito.mock(Properties.class);
 		Mockito.when(properties.getProperty(ObjectIdentificationConfig.GROUP_PREFIX + "links_graph_uri_prefix")).thenReturn("http://www.seznam.cz");
 		Mockito.when(properties.getProperty(ObjectIdentificationConfig.GROUP_PREFIX + "link_within_graph")).thenReturn("false");
-        Mockito.when(properties.getProperty("clean_sparql_endpoint_url")).thenReturn("http://www.google.cz");
-        Mockito.when(properties.getProperty("dirty_update_sparql_endpoint_url")).thenReturn("http://www.yahoo.com");
-        Mockito.when(properties.getProperty("dirty_update_sparql_endpoint_username")).thenReturn("Pepa");
-	    Mockito.when(properties.getProperty("dirty_update_sparql_endpoint_password")).thenReturn("heslo");
+        Mockito.when(properties.getProperty("db.clean.sparql.endpoint_url")).thenReturn("http://www.google.cz");
+        Mockito.when(properties.getProperty("db.dirty_update.sparql.endpoint_url")).thenReturn("http://www.yahoo.com");
+        Mockito.when(properties.getProperty("db.dirty_update.sparql.endpoint_username")).thenReturn("Pepa");
+	    Mockito.when(properties.getProperty("db.dirty_update.sparql.endpoint_password")).thenReturn("heslo");
 	    ObjectIdentificationConfig config = ObjectIdentificationConfig.load(properties);
 
 	    DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
