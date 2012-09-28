@@ -50,7 +50,7 @@ public class NewOIRulePage extends FrontendPage
 
 	private void addNewOIRuleForm(final Integer groupId)
 	{
-		IModel formModel = new CompoundPropertyModel(new OIRule());
+		IModel<OIRule> formModel = new CompoundPropertyModel<OIRule>(new OIRule());
 		
 		Form<OIRule> form = new Form<OIRule>("newOIRuleForm", formModel)
 		{
@@ -62,8 +62,9 @@ public class NewOIRulePage extends FrontendPage
 				OIRule rule = getModelObject();
 				rule.setGroupId(groupId);
 				
+				int insertId;
 				try {
-					oiRuleDao.save(rule);
+					insertId = oiRuleDao.saveAndGetKey(rule);
 				}
 				catch (DaoException ex)
 				{
@@ -82,7 +83,7 @@ public class NewOIRulePage extends FrontendPage
 				}
 				
 				getSession().info("The rule was successfuly registered.");
-				setResponsePage(new EditOIGroupPage(groupId));
+				setResponsePage(new EditOIRulePage(insertId));
 			}
 		};
 		

@@ -174,15 +174,6 @@ public class EditOIGroupPage extends FrontendPage
 				item.add(
 					new RedirectWithParamButton
 					(
-						OIRuleDetailPage.class,
-						rule.getId(),
-						"showOIRuleDetail"
-					)
-				);
-				
-				item.add(
-					new RedirectWithParamButton
-					(
 						EditOIRulePage.class,
 						rule.getId(),
 						"showEditOIRulePage"

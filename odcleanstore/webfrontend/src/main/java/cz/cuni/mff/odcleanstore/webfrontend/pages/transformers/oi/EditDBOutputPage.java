@@ -45,7 +45,7 @@ public class EditDBOutputPage extends FrontendPage
 		
 		add(
 			new RedirectWithParamButton(
-				OIRuleDetailPage.class,
+				EditOIRulePage.class,
 				output.getRuleId(), 
 				"showOIRuleDetail"
 			)
@@ -87,7 +87,7 @@ public class EditDBOutputPage extends FrontendPage
 				}
 				
 				getSession().info("The output was successfuly updated.");
-				setResponsePage(new OIRuleDetailPage(output.getRuleId()));
+				setResponsePage(new EditOIRulePage(output.getRuleId()));
 			}
 		};
 		

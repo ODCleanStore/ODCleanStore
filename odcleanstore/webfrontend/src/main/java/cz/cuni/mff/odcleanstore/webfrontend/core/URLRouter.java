@@ -41,7 +41,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.NewFileOutputP
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.NewOIGroupPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.NewOIRulePage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.OIGroupsListPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.OIRuleDetailPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.EditOIRulePage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.EditQAGroupPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.EditQARulePage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.NewQAGroupPage;
@@ -147,7 +147,6 @@ public class URLRouter
 		app.mountPage(webUrlPrefix + "/backend/oi/groups/detail", EditOIGroupPage.class);
 		app.mountPage(webUrlPrefix + "/backend/oi/groups/rules/new", NewOIRulePage.class);
 		app.mountPage(webUrlPrefix + "/backend/oi/groups/rules/edit", EditOIRulePage.class);
-		app.mountPage(webUrlPrefix + "/backend/oi/groups/rules/detail", OIRuleDetailPage.class);
 		app.mountPage(webUrlPrefix + "/backend/oi/groups/rules/db-outputs/new", NewDBOutputPage.class);
 		app.mountPage(webUrlPrefix + "/backend/oi/groups/rules/file-outputs/new", NewFileOutputPage.class);
 	}

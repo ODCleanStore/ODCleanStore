@@ -2,60 +2,205 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.repeater.Item;
+import org.apache.wicket.markup.repeater.data.DataView;
+import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.validation.validator.RangeValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutput;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutputType;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputTypeDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 @AuthorizeInstantiation({ Role.PIC })
-public class EditOIRulePage extends FrontendPage 
+public class EditOIRulePage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
-	
+
 	private static Logger logger = Logger.getLogger(EditOIRulePage.class);
 	
 	private DaoForEntityWithSurrogateKey<OIRule> oiRuleDao;
+	private DaoForEntityWithSurrogateKey<OIOutput> oiOutputDao;
+	private DaoForEntityWithSurrogateKey<OIOutputType> oiOutputTypeDao;
 	
 	public EditOIRulePage(final Integer ruleId) 
 	{
 		super(
 			"Home > Backend > OI > Groups > Rules > Edit", 
-			"Edit an OI rule"
+			"Edit OI rule"
 		);
 		
 		// prepare DAO objects
 		//
+		
+		oiOutputDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIOutputDao.class);
 		oiRuleDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIRuleDao.class);
+		oiOutputTypeDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIOutputTypeDao.class);
 		
 		// register page components
 		//
-		addHelpWindow(new OIRuleHelpPanel("content"));
+		addHelpWindow("oiRuleHelpWindow", "openOIRuleHelpWindow", new OIRuleHelpPanel("content"));
+		addHelpWindow("dbOutputHelpWindow", "openDBOutputHelpWindow", new DBOutputHelpPanel("content"));
+		addHelpWindow("fileOutputHelpWindow", "openFileOutputHelpWindow", new FileOutputHelpPanel("content"));
 		
-		OIRule rule = oiRuleDao.load(ruleId);
-		
+		addEditOIRuleForm(ruleId);
+		addDBOutputsSection(ruleId);
+		addFileOutputsSection(ruleId);
+	}
+	
+	private void addDBOutputsSection(final Integer ruleId) 
+	{
 		add(
 			new RedirectWithParamButton(
-				EditOIGroupPage.class,
-				rule.getGroupId(), 
-				"manageGroupRules"
+				NewDBOutputPage.class,
+				ruleId, 
+				"showNewDBOutputPage"
 			)
 		);
 		
-		addEditOIRuleForm(rule);
+		OIOutputType outputType = oiOutputTypeDao.loadBy("label", OIOutputType.DB_OUTPUT_LABEL);
+		
+		addDBOutputsTable(ruleId, outputType.getId());
 	}
 
-	private void addEditOIRuleForm(final OIRule rule)
+	private void addDBOutputsTable(final Integer ruleId, final Integer typeId) 
+	{		
+		IDataProvider<OIOutput> data = new OIOutputDataProvider(oiOutputDao, ruleId, typeId);
+		
+		DataView<OIOutput> dataView = new DataView<OIOutput>("dbOutputsTable", data)
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void populateItem(Item<OIOutput> item) 
+			{
+				OIOutput output = item.getModelObject();
+				
+				item.setModel(new CompoundPropertyModel<OIOutput>(output));
+				
+				item.add(createNullResistentTableCellLabel("minConfidence", output.getMinConfidence()));
+				item.add(createNullResistentTableCellLabel("maxConfidence", output.getMaxConfidence()));
+				
+				item.add(
+					new DeleteRawButton<OIOutput>
+					(
+						oiOutputDao,
+						output.getId(),
+						"deleteDBOutput",
+						"output",
+						new DeleteConfirmationMessage("output"),
+						EditOIRulePage.this
+					)
+				);	
+				
+				item.add(
+					new RedirectWithParamButton(
+						EditDBOutputPage.class, 
+						output.getId(), 
+						"showEditDBOutputPage"
+					)
+				);
+			}
+		};
+		
+		dataView.setItemsPerPage(ITEMS_PER_PAGE);
+		
+		add(dataView);
+		
+		add(new UnobtrusivePagingNavigator("dbOutputsNavigator", dataView));
+	}
+	
+	private void addFileOutputsSection(final Integer ruleId) 
 	{
-		IModel formModel = new CompoundPropertyModel(rule);
+		add(
+			new RedirectWithParamButton(
+				NewFileOutputPage.class,
+				ruleId, 
+				"showNewFileOutputPage"
+			)
+		);
+		
+		OIOutputType outputType = oiOutputTypeDao.loadBy("label", OIOutputType.FILE_OUTPUT_LABEL);
+		
+		addFileOutputsTable(ruleId, outputType.getId());
+	}
+
+	private void addFileOutputsTable(final Integer ruleId, final Integer typeId) 
+	{	
+		IDataProvider<OIOutput> data = new OIOutputDataProvider(oiOutputDao, ruleId, typeId);
+		
+		DataView<OIOutput> dataView = new DataView<OIOutput>("fileOutputsTable", data)
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void populateItem(Item<OIOutput> item) 
+			{
+				OIOutput output = item.getModelObject();
+				
+				item.setModel(new CompoundPropertyModel<OIOutput>(output));
+				
+				item.add(createNullResistentTableCellLabel("minConfidence", output.getMinConfidence()));
+				item.add(createNullResistentTableCellLabel("maxConfidence", output.getMaxConfidence()));
+				item.add(new Label("filename"));
+				item.add(new Label("fileFormat", output.getFileFormat().getLabel()));
+				
+				item.add(
+					new DeleteRawButton<OIOutput>
+					(
+						oiOutputDao,
+						output.getId(),
+						"deleteFileOutput",
+						"output",
+						new DeleteConfirmationMessage("output"),
+						EditOIRulePage.this
+					)
+				);
+				
+				item.add(
+					new RedirectWithParamButton(
+						EditFileOutputPage.class, 
+						output.getId(), 
+						"showEditFileOutputPage"
+					)
+				);
+			}
+		};
+		
+		dataView.setItemsPerPage(10);
+		
+		add(dataView);
+		
+		add(new UnobtrusivePagingNavigator("fileOutputsNavigator", dataView));
+	}
+	
+	private void addEditOIRuleForm(final Integer ruleId)
+	{
+		IModel<OIRule> formModel = createModelForOverview(oiRuleDao, ruleId);
+		
+		add(
+			new RedirectWithParamButton
+			(
+				EditOIGroupPage.class, 
+				formModel.getObject().getGroupId(), 
+				"showOIRulesList"
+			)
+		);
 		
 		Form<OIRule> form = new Form<OIRule>("editOIRuleForm", formModel)
 		{
@@ -86,7 +231,6 @@ public class EditOIRulePage extends FrontendPage
 				}
 				
 				getSession().info("The rule was successfuly updated.");
-				setResponsePage(new EditOIGroupPage(rule.getGroupId()));
 			}
 		};
 		
