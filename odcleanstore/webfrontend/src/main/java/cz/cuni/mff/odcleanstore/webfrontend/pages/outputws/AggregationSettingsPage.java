@@ -5,6 +5,7 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -26,55 +27,88 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNav
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.AggregationTypeDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.ErrorStrategyDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.GlobalAggregationSettingsDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.MultivalueTypeDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.PropertySettingsDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 @AuthorizeInstantiation({ Role.PIC })
-public class CRPropertiesListPage extends FrontendPage
+public class AggregationSettingsPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger(CRPropertiesListPage.class);
+	private static Logger logger = Logger.getLogger(AggregationSettingsPage.class);
 	
 	private DaoForEntityWithSurrogateKey<PropertySettings> propertySettingsDao;
 	private Dao<GlobalAggregationSettings> globalAggregationSettingsDao;
+	private DaoForEntityWithSurrogateKey<AggregationType> aggregationTypeDao;
+	private DaoForEntityWithSurrogateKey<MultivalueType> multivalueTypeDao;
+	private DaoForEntityWithSurrogateKey<ErrorStrategy> errorStrategyDao;
 	
-	public CRPropertiesListPage() 
+	public AggregationSettingsPage() 
 	{
 		super(
-			"Home > Output WS > Aggregation Properties > List", 
-			"List all aggregation properties"
+			"Home > Output WS > Aggregation Properties", 
+			"Output WS aggregation settings"
 		);
 		
 		// prepare DAO objects
 		//
 		propertySettingsDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(PropertySettingsDao.class);
 		globalAggregationSettingsDao = daoLookupFactory.getDao(GlobalAggregationSettingsDao.class);
+		aggregationTypeDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(AggregationTypeDao.class);
+		multivalueTypeDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(MultivalueTypeDao.class);
+		errorStrategyDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(ErrorStrategyDao.class);
 		
 		// register page components
 		//
 		addHelpWindow(new AggregationPropertyHelpPanel("content"));
-		addGlobalAggregationSettingsSection();
+		addEditGlobalSettingsForm();
 		addPropertySettingsTable();
 	}
 
-	private void addGlobalAggregationSettingsSection()
+	private void addEditGlobalSettingsForm()
 	{
-		IModel<GlobalAggregationSettings> model = new LoadableDetachableModel<GlobalAggregationSettings>() 
+		IModel<GlobalAggregationSettings> formModel = new CompoundPropertyModel<GlobalAggregationSettings>(
+			globalAggregationSettingsDao.loadFirstRaw()
+		);
+		
+		Form<GlobalAggregationSettings> form = new Form<GlobalAggregationSettings>("editGlobalSettingsForm", formModel)
 		{
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected GlobalAggregationSettings load() 
+			protected void onSubmit()
 			{
-				return globalAggregationSettingsDao.loadFirstRaw();
+				GlobalAggregationSettings settings = this.getModelObject();
+				
+				try {
+					globalAggregationSettingsDao.save(settings);
+				}
+				catch (DaoException ex)
+				{
+					getSession().error(ex.getMessage());
+					return;
+				}
+				catch (Exception e) 
+				{
+					getSession().error("Could not save global settings due to an unexpected error");
+					return;
+				}
+				
+				getSession().info("The global settings were successfuly altered.");
+				setResponsePage(AggregationSettingsPage.class);
 			}
 		};
 		
-		addDefaultAggregationTypeLabel(model.getObject());
-		addDefaultMultivalueTypeLabel(model.getObject());
-		addDefaultErrorStrategyLabel(model.getObject());
+		form.add(createEnumSelectbox(multivalueTypeDao, "defaultMultivalueType"));
+		form.add(createEnumSelectbox(aggregationTypeDao, "defaultAggregationType"));
+		form.add(createEnumSelectbox(errorStrategyDao, "defaultErrorStrategy"));
+		
+		add(form);
 	}
 	
 	private void addDefaultAggregationTypeLabel(GlobalAggregationSettings settings)
@@ -135,7 +169,7 @@ public class CRPropertiesListPage extends FrontendPage
 						property.getId(), 
 						"property", 
 						new DeleteConfirmationMessage("property"),  
-						CRPropertiesListPage.this
+						AggregationSettingsPage.this
 					)
 				);
 				

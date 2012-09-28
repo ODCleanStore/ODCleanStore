@@ -9,8 +9,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.ontologies.EditOntologyPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.ontologies.NewOntologyPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.ontologies.OntologiesListPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.ontologies.OntologyDetailPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.outputws.CRPropertiesListPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.outputws.EditGlobalAggregationSettingsPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.outputws.AggregationSettingsPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.outputws.EditPropertyPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.outputws.NewPropertyPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.outputws.NewQELabelPropertyPage;
@@ -201,8 +200,7 @@ public class URLRouter
 
 	private void setupAggregationPropertiesRoutes(WebApplication app) 
 	{
-		app.mountPage(webUrlPrefix + "/output-ws/aggregation-properties/list", CRPropertiesListPage.class);
-		app.mountPage(webUrlPrefix + "/output-ws/aggregation-properties/global/edit", EditGlobalAggregationSettingsPage.class);
+		app.mountPage(webUrlPrefix + "/output-ws/aggregation-properties/list", AggregationSettingsPage.class);
 		app.mountPage(webUrlPrefix + "/output-ws/aggregation-properties/new", NewPropertyPage.class);
 		app.mountPage(webUrlPrefix + "/output-ws/aggregation-properties/edit", EditPropertyPage.class);	
 	}
