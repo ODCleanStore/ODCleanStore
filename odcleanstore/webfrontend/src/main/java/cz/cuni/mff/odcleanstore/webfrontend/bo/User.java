@@ -179,6 +179,16 @@ public class User extends EntityWithSurrogateKey
 		return this.roles.contains(role);
 	}
 	
+	/**
+	 * 
+	 * @param roleLabel
+	 * @return
+	 */
+	public boolean hasAssignedRole(String roleLabel)
+	{
+		return this.roles.contains(new Role(roleLabel, ""));
+	}
+	
 	@Override
 	public String toString()
 	{

@@ -1,8 +1,9 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo.qa;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.AuthoredEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.RulesGroupEntity;
 
-public class QARulesGroup extends RulesGroupEntity 
+public class QARulesGroup extends RulesGroupEntity implements AuthoredEntity
 {
 	private static final long serialVersionUID = 1L;
 

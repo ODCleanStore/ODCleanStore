@@ -3,9 +3,10 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo.en;
 import java.util.LinkedList;
 import java.util.List;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.AuthoredEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
-public class Pipeline extends EntityWithSurrogateKey
+public class Pipeline extends EntityWithSurrogateKey implements AuthoredEntity
 {
 	private static final long serialVersionUID = 1L;
 

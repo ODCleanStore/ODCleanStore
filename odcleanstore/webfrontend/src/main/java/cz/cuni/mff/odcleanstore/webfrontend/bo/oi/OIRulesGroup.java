@@ -3,9 +3,10 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo.oi;
 import java.util.LinkedList;
 import java.util.List;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.AuthoredEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.RulesGroupEntity;
 
-public class OIRulesGroup extends RulesGroupEntity 
+public class OIRulesGroup extends RulesGroupEntity implements AuthoredEntity
 {
 	private static final long serialVersionUID = 1L;
 

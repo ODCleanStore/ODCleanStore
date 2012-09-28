@@ -1,6 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo;
 
-public abstract class EntityWithSurrogateKey extends BusinessEntity
+public abstract class EntityWithSurrogateKey extends BusinessEntity implements IdentifiedEntity
 {
 	private static final long serialVersionUID = 1L;
 
