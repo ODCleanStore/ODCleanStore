@@ -12,6 +12,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.Ontology;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.RelationType;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DetachableAutoCompleteTextField;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.onto.OntologyMappingDao;
@@ -29,7 +30,7 @@ public class AddMappingPage extends FrontendPage {
 	private String targetUri;
 	private String relationType;
 
-	public AddMappingPage(String sourceOntoGraphName, String targetOntoGraphName) {
+	public AddMappingPage(Ontology sourceOntology, String targetOntoGraphName) {
 		super(
 			"Home > Ontologies > Mapping > Add mapping", 
 			"Ontologies mapping - add mapping"
@@ -41,10 +42,10 @@ public class AddMappingPage extends FrontendPage {
 		
 		// register page components
 		//
-		addMappingForm(sourceOntoGraphName, targetOntoGraphName);
+		addMappingForm(sourceOntology, targetOntoGraphName);
 	}
 
-	private void addMappingForm(final String sourceOntoGraphName, final String targetOntoGraphName)
+	private void addMappingForm(final Ontology sourceOntology, final String targetOntoGraphName)
 	{
 		Form<AddMappingPage> form = new Form<AddMappingPage>(
 			"addMappingForm", new CompoundPropertyModel<AddMappingPage>(this))
@@ -56,7 +57,7 @@ public class AddMappingPage extends FrontendPage {
 			{
 				try 
 				{
-					mappingDao.addMapping(sourceOntoGraphName, sourceUri, relationType, targetUri);
+					mappingDao.addMapping(sourceOntology.getId(), sourceUri, relationType, targetUri);
 				} catch (Exception e) 
 				{	
 					// TODO: log the error
@@ -64,10 +65,10 @@ public class AddMappingPage extends FrontendPage {
 					return;
 				}
 				getSession().info("The mapping was successfuly created.");
-				setResponsePage(new AddMappingPage(sourceOntoGraphName, targetOntoGraphName));
+				setResponsePage(new AddMappingPage(sourceOntology, targetOntoGraphName));
 			}
 		};
-		IModel<List<String>> model = createModel(sourceOntoGraphName);
+		IModel<List<String>> model = createModel(sourceOntology.getGraphName());
 		TextField<String> field = new DetachableAutoCompleteTextField("sourceUri", model);
 		field.add(new JenaURIValidator());
 		form.add(field);

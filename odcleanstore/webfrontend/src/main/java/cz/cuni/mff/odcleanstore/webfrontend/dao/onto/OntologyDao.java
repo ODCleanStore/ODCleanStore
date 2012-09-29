@@ -12,6 +12,7 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 
 import virtuoso.jena.driver.VirtGraph;
 
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
 import cz.cuni.mff.odcleanstore.datanormalization.rules.DataNormalizationRulesModel;
 import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
@@ -26,7 +27,6 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "ONTOLOGIES";
 	private static final String OUTPUT_LANGUAGE = "RDF/XML-ABBREV";
 	private static final String ENCODING = "UTF-8";
-	private static final String GRAPH_NAME_PREFIX = "http://opendata.cz/infrastructure/odcleanstore/ontologies/";
 	private static final String RULE_GROUP_PREFIX = "Generated from ontology: ";
 	private static final String QA_MAPPING_TABLE_NAME = "QA_RULES_GROUPS_TO_ONTOLOGIES_MAP";
 	private static final String DN_MAPPING_TABLE_NAME = "DN_RULES_GROUPS_TO_ONTOLOGIES_MAP";
@@ -37,10 +37,12 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 	private static final long serialVersionUID = 1L;
 	
 	private ParameterizedRowMapper<Ontology> rowMapper;
+	private String graphNamePrefix;
 	
 	public OntologyDao()
 	{
 		this.rowMapper = new OntologyRowMapper();
+		this.graphNamePrefix = ConfigLoader.getConfig().getWebFrontendGroup().getOntologiesGraphURIPrefix();
 	}
 
 	@Override
@@ -115,7 +117,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 	private void createGraphName(Ontology item) 
 	{
 		try {
-			item.setGraphName(GRAPH_NAME_PREFIX + URLEncoder.encode(item.getLabel(), ENCODING));
+			item.setGraphName(graphNamePrefix + URLEncoder.encode(item.getLabel(), ENCODING));
 		} catch (UnsupportedEncodingException e) {
 			// TODO handle
 		}
@@ -165,6 +167,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 	{
 		deleteRaw(item.getId());
 		deleteGraph(item.getGraphName());
+		deleteMappings(item.getId());
 	}
 	
 	private void generateRules(String tableName, String ontologyLabel) 
@@ -247,6 +250,15 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		
 		logger.debug("groupId" + groupId);
 		logger.debug("ontologyId" + ontologyId);
+		
+		getCleanJdbcTemplate().update(query, params);
+	}
+	
+	private void deleteMappings(Integer ontologyId)
+	{
+		String query = "SPARQL CLEAR GRAPH ??";
+		
+		Object[] params = { OntologyMappingDao.createGraphName(ontologyId) };
 		
 		getCleanJdbcTemplate().update(query, params);
 	}
