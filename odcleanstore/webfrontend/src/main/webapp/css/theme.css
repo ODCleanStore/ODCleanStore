@@ -39,9 +39,8 @@ td.actions { text-align: center; white-space: nowrap; }
 .navigation a {color: black; font-weight: bold; text-decoration: none;}
 .navigation a:hover {color: white;}
 
-form.disabledForm input, form.disabledForm textarea, form.disabledForm select { color: black; border-width: 1px;}
-form.disabledForm textarea { background-color: #EEEEEE; }
-form.disabledForm .required { border-color: #3589A1; }
+form.disabledForm input, form.disabledForm textarea, form.disabledForm select { color: black; border-width: 1px; background-color: #EEEEEE;}
+form.disabledForm span.required:after { display: none };
 
 /* DEPLOYMENT MODE */
 #menu{height:37px; display:block; padding:0; margin:0; border:1px solid; border-radius:5px;}
