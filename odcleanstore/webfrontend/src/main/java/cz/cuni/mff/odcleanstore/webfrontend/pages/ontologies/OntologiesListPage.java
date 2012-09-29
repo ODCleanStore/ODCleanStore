@@ -9,7 +9,8 @@ import org.apache.wicket.model.CompoundPropertyModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.Ontology;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthoredEntityDeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthoredEntityLimitedRedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
@@ -64,10 +65,10 @@ public class OntologiesListPage extends FrontendPage
 				item.add(new Label("graphName"));
 				
 				item.add(
-					new DeleteButton<Ontology>
-					(
+					new AuthoredEntityDeleteButton<Ontology>(
 						ontologyDao,
 						ontology,
+						Role.ONC,
 						"ontology",
 						new DeleteConfirmationMessage("ontology"),
 						OntologiesListPage.this
@@ -83,17 +84,19 @@ public class OntologiesListPage extends FrontendPage
 				);
 				
 				item.add(
-					new RedirectWithParamButton(
+					new AuthoredEntityLimitedRedirectButton(
 						ChooseOntologiesPage.class,
-						ontology.getId(), 
+						ontology,
+						Role.ONC,
 						"ontologyMapping"
 					)
 				);
 				
 				item.add(
-					new RedirectWithParamButton(
+					new AuthoredEntityLimitedRedirectButton(
 						EditOntologyPage.class,
-						ontology.getId(),
+						ontology,
+						Role.ONC,
 						"showEditOntologyPage"
 					)
 				);
