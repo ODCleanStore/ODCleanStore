@@ -8,27 +8,25 @@ public class AuthoredEntityLimitedRedirectButton extends RedirectWithParamButton
 {
 	private static final long serialVersionUID = 1L;
 	
-	private Integer authorId;
-	private String requiredRole;
+	private boolean isAuthorized;
 	
 	public AuthoredEntityLimitedRedirectButton(Class<? extends FrontendPage> redirectPage, AuthoredEntity entity, 
 		String requiredRole, String compName) 
 	{
 		super(redirectPage, entity.getId(), compName);
-		this.authorId = entity.getAuthorId();
-		this.requiredRole = requiredRole;
+		this.isAuthorized = AuthorizationHelper.isAuthorizedForEntityEditing(entity.getAuthorId(), requiredRole);
 	}
 	
 	@Override
 	public boolean isVisible()
 	{
-		return AuthorizationHelper.isAuthorizedForEntityEditing(authorId, requiredRole);
+		return isAuthorized;
 	}
 
 	@Override
 	public void onClick() 
 	{
-		if (AuthorizationHelper.isAuthorizedForEntityEditing(authorId, requiredRole)) {
+		if (isAuthorized) {
 			super.onClick();
 		}
 	}

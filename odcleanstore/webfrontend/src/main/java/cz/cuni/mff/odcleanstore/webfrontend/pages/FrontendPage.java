@@ -51,7 +51,7 @@ public abstract class FrontendPage extends WebPage
 
 	//private static Logger logger = Logger.getLogger(FrontendPage.class);
 	
-	protected DaoLookupFactory daoLookupFactory;
+	protected final DaoLookupFactory daoLookupFactory;
 	
 	/**
 	 * 

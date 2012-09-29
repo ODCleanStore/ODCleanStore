@@ -10,8 +10,7 @@ public class AuthoredEntityDeleteButton<BO extends EntityWithSurrogateKey> exten
 {
 	private static final long serialVersionUID = 1L;
 	
-	private Integer authorId;
-	private String requiredRole;
+	private boolean isAuthorized;
 	
 	/**
 	 * 
@@ -25,20 +24,19 @@ public class AuthoredEntityDeleteButton<BO extends EntityWithSurrogateKey> exten
 		String objName, DeleteConfirmationMessage message, FrontendPage redirectPage) 
 	{
 		super(dao, entity.getId(), objName, message, redirectPage);
-		this.authorId = entity.getAuthorId();
-		this.requiredRole = requiredRole;
+		this.isAuthorized = AuthorizationHelper.isAuthorizedForEntityEditing(entity.getAuthorId(), requiredRole);
 	}
 
 	@Override
 	public boolean isVisible()
 	{
-		return AuthorizationHelper.isAuthorizedForEntityEditing(authorId, requiredRole);
+		return isAuthorized;
 	}
 	
 	@Override
 	protected void delete() throws Exception 
 	{
-		if (AuthorizationHelper.isAuthorizedForEntityEditing(authorId, requiredRole))
+		if (isAuthorized)
 		{
 			super.delete();
 		}
