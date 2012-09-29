@@ -37,8 +37,10 @@ public class ChooseOntologiesPage extends FrontendPage {
 		//
 		this.ontologyDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OntologyDao.class);
 		this.sourceOntology = new Ontology();
+		
 		// register page components
 		//
+		addHelpWindow(new OntologyMappingHelpPanel("content"));
 		addChooseOntologiesForm(sourceOntologyId);
 	}
 	

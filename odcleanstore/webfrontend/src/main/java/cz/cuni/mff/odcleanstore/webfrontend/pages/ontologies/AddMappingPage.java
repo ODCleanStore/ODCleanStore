@@ -42,6 +42,7 @@ public class AddMappingPage extends FrontendPage {
 		
 		// register page components
 		//
+		addHelpWindow(new OntologyMappingHelpPanel("content"));
 		addMappingForm(sourceOntology, targetOntoGraphName);
 	}
 
