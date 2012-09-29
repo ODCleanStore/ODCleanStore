@@ -46,7 +46,7 @@ public class ChooseOntologiesPage extends FrontendPage {
 			@Override
 			protected void onSubmit()
 			{	
-				AddMappingPage page = new AddMappingPage(sourceOntology.getGraphName(),
+				AddMappingPage page = new AddMappingPage(sourceOntology,
 						targetOntology != null ? targetOntology.getGraphName() : null);
 				setResponsePage(page);
 			}
