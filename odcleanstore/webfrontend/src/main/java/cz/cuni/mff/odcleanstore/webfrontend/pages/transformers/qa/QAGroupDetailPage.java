@@ -111,7 +111,6 @@ public class QAGroupDetailPage extends LimitedEditingPage
 				}
 				
 				getSession().info("The group was successfuly updated.");
-				//setResponsePage(QAGroupsListPage.class);
 			}
 		};
 		

@@ -127,7 +127,7 @@ public class OIGroupsListPage extends FrontendPage
 				}
 				
 				getSession().info("The affected graphs were successfuly marked to be rerun.");
-				setResponsePage(OIGroupsListPage.class);
+				//setResponsePage(OIGroupsListPage.class);
             }
         };
 

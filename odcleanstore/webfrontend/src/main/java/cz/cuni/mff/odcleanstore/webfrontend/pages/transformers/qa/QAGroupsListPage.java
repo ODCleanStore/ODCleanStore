@@ -127,7 +127,7 @@ public class QAGroupsListPage extends FrontendPage
 				}
 				
 				getSession().info("The affected graphs were successfuly marked to be rerun.");
-				setResponsePage(QAGroupsListPage.class);
+				//setResponsePage(QAGroupsListPage.class);
             }
         };
 

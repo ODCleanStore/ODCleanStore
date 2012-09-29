@@ -93,7 +93,7 @@ public class PrefixesListPage extends FrontendPage
 	        	
 				getSession().info("The prefix mapping was successfuly deleted.");
 				
-				setResponsePage(PrefixesListPage.this);
+				//setResponsePage(PrefixesListPage.this);
 	        }
 	    };
 	    

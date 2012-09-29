@@ -128,7 +128,7 @@ public class DNGroupsListPage extends FrontendPage
 				}
 
 				getSession().info("The affected graphs were successfuly marked to be rerun.");
-				setResponsePage(DNGroupsListPage.class);
+				//setResponsePage(DNGroupsListPage.class);
 			}
 		};
 

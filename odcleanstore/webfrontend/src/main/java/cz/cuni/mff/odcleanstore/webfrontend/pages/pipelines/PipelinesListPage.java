@@ -156,7 +156,7 @@ public class PipelinesListPage extends FrontendPage
 				}
 				
 				getSession().info("The pipeline was successfuly marked as default.");
-				setResponsePage(PipelinesListPage.class);
+				//setResponsePage(PipelinesListPage.class);
             }
         };
 
@@ -232,7 +232,7 @@ public class PipelinesListPage extends FrontendPage
 				}
 				
 				getSession().info("The associated graphs were successfuly marked to be rerun.");
-				setResponsePage(PipelinesListPage.class);
+				//setResponsePage(PipelinesListPage.class);
             }
         };
 

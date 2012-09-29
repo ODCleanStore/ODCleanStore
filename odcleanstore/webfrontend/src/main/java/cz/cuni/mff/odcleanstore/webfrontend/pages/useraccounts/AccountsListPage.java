@@ -154,7 +154,7 @@ public class AccountsListPage extends FrontendPage
 				}
 								
 				getSession().info("The password was successfuly updated.");
-				setResponsePage(AccountsListPage.class);
+				//setResponsePage(AccountsListPage.class);
 			}
 		};
 		
