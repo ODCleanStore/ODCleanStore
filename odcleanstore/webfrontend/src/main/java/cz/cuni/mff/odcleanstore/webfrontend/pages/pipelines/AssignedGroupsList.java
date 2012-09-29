@@ -31,7 +31,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
-@AuthorizeInstantiation({ Role.PIC, Role.ADM })
+@AuthorizeInstantiation({ Role.PIC })
 public class AssignedGroupsList extends Panel
 {
 	private static final long serialVersionUID = 1L;

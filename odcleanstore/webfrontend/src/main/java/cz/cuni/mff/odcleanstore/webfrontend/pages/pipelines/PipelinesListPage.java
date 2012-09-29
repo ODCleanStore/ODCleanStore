@@ -26,7 +26,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-@AuthorizeInstantiation({ Role.PIC, Role.ADM })
+@AuthorizeInstantiation({ Role.PIC })
 public class PipelinesListPage extends FrontendPage 
 {
 	private static final long serialVersionUID = 1L;

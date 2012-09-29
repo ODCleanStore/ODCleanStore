@@ -17,7 +17,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.NewOIGroupPage
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.QAGroupDetailPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.NewQAGroupPage;
 
-@AuthorizeInstantiation({ Role.PIC, Role.ADM })
+@AuthorizeInstantiation({ Role.PIC })
 public class AssignedGroupsListPageFactory 
 {
 	public static AssignedGroupsList createAssignedQAGroupsList(

@@ -26,7 +26,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
-@AuthorizeInstantiation({ Role.PIC, Role.ADM })
+@AuthorizeInstantiation({ Role.PIC })
 public class PipelineDetailPage extends LimitedEditingPage
 {
 	private static final long serialVersionUID = 1L;
