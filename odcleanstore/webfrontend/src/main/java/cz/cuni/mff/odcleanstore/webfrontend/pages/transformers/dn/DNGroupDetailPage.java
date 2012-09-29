@@ -11,8 +11,10 @@ import org.apache.wicket.model.IModel;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRulesGroup;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedRedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.LimitedEditingForm;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
@@ -20,12 +22,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.TransformerAssignmentDetailPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
 @AuthorizeInstantiation({ Role.PIC })
-public class DNGroupDetailPage extends FrontendPage
+public class DNGroupDetailPage extends LimitedEditingPage
 {
 	private static final long serialVersionUID = 1L;
 
@@ -43,7 +45,9 @@ public class DNGroupDetailPage extends FrontendPage
 	{
 		super(
 			"Home > Backend > DN > Groups > Edit", 
-			"Edit DN rule group"
+			"Edit DN rule group",
+			DNRulesGroupDao.class,
+			groupId
 		);
 		
 		// prepare DAO objects
@@ -82,12 +86,12 @@ public class DNGroupDetailPage extends FrontendPage
 		DNRulesGroup group = dnRulesGroupDao.load(groupId);
 		IModel<DNRulesGroup> formModel = new CompoundPropertyModel<DNRulesGroup>(group);
 		
-		Form<DNRulesGroup> form = new Form<DNRulesGroup>("editDNGroupForm", formModel)
+		Form<DNRulesGroup> form = new LimitedEditingForm<DNRulesGroup>("editDNGroupForm", formModel, isEditable())
 		{
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit()
+			protected void onSubmitImpl()
 			{
 				DNRulesGroup group = this.getModelObject();
 				
@@ -124,9 +128,10 @@ public class DNGroupDetailPage extends FrontendPage
 	private void addDNRulesSection(final Integer groupId) 
 	{
 		add(
-			new RedirectWithParamButton(
+			new AuthorizedRedirectButton(
 				NewDNRulePage.class,
 				groupId, 
+				isEditable(),
 				"addNewRuleLink"
 			)
 		);
@@ -152,10 +157,11 @@ public class DNGroupDetailPage extends FrontendPage
 				item.add(new TruncatedLabel("description", MAX_LIST_COLUMN_TEXT_LENGTH));
 				
 				item.add(
-					new DeleteButton<DNRule>
+					new AuthorizedDeleteButton<DNRule>
 					(
 						dnRuleDao,
 						rule.getId(),
+						isEditable(),
 						"rule",
 						new DeleteConfirmationMessage("rule"),
 						DNGroupDetailPage.this

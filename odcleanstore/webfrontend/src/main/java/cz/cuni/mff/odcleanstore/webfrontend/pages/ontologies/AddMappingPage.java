@@ -3,6 +3,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.ontologies;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.wicket.authorization.UnauthorizedInstantiationException;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteSettings;
 import org.apache.wicket.markup.html.form.Form;
@@ -12,8 +13,11 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.Ontology;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.RelationType;
+import cz.cuni.mff.odcleanstore.webfrontend.core.AuthorizationHelper;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DetachableAutoCompleteTextField;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.onto.OntologyDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.onto.OntologyMappingDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.validators.JenaURIValidator;
@@ -23,6 +27,7 @@ public class AddMappingPage extends FrontendPage {
 	
 	private static final long serialVersionUID = 1L;
 	private OntologyMappingDao mappingDao;
+	private OntologyDao ontologyDao;
 	
 	private String sourceUri;
 	private String targetUri;
@@ -37,9 +42,15 @@ public class AddMappingPage extends FrontendPage {
 		// prepare DAO objects
 		//
 		mappingDao = daoLookupFactory.getDao(OntologyMappingDao.class);
+		ontologyDao = daoLookupFactory.getDao(OntologyDao.class);
 		
 		// register page components
 		//
+		if (!isAuthorizedForMapping(sourceOntoGraphName)) 
+		{
+			throw new UnauthorizedInstantiationException(getClass());
+		}
+		
 		addMappingForm(sourceOntoGraphName, targetOntoGraphName);
 	}
 
@@ -128,5 +139,19 @@ public class AddMappingPage extends FrontendPage {
 				return uriList;
 			}
 		};
+	}
+	
+	private boolean isAuthorizedForMapping(String sourceOntoGraphName)
+	{
+		List<Ontology> allOntologies = ontologyDao.loadAll();
+		for (Ontology o : allOntologies) 
+		{
+			if (o.getGraphName().equals(sourceOntoGraphName) 
+				&& AuthorizationHelper.isAuthorizedForEntityEditing(o.getAuthorId())) 
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 }

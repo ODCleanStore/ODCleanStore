@@ -27,6 +27,7 @@ public class AssignedGroupsListPageFactory
 		return new AssignedGroupsList(
 			"assignedGroupsListSection", 
 			transformerInstanceId, 
+			daoLookupFactory,
 			daoLookupFactory.getDao(QARulesGroupDao.class), 
 			daoLookupFactory.getDao(QARuleAssignmentDao.class), 
 			QAGroupDetailPage.class,
@@ -41,6 +42,7 @@ public class AssignedGroupsListPageFactory
 		return new AssignedGroupsList(
 			"assignedGroupsListSection", 
 			transformerInstanceId, 
+			daoLookupFactory,
 			daoLookupFactory.getDao(OIRulesGroupDao.class), 
 			daoLookupFactory.getDao(OIRuleAssignmentDao.class), 
 			OIGroupDetailPage.class,
@@ -55,6 +57,7 @@ public class AssignedGroupsListPageFactory
 		return new AssignedGroupsList(
 			"assignedGroupsListSection", 
 			transformerInstanceId, 
+			daoLookupFactory,
 			daoLookupFactory.getDao(DNRulesGroupDao.class), 
 			daoLookupFactory.getDao(DNRuleAssignmentDao.class), 
 			DNGroupDetailPage.class,

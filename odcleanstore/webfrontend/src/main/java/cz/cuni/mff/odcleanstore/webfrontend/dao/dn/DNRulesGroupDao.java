@@ -3,9 +3,9 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.dn;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRulesGroup;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 
-public class DNRulesGroupDao extends DaoForEntityWithSurrogateKey<DNRulesGroup>
+public class DNRulesGroupDao extends DaoForAuthorableEntity<DNRulesGroup>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "DN_RULES_GROUPS";
 
@@ -64,5 +64,11 @@ public class DNRulesGroupDao extends DaoForEntityWithSurrogateKey<DNRulesGroup>
 		logger.debug("id: " + item.getId());
 		
 		jdbcUpdate(query, params);
+	}
+
+	@Override
+	public int getAuthorId(Integer entityId)
+	{
+		return load(entityId).getAuthorId();
 	}
 }

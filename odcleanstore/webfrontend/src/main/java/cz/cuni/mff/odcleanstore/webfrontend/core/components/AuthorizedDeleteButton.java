@@ -6,31 +6,30 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.AuthorizationHelper;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-public class AuthoredEntityDeleteButton<BO extends EntityWithSurrogateKey> extends DeleteButton<BO>
+public class AuthorizedDeleteButton<BO extends EntityWithSurrogateKey> extends DeleteButton<BO>
 {
 	private static final long serialVersionUID = 1L;
 	
 	private boolean isAuthorized;
 	
-	/**
-	 * 
-	 * @param dao
-	 * @param objName
-	 * @param message
-	 * @param redirectPage
-	 * @param boId
-	 */
-	public AuthoredEntityDeleteButton(DaoForEntityWithSurrogateKey<BO> dao, AuthoredEntity entity, String objName,
+	public AuthorizedDeleteButton(DaoForEntityWithSurrogateKey<BO> dao, AuthoredEntity entity, String objName,
 		DeleteConfirmationMessage message, FrontendPage redirectPage) 
 	{
 		super(dao, entity.getId(), objName, message, redirectPage);
 		this.isAuthorized = AuthorizationHelper.isAuthorizedForEntityEditing(entity.getAuthorId());
 	}
 	
-	public AuthoredEntityDeleteButton(DaoForEntityWithSurrogateKey<BO> dao, Integer param, boolean isAuthorized, String objName,
-		DeleteConfirmationMessage message, FrontendPage redirectPage) 
+	public AuthorizedDeleteButton(DaoForEntityWithSurrogateKey<BO> dao, Integer param, boolean isAuthorized,
+		String objName,	DeleteConfirmationMessage message, FrontendPage redirectPage) 
 	{
 		super(dao, param, objName, message, redirectPage);
+		this.isAuthorized = isAuthorized;
+	}
+	
+	public AuthorizedDeleteButton(DaoForEntityWithSurrogateKey<BO> dao, Integer param, boolean isAuthorized, String compName,
+		String objName, DeleteConfirmationMessage message, FrontendPage redirectPage) 
+	{
+		super(dao, param, compName, objName, message, redirectPage);
 		this.isAuthorized = isAuthorized;
 	}
 

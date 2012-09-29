@@ -3,9 +3,9 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.qa;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 
-public class QARuleDao extends DaoForEntityWithSurrogateKey<QARule>
+public class QARuleDao extends DaoForAuthorableEntity<QARule>
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -73,5 +73,14 @@ public class QARuleDao extends DaoForEntityWithSurrogateKey<QARule>
 		logger.debug("id: " + item.getId());
 		
 		jdbcUpdate(query, params);
+	}
+	
+	@Override
+	public int getAuthorId(Integer entityId)
+	{
+		String query = "SELECT g.authorId " +
+				"\n FROM " + TABLE_NAME + " AS r JOIN " + QARulesGroupDao.TABLE_NAME + " AS g ON (g.id = r.groupId)" +
+				"\n WHERE r.id = ?";
+		return jdbcQueryForInt(query, entityId);
 	}
 }

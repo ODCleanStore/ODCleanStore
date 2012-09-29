@@ -167,6 +167,11 @@ public abstract class Dao implements Serializable
 	{
 		return getJdbcTemplate().queryForInt(sql);
 	}
+	
+	protected int jdbcQueryForInt(String sql, Object... args) throws DataAccessException 
+	{
+		return getJdbcTemplate().queryForInt(sql, args);
+	}
 
 	protected int jdbcUpdate(final String sql) throws Exception
 	{

@@ -12,14 +12,15 @@ import org.apache.wicket.validation.validator.RangeValidator;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.LimitedEditingForm;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
 @AuthorizeInstantiation({ Role.PIC, Role.ADM })
-public class TransformerAssignmentDetailPage extends FrontendPage
+public class TransformerAssignmentDetailPage extends LimitedEditingPage
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -42,7 +43,9 @@ public class TransformerAssignmentDetailPage extends FrontendPage
 		super
 		(
 			"Home > Backend > Pipelines > Transformer Instances > Edit", 
-			"Edit a transformer instance"
+			"Edit a transformer instance",
+			TransformerInstanceDao.class,
+			transformerInstanceId
 		);
 		
 
@@ -83,12 +86,12 @@ public class TransformerAssignmentDetailPage extends FrontendPage
 	private void addEditAssignmentForm(final TransformerInstance transformerInstance)
 	{
 		IModel<TransformerInstance> formModel = new CompoundPropertyModel<TransformerInstance>(transformerInstance);
-		Form<TransformerInstance> form = new Form<TransformerInstance>("editAssignmentForm", formModel)
+		Form<TransformerInstance> form = new LimitedEditingForm<TransformerInstance>("editAssignmentForm", formModel, isEditable())
 		{
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit()
+			protected void onSubmitImpl()
 			{
 				TransformerInstance assignment = this.getModelObject();
 				
@@ -103,11 +106,7 @@ public class TransformerAssignmentDetailPage extends FrontendPage
 				catch (Exception ex)
 				{
 					logger.error(ex.getMessage());
-					
-					getSession().error(
-						"The assignment could not be updated due to an unexpected error."
-					);
-					
+					getSession().error("The assignment could not be updated due to an unexpected error."					);
 					return;
 				}
 				

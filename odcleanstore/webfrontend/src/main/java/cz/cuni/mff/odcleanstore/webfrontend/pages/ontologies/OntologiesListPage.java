@@ -9,8 +9,9 @@ import org.apache.wicket.model.CompoundPropertyModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.Ontology;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthoredEntityDeleteButton;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthoredEntityLimitedRedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.AuthorizationHelper;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedRedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
@@ -64,7 +65,7 @@ public class OntologiesListPage extends FrontendPage
 				item.add(new Label("graphName"));
 				
 				item.add(
-					new AuthoredEntityDeleteButton<Ontology>(
+					new AuthorizedDeleteButton<Ontology>(
 						ontologyDao,
 						ontology,
 						"ontology",
@@ -82,17 +83,19 @@ public class OntologiesListPage extends FrontendPage
 				);
 				
 				item.add(
-					new AuthoredEntityLimitedRedirectButton(
+					new AuthorizedRedirectButton(
 						ChooseOntologiesPage.class,
-						ontology,
+						ontology.getId(),
+						AuthorizationHelper.isAuthorizedForEntityEditing(ontology),
 						"ontologyMapping"
 					)
 				);
 				
 				item.add(
-					new AuthoredEntityLimitedRedirectButton(
+					new AuthorizedRedirectButton(
 						EditOntologyPage.class,
-						ontology,
+						ontology.getId(),
+						AuthorizationHelper.isAuthorizedForEntityEditing(ontology.getAuthorId()),
 						"showEditOntologyPage"
 					)
 				);

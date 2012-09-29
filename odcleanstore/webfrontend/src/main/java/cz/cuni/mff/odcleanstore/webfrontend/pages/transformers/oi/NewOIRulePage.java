@@ -12,10 +12,11 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
 @AuthorizeInstantiation({ Role.PIC })
-public class NewOIRulePage extends FrontendPage 
+public class NewOIRulePage extends LimitedEditingPage 
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -25,8 +26,12 @@ public class NewOIRulePage extends FrontendPage
 	{
 		super(
 			"Home > Backend > OI > Groups > Rules > New", 
-			"Add a new OI rule"
+			"Add a new OI rule",
+			OIRulesGroupDao.class,
+			groupId
 		);
+		
+		checkUnathorizedInstantiation();
 		
 		// prepare DAO objects
 		//

@@ -3,9 +3,9 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.qa;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARulesGroup;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 
-public class QARulesGroupDao extends DaoForEntityWithSurrogateKey<QARulesGroup>
+public class QARulesGroupDao extends DaoForAuthorableEntity<QARulesGroup>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "QA_RULES_GROUPS";
 
@@ -64,5 +64,11 @@ public class QARulesGroupDao extends DaoForEntityWithSurrogateKey<QARulesGroup>
 		logger.debug("id: " + item.getId());
 		
 		jdbcUpdate(query, params);
+	}
+
+	@Override
+	public int getAuthorId(Integer entityId)
+	{
+		return load(entityId).getAuthorId();
 	}
 }

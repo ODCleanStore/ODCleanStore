@@ -11,13 +11,14 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
 @AuthorizeInstantiation({ Role.PIC, Role.ADM })
-public class NewTransformerAssignmentPage extends FrontendPage
+public class NewTransformerAssignmentPage extends LimitedEditingPage
 {
 	private static final long serialVersionUID = 1L;
 
@@ -37,9 +38,12 @@ public class NewTransformerAssignmentPage extends FrontendPage
 		super
 		(
 			"Home > Backend > Pipelines > Transformer Instances > New", 
-			"Add a new transformer instance"
+			"Add a new transformer instance",
+			PipelineDao.class,
+			pipelineId
 		);
 		
+		checkUnathorizedInstantiation();
 
 		// prepare DAO objects
 		//

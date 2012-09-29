@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
 
+import org.apache.wicket.authorization.UnauthorizedInstantiationException;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -9,12 +10,13 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.RulesGroupEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.RuleAssignment;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
 @AuthorizeInstantiation({ Role.PIC, Role.ADM })
-public class NewGroupAssignmentPage extends FrontendPage
+public class NewGroupAssignmentPage extends LimitedEditingPage
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -31,8 +33,12 @@ public class NewGroupAssignmentPage extends FrontendPage
 		super
 		(
 			"Home > Backend > Pipelines > Transformer Instances > Assigned Groups > New", 
-			"Assign a new group"
+			"Assign a new group",
+			TransformerInstanceDao.class,
+			transformerInstanceId
 		);
+		
+		checkUnathorizedInstantiation();
 		
 		this.groupsDao = groupsDao;
 		this.assignedGroupsDao = assignedGroupsDao;

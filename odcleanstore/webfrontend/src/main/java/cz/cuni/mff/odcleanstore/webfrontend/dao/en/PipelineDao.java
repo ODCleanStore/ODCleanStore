@@ -7,9 +7,9 @@ import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 
-public class PipelineDao extends DaoForEntityWithSurrogateKey<Pipeline>
+public class PipelineDao extends DaoForAuthorableEntity<Pipeline>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "PIPELINES";
 	
@@ -122,5 +122,11 @@ public class PipelineDao extends DaoForEntityWithSurrogateKey<Pipeline>
 		};
 		
 		jdbcUpdate(query, params);
+	}
+
+	@Override
+	public int getAuthorId(Integer entityId)
+	{
+		return load(entityId).getAuthorId();
 	}
 }

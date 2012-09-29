@@ -6,10 +6,9 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.IModel;
 
 /**
- * Login form.
  * @author Jan Michelfeit
  */
-public abstract class AuthoredEntityForm<T> extends Form<T>
+public abstract class LimitedEditingForm<T> extends Form<T>
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -17,12 +16,12 @@ public abstract class AuthoredEntityForm<T> extends Form<T>
 	
 	private boolean isAuthorized;
 	
-	public AuthoredEntityForm(String id, IModel<T> model, boolean isAuthorized) 
+	public LimitedEditingForm(String id, IModel<T> model, boolean isAuthorized) 
 	{
 		this(id, model, isAuthorized, null);
 	}
 	
-	public AuthoredEntityForm(String id, IModel<T> model, boolean isAuthorized, String submitButtonId) 
+	public LimitedEditingForm(String id, IModel<T> model, boolean isAuthorized, String submitButtonId) 
 	{
 		super(id, model);
 		this.isAuthorized = isAuthorized;

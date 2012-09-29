@@ -12,8 +12,10 @@ import org.apache.wicket.model.IModel;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.LimitedEditingForm;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedRedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
@@ -22,10 +24,10 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentSortableDataPro
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
 @AuthorizeInstantiation({ Role.PIC, Role.ADM })
-public class PipelineDetailPage extends FrontendPage
+public class PipelineDetailPage extends LimitedEditingPage
 {
 	private static final long serialVersionUID = 1L;
 
@@ -37,7 +39,9 @@ public class PipelineDetailPage extends FrontendPage
 		super
 		(
 			"Home > Backend > Pipelines > Edit", 
-			"Edit a pipeline"
+			"Edit a pipeline",
+			PipelineDao.class,
+			pipelineId
 		);
 		
 
@@ -60,12 +64,12 @@ public class PipelineDetailPage extends FrontendPage
 		Pipeline pipeline = pipelineDao.load(pipelineId);
 		IModel<Pipeline> formModel = new CompoundPropertyModel<Pipeline>(pipeline);
 		
-		Form<Pipeline> form = new Form<Pipeline>("editPipelineForm", formModel)
+		Form<Pipeline> form = new LimitedEditingForm<Pipeline>("editPipelineForm", formModel, isEditable())
 		{
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit()
+			protected void onSubmitImpl()
 			{
 				Pipeline pipeline = this.getModelObject();
 				
@@ -110,9 +114,10 @@ public class PipelineDetailPage extends FrontendPage
 	private void addAssignmentSection(final Integer pipelineId) 
 	{
 		add(
-			new RedirectWithParamButton(
+			new AuthorizedRedirectButton(
 				NewTransformerAssignmentPage.class, 
-				pipelineId, 
+				pipelineId,
+				isEditable(),
 				"newAssignmentLink"
 			)
 		);
@@ -147,7 +152,7 @@ public class PipelineDetailPage extends FrontendPage
 				item.add(new Label("priority"));
 				
 				item.add(
-					new AuthoredEntityDeleteButton<TransformerInstance>
+					new AuthorizedDeleteButton<TransformerInstance>
 					(
 						transformerInstanceDao,
 						transformerInstance.getId(),

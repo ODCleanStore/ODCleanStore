@@ -9,13 +9,14 @@ import org.apache.wicket.validation.validator.RangeValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutput;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.LimitedEditingForm;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputDao;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
 @AuthorizeInstantiation({ Role.PIC })
-public class DBOutputDetailPage extends FrontendPage 
+public class DBOutputDetailPage extends LimitedEditingPage 
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -26,7 +27,9 @@ public class DBOutputDetailPage extends FrontendPage
 	{
 		super(
 			"Home > OI > Rules groups > Group > Rules > Rule > DB Outputs > Edit", 
-			"Add a new DB Output"
+			"Add a new DB Output",
+			OIOutputDao.class,
+			outputId
 		);
 		
 		// prepare DAO objects
@@ -55,12 +58,12 @@ public class DBOutputDetailPage extends FrontendPage
 	{
 		IModel<OIOutput> formModel = new CompoundPropertyModel<OIOutput>(output);
 		
-		Form<OIOutput> form = new Form<OIOutput>("editDBOutputForm", formModel)
+		Form<OIOutput> form = new LimitedEditingForm<OIOutput>("editDBOutputForm", formModel, isEditable())
 		{
 			private static final long serialVersionUID = 1L;
 			
 			@Override
-			protected void onSubmit()
+			protected void onSubmitImpl()
 			{
 				OIOutput output = getModelObject();
 				

@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.ontologies;
 
+import org.apache.wicket.authorization.UnauthorizedInstantiationException;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextArea;
@@ -11,6 +12,7 @@ import org.apache.wicket.model.util.ListModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.Ontology;
+import cz.cuni.mff.odcleanstore.webfrontend.core.AuthorizationHelper;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UploadButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.onto.OntologyDao;
@@ -34,16 +36,20 @@ public class EditOntologyPage extends FrontendPage
 		//
 		this.ontologyDao = daoLookupFactory.getDao(OntologyDao.class);
 		
+		Ontology ontology = ontologyDao.load(ontologyId);
+		if (!AuthorizationHelper.isAuthorizedForEntityEditing(ontology.getAuthorId())) 
+		{
+			throw new UnauthorizedInstantiationException(getClass());
+		}
+		
 		// register page components
 		//
 		addHelpWindow(new OntologyHelpPanel("content"));
-		addEditOntologyForm(ontologyId);
+		addEditOntologyForm(ontology);
 	}
 	
-	private void addEditOntologyForm(final Integer groupId)
+	private void addEditOntologyForm(final Ontology ontology)
 	{	
-		Ontology ontology = ontologyDao.load(groupId);
-		
 		IModel<Ontology> formModel = new CompoundPropertyModel<Ontology>(ontology);
 		
 		Form<Ontology> form = new Form<Ontology>("editOntologyForm", formModel)

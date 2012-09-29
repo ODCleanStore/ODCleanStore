@@ -5,14 +5,14 @@ import java.util.List;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponent;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 
 /**
  * 
  * @author Dusan
  *
  */
-public class DNRuleComponentDao extends DaoForEntityWithSurrogateKey<DNRuleComponent>
+public class DNRuleComponentDao extends DaoForAuthorableEntity<DNRuleComponent>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "DN_RULE_COMPONENTS";
 
@@ -125,5 +125,15 @@ public class DNRuleComponentDao extends DaoForEntityWithSurrogateKey<DNRuleCompo
 		logger.debug("id: " + item.getId());
 		
 		jdbcUpdate(query, params);
+	}
+	
+	@Override
+	public int getAuthorId(Integer entityId)
+	{
+		String query = "SELECT g.authorId " +
+				"\n FROM " + DNRuleDao.TABLE_NAME + " AS r JOIN " + DNRulesGroupDao.TABLE_NAME + " AS g ON (g.id = r.groupId)" +
+				"\n   JOIN " + TABLE_NAME + " AS c ON (c.ruleId = r.id)" +
+				"\n WHERE c.id = ?";
+		return jdbcQueryForInt(query, entityId);
 	}
 }

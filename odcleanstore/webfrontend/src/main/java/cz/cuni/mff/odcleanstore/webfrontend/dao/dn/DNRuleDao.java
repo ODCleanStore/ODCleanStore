@@ -3,9 +3,9 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.dn;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 
-public class DNRuleDao extends DaoForEntityWithSurrogateKey<DNRule>
+public class DNRuleDao extends DaoForAuthorableEntity<DNRule>
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -64,5 +64,14 @@ public class DNRuleDao extends DaoForEntityWithSurrogateKey<DNRule>
 		logger.debug("id: " + item.getId());
 		
 		jdbcUpdate(query, params);
+	}
+	
+	@Override
+	public int getAuthorId(Integer entityId)
+	{
+		String query = "SELECT g.authorId " +
+				"\n FROM " + TABLE_NAME + " AS r JOIN " + DNRulesGroupDao.TABLE_NAME + " AS g ON (g.id = r.groupId)" +
+				"\n WHERE r.id = ?";
+		return jdbcQueryForInt(query, entityId);
 	}
 }

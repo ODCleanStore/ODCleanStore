@@ -3,9 +3,9 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.oi;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 
-public class OIRuleDao extends DaoForEntityWithSurrogateKey<OIRule>
+public class OIRuleDao extends DaoForAuthorableEntity<OIRule>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "OI_RULES";
 
@@ -91,5 +91,14 @@ public class OIRuleDao extends DaoForEntityWithSurrogateKey<OIRule>
 		logger.debug("id: " + item.getId());
 		
 		jdbcUpdate(query, params);
+	}
+
+	@Override
+	public int getAuthorId(Integer entityId)
+	{
+		String query = "SELECT g.authorId " +
+				"\n FROM " + TABLE_NAME + " AS r JOIN " + OIRulesGroupDao.TABLE_NAME + " AS g ON (g.id = r.groupId)" +
+				"\n WHERE r.id = ?";
+		return jdbcQueryForInt(query, entityId);
 	}
 }

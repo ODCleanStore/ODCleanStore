@@ -12,8 +12,10 @@ import org.apache.wicket.model.IModel;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponent;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedRedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.LimitedEditingForm;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
@@ -21,10 +23,10 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleComponentDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
 @AuthorizeInstantiation({ Role.PIC })
-public class DNRuleDetailPage extends FrontendPage
+public class DNRuleDetailPage extends LimitedEditingPage
 {
 	private static final long serialVersionUID = 1L;
 
@@ -37,7 +39,9 @@ public class DNRuleDetailPage extends FrontendPage
 	{
 		super(
 			"Home > Backend > DN > Groups > Rules > Edit", 
-			"Edit DN rule"
+			"Edit DN rule",
+			DNRuleDao.class,
+			ruleId
 		);
 		
 		// prepare DAO objects
@@ -65,12 +69,12 @@ public class DNRuleDetailPage extends FrontendPage
 	{
 		IModel<DNRule> formModel = new CompoundPropertyModel<DNRule>(rule);
 		
-		Form<DNRule> form = new Form<DNRule>("editDNRuleForm", formModel)
+		Form<DNRule> form = new LimitedEditingForm<DNRule>("editDNRuleForm", formModel, isEditable())
 		{
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit()
+			protected void onSubmitImpl()
 			{
 				DNRule rule = this.getModelObject();
 				
@@ -94,7 +98,6 @@ public class DNRuleDetailPage extends FrontendPage
 				}
 				
 				getSession().info("The rule was successfuly updated.");
-				setResponsePage(new DNGroupDetailPage(rule.getGroupId()));
 			}
 		};
 		
@@ -106,9 +109,10 @@ public class DNRuleDetailPage extends FrontendPage
 	private void addRuleComponentsSection(Integer ruleId) 
 	{
 		add(
-			new RedirectWithParamButton(
+			new AuthorizedRedirectButton(
 				NewDNRuleComponentPage.class,
 				ruleId, 
+				isEditable(),
 				"addNewComponentLink"
 			)
 		);
@@ -140,10 +144,11 @@ public class DNRuleDetailPage extends FrontendPage
 				item.add(new TruncatedLabel("description", MAX_LIST_COLUMN_TEXT_LENGTH));
 				
 				item.add(
-					new DeleteButton<DNRuleComponent>
+					new AuthorizedDeleteButton<DNRuleComponent>
 					(
 						dnRuleComponentDao,
 						component.getId(),
+						isEditable(),
 						"component",
 						new DeleteConfirmationMessage("rule component"),
 						DNRuleDetailPage.this

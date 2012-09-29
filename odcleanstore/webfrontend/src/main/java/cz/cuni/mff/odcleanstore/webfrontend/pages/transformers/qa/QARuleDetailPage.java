@@ -9,13 +9,14 @@ import org.apache.wicket.validation.validator.RangeValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.LimitedEditingForm;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
 @AuthorizeInstantiation({ Role.PIC })
-public class QARuleDetailPage extends FrontendPage
+public class QARuleDetailPage extends LimitedEditingPage
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -25,7 +26,9 @@ public class QARuleDetailPage extends FrontendPage
 	{
 		super(
 			"Home > Backend > QA > Groups > Rules > Edt", 
-			"Edit a QA rule"
+			"Edit a QA rule",
+			QARuleDao.class,
+			ruleId
 		);
 		
 		// prepare DAO objects
@@ -53,12 +56,12 @@ public class QARuleDetailPage extends FrontendPage
 	{
 		IModel<QARule> formModel = new CompoundPropertyModel<QARule>(rule);
 		
-		Form<QARule> form = new Form<QARule>("editQARuleForm", formModel)
+		Form<QARule> form = new LimitedEditingForm<QARule>("editQARuleForm", formModel, isEditable())
 		{
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit()
+			protected void onSubmitImpl()
 			{
 				QARule rule = this.getModelObject();
 				

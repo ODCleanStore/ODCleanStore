@@ -86,7 +86,7 @@ public class ChooseOntologiesPage extends FrontendPage {
 		ArrayList<Ontology> authorizedOntologies = new ArrayList<Ontology>();
 		for (Ontology o : allOntologies)
 		{
-			if (AuthorizationHelper.isAuthorizedForEntityEditing(o))
+			if (AuthorizationHelper.isAuthorizedForEntityEditing(o.getAuthorId()))
 			{
 				authorizedOntologies.add(o);
 			}

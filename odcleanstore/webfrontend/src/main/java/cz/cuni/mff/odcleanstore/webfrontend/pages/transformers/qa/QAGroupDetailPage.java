@@ -12,8 +12,10 @@ import org.apache.wicket.model.IModel;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARulesGroup;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedRedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.LimitedEditingForm;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
@@ -22,12 +24,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentSortableDataPro
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.TransformerAssignmentDetailPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
 @AuthorizeInstantiation({ Role.PIC })
-public class QAGroupDetailPage extends FrontendPage
+public class QAGroupDetailPage extends LimitedEditingPage
 {
 	private static final long serialVersionUID = 1L;
 
@@ -45,7 +47,9 @@ public class QAGroupDetailPage extends FrontendPage
 	{
 		super(
 			"Home > Backend > QA > Groups > Edit", 
-			"Edit QA rule group"
+			"Edit QA rule group",
+			QARulesGroupDao.class,
+			groupId
 		);
 		
 		// prepare DAO objects
@@ -78,12 +82,12 @@ public class QAGroupDetailPage extends FrontendPage
 		QARulesGroup group = qaRulesGroupDao.load(groupId);
 		IModel<QARulesGroup> formModel = new CompoundPropertyModel<QARulesGroup>(group);
 		
-		Form<QARulesGroup> form = new Form<QARulesGroup>("editQAGroupForm", formModel)
+		Form<QARulesGroup> form = new LimitedEditingForm<QARulesGroup>("editQAGroupForm", formModel, isEditable())
 		{
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit()
+			protected void onSubmitImpl()
 			{
 				QARulesGroup group = this.getModelObject();
 				
@@ -120,9 +124,10 @@ public class QAGroupDetailPage extends FrontendPage
 	private void addQARulesSection(final Integer groupId) 
 	{
 		add(
-			new RedirectWithParamButton(
+			new AuthorizedRedirectButton(
 				NewQARulePage.class,
 				groupId, 
+				isEditable(),
 				"addNewRuleLink"
 			)
 		);
@@ -156,10 +161,11 @@ public class QAGroupDetailPage extends FrontendPage
 				item.add(new TruncatedLabel("description", MAX_LIST_COLUMN_TEXT_LENGTH));
 				
 				item.add(
-					new DeleteButton<QARule>
+					new AuthorizedDeleteButton<QARule>
 					(
 						qaRuleDao,
 						rule.getId(),
+						isEditable(),
 						"rule",
 						new DeleteConfirmationMessage("rule"),
 						QAGroupDetailPage.this

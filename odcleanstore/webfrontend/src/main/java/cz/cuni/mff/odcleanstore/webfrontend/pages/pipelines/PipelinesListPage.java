@@ -14,7 +14,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
 import cz.cuni.mff.odcleanstore.webfrontend.core.AuthorizationHelper;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthoredEntityDeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
@@ -78,7 +78,7 @@ public class PipelinesListPage extends FrontendPage
 				item.add(new Label("isLocked"));
 				
 				item.add(
-					new AuthoredEntityDeleteButton<Pipeline>
+					new AuthorizedDeleteButton<Pipeline>
 					(
 						pipelineDao,
 						pipeline,

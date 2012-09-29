@@ -9,11 +9,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
 @AuthorizeInstantiation({ Role.PIC })
-public class NewDNRulePage extends FrontendPage
+public class NewDNRulePage extends LimitedEditingPage
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -23,8 +24,12 @@ public class NewDNRulePage extends FrontendPage
 	{
 		super(
 			"Home > Backend > DN > Groups > Rules > New", 
-			"Add a new DN rule"
+			"Add a new DN rule",
+			DNRulesGroupDao.class,
+			groupId
 		);
+		
+		checkUnathorizedInstantiation();
 		
 		// prepare DAO objects
 		//

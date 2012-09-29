@@ -10,15 +10,17 @@ import org.apache.wicket.validation.validator.RangeValidator;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutput;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutputType;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.LimitedEditingForm;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIFileFormatDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputTypeDao;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
 @AuthorizeInstantiation({ Role.PIC })
-public class NewFileOutputPage extends FrontendPage 
+public class NewFileOutputPage extends LimitedEditingPage 
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -30,7 +32,9 @@ public class NewFileOutputPage extends FrontendPage
 	{
 		super(
 			"Home > Backend > OI > Groups > Rules > File Outputs > New", 
-			"Add a new file output"
+			"Add a new file output",
+			OIRuleDao.class,
+			ruleId
 		);
 		
 		// prepare DAO objects
@@ -58,12 +62,12 @@ public class NewFileOutputPage extends FrontendPage
 	{
 		IModel<OIOutput> formModel = new CompoundPropertyModel<OIOutput>(new OIOutput());
 		
-		Form<OIOutput> form = new Form<OIOutput>("newFileOutputForm", formModel)
+		Form<OIOutput> form = new LimitedEditingForm<OIOutput>("newFileOutputForm", formModel, isEditable())
 		{
 			private static final long serialVersionUID = 1L;
 			
 			@Override
-			protected void onSubmit()
+			protected void onSubmitImpl()
 			{
 				OIOutput output = getModelObject();
 				
