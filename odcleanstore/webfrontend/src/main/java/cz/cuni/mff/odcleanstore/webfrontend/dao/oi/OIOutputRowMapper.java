@@ -22,8 +22,8 @@ public class OIOutputRowMapper extends CustomRowMapper<OIOutput>
 			rs.getInt("oid"),
 			rs.getInt("ruleId"),
 			rs.getInt("otid"),
-			getDouble(rs, "minConfidence"),
-			getDouble(rs, "maxConfidence"),
+			getBigDecimal(rs, "minConfidence"),
+			getBigDecimal(rs, "maxConfidence"),
 			rs.getString("filename"),
 			mapFileFormat(rs)
 		);
