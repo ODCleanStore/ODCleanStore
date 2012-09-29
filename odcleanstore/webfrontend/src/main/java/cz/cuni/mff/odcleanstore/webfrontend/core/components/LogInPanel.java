@@ -32,7 +32,7 @@ public class LogInPanel extends Panel
  * Login form.
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  */
-class LogInForm extends Form<User>
+class LogInForm extends Form<LogInForm>
 {
 	private static final long serialVersionUID = 1L;
 
@@ -49,7 +49,7 @@ class LogInForm extends Form<User>
 		
 		this.userDao = userDao;
 		
-		setModel(new CompoundPropertyModel(this));
+		setModel(new CompoundPropertyModel<LogInForm>(this));
 		
 		add(new TextField<String>("username"));
 		add(new PasswordTextField("password"));

@@ -4,27 +4,24 @@
 
 <h2>Global aggregation settings</h2>
 
-<wicket:link>
-<div>
-	<a class="placedright button" href="EditGlobalAggregationSettingsPage.html">Adjust global settings</a>
-	<div class="clear">&nbsp;</div>
-</div>
-</wicket:link>
-				
-<div class="datalistitem">
-	<strong class="block">Default multivalue:</strong>
-	<span wicket:id="defaultMultivalueType">[default multivalue]</span>
-</div>
-
-<div class="datalistitem">
-	<strong class="block">Default aggregation type:</strong>
-	<span wicket:id="defaultAggregationType">[default aggregation type]</span>
-</div>
-
-<div class="datalistitem">
-	<strong class="block">Aggregation error strategy:</strong>
-	<span wicket:id="defaultErrorStrategy">[aggregation error strategy]</span>
-</div>
+<form wicket:id="editGlobalSettingsForm">
+    <p>
+        <label for="defaultMultivalueType">Default multivalue:</label>
+        <select wicket:id="defaultMultivalueType" id="defaultMultivalueType" class="required">
+        </select>
+    </p>
+    <p>
+        <label for="defaultAggregationType">Default aggregation type:</label>
+        <select wicket:id="defaultAggregationType" id="defaultAggregationType" class="required">
+        </select>
+    </p>
+    <p>
+        <label for="defaultErrorStrategy">Aggregation error strategy:</label>
+        <select wicket:id="defaultErrorStrategy" id="defaultErrorStrategy" class="required">
+        </select>
+    </p>
+    <input type="submit" value="Submit" />
+</form>
 
 <h2>Aggregation settings for individual properties</h2>
 
@@ -54,9 +51,9 @@
 		<td wicket:id="property">foaf:name</td>
 		<td wicket:id="multivalueType">true</td>
 		<td wicket:id="aggregationType">LONGEST</td>
-		<td>
-			<input wicket:id="deleteProperty" type="button" value="Delete" />
+		<td class="actions">
 			<input wicket:id="showEditGlobalAggregationSettingsPage" type="button" value="Edit" />
+			<input wicket:id="deleteProperty" type="button" value="Delete" class="delete" />
 		</td>
 	</tr>
 </table>

@@ -28,13 +28,13 @@ public abstract class ConfigGroup {
     /** Type of database. */
     protected enum EnumDbConnectionType {
         /** Dirty database. */
-        DIRTY("dirty_"),
+        DIRTY("db.dirty."),
         
         /** Dirty database - authorized for SPARQL UPDATE. */
-        DIRTY_UPDATE("dirty_update_"),
+        DIRTY_UPDATE("db.dirty_update."),
         
         /** Clean database. */
-        CLEAN("clean_");
+        CLEAN("db.clean.");
         
         private final String prefix;
         
@@ -87,36 +87,15 @@ public abstract class ConfigGroup {
      * @throws ParameterNotAvailableException
      * @throws IllegalParameterFormatException
      */
-    protected static JDBCConnectionCredentials loadJDBCConnectionCredentials(Properties properties,
-    		EnumDbConnectionType dbType) throws ParameterNotAvailableException, IllegalParameterFormatException
-    {
-        return loadJDBCConnectionCredentials(properties, dbType, false);
-    }
-    
-    /**
-     * Extracts JDBC configuration values for the database given by its name
-     * from the given Properties instance. Returns a JDBCConnectionCredentials object instantiated using
-     * the extracted values.
-     *
-     * @param properties
-     * @param dbName
-     * @param isVirtuosoDataset
-     * @return
-     * @throws ParameterNotAvailableException
-     * @throws IllegalParameterFormatException
-     */
-    protected static JDBCConnectionCredentials loadJDBCConnectionCredentials(Properties properties,
-    		EnumDbConnectionType dbType, boolean isVirtuosoDataset)
+    protected static JDBCConnectionCredentials loadJDBCConnectionCredentials(Properties properties, EnumDbConnectionType dbType)
             throws ParameterNotAvailableException, IllegalParameterFormatException
     {
         ParameterFormat<String> formatString = new FormatString();
         
-        String connectionStringPrefix = isVirtuosoDataset ? "dataset_" : "jdbc_";
-        
         String connectionString = loadParam(properties, 
-        		dbType.getConfigPrefix() + connectionStringPrefix + "connection_string", formatString);
-        String username = loadParam(properties, dbType.getConfigPrefix() + "jdbc_username", formatString);
-        String password = loadParam(properties, dbType.getConfigPrefix() + "jdbc_password", formatString);
+        		dbType.getConfigPrefix() + "jdbc.connection_string", formatString);
+        String username = loadParam(properties, dbType.getConfigPrefix() + "jdbc.username", formatString);
+        String password = loadParam(properties, dbType.getConfigPrefix() + "jdbc.password", formatString);
 
         return new JDBCConnectionCredentials(connectionString, username, password);
     }
@@ -138,11 +117,11 @@ public abstract class ConfigGroup {
             throws ParameterNotAvailableException, IllegalParameterFormatException {
         
         ParameterFormat<URL> formatURL = new FormatURL();
-        URL url = loadParam(properties, dbType.getConfigPrefix() + "sparql_endpoint_url", formatURL);
+        URL url = loadParam(properties, dbType.getConfigPrefix() + "sparql.endpoint_url", formatURL);
         if (requireAuth) {
             ParameterFormat<String> formatString = new FormatString();
-            String username = loadParam(properties, dbType.getConfigPrefix() + "sparql_endpoint_username", formatString);
-            String password = loadParam(properties, dbType.getConfigPrefix() + "sparql_endpoint_password", formatString);
+            String username = loadParam(properties, dbType.getConfigPrefix() + "sparql.endpoint_username", formatString);
+            String password = loadParam(properties, dbType.getConfigPrefix() + "sparql.endpoint_password", formatString);
             return new SparqlEndpointConnectionCredentials(url, username, password);
         } else {
             return new SparqlEndpointConnectionCredentials(url);

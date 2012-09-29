@@ -1,12 +1,12 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn;
 
-import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
-import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
@@ -20,7 +20,9 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.TransformerAssignmentDetailPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
 @AuthorizeInstantiation({ Role.PIC })
@@ -28,16 +30,21 @@ public class DNGroupDetailPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger(DNGroupDetailPage.class);
+	//private static Logger logger = Logger.getLogger(EditDNGroupPage.class);
 	
 	private DaoForEntityWithSurrogateKey<DNRulesGroup> dnRulesGroupDao;
 	private DaoForEntityWithSurrogateKey<DNRule> dnRuleDao;
 
 	public DNGroupDetailPage(final Integer groupId) 
 	{
+		this(groupId, null);
+	}
+	
+	public DNGroupDetailPage(final Integer groupId, final Integer transformerInstanceId) 
+	{
 		super(
-			"Home > Backend > DN > Groups > Detail", 
-			"Show DN rule group detail"
+			"Home > Backend > DN > Groups > Edit", 
+			"Edit DN rule group"
 		);
 		
 		// prepare DAO objects
@@ -47,10 +54,22 @@ public class DNGroupDetailPage extends FrontendPage
 		
 		// register page components
 		//
+		addBackToPipelineLink(transformerInstanceId);
 		addHelpWindow("rulesGroupHelpWindow", "openRulesGroupHelpWindow", new RulesGroupHelpPanel("content"));
 		addHelpWindow("dnRuleHelpWindow", "openDNRuleHelpWindow", new DNRuleHelpPanel("content"));
-		addGroupInformationSection(groupId);
+		addEditDNRulesGroupForm(groupId);
 		addDNRulesSection(groupId);
+	}
+	
+	private void addBackToPipelineLink(Integer transformerInstanceId) 
+	{
+		RedirectWithParamButton link = new RedirectWithParamButton(
+			TransformerAssignmentDetailPage.class,
+			transformerInstanceId, 
+			"backToPipelineLink"
+		);
+		link.setVisible(transformerInstanceId != null);
+		add(link);
 	}
 	
 	/*
@@ -59,12 +78,48 @@ public class DNGroupDetailPage extends FrontendPage
 	 	=======================================================================
 	*/
 	
-	private void addGroupInformationSection(final Integer groupId)
+	private void addEditDNRulesGroupForm(final Integer groupId)
 	{
-		setDefaultModel(createModelForOverview(dnRulesGroupDao, groupId));
+		DNRulesGroup group = dnRulesGroupDao.load(groupId);
+		IModel<DNRulesGroup> formModel = new CompoundPropertyModel<DNRulesGroup>(group);
 		
-		add(new Label("label"));
-		add(new Label("description"));
+		Form<DNRulesGroup> form = new Form<DNRulesGroup>("editDNGroupForm", formModel)
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onSubmit()
+			{
+				DNRulesGroup group = this.getModelObject();
+				
+				try {
+					dnRulesGroupDao.update(group);
+				}
+				catch (DaoException ex)
+				{
+					getSession().error(ex.getMessage());
+					return;
+				}
+				catch (Exception ex)
+				{
+					// TODO: log the error
+					
+					getSession().error(
+						"The group could not be updated due to an unexpected error."
+					);
+					
+					return;
+				}
+				
+				getSession().info("The group was successfuly updated.");
+				//setResponsePage(DNGroupsListPage.class);
+			}
+		};
+		
+		form.add(createTextfield("label"));
+		form.add(createTextarea("description", false));
+		
+		add(form);
 	}
 	
 	private void addDNRulesSection(final Integer groupId) 
@@ -108,19 +163,11 @@ public class DNGroupDetailPage extends FrontendPage
 					)
 				);
 				
-				item.add(
-					new RedirectWithParamButton
-					(
-						DNRuleDetailPage.class, 
-						rule.getId(), 
-						"showDNRuleDetailPage"
-					)
-				);
 				
 				item.add(
 					new RedirectWithParamButton
 					(
-						EditDNRulePage.class,
+						DNRuleDetailPage.class,
 						rule.getId(),
 						"showEditDNRulePage"
 					)

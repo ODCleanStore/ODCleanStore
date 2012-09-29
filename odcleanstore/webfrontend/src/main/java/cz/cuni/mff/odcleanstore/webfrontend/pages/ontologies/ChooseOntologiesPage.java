@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.ontologies;
 
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 
@@ -22,6 +23,11 @@ public class ChooseOntologiesPage extends FrontendPage {
 
 	public ChooseOntologiesPage() 
 	{
+		this(null);
+	}
+	
+	public ChooseOntologiesPage(Integer sourceOntologyId) 
+	{
 		super(
 			"Home > Ontologies > Mapping > Choose Ontologies", 
 			"Ontologies mapping - choose ontologies"
@@ -30,13 +36,13 @@ public class ChooseOntologiesPage extends FrontendPage {
 		// prepare DAO objects
 		//
 		this.ontologyDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OntologyDao.class);
-		
+		this.sourceOntology = new Ontology();
 		// register page components
 		//
-		addChooseOntologiesForm();
+		addChooseOntologiesForm(sourceOntologyId);
 	}
 	
-	private void addChooseOntologiesForm() 
+	private void addChooseOntologiesForm(Integer sourceOntologyId) 
 	{
 		Form<ChooseOntologiesPage> form = new Form<ChooseOntologiesPage>(
 				"chooseOntologiesForm", new CompoundPropertyModel<ChooseOntologiesPage>(this))
@@ -51,7 +57,19 @@ public class ChooseOntologiesPage extends FrontendPage {
 				setResponsePage(page);
 			}
 		};
-		form.add(createEnumSelectbox(ontologyDao, "sourceOntology"));
+		
+		DropDownChoice<Ontology> sourceSelection = createEnumSelectbox(ontologyDao, "sourceOntology");
+		if (sourceOntologyId != null)
+		{
+			for (Ontology o : sourceSelection.getChoices()) {
+				if (sourceOntologyId.equals(o.getId())) {
+					sourceOntology = o;
+					break;
+				}
+			}
+		}
+
+		form.add(sourceSelection);
 		form.add(createEnumSelectbox(ontologyDao, "targetOntology", false));
 		
 		add(form);

@@ -24,7 +24,7 @@ public class DataNormalizationConfig extends ConfigGroup {
     public static DataNormalizationConfig load(Properties properties)
             throws ParameterNotAvailableException, IllegalParameterFormatException {
         ParameterFormat<URI> formatURI = new FormatURI();
-        URI temporaryGraphURIPrefix = loadParam(properties, "debug_temp_graph_uri_prefix", formatURI);
+        URI temporaryGraphURIPrefix = loadParam(properties, WebFrontendConfig.GROUP_PREFIX + "debug_temp_graph_uri_prefix", formatURI);
 
         return new DataNormalizationConfig(temporaryGraphURIPrefix);
     }

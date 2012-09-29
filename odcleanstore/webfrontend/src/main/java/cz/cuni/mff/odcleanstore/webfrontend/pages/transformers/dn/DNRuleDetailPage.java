@@ -1,12 +1,13 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn;
 
-import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
@@ -20,6 +21,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleComponentDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 @AuthorizeInstantiation({ Role.PIC })
@@ -27,7 +29,7 @@ public class DNRuleDetailPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger(DNRuleDetailPage.class);
+	//private static Logger logger = Logger.getLogger(EditDNRulePage.class);
 	
 	private DaoForEntityWithSurrogateKey<DNRule> dnRuleDao;
 	private DaoForEntityWithSurrogateKey<DNRuleComponent> dnRuleComponentDao;
@@ -35,8 +37,8 @@ public class DNRuleDetailPage extends FrontendPage
 	public DNRuleDetailPage(final Integer ruleId) 
 	{
 		super(
-			"Home > Backend > DN > Groups > Rules > Detail", 
-			"Show DN rule detail"
+			"Home > Backend > DN > Groups > Rules > Edit", 
+			"Edit DN rule"
 		);
 		
 		// prepare DAO objects
@@ -46,20 +48,7 @@ public class DNRuleDetailPage extends FrontendPage
 		
 		// register page components
 		//
-		addHelpWindow("dnRuleHelpWindow", "openDNRuleHelpWindow", new DNRuleHelpPanel("content"));
-		addHelpWindow("dnRuleComponentHelpWindow", "openDNRuleComponentHelpWindow", new DNRuleComponentHelpPanel("content"));
-		addRuleInformationSection(ruleId);
-		addRuleComponentsSection(ruleId);
-	}
-
-	private void addRuleInformationSection(final Integer ruleId)
-	{
 		DNRule rule = dnRuleDao.load(ruleId);
-		
-		setDefaultModel(createModelForOverview(dnRuleDao, ruleId));
-		
-		add(new Label("description"));
-		
 		add(
 			new RedirectWithParamButton(
 				DNGroupDetailPage.class, 
@@ -67,6 +56,52 @@ public class DNRuleDetailPage extends FrontendPage
 				"showDNGroupDetailPage"
 			)
 		);
+		addHelpWindow("dnRuleHelpWindow", "openDNRuleHelpWindow", new DNRuleHelpPanel("content"));
+		addHelpWindow("dnRuleComponentHelpWindow", "openDNRuleComponentHelpWindow", new DNRuleComponentHelpPanel("content"));
+		addEditDNRuleForm(rule);
+		addRuleComponentsSection(ruleId);
+	}
+
+	private void addEditDNRuleForm(final DNRule rule)
+	{
+		IModel<DNRule> formModel = new CompoundPropertyModel<DNRule>(rule);
+		
+		Form<DNRule> form = new Form<DNRule>("editDNRuleForm", formModel)
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onSubmit()
+			{
+				DNRule rule = this.getModelObject();
+				
+				try {
+					dnRuleDao.update(rule);
+				}
+				catch (DaoException ex)
+				{
+					getSession().error(ex.getMessage());
+					return;
+				}
+				catch (Exception ex)
+				{
+					// TODO: log the error
+					
+					getSession().error(
+						"The rule could not be updated due to an unexpected error."
+					);
+					
+					return;
+				}
+				
+				getSession().info("The rule was successfuly updated.");
+				setResponsePage(new DNGroupDetailPage(rule.getGroupId()));
+			}
+		};
+		
+		form.add(createTextarea("description", false));
+		
+		add(form);
 	}
 	
 	private void addRuleComponentsSection(Integer ruleId) 
@@ -119,16 +154,7 @@ public class DNRuleDetailPage extends FrontendPage
 				item.add(
 					new RedirectWithParamButton
 					(
-						DNRuleComponentDetailPage.class, 
-						component.getId(), 
-						"showDNRuleComponentDetailPage"
-					)
-				);
-				
-				item.add(
-					new RedirectWithParamButton
-					(
-						EditDNRuleComponentPage.class,
+						DNRuleComponentDetailPage.class,
 						component.getId(),
 						"showEditDNRuleComponentPage"
 					)

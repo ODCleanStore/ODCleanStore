@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
+package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers;
 
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
@@ -80,14 +80,6 @@ public class TransformersListPage extends FrontendPage
 				item.add(
 					new RedirectWithParamButton(
 						TransformerDetailPage.class, 
-						transformer.getId(), 
-						"showTransformerDetailPage"
-					)
-				);
-				
-				item.add(
-					new RedirectWithParamButton(
-						EditTransformerPage.class, 
 						transformer.getId(), 
 						"showEditTransformerPage"
 					)

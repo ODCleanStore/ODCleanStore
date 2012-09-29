@@ -48,9 +48,9 @@ public class WebFrontendConfig extends ConfigGroup {
     public static WebFrontendConfig load(Properties properties) 
     		throws ParameterNotAvailableException, IllegalParameterFormatException {
     	JDBCConnectionCredentials dirtyJDBCConnectionCredentials = 
-                loadJDBCConnectionCredentials(properties,  EnumDbConnectionType.DIRTY, true);
+                loadJDBCConnectionCredentials(properties,  EnumDbConnectionType.DIRTY);
     	JDBCConnectionCredentials cleanJDBCConnectionCredentials =
-                loadJDBCConnectionCredentials(properties,  EnumDbConnectionType.CLEAN, true);
+                loadJDBCConnectionCredentials(properties,  EnumDbConnectionType.CLEAN);
     	
     	ParameterFormat<String> formatString = new FormatString();
     	String gmailAddress = loadParam(properties, GROUP_PREFIX + "gmail_address", formatString);

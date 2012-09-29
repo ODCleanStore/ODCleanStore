@@ -79,7 +79,7 @@ public class NewPropertyPage extends FrontendPage
 				}
 				
 				getSession().info("The property was successfuly registered.");
-				setResponsePage(CRPropertiesListPage.class);
+				setResponsePage(AggregationSettingsPage.class);
 			}
 		};
 		

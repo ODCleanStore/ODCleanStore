@@ -83,7 +83,7 @@ public class EditPropertyPage extends FrontendPage
 				}
 				
 				getSession().info("The property was successfuly updated.");
-				setResponsePage(CRPropertiesListPage.class);
+				setResponsePage(AggregationSettingsPage.class);
 			}
 		};
 		

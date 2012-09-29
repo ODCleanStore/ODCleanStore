@@ -1,12 +1,13 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi;
 
-import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
@@ -19,9 +20,11 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentSortableDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.TransformerAssignmentDetailPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
 @AuthorizeInstantiation({ Role.PIC })
@@ -29,16 +32,21 @@ public class OIGroupDetailPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger(OIGroupDetailPage.class);
+	//private static Logger logger = Logger.getLogger(OIGroupDetailPage.class);
 	
 	private DaoForEntityWithSurrogateKey<OIRulesGroup> oiRulesGroupDao;
 	private DaoForEntityWithSurrogateKey<OIRule> oiRuleDao;
 	
 	public OIGroupDetailPage(final Integer groupId) 
 	{
+		this(groupId, null);
+	}
+	
+	public OIGroupDetailPage(final Integer groupId, final Integer transformerInstanceId) 
+	{
 		super(
-			"Home > Backend > OI > Groups > Detail", 
-			"Show OI rule group detail"
+			"Home > Backend > OI > Groups > Edit", 
+			"Edit OI rule group"
 		);
 		
 		// prepare DAO objects
@@ -48,18 +56,66 @@ public class OIGroupDetailPage extends FrontendPage
 		
 		// register page components
 		//		
+		addBackToPipelineLink(transformerInstanceId);
 		addHelpWindow("rulesGroupHelpWindow", "openRulesGroupHelpWindow", new RulesGroupHelpPanel("content"));
 		addHelpWindow("oiRuleHelpWindow", "openOIRuleHelpWindow", new OIRuleHelpPanel("content"));
-		addGroupInformationSection(groupId);
+		addEditOIRulesGroupForm(groupId);
 		addOIRulesSection(groupId);
 	}
 	
-	private void addGroupInformationSection(final Integer groupId)
+	private void addBackToPipelineLink(Integer transformerInstanceId) 
 	{
-		setDefaultModel(createModelForOverview(oiRulesGroupDao, groupId));
+		RedirectWithParamButton link = new RedirectWithParamButton(
+			TransformerAssignmentDetailPage.class,
+			transformerInstanceId, 
+			"backToPipelineLink"
+		);
+		link.setVisible(transformerInstanceId != null);
+		add(link);
+	}
+	
+	private void addEditOIRulesGroupForm(final Integer groupId)
+	{
+		OIRulesGroup group = oiRulesGroupDao.load(groupId);
+		IModel<OIRulesGroup> formModel = new CompoundPropertyModel<OIRulesGroup>(group);
 		
-		add(new Label("label"));
-		add(new Label("description"));
+		Form<OIRulesGroup> form = new Form<OIRulesGroup>("editOIRulesGroupForm", formModel)
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onSubmit()
+			{
+				OIRulesGroup group = this.getModelObject();
+				
+				try {
+					oiRulesGroupDao.update(group);
+				}
+				catch (DaoException ex)
+				{
+					getSession().error(ex.getMessage());
+					return;
+				}
+				catch (Exception ex)
+				{
+					// TODO: log the error
+					
+					getSession().error(
+						"The group could not be updated due to an unexpected error."
+					);
+					
+					return;
+				}
+				
+				getSession().info("The group was successfuly updated.");
+				//setResponsePage(OIGroupsListPage.class);
+			}
+		};
+		
+		form.add(createTextfield("label"));
+		form.add(createTextarea("description", false));
+		
+		add(form);
 	}
 	
 	private void addOIRulesSection(final Integer groupId) 
@@ -119,15 +175,6 @@ public class OIGroupDetailPage extends FrontendPage
 					new RedirectWithParamButton
 					(
 						OIRuleDetailPage.class,
-						rule.getId(),
-						"showOIRuleDetail"
-					)
-				);
-				
-				item.add(
-					new RedirectWithParamButton
-					(
-						EditOIRulePage.class,
 						rule.getId(),
 						"showEditOIRulePage"
 					)

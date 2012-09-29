@@ -1,8 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.behaviours;
 
-import org.apache.log4j.Logger;
 import org.apache.wicket.Component;
-import org.apache.wicket.behavior.AbstractBehavior;
+import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.link.Link;
@@ -13,11 +12,11 @@ import org.apache.wicket.markup.html.link.Link;
  *
  * Inspired by http://ntsrikanth.blogspot.cz/2008/11/confirmation-dialog.html
  */
-public class ConfirmationBoxRenderer extends AbstractBehavior 
+public class ConfirmationBoxRenderer extends Behavior 
 {
 	private static final long serialVersionUID = 1L;
 	
-	private static Logger logger = Logger.getLogger(ConfirmationBoxRenderer.class);
+	//private static Logger logger = Logger.getLogger(ConfirmationBoxRenderer.class);
 	
 	/** Message to be desplayed in the confirm box. */
 	private String message;

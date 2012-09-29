@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
+package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
@@ -14,15 +14,15 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 @AuthorizeInstantiation({ Role.ADM })
-public class EditTransformerPage extends FrontendPage
+public class TransformerDetailPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger(EditTransformerPage.class);
+	private static Logger logger = Logger.getLogger(TransformerDetailPage.class);
 	
 	private DaoForEntityWithSurrogateKey<Transformer> transformerDao;
 	
-	public EditTransformerPage(final Integer id) 
+	public TransformerDetailPage(final Integer id) 
 	{
 		super
 		(
@@ -83,6 +83,7 @@ public class EditTransformerPage extends FrontendPage
 		form.add(createTextfield("workDirPath"));
 		form.add(createTextarea("description", false));
 		form.add(createTextfield("jarPath"));
+		form.add(createTextfield("fullClassName"));
 		
 		add(form);
 	}

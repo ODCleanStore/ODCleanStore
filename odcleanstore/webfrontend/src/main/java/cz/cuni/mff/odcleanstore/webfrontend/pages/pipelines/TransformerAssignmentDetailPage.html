@@ -3,13 +3,23 @@
 <div wicket:id="helpWindow"></div>
 
 <div>
-	<a class="placedright button" href="#" wicket:id="managePipelineTransformers">Back to the assignment overview</a>
+	<a class="placedright button" href="#" wicket:id="managePipelineTransformers">Back to transformer assignment overview</a>
 	<div class="clear">&nbsp;</div>
 </div>
 
 <a wicket:id="openHelpWindow"class="help">Help</a>
 
 <div class="clear">&nbsp;</div>
+
+<div class="datalistitem">
+    <strong class="block">ID:</strong>
+    <span wicket:id="id">[id]</span>
+</div>
+
+<div class="datalistitem">
+    <strong class="block">Transformer:</strong>
+    <span wicket:id="transformer">[transformer]</span>
+</div>
 
 <form wicket:id="editAssignmentForm">
 	<p>
@@ -26,5 +36,7 @@
 	</p>
 	<input type="submit" value="Submit" />
 </form>
+
+<div wicket:id="assignedGroupsListSection"></div>
 
 </wicket:extend>

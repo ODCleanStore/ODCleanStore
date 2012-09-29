@@ -50,6 +50,11 @@ public class Pipeline extends EntityWithSurrogateKey
 	{
 		return label;
 	}
+	
+	public void setLabel(String label) 
+	{
+		this.label = label;
+	}
 
 	/**
 	 * 
@@ -58,6 +63,11 @@ public class Pipeline extends EntityWithSurrogateKey
 	public String getDescription() 
 	{
 		return description;
+	}
+	
+	public void setDescription(String description) 
+	{
+		this.description = description;
 	}
 
 	/**

@@ -110,9 +110,9 @@ public class AccountsListPage extends FrontendPage
 		add(new UnobtrusivePagingNavigator("navigator", dataView));
 	}
 	
-	protected Link createSendNewPasswordButton(final Integer userId) 
+	protected Link<String> createSendNewPasswordButton(final Integer userId) 
 	{
-		Link button = new Link("sendNewPassword")
+		Link<String> button = new Link<String>("sendNewPassword")
 		{
 			private static final long serialVersionUID = 1L;
 			

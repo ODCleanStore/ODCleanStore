@@ -20,11 +20,11 @@ public class ConfigTestBase {
     protected void mockSparqlEndpointsConnectionCredentials(
             Properties properties, EnumDbConnectionType dbType, boolean credentials) {
         
-        Mockito.when(properties.getProperty(dbType.getConfigPrefix() + "sparql_endpoint_url")).thenReturn(
+        Mockito.when(properties.getProperty(dbType.getConfigPrefix() + "sparql.endpoint_url")).thenReturn(
                 "http://www.sparql.cz/" + dbType.name());
         if (credentials) {
-            Mockito.when(properties.getProperty(dbType.getConfigPrefix() + "sparql_endpoint_username")).thenReturn("username");
-            Mockito.when(properties.getProperty(dbType.getConfigPrefix() + "sparql_endpoint_password")).thenReturn("password");
+            Mockito.when(properties.getProperty(dbType.getConfigPrefix() + "sparql.endpoint_username")).thenReturn("username");
+            Mockito.when(properties.getProperty(dbType.getConfigPrefix() + "sparql.endpoint_password")).thenReturn("password");
         }
     }
 
@@ -40,12 +40,12 @@ public class ConfigTestBase {
     }
 
     protected void mockJDBCConnectionCredentials(Properties properties, EnumDbConnectionType dbType) {
-        Mockito.when(properties.getProperty(dbType.getConfigPrefix() + "jdbc_connection_string"))
+        Mockito.when(properties.getProperty(dbType.getConfigPrefix() + "jdbc.connection_string"))
                 .thenReturn("jdbc:virtuoso://localhost:1112");
 
-        Mockito.when(properties.getProperty(dbType.getConfigPrefix() + "jdbc_username")).thenReturn("dba");
+        Mockito.when(properties.getProperty(dbType.getConfigPrefix() + "jdbc.username")).thenReturn("dba");
 
-        Mockito.when(properties.getProperty(dbType.getConfigPrefix() + "jdbc_password")).thenReturn("dba");
+        Mockito.when(properties.getProperty(dbType.getConfigPrefix() + "jdbc.password")).thenReturn("dba");
     }
 
     protected void checkJDBCConnectionCredentials(JDBCConnectionCredentials credentials, EnumDbConnectionType dbType)

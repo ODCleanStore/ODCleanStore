@@ -3,7 +3,7 @@
 <div wicket:id="helpWindow"></div>
 
 <div>
-	<a class="placedright button" href="#" wicket:id="showQAGroupDetailPage">Back to the list of all group's rules</a>
+	<a class="placedright button" href="#" wicket:id="manageGroupRules">Back to the group overview</a>
 	<div class="clear">&nbsp;</div>
 </div>
 
@@ -11,19 +11,20 @@
 
 <div class="clear">&nbsp;</div>
 
-<div class="datalistitem">
-	<strong class="block">Filter:</strong>
-	<pre wicket:id="filter">[filter]</pre>
-</div>
-
-<div class="datalistitem">
-	<strong class="block">Coefficient:</strong>
-	<span wicket:id="coefficient">[coefficient]</span>
-</div>
-
-<div class="datalistitem">
-	<strong class="block">Description:</strong>
-	<span wicket:id="description">[description]</span>
-</div>
+<form wicket:id="editQARuleForm">
+	<p>
+		<label for="filter">Filter:</label>
+		<textarea wicket:id="filter" id="filter" class="required"></textarea>
+	</p>
+	<p>
+		<label for="coefficient">Coefficient:</label>
+		<input wicket:id="coefficient" id="coefficient" type="text" class="required" />
+	</p>
+	<p>
+		<label for="description">Description:</label>
+		<textarea wicket:id="description" id="description"></textarea>
+	</p>
+	<input type="submit" value="Submit" />
+</form>
 
 </wicket:extend>

@@ -52,7 +52,7 @@ public class NewTransformerAssignmentPage extends FrontendPage
 		addHelpWindow(new TransformerInstanceHelpPanel("content"));
 		
 		add(
-			new RedirectWithParamButton<String>(
+			new RedirectWithParamButton(
 				PipelineDetailPage.class,
 				pipelineId, 
 				"managePipelineTransformers"
@@ -103,7 +103,7 @@ public class NewTransformerAssignmentPage extends FrontendPage
 				}
 				
 				getSession().info("The assignment was successfuly registered.");
-				setResponsePage(new TransformerInstanceDetailPage(insertId));
+				setResponsePage(new TransformerAssignmentDetailPage(insertId));
 			}
 		};
 
