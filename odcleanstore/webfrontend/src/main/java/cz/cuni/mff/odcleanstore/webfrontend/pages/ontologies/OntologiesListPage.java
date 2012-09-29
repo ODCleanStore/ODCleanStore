@@ -17,7 +17,6 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvider;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.onto.OntologyDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
@@ -26,7 +25,7 @@ public class OntologiesListPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 	
-	private DaoForEntityWithSurrogateKey<Ontology> ontologyDao;
+	private OntologyDao ontologyDao;
 
 	public OntologiesListPage() 
 	{
@@ -37,7 +36,7 @@ public class OntologiesListPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		this.ontologyDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OntologyDao.class);
+		this.ontologyDao = daoLookupFactory.getDao(OntologyDao.class);
 		
 		// register page components
 		//

@@ -9,21 +9,21 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvid
 import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.prefixes.Prefix;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.prefixes.PrefixDao;
 
 public class SortablePrefixDataProvider extends SortableDataProvider<Prefix>
 {
 	private static final long serialVersionUID = 1L;
 
-	private Dao<Prefix> dao;
+	private PrefixDao dao;
 	private List<Prefix> data;
 	
 	/**
 	 * 
 	 * @param dao
 	 */
-	public SortablePrefixDataProvider(Dao<Prefix> dao)
+	public SortablePrefixDataProvider(PrefixDao dao)
 	{
 		this(dao, "NS_PREFIX");
 	}
@@ -33,7 +33,7 @@ public class SortablePrefixDataProvider extends SortableDataProvider<Prefix>
 	 * @param dao
 	 * @param defaultSortColumnName
 	 */
-	public SortablePrefixDataProvider(Dao<Prefix> dao, String defaultSortColumnName)
+	public SortablePrefixDataProvider(PrefixDao dao, String defaultSortColumnName)
 	{
 		setSort(defaultSortColumnName, SortOrder.ASCENDING);
 		

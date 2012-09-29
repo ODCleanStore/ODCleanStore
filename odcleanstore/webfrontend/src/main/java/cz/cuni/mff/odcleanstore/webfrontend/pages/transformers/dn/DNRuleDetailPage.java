@@ -13,12 +13,11 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponent;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleComponentDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
@@ -31,8 +30,8 @@ public class DNRuleDetailPage extends FrontendPage
 
 	//private static Logger logger = Logger.getLogger(EditDNRulePage.class);
 	
-	private DaoForEntityWithSurrogateKey<DNRule> dnRuleDao;
-	private DaoForEntityWithSurrogateKey<DNRuleComponent> dnRuleComponentDao;
+	private DNRuleDao dnRuleDao;
+	private DNRuleComponentDao dnRuleComponentDao;
 
 	public DNRuleDetailPage(final Integer ruleId) 
 	{
@@ -43,8 +42,8 @@ public class DNRuleDetailPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		dnRuleDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNRuleDao.class);
-		dnRuleComponentDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNRuleComponentDao.class);
+		dnRuleDao = daoLookupFactory.getDao(DNRuleDao.class);
+		dnRuleComponentDao = daoLookupFactory.getDao(DNRuleComponentDao.class);
 		
 		// register page components
 		//
@@ -141,7 +140,7 @@ public class DNRuleDetailPage extends FrontendPage
 				item.add(new TruncatedLabel("description", MAX_LIST_COLUMN_TEXT_LENGTH));
 				
 				item.add(
-					new DeleteRawButton<DNRuleComponent>
+					new DeleteButton<DNRuleComponent>
 					(
 						dnRuleComponentDao,
 						component.getId(),

@@ -1,23 +1,13 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.en;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import javax.sql.DataSource;
-
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.AbstractPlatformTransactionManager;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
-import org.springframework.transaction.support.TransactionTemplate;
-
-import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
+import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 
-public class OfficialPipelinesDao implements Serializable
+public class OfficialPipelinesDao extends Dao
 {
 	//private static Logger logger = Logger.getLogger(OfficialPipelinesDao.class);
 	
@@ -36,71 +26,20 @@ public class OfficialPipelinesDao implements Serializable
 		"PIPELINES"
 	};
 	
-	protected DaoLookupFactory lookupFactory;
-	
-	private transient JdbcTemplate jdbcTemplate;
-	private transient TransactionTemplate transactionTemplate;
-
-	/**
-	 * 
-	 * @param lookupFactory
-	 */
-	public void setDaoLookupFactory(DaoLookupFactory lookupFactory)
-	{
-		this.lookupFactory = lookupFactory;
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	protected JdbcTemplate getJdbcTemplate()
-	{
-		if (jdbcTemplate == null)
-		{
-			DataSource dataSource = lookupFactory.getCleanDataSource();
-			jdbcTemplate = new JdbcTemplate(dataSource);
-		}
-		
-		return jdbcTemplate;
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	protected TransactionTemplate getTransactionTemplate()
-	{
-		if (transactionTemplate == null)
-		{
-			AbstractPlatformTransactionManager manager = lookupFactory.getTransactionManager();
-			transactionTemplate = new TransactionTemplate(manager);
-			transactionTemplate.setPropagationBehavior(DefaultTransactionDefinition.PROPAGATION_REQUIRED);
-		}
-		
-		return transactionTemplate;
-	}
-	
 	public void commitPipelinesRelatedTables() throws Exception
 	{
 		try
 		{
-			getTransactionTemplate().execute(new TransactionCallbackWithoutResult() 
+			executeInTransaction(new CodeSnippet()
 			{
 				@Override
-				protected void doInTransactionWithoutResult(TransactionStatus status) 
+				public void execute() throws Exception
 				{
-					try 
-					{
-						List<String> tableNames = Arrays.asList(RELATED_TABLES_NAMES);
-						truncateTables(tableNames);
-						
-						Collections.reverse(tableNames);
-						fillTables(tableNames);
-					}
-					catch (Exception ex) {
-						throw new RuntimeException(ex.getMessage(), ex);
-					}
+					List<String> tableNames = Arrays.asList(RELATED_TABLES_NAMES);
+					truncateTables(tableNames);
+					
+					Collections.reverse(tableNames);
+					fillTables(tableNames);
 				}
 			});
 		}
@@ -112,33 +51,33 @@ public class OfficialPipelinesDao implements Serializable
 		}	
 	}
 	
-	private void fillTables(List<String> tableNames)
+	private void fillTables(List<String> tableNames) throws Exception
 	{
 		for (String tableName : tableNames)
 			fillTable(tableName);
 	}
 	
-	private void fillTable(String tableNameSuffix)
+	private void fillTable(String tableNameSuffix) throws Exception
 	{
 		String officialTableName = constructOfficialTableName(tableNameSuffix);
 		String backupTableName = constructBackupTableName(tableNameSuffix);
 		
 		String query = "INSERT INTO " + officialTableName + " SELECT * FROM " + backupTableName;
-		getJdbcTemplate().update(query);
+		jdbcUpdate(query);
 	}
 	
-	private void truncateTables(List<String> tableNames)
+	private void truncateTables(List<String> tableNames) throws Exception
 	{
 		for (String tableName : tableNames)
 			truncateTable(tableName);
 	}
 	
-	private void truncateTable(String tableNameSuffix)
+	private void truncateTable(String tableNameSuffix) throws Exception
 	{
 		String officialTableName = constructOfficialTableName(tableNameSuffix);
 		
-		getJdbcTemplate().update("DELETE FROM " + officialTableName);
-		getJdbcTemplate().update("set_identity_column('" + officialTableName + "','id', 1)");
+		jdbcUpdate("DELETE FROM " + officialTableName);
+		jdbcUpdate("set_identity_column('" + officialTableName + "','id', 1)");
 	}
 	
 	private String constructOfficialTableName(String nameSuffix)

@@ -48,7 +48,7 @@ public class OIOutputDao extends DaoForEntityWithSurrogateKey<OIOutput>
 		
 		Object[] params = criteria.buildWhereClauseParams();
 		
-		return getCleanJdbcTemplate().query(query, params, getRowMapper());
+		return jdbcQuery(query, params, getRowMapper());
 	}
 	
 	@Override
@@ -66,11 +66,11 @@ public class OIOutputDao extends DaoForEntityWithSurrogateKey<OIOutput>
 			
 		Object[] params = { id };
 		
-		return getCleanJdbcTemplate().queryForObject(query, params, getRowMapper());
+		return jdbcQueryForObject(query, params, getRowMapper());
 	}
 	
 	@Override
-	public void save(OIOutput output)
+	public void save(OIOutput output)  throws Exception
 	{
 		String query = 
 			"INSERT INTO " + TABLE_NAME + " " +
@@ -92,11 +92,10 @@ public class OIOutputDao extends DaoForEntityWithSurrogateKey<OIOutput>
 		logger.debug("minConfidence: " + output.getMinConfidence());
 		logger.debug("maxConfidence: " + output.getMaxConfidence());
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
 	}
 	
-	@Override
-	public void update(OIOutput output)
+	public void update(OIOutput output) throws Exception
 	{
 		String query = 
 			"UPDATE " + TABLE_NAME + " " +
@@ -118,6 +117,6 @@ public class OIOutputDao extends DaoForEntityWithSurrogateKey<OIOutput>
 		logger.debug("maxConfidence: " + output.getMaxConfidence());
 		logger.debug("id: " + output.getId());
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
 	}
 }

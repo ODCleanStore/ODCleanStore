@@ -10,7 +10,6 @@ import org.apache.wicket.validation.validator.RangeValidator;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
@@ -20,7 +19,7 @@ public class NewOIRulePage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 	
-	private DaoForEntityWithSurrogateKey<OIRule> oiRuleDao;
+	private OIRuleDao oiRuleDao;
 	
 	public NewOIRulePage(final Integer groupId) 
 	{
@@ -31,7 +30,7 @@ public class NewOIRulePage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		oiRuleDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIRuleDao.class);
+		oiRuleDao = daoLookupFactory.getDao(OIRuleDao.class);
 		
 		// register page components
 		//

@@ -6,7 +6,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.AuthorizationHelper;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-public class AuthoredEntityDeleteButton<BO extends EntityWithSurrogateKey> extends DeleteRawButton<BO>
+public class AuthoredEntityDeleteButton<BO extends EntityWithSurrogateKey> extends DeleteButton<BO>
 {
 	private static final long serialVersionUID = 1L;
 	

@@ -39,11 +39,11 @@ public class LabelPropertyDao extends DaoForEntityWithSurrogateKey<LabelProperty
 	}
 
 	@Override
-	public void save(LabelProperty item)
+	public void save(LabelProperty item) throws Exception
 	{
 		String query = "INSERT INTO " + getTableName() + " (property) VALUES (?)";
 		Object[] params = { item.getProperty() };
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
 	}
 }

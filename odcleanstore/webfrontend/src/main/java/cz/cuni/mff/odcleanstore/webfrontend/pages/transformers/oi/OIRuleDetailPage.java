@@ -17,10 +17,9 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutput;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutputType;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputTypeDao;
@@ -34,9 +33,9 @@ public class OIRuleDetailPage extends FrontendPage
 
 	private static Logger logger = Logger.getLogger(OIRuleDetailPage.class);
 	
-	private DaoForEntityWithSurrogateKey<OIRule> oiRuleDao;
-	private DaoForEntityWithSurrogateKey<OIOutput> oiOutputDao;
-	private DaoForEntityWithSurrogateKey<OIOutputType> oiOutputTypeDao;
+	private OIRuleDao oiRuleDao;
+	private OIOutputDao oiOutputDao;
+	private OIOutputTypeDao oiOutputTypeDao;
 	
 	public OIRuleDetailPage(final Integer ruleId) 
 	{
@@ -48,9 +47,9 @@ public class OIRuleDetailPage extends FrontendPage
 		// prepare DAO objects
 		//
 		
-		oiOutputDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIOutputDao.class);
-		oiRuleDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIRuleDao.class);
-		oiOutputTypeDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIOutputTypeDao.class);
+		oiOutputDao = daoLookupFactory.getDao(OIOutputDao.class);
+		oiRuleDao = daoLookupFactory.getDao(OIRuleDao.class);
+		oiOutputTypeDao = daoLookupFactory.getDao(OIOutputTypeDao.class);
 		
 		// register page components
 		//
@@ -97,7 +96,7 @@ public class OIRuleDetailPage extends FrontendPage
 				item.add(createNullResistentTableCellLabel("maxConfidence", output.getMaxConfidence()));
 				
 				item.add(
-					new DeleteRawButton<OIOutput>
+					new DeleteButton<OIOutput>
 					(
 						oiOutputDao,
 						output.getId(),
@@ -161,7 +160,7 @@ public class OIRuleDetailPage extends FrontendPage
 				item.add(new Label("fileFormat", output.getFileFormat().getLabel()));
 				
 				item.add(
-					new DeleteRawButton<OIOutput>
+					new DeleteButton<OIOutput>
 					(
 						oiOutputDao,
 						output.getId(),

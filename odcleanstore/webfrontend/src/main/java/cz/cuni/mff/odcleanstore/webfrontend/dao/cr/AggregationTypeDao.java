@@ -23,18 +23,16 @@ public class AggregationTypeDao extends DaoForEntityWithSurrogateKey<Aggregation
 	{
 		return TABLE_NAME;
 	}
+	
+	@Override
+	protected void deleteRaw(Integer item) throws Exception
+	{
+		throw new UnsupportedOperationException("Cannot insert rows into table " + getTableName() + ".");
+	}
 
 	@Override
 	protected ParameterizedRowMapper<AggregationType> getRowMapper() 
 	{
 		return rowMapper;
-	}
-	
-	@Override
-	public void deleteRaw(Integer id)
-	{
-		throw new UnsupportedOperationException(
-			"Cannot delete rows from table: " + getTableName() + "."
-		);
 	}
 }

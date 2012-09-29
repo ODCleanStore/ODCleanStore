@@ -163,7 +163,7 @@ public class AssignedGroupsList extends Panel
 			public void onClick() 
 			{
 				try {
-					assignedGroupsDao.deleteRaw(groupAssignmentId);
+					assignedGroupsDao.delete(groupAssignmentId);
 				}
 				catch (Exception ex)
 				{

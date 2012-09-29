@@ -31,7 +31,7 @@ public class DNRuleDao extends DaoForEntityWithSurrogateKey<DNRule>
 	}
 	
 	@Override
-	public void save(DNRule item) 
+	public void save(DNRule item) throws Exception
 	{
 		String query = 
 			"INSERT INTO " + TABLE_NAME + " (groupId, description) " +
@@ -46,11 +46,10 @@ public class DNRuleDao extends DaoForEntityWithSurrogateKey<DNRule>
 		logger.debug("groupId: " + item.getGroupId());
 		logger.debug("description: " + item.getDescription());
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
 	}
 	
-	@Override
-	public void update(DNRule item)
+	public void update(DNRule item) throws Exception
 	{
 		String query =
 			"UPDATE " + TABLE_NAME + " SET description = ? WHERE id = ?";
@@ -64,6 +63,6 @@ public class DNRuleDao extends DaoForEntityWithSurrogateKey<DNRule>
 		logger.debug("description: " + item.getDescription());
 		logger.debug("id: " + item.getId());
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
 	}
 }

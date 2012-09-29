@@ -34,7 +34,7 @@ public class DNRuleComponentDataProvider implements IDataProvider<DNRuleComponen
 	private List<DNRuleComponent> getData()
 	{
 		if (data == null)
-			data = dao.loadAllRawBy("ruleId", ruleId);
+			data = dao.loadAllBy("ruleId", ruleId);
 		
 		return data;
 	}

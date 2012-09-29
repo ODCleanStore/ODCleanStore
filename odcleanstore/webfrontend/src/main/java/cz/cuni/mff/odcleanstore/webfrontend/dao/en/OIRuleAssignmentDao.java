@@ -46,11 +46,11 @@ public class OIRuleAssignmentDao extends DaoForEntityWithSurrogateKey<RuleAssign
 		
 		Object[] params = criteria.buildWhereClauseParams();
 		
-		return getCleanJdbcTemplate().query(query, params, getRowMapper());
+		return jdbcQuery(query, params, getRowMapper());
 	}
 	
 	@Override
-	public RuleAssignment loadRawBy(String columnName, Object value)
+	public RuleAssignment loadBy(String columnName, Object value)
 	{
 		String query = 
 			"SELECT A.id as id, transformerInstanceId, groupId, G.label as groupLabel, G.description as groupDescription " +
@@ -61,11 +61,11 @@ public class OIRuleAssignmentDao extends DaoForEntityWithSurrogateKey<RuleAssign
 		Object[] params = { value };
 		logger.debug("value: " + value);
 		
-		return getCleanJdbcTemplate().queryForObject(query, params, getRowMapper());
+		return jdbcQueryForObject(query, params, getRowMapper());
 	}
 
 	@Override
-	public void save(RuleAssignment item)
+	public void save(RuleAssignment item) throws Exception
 	{
 		String query = 
 			"INSERT INTO " + TABLE_NAME + " (transformerInstanceId, groupId) " +
@@ -80,6 +80,6 @@ public class OIRuleAssignmentDao extends DaoForEntityWithSurrogateKey<RuleAssign
 		logger.debug("transformerInstanceId: " + item.getTransformerInstanceId());
 		logger.debug("groupId: " + item.getGroupId());
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
 	}
 }

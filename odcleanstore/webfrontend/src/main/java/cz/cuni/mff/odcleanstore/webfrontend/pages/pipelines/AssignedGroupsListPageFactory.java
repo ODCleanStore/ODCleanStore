@@ -27,8 +27,8 @@ public class AssignedGroupsListPageFactory
 		return new AssignedGroupsList(
 			"assignedGroupsListSection", 
 			transformerInstanceId, 
-			daoLookupFactory.getDaoForEntityWithSurrogateKey(QARulesGroupDao.class), 
-			daoLookupFactory.getDaoForEntityWithSurrogateKey(QARuleAssignmentDao.class), 
+			daoLookupFactory.getDao(QARulesGroupDao.class), 
+			daoLookupFactory.getDao(QARuleAssignmentDao.class), 
 			QAGroupDetailPage.class,
 			NewQAGroupPage.class
 		);
@@ -41,8 +41,8 @@ public class AssignedGroupsListPageFactory
 		return new AssignedGroupsList(
 			"assignedGroupsListSection", 
 			transformerInstanceId, 
-			daoLookupFactory.getDaoForEntityWithSurrogateKey(OIRulesGroupDao.class), 
-			daoLookupFactory.getDaoForEntityWithSurrogateKey(OIRuleAssignmentDao.class), 
+			daoLookupFactory.getDao(OIRulesGroupDao.class), 
+			daoLookupFactory.getDao(OIRuleAssignmentDao.class), 
 			OIGroupDetailPage.class,
 			NewOIGroupPage.class
 		);
@@ -55,8 +55,8 @@ public class AssignedGroupsListPageFactory
 		return new AssignedGroupsList(
 			"assignedGroupsListSection", 
 			transformerInstanceId, 
-			daoLookupFactory.getDaoForEntityWithSurrogateKey(DNRulesGroupDao.class), 
-			daoLookupFactory.getDaoForEntityWithSurrogateKey(DNRuleAssignmentDao.class), 
+			daoLookupFactory.getDao(DNRulesGroupDao.class), 
+			daoLookupFactory.getDao(DNRuleAssignmentDao.class), 
 			DNGroupDetailPage.class,
 			NewDNGroupPage.class
 		);

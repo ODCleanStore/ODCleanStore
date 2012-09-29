@@ -13,13 +13,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvider;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.EngineOperationsDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.OIRuleAssignmentDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
@@ -33,7 +32,7 @@ public class OIGroupsListPage extends FrontendPage
 
 	private static Logger logger = Logger.getLogger(OIGroupsListPage.class);
 	
-	private DaoForEntityWithSurrogateKey<OIRulesGroup> oiRulesGroupsDao;
+	private OIRulesGroupDao oiRulesGroupsDao;
 	private EngineOperationsDao engineOperationsDao;
 	
 	public OIGroupsListPage() 
@@ -45,8 +44,8 @@ public class OIGroupsListPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		oiRulesGroupsDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIRulesGroupDao.class);
-		engineOperationsDao = daoLookupFactory.getEngineOperationsDao();
+		oiRulesGroupsDao = daoLookupFactory.getDao(OIRulesGroupDao.class);
+		engineOperationsDao = daoLookupFactory.getDao(EngineOperationsDao.class);
 		
 		// register page components
 		//
@@ -73,7 +72,7 @@ public class OIGroupsListPage extends FrontendPage
 				item.add(new TruncatedLabel("description", MAX_LIST_COLUMN_TEXT_LENGTH));
 				
 				item.add(
-					new DeleteRawButton<OIRulesGroup>
+					new DeleteButton<OIRulesGroup>
 					(
 						oiRulesGroupsDao,
 						group.getId(),

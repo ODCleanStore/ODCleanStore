@@ -13,13 +13,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentSortableDataProvider;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
@@ -30,8 +29,8 @@ public class PipelineDetailPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private DaoForEntityWithSurrogateKey<Pipeline> pipelineDao;
-	private DaoForEntityWithSurrogateKey<TransformerInstance> transformerInstanceDao;
+	private PipelineDao pipelineDao;
+	private TransformerInstanceDao transformerInstanceDao;
 	
 	public PipelineDetailPage(final Integer pipelineId) 
 	{
@@ -44,8 +43,8 @@ public class PipelineDetailPage extends FrontendPage
 
 		// prepare DAO objects
 		//
-		pipelineDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(PipelineDao.class);
-		transformerInstanceDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(TransformerInstanceDao.class);
+		pipelineDao = daoLookupFactory.getDao(PipelineDao.class);
+		transformerInstanceDao = daoLookupFactory.getDao(TransformerInstanceDao.class);
 		
 		// register page components
 		//
@@ -148,7 +147,7 @@ public class PipelineDetailPage extends FrontendPage
 				item.add(new Label("priority"));
 				
 				item.add(
-					new DeleteRawButton<TransformerInstance>
+					new DeleteButton<TransformerInstance>
 					(
 						transformerInstanceDao,
 						transformerInstance.getId(),

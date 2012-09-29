@@ -8,7 +8,6 @@ import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qe.LabelProperty;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qe.LabelPropertyDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
@@ -19,7 +18,7 @@ public class NewQELabelPropertyPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private DaoForEntityWithSurrogateKey<LabelProperty> labelPropertyDao;
+	private LabelPropertyDao labelPropertyDao;
 	
 	public NewQELabelPropertyPage() 
 	{
@@ -31,7 +30,7 @@ public class NewQELabelPropertyPage extends FrontendPage
 
 		// prepare DAO objects
 		//
-		labelPropertyDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(LabelPropertyDao.class);
+		labelPropertyDao = daoLookupFactory.getDao(LabelPropertyDao.class);
 		
 		// register page components
 		//

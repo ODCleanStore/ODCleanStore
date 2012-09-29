@@ -32,7 +32,7 @@ public class QARuleDao extends DaoForEntityWithSurrogateKey<QARule>
 	}
 	
 	@Override
-	public void save(QARule item) 
+	public void save(QARule item) throws Exception
 	{
 		String query = 
 			"INSERT INTO " + TABLE_NAME + " (groupId, filter, description, coefficient) " +
@@ -51,11 +51,10 @@ public class QARuleDao extends DaoForEntityWithSurrogateKey<QARule>
 		logger.debug("description: " + item.getDescription());
 		logger.debug("coefficient: " + item.getCoefficient());
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
 	}
 	
-	@Override
-	public void update(QARule item)
+	public void update(QARule item) throws Exception
 	{
 		String query =
 			"UPDATE " + TABLE_NAME + " SET filter = ?, description = ?, coefficient = ? WHERE id = ?";
@@ -73,6 +72,6 @@ public class QARuleDao extends DaoForEntityWithSurrogateKey<QARule>
 		logger.debug("coefficient: " + item.getCoefficient());
 		logger.debug("id: " + item.getId());
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
 	}
 }
