@@ -24,7 +24,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-@AuthorizeInstantiation({ Role.PIC, Role.ADM_PIC })
+@AuthorizeInstantiation({ Role.PIC, Role.ADM })
 public class PipelineDetailPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
@@ -147,10 +147,11 @@ public class PipelineDetailPage extends FrontendPage
 				item.add(new Label("priority"));
 				
 				item.add(
-					new DeleteButton<TransformerInstance>
+					new AuthoredEntityDeleteButton<TransformerInstance>
 					(
 						transformerInstanceDao,
 						transformerInstance.getId(),
+						isEditable(),
 						"assignment",
 						new DeleteConfirmationMessage("transformer instance"),
 						PipelineDetailPage.this

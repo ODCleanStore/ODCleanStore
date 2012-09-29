@@ -13,7 +13,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
-@AuthorizeInstantiation({ Role.PIC, Role.ADM_PIC })
+@AuthorizeInstantiation({ Role.PIC, Role.ADM })
 public class NewGroupAssignmentPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;

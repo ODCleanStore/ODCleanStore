@@ -11,10 +11,17 @@ public class AuthoredEntityLimitedRedirectButton extends RedirectWithParamButton
 	private boolean isAuthorized;
 	
 	public AuthoredEntityLimitedRedirectButton(Class<? extends FrontendPage> redirectPage, AuthoredEntity entity, 
-		String requiredRole, String compName) 
+		String compName) 
 	{
 		super(redirectPage, entity.getId(), compName);
-		this.isAuthorized = AuthorizationHelper.isAuthorizedForEntityEditing(entity.getAuthorId(), requiredRole);
+		this.isAuthorized = AuthorizationHelper.isAuthorizedForEntityEditing(entity.getAuthorId());
+	}
+	
+	public AuthoredEntityLimitedRedirectButton(Class<? extends FrontendPage> redirectPage, Integer param, boolean isAuthorized, 
+		String compName) 
+	{
+		super(redirectPage, param, compName);
+		this.isAuthorized = isAuthorized;
 	}
 	
 	@Override

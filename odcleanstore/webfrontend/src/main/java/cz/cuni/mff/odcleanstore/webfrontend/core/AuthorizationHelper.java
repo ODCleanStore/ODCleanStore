@@ -13,20 +13,15 @@ public final class AuthorizationHelper
 {
 	private final static String SUPER_ROLE = Role.ADM;
 	
-	public static boolean isAuthorizedForEntityEditing(AuthoredEntity entity, String requiredRole)
+	public static boolean isAuthorizedForEntityEditing(AuthoredEntity entity)
 	{
-		return isAuthorizedForEntityEditing(entity.getAuthorId(), requiredRole);
+		return isAuthorizedForEntityEditing(entity.getAuthorId());
 	}
 	
-	public static boolean isAuthorizedForEntityEditing(Integer authorId, String requiredRole)
+	public static boolean isAuthorizedForEntityEditing(Integer authorId)
 	{
 		User user = ODCSWebFrontendSession.get().getUser();
-		if (user.hasAssignedRole(SUPER_ROLE))
-			return true;
-		else if (user.hasAssignedRole(requiredRole) && user.getId().equals(authorId))
-			return true;
-		else
-			return false;
+		return user.hasAssignedRole(SUPER_ROLE) || user.getId().equals(authorId);
 	}
 	
 	public static boolean isAuthorizedForSettingDefaultPipeline() 

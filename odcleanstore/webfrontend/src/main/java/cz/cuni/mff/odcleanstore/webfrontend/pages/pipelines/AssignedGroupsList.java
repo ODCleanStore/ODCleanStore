@@ -27,7 +27,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
-@AuthorizeInstantiation({ Role.PIC, Role.ADM_PIC })
+@AuthorizeInstantiation({ Role.PIC, Role.ADM })
 public class AssignedGroupsList extends Panel
 {
 	private static final long serialVersionUID = 1L;

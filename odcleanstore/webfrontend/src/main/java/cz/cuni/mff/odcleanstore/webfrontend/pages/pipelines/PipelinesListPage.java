@@ -14,7 +14,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
 import cz.cuni.mff.odcleanstore.webfrontend.core.AuthorizationHelper;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthoredEntityDeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
@@ -26,7 +26,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-@AuthorizeInstantiation({ Role.PIC, Role.ADM_PIC })
+@AuthorizeInstantiation({ Role.PIC, Role.ADM })
 public class PipelinesListPage extends FrontendPage 
 {
 	private static final long serialVersionUID = 1L;
@@ -78,10 +78,10 @@ public class PipelinesListPage extends FrontendPage
 				item.add(new Label("isLocked"));
 				
 				item.add(
-					new DeleteButton<Pipeline>
+					new AuthoredEntityDeleteButton<Pipeline>
 					(
 						pipelineDao,
-						pipeline.getId(),
+						pipeline,
 						"pipeline",
 						new DeleteConfirmationMessage("pipeline", "transformer assignment"),
 						PipelinesListPage.this
@@ -179,7 +179,7 @@ public class PipelinesListPage extends FrontendPage
 			@Override
             public void onClick()
             {
-				if (!AuthorizationHelper.isAuthorizedForEntityEditing(pipeline, Role.PIC)) 
+				if (!AuthorizationHelper.isAuthorizedForEntityEditing(pipeline)) 
 				{
 					return;
 				}
@@ -203,7 +203,7 @@ public class PipelinesListPage extends FrontendPage
 			@Override
 			public boolean isVisible()
 			{
-				return pipeline.isLocked() != lock && pipeline.isLocked() != null && AuthorizationHelper.isAuthorizedForEntityEditing(pipeline, Role.PIC);
+				return pipeline.isLocked() != lock && pipeline.isLocked() != null && AuthorizationHelper.isAuthorizedForEntityEditing(pipeline);
 			}
         });
 	}

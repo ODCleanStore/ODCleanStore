@@ -15,16 +15,23 @@ public class AuthoredEntityDeleteButton<BO extends EntityWithSurrogateKey> exten
 	/**
 	 * 
 	 * @param dao
-	 * @param boId
 	 * @param objName
 	 * @param message
 	 * @param redirectPage
+	 * @param boId
 	 */
-	public AuthoredEntityDeleteButton(DaoForEntityWithSurrogateKey<BO> dao, AuthoredEntity entity, String requiredRole,
-		String objName, DeleteConfirmationMessage message, FrontendPage redirectPage) 
+	public AuthoredEntityDeleteButton(DaoForEntityWithSurrogateKey<BO> dao, AuthoredEntity entity, String objName,
+		DeleteConfirmationMessage message, FrontendPage redirectPage) 
 	{
 		super(dao, entity.getId(), objName, message, redirectPage);
-		this.isAuthorized = AuthorizationHelper.isAuthorizedForEntityEditing(entity.getAuthorId(), requiredRole);
+		this.isAuthorized = AuthorizationHelper.isAuthorizedForEntityEditing(entity.getAuthorId());
+	}
+	
+	public AuthoredEntityDeleteButton(DaoForEntityWithSurrogateKey<BO> dao, Integer param, boolean isAuthorized, String objName,
+		DeleteConfirmationMessage message, FrontendPage redirectPage) 
+	{
+		super(dao, param, objName, message, redirectPage);
+		this.isAuthorized = isAuthorized;
 	}
 
 	@Override

@@ -67,7 +67,6 @@ public class OntologiesListPage extends FrontendPage
 					new AuthoredEntityDeleteButton<Ontology>(
 						ontologyDao,
 						ontology,
-						Role.ONC,
 						"ontology",
 						new DeleteConfirmationMessage("ontology"),
 						OntologiesListPage.this
@@ -86,7 +85,6 @@ public class OntologiesListPage extends FrontendPage
 					new AuthoredEntityLimitedRedirectButton(
 						ChooseOntologiesPage.class,
 						ontology,
-						Role.ONC,
 						"ontologyMapping"
 					)
 				);
@@ -95,7 +93,6 @@ public class OntologiesListPage extends FrontendPage
 					new AuthoredEntityLimitedRedirectButton(
 						EditOntologyPage.class,
 						ontology,
-						Role.ONC,
 						"showEditOntologyPage"
 					)
 				);

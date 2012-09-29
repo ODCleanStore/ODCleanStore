@@ -12,8 +12,8 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARulesGroup;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthoredEntityDeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
@@ -72,10 +72,10 @@ public class QAGroupsListPage extends FrontendPage
 				item.add(new TruncatedLabel("description", MAX_LIST_COLUMN_TEXT_LENGTH));	
 				
 				item.add(
-					new DeleteButton<QARulesGroup>
+					new AuthoredEntityDeleteButton<QARulesGroup>
 					(
 						qaRulesGroupDao,
-						group.getId(),
+						group,
 						"group",
 						new DeleteConfirmationMessage("group", "rule"),
 						QAGroupsListPage.this
