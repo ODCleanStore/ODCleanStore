@@ -73,7 +73,7 @@ public class NewPipelinePage extends FrontendPage
 				}
 				
 				getSession().info("The pipeline was successfuly registered.");
-				setResponsePage(new EditPipelinePage(insertId));
+				setResponsePage(new PipelineDetailPage(insertId));
 			}
 		};
 		

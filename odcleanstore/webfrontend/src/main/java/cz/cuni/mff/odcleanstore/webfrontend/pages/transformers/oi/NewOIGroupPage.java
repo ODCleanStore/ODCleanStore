@@ -72,7 +72,7 @@ public class NewOIGroupPage extends FrontendPage
 				}
 				
 				getSession().info("The group was successfuly registered.");
-				setResponsePage(new EditOIGroupPage(insertId));
+				setResponsePage(new OIGroupDetailPage(insertId));
 			}
 		};
 		

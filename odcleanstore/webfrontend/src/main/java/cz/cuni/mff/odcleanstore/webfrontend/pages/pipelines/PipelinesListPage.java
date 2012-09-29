@@ -90,7 +90,7 @@ public class PipelinesListPage extends FrontendPage
 				
 				item.add(
 					new RedirectWithParamButton(
-						EditPipelinePage.class,
+						PipelineDetailPage.class,
 						pipeline.getId(), 
 						"showEditPipelinePage"
 					)

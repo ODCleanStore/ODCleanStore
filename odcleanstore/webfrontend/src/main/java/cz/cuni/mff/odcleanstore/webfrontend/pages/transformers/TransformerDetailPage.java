@@ -14,15 +14,15 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 @AuthorizeInstantiation({ Role.ADM })
-public class EditTransformerPage extends FrontendPage
+public class TransformerDetailPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger(EditTransformerPage.class);
+	private static Logger logger = Logger.getLogger(TransformerDetailPage.class);
 	
 	private DaoForEntityWithSurrogateKey<Transformer> transformerDao;
 	
-	public EditTransformerPage(final Integer id) 
+	public TransformerDetailPage(final Integer id) 
 	{
 		super
 		(

@@ -48,7 +48,7 @@ public class NewGroupAssignmentPage extends FrontendPage
 	{
 		add(
 			new RedirectWithParamButton(
-				EditTransformerAssignmentPage.class, 
+				TransformerAssignmentDetailPage.class, 
 				transformerInstanceId, 
 				"showTransformerInstanceDetailPage"
 			)
@@ -89,7 +89,7 @@ public class NewGroupAssignmentPage extends FrontendPage
 				}
 				
 				getSession().info("The group was successfuly assigned.");
-				setResponsePage(new EditTransformerAssignmentPage(transformerInstanceId));
+				setResponsePage(new TransformerAssignmentDetailPage(transformerInstanceId));
 			}
 		};
 

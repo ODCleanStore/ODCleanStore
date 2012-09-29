@@ -28,17 +28,17 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 @AuthorizeInstantiation({ Role.PIC })
-public class EditOIRulePage extends FrontendPage
+public class OIRuleDetailPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger(EditOIRulePage.class);
+	private static Logger logger = Logger.getLogger(OIRuleDetailPage.class);
 	
 	private DaoForEntityWithSurrogateKey<OIRule> oiRuleDao;
 	private DaoForEntityWithSurrogateKey<OIOutput> oiOutputDao;
 	private DaoForEntityWithSurrogateKey<OIOutputType> oiOutputTypeDao;
 	
-	public EditOIRulePage(final Integer ruleId) 
+	public OIRuleDetailPage(final Integer ruleId) 
 	{
 		super(
 			"Home > Backend > OI > Groups > Rules > Edit", 
@@ -104,13 +104,13 @@ public class EditOIRulePage extends FrontendPage
 						"deleteDBOutput",
 						"output",
 						new DeleteConfirmationMessage("output"),
-						EditOIRulePage.this
+						OIRuleDetailPage.this
 					)
 				);	
 				
 				item.add(
 					new RedirectWithParamButton(
-						EditDBOutputPage.class, 
+						DBOutputDetailPage.class, 
 						output.getId(), 
 						"showEditDBOutputPage"
 					)
@@ -168,13 +168,13 @@ public class EditOIRulePage extends FrontendPage
 						"deleteFileOutput",
 						"output",
 						new DeleteConfirmationMessage("output"),
-						EditOIRulePage.this
+						OIRuleDetailPage.this
 					)
 				);
 				
 				item.add(
 					new RedirectWithParamButton(
-						EditFileOutputPage.class, 
+						FileOutputDetailPage.class, 
 						output.getId(), 
 						"showEditFileOutputPage"
 					)
@@ -196,7 +196,7 @@ public class EditOIRulePage extends FrontendPage
 		add(
 			new RedirectWithParamButton
 			(
-				EditOIGroupPage.class, 
+				OIGroupDetailPage.class, 
 				formModel.getObject().getGroupId(), 
 				"showOIRulesList"
 			)

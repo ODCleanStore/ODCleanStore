@@ -1,99 +1,95 @@
-package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn;
+package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa;
 
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
-import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRulesGroup;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
-import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
+import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentSortableDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.EditTransformerAssignmentPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.TransformerAssignmentDetailPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
 @AuthorizeInstantiation({ Role.PIC })
-public class EditDNGroupPage extends FrontendPage
+public class QAGroupDetailPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	//private static Logger logger = Logger.getLogger(EditDNGroupPage.class);
+	//private static Logger logger = Logger.getLogger(EditQAGroupPage.class);
 	
-	private DaoForEntityWithSurrogateKey<DNRulesGroup> dnRulesGroupDao;
-	private DaoForEntityWithSurrogateKey<DNRule> dnRuleDao;
-
-	public EditDNGroupPage(final Integer groupId) 
+	private DaoForEntityWithSurrogateKey<QARulesGroup> qaRulesGroupDao;
+	private DaoForEntityWithSurrogateKey<QARule> qaRuleDao;
+	
+	public QAGroupDetailPage(final Integer groupId) 
 	{
 		this(groupId, null);
 	}
-	
-	public EditDNGroupPage(final Integer groupId, final Integer transformerInstanceId) 
+
+	public QAGroupDetailPage(final Integer groupId, final Integer transformerInstanceId) 
 	{
 		super(
-			"Home > Backend > DN > Groups > Edit", 
-			"Edit DN rule group"
+			"Home > Backend > QA > Groups > Edit", 
+			"Edit QA rule group"
 		);
 		
 		// prepare DAO objects
 		//
-		dnRulesGroupDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNRulesGroupDao.class);
-		dnRuleDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNRuleDao.class);
+		qaRulesGroupDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(QARulesGroupDao.class);
+		qaRuleDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(QARuleDao.class);
 		
 		// register page components
 		//
 		addBackToPipelineLink(transformerInstanceId);
 		addHelpWindow("rulesGroupHelpWindow", "openRulesGroupHelpWindow", new RulesGroupHelpPanel("content"));
-		addHelpWindow("dnRuleHelpWindow", "openDNRuleHelpWindow", new DNRuleHelpPanel("content"));
-		addEditDNRulesGroupForm(groupId);
-		addDNRulesSection(groupId);
+		addHelpWindow("qaRuleHelpWindow", "openQARuleHelpWindow", new QARuleHelpPanel("content"));
+		addEditOIRulesGroupForm(groupId);
+		addQARulesSection(groupId);
 	}
 	
 	private void addBackToPipelineLink(Integer transformerInstanceId) 
 	{
 		RedirectWithParamButton link = new RedirectWithParamButton(
-			EditTransformerAssignmentPage.class,
+			TransformerAssignmentDetailPage.class,
 			transformerInstanceId, 
 			"backToPipelineLink"
 		);
 		link.setVisible(transformerInstanceId != null);
 		add(link);
 	}
-	
-	/*
-	 	=======================================================================
-	 	Implementace qaRulesTable
-	 	=======================================================================
-	*/
-	
-	private void addEditDNRulesGroupForm(final Integer groupId)
+
+	private void addEditOIRulesGroupForm(final Integer groupId)
 	{
-		DNRulesGroup group = dnRulesGroupDao.load(groupId);
-		IModel<DNRulesGroup> formModel = new CompoundPropertyModel<DNRulesGroup>(group);
+		QARulesGroup group = qaRulesGroupDao.load(groupId);
+		IModel<QARulesGroup> formModel = new CompoundPropertyModel<QARulesGroup>(group);
 		
-		Form<DNRulesGroup> form = new Form<DNRulesGroup>("editDNGroupForm", formModel)
+		Form<QARulesGroup> form = new Form<QARulesGroup>("editQAGroupForm", formModel)
 		{
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected void onSubmit()
 			{
-				DNRulesGroup group = this.getModelObject();
+				QARulesGroup group = this.getModelObject();
 				
 				try {
-					dnRulesGroupDao.update(group);
+					qaRulesGroupDao.update(group);
 				}
 				catch (DaoException ex)
 				{
@@ -112,7 +108,7 @@ public class EditDNGroupPage extends FrontendPage
 				}
 				
 				getSession().info("The group was successfuly updated.");
-				//setResponsePage(DNGroupsListPage.class);
+				//setResponsePage(QAGroupsListPage.class);
 			}
 		};
 		
@@ -121,61 +117,70 @@ public class EditDNGroupPage extends FrontendPage
 		
 		add(form);
 	}
-	
-	private void addDNRulesSection(final Integer groupId) 
+
+	private void addQARulesSection(final Integer groupId) 
 	{
 		add(
 			new RedirectWithParamButton(
-				NewDNRulePage.class,
+				NewQARulePage.class,
 				groupId, 
 				"addNewRuleLink"
 			)
 		);
 		
-		addDNRulesTable(groupId);
+		addQARulesTable(groupId);
 	}
 	
-	private void addDNRulesTable(final Integer groupId)
+	private void addQARulesTable(final Integer groupId)
 	{
-		IDataProvider<DNRule> data = new DependentDataProvider<DNRule>(dnRuleDao, "groupId", groupId);
+		SortableDataProvider<QARule> data = new DependentSortableDataProvider<QARule>
+		(
+			qaRuleDao, 
+			"coefficient", 
+			"groupId", 
+			groupId
+		);
 		
-		DataView<DNRule> dataView = new DataView<DNRule>("dnRulesTable", data)
+		DataView<QARule> dataView = new DataView<QARule>("qaRulesTable", data)
 		{
 			private static final long serialVersionUID = 1L;
 			
 			@Override
-			protected void populateItem(Item<DNRule> item) 
+			protected void populateItem(Item<QARule> item) 
 			{
-				DNRule rule = item.getModelObject();
+				QARule rule = item.getModelObject();
 				
-				item.setModel(new CompoundPropertyModel<DNRule>(rule));
+				item.setModel(new CompoundPropertyModel<QARule>(rule));
 				
+				item.add(new TruncatedLabel("filter", MAX_LIST_COLUMN_TEXT_LENGTH));
+				item.add(new Label("coefficient"));
 				item.add(new TruncatedLabel("description", MAX_LIST_COLUMN_TEXT_LENGTH));
 				
 				item.add(
-					new DeleteRawButton<DNRule>
+					new DeleteRawButton<QARule>
 					(
-						dnRuleDao,
+						qaRuleDao,
 						rule.getId(),
 						"rule",
 						new DeleteConfirmationMessage("rule"),
-						EditDNGroupPage.this
+						QAGroupDetailPage.this
 					)
 				);
-				
 				
 				item.add(
 					new RedirectWithParamButton
 					(
-						EditDNRulePage.class,
+						QARuleDetailPage.class,
 						rule.getId(),
-						"showEditDNRulePage"
+						"showEditQARulePage"
 					)
 				);
 			}
 		};
 		
 		dataView.setItemsPerPage(ITEMS_PER_PAGE);
+		
+		add(new SortTableButton<QARule>("sortByCoefficient", "coefficient", data, dataView));
 		
 		add(dataView);
 		

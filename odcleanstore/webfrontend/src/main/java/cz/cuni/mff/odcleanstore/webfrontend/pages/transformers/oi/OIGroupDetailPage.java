@@ -24,11 +24,11 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.EditTransformerAssignmentPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.TransformerAssignmentDetailPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
 @AuthorizeInstantiation({ Role.PIC })
-public class EditOIGroupPage extends FrontendPage
+public class OIGroupDetailPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
@@ -37,12 +37,12 @@ public class EditOIGroupPage extends FrontendPage
 	private DaoForEntityWithSurrogateKey<OIRulesGroup> oiRulesGroupDao;
 	private DaoForEntityWithSurrogateKey<OIRule> oiRuleDao;
 	
-	public EditOIGroupPage(final Integer groupId) 
+	public OIGroupDetailPage(final Integer groupId) 
 	{
 		this(groupId, null);
 	}
 	
-	public EditOIGroupPage(final Integer groupId, final Integer transformerInstanceId) 
+	public OIGroupDetailPage(final Integer groupId, final Integer transformerInstanceId) 
 	{
 		super(
 			"Home > Backend > OI > Groups > Edit", 
@@ -66,7 +66,7 @@ public class EditOIGroupPage extends FrontendPage
 	private void addBackToPipelineLink(Integer transformerInstanceId) 
 	{
 		RedirectWithParamButton link = new RedirectWithParamButton(
-			EditTransformerAssignmentPage.class,
+			TransformerAssignmentDetailPage.class,
 			transformerInstanceId, 
 			"backToPipelineLink"
 		);
@@ -167,14 +167,14 @@ public class EditOIGroupPage extends FrontendPage
 						rule.getId(),
 						"rule",
 						new DeleteConfirmationMessage("rule"),
-						EditOIGroupPage.this
+						OIGroupDetailPage.this
 					)
 				);
 				
 				item.add(
 					new RedirectWithParamButton
 					(
-						EditOIRulePage.class,
+						OIRuleDetailPage.class,
 						rule.getId(),
 						"showEditOIRulePage"
 					)

@@ -20,7 +20,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 @AuthorizeInstantiation({ Role.PIC, Role.ADM_PIC })
-public class EditTransformerAssignmentPage extends FrontendPage
+public class TransformerAssignmentDetailPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -33,12 +33,12 @@ public class EditTransformerAssignmentPage extends FrontendPage
 	private static final String DN_FULL_CLASS_NAME = 
 		"cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl";
 
-	private static Logger logger = Logger.getLogger(EditTransformerAssignmentPage.class);
+	private static Logger logger = Logger.getLogger(TransformerAssignmentDetailPage.class);
 	
 	private DaoForEntityWithSurrogateKey<Transformer> transformerDao;
 	private DaoForEntityWithSurrogateKey<TransformerInstance> transformerInstanceDao;
 	
-	public EditTransformerAssignmentPage(final Integer transformerInstanceId) 
+	public TransformerAssignmentDetailPage(final Integer transformerInstanceId) 
 	{
 		super
 		(
@@ -62,7 +62,7 @@ public class EditTransformerAssignmentPage extends FrontendPage
 		
 		add(
 			new RedirectWithParamButton(
-				EditPipelinePage.class,
+				PipelineDetailPage.class,
 				transformerInstance.getPipelineId(), 
 				"managePipelineTransformers"
 			)

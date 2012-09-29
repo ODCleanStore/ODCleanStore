@@ -10,11 +10,11 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.en.OIRuleAssignmentDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.QARuleAssignmentDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.EditDNGroupPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.DNGroupDetailPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.NewDNGroupPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.EditOIGroupPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.OIGroupDetailPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.NewOIGroupPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.EditQAGroupPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.QAGroupDetailPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.NewQAGroupPage;
 
 @AuthorizeInstantiation({ Role.PIC, Role.ADM_PIC })
@@ -29,7 +29,7 @@ public class AssignedGroupsListPageFactory
 			transformerInstanceId, 
 			daoLookupFactory.getDaoForEntityWithSurrogateKey(QARulesGroupDao.class), 
 			daoLookupFactory.getDaoForEntityWithSurrogateKey(QARuleAssignmentDao.class), 
-			EditQAGroupPage.class,
+			QAGroupDetailPage.class,
 			NewQAGroupPage.class
 		);
 	}
@@ -43,7 +43,7 @@ public class AssignedGroupsListPageFactory
 			transformerInstanceId, 
 			daoLookupFactory.getDaoForEntityWithSurrogateKey(OIRulesGroupDao.class), 
 			daoLookupFactory.getDaoForEntityWithSurrogateKey(OIRuleAssignmentDao.class), 
-			EditOIGroupPage.class,
+			OIGroupDetailPage.class,
 			NewOIGroupPage.class
 		);
 	}
@@ -57,7 +57,7 @@ public class AssignedGroupsListPageFactory
 			transformerInstanceId, 
 			daoLookupFactory.getDaoForEntityWithSurrogateKey(DNRulesGroupDao.class), 
 			daoLookupFactory.getDaoForEntityWithSurrogateKey(DNRuleAssignmentDao.class), 
-			EditDNGroupPage.class,
+			DNGroupDetailPage.class,
 			NewDNGroupPage.class
 		);
 	}
