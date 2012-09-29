@@ -7,7 +7,6 @@ import org.apache.wicket.model.CompoundPropertyModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.Ontology;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.onto.OntologyDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
@@ -16,7 +15,7 @@ public class ChooseOntologiesPage extends FrontendPage {
 	
 	private static final long serialVersionUID = 1L;
 	
-	private DaoForEntityWithSurrogateKey<Ontology> ontologyDao;
+	private OntologyDao ontologyDao;
 	
 	private Ontology sourceOntology;
 	private Ontology targetOntology;
@@ -35,7 +34,7 @@ public class ChooseOntologiesPage extends FrontendPage {
 		
 		// prepare DAO objects
 		//
-		this.ontologyDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OntologyDao.class);
+		this.ontologyDao = daoLookupFactory.getDao(OntologyDao.class);
 		this.sourceOntology = new Ontology();
 		// register page components
 		//

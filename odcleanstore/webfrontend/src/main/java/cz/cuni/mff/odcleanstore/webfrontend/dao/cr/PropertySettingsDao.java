@@ -1,12 +1,12 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.cr;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.PropertySettings;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
-
 import java.util.List;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+
+import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.PropertySettings;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
 
 public class PropertySettingsDao extends DaoForEntityWithSurrogateKey<PropertySettings>
 {	
@@ -34,7 +34,7 @@ public class PropertySettingsDao extends DaoForEntityWithSurrogateKey<PropertySe
 	}
 	
 	@Override
-	public void save(PropertySettings item) 
+	public void save(PropertySettings item) throws Exception
 	{
 		String query = 
 			"INSERT INTO " + TABLE_NAME + " (property, multivalueTypeId, aggregationTypeId) " +
@@ -51,11 +51,10 @@ public class PropertySettingsDao extends DaoForEntityWithSurrogateKey<PropertySe
 		logger.debug("multivalueTypeId: " + item.getMultivalueType().getId());
 		logger.debug("aggregationTypeId: " + item.getAggregationType().getId());
 		
-		getCleanJdbcTemplate().update(query, arguments);
+		jdbcUpdate(query, arguments);
 	}
-	
-	@Override
-	public void update(PropertySettings item)
+
+	public void update(PropertySettings item) throws Exception
 	{
 		String query = 
 			"UPDATE " + TABLE_NAME + " SET property = ?, multivalueTypeId = ?, aggregationTypeId = ? " +
@@ -74,7 +73,7 @@ public class PropertySettingsDao extends DaoForEntityWithSurrogateKey<PropertySe
 		logger.debug("aggregationTypeId: " + item.getAggregationType().getId());
 		logger.debug("id: " + item.getId());
 		
-		getCleanJdbcTemplate().update(query, arguments);
+		jdbcUpdate(query, arguments);
 	}
 
 	@Override
@@ -95,7 +94,7 @@ public class PropertySettingsDao extends DaoForEntityWithSurrogateKey<PropertySe
 		
 		Object[] params = criteria.buildWhereClauseParams();
 		
-		return getCleanJdbcTemplate().query(query, params, getRowMapper());
+		return jdbcQuery(query, params, getRowMapper());
 	}
 
 	@Override
@@ -115,6 +114,6 @@ public class PropertySettingsDao extends DaoForEntityWithSurrogateKey<PropertySe
 		
 		Object[] params = { id };
 			
-		return getCleanJdbcTemplate().queryForObject(query, params, getRowMapper());
+		return jdbcQueryForObject(query, params, getRowMapper());
 	}
 }

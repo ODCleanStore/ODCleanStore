@@ -16,7 +16,6 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.RelationType;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DetachableAutoCompleteTextField;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.onto.OntologyMappingDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
-import cz.cuni.mff.odcleanstore.webfrontend.validators.EnumValidator;
 import cz.cuni.mff.odcleanstore.webfrontend.validators.JenaURIValidator;
 
 @AuthorizeInstantiation({ Role.ONC })
@@ -37,7 +36,7 @@ public class AddMappingPage extends FrontendPage {
 		
 		// prepare DAO objects
 		//
-		mappingDao = (OntologyMappingDao)daoLookupFactory.getUnsafeDao(OntologyMappingDao.class);
+		mappingDao = daoLookupFactory.getDao(OntologyMappingDao.class);
 		
 		// register page components
 		//

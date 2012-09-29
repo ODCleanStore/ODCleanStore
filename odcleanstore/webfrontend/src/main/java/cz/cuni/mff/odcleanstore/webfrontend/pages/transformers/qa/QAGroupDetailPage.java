@@ -13,13 +13,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentSortableDataProvider;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
@@ -34,8 +33,8 @@ public class QAGroupDetailPage extends FrontendPage
 
 	//private static Logger logger = Logger.getLogger(EditQAGroupPage.class);
 	
-	private DaoForEntityWithSurrogateKey<QARulesGroup> qaRulesGroupDao;
-	private DaoForEntityWithSurrogateKey<QARule> qaRuleDao;
+	private QARulesGroupDao qaRulesGroupDao;
+	private QARuleDao qaRuleDao;
 	
 	public QAGroupDetailPage(final Integer groupId) 
 	{
@@ -51,8 +50,8 @@ public class QAGroupDetailPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		qaRulesGroupDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(QARulesGroupDao.class);
-		qaRuleDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(QARuleDao.class);
+		qaRulesGroupDao = daoLookupFactory.getDao(QARulesGroupDao.class);
+		qaRuleDao = daoLookupFactory.getDao(QARuleDao.class);
 		
 		// register page components
 		//
@@ -157,7 +156,7 @@ public class QAGroupDetailPage extends FrontendPage
 				item.add(new TruncatedLabel("description", MAX_LIST_COLUMN_TEXT_LENGTH));
 				
 				item.add(
-					new DeleteRawButton<QARule>
+					new DeleteButton<QARule>
 					(
 						qaRuleDao,
 						rule.getId(),

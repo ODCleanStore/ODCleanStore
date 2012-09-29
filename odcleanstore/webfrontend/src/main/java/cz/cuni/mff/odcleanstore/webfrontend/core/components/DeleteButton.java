@@ -4,11 +4,9 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-public class DeleteButton<BO extends EntityWithSurrogateKey> extends AbstractDeleteButton<BO> {
-	
+public class DeleteButton<BO extends EntityWithSurrogateKey> extends AbstractDeleteButton<BO>
+{
 	private static final long serialVersionUID = 1L;
-	
-	private BO bo;
 	
 	/**
 	 * 
@@ -19,11 +17,10 @@ public class DeleteButton<BO extends EntityWithSurrogateKey> extends AbstractDel
 	 * @param message
 	 * @param redirectPage
 	 */
-	public DeleteButton(DaoForEntityWithSurrogateKey<BO> dao, BO bo, String compName,
+	public DeleteButton(DaoForEntityWithSurrogateKey<BO> dao, Integer boId, String compName,
 		String objName, DeleteConfirmationMessage message, FrontendPage redirectPage) 
 	{
-		super(dao, bo.getId(), compName, objName, message, redirectPage);		
-		this.bo = bo;
+		super(dao, boId, compName, objName, message, redirectPage);
 	}
 	
 	/**
@@ -34,15 +31,16 @@ public class DeleteButton<BO extends EntityWithSurrogateKey> extends AbstractDel
 	 * @param message
 	 * @param redirectPage
 	 */
-	public DeleteButton(DaoForEntityWithSurrogateKey<BO> dao, BO bo, String objName,
+	public DeleteButton(DaoForEntityWithSurrogateKey<BO> dao, Integer boId, String objName,
 		DeleteConfirmationMessage message, FrontendPage redirectPage) 
 	{
-		this(dao, bo, createCompName(objName), objName, message, redirectPage);
+		this(dao, boId, createCompName(objName), objName, message, redirectPage);
 	}
 
+	
 	@Override
-	protected void delete() throws Exception
+	protected void delete() throws Exception 
 	{
-		dao.delete(bo);
+		dao.delete(boId);
 	}
 }

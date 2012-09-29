@@ -7,7 +7,6 @@ import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRulesGroup;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
@@ -18,7 +17,7 @@ public class NewDNGroupPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private DaoForEntityWithSurrogateKey<DNRulesGroup> dnRulesGroupDao;
+	private DNRulesGroupDao dnRulesGroupDao;
 	
 	public NewDNGroupPage() 
 	{
@@ -29,7 +28,7 @@ public class NewDNGroupPage extends FrontendPage
 
 		// prepare DAO objects
 		//
-		this.dnRulesGroupDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNRulesGroupDao.class);
+		this.dnRulesGroupDao = daoLookupFactory.getDao(DNRulesGroupDao.class);
 		
 		// register page components
 		//

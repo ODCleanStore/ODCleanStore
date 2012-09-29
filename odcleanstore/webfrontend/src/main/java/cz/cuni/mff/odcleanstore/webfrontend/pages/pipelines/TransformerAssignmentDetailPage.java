@@ -13,7 +13,6 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
@@ -35,8 +34,8 @@ public class TransformerAssignmentDetailPage extends FrontendPage
 
 	private static Logger logger = Logger.getLogger(TransformerAssignmentDetailPage.class);
 	
-	private DaoForEntityWithSurrogateKey<Transformer> transformerDao;
-	private DaoForEntityWithSurrogateKey<TransformerInstance> transformerInstanceDao;
+	private TransformerDao transformerDao;
+	private TransformerInstanceDao transformerInstanceDao;
 	
 	public TransformerAssignmentDetailPage(final Integer transformerInstanceId) 
 	{
@@ -49,8 +48,8 @@ public class TransformerAssignmentDetailPage extends FrontendPage
 
 		// prepare DAO objects
 		//
-		transformerDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(TransformerDao.class);
-		transformerInstanceDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(TransformerInstanceDao.class);
+		transformerDao = daoLookupFactory.getDao(TransformerDao.class);
+		transformerInstanceDao = daoLookupFactory.getDao(TransformerInstanceDao.class);
 		
 		// register page components
 		//

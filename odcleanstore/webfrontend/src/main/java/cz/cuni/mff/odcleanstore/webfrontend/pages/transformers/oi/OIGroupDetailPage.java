@@ -13,13 +13,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentSortableDataProvider;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
@@ -34,8 +33,8 @@ public class OIGroupDetailPage extends FrontendPage
 
 	//private static Logger logger = Logger.getLogger(OIGroupDetailPage.class);
 	
-	private DaoForEntityWithSurrogateKey<OIRulesGroup> oiRulesGroupDao;
-	private DaoForEntityWithSurrogateKey<OIRule> oiRuleDao;
+	private OIRulesGroupDao oiRulesGroupDao;
+	private OIRuleDao oiRuleDao;
 	
 	public OIGroupDetailPage(final Integer groupId) 
 	{
@@ -51,8 +50,8 @@ public class OIGroupDetailPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		oiRulesGroupDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIRulesGroupDao.class);
-		oiRuleDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIRuleDao.class);
+		oiRulesGroupDao = daoLookupFactory.getDao(OIRulesGroupDao.class);
+		oiRuleDao = daoLookupFactory.getDao(OIRuleDao.class);
 		
 		// register page components
 		//		
@@ -161,7 +160,7 @@ public class OIGroupDetailPage extends FrontendPage
 				item.add(createNullResistentTableCellLabel("filterLimit", rule.getFilterLimit()));
 				
 				item.add(
-					new DeleteRawButton<OIRule>
+					new DeleteButton<OIRule>
 					(
 						oiRuleDao,
 						rule.getId(),

@@ -12,12 +12,11 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
@@ -32,8 +31,8 @@ public class DNGroupDetailPage extends FrontendPage
 
 	//private static Logger logger = Logger.getLogger(EditDNGroupPage.class);
 	
-	private DaoForEntityWithSurrogateKey<DNRulesGroup> dnRulesGroupDao;
-	private DaoForEntityWithSurrogateKey<DNRule> dnRuleDao;
+	private DNRulesGroupDao dnRulesGroupDao;
+	private DNRuleDao dnRuleDao;
 
 	public DNGroupDetailPage(final Integer groupId) 
 	{
@@ -49,8 +48,8 @@ public class DNGroupDetailPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		dnRulesGroupDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNRulesGroupDao.class);
-		dnRuleDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNRuleDao.class);
+		dnRulesGroupDao = daoLookupFactory.getDao(DNRulesGroupDao.class);
+		dnRuleDao = daoLookupFactory.getDao(DNRuleDao.class);
 		
 		// register page components
 		//
@@ -153,7 +152,7 @@ public class DNGroupDetailPage extends FrontendPage
 				item.add(new TruncatedLabel("description", MAX_LIST_COLUMN_TEXT_LENGTH));
 				
 				item.add(
-					new DeleteRawButton<DNRule>
+					new DeleteButton<DNRule>
 					(
 						dnRuleDao,
 						rule.getId(),

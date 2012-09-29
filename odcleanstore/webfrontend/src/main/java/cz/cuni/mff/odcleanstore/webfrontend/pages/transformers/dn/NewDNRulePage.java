@@ -8,7 +8,6 @@ import org.apache.wicket.model.IModel;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
@@ -18,7 +17,7 @@ public class NewDNRulePage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 	
-	private DaoForEntityWithSurrogateKey<DNRule> dnRuleDao;
+	private DNRuleDao dnRuleDao;
 	
 	public NewDNRulePage(final Integer groupId) 
 	{
@@ -29,7 +28,7 @@ public class NewDNRulePage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		this.dnRuleDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNRuleDao.class);
+		this.dnRuleDao = daoLookupFactory.getDao(DNRuleDao.class);
 		
 		// register page components
 		//

@@ -41,7 +41,7 @@ public class OntologyMappingDao extends DaoForEntityWithSurrogateKey<RelationTyp
 		String query = "SPARQL SELECT ?x FROM <" + ontoGraphName +
 				"> WHERE {?x <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?y}";
 		
-		return getCleanJdbcTemplate().queryForList(query, String.class);
+		return jdbcQueryForList(query, String.class);
 	}
 
 	public void addMapping(String graphName, String sourceUri, String relationType, String targetUri) 

@@ -31,7 +31,7 @@ public class OIRuleDao extends DaoForEntityWithSurrogateKey<OIRule>
 	}
 	
 	@Override
-	public void save(OIRule item)
+	public void save(OIRule item) throws Exception
 	{
 		String query = 
 			"INSERT INTO " + TABLE_NAME + " " +
@@ -59,11 +59,10 @@ public class OIRuleDao extends DaoForEntityWithSurrogateKey<OIRule>
 		logger.debug("filterThreshold: " + item.getFilterThreshold());
 		logger.debug("filterLimit: " + item.getFilterLimit());
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
 	}
 	
-	@Override
-	public void update(OIRule item)
+	public void update(OIRule item) throws Exception
 	{
 		String query =
 			"UPDATE " + TABLE_NAME + 
@@ -91,6 +90,6 @@ public class OIRuleDao extends DaoForEntityWithSurrogateKey<OIRule>
 		logger.debug("filterLimit: " + item.getFilterLimit());
 		logger.debug("id: " + item.getId());
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
 	}
 }

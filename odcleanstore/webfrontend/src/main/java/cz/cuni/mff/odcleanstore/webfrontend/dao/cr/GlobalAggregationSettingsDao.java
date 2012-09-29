@@ -3,9 +3,9 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.cr;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.GlobalAggregationSettings;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoTemplate;
 
-public class GlobalAggregationSettingsDao extends Dao<GlobalAggregationSettings>
+public class GlobalAggregationSettingsDao extends DaoTemplate<GlobalAggregationSettings>
 {
 	private static final long serialVersionUID = 1L;
 
@@ -31,7 +31,7 @@ public class GlobalAggregationSettingsDao extends Dao<GlobalAggregationSettings>
 	}
 
 	@Override
-	public GlobalAggregationSettings loadFirstRaw()
+	public GlobalAggregationSettings loadFirst()
 	{
 		String query =
 			"select TOP 1 " + 
@@ -43,10 +43,10 @@ public class GlobalAggregationSettingsDao extends Dao<GlobalAggregationSettings>
 			"join DB.ODCLEANSTORE.CR_MULTIVALUE_TYPES as M on S.defaultMultivalueTypeId = M.id " +
 			"join DB.ODCLEANSTORE.CR_ERROR_STRaTEGIES as E on S.defaultErrorStrategyId = E.id";
 		
-		return getCleanJdbcTemplate().queryForObject(query, getRowMapper());
+		return jdbcQueryForObject(query, getRowMapper());
 	}
 	
-	public void save(GlobalAggregationSettings settings)
+	public void save(GlobalAggregationSettings settings) throws Exception
 	{
 		String query = 
 			"UPDATE " + TABLE_NAME + " SET " +
@@ -61,6 +61,6 @@ public class GlobalAggregationSettingsDao extends Dao<GlobalAggregationSettings>
 			settings.getDefaultErrorStrategy().getId()
 		};
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
 	}
 }

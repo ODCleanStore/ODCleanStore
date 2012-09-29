@@ -31,7 +31,7 @@ public class QARulesGroupDao extends DaoForEntityWithSurrogateKey<QARulesGroup>
 	}
 	
 	@Override
-	public void save(QARulesGroup item)
+	public void save(QARulesGroup item) throws Exception
 	{
 		String query = "INSERT INTO " + TABLE_NAME + " (label, description) VALUES (?, ?)";
 		
@@ -44,11 +44,10 @@ public class QARulesGroupDao extends DaoForEntityWithSurrogateKey<QARulesGroup>
 		logger.debug("label: " + item.getLabel());
 		logger.debug("description: " + item.getDescription());
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
 	}
 
-	@Override
-	public void update(QARulesGroup item)
+	public void update(QARulesGroup item) throws Exception
 	{
 		String query = "UPDATE " + TABLE_NAME + " SET label = ?, description = ? WHERE id = ?";
 		
@@ -63,6 +62,6 @@ public class QARulesGroupDao extends DaoForEntityWithSurrogateKey<QARulesGroup>
 		logger.debug("description: " + item.getDescription());
 		logger.debug("id: " + item.getId());
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
 	}
 }

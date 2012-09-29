@@ -47,11 +47,11 @@ public class DNRuleComponentDao extends DaoForEntityWithSurrogateKey<DNRuleCompo
 			"JOIN " + DNRuleComponentTypeDao.TABLE_NAME + " as CT " +
 			"ON CT.id = C.typeId ";
 		
-		return getCleanJdbcTemplate().query(query, getRowMapper());
+		return jdbcQuery(query, getRowMapper());
 	}
 	
 	@Override
-	public List<DNRuleComponent> loadAllRawBy(String columnName, Object value)
+	public List<DNRuleComponent> loadAllBy(String columnName, Object value)
 	{
 		String query = 
 			"SELECT C.id as id, ruleId, modification, C.description as description, " +
@@ -63,7 +63,7 @@ public class DNRuleComponentDao extends DaoForEntityWithSurrogateKey<DNRuleCompo
 		
 		Object[] params = { value };
 		
-		return getCleanJdbcTemplate().query(query, params, getRowMapper());
+		return jdbcQuery(query, params, getRowMapper());
 	}
 	
 	@Override
@@ -79,11 +79,11 @@ public class DNRuleComponentDao extends DaoForEntityWithSurrogateKey<DNRuleCompo
 		
 		Object[] params = { id };
 			
-		return getCleanJdbcTemplate().queryForObject(query, params, getRowMapper());
+		return jdbcQueryForObject(query, params, getRowMapper());
 	}
 	
 	@Override
-	public void save(DNRuleComponent item)
+	public void save(DNRuleComponent item) throws Exception
 	{
 		String query = 
 			"INSERT INTO " + TABLE_NAME + " (ruleId, typeId, modification, description) " +
@@ -102,11 +102,10 @@ public class DNRuleComponentDao extends DaoForEntityWithSurrogateKey<DNRuleCompo
 		logger.debug("modification: " + item.getModification());
 		logger.debug("description: " + item.getDescription());
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
 	}
 
-	@Override
-	public void update(DNRuleComponent item)
+	public void update(DNRuleComponent item) throws Exception
 	{
 		String query = 
 			"UPDATE " + TABLE_NAME + " " +
@@ -125,6 +124,6 @@ public class DNRuleComponentDao extends DaoForEntityWithSurrogateKey<DNRuleCompo
 		logger.debug("description: " + item.getDescription());
 		logger.debug("id: " + item.getId());
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
 	}
 }

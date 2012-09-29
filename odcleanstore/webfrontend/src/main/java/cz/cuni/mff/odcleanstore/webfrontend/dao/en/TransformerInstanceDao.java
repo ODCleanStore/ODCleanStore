@@ -44,7 +44,7 @@ public class TransformerInstanceDao extends DaoForEntityWithSurrogateKey<Transfo
 		
 		Object[] params = criteria.buildWhereClauseParams();
 		
-		return getCleanJdbcTemplate().query(query, params, getRowMapper());
+		return jdbcQuery(query, params, getRowMapper());
 	}
 	
 	@Override
@@ -57,10 +57,10 @@ public class TransformerInstanceDao extends DaoForEntityWithSurrogateKey<Transfo
 		
 		Object[] params = { id };
 		
-		return getCleanJdbcTemplate().queryForObject(query, params, getRowMapper());
+		return jdbcQueryForObject(query, params, getRowMapper());
 	}
 	
-	public void save(TransformerInstance item)
+	public void save(TransformerInstance item) throws Exception
 	{
 		String query = 
 			"INSERT INTO " + TABLE_NAME + " " +
@@ -76,10 +76,10 @@ public class TransformerInstanceDao extends DaoForEntityWithSurrogateKey<Transfo
 			item.getPriority()
 		};
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
 	}
 	
-	public void update(TransformerInstance item)
+	public void update(TransformerInstance item) throws Exception
 	{
 		String query = 
 			"UPDATE " + TABLE_NAME + 
@@ -94,6 +94,6 @@ public class TransformerInstanceDao extends DaoForEntityWithSurrogateKey<Transfo
 			item.getId()
 		};
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
 	}
 }

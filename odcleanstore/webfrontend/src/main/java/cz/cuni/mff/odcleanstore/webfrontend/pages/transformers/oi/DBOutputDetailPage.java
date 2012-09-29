@@ -10,7 +10,6 @@ import org.apache.wicket.validation.validator.RangeValidator;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutput;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
@@ -20,8 +19,8 @@ public class DBOutputDetailPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 	
-	private DaoForEntityWithSurrogateKey<OIOutput> oiOutputDao;
-	//private DaoForEntityWithSurrogateKey<OIOutputType> oiOutputTypeDao;
+	private OIOutputDao oiOutputDao;
+	//private OIOutputTypeDao oiOutputTypeDao;
 	
 	public DBOutputDetailPage(final Integer outputId) 
 	{
@@ -32,8 +31,8 @@ public class DBOutputDetailPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		oiOutputDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIOutputDao.class);
-		//oiOutputTypeDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIOutputTypeDao.class);
+		oiOutputDao = daoLookupFactory.getDao(OIOutputDao.class);
+		//oiOutputTypeDao = daoLookupFactory.getDao(OIOutputTypeDao.class);
 		
 		// register page components
 		//

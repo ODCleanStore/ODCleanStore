@@ -7,10 +7,10 @@ import java.net.URLEncoder;
 import org.apache.log4j.Logger;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
+import virtuoso.jena.driver.VirtGraph;
+
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
-
-import virtuoso.jena.driver.VirtGraph;
 
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
 import cz.cuni.mff.odcleanstore.datanormalization.rules.DataNormalizationRulesModel;
@@ -56,9 +56,9 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 	}
 	
 	@Override
-	public Ontology loadRawBy(String columnName, Object value)
+	public Ontology loadBy(String columnName, Object value)
 	{
-		Ontology ontology = super.loadRawBy(columnName, value) ;
+		Ontology ontology = super.loadBy(columnName, value) ;
 			
 		ontology.setRdfData(loadRdfData(ontology.getGraphName()));
 		
@@ -85,7 +85,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 	}
 	
 	@Override
-	public void save(Ontology item) 
+	public void save(Ontology item) throws Exception
 	{
 		String query = "INSERT INTO " + TABLE_NAME + " (label, description, graphName) VALUES (?, ?, ?)";
 		
@@ -101,7 +101,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		logger.debug("description: " + item.getDescription());
 		logger.debug("graphName" + item.getGraphName());
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
 		
 		// to be able to drop a graph in Virtuoso, it has to be explicitly created before
 		createGraph(item.getGraphName());
@@ -121,16 +121,16 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		}
 	}
 	
-	private void createGraph(String graphName) 
+	private void createGraph(String graphName) throws Exception
 	{
 		String query = "SPARQL CREATE SILENT GRAPH ??";
 		
 		Object[] params = { graphName };
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
 	}
 	
-	private void storeRdfXml(String rdfData, String graphName) 
+	private void storeRdfXml(String rdfData, String graphName) throws Exception
 	{
 		String query = "CALL DB.DBA.RDF_LOAD_RDFXML_MT(?, '', ?)";
 		
@@ -140,10 +140,9 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 			graphName
 		};
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
 	}
 	
-	@Override
 	public void update(Ontology item) throws Exception
 	{	
 		delete(item);
@@ -151,28 +150,28 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		save(item);
 	}
 	
-	private void deleteGraph(String graphName) 
+	private void deleteGraph(String graphName) throws Exception
 	{
 		String query = "SPARQL DROP SILENT GRAPH ??";
 		
 		Object[] params = { graphName };
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
 	}
 	
 	@Override
 	public void delete(Ontology item) throws Exception 
 	{
-		deleteRaw(item.getId());
+		super.delete(item);
 		deleteGraph(item.getGraphName());
 	}
 	
-	private void generateRules(String tableName, String ontologyLabel) 
+	private void generateRules(String tableName, String ontologyLabel) throws Exception
 	{
 		String groupLabel = createGroupLabel(ontologyLabel);
 		createRulesGroup(tableName, groupLabel);
 		
-		Ontology ontologyWithId = super.loadRawBy("label", ontologyLabel);
+		Ontology ontologyWithId = super.loadBy("label", ontologyLabel);
 		Integer ontologyId = ontologyWithId.getId();
 		Integer groupId = getGroupId(tableName, groupLabel);
 		
@@ -204,7 +203,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		return RULE_GROUP_PREFIX + ontologyLabel;
 	}
 	
-	private void createRulesGroup(String tableName, String groupLabel) 
+	private void createRulesGroup(String tableName, String groupLabel) throws Exception
 	{
 		String query = "INSERT INTO " + tableName + " (label) VALUES (?)";
 		
@@ -212,7 +211,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		
 		logger.debug("groupName" + groupLabel);
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
 	}
 	
 	private String createMappingTableName(String groupTableName) 
@@ -232,10 +231,10 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		
 		Object[] params = { groupLabel };
 		
-		return getCleanJdbcTemplate().queryForObject(query, params, Integer.class);
+		return jdbcQueryForObject(query, params, Integer.class);
 	}
 	
-	private void createMapping(String tableName, Integer groupId, Integer ontologyId)
+	private void createMapping(String tableName, Integer groupId, Integer ontologyId) throws Exception
 	{
 		String query = "INSERT INTO " + TABLE_NAME_PREFIX + tableName + " (groupId, ontologyId) VALUES (?, ?)";
 		
@@ -248,6 +247,6 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		logger.debug("groupId" + groupId);
 		logger.debug("ontologyId" + ontologyId);
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
 	}
 }

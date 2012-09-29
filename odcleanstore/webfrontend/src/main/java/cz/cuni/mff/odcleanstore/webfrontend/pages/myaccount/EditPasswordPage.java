@@ -10,7 +10,6 @@ import org.apache.wicket.model.CompoundPropertyModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.core.ODCSWebFrontendSession;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LogInPage;
@@ -23,7 +22,7 @@ public class EditPasswordPage extends FrontendPage
 
 	//private static Logger logger = Logger.getLogger(EditPasswordPage.class);
 	
-	private DaoForEntityWithSurrogateKey<User> userDao;
+	private UserDao userDao;
 	
 	public EditPasswordPage() 
 	{
@@ -34,7 +33,7 @@ public class EditPasswordPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		userDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(UserDao.class);
+		userDao = daoLookupFactory.getDao(UserDao.class);
 		
 		// register page components
 		//
@@ -65,7 +64,7 @@ class ChangePasswordForm extends Form<ChangePasswordForm>
 
 	//private static Logger logger = Logger.getLogger(ChangePasswordForm.class);
 
-	private DaoForEntityWithSurrogateKey<User> userDao;
+	private UserDao userDao;
 	private User user;
 	
 	@SuppressWarnings("unused")
@@ -80,7 +79,7 @@ class ChangePasswordForm extends Form<ChangePasswordForm>
 	 * @param userDao
 	 * @param user
 	 */
-	public ChangePasswordForm(String id, DaoForEntityWithSurrogateKey<User> userDao, User user) 
+	public ChangePasswordForm(String id, UserDao userDao, User user) 
 	{
 		super(id);
 		

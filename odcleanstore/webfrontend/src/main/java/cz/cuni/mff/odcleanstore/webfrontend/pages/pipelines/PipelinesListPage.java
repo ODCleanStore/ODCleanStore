@@ -14,13 +14,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvider;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.EngineOperationsDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
@@ -33,7 +32,7 @@ public class PipelinesListPage extends FrontendPage
 
 	private static Logger logger = Logger.getLogger(PipelinesListPage.class);
 	
-	private DaoForEntityWithSurrogateKey<Pipeline> pipelineDao;
+	private PipelineDao pipelineDao;
 	//private OfficialPipelinesDao officialPipelinesDao;
 	private EngineOperationsDao engineOperationsDao;
 
@@ -47,9 +46,9 @@ public class PipelinesListPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		pipelineDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(PipelineDao.class);
+		pipelineDao = daoLookupFactory.getDao(PipelineDao.class);
 		//officialPipelinesDao = daoLookupFactory.getOfficialPipelinesDao();
-		engineOperationsDao = daoLookupFactory.getEngineOperationsDao();
+		engineOperationsDao = daoLookupFactory.getDao(EngineOperationsDao.class);
 		
 		// register page components
 		//
@@ -78,7 +77,7 @@ public class PipelinesListPage extends FrontendPage
 				item.add(new Label("isLocked"));
 				
 				item.add(
-					new DeleteRawButton<Pipeline>
+					new DeleteButton<Pipeline>
 					(
 						pipelineDao,
 						pipeline.getId(),
