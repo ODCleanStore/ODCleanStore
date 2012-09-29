@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.core.components;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.IModel;
@@ -31,6 +32,22 @@ public abstract class LimitedEditingForm<T> extends Form<T>
 	}
 	
 	protected abstract void onSubmitImpl();
+	
+	@Override
+	protected void onComponentTag(ComponentTag tag)
+	{
+		super.onComponentTag(tag);
+		if (!isAuthorized) 
+		{
+			tag.put("class", tag.getAttribute("class") + " " + "disabledForm");
+		}
+	}
+	
+	@Override
+	public boolean isEnabled()
+	{
+		return isAuthorized;
+	}
 	
 	@Override
 	public final void onSubmit()
