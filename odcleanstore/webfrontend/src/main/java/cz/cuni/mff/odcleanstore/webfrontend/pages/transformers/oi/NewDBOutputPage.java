@@ -43,7 +43,7 @@ public class NewDBOutputPage extends FrontendPage
 		
 		add(
 			new RedirectWithParamButton(
-				EditOIRulePage.class,
+				OIRuleDetailPage.class,
 				ruleId, 
 				"showOIRuleDetail"
 			)
@@ -91,7 +91,7 @@ public class NewDBOutputPage extends FrontendPage
 				}
 				
 				getSession().info("The output was successfuly registered.");
-				setResponsePage(new EditOIRulePage(ruleId));
+				setResponsePage(new OIRuleDetailPage(ruleId));
 			}
 		};
 		

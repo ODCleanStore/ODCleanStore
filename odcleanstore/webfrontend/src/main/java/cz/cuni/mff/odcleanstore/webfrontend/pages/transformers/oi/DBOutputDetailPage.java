@@ -16,14 +16,14 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 @AuthorizeInstantiation({ Role.PIC })
-public class EditDBOutputPage extends FrontendPage 
+public class DBOutputDetailPage extends FrontendPage 
 {
 	private static final long serialVersionUID = 1L;
 	
 	private DaoForEntityWithSurrogateKey<OIOutput> oiOutputDao;
 	//private DaoForEntityWithSurrogateKey<OIOutputType> oiOutputTypeDao;
 	
-	public EditDBOutputPage(final Integer outputId) 
+	public DBOutputDetailPage(final Integer outputId) 
 	{
 		super(
 			"Home > OI > Rules groups > Group > Rules > Rule > DB Outputs > Edit", 
@@ -43,7 +43,7 @@ public class EditDBOutputPage extends FrontendPage
 		
 		add(
 			new RedirectWithParamButton(
-				EditOIRulePage.class,
+				OIRuleDetailPage.class,
 				output.getRuleId(), 
 				"showOIRuleDetail"
 			)
@@ -85,7 +85,7 @@ public class EditDBOutputPage extends FrontendPage
 				}
 				
 				getSession().info("The output was successfuly updated.");
-				setResponsePage(new EditOIRulePage(output.getRuleId()));
+				setResponsePage(new OIRuleDetailPage(output.getRuleId()));
 			}
 		};
 		

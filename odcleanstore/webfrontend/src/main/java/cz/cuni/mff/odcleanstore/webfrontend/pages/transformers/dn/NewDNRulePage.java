@@ -37,7 +37,7 @@ public class NewDNRulePage extends FrontendPage
 		
 		add(
 			new RedirectWithParamButton(
-				EditDNGroupPage.class,
+				DNGroupDetailPage.class,
 				groupId, 
 				"manageGroupRules"
 			)
@@ -81,7 +81,7 @@ public class NewDNRulePage extends FrontendPage
 				}
 				
 				getSession().info("The rule was successfuly registered.");
-				setResponsePage(new EditDNRulePage(insertId));
+				setResponsePage(new DNRuleDetailPage(insertId));
 			}
 		};
 		

@@ -85,7 +85,7 @@ public class OIGroupsListPage extends FrontendPage
 				
 				item.add(
 					new RedirectWithParamButton(
-						EditOIGroupPage.class,
+						OIGroupDetailPage.class,
 						group.getId(),
 						"showEditOIGroupPage"
 					)

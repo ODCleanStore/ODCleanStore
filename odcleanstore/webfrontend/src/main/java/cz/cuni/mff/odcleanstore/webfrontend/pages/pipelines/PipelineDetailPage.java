@@ -26,14 +26,14 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 @AuthorizeInstantiation({ Role.PIC })
-public class EditPipelinePage extends FrontendPage
+public class PipelineDetailPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
 	private DaoForEntityWithSurrogateKey<Pipeline> pipelineDao;
 	private DaoForEntityWithSurrogateKey<TransformerInstance> transformerInstanceDao;
 	
-	public EditPipelinePage(final Integer pipelineId) 
+	public PipelineDetailPage(final Integer pipelineId) 
 	{
 		super
 		(
@@ -154,14 +154,14 @@ public class EditPipelinePage extends FrontendPage
 						transformerInstance.getId(),
 						"assignment",
 						new DeleteConfirmationMessage("transformer instance"),
-						EditPipelinePage.this
+						PipelineDetailPage.this
 					)
 				);
 				
 				item.add(
 					new RedirectWithParamButton
 					(
-						EditTransformerAssignmentPage.class,
+						TransformerAssignmentDetailPage.class,
 						transformerInstance.getId(),
 						"showEditTransformerInstancePage"
 					)

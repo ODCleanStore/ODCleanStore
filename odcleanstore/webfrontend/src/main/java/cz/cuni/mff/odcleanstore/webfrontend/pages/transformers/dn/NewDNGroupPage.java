@@ -71,7 +71,7 @@ public class NewDNGroupPage extends FrontendPage
 				}
 				
 				getSession().info("The group was successfuly registered.");
-				setResponsePage(new EditDNGroupPage(insertId));
+				setResponsePage(new DNGroupDetailPage(insertId));
 			}
 		};
 		

@@ -16,13 +16,13 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 @AuthorizeInstantiation({ Role.PIC })
-public class EditQARulePage extends FrontendPage
+public class QARuleDetailPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 	
 	private DaoForEntityWithSurrogateKey<QARule> qaRuleDao;
 	
-	public EditQARulePage(final Integer ruleId) 
+	public QARuleDetailPage(final Integer ruleId) 
 	{
 		super(
 			"Home > Backend > QA > Groups > Rules > Edt", 
@@ -41,7 +41,7 @@ public class EditQARulePage extends FrontendPage
 		
 		add(
 			new RedirectWithParamButton(
-				EditQAGroupPage.class,
+				QAGroupDetailPage.class,
 				rule.getGroupId(), 
 				"manageGroupRules"
 			)
@@ -83,7 +83,7 @@ public class EditQARulePage extends FrontendPage
 				}
 				
 				getSession().info("The rule was successfuly updated.");
-				setResponsePage(new EditQAGroupPage(rule.getGroupId()));
+				setResponsePage(new QAGroupDetailPage(rule.getGroupId()));
 			}
 		};
 		

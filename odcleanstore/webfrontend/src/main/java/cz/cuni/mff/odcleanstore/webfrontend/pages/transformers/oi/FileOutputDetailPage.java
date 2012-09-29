@@ -18,7 +18,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 @AuthorizeInstantiation({ Role.PIC })
-public class EditFileOutputPage extends FrontendPage 
+public class FileOutputDetailPage extends FrontendPage 
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -26,7 +26,7 @@ public class EditFileOutputPage extends FrontendPage
 	//private DaoForEntityWithSurrogateKey<OIOutputType> oiOutputTypeDao;
 	private DaoForEntityWithSurrogateKey<OIFileFormat> oiFileFormatDao;
 	
-	public EditFileOutputPage(final Integer outputId) 
+	public FileOutputDetailPage(final Integer outputId) 
 	{
 		super(
 			"Home > OI > Rules groups > Group > Rules > Rule > File Outputs > Edit", 
@@ -47,7 +47,7 @@ public class EditFileOutputPage extends FrontendPage
 		
 		add(
 			new RedirectWithParamButton(
-				EditOIRulePage.class,
+				OIRuleDetailPage.class,
 				output.getRuleId(), 
 				"showOIRuleDetail"
 			)
@@ -89,7 +89,7 @@ public class EditFileOutputPage extends FrontendPage
 				}
 				
 				getSession().info("The output was successfuly updated.");
-				setResponsePage(new EditOIRulePage(output.getRuleId()));
+				setResponsePage(new OIRuleDetailPage(output.getRuleId()));
 			}
 		};
 		

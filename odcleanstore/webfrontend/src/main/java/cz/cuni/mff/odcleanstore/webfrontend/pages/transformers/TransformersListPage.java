@@ -79,7 +79,7 @@ public class TransformersListPage extends FrontendPage
 				
 				item.add(
 					new RedirectWithParamButton(
-						EditTransformerPage.class, 
+						TransformerDetailPage.class, 
 						transformer.getId(), 
 						"showEditTransformerPage"
 					)

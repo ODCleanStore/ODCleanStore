@@ -85,7 +85,7 @@ public class QAGroupsListPage extends FrontendPage
 				
 				item.add(
 					new RedirectWithParamButton(
-						EditQAGroupPage.class,
+						QAGroupDetailPage.class,
 						group.getId(),
 						"showEditQAGroupPage"
 					)

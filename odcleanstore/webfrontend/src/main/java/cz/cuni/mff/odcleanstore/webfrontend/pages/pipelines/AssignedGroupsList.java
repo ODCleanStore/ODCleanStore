@@ -175,7 +175,7 @@ public class AssignedGroupsList extends Panel
 				}
 		    	
 				getSession().info("The group assignment was successfuly deleted.");
-				setResponsePage(new EditTransformerAssignmentPage(transformerInstanceId));	
+				setResponsePage(new TransformerAssignmentDetailPage(transformerInstanceId));	
 			}
 			
 		};

@@ -16,7 +16,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 @AuthorizeInstantiation({ Role.PIC })
-public class EditDNRuleComponentPage extends FrontendPage
+public class DNRuleComponentDetailPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
@@ -27,7 +27,7 @@ public class EditDNRuleComponentPage extends FrontendPage
 	 * 
 	 * @param ruleId
 	 */
-	public EditDNRuleComponentPage(Integer ruleComponentId) 
+	public DNRuleComponentDetailPage(Integer ruleComponentId) 
 	{
 		super(
 			"Home > Backend > DN > Groups > Rules > Components > Edit", 
@@ -47,7 +47,7 @@ public class EditDNRuleComponentPage extends FrontendPage
 		
 		add(
 			new RedirectWithParamButton(
-				EditDNRulePage.class,
+				DNRuleDetailPage.class,
 				component.getRuleId(), 
 				"showDNRuleDetailPage"
 			)
@@ -90,7 +90,7 @@ public class EditDNRuleComponentPage extends FrontendPage
 				}
 				
 				getSession().info("The component was successfuly updated.");
-				setResponsePage(new EditDNRulePage(component.getRuleId()));
+				setResponsePage(new DNRuleDetailPage(component.getRuleId()));
 			}
 		};
 		

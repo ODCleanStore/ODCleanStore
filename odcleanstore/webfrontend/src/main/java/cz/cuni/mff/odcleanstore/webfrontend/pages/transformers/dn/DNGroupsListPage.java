@@ -86,7 +86,7 @@ public class DNGroupsListPage extends FrontendPage
 				
 				item.add(
 					new RedirectWithParamButton(
-						EditDNGroupPage.class,
+						DNGroupDetailPage.class,
 						group.getId(),
 						"showEditDNGroupPage"
 					)
