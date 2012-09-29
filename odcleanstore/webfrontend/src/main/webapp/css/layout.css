@@ -102,11 +102,6 @@ textarea
 	height: 100px;
 }
 
-.required
-{
-	border: 2px red solid;
-}
-
 .uri-size
 {
   width: 400px;

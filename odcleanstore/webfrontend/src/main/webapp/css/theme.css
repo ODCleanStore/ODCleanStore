@@ -14,6 +14,8 @@ td { padding:3px; }
 
 h2 { margin-top: 30px; }
 
+span.required:after { content: " *"; color: red; font-size: 2em; vertical-align: top; }
+
 .feedbackPanel {padding-top: 8px; padding-bottom: 8px;}
 .feedbackPanelINFO, .feedbackPanelERROR {padding: 4px; font-weight: bold; font-size: 110%; }
 .feedbackPanelINFO {color: #3589a1;}

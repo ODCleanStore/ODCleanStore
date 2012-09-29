@@ -16,7 +16,7 @@
 <form wicket:id="editOntologyForm">
 	<p>
 		<label for="label">Label:</label>
-		<input wicket:id="label" id="label" class="required" />
+		<span class="required"><input wicket:id="label" id="label"  /></span>
 	</p>
 	<p>
 		<label for="description">Description:</label>
@@ -24,7 +24,7 @@
 	</p>
 	<p>
 		<label for="rdfData">Definition:</label>
-		<textarea wicket:id="rdfData" id="rdfData" class="required"></textarea>
+		<span class="required"><textarea wicket:id="rdfData" id="rdfData" ></textarea></span>
 	</p>
 	<p>
 		<input wicket:id="fileUpload" size="40" type="file"/>
