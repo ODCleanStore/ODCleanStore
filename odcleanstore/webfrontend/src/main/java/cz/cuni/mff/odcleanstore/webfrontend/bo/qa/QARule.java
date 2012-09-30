@@ -2,6 +2,12 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo.qa;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
+/**
+ * The BO which represents a QA rule.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class QARule extends EntityWithSurrogateKey
 {
 	private static final long serialVersionUID = 1L;
@@ -11,6 +17,14 @@ public class QARule extends EntityWithSurrogateKey
 	private String description;
 	private Double coefficient;
 	
+	/**
+	 * 
+	 * @param id
+	 * @param groupId
+	 * @param filter
+	 * @param description
+	 * @param coefficient
+	 */
 	public QARule(Integer id, Integer groupId, String filter, String description, Double coefficient) 
 	{
 		super(id);
@@ -21,30 +35,53 @@ public class QARule extends EntityWithSurrogateKey
 		this.coefficient = coefficient;
 	}
 	
+	/**
+	 * 
+	 */
 	public QARule()
 	{
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public Integer getGroupId()
 	{
 		return groupId;
 	}
 	
+	/**
+	 * 
+	 * @param groupId
+	 */
 	public void setGroupId(Integer groupId)
 	{
 		this.groupId = groupId;
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
 	public String getFilter() 
 	{
 		return filter;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public String getDescription() 
 	{
 		return description;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public Double getCoefficient() 
 	{
 		return coefficient;
