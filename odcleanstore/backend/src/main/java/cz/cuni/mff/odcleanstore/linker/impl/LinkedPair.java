@@ -1,6 +1,10 @@
 package cz.cuni.mff.odcleanstore.linker.impl;
 
-public class LinkedPair {
+import java.io.Serializable;
+
+public class LinkedPair implements Serializable {
+	private static final long serialVersionUID = 1L;
+	
 	private String firstLabel;
 	private String firstUri;
 	private String secondLabel;

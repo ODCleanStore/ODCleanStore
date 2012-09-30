@@ -70,7 +70,7 @@ public class OIDebugResultPage extends FrontendPage
 					}
 					
 				};
-				item.add(new Label("ruleLabel", result.getRule().getLabel()));
+				item.add(new Label("ruleLabel", result.getRuleLabel()));
 				item.add(rows);
 			}		
 		};
