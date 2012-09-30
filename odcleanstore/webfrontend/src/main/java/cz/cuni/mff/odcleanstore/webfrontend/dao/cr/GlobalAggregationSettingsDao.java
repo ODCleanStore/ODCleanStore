@@ -3,9 +3,9 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.cr;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.GlobalAggregationSettings;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoTemplate;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 
-public class GlobalAggregationSettingsDao extends DaoTemplate<GlobalAggregationSettings>
+public class GlobalAggregationSettingsDao extends Dao
 {
 	private static final long serialVersionUID = 1L;
 
@@ -18,19 +18,11 @@ public class GlobalAggregationSettingsDao extends DaoTemplate<GlobalAggregationS
 		this.rowMapper = new GlobalAggregationSettingsRowMapper();
 	}
 	
-	@Override
-	public String getTableName() 
-	{
-		return TABLE_NAME;
-	}
-
-	@Override
 	protected ParameterizedRowMapper<GlobalAggregationSettings> getRowMapper() 
 	{
 		return rowMapper;
 	}
 
-	@Override
 	public GlobalAggregationSettings loadFirst()
 	{
 		String query =

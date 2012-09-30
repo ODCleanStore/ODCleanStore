@@ -23,6 +23,17 @@ public abstract class DaoTemplate<T extends BusinessEntity> extends Dao
 	protected abstract ParameterizedRowMapper<T> getRowMapper();
 	
 	/**
+	 * Builds SELECT ... FROM ... part of the query.
+	 * NOTE: When redefining this method for join of multiple tables, descendants
+	 * of {@link DaoForEntityWithSurrogateKey} should redefine {@link DaoForEntityWithSurrogateKey#load(Integer)}
+	 * to use unambiguous key column.
+	 */
+	protected String getSelectAndFromClause()
+	{
+		return "SELECT * FROM " + getTableName();
+	}
+	
+	/**
 	 * Finds all entities in the database.
 	 * 
 	 * @return
@@ -30,14 +41,8 @@ public abstract class DaoTemplate<T extends BusinessEntity> extends Dao
 	 */
 	public List<T> loadAll()
 	{
-		String query = "SELECT * FROM " + getTableName();
+		String query = getSelectAndFromClause();
 		return jdbcQuery(query, getRowMapper());
-	}
-	
-	public T loadFirst()
-	{
-		String query = "SELECT TOP 1 * FROM " + getTableName();
-		return jdbcQueryForObject(query, getRowMapper());
 	}
 	
 	/**
@@ -48,7 +53,7 @@ public abstract class DaoTemplate<T extends BusinessEntity> extends Dao
 	 */
 	public List<T> loadAllBy(String columnName, Object value)
 	{
-		String query = "SELECT * FROM " + getTableName() + " WHERE " + columnName + " = ?";
+		String query = getSelectAndFromClause() + " WHERE " + columnName + " = ?";
 		Object[] params = { value };
 		
 		logger.debug("value: " + value);
@@ -64,7 +69,7 @@ public abstract class DaoTemplate<T extends BusinessEntity> extends Dao
 	public List<T> loadAllBy(QueryCriteria criteria)
 	{
 		String query = 
-			"SELECT * FROM " + getTableName() +
+			getSelectAndFromClause() +
 			criteria.buildWhereClause() +
 			criteria.buildOrderByClause();
 		
@@ -73,9 +78,15 @@ public abstract class DaoTemplate<T extends BusinessEntity> extends Dao
 		return jdbcQuery(query, params, getRowMapper());
 	}
 	
-	public T loadBy(String columnName, Object value)
+	protected T loadBy(String columnName, Object value)
 	{
-		String query = "SELECT * FROM " + getTableName() + " WHERE " + columnName + " = ?";
+		String selectAndFromClause = getSelectAndFromClause();
+		if (selectAndFromClause.startsWith("SELECT")) 
+		{
+			selectAndFromClause = "SELECT TOP 1 " + selectAndFromClause.substring("SELECT".length());
+		}
+		String query = selectAndFromClause + " WHERE " + columnName + " = ?";
+		
 		Object[] params = { value };
 		
 		logger.debug("value: " + value);

@@ -7,7 +7,7 @@ public abstract class DaoForEntityWithSurrogateKey<T extends EntityWithSurrogate
 {
 	private static final long serialVersionUID = 1L;
 	
-	private static final String KEY_COLUMN = "id";
+	protected static final String KEY_COLUMN = "id";
 
 	protected void deleteRaw(Integer id) throws Exception
 	{
@@ -15,7 +15,6 @@ public abstract class DaoForEntityWithSurrogateKey<T extends EntityWithSurrogate
 		// a transaction, as every delete is realized using a single
 		// SQL DELETE command - deleting related entities is ensured using
 		// CASCADING DELETE constraints
-		
 		String query = "DELETE FROM " + getTableName() + " WHERE " + KEY_COLUMN +" = ?";
 		Object[] params = { id };
 		
@@ -31,7 +30,7 @@ public abstract class DaoForEntityWithSurrogateKey<T extends EntityWithSurrogate
 	
 	public void delete(T item) throws Exception
 	{
-		delete(item.getId());
+		deleteRaw(item.getId());
 	}
 	
 	public void delete(Integer id) throws Exception

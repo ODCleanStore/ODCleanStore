@@ -56,4 +56,10 @@ public class PrefixDao extends DaoTemplate<Prefix>
 		jdbcUpdate(query, params, EnumDatabaseInstance.CLEAN);
 		jdbcUpdate(query, params, EnumDatabaseInstance.DIRTY);
 	}
+	
+	@Override
+	public Prefix loadBy(String columnName, Object value)
+	{
+		return super.loadBy(columnName, value);
+	}
 }

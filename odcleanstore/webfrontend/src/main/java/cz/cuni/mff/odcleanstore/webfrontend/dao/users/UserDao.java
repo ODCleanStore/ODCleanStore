@@ -63,12 +63,9 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 	 	=======================================================================
 	*/
 	
-	@Override
 	public User load(Integer id) 
-	{	
-		User user = super.load(id);
-		user.setRoles(loadRolesForUser(id));
-		return user;
+	{
+		return loadBy(KEY_COLUMN, id);
 	}
 	
 	@Override

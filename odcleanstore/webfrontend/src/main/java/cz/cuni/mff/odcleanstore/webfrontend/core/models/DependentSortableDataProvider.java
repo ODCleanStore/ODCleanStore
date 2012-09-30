@@ -25,10 +25,10 @@ public class DependentSortableDataProvider<BO extends EntityWithSurrogateKey> ex
 	 * 
 	 * @param dao
 	 */
-	public DependentSortableDataProvider(DaoForEntityWithSurrogateKey<BO> dao, String columnName, Object value)
+	/*public DependentSortableDataProvider(DaoForEntityWithSurrogateKey<BO> dao, String columnName, Object value)
 	{
 		this(dao, "id", columnName, value);
-	}
+	}*/
 	
 	/**
 	 * 

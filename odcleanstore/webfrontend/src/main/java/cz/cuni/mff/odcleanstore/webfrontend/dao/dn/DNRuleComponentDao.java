@@ -1,7 +1,5 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.dn;
 
-import java.util.List;
-
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponent;
@@ -38,7 +36,7 @@ public class DNRuleComponentDao extends DaoForAuthorableEntity<DNRuleComponent>
 	}
 	
 	@Override
-	public List<DNRuleComponent> loadAll() 
+	protected String getSelectAndFromClause()
 	{
 		String query = 
 			"SELECT C.id as id, ruleId, modification, C.description as description, " +
@@ -46,40 +44,13 @@ public class DNRuleComponentDao extends DaoForAuthorableEntity<DNRuleComponent>
 			"FROM " + TABLE_NAME + " as C " +
 			"JOIN " + DNRuleComponentTypeDao.TABLE_NAME + " as CT " +
 			"ON CT.id = C.typeId ";
-		
-		return jdbcQuery(query, getRowMapper());
-	}
-	
-	@Override
-	public List<DNRuleComponent> loadAllBy(String columnName, Object value)
-	{
-		String query = 
-			"SELECT C.id as id, ruleId, modification, C.description as description, " +
-			"CT.id as typeId, CT.label as typeLbl, CT.description as typeDescr " +
-			"FROM " + TABLE_NAME + " as C " +
-			"JOIN " + DNRuleComponentTypeDao.TABLE_NAME + " as CT " +
-			"ON CT.id = C.typeId " +
-			"WHERE " + columnName + " = ?";
-		
-		Object[] params = { value };
-		
-		return jdbcQuery(query, params, getRowMapper());
+		return query;
 	}
 	
 	@Override
 	public DNRuleComponent load(Integer id)
 	{
-		String query = 
-			"SELECT C.id as id, ruleId, modification, C.description as description, " +
-			"CT.id as typeId, CT.label as typeLbl, CT.description as typeDescr " +
-			"FROM " + TABLE_NAME + " as C " +
-			"JOIN " + DNRuleComponentTypeDao.TABLE_NAME + " as CT " +
-			"ON CT.id = C.typeId " +
-			"WHERE C.id = ?";
-		
-		Object[] params = { id };
-			
-		return jdbcQueryForObject(query, params, getRowMapper());
+		return loadBy("C.id", id);
 	}
 	
 	@Override

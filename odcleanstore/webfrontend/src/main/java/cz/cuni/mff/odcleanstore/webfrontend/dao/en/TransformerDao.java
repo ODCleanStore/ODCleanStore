@@ -3,7 +3,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.en;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
 public class TransformerDao extends DaoForEntityWithSurrogateKey<Transformer> 
 {

@@ -1,12 +1,9 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.en;
 
-import java.util.List;
-
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.RuleAssignment;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
 
 public class OIRuleAssignmentDao extends DaoForEntityWithSurrogateKey<RuleAssignment>
@@ -35,35 +32,21 @@ public class OIRuleAssignmentDao extends DaoForEntityWithSurrogateKey<RuleAssign
 	}
 	
 	@Override
-	public List<RuleAssignment> loadAllBy(QueryCriteria criteria)
+	protected String getSelectAndFromClause()
 	{
 		String query =
 			"SELECT A.id as id, transformerInstanceId, groupId, G.label as groupLabel, G.description as groupDescription " +
 			"FROM " + getTableName() + " AS A " +
-			"JOIN " + OIRulesGroupDao.TABLE_NAME + " AS G ON (A.groupId = G.id) " +
-			criteria.buildWhereClause() +
-			criteria.buildOrderByClause();
-		
-		Object[] params = criteria.buildWhereClauseParams();
-		
-		return jdbcQuery(query, params, getRowMapper());
+			"JOIN " + OIRulesGroupDao.TABLE_NAME + " AS G ON (A.groupId = G.id) ";
+		return query;
 	}
 	
 	@Override
-	public RuleAssignment loadBy(String columnName, Object value)
+	public RuleAssignment load(Integer id)
 	{
-		String query = 
-			"SELECT A.id as id, transformerInstanceId, groupId, G.label as groupLabel, G.description as groupDescription " +
-			"FROM " + getTableName() + " AS A " +
-			"JOIN " + OIRulesGroupDao.TABLE_NAME + " AS G ON (A.groupId = G.id) " +
-			"WHERE " + columnName + " = ?";
-		
-		Object[] params = { value };
-		logger.debug("value: " + value);
-		
-		return jdbcQueryForObject(query, params, getRowMapper());
+		return loadBy("A.id", id);
 	}
-
+	
 	@Override
 	public void save(RuleAssignment item) throws Exception
 	{

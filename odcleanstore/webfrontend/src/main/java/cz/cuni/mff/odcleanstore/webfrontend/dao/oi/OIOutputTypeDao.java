@@ -31,6 +31,12 @@ public class OIOutputTypeDao extends DaoForEntityWithSurrogateKey<OIOutputType>
 	}
 	
 	@Override
+	public OIOutputType loadBy(String columnName, Object value)
+	{
+		return super.loadBy(columnName, value);
+	}
+	
+	@Override
 	protected void deleteRaw(Integer item) throws Exception
 	{
 		throw new UnsupportedOperationException(
