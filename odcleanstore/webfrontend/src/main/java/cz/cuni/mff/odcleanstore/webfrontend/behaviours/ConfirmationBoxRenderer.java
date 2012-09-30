@@ -7,10 +7,12 @@ import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.link.Link;
 
 /**
- * Javascript Confirmation box.
- * Can be used for confirmation before deletion of a record.
+ * A javascript-based confirmation box used to ask the user
+ * to confirm delete operations.
  *
  * Inspired by http://ntsrikanth.blogspot.cz/2008/11/confirmation-dialog.html
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  */
 public class ConfirmationBoxRenderer extends Behavior 
 {
@@ -18,11 +20,11 @@ public class ConfirmationBoxRenderer extends Behavior
 	
 	//private static Logger logger = Logger.getLogger(ConfirmationBoxRenderer.class);
 	
-	/** Message to be desplayed in the confirm box. */
+	/** the message to be displayed in the confirmation box */
 	private String message;
 	
 	/**
-	* Constructor.
+	 * 
 	* @param message Message to be shown in the confirm box.
 	*/
 	public ConfirmationBoxRenderer(final String message) 
@@ -31,14 +33,12 @@ public class ConfirmationBoxRenderer extends Behavior
 		this.message = message;
 	}
 	
-	/**
-	* @param component Component to attach.
-	* @param tag Tag to modify.
-	* @see org.apache.wicket.behavior.AbstractBehavior#onComponentTag(org.apache.wicket.Component, org.apache.wicket.markup.ComponentTag)
-	*/
 	@Override
 	public void onComponentTag(final Component component, final ComponentTag tag) 
 	{
+		// appends the javascript code to handle to confirmation message box
+		// directly to the onclick attribute of the component
+		//
 		if (component instanceof Button || component instanceof Link) 
 		{
 			String originalOnclick = tag.getAttributes().getString("onclick"); 
