@@ -3,8 +3,9 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo.qe;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
 /**
+ * The BO to represent a QE label property.
  * 
- * @author Dusan
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
 public class LabelProperty extends EntityWithSurrogateKey
@@ -41,6 +42,10 @@ public class LabelProperty extends EntityWithSurrogateKey
 		super();
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
 	public String getProperty()
 	{
 		return property;
