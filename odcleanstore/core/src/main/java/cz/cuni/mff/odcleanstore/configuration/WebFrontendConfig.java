@@ -31,13 +31,18 @@ public class WebFrontendConfig extends ConfigGroup {
     private final String gmailAddress;
     private final String gmailPassword;
     
+    private final String ontologiesGraphURIPrefix;
+    private final String ontologyMappingsGraphURIPrefix;
+    
     public WebFrontendConfig(JDBCConnectionCredentials dirtyDBJDBCConnectionCredentials, 
-            JDBCConnectionCredentials cleanDBJDBCConnectionCredentials,
-            String gmailAddress, String gmailPassword) {
+            JDBCConnectionCredentials cleanDBJDBCConnectionCredentials, String gmailAddress, String gmailPassword,
+            String ontologiesGraphURIPrefix, String ontologyMappingsGraphURIPrefix) {
     	this.dirtyDBJDBCConnectionCredentials = dirtyDBJDBCConnectionCredentials;
     	this.cleanDBJDBCConnectionCredentials = cleanDBJDBCConnectionCredentials;
     	this.gmailAddress = gmailAddress;
     	this.gmailPassword = gmailPassword;
+    	this.ontologiesGraphURIPrefix = ontologiesGraphURIPrefix;
+    	this.ontologyMappingsGraphURIPrefix = ontologyMappingsGraphURIPrefix;
     }
     
     public static WebFrontendConfig load(Properties properties) 
@@ -51,8 +56,13 @@ public class WebFrontendConfig extends ConfigGroup {
     	String gmailAddress = loadParam(properties, GROUP_PREFIX + "gmail_address", formatString);
     	String gmailPassword = loadParam(properties, GROUP_PREFIX + "gmail_password", formatString);
     	
+    	String ontologiesGraphURIPrefix = loadParam(
+    			properties, GROUP_PREFIX + "ontologies_graph_uri_prefix", formatString);
+    	String ontologyMappingsGraphURIPrefix = loadParam(
+    			properties, GROUP_PREFIX + "ontology_mappings_graph_uri_prefix", formatString);
+    	
     	return new WebFrontendConfig(dirtyJDBCConnectionCredentials, cleanJDBCConnectionCredentials,
-    			gmailAddress, gmailPassword);
+    			gmailAddress, gmailPassword, ontologiesGraphURIPrefix, ontologyMappingsGraphURIPrefix);
     }
     
 	public JDBCConnectionCredentials getDirtyDBJDBCConnectionCredentials() {
@@ -66,5 +76,13 @@ public class WebFrontendConfig extends ConfigGroup {
 	}
 	public String getGmailPassword() {
 		return gmailPassword;
+	}
+
+	public String getOntologiesGraphURIPrefix() {
+		return ontologiesGraphURIPrefix;
+	}
+
+	public String getOntologyMappingsGraphURIPrefix() {
+		return ontologyMappingsGraphURIPrefix;
 	}
 }
