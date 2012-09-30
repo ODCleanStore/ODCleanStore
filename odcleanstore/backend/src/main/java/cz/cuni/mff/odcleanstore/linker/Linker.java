@@ -20,6 +20,8 @@ import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 public interface Linker extends Transformer {
 	public List<DebugResult> debugRules(InputStream source, TransformationContext context) 
 			throws TransformerException;
+	public List<DebugResult> debugRules(String input, TransformationContext context)
+			throws TransformerException;
 	public List<DebugResult> debugRules(File inputFile, TransformationContext context) 
 			throws TransformerException;
 }

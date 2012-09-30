@@ -107,7 +107,7 @@ public class ConfigBuilder {
 	private static final String CONFIG_XML_COMPARE = "Compare";
 	private static final String CONFIG_XML_AGGREGATE = "Aggregate";
 
-	private static final String SOURCE_FORMAT = "RDF/XML";
+	private static final String SOURCE_FORMAT = "N-TRIPLE";
 
 	private static final BigDecimal MIN_CONFIDENCE = BigDecimal.ZERO;
 	private static final BigDecimal MAX_CONFIDENCE = BigDecimal.valueOf(1000);
@@ -546,7 +546,7 @@ public class ConfigBuilder {
 	        }
 	        // CHECKSTYLE:OFF
 	    }
-	    return new File(transformerDirectory, namePart + "." + graphId + extension).getAbsolutePath();
+	    return new File(transformerDirectory, namePart + graphId + "."  + extension).getAbsolutePath();
 	}
 
 	/**

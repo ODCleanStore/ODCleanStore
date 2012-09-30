@@ -34,15 +34,18 @@ public class WebFrontendConfig extends ConfigGroup {
     private final String ontologiesGraphURIPrefix;
     private final String ontologyMappingsGraphURIPrefix;
     
+    private final String debugDirectoryPath;
+    
     public WebFrontendConfig(JDBCConnectionCredentials dirtyDBJDBCConnectionCredentials, 
             JDBCConnectionCredentials cleanDBJDBCConnectionCredentials, String gmailAddress, String gmailPassword,
-            String ontologiesGraphURIPrefix, String ontologyMappingsGraphURIPrefix) {
+            String ontologiesGraphURIPrefix, String ontologyMappingsGraphURIPrefix, String debugDirectoryPath) {
     	this.dirtyDBJDBCConnectionCredentials = dirtyDBJDBCConnectionCredentials;
     	this.cleanDBJDBCConnectionCredentials = cleanDBJDBCConnectionCredentials;
     	this.gmailAddress = gmailAddress;
     	this.gmailPassword = gmailPassword;
     	this.ontologiesGraphURIPrefix = ontologiesGraphURIPrefix;
     	this.ontologyMappingsGraphURIPrefix = ontologyMappingsGraphURIPrefix;
+    	this.debugDirectoryPath = debugDirectoryPath;
     }
     
     public static WebFrontendConfig load(Properties properties) 
@@ -61,8 +64,11 @@ public class WebFrontendConfig extends ConfigGroup {
     	String ontologyMappingsGraphURIPrefix = loadParam(
     			properties, GROUP_PREFIX + "ontology_mappings_graph_uri_prefix", formatString);
     	
+    	String debugDirectoryPath = loadParam(properties, GROUP_PREFIX + "debug_directory_path", formatString);
+    	
     	return new WebFrontendConfig(dirtyJDBCConnectionCredentials, cleanJDBCConnectionCredentials,
-    			gmailAddress, gmailPassword, ontologiesGraphURIPrefix, ontologyMappingsGraphURIPrefix);
+    			gmailAddress, gmailPassword, ontologiesGraphURIPrefix, ontologyMappingsGraphURIPrefix,
+    			debugDirectoryPath);
     }
     
 	public JDBCConnectionCredentials getDirtyDBJDBCConnectionCredentials() {
@@ -84,5 +90,9 @@ public class WebFrontendConfig extends ConfigGroup {
 
 	public String getOntologyMappingsGraphURIPrefix() {
 		return ontologyMappingsGraphURIPrefix;
+	}
+
+	public String getDebugDirectoryPath() {
+		return debugDirectoryPath;
 	}
 }

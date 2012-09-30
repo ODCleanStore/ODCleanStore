@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -170,6 +171,11 @@ public class LinkerImpl implements Linker {
 		return debugRules(streamToFile(source, context.getTransformerDirectory()), context);
 	}
 	
+	public List<DebugResult> debugRules(String input, TransformationContext context)
+			throws TransformerException {
+		return debugRules(stringToFile(input, context.getTransformerDirectory()), context);
+	}
+	
 	public List<DebugResult> debugRules(File inputFile, TransformationContext context) 
 			throws TransformerException {
 		List<DebugResult> resultList = new ArrayList<DebugResult>();
@@ -178,7 +184,7 @@ public class LinkerImpl implements Linker {
 			List<SilkRule> rules = loadRules(context);
 			List<RDFprefix> prefixes = RDFPrefixesLoader.loadPrefixes(context.getCleanDatabaseCredentials());
 			for (SilkRule rule: rules) {
-				String resultFileName = createFileName(rule, context.getTransformerDirectory(), DEBUG_OUTPUT_FILENAME);
+				String resultFileName = createFileName(rule, context.getTransformerDirectory());
 				configFile = ConfigBuilder.createDebugLinkConfigFile(rule, prefixes, context, globalConfig,
 						inputFile.getAbsolutePath(), resultFileName);
 				Silk.executeFile(configFile, null, Silk.DefaultThreads(), true);
@@ -196,16 +202,15 @@ public class LinkerImpl implements Linker {
 		return resultList;
 	}
 	
-	private String createFileName(SilkRule rule, File transformerDirectory, String fileName) {
-		return transformerDirectory.getAbsolutePath() + rule.getId() + UUID.randomUUID().toString() + fileName;
+	private String createFileName(SilkRule rule, File transformerDirectory) {
+		return new File(transformerDirectory, 
+				rule.getId() + UUID.randomUUID().toString() + DEBUG_OUTPUT_FILENAME).getAbsolutePath();
 	}
 	
 	private List<LinkedPair> parseLinkedPairs(String resultFileName) throws TransformerException {
 		List<LinkedPair> pairList = new ArrayList<LinkedPair>();
-		
-		DocumentBuilder builder;
 		try {
-			builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			Document doc = builder.parse(resultFileName);
 			NodeList cells = doc.getElementsByTagName(CONFIG_XML_CELL);
 			int cellLength = cells.getLength();
@@ -219,12 +224,14 @@ public class LinkerImpl implements Linker {
 				int childLength = cellChildern.getLength();
 				
 				for (int j = 0; j < childLength; j++) {
-					Element child = (Element) cellChildern.item(j);
-					String childName = child.getLocalName();
+					org.w3c.dom.Node child = cellChildern.item(j);
+					String childName = child.getNodeName();
 					if (CONFIG_XML_ENTITY1.equals(childName)) {
-						firstUri = child.getAttribute(CONFIG_XML_RESOURCE);
+						Element element = (Element)child;
+						firstUri = element.getAttribute(CONFIG_XML_RESOURCE);
 					} else if (CONFIG_XML_ENTITY2.equals(childName)) {
-						secondUri = child.getAttribute(CONFIG_XML_RESOURCE);
+						Element element = (Element)child;
+						secondUri = element.getAttribute(CONFIG_XML_RESOURCE);
 					} else if (CONFIG_XML_MEASURE.equals(childName)) {
 						String content = child.getTextContent();
 						int leftIndex = content.indexOf('(');
@@ -235,7 +242,7 @@ public class LinkerImpl implements Linker {
 							}
 							content = content.substring(leftIndex + 1, rightIndex);
 						}				
-						confidence = Double.valueOf(child.getTextContent());
+						confidence = Double.valueOf(content);
 					}
 				}
 				
@@ -274,6 +281,22 @@ public class LinkerImpl implements Linker {
 		}
 	}
 	
+	private File stringToFile(String input, File targetDirectory) throws TransformerException {
+		File file = new File(targetDirectory, DEBUG_INPUT_FILENAME);
+		PrintWriter writer = null;
+		try {
+			writer = new PrintWriter(file);
+			writer.write(input);
+		} catch (FileNotFoundException e) {
+			throw new TransformerException(e);
+		} finally {
+			if (writer != null) {
+				writer.close();
+			}
+		}
+		return file;
+	}
+	
 	private void loadLabels(File inputFile, List<LinkedPair> linkedPairs) {
 		NamedGraphSet graphSet = loadGraphs(inputFile);
 		for (LinkedPair pair: linkedPairs) {
@@ -296,7 +319,7 @@ public class LinkerImpl implements Linker {
 	
 	private NamedGraphSet loadGraphs(File inputFile) {
 		GraphReaderService reader = new GraphReaderService();
-		reader.setLanguage("RDF/XML");
+		reader.setLanguage("N-TRIPLE");
 		reader.setSourceFile(inputFile);
 		NamedGraphSet graphSet = new NamedGraphSetImpl();
 		reader.readInto(graphSet);
