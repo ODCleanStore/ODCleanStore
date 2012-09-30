@@ -35,13 +35,13 @@ public class OIDebugPage extends FrontendPage
 	public OIDebugPage(Integer groupId)
 	{
 		super(
-				"Home > Backend > OI > Groups > Debug", 
-				"Debug OI rule group"
-			);
+			"Home > Backend > OI > Groups > Debug", 
+			"Debug OI rule group"
+		);
 			
-			// register page components
-			//
-			addInputForm(groupId);
+		// register page components
+		//
+		addInputForm(groupId);
 	}
 	
 	private void addInputForm(final Integer groupId)
@@ -55,12 +55,16 @@ public class OIDebugPage extends FrontendPage
 			protected void onSubmit()
 			{
 				Linker linker = new LinkerImpl(groupId);
-				try {
+				try 
+				{
 					List<DebugResult> results = linker.debugRules(rdfInput, createContext());
+					setResponsePage(new OIDebugResultPage(results, groupId));
+				} 
+				catch (TransformerException e)
+				{
+					// TODO: log the error
 					
-				} catch (TransformerException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					getSession().error("Rule debugging failed due to an unexpected error.");
 				}		
 			}
 		};
