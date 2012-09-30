@@ -2,6 +2,12 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo.dn;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
+/**
+ * The BO to represent an instance of the replace template.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class DNReplaceTemplateInstance extends EntityWithSurrogateKey
 {
 	private static final long serialVersionUID = 1L;
@@ -11,6 +17,14 @@ public class DNReplaceTemplateInstance extends EntityWithSurrogateKey
 	private String pattern;
 	private String replacement;
 	
+	/**
+	 * 
+	 * @param id
+	 * @param groupId
+	 * @param propertyName
+	 * @param pattern
+	 * @param replacement
+	 */
 	public DNReplaceTemplateInstance(Integer id, Integer groupId, String propertyName, String pattern, String replacement) 
 	{
 		super(id);
@@ -21,30 +35,53 @@ public class DNReplaceTemplateInstance extends EntityWithSurrogateKey
 		this.replacement = replacement;
 	}
 	
+	/**
+	 * 
+	 */
 	public DNReplaceTemplateInstance()
 	{
 	}
 	
+	/**
+	 * 
+	 * @param groupId
+	 */
 	public void setGroupId(Integer groupId)
 	{
 		this.groupId = groupId;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public Integer getGroupId() 
 	{
 		return groupId;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public String getPropertyName() 
 	{
 		return propertyName;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public String getPattern() 
 	{
 		return pattern;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public String getReplacement() 
 	{
 		return replacement;

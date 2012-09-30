@@ -3,8 +3,9 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo.dn;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
 /**
+ * The BO to represent a component of an DN rule.
  * 
- * @author Dusan
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
 public class DNRuleComponent extends EntityWithSurrogateKey 
