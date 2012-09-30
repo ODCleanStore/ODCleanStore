@@ -5,7 +5,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.RDFGraphEntity;
 /**
  * Business entity representing a ontology.
  * 
- * @author Tomas Soukup
+ * @author Tomáš Soukup
  */
 public class Ontology extends RDFGraphEntity 
 {
@@ -14,6 +14,13 @@ public class Ontology extends RDFGraphEntity
 	private String label;
 	private String description;
 	
+	/**
+	 * 
+	 * @param id
+	 * @param label
+	 * @param description
+	 * @param graphName
+	 */
 	public Ontology(Integer id, String label, String description, String graphName) 
 	{
 		super(id, graphName);
@@ -21,16 +28,27 @@ public class Ontology extends RDFGraphEntity
 		this.description = description;
 	}
 	
+	/**
+	 * 
+	 */
 	public Ontology()
 	{
 		super();
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
 	public String getLabel() 
 	{
 		return label;
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
 	public String getDescription() 
 	{
 		return description;

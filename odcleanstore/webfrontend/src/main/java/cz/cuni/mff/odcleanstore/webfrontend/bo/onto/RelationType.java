@@ -5,7 +5,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 /**
  * Business entity representing a relation type between ontology entities.
  * 
- * @author Tomas Soukup
+ * @author Tomáš Soukup
  */
 public class RelationType extends EntityWithSurrogateKey
 {
@@ -13,17 +13,29 @@ public class RelationType extends EntityWithSurrogateKey
 	
 	private String uri;
 	
+	/**
+	 * 
+	 * @param id
+	 * @param uri
+	 */
 	public RelationType(Integer id, String uri)
 	{	
 		super(id);
 		this.uri = uri;
 	}
 	
+	/**
+	 * 
+	 */
 	public RelationType()
 	{
 		super();
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public String getUri() 
 	{
 		return uri;
