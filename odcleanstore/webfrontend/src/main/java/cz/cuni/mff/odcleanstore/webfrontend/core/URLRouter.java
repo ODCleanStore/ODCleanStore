@@ -49,8 +49,9 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts.EditAccountPermis
 import cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts.NewAccountPage;
 
 /**
+ * Utility class to route URLs to components and vice versa.
  * 
- * @author Dusan
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
 public class URLRouter 
@@ -67,6 +68,8 @@ public class URLRouter
 	}
 	
 	/**
+	 * Sets up routes for all URLs. This method is supposed to be called
+	 * at application startup.
 	 * 
 	 * @param app
 	 */
@@ -87,6 +90,10 @@ public class URLRouter
 	// ------------------------------------------------------------------------
 	//
 	
+	/**
+	 * 
+	 * @param app
+	 */
 	private void setupLoginRoutes(WebApplication app) 
 	{
 		app.mountPage(webUrlPrefix + "/login", LogInPage.class);
@@ -98,6 +105,10 @@ public class URLRouter
 	// ------------------------------------------------------------------------
 	//
 	
+	/**
+	 * 
+	 * @param app
+	 */
 	private void setupUserAccountsRoutes(WebApplication app) 
 	{
 		app.mountPage(webUrlPrefix + "/user-accounts/list", AccountsListPage.class);
@@ -111,6 +122,10 @@ public class URLRouter
 	// ------------------------------------------------------------------------
 	//
 
+	/**
+	 * 
+	 * @param app
+	 */
 	private void setupBackendRoutes(WebApplication app) 
 	{
 		setupTransformersRoutes(app);
@@ -120,6 +135,10 @@ public class URLRouter
 		setupDNRulesRoutes(app);
 	}
 	
+	/**
+	 * 
+	 * @param app
+	 */
 	private void setupTransformersRoutes(WebApplication app) 
 	{
 		app.mountPage(webUrlPrefix + "/backend/transformers/list", TransformersListPage.class);
@@ -127,6 +146,10 @@ public class URLRouter
 		app.mountPage(webUrlPrefix + "/backend/transformers/detail", TransformerDetailPage.class);
 	}
 	
+	/**
+	 * 
+	 * @param app
+	 */
 	private void setupPipelinesRoutes(WebApplication app) 
 	{
 		app.mountPage(webUrlPrefix + "/backend/pipelines/list", PipelinesListPage.class);
@@ -137,6 +160,10 @@ public class URLRouter
 		app.mountPage(webUrlPrefix + "/backend/pipelines/transformer-instances/assigned-groups/new", NewGroupAssignmentPage.class);
 	}
 	
+	/**
+	 * 
+	 * @param app
+	 */
 	private void setupOIRulesRoutes(WebApplication app) 
 	{
 		app.mountPage(webUrlPrefix + "/backend/oi/groups/list", OIGroupsListPage.class);
@@ -148,6 +175,10 @@ public class URLRouter
 		app.mountPage(webUrlPrefix + "/backend/oi/groups/rules/file-outputs/new", NewFileOutputPage.class);
 	}
 
+	/**
+	 * 
+	 * @param app
+	 */
 	private void setupQARulesRoutes(WebApplication app) 
 	{
 		app.mountPage(webUrlPrefix + "/backend/qa/groups/list", QAGroupsListPage.class);
@@ -157,6 +188,10 @@ public class URLRouter
 		app.mountPage(webUrlPrefix + "/backend/qa/groups/rules/detail", QARuleDetailPage.class);
 	}
 
+	/**
+	 * 
+	 * @param app
+	 */
 	private void setupDNRulesRoutes(WebApplication app) 
 	{
 		app.mountPage(webUrlPrefix + "/backend/dn/groups/list", DNGroupsListPage.class);
@@ -174,18 +209,30 @@ public class URLRouter
 	// ------------------------------------------------------------------------
 	//
 	
+	/**
+	 * 
+	 * @param app
+	 */
 	private void setupOutputWSRoutes(WebApplication app) 
 	{
 		setupAggregationPropertiesRoutes(app);
 		setupLabelPropertiesRoutes(app);
 	}
-
+	
+	/**
+	 * 
+	 * @param app
+	 */
 	private void setupLabelPropertiesRoutes(WebApplication app) 
 	{
 		app.mountPage(webUrlPrefix + "/output-ws/label-properties/list", QELabelPropertiesListPage.class);
 		app.mountPage(webUrlPrefix + "/output-ws/label-properties/new", NewQELabelPropertyPage.class);	
 	}
 
+	/**
+	 * 
+	 * @param app
+	 */
 	private void setupAggregationPropertiesRoutes(WebApplication app) 
 	{
 		app.mountPage(webUrlPrefix + "/output-ws/aggregation-properties/list", AggregationSettingsPage.class);
@@ -199,6 +246,10 @@ public class URLRouter
 	// ------------------------------------------------------------------------
 	//
 	
+	/**
+	 * 
+	 * @param app
+	 */
 	private void setupURLPrefixesRoutes(WebApplication app) 
 	{
 		app.mountPage(webUrlPrefix + "/url-prefixes/list", PrefixesListPage.class);
@@ -211,6 +262,10 @@ public class URLRouter
 	// ------------------------------------------------------------------------
 	//
 	
+	/**
+	 * 
+	 * @param app
+	 */
 	private void setupOntologiesRoutes(WebApplication app) 
 	{
 		app.mountPage(webUrlPrefix + "/ontologies/list", OntologiesListPage.class);
@@ -224,7 +279,11 @@ public class URLRouter
 	// MY ACCOUNT ROUTES
 	// ------------------------------------------------------------------------
 	//
-		
+	
+	/**
+	 * 
+	 * @param app
+	 */
 	private void setupMyAccountRoutes(WebApplication app) 
 	{
 		app.mountPage(webUrlPrefix + "/user-account/my-account", MyAccountPage.class);

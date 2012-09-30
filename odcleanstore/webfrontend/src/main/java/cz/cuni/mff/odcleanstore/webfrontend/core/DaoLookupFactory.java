@@ -14,12 +14,13 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.SafetyDaoDecorator;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.SafetyDaoDecoratorForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.GlobalAggregationSettingsDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.EngineOperationsDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.OfficialPipelinesDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 
 /**
- * A factory to lookup DAO Spring beans.
+ * A factory to lookup DAO objects.
  *  
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
@@ -32,17 +33,24 @@ public class DaoLookupFactory implements Serializable
 	
 	//private static Logger logger = Logger.getLogger(DaoLookupFactory.class);
 	
+	/** connection credentials to the clean Virtuoso DB */
 	private JDBCConnectionCredentials cleanConnectionCoords;
+	
+	/** data source to the clean Virtuoso DB */
 	private transient VirtuosoDataSource cleanDataSource;
 	
+	/** connection credentials to the dirty Virtuoso DB */
 	private JDBCConnectionCredentials dirtyConnectionCoords;
+	
+	/** data source to the dirty Virtuoso DB */
 	private transient VirtuosoDataSource dirtyDataSource;
 	
+	/** Spring transaction manager */
 	private transient AbstractPlatformTransactionManager transactionManager;
 	
+	/** a cache of loaded DAO objects */
 	private HashMap<Class<? extends Dao<? extends BusinessEntity>>, Dao<? extends BusinessEntity>> daos;
 	
-	//private GlobalAggregationSettingsDao globalAggregationSettingsDao;
 	private TransformerInstanceDao transformerInstanceDao;
 	
 	/**
@@ -67,6 +75,9 @@ public class DaoLookupFactory implements Serializable
 	 * Throws an AssertionError if the requested DAO class cannot be 
 	 * instantiated.
 	 * 
+	 * The returned DAO object is stored in the cache to be retrieved from
+	 * at subsequent calls.
+	 * 
 	 * @param daoClass
 	 * @return
 	 * @throws AssertionError
@@ -86,6 +97,13 @@ public class DaoLookupFactory implements Serializable
 	}
 	
 	/**
+	 * Creates (lazily) and returns the requested DAO for entity with surrogate key 
+	 * object decorated by a SafetyDecoratorForEntityWithSurrogateKey instance.
+	 * 
+	 * Throws an AssertionError if the requested DAO class cannot be instantiated.
+	 * 
+	 * The returned DAO object is stored in the cache to be retrieved from
+	 * at subsequent calls.
 	 * 
 	 * @param daoClass
 	 * @return
@@ -107,8 +125,9 @@ public class DaoLookupFactory implements Serializable
 	}
 	
 	/**
-	 * Creates and returns a bew raw (e.g. undecorated) instance of the
-	 * requested DAO class.
+	 * Creates and returns a raw (e.g. undecorated) instance of the requested DAO class.
+	 * 
+	 * The returned DAO object is not stored in the cache.
 	 * 
 	 * Throws an AssertionError if the requested DAO class cannot be 
 	 * instantiated.
@@ -124,6 +143,8 @@ public class DaoLookupFactory implements Serializable
 	
 	/**
 	 * Creates and returns a DAO instance related to the given class.
+	 * 
+	 * Throws AssertionError if the requested DAO class cannot be instantiated.
 	 *  
 	 * @param daoClass
 	 * @return
@@ -149,6 +170,7 @@ public class DaoLookupFactory implements Serializable
 	}
 	
 	/**
+	 * Creates and returns the (undecorated) official pipelines DAO.
 	 * 
 	 * @return
 	 */
@@ -160,6 +182,7 @@ public class DaoLookupFactory implements Serializable
 	}
 	
 	/**
+	 * Creates and returns the (undecorated) engine operations DAO.
 	 * 
 	 * @return
 	 */
@@ -171,6 +194,11 @@ public class DaoLookupFactory implements Serializable
 	}
 	
 	/**
+	 * Returns the data source for the clean Virtuoso DB.
+	 * 
+	 * The data source is lazily created (based on the connection credentials)
+	 * on every request, which allows the factory to be stored in the session
+	 * by the Wicket framework.
 	 * 
 	 * @return
 	 */
@@ -189,6 +217,11 @@ public class DaoLookupFactory implements Serializable
 	}
 	
 	/**
+	 * Returns the data source for the dirty Virtuoso DB.
+	 * 
+	 * The data source is lazily created (based on the connection credentials)
+	 * on every request, which allows the factory to be stored in the session
+	 * by the Wicket framework.
 	 * 
 	 * @return
 	 */
@@ -206,7 +239,8 @@ public class DaoLookupFactory implements Serializable
 		return dirtyDataSource;
 	}
 
-	private String makeVirtuosoDataSourceConnectionString(String jdbcConnectionString) {
+	private String makeVirtuosoDataSourceConnectionString(String jdbcConnectionString) 
+	{
 		final String connectionPrefix = "jdbc:virtuoso://";
 		String result = jdbcConnectionString;
 		if (result.startsWith(connectionPrefix))
@@ -222,7 +256,9 @@ public class DaoLookupFactory implements Serializable
 	}
 	
 	/**
-	 * 
+	 * Returns the (lazily created on every request) transaction manager over
+	 * the clean data source.
+	 *  
 	 * @return
 	 */
 	public AbstractPlatformTransactionManager getTransactionManager()
@@ -231,20 +267,5 @@ public class DaoLookupFactory implements Serializable
 			transactionManager = new DataSourceTransactionManager(getCleanDataSource());
 		
 		return transactionManager;
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public TransformerInstanceDao getTransformerInstanceDao()
-	{
-		if (transformerInstanceDao == null)
-		{
-			transformerInstanceDao = new TransformerInstanceDao();
-			transformerInstanceDao.setDaoLookupFactory(this);
-		}
-		
-		return transformerInstanceDao;
 	}
 }

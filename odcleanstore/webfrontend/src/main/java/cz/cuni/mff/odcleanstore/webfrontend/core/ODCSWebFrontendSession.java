@@ -7,12 +7,23 @@ import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.request.Request;
 
+/**
+ * Application session, which supports user authentication.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class ODCSWebFrontendSession extends AuthenticatedWebSession
 {
 	private static final long serialVersionUID = 1L;
 	
+	/** the currently logged user (or null, if no user has logged in yet) */
 	private User user;
 	
+	/**
+	 * 
+	 * @param request
+	 */
 	public ODCSWebFrontendSession(Request request) 
 	{
 		super(request);
@@ -30,6 +41,7 @@ public class ODCSWebFrontendSession extends AuthenticatedWebSession
 	}
 
 	/**
+	 * Returns true, if and only if a user has been successfuly authenticated.
 	 * 
 	 * @return
 	 */
@@ -39,6 +51,7 @@ public class ODCSWebFrontendSession extends AuthenticatedWebSession
 	}
 	
 	/**
+	 * Sets the currently authenticated user for use in subsequent requests.
 	 * 
 	 * @param user
 	 */
@@ -48,6 +61,8 @@ public class ODCSWebFrontendSession extends AuthenticatedWebSession
 	}
 	
 	/**
+	 * Returns the currently authenticated user (or null, if no user
+	 * has been authenticated yet).
 	 * 
 	 * @return
 	 */

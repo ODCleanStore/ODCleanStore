@@ -22,25 +22,33 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.HomePage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LogInPage;
 
 /**
- * Web Frontend Application object.
+ * The OCDS - Web Frontend application class.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  * 
  */
 public class ODCSWebFrontendApplication extends AuthenticatedWebApplication 
 {
 	private static Logger logger = Logger.getLogger(ODCSWebFrontendApplication.class);
 	
+	/** the application specific prefix of all URL addresses */
 	private static final String WEB_URL_PREFIX = "odcs-web-frontend";
+	
 	private static final String APP_PROPERTIES_LOCATION = "config/application.properties";
 	private static final String ODCS_PATH_PROPERTY = "odcs.config.path";
 	
-	/** A factory to lookup Spring beans */
+	/** a factory to lookup DAO objects */
 	private DaoLookupFactory daoLookupFactory;
 	
-	/** Application configuration */
+	/** application configuration object */
 	private WebFrontendConfig configuration;
 	
+	/** utility to route URL addresses to components and vice versa */
 	private URLRouter urlRouter;
 	
+	/**
+	 * 
+	 */
 	public ODCSWebFrontendApplication() 
 	{
 		super();
