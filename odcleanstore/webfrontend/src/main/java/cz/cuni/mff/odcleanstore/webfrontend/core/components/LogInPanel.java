@@ -10,7 +10,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.core.ODCSWebFrontendSession;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LogInPage;
 import cz.cuni.mff.odcleanstore.webfrontend.util.PasswordHandling;
 
@@ -22,7 +22,7 @@ public class LogInPanel extends Panel
 {
 	private static final long serialVersionUID = 1L;
 
-	public LogInPanel(String id, DaoForEntityWithSurrogateKey<User> userDao) {
+	public LogInPanel(String id, UserDao userDao) {
 		super(id);
 		add(new LogInForm("form", userDao));
 	}
@@ -38,12 +38,12 @@ class LogInForm extends Form<LogInForm>
 
 	//private static Logger logger = Logger.getLogger(LogInForm.class);
 	
-	private DaoForEntityWithSurrogateKey<User> userDao;
+	private UserDao userDao;
 	
 	private String username;
 	private String password;
 	
-	public LogInForm(String id, DaoForEntityWithSurrogateKey<User> userDao) 
+	public LogInForm(String id, UserDao userDao) 
 	{
 		super(id);
 		
