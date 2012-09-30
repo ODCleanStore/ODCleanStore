@@ -14,9 +14,9 @@ public class RuleAssignmentRowMapper extends CustomRowMapper<RuleAssignment>
 	{
 		return new RuleAssignment
 		(
-			rs.getLong("id"),
-			rs.getLong("transformerInstanceId"),
-			rs.getLong("groupId"),
+			rs.getInt("id"),
+			rs.getInt("transformerInstanceId"),
+			rs.getInt("groupId"),
 			rs.getString("groupLabel"),
 			blobToString(rs.getBlob("groupDescription"))
 		);

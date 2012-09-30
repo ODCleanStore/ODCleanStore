@@ -3,73 +3,121 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
-import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.IModel;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.LimitedEditingForm;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedRedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
-import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentSortableDataProvider;
-import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvider;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
-@AuthorizeInstantiation({ "PIC" })
-public class PipelineDetailPage extends FrontendPage 
+@AuthorizeInstantiation({ Role.PIC })
+public class PipelineDetailPage extends LimitedEditingPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private DaoForEntityWithSurrogateKey<Pipeline> pipelineDao;
-	private DaoForEntityWithSurrogateKey<TransformerInstance> transformerInstanceDao;
-
-	public PipelineDetailPage(final Long pipelineId) 
+	private PipelineDao pipelineDao;
+	private TransformerInstanceDao transformerInstanceDao;
+	
+	public PipelineDetailPage(final Integer pipelineId) 
 	{
-		super(
-			"Home > Backend > Pipelines > Detail", 
-			"Show pipeline detail"
+		super
+		(
+			"Home > Backend > Pipelines > Edit", 
+			"Edit a pipeline",
+			PipelineDao.class,
+			pipelineId
 		);
 		
+
 		// prepare DAO objects
 		//
-		pipelineDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(PipelineDao.class);
-		transformerInstanceDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(TransformerInstanceDao.class);
+		pipelineDao = daoLookupFactory.getDao(PipelineDao.class);
+		transformerInstanceDao = daoLookupFactory.getDao(TransformerInstanceDao.class);
 		
 		// register page components
 		//
 		addHelpWindow("pipelineHelpWindow", "openPipelineHelpWindow", new PipelineHelpPanel("content"));
 		addHelpWindow("transformerInstanceHelpWindow", "openTransformerInstanceHelpWindow", new TransformerInstanceHelpPanel("content"));
+		addNewPipelineForm(pipelineId);
 		addPipelineInformationSection(pipelineId);
 		addAssignmentSection(pipelineId);
 	}
+	
+	private void addNewPipelineForm(final Integer pipelineId)
+	{
+		Pipeline pipeline = pipelineDao.load(pipelineId);
+		IModel<Pipeline> formModel = new CompoundPropertyModel<Pipeline>(pipeline);
+		
+		Form<Pipeline> form = new LimitedEditingForm<Pipeline>("editPipelineForm", formModel, isEditable())
+		{
+			private static final long serialVersionUID = 1L;
 
-	private void addPipelineInformationSection(final Long pipelineId)
+			@Override
+			protected void onSubmitImpl()
+			{
+				Pipeline pipeline = this.getModelObject();
+				
+				try {
+					pipelineDao.update(pipeline);
+				}
+				catch (DaoException ex)
+				{
+					getSession().error(ex.getMessage());
+					return;
+				}
+				catch (Exception ex)
+				{
+					// TODO: log the error
+					
+					getSession().error(
+						"The pipeline could not be updated due to an unexpected error."
+					);
+					
+					return;
+				}
+				
+				getSession().info("The pipeline was successfuly updated.");
+				//setResponsePage(PipelinesListPage.class);
+			}
+		};
+		
+		form.add(createTextfield("label"));
+		form.add(createTextarea("description", false));
+		
+		add(form);
+	}
+	
+
+	private void addPipelineInformationSection(final Integer pipelineId)
 	{
 		setDefaultModel(createModelForOverview(pipelineDao, pipelineId));
 		
-		add(new Label("label"));
-		add(new Label("description"));
 		add(new Label("isDefault"));
 	}
 
-	private void addAssignmentSection(final Long pipelineId) 
+	private void addAssignmentSection(final Integer pipelineId) 
 	{
 		add(
-			new RedirectWithParamButton(
+			new AuthorizedRedirectButton(
 				NewTransformerAssignmentPage.class, 
-				pipelineId, 
+				pipelineId,
+				isEditable(),
 				"newAssignmentLink"
 			)
 		);
@@ -77,7 +125,7 @@ public class PipelineDetailPage extends FrontendPage
 		addAssignmentTable(pipelineId);
 	}
 	
-	private void addAssignmentTable(final Long pipelineId) 
+	private void addAssignmentTable(final Integer pipelineId) 
 	{
 		SortableDataProvider<TransformerInstance> data = new DependentSortableDataProvider<TransformerInstance>
 		(
@@ -104,10 +152,11 @@ public class PipelineDetailPage extends FrontendPage
 				item.add(new Label("priority"));
 				
 				item.add(
-					new DeleteRawButton<TransformerInstance>
+					new AuthorizedDeleteButton<TransformerInstance>
 					(
 						transformerInstanceDao,
 						transformerInstance.getId(),
+						isEditable(),
 						"assignment",
 						new DeleteConfirmationMessage("transformer instance"),
 						PipelineDetailPage.this
@@ -117,16 +166,7 @@ public class PipelineDetailPage extends FrontendPage
 				item.add(
 					new RedirectWithParamButton
 					(
-						TransformerInstanceDetailPage.class,
-						transformerInstance.getId(),
-						"showTransformerInstanceDetailPage"
-					)
-				);
-				
-				item.add(
-					new RedirectWithParamButton
-					(
-						EditTransformerAssignmentPage.class,
+						TransformerAssignmentDetailPage.class,
 						transformerInstance.getId(),
 						"showEditTransformerInstancePage"
 					)

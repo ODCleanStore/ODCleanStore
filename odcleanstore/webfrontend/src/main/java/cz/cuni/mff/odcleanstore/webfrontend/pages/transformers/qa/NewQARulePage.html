@@ -9,14 +9,16 @@
 
 <a wicket:id="openHelpWindow" class="help">Help</a>
 
+<div class="clear">&nbsp;</div>
+
 <form wicket:id="newQARuleForm">
 	<p>
 		<label for="filter">Filter:</label>
-		<textarea wicket:id="filter" id="filter" class="required"></textarea>
+		<span class="required"><textarea wicket:id="filter" id="filter" ></textarea></span>
 	</p>
 	<p>
 		<label for="coefficient">Coefficient:</label>
-		<input wicket:id="coefficient" id="coefficient" type="text" class="required" />
+		<span class="required"><input wicket:id="coefficient" id="coefficient" type="text"  /></span>
 	</p>
 	<p>
 		<label for="description">Description:</label>

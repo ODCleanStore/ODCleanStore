@@ -1,0 +1,17 @@
+<wicket:panel>
+
+	<h1>Transformer</h1>
+
+	<wicket:link>
+		<p>Object Identification Linker is a special implementation of a <a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/pipelines/TransformersListPage.html"><span>Transformer</span></a>. The main purpose of this component is to interlink URIs which represent the same real-world entity by generating <em>owl:sameAs</em> links. It can be also used for creating other types of links between differently related URIs. Silk framework<sup><a href="#SilkFramework">1</a></sup> is used as the linking engine. Sets of linkage rules for the engine are written in Silk-LSL<sup><a href="#SilkLSL">2</a></sup> and stored in database.</p>
+		<p>Quality Assessor is a special <a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/pipelines/TransformersListPage.html"><span>Transformer</span></a> that assigns a score to each graph based on coefficients of different patterns present in the graph to reflect to what degree the data contained in it comply to a certain policy.</p>
+		<p>Data Normalizer is a special type of <a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/pipelines/TransformersListPage.html"><span>Transformer</span></a> aimed to be applied early in the whole data evaluation process to simplify work of other <a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/pipelines/TransformersListPage.html"><span>Transformers</span></a>. Its main goal is to remove inconsistencies in forms the data is provided in.</p>
+		
+		<hr />
+		<ol>
+			<li><a id="SilkFramework" href="http://www4.wiwiss.fu-berlin.de/bizer/silk">http://www4.wiwiss.fu-berlin.de/bizer/silk</a></li>
+			<li><a id="SilkLSL" href="http://www.assembla.com/wiki/show/silk/Link_Specification_Language">http://www.assembla.com/wiki/show/silk/Link_Specification_Language</a></li>
+		</ol>
+	</wicket:link>
+
+</wicket:panel>

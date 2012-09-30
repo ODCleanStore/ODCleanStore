@@ -32,7 +32,7 @@ public class User extends EntityWithSurrogateKey
 	 * @param firstname
 	 * @param surname
 	 */
-	public User(Long id, String username, String email, String firstname, String surname)
+	public User(Integer id, String username, String email, String firstname, String surname)
 	{
 		super(id);
 
@@ -177,6 +177,16 @@ public class User extends EntityWithSurrogateKey
 	public boolean hasAssignedRole(Role role)
 	{
 		return this.roles.contains(role);
+	}
+	
+	/**
+	 * 
+	 * @param roleLabel
+	 * @return
+	 */
+	public boolean hasAssignedRole(String roleLabel)
+	{
+		return this.roles.contains(new Role(roleLabel, ""));
 	}
 	
 	@Override

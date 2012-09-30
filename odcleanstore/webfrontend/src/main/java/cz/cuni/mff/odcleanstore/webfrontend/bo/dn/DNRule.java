@@ -6,10 +6,10 @@ public class DNRule extends EntityWithSurrogateKey
 {
 	private static final long serialVersionUID = 1L;
 
-	private Long groupId;
+	private Integer groupId;
 	private String description;
 	
-	public DNRule(Long id, Long groupId, String description) 
+	public DNRule(Integer id, Integer groupId, String description) 
 	{
 		super(id);
 		
@@ -21,12 +21,12 @@ public class DNRule extends EntityWithSurrogateKey
 	{
 	}
 
-	public Long getGroupId()
+	public Integer getGroupId()
 	{
 		return groupId;
 	}
 	
-	public void setGroupId(Long groupId)
+	public void setGroupId(Integer groupId)
 	{
 		this.groupId = groupId;
 	}

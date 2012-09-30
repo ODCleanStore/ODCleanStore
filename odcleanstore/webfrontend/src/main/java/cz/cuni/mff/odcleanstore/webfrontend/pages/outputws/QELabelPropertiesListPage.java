@@ -7,24 +7,24 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.CompoundPropertyModel;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qe.LabelProperty;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvider;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qe.LabelPropertyDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-@AuthorizeInstantiation({ "PIC" })
+@AuthorizeInstantiation({ Role.PIC })
 public class QELabelPropertiesListPage extends FrontendPage 
 {
 	private static final long serialVersionUID = 1L;
 
 	//private static Logger logger = Logger.getLogger(QELabelPropertiesListPage.class);
 	
-	private DaoForEntityWithSurrogateKey<LabelProperty> labelPropertyDao;
+	private LabelPropertyDao labelPropertyDao;
 
 	public QELabelPropertiesListPage() 
 	{
@@ -35,7 +35,7 @@ public class QELabelPropertiesListPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		labelPropertyDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(LabelPropertyDao.class);
+		labelPropertyDao = daoLookupFactory.getDao(LabelPropertyDao.class);
 		
 		// register page components
 		//
@@ -61,7 +61,7 @@ public class QELabelPropertiesListPage extends FrontendPage
 				item.add(new Label("property"));
 				
 				item.add(
-					new DeleteRawButton<LabelProperty>
+					new DeleteButton<LabelProperty>
 					(
 						labelPropertyDao,
 						property.getId(),

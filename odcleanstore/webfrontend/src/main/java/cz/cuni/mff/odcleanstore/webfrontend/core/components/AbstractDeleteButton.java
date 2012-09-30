@@ -12,7 +12,7 @@ public abstract class AbstractDeleteButton <BO extends EntityWithSurrogateKey> e
 	private static final long serialVersionUID = 1L;
 
 	protected DaoForEntityWithSurrogateKey<BO> dao; 
-	protected Long boId;
+	protected Integer boId;
 	protected String objName;
 	protected FrontendPage redirectPage;
 	
@@ -25,7 +25,7 @@ public abstract class AbstractDeleteButton <BO extends EntityWithSurrogateKey> e
 	 * @param message
 	 * @param redirectPage
 	 */
-	public AbstractDeleteButton(DaoForEntityWithSurrogateKey<BO> dao, Long boId, String compName,
+	public AbstractDeleteButton(DaoForEntityWithSurrogateKey<BO> dao, Integer boId, String compName,
 		String objName, DeleteConfirmationMessage message, FrontendPage redirectPage) 
 	{
 		super(compName);
@@ -46,7 +46,7 @@ public abstract class AbstractDeleteButton <BO extends EntityWithSurrogateKey> e
 	 * @param message
 	 * @param redirectPage
 	 */
-	public AbstractDeleteButton(DaoForEntityWithSurrogateKey<BO> dao, Long boId, String objName,
+	public AbstractDeleteButton(DaoForEntityWithSurrogateKey<BO> dao, Integer boId, String objName,
 		DeleteConfirmationMessage message, FrontendPage redirectPage) 
 	{
 		this(dao, boId, createCompName(objName), objName, message, redirectPage);

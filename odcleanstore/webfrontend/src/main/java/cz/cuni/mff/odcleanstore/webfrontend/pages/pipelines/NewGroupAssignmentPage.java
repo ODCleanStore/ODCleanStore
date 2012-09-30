@@ -4,35 +4,40 @@ import org.apache.wicket.authroles.authorization.strategies.role.annotations.Aut
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.RulesGroupEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.RuleAssignment;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
-@AuthorizeInstantiation({ "PIC" })
-public class NewGroupAssignmentPage extends FrontendPage
+@AuthorizeInstantiation({ Role.PIC })
+public class NewGroupAssignmentPage extends LimitedEditingPage
 {
 	private static final long serialVersionUID = 1L;
 	
-	private DaoForEntityWithSurrogateKey<RulesGroupEntity> groupsDao;
+	private DaoForEntityWithSurrogateKey<? extends RulesGroupEntity> groupsDao;
 	private DaoForEntityWithSurrogateKey<RuleAssignment> assignedGroupsDao;
 	
 	private RulesGroupEntity rulesGroup;
 	
 	public NewGroupAssignmentPage(
-		final DaoForEntityWithSurrogateKey<RulesGroupEntity> groupsDao,
+		final DaoForEntityWithSurrogateKey<? extends RulesGroupEntity> groupsDao,
 		final DaoForEntityWithSurrogateKey<RuleAssignment> assignedGroupsDao,
-		final Long transformerInstanceId) 
+		final Integer transformerInstanceId) 
 	{
 		super
 		(
 			"Home > Backend > Pipelines > Transformer Instances > Assigned Groups > New", 
-			"Assign a new group"
+			"Assign a new group",
+			TransformerInstanceDao.class,
+			transformerInstanceId
 		);
+		
+		checkUnathorizedInstantiation();
 		
 		this.groupsDao = groupsDao;
 		this.assignedGroupsDao = assignedGroupsDao;
@@ -44,20 +49,20 @@ public class NewGroupAssignmentPage extends FrontendPage
 		addNewAssignmentForm(transformerInstanceId);
 	}
 	
-	private void addGoBackButton(final Long transformerInstanceId)
+	private void addGoBackButton(final Integer transformerInstanceId)
 	{
 		add(
 			new RedirectWithParamButton(
-				TransformerInstanceDetailPage.class, 
+				TransformerAssignmentDetailPage.class, 
 				transformerInstanceId, 
 				"showTransformerInstanceDetailPage"
 			)
 		);
 	}
 	
-	private void addNewAssignmentForm(final Long transformerInstanceId)
+	private void addNewAssignmentForm(final Integer transformerInstanceId)
 	{
-		Form form = new Form("newAssignmentForm", new CompoundPropertyModel(this))
+		Form<NewGroupAssignmentPage> form = new Form<NewGroupAssignmentPage>("newAssignmentForm", new CompoundPropertyModel<NewGroupAssignmentPage>(this))
 		{
 			private static final long serialVersionUID = 1L;
 
@@ -89,7 +94,7 @@ public class NewGroupAssignmentPage extends FrontendPage
 				}
 				
 				getSession().info("The group was successfuly assigned.");
-				setResponsePage(new TransformerInstanceDetailPage(transformerInstanceId));
+				setResponsePage(new TransformerAssignmentDetailPage(transformerInstanceId));
 			}
 		};
 

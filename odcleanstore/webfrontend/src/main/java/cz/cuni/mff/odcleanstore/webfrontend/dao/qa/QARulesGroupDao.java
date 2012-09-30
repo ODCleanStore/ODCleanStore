@@ -3,9 +3,9 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.qa;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARulesGroup;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 
-public class QARulesGroupDao extends DaoForEntityWithSurrogateKey<QARulesGroup>
+public class QARulesGroupDao extends DaoForAuthorableEntity<QARulesGroup>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "QA_RULES_GROUPS";
 
@@ -31,24 +31,24 @@ public class QARulesGroupDao extends DaoForEntityWithSurrogateKey<QARulesGroup>
 	}
 	
 	@Override
-	public void save(QARulesGroup item)
+	public void save(QARulesGroup item) throws Exception
 	{
-		String query = "INSERT INTO " + TABLE_NAME + " (label, description) VALUES (?, ?)";
+		String query = "INSERT INTO " + TABLE_NAME + " (label, description, authorId) VALUES (?, ?, ?)";
 		
 		Object[] params =
 		{
 			item.getLabel(),
-			item.getDescription()
+			item.getDescription(),
+			item.getAuthorId()
 		};
 		
 		logger.debug("label: " + item.getLabel());
 		logger.debug("description: " + item.getDescription());
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
 	}
 
-	@Override
-	public void update(QARulesGroup item)
+	public void update(QARulesGroup item) throws Exception
 	{
 		String query = "UPDATE " + TABLE_NAME + " SET label = ?, description = ? WHERE id = ?";
 		
@@ -63,6 +63,12 @@ public class QARulesGroupDao extends DaoForEntityWithSurrogateKey<QARulesGroup>
 		logger.debug("description: " + item.getDescription());
 		logger.debug("id: " + item.getId());
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
+	}
+
+	@Override
+	public int getAuthorId(Integer entityId)
+	{
+		return load(entityId).getAuthorId();
 	}
 }

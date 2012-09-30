@@ -5,21 +5,19 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRulesGroup;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARulesGroup;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
-@AuthorizeInstantiation({ "PIC" })
+@AuthorizeInstantiation({ Role.PIC })
 public class NewDNGroupPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private DaoForEntityWithSurrogateKey<DNRulesGroup> dnRulesGroupDao;
+	private DNRulesGroupDao dnRulesGroupDao;
 	
 	public NewDNGroupPage() 
 	{
@@ -30,7 +28,7 @@ public class NewDNGroupPage extends FrontendPage
 
 		// prepare DAO objects
 		//
-		this.dnRulesGroupDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNRulesGroupDao.class);
+		this.dnRulesGroupDao = daoLookupFactory.getDao(DNRulesGroupDao.class);
 		
 		// register page components
 		//
@@ -50,8 +48,9 @@ public class NewDNGroupPage extends FrontendPage
 			protected void onSubmit()
 			{
 				DNRulesGroup group = this.getModelObject();
+				group.setAuthorId(getODCSSession().getUser().getId());
 				
-				long insertId;
+				int insertId;
 				try {
 					insertId = dnRulesGroupDao.saveAndGetKey(group);
 				}

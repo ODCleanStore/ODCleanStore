@@ -1,5 +1,5 @@
 -- GROUPS
-INSERT INTO DB.ODCLEANSTORE.DN_RULES_GROUPS (label, description) VALUES ('test group', 'this is a group for testing purposes');
+INSERT INTO DB.ODCLEANSTORE.DN_RULES_GROUPS (label, description, authorId) VALUES ('test group', 'this is a group for testing purposes', NULL);
 
 -- RULES
 INSERT INTO DB.ODCLEANSTORE.DN_RULES (id, groupId, description) VALUES (0, (SELECT id FROM DB.ODCLEANSTORE.DN_RULES_GROUPS WHERE label = 'test group'), '');
@@ -24,4 +24,6 @@ INSERT INTO DB.ODCLEANSTORE.DN_RULE_COMPONENTS (id, ruleId, typeId, modification
 	(SELECT id FROM DB.ODCLEANSTORE.DN_RULE_COMPONENT_TYPES WHERE label = 'INSERT'),
 	'{?a <http://example.com/#test> ?b} WHERE {GRAPH $$$$graph$$$$ {?a ?b ?c} FILTER (contains(str(?c), "*******"))}', 
 	'');
+
+
 

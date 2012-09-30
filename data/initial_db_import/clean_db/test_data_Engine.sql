@@ -1,5 +1,5 @@
-INSERT INTO DB.ODCLEANSTORE.PIPELINES (label, description, isDefault)
-VALUES (n'example-pipeline', n'An example pipeline', 1);
+INSERT INTO DB.ODCLEANSTORE.PIPELINES (label, description, isDefault, authorId)
+VALUES (n'example-pipeline', n'An example pipeline', 1, NULL);
 
 INSERT INTO DB.ODCLEANSTORE.TRANSFORMER_INSTANCES (transformerId, pipelineId, configuration, runOnCleanDB, priority) VALUES (
 	(SELECT TOP 1 id FROM DB.ODCLEANSTORE.TRANSFORMERS WHERE fullClassName = n'cz.cuni.mff.odcleanstore.transformer.odcs.ODCSBNodeToResourceTransformer'),
@@ -35,3 +35,6 @@ INSERT INTO DB.ODCLEANSTORE.TRANSFORMER_INSTANCES (transformerId, pipelineId, co
 	n'', 
 	1,
 	500);
+
+
+

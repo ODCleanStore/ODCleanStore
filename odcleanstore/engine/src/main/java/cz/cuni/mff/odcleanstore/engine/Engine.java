@@ -5,6 +5,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
@@ -61,6 +62,16 @@ public final class Engine {
 		}
 	}
 	
+	
+	/**
+	 * Check and set logging configuration.
+	 */
+	private void checkLoggingConfiguration() {
+		if(!SLF4JBridgeHandler.isInstalled()) {
+			SLF4JBridgeHandler.install();
+		}
+	}
+	
 	private void loadConfiguration(String[] args) throws Exception {
 			if (args.length > 0) {
 				ConfigLoader.loadConfig(args[0]);
@@ -73,6 +84,7 @@ public final class Engine {
 
 	private void init(String[] args) throws Exception {
 		checkJavaVersion();
+		checkLoggingConfiguration();
 		loadConfiguration(args);
 		
 		canRunDecision = false;

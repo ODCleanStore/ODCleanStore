@@ -23,14 +23,15 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
 import cz.cuni.mff.odcleanstore.webfrontend.core.ODCSWebFrontendApplication;
+import cz.cuni.mff.odcleanstore.webfrontend.core.ODCSWebFrontendSession;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.HelpWindow;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.MenuGroupComponent;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.ontologies.OntologiesListPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.outputws.CRPropertiesListPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.outputws.AggregationSettingsPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.PipelinesListPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.TransformersListPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.prefixes.PrefixesListPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.TransformersListPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.OIGroupsListPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts.AccountsListPage;
 
@@ -50,7 +51,7 @@ public abstract class FrontendPage extends WebPage
 
 	//private static Logger logger = Logger.getLogger(FrontendPage.class);
 	
-	protected DaoLookupFactory daoLookupFactory;
+	protected final DaoLookupFactory daoLookupFactory;
 	
 	/**
 	 * 
@@ -85,7 +86,7 @@ public abstract class FrontendPage extends WebPage
 		// set up menu
 		add(new MenuGroupComponent("pipelinesMenuGroup", PipelinesListPage.class));
 		add(new MenuGroupComponent("rulesMenuGroup", OIGroupsListPage.class));
-		add(new MenuGroupComponent("outputWSMenuGroup", CRPropertiesListPage.class));
+		add(new MenuGroupComponent("outputWSMenuGroup", AggregationSettingsPage.class));
 		add(new MenuGroupComponent("ontologyMenuGroup", OntologiesListPage.class));
 		add(new MenuGroupComponent("userAccountsMenuGroup", AccountsListPage.class));
 		add(new MenuGroupComponent("transformersMenuGroup", TransformersListPage.class));
@@ -263,7 +264,7 @@ public abstract class FrontendPage extends WebPage
 	}
 	
 	protected <BO extends EntityWithSurrogateKey> IModel<BO> createModelForOverview(
-		final DaoForEntityWithSurrogateKey<BO> dao, final Long boId)
+		final DaoForEntityWithSurrogateKey<BO> dao, final Integer boId)
 	{
 		IModel<BO> model = new LoadableDetachableModel<BO>() 
 		{
@@ -277,5 +278,10 @@ public abstract class FrontendPage extends WebPage
 		};
 		
 		return new CompoundPropertyModel<BO>(model);
+	}
+	
+	protected ODCSWebFrontendSession getODCSSession()
+	{
+		return (ODCSWebFrontendSession) getSession();
 	}
 }

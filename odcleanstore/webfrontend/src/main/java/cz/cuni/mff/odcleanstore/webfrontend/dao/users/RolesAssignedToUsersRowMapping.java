@@ -7,13 +7,13 @@ import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class RolesAssignedToUsersRowMapping implements ParameterizedRowMapper<Pair<Long, Long>>
+public class RolesAssignedToUsersRowMapping implements ParameterizedRowMapper<Pair<Integer, Integer>>
 {
-	public Pair<Long, Long> mapRow(ResultSet rs, int rowNum) throws SQLException 
+	public Pair<Integer, Integer> mapRow(ResultSet rs, int rowNum) throws SQLException 
 	{
-		return new Pair<Long, Long>(
-			rs.getLong("userId"),
-			rs.getLong("roleId")
+		return new Pair<Integer, Integer>(
+			rs.getInt("userId"),
+			rs.getInt("roleId")
 		);
 	}
 }

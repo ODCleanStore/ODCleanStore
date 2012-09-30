@@ -1,41 +1,38 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.RoleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
-
-@AuthorizeInstantiation({ "ADM" })
+@AuthorizeInstantiation({ Role.ADM })
 public class EditAccountPermissionsPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger(EditAccountPermissionsPage.class);
+	//private static Logger logger = Logger.getLogger(EditAccountPermissionsPage.class);
 	
-	private DaoForEntityWithSurrogateKey<User> userDao;
-	private DaoForEntityWithSurrogateKey<Role> roleDao;
+	private UserDao userDao;
+	private RoleDao roleDao;
 		
-	public EditAccountPermissionsPage(final Long userId) 
+	public EditAccountPermissionsPage(final Integer userId) 
 	{
 		super(
 			"Home > User accounts > Edit roles", 
@@ -44,8 +41,8 @@ public class EditAccountPermissionsPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		userDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(UserDao.class);
-		roleDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(RoleDao.class);
+		userDao = daoLookupFactory.getDao(UserDao.class);
+		roleDao = daoLookupFactory.getDao(RoleDao.class);
 		
 		// prepare the target User instance
 		//
@@ -66,16 +63,16 @@ public class EditAccountPermissionsPage extends FrontendPage
 	}
 }
 
-class UserPermissionsForm extends Form
+class UserPermissionsForm extends Form<UserPermissionsForm>
 {
 	private static final long serialVersionUID = 1L;
 
 	private static Logger logger = Logger.getLogger(UserPermissionsForm.class);
 	
-	private DaoForEntityWithSurrogateKey<User> userDao;
-	private DaoForEntityWithSurrogateKey<Role> roleDao;
+	private UserDao userDao;
+	private RoleDao roleDao;
 
-	private Long userId;
+	private Integer userId;
 	
 	private Map<Role, Boolean> currentRolesSettings;
 	
@@ -85,8 +82,8 @@ class UserPermissionsForm extends Form
 	 * @param userDao
 	 * @param roleDao
 	 */
-	public UserPermissionsForm(String id, Long userId,
-		DaoForEntityWithSurrogateKey<User> userDao, DaoForEntityWithSurrogateKey<Role> roleDao) 
+	public UserPermissionsForm(String id, Integer userId,
+		UserDao userDao, RoleDao roleDao) 
 	{
 		super(id);
 		
@@ -97,7 +94,7 @@ class UserPermissionsForm extends Form
 		
 		resetRolesSettings(userId);
 		
-		for (final Role role : Role.standardRoles)
+		for (final Role role : Role.getStandardRoles())
 			addRoleCheckBox(role);
 		
 		add(
@@ -160,14 +157,14 @@ class UserPermissionsForm extends Form
 	 * 
 	 * @param userId
 	 */
-	private void resetRolesSettings(final Long userId)
+	private void resetRolesSettings(final Integer userId)
 	{
 		currentRolesSettings = new HashMap<Role, Boolean>();
 		
 		User user = userDao.load(userId);
 		Set<Role> assignedRoles = user.getRoles();
 		
-		for (Role role : Role.standardRoles)
+		for (Role role : Role.getStandardRoles())
 			currentRolesSettings.put(role, assignedRoles.contains(role));
 	}
 

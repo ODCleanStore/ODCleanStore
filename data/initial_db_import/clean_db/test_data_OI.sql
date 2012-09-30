@@ -1,4 +1,4 @@
-INSERT INTO DB.ODCLEANSTORE.OI_RULES_GROUPS VALUES (1, n'zakazky TK', n'pravidla pro linkovani testovacich dat o zakazkach od Tomase K.');
+INSERT INTO DB.ODCLEANSTORE.OI_RULES_GROUPS VALUES (1, n'zakazky TK', n'pravidla pro linkovani testovacich dat o zakazkach od Tomase K.', NULL);
     
 INSERT INTO DB.ODCLEANSTORE.OI_RULES VALUES (
 	1,
@@ -25,4 +25,5 @@ SPARQL INSERT INTO <http://opendata.cz/data/namedGraph/2> {
 };
     
 /*INSERT INTO DB.DBA.SYS_XML_PERSISTENT_NS_DECL VALUES ('purl','http://purl.org/procurement#');*/
+
 

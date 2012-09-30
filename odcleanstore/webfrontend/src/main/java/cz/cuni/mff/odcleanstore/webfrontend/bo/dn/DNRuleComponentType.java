@@ -14,7 +14,7 @@ public class DNRuleComponentType extends EntityWithSurrogateKey
 	private String label;
 	private String description;
 	
-	public DNRuleComponentType(Long id, String label, String description) 
+	public DNRuleComponentType(Integer id, String label, String description) 
 	{
 		super(id);
 		

@@ -13,7 +13,7 @@ public class RelationType extends EntityWithSurrogateKey
 	
 	private String uri;
 	
-	public RelationType(Long id, String uri)
+	public RelationType(Integer id, String uri)
 	{	
 		super(id);
 		this.uri = uri;

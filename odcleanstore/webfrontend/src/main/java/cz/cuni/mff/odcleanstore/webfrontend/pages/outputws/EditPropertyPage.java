@@ -6,10 +6,8 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.AggregationType;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.MultivalueType;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.PropertySettings;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.AggregationTypeDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.MultivalueTypeDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.PropertySettingsDao;
@@ -17,18 +15,18 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.validators.IRIValidator;
 
-@AuthorizeInstantiation({ "PIC" })
+@AuthorizeInstantiation({ Role.PIC })
 public class EditPropertyPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
 	//private static Logger logger = Logger.getLogger(EditPropertyPage.class);
 	
-	private DaoForEntityWithSurrogateKey<PropertySettings> propertySettingsDao;
-	private DaoForEntityWithSurrogateKey<AggregationType> aggregationTypeDao;
-	private DaoForEntityWithSurrogateKey<MultivalueType> multivalueTypeDao;
+	private PropertySettingsDao propertySettingsDao;
+	private AggregationTypeDao aggregationTypeDao;
+	private MultivalueTypeDao multivalueTypeDao;
 
-	public EditPropertyPage(final Long propertyId) 
+	public EditPropertyPage(final Integer propertyId) 
 	{
 		super(
 			"Home > Output WS > Aggregation Properties > Edit", 
@@ -37,9 +35,9 @@ public class EditPropertyPage extends FrontendPage
 
 		// prepare DAO objects
 		//
-		propertySettingsDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(PropertySettingsDao.class);
-		aggregationTypeDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(AggregationTypeDao.class);
-		multivalueTypeDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(MultivalueTypeDao.class);
+		propertySettingsDao = daoLookupFactory.getDao(PropertySettingsDao.class);
+		aggregationTypeDao = daoLookupFactory.getDao(AggregationTypeDao.class);
+		multivalueTypeDao = daoLookupFactory.getDao(MultivalueTypeDao.class);
 		
 		// register page components
 		//
@@ -47,7 +45,7 @@ public class EditPropertyPage extends FrontendPage
 		addEditPropertyForm(propertyId);
 	}
 	
-	private void addEditPropertyForm(final Long propertyId)
+	private void addEditPropertyForm(final Integer propertyId)
 	{
 		PropertySettings property = propertySettingsDao.load(propertyId);
 		
@@ -82,7 +80,7 @@ public class EditPropertyPage extends FrontendPage
 				}
 				
 				getSession().info("The property was successfuly updated.");
-				setResponsePage(CRPropertiesListPage.class);
+				setResponsePage(AggregationSettingsPage.class);
 			}
 		};
 		

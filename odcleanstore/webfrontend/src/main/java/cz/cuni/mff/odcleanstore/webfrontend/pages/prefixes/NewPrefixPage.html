@@ -11,14 +11,16 @@
 
 <a wicket:id="openHelpWindow"class="help">Help</a>
 
+<div class="clear">&nbsp;</div>
+
 <form wicket:id="newPrefixForm">
 	<p>
 		<label for="prefix">Prefix:</label>
-		<input wicket:id="prefix" id="prefix" type="text" class="required" />
+		<span class="required"><input wicket:id="prefix" id="prefix" type="text"  /></span>
 	</p>
 	<p>
 		<label for="url">URI:</label>
-		<input wicket:id="url" id="url" type="text" class="required" />
+		<span class="required"><input wicket:id="url" id="url" type="text"  /></span>
 	</p>
 	<input type="submit" value="Submit" />
 </form>

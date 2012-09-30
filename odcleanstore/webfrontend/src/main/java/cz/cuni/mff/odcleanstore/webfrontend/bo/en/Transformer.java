@@ -20,7 +20,7 @@ public class Transformer extends EntityWithSurrogateKey
 	 * @param jarPath
 	 * @param fullClassName
 	 */
-	public Transformer(Long id, String label, String description, String jarPath, String workDirPath,
+	public Transformer(Integer id, String label, String description, String jarPath, String workDirPath,
 		String fullClassName) 
 	{
 		super(id);

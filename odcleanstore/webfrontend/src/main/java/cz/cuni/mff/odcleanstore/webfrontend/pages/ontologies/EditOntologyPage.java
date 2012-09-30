@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.ontologies;
 
+import org.apache.wicket.authorization.UnauthorizedInstantiationException;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextArea;
@@ -9,21 +10,22 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.Ontology;
+import cz.cuni.mff.odcleanstore.webfrontend.core.AuthorizationHelper;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UploadButton;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.onto.OntologyDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-@AuthorizeInstantiation({ "ONC" })
+@AuthorizeInstantiation({ Role.ONC })
 public class EditOntologyPage extends FrontendPage 
 {
 	private static final long serialVersionUID = 1L;
 	
-	private DaoForEntityWithSurrogateKey<Ontology> ontologyDao;
+	private OntologyDao ontologyDao;
 
-	public EditOntologyPage(final Long ontologyId) 
+	public EditOntologyPage(final Integer ontologyId) 
 	{
 		super(
 			"Home > Ontologies > Edit", 
@@ -32,18 +34,22 @@ public class EditOntologyPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		this.ontologyDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OntologyDao.class);
+		this.ontologyDao = daoLookupFactory.getDao(OntologyDao.class);
+		
+		Ontology ontology = ontologyDao.load(ontologyId);
+		if (!AuthorizationHelper.isAuthorizedForEntityEditing(ontology.getAuthorId())) 
+		{
+			throw new UnauthorizedInstantiationException(getClass());
+		}
 		
 		// register page components
 		//
 		addHelpWindow(new OntologyHelpPanel("content"));
-		addEditOntologyForm(ontologyId);
+		addEditOntologyForm(ontology);
 	}
 	
-	private void addEditOntologyForm(final Long groupId)
+	private void addEditOntologyForm(final Ontology ontology)
 	{	
-		Ontology ontology = ontologyDao.load(groupId);
-		
 		IModel<Ontology> formModel = new CompoundPropertyModel<Ontology>(ontology);
 		
 		Form<Ontology> form = new Form<Ontology>("editOntologyForm", formModel)

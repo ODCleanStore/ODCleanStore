@@ -5,13 +5,9 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import org.apache.wicket.DefaultMapperContext;
-import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.authroles.authentication.AbstractAuthenticatedWebSession;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebApplication;
 import org.apache.wicket.markup.html.WebPage;
-import org.apache.wicket.request.IRequestHandler;
-import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
-import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.mapper.IMapperContext;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
@@ -26,6 +22,8 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.LogInPage;
  */
 public class ODCSWebFrontendApplication extends AuthenticatedWebApplication 
 {
+	//private static Logger logger = Logger.getLogger(ODCSWebFrontendApplication.class);
+	
 	private static final String WEB_URL_PREFIX = "odcs-web-frontend";
 	private static final String APP_PROPERTIES_LOCATION = "config/application.properties";
 	private static final String ODCS_PATH_PROPERTY = "odcs.config.path";
@@ -42,22 +40,28 @@ public class ODCSWebFrontendApplication extends AuthenticatedWebApplication
 	{
 		super();
 		
+		/*
 		// Add request cycle listener that redirects to homepage with a proper message after session has expired 
 		getRequestCycleListeners().add(new AbstractRequestCycleListener()
 		{
 			public IRequestHandler onException(RequestCycle cycle, Exception ex)
 			{
+				// TODO: direct handling of session expired in Wicket would be better
 				if (ex instanceof WicketRuntimeException 
 					&& ex.getCause() instanceof NoSuchMethodException
 					&& ex.getMessage() != null
-					&& ex.getMessage().contains("Class does not have a visible default contructor"))
+					&& ex.getMessage().contains("Class does not have a visible default contructor")
+					&& !ODCSWebFrontendSession.get().isAuthenticated()
+					&& ex.getCause().getMessage().endsWith("Page.<init>()"))
 				{
+					logger.error(ex);
 					ODCSWebFrontendSession.get().error("Your session has expired.");
 					cycle.setResponsePage(getHomePage());
 				}
 				return cycle.getRequestHandlerScheduledAfterCurrent();
 			}
 		});
+		*/
 	}
 	
 	@Override

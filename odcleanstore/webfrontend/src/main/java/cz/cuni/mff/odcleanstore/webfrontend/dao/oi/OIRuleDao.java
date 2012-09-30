@@ -3,9 +3,9 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.oi;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 
-public class OIRuleDao extends DaoForEntityWithSurrogateKey<OIRule>
+public class OIRuleDao extends DaoForAuthorableEntity<OIRule>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "OI_RULES";
 
@@ -31,7 +31,7 @@ public class OIRuleDao extends DaoForEntityWithSurrogateKey<OIRule>
 	}
 	
 	@Override
-	public void save(OIRule item)
+	public void save(OIRule item) throws Exception
 	{
 		String query = 
 			"INSERT INTO " + TABLE_NAME + " " +
@@ -59,11 +59,10 @@ public class OIRuleDao extends DaoForEntityWithSurrogateKey<OIRule>
 		logger.debug("filterThreshold: " + item.getFilterThreshold());
 		logger.debug("filterLimit: " + item.getFilterLimit());
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
 	}
 	
-	@Override
-	public void update(OIRule item)
+	public void update(OIRule item) throws Exception
 	{
 		String query =
 			"UPDATE " + TABLE_NAME + 
@@ -91,6 +90,15 @@ public class OIRuleDao extends DaoForEntityWithSurrogateKey<OIRule>
 		logger.debug("filterLimit: " + item.getFilterLimit());
 		logger.debug("id: " + item.getId());
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
+	}
+
+	@Override
+	public int getAuthorId(Integer entityId)
+	{
+		String query = "SELECT g.authorId " +
+				"\n FROM " + TABLE_NAME + " AS r JOIN " + OIRulesGroupDao.TABLE_NAME + " AS g ON (g.id = r.groupId)" +
+				"\n WHERE r.id = ?";
+		return jdbcQueryForInt(query, entityId);
 	}
 }

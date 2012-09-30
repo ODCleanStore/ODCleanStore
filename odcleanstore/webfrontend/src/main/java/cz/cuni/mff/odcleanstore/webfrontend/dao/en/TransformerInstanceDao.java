@@ -5,10 +5,10 @@ import java.util.List;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
 
-public class TransformerInstanceDao extends DaoForEntityWithSurrogateKey<TransformerInstance>
+public class TransformerInstanceDao extends DaoForAuthorableEntity<TransformerInstance>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "TRANSFORMER_INSTANCES";
 
@@ -44,11 +44,11 @@ public class TransformerInstanceDao extends DaoForEntityWithSurrogateKey<Transfo
 		
 		Object[] params = criteria.buildWhereClauseParams();
 		
-		return getCleanJdbcTemplate().query(query, params, getRowMapper());
+		return jdbcQuery(query, params, getRowMapper());
 	}
 	
 	@Override
-	public TransformerInstance load(Long id)
+	public TransformerInstance load(Integer id)
 	{
 		String query = 
 			"SELECT T.label, TI.* FROM " + getTableName() + " AS TI " +
@@ -57,10 +57,10 @@ public class TransformerInstanceDao extends DaoForEntityWithSurrogateKey<Transfo
 		
 		Object[] params = { id };
 		
-		return getCleanJdbcTemplate().queryForObject(query, params, getRowMapper());
+		return jdbcQueryForObject(query, params, getRowMapper());
 	}
 	
-	public void save(TransformerInstance item)
+	public void save(TransformerInstance item) throws Exception
 	{
 		String query = 
 			"INSERT INTO " + TABLE_NAME + " " +
@@ -76,10 +76,10 @@ public class TransformerInstanceDao extends DaoForEntityWithSurrogateKey<Transfo
 			item.getPriority()
 		};
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
 	}
 	
-	public void update(TransformerInstance item)
+	public void update(TransformerInstance item) throws Exception
 	{
 		String query = 
 			"UPDATE " + TABLE_NAME + 
@@ -94,6 +94,17 @@ public class TransformerInstanceDao extends DaoForEntityWithSurrogateKey<Transfo
 			item.getId()
 		};
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
+	}
+
+	@Override
+	public int getAuthorId(Integer entityId)
+	{
+		String query = 
+			"SELECT P.authorId FROM " + getTableName() + " AS TI " +
+			"JOIN " + PipelineDao.TABLE_NAME + " AS P ON (P.id = TI.pipelineId) " +
+			"WHERE TI.id = ?";
+		
+		return jdbcQueryForInt(query, entityId);
 	}
 }

@@ -31,7 +31,7 @@ public class MultivalueTypeDao extends DaoForEntityWithSurrogateKey<MultivalueTy
 	}
 
 	@Override
-	public void deleteRaw(Long id)
+	protected void deleteRaw(Integer item) throws Exception
 	{
 		throw new UnsupportedOperationException(
 			"Cannot delete rows from table: " + getTableName() + "."

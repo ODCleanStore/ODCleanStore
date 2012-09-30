@@ -33,7 +33,7 @@ public class DependentDataProvider<BO extends EntityWithSurrogateKey> implements
 	private List<BO> getData()
 	{
 		if (data == null)
-			data = dao.loadAllRawBy(columnName, value);
+			data = dao.loadAllBy(columnName, value);
 		
 		return data;
 	}

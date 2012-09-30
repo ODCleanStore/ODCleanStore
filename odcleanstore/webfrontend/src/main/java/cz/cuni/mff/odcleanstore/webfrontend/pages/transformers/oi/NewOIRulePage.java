@@ -1,5 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi;
 
+import java.math.BigDecimal;
+
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
@@ -7,31 +9,35 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.validation.validator.RangeValidator;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.QARuleHelpPanel;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
-@AuthorizeInstantiation({ "PIC" })
-public class NewOIRulePage extends FrontendPage 
+@AuthorizeInstantiation({ Role.PIC })
+public class NewOIRulePage extends LimitedEditingPage 
 {
 	private static final long serialVersionUID = 1L;
 	
-	private DaoForEntityWithSurrogateKey<OIRule> oiRuleDao;
+	private OIRuleDao oiRuleDao;
 	
-	public NewOIRulePage(final Long groupId) 
+	public NewOIRulePage(final Integer groupId) 
 	{
 		super(
 			"Home > Backend > OI > Groups > Rules > New", 
-			"Add a new OI rule"
+			"Add a new OI rule",
+			OIRulesGroupDao.class,
+			groupId
 		);
+		
+		checkUnathorizedInstantiation();
 		
 		// prepare DAO objects
 		//
-		oiRuleDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIRuleDao.class);
+		oiRuleDao = daoLookupFactory.getDao(OIRuleDao.class);
 		
 		// register page components
 		//
@@ -48,9 +54,9 @@ public class NewOIRulePage extends FrontendPage
 		addNewOIRuleForm(groupId);
 	}
 
-	private void addNewOIRuleForm(final Long groupId)
+	private void addNewOIRuleForm(final Integer groupId)
 	{
-		IModel formModel = new CompoundPropertyModel(new OIRule());
+		IModel<OIRule> formModel = new CompoundPropertyModel<OIRule>(new OIRule());
 		
 		Form<OIRule> form = new Form<OIRule>("newOIRuleForm", formModel)
 		{
@@ -62,8 +68,9 @@ public class NewOIRulePage extends FrontendPage
 				OIRule rule = getModelObject();
 				rule.setGroupId(groupId);
 				
+				int insertId;
 				try {
-					oiRuleDao.save(rule);
+					insertId = oiRuleDao.saveAndGetKey(rule);
 				}
 				catch (DaoException ex)
 				{
@@ -82,7 +89,7 @@ public class NewOIRulePage extends FrontendPage
 				}
 				
 				getSession().info("The rule was successfuly registered.");
-				setResponsePage(new OIGroupDetailPage(groupId));
+				setResponsePage(new OIRuleDetailPage(insertId));
 			}
 		};
 		
@@ -104,7 +111,7 @@ public class NewOIRulePage extends FrontendPage
 	private TextField<String> createFilterThresholdTextfield()
 	{
 		TextField<String> textfield = createTextfield("filterThreshold", false);
-		textfield.add(new RangeValidator<Double>(0.0, Double.MAX_VALUE));
+		textfield.add(new RangeValidator<BigDecimal>(new BigDecimal(0), new BigDecimal(Double.MAX_VALUE)));
 		return textfield;
 	}
 	

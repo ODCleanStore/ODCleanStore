@@ -5,10 +5,10 @@ import java.util.List;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutput;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
 
-public class OIOutputDao extends DaoForEntityWithSurrogateKey<OIOutput>
+public class OIOutputDao extends DaoForAuthorableEntity<OIOutput>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "OI_OUTPUTS";
 
@@ -48,11 +48,11 @@ public class OIOutputDao extends DaoForEntityWithSurrogateKey<OIOutput>
 		
 		Object[] params = criteria.buildWhereClauseParams();
 		
-		return getCleanJdbcTemplate().query(query, params, getRowMapper());
+		return jdbcQuery(query, params, getRowMapper());
 	}
 	
 	@Override
-	public OIOutput load(Long id)
+	public OIOutput load(Integer id)
 	{
 		String query = 
 				"SELECT " +
@@ -66,11 +66,11 @@ public class OIOutputDao extends DaoForEntityWithSurrogateKey<OIOutput>
 			
 		Object[] params = { id };
 		
-		return getCleanJdbcTemplate().queryForObject(query, params, getRowMapper());
+		return jdbcQueryForObject(query, params, getRowMapper());
 	}
 	
 	@Override
-	public void save(OIOutput output)
+	public void save(OIOutput output)  throws Exception
 	{
 		String query = 
 			"INSERT INTO " + TABLE_NAME + " " +
@@ -92,11 +92,10 @@ public class OIOutputDao extends DaoForEntityWithSurrogateKey<OIOutput>
 		logger.debug("minConfidence: " + output.getMinConfidence());
 		logger.debug("maxConfidence: " + output.getMaxConfidence());
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
 	}
 	
-	@Override
-	public void update(OIOutput output)
+	public void update(OIOutput output) throws Exception
 	{
 		String query = 
 			"UPDATE " + TABLE_NAME + " " +
@@ -118,6 +117,16 @@ public class OIOutputDao extends DaoForEntityWithSurrogateKey<OIOutput>
 		logger.debug("maxConfidence: " + output.getMaxConfidence());
 		logger.debug("id: " + output.getId());
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
+	}
+
+	@Override
+	public int getAuthorId(Integer entityId)
+	{
+		String query = "SELECT g.authorId " +
+			"\n FROM " + OIRuleDao.TABLE_NAME + " AS r JOIN " + OIRulesGroupDao.TABLE_NAME + " AS g ON (g.id = r.groupId)" +
+			"\n   JOIN " + TABLE_NAME + " AS o ON (o.ruleId = r.id) " +
+			"\n WHERE o.id = ?";
+		return jdbcQueryForInt(query, entityId);
 	}
 }

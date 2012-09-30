@@ -1,4 +1,4 @@
-INSERT INTO DB.ODCLEANSTORE.QA_RULES_GROUPS VALUES (1, n'test group', n'short description of this group');
+INSERT INTO DB.ODCLEANSTORE.QA_RULES_GROUPS VALUES (1, n'test group', n'short description of this group', NULL);
 
 insert into DB.ODCLEANSTORE.QA_RULES (groupId, filter, coefficient, description) values (1, n'{{?s <http://purl.org/procurement#referenceNumber> ?o} FILTER (bif:regexp_like(?o, \'[a-zA-Z]\'))}', 0.9, n'PROCUREMENT REFERENCE NUMBER CONSISTS OF UNANTICIPATED CHARACTERS');
 insert into DB.ODCLEANSTORE.QA_RULES (groupId, filter, coefficient, description) values (1, n'{{?s <http://purl.org/procurement#procedureType> ?o}} GROUP BY ?g ?s HAVING count(?o) > 1', 0.75, n'PROCEDURE TYPE AMBIGUOUS');
@@ -10,3 +10,6 @@ insert into DB.ODCLEANSTORE.QA_RULES (groupId, filter, coefficient, description)
 insert into DB.ODCLEANSTORE.QA_RULES (groupId, filter, coefficient, description) values (1, n'{{?s <http://purl.org/procurement#estimatedPrice> ?p1; <http://purl.org/procurement#actualPrice> ?p2. ?p1 <http://purl.org/goodrelations/v1#hasCurrencyValue> ?v1. ?p2 <http://purl.org/goodrelations/v1#hasCurrencyValue> ?v2} FILTER (2 * ?v1 < ?v2)}', 0.8, n'PROCUREMENT ACTUAL COSTS ARE ABOVE TWICE THE ESTIMATE');
 insert into DB.ODCLEANSTORE.QA_RULES (groupId, filter, coefficient, description) values (1, n'{{?s <http://purl.org/procurement#procedureType> <http://purl.org/procurement#Open>; <http://purl.org/procurement#estimatedPrice> ?p. ?p <http://purl.org/goodrelations/v1#hasCurrencyValue> ?v.} FILTER (?v < 50000 OR ?v > 3000000)}', 0.8, n'PROCEDURE TYPE IS INCOMPATIBLE WITH THE ESTIMATED PRICE');
 insert into DB.ODCLEANSTORE.QA_RULES (groupId, filter, coefficient, description) values (1, n'{{?s <http://purl.org/procurement#awardDate> ?a; <http://purl.org/procurement#tenderDeadline> ?d.} FILTER (?d > ?a)}', 0.8, n'TENDER AWARDED BEFORE APPLICATION DEADLINE');
+
+
+

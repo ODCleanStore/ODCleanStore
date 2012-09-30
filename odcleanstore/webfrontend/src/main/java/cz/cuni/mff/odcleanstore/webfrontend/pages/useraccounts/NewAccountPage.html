@@ -11,14 +11,16 @@
 
 <a wicket:id="openHelpWindow" class="help">Help</a>
 
+<div class="clear">&nbsp;</div>
+
 <form wicket:id="newAccountForm">
 	<p>
 		<label for="username">Username:</label>
-		<input wicket:id="username" type="text" id="username" class="required" />
+		<span class="required"><input wicket:id="username" type="text" id="username" /></span>
 	</p>
 	<p>
 		<label for="email">Email:</label>
-		<input wicket:id="email" type="text" id="email" class="required" />
+		<span class="required"><input wicket:id="email" type="text" id="email" /></span>
 	</p>
 	<p>
 		<label for="firstname">Firstname:</label>

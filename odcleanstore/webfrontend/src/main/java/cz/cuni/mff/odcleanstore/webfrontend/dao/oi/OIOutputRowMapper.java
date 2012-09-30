@@ -13,17 +13,17 @@ public class OIOutputRowMapper extends CustomRowMapper<OIOutput>
 
 	public OIOutput mapRow(ResultSet rs, int rowNum) throws SQLException 
 	{
-		logger.debug("oid: " + rs.getLong("oid"));
-		logger.debug("ruleId: " + rs.getLong("ruleId"));
-		logger.debug("otid: " + rs.getLong("otid"));
+		logger.debug("oid: " + rs.getInt("oid"));
+		logger.debug("ruleId: " + rs.getInt("ruleId"));
+		logger.debug("otid: " + rs.getInt("otid"));
 		
 		return new OIOutput
 		(
-			rs.getLong("oid"),
-			rs.getLong("ruleId"),
-			rs.getLong("otid"),
-			getDouble(rs, "minConfidence"),
-			getDouble(rs, "maxConfidence"),
+			rs.getInt("oid"),
+			rs.getInt("ruleId"),
+			rs.getInt("otid"),
+			getBigDecimal(rs, "minConfidence"),
+			getBigDecimal(rs, "maxConfidence"),
 			rs.getString("filename"),
 			mapFileFormat(rs)
 		);
@@ -31,14 +31,14 @@ public class OIOutputRowMapper extends CustomRowMapper<OIOutput>
 	
 	private OIFileFormat mapFileFormat(ResultSet rs) throws SQLException
 	{
-		// note that the getLong method returns 0 if the value of the 
+		// note that the getInt method returns 0 if the value of the 
 		// corresponding column equals NULL in the represented row
-		if (rs.getLong("ffid") == 0)
+		if (rs.getInt("ffid") == 0)
 			return null;
 		
 		return new OIFileFormat
 		(
-			rs.getLong("ffid"),
+			rs.getInt("ffid"),
 			rs.getString("fflbl"),
 			blobToString(rs.getBlob("ffdescr"))
 		);

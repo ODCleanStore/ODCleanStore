@@ -9,7 +9,7 @@ public class ErrorStrategy extends EntityWithSurrogateKey
 	private String label;
 	private String description;
 	
-	public ErrorStrategy(Long id, String label, String description) 
+	public ErrorStrategy(Integer id, String label, String description) 
 	{
 		super(id);
 		

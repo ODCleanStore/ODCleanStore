@@ -9,11 +9,13 @@
 
 <a wicket:id="openHelpWindow"class="help">Help</a>
 
+<div class="clear">&nbsp;</div>
+
 <form wicket:id="newAssignmentForm">
 	<p>
 		<label for="transformer">Transformer:</label>
-		<select wicket:id="transformer" id="transformer" class="required">
-		</select>
+		<span class="required"><select wicket:id="transformer" id="transformer">
+		</select></span>
 	</p>
 	<p>
 		<label for="configuration">Configuration:</label>
@@ -25,7 +27,7 @@
 	</p>
 	<p>
 		<label for="priority">Priority:</label>
-		<input wicket:id="priority" id="priority" type="text" class="required"/>
+		<span class="required"><input wicket:id="priority" id="priority" type="text" /></span>
 	</p>
 	<input type="submit" value="Submit" />
 </form>

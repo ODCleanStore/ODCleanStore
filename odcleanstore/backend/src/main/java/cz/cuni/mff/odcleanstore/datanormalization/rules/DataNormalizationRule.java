@@ -12,14 +12,20 @@ public class DataNormalizationRule {
 	public enum EnumRuleComponentType {
 		RULE_COMPONENT_INSERT {
 			@Override
-            public String toString() {
+			public String toString() {
 				return "INSERT";
 			}
 		},
 		RULE_COMPONENT_DELETE {
 			@Override
-            public String toString() {
+			public String toString() {
 				return "DELETE";
+			}
+		},
+		RULE_COMPONENT_MODIFY {
+			@Override
+			public String toString() {
+				return "MODIFY";
 			}
 		}
 	}
@@ -71,14 +77,17 @@ public class DataNormalizationRule {
 			case RULE_COMPONENT_DELETE:
 				output = "SPARQL DEFINE input:default-graph-uri <" + graph + "> DELETE FROM " + output;
 				break;
+			case RULE_COMPONENT_MODIFY:
+				output = "SPARQL DEFINE input:default-graph-uri <" + graph + "> MODIFY " + output;
+				break;
 			}
 
 			return output;
 		}
 	}
 
-	Long id;
-	Long groupId;
+	Integer id;
+	Integer groupId;
 	String description;
 	ArrayList<Component> components = new ArrayList<Component>();
 
@@ -90,7 +99,7 @@ public class DataNormalizationRule {
 	 * @param components the list of triples (component type, component code, component description)
 	 * @throws DataNormalizationException
 	 */
-	public DataNormalizationRule(Long id, Long groupId, String description, String... components) throws DataNormalizationException {
+	public DataNormalizationRule(Integer id, Integer groupId, String description, String... components) throws DataNormalizationException {
 		this.id = id;
 		this.groupId = groupId;
 		this.description = description;
@@ -102,11 +111,11 @@ public class DataNormalizationRule {
 		}
 	}
 
-	public Long getId() {
+	public Integer getId() {
 		return id;
 	}
 
-	public Long getGroupId() {
+	public Integer getGroupId() {
 		return groupId;
 	}
 
@@ -147,6 +156,8 @@ public class DataNormalizationRule {
 			addComponent(EnumRuleComponentType.RULE_COMPONENT_INSERT, modification, description);
 		} else if (type.equals("DELETE")) {
 			addComponent(EnumRuleComponentType.RULE_COMPONENT_DELETE, modification, description);
+		} else if (type.equals("MODIFY")) {
+			addComponent(EnumRuleComponentType.RULE_COMPONENT_MODIFY, modification, description);
 		} else {
 			throw new DataNormalizationException("Unknown Data Normalization Rule type");
 		}

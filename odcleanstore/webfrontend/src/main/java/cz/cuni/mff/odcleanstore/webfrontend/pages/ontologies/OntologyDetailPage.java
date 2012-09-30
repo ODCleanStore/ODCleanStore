@@ -3,19 +3,18 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.ontologies;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.basic.Label;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.Ontology;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.onto.OntologyDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-@AuthorizeInstantiation({ "ONC" })
+@AuthorizeInstantiation({ Role.ONC })
 public class OntologyDetailPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 	
-	private DaoForEntityWithSurrogateKey<Ontology> ontologyDao;
+	private OntologyDao ontologyDao;
 
-	public OntologyDetailPage(final Long ontologyId) 
+	public OntologyDetailPage(final Integer ontologyId) 
 	{
 		super(
 			"Home > Ontologies > Detail", 
@@ -24,7 +23,7 @@ public class OntologyDetailPage extends FrontendPage
 		
 		// prepare DAO object
 		//
-		ontologyDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OntologyDao.class);
+		ontologyDao = daoLookupFactory.getDao(OntologyDao.class);
 		
 		// register page components
 		//
@@ -32,7 +31,7 @@ public class OntologyDetailPage extends FrontendPage
 		addOntologyInformationSection(ontologyId);
 	}
 	
-	private void addOntologyInformationSection(final Long ontologyId)
+	private void addOntologyInformationSection(final Integer ontologyId)
 	{
 		setDefaultModel(createModelForOverview(ontologyDao, ontologyId));
 		

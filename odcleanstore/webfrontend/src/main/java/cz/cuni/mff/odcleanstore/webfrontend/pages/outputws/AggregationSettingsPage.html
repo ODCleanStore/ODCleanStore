@@ -1,0 +1,61 @@
+<wicket:extend>
+
+<div wicket:id="helpWindow"></div>
+
+<h2>Global aggregation settings</h2>
+
+<form wicket:id="editGlobalSettingsForm">
+    <p>
+        <label for="defaultMultivalueType">Default multivalue:</label>
+        <span class="required"><select wicket:id="defaultMultivalueType" id="defaultMultivalueType">
+        </select></span>
+    </p>
+    <p>
+        <label for="defaultAggregationType">Default aggregation type:</label>
+        <span class="required"><select wicket:id="defaultAggregationType" id="defaultAggregationType">
+        </select></span>
+    </p>
+    <p>
+        <label for="defaultErrorStrategy">Aggregation error strategy:</label>
+        <span class="required"><select wicket:id="defaultErrorStrategy" id="defaultErrorStrategy">
+        </select></span>
+    </p>
+    <input type="submit" value="Submit" />
+</form>
+
+<h2>Aggregation settings for individual properties</h2>
+
+<wicket:link>
+<div>
+	<a class="placedright button" href="NewPropertyPage.html">Register a new property</a>
+	<div class="clear">&nbsp;</div>
+</div>
+</wicket:link>
+	
+<span class="navigation" wicket:id="navigator">[dataview navigator]</span>
+<a wicket:id="openHelpWindow"class="help">Help</a>
+
+<div class="clear">&nbsp;</div>
+	
+<table border="1">
+
+	<tr>
+		<th wicket:id="sortByProperty">Property</th>
+		<th wicket:id="sortByMultivalueTypeId">Multivalue</th>
+		<th wicket:id="sortByAggregationTypeId">Aggregation type</th>
+		<th>Actions</th>
+	</tr>
+	
+	<tr wicket:id="propertySettingsTable">
+	
+		<td wicket:id="property">foaf:name</td>
+		<td wicket:id="multivalueType">true</td>
+		<td wicket:id="aggregationType">LONGEST</td>
+		<td class="actions">
+			<input wicket:id="showEditGlobalAggregationSettingsPage" type="button" value="Edit" />
+			<input wicket:id="deleteProperty" type="button" value="Delete" class="delete" />
+		</td>
+	</tr>
+</table>
+
+</wicket:extend>

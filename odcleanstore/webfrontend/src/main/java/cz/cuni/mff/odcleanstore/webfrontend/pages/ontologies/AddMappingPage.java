@@ -3,6 +3,8 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.ontologies;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.wicket.authorization.UnauthorizedInstantiationException;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteSettings;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
@@ -10,13 +12,16 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.Ontology;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.RelationType;
+import cz.cuni.mff.odcleanstore.webfrontend.core.AuthorizationHelper;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DetachableAutoCompleteTextField;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.onto.OntologyMappingDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
-import cz.cuni.mff.odcleanstore.webfrontend.validators.EnumValidator;
 import cz.cuni.mff.odcleanstore.webfrontend.validators.JenaURIValidator;
 
+@AuthorizeInstantiation({ Role.ONC })
 public class AddMappingPage extends FrontendPage {
 	
 	private static final long serialVersionUID = 1L;
@@ -26,7 +31,7 @@ public class AddMappingPage extends FrontendPage {
 	private String targetUri;
 	private String relationType;
 
-	public AddMappingPage(String sourceOntoGraphName, String targetOntoGraphName) {
+	public AddMappingPage(Ontology sourceOntology, String targetOntoGraphName) {
 		super(
 			"Home > Ontologies > Mapping > Add mapping", 
 			"Ontologies mapping - add mapping"
@@ -34,14 +39,19 @@ public class AddMappingPage extends FrontendPage {
 		
 		// prepare DAO objects
 		//
-		mappingDao = (OntologyMappingDao)daoLookupFactory.getUnsafeDao(OntologyMappingDao.class);
+		mappingDao = daoLookupFactory.getDao(OntologyMappingDao.class);
 		
 		// register page components
 		//
-		addMappingForm(sourceOntoGraphName, targetOntoGraphName);
+		if (!AuthorizationHelper.isAuthorizedForEntityEditing(sourceOntology)) 
+		{
+			throw new UnauthorizedInstantiationException(getClass());
+		}
+		addHelpWindow(new OntologyMappingHelpPanel("content"));
+		addMappingForm(sourceOntology, targetOntoGraphName);
 	}
 
-	private void addMappingForm(final String sourceOntoGraphName, final String targetOntoGraphName)
+	private void addMappingForm(final Ontology sourceOntology, final String targetOntoGraphName)
 	{
 		Form<AddMappingPage> form = new Form<AddMappingPage>(
 			"addMappingForm", new CompoundPropertyModel<AddMappingPage>(this))
@@ -53,7 +63,7 @@ public class AddMappingPage extends FrontendPage {
 			{
 				try 
 				{
-					mappingDao.addMapping(sourceOntoGraphName, sourceUri, relationType, targetUri);
+					mappingDao.addMapping(sourceOntology.getId(), sourceUri, relationType, targetUri);
 				} catch (Exception e) 
 				{	
 					// TODO: log the error
@@ -61,12 +71,12 @@ public class AddMappingPage extends FrontendPage {
 					return;
 				}
 				getSession().info("The mapping was successfuly created.");
-				setResponsePage(new AddMappingPage(sourceOntoGraphName, targetOntoGraphName));
+				setResponsePage(new AddMappingPage(sourceOntology, targetOntoGraphName));
 			}
 		};
-		IModel<List<String>> model = createModel(sourceOntoGraphName);
+		IModel<List<String>> model = createModel(sourceOntology.getGraphName());
 		TextField<String> field = new DetachableAutoCompleteTextField("sourceUri", model);
-		field.add(new EnumValidator(model));
+		field.add(new JenaURIValidator());
 		form.add(field);
 		
 		AutoCompleteSettings settings = new AutoCompleteSettings();
@@ -80,7 +90,7 @@ public class AddMappingPage extends FrontendPage {
 		{	
 			model = createModel(targetOntoGraphName);
 			field = new DetachableAutoCompleteTextField("targetUri", model);
-			field.add(new EnumValidator(model));
+			field.add(new JenaURIValidator());
 			
 		} else
 		{

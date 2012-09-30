@@ -14,14 +14,14 @@ public class OIRuleRowMapper extends CustomRowMapper<OIRule>
 	{
 		return new OIRule
 		(
-			rs.getLong("id"),
-			rs.getLong("groupId"),
+			rs.getInt("id"),
+			rs.getInt("groupId"),
 			rs.getString("label"),
 			rs.getString("linkType"),
 			rs.getString("sourceRestriction"),
 			rs.getString("targetRestriction"),
 			blobToString(rs.getBlob("linkageRule")),
-			getDouble(rs, "filterThreshold"),
+			getBigDecimal(rs, "filterThreshold"),
 			getInteger(rs, "filterLimit")
 		);
 	}

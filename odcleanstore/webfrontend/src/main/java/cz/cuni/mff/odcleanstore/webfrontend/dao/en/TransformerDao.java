@@ -31,7 +31,7 @@ public class TransformerDao extends DaoForEntityWithSurrogateKey<Transformer>
 	}
 	
 	@Override
-	public void save(Transformer item) 
+	public void save(Transformer item) throws Exception
 	{
 		String query = 
 			"INSERT INTO " + TABLE_NAME + " (label, description, jarPath, workDirPath, fullClassName) " +
@@ -52,11 +52,10 @@ public class TransformerDao extends DaoForEntityWithSurrogateKey<Transformer>
 		logger.debug("work dir path: " + item.getWorkDirPath());
 		logger.debug("full classname: " + item.getFullClassName());
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
 	}
 	
-	@Override
-	public void update(Transformer item)
+	public void update(Transformer item) throws Exception
 	{
 		// note that it is not possible to change the fullClassName of an existing transformer,
 		// because the fullClassName parameter determines the way rules groups are added to
@@ -80,6 +79,6 @@ public class TransformerDao extends DaoForEntityWithSurrogateKey<Transformer>
 		logger.debug("work dir path: " + item.getWorkDirPath());
 		logger.debug("id: " + item.getId());
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
 	}
 }

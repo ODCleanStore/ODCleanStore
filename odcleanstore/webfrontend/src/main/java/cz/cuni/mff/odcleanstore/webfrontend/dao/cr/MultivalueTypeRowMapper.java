@@ -13,7 +13,7 @@ public class MultivalueTypeRowMapper extends CustomRowMapper<MultivalueType>
 	public MultivalueType mapRow(ResultSet rs, int rowNum) throws SQLException 
 	{
 		return new MultivalueType(
-			rs.getLong("id"),
+			rs.getInt("id"),
 			rs.getString("label"),
 			blobToString(rs.getBlob("description"))
 		);

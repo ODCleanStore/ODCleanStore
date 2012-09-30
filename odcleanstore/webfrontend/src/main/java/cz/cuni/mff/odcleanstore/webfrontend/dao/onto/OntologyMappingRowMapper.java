@@ -14,7 +14,7 @@ public class OntologyMappingRowMapper extends CustomRowMapper<RelationType>
 	{
 		return new RelationType
 		(
-			rs.getLong("id"),
+			rs.getInt("id"),
 			rs.getString("uri")
 		);
 	}

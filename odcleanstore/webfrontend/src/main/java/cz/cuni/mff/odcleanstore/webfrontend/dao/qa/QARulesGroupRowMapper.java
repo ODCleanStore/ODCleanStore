@@ -14,9 +14,10 @@ public class QARulesGroupRowMapper extends CustomRowMapper<QARulesGroup>
 	{
 		return new QARulesGroup
 		(
-			rs.getLong("id"),
+			rs.getInt("id"),
 			blobToString(rs.getBlob("label")),
-			blobToString(rs.getBlob("description"))
+			blobToString(rs.getBlob("description")),
+			rs.getInt("authorId")
 		);
 	}
 }

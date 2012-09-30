@@ -1,0 +1,29 @@
+<wicket:extend>
+
+<div wicket:id="helpWindow"></div>
+
+<div>
+	<a class="placedright button" href="#" wicket:id="showOIRuleDetail">Back to the rule detail</a>
+	<div class="clear">&nbsp;</div>
+</div>
+
+<a wicket:id="openHelpWindow" class="help">Help</a>
+
+<div class="clear">&nbsp;</div>
+
+<form wicket:id="editDBOutputForm">
+
+	<p>
+		<label for="minConfidence">Min confidence:</label>
+		<input wicket:id="minConfidence" type="text" id="minConfidence" />
+	</p>
+	<p>
+		<label for="maxConfidence">Max confidence:</label>
+		<input wicket:id="maxConfidence" type="text" id="maxConfidence" />
+	</p>
+	
+	<input type="submit" wicket:id="submit" value="Submit" />
+
+</form>
+
+</wicket:extend>
