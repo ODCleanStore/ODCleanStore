@@ -7,10 +7,9 @@ import java.util.List;
 /**
  * The Role BO.
  * 
- * @author Dusan Rychnovsky (dusan.rychnovsky@gmail.com)
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
-
 public class Role extends EntityWithSurrogateKey
 {
 	private static final long serialVersionUID = 1L;
@@ -27,7 +26,7 @@ public class Role extends EntityWithSurrogateKey
 	/** Scraper. */
 	public static final String SCR = "SCR";
 	
-	/** An enumeration of standard frontend roles */
+	/** An enumeration of standard Web Frontend roles */
 	private static final List<Role> standardRoles;
 	
 	static 

@@ -1,9 +1,17 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo;
 
+/**
+ * A generic parent of all classes which represent business entities with
+ * a surrogate key.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public abstract class EntityWithSurrogateKey extends BusinessEntity
 {
 	private static final long serialVersionUID = 1L;
 
+	/** the surrogate key */
 	protected Integer id;
 
 	/**
@@ -15,6 +23,9 @@ public abstract class EntityWithSurrogateKey extends BusinessEntity
 		this.id = id;
 	}
 	
+	/**
+	 * 
+	 */
 	public EntityWithSurrogateKey()
 	{
 	}

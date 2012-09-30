@@ -181,7 +181,7 @@ public class AccountsListPage extends FrontendPage
 	{	
 		String roleLabel = "role" + role.getLabel();
 		
-		if (user.hasAssignedRole(role))
+		if (user.hasRoleAssigned(role))
 			return new Label(roleLabel, "X");
 		
 		Label label = new Label(roleLabel, "&nbsp;");

@@ -1,5 +1,10 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo;
 
+/**
+ * 
+ * @author Tomáš Soukup
+ *
+ */
 public abstract class RDFGraphEntity extends EntityWithSurrogateKey {
 
 	private static final long serialVersionUID = 1L;
