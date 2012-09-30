@@ -179,31 +179,44 @@ public class LinkerImpl implements Linker {
 			throws TransformerException {
 		List<DebugResult> resultList = new ArrayList<DebugResult>();
 		File configFile = null;
+		String resultFileName = null;
 		try {
 			List<SilkRule> rules = loadRules(context);
 			List<RDFprefix> prefixes = RDFPrefixesLoader.loadPrefixes(context.getCleanDatabaseCredentials());
 			for (SilkRule rule: rules) {
-				String resultFileName = createFileName(rule, context.getTransformerDirectory());
+				resultFileName = createFileName(
+						rule.getId().toString(), context.getTransformerDirectory(), DEBUG_OUTPUT_FILENAME);
 				configFile = ConfigBuilder.createDebugLinkConfigFile(rule, prefixes, context, globalConfig,
 						inputFile.getAbsolutePath(), resultFileName);
 				Silk.executeFile(configFile, null, Silk.DefaultThreads(), true);
 				List<LinkedPair> linkedPairs = parseLinkedPairs(resultFileName);
-				deleteFile(resultFileName);
 				loadLabels(inputFile, linkedPairs);
 				loadLabels(context.getCleanDatabaseCredentials(), context.getDirtyDatabaseCredentials(), linkedPairs);
-				resultList.add(new DebugResult(rule, linkedPairs));
+				resultList.add(new DebugResult(rule.getLabel(), linkedPairs));
+				deleteFile(configFile);
+				configFile = null;
+				deleteFile(resultFileName);
+				resultFileName = null;
 			}
 			
 		} catch (DatabaseException e) {
 			throw new TransformerException(e);
-		} 
+		} finally {
+			deleteFile(inputFile);
+			if (configFile != null) {
+				deleteFile(configFile);
+			}
+			if (resultFileName != null) {
+				deleteFile(resultFileName);
+			}
+		}
 		
 		return resultList;
 	}
 	
-	private String createFileName(SilkRule rule, File transformerDirectory) {
+	private String createFileName(String ruleId, File transformerDirectory, String fileName) {
 		return new File(transformerDirectory, 
-				rule.getId() + UUID.randomUUID().toString() + DEBUG_OUTPUT_FILENAME).getAbsolutePath();
+				ruleId + UUID.randomUUID().toString() + fileName).getAbsolutePath();
 	}
 	
 	private List<LinkedPair> parseLinkedPairs(String resultFileName) throws TransformerException {
@@ -257,7 +270,7 @@ public class LinkerImpl implements Linker {
 	
 	private File streamToFile(InputStream stream, File targetDirectory) throws TransformerException {
 		try {
-			File file = new File(targetDirectory, DEBUG_INPUT_FILENAME);
+			File file = new File(createFileName("", targetDirectory, DEBUG_INPUT_FILENAME));
 		    OutputStream os = new FileOutputStream(file);  
 		    try {  
 		        byte[] buffer = new byte[4096];  
@@ -281,7 +294,7 @@ public class LinkerImpl implements Linker {
 	}
 	
 	private File stringToFile(String input, File targetDirectory) throws TransformerException {
-		File file = new File(targetDirectory, DEBUG_INPUT_FILENAME);
+		File file = new File(createFileName("", targetDirectory, DEBUG_INPUT_FILENAME));
 		PrintWriter writer = null;
 		try {
 			writer = new PrintWriter(file);
@@ -361,8 +374,12 @@ public class LinkerImpl implements Linker {
 	
 	private void deleteFile(String fileName) {
 		File file = new File(fileName);
+		deleteFile(file);
+	}
+	
+	private void deleteFile(File file) {
 		if (!file.delete()) {
-			LOG.warn("Failed to delete file {}", fileName);
+			LOG.warn("Failed to delete file {}", file.getAbsolutePath());
 		}
 	}
 	
