@@ -16,6 +16,7 @@ public class Pipeline extends EntityWithSurrogateKey implements AuthoredEntity
 	private Boolean isLocked;
 	private List<TransformerInstance> transformers;
 	private Integer authorId;
+	private String authorName;
 	
 	/**
 	 * 
@@ -25,7 +26,7 @@ public class Pipeline extends EntityWithSurrogateKey implements AuthoredEntity
 	 * @param isDefault
 	 * @param authorId
 	 */
-	public Pipeline(Integer id, String label, String description, Boolean isDefault, Boolean isLocked, Integer authorId) 
+	public Pipeline(Integer id, String label, String description, Boolean isDefault, Boolean isLocked, Integer authorId, String authorName) 
 	{
 		super(id);
 		
@@ -36,6 +37,7 @@ public class Pipeline extends EntityWithSurrogateKey implements AuthoredEntity
 		this.isDefault = isDefault;
 		this.isLocked = isLocked;
 		this.authorId = authorId;
+		this.setAuthorName(authorName);
 	}
 	
 	/**
@@ -144,5 +146,15 @@ public class Pipeline extends EntityWithSurrogateKey implements AuthoredEntity
 	public void setTransformers(List<TransformerInstance> transformers)
 	{
 		this.transformers = transformers;
+	}
+
+	public String getAuthorName()
+	{
+		return authorName;
+	}
+
+	public void setAuthorName(String authorName)
+	{
+		this.authorName = authorName;
 	}
 }

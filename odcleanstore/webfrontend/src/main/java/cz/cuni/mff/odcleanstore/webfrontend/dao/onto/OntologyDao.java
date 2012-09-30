@@ -21,6 +21,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.Ontology;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
 
 public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 {
@@ -56,6 +57,20 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		return rowMapper;
 	}
 
+	@Override
+	protected String getSelectAndFromClause()
+	{
+		String query = "SELECT u.username, o.* " +
+			" FROM " + getTableName() + " AS o LEFT JOIN " + UserDao.TABLE_NAME + " AS u ON (o.authorId = u.id)";
+		return query;
+	}
+	
+	@Override
+	public Ontology load(Integer id)
+	{
+		return loadBy("o.id", id);
+	}
+	
 	@Override
 	public Ontology loadBy(String columnName, Object value)
 	{

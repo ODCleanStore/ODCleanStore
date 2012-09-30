@@ -76,6 +76,7 @@ public class PipelinesListPage extends FrontendPage
 				item.setModel(new CompoundPropertyModel<Pipeline>(pipeline));
 
 				item.add(new Label("label"));
+				item.add(new Label("authorName"));
 				item.add(new TruncatedLabel("description", MAX_LIST_COLUMN_TEXT_LENGTH));
 				item.add(new BooleanLabel("isLocked"));
 				item.add(new BooleanLabel("isDefault")
@@ -119,6 +120,7 @@ public class PipelinesListPage extends FrontendPage
 		dataView.setItemsPerPage(ITEMS_PER_PAGE);
 		
 		add(new SortTableButton<Pipeline>("sortByLabel", "label", data, dataView));
+		add(new SortTableButton<Pipeline>("sortByAuthor", "username", data, dataView));
 		add(new SortTableButton<Pipeline>("sortByIsDefault", "isDefault", data, dataView));
 		add(new SortTableButton<Pipeline>("sortByIsLocked", "isLocked", data, dataView));
 		

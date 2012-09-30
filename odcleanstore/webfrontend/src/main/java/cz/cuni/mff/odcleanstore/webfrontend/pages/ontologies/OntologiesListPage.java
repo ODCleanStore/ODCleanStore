@@ -15,7 +15,6 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedRedirectBu
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.onto.OntologyDao;
@@ -61,7 +60,7 @@ public class OntologiesListPage extends FrontendPage
 				item.setModel(new CompoundPropertyModel<Ontology>(ontology));
 
 				item.add(new Label("label"));
-				item.add(new TruncatedLabel("description", MAX_LIST_COLUMN_TEXT_LENGTH));
+				item.add(new Label("authorName"));
 				item.add(new Label("graphName"));
 				
 				item.add(
@@ -105,6 +104,7 @@ public class OntologiesListPage extends FrontendPage
 		dataView.setItemsPerPage(ITEMS_PER_PAGE);
 		
 		add(new SortTableButton<Ontology>("sortByLabel", "label", data, dataView));
+		add(new SortTableButton<Ontology>("sortByAuthor", "username", data, dataView));
 		add(new SortTableButton<Ontology>("sortByGraphName", "graphName", data, dataView));
 		
 		add(dataView);

@@ -69,6 +69,7 @@ public class OIGroupsListPage extends FrontendPage
 				item.setModel(new CompoundPropertyModel<OIRulesGroup>(group));
 
 				item.add(new Label("label"));
+				item.add(new Label("authorName"));
 				item.add(new TruncatedLabel("description", MAX_LIST_COLUMN_TEXT_LENGTH));
 				
 				item.add(
@@ -97,6 +98,7 @@ public class OIGroupsListPage extends FrontendPage
 		dataView.setItemsPerPage(ITEMS_PER_PAGE);
 		
 		add(new SortTableButton<OIRulesGroup>("orderByLabel", "label", data, dataView));
+		add(new SortTableButton<OIRulesGroup>("orderByAuthor", "username", data, dataView));
 		
 		add(dataView);
 		

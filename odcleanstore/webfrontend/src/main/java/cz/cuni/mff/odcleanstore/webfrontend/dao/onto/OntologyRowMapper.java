@@ -18,7 +18,8 @@ public class OntologyRowMapper extends CustomRowMapper<Ontology>
 			rs.getString("label"),
 			blobToString(rs.getBlob("description")),
 			rs.getString("graphName"),
-			rs.getInt("authorId")
+			rs.getInt("authorId"),
+			blobToString(rs.getBlob("username"))
 		);
 	}
 

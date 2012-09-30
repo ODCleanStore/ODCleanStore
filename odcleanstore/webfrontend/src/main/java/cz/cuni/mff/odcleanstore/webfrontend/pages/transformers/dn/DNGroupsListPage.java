@@ -70,6 +70,7 @@ public class DNGroupsListPage extends FrontendPage
 				item.setModel(new CompoundPropertyModel<DNRulesGroup>(group));
 
 				item.add(new Label("label"));
+				item.add(new Label("authorName"));
 				item.add(new TruncatedLabel("description", MAX_LIST_COLUMN_TEXT_LENGTH));	
 				
 				item.add(
@@ -98,6 +99,7 @@ public class DNGroupsListPage extends FrontendPage
 		dataView.setItemsPerPage(ITEMS_PER_PAGE);
 
 		add(new SortTableButton<DNRulesGroup>("orderByLabel", "label", data, dataView));
+		add(new SortTableButton<DNRulesGroup>("orderByAuthor", "username", data, dataView));
 		
 		add(dataView);
 		

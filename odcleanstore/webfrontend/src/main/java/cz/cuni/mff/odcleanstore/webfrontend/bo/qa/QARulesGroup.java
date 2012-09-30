@@ -7,44 +7,13 @@ public class QARulesGroup extends RulesGroupEntity implements AuthoredEntity
 {
 	private static final long serialVersionUID = 1L;
 
-	private String label;
-	private String description;
-	private Integer authorId;
-	
-	public QARulesGroup(Integer id, String label, String description, Integer authorId) 
+	public QARulesGroup(Integer id, String label, String description, Integer authorId, String authorName) 
 	{
-		super(id);
+		super(id, label, description, authorId, authorName);
+	}
+
+	public QARulesGroup()
+	{
 		
-		this.label = label;
-		this.description = description;
-		this.authorId = authorId;
-	}
-
-	public QARulesGroup() 
-	{
-	}
-
-	public String getLabel() 
-	{
-		return label;
-	}
-
-	public String getDescription() 
-	{
-		return description;
-	}
-	
-	public Integer getAuthorId() 
-	{
-		return authorId;
-	}
-	
-	/**
-	 * 
-	 * @param authorId
-	 */
-	public void setAuthorId(Integer authorId) 
-	{
-		this.authorId = authorId;
 	}
 }

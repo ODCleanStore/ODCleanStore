@@ -69,6 +69,7 @@ public class QAGroupsListPage extends FrontendPage
 				item.setModel(new CompoundPropertyModel<QARulesGroup>(group));
 
 				item.add(new Label("label"));
+				item.add(new Label("authorName"));
 				item.add(new TruncatedLabel("description", MAX_LIST_COLUMN_TEXT_LENGTH));	
 				
 				item.add(
@@ -99,6 +100,7 @@ public class QAGroupsListPage extends FrontendPage
 		add(dataView);
 		
 		add(new SortTableButton<QARulesGroup>("orderByLabel", "label", data, dataView));
+		add(new SortTableButton<QARulesGroup>("orderByAuthor", "username", data, dataView));
 		
 		add(new UnobtrusivePagingNavigator("navigator", dataView));
 	}

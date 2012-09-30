@@ -17,7 +17,8 @@ public class QARulesGroupRowMapper extends CustomRowMapper<QARulesGroup>
 			rs.getInt("id"),
 			blobToString(rs.getBlob("label")),
 			blobToString(rs.getBlob("description")),
-			rs.getInt("authorId")
+			rs.getInt("authorId"),
+			blobToString(rs.getBlob("username"))
 		);
 	}
 }

@@ -3,9 +3,9 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.oi;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.RulesGroupDao;
 
-public class OIRulesGroupDao extends DaoForAuthorableEntity<OIRulesGroup>
+public class OIRulesGroupDao extends RulesGroupDao<OIRulesGroup>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "OI_RULES_GROUPS";
 
@@ -28,47 +28,5 @@ public class OIRulesGroupDao extends DaoForAuthorableEntity<OIRulesGroup>
 	protected ParameterizedRowMapper<OIRulesGroup> getRowMapper() 
 	{
 		return rowMapper;
-	}
-
-	@Override
-	public void save(OIRulesGroup item) throws Exception
-	{
-		String query = "INSERT INTO " + TABLE_NAME + " (label, description, authorId) VALUES (?, ?, ?)";
-		
-		Object[] params =
-		{
-			item.getLabel(),
-			item.getDescription(),
-			item.getAuthorId()
-		};
-		
-		logger.debug("label: " + item.getLabel());
-		logger.debug("description: " + item.getDescription());
-		
-		jdbcUpdate(query, params);
-	}
-	
-	public void update(OIRulesGroup item) throws Exception
-	{
-		String query = "UPDATE " + TABLE_NAME + " SET label = ?, description = ? WHERE id = ?";
-		
-		Object[] params =
-		{
-			item.getLabel(),
-			item.getDescription(),
-			item.getId()
-		};
-		
-		logger.debug("label: " + item.getLabel());
-		logger.debug("description: " + item.getDescription());
-		logger.debug("id: " + item.getId());
-		
-		jdbcUpdate(query, params);
-	}
-
-	@Override
-	public int getAuthorId(Integer entityId)
-	{
-		return load(entityId).getAuthorId();
 	}
 }
