@@ -24,6 +24,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.en.OIRuleAssignmentDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.debug.OIDebugPage;
 
 @AuthorizeInstantiation({ Role.PIC })
 public class OIGroupsListPage extends FrontendPage
@@ -92,6 +93,14 @@ public class OIGroupsListPage extends FrontendPage
 				);
 				
 				item.add(createRerunAffectedGraphsButton(group.getId()));
+				
+				item.add(
+						new RedirectWithParamButton(
+							OIDebugPage.class,
+							group.getId(),
+							"debugOIGroup"
+						)
+					);
 			}
 		};
 

@@ -1,0 +1,24 @@
+<wicket:extend>
+
+<wicket:link>
+<div>
+	<a class="button placedright" href="#" wicket:id="backToInputLink">Back to debug input page</a>
+	<div class="clear">&nbsp;</div>
+</div>
+</wicket:link>
+
+<table wicket:id="resultTable"border=1>
+	<caption wicket:id="ruleLabel"></caption>
+	<tr>
+		<th>Source entity</th>
+		<th>Target entity</th>
+		<th>Confidence</th>
+	</tr>
+	<tr wicket:id="resultRow">
+		<td wicket:id="sourceEntity"/>
+		<td wicket:id="targetEntity"/>
+		<td wicket:id="confidence" />
+	</tr>
+</table>
+
+</wicket:extend>

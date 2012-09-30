@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,7 +26,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.sparql.core.Quad;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.configuration.ObjectIdentificationConfig;
@@ -41,7 +41,9 @@ import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraphException;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
+import cz.cuni.mff.odcleanstore.vocabulary.RDFS;
 import de.fuberlin.wiwiss.ng4j.NamedGraphSet;
+import de.fuberlin.wiwiss.ng4j.Quad;
 import de.fuberlin.wiwiss.ng4j.impl.GraphReaderService;
 import de.fuberlin.wiwiss.ng4j.impl.NamedGraphSetImpl;
 import de.fuberlin.wiwiss.silk.Silk;
@@ -62,8 +64,6 @@ public class LinkerImpl implements Linker {
 	private static final String CONFIG_XML_ENTITY2 = "entity2";
 	private static final String CONFIG_XML_RESOURCE = "rdf:resource";
 	private static final String CONFIG_XML_MEASURE = "measure";
-	
-	private static final String LABEL_URI = "rdfs:label";
 	
 	private static final String LINK_WITHIN_GRAPH_KEY = "linkWithinGraph";
 	
@@ -170,6 +170,11 @@ public class LinkerImpl implements Linker {
 		return debugRules(streamToFile(source, context.getTransformerDirectory()), context);
 	}
 	
+	public List<DebugResult> debugRules(String input, TransformationContext context)
+			throws TransformerException {
+		return debugRules(stringToFile(input, context.getTransformerDirectory()), context);
+	}
+	
 	public List<DebugResult> debugRules(File inputFile, TransformationContext context) 
 			throws TransformerException {
 		List<DebugResult> resultList = new ArrayList<DebugResult>();
@@ -178,7 +183,7 @@ public class LinkerImpl implements Linker {
 			List<SilkRule> rules = loadRules(context);
 			List<RDFprefix> prefixes = RDFPrefixesLoader.loadPrefixes(context.getCleanDatabaseCredentials());
 			for (SilkRule rule: rules) {
-				String resultFileName = createFileName(rule, context.getTransformerDirectory(), DEBUG_OUTPUT_FILENAME);
+				String resultFileName = createFileName(rule, context.getTransformerDirectory());
 				configFile = ConfigBuilder.createDebugLinkConfigFile(rule, prefixes, context, globalConfig,
 						inputFile.getAbsolutePath(), resultFileName);
 				Silk.executeFile(configFile, null, Silk.DefaultThreads(), true);
@@ -196,16 +201,15 @@ public class LinkerImpl implements Linker {
 		return resultList;
 	}
 	
-	private String createFileName(SilkRule rule, File transformerDirectory, String fileName) {
-		return transformerDirectory.getAbsolutePath() + rule.getId() + UUID.randomUUID().toString() + fileName;
+	private String createFileName(SilkRule rule, File transformerDirectory) {
+		return new File(transformerDirectory, 
+				rule.getId() + UUID.randomUUID().toString() + DEBUG_OUTPUT_FILENAME).getAbsolutePath();
 	}
 	
 	private List<LinkedPair> parseLinkedPairs(String resultFileName) throws TransformerException {
 		List<LinkedPair> pairList = new ArrayList<LinkedPair>();
-		
-		DocumentBuilder builder;
 		try {
-			builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			Document doc = builder.parse(resultFileName);
 			NodeList cells = doc.getElementsByTagName(CONFIG_XML_CELL);
 			int cellLength = cells.getLength();
@@ -219,12 +223,14 @@ public class LinkerImpl implements Linker {
 				int childLength = cellChildern.getLength();
 				
 				for (int j = 0; j < childLength; j++) {
-					Element child = (Element) cellChildern.item(j);
-					String childName = child.getLocalName();
+					org.w3c.dom.Node child = cellChildern.item(j);
+					String childName = child.getNodeName();
 					if (CONFIG_XML_ENTITY1.equals(childName)) {
-						firstUri = child.getAttribute(CONFIG_XML_RESOURCE);
+						Element element = (Element)child;
+						firstUri = element.getAttribute(CONFIG_XML_RESOURCE);
 					} else if (CONFIG_XML_ENTITY2.equals(childName)) {
-						secondUri = child.getAttribute(CONFIG_XML_RESOURCE);
+						Element element = (Element)child;
+						secondUri = element.getAttribute(CONFIG_XML_RESOURCE);
 					} else if (CONFIG_XML_MEASURE.equals(childName)) {
 						String content = child.getTextContent();
 						int leftIndex = content.indexOf('(');
@@ -235,7 +241,7 @@ public class LinkerImpl implements Linker {
 							}
 							content = content.substring(leftIndex + 1, rightIndex);
 						}				
-						confidence = Double.valueOf(child.getTextContent());
+						confidence = Double.valueOf(content);
 					}
 				}
 				
@@ -274,11 +280,27 @@ public class LinkerImpl implements Linker {
 		}
 	}
 	
+	private File stringToFile(String input, File targetDirectory) throws TransformerException {
+		File file = new File(targetDirectory, DEBUG_INPUT_FILENAME);
+		PrintWriter writer = null;
+		try {
+			writer = new PrintWriter(file);
+			writer.write(input);
+		} catch (FileNotFoundException e) {
+			throw new TransformerException(e);
+		} finally {
+			if (writer != null) {
+				writer.close();
+			}
+		}
+		return file;
+	}
+	
 	private void loadLabels(File inputFile, List<LinkedPair> linkedPairs) {
 		NamedGraphSet graphSet = loadGraphs(inputFile);
 		for (LinkedPair pair: linkedPairs) {
 			Iterator<?> it = graphSet.findQuads(
-					Node.ANY, Node.createURI(pair.getFirstUri()), Node.createURI(LABEL_URI), Node.ANY);
+					Node.ANY, Node.createURI(pair.getFirstUri()), Node.createURI(RDFS.label), Node.ANY);
 			Quad quad;
 			if (it.hasNext()) {
 				quad = (Quad)it.next();
@@ -286,7 +308,7 @@ public class LinkerImpl implements Linker {
 			}
 			
 			it = graphSet.findQuads(
-					Node.ANY, Node.createURI(pair.getSecondUri()), Node.createURI(LABEL_URI), Node.ANY);
+					Node.ANY, Node.createURI(pair.getSecondUri()), Node.createURI(RDFS.label), Node.ANY);
 			if (it.hasNext()) {
 				quad = (Quad)it.next();
 				pair.setSecondLabel(quad.getObject().toString());
@@ -296,7 +318,7 @@ public class LinkerImpl implements Linker {
 	
 	private NamedGraphSet loadGraphs(File inputFile) {
 		GraphReaderService reader = new GraphReaderService();
-		reader.setLanguage("RDF/XML");
+		reader.setLanguage("N-TRIPLE");
 		reader.setSourceFile(inputFile);
 		NamedGraphSet graphSet = new NamedGraphSetImpl();
 		reader.readInto(graphSet);
