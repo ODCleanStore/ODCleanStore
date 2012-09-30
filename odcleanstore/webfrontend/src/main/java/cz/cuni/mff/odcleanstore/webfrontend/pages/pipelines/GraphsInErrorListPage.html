@@ -1,0 +1,31 @@
+<wicket:extend>
+
+<span class="navigation" wicket:id="navigator">[dataview navigator]</span>
+
+<table border="1">
+	
+	<tr>
+		<th wicket:id="sortByEngine">Engine</th>
+		<th wicket:id="sortByPipeline">Pipeline</th>
+		<th wicket:id="sortByGraph">Graph</th>
+		<th wicket:id="sortByState">State</th>
+		<th wicket:id="sortByError">Error type</th>
+		<th>Error message</th>
+		<th>Action</th>
+	</tr>
+	
+	<tr  wicket:id="graphInError">
+	
+		<td wicket:id="engineUUID">[engine]</td>
+		<td wicket:id="pipelineLabel">[pipeline]</td>
+		<td wicket:id="UUID">[uuid]</td>
+		<td wicket:id="stateLabel">[state]</td>
+		<td wicket:id="errorTypeLabel">[error type]</td>
+		<td wicket:id="errorMessage">[message]</td>
+		
+		<td class="actions">
+		</td>
+	</tr>
+</table>
+
+</wicket:extend>
