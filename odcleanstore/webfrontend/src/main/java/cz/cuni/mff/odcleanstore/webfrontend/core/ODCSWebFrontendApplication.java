@@ -40,28 +40,8 @@ public class ODCSWebFrontendApplication extends AuthenticatedWebApplication
 	{
 		super();
 		
-		/*
 		// Add request cycle listener that redirects to homepage with a proper message after session has expired 
-		getRequestCycleListeners().add(new AbstractRequestCycleListener()
-		{
-			public IRequestHandler onException(RequestCycle cycle, Exception ex)
-			{
-				// TODO: direct handling of session expired in Wicket would be better
-				if (ex instanceof WicketRuntimeException 
-					&& ex.getCause() instanceof NoSuchMethodException
-					&& ex.getMessage() != null
-					&& ex.getMessage().contains("Class does not have a visible default contructor")
-					&& !ODCSWebFrontendSession.get().isAuthenticated()
-					&& ex.getCause().getMessage().endsWith("Page.<init>()"))
-				{
-					logger.error(ex);
-					ODCSWebFrontendSession.get().error("Your session has expired.");
-					cycle.setResponsePage(getHomePage());
-				}
-				return cycle.getRequestHandlerScheduledAfterCurrent();
-			}
-		});
-		*/
+		getRequestCycleListeners().add(new ExceptionRequestCycleListener());
 	}
 	
 	@Override
