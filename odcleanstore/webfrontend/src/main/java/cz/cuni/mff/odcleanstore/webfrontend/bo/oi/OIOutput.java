@@ -5,8 +5,9 @@ import java.math.BigDecimal;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
 /**
+ * The BO which represents an OI output.
  * 
- * @author Dusan
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
 public class OIOutput extends EntityWithSurrogateKey 
