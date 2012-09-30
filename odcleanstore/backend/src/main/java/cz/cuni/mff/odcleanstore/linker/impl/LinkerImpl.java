@@ -26,7 +26,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.sparql.core.Quad;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.configuration.ObjectIdentificationConfig;
@@ -42,7 +41,9 @@ import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraphException;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
+import cz.cuni.mff.odcleanstore.vocabulary.RDFS;
 import de.fuberlin.wiwiss.ng4j.NamedGraphSet;
+import de.fuberlin.wiwiss.ng4j.Quad;
 import de.fuberlin.wiwiss.ng4j.impl.GraphReaderService;
 import de.fuberlin.wiwiss.ng4j.impl.NamedGraphSetImpl;
 import de.fuberlin.wiwiss.silk.Silk;
@@ -63,8 +64,6 @@ public class LinkerImpl implements Linker {
 	private static final String CONFIG_XML_ENTITY2 = "entity2";
 	private static final String CONFIG_XML_RESOURCE = "rdf:resource";
 	private static final String CONFIG_XML_MEASURE = "measure";
-	
-	private static final String LABEL_URI = "rdfs:label";
 	
 	private static final String LINK_WITHIN_GRAPH_KEY = "linkWithinGraph";
 	
@@ -301,7 +300,7 @@ public class LinkerImpl implements Linker {
 		NamedGraphSet graphSet = loadGraphs(inputFile);
 		for (LinkedPair pair: linkedPairs) {
 			Iterator<?> it = graphSet.findQuads(
-					Node.ANY, Node.createURI(pair.getFirstUri()), Node.createURI(LABEL_URI), Node.ANY);
+					Node.ANY, Node.createURI(pair.getFirstUri()), Node.createURI(RDFS.label), Node.ANY);
 			Quad quad;
 			if (it.hasNext()) {
 				quad = (Quad)it.next();
@@ -309,7 +308,7 @@ public class LinkerImpl implements Linker {
 			}
 			
 			it = graphSet.findQuads(
-					Node.ANY, Node.createURI(pair.getSecondUri()), Node.createURI(LABEL_URI), Node.ANY);
+					Node.ANY, Node.createURI(pair.getSecondUri()), Node.createURI(RDFS.label), Node.ANY);
 			if (it.hasNext()) {
 				quad = (Quad)it.next();
 				pair.setSecondLabel(quad.getObject().toString());
