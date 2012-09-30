@@ -20,19 +20,19 @@
     </p>
     <p>
         <label for="linkType">Link type:</label>
-        <span class="required"><input wicket:id="linkType" type="text" id="linkType"  /></span>
+        <span class="required"><input wicket:id="linkType" placeholder="e.g. owl:sameAs" type="text" id="linkType"  /></span>
     </p>
     <p>
         <label for="sourceRestriction">Source restriction:</label>
-        <input wicket:id="sourceRestriction" type="text" id="sourceRestriction" />
+        <input wicket:id="sourceRestriction" type="text"  placeholder="e.g. ?b rdf:type foaf:Person" id="sourceRestriction" />
     </p>
     <p>
         <label for="targetRestriction">Target restriction:</label>
-        <input wicket:id="targetRestriction" type="text" id="targetRestriction" />
+        <input wicket:id="targetRestriction" type="text"  placeholder="e.g. ?a rdf:type foaf:Person" id="targetRestriction" />
     </p>
     <p>
         <label for="linkageRule">Linkage rule:</label>
-        <span class="required"><textarea wicket:id="linkageRule" id="linkageRule" ></textarea></span>
+        <span class="required"><textarea wicket:id="linkageRule" placeholder="&lt;LinkageRule&gt;  &lt;/LinkageRule&gt;" id="linkageRule" ></textarea></span>
     </p>
     
     <p>
@@ -41,7 +41,7 @@
     </p>
     <p>
         <label for="filterLimit">Link limit:</label>
-        <input wicket:id="filterLimit" type="text" id="filterLimit" />
+        <input wicket:id="filterLimit" type="text" title="Maximum number of links originating from a single data item" id="filterLimit" />
     </p>
     
     <input type="submit" wicket:id="submit" value="Submit" />

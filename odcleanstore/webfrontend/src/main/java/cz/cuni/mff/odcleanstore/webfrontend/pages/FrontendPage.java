@@ -116,7 +116,7 @@ public abstract class FrontendPage extends WebPage
 	 * @return
 	 */
 	protected <EnumBO extends EntityWithSurrogateKey> DropDownChoice<EnumBO> createEnumSelectbox(
-		DaoForEntityWithSurrogateKey<EnumBO> dao, String componentName, boolean required)
+		DaoForEntityWithSurrogateKey<EnumBO> dao, String componentName, final boolean required)
 	{
 		// create the model
 		IModel<List<EnumBO>> choices = createModelForListView(dao);
@@ -125,13 +125,19 @@ public abstract class FrontendPage extends WebPage
 		ChoiceRenderer<EnumBO> renderer = new ChoiceRenderer<EnumBO>("label", "id");
 		
 		// create the select-box component
-		DropDownChoice<EnumBO> selectBox = new DropDownChoice<EnumBO>
-		(
-			componentName,
-			choices,
-			renderer
-		);
+		DropDownChoice<EnumBO> selectBox = new DropDownChoice<EnumBO>(componentName, choices, renderer)
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected CharSequence getDefaultChoice(String selectedValue)
+			{
+				return !isNullValid() && !getChoices().isEmpty() ? "" : super.getDefaultChoice(selectedValue);
+			}
+		};
 		
+		selectBox.setNullValid(!required);
+
 		// mark the select-box as a required form field
 		selectBox.setRequired(required);
 		

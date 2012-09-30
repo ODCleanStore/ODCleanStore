@@ -87,6 +87,16 @@ public class OIRule extends EntityWithSurrogateKey
 	 * 
 	 * @return
 	 */
+	public void setLinkType(String linkType) 
+	{
+		this.linkType = linkType;
+	}
+	
+	
+	/**
+	 * 
+	 * @return
+	 */
 	public String getSourceRestriction() 
 	{
 		return sourceRestriction;

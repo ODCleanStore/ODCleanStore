@@ -22,6 +22,8 @@ public class NewOIRulePage extends LimitedEditingPage
 {
 	private static final long serialVersionUID = 1L;
 	
+	private static final String DEFAULT_LINK_TYPE = "owl:sameAs";
+	
 	private OIRuleDao oiRuleDao;
 	
 	public NewOIRulePage(final Integer groupId) 
@@ -95,6 +97,7 @@ public class NewOIRulePage extends LimitedEditingPage
 		
 		form.add(createTextfield("label"));
 		form.add(createTextfield("linkType"));
+		formModel.getObject().setLinkType(DEFAULT_LINK_TYPE);
 		form.add(createTextfield("sourceRestriction", false));
 		form.add(createTextfield("targetRestriction", false));
 		form.add(createTextarea("linkageRule"));
