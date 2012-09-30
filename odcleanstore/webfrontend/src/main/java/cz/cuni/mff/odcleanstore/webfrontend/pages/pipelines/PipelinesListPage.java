@@ -1,5 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
 
+import java.util.Locale;
+
 import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
@@ -15,6 +17,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
 import cz.cuni.mff.odcleanstore.webfrontend.core.AuthorizationHelper;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.BooleanLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
@@ -74,8 +77,18 @@ public class PipelinesListPage extends FrontendPage
 
 				item.add(new Label("label"));
 				item.add(new TruncatedLabel("description", MAX_LIST_COLUMN_TEXT_LENGTH));
-				item.add(new Label("isDefault"));
-				item.add(new Label("isLocked"));
+				item.add(new BooleanLabel("isLocked"));
+				item.add(new BooleanLabel("isDefault")
+				{
+					private static final long serialVersionUID = 1L;
+					@Override
+					public String convertToString(Boolean value, Locale locale)
+					{
+						if (Boolean.FALSE.equals(value))
+							return "";
+						return super.convertToString(value, locale);
+					}
+				});
 				
 				item.add(
 					new AuthorizedDeleteButton<Pipeline>

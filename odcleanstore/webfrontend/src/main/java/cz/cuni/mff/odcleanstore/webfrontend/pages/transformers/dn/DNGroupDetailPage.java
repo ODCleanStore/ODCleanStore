@@ -1,7 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn;
 
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
@@ -17,6 +16,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedRedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.BooleanLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.LimitedEditingForm;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
@@ -379,7 +379,7 @@ public class DNGroupDetailPage extends LimitedEditingPage
 	
 				item.add(new TruncatedLabel("propertyName", MAX_LIST_COLUMN_TEXT_LENGTH));
 				item.add(new TruncatedLabel("pattern", MAX_LIST_COLUMN_TEXT_LENGTH));
-				item.add(new Label("keep"));
+				item.add(new BooleanLabel("keep"));
 				
 				item.add(
 					new AuthorizedDeleteButton<DNFilterTemplateInstance>

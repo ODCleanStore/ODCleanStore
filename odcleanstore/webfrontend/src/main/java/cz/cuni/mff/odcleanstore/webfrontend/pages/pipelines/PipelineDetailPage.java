@@ -16,6 +16,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedRedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.BooleanLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.LimitedEditingForm;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
@@ -136,7 +137,7 @@ public class PipelineDetailPage extends LimitedEditingPage
 	{
 		setDefaultModel(createModelForOverview(pipelineDao, pipelineId));
 		
-		add(new Label("isDefault"));
+		add(new BooleanLabel("isDefault"));
 	}
 
 	private void addAssignmentSection(final Integer pipelineId) 
@@ -176,7 +177,7 @@ public class PipelineDetailPage extends LimitedEditingPage
 				
 				item.add(new Label("label"));	
 				item.add(new TruncatedLabel("configuration", MAX_LIST_COLUMN_TEXT_LENGTH));
-				item.add(new Label("runOnCleanDB"));
+				item.add(new BooleanLabel("runOnCleanDB"));
 				item.add(new Label("priority"));
 				
 				item.add(
