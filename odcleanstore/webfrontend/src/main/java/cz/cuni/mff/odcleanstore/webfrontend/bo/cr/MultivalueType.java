@@ -2,6 +2,12 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo.cr;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
+/**
+ * The BO to represent a type of CR multivalue policy.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class MultivalueType extends EntityWithSurrogateKey
 {
 	private static final long serialVersionUID = 1L;
@@ -9,6 +15,12 @@ public class MultivalueType extends EntityWithSurrogateKey
 	private String label;
 	private String description;
 	
+	/**
+	 * 
+	 * @param id
+	 * @param label
+	 * @param description
+	 */
 	public MultivalueType(Integer id, String label, String description) 
 	{
 		super(id);
@@ -17,11 +29,19 @@ public class MultivalueType extends EntityWithSurrogateKey
 		this.description = description;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public String getLabel() 
 	{
 		return label;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public String getDescription() 
 	{
 		return description;
