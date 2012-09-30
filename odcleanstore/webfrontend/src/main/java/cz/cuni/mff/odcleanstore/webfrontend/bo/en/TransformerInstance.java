@@ -141,4 +141,13 @@ public class TransformerInstance extends EntityWithSurrogateKey
 	{
 		return priority;
 	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public void setPriority(Integer priority) 
+	{
+		this.priority = priority;
+	}
 }

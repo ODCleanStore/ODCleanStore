@@ -111,16 +111,13 @@ public abstract class FrontendPage extends WebPage
 	/**
 	 * Creates a select-box form component for an SQL-table based enumeration.
 	 * 
-	 * @param dao
+	 * @param choices
 	 * @param componentName
 	 * @return
 	 */
 	protected <EnumBO extends EntityWithSurrogateKey> DropDownChoice<EnumBO> createEnumSelectbox(
-		DaoForEntityWithSurrogateKey<EnumBO> dao, String componentName, final boolean required)
+		IModel<List<EnumBO>> choices, String componentName, final boolean required)
 	{
-		// create the model
-		IModel<List<EnumBO>> choices = createModelForListView(dao);
-		
 		// prepare the select-box renderer
 		ChoiceRenderer<EnumBO> renderer = new ChoiceRenderer<EnumBO>("label", "id");
 		
@@ -153,7 +150,19 @@ public abstract class FrontendPage extends WebPage
 	protected <EnumBO extends EntityWithSurrogateKey> DropDownChoice<EnumBO> createEnumSelectbox(
 			DaoForEntityWithSurrogateKey<EnumBO> dao, String componentName)
 	{
-		return createEnumSelectbox(dao, componentName, true);
+		return createEnumSelectbox(createModelForListView(dao), componentName, true);
+	}
+	
+	/**
+	 * 
+	 * @param dao
+	 * @param componentName
+	 * @return
+	 */
+	protected <EnumBO extends EntityWithSurrogateKey> DropDownChoice<EnumBO> createEnumSelectbox(
+		DaoForEntityWithSurrogateKey<EnumBO> dao, String componentName, boolean required)
+	{
+		return createEnumSelectbox(createModelForListView(dao), componentName, required);
 	}
 	
 	/**

@@ -2,6 +2,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.en;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
+import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 
@@ -44,7 +45,55 @@ public class TransformerInstanceDao extends DaoForAuthorableEntity<TransformerIn
 	}
 
 	@Override
-	public void save(TransformerInstance item) throws Exception
+	protected void deleteRaw(final Integer id) throws Exception
+	{
+		executeInTransaction(new CodeSnippet()
+		{
+			@Override
+			public void execute() throws Exception
+			{
+				TransformerInstance item = load(id);
+				shiftPrioritiesDownFrom(item.getPipelineId(), item.getPriority());
+				TransformerInstanceDao.super.deleteRaw(id);
+			}
+		});
+	}
+	
+	@Override
+	public void save(final TransformerInstance item) throws Exception
+	{
+		executeInTransaction(new CodeSnippet()
+		{
+			@Override
+			public void execute() throws Exception
+			{
+				shiftPrioritiesUpFrom(item.getPipelineId(), item.getPriority());
+				saveRaw(item);
+			}
+		});
+	}
+	
+	private void shiftPrioritiesUpFrom(Integer pipelineId, Integer priority) throws Exception
+	{
+		String query = 
+			"UPDATE " + TABLE_NAME + 
+			" SET priority = priority + 1 " +
+			" WHERE pipelineId = ? AND priority >= ?";
+		
+		jdbcUpdate(query, pipelineId, priority);
+	}
+	
+	private void shiftPrioritiesDownFrom(Integer pipelineId, Integer priority) throws Exception
+	{
+		String query = 
+			"UPDATE " + TABLE_NAME + 
+			" SET priority = priority - 1 " +
+			" WHERE pipelineId = ? AND priority > ?";
+		
+		jdbcUpdate(query, pipelineId, priority);
+	}
+	
+	private void saveRaw(TransformerInstance item) throws Exception
 	{
 		String query = 
 			"INSERT INTO " + TABLE_NAME + " " +
@@ -60,10 +109,27 @@ public class TransformerInstanceDao extends DaoForAuthorableEntity<TransformerIn
 			item.getPriority()
 		};
 		
+		logger.debug("priority:" + item.getPriority());
+		
 		jdbcUpdate(query, params);
 	}
 	
-	public void update(TransformerInstance item) throws Exception
+	public void update(final TransformerInstance item) throws Exception
+	{
+		executeInTransaction(new CodeSnippet()
+		{
+			@Override
+			public void execute() throws Exception
+			{
+				Integer oldPriority = load(item.getId()).getPriority();
+				shiftPrioritiesDownFrom(item.getPipelineId(), oldPriority);
+				shiftPrioritiesUpFrom(item.getPipelineId(), item.getPriority());
+				updateRaw(item);
+			}
+		});
+	}
+	
+	private void updateRaw(TransformerInstance item) throws Exception
 	{
 		String query = 
 			"UPDATE " + TABLE_NAME + 
@@ -90,5 +156,11 @@ public class TransformerInstanceDao extends DaoForAuthorableEntity<TransformerIn
 			"WHERE TI.id = ?";
 		
 		return jdbcQueryForInt(query, entityId);
+	}
+	
+	public int getInstancesCount(Integer pipelineId)
+	{
+		String query = "SELECT count(*) FROM " + getTableName() + " WHERE pipelineId = ?";
+		return jdbcQueryForInt(query, pipelineId);
 	}
 }

@@ -4,11 +4,12 @@ import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.validation.validator.RangeValidator;
 
+import cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl;
+import cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl;
+import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
@@ -24,14 +25,39 @@ public class TransformerAssignmentDetailPage extends LimitedEditingPage
 {
 	private static final long serialVersionUID = 1L;
 	
-	private static final String QA_FULL_CLASS_NAME = 
-		"cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl";
+	private class TransformerInstanceWrapper extends TransformerInstance 
+	{
+		private static final long serialVersionUID = 1L;
+		
+		public TransformerInstance transformerPlaceBefore = null;
+		
+		public TransformerInstanceWrapper(TransformerInstance wrappedInstance, AssignedInstancesModel assignedInstanceModel)
+		{
+			super(
+				wrappedInstance.getId(),
+				wrappedInstance.getTransformerId(),
+				wrappedInstance.getPipelineId(),
+				wrappedInstance.getLabel(),
+				wrappedInstance.getConfiguration(),
+				wrappedInstance.getRunOnCleanDB(),
+				wrappedInstance.getPriority()
+			);
+			for (TransformerInstance ti : assignedInstanceModel.getObject())
+			{
+				if (getPriority().equals(ti.getPriority() - 1)) 
+				{
+					transformerPlaceBefore = ti;
+					break;
+				}
+			}
+		}
+	}
 	
-	private static final String OI_FULL_CLASS_NAME = 
-		"cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl";
+	private static final String QA_FULL_CLASS_NAME = QualityAssessorImpl.class.getCanonicalName();
 	
-	private static final String DN_FULL_CLASS_NAME = 
-		"cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl";
+	private static final String OI_FULL_CLASS_NAME = LinkerImpl.class.getCanonicalName();
+	
+	private static final String DN_FULL_CLASS_NAME = DataNormalizerImpl.class.getCanonicalName();
 
 	private static Logger logger = Logger.getLogger(TransformerAssignmentDetailPage.class);
 	
@@ -85,7 +111,11 @@ public class TransformerAssignmentDetailPage extends LimitedEditingPage
 	
 	private void addEditAssignmentForm(final TransformerInstance transformerInstance)
 	{
-		IModel<TransformerInstance> formModel = new CompoundPropertyModel<TransformerInstance>(transformerInstance);
+		AssignedInstancesModel assignedInstancesModel = 
+			new AssignedInstancesModel(transformerInstance.getPipelineId(), transformerInstanceDao, transformerInstance.getId());
+		final TransformerInstanceWrapper instanceWrapper = new TransformerInstanceWrapper(transformerInstance, assignedInstancesModel);
+			
+		IModel<TransformerInstance> formModel = new CompoundPropertyModel<TransformerInstance>(instanceWrapper);
 		Form<TransformerInstance> form = new LimitedEditingForm<TransformerInstance>("editAssignmentForm", formModel, isEditable())
 		{
 			private static final long serialVersionUID = 1L;
@@ -94,6 +124,20 @@ public class TransformerAssignmentDetailPage extends LimitedEditingPage
 			protected void onSubmitImpl()
 			{
 				TransformerInstance assignment = this.getModelObject();
+				int priority = transformerInstance.getPriority();
+				if (instanceWrapper.transformerPlaceBefore == null)
+				{
+					priority = transformerInstanceDao.getInstancesCount(assignment.getPipelineId());
+				}
+				else if (instanceWrapper.transformerPlaceBefore.getPriority() > priority)
+				{
+					priority = instanceWrapper.transformerPlaceBefore.getPriority() - 1;
+				}
+				else
+				{
+					priority = instanceWrapper.transformerPlaceBefore.getPriority();
+				}
+				assignment.setPriority(priority);
 				
 				try {
 					transformerInstanceDao.update(assignment);
@@ -106,7 +150,7 @@ public class TransformerAssignmentDetailPage extends LimitedEditingPage
 				catch (Exception ex)
 				{
 					logger.error(ex.getMessage());
-					getSession().error("The assignment could not be updated due to an unexpected error."					);
+					getSession().error("The assignment could not be updated due to an unexpected error.");
 					return;
 				}
 				
@@ -116,20 +160,11 @@ public class TransformerAssignmentDetailPage extends LimitedEditingPage
 
 		form.add(createTextarea("configuration", false));
 		form.add(createCheckbox("runOnCleanDB"));
-		addPriorityTextfield(form);
+		form.add(createEnumSelectbox(assignedInstancesModel, "transformerPlaceBefore", false));
 		
 		add(form);
 	}
 
-	private void addPriorityTextfield(Form<TransformerInstance> form)
-	{
-		TextField<String> textfield = new TextField<String>("priority");
-		
-		textfield.setRequired(true);
-		textfield.add(new RangeValidator<Integer>(Integer.MIN_VALUE, Integer.MAX_VALUE));
-		form.add(textfield);
-	}
-	
 	private void addAssignedGroupsListSection(
 		final TransformerInstance transformerInstance,
 		final Transformer transformer) 

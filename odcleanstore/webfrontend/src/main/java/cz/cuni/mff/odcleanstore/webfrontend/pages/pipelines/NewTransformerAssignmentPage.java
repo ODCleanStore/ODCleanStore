@@ -3,9 +3,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
 import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.validation.validator.RangeValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
@@ -31,7 +29,7 @@ public class NewTransformerAssignmentPage extends LimitedEditingPage
 	private String workDirPath;
 	private String configuration;
 	private Boolean runOnCleanDB;
-	private Integer priority;
+	private TransformerInstance transformerPlaceBefore;
 	
 	public NewTransformerAssignmentPage(final Integer pipelineId) 
 	{
@@ -75,6 +73,10 @@ public class NewTransformerAssignmentPage extends LimitedEditingPage
 			@Override
 			protected void onSubmit()
 			{
+				int priority = (transformerPlaceBefore == null)
+					? transformerInstanceDao.getInstancesCount(pipelineId) + 1
+					: transformerPlaceBefore.getPriority();
+				
 				TransformerInstance assignment = new TransformerInstance
 				(
 					transformer.getId(),
@@ -113,17 +115,8 @@ public class NewTransformerAssignmentPage extends LimitedEditingPage
 		form.add(createEnumSelectbox(transformerDao, "transformer"));
 		form.add(createTextarea("configuration", false));
 		form.add(createCheckbox("runOnCleanDB"));
-		addPriorityTextfield(form);
+		form.add(createEnumSelectbox(new AssignedInstancesModel(pipelineId, transformerInstanceDao, null), "transformerPlaceBefore", false));
 		
 		add(form);
-	}
-
-	private void addPriorityTextfield(Form<NewTransformerAssignmentPage> form)
-	{
-		TextField<String> textfield = new TextField<String>("priority");
-		
-		textfield.setRequired(true);
-		textfield.add(new RangeValidator<Integer>(Integer.MIN_VALUE, Integer.MAX_VALUE));
-		form.add(textfield);
 	}
 }

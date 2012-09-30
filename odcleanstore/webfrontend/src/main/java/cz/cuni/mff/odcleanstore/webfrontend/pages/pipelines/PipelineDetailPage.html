@@ -48,22 +48,24 @@
 <table border="1">
     
     <tr>
+        <th wicket:id="sortByPriority">Order</th>
         <th wicket:id="sortByLabel">Label</th>
         <th>Configuration</th>
         <th wicket:id="sortByRunOnCleanDB">Allow to be run on clean DB</th>
-        <th wicket:id="sortByPriority">Priority</th>
         <th>Action</th>
     </tr>
     
     <tr  wicket:id="assignmentTable">
-    
+
+        <td wicket:id="priority" class="centered">[priority]</td>    
         <td wicket:id="label">[label]</td>
         <td wicket:id="configuration">[configuration]</td>
         <td wicket:id="runOnCleanDB">[run on clean db]</td>
-        <td wicket:id="priority">[priority]</td>
         
         <td class="actions">
             <input wicket:id="showEditTransformerInstancePage" type="button" value="Detail" />
+            <input wicket:id="moveUp" type="button" value="Move up" />
+            <input wicket:id="moveDown" type="button" value="Move down" />
             <input wicket:id="deleteAssignment" type="button" value="Delete" class="delete"/>
         </td>
     </tr>
