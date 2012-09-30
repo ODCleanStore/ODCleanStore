@@ -3,9 +3,9 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.dn;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRenameTemplateInstance;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 
-public class DNRenameTemplateInstanceDao extends DaoForEntityWithSurrogateKey<DNRenameTemplateInstance>
+public class DNRenameTemplateInstanceDao extends DaoForAuthorableEntity<DNRenameTemplateInstance>
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -70,5 +70,14 @@ public class DNRenameTemplateInstanceDao extends DaoForEntityWithSurrogateKey<DN
 		logger.debug("id: " + item.getId());
 		
 		jdbcUpdate(query, params);
+	}
+	
+	@Override
+	public int getAuthorId(Integer entityId)
+	{
+		String query = "SELECT g.authorId " +
+			"\n FROM " + TABLE_NAME + " AS t JOIN " + DNRulesGroupDao.TABLE_NAME + " AS g ON (g.id = t.groupId)" +
+			"\n WHERE t.id = ?";
+		return jdbcQueryForInt(query, entityId);
 	}
 }

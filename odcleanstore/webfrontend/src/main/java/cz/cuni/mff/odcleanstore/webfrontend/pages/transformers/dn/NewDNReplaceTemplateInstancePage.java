@@ -9,11 +9,12 @@ import org.apache.wicket.model.IModel;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNReplaceTemplateInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNReplaceTemplateInstanceDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
 @AuthorizeInstantiation({ "PIC" })
-public class NewDNReplaceTemplateInstancePage extends FrontendPage
+public class NewDNReplaceTemplateInstancePage extends LimitedEditingPage
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -25,8 +26,12 @@ public class NewDNReplaceTemplateInstancePage extends FrontendPage
 	{
 		super(
 			"Home > Backend > DN > Groups > Replace template instances > New", 
-			"Add a new DN replace template instance"
+			"Add a new DN replace template instance",
+			DNRulesGroupDao.class,
+			groupId
 		);
+		
+		checkUnathorizedInstantiation();
 		
 		// prepare DAO objects
 		//

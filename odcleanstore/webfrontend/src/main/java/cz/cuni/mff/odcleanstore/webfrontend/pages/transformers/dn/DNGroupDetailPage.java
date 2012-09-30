@@ -17,7 +17,6 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedRedirectButton;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.LimitedEditingForm;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
@@ -212,9 +211,10 @@ public class DNGroupDetailPage extends LimitedEditingPage
 	private void addDNReplaceTemplateInstancesSection(final Integer groupId) 
 	{
 		add(
-			new RedirectWithParamButton(
+			new AuthorizedRedirectButton(
 				NewDNReplaceTemplateInstancePage.class,
 				groupId, 
+				isEditable(),
 				"addNewReplaceTemplateInstanceLink"
 			)
 		);
@@ -247,22 +247,14 @@ public class DNGroupDetailPage extends LimitedEditingPage
 				item.add(new TruncatedLabel("replacement", MAX_LIST_COLUMN_TEXT_LENGTH));
 				
 				item.add(
-					new DeleteButton<DNReplaceTemplateInstance>
+					new AuthorizedDeleteButton<DNReplaceTemplateInstance>
 					(
 						dnReplaceTemplateInstanceDao,
 						instance.getId(),
+						isEditable(),
 						"replaceTemplateInstance",
 						new DeleteConfirmationMessage("replace template instance"),
 						DNGroupDetailPage.this
-					)
-				);
-				
-				item.add(
-					new RedirectWithParamButton
-					(
-						DNReplaceTemplateInstanceDetailPage.class,
-						instance.getId(), 
-						"showDNReplaceTemplateInstanceDetailPage"
 					)
 				);
 				
@@ -287,9 +279,10 @@ public class DNGroupDetailPage extends LimitedEditingPage
 	private void addDNRenameTemplateInstancesSection(final Integer groupId) 
 	{
 		add(
-			new RedirectWithParamButton(
+			new AuthorizedRedirectButton(
 				NewDNRenameTemplateInstancePage.class,
 				groupId, 
+				isEditable(),
 				"addNewRenameTemplateInstanceLink"
 			)
 		);
@@ -321,22 +314,14 @@ public class DNGroupDetailPage extends LimitedEditingPage
 				item.add(new TruncatedLabel("targetPropertyName", MAX_LIST_COLUMN_TEXT_LENGTH));
 				
 				item.add(
-					new DeleteButton<DNRenameTemplateInstance>
+					new AuthorizedDeleteButton<DNRenameTemplateInstance>
 					(
 						dnRenameTemplateInstanceDao,
 						instance.getId(),
+						isEditable(),
 						"renameTemplateInstance",
 						new DeleteConfirmationMessage("rename template instance"),
 						DNGroupDetailPage.this
-					)
-				);
-				
-				item.add(
-					new RedirectWithParamButton
-					(
-						DNRenameTemplateInstanceDetailPage.class,
-						instance.getId(), 
-						"showDNRenameTemplateInstanceDetailPage"
 					)
 				);
 				
@@ -361,9 +346,10 @@ public class DNGroupDetailPage extends LimitedEditingPage
 	private void addDNFilterTemplateInstancesSection(final Integer groupId) 
 	{
 		add(
-			new RedirectWithParamButton(
+			new AuthorizedRedirectButton(
 				NewDNFilterTemplateInstancePage.class,
 				groupId, 
+				isEditable(),
 				"addNewFilterTemplateInstanceLink"
 			)
 		);
@@ -396,22 +382,14 @@ public class DNGroupDetailPage extends LimitedEditingPage
 				item.add(new Label("keep"));
 				
 				item.add(
-					new DeleteButton<DNFilterTemplateInstance>
+					new AuthorizedDeleteButton<DNFilterTemplateInstance>
 					(
 						dnFilterTemplateInstanceDao,
 						instance.getId(),
+						isEditable(),
 						"filterTemplateInstance",
 						new DeleteConfirmationMessage("filter template instance"),
 						DNGroupDetailPage.this
-					)
-				);
-				
-				item.add(
-					new RedirectWithParamButton
-					(
-						DNFilterTemplateInstanceDetailPage.class,
-						instance.getId(), 
-						"showDNFilterTemplateInstanceDetailPage"
 					)
 				);
 				

@@ -7,13 +7,14 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRenameTemplateInstance;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.LimitedEditingForm;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRenameTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
 @AuthorizeInstantiation({ "PIC" })
-public class EditDNRenameTemplateInstancePage extends FrontendPage
+public class EditDNRenameTemplateInstancePage extends LimitedEditingPage
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -25,7 +26,9 @@ public class EditDNRenameTemplateInstancePage extends FrontendPage
 	{
 		super(
 			"Home > Backend > DN > Groups > Rename template instances > Edit", 
-			"Edit a DN rename template instance"
+			"Edit a DN rename template instance",
+			DNRenameTemplateInstanceDao.class,
+			ruleId
 		);
 		
 		// prepare DAO objects
@@ -53,12 +56,12 @@ public class EditDNRenameTemplateInstancePage extends FrontendPage
 	{
 		IModel<DNRenameTemplateInstance> formModel = new CompoundPropertyModel<DNRenameTemplateInstance>(instance);
 		
-		Form<DNRenameTemplateInstance> form = new Form<DNRenameTemplateInstance>("editDNRenameTemplateInstanceForm", formModel)
+		Form<DNRenameTemplateInstance> form = new LimitedEditingForm<DNRenameTemplateInstance>("editDNRenameTemplateInstanceForm", formModel, isEditable())
 		{
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit()
+			protected void onSubmitImpl()
 			{
 				DNRenameTemplateInstance instance = this.getModelObject();
 				

@@ -7,13 +7,14 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNReplaceTemplateInstance;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.LimitedEditingForm;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNReplaceTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
 @AuthorizeInstantiation({ "PIC" })
-public class EditDNReplaceTemplateInstancePage extends FrontendPage
+public class EditDNReplaceTemplateInstancePage extends LimitedEditingPage
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -25,7 +26,9 @@ public class EditDNReplaceTemplateInstancePage extends FrontendPage
 	{
 		super(
 			"Home > Backend > DN > Groups > Replace template instances > Edit", 
-			"Edit a DN replace template instance"
+			"Edit a DN replace template instance",
+			DNReplaceTemplateInstanceDao.class,
+			ruleId
 		);
 		
 		// prepare DAO objects
@@ -53,12 +56,12 @@ public class EditDNReplaceTemplateInstancePage extends FrontendPage
 	{
 		IModel<DNReplaceTemplateInstance> formModel = new CompoundPropertyModel<DNReplaceTemplateInstance>(instance);
 		
-		Form<DNReplaceTemplateInstance> form = new Form<DNReplaceTemplateInstance>("editDNReplaceTemplateInstanceForm", formModel)
+		Form<DNReplaceTemplateInstance> form = new LimitedEditingForm<DNReplaceTemplateInstance>("editDNReplaceTemplateInstanceForm", formModel, isEditable())
 		{
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit()
+			protected void onSubmitImpl()
 			{
 				DNReplaceTemplateInstance instance = this.getModelObject();
 				
