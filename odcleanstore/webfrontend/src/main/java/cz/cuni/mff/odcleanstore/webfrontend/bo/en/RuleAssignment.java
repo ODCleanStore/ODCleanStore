@@ -2,6 +2,13 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo.en;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
+/**
+ * The BO to represent an assignment to a group of rules to a transformer
+ * instance.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class RuleAssignment extends EntityWithSurrogateKey 
 {
 	private static final long serialVersionUID = 1L;
@@ -16,6 +23,8 @@ public class RuleAssignment extends EntityWithSurrogateKey
 	 * @param id
 	 * @param transformerInstanceId
 	 * @param groupId
+	 * @param groupLabel
+	 * @param groupDescription
 	 */
 	public RuleAssignment(Integer id, Integer transformerInstanceId, Integer groupId, String groupLabel, String groupDescription) 
 	{

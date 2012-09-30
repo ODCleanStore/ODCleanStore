@@ -2,6 +2,12 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo.en;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
+/**
+ * The BO to represent an instance of a transformer.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class TransformerInstance extends EntityWithSurrogateKey
 {
 	private static final long serialVersionUID = 1L;
@@ -13,6 +19,16 @@ public class TransformerInstance extends EntityWithSurrogateKey
 	private Boolean runOnCleanDB;
 	private Integer priority;
 	
+	/**
+	 * 
+	 * @param id
+	 * @param transformerId
+	 * @param pipelineId
+	 * @param label
+	 * @param configuration
+	 * @param runOnCleanDB
+	 * @param priority
+	 */
 	public TransformerInstance(Integer id, Integer transformerId, Integer pipelineId, String label,
 		String configuration, Boolean runOnCleanDB, Integer priority) 
 	{
@@ -32,6 +48,7 @@ public class TransformerInstance extends EntityWithSurrogateKey
 	 * @param pipelineId
 	 * @param label
 	 * @param configuration
+	 * @param runOnCleanDB
 	 * @param priority
 	 */
 	public TransformerInstance(Integer transformerId, Integer pipelineId, String label, 
@@ -51,6 +68,7 @@ public class TransformerInstance extends EntityWithSurrogateKey
 	 * @param transformerId
 	 * @param pipelineId
 	 * @param configuration
+	 * @param runOnCleanDB
 	 * @param priority
 	 */
 	public TransformerInstance(Integer transformerId, Integer pipelineId,  

@@ -2,6 +2,12 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo.en;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
+/**
+ * The BO to represent a transformer.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class Transformer extends EntityWithSurrogateKey
 {
 	private static final long serialVersionUID = 1L;
@@ -14,10 +20,11 @@ public class Transformer extends EntityWithSurrogateKey
 	
 	/**
 	 * 
-	 * @param ig
+	 * @param id
 	 * @param label
 	 * @param description
 	 * @param jarPath
+	 * @param workDirPath
 	 * @param fullClassName
 	 */
 	public Transformer(Integer id, String label, String description, String jarPath, String workDirPath,

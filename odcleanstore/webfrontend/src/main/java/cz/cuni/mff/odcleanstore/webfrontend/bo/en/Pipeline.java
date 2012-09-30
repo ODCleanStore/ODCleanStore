@@ -5,6 +5,12 @@ import java.util.List;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
+/**
+ * The BO to represent a pipeline.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class Pipeline extends EntityWithSurrogateKey
 {
 	private static final long serialVersionUID = 1L;
@@ -21,6 +27,7 @@ public class Pipeline extends EntityWithSurrogateKey
 	 * @param label
 	 * @param description
 	 * @param isDefault
+	 * @param isLocked
 	 */
 	public Pipeline(Integer id, String label, String description, Boolean isDefault, Boolean isLocked) 
 	{
@@ -51,6 +58,10 @@ public class Pipeline extends EntityWithSurrogateKey
 		return label;
 	}
 	
+	/**
+	 * 
+	 * @param label
+	 */
 	public void setLabel(String label) 
 	{
 		this.label = label;
