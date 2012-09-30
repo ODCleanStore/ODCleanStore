@@ -36,8 +36,10 @@ public class ChooseOntologiesPage extends FrontendPage {
 		//
 		this.ontologyDao = daoLookupFactory.getDao(OntologyDao.class);
 		this.sourceOntology = new Ontology();
+		
 		// register page components
 		//
+		addHelpWindow(new OntologyMappingHelpPanel("content"));
 		addChooseOntologiesForm(sourceOntologyId);
 	}
 	
@@ -51,7 +53,7 @@ public class ChooseOntologiesPage extends FrontendPage {
 			@Override
 			protected void onSubmit()
 			{	
-				AddMappingPage page = new AddMappingPage(sourceOntology.getGraphName(),
+				AddMappingPage page = new AddMappingPage(sourceOntology,
 						targetOntology != null ? targetOntology.getGraphName() : null);
 				setResponsePage(page);
 			}

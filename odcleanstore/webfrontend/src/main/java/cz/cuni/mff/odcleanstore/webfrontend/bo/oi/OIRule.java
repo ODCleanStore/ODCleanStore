@@ -1,5 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo.oi;
 
+import java.math.BigDecimal;
+
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
 /**
@@ -17,7 +19,7 @@ public class OIRule extends EntityWithSurrogateKey
 	private String sourceRestriction;
 	private String targetRestriction;
 	private String linkageRule;
-	private Double filterThreshold;
+	private BigDecimal filterThreshold;
 	private Integer filterLimit;
 	
 	/**
@@ -33,7 +35,7 @@ public class OIRule extends EntityWithSurrogateKey
 	 * @param filterLimit
 	 */
 	public OIRule(Integer id, Integer groupId, String label, String linkType, String sourceRestriction, 
-		String targetRestriction, String linkageRule, Double filterThreshold, Integer filterLimit) 
+		String targetRestriction, String linkageRule, BigDecimal filterThreshold, Integer filterLimit) 
 	{
 		super(id);
 		
@@ -112,7 +114,7 @@ public class OIRule extends EntityWithSurrogateKey
 	 * 
 	 * @return
 	 */
-	public Double getFilterThreshold() 
+	public BigDecimal getFilterThreshold() 
 	{
 		return filterThreshold;
 	}

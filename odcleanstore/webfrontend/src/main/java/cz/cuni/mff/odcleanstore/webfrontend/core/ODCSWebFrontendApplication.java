@@ -4,15 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
 import org.apache.wicket.DefaultMapperContext;
-import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.authroles.authentication.AbstractAuthenticatedWebSession;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebApplication;
 import org.apache.wicket.markup.html.WebPage;
-import org.apache.wicket.request.IRequestHandler;
-import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
-import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.mapper.IMapperContext;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
@@ -27,7 +22,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.LogInPage;
  */
 public class ODCSWebFrontendApplication extends AuthenticatedWebApplication 
 {
-	private static Logger logger = Logger.getLogger(ODCSWebFrontendApplication.class);
+	//private static Logger logger = Logger.getLogger(ODCSWebFrontendApplication.class);
 	
 	private static final String WEB_URL_PREFIX = "odcs-web-frontend";
 	private static final String APP_PROPERTIES_LOCATION = "config/application.properties";
@@ -45,6 +40,7 @@ public class ODCSWebFrontendApplication extends AuthenticatedWebApplication
 	{
 		super();
 		
+		/*
 		// Add request cycle listener that redirects to homepage with a proper message after session has expired 
 		getRequestCycleListeners().add(new AbstractRequestCycleListener()
 		{
@@ -65,6 +61,7 @@ public class ODCSWebFrontendApplication extends AuthenticatedWebApplication
 				return cycle.getRequestHandlerScheduledAfterCurrent();
 			}
 		});
+		*/
 	}
 	
 	@Override

@@ -1,5 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi;
 
+import java.math.BigDecimal;
+
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
@@ -107,7 +109,7 @@ public class NewDBOutputPage extends FrontendPage
 	private TextField<String> createConfidenceTextfield(String compName)
 	{
 		TextField<String> textfield = createTextfield(compName, false);
-		textfield.add(new RangeValidator<Double>(0.0, Double.MAX_VALUE));
+		textfield.add(new RangeValidator<BigDecimal>(new BigDecimal(0), new BigDecimal(Double.MAX_VALUE)));
 		return textfield;
 	}
 }
