@@ -1,5 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi;
 
+import java.util.Map;
+
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
@@ -59,22 +61,33 @@ public class OIGroupDetailPage extends LimitedEditingPage
 		
 		// register page components
 		//		
-		addBackToPipelineLink(transformerInstanceId);
+		addBackToPipelineLink(groupId, transformerInstanceId);
 		addHelpWindow("rulesGroupHelpWindow", "openRulesGroupHelpWindow", new RulesGroupHelpPanel("content"));
 		addHelpWindow("oiRuleHelpWindow", "openOIRuleHelpWindow", new OIRuleHelpPanel("content"));
 		addEditOIRulesGroupForm(groupId);
 		addOIRulesSection(groupId);
 	}
 	
-	private void addBackToPipelineLink(Integer transformerInstanceId) 
+	private void addBackToPipelineLink(Integer groupId, Integer transformerInstanceId) 
 	{
-		RedirectWithParamButton link = new RedirectWithParamButton(
+		Map<Integer, Integer> navigationMap = getODCSSession().getOiPipelineRulesNavigationMap();
+		Integer linkTransformerId = null;
+		if (transformerInstanceId != null) 
+		{
+			linkTransformerId = transformerInstanceId;
+			navigationMap.put(groupId, transformerInstanceId);
+		}
+		else if (navigationMap.containsKey(groupId))
+		{
+			linkTransformerId = navigationMap.get(groupId);
+		}
+		
+		add(new AuthorizedRedirectButton(
 			TransformerAssignmentDetailPage.class,
-			transformerInstanceId, 
+			linkTransformerId, 
+			linkTransformerId != null,
 			"backToPipelineLink"
-		);
-		link.setVisible(transformerInstanceId != null);
-		add(link);
+		));
 	}
 	
 	private void addEditOIRulesGroupForm(final Integer groupId)

@@ -1,5 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn;
 
+import java.util.Map;
+
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.Item;
@@ -70,7 +72,7 @@ public class DNGroupDetailPage extends LimitedEditingPage
 		
 		// register page components
 		//
-		addBackToPipelineLink(transformerInstanceId);
+		addBackToPipelineLink(groupId, transformerInstanceId);
 		addHelpWindow("rulesGroupHelpWindow", "openRulesGroupHelpWindow", new RulesGroupHelpPanel("content"));
 		addHelpWindow("dnRuleHelpWindow", "openDNRuleHelpWindow", new DNRuleHelpPanel("content"));
 		addHelpWindow("dnReplaceTemplateInstanceHelpWindow", "openDNReplaceTemplateInstanceHelpWindow", new DNReplaceTemplateInstanceHelpPanel("content"));
@@ -85,15 +87,26 @@ public class DNGroupDetailPage extends LimitedEditingPage
 		addDNFilterTemplateInstancesSection(groupId);
 	}
 	
-	private void addBackToPipelineLink(Integer transformerInstanceId) 
+	private void addBackToPipelineLink(Integer groupId, Integer transformerInstanceId) 
 	{
-		RedirectWithParamButton link = new RedirectWithParamButton(
+		Map<Integer, Integer> navigationMap = getODCSSession().getDnPipelineRulesNavigationMap();
+		Integer linkTransformerId = null;
+		if (transformerInstanceId != null) 
+		{
+			linkTransformerId = transformerInstanceId;
+			navigationMap.put(groupId, transformerInstanceId);
+		}
+		else if (navigationMap.containsKey(groupId))
+		{
+			linkTransformerId = navigationMap.get(groupId);
+		}
+		
+		add(new AuthorizedRedirectButton(
 			TransformerAssignmentDetailPage.class,
-			transformerInstanceId, 
+			linkTransformerId, 
+			linkTransformerId != null,
 			"backToPipelineLink"
-		);
-		link.setVisible(transformerInstanceId != null);
-		add(link);
+		));
 	}
 	
 	/*
