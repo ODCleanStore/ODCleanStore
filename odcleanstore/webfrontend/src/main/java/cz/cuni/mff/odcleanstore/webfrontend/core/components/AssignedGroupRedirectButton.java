@@ -6,6 +6,11 @@ import org.apache.wicket.markup.html.link.Link;
 
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
+/**
+ * 
+ * @author Jan Michelfeit
+ *
+ */
 public class AssignedGroupRedirectButton extends Link<String>
 {
 	private static final long serialVersionUID = 1L;

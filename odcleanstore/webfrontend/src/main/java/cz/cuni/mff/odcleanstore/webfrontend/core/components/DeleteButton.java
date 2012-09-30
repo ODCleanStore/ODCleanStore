@@ -4,10 +4,18 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
+/**
+ * A generic delete button to delete non-raw BOs.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ * @param <BO> The type of the primary BO to be deleted
+ */
 public class DeleteButton<BO extends EntityWithSurrogateKey> extends AbstractDeleteButton<BO> {
 	
 	private static final long serialVersionUID = 1L;
 	
+	/** the BO to be deleted */
 	private BO bo;
 	
 	/**

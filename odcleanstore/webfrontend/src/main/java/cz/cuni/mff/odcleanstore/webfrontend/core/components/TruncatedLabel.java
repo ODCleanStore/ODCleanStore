@@ -6,28 +6,52 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
+/**
+ * A label, which has it's text truncated after a fixed number of characters.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class TruncatedLabel extends Label
 {
 	private static final long serialVersionUID = 1L;
 	
+	/** the max length of the text to be displayed */
 	private int numOfCharacters;
 	
-	public TruncatedLabel(String id, int numOfCharacters) 
+	/**
+	 * 
+	 * @param compName
+	 * @param numOfCharacters
+	 */
+	public TruncatedLabel(String compName, int numOfCharacters) 
 	{
-		super(id);
+		super(compName);
 
 		this.numOfCharacters = numOfCharacters;
 	}
 
-	public TruncatedLabel(final String id, IModel<?> model, int numOfCharacters)
+	/**
+	 * 
+	 * @param compName
+	 * @param model
+	 * @param numOfCharacters
+	 */
+	public TruncatedLabel(String compName, IModel<?> model, int numOfCharacters)
 	{
-		super(id, model);
+		super(compName, model);
 		this.numOfCharacters = numOfCharacters;
 	}
 
-	public TruncatedLabel(final String id, String label, int numOfCharacters)
+	/**
+	 * 
+	 * @param compName
+	 * @param label
+	 * @param numOfCharacters
+	 */
+	public TruncatedLabel(final String compName, String label, int numOfCharacters)
 	{
-		this(id, new Model<String>(label), numOfCharacters);
+		this(compName, new Model<String>(label), numOfCharacters);
 	}
 
 	/**
@@ -42,6 +66,12 @@ public class TruncatedLabel extends Label
 		replaceComponentTagBody(markupStream, openTag, truncatedText);
 	}
 	
+	/**
+	 * Truncates the exceeding characters of the given string.
+	 * 
+	 * @param text
+	 * @return
+	 */
 	private String truncateText(String text)
 	{
 		if (text.length() <= numOfCharacters)

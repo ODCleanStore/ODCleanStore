@@ -16,13 +16,15 @@ import cz.cuni.mff.odcleanstore.webfrontend.util.PasswordHandling;
 
 /**
  * Container panel for the login form.
+ * 
  * @author Jan Michelfeit
  */
 public class LogInPanel extends Panel
 {
 	private static final long serialVersionUID = 1L;
 
-	public LogInPanel(String id, DaoForEntityWithSurrogateKey<User> userDao) {
+	public LogInPanel(String id, DaoForEntityWithSurrogateKey<User> userDao) 
+	{
 		super(id);
 		add(new LogInForm("form", userDao));
 	}
@@ -30,6 +32,7 @@ public class LogInPanel extends Panel
 
 /**
  * Login form.
+ * 
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  */
 class LogInForm extends Form<LogInForm>
@@ -43,9 +46,14 @@ class LogInForm extends Form<LogInForm>
 	private String username;
 	private String password;
 	
-	public LogInForm(String id, DaoForEntityWithSurrogateKey<User> userDao) 
+	/**
+	 * 
+	 * @param compName
+	 * @param userDao
+	 */
+	public LogInForm(String compName, DaoForEntityWithSurrogateKey<User> userDao) 
 	{
-		super(id);
+		super(compName);
 		
 		this.userDao = userDao;
 		

@@ -6,13 +6,25 @@ import org.apache.wicket.markup.html.link.Link;
 
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
+/**
+ * A generic button to redirect to another page.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class RedirectButton extends Link<String>
 {
 	private static final long serialVersionUID = 1L;
 	
+	/** the class of the page to redirect to */
 	private Class<? extends FrontendPage> redirectPage;
 	
-	public RedirectButton(final Class<? extends FrontendPage> redirectPage,final String compName) 
+	/**
+	 * 
+	 * @param compName
+	 * @param redirectPage the class of the page to redirect to
+	 */
+	public RedirectButton(final String compName, final Class<? extends FrontendPage> redirectPage) 
 	{
 		super(compName);
 

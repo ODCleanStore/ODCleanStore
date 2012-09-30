@@ -7,15 +7,31 @@ import org.apache.wicket.markup.html.link.Link;
 
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
+/**
+ * A generic button to redirect to another page wich takes a single Integer 
+ * parameter (e.g. the id of a BE) as a constructor argument.
+ *  
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class RedirectWithParamButton extends Link<String>
 {
 	private static final long serialVersionUID = 1L;
 	
 	private static Logger logger = Logger.getLogger(RedirectWithParamButton.class);
 	
+	/** the class of the page to redirect to */
 	private Class<? extends FrontendPage> redirectPage;
+	
+	/** the constructor argument of the page */
 	private Integer param;
 	
+	/**
+	 * 
+	 * @param redirectPage
+	 * @param param
+	 * @param compName
+	 */
 	public RedirectWithParamButton(final Class<? extends FrontendPage> redirectPage, 
 		final Integer param, final String compName) 
 	{

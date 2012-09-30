@@ -10,6 +10,11 @@ import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.request.resource.PackageResourceReference;
 
+/**
+ * 
+ * @author Tomáš Soukup
+ *
+ */
 public class DetachableAutoCompleteTextField extends AutoCompleteTextField<String> 
 {
 	private static final long serialVersionUID = 215039015274338419L;
