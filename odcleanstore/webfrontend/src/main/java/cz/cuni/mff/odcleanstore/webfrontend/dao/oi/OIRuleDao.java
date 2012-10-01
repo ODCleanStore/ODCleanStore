@@ -3,8 +3,10 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.oi;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.CommittableDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 
+@CommittableDao(OIRuleUncommittedDao.class)
 public class OIRuleDao extends DaoForAuthorableEntity<OIRule>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "OI_RULES";

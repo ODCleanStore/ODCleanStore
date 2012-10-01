@@ -39,7 +39,7 @@ public class NewOIRulePage extends LimitedEditingPage
 		
 		// prepare DAO objects
 		//
-		oiRuleDao = daoLookupFactory.getDao(OIRuleDao.class);
+		oiRuleDao = daoLookupFactory.getDao(OIRuleDao.class, isEditable());
 		
 		// register page components
 		//

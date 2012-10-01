@@ -36,7 +36,7 @@ public class FileOutputDetailPage extends LimitedEditingPage
 		
 		// prepare DAO objects
 		//
-		oiOutputDao = daoLookupFactory.getDao(OIOutputDao.class);
+		oiOutputDao = daoLookupFactory.getDao(OIOutputDao.class, isEditable());
 		//oiOutputTypeDao = daoLookupFactory.getDao(OIOutputTypeDao.class);
 		oiFileFormatDao = daoLookupFactory.getDao(OIFileFormatDao.class);
 		

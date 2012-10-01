@@ -8,6 +8,7 @@ import org.springframework.transaction.support.AbstractPlatformTransactionManage
 
 import virtuoso.jdbc3.VirtuosoDataSource;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.CommittableDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 
 /**
@@ -70,6 +71,35 @@ public class DaoLookupFactory implements Serializable
 		daos.put(daoClass, daoInstance);
 		
 		return daoInstance;
+	}
+	
+	/**
+	 * Creates requested DAO object with the option to look for "uncommitted" version of the DAO
+	 * @see #getDao(Class)
+	 * @param daoClass
+	 * @param commitable if true, the uncommitted version of the DAO will be returned
+	 * @return
+	 * @throws AssertionError
+	 */
+	@SuppressWarnings("unchecked")
+	public <T extends Dao> T getDao(Class<T> daoClass, boolean commitable) throws AssertionError
+	{
+		Class<T> requestedClass = daoClass;
+		if (commitable)
+		{
+			CommittableDao annotation = daoClass.getAnnotation(CommittableDao.class);
+			if (annotation == null) 
+			{
+				throw new AssertionError("Could not load committable version of DAO class: " + daoClass);
+			}
+			if (!daoClass.isAssignableFrom(annotation.value()))
+			{
+				throw new AssertionError("Committable version of DAO must inhterit from the requested class " + daoClass);
+			}
+			requestedClass = (Class<T>) annotation.value();
+			
+		}
+		return getDao(requestedClass);
 	}
 	
 	/**

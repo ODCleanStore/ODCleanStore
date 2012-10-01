@@ -3,6 +3,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.dn;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponent;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.CommittableDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 
 /**
@@ -10,6 +11,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
  * @author Dusan
  *
  */
+@CommittableDao(DNRuleComponentUncommittedDao.class)
 public class DNRuleComponentDao extends DaoForAuthorableEntity<DNRuleComponent>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "DN_RULE_COMPONENTS";

@@ -3,8 +3,10 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.dn;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.CommittableDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 
+@CommittableDao(DNRuleUncommittedDao.class)
 public class DNRuleDao extends DaoForAuthorableEntity<DNRule>
 {
 	private static final long serialVersionUID = 1L;

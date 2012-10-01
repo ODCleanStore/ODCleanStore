@@ -3,8 +3,10 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.oi;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutput;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.CommittableDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 
+@CommittableDao(OIOutputUncommittedDao.class)
 public class OIOutputDao extends DaoForAuthorableEntity<OIOutput>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "OI_OUTPUTS";

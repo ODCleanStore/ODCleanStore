@@ -57,7 +57,7 @@ public class QAGroupDetailPage extends LimitedEditingPage
 		// prepare DAO objects
 		//
 		qaRulesGroupDao = daoLookupFactory.getDao(QARulesGroupDao.class);
-		qaRuleDao = daoLookupFactory.getDao(QARuleDao.class);
+		qaRuleDao = daoLookupFactory.getDao(QARuleDao.class, isEditable());
 		
 		// register page components
 		//

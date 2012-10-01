@@ -57,7 +57,7 @@ public class OIGroupDetailPage extends LimitedEditingPage
 		// prepare DAO objects
 		//
 		oiRulesGroupDao = daoLookupFactory.getDao(OIRulesGroupDao.class);
-		oiRuleDao = daoLookupFactory.getDao(OIRuleDao.class);
+		oiRuleDao = daoLookupFactory.getDao(OIRuleDao.class, isEditable());
 		
 		// register page components
 		//		

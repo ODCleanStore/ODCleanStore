@@ -65,7 +65,7 @@ public class DNGroupDetailPage extends LimitedEditingPage
 		// prepare DAO objects
 		//
 		dnRulesGroupDao = daoLookupFactory.getDao(DNRulesGroupDao.class);
-		dnRuleDao = daoLookupFactory.getDao(DNRuleDao.class);
+		dnRuleDao = daoLookupFactory.getDao(DNRuleDao.class, isEditable());
 		dnReplaceTemplateInstanceDao = daoLookupFactory.getDao(DNReplaceTemplateInstanceDao.class);
 		dnRenameTemplateInstanceDao = daoLookupFactory.getDao(DNRenameTemplateInstanceDao.class);
 		dnFilterTemplateInstanceDao = daoLookupFactory.getDao(DNFilterTemplateInstanceDao.class);
