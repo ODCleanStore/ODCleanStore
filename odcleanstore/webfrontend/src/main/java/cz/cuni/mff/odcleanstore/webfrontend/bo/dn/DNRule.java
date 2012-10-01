@@ -1,5 +1,8 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo.dn;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
 /**
@@ -25,6 +28,17 @@ public class DNRule extends EntityWithSurrogateKey
 	{
 		super(id);
 		
+		this.groupId = groupId;
+		this.description = description;
+	}
+	
+	/**
+	 * 
+	 * @param groupId
+	 * @param description
+	 */
+	public DNRule(Integer groupId, String description)
+	{
 		this.groupId = groupId;
 		this.description = description;
 	}
