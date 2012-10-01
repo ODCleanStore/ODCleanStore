@@ -85,7 +85,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 	{
 		logger.debug("Loading RDF graph: " + graphName);
 
-		VirtGraph graph = new VirtGraph(graphName, this.lookupFactory.getCleanDataSource());
+		VirtGraph graph = new VirtGraph(graphName, getLookupFactory().getCleanDataSource());
 		Model model = ModelFactory.createModelForGraph(graph);
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		model.write(stream, OUTPUT_LANGUAGE);
@@ -223,7 +223,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 
 		if (QARulesGroupDao.TABLE_NAME.equals(tableName))
 		{
-			QualityAssessmentRulesModel rulesModel = new QualityAssessmentRulesModel(this.lookupFactory.getCleanDataSource());
+			QualityAssessmentRulesModel rulesModel = new QualityAssessmentRulesModel(getLookupFactory().getCleanDataSource());
 
 			try
 			{
@@ -236,7 +236,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		}
 		else if (DNRulesGroupDao.TABLE_NAME.equals(tableName))
 		{
-			DataNormalizationRulesModel rulesModel = new DataNormalizationRulesModel(this.lookupFactory.getCleanDataSource());
+			DataNormalizationRulesModel rulesModel = new DataNormalizationRulesModel(getLookupFactory().getCleanDataSource());
 
 			try
 			{

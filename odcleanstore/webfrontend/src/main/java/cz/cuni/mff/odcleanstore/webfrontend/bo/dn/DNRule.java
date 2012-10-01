@@ -1,6 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo.dn;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.RuleEntity;
 
 /**
  * The BO to represent a DN rule.
@@ -8,11 +8,10 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
-public class DNRule extends EntityWithSurrogateKey
+public class DNRule extends RuleEntity
 {
 	private static final long serialVersionUID = 1L;
 
-	private Integer groupId;
 	private String description;
 	
 	/**
@@ -23,9 +22,8 @@ public class DNRule extends EntityWithSurrogateKey
 	 */
 	public DNRule(Integer id, Integer groupId, String description) 
 	{
-		super(id);
+		super(id, groupId);
 		
-		this.groupId = groupId;
 		this.description = description;
 	}
 	
@@ -36,23 +34,6 @@ public class DNRule extends EntityWithSurrogateKey
 	{
 	}
 
-	/**
-	 * 
-	 * @return
-	 */
-	public Integer getGroupId()
-	{
-		return groupId;
-	}
-	
-	/**
-	 * 
-	 * @param groupId
-	 */
-	public void setGroupId(Integer groupId)
-	{
-		this.groupId = groupId;
-	}
 
 	/**
 	 * 

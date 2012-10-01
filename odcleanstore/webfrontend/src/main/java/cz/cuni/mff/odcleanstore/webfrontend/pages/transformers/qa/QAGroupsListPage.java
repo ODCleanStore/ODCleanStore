@@ -13,6 +13,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.CommitChangesButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
@@ -92,6 +93,7 @@ public class QAGroupsListPage extends FrontendPage
 				);
 				
 				item.add(createRerunAffectedGraphsButton(group.getId()));
+				item.add(new CommitChangesButton("commitChanges", group, qaRulesGroupDao));
 			}
 		};
 
@@ -104,7 +106,7 @@ public class QAGroupsListPage extends FrontendPage
 		
 		add(new UnobtrusivePagingNavigator("navigator", dataView));
 	}
-	
+
 	private Link<String> createRerunAffectedGraphsButton(final Integer groupId)
 	{
 		Link<String> button = new Link<String>("rerunAffectedGraphs")

@@ -13,9 +13,9 @@ public class DNRulesGroup extends RulesGroupEntity implements AuthoredEntity
 {
 	private static final long serialVersionUID = 1L;
 
-	public DNRulesGroup(Integer id, String label, String description, Integer authorId, String authorName) 
+	public DNRulesGroup(Integer id, String label, String description, Integer authorId, boolean isUncommitted, String authorName) 
 	{
-		super(id, label, description, authorId, authorName);
+		super(id, label, description, authorId, isUncommitted, authorName);
 	}
 
 	/**

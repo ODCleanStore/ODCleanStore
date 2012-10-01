@@ -15,19 +15,21 @@ public abstract class RulesGroupEntity extends EntityWithSurrogateKey implements
 	private String description;
 	private Integer authorId;
 	private String authorName;
+	private boolean isUncommitted;
 	
 	protected RulesGroupEntity(Integer id)
 	{
 		super(id);
 	}
 	
-	public RulesGroupEntity(Integer id, String label, String description, Integer authorId, String authorName)
+	public RulesGroupEntity(Integer id, String label, String description, Integer authorId, boolean isUncommitted, String authorName)
 	{
 		super(id);
 		this.label = label;
 		this.description = description;
 		this.authorId = authorId;
-		this.setAuthorName(authorName);
+		this.setUncommitted(isUncommitted);
+		this.authorName = authorName;
 	}
 	
 	/**
@@ -76,5 +78,15 @@ public abstract class RulesGroupEntity extends EntityWithSurrogateKey implements
 	public void setAuthorName(String authorName)
 	{
 		this.authorName = authorName;
+	}
+
+	public boolean isUncommitted()
+	{
+		return isUncommitted;
+	}
+
+	public void setUncommitted(boolean isUncommitted)
+	{
+		this.isUncommitted = isUncommitted;
 	}
 }
