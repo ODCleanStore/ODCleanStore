@@ -1,5 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn;
 
+import java.util.Map;
+
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -19,12 +21,25 @@ public class NewDNGroupPage extends FrontendPage
 
 	private DNRulesGroupDao dnRulesGroupDao;
 	
+	/**
+	 * Reference to id of transformer instance from which we navigated to this page.
+	 * Null if we didn't navigate to this page from transformer instance detail page. 
+	 */
+	private Integer transformerInstanceId;
+	
 	public NewDNGroupPage() 
+	{
+		this(null);
+	}
+	
+	public NewDNGroupPage(final Integer transformerInstanceId) 
 	{
 		super(
 			"Home > Backend > DN > Groups > New", 
 			"Add a new DN rule group"
 		);
+		
+		this.transformerInstanceId = transformerInstanceId;
 
 		// prepare DAO objects
 		//
@@ -71,6 +86,7 @@ public class NewDNGroupPage extends FrontendPage
 				}
 				
 				getSession().info("The group was successfuly registered.");
+				updateBackToPipelineNavigation(insertId);
 				setResponsePage(new DNGroupDetailPage(insertId));
 			}
 		};
@@ -79,5 +95,14 @@ public class NewDNGroupPage extends FrontendPage
 		form.add(createTextarea("description", false));
 		
 		add(form);
+	}
+	
+	private void updateBackToPipelineNavigation(Integer groupId) 
+	{
+		Map<Integer, Integer> navigationMap = getODCSSession().getDnPipelineRulesNavigationMap();
+		if (transformerInstanceId != null) 
+		{
+			navigationMap.put(groupId, transformerInstanceId);
+		}
 	}
 }
