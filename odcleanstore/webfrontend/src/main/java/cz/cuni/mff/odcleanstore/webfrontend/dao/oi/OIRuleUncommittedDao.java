@@ -18,6 +18,9 @@ public class OIRuleUncommittedDao extends OIRuleDao
 	@Override
 	protected void deleteRaw(Integer id) throws Exception
 	{
+		// Mark the group as dirty
+		getLookupFactory().getDao(OIRulesGroupDao.class).setUncommitted(load(id).getGroupId());
+		
 		String query = "DELETE FROM " + getTableName() + " WHERE " + KEY_COLUMN +" = ?";
 		jdbcUpdate(query, id);
 	}
@@ -25,6 +28,9 @@ public class OIRuleUncommittedDao extends OIRuleDao
 	@Override
 	public void save(OIRule item) throws Exception
 	{
+		// Mark the group as dirty
+		getLookupFactory().getDao(OIRulesGroupDao.class).setUncommitted(item.getGroupId());
+		
 		String query = 
 			"INSERT INTO " + getTableName() + " " +
 			"(groupId, label, linkType, sourceRestriction, targetRestriction, linkageRule, filterThreshold, filterLimit) " +
@@ -56,6 +62,9 @@ public class OIRuleUncommittedDao extends OIRuleDao
 	
 	public void update(OIRule item) throws Exception
 	{
+		// Mark the group as dirty
+		getLookupFactory().getDao(OIRulesGroupDao.class).setUncommitted(item.getGroupId());
+		
 		String query =
 			"UPDATE " + getTableName() + 
 			" SET label = ?, linkType = ?, sourceRestriction = ?, targetRestriction = ?, linkageRule = ?, filterThreshold = ?, filterLimit = ? " +

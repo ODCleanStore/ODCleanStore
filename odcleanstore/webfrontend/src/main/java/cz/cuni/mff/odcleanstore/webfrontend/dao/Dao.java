@@ -37,7 +37,7 @@ public abstract class Dao implements Serializable
 	
 	private static List<DaoExceptionHandler> exceptionHandlers = new LinkedList<DaoExceptionHandler>();
 	
-	protected DaoLookupFactory lookupFactory;
+	private DaoLookupFactory lookupFactory;
 	private transient JdbcTemplate cleanJDBCTemplate;
 	private transient JdbcTemplate dirtyJDBCTemplate;
 	private transient TransactionTemplate cleanTransactionTemplate;
@@ -285,5 +285,10 @@ public abstract class Dao implements Serializable
 		}
 		
 		return null;
+	}
+	
+	protected DaoLookupFactory getLookupFactory() 
+	{
+		return lookupFactory;
 	}
 }

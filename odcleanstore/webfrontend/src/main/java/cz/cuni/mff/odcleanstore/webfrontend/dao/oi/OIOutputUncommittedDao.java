@@ -21,9 +21,18 @@ public class OIOutputUncommittedDao extends OIOutputDao
 		return OIRuleUncommittedDao.TABLE_NAME;
 	}
 	
+	private int getGroupId(Integer ruleId)
+	{
+		return getLookupFactory().getDao(OIRuleDao.class).load(ruleId).getGroupId();
+	}
+	
 	@Override
 	protected void deleteRaw(Integer id) throws Exception
 	{
+		// Mark the group as dirty
+		Integer groupId = getGroupId(load(id).getRuleId());
+		getLookupFactory().getDao(OIRulesGroupDao.class).setUncommitted(groupId);
+		
 		String query = "DELETE FROM " + getTableName() + " WHERE " + KEY_COLUMN +" = ?";
 		jdbcUpdate(query, id);
 	}
@@ -31,6 +40,10 @@ public class OIOutputUncommittedDao extends OIOutputDao
 	@Override
 	public void save(OIOutput output)  throws Exception
 	{
+		// Mark the group as dirty
+		Integer groupId = getGroupId(output.getRuleId());
+		getLookupFactory().getDao(OIRulesGroupDao.class).setUncommitted(groupId);
+		
 		String query = 
 			"INSERT INTO " + getTableName() + " " +
 			"(ruleId, outputTypeId, minConfidence, maxConfidence, fileName, fileFormatId) " +
@@ -56,6 +69,10 @@ public class OIOutputUncommittedDao extends OIOutputDao
 	
 	public void update(OIOutput output) throws Exception
 	{
+		// Mark the group as dirty
+		Integer groupId = getGroupId(output.getRuleId());
+		getLookupFactory().getDao(OIRulesGroupDao.class).setUncommitted(groupId);
+		
 		String query = 
 			"UPDATE " + getTableName() + " " +
 			"SET outputTypeId = ?, minConfidence = ?, maxConfidence = ?, fileName = ?, fileFormatId = ?" +

@@ -18,6 +18,9 @@ public class DNRuleUncommittedDao extends DNRuleDao
 	@Override
 	protected void deleteRaw(Integer id) throws Exception
 	{
+		// Mark the group as dirty
+		getLookupFactory().getDao(DNRulesGroupDao.class).setUncommitted(load(id).getGroupId());
+				
 		String query = "DELETE FROM " + getTableName() + " WHERE " + KEY_COLUMN +" = ?";
 		jdbcUpdate(query, id);
 	}
@@ -25,6 +28,9 @@ public class DNRuleUncommittedDao extends DNRuleDao
 	@Override
 	public void save(DNRule item) throws Exception
 	{
+		// Mark the group as dirty
+		getLookupFactory().getDao(DNRulesGroupDao.class).setUncommitted(item.getGroupId());
+				
 		String query = 
 			"INSERT INTO " + getTableName() + " (groupId, description) " +
 			"VALUES (?, ?)";
@@ -43,6 +49,9 @@ public class DNRuleUncommittedDao extends DNRuleDao
 	
 	public void update(DNRule item) throws Exception
 	{
+		// Mark the group as dirty
+		getLookupFactory().getDao(DNRulesGroupDao.class).setUncommitted(item.getGroupId());
+				
 		String query =
 			"UPDATE " + getTableName() + " SET description = ? WHERE id = ?";
 		

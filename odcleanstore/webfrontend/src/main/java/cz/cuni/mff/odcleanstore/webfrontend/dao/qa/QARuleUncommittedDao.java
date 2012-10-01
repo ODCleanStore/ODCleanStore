@@ -18,6 +18,9 @@ public class QARuleUncommittedDao extends QARuleDao
 	@Override
 	protected void deleteRaw(Integer id) throws Exception
 	{
+		// Mark the group as dirty
+		getLookupFactory().getDao(QARulesGroupDao.class).setUncommitted(load(id).getGroupId());
+		
 		String query = "DELETE FROM " + getTableName() + " WHERE " + KEY_COLUMN +" = ?";
 		jdbcUpdate(query, id);
 	}
@@ -25,6 +28,9 @@ public class QARuleUncommittedDao extends QARuleDao
 	@Override
 	public void save(QARule item) throws Exception
 	{
+		// Mark the group as dirty
+		getLookupFactory().getDao(QARulesGroupDao.class).setUncommitted(item.getGroupId());
+		
 		String query = 
 			"INSERT INTO " + getTableName() + " (groupId, filter, description, coefficient) " +
 			"VALUES (?, ?, ?, ?)";
@@ -47,6 +53,9 @@ public class QARuleUncommittedDao extends QARuleDao
 	
 	public void update(QARule item) throws Exception
 	{
+		// Mark the group as dirty
+		getLookupFactory().getDao(QARulesGroupDao.class).setUncommitted(item.getGroupId());
+		
 		String query =
 			"UPDATE " + getTableName() + " SET filter = ?, description = ?, coefficient = ? WHERE id = ?";
 		

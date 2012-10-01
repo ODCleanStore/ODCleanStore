@@ -26,9 +26,18 @@ public class DNRuleComponentUncommittedDao extends DNRuleComponentDao
 		return DNRuleUncommittedDao.TABLE_NAME;
 	}
 	
+	private int getGroupId(Integer ruleId)
+	{
+		return getLookupFactory().getDao(DNRuleDao.class).load(ruleId).getGroupId();
+	}
+	
 	@Override
 	protected void deleteRaw(Integer id) throws Exception
 	{
+		// Mark the group as dirty
+		Integer groupId = getGroupId(load(id).getRuleId());
+		getLookupFactory().getDao(DNRulesGroupDao.class).setUncommitted(groupId);
+				
 		String query = "DELETE FROM " + getTableName() + " WHERE " + KEY_COLUMN +" = ?";
 		jdbcUpdate(query, id);
 	}
@@ -36,6 +45,10 @@ public class DNRuleComponentUncommittedDao extends DNRuleComponentDao
 	@Override
 	public void save(DNRuleComponent item) throws Exception
 	{
+		// Mark the group as dirty
+		Integer groupId = getGroupId(item.getRuleId());
+		getLookupFactory().getDao(DNRulesGroupDao.class).setUncommitted(groupId);
+				
 		String query = 
 			"INSERT INTO " + getTableName() + " (ruleId, typeId, modification, description) " +
 			"VALUES (?, ?, ?, ?)";
@@ -58,6 +71,10 @@ public class DNRuleComponentUncommittedDao extends DNRuleComponentDao
 
 	public void update(DNRuleComponent item) throws Exception
 	{
+		// Mark the group as dirty
+		Integer groupId = getGroupId(item.getRuleId());
+		getLookupFactory().getDao(DNRulesGroupDao.class).setUncommitted(groupId);
+				
 		String query = 
 			"UPDATE " + getTableName() + " " +
 			"SET typeId = ?, modification = ?, description = ? WHERE id = ?";
