@@ -94,6 +94,7 @@
 		<module>webfrontend</module>
 		<module>simplescraper</module>
 		<module>simpletransformer</module>
+		<module>comlib</module>
 	</modules>
 
 	<properties>
