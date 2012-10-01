@@ -7,7 +7,6 @@ import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
@@ -17,7 +16,7 @@ public class NewPipelinePage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private DaoForEntityWithSurrogateKey<Pipeline> pipelineDao;
+	private PipelineDao pipelineDao;
 	
 	public NewPipelinePage() 
 	{
@@ -30,7 +29,7 @@ public class NewPipelinePage extends FrontendPage
 
 		// prepare DAO objects
 		//
-		pipelineDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(PipelineDao.class);
+		pipelineDao = daoLookupFactory.getDao(PipelineDao.class);
 		
 		// register page components
 		//
@@ -50,6 +49,7 @@ public class NewPipelinePage extends FrontendPage
 			protected void onSubmit()
 			{
 				Pipeline pipeline = this.getModelObject();
+				pipeline.setAuthorId(getODCSSession().getUser().getId());
 				int insertId;
 				try 
 				{

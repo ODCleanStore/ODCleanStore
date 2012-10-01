@@ -3,9 +3,9 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.dn;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 
-public class DNRuleDao extends DaoForEntityWithSurrogateKey<DNRule>
+public class DNRuleDao extends DaoForAuthorableEntity<DNRule>
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -31,7 +31,7 @@ public class DNRuleDao extends DaoForEntityWithSurrogateKey<DNRule>
 	}
 	
 	@Override
-	public void save(DNRule item) 
+	public void save(DNRule item) throws Exception
 	{
 		String query = 
 			"INSERT INTO " + TABLE_NAME + " (groupId, description) " +
@@ -46,11 +46,10 @@ public class DNRuleDao extends DaoForEntityWithSurrogateKey<DNRule>
 		logger.debug("groupId: " + item.getGroupId());
 		logger.debug("description: " + item.getDescription());
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
 	}
 	
-	@Override
-	public void update(DNRule item)
+	public void update(DNRule item) throws Exception
 	{
 		String query =
 			"UPDATE " + TABLE_NAME + " SET description = ? WHERE id = ?";
@@ -64,6 +63,15 @@ public class DNRuleDao extends DaoForEntityWithSurrogateKey<DNRule>
 		logger.debug("description: " + item.getDescription());
 		logger.debug("id: " + item.getId());
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
+	}
+	
+	@Override
+	public int getAuthorId(Integer entityId)
+	{
+		String query = "SELECT g.authorId " +
+				"\n FROM " + TABLE_NAME + " AS r JOIN " + DNRulesGroupDao.TABLE_NAME + " AS g ON (g.id = r.groupId)" +
+				"\n WHERE r.id = ?";
+		return jdbcQueryForInt(query, entityId);
 	}
 }

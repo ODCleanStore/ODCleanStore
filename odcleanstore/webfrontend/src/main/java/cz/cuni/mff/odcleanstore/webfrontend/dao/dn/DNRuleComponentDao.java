@@ -1,18 +1,16 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.dn;
 
-import java.util.List;
-
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponent;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 
 /**
  * 
  * @author Dusan
  *
  */
-public class DNRuleComponentDao extends DaoForEntityWithSurrogateKey<DNRuleComponent>
+public class DNRuleComponentDao extends DaoForAuthorableEntity<DNRuleComponent>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "DN_RULE_COMPONENTS";
 
@@ -38,7 +36,7 @@ public class DNRuleComponentDao extends DaoForEntityWithSurrogateKey<DNRuleCompo
 	}
 	
 	@Override
-	public List<DNRuleComponent> loadAll() 
+	protected String getSelectAndFromClause()
 	{
 		String query = 
 			"SELECT C.id as id, ruleId, modification, C.description as description, " +
@@ -46,44 +44,17 @@ public class DNRuleComponentDao extends DaoForEntityWithSurrogateKey<DNRuleCompo
 			"FROM " + TABLE_NAME + " as C " +
 			"JOIN " + DNRuleComponentTypeDao.TABLE_NAME + " as CT " +
 			"ON CT.id = C.typeId ";
-		
-		return getCleanJdbcTemplate().query(query, getRowMapper());
-	}
-	
-	@Override
-	public List<DNRuleComponent> loadAllRawBy(String columnName, Object value)
-	{
-		String query = 
-			"SELECT C.id as id, ruleId, modification, C.description as description, " +
-			"CT.id as typeId, CT.label as typeLbl, CT.description as typeDescr " +
-			"FROM " + TABLE_NAME + " as C " +
-			"JOIN " + DNRuleComponentTypeDao.TABLE_NAME + " as CT " +
-			"ON CT.id = C.typeId " +
-			"WHERE " + columnName + " = ?";
-		
-		Object[] params = { value };
-		
-		return getCleanJdbcTemplate().query(query, params, getRowMapper());
+		return query;
 	}
 	
 	@Override
 	public DNRuleComponent load(Integer id)
 	{
-		String query = 
-			"SELECT C.id as id, ruleId, modification, C.description as description, " +
-			"CT.id as typeId, CT.label as typeLbl, CT.description as typeDescr " +
-			"FROM " + TABLE_NAME + " as C " +
-			"JOIN " + DNRuleComponentTypeDao.TABLE_NAME + " as CT " +
-			"ON CT.id = C.typeId " +
-			"WHERE C.id = ?";
-		
-		Object[] params = { id };
-			
-		return getCleanJdbcTemplate().queryForObject(query, params, getRowMapper());
+		return loadBy("C.id", id);
 	}
 	
 	@Override
-	public void save(DNRuleComponent item)
+	public void save(DNRuleComponent item) throws Exception
 	{
 		String query = 
 			"INSERT INTO " + TABLE_NAME + " (ruleId, typeId, modification, description) " +
@@ -102,11 +73,10 @@ public class DNRuleComponentDao extends DaoForEntityWithSurrogateKey<DNRuleCompo
 		logger.debug("modification: " + item.getModification());
 		logger.debug("description: " + item.getDescription());
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
 	}
 
-	@Override
-	public void update(DNRuleComponent item)
+	public void update(DNRuleComponent item) throws Exception
 	{
 		String query = 
 			"UPDATE " + TABLE_NAME + " " +
@@ -125,6 +95,16 @@ public class DNRuleComponentDao extends DaoForEntityWithSurrogateKey<DNRuleCompo
 		logger.debug("description: " + item.getDescription());
 		logger.debug("id: " + item.getId());
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
+	}
+	
+	@Override
+	public int getAuthorId(Integer entityId)
+	{
+		String query = "SELECT g.authorId " +
+				"\n FROM " + DNRuleDao.TABLE_NAME + " AS r JOIN " + DNRulesGroupDao.TABLE_NAME + " AS g ON (g.id = r.groupId)" +
+				"\n   JOIN " + TABLE_NAME + " AS c ON (c.ruleId = r.id)" +
+				"\n WHERE c.id = ?";
+		return jdbcQueryForInt(query, entityId);
 	}
 }

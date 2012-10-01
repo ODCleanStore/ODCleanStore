@@ -18,6 +18,7 @@
 	
 	<tr>
 		<th wicket:id="orderByLabel">Label</th>
+		<th wicket:id="orderByAuthor">Author</th>
 		<th>Description</th>
 		<th>Action</th>
 	</tr>
@@ -25,11 +26,13 @@
 	<tr  wicket:id="oiRulesGroupsTable">
 	
 		<td wicket:id="label">[label]</td>
+		<td wicket:id="authorName">[authorName]</td>
 		<td wicket:id="description">[description]</td>
 		
 		<td class="actions">
 			<input wicket:id="showEditOIGroupPage" type="button" value="Detail" />
 			<input wicket:id="rerunAffectedGraphs" type="button" value="Rerun affected graphs" />
+			<input wicket:id="debugOIGroup" type="button" value="Debug" />
 			<input wicket:id="deleteGroup" type="button" value="Delete" class="delete" />
 		</td>
 	</tr>

@@ -13,7 +13,6 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.prefixes.Prefix;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.prefixes.PrefixDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
@@ -22,7 +21,7 @@ public class PrefixesListPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 	
-	private Dao<Prefix> prefixMappingDao;
+	private PrefixDao prefixMappingDao;
 	
 	public PrefixesListPage() 
 	{
@@ -94,7 +93,7 @@ public class PrefixesListPage extends FrontendPage
 	        	
 				getSession().info("The prefix mapping was successfuly deleted.");
 				
-				setResponsePage(PrefixesListPage.this);
+				//setResponsePage(PrefixesListPage.this);
 	        }
 	    };
 	    

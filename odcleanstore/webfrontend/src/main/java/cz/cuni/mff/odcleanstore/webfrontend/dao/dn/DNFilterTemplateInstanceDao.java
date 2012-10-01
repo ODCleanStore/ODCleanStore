@@ -3,11 +3,9 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.dn;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNFilterTemplateInstance;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRenameTemplateInstance;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 
-public class DNFilterTemplateInstanceDao extends DaoForEntityWithSurrogateKey<DNFilterTemplateInstance>
+public class DNFilterTemplateInstanceDao extends DaoForAuthorableEntity<DNFilterTemplateInstance>
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -33,7 +31,7 @@ public class DNFilterTemplateInstanceDao extends DaoForEntityWithSurrogateKey<DN
 	}
 
 	@Override
-	public void save(DNFilterTemplateInstance item) 
+	public void save(DNFilterTemplateInstance item) throws Exception
 	{
 		String query = 
 			"INSERT INTO " + TABLE_NAME + " (groupId, rawRuleId, propertyName, pattern, keep) " +
@@ -53,11 +51,10 @@ public class DNFilterTemplateInstanceDao extends DaoForEntityWithSurrogateKey<DN
 		logger.debug("pattern: " + item.getPattern());
 		logger.debug("keep: " + item.getKeep());
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
 	}
 	
-	@Override
-	public void update(DNFilterTemplateInstance item)
+	public void update(DNFilterTemplateInstance item) throws Exception
 	{
 		String query =
 			"UPDATE " + TABLE_NAME + " SET propertyName = ?, pattern = ?, keep = ? WHERE id = ?";
@@ -76,6 +73,15 @@ public class DNFilterTemplateInstanceDao extends DaoForEntityWithSurrogateKey<DN
 		logger.debug("keep: " + item.getKeep());
 		logger.debug("id: " + item.getId());
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
+	}
+
+	@Override
+	public int getAuthorId(Integer entityId)
+	{
+		String query = "SELECT g.authorId " +
+			"\n FROM " + TABLE_NAME + " AS t JOIN " + DNRulesGroupDao.TABLE_NAME + " AS g ON (g.id = t.groupId)" +
+			"\n WHERE t.id = ?";
+		return jdbcQueryForInt(query, entityId);
 	}
 }

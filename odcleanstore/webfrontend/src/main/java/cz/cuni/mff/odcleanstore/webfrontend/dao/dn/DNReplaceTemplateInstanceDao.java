@@ -3,10 +3,9 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.dn;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNReplaceTemplateInstance;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 
-public class DNReplaceTemplateInstanceDao extends DaoForEntityWithSurrogateKey<DNReplaceTemplateInstance>
+public class DNReplaceTemplateInstanceDao extends DaoForAuthorableEntity<DNReplaceTemplateInstance>
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -32,7 +31,7 @@ public class DNReplaceTemplateInstanceDao extends DaoForEntityWithSurrogateKey<D
 	}
 
 	@Override
-	public void save(DNReplaceTemplateInstance item) 
+	public void save(DNReplaceTemplateInstance item) throws Exception
 	{
 		String query = 
 			"INSERT INTO " + TABLE_NAME + " (groupId, rawRuleId, propertyName, pattern, replacement) " +
@@ -52,11 +51,10 @@ public class DNReplaceTemplateInstanceDao extends DaoForEntityWithSurrogateKey<D
 		logger.debug("pattern: " + item.getPattern());
 		logger.debug("replacement: " + item.getReplacement());
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
 	}
 	
-	@Override
-	public void update(DNReplaceTemplateInstance item)
+	public void update(DNReplaceTemplateInstance item) throws Exception
 	{
 		String query =
 			"UPDATE " + TABLE_NAME + " SET propertyName = ?, pattern = ?, replacement = ? WHERE id = ?";
@@ -75,6 +73,15 @@ public class DNReplaceTemplateInstanceDao extends DaoForEntityWithSurrogateKey<D
 		logger.debug("replacement: " + item.getReplacement());
 		logger.debug("id: " + item.getId());
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
+	}
+	
+	@Override
+	public int getAuthorId(Integer entityId)
+	{
+		String query = "SELECT g.authorId " +
+			"\n FROM " + TABLE_NAME + " AS t JOIN " + DNRulesGroupDao.TABLE_NAME + " AS g ON (g.id = t.groupId)" +
+			"\n WHERE t.id = ?";
+		return jdbcQueryForInt(query, entityId);
 	}
 }

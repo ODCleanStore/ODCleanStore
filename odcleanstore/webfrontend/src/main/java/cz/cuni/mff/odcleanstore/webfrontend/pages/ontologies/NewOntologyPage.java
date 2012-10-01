@@ -14,7 +14,6 @@ import org.apache.wicket.model.util.ListModel;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.Ontology;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UploadButton;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.onto.OntologyDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
@@ -25,7 +24,7 @@ public class NewOntologyPage extends FrontendPage
 
 	private static final long serialVersionUID = 1L;
 	
-	private DaoForEntityWithSurrogateKey<Ontology> ontologyDao;
+	private OntologyDao ontologyDao;
 	
 	public NewOntologyPage() 
 	{
@@ -36,7 +35,7 @@ public class NewOntologyPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		this.ontologyDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OntologyDao.class);
+		this.ontologyDao = daoLookupFactory.getDao(OntologyDao.class);
 		
 		// register page components
 		//
@@ -56,6 +55,7 @@ public class NewOntologyPage extends FrontendPage
 			protected void onSubmit()
 			{
 				Ontology ontology = this.getModelObject();
+				ontology.setAuthorId(getODCSSession().getUser().getId());
 				
 				try {
 					ontologyDao.save(ontology);

@@ -7,7 +7,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo;
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
-public abstract class EntityWithSurrogateKey extends BusinessEntity
+public abstract class EntityWithSurrogateKey extends BusinessEntity implements IdentifiedEntity
 {
 	private static final long serialVersionUID = 1L;
 

@@ -16,7 +16,7 @@ public class MyAccountPage extends FrontendPage
 
 	private static Logger logger = Logger.getLogger(MyAccountPage.class);
 	
-	//private DaoForEntityWithSurrogateKey<User> userDao;
+	//private UserDao userDao;
 	
 	public MyAccountPage() 
 	{

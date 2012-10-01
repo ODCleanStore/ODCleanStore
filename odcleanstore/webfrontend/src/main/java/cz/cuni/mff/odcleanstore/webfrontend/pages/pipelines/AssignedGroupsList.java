@@ -12,11 +12,14 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.CompoundPropertyModel;
 
-import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.RulesGroupEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.RuleAssignment;
+import cz.cuni.mff.odcleanstore.webfrontend.core.AuthorizationHelper;
+import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.AssignedGroupRedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.HelpWindow;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
@@ -24,6 +27,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentSortableDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
@@ -34,10 +38,12 @@ public class AssignedGroupsList extends Panel
 
 	private DaoForEntityWithSurrogateKey<? extends RulesGroupEntity> groupsDao;
 	private DaoForEntityWithSurrogateKey<RuleAssignment> assignedGroupsDao;
+	private boolean isEditable = true;
 	
 	public AssignedGroupsList(
 		final String id, 
 		final Integer transformerInstanceId,
+		final DaoLookupFactory daoLookupFactory,
 		final DaoForEntityWithSurrogateKey<? extends RulesGroupEntity> groupsDao,
 		final DaoForEntityWithSurrogateKey<RuleAssignment> assignedGroupsDao,
 		final Class<? extends FrontendPage> groupDetailPageClass,
@@ -47,6 +53,9 @@ public class AssignedGroupsList extends Panel
 		
 		this.groupsDao = groupsDao;
 		this.assignedGroupsDao = assignedGroupsDao;
+		
+		int authorId = daoLookupFactory.getDao(TransformerInstanceDao.class).getAuthorId(transformerInstanceId);
+		isEditable = AuthorizationHelper.isAuthorizedForEntityEditing(authorId);
 		
 		addHelpWindow();
 		addNewAssignmentLink(transformerInstanceId);
@@ -82,6 +91,12 @@ public class AssignedGroupsList extends Panel
 				private static final long serialVersionUID = 1L;
 
 				@Override
+				public boolean isVisible() 
+				{
+					return isEditable;
+				};
+				
+				@Override
 				public void onClick() 
 				{
 					NewGroupAssignmentPage page = new NewGroupAssignmentPage(
@@ -96,7 +111,7 @@ public class AssignedGroupsList extends Panel
 	
 	private void addNewGroupLink(final Class<? extends FrontendPage> newGroupPageClass)
 	{
-		add(new RedirectButton(newGroupPageClass, "showNewGroupPage"));
+		add(new RedirectButton("showNewGroupPage", newGroupPageClass));
 	}
 	
 	private void addAssignmentTable(
@@ -125,13 +140,15 @@ public class AssignedGroupsList extends Panel
 				item.add(new Label("groupLabel"));	
 				item.add(new TruncatedLabel("groupDescription", FrontendPage.MAX_LIST_COLUMN_TEXT_LENGTH));
 				
-				item.add(
-					createDeleteButton(
-						transformerInstanceId, 
-						ruleAssignment.getId()
-					)
-				);
-				
+				item.add(new AuthorizedDeleteButton<RuleAssignment>(
+					assignedGroupsDao,
+					ruleAssignment.getId(),
+					isEditable,
+					"assignment",
+					new DeleteConfirmationMessage("group assignment"),
+					new TransformerAssignmentDetailPage(transformerInstanceId)
+				));
+
 				item.add(
 					new AssignedGroupRedirectButton
 					(
@@ -151,37 +168,5 @@ public class AssignedGroupsList extends Panel
 		add(dataView);
 		
 		add(new UnobtrusivePagingNavigator("navigator", dataView));
-	}
-	
-	private Link<String> createDeleteButton(final Integer transformerInstanceId, final Integer groupAssignmentId)
-	{
-		Link<String> button = new Link<String>("deleteAssignment")
-		{
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onClick() 
-			{
-				try {
-					assignedGroupsDao.deleteRaw(groupAssignmentId);
-				}
-				catch (Exception ex)
-				{
-					getSession().error(
-						"The group assignment could not be deleted due to an unexpected error."
-					);
-					
-					return;
-				}
-		    	
-				getSession().info("The group assignment was successfuly deleted.");
-				setResponsePage(new TransformerAssignmentDetailPage(transformerInstanceId));	
-			}
-			
-		};
-		
-		button.add(new ConfirmationBoxRenderer("Are you sure you want to delete the group assignment?"));
-		
-		return button;
 	}
 }

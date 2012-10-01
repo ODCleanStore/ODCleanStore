@@ -3,6 +3,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo.oi;
 import java.util.LinkedList;
 import java.util.List;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.AuthoredEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.RulesGroupEntity;
 
 /**
@@ -11,12 +12,10 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.RulesGroupEntity;
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
-public class OIRulesGroup extends RulesGroupEntity 
+public class OIRulesGroup extends RulesGroupEntity implements AuthoredEntity
 {
 	private static final long serialVersionUID = 1L;
 
-	private String label;
-	private String description;
 	private List<OIRule> rules;
 	
 	/**
@@ -25,41 +24,16 @@ public class OIRulesGroup extends RulesGroupEntity
 	 * @param label
 	 * @param description
 	 */
-	public OIRulesGroup(Integer id, String label, String description) 
+	public OIRulesGroup(Integer id, String label, String description, Integer authorId, String authorName) 
 	{
-		super(id);
-		
-		this.label = label;
-		this.description = description;
-		
+		super(id, label, description, authorId, authorName);
 		this.rules = new LinkedList<OIRule>();
 	}
 
-	/**
-	 * 
-	 */
-	public OIRulesGroup() 
+	public OIRulesGroup()
 	{
 	}
 
-	/**
-	 * 
-	 * @return
-	 */
-	public String getLabel() 
-	{
-		return label;
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public String getDescription() 
-	{
-		return description;
-	}
-	
 	/**
 	 * 
 	 * @param rules

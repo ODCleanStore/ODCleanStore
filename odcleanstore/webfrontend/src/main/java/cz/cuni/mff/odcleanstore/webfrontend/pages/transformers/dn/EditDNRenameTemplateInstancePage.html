@@ -12,13 +12,13 @@
 <form wicket:id="editDNRenameTemplateInstanceForm">
 	<p>
 		<label for="sourcePropertyName">Source property name:</label>
-		<input wicket:id="sourcePropertyName" id="sourcePropertyName" type="text" class="required" />
+		<span class="required"><input wicket:id="sourcePropertyName" id="sourcePropertyName" type="text" placeholder="RDF property"  /></span>
 	</p>
 	<p>
 		<label for="targetPropertyName">Target property name:</label>
-		<input wicket:id="targetPropertyName" id="targetPropertyName" type="text" class="required" />
+		<span class="required"><input wicket:id="targetPropertyName" id="targetPropertyName" type="text" placeholder="RDF property"  /></span>
 	</p>
-	<input type="submit" value="Submit" />
+	<input type="submit" wicket:id="submit" value="Submit" />
 </form>
 
 </wicket:extend>

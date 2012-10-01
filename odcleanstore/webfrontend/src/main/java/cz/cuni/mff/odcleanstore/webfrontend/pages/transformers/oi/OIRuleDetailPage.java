@@ -18,41 +18,44 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutput;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutputType;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedRedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.LimitedEditingForm;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputTypeDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
 @AuthorizeInstantiation({ Role.PIC })
-public class OIRuleDetailPage extends FrontendPage
+public class OIRuleDetailPage extends LimitedEditingPage
 {
 	private static final long serialVersionUID = 1L;
 
 	private static Logger logger = Logger.getLogger(OIRuleDetailPage.class);
 	
-	private DaoForEntityWithSurrogateKey<OIRule> oiRuleDao;
-	private DaoForEntityWithSurrogateKey<OIOutput> oiOutputDao;
-	private DaoForEntityWithSurrogateKey<OIOutputType> oiOutputTypeDao;
+	private OIRuleDao oiRuleDao;
+	private OIOutputDao oiOutputDao;
+	private OIOutputTypeDao oiOutputTypeDao;
 	
 	public OIRuleDetailPage(final Integer ruleId) 
 	{
 		super(
 			"Home > Backend > OI > Groups > Rules > Edit", 
-			"Edit OI rule"
+			"Edit OI rule",
+			OIRuleDao.class,
+			ruleId
 		);
 		
 		// prepare DAO objects
 		//
 		
-		oiOutputDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIOutputDao.class);
-		oiRuleDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIRuleDao.class);
-		oiOutputTypeDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIOutputTypeDao.class);
+		oiOutputDao = daoLookupFactory.getDao(OIOutputDao.class);
+		oiRuleDao = daoLookupFactory.getDao(OIRuleDao.class);
+		oiOutputTypeDao = daoLookupFactory.getDao(OIOutputTypeDao.class);
 		
 		// register page components
 		//
@@ -68,9 +71,10 @@ public class OIRuleDetailPage extends FrontendPage
 	private void addDBOutputsSection(final Integer ruleId) 
 	{
 		add(
-			new RedirectWithParamButton(
+			new AuthorizedRedirectButton(
 				NewDBOutputPage.class,
 				ruleId, 
+				isEditable(),
 				"showNewDBOutputPage"
 			)
 		);
@@ -99,10 +103,11 @@ public class OIRuleDetailPage extends FrontendPage
 				item.add(createNullResistentTableCellLabel("maxConfidence", output.getMaxConfidence()));
 				
 				item.add(
-					new DeleteRawButton<OIOutput>
+					new AuthorizedDeleteButton<OIOutput>
 					(
 						oiOutputDao,
 						output.getId(),
+						isEditable(),
 						"deleteDBOutput",
 						"output",
 						new DeleteConfirmationMessage("output"),
@@ -130,9 +135,10 @@ public class OIRuleDetailPage extends FrontendPage
 	private void addFileOutputsSection(final Integer ruleId) 
 	{
 		add(
-			new RedirectWithParamButton(
+			new AuthorizedRedirectButton(
 				NewFileOutputPage.class,
 				ruleId, 
+				isEditable(),
 				"showNewFileOutputPage"
 			)
 		);
@@ -163,10 +169,11 @@ public class OIRuleDetailPage extends FrontendPage
 				item.add(new Label("fileFormat", output.getFileFormat().getLabel()));
 				
 				item.add(
-					new DeleteRawButton<OIOutput>
+					new AuthorizedDeleteButton<OIOutput>
 					(
 						oiOutputDao,
 						output.getId(),
+						isEditable(),
 						"deleteFileOutput",
 						"output",
 						new DeleteConfirmationMessage("output"),
@@ -204,12 +211,12 @@ public class OIRuleDetailPage extends FrontendPage
 			)
 		);
 		
-		Form<OIRule> form = new Form<OIRule>("editOIRuleForm", formModel)
+		Form<OIRule> form = new LimitedEditingForm<OIRule>("editOIRuleForm", formModel, isEditable())
 		{
 			private static final long serialVersionUID = 1L;
 			
 			@Override
-			protected void onSubmit()
+			protected void onSubmitImpl()
 			{
 				OIRule rule = getModelObject();
 				

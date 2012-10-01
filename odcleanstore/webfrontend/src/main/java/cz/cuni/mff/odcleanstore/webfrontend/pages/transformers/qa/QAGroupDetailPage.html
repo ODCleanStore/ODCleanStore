@@ -19,13 +19,13 @@
 <form wicket:id="editQAGroupForm">
     <p>
         <label for="label">Label:</label>
-        <input wicket:id="label" id="label" class="required" />
+        <span class="required"><input wicket:id="label" id="label"  /></span>
     </p>
     <p>
         <label for="description">Description:</label>
         <textarea wicket:id="description" id="description"></textarea>
     </p>
-    <input type="submit" value="Submit" />
+    <input type="submit" wicket:id="submit" value="Submit" />
 </form>
 
 <h2>Rules in group</h2>
@@ -43,17 +43,16 @@
 <table border="1">
 	
 	<tr>
+        <th>Description</th>
 		<th>Filter</th>
 		<th wicket:id="sortByCoefficient">Coefficient</th>
-		<th>Description</th>
 		<th>Action</th>
 	</tr>
 	
 	<tr  wicket:id="qaRulesTable">
-	
+        <td wicket:id="description">[description]</td>
 		<td wicket:id="filter">[filter]</td>
 		<td wicket:id="coefficient">[coefficient]</td>
-		<td wicket:id="description">[description]</td>
 		
 		<td class="actions">
 			<input wicket:id="showEditQARulePage" type="button" value="Detail" />

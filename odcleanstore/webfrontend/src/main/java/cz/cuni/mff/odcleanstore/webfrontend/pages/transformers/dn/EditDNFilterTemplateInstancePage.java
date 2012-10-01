@@ -1,48 +1,40 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn;
 
+
 import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.validation.validator.RangeValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNFilterTemplateInstance;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRenameTemplateInstance;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNReplaceTemplateInstance;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.LimitedEditingForm;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNFilterTemplateInstanceDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRenameTemplateInstanceDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNReplaceTemplateInstanceDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
 @AuthorizeInstantiation({ "PIC" })
-public class EditDNFilterTemplateInstancePage extends FrontendPage
+public class EditDNFilterTemplateInstancePage extends LimitedEditingPage
 {
 	private static final long serialVersionUID = 1L;
 	
 	private static Logger logger = Logger.getLogger(NewDNReplaceTemplateInstancePage.class);
 	
-	private DaoForEntityWithSurrogateKey<DNFilterTemplateInstance> dnFilterTemplateInstanceDao;
+	private DNFilterTemplateInstanceDao dnFilterTemplateInstanceDao;
 	
 	public EditDNFilterTemplateInstancePage(final Integer ruleId) 
 	{
 		super(
 			"Home > Backend > DN > Groups > Rename template instances > Edit", 
-			"Edit a DN rename template instance"
+			"Edit a DN rename template instance",
+			DNFilterTemplateInstanceDao.class,
+			ruleId
 		);
 		
 		// prepare DAO objects
 		//
-		this.dnFilterTemplateInstanceDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNFilterTemplateInstanceDao.class);
+		this.dnFilterTemplateInstanceDao = daoLookupFactory.getDao(DNFilterTemplateInstanceDao.class);
 		
 		// register page components
 		//
@@ -65,12 +57,12 @@ public class EditDNFilterTemplateInstancePage extends FrontendPage
 	{
 		IModel<DNFilterTemplateInstance> formModel = new CompoundPropertyModel<DNFilterTemplateInstance>(instance);
 		
-		Form<DNFilterTemplateInstance> form = new Form<DNFilterTemplateInstance>("editDNFilterTemplateInstanceForm", formModel)
+		Form<DNFilterTemplateInstance> form = new LimitedEditingForm<DNFilterTemplateInstance>("editDNFilterTemplateInstanceForm", formModel, isEditable())
 		{
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit()
+			protected void onSubmitImpl()
 			{
 				DNFilterTemplateInstance instance = this.getModelObject();
 				

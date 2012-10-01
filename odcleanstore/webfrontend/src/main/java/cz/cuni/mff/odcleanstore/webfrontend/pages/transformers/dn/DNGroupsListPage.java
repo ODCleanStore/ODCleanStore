@@ -12,14 +12,13 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRulesGroup;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvider;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.DNRuleAssignmentDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.EngineOperationsDao;
@@ -34,7 +33,7 @@ public class DNGroupsListPage extends FrontendPage
 
 	private static Logger logger = Logger.getLogger(OIGroupsListPage.class);
 	
-	private DaoForEntityWithSurrogateKey<DNRulesGroup> dnRulesGroupDao;
+	private DNRulesGroupDao dnRulesGroupDao;
 	private EngineOperationsDao engineOperationsDao;
 	
 	public DNGroupsListPage() 
@@ -46,8 +45,8 @@ public class DNGroupsListPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		dnRulesGroupDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNRulesGroupDao.class);
-		engineOperationsDao = daoLookupFactory.getEngineOperationsDao();
+		dnRulesGroupDao = daoLookupFactory.getDao(DNRulesGroupDao.class);
+		engineOperationsDao = daoLookupFactory.getDao(EngineOperationsDao.class);
 		
 		// register page components
 		//
@@ -71,13 +70,14 @@ public class DNGroupsListPage extends FrontendPage
 				item.setModel(new CompoundPropertyModel<DNRulesGroup>(group));
 
 				item.add(new Label("label"));
+				item.add(new Label("authorName"));
 				item.add(new TruncatedLabel("description", MAX_LIST_COLUMN_TEXT_LENGTH));	
 				
 				item.add(
-					new DeleteRawButton<DNRulesGroup>
+					new AuthorizedDeleteButton<DNRulesGroup>
 					(
 						dnRulesGroupDao,
-						group.getId(),
+						group,
 						"group",
 						new DeleteConfirmationMessage("group", "rule"),
 						DNGroupsListPage.this
@@ -99,6 +99,7 @@ public class DNGroupsListPage extends FrontendPage
 		dataView.setItemsPerPage(ITEMS_PER_PAGE);
 
 		add(new SortTableButton<DNRulesGroup>("orderByLabel", "label", data, dataView));
+		add(new SortTableButton<DNRulesGroup>("orderByAuthor", "username", data, dataView));
 		
 		add(dataView);
 		
@@ -129,7 +130,7 @@ public class DNGroupsListPage extends FrontendPage
 				}
 
 				getSession().info("The affected graphs were successfuly marked to be rerun.");
-				setResponsePage(DNGroupsListPage.class);
+				//setResponsePage(DNGroupsListPage.class);
 			}
 		};
 

@@ -23,10 +23,10 @@ public class GenericSortableDataProvider<BO extends EntityWithSurrogateKey> exte
 	 * 
 	 * @param dao
 	 */
-	public GenericSortableDataProvider(DaoForEntityWithSurrogateKey<BO> dao)
+	/*public GenericSortableDataProvider(DaoForEntityWithSurrogateKey<BO> dao)
 	{
 		this(dao, "id");
-	}
+	}*/
 	
 	/**
 	 * 

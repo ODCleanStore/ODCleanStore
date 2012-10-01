@@ -1,5 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa;
 
+import java.util.Map;
+
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
@@ -12,30 +14,31 @@ import org.apache.wicket.model.IModel;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARulesGroup;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedRedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.LimitedEditingForm;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentSortableDataProvider;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.TransformerAssignmentDetailPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
 @AuthorizeInstantiation({ Role.PIC })
-public class QAGroupDetailPage extends FrontendPage
+public class QAGroupDetailPage extends LimitedEditingPage
 {
 	private static final long serialVersionUID = 1L;
 
 	//private static Logger logger = Logger.getLogger(EditQAGroupPage.class);
 	
-	private DaoForEntityWithSurrogateKey<QARulesGroup> qaRulesGroupDao;
-	private DaoForEntityWithSurrogateKey<QARule> qaRuleDao;
+	private QARulesGroupDao qaRulesGroupDao;
+	private QARuleDao qaRuleDao;
 	
 	public QAGroupDetailPage(final Integer groupId) 
 	{
@@ -46,32 +49,45 @@ public class QAGroupDetailPage extends FrontendPage
 	{
 		super(
 			"Home > Backend > QA > Groups > Edit", 
-			"Edit QA rule group"
+			"Edit QA rule group",
+			QARulesGroupDao.class,
+			groupId
 		);
 		
 		// prepare DAO objects
 		//
-		qaRulesGroupDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(QARulesGroupDao.class);
-		qaRuleDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(QARuleDao.class);
+		qaRulesGroupDao = daoLookupFactory.getDao(QARulesGroupDao.class);
+		qaRuleDao = daoLookupFactory.getDao(QARuleDao.class);
 		
 		// register page components
 		//
-		addBackToPipelineLink(transformerInstanceId);
+		addBackToPipelineLink(groupId, transformerInstanceId);
 		addHelpWindow("rulesGroupHelpWindow", "openRulesGroupHelpWindow", new RulesGroupHelpPanel("content"));
 		addHelpWindow("qaRuleHelpWindow", "openQARuleHelpWindow", new QARuleHelpPanel("content"));
 		addEditOIRulesGroupForm(groupId);
 		addQARulesSection(groupId);
 	}
 	
-	private void addBackToPipelineLink(Integer transformerInstanceId) 
+	private void addBackToPipelineLink(Integer groupId, Integer transformerInstanceId) 
 	{
-		RedirectWithParamButton link = new RedirectWithParamButton(
+		Map<Integer, Integer> navigationMap = getODCSSession().getQaPipelineRulesNavigationMap();
+		Integer linkTransformerId = null;
+		if (transformerInstanceId != null) 
+		{
+			linkTransformerId = transformerInstanceId;
+			navigationMap.put(groupId, transformerInstanceId);
+		}
+		else if (navigationMap.containsKey(groupId))
+		{
+			linkTransformerId = navigationMap.get(groupId);
+		}
+		
+		add(new AuthorizedRedirectButton(
 			TransformerAssignmentDetailPage.class,
-			transformerInstanceId, 
+			linkTransformerId, 
+			linkTransformerId != null,
 			"backToPipelineLink"
-		);
-		link.setVisible(transformerInstanceId != null);
-		add(link);
+		));
 	}
 
 	private void addEditOIRulesGroupForm(final Integer groupId)
@@ -79,12 +95,12 @@ public class QAGroupDetailPage extends FrontendPage
 		QARulesGroup group = qaRulesGroupDao.load(groupId);
 		IModel<QARulesGroup> formModel = new CompoundPropertyModel<QARulesGroup>(group);
 		
-		Form<QARulesGroup> form = new Form<QARulesGroup>("editQAGroupForm", formModel)
+		Form<QARulesGroup> form = new LimitedEditingForm<QARulesGroup>("editQAGroupForm", formModel, isEditable())
 		{
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit()
+			protected void onSubmitImpl()
 			{
 				QARulesGroup group = this.getModelObject();
 				
@@ -108,7 +124,6 @@ public class QAGroupDetailPage extends FrontendPage
 				}
 				
 				getSession().info("The group was successfuly updated.");
-				//setResponsePage(QAGroupsListPage.class);
 			}
 		};
 		
@@ -121,9 +136,10 @@ public class QAGroupDetailPage extends FrontendPage
 	private void addQARulesSection(final Integer groupId) 
 	{
 		add(
-			new RedirectWithParamButton(
+			new AuthorizedRedirectButton(
 				NewQARulePage.class,
 				groupId, 
+				isEditable(),
 				"addNewRuleLink"
 			)
 		);
@@ -157,10 +173,11 @@ public class QAGroupDetailPage extends FrontendPage
 				item.add(new TruncatedLabel("description", MAX_LIST_COLUMN_TEXT_LENGTH));
 				
 				item.add(
-					new DeleteRawButton<QARule>
+					new AuthorizedDeleteButton<QARule>
 					(
 						qaRuleDao,
 						rule.getId(),
+						isEditable(),
 						"rule",
 						new DeleteConfirmationMessage("rule"),
 						QAGroupDetailPage.this

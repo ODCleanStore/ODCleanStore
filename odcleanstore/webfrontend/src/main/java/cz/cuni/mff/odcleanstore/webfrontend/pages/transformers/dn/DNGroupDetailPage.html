@@ -22,13 +22,13 @@
 <form wicket:id="editDNGroupForm">
     <p>
         <label for="label">Label:</label>
-        <input wicket:id="label" id="label" class="required" />
+        <span class="required"><input wicket:id="label" id="label"  /></span>
     </p>
     <p>
         <label for="description">Description:</label>
         <textarea wicket:id="description" id="description"></textarea>
     </p>
-    <input type="submit" value="Submit" />
+    <input type="submit" wicket:id="submit" value="Submit" />
 </form>
 
 <h2>Raw rules</h2>
@@ -71,6 +71,8 @@
 <span class="navigation" wicket:id="replaceTemplateInstancesNavigator">[dataview navigator]</span>
 <a wicket:id="openDNReplaceTemplateInstanceHelpWindow"class="help">Help</a>
 
+<div class="clear">&nbsp;</div>
+
 <table border="1">
 	
 	<tr>
@@ -87,9 +89,8 @@
 		<td wicket:id="replacement">[replacement]</td>
 		
 		<td class="centered">
-			<input wicket:id="deleteReplaceTemplateInstance" type="button" value="Delete" />
-			<input wicket:id="showDNReplaceTemplateInstanceDetailPage" type="button" value="Detail" />
-			<input wicket:id="showEditDNReplaceTemplateInstancePage" type="button" value="Edit" />
+			<input wicket:id="showEditDNReplaceTemplateInstancePage" type="button" value="Detail" />
+			<input wicket:id="deleteReplaceTemplateInstance" type="button" value="Delete" class="delete" />
 		</td>
 	</tr>
 </table>
@@ -103,6 +104,8 @@
 
 <span class="navigation" wicket:id="renameTemplateInstancesNavigator">[dataview navigator]</span>
 <a wicket:id="openDNRenameTemplateInstanceHelpWindow"class="help">Help</a>
+
+<div class="clear">&nbsp;</div>
 
 <table border="1">
 	
@@ -118,9 +121,8 @@
 		<td wicket:id="targetPropertyName">[target property name]</td>
 		
 		<td class="centered">
-			<input wicket:id="deleteRenameTemplateInstance" type="button" value="Delete" />
-			<input wicket:id="showDNRenameTemplateInstanceDetailPage" type="button" value="Detail" />
-			<input wicket:id="showEditDNRenameTemplateInstancePage" type="button" value="Edit" />
+			<input wicket:id="showEditDNRenameTemplateInstancePage" type="button" value="Detail" />
+			<input wicket:id="deleteRenameTemplateInstance" type="button" value="Delete" class="delete" />
 		</td>
 	</tr>
 </table>
@@ -132,8 +134,11 @@
 	<div class="clear">&nbsp;</div>
 </div>
 
+
 <span class="navigation" wicket:id="filterTemplateInstancesNavigator">[dataview navigator]</span>
 <a wicket:id="openDNFilterTemplateInstanceHelpWindow"class="help">Help</a>
+
+<div class="clear">&nbsp;</div>
 
 <table border="1">
 	
@@ -151,9 +156,8 @@
 		<td wicket:id="keep">[keep]</td>
 		
 		<td class="centered">
-			<input wicket:id="deleteFilterTemplateInstance" type="button" value="Delete" />
-			<input wicket:id="showDNFilterTemplateInstanceDetailPage" type="button" value="Detail" />
-			<input wicket:id="showEditDNFilterTemplateInstancePage" type="button" value="Edit" />
+			<input wicket:id="showEditDNFilterTemplateInstancePage" type="button" value="Detail" />
+			<input wicket:id="deleteFilterTemplateInstance" type="button" value="Delete" class="delete" />
 		</td>
 	</tr>
 </table>

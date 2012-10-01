@@ -7,21 +7,20 @@ import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponent;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponentType;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.LimitedEditingForm;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleComponentDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleComponentTypeDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
 @AuthorizeInstantiation({ Role.PIC })
-public class DNRuleComponentDetailPage extends FrontendPage
+public class DNRuleComponentDetailPage extends LimitedEditingPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private DaoForEntityWithSurrogateKey<DNRuleComponent> dnRuleComponentDao;
-	private DaoForEntityWithSurrogateKey<DNRuleComponentType> dnRuleComponentTypeDao;
+	private DNRuleComponentDao dnRuleComponentDao;
+	private DNRuleComponentTypeDao dnRuleComponentTypeDao;
 	
 	/**
 	 * 
@@ -31,13 +30,15 @@ public class DNRuleComponentDetailPage extends FrontendPage
 	{
 		super(
 			"Home > Backend > DN > Groups > Rules > Components > Edit", 
-			"Edit a DN rule component"
+			"Edit a DN rule component",
+			DNRuleComponentDao.class,
+			ruleComponentId
 		);
 
 		// prepare DAO objects
 		//
-		dnRuleComponentDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNRuleComponentDao.class);
-		dnRuleComponentTypeDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNRuleComponentTypeDao.class);
+		dnRuleComponentDao = daoLookupFactory.getDao(DNRuleComponentDao.class);
+		dnRuleComponentTypeDao = daoLookupFactory.getDao(DNRuleComponentTypeDao.class);
 		
 		// register page components
 		//
@@ -60,12 +61,12 @@ public class DNRuleComponentDetailPage extends FrontendPage
 	{
 		IModel<DNRuleComponent> formModel = new CompoundPropertyModel<DNRuleComponent>(component);
 		
-		Form<DNRuleComponent> form = new Form<DNRuleComponent>("editDNRuleComponentForm", formModel)
+		Form<DNRuleComponent> form = new LimitedEditingForm<DNRuleComponent>("editDNRuleComponentForm", formModel, isEditable())
 		{
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit()
+			protected void onSubmitImpl()
 			{
 				DNRuleComponent dnRuleComponent = this.getModelObject();
 				

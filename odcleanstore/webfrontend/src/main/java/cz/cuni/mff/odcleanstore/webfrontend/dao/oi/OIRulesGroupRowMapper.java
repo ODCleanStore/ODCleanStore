@@ -16,7 +16,9 @@ public class OIRulesGroupRowMapper extends CustomRowMapper<OIRulesGroup>
 		(
 			rs.getInt("id"),
 			blobToString(rs.getBlob("label")),
-			blobToString(rs.getBlob("description"))
+			blobToString(rs.getBlob("description")),
+			rs.getInt("authorId"),
+			blobToString(rs.getBlob("username"))
 		);
 	}
 }

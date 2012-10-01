@@ -8,12 +8,8 @@ import org.springframework.transaction.support.AbstractPlatformTransactionManage
 
 import virtuoso.jdbc3.VirtuosoDataSource;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessEntity;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.SafetyDaoDecorator;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.SafetyDaoDecoratorForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.GlobalAggregationSettingsDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.EngineOperationsDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.OfficialPipelinesDao;
@@ -48,10 +44,7 @@ public class DaoLookupFactory implements Serializable
 	/** Spring transaction manager */
 	private transient AbstractPlatformTransactionManager transactionManager;
 	
-	/** a cache of loaded DAO objects */
-	private HashMap<Class<? extends Dao<? extends BusinessEntity>>, Dao<? extends BusinessEntity>> daos;
-	
-	private TransformerInstanceDao transformerInstanceDao;
+	private HashMap<Class<? extends Dao>, Dao> daos;
 	
 	/**
 	 * 
@@ -65,80 +58,18 @@ public class DaoLookupFactory implements Serializable
 		this.cleanConnectionCoords = cleanConnectionCoords;
 		this.dirtyConnectionCoords = dirtyConnectionCoords;
 		
-		this.daos = new HashMap<Class<? extends Dao<? extends BusinessEntity>>, Dao<? extends BusinessEntity>>();
+		this.daos = new HashMap<Class<? extends Dao>, Dao>();
 	}
 	
-	/**
-	 * Creates (lazily) and returns the requested DAO object decorated by
-	 * a SafetyDaoDecorator instance. 
-	 * 
-	 * Throws an AssertionError if the requested DAO class cannot be 
-	 * instantiated.
-	 * 
-	 * The returned DAO object is stored in the cache to be retrieved from
-	 * at subsequent calls.
-	 * 
-	 * @param daoClass
-	 * @return
-	 * @throws AssertionError
-	 */
-	@SuppressWarnings("unchecked")
-	public <T extends BusinessEntity> Dao<T> getDao(Class<? extends Dao<T>> daoClass) throws AssertionError
+	public <T extends Dao> T getDao(Class<T> daoClass) throws AssertionError
 	{
 		if (daos.containsKey(daoClass))
-			return (Dao<T>) daos.get(daoClass);
+			return (T) daos.get(daoClass);
 		
-		Dao<T> daoInstance = createDaoInstance(daoClass);
-		Dao<T> safeDaoInstance = new SafetyDaoDecorator<T>(daoInstance);
-		
-		daos.put(daoClass, safeDaoInstance);
-		
-		return safeDaoInstance;
-	}
+		T daoInstance = createDaoInstance(daoClass);
+		daos.put(daoClass, daoInstance);
 	
-	/**
-	 * Creates (lazily) and returns the requested DAO for entity with surrogate key 
-	 * object decorated by a SafetyDecoratorForEntityWithSurrogateKey instance.
-	 * 
-	 * Throws an AssertionError if the requested DAO class cannot be instantiated.
-	 * 
-	 * The returned DAO object is stored in the cache to be retrieved from
-	 * at subsequent calls.
-	 * 
-	 * @param daoClass
-	 * @return
-	 * @throws AssertionError
-	 */
-	@SuppressWarnings("unchecked")
-	public <T extends EntityWithSurrogateKey> DaoForEntityWithSurrogateKey<T> getDaoForEntityWithSurrogateKey(Class<? extends Dao<T>> daoClass) 
-		throws AssertionError
-	{
-		if (daos.containsKey(daoClass))
-			return (DaoForEntityWithSurrogateKey<T>) daos.get(daoClass);
-		
-		DaoForEntityWithSurrogateKey<T> daoInstance = (DaoForEntityWithSurrogateKey<T>) createDaoInstance(daoClass);
-		DaoForEntityWithSurrogateKey<T> safeDaoInstance = new SafetyDaoDecoratorForEntityWithSurrogateKey<T>(daoInstance);
-		
-		daos.put(daoClass, safeDaoInstance);
-		
-		return safeDaoInstance;
-	}
-	
-	/**
-	 * Creates and returns a raw (e.g. undecorated) instance of the requested DAO class.
-	 * 
-	 * The returned DAO object is not stored in the cache.
-	 * 
-	 * Throws an AssertionError if the requested DAO class cannot be 
-	 * instantiated.
-	 * 
-	 * @param daoClass
-	 * @return
-	 * @throws AssertionError
-	 */
-	public <T extends BusinessEntity> Dao<T> getUnsafeDao(Class<? extends Dao<T>> daoClass) throws AssertionError
-	{
-		return createDaoInstance(daoClass);
+		return daoInstance;
 	}
 	
 	/**
@@ -150,9 +81,9 @@ public class DaoLookupFactory implements Serializable
 	 * @return
 	 * @throws AssertionError
 	 */
-	private <T extends BusinessEntity> Dao<T> createDaoInstance(Class<? extends Dao<T>> daoClass) throws AssertionError
+	private <T extends Dao> T createDaoInstance(Class<T> daoClass) throws AssertionError
 	{
-		Dao<T> daoInstance;
+		T daoInstance;
 		
 		try {
 			daoInstance = daoClass.newInstance();
@@ -170,6 +101,7 @@ public class DaoLookupFactory implements Serializable
 	}
 	
 	/**
+<<<<<<< HEAD
 	 * Creates and returns the (undecorated) official pipelines DAO.
 	 * 
 	 * @return
@@ -200,9 +132,12 @@ public class DaoLookupFactory implements Serializable
 	 * on every request, which allows the factory to be stored in the session
 	 * by the Wicket framework.
 	 * 
+=======
+	 * Only for DAO classes.
+>>>>>>> d44256eac5da0455d22d22858b15faefc601b077
 	 * @return
 	 */
-	public VirtuosoDataSource getCleanDataSource()
+	public  VirtuosoDataSource getCleanDataSource()
 	{
 		if (cleanDataSource == null)
 		{
@@ -217,12 +152,16 @@ public class DaoLookupFactory implements Serializable
 	}
 	
 	/**
+<<<<<<< HEAD
 	 * Returns the data source for the dirty Virtuoso DB.
 	 * 
 	 * The data source is lazily created (based on the connection credentials)
 	 * on every request, which allows the factory to be stored in the session
 	 * by the Wicket framework.
 	 * 
+=======
+	 * Only for DAO classes.
+>>>>>>> d44256eac5da0455d22d22858b15faefc601b077
 	 * @return
 	 */
 	public VirtuosoDataSource getDirtyDataSource()
@@ -256,12 +195,16 @@ public class DaoLookupFactory implements Serializable
 	}
 	
 	/**
+<<<<<<< HEAD
 	 * Returns the (lazily created on every request) transaction manager over
 	 * the clean data source.
 	 *  
+=======
+	 * Only for DAO classes.
+>>>>>>> d44256eac5da0455d22d22858b15faefc601b077
 	 * @return
 	 */
-	public AbstractPlatformTransactionManager getTransactionManager()
+	public AbstractPlatformTransactionManager getCleanTransactionManager()
 	{
 		if (transactionManager == null)
 			transactionManager = new DataSourceTransactionManager(getCleanDataSource());

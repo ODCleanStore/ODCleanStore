@@ -10,17 +10,16 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.CompoundPropertyModel;
 
+import cz.cuni.mff.odcleanstore.configuration.WebFrontendConfig;
 import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
-import cz.cuni.mff.odcleanstore.configuration.WebFrontendConfig;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvider;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
@@ -33,7 +32,7 @@ public class AccountsListPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private DaoForEntityWithSurrogateKey<User> userDao;
+	private UserDao userDao;
 	
 	public AccountsListPage() 
 	{
@@ -44,7 +43,7 @@ public class AccountsListPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		userDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(UserDao.class);
+		userDao = daoLookupFactory.getDao(UserDao.class);
 		
 		// register page components
 		//
@@ -76,7 +75,7 @@ public class AccountsListPage extends FrontendPage
 					item.add(createRoleLabel(user, role));
 				
 				item.add(
-					new DeleteRawButton<User>
+					new DeleteButton<User>
 					(
 						userDao,
 						user.getId(),
@@ -155,7 +154,7 @@ public class AccountsListPage extends FrontendPage
 				}
 								
 				getSession().info("The password was successfuly updated.");
-				setResponsePage(AccountsListPage.class);
+				//setResponsePage(AccountsListPage.class);
 			}
 		};
 		

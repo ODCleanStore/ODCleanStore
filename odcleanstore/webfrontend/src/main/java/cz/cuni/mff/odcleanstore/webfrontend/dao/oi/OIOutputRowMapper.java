@@ -31,7 +31,7 @@ public class OIOutputRowMapper extends CustomRowMapper<OIOutput>
 	
 	private OIFileFormat mapFileFormat(ResultSet rs) throws SQLException
 	{
-		// note that the getLong method returns 0 if the value of the 
+		// note that the getInt method returns 0 if the value of the 
 		// corresponding column equals NULL in the represented row
 		if (rs.getInt("ffid") == 0)
 			return null;

@@ -3,9 +3,10 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.prefixes;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.prefixes.Prefix;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoTemplate;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.EnumDatabaseInstance;
 
-public class PrefixDao extends Dao<Prefix>
+public class PrefixDao extends DaoTemplate<Prefix>
 {
 	public static final String TABLE_NAME = "DB.DBA.SYS_XML_PERSISTENT_NS_DECL";
 
@@ -19,19 +20,18 @@ public class PrefixDao extends Dao<Prefix>
 	}
 	
 	@Override
-	public String getTableName() 
+	public String getTableName()
 	{
 		return TABLE_NAME;
 	}
 
 	@Override
-	protected ParameterizedRowMapper<Prefix> getRowMapper() 
+	protected ParameterizedRowMapper<Prefix> getRowMapper()
 	{
 		return rowMapper;
 	}
 	
-	@Override
-	public void delete(Prefix item)
+	public void delete(Prefix item) throws Exception
 	{
 		String query = "DELETE FROM " + TABLE_NAME + " WHERE NS_PREFIX = ?";
 		Object[] params = { item.getPrefix() };
@@ -40,12 +40,11 @@ public class PrefixDao extends Dao<Prefix>
 		// for the transactional behavior to work correctly
 		// (the operation is surrounded by a transaction on the clean JDBC template)
 		//
-		getCleanJdbcTemplate().update(query, params);
-		getDirtyJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params, EnumDatabaseInstance.CLEAN);
+		jdbcUpdate(query, params, EnumDatabaseInstance.DIRTY);
 	}
 	
-	@Override
-	public void save(Prefix item)
+	public void save(Prefix item) throws Exception
 	{
 		String query = "INSERT INTO " + TABLE_NAME + " (NS_PREFIX, NS_URL) VALUES (?, ?)";
 		Object[] params = { item.getPrefix(), item.getUrl() };
@@ -54,7 +53,13 @@ public class PrefixDao extends Dao<Prefix>
 		// for the transactional behavior to work correctly
 		// (the operation is surrounded by a transaction on the clean JDBC template)
 		//
-		getCleanJdbcTemplate().update(query, params);
-		getDirtyJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params, EnumDatabaseInstance.CLEAN);
+		jdbcUpdate(query, params, EnumDatabaseInstance.DIRTY);
+	}
+	
+	@Override
+	public Prefix loadBy(String columnName, Object value)
+	{
+		return super.loadBy(columnName, value);
 	}
 }

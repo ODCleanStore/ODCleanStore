@@ -1,5 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn;
 
+import java.util.Map;
+
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.Item;
@@ -7,43 +9,44 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.markup.html.basic.Label;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNReplaceTemplateInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNFilterTemplateInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRenameTemplateInstance;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNReplaceTemplateInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRulesGroup;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedRedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.BooleanLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.LimitedEditingForm;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNFilterTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRenameTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNReplaceTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.TransformerAssignmentDetailPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
 @AuthorizeInstantiation({ Role.PIC })
-public class DNGroupDetailPage extends FrontendPage
+public class DNGroupDetailPage extends LimitedEditingPage
 {
 	private static final long serialVersionUID = 1L;
 
 	//private static Logger logger = Logger.getLogger(EditDNGroupPage.class);
 	
-	private DaoForEntityWithSurrogateKey<DNRulesGroup> dnRulesGroupDao;
-	private DaoForEntityWithSurrogateKey<DNRule> dnRuleDao;
-	private DaoForEntityWithSurrogateKey<DNReplaceTemplateInstance> dnReplaceTemplateInstanceDao;
-	private DaoForEntityWithSurrogateKey<DNRenameTemplateInstance> dnRenameTemplateInstanceDao;
-	private DaoForEntityWithSurrogateKey<DNFilterTemplateInstance> dnFilterTemplateInstanceDao;
+	private DNRulesGroupDao dnRulesGroupDao;
+	private DNRuleDao dnRuleDao;
+	private DNReplaceTemplateInstanceDao dnReplaceTemplateInstanceDao;
+	private DNRenameTemplateInstanceDao dnRenameTemplateInstanceDao;
+	private DNFilterTemplateInstanceDao dnFilterTemplateInstanceDao;
 
 	public DNGroupDetailPage(final Integer groupId) 
 	{
@@ -54,20 +57,22 @@ public class DNGroupDetailPage extends FrontendPage
 	{
 		super(
 			"Home > Backend > DN > Groups > Edit", 
-			"Edit DN rule group"
+			"Edit DN rule group",
+			DNRulesGroupDao.class,
+			groupId
 		);
 		
 		// prepare DAO objects
 		//
-		dnRulesGroupDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNRulesGroupDao.class);
-		dnRuleDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNRuleDao.class);
-		dnReplaceTemplateInstanceDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNReplaceTemplateInstanceDao.class);
-		dnRenameTemplateInstanceDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNRenameTemplateInstanceDao.class);
-		dnFilterTemplateInstanceDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNFilterTemplateInstanceDao.class);
+		dnRulesGroupDao = daoLookupFactory.getDao(DNRulesGroupDao.class);
+		dnRuleDao = daoLookupFactory.getDao(DNRuleDao.class);
+		dnReplaceTemplateInstanceDao = daoLookupFactory.getDao(DNReplaceTemplateInstanceDao.class);
+		dnRenameTemplateInstanceDao = daoLookupFactory.getDao(DNRenameTemplateInstanceDao.class);
+		dnFilterTemplateInstanceDao = daoLookupFactory.getDao(DNFilterTemplateInstanceDao.class);
 		
 		// register page components
 		//
-		addBackToPipelineLink(transformerInstanceId);
+		addBackToPipelineLink(groupId, transformerInstanceId);
 		addHelpWindow("rulesGroupHelpWindow", "openRulesGroupHelpWindow", new RulesGroupHelpPanel("content"));
 		addHelpWindow("dnRuleHelpWindow", "openDNRuleHelpWindow", new DNRuleHelpPanel("content"));
 		addHelpWindow("dnReplaceTemplateInstanceHelpWindow", "openDNReplaceTemplateInstanceHelpWindow", new DNReplaceTemplateInstanceHelpPanel("content"));
@@ -82,15 +87,26 @@ public class DNGroupDetailPage extends FrontendPage
 		addDNFilterTemplateInstancesSection(groupId);
 	}
 	
-	private void addBackToPipelineLink(Integer transformerInstanceId) 
+	private void addBackToPipelineLink(Integer groupId, Integer transformerInstanceId) 
 	{
-		RedirectWithParamButton link = new RedirectWithParamButton(
+		Map<Integer, Integer> navigationMap = getODCSSession().getDnPipelineRulesNavigationMap();
+		Integer linkTransformerId = null;
+		if (transformerInstanceId != null) 
+		{
+			linkTransformerId = transformerInstanceId;
+			navigationMap.put(groupId, transformerInstanceId);
+		}
+		else if (navigationMap.containsKey(groupId))
+		{
+			linkTransformerId = navigationMap.get(groupId);
+		}
+		
+		add(new AuthorizedRedirectButton(
 			TransformerAssignmentDetailPage.class,
-			transformerInstanceId, 
+			linkTransformerId, 
+			linkTransformerId != null,
 			"backToPipelineLink"
-		);
-		link.setVisible(transformerInstanceId != null);
-		add(link);
+		));
 	}
 	
 	/*
@@ -104,12 +120,12 @@ public class DNGroupDetailPage extends FrontendPage
 		DNRulesGroup group = dnRulesGroupDao.load(groupId);
 		IModel<DNRulesGroup> formModel = new CompoundPropertyModel<DNRulesGroup>(group);
 		
-		Form<DNRulesGroup> form = new Form<DNRulesGroup>("editDNGroupForm", formModel)
+		Form<DNRulesGroup> form = new LimitedEditingForm<DNRulesGroup>("editDNGroupForm", formModel, isEditable())
 		{
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit()
+			protected void onSubmitImpl()
 			{
 				DNRulesGroup group = this.getModelObject();
 				
@@ -146,9 +162,10 @@ public class DNGroupDetailPage extends FrontendPage
 	private void addDNRawRulesSection(final Integer groupId) 
 	{
 		add(
-			new RedirectWithParamButton(
+			new AuthorizedRedirectButton(
 				NewDNRulePage.class,
 				groupId, 
+				isEditable(),
 				"addNewRuleLink"
 			)
 		);
@@ -174,10 +191,11 @@ public class DNGroupDetailPage extends FrontendPage
 				item.add(new TruncatedLabel("description", MAX_LIST_COLUMN_TEXT_LENGTH));
 				
 				item.add(
-					new DeleteRawButton<DNRule>
+					new AuthorizedDeleteButton<DNRule>
 					(
 						dnRuleDao,
 						rule.getId(),
+						isEditable(),
 						"rule",
 						new DeleteConfirmationMessage("rule"),
 						DNGroupDetailPage.this
@@ -206,9 +224,10 @@ public class DNGroupDetailPage extends FrontendPage
 	private void addDNReplaceTemplateInstancesSection(final Integer groupId) 
 	{
 		add(
-			new RedirectWithParamButton(
+			new AuthorizedRedirectButton(
 				NewDNReplaceTemplateInstancePage.class,
 				groupId, 
+				isEditable(),
 				"addNewReplaceTemplateInstanceLink"
 			)
 		);
@@ -241,22 +260,14 @@ public class DNGroupDetailPage extends FrontendPage
 				item.add(new TruncatedLabel("replacement", MAX_LIST_COLUMN_TEXT_LENGTH));
 				
 				item.add(
-					new DeleteRawButton<DNReplaceTemplateInstance>
+					new AuthorizedDeleteButton<DNReplaceTemplateInstance>
 					(
 						dnReplaceTemplateInstanceDao,
 						instance.getId(),
+						isEditable(),
 						"replaceTemplateInstance",
 						new DeleteConfirmationMessage("replace template instance"),
 						DNGroupDetailPage.this
-					)
-				);
-				
-				item.add(
-					new RedirectWithParamButton
-					(
-						DNReplaceTemplateInstanceDetailPage.class,
-						instance.getId(), 
-						"showDNReplaceTemplateInstanceDetailPage"
 					)
 				);
 				
@@ -281,9 +292,10 @@ public class DNGroupDetailPage extends FrontendPage
 	private void addDNRenameTemplateInstancesSection(final Integer groupId) 
 	{
 		add(
-			new RedirectWithParamButton(
+			new AuthorizedRedirectButton(
 				NewDNRenameTemplateInstancePage.class,
 				groupId, 
+				isEditable(),
 				"addNewRenameTemplateInstanceLink"
 			)
 		);
@@ -315,22 +327,14 @@ public class DNGroupDetailPage extends FrontendPage
 				item.add(new TruncatedLabel("targetPropertyName", MAX_LIST_COLUMN_TEXT_LENGTH));
 				
 				item.add(
-					new DeleteRawButton<DNRenameTemplateInstance>
+					new AuthorizedDeleteButton<DNRenameTemplateInstance>
 					(
 						dnRenameTemplateInstanceDao,
 						instance.getId(),
+						isEditable(),
 						"renameTemplateInstance",
 						new DeleteConfirmationMessage("rename template instance"),
 						DNGroupDetailPage.this
-					)
-				);
-				
-				item.add(
-					new RedirectWithParamButton
-					(
-						DNRenameTemplateInstanceDetailPage.class,
-						instance.getId(), 
-						"showDNRenameTemplateInstanceDetailPage"
 					)
 				);
 				
@@ -355,9 +359,10 @@ public class DNGroupDetailPage extends FrontendPage
 	private void addDNFilterTemplateInstancesSection(final Integer groupId) 
 	{
 		add(
-			new RedirectWithParamButton(
+			new AuthorizedRedirectButton(
 				NewDNFilterTemplateInstancePage.class,
 				groupId, 
+				isEditable(),
 				"addNewFilterTemplateInstanceLink"
 			)
 		);
@@ -387,25 +392,17 @@ public class DNGroupDetailPage extends FrontendPage
 	
 				item.add(new TruncatedLabel("propertyName", MAX_LIST_COLUMN_TEXT_LENGTH));
 				item.add(new TruncatedLabel("pattern", MAX_LIST_COLUMN_TEXT_LENGTH));
-				item.add(new Label("keep"));
+				item.add(new BooleanLabel("keep"));
 				
 				item.add(
-					new DeleteRawButton<DNFilterTemplateInstance>
+					new AuthorizedDeleteButton<DNFilterTemplateInstance>
 					(
 						dnFilterTemplateInstanceDao,
 						instance.getId(),
+						isEditable(),
 						"filterTemplateInstance",
 						new DeleteConfirmationMessage("filter template instance"),
 						DNGroupDetailPage.this
-					)
-				);
-				
-				item.add(
-					new RedirectWithParamButton
-					(
-						DNFilterTemplateInstanceDetailPage.class,
-						instance.getId(), 
-						"showDNFilterTemplateInstanceDetailPage"
 					)
 				);
 				

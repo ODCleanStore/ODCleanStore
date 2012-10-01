@@ -12,17 +12,17 @@
 <form wicket:id="editDNReplaceTemplateInstanceForm">
 	<p>
 		<label for="propertyName">Property name:</label>
-		<input wicket:id="propertyName" id="propertyName" type="text" class="required" />
+		<span class="required"><input wicket:id="propertyName" id="propertyName" type="text"  /></span>
 	</p>
 	<p>
 		<label for="pattern">Pattern:</label>
-		<input wicket:id="pattern" id="pattern" type="text" class="required" />
+		<span class="required"><input wicket:id="pattern" id="pattern" type="text"  /></span>
 	</p>
 	<p>
 		<label for="replacement">Replacement:</label>
-		<input wicket:id="replacement" id="replacement" type="text" class="required" />
+		<span class="required"><input wicket:id="replacement" id="replacement" type="text"  /></span>
 	</p>
-	<input type="submit" value="Submit" />
+	<input type="submit" wicket:id="submit" value="Submit" />
 </form>
 
 </wicket:extend>

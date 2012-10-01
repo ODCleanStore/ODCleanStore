@@ -9,14 +9,14 @@ import org.apache.wicket.model.CompoundPropertyModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.Ontology;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.AuthorizationHelper;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedRedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvider;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.onto.OntologyDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
@@ -25,7 +25,7 @@ public class OntologiesListPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 	
-	private DaoForEntityWithSurrogateKey<Ontology> ontologyDao;
+	private OntologyDao ontologyDao;
 
 	public OntologiesListPage() 
 	{
@@ -36,7 +36,7 @@ public class OntologiesListPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		this.ontologyDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OntologyDao.class);
+		this.ontologyDao = daoLookupFactory.getDao(OntologyDao.class);
 		
 		// register page components
 		//
@@ -60,12 +60,11 @@ public class OntologiesListPage extends FrontendPage
 				item.setModel(new CompoundPropertyModel<Ontology>(ontology));
 
 				item.add(new Label("label"));
-				item.add(new TruncatedLabel("description", MAX_LIST_COLUMN_TEXT_LENGTH));
+				item.add(new Label("authorName"));
 				item.add(new Label("graphName"));
 				
 				item.add(
-					new DeleteButton<Ontology>
-					(
+					new AuthorizedDeleteButton<Ontology>(
 						ontologyDao,
 						ontology,
 						"ontology",
@@ -83,17 +82,19 @@ public class OntologiesListPage extends FrontendPage
 				);
 				
 				item.add(
-					new RedirectWithParamButton(
+					new AuthorizedRedirectButton(
 						ChooseOntologiesPage.class,
-						ontology.getId(), 
+						ontology.getId(),
+						AuthorizationHelper.isAuthorizedForEntityEditing(ontology),
 						"ontologyMapping"
 					)
 				);
 				
 				item.add(
-					new RedirectWithParamButton(
+					new AuthorizedRedirectButton(
 						EditOntologyPage.class,
 						ontology.getId(),
+						AuthorizationHelper.isAuthorizedForEntityEditing(ontology.getAuthorId()),
 						"showEditOntologyPage"
 					)
 				);
@@ -103,6 +104,7 @@ public class OntologiesListPage extends FrontendPage
 		dataView.setItemsPerPage(ITEMS_PER_PAGE);
 		
 		add(new SortTableButton<Ontology>("sortByLabel", "label", data, dataView));
+		add(new SortTableButton<Ontology>("sortByAuthor", "username", data, dataView));
 		add(new SortTableButton<Ontology>("sortByGraphName", "graphName", data, dataView));
 		
 		add(dataView);

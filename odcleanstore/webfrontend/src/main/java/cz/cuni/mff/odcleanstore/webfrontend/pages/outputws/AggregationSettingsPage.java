@@ -13,18 +13,15 @@ import org.apache.wicket.model.Model;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.AggregationType;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.ErrorStrategy;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.GlobalAggregationSettings;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.MultivalueType;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.PropertySettings;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvider;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.AggregationTypeDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.ErrorStrategyDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.GlobalAggregationSettingsDao;
@@ -40,11 +37,11 @@ public class AggregationSettingsPage extends FrontendPage
 
 	//private static Logger logger = Logger.getLogger(AggregationSettingsPage.class);
 	
-	private DaoForEntityWithSurrogateKey<PropertySettings> propertySettingsDao;
-	private Dao<GlobalAggregationSettings> globalAggregationSettingsDao;
-	private DaoForEntityWithSurrogateKey<AggregationType> aggregationTypeDao;
-	private DaoForEntityWithSurrogateKey<MultivalueType> multivalueTypeDao;
-	private DaoForEntityWithSurrogateKey<ErrorStrategy> errorStrategyDao;
+	private PropertySettingsDao propertySettingsDao;
+	private GlobalAggregationSettingsDao globalAggregationSettingsDao;
+	private AggregationTypeDao aggregationTypeDao;
+	private MultivalueTypeDao multivalueTypeDao;
+	private ErrorStrategyDao errorStrategyDao;
 	
 	public AggregationSettingsPage() 
 	{
@@ -55,11 +52,11 @@ public class AggregationSettingsPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		propertySettingsDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(PropertySettingsDao.class);
+		propertySettingsDao = daoLookupFactory.getDao(PropertySettingsDao.class);
 		globalAggregationSettingsDao = daoLookupFactory.getDao(GlobalAggregationSettingsDao.class);
-		aggregationTypeDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(AggregationTypeDao.class);
-		multivalueTypeDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(MultivalueTypeDao.class);
-		errorStrategyDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(ErrorStrategyDao.class);
+		aggregationTypeDao = daoLookupFactory.getDao(AggregationTypeDao.class);
+		multivalueTypeDao = daoLookupFactory.getDao(MultivalueTypeDao.class);
+		errorStrategyDao = daoLookupFactory.getDao(ErrorStrategyDao.class);
 		
 		// register page components
 		//
@@ -71,7 +68,7 @@ public class AggregationSettingsPage extends FrontendPage
 	private void addEditGlobalSettingsForm()
 	{
 		IModel<GlobalAggregationSettings> formModel = new CompoundPropertyModel<GlobalAggregationSettings>(
-			globalAggregationSettingsDao.loadFirstRaw()
+			globalAggregationSettingsDao.loadFirst()
 		);
 		
 		Form<GlobalAggregationSettings> form = new Form<GlobalAggregationSettings>("editGlobalSettingsForm", formModel)
@@ -133,7 +130,7 @@ public class AggregationSettingsPage extends FrontendPage
 				addAggregationTypeLabel(item, property);			
 				
 				item.add(
-					new DeleteRawButton<PropertySettings>(
+					new DeleteButton<PropertySettings>(
 						propertySettingsDao, 
 						property.getId(), 
 						"property", 

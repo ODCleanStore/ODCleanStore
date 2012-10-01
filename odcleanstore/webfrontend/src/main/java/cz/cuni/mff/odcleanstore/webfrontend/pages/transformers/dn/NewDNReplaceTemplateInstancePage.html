@@ -12,15 +12,15 @@
 <form wicket:id="newDNReplaceTemplateInstanceForm">
 	<p>
 		<label for="propertyName">Property name:</label>
-		<input wicket:id="propertyName" id="propertyName" type="text" class="required" />
+		<span class="required"><input wicket:id="propertyName" id="propertyName" placeholder="RDF property" type="text" /></span>
 	</p>
 	<p>
 		<label for="pattern">Pattern:</label>
-		<input wicket:id="pattern" id="pattern" type="text" class="required" />
+		<span class="required"><input wicket:id="pattern" id="pattern" placeholder="Regular expression" type="text"  /></span>
 	</p>
 	<p>
 		<label for="replacement">Replacement:</label>
-		<input wicket:id="replacement" id="replacement" type="text" class="required" />
+		<span class="required"><input wicket:id="replacement" id="replacement" placeholder="Replacement ($n references captured subsequences)" type="text"  /></span>
 	</p>
 	<input type="submit" value="Submit" />
 </form>

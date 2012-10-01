@@ -14,23 +14,23 @@
 <form wicket:id="newOIRuleForm">
 	<p>
 		<label for="label">Label:</label>
-		<input wicket:id="label" type="text" id="label" class="required" />
+		<span class="required"><input wicket:id="label" type="text" id="label"  /></span>
 	</p>
 	<p>
 		<label for="linkType">Link type:</label>
-		<input wicket:id="linkType" type="text" id="linkType" class="required" />
+		<span class="required"><input wicket:id="linkType" type="text" value="owl:sameAs" placeholder="e.g. owl:sameAs" id="linkType"  /></span>
 	</p>
 	<p>
-		<label for="sourceRestriction">Source restriction:</label>
-		<input wicket:id="sourceRestriction" type="text" id="sourceRestriction" />
+		<label for="sourceRestriction">Source SPARQL restriction:</label>
+		<input wicket:id="sourceRestriction" type="text" placeholder="e.g. ?a rdf:type foaf:Person" id="sourceRestriction" />
 	</p>
 	<p>
-		<label for="targetRestriction">Target restriction:</label>
-		<input wicket:id="targetRestriction" type="text" id="targetRestriction" />
+		<label for="targetRestriction">Target SPARQL restriction:</label>
+		<input wicket:id="targetRestriction" type="text"  placeholder="e.g. ?b rdf:type foaf:Person" id="targetRestriction" />
 	</p>
 	<p>
 		<label for="linkageRule">Linkage rule:</label>
-		<textarea wicket:id="linkageRule" id="linkageRule" class="required"></textarea>
+		<span class="required"><textarea wicket:id="linkageRule" placeholder="&lt;LinkageRule&gt;  &lt;/LinkageRule&gt;" id="linkageRule" ></textarea></span>
 	</p>
 	
 	<p>
@@ -38,8 +38,8 @@
 		<input wicket:id="filterThreshold" type="text" id="filterThreshold" />
 	</p>
 	<p>
-		<label for="filterLimit">Link limit:</label>
-		<input wicket:id="filterLimit" type="text" id="filterLimit" />
+		<label for="filterLimit">Link limit</label> 
+		<input wicket:id="filterLimit" type="text" title="Maximum number of links originating from a single data item" id="filterLimit" />
 	</p>
 	
 	<input type="submit" value="Submit" />

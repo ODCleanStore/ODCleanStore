@@ -12,32 +12,35 @@ import org.apache.wicket.validation.validator.RangeValidator;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutput;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutputType;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.LimitedEditingForm;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputTypeDao;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
 @AuthorizeInstantiation({ Role.PIC })
-public class NewDBOutputPage extends FrontendPage 
+public class NewDBOutputPage extends LimitedEditingPage 
 {
 	private static final long serialVersionUID = 1L;
 	
-	private DaoForEntityWithSurrogateKey<OIOutput> oiOutputDao;
-	private DaoForEntityWithSurrogateKey<OIOutputType> oiOutputTypeDao;
+	private OIOutputDao oiOutputDao;
+	private OIOutputTypeDao oiOutputTypeDao;
 	
 	public NewDBOutputPage(final Integer ruleId) 
 	{
 		super(
 			"Home > Backend > OI > Groups > Rules > DB Outputs > New", 
-			"Add a new DB Output"
+			"Add a new DB Output",
+			OIRuleDao.class,
+			ruleId
 		);
 		
 		// prepare DAO objects
 		//
-		oiOutputDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIOutputDao.class);
-		oiOutputTypeDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIOutputTypeDao.class);
+		oiOutputDao = daoLookupFactory.getDao(OIOutputDao.class);
+		oiOutputTypeDao = daoLookupFactory.getDao(OIOutputTypeDao.class);
 		
 		// register page components
 		//
@@ -58,12 +61,12 @@ public class NewDBOutputPage extends FrontendPage
 	{
 		IModel<OIOutput> formModel = new CompoundPropertyModel<OIOutput>(new OIOutput());
 		
-		Form<OIOutput> form = new Form<OIOutput>("newDBOutputForm", formModel)
+		Form<OIOutput> form = new LimitedEditingForm<OIOutput>("newDBOutputForm", formModel, isEditable())
 		{
 			private static final long serialVersionUID = 1L;
 			
 			@Override
-			protected void onSubmit()
+			protected void onSubmitImpl()
 			{
 				OIOutput output = getModelObject();
 				

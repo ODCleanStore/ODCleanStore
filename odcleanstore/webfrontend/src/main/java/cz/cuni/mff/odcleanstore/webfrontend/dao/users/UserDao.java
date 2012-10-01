@@ -1,12 +1,5 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.users;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
-import cz.cuni.mff.odcleanstore.util.Pair;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -15,6 +8,15 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+
+import cz.cuni.mff.odcleanstore.util.CodeSnippet;
+import cz.cuni.mff.odcleanstore.util.EmptyCodeSnippet;
+import cz.cuni.mff.odcleanstore.util.Pair;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
 
 /**
  * The User DAO.
@@ -61,18 +63,15 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 	 	=======================================================================
 	*/
 	
-	@Override
 	public User load(Integer id) 
-	{	
-		User user = loadRaw(id);
-		user.setRoles(loadRolesForUser(id));
-		return user;
+	{
+		return loadBy(KEY_COLUMN, id);
 	}
 	
 	@Override
 	public User loadBy(String columnName, Object value)
 	{
-		User user = loadRawBy(columnName, value);
+		User user = super.loadBy(columnName, value);
 		user.setRoles(loadRolesForUser(user.getId()));
 		return user;
 	}
@@ -86,7 +85,7 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 		
 		Object[] params = { userId };
 		
-		List<Role> rolesList = getCleanJdbcTemplate().query(query, params, new RoleRowMapper());
+		List<Role> rolesList = jdbcQuery(query, params, new RoleRowMapper());
 		return new HashSet<Role>(rolesList);
 	}
 	
@@ -132,14 +131,14 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 	private List<Role> loadAllRolesRaw()
 	{
 		String query = "SELECT * FROM " + RoleDao.TABLE_NAME;
-		return getCleanJdbcTemplate().query(query, new RoleRowMapper());
+		return jdbcQuery(query, new RoleRowMapper());
 	}
 	
 	
 	private List<Pair<Integer, Integer>> loadAllPermissionRecordsRaw()
 	{
 		String query = "SELECT * FROM " + PERMISSIONS_TABLE_NAME;
-		return getCleanJdbcTemplate().query(query,new RolesAssignedToUsersRowMapping());
+		return jdbcQuery(query,new RolesAssignedToUsersRowMapping());
 	}
 	
 	/*
@@ -148,8 +147,19 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 	 	=======================================================================
 	*/
 	
-	@Override
-	public void save(User item) 
+	public void save(final User item, final CodeSnippet doAfter) throws Exception {
+		executeInTransaction(new CodeSnippet()
+		{
+			@Override
+			public void execute() throws Exception
+			{
+				saveRaw(item);
+				doAfter.execute();
+			}
+		});
+	}
+	
+	private void saveRaw(User item) throws Exception
 	{
 		String query = 
 			"INSERT INTO " + getTableName() + " " +
@@ -166,18 +176,30 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 			item.getSurname()
 		};
 		
-		getCleanJdbcTemplate().update(query, arguments);
+		jdbcUpdate(query, arguments);
 	}
 
-	@Override
-	public void update(User item) 
+	public void update(User item) throws Exception
 	{
-		updateRaw(item);
-		clearRolesMappingForUser(item);
-		addAllRolesToRolesMappingForUser(item);
+		update(item, new EmptyCodeSnippet());
+	}
+	
+	public void update(final User item, final CodeSnippet doAfter) throws Exception
+	{
+		executeInTransaction(new CodeSnippet()
+		{
+			@Override
+			public void execute() throws Exception
+			{
+				updateRaw(item);
+				clearRolesMappingForUser(item);
+				addAllRolesToRolesMappingForUser(item);
+				doAfter.execute();
+			}
+		});
 	}
 		
-	private void updateRaw(User user)
+	private void updateRaw(User user) throws Exception
 	{
 		String query = 
 			"UPDATE " + getTableName() + " " +
@@ -195,17 +217,17 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 			user.getId()
 		};
 		
-		getCleanJdbcTemplate().update(query, arguments);
+		jdbcUpdate(query, arguments);
 	}
 	
-	private void clearRolesMappingForUser(User user)
+	private void clearRolesMappingForUser(User user) throws Exception
 	{
 		String query = "DELETE FROM " + PERMISSIONS_TABLE_NAME + " WHERE userId = ?";
 		Object[] arguments = { user.getId()	};
-		getCleanJdbcTemplate().update(query, arguments);
+		jdbcUpdate(query, arguments);
 	}
 	
-	private void addAllRolesToRolesMappingForUser(User user)
+	private void addAllRolesToRolesMappingForUser(User user) throws Exception
 	{
 		// TODO: zvazit, zda by se vyplatilo toto provest v jednom SQL statementu
 	
@@ -217,7 +239,7 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 				role.getId()
 			};
 			
-			getCleanJdbcTemplate().update(
+			jdbcUpdate(
 				"INSERT INTO " + PERMISSIONS_TABLE_NAME + " VALUES (?, ?)", 
 				arguments
 			);

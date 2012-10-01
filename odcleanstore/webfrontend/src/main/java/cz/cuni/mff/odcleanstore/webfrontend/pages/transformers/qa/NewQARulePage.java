@@ -10,28 +10,30 @@ import org.apache.wicket.validation.validator.RangeValidator;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
 @AuthorizeInstantiation({ Role.PIC })
-public class NewQARulePage extends FrontendPage
+public class NewQARulePage extends LimitedEditingPage
 {
 	private static final long serialVersionUID = 1L;
 	
-	private DaoForEntityWithSurrogateKey<QARule> qaRuleDao;
+	private QARuleDao qaRuleDao;
 	
 	public NewQARulePage(final Integer groupId) 
 	{
 		super(
 			"Home > Backend > QA > Groups > Rules > New", 
-			"Add a new QA rule"
+			"Add a new QA rule",
+			QARulesGroupDao.class,
+			groupId
 		);
 		
 		// prepare DAO objects
 		//
-		this.qaRuleDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(QARuleDao.class);
+		this.qaRuleDao = daoLookupFactory.getDao(QARuleDao.class);
 		
 		// register page components
 		//

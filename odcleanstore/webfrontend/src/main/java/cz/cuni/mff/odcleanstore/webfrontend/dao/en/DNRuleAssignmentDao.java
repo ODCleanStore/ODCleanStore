@@ -1,12 +1,9 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.en;
 
-import java.util.List;
-
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.RuleAssignment;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
 
 public class DNRuleAssignmentDao extends DaoForEntityWithSurrogateKey<RuleAssignment>
@@ -33,38 +30,25 @@ public class DNRuleAssignmentDao extends DaoForEntityWithSurrogateKey<RuleAssign
 	{
 		return rowMapper;
 	}
-
+	
 	@Override
-	public List<RuleAssignment> loadAllBy(QueryCriteria criteria)
+	protected String getSelectAndFromClause()
 	{
 		String query =
 			"SELECT A.id, transformerInstanceId, groupId, G.label as groupLabel, G.description as groupDescription " +
 			"FROM " + getTableName() + " AS A " +
-			"JOIN " + DNRulesGroupDao.TABLE_NAME + " AS G ON (A.groupId = G.id) " +
-			criteria.buildWhereClause() +
-			criteria.buildOrderByClause();
-		
-		Object[] params = criteria.buildWhereClauseParams();
-		
-		return getCleanJdbcTemplate().query(query, params, getRowMapper());
+			"JOIN " + DNRulesGroupDao.TABLE_NAME + " AS G ON (A.groupId = G.id) ";
+		return query;
 	}
 	
 	@Override
-	public RuleAssignment loadRawBy(String columnName, Object value)
+	public RuleAssignment load(Integer id)
 	{
-		String query = 
-			"SELECT A.id, transformerInstanceId, groupId, G.label as groupLabel, G.description as groupDescription " +
-			"FROM " + getTableName() + " AS A " +
-			"JOIN " + DNRulesGroupDao.TABLE_NAME + " AS G ON (A.groupId = G.id) " +
-			"WHERE " + columnName + " = ?";
-		
-		Object[] params = { value };
-		
-		return getCleanJdbcTemplate().queryForObject(query, params, getRowMapper());
+		return loadBy("A.id", id);
 	}
-	
+
 	@Override
-	public void save(RuleAssignment item)
+	public void save(RuleAssignment item) throws Exception
 	{
 		String query = 
 			"INSERT INTO " + TABLE_NAME + " (transformerInstanceId, groupId) " +
@@ -76,6 +60,6 @@ public class DNRuleAssignmentDao extends DaoForEntityWithSurrogateKey<RuleAssign
 			item.getGroupId()
 		};
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
 	}
 }

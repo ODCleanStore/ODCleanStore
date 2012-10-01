@@ -19,13 +19,13 @@
 <form wicket:id="editOIRulesGroupForm">
     <p>
         <label for="label">Label:</label>
-        <input wicket:id="label" id="label" class="required" />
+        <span class="required"><input wicket:id="label" id="label"  /></span>
     </p>
     <p>
         <label for="description">Description:</label>
         <textarea wicket:id="description" id="description"></textarea>
     </p>
-    <input type="submit" value="Submit" />
+    <input type="submit" wicket:id="submit" value="Submit" />
 </form>
 
 <h2>Rules in group</h2>

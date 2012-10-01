@@ -3,6 +3,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.ontologies;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.wicket.authorization.UnauthorizedInstantiationException;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteSettings;
 import org.apache.wicket.markup.html.form.Form;
@@ -14,10 +15,10 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.Ontology;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.RelationType;
+import cz.cuni.mff.odcleanstore.webfrontend.core.AuthorizationHelper;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DetachableAutoCompleteTextField;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.onto.OntologyMappingDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
-import cz.cuni.mff.odcleanstore.webfrontend.validators.EnumValidator;
 import cz.cuni.mff.odcleanstore.webfrontend.validators.JenaURIValidator;
 
 @AuthorizeInstantiation({ Role.ONC })
@@ -38,10 +39,14 @@ public class AddMappingPage extends FrontendPage {
 		
 		// prepare DAO objects
 		//
-		mappingDao = (OntologyMappingDao)daoLookupFactory.getUnsafeDao(OntologyMappingDao.class);
+		mappingDao = daoLookupFactory.getDao(OntologyMappingDao.class);
 		
 		// register page components
 		//
+		if (!AuthorizationHelper.isAuthorizedForEntityEditing(sourceOntology)) 
+		{
+			throw new UnauthorizedInstantiationException(getClass());
+		}
 		addHelpWindow(new OntologyMappingHelpPanel("content"));
 		addMappingForm(sourceOntology, targetOntoGraphName);
 	}

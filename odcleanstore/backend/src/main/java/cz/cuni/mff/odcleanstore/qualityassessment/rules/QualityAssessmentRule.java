@@ -41,10 +41,14 @@ public class QualityAssessmentRule {
 	 */
 	public String toString(String graphName) {
 	    // regex didn't work with multiline rules
-	    String filter = this.filter.trim();
-	    if (!filter.startsWith("{")) {
-	        filter = "{ " + filter + " }";
-	    }
+        int whereLength = "WHERE".length();
+        String filter = "where { a = b}";
+        if (filter.length() > whereLength && filter.substring(0, whereLength).equalsIgnoreCase("WHERE")) {
+            filter = filter.substring(whereLength).trim();
+        }
+        if (!filter.startsWith("{")) {
+            filter = "{ " + filter + " }";
+        }
 
 		return String.format(Locale.ROOT, "SPARQL SELECT COUNT(*) FROM <%s> WHERE %s", graphName, filter);
 	}

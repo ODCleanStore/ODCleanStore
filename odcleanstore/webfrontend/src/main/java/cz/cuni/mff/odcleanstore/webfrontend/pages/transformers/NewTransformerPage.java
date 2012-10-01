@@ -8,7 +8,6 @@ import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
@@ -20,7 +19,7 @@ public class NewTransformerPage extends FrontendPage
 
 	private static Logger logger = Logger.getLogger(NewTransformerPage.class);
 	
-	private DaoForEntityWithSurrogateKey<Transformer> transformerDao;
+	private TransformerDao transformerDao;
 	
 	public NewTransformerPage() 
 	{
@@ -33,7 +32,7 @@ public class NewTransformerPage extends FrontendPage
 
 		// prepare DAO objects
 		//
-		transformerDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(TransformerDao.class);
+		transformerDao = daoLookupFactory.getDao(TransformerDao.class);
 		
 		// register page components
 		//

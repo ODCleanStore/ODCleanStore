@@ -23,6 +23,7 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
 import cz.cuni.mff.odcleanstore.webfrontend.core.ODCSWebFrontendApplication;
+import cz.cuni.mff.odcleanstore.webfrontend.core.ODCSWebFrontendSession;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.HelpWindow;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.MenuGroupComponent;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
@@ -50,7 +51,7 @@ public abstract class FrontendPage extends WebPage
 
 	//private static Logger logger = Logger.getLogger(FrontendPage.class);
 	
-	protected DaoLookupFactory daoLookupFactory;
+	protected final DaoLookupFactory daoLookupFactory;
 	
 	/**
 	 * 
@@ -110,27 +111,30 @@ public abstract class FrontendPage extends WebPage
 	/**
 	 * Creates a select-box form component for an SQL-table based enumeration.
 	 * 
-	 * @param dao
+	 * @param choices
 	 * @param componentName
 	 * @return
 	 */
 	protected <EnumBO extends EntityWithSurrogateKey> DropDownChoice<EnumBO> createEnumSelectbox(
-		DaoForEntityWithSurrogateKey<EnumBO> dao, String componentName, boolean required)
+		IModel<List<EnumBO>> choices, String componentName, final boolean required)
 	{
-		// create the model
-		IModel<List<EnumBO>> choices = createModelForListView(dao);
-		
 		// prepare the select-box renderer
 		ChoiceRenderer<EnumBO> renderer = new ChoiceRenderer<EnumBO>("label", "id");
 		
 		// create the select-box component
-		DropDownChoice<EnumBO> selectBox = new DropDownChoice<EnumBO>
-		(
-			componentName,
-			choices,
-			renderer
-		);
+		DropDownChoice<EnumBO> selectBox = new DropDownChoice<EnumBO>(componentName, choices, renderer)
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected CharSequence getDefaultChoice(String selectedValue)
+			{
+				return !isNullValid() && !getChoices().isEmpty() ? "" : super.getDefaultChoice(selectedValue);
+			}
+		};
 		
+		selectBox.setNullValid(!required);
+
 		// mark the select-box as a required form field
 		selectBox.setRequired(required);
 		
@@ -146,7 +150,19 @@ public abstract class FrontendPage extends WebPage
 	protected <EnumBO extends EntityWithSurrogateKey> DropDownChoice<EnumBO> createEnumSelectbox(
 			DaoForEntityWithSurrogateKey<EnumBO> dao, String componentName)
 	{
-		return createEnumSelectbox(dao, componentName, true);
+		return createEnumSelectbox(createModelForListView(dao), componentName, true);
+	}
+	
+	/**
+	 * 
+	 * @param dao
+	 * @param componentName
+	 * @return
+	 */
+	protected <EnumBO extends EntityWithSurrogateKey> DropDownChoice<EnumBO> createEnumSelectbox(
+		DaoForEntityWithSurrogateKey<EnumBO> dao, String componentName, boolean required)
+	{
+		return createEnumSelectbox(createModelForListView(dao), componentName, required);
 	}
 	
 	/**
@@ -277,5 +293,10 @@ public abstract class FrontendPage extends WebPage
 		};
 		
 		return new CompoundPropertyModel<BO>(model);
+	}
+	
+	protected ODCSWebFrontendSession getODCSSession()
+	{
+		return (ODCSWebFrontendSession) getSession();
 	}
 }

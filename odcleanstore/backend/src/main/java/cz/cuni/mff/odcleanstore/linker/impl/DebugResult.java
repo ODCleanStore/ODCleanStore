@@ -1,23 +1,24 @@
 package cz.cuni.mff.odcleanstore.linker.impl;
 
+import java.io.Serializable;
 import java.util.List;
 
-import cz.cuni.mff.odcleanstore.linker.rules.SilkRule;
-
-public class DebugResult {
-	private SilkRule rule;
+public class DebugResult implements Serializable {
+	private static final long serialVersionUID = 1L;
+	
+	private String ruleLabel;
 	private List<LinkedPair> links;
 	
-	public DebugResult(SilkRule rule, List<LinkedPair> links) {
-		this.rule = rule;
+	public DebugResult(String ruleLabel, List<LinkedPair> links) {
+		this.ruleLabel = ruleLabel;
 		this.links = links;
 	}
 	
-	public SilkRule getRule() {
-		return rule;
+	public String getRuleLabel() {
+		return ruleLabel;
 	}
-	public void setRule(SilkRule rule) {
-		this.rule = rule;
+	public void setRuleLabel(String ruleLabel) {
+		this.ruleLabel = ruleLabel;
 	}
 	public List<LinkedPair> getLinks() {
 		return links;

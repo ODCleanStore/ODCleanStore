@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo.qa;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.AuthoredEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.RulesGroupEntity;
 
 /**
@@ -8,49 +9,27 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.RulesGroupEntity;
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
-public class QARulesGroup extends RulesGroupEntity 
+public class QARulesGroup extends RulesGroupEntity implements AuthoredEntity
 {
 	private static final long serialVersionUID = 1L;
 
-	private String label;
-	private String description;
-	
 	/**
 	 * 
 	 * @param id
 	 * @param label
 	 * @param description
+	 * @param authorId
+	 * @param authorName
 	 */
-	public QARulesGroup(Integer id, String label, String description) 
+	public QARulesGroup(Integer id, String label, String description, Integer authorId, String authorName) 
 	{
-		super(id);
-		
-		this.label = label;
-		this.description = description;
+		super(id, label, description, authorId, authorName);
 	}
 
 	/**
 	 * 
 	 */
-	public QARulesGroup() 
+	public QARulesGroup()
 	{
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public String getLabel() 
-	{
-		return label;
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public String getDescription() 
-	{
-		return description;
 	}
 }
