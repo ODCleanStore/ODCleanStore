@@ -4,7 +4,7 @@ import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.RuleEntity;
 
 /** 
- * Base class for rules in a group (see {@link AbstractRulesGroupDao})
+ * Base DAO class for rules in a group (see {@link AbstractRulesGroupDao})
  * @author Jan Michelfeit
  *
  */

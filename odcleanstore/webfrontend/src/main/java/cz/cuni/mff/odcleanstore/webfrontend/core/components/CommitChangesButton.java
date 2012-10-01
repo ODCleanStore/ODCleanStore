@@ -7,6 +7,10 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.RulesGroupEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.core.AuthorizationHelper;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.AbstractRulesGroupDao;
 
+/**
+ * Button for committing changes in a rule group.
+ * @author Jan Michelfeit
+ */
 public class CommitChangesButton extends Link<String>
 {
 	private static final long serialVersionUID = 1L;

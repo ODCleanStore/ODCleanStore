@@ -1,5 +1,10 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo;
 
+/**
+ * Base class for transformer rules.
+ * 
+ * @author Jan Michelfeit
+ */
 public class RuleEntity extends EntityWithSurrogateKey
 {
 	private static final long serialVersionUID = 1L;

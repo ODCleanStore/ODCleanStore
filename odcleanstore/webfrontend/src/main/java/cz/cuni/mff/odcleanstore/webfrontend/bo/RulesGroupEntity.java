@@ -1,11 +1,9 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo;
 
 /**
- * The parent of all classes representing entities related to
- * transformer rules.
+ * Base class for transformer rule groups.
  * 
- * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
- *
+ * @author Jan Michelfeit
  */
 public abstract class RulesGroupEntity extends EntityWithSurrogateKey implements AuthoredEntity
 {
