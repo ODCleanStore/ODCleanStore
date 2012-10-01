@@ -12,9 +12,9 @@ public class OIRulesGroup extends RulesGroupEntity implements AuthoredEntity
 
 	private List<OIRule> rules;
 	
-	public OIRulesGroup(Integer id, String label, String description, Integer authorId, String authorName) 
+	public OIRulesGroup(Integer id, String label, String description, Integer authorId, boolean isUncommitted, String authorName) 
 	{
-		super(id, label, description, authorId, authorName);
+		super(id, label, description, authorId, isUncommitted, authorName);
 		this.rules = new LinkedList<OIRule>();
 	}
 

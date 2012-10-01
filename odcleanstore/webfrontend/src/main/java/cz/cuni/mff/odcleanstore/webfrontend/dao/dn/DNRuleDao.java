@@ -31,46 +31,30 @@ public class DNRuleDao extends DaoForAuthorableEntity<DNRule>
 	}
 	
 	@Override
+	protected void deleteRaw(Integer id) throws Exception
+	{
+		throw new UnsupportedOperationException(
+			"Cannot modify " + getTableName() + ", use uncommitted version table instead");
+	}
+	
+	@Override
 	public void save(DNRule item) throws Exception
 	{
-		String query = 
-			"INSERT INTO " + TABLE_NAME + " (groupId, description) " +
-			"VALUES (?, ?)";
-		
-		Object[] params =
-		{
-			item.getGroupId(),
-			item.getDescription()
-		};
-
-		logger.debug("groupId: " + item.getGroupId());
-		logger.debug("description: " + item.getDescription());
-		
-		jdbcUpdate(query, params);
+		throw new UnsupportedOperationException(
+			"Cannot modify " + getTableName() + ", use uncommitted version table instead");
 	}
 	
 	public void update(DNRule item) throws Exception
 	{
-		String query =
-			"UPDATE " + TABLE_NAME + " SET description = ? WHERE id = ?";
-		
-		Object[] params =
-		{
-			item.getDescription(),
-			item.getId()
-		};
-		
-		logger.debug("description: " + item.getDescription());
-		logger.debug("id: " + item.getId());
-		
-		jdbcUpdate(query, params);
+		throw new UnsupportedOperationException(
+			"Cannot modify " + getTableName() + ", use uncommitted version table instead");
 	}
 	
 	@Override
 	public int getAuthorId(Integer entityId)
 	{
 		String query = "SELECT g.authorId " +
-				"\n FROM " + TABLE_NAME + " AS r JOIN " + DNRulesGroupDao.TABLE_NAME + " AS g ON (g.id = r.groupId)" +
+				"\n FROM " + getTableName() + " AS r JOIN " + DNRulesGroupDao.TABLE_NAME + " AS g ON (g.id = r.groupId)" +
 				"\n WHERE r.id = ?";
 		return jdbcQueryForInt(query, entityId);
 	}

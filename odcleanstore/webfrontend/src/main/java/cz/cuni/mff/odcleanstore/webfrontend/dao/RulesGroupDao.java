@@ -7,6 +7,9 @@ public abstract class RulesGroupDao<T extends RulesGroupEntity> extends DaoForAu
 {
 	private static final long serialVersionUID = 1L;
 	
+	/** Suffix of tables for uncommitted rules. */
+	public static final String UNCOMMITTED_TABLE_SUFFIX = "_UNCOMMITTED";
+	
 	@Override
 	protected String getSelectAndFromClause()
 	{
@@ -55,6 +58,12 @@ public abstract class RulesGroupDao<T extends RulesGroupEntity> extends DaoForAu
 		logger.debug("id: " + item.getId());
 		
 		jdbcUpdate(query, params);
+	}
+	
+	public void setUncommitted(Integer groupId) throws Exception
+	{
+		String query  = "UPDATE " + getTableName() + " SET isUncommitted = 1 WHERE id = ?";
+		jdbcUpdate(query, groupId);
 	}
 
 	@Override
