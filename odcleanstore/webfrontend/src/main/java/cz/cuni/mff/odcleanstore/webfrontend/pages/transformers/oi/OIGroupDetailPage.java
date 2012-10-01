@@ -16,6 +16,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedRedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.CommitChangesButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.LimitedEditingForm;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
@@ -61,10 +62,12 @@ public class OIGroupDetailPage extends LimitedEditingPage
 		
 		// register page components
 		//		
+		OIRulesGroup group = oiRulesGroupDao.load(groupId);
+		addCommitChangesButton(group);
 		addBackToPipelineLink(groupId, transformerInstanceId);
 		addHelpWindow("rulesGroupHelpWindow", "openRulesGroupHelpWindow", new RulesGroupHelpPanel("content"));
 		addHelpWindow("oiRuleHelpWindow", "openOIRuleHelpWindow", new OIRuleHelpPanel("content"));
-		addEditOIRulesGroupForm(groupId);
+		addEditOIRulesGroupForm(group);
 		addOIRulesSection(groupId);
 	}
 	
@@ -90,9 +93,8 @@ public class OIGroupDetailPage extends LimitedEditingPage
 		));
 	}
 	
-	private void addEditOIRulesGroupForm(final Integer groupId)
+	private void addEditOIRulesGroupForm(final OIRulesGroup group)
 	{
-		OIRulesGroup group = oiRulesGroupDao.load(groupId);
 		IModel<OIRulesGroup> formModel = new CompoundPropertyModel<OIRulesGroup>(group);
 		
 		Form<OIRulesGroup> form = new LimitedEditingForm<OIRulesGroup>("editOIRulesGroupForm", formModel, isEditable())
@@ -214,4 +216,18 @@ public class OIGroupDetailPage extends LimitedEditingPage
 		add(new UnobtrusivePagingNavigator("navigator", dataView));
 	}
 	
+	private void addCommitChangesButton(final OIRulesGroup group)
+	{
+		add(new CommitChangesButton("commitChanges", group, oiRulesGroupDao)
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick()
+			{
+				super.onClick();
+				setResponsePage(new OIGroupDetailPage(group.getId()));
+			}
+		});
+	}
 }
