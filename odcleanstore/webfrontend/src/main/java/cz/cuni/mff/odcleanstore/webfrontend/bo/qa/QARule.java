@@ -1,21 +1,19 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo.qa;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.RuleEntity;
 
-public class QARule extends EntityWithSurrogateKey
+public class QARule extends RuleEntity
 {
 	private static final long serialVersionUID = 1L;
 
-	private Integer groupId;
 	private String filter;
 	private String description;
 	private Double coefficient;
 	
 	public QARule(Integer id, Integer groupId, String filter, String description, Double coefficient) 
 	{
-		super(id);
+		super(id, groupId);
 		
-		this.groupId = groupId;
 		this.filter = filter;
 		this.description = description;
 		this.coefficient = coefficient;
@@ -25,16 +23,6 @@ public class QARule extends EntityWithSurrogateKey
 	{
 	}
 
-	public Integer getGroupId()
-	{
-		return groupId;
-	}
-	
-	public void setGroupId(Integer groupId)
-	{
-		this.groupId = groupId;
-	}
-	
 	public String getFilter() 
 	{
 		return filter;

@@ -13,6 +13,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.CommitChangesButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
@@ -92,6 +93,7 @@ public class OIGroupsListPage extends FrontendPage
 				);
 				
 				item.add(createRerunAffectedGraphsButton(group.getId()));
+				item.add(new CommitChangesButton("commitChanges", group, oiRulesGroupsDao));
 			}
 		};
 

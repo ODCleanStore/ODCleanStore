@@ -1,11 +1,11 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.oi;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.RulesGroupDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.AbstractRulesGroupDao;
 
 public class OIRuleUncommittedDao extends OIRuleDao
 {
-	public static final String TABLE_NAME = OIRuleDao.TABLE_NAME + RulesGroupDao.UNCOMMITTED_TABLE_SUFFIX;
+	public static final String TABLE_NAME = OIRuleDao.TABLE_NAME + AbstractRulesGroupDao.UNCOMMITTED_TABLE_SUFFIX;
 
 	private static final long serialVersionUID = 1L;
 	
@@ -19,7 +19,7 @@ public class OIRuleUncommittedDao extends OIRuleDao
 	protected void deleteRaw(Integer id) throws Exception
 	{
 		// Mark the group as dirty
-		getLookupFactory().getDao(OIRulesGroupDao.class).setUncommitted(load(id).getGroupId());
+		getLookupFactory().getDao(OIRulesGroupDao.class).markUncommitted(load(id).getGroupId());
 		
 		String query = "DELETE FROM " + getTableName() + " WHERE " + KEY_COLUMN +" = ?";
 		jdbcUpdate(query, id);
@@ -29,7 +29,7 @@ public class OIRuleUncommittedDao extends OIRuleDao
 	public void save(OIRule item) throws Exception
 	{
 		// Mark the group as dirty
-		getLookupFactory().getDao(OIRulesGroupDao.class).setUncommitted(item.getGroupId());
+		getLookupFactory().getDao(OIRulesGroupDao.class).markUncommitted(item.getGroupId());
 		
 		String query = 
 			"INSERT INTO " + getTableName() + " " +
@@ -63,7 +63,7 @@ public class OIRuleUncommittedDao extends OIRuleDao
 	public void update(OIRule item) throws Exception
 	{
 		// Mark the group as dirty
-		getLookupFactory().getDao(OIRulesGroupDao.class).setUncommitted(item.getGroupId());
+		getLookupFactory().getDao(OIRulesGroupDao.class).markUncommitted(item.getGroupId());
 		
 		String query =
 			"UPDATE " + getTableName() + 
@@ -92,5 +92,14 @@ public class OIRuleUncommittedDao extends OIRuleDao
 		logger.debug("id: " + item.getId());
 		
 		jdbcUpdate(query, params);
+	}
+	
+	@Override
+	protected void commitChangesImpl(Integer groupId) throws Exception
+	{
+		// Delete old rules and inserts new rules to the official table
+		// Also takes care of deleting in dependent tables via ON DELETE CASCADE 
+		copyBetweenTablesBy(getTableName(), super.getTableName(), GROUP_ID_COLUMN, groupId);
+		getLookupFactory().getDao(OIOutputUncommittedDao.class).copyToOfficialTable(groupId);
 	}
 }

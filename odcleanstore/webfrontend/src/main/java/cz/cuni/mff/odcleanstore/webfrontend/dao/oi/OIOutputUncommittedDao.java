@@ -1,11 +1,11 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.oi;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutput;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.RulesGroupDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.AbstractRulesGroupDao;
 
 public class OIOutputUncommittedDao extends OIOutputDao
 {
-	public static final String TABLE_NAME = OIOutputDao.TABLE_NAME + RulesGroupDao.UNCOMMITTED_TABLE_SUFFIX;
+	public static final String TABLE_NAME = OIOutputDao.TABLE_NAME + AbstractRulesGroupDao.UNCOMMITTED_TABLE_SUFFIX;
 
 	private static final long serialVersionUID = 1L;
 	
@@ -23,7 +23,7 @@ public class OIOutputUncommittedDao extends OIOutputDao
 	
 	private int getGroupId(Integer ruleId)
 	{
-		return getLookupFactory().getDao(OIRuleDao.class).load(ruleId).getGroupId();
+		return getLookupFactory().getDao(OIRuleDao.class, true).load(ruleId).getGroupId();
 	}
 	
 	@Override
@@ -31,7 +31,7 @@ public class OIOutputUncommittedDao extends OIOutputDao
 	{
 		// Mark the group as dirty
 		Integer groupId = getGroupId(load(id).getRuleId());
-		getLookupFactory().getDao(OIRulesGroupDao.class).setUncommitted(groupId);
+		getLookupFactory().getDao(OIRulesGroupDao.class).markUncommitted(groupId);
 		
 		String query = "DELETE FROM " + getTableName() + " WHERE " + KEY_COLUMN +" = ?";
 		jdbcUpdate(query, id);
@@ -42,7 +42,7 @@ public class OIOutputUncommittedDao extends OIOutputDao
 	{
 		// Mark the group as dirty
 		Integer groupId = getGroupId(output.getRuleId());
-		getLookupFactory().getDao(OIRulesGroupDao.class).setUncommitted(groupId);
+		getLookupFactory().getDao(OIRulesGroupDao.class).markUncommitted(groupId);
 		
 		String query = 
 			"INSERT INTO " + getTableName() + " " +
@@ -71,7 +71,7 @@ public class OIOutputUncommittedDao extends OIOutputDao
 	{
 		// Mark the group as dirty
 		Integer groupId = getGroupId(output.getRuleId());
-		getLookupFactory().getDao(OIRulesGroupDao.class).setUncommitted(groupId);
+		getLookupFactory().getDao(OIRulesGroupDao.class).markUncommitted(groupId);
 		
 		String query = 
 			"UPDATE " + getTableName() + " " +
@@ -94,5 +94,14 @@ public class OIOutputUncommittedDao extends OIOutputDao
 		logger.debug("id: " + output.getId());
 		
 		jdbcUpdate(query, params);
+	}
+	
+	/*package*/void copyToOfficialTable(Integer groupId) throws Exception
+	{
+		String insertQuery = "INSERT INTO " + super.getTableName() +
+			" SELECT o.* " + 
+			" FROM " + this.getTableName() + " AS o JOIN " + OIRuleUncommittedDao.TABLE_NAME + " AS r ON (o.ruleId = r.id)" +
+			" WHERE r.groupId = ?";
+		jdbcUpdate(insertQuery, groupId);
 	}
 }

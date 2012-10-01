@@ -1,13 +1,13 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.dn;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.RulesGroupDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.AbstractRulesGroupDao;
 
 public class DNRuleUncommittedDao extends DNRuleDao
 {
 	private static final long serialVersionUID = 1L;
 	
-	public static final String TABLE_NAME = DNRuleDao.TABLE_NAME + RulesGroupDao.UNCOMMITTED_TABLE_SUFFIX;
+	public static final String TABLE_NAME = DNRuleDao.TABLE_NAME + AbstractRulesGroupDao.UNCOMMITTED_TABLE_SUFFIX;
 	
 	@Override
 	public String getTableName() 
@@ -19,7 +19,7 @@ public class DNRuleUncommittedDao extends DNRuleDao
 	protected void deleteRaw(Integer id) throws Exception
 	{
 		// Mark the group as dirty
-		getLookupFactory().getDao(DNRulesGroupDao.class).setUncommitted(load(id).getGroupId());
+		getLookupFactory().getDao(DNRulesGroupDao.class).markUncommitted(load(id).getGroupId());
 				
 		String query = "DELETE FROM " + getTableName() + " WHERE " + KEY_COLUMN +" = ?";
 		jdbcUpdate(query, id);
@@ -29,7 +29,7 @@ public class DNRuleUncommittedDao extends DNRuleDao
 	public void save(DNRule item) throws Exception
 	{
 		// Mark the group as dirty
-		getLookupFactory().getDao(DNRulesGroupDao.class).setUncommitted(item.getGroupId());
+		getLookupFactory().getDao(DNRulesGroupDao.class).markUncommitted(item.getGroupId());
 				
 		String query = 
 			"INSERT INTO " + getTableName() + " (groupId, description) " +
@@ -50,7 +50,7 @@ public class DNRuleUncommittedDao extends DNRuleDao
 	public void update(DNRule item) throws Exception
 	{
 		// Mark the group as dirty
-		getLookupFactory().getDao(DNRulesGroupDao.class).setUncommitted(item.getGroupId());
+		getLookupFactory().getDao(DNRulesGroupDao.class).markUncommitted(item.getGroupId());
 				
 		String query =
 			"UPDATE " + getTableName() + " SET description = ? WHERE id = ?";
@@ -65,5 +65,14 @@ public class DNRuleUncommittedDao extends DNRuleDao
 		logger.debug("id: " + item.getId());
 		
 		jdbcUpdate(query, params);
+	}
+	
+	@Override
+	protected void commitChangesImpl(Integer groupId) throws Exception
+	{
+		// Delete old rules and inserts new rules to the official table
+		// Also takes care of deleting in dependent tables via ON DELETE CASCADE 
+		copyBetweenTablesBy(getTableName(), super.getTableName(), GROUP_ID_COLUMN, groupId);
+		getLookupFactory().getDao(DNRuleComponentUncommittedDao.class).copyToOfficialTable(groupId);
 	}
 }

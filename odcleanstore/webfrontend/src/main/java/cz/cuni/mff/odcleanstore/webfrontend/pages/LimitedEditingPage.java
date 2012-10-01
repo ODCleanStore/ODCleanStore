@@ -20,7 +20,25 @@ public abstract class LimitedEditingPage extends FrontendPage
 		Class<? extends DaoForAuthorableEntity<?>> authorableDao, Integer editedEntityId)
 	{
 		super(pageCrumbs, pageTitle);
-		Integer authorId = this.daoLookupFactory.getDao(authorableDao).getAuthorId(editedEntityId);
+		Integer authorId = null;
+		try
+		{
+			authorId = this.daoLookupFactory.getDao(authorableDao).getAuthorId(editedEntityId);
+		}
+		catch (RuntimeException originalException)
+		{
+			try
+			{
+				// The exception could be because the entity is still uncommitted
+				// Let's try with uncommitted tables
+				authorId = this.daoLookupFactory.getDao(authorableDao, true).getAuthorId(editedEntityId);
+			}
+			catch (Exception e)
+			{
+				// OK, the error was in something else, throw original exception
+				throw originalException;
+			}
+		}
 		this.isEditable = AuthorizationHelper.isAuthorizedForEntityEditing(authorId);
 	}
 

@@ -1,13 +1,13 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.qa;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.RulesGroupDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.AbstractRulesGroupDao;
 
 public class QARuleUncommittedDao extends QARuleDao
 {
 	private static final long serialVersionUID = 1L;
 	
-	public static final String TABLE_NAME = QARuleDao.TABLE_NAME + RulesGroupDao.UNCOMMITTED_TABLE_SUFFIX;
+	public static final String TABLE_NAME = QARuleDao.TABLE_NAME + AbstractRulesGroupDao.UNCOMMITTED_TABLE_SUFFIX;
 
 	@Override
 	public String getTableName() 
@@ -19,7 +19,7 @@ public class QARuleUncommittedDao extends QARuleDao
 	protected void deleteRaw(Integer id) throws Exception
 	{
 		// Mark the group as dirty
-		getLookupFactory().getDao(QARulesGroupDao.class).setUncommitted(load(id).getGroupId());
+		getLookupFactory().getDao(QARulesGroupDao.class).markUncommitted(load(id).getGroupId());
 		
 		String query = "DELETE FROM " + getTableName() + " WHERE " + KEY_COLUMN +" = ?";
 		jdbcUpdate(query, id);
@@ -29,7 +29,7 @@ public class QARuleUncommittedDao extends QARuleDao
 	public void save(QARule item) throws Exception
 	{
 		// Mark the group as dirty
-		getLookupFactory().getDao(QARulesGroupDao.class).setUncommitted(item.getGroupId());
+		getLookupFactory().getDao(QARulesGroupDao.class).markUncommitted(item.getGroupId());
 		
 		String query = 
 			"INSERT INTO " + getTableName() + " (groupId, filter, description, coefficient) " +
@@ -54,7 +54,7 @@ public class QARuleUncommittedDao extends QARuleDao
 	public void update(QARule item) throws Exception
 	{
 		// Mark the group as dirty
-		getLookupFactory().getDao(QARulesGroupDao.class).setUncommitted(item.getGroupId());
+		getLookupFactory().getDao(QARulesGroupDao.class).markUncommitted(item.getGroupId());
 		
 		String query =
 			"UPDATE " + getTableName() + " SET filter = ?, description = ?, coefficient = ? WHERE id = ?";
@@ -73,5 +73,11 @@ public class QARuleUncommittedDao extends QARuleDao
 		logger.debug("id: " + item.getId());
 		
 		jdbcUpdate(query, params);
+	}
+	
+	@Override
+	protected void commitChangesImpl(Integer groupId) throws Exception
+	{
+		copyBetweenTablesBy(getTableName(), super.getTableName(), GROUP_ID_COLUMN, groupId);
 	}
 }

@@ -3,7 +3,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.RulesGroupEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
 
-public abstract class RulesGroupDao<T extends RulesGroupEntity> extends DaoForAuthorableEntity<T>
+public abstract class AbstractRulesGroupDao<T extends RulesGroupEntity> extends DaoForAuthorableEntity<T>
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -60,10 +60,24 @@ public abstract class RulesGroupDao<T extends RulesGroupEntity> extends DaoForAu
 		jdbcUpdate(query, params);
 	}
 	
-	public void setUncommitted(Integer groupId) throws Exception
+	public void markUncommitted(Integer groupId) throws Exception
 	{
-		String query  = "UPDATE " + getTableName() + " SET isUncommitted = 1 WHERE id = ?";
-		jdbcUpdate(query, groupId);
+		setIsCommitted(groupId, true);
+	}
+	
+	private void setIsCommitted(Integer groupId, boolean isUncommitted) throws Exception
+	{
+		String query  = "UPDATE " + getTableName() + " SET isUncommitted = ? WHERE id = ?";
+		jdbcUpdate(query, boolToSmallint(isUncommitted), groupId);
+	}
+	
+	protected abstract Class<? extends AbstractRuleDao<?>> getDependentRuleDao();
+	
+	public void commitChanges(final Integer groupId) throws Exception
+	{
+		AbstractRuleDao<?> uncommittedRuleDao = getLookupFactory().getDao(getDependentRuleDao(), true);
+		uncommittedRuleDao.commitChanges(groupId);
+		setIsCommitted(groupId, false);
 	}
 
 	@Override

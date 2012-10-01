@@ -3,11 +3,11 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.qa;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.AbstractRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.CommittableDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 
 @CommittableDao(QARuleUncommittedDao.class)
-public class QARuleDao extends DaoForAuthorableEntity<QARule>
+public class QARuleDao extends AbstractRuleDao<QARule>
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -31,26 +31,6 @@ public class QARuleDao extends DaoForAuthorableEntity<QARule>
 	protected ParameterizedRowMapper<QARule> getRowMapper() 
 	{
 		return rowMapper;
-	}
-	
-	@Override
-	protected void deleteRaw(Integer id) throws Exception
-	{
-		throw new UnsupportedOperationException(
-			"Cannot modify " + getTableName() + ", use uncommitted version table instead");
-	}
-	
-	@Override
-	public void save(QARule item) throws Exception
-	{
-		throw new UnsupportedOperationException(
-			"Cannot modify " + getTableName() + ", use uncommitted version table instead");
-	}
-	
-	public void update(QARule item) throws Exception
-	{
-		throw new UnsupportedOperationException(
-			"Cannot modify " + getTableName() + ", use uncommitted version table instead");
 	}
 	
 	@Override

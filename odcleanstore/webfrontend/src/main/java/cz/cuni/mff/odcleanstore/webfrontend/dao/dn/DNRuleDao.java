@@ -3,11 +3,11 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.dn;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.AbstractRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.CommittableDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 
 @CommittableDao(DNRuleUncommittedDao.class)
-public class DNRuleDao extends DaoForAuthorableEntity<DNRule>
+public class DNRuleDao extends AbstractRuleDao<DNRule>
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -30,26 +30,6 @@ public class DNRuleDao extends DaoForAuthorableEntity<DNRule>
 	protected ParameterizedRowMapper<DNRule> getRowMapper() 
 	{
 		return rowMapper;
-	}
-	
-	@Override
-	protected void deleteRaw(Integer id) throws Exception
-	{
-		throw new UnsupportedOperationException(
-			"Cannot modify " + getTableName() + ", use uncommitted version table instead");
-	}
-	
-	@Override
-	public void save(DNRule item) throws Exception
-	{
-		throw new UnsupportedOperationException(
-			"Cannot modify " + getTableName() + ", use uncommitted version table instead");
-	}
-	
-	public void update(DNRule item) throws Exception
-	{
-		throw new UnsupportedOperationException(
-			"Cannot modify " + getTableName() + ", use uncommitted version table instead");
 	}
 	
 	@Override
