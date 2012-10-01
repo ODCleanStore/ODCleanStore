@@ -23,8 +23,8 @@ public class RedirectWithParamButton extends Link<String>
 	/** the class of the page to redirect to */
 	private Class<? extends FrontendPage> redirectPage;
 	
-	/** the constructor argument of the page */
-	private Integer param;
+	/** the constructor arguments of the page */
+	private Object[] params;
 	
 	/**
 	 * 
@@ -38,7 +38,16 @@ public class RedirectWithParamButton extends Link<String>
 		super(compName);
 
 		this.redirectPage = redirectPage;
-		this.param = param;
+		this.params = new Object[]{param};
+	}
+	
+	public RedirectWithParamButton(final Class<? extends FrontendPage> redirectPage,
+		final String compName, final Object... param) 
+	{
+		super(compName);
+
+		this.redirectPage = redirectPage;
+		this.params = param;
 	}
 
 	@Override
@@ -51,10 +60,15 @@ public class RedirectWithParamButton extends Link<String>
 			// using reflection here (instead of passing the page instance as an costructor
 			// argument) is necessary in order to postpone creating the page instance
 			// to when onClick is called
-			Constructor<? extends FrontendPage> constructor = 
-				redirectPage.getConstructor(new Class[]{Integer.class});
+			Class<?>[] paramClasses = new Class<?>[params.length];
+
+			for (int i = 0; i < params.length; ++i) {
+				paramClasses[i] = params[i].getClass();
+			}
 			
-			page = (FrontendPage) constructor.newInstance(param);
+			Constructor<? extends FrontendPage> constructor = redirectPage.getConstructor(paramClasses);
+			
+			page = (FrontendPage)constructor.newInstance(params);
 		} 
 		catch (Exception ex) 
 		{
