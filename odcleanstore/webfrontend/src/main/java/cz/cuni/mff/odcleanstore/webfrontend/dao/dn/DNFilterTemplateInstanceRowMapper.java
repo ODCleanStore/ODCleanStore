@@ -15,6 +15,7 @@ public class DNFilterTemplateInstanceRowMapper extends CustomRowMapper<DNFilterT
 		return new DNFilterTemplateInstance
 		(
 			rs.getInt("id"),
+			rs.getInt("rawRuleId"),
 			rs.getInt("groupId"),
 			blobToString(rs.getBlob("propertyName")),
 			blobToString(rs.getBlob("pattern")),

@@ -40,12 +40,13 @@ public class DNRenameTemplateInstanceDao extends DaoForAuthorableEntity<DNRename
 		Object[] params =
 		{
 			item.getGroupId(),
-			1,							// TODO: to be changed
+			item.getRawRuleId(),
 			item.getSourcePropertyName(),
 			item.getTargetPropertyName(),
 		};
 
 		logger.debug("groupId: " + item.getGroupId());
+		logger.debug("rawRuleId: " + item.getRawRuleId());
 		logger.debug("sourcePropertyName: " + item.getSourcePropertyName());
 		logger.debug("targetPropertyName: " + item.getTargetPropertyName());
 		
@@ -55,16 +56,17 @@ public class DNRenameTemplateInstanceDao extends DaoForAuthorableEntity<DNRename
 	public void update(DNRenameTemplateInstance item) throws Exception
 	{
 		String query =
-			"UPDATE " + TABLE_NAME + " SET sourcePropertyName = ?, targetPropertyName = ? WHERE id = ?";
+			"UPDATE " + TABLE_NAME + " SET rawRuleId = ?, sourcePropertyName = ?, targetPropertyName = ? WHERE id = ?";
 		
 		Object[] params =
 		{
+			item.getRawRuleId(),
 			item.getSourcePropertyName(),
 			item.getTargetPropertyName(),
 			item.getId()
 		};
 		
-		logger.debug("groupId: " + item.getGroupId());
+		logger.debug("rawRuleId: " + item.getRawRuleId());
 		logger.debug("sourcePropertyName: " + item.getSourcePropertyName());
 		logger.debug("targetPropertyName: " + item.getTargetPropertyName());
 		logger.debug("id: " + item.getId());

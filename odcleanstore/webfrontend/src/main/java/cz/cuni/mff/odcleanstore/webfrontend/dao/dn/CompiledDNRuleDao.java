@@ -2,11 +2,13 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.dn;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
+import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.CompiledDNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.CompiledDNRuleComponent;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.SimpleKeyHolder;
 
 public class CompiledDNRuleDao extends DaoForEntityWithSurrogateKey<CompiledDNRule>
 {
@@ -34,14 +36,26 @@ public class CompiledDNRuleDao extends DaoForEntityWithSurrogateKey<CompiledDNRu
 	}
 	
 	@Override
-	public void save(CompiledDNRule item) throws Exception
+	public int saveAndGetKey(final CompiledDNRule item) throws Exception
 	{
-		saveRawRule(item);
+		final SimpleKeyHolder keyHolder = new SimpleKeyHolder();
 		
-		Integer ruleId = getLastInsertId();
+		executeInTransaction(new CodeSnippet() 
+		{	
+			@Override
+			public void execute() throws Exception 
+			{
+				saveRawRule(item);
+				
+				Integer ruleId = getLastInsertId();
+				keyHolder.setKey(ruleId);
+				
+				for (CompiledDNRuleComponent component : item.getComponents())
+					saveRawComponent(ruleId, component);
+			}
+		});
 		
-		for (CompiledDNRuleComponent component : item.getComponents())
-			saveRawComponent(ruleId, component);
+		return keyHolder.getKey();
 	}
 	
 	private void saveRawRule(CompiledDNRule item) throws Exception

@@ -40,13 +40,14 @@ public class DNFilterTemplateInstanceDao extends DaoForAuthorableEntity<DNFilter
 		Object[] params =
 		{
 			item.getGroupId(),
-			1,							// TODO: to be changed
+			item.getRawRuleId(),
 			item.getPropertyName(),
 			item.getPattern(),
 			item.getKeep()
 		};
 
 		logger.debug("groupId: " + item.getGroupId());
+		logger.debug("rawRuleId: " + item.getRawRuleId());
 		logger.debug("propertyName: " + item.getPropertyName());
 		logger.debug("pattern: " + item.getPattern());
 		logger.debug("keep: " + item.getKeep());
@@ -57,17 +58,18 @@ public class DNFilterTemplateInstanceDao extends DaoForAuthorableEntity<DNFilter
 	public void update(DNFilterTemplateInstance item) throws Exception
 	{
 		String query =
-			"UPDATE " + TABLE_NAME + " SET propertyName = ?, pattern = ?, keep = ? WHERE id = ?";
+			"UPDATE " + TABLE_NAME + " SET rawRuleId = ?, propertyName = ?, pattern = ?, keep = ? WHERE id = ?";
 		
 		Object[] params =
 		{
+			item.getRawRuleId(),
 			item.getPropertyName(),
 			item.getPattern(),
 			item.getKeep(),
 			item.getId()
 		};
 		
-		logger.debug("groupId: " + item.getGroupId());
+		logger.debug("rawRuleId: " + item.getRawRuleId());
 		logger.debug("propertyName: " + item.getPropertyName());
 		logger.debug("pattern: " + item.getPattern());
 		logger.debug("keep: " + item.getKeep());

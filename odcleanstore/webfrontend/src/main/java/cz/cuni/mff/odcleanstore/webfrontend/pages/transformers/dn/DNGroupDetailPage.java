@@ -17,6 +17,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNReplaceTemplateInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteTemplateInstanceButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedRedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.BooleanLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
@@ -25,6 +26,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamBut
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.CompiledDNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNFilterTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRenameTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNReplaceTemplateInstanceDao;
@@ -47,6 +49,7 @@ public class DNGroupDetailPage extends LimitedEditingPage
 	private DNReplaceTemplateInstanceDao dnReplaceTemplateInstanceDao;
 	private DNRenameTemplateInstanceDao dnRenameTemplateInstanceDao;
 	private DNFilterTemplateInstanceDao dnFilterTemplateInstanceDao;
+	private CompiledDNRuleDao compiledDnRuleDao;
 
 	public DNGroupDetailPage(final Integer groupId) 
 	{
@@ -69,6 +72,7 @@ public class DNGroupDetailPage extends LimitedEditingPage
 		dnReplaceTemplateInstanceDao = daoLookupFactory.getDao(DNReplaceTemplateInstanceDao.class);
 		dnRenameTemplateInstanceDao = daoLookupFactory.getDao(DNRenameTemplateInstanceDao.class);
 		dnFilterTemplateInstanceDao = daoLookupFactory.getDao(DNFilterTemplateInstanceDao.class);
+		compiledDnRuleDao = daoLookupFactory.getDao(CompiledDNRuleDao.class);
 		
 		// register page components
 		//
@@ -260,10 +264,11 @@ public class DNGroupDetailPage extends LimitedEditingPage
 				item.add(new TruncatedLabel("replacement", MAX_LIST_COLUMN_TEXT_LENGTH));
 				
 				item.add(
-					new AuthorizedDeleteButton<DNReplaceTemplateInstance>
+					new AuthorizedDeleteTemplateInstanceButton<DNReplaceTemplateInstance>
 					(
 						dnReplaceTemplateInstanceDao,
-						instance.getId(),
+						compiledDnRuleDao,
+						instance,
 						isEditable(),
 						"replaceTemplateInstance",
 						new DeleteConfirmationMessage("replace template instance"),
