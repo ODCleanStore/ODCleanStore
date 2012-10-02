@@ -66,6 +66,7 @@ public class LinkerImpl implements Linker {
 	private static final String CONFIG_XML_MEASURE = "measure";
 	
 	private static final String LINK_WITHIN_GRAPH_KEY = "linkWithinGraph";
+	private static final String JENA_FILE_FORMAT = "N3";
 	
 	private ObjectIdentificationConfig globalConfig;
 	private Integer[] groupIds;
@@ -331,7 +332,7 @@ public class LinkerImpl implements Linker {
 	
 	private NamedGraphSet loadGraphs(File inputFile) {
 		GraphReaderService reader = new GraphReaderService();
-		reader.setLanguage("N-TRIPLE");
+		reader.setLanguage(JENA_FILE_FORMAT);
 		reader.setSourceFile(inputFile);
 		NamedGraphSet graphSet = new NamedGraphSetImpl();
 		reader.readInto(graphSet);
