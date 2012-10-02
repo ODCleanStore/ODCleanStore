@@ -16,6 +16,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedRedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.CommitChangesButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.LimitedEditingForm;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
@@ -57,14 +58,16 @@ public class QAGroupDetailPage extends LimitedEditingPage
 		// prepare DAO objects
 		//
 		qaRulesGroupDao = daoLookupFactory.getDao(QARulesGroupDao.class);
-		qaRuleDao = daoLookupFactory.getDao(QARuleDao.class);
+		qaRuleDao = daoLookupFactory.getDao(QARuleDao.class, isEditable());
 		
 		// register page components
 		//
+		QARulesGroup group = qaRulesGroupDao.load(groupId);
+		addCommitChangesButton(group);
 		addBackToPipelineLink(groupId, transformerInstanceId);
 		addHelpWindow("rulesGroupHelpWindow", "openRulesGroupHelpWindow", new RulesGroupHelpPanel("content"));
 		addHelpWindow("qaRuleHelpWindow", "openQARuleHelpWindow", new QARuleHelpPanel("content"));
-		addEditOIRulesGroupForm(groupId);
+		addEditOIRulesGroupForm(group);
 		addQARulesSection(groupId);
 	}
 	
@@ -90,9 +93,8 @@ public class QAGroupDetailPage extends LimitedEditingPage
 		));
 	}
 
-	private void addEditOIRulesGroupForm(final Integer groupId)
+	private void addEditOIRulesGroupForm(final QARulesGroup group)
 	{
-		QARulesGroup group = qaRulesGroupDao.load(groupId);
 		IModel<QARulesGroup> formModel = new CompoundPropertyModel<QARulesGroup>(group);
 		
 		Form<QARulesGroup> form = new LimitedEditingForm<QARulesGroup>("editQAGroupForm", formModel, isEditable())
@@ -202,5 +204,20 @@ public class QAGroupDetailPage extends LimitedEditingPage
 		add(dataView);
 		
 		add(new UnobtrusivePagingNavigator("navigator", dataView));
+	}
+	
+	private void addCommitChangesButton(final QARulesGroup group)
+	{
+		add(new CommitChangesButton("commitChanges", group, qaRulesGroupDao)
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick()
+			{
+				super.onClick();
+				setResponsePage(new QAGroupDetailPage(group.getId()));
+			}
+		});
 	}
 }

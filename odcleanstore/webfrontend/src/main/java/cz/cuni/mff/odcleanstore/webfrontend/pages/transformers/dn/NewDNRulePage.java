@@ -33,7 +33,7 @@ public class NewDNRulePage extends LimitedEditingPage
 		
 		// prepare DAO objects
 		//
-		this.dnRuleDao = daoLookupFactory.getDao(DNRuleDao.class);
+		this.dnRuleDao = daoLookupFactory.getDao(DNRuleDao.class, isEditable());
 		
 		// register page components
 		//

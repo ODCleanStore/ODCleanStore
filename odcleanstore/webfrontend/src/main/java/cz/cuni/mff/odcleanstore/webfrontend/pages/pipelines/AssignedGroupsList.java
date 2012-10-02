@@ -21,7 +21,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.AssignedGroupRedirec
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.HelpWindow;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
@@ -59,7 +59,7 @@ public class AssignedGroupsList extends Panel
 		
 		addHelpWindow();
 		addNewAssignmentLink(transformerInstanceId);
-		addNewGroupLink(newGroupPageClass);
+		addNewGroupLink(newGroupPageClass, transformerInstanceId);
 		addAssignmentTable(transformerInstanceId, groupDetailPageClass);
 	}
 	
@@ -109,9 +109,9 @@ public class AssignedGroupsList extends Panel
 		);
 	}
 	
-	private void addNewGroupLink(final Class<? extends FrontendPage> newGroupPageClass)
+	private void addNewGroupLink(final Class<? extends FrontendPage> newGroupPageClass, Integer transformerInstanceId)
 	{
-		add(new RedirectButton("showNewGroupPage", newGroupPageClass));
+		add(new RedirectWithParamButton(newGroupPageClass, transformerInstanceId, "showNewGroupPage"));
 	}
 	
 	private void addAssignmentTable(

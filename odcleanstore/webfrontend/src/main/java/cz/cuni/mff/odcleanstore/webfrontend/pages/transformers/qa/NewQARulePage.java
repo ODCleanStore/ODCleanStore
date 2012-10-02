@@ -33,7 +33,7 @@ public class NewQARulePage extends LimitedEditingPage
 		
 		// prepare DAO objects
 		//
-		this.qaRuleDao = daoLookupFactory.getDao(QARuleDao.class);
+		this.qaRuleDao = daoLookupFactory.getDao(QARuleDao.class, isEditable());
 		
 		// register page components
 		//

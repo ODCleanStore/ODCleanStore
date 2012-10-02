@@ -53,8 +53,8 @@ public class OIRuleDetailPage extends LimitedEditingPage
 		// prepare DAO objects
 		//
 		
-		oiOutputDao = daoLookupFactory.getDao(OIOutputDao.class);
-		oiRuleDao = daoLookupFactory.getDao(OIRuleDao.class);
+		oiOutputDao = daoLookupFactory.getDao(OIOutputDao.class, isEditable());
+		oiRuleDao = daoLookupFactory.getDao(OIRuleDao.class, isEditable());
 		oiOutputTypeDao = daoLookupFactory.getDao(OIOutputTypeDao.class);
 		
 		// register page components

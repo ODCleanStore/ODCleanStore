@@ -93,4 +93,14 @@ public abstract class DaoTemplate<T extends BusinessEntity> extends Dao
 		
 		return (T) jdbcQueryForObject(query, params, getRowMapper());
 	}
+	
+	protected void copyBetweenTablesBy(String fromTable, String toTable, String byColumn, Object byValue) throws Exception
+	{
+		String deleteQuery = "DELETE FROM " + toTable + " WHERE " + byColumn + " = ?";
+		jdbcUpdate(deleteQuery, byValue);
+		
+		String insertQuery = "INSERT INTO " + toTable +
+			" SELECT * FROM " + fromTable + " WHERE " + byColumn + " = ?";
+		jdbcUpdate(insertQuery, byValue);
+	}
 }

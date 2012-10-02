@@ -20,49 +20,53 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 @AuthorizeInstantiation({ Role.PIC })
 public class GraphsInErrorListPage extends FrontendPage {
 	private static final long serialVersionUID = 1L;
-
-	private final Integer engineId;
-	private final Integer pipelineId;
 	
 	private GraphInErrorDao graphInErrorDao;
 	private InputGraphStateDao inputGraphStateDao;
-
-	public GraphsInErrorListPage(Integer engineId) {
-		this(engineId, null);
+	
+	public GraphsInErrorListPage() {
+		this(new Object[]{});
+	}
+	
+	public GraphsInErrorListPage(String column, Integer id) {
+		this((Object)column, (Object)id);
 	}
 
-	public GraphsInErrorListPage(Integer engineId, Integer pipelineId) {
+	public GraphsInErrorListPage(String column0, Integer id0, String column1, Integer id1) {
+		this((Object)column0, (Object)id0, (Object)column1, (Object)id1);
+	}
+	
+	private GraphsInErrorListPage(Object... params) {
 		super
 		(
 			"Home > Backend > Pipelines > Graphs in Error", 
 			"Graphs in Error"
 		);
 
-		this.engineId = engineId;
-		this.pipelineId = pipelineId;
-		
 		graphInErrorDao = daoLookupFactory.getDao(GraphInErrorDao.class);
 		inputGraphStateDao = daoLookupFactory.getDao(InputGraphStateDao.class);
 
-		addGraphsTable();
+		addGraphsTable(params);
 	}
 	
-	private void addGraphsTable() {
+	private void addGraphsTable(Object... params) {
 		DependentSortableDataProvider<GraphInError> data;
 		
 		QueryCriteria wrongStateCriteria = new QueryCriteria();
 		
 		wrongStateCriteria.addWhereClause("label", "WRONG");
 		
-		Integer wrongStateId = inputGraphStateDao.loadAllBy(wrongStateCriteria).get(0).id;
-		
-		if (pipelineId != null) {
-			data = new DependentSortableDataProvider<GraphInError>(graphInErrorDao, "uuid",
-					"stateId", wrongStateId, "engineId", engineId, "pipelineId", pipelineId);
-		} else {
-			data = new DependentSortableDataProvider<GraphInError>(graphInErrorDao, "uuid",
-					"stateId", wrongStateId, "engineId", engineId);
+		Object[] criteria = new Object[params.length + 2];
+
+		criteria[0] = "stateId";
+		criteria[1] = inputGraphStateDao.loadAllBy(wrongStateCriteria).get(0).id;
+
+		for (int i = 2; i < criteria.length; ++i) {
+			criteria[i] = params[i - 2];
 		}
+		
+		data = new DependentSortableDataProvider<GraphInError>(graphInErrorDao, "uuid",
+			criteria);
 		
 		DataView<GraphInError> dataView = new DataView<GraphInError>("graphInError", data) {
 			private static final long serialVersionUID = 1L;

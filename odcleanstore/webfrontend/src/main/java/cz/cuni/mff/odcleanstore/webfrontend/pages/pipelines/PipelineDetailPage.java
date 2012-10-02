@@ -24,6 +24,8 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentSortableDataProvider;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.en.GraphInErrorDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
@@ -62,6 +64,7 @@ public class PipelineDetailPage extends LimitedEditingPage
 	
 	private PipelineDao pipelineDao;
 	private TransformerInstanceDao transformerInstanceDao;
+	private GraphInErrorDao graphInErrorDao;
 	
 	public PipelineDetailPage(final Integer pipelineId) 
 	{
@@ -78,14 +81,36 @@ public class PipelineDetailPage extends LimitedEditingPage
 		//
 		pipelineDao = daoLookupFactory.getDao(PipelineDao.class);
 		transformerInstanceDao = daoLookupFactory.getDao(TransformerInstanceDao.class);
+		graphInErrorDao = daoLookupFactory.getDao(GraphInErrorDao.class);
+		
+		// prepare additional information
+		//
+		QueryCriteria pipelineIdCriteria = new QueryCriteria();
+		
+		pipelineIdCriteria.addWhereClause("pipelineId", pipelineId);
+
+		int errors = graphInErrorDao.loadAllBy(pipelineIdCriteria).size();
 		
 		// register page components
 		//
+		addViewGraphsInError("viewGraphsInError", pipelineId, errors);
 		addHelpWindow("pipelineHelpWindow", "openPipelineHelpWindow", new PipelineHelpPanel("content"));
 		addHelpWindow("transformerInstanceHelpWindow", "openTransformerInstanceHelpWindow", new TransformerInstanceHelpPanel("content"));
 		addNewPipelineForm(pipelineId);
 		addPipelineInformationSection(pipelineId);
 		addAssignmentSection(pipelineId);
+	}
+	
+	private void addViewGraphsInError(final String compName, final Integer pipelineId, final Integer errors) {
+		add(new RedirectWithParamButton(GraphsInErrorListPage.class, compName, "pipelineId", pipelineId) {
+
+			private static final long serialVersionUID = 1L;
+			
+			@Override
+			public boolean isVisible() {
+				return errors > 0;
+			}
+		});
 	}
 	
 	private void addNewPipelineForm(final Integer pipelineId)

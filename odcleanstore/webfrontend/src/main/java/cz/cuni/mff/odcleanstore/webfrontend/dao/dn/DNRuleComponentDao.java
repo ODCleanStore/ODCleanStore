@@ -3,6 +3,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.dn;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponent;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.CommittableDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 
 /**
@@ -10,6 +11,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
  * @author Dusan
  *
  */
+@CommittableDao(DNRuleComponentUncommittedDao.class)
 public class DNRuleComponentDao extends DaoForAuthorableEntity<DNRuleComponent>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "DN_RULE_COMPONENTS";
@@ -28,6 +30,11 @@ public class DNRuleComponentDao extends DaoForAuthorableEntity<DNRuleComponent>
 	{
 		return TABLE_NAME;
 	}
+	
+	protected String getRuleTableName()
+	{
+		return DNRuleDao.TABLE_NAME;
+	}
 
 	@Override
 	protected ParameterizedRowMapper<DNRuleComponent> getRowMapper() 
@@ -41,7 +48,7 @@ public class DNRuleComponentDao extends DaoForAuthorableEntity<DNRuleComponent>
 		String query = 
 			"SELECT C.id as id, ruleId, modification, C.description as description, " +
 			"CT.id as typeId, CT.label as typeLbl, CT.description as typeDescr " +
-			"FROM " + TABLE_NAME + " as C " +
+			"FROM " + getTableName() + " as C " +
 			"JOIN " + DNRuleComponentTypeDao.TABLE_NAME + " as CT " +
 			"ON CT.id = C.typeId ";
 		return query;
@@ -54,55 +61,30 @@ public class DNRuleComponentDao extends DaoForAuthorableEntity<DNRuleComponent>
 	}
 	
 	@Override
+	protected void deleteRaw(Integer id) throws Exception
+	{
+		throw new UnsupportedOperationException(
+			"Cannot modify " + getTableName() + ", use uncommitted version table instead");
+	}
+	
+	@Override
 	public void save(DNRuleComponent item) throws Exception
 	{
-		String query = 
-			"INSERT INTO " + TABLE_NAME + " (ruleId, typeId, modification, description) " +
-			"VALUES (?, ?, ?, ?)";
-		
-		Object[] params =
-		{
-			item.getRuleId(),
-			item.getType().getId(),
-			item.getModification(),
-			item.getDescription()
-		};
-		
-		logger.debug("ruleId: " + item.getRuleId());
-		logger.debug("typeId: " + item.getType().getId());
-		logger.debug("modification: " + item.getModification());
-		logger.debug("description: " + item.getDescription());
-		
-		jdbcUpdate(query, params);
+		throw new UnsupportedOperationException(
+			"Cannot modify " + getTableName() + ", use uncommitted version table instead");
 	}
 
 	public void update(DNRuleComponent item) throws Exception
 	{
-		String query = 
-			"UPDATE " + TABLE_NAME + " " +
-			"SET typeId = ?, modification = ?, description = ? WHERE id = ?";
-		
-		Object[] params =
-		{
-			item.getType().getId(),
-			item.getModification(),
-			item.getDescription(),
-			item.getId()
-		};
-		
-		logger.debug("typeId: " + item.getType().getId());
-		logger.debug("description: " + item.getModification());
-		logger.debug("description: " + item.getDescription());
-		logger.debug("id: " + item.getId());
-		
-		jdbcUpdate(query, params);
+		throw new UnsupportedOperationException(
+			"Cannot modify " + getTableName() + ", use uncommitted version table instead");
 	}
 	
 	@Override
 	public int getAuthorId(Integer entityId)
 	{
 		String query = "SELECT g.authorId " +
-				"\n FROM " + DNRuleDao.TABLE_NAME + " AS r JOIN " + DNRulesGroupDao.TABLE_NAME + " AS g ON (g.id = r.groupId)" +
+				"\n FROM " + getRuleTableName() + " AS r JOIN " + DNRulesGroupDao.TABLE_NAME + " AS g ON (g.id = r.groupId)" +
 				"\n   JOIN " + TABLE_NAME + " AS c ON (c.ruleId = r.id)" +
 				"\n WHERE c.id = ?";
 		return jdbcQueryForInt(query, entityId);

@@ -8,12 +8,8 @@ import org.springframework.transaction.support.AbstractPlatformTransactionManage
 
 import virtuoso.jdbc3.VirtuosoDataSource;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.CommittableDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.GlobalAggregationSettingsDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.en.EngineOperationsDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.en.OfficialPipelinesDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 
 /**
  * A factory to lookup DAO objects.
@@ -61,6 +57,18 @@ public class DaoLookupFactory implements Serializable
 		this.daos = new HashMap<Class<? extends Dao>, Dao>();
 	}
 	
+	/**
+	 * Creates (lazily) and returns the requested DAO object decorated by
+	 * a SafetyDaoDecorator instance. 
+	 * 
+	 * Throws an AssertionError if the requested DAO class cannot be 
+	 * instantiated.
+	 * 
+	 * @param daoClass
+	 * @return
+	 * @throws AssertionError
+	 */
+	@SuppressWarnings("unchecked")
 	public <T extends Dao> T getDao(Class<T> daoClass) throws AssertionError
 	{
 		if (daos.containsKey(daoClass))
@@ -70,6 +78,35 @@ public class DaoLookupFactory implements Serializable
 		daos.put(daoClass, daoInstance);
 	
 		return daoInstance;
+	}
+	
+	/**
+	 * Creates requested DAO object with the option to look for "uncommitted" version of the DAO
+	 * @see #getDao(Class)
+	 * @param daoClass
+	 * @param commitable if true, the uncommitted version of the DAO will be returned
+	 * @return
+	 * @throws AssertionError
+	 */
+	@SuppressWarnings("unchecked")
+	public <T extends Dao> T getDao(Class<T> daoClass, boolean commitable) throws AssertionError
+	{
+		Class<T> requestedClass = daoClass;
+		if (commitable)
+		{
+			CommittableDao annotation = daoClass.getAnnotation(CommittableDao.class);
+			if (annotation == null) 
+			{
+				throw new AssertionError("Could not load committable version of DAO class: " + daoClass);
+			}
+			if (!daoClass.isAssignableFrom(annotation.value()))
+			{
+				throw new AssertionError("Committable version of DAO must inhterit from the requested class " + daoClass);
+			}
+			requestedClass = (Class<T>) annotation.value();
+			
+		}
+		return getDao(requestedClass);
 	}
 	
 	/**
@@ -101,40 +138,13 @@ public class DaoLookupFactory implements Serializable
 	}
 	
 	/**
-<<<<<<< HEAD
-	 * Creates and returns the (undecorated) official pipelines DAO.
-	 * 
-	 * @return
-	 */
-	public OfficialPipelinesDao getOfficialPipelinesDao()
-	{
-		OfficialPipelinesDao dao = new OfficialPipelinesDao();
-		dao.setDaoLookupFactory(this);
-		return dao;
-	}
-	
-	/**
-	 * Creates and returns the (undecorated) engine operations DAO.
-	 * 
-	 * @return
-	 */
-	public EngineOperationsDao getEngineOperationsDao() 
-	{
-		EngineOperationsDao dao = new EngineOperationsDao();
-		dao.setDaoLookupFactory(this);
-		return dao;
-	}
-	
-	/**
 	 * Returns the data source for the clean Virtuoso DB.
 	 * 
 	 * The data source is lazily created (based on the connection credentials)
 	 * on every request, which allows the factory to be stored in the session
 	 * by the Wicket framework.
 	 * 
-=======
 	 * Only for DAO classes.
->>>>>>> d44256eac5da0455d22d22858b15faefc601b077
 	 * @return
 	 */
 	public  VirtuosoDataSource getCleanDataSource()
@@ -152,16 +162,13 @@ public class DaoLookupFactory implements Serializable
 	}
 	
 	/**
-<<<<<<< HEAD
 	 * Returns the data source for the dirty Virtuoso DB.
 	 * 
 	 * The data source is lazily created (based on the connection credentials)
 	 * on every request, which allows the factory to be stored in the session
 	 * by the Wicket framework.
 	 * 
-=======
 	 * Only for DAO classes.
->>>>>>> d44256eac5da0455d22d22858b15faefc601b077
 	 * @return
 	 */
 	public VirtuosoDataSource getDirtyDataSource()
@@ -195,13 +202,10 @@ public class DaoLookupFactory implements Serializable
 	}
 	
 	/**
-<<<<<<< HEAD
 	 * Returns the (lazily created on every request) transaction manager over
 	 * the clean data source.
 	 *  
-=======
 	 * Only for DAO classes.
->>>>>>> d44256eac5da0455d22d22858b15faefc601b077
 	 * @return
 	 */
 	public AbstractPlatformTransactionManager getCleanTransactionManager()

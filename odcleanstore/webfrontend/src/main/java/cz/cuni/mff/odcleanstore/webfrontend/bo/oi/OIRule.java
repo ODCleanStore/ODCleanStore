@@ -2,7 +2,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo.oi;
 
 import java.math.BigDecimal;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.RuleEntity;
 
 /**
  * The BO which represents an OI rule.
@@ -10,11 +10,10 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
-public class OIRule extends EntityWithSurrogateKey
+public class OIRule extends RuleEntity
 {
 	private static final long serialVersionUID = 1L;
 
-	private Integer groupId;
 	private String label;
 	private String linkType;
 	private String sourceRestriction;
@@ -38,9 +37,8 @@ public class OIRule extends EntityWithSurrogateKey
 	public OIRule(Integer id, Integer groupId, String label, String linkType, String sourceRestriction, 
 		String targetRestriction, String linkageRule, BigDecimal filterThreshold, Integer filterLimit) 
 	{
-		super(id);
+		super(id, groupId);
 		
-		this.groupId = groupId;
 		this.label = label;
 		this.linkType = linkType;
 		this.sourceRestriction = sourceRestriction;
@@ -55,15 +53,6 @@ public class OIRule extends EntityWithSurrogateKey
 	 */
 	public OIRule()
 	{
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public Integer getGroupId() 
-	{
-		return groupId;
 	}
 	
 	/**
@@ -139,12 +128,4 @@ public class OIRule extends EntityWithSurrogateKey
 		return filterLimit;
 	}
 
-	/**
-	 * 
-	 * @param groupId
-	 */
-	public void setGroupId(Integer groupId) 
-	{
-		this.groupId = groupId;
-	}
 }

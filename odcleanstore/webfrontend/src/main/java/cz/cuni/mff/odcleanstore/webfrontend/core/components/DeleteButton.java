@@ -16,9 +16,6 @@ public class DeleteButton<BO extends EntityWithSurrogateKey> extends AbstractDel
 	
 	private static final long serialVersionUID = 1L;
 	
-	/** the BO to be deleted */
-	private BO bo;
-	
 	/**
 	 * 
 	 * @param dao

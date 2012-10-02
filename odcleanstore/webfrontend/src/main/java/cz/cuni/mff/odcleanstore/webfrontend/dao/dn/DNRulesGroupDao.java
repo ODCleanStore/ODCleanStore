@@ -3,9 +3,10 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.dn;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRulesGroup;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.RulesGroupDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.AbstractRuleDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.AbstractRulesGroupDao;
 
-public class DNRulesGroupDao extends RulesGroupDao<DNRulesGroup>
+public class DNRulesGroupDao extends AbstractRulesGroupDao<DNRulesGroup>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "DN_RULES_GROUPS";
 
@@ -28,5 +29,11 @@ public class DNRulesGroupDao extends RulesGroupDao<DNRulesGroup>
 	protected ParameterizedRowMapper<DNRulesGroup> getRowMapper() 
 	{
 		return rowMapper;
+	}
+	
+	@Override
+	protected Class<? extends AbstractRuleDao<?>> getDependentRuleDao()
+	{
+		return DNRuleDao.class;
 	}
 }
