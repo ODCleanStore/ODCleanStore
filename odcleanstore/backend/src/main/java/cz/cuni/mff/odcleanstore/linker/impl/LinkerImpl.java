@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -200,7 +201,7 @@ public class LinkerImpl implements Linker {
 				resultFileName = null;
 			}
 			
-		} catch (DatabaseException e) {
+		} catch (Exception e) {
 			throw new TransformerException(e);
 		} finally {
 			deleteFile(inputFile);
@@ -298,10 +299,11 @@ public class LinkerImpl implements Linker {
 		File file = new File(createFileName("", targetDirectory, DEBUG_INPUT_FILENAME));
 		PrintWriter writer = null;
 		try {
-			writer = new PrintWriter(file);
+			writer = new PrintWriter(file, "UTF-8");
 			writer.write(input);
 		} catch (FileNotFoundException e) {
 			throw new TransformerException(e);
+		} catch (UnsupportedEncodingException e) {
 		} finally {
 			if (writer != null) {
 				writer.close();
