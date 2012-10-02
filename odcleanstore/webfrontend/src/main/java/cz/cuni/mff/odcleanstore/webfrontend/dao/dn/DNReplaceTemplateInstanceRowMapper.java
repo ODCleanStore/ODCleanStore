@@ -16,6 +16,7 @@ public class DNReplaceTemplateInstanceRowMapper extends CustomRowMapper<DNReplac
 		return new DNReplaceTemplateInstance
 		(
 			rs.getInt("id"),
+			rs.getInt("rawRuleId"),
 			rs.getInt("groupId"),
 			blobToString(rs.getBlob("propertyName")),
 			blobToString(rs.getBlob("pattern")),

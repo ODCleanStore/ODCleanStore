@@ -40,13 +40,14 @@ public class DNReplaceTemplateInstanceDao extends DaoForAuthorableEntity<DNRepla
 		Object[] params =
 		{
 			item.getGroupId(),
-			1,							// TODO: to be changed
+			item.getRawRuleId(),
 			item.getPropertyName(),
 			item.getPattern(),
 			item.getReplacement()
 		};
 
 		logger.debug("groupId: " + item.getGroupId());
+		logger.debug("rawRuleId: " + item.getRawRuleId());
 		logger.debug("propertyName: " + item.getPropertyName());
 		logger.debug("pattern: " + item.getPattern());
 		logger.debug("replacement: " + item.getReplacement());
@@ -57,17 +58,18 @@ public class DNReplaceTemplateInstanceDao extends DaoForAuthorableEntity<DNRepla
 	public void update(DNReplaceTemplateInstance item) throws Exception
 	{
 		String query =
-			"UPDATE " + TABLE_NAME + " SET propertyName = ?, pattern = ?, replacement = ? WHERE id = ?";
+			"UPDATE " + TABLE_NAME + " SET rawRuleId = ?, propertyName = ?, pattern = ?, replacement = ? WHERE id = ?";
 		
 		Object[] params =
 		{
+			item.getRawRuleId(),
 			item.getPropertyName(),
 			item.getPattern(),
 			item.getReplacement(),
 			item.getId()
 		};
 		
-		logger.debug("groupId: " + item.getGroupId());
+		logger.debug("rawRuleId: " + item.getRawRuleId());
 		logger.debug("propertyName: " + item.getPropertyName());
 		logger.debug("pattern: " + item.getPattern());
 		logger.debug("replacement: " + item.getReplacement());

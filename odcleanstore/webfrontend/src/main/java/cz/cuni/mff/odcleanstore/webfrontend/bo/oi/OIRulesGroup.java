@@ -17,16 +17,10 @@ public class OIRulesGroup extends RulesGroupEntity implements AuthoredEntity
 	private static final long serialVersionUID = 1L;
 
 	private List<OIRule> rules;
-	
-	/**
-	 * 
-	 * @param id
-	 * @param label
-	 * @param description
-	 */
-	public OIRulesGroup(Integer id, String label, String description, Integer authorId, String authorName) 
+
+	public OIRulesGroup(Integer id, String label, String description, Integer authorId, boolean isUncommitted, String authorName) 
 	{
-		super(id, label, description, authorId, authorName);
+		super(id, label, description, authorId, isUncommitted, authorName);
 		this.rules = new LinkedList<OIRule>();
 	}
 

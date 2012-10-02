@@ -6,6 +6,10 @@ import org.apache.wicket.Localizer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.util.convert.IConverter;
 
+/**
+ * Label for boolean values, converting them to a more readable form.
+ * @author Jan Michelfeit
+ */
 public class BooleanLabel extends Label implements IConverter<Boolean>
 {
 	private static final long serialVersionUID = 1L;

@@ -10,9 +10,9 @@ public class RedirectWithParamButtonWithLabel extends RedirectWithParamButton {
 	
 	private String label;
 
-	public RedirectWithParamButtonWithLabel(final Class<? extends FrontendPage> redirectPage, 
-			final Integer param, final String compName, final String label) {
-		super(redirectPage, param, compName);
+	public RedirectWithParamButtonWithLabel(final Class<? extends FrontendPage> redirectPage,
+		final String compName, final String label, final Object... param) {
+		super(redirectPage, compName, param);
 		
 		this.label = label;
 	}

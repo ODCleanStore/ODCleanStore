@@ -87,9 +87,10 @@ public class PipelinesListPage extends FrontendPage
 				Component error;
 				
 				if (attachedEngine.isPipelineError) {
-					error = new RedirectWithParamButtonWithLabel(GraphsInErrorListPage.class, attachedEngine.id,
+					error = new RedirectWithParamButtonWithLabel(GraphsInErrorListPage.class,
 						"isPipelineError",
-						"Yes, see more");
+						"Yes, see more",
+						"engineId", attachedEngine.id);
 					error.add(new AttributeModifier("class", new Model<String>("button")));
 				} else {
 					error = new Label("isPipelineError", "No");

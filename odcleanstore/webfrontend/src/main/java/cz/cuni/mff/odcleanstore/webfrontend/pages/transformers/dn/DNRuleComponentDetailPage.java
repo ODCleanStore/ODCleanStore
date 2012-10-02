@@ -37,7 +37,7 @@ public class DNRuleComponentDetailPage extends LimitedEditingPage
 
 		// prepare DAO objects
 		//
-		dnRuleComponentDao = daoLookupFactory.getDao(DNRuleComponentDao.class);
+		dnRuleComponentDao = daoLookupFactory.getDao(DNRuleComponentDao.class, isEditable());
 		dnRuleComponentTypeDao = daoLookupFactory.getDao(DNRuleComponentTypeDao.class);
 		
 		// register page components

@@ -8,7 +8,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
-public class DNFilterTemplateInstance extends EntityWithSurrogateKey
+public class DNFilterTemplateInstance extends DNTemplateInstance
 {
 	private static final long serialVersionUID = 1L;
 
@@ -25,9 +25,9 @@ public class DNFilterTemplateInstance extends EntityWithSurrogateKey
 	 * @param pattern
 	 * @param keep
 	 */
-	public DNFilterTemplateInstance(Integer id, Integer groupId, String propertyName, String pattern, Boolean keep) 
+	public DNFilterTemplateInstance(Integer id, Integer rawRuleId, Integer groupId, String propertyName, String pattern, Boolean keep) 
 	{
-		super(id);
+		super(id, rawRuleId);
 		
 		this.groupId = groupId;
 		this.propertyName = propertyName;

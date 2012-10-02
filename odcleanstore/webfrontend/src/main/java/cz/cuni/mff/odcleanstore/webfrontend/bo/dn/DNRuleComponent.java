@@ -38,6 +38,19 @@ public class DNRuleComponent extends EntityWithSurrogateKey
 	
 	/**
 	 * 
+	 * @param type
+	 * @param modification
+	 * @param description
+	 */
+	public DNRuleComponent(DNRuleComponentType type, String modification, String description)
+	{
+		this.type = type;
+		this.modification = modification;
+		this.description = description;
+	}
+	
+	/**
+	 * 
 	 */
 	public DNRuleComponent()
 	{

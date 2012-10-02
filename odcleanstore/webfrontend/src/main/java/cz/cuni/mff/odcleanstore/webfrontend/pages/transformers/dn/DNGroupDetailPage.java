@@ -17,14 +17,17 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNReplaceTemplateInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteTemplateInstanceButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedRedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.BooleanLabel;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.CommitChangesButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.LimitedEditingForm;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.CompiledDNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNFilterTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRenameTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNReplaceTemplateInstanceDao;
@@ -47,6 +50,7 @@ public class DNGroupDetailPage extends LimitedEditingPage
 	private DNReplaceTemplateInstanceDao dnReplaceTemplateInstanceDao;
 	private DNRenameTemplateInstanceDao dnRenameTemplateInstanceDao;
 	private DNFilterTemplateInstanceDao dnFilterTemplateInstanceDao;
+	private CompiledDNRuleDao compiledDnRuleDao;
 
 	public DNGroupDetailPage(final Integer groupId) 
 	{
@@ -65,10 +69,11 @@ public class DNGroupDetailPage extends LimitedEditingPage
 		// prepare DAO objects
 		//
 		dnRulesGroupDao = daoLookupFactory.getDao(DNRulesGroupDao.class);
-		dnRuleDao = daoLookupFactory.getDao(DNRuleDao.class);
+		dnRuleDao = daoLookupFactory.getDao(DNRuleDao.class, isEditable());
 		dnReplaceTemplateInstanceDao = daoLookupFactory.getDao(DNReplaceTemplateInstanceDao.class);
 		dnRenameTemplateInstanceDao = daoLookupFactory.getDao(DNRenameTemplateInstanceDao.class);
 		dnFilterTemplateInstanceDao = daoLookupFactory.getDao(DNFilterTemplateInstanceDao.class);
+		compiledDnRuleDao = daoLookupFactory.getDao(CompiledDNRuleDao.class);
 		
 		// register page components
 		//
@@ -79,8 +84,9 @@ public class DNGroupDetailPage extends LimitedEditingPage
 		addHelpWindow("dnRenameTemplateInstanceHelpWindow", "openDNRenameTemplateInstanceHelpWindow", new DNRenameTemplateInstanceHelpPanel("content"));
 		addHelpWindow("dnFilterTemplateInstanceHelpWindow", "openDNFilterTemplateInstanceHelpWindow", new DNFilterTemplateInstanceHelpPanel("content"));
 		
-		addEditDNRulesGroupForm(groupId);
-
+		DNRulesGroup group = dnRulesGroupDao.load(groupId);
+		addEditDNRulesGroupForm(group);
+		addCommitChangesButton(group);
 		addDNRawRulesSection(groupId);
 		addDNReplaceTemplateInstancesSection(groupId);
 		addDNRenameTemplateInstancesSection(groupId);
@@ -115,9 +121,8 @@ public class DNGroupDetailPage extends LimitedEditingPage
 	 	=======================================================================
 	*/
 	
-	private void addEditDNRulesGroupForm(final Integer groupId)
+	private void addEditDNRulesGroupForm(final DNRulesGroup group)
 	{
-		DNRulesGroup group = dnRulesGroupDao.load(groupId);
 		IModel<DNRulesGroup> formModel = new CompoundPropertyModel<DNRulesGroup>(group);
 		
 		Form<DNRulesGroup> form = new LimitedEditingForm<DNRulesGroup>("editDNGroupForm", formModel, isEditable())
@@ -260,10 +265,11 @@ public class DNGroupDetailPage extends LimitedEditingPage
 				item.add(new TruncatedLabel("replacement", MAX_LIST_COLUMN_TEXT_LENGTH));
 				
 				item.add(
-					new AuthorizedDeleteButton<DNReplaceTemplateInstance>
+					new AuthorizedDeleteTemplateInstanceButton<DNReplaceTemplateInstance>
 					(
 						dnReplaceTemplateInstanceDao,
-						instance.getId(),
+						compiledDnRuleDao,
+						instance,
 						isEditable(),
 						"replaceTemplateInstance",
 						new DeleteConfirmationMessage("replace template instance"),
@@ -422,5 +428,20 @@ public class DNGroupDetailPage extends LimitedEditingPage
 		add(dataView);
 		
 		add(new UnobtrusivePagingNavigator("filterTemplateInstancesNavigator", dataView));
+	}
+	
+	private void addCommitChangesButton(final DNRulesGroup group)
+	{
+		add(new CommitChangesButton("commitChanges", group, dnRulesGroupDao)
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick()
+			{
+				super.onClick();
+				setResponsePage(new DNGroupDetailPage(group.getId()));
+			}
+		});
 	}
 }

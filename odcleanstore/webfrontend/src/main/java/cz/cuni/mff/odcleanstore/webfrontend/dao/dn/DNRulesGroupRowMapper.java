@@ -18,6 +18,7 @@ public class DNRulesGroupRowMapper extends CustomRowMapper<DNRulesGroup>
 			blobToString(rs.getBlob("label")),
 			blobToString(rs.getBlob("description")),
 			rs.getInt("authorId"),
+			rs.getBoolean("isUncommitted"),
 			blobToString(rs.getBlob("username"))
 		);
 	}

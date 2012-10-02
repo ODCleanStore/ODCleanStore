@@ -8,7 +8,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
-public class DNRenameTemplateInstance extends EntityWithSurrogateKey
+public class DNRenameTemplateInstance extends DNTemplateInstance
 {
 	private static final long serialVersionUID = 1L;
 
@@ -23,9 +23,9 @@ public class DNRenameTemplateInstance extends EntityWithSurrogateKey
 	 * @param sourcePropertyName
 	 * @param targetPropertyName
 	 */
-	public DNRenameTemplateInstance(Integer id, Integer groupId, String sourcePropertyName, String targetPropertyName)
+	public DNRenameTemplateInstance(Integer id, Integer rawRuleId, Integer groupId, String sourcePropertyName, String targetPropertyName)
 	{
-		super(id);
+		super(id, rawRuleId);
 		
 		this.groupId = groupId;
 		this.sourcePropertyName = sourcePropertyName;

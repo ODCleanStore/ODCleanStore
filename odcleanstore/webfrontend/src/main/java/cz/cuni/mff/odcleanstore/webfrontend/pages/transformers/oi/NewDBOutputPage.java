@@ -39,7 +39,7 @@ public class NewDBOutputPage extends LimitedEditingPage
 		
 		// prepare DAO objects
 		//
-		oiOutputDao = daoLookupFactory.getDao(OIOutputDao.class);
+		oiOutputDao = daoLookupFactory.getDao(OIOutputDao.class, isEditable());
 		oiOutputTypeDao = daoLookupFactory.getDao(OIOutputTypeDao.class);
 		
 		// register page components

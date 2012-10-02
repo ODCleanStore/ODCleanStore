@@ -8,7 +8,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
-public class DNReplaceTemplateInstance extends EntityWithSurrogateKey
+public class DNReplaceTemplateInstance extends DNTemplateInstance
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -25,9 +25,9 @@ public class DNReplaceTemplateInstance extends EntityWithSurrogateKey
 	 * @param pattern
 	 * @param replacement
 	 */
-	public DNReplaceTemplateInstance(Integer id, Integer groupId, String propertyName, String pattern, String replacement) 
+	public DNReplaceTemplateInstance(Integer id, Integer rawRuleId, Integer groupId, String propertyName, String pattern, String replacement) 
 	{
-		super(id);
+		super(id, rawRuleId);
 		
 		this.groupId = groupId;
 		this.propertyName = propertyName;

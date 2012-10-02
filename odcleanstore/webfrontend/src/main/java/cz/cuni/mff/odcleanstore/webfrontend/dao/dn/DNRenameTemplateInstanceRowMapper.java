@@ -15,6 +15,7 @@ public class DNRenameTemplateInstanceRowMapper extends CustomRowMapper<DNRenameT
 		return new DNRenameTemplateInstance
 		(
 			rs.getInt("id"),
+			rs.getInt("rawRuleId"),
 			rs.getInt("groupId"),
 			blobToString(rs.getBlob("sourcePropertyName")),
 			blobToString(rs.getBlob("targetPropertyName"))
