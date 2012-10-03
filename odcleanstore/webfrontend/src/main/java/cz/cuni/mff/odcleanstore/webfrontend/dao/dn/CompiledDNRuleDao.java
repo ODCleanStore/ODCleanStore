@@ -14,7 +14,7 @@ public class CompiledDNRuleDao extends DaoForEntityWithSurrogateKey<CompiledDNRu
 {
 	private static final long serialVersionUID = 1L;
 	
-	public static final String TABLE_NAME = DNRuleDao.TABLE_NAME;
+	public static final String TABLE_NAME = DNRuleUncommittedDao.TABLE_NAME;
 	
 	private ParameterizedRowMapper<CompiledDNRule> rowMapper;
 	
