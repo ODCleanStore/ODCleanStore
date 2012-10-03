@@ -299,9 +299,9 @@ public class QualityAssessorImpl implements QualityAssessor {
 	public static class GraphScoreWithTrace {
 		private String graphName;
 		private Double score;
-		private Collection<QualityAssessmentRule> trace;
+		private List<QualityAssessmentRule> trace;
 
-		public GraphScoreWithTrace(Double score, Collection<QualityAssessmentRule> trace) {
+		public GraphScoreWithTrace(Double score, List<QualityAssessmentRule> trace) {
 			this.score = score;
 			this.trace = trace;
 		}
@@ -347,7 +347,7 @@ public class QualityAssessorImpl implements QualityAssessor {
 		trace = new ArrayList<String>();
 		violations = 0;
 
-		Collection<QualityAssessmentRule> rules = new ArrayList<QualityAssessmentRule>();
+		List<QualityAssessmentRule> rules = new ArrayList<QualityAssessmentRule>();
 
 		try
 		{
