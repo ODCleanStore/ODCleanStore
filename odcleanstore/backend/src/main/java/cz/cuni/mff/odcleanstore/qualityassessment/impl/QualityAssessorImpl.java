@@ -293,7 +293,7 @@ public class QualityAssessorImpl implements QualityAssessor {
 			closeDirtyConnection();
 		}
 
-		LOG.info(String.format("Quality Assessment done for graph %s, %d rules tested, %d violations, score %f",
+		LOG.info(String.format(Locale.ROOT, "Quality Assessment done for graph %s, %d rules tested, %d violations, score %f",
 				inputGraph.getGraphName(), rules.size(), violations, score));
 	}
 
@@ -366,7 +366,7 @@ public class QualityAssessorImpl implements QualityAssessor {
 			rules = model.getRules(groupLabels);
 		}
 
-		LOG.info(String.format("Quality Assessment selected %d rules.", rules.size()));
+		LOG.info(String.format(Locale.ROOT, "Quality Assessment selected %d rules.", rules.size()));
 	}
 
 	/**
@@ -418,10 +418,10 @@ public class QualityAssessorImpl implements QualityAssessor {
 				LOG.info(String.format("Did not apply rule %d: %s", rule.getId(), rule.getDescription()));
 			}
 		} catch (DatabaseException e) {
-			LOG.info(String.format("Failed to apply rule %d: %s\n\n%s\n\n%s", rule.getId(), rule.getDescription(), query, e.getMessage()));
+			LOG.error(String.format(Locale.ROOT, "Failed to apply rule %d: %s\n\n%s\n\n%s", rule.getId(), rule.getDescription(), query, e.getMessage()));
 			throw new QualityAssessmentException(e);
 		} catch (SQLException e) {
-			LOG.info(String.format("Failed to apply rule %d: %s\n\n%s\n\n%s", rule.getId(), rule.getDescription(), query, e.getMessage()));
+			LOG.error(String.format(Locale.ROOT, "Failed to apply rule %d: %s\n\n%s\n\n%s", rule.getId(), rule.getDescription(), query, e.getMessage()));
 			throw new QualityAssessmentException(e);
 		} finally {
 			if (results != null) {

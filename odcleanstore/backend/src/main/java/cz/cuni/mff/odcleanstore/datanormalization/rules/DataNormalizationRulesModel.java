@@ -60,6 +60,7 @@ public class DataNormalizationRulesModel {
 	private static final String ruleByGroupIdQueryFormat = "SELECT rules.id AS id, " +
 			"rules.groupId AS groupId, " +
 			"types.label AS type, " +
+			"components.id AS componentId, " +
 			"components.modification AS modification, " +
 			"rules.description AS description, " +
 			"components.description AS componentDescription FROM " +
@@ -70,6 +71,7 @@ public class DataNormalizationRulesModel {
 	private static final String ruleByGroupLabelQueryFormat = "SELECT rules.id AS id, " +
 			"rules.groupId AS groupId, " +
 			"types.label AS type, " +
+			"components.id AS componentId, " +
 			"components.modification AS modification, " +
 			"rules.description AS description, " +
 			"components.description AS componentDescription FROM " +
@@ -177,6 +179,8 @@ public class DataNormalizationRulesModel {
 
 				Blob typeBlob = result.getBlob("type");
 				String type = new String(typeBlob.getBytes(1, (int)typeBlob.length()));
+				
+				Integer componentId = result.getInt("componentId");
 
 				Blob modificationBlob = result.getBlob("modification");
 				String modification = new String(modificationBlob.getBytes(1, (int)modificationBlob.length()));
@@ -202,9 +206,13 @@ public class DataNormalizationRulesModel {
 				if (rules.containsKey(id)) {
 					DataNormalizationRule rule = rules.get(id);
 
-					rule.addComponent(type, modification, componentDescription);
+					rule.addComponent(componentId, type, modification, componentDescription);
 				} else {
-					rules.put(id, new DataNormalizationRule(id, groupId, description, type, modification, componentDescription));
+					DataNormalizationRule rule = new DataNormalizationRule(id, groupId, description);
+					
+					rule.addComponent(componentId, type, modification, componentDescription);
+					
+					rules.put(id, rule);
 				}
 			}
 		} catch (DatabaseException e) {

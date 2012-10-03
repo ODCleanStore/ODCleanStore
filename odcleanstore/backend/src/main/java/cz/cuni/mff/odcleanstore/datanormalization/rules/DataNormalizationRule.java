@@ -36,15 +36,21 @@ public class DataNormalizationRule {
 	 */
 	public class Component {
 
-		public Component(EnumRuleComponentType type, String modification, String description) {
+		public Component(Integer id, EnumRuleComponentType type, String modification, String description) {
+			this.id = id;
 			this.type = type;
 			this.modification = modification;
 			this.description = description;
 		}
 
+		private Integer id;
 		private EnumRuleComponentType type;
 		private String modification;
 		private String description;
+		
+		public Integer getId() {
+			return id;
+		}
 
 		public EnumRuleComponentType getType() {
 			return type;
@@ -107,7 +113,7 @@ public class DataNormalizationRule {
 		if (components.length % 3 != 0) throw new DataNormalizationException("Incomplete rule initialization list");
 
 		for (int i = 0; i < components.length; i += 3) {
-			addComponent(components[i], components[i + 1], components[i + 2]);
+			addComponent(null, components[i], components[i + 1], components[i + 2]);
 		}
 	}
 
@@ -151,13 +157,13 @@ public class DataNormalizationRule {
 	 * @param description the description explaining what the component should do
 	 * @throws DataNormalizationException
 	 */
-	public void addComponent(String type, String modification, String description) throws DataNormalizationException {
+	public void addComponent(Integer id, String type, String modification, String description) throws DataNormalizationException {
 		if (type.equals("INSERT")) {
-			addComponent(EnumRuleComponentType.RULE_COMPONENT_INSERT, modification, description);
+			addComponent(id, EnumRuleComponentType.RULE_COMPONENT_INSERT, modification, description);
 		} else if (type.equals("DELETE")) {
-			addComponent(EnumRuleComponentType.RULE_COMPONENT_DELETE, modification, description);
+			addComponent(id, EnumRuleComponentType.RULE_COMPONENT_DELETE, modification, description);
 		} else if (type.equals("MODIFY")) {
-			addComponent(EnumRuleComponentType.RULE_COMPONENT_MODIFY, modification, description);
+			addComponent(id, EnumRuleComponentType.RULE_COMPONENT_MODIFY, modification, description);
 		} else {
 			throw new DataNormalizationException("Unknown Data Normalization Rule type");
 		}
@@ -165,12 +171,13 @@ public class DataNormalizationRule {
 
 	/**
 	 * adds new component to a rule
+	 * @param id the id of the component
 	 * @param type the type of the component
 	 * @param modification the code of the component
 	 * @param description the description explaining what the component should do
 	 * @throws DataNormalizationException
 	 */
-	public void addComponent(EnumRuleComponentType type, String modification, String description) {
-		components.add(new Component(type, modification, description));
+	public void addComponent(Integer id, EnumRuleComponentType type, String modification, String description) {
+		components.add(new Component(id, type, modification, description));
 	}
 }
