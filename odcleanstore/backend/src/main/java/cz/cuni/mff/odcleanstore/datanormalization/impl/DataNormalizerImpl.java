@@ -1,6 +1,5 @@
 package cz.cuni.mff.odcleanstore.datanormalization.impl;
 
-import cz.cuni.mff.odcleanstore.configuration.BackendConfig;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.configuration.DataNormalizationConfig;
 import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
@@ -24,8 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -43,6 +40,7 @@ import java.util.Map;
  */
 public class DataNormalizerImpl implements DataNormalizer {
 
+	/*
 	public static void main(String[] args) {
 		try {
 			ConfigLoader.loadConfig();
@@ -93,6 +91,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 			System.err.println(e.getMessage());
 		}
 	}
+	*/
 
 	private static final Logger LOG = LoggerFactory.getLogger(DataNormalizerImpl.class);
 
@@ -256,7 +255,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 	 * @return per graph specification of modifications
 	 * @throws TransformerException
 	 */
-	public Map<String, GraphModification> debugRules (InputStream source, TransformationContext context)
+	public Map<String, GraphModification> debugRules (String source, TransformationContext context)
 			throws TransformerException {
 		/**
 		 * Prepare fallback empty collection of input graphs (map original names to temporary names)

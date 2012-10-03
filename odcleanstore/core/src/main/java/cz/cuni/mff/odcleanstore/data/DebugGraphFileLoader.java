@@ -1,6 +1,5 @@
 package cz.cuni.mff.odcleanstore.data;
 
-import java.io.InputStream;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -44,7 +43,7 @@ public class DebugGraphFileLoader {
 		return temporaryGraphURIPrefix + discriminator + "/input/";
 	}
 	
-	public HashMap<String, String> load(InputStream input, String discriminator) throws Exception {
+	public HashMap<String, String> load(String input, String discriminator) throws Exception {
 		try {
 			return loadImpl(new MultipleFormatLoader().load(input, getInputBaseURI(this.temporaryGraphURIPrefix, discriminator)), discriminator);
 		} catch (Exception e) {

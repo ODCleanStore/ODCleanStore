@@ -1,6 +1,5 @@
 package cz.cuni.mff.odcleanstore.qualityassessment.impl;
 
-import cz.cuni.mff.odcleanstore.configuration.BackendConfig;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.configuration.QualityAssessmentConfig;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
@@ -24,8 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,7 +40,8 @@ import java.util.regex.Pattern;
  * and delegates the work to that implementation.
  */
 public class QualityAssessorImpl implements QualityAssessor {
-
+	
+	/*
 	public static void main(String[] args) {
 		try {
 			ConfigLoader.loadConfig();
@@ -76,7 +74,8 @@ public class QualityAssessorImpl implements QualityAssessor {
 			System.err.println(e.getMessage());
 		}
 	}
-
+	*/
+	
 	/**
 	 * SPARQL queries for Quality Assessor transformation of input graph and metadata graph
 	 */
@@ -203,7 +202,7 @@ public class QualityAssessorImpl implements QualityAssessor {
 	}
 
 	public Map<String, GraphScoreWithTrace> debugRules(
-	        InputStream source, String commonMetadataGraph, TransformationContext context)
+	        String source, String commonMetadataGraph, TransformationContext context)
 			throws TransformerException {
 		HashMap<String, String> graphs = new HashMap<String, String>();
 		QualityAssessmentConfig config = ConfigLoader.getConfig().getQualityAssessmentGroup();
