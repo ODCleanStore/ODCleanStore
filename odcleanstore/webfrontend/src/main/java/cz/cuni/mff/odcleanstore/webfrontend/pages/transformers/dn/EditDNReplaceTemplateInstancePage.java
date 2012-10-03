@@ -6,9 +6,12 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.CompiledDNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNReplaceTemplateInstance;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNReplaceTemplateInstanceCompiler;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.LimitedEditingForm;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.CompiledDNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNReplaceTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
@@ -21,6 +24,7 @@ public class EditDNReplaceTemplateInstancePage extends LimitedEditingPage
 	private static Logger logger = Logger.getLogger(NewDNReplaceTemplateInstancePage.class);
 	
 	private DNReplaceTemplateInstanceDao dnReplaceTemplateInstanceDao;
+	private CompiledDNRuleDao compiledDNRuleDao;
 	
 	public EditDNReplaceTemplateInstancePage(final Integer ruleId) 
 	{
@@ -34,6 +38,7 @@ public class EditDNReplaceTemplateInstancePage extends LimitedEditingPage
 		// prepare DAO objects
 		//
 		this.dnReplaceTemplateInstanceDao = daoLookupFactory.getDao(DNReplaceTemplateInstanceDao.class);
+		this.compiledDNRuleDao = daoLookupFactory.getDao(CompiledDNRuleDao.class);
 		
 		// register page components
 		//
@@ -65,8 +70,19 @@ public class EditDNReplaceTemplateInstancePage extends LimitedEditingPage
 			{
 				DNReplaceTemplateInstance instance = this.getModelObject();
 				
-				try {
-					dnReplaceTemplateInstanceDao.update(instance);
+				CompiledDNRule compiledRule = DNReplaceTemplateInstanceCompiler.compile(instance);
+				
+				try 
+				{
+					compiledDNRuleDao.delete(instance.getRawRuleId());
+					int rawRuleId = compiledDNRuleDao.saveAndGetKey(compiledRule);
+					
+					instance.setRawRuleId(rawRuleId);
+
+					// note that when deleting the raw rule, the template instance
+					// gets automatically deleted as well, due to on delete constraints;
+					// it is therefore necessary to insert the template instance (not update)
+					dnReplaceTemplateInstanceDao.save(instance);
 				}
 				catch (DaoException ex)
 				{
