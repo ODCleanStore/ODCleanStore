@@ -1,4 +1,4 @@
-INSERT INTO DB.ODCLEANSTORE.OI_RULES_GROUPS VALUES (1, n'zakazky TK', n'pravidla pro linkovani testovacich dat o zakazkach od Tomase K.', NULL);
+INSERT INTO DB.ODCLEANSTORE.OI_RULES_GROUPS (label, description) VALUES (n'zakazky TK', n'pravidla pro linkovani testovacich dat o zakazkach od Tomase K.');
     
 INSERT INTO DB.ODCLEANSTORE.OI_RULES VALUES (
 	1,
