@@ -318,7 +318,7 @@ public class QualityAssessorImpl implements QualityAssessor {
 			return score;
 		}
 
-		public Collection<QualityAssessmentRule> getTrace() {
+		public List<QualityAssessmentRule> getTrace() {
 			return trace;
 		}
 	}
