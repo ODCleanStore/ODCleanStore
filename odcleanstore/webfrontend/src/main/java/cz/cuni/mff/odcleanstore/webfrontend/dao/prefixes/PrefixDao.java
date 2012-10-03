@@ -61,8 +61,6 @@ public class PrefixDao extends DaoTemplate<Prefix>
 					present |= dao.jdbcQueryForInt(query, params, EnumDatabaseInstance.CLEAN) > 0;
 					present |= dao.jdbcQueryForInt(query, params, EnumDatabaseInstance.DIRTY) > 0;
 					
-					System.err.println(item.getPrefix() + " " + (present ? "PRESENT" : "NOT PRESENT"));
-					
 					if (present) {
 						throw new Exception("Prefix `" + item.getPrefix() + "` already exists.");
 					}
