@@ -81,7 +81,6 @@ public class NewDNReplaceTemplateInstancePage extends LimitedEditingPage
 					
 					instance.setRawRuleId(rawRuleId);
 					dnReplaceTemplateInstanceDao.save(instance);
-					
 				}
 				catch (DaoException ex)
 				{
