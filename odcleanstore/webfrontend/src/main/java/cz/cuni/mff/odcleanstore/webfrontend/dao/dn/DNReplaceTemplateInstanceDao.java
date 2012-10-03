@@ -31,6 +31,15 @@ public class DNReplaceTemplateInstanceDao extends DaoForAuthorableEntity<DNRepla
 	}
 
 	@Override
+	public void delete(DNReplaceTemplateInstance item) throws Exception
+	{
+		super.delete(item);
+		
+		// Mark the group as dirty
+		getLookupFactory().getDao(DNRulesGroupDao.class).markUncommitted(item.getGroupId());
+	}
+	
+	@Override
 	public void save(DNReplaceTemplateInstance item) throws Exception
 	{
 		String query = 

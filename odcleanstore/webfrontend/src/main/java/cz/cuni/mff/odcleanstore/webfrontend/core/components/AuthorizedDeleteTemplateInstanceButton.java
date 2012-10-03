@@ -32,7 +32,7 @@ public class AuthorizedDeleteTemplateInstanceButton<BO extends DNTemplateInstanc
 	protected void delete() throws Exception 
 	{
 		// TODO: to be put into a transaction
-		templateInstanceDao.delete(bo.getId());
+		templateInstanceDao.delete(bo);
 		compiledRuleDao.delete(bo.getRawRuleId());
 	}
 }
