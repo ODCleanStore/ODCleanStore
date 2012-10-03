@@ -1,0 +1,23 @@
+<wicket:extend>
+
+<div class="clear">&nbsp;</div>
+
+<table>
+	<tr>
+		<th>UUID</th>
+		<th>Error</th>
+		<th>Notification required</th>
+		<th>State description</th>
+		<th>Updated</th>
+	</tr>
+
+	<tr wicket:id="pipelineState">
+		<td wicket:id="uuid">[uuid]</td>
+		<td class="actions"><a wicket:id="isPipelineError">[is pipeline error]</a></td>
+		<td class="actions"><a wicket:id="isNotifyRequired">[is notify required]</a></td>
+		<td wicket:id="stateDescription">[state description]</td>
+		<td wicket:id="updated">[updated]</td>
+	</tr>
+</table>
+
+</wicket:extend>

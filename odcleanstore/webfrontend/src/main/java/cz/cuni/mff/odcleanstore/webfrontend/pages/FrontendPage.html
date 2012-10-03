@@ -27,8 +27,16 @@
 				<li>
 					<a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/HomePage.html"><span>Home</span></a>
 				</li>
-				<li wicket:id="pipelinesMenuGroup">
-					<a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/pipelines/PipelinesListPage.html"><span>Pipelines</span></a>
+				<li class="has-sub" wicket:id="engineAndPipelinesMenuGroup">
+					<a href="#"><span>Engine</span></a>
+					<ul>
+						<li>
+							<a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/engine/EngineStatePage.html"><span>State</span></a>
+						</li>
+						<li>
+							<a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/pipelines/PipelinesListPage.html"><span>Pipelines</span></a>
+						</li>
+					</ul>
 				</li>
 				<li class="has-sub" wicket:id="rulesMenuGroup">
 					<a href="#"><span>Rules</span></a>
