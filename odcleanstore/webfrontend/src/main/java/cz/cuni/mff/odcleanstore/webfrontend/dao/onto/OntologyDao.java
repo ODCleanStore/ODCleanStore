@@ -76,7 +76,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 	{
 		Ontology ontology = super.loadBy(columnName, value);
 
-		ontology.setRdfData(loadRdfData(ontology.getGraphName()));
+		ontology.setDefinition(loadRdfData(ontology.getGraphName()));
 
 		return ontology;
 	}
@@ -127,7 +127,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 				// to be able to drop a graph in Virtuoso, it has to be explicitly created before
 				createGraph(item.getGraphName());
 
-				storeRdfXml(item.getRdfData(), item.getGraphName());
+				storeRdfXml(item.getDefinition(), item.getGraphName());
 
 				// Call after working with RDF in case it fails
 				jdbcUpdate(query, params);

@@ -83,13 +83,13 @@ public class NewOntologyPage extends FrontendPage
 		
 		form.add(createTextfield("label"));
 		form.add(createTextarea("description", false));
-		TextArea<String> rdfData = createTextarea("rdfData");
-		form.add(rdfData);
+		TextArea<String> definition = createTextarea("definition");
+		form.add(definition);
 		
 		form.setMultiPart(true);
 		FileUploadField fileUpload = new FileUploadField("fileUpload", new ListModel<FileUpload>(new ArrayList<FileUpload>()));
 		form.add(fileUpload);
-		form.add(new UploadButton(fileUpload, rdfData, "upload"));
+		form.add(new UploadButton(fileUpload, definition, "upload"));
 		
 		add(form);
 	}
