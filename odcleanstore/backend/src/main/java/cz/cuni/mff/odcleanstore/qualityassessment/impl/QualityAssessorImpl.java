@@ -388,6 +388,7 @@ public class QualityAssessorImpl implements QualityAssessor {
 	 */
 	protected void applyRule(QualityAssessmentRule rule, Collection<QualityAssessmentRule> appliedRules) throws QualityAssessmentException {
 		String query = rule.toString(inputGraph.getGraphName());
+		System.err.println(rule.toString("..."));
 
 		WrappedResultSet results = null;
 
@@ -411,12 +412,16 @@ public class QualityAssessorImpl implements QualityAssessor {
 				++violations;
 
 				if (appliedRules != null) appliedRules.add(rule);
+				
+				LOG.info(String.format("Applied rule %d: %s", rule.getId(), rule.getDescription()));
+			} else {
+				LOG.info(String.format("Did not apply rule %d: %s", rule.getId(), rule.getDescription()));
 			}
 		} catch (DatabaseException e) {
-			//LOG.fatal(e.getMessage());
+			LOG.info(String.format("Failed to apply rule %d: %s\n\n%s\n\n%s", rule.getId(), rule.getDescription(), query, e.getMessage()));
 			throw new QualityAssessmentException(e);
 		} catch (SQLException e) {
-			//...
+			LOG.info(String.format("Failed to apply rule %d: %s\n\n%s\n\n%s", rule.getId(), rule.getDescription(), query, e.getMessage()));
 			throw new QualityAssessmentException(e);
 		} finally {
 			if (results != null) {
