@@ -42,7 +42,7 @@ public class QualityAssessmentRule {
 	public String toString(String graphName) {
 	    // regex didn't work with multiline rules
         int whereLength = "WHERE".length();
-        String filter = "where { a = b}";
+
         if (filter.length() > whereLength && filter.substring(0, whereLength).equalsIgnoreCase("WHERE")) {
             filter = filter.substring(whereLength).trim();
         }
