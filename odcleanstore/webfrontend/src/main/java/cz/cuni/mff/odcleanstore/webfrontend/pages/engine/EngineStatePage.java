@@ -1,5 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.engine;
 
+import java.util.Locale;
+
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
@@ -8,6 +10,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.AttachedEngine;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.BooleanLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentSortableDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.AttachedEngineDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
@@ -52,8 +55,24 @@ public class EngineStatePage extends FrontendPage
 				item.setModel(new CompoundPropertyModel<AttachedEngine>(attachedEngine));
 
 				item.add(new Label("uuid"));
-				item.add(new Label("isPipelineError", attachedEngine.isPipelineError ? "Yes" : "No"));
-				item.add(new Label("isNotifyRequired", attachedEngine.isNotifyRequired ? "Yes" : "No"));
+				item.add(new BooleanLabel("isPipelineError")
+				{
+					private static final long serialVersionUID = 1L;
+					@Override
+					public String convertToString(Boolean value, Locale locale)
+					{
+						return super.convertToString(value, locale);
+					}
+				});
+				item.add(new BooleanLabel("isNotifyRequired")
+				{
+					private static final long serialVersionUID = 1L;
+					@Override
+					public String convertToString(Boolean value, Locale locale)
+					{
+						return super.convertToString(value, locale);
+					}
+				});
 				item.add(new Label("stateDescription"));
 				item.add(new Label("updated"));
 			}
