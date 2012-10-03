@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -201,7 +200,7 @@ public class QualityAssessorImpl implements QualityAssessor {
 		};
 	}
 
-	public Map<String, GraphScoreWithTrace> debugRules(
+	public List<GraphScoreWithTrace> debugRules(
 	        String source, String commonMetadataGraph, TransformationContext context)
 			throws TransformerException {
 		HashMap<String, String> graphs = new HashMap<String, String>();
@@ -218,7 +217,7 @@ public class QualityAssessorImpl implements QualityAssessor {
 			}
 
 			Collection<String> originalGraphs = graphs.keySet();
-			Map<String, GraphScoreWithTrace> result = new HashMap<String, GraphScoreWithTrace>();
+			List<GraphScoreWithTrace> result = new ArrayList<GraphScoreWithTrace>();
 
 			Iterator<String> it = originalGraphs.iterator();
 
@@ -233,8 +232,9 @@ public class QualityAssessorImpl implements QualityAssessor {
 					GraphScoreWithTrace subResult = getGraphScoreWithTrace(temporaryName,
 							context.getCleanDatabaseCredentials(),
 							context.getDirtyDatabaseCredentials());
+					subResult.setGraphName(originalName);
 
-					result.put(originalName, subResult);
+					result.add(subResult);
 				}
 
 				return result;
@@ -297,12 +297,21 @@ public class QualityAssessorImpl implements QualityAssessor {
 	}
 
 	public static class GraphScoreWithTrace {
+		private String graphName;
 		private Double score;
 		private Collection<QualityAssessmentRule> trace;
 
 		public GraphScoreWithTrace(Double score, Collection<QualityAssessmentRule> trace) {
 			this.score = score;
 			this.trace = trace;
+		}
+
+		public String getGraphName() {
+			return graphName;
+		}
+
+		public void setGraphName(String graphName) {
+			this.graphName = graphName;
 		}
 
 		public Double getScore() {
