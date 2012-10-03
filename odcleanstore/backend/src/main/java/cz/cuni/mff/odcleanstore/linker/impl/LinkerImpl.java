@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -66,6 +67,7 @@ public class LinkerImpl implements Linker {
 	private static final String CONFIG_XML_MEASURE = "measure";
 	
 	private static final String LINK_WITHIN_GRAPH_KEY = "linkWithinGraph";
+	private static final String JENA_FILE_FORMAT = "N3";
 	
 	private ObjectIdentificationConfig globalConfig;
 	private Integer[] groupIds;
@@ -199,7 +201,7 @@ public class LinkerImpl implements Linker {
 				resultFileName = null;
 			}
 			
-		} catch (DatabaseException e) {
+		} catch (Exception e) {
 			throw new TransformerException(e);
 		} finally {
 			deleteFile(inputFile);
@@ -297,10 +299,11 @@ public class LinkerImpl implements Linker {
 		File file = new File(createFileName("", targetDirectory, DEBUG_INPUT_FILENAME));
 		PrintWriter writer = null;
 		try {
-			writer = new PrintWriter(file);
+			writer = new PrintWriter(file, "UTF-8");
 			writer.write(input);
 		} catch (FileNotFoundException e) {
 			throw new TransformerException(e);
+		} catch (UnsupportedEncodingException e) {
 		} finally {
 			if (writer != null) {
 				writer.close();
@@ -331,7 +334,7 @@ public class LinkerImpl implements Linker {
 	
 	private NamedGraphSet loadGraphs(File inputFile) {
 		GraphReaderService reader = new GraphReaderService();
-		reader.setLanguage("N-TRIPLE");
+		reader.setLanguage(JENA_FILE_FORMAT);
 		reader.setSourceFile(inputFile);
 		NamedGraphSet graphSet = new NamedGraphSetImpl();
 		reader.readInto(graphSet);

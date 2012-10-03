@@ -11,7 +11,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
 public class GraphInErrorDao extends DaoForEntityWithSurrogateKey<GraphInError> {
 
 	private static final long serialVersionUID = 1L;
-	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "EN_GRAPHS_IN_ERROR";
+	public static final String GRAPHS_IN_ERROR_TABLE_NAME = TABLE_NAME_PREFIX + "EN_GRAPHS_IN_ERROR";
 	public static final String INPUT_GRAPHS_TABLE_NAME = TABLE_NAME_PREFIX + "EN_INPUT_GRAPHS";
 	public static final String INPUT_GRAPHS_STATES_TABLE_NAME = TABLE_NAME_PREFIX + "EN_INPUT_GRAPHS_STATES";
 	public static final String PIPELINE_ERROR_TYPES_TABLE_NAME = TABLE_NAME_PREFIX + "EN_PIPELINE_ERROR_TYPES";
@@ -20,7 +20,7 @@ public class GraphInErrorDao extends DaoForEntityWithSurrogateKey<GraphInError> 
 
 	@Override
 	public String getTableName() {
-		return TABLE_NAME;
+		return GRAPHS_IN_ERROR_TABLE_NAME;
 	}
 
 	@Override
@@ -37,13 +37,14 @@ public class GraphInErrorDao extends DaoForEntityWithSurrogateKey<GraphInError> 
 			"iGraph.pipelineId AS pipelineId, " +
 			"iGraph.uuid AS uuid, " +
 			"iGraph.stateId AS stateId, " +
+			"iGraph.isInCleanDB AS isInCleanDB, " +
 			"eGraph.errorTypeId AS errorTypeId, " +
 			"eGraph.errorMessage AS errorMessage," +
 			"engine.uuid AS engineUuid, " +
 			"pipeline.label AS pipelineLabel, " +
 			"iState.label AS stateLabel," +
 			"pError.label AS errorTypeLabel " +
-			"FROM " + getTableName() + " AS eGraph JOIN " +
+			"FROM " + GRAPHS_IN_ERROR_TABLE_NAME + " AS eGraph JOIN " +
 			INPUT_GRAPHS_TABLE_NAME + " AS iGraph ON eGraph.graphId = iGraph.id JOIN " +
 			INPUT_GRAPHS_STATES_TABLE_NAME + " AS iState ON iGraph.stateId = iState.id JOIN " +
 			PIPELINE_ERROR_TYPES_TABLE_NAME + " AS pError ON eGraph.errorTypeId = pError.id JOIN " +
@@ -55,5 +56,37 @@ public class GraphInErrorDao extends DaoForEntityWithSurrogateKey<GraphInError> 
 		Object[] param = criteria.buildWhereClauseParams();
 		
 		return jdbcQuery(query, param, getRowMapper());
+	}
+	
+	public void markFinished(GraphInError graphInError) throws Exception {
+		mark(graphInError, "FINISHED");
+	}
+	
+	public void markQueued(GraphInError graphInError) throws Exception {
+		mark(graphInError, "QUEUED");
+	}
+	
+	public void markQueuedForDelete(GraphInError graphInError) throws Exception {
+		mark(graphInError, "QUEUED_FOR_DELETE");
+	}
+
+	private void mark(GraphInError graphInError, String state) throws Exception {
+		QueryCriteria criteria = new QueryCriteria();
+		
+		criteria.addWhereClause("iGraph.uuid", graphInError.UUID);
+		criteria.addWhereClause("state.label", state);
+
+		String query =
+				"INSERT REPLACING " + INPUT_GRAPHS_TABLE_NAME + " (id, uuid, stateId, engineId, pipelineId, isInCleanDB) " +
+				"SELECT  iGraph.id, iGraph.uuid, state.id, iGraph.engineId, iGraph.pipelineId, iGraph.isInCleanDB " +
+				"FROM " +
+				INPUT_GRAPHS_TABLE_NAME + " AS iGraph, " +
+				INPUT_GRAPHS_STATES_TABLE_NAME + " AS state " +
+				criteria.buildWhereClause() +
+				criteria.buildOrderByClause();
+
+		Object[] param = criteria.buildWhereClauseParams();
+
+		this.jdbcUpdate(query, param);
 	}
 }

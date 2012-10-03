@@ -1,0 +1,41 @@
+<wicket:extend>
+
+<div class="clear">&nbsp;</div>
+
+<table>
+	<tr>
+		<th wicket:id="sortByUUID">UUID</th>
+		<th wicket:id="sortByError">Error</th>
+		<th wicket:id="sortByNotificationRequired">Notification required</th>
+		<th>State description</th>
+		<th wicket:id="sortByUpdated">Updated</th>
+	</tr>
+
+	<tr wicket:id="pipelineState">
+		<td wicket:id="uuid">[uuid]</td>
+		<td wicket:id="isPipelineError">[is pipeline error]</td>
+		<td wicket:id="isNotifyRequired">[is notify required]</td>
+		<td wicket:id="stateDescription">[state description]</td>
+		<td wicket:id="updated">[updated]</td>
+	</tr>
+</table>
+
+<h2>Graphs in Error</h2>
+
+<table>
+	<tr>
+		<th wicket:id="sortByPipelineLabel">Pipeline</th>
+		<th wicket:id="sortByGraphCount">Number of graphs in error</th>
+		<th>Action</th>
+	</tr>
+
+	<tr wicket:id="graphsInErrorPerPipeline">
+		<td wicket:id="pipelineLabel">[pipeline label]</td>
+		<td wicket:id="graphCount">[count of graphs in error]</td>
+		<td class="actions">
+			<a wicket:id="seeMore" class="button" title="Go to the list of graphs in error associated with this pipeline">see more</a>
+		</td>
+	</tr>
+</table>
+
+</wicket:extend>
