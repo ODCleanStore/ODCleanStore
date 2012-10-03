@@ -1,0 +1,26 @@
+<wicket:extend>
+
+<wicket:link>
+<div>
+	<a class="button placedright" href="#" wicket:id="backToInputLink">Back to debug input page</a>
+	<div class="clear">&nbsp;</div>
+</div>
+</wicket:link>
+
+<table wicket:id="resultTable"border=1>
+	<caption wicket:id="graphLabel"></caption>
+	<tr>
+		<th>Description</th>
+		<th>Coefficient</th>
+		<th>Action</th>
+	</tr>
+	<tr wicket:id="resultRow">
+		<td wicket:id="description"/>
+		<td wicket:id="coefficient"/>
+		<td class="actions">
+			<input wicket:id="showQARuleDetailPage" type="button" value="Detail" />
+		</td>
+	</tr>
+</table>
+
+</wicket:extend>

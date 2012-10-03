@@ -96,12 +96,12 @@ public class OIGroupsListPage extends FrontendPage
 				item.add(createRerunAffectedGraphsButton(group.getId()));
 				item.add(new CommitChangesButton("commitChanges", group, oiRulesGroupsDao));
 				item.add(
-						new RedirectWithParamButton(
-							OIDebugPage.class,
-							group.getId(),
-							"debugOIGroup"
-						)
-					);
+					new RedirectWithParamButton(
+						OIDebugPage.class,
+						group.getId(),
+						"debugOIGroup"
+					)
+				);
 			}
 		};
 
