@@ -45,6 +45,9 @@ public class CompiledDNRuleDao extends DaoForEntityWithSurrogateKey<CompiledDNRu
 			@Override
 			public void execute() throws Exception 
 			{
+				// Mark the group as dirty
+				getLookupFactory().getDao(DNRulesGroupDao.class).markUncommitted(item.getGroupId());
+				
 				saveRawRule(item);
 				
 				Integer ruleId = getLastInsertId();
@@ -61,7 +64,7 @@ public class CompiledDNRuleDao extends DaoForEntityWithSurrogateKey<CompiledDNRu
 	private void saveRawRule(CompiledDNRule item) throws Exception
 	{
 		String query = 
-			"INSERT INTO " + DNRuleDao.TABLE_NAME + " (groupId, description) " +
+			"INSERT INTO " + DNRuleUncommittedDao.TABLE_NAME + " (groupId, description) " +
 			"VALUES (?, ?)";
 		
 		Object[] params =
@@ -82,7 +85,7 @@ public class CompiledDNRuleDao extends DaoForEntityWithSurrogateKey<CompiledDNRu
 		int typeId = getComponentTypeId(item.getTypeLabel().toString());
 		
 		String query =
-			"INSERT INTO " + DNRuleComponentDao.TABLE_NAME + " " + 
+			"INSERT INTO " + DNRuleComponentUncommittedDao.TABLE_NAME + " " + 
 			"(ruleId, typeId, modification, description) " +
 			"VALUES (?, ?, ?, ?)";
 	
