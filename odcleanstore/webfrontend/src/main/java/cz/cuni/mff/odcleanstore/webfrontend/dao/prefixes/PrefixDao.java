@@ -2,6 +2,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.prefixes;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
+import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.prefixes.Prefix;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoTemplate;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.EnumDatabaseInstance;
@@ -33,7 +34,7 @@ public class PrefixDao extends DaoTemplate<Prefix>
 	
 	public void delete(Prefix item) throws Exception
 	{
-		String query = "DELETE FROM " + TABLE_NAME + " WHERE NS_PREFIX = ?";
+		String query = "DB.DBA.XML_REMOVE_NS_BY_PREFIX (?, 2)";
 		Object[] params = { item.getPrefix() };
 		
 		// the delete in the clean DB must preceed the delete in the dirty DB in order
@@ -44,17 +45,37 @@ public class PrefixDao extends DaoTemplate<Prefix>
 		jdbcUpdate(query, params, EnumDatabaseInstance.DIRTY);
 	}
 	
-	public void save(Prefix item) throws Exception
+	public void save(final Prefix item) throws Exception
 	{
-		String query = "INSERT INTO " + TABLE_NAME + " (NS_PREFIX, NS_URL) VALUES (?, ?)";
-		Object[] params = { item.getPrefix(), item.getUrl() };
+		final PrefixDao dao = this;
 
-		// the save in the clean DB must preceed the save in the dirty DB in order
-		// for the transactional behavior to work correctly
-		// (the operation is surrounded by a transaction on the clean JDBC template)
-		//
-		jdbcUpdate(query, params, EnumDatabaseInstance.CLEAN);
-		jdbcUpdate(query, params, EnumDatabaseInstance.DIRTY);
+		executeInTransaction(new CodeSnippet() {
+				@Override
+				public void execute() throws Exception {
+					String query = "SELECT COUNT(*) FROM " + TABLE_NAME + " WHERE NS_PREFIX = ?";
+					
+					Object[] params = new Object[] { item.getPrefix() };
+					
+					boolean present = false;
+					
+					present |= dao.jdbcQueryForInt(query, params, EnumDatabaseInstance.CLEAN) > 0;
+					present |= dao.jdbcQueryForInt(query, params, EnumDatabaseInstance.DIRTY) > 0;
+					
+					if (present) {
+						throw new Exception("Prefix `" + item.getPrefix() + "` already exists.");
+					}
+
+					query = "DB.DBA.XML_SET_NS_DECL (?, ?, 2)";
+					params = new Object[] { item.getPrefix(), item.getUrl() };
+
+					// the save in the clean DB must preceed the save in the dirty DB in order
+					// for the transactional behavior to work correctly
+					// (the operation is surrounded by a transaction on the clean JDBC template)
+					//
+					dao.jdbcUpdate(query, params, EnumDatabaseInstance.CLEAN);
+					dao.jdbcUpdate(query, params, EnumDatabaseInstance.DIRTY);
+				}
+		});
 	}
 	
 	@Override

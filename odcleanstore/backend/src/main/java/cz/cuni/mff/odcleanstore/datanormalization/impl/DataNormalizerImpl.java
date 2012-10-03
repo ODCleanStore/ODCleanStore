@@ -1,6 +1,5 @@
 package cz.cuni.mff.odcleanstore.datanormalization.impl;
 
-import cz.cuni.mff.odcleanstore.configuration.BackendConfig;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.configuration.DataNormalizationConfig;
 import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
@@ -24,8 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -43,6 +40,7 @@ import java.util.Map;
  */
 public class DataNormalizerImpl implements DataNormalizer {
 
+	/*
 	public static void main(String[] args) {
 		try {
 			ConfigLoader.loadConfig();
@@ -93,6 +91,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 			System.err.println(e.getMessage());
 		}
 	}
+	*/
 
 	private static final Logger LOG = LoggerFactory.getLogger(DataNormalizerImpl.class);
 
@@ -256,7 +255,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 	 * @return per graph specification of modifications
 	 * @throws TransformerException
 	 */
-	public Map<String, GraphModification> debugRules (InputStream source, TransformationContext context)
+	public Map<String, GraphModification> debugRules (String source, TransformationContext context)
 			throws TransformerException {
 		/**
 		 * Prepare fallback empty collection of input graphs (map original names to temporary names)
@@ -298,7 +297,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 
 			return result;
 		} catch (Exception e) {
-			LOG.error("Debugging of Data Normalization rules failed: " + e.getMessage());
+			LOG.error("Debugging of Data Normalization rules failed.");
 
 			throw new TransformerException(e);
 		} finally {
@@ -519,7 +518,12 @@ public class DataNormalizerImpl implements DataNormalizer {
 			while (i.hasNext()) {
 				DataNormalizationRule rule = i.next();
 
-				performRule(rule, modifications);
+				try {
+					performRule(rule, modifications);
+				} catch (Exception e) {
+					LOG.error(String.format(Locale.ROOT, "Debugging of rule %d failed: %s", rule.getId(), e.getMessage()));
+					throw new DataNormalizationException(e);
+				}
 			}
 
 			getDirtyConnection().commit();
@@ -544,15 +548,11 @@ public class DataNormalizerImpl implements DataNormalizer {
 			throw new DataNormalizationException("Empty Graph Name is not allowed.");
 		}
 
-		String[] components = rule.getComponents(inputGraph.getGraphName());
-
 		if (modifications == null) {
 			/**
 			 * In case there is no interest in what was changed just perform all the components in the correct order
 			 */
-			for (int j = 0; j < components.length; ++j) {
-				getDirtyConnection().execute(components[j]);
-			}
+			performComponents(rule, inputGraph.getGraphName());
 		} else {
 			/**
 			 * In case we need to know what changed we need to create copies of the graph to compare them after
@@ -566,14 +566,13 @@ public class DataNormalizerImpl implements DataNormalizer {
 
 			try {
 				original = generator.nextURI(0);
+				modified = generator.nextURI(1);
+
 				getDirtyConnection().execute(markTemporaryGraph, original);
 				getDirtyConnection().execute(String.format(Locale.ROOT, backupQueryFormat, original, inputGraph.getGraphName()));
 
-				for (int j = 0; j < components.length; ++j) {
-					getDirtyConnection().execute(components[j]);
-				}
+				performComponents(rule, inputGraph.getGraphName());
 
-				modified = generator.nextURI(1);
 				getDirtyConnection().execute(markTemporaryGraph, modified);
 				getDirtyConnection().execute(String.format(Locale.ROOT, backupQueryFormat, modified, inputGraph.getGraphName()));
 
@@ -609,8 +608,6 @@ public class DataNormalizerImpl implements DataNormalizer {
 							deleted.getString("p"),
 							deleted.getString("o"));
 				}
-
-				LOG.info("Data Normalization rule applied.");
 			} finally {
 				try {
 					getDirtyConnection().execute(String.format(Locale.ROOT, dropBackupQueryFormat, original));
@@ -620,6 +617,20 @@ public class DataNormalizerImpl implements DataNormalizer {
 				} finally {}
 				getDirtyConnection().execute(unmarkTemporaryGraph, original);
 				getDirtyConnection().execute(unmarkTemporaryGraph, modified);
+			}
+		}
+		LOG.info(String.format(Locale.ROOT, "Data Normalization rule %d applied: %s", rule.getId(), rule.getDescription()));
+	}
+
+	private void performComponents(DataNormalizationRule rule, String graphName) throws DataNormalizationException {
+		String[] components = rule.getComponents(graphName);
+
+		for (int j = 0; j < components.length; ++j) {
+			try {
+				getDirtyConnection().execute(components[j]);
+			} catch (Exception e) {
+				LOG.error(String.format(Locale.ROOT, "Failed to apply rule %d (component %d): %s\n\n%s\n\n%s", rule.getId(), rule.getComponents()[j].getId(), rule.getDescription(), components[j], e.getMessage()));
+				throw new DataNormalizationException(e);
 			}
 		}
 	}

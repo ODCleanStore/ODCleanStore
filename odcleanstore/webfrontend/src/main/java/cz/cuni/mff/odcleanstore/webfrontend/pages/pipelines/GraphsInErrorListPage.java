@@ -1,6 +1,8 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -21,8 +23,10 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 public class GraphsInErrorListPage extends FrontendPage {
 	private static final long serialVersionUID = 1L;
 	
-	private GraphInErrorDao graphInErrorDao;
-	private InputGraphStateDao inputGraphStateDao;
+	private static Logger LOG = Logger.getLogger(GraphsInErrorListPage.class);
+	
+	private final GraphInErrorDao graphInErrorDao;
+	private final InputGraphStateDao inputGraphStateDao;
 	
 	public GraphsInErrorListPage() {
 		this(new Object[]{});
@@ -73,7 +77,7 @@ public class GraphsInErrorListPage extends FrontendPage {
 
 			@Override
 			protected void populateItem(Item<GraphInError> item) {
-				GraphInError graphInError = item.getModelObject();
+				final GraphInError graphInError = item.getModelObject();
 				
 				item.setModel(new CompoundPropertyModel<GraphInError>(graphInError));
 				
@@ -83,6 +87,53 @@ public class GraphsInErrorListPage extends FrontendPage {
 				item.add(new Label("stateLabel"));
 				item.add(new Label("errorTypeLabel"));
 				item.add(new TruncatedLabel("errorMessage", MAX_LIST_COLUMN_TEXT_LENGTH));
+				
+				item.add(new Link<GraphInError>("finishGraph") {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick() {
+						try {
+							graphInErrorDao.markFinished(graphInError);
+						} catch (Exception e) {
+							LOG.error(String.format("Could not mark graph %s finished: %s", graphInError.UUID, e.getMessage()));
+						}
+					}
+					
+					@Override
+					public boolean isVisible() {
+						return graphInError.isInCleanDB;
+					}
+				});
+				
+				item.add(new Link<GraphInError>("rerunGraph") {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick() {
+						try {
+							graphInErrorDao.markQueued(graphInError);
+						} catch (Exception e) {
+							LOG.error(String.format("Could not mark graph %s queued: %s", graphInError.UUID, e.getMessage()));
+						}
+					}
+				});
+
+				item.add(new Link<GraphInError>("deleteGraph") {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick() {
+						try {
+							graphInErrorDao.markQueuedForDelete(graphInError);
+						} catch (Exception e) {
+							LOG.error(String.format("Could not mark graph %s queued for delete: %s", graphInError.UUID, e.getMessage()));
+						}
+					}
+				});
 			}
 		};
 		

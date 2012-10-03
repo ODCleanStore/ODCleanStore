@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.debug;
+package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.debug;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,27 +12,27 @@ import org.apache.wicket.markup.html.form.upload.FileUploadField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.util.ListModel;
 
-import cz.cuni.mff.odcleanstore.linker.Linker;
-import cz.cuni.mff.odcleanstore.linker.impl.DebugResult;
-import cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl;
+import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
+import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl.GraphScoreWithTrace;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UploadButton;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 @AuthorizeInstantiation({ Role.PIC })
-public class OIDebugPage extends FrontendPage 
+public class QADebugPage extends FrontendPage 
 {	
 	private static final long serialVersionUID = 1L;
-	protected static Logger logger = Logger.getLogger(OIDebugPage.class);
+	protected static Logger logger = Logger.getLogger(QADebugPage.class);
 	
 	private String rdfInput;
+	private String commonMetadataGraphName;
 	
-	public OIDebugPage(Integer groupId)
+	public QADebugPage(Integer groupId)
 	{
 		super(
-			"Home > Backend > OI > Groups > Debug", 
-			"Debug OI rule group"
+			"Home > Backend > QA > Groups > Debug", 
+			"Debug QA rule group"
 		);
 			
 		// register page components
@@ -42,19 +42,19 @@ public class OIDebugPage extends FrontendPage
 	
 	private void addInputForm(final Integer groupId)
 	{
-		Form<OIDebugPage> form = new Form<OIDebugPage>(
-				"inputForm", new CompoundPropertyModel<OIDebugPage>(this))
+		Form<QADebugPage> form = new Form<QADebugPage>(
+				"inputForm", new CompoundPropertyModel<QADebugPage>(this))
 		{
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected void onSubmit()
-			{
-				Linker linker = new LinkerImpl(groupId);
+			{	
+				QualityAssessorImpl assessor = new QualityAssessorImpl(groupId);
 				try 
 				{
-					List<DebugResult> results = linker.debugRules(rdfInput, createContext());
-					setResponsePage(new OIDebugResultPage(results, groupId));
+					List<GraphScoreWithTrace> results = assessor.debugRules(rdfInput, commonMetadataGraphName, createContext());
+					setResponsePage(new QADebugResultPage(results, groupId));
 				} 
 				catch (TransformerException e)
 				{
@@ -64,6 +64,8 @@ public class OIDebugPage extends FrontendPage
 				}		
 			}
 		};
+		
+		form.add(createTextfield("commonMetadataGraphName"));
 		
 		TextArea<String> rdfInput = createTextarea("rdfInput");
 		form.add(rdfInput);

@@ -38,6 +38,6 @@ public class OntologyDetailPage extends FrontendPage
 		add(new Label("label"));
 		add(new Label("description"));
 		add(new Label("graphName"));
-		add(new Label("rdfData"));
+		add(new Label("definition"));
 	}
 }

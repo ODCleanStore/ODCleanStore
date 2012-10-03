@@ -88,7 +88,7 @@ public class EditOntologyPage extends FrontendPage
 		
 		form.add(createTextfield("label"));
 		form.add(createTextarea("description", false));
-		TextArea<String> rdfData = createTextarea("rdfData");
+		TextArea<String> rdfData = createTextarea("definition");
 		form.add(rdfData);
 		
 		form.setMultiPart(true);

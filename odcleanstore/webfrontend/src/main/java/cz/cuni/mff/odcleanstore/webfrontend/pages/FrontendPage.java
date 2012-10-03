@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages;
 
+import java.io.File;
 import java.util.List;
 
 import org.apache.wicket.RuntimeConfigurationType;
@@ -20,6 +21,11 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 
+import cz.cuni.mff.odcleanstore.configuration.BackendConfig;
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
+import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
 import cz.cuni.mff.odcleanstore.webfrontend.core.ODCSWebFrontendApplication;
@@ -298,5 +304,36 @@ public abstract class FrontendPage extends WebPage
 	protected ODCSWebFrontendSession getODCSSession()
 	{
 		return (ODCSWebFrontendSession) getSession();
+	}
+	
+	protected TransformationContext createContext()
+	{
+		final BackendConfig config = ConfigLoader.getConfig().getBackendGroup();
+		return new TransformationContext()
+		{
+
+			public JDBCConnectionCredentials getDirtyDatabaseCredentials() {
+				return config.getDirtyDBJDBCConnectionCredentials();
+			}
+
+			public JDBCConnectionCredentials getCleanDatabaseCredentials() {
+				return config.getCleanDBJDBCConnectionCredentials();
+			}
+
+			public String getTransformerConfiguration() {
+				return "";
+			}
+
+			public File getTransformerDirectory() {
+				String path = ConfigLoader.getConfig().getWebFrontendGroup().getDebugDirectoryPath();
+				File dir = new File(path);
+				dir.mkdir();
+				return dir;
+			}
+
+			public EnumTransformationType getTransformationType() {
+				return EnumTransformationType.NEW;
+			}			
+		};
 	}
 }

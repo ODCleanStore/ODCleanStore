@@ -18,6 +18,7 @@ public class GraphInErrorRowMapper extends CustomRowMapper<GraphInError> {
 				rs.getInt("stateId"),
 				rs.getInt("errorTypeId"),
 				blobToString(rs.getBlob("errorMessage")),
+				rs.getBoolean("isInCleanDB"),
 
 				rs.getString("engineUuid"),
 				blobToString(rs.getBlob("pipelineLabel")),

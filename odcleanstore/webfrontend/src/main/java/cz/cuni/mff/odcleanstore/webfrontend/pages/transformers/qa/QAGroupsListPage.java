@@ -25,6 +25,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.en.QARuleAssignmentDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.debug.QADebugPage;
 
 @AuthorizeInstantiation({ Role.PIC })
 public class QAGroupsListPage extends FrontendPage
@@ -89,6 +90,14 @@ public class QAGroupsListPage extends FrontendPage
 						QAGroupDetailPage.class,
 						group.getId(),
 						"showEditQAGroupPage"
+					)
+				);
+				
+				item.add(
+					new RedirectWithParamButton(
+						QADebugPage.class,
+						group.getId(),
+						"debugQAGroup"
 					)
 				);
 				

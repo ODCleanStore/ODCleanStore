@@ -1,0 +1,26 @@
+<wicket:extend>
+
+<wicket:link>
+<div>
+	<a class="placedright button" href="../QAGroupsListPage.html">Back to the list of QA rule groups</a>
+	<div class="clear">&nbsp;</div>
+</div>
+</wicket:link>
+
+<form wicket:id="inputForm">
+	<p>
+		<label for="commonMetadataGraphName">Common meta-data graph name:</label>
+		<span class="required"><input wicket:id="commonMetadataGraphName" id="commonMetadataGraphName"  /></span>
+	</p>
+	<p>
+		<label for="rdfInput">Input RDF data:</label>
+		<span class="required"><textarea wicket:id="rdfInput" id="rdfData" ></textarea></span>
+	</p>
+	<p>
+		<input wicket:id="fileUpload" size="40" type="file"/>
+		<input wicket:id="upload" type="submit" value="Upload"/>
+	</p>
+	<input type="submit" value="Submit" />
+</form>
+
+</wicket:extend>

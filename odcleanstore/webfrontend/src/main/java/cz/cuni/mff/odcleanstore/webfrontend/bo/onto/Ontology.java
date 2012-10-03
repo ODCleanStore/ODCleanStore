@@ -1,19 +1,21 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo.onto;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.AuthoredEntity;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.RDFGraphEntity;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
 /**
  * Business entity representing a ontology.
  * 
- * @author Tomáš Soukup
+ * @author Tomas Soukup
  */
-public class Ontology extends RDFGraphEntity implements AuthoredEntity
+public class Ontology extends EntityWithSurrogateKey implements AuthoredEntity
 {
 	private static final long serialVersionUID = 1L;
 	
 	private String label;
 	private String description;
+	private String graphName;
+	private String definition;
 	private Integer authorId;
 	private String authorName;
 
@@ -28,9 +30,11 @@ public class Ontology extends RDFGraphEntity implements AuthoredEntity
 	 */
 	public Ontology(Integer id, String label, String description, String graphName, Integer authorId, String authorName) 
 	{
-		super(id, graphName);
+		super(id);
 		this.label = label;
 		this.description = description;
+		this.graphName = graphName;
+		this.definition = "";
 		this.authorId = authorId;
 		this.setAuthorName(authorName);
 	}
@@ -61,6 +65,22 @@ public class Ontology extends RDFGraphEntity implements AuthoredEntity
 		return description;
 	}
 	
+	public String getGraphName() {
+		return graphName;
+	}
+
+	public void setGraphName(String graphName) {
+		this.graphName = graphName;
+	}
+
+	public String getDefinition() {
+		return definition;
+	}
+
+	public void setDefinition(String definition) {
+		this.definition = definition;
+	}
+
 	public Integer getAuthorId() 
 	{
 		return authorId;
