@@ -7,7 +7,7 @@ table {border-collapse: collapse;}
 
 label {font-weight: bold;}
 
-th, th a {text-decoration: none; color: black;}
+th, th a {text-decoration: none; color: black; text-shadow:1px 1px 0 rgba(0,0,0, 0.4);}
 th a:hover {color: white; cursor: pointer;}
 th {padding: 10px 16px 10px 10px; background:-moz-linear-gradient(top, #4fbdf0 0%, #45b2d2 100%); background:-webkit-gradient(linear, left top, left bottom, color-stop(0%,#4fbdf0), color-stop(100%,#45b2d2)); background:-webkit-linear-gradient(top, #4fbdf0 0%,#45b2d2 100%); background:-o-linear-gradient(top, #4fbdf0 0%,#45b2d2 100%); background:-ms-linear-gradient(top, #4fbdf0 0%,#45b2d2 100%); background:linear-gradient(top, #4fbdf0 0%,#45b2d2 100%); filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#4fbdf0', endColorstr='#45b2d2',GradientType=0);}
 td { padding:3px; }
