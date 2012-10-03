@@ -10,10 +10,15 @@ import org.apache.wicket.model.CompoundPropertyModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.AttachedEngine;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.en.GraphInErrorCount;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.BooleanLabel;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentSortableDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.AttachedEngineDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.en.GraphInErrorCountDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.GraphsInErrorListPage;
 
 @AuthorizeInstantiation({ Role.PIC })
 public class EngineStatePage extends FrontendPage 
@@ -21,6 +26,7 @@ public class EngineStatePage extends FrontendPage
 	private static final long serialVersionUID = 1L;
 
 	private AttachedEngineDao attachedEngineDao;
+	private GraphInErrorCountDao graphInErrorCountDao;
 	
 	public EngineStatePage() 
 	{
@@ -33,12 +39,14 @@ public class EngineStatePage extends FrontendPage
 		// prepare DAO objects
 		//
 		attachedEngineDao = daoLookupFactory.getDao(AttachedEngineDao.class);
+		graphInErrorCountDao = daoLookupFactory.getDao(GraphInErrorCountDao.class);
 		
 		// register page components
 		//
 		addAttachedEngineStatus();
+		addGraphsInErrorPerPipeline();
 	}
-	
+
 	private void addAttachedEngineStatus()
 	{
 		DependentSortableDataProvider<AttachedEngine> data =
@@ -77,7 +85,42 @@ public class EngineStatePage extends FrontendPage
 				item.add(new Label("updated"));
 			}
 		};
+
+		add(new SortTableButton<AttachedEngine>("sortByUUID", "uuid", data, dataView));
+		add(new SortTableButton<AttachedEngine>("sortByError", "isPipelineError", data, dataView));
+		add(new SortTableButton<AttachedEngine>("sortByNotificationRequired", "isNotifyRequired", data, dataView));
+		add(new SortTableButton<AttachedEngine>("sortByUpdated", "updated", data, dataView));
 		
+		add(dataView);
+	}
+
+	private void addGraphsInErrorPerPipeline() {
+		DependentSortableDataProvider<GraphInErrorCount> data =
+				new DependentSortableDataProvider<GraphInErrorCount>(graphInErrorCountDao, "pipelineLabel", "iState.label", "WRONG");
+			
+		DataView<GraphInErrorCount> dataView = new DataView<GraphInErrorCount>("graphsInErrorPerPipeline", data)
+		{
+			private static final long serialVersionUID = 1L;
+				
+			@Override
+			protected void populateItem(Item<GraphInErrorCount> item) {
+				GraphInErrorCount graphInErrorCount = item.getModelObject(); 
+
+				item.setModel(new CompoundPropertyModel<GraphInErrorCount>(graphInErrorCount));
+
+				item.add(new Label("pipelineLabel"));
+				item.add(new Label("graphCount"));
+				
+				item.add(new RedirectWithParamButton(GraphsInErrorListPage.class,
+						"seeMore",
+						"pipelineId",
+						graphInErrorCount.pipelineId));
+			}
+		};
+		
+		add(new SortTableButton<GraphInErrorCount>("sortByPipelineLabel", "pipelineLabel", data, dataView));
+		add(new SortTableButton<GraphInErrorCount>("sortByGraphCount", "graphCount", data, dataView));
+			
 		add(dataView);
 	}
 }
