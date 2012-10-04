@@ -52,18 +52,11 @@ public class PrefixDao extends DaoTemplate<Prefix>
 		executeInTransaction(new CodeSnippet() {
 				@Override
 				public void execute() throws Exception {
-					String query = "SELECT COUNT(*) FROM " + TABLE_NAME + " WHERE NS_PREFIX = ?";
+					String query = "INSERT INTO " + TABLE_NAME + " (NS_PREFIX, NS_URL) VALUES (?, ?)";
+					Object[] params = new Object[] { item.getPrefix(), item.getUrl() };
+					dao.jdbcUpdate(query, params, EnumDatabaseInstance.CLEAN);
+					dao.jdbcUpdate(query, params, EnumDatabaseInstance.DIRTY);
 					
-					Object[] params = new Object[] { item.getPrefix() };
-					
-					boolean present = false;
-					
-					present |= dao.jdbcQueryForInt(query, params, EnumDatabaseInstance.CLEAN) > 0;
-					present |= dao.jdbcQueryForInt(query, params, EnumDatabaseInstance.DIRTY) > 0;
-					
-					if (present) {
-						throw new Exception("Prefix `" + item.getPrefix() + "` already exists.");
-					}
 
 					query = "DB.DBA.XML_SET_NS_DECL (?, ?, 2)";
 					params = new Object[] { item.getPrefix(), item.getUrl() };
