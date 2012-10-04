@@ -28,12 +28,16 @@ public class EngineStatePage extends FrontendPage
 	private AttachedEngineDao attachedEngineDao;
 	private GraphInErrorCountDao graphInErrorCountDao;
 	
+	// Disable showing engine UUID while there is only one engine instance allowed
+	// May change in the future
+	private static final boolean showEngineUUID = false;
+	
 	public EngineStatePage() 
 	{
 		super
 		(
 			"Home > Backend > Engine > State", 
-			"State overview for connected engines"
+			"State"
 		);
 		
 		// prepare DAO objects
@@ -62,7 +66,15 @@ public class EngineStatePage extends FrontendPage
 
 				item.setModel(new CompoundPropertyModel<AttachedEngine>(attachedEngine));
 
-				item.add(new Label("uuid"));
+				item.add(new Label("uuid") {
+
+					private static final long serialVersionUID = 1L;
+					
+					@Override
+					public boolean isVisible() {
+						return showEngineUUID;
+					}
+				});
 				item.add(new BooleanLabel("isPipelineError")
 				{
 					private static final long serialVersionUID = 1L;
@@ -86,7 +98,15 @@ public class EngineStatePage extends FrontendPage
 			}
 		};
 
-		add(new SortTableButton<AttachedEngine>("sortByUUID", "uuid", data, dataView));
+		add(new SortTableButton<AttachedEngine>("sortByUUID", "uuid", data, dataView) {
+
+			private static final long serialVersionUID = 1L;
+			
+			@Override
+			public boolean isVisible() {
+				return showEngineUUID;
+			}
+		});
 		add(new SortTableButton<AttachedEngine>("sortByError", "isPipelineError", data, dataView));
 		add(new SortTableButton<AttachedEngine>("sortByNotificationRequired", "isNotifyRequired", data, dataView));
 		add(new SortTableButton<AttachedEngine>("sortByUpdated", "updated", data, dataView));
