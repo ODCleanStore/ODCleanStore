@@ -52,6 +52,7 @@ public class GraphsInErrorListPage extends FrontendPage {
 
 		graphInErrorDao = daoLookupFactory.getDao(GraphInErrorDao.class);
 
+		addHelpWindow(new GraphsInErrorHelpPanel("content"));
 		addGraphsTable(params);
 	}
 	
