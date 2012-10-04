@@ -1,0 +1,30 @@
+<wicket:extend>
+
+<wicket:link>
+<div>
+	<a class="button placedright" href="#" wicket:id="backToInputLink">Back to debug input page</a>
+	<div class="clear">&nbsp;</div>
+</div>
+</wicket:link>
+
+<table wicket:id="resultTable"border=1>
+	<caption wicket:id="graphName"></caption>
+	<tr>
+		<th>Modification</th>
+		<th>Subject</th>
+		<th>Predicate</th>
+		<th>Object</th>
+		<th>Description</th>
+	</tr>
+	<tr wicket:id="resultRow">
+		<td wicket:id="modification"/>
+		<td wicket:id="subject"/>
+		<td wicket:id="predicate"/>
+		<td wicket:id="object"/>
+		<td>
+			<a href="#" wicket:id="showDNRuleDetailPage"><span wicket:id="description"></span></a>
+		</td>
+	</tr>
+</table>
+
+</wicket:extend>
