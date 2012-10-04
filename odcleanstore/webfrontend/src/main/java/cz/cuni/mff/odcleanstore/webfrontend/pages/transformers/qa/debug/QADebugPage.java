@@ -26,7 +26,6 @@ public class QADebugPage extends FrontendPage
 	protected static Logger logger = Logger.getLogger(QADebugPage.class);
 	
 	private String rdfInput;
-	private String commonMetadataGraphName;
 	
 	public QADebugPage(Integer groupId)
 	{
@@ -53,7 +52,7 @@ public class QADebugPage extends FrontendPage
 				QualityAssessorImpl assessor = new QualityAssessorImpl(groupId);
 				try 
 				{
-					List<GraphScoreWithTrace> results = assessor.debugRules(rdfInput, commonMetadataGraphName, createContext());
+					List<GraphScoreWithTrace> results = assessor.debugRules(rdfInput, createContext());
 					setResponsePage(new QADebugResultPage(results, groupId));
 				} 
 				catch (TransformerException e)
@@ -64,9 +63,7 @@ public class QADebugPage extends FrontendPage
 				}		
 			}
 		};
-		
-		form.add(createTextfield("commonMetadataGraphName"));
-		
+				
 		TextArea<String> rdfInput = createTextarea("rdfInput");
 		form.add(rdfInput);
 		
