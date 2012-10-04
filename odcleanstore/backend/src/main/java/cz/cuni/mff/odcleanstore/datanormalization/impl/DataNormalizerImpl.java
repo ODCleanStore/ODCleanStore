@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.datanormalization.impl;
 
+import cz.cuni.mff.odcleanstore.configuration.BackendConfig;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.configuration.DataNormalizationConfig;
 import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
@@ -23,6 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -30,6 +33,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Scanner;
 
 /**
  * DataNormalizerImpl implements the default Data Normalization for ODCS
@@ -40,13 +44,19 @@ import java.util.Map;
  */
 public class DataNormalizerImpl implements DataNormalizer {
 
-	/*
 	public static void main(String[] args) {
 		try {
 			ConfigLoader.loadConfig();
 			BackendConfig config = ConfigLoader.getConfig().getBackendGroup();
+			
+			StringBuilder contentBuilder = new StringBuilder();
+			Scanner contentScanner = new Scanner(new FileReader(System.getProperty("user.home") + "/odcleanstore/debugDN.ttl"));
+			
+			while (contentScanner.hasNextLine()) {
+				contentBuilder.append(contentScanner.nextLine() + "\n");
+			}
 
-			Map<String, GraphModification> result = new DataNormalizerImpl("Group 1").debugRules(new FileInputStream(System.getProperty("user.home") + "/odcleanstore/debugDN.ttl"),
+			Map<String, GraphModification> result = new DataNormalizerImpl("Group 1").debugRules(contentBuilder.toString(),
 					prepareContext(
 							config.getCleanDBJDBCConnectionCredentials(),
 							config.getDirtyDBJDBCConnectionCredentials()));
@@ -91,7 +101,6 @@ public class DataNormalizerImpl implements DataNormalizer {
 			System.err.println(e.getMessage());
 		}
 	}
-	*/
 
 	private static final Logger LOG = LoggerFactory.getLogger(DataNormalizerImpl.class);
 
@@ -348,7 +357,9 @@ public class DataNormalizerImpl implements DataNormalizer {
 	 * Triple that has either been deleted or inserted to a graph in one step of the normalization process
 	 * @author Jakub Daniel
 	 */
-	public class TripleModification {
+	public class TripleModification implements Serializable {
+		private static final long serialVersionUID = 1L;
+
 		String s;
 		String p;
 		String o;
@@ -364,7 +375,9 @@ public class DataNormalizerImpl implements DataNormalizer {
 	 * Collection of all the insertions and deletions that were applied by a certain rule
 	 * @author Jakub Daniel
 	 */
-	public class RuleModification {
+	public class RuleModification implements Serializable {
+		private static final long serialVersionUID = 1L;
+
 		private Collection<TripleModification> insertions = new HashSet<TripleModification>();
 		private Collection<TripleModification> deletions = new HashSet<TripleModification>();
 
@@ -389,7 +402,9 @@ public class DataNormalizerImpl implements DataNormalizer {
 	 * The collection of all modifications done to a graph (grouped by the rules that did them)
 	 * @author Jakub Daniel
 	 */
-	public class GraphModification {
+	public class GraphModification implements Serializable {
+		private static final long serialVersionUID = 1L;
+
 		private Map<DataNormalizationRule, RuleModification> modifications = new HashMap<DataNormalizationRule, RuleModification>();
 
 		public void addInsertion (DataNormalizationRule rule, String s, String p, String o) {
@@ -619,7 +634,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 				getDirtyConnection().execute(unmarkTemporaryGraph, modified);
 			}
 		}
-		LOG.info(String.format(Locale.ROOT, "Data Normalization rule %d applied: %s", rule.getId(), rule.getDescription()));
+		LOG.info(String.format(Locale.ROOT, "Data Normalization rule %d applied: %s", rule.getId(), rule.getDescription() != null ? rule.getDescription() : ""));
 	}
 
 	private void performComponents(DataNormalizationRule rule, String graphName) throws DataNormalizationException {
@@ -629,7 +644,12 @@ public class DataNormalizerImpl implements DataNormalizer {
 			try {
 				getDirtyConnection().execute(components[j]);
 			} catch (Exception e) {
-				LOG.error(String.format(Locale.ROOT, "Failed to apply rule %d (component %d): %s\n\n%s\n\n%s", rule.getId(), rule.getComponents()[j].getId(), rule.getDescription(), components[j], e.getMessage()));
+				LOG.error(String.format(Locale.ROOT, "Failed to apply rule %d (component %d): %s\n\n%s\n\n%s",
+						rule.getId(),
+						rule.getComponents()[j].getId(),
+						rule.getDescription() != null ? rule.getDescription() : "",
+						components[j],
+						e.getMessage()));
 				throw new DataNormalizationException(e);
 			}
 		}

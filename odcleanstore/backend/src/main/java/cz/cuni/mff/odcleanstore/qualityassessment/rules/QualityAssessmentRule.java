@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.qualityassessment.rules;
 
+import java.io.Serializable;
 import java.util.Locale;
 
 /**
@@ -8,7 +9,9 @@ import java.util.Locale;
  * follow after WHERE clause), a coefficient and a human readable
  * explanation.
  */
-public class QualityAssessmentRule {
+public class QualityAssessmentRule implements Serializable {
+	private static final long serialVersionUID = 1L;
+
 	private Integer id;
 	private Integer groupId;
 	private String filter;

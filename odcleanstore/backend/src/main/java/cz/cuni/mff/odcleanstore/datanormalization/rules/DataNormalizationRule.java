@@ -2,9 +2,12 @@ package cz.cuni.mff.odcleanstore.datanormalization.rules;
 
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class DataNormalizationRule {
+public class DataNormalizationRule implements Serializable {
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * The type of the modification to be done by one component of the rule
 	 * @author Jakub Daniel
@@ -34,7 +37,8 @@ public class DataNormalizationRule {
 	 * One transformation (either INSERTION or DELETION)
 	 * @author Jakub Daniel
 	 */
-	public class Component {
+	public class Component implements Serializable {
+		private static final long serialVersionUID = 1L;
 
 		public Component(Integer id, EnumRuleComponentType type, String modification, String description) {
 			this.id = id;

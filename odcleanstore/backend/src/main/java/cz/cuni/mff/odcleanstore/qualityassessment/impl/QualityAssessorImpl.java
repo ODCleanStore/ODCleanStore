@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.qualityassessment.impl;
 
+import cz.cuni.mff.odcleanstore.configuration.BackendConfig;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.configuration.QualityAssessmentConfig;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
@@ -23,6 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,6 +33,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Scanner;
 import java.util.regex.Pattern;
 
 /**
@@ -40,26 +44,31 @@ import java.util.regex.Pattern;
  */
 public class QualityAssessorImpl implements QualityAssessor {
 	
-	/*
 	public static void main(String[] args) {
 		try {
 			ConfigLoader.loadConfig();
 			BackendConfig config = ConfigLoader.getConfig().getBackendGroup();
 
-			Map<String, GraphScoreWithTrace> result = new QualityAssessorImpl("Group 1").debugRules(new FileInputStream(System.getProperty("user.home") + "/odcleanstore/debugQA.ttl"),
-					"http://opendata.cz/data/metadataGraph",
+			StringBuilder contentBuilder = new StringBuilder();
+			Scanner contentScanner = new Scanner(new FileReader(System.getProperty("user.home") + "/odcleanstore/debugQA.ttl"));
+			
+			while (contentScanner.hasNextLine()) {
+				contentBuilder.append(contentScanner.nextLine() + "\n");
+			}
+			
+			List<GraphScoreWithTrace> result = new QualityAssessorImpl("Group 1").debugRules(contentBuilder.toString(),
 					prepareContext(
 							config.getCleanDBJDBCConnectionCredentials(),
 							config.getDirtyDBJDBCConnectionCredentials()));
 
-			Iterator<String> i = result.keySet().iterator();
+			Iterator<GraphScoreWithTrace> i = result.iterator();
 
 			while (i.hasNext()) {
-				String graph = i.next();
+				GraphScoreWithTrace graphScoreWithTrace = i.next();
 
-				System.err.println(graph + " " + result.get(graph).score);
+				System.err.println(graphScoreWithTrace.graphName + " " + graphScoreWithTrace.score);
 
-				Iterator<QualityAssessmentRule> j = result.get(graph).trace.iterator();
+				Iterator<QualityAssessmentRule> j = graphScoreWithTrace.trace.iterator();
 
 				while (j.hasNext()) {
 					QualityAssessmentRule rule = j.next();
@@ -73,7 +82,6 @@ public class QualityAssessorImpl implements QualityAssessor {
 			System.err.println(e.getMessage());
 		}
 	}
-	*/
 	
 	/**
 	 * SPARQL queries for Quality Assessor transformation of input graph and metadata graph
@@ -201,7 +209,7 @@ public class QualityAssessorImpl implements QualityAssessor {
 	}
 
 	public List<GraphScoreWithTrace> debugRules(
-	        String source, String commonMetadataGraph, TransformationContext context)
+	        String source, TransformationContext context)
 			throws TransformerException {
 		HashMap<String, String> graphs = new HashMap<String, String>();
 		QualityAssessmentConfig config = ConfigLoader.getConfig().getQualityAssessmentGroup();
@@ -212,10 +220,6 @@ public class QualityAssessorImpl implements QualityAssessor {
 		try {
 			graphs = loader.load(source, this.getClass().getSimpleName());
 
-			if (!graphs.containsKey(commonMetadataGraph)) {
-				throw new TransformerException("missing metadata graph");
-			}
-
 			Collection<String> originalGraphs = graphs.keySet();
 			List<GraphScoreWithTrace> result = new ArrayList<GraphScoreWithTrace>();
 
@@ -225,22 +229,15 @@ public class QualityAssessorImpl implements QualityAssessor {
 				String originalName = it.next();
 				String temporaryName = graphs.get(originalName);
 
-				/**
-				 * Perform QA for all graphs except the metadata graph
-				 */
-				if (!temporaryName.equals(graphs.get(commonMetadataGraph))) {
-					GraphScoreWithTrace subResult = getGraphScoreWithTrace(temporaryName,
-							context.getCleanDatabaseCredentials(),
-							context.getDirtyDatabaseCredentials());
-					subResult.setGraphName(originalName);
+				GraphScoreWithTrace subResult = getGraphScoreWithTrace(temporaryName,
+						context.getCleanDatabaseCredentials(),
+						context.getDirtyDatabaseCredentials());
+				subResult.setGraphName(originalName);
 
-					result.add(subResult);
-				}
-
-				return result;
+				result.add(subResult);
 			}
 
-			return null;
+			return result;
 		} catch (Exception e) {
 			LOG.error("Debugging of Quality Assessment rules failed: " + e.getMessage());
 
@@ -296,7 +293,9 @@ public class QualityAssessorImpl implements QualityAssessor {
 				inputGraph.getGraphName(), rules.size(), violations, score));
 	}
 
-	public static class GraphScoreWithTrace {
+	public static class GraphScoreWithTrace implements Serializable {
+		private static final long serialVersionUID = 1L;
+
 		private String graphName;
 		private Double score;
 		private List<QualityAssessmentRule> trace;
@@ -396,7 +395,6 @@ public class QualityAssessorImpl implements QualityAssessor {
 	 */
 	protected void applyRule(QualityAssessmentRule rule, Collection<QualityAssessmentRule> appliedRules) throws QualityAssessmentException {
 		String query = rule.toString(inputGraph.getGraphName());
-		System.err.println(rule.toString("..."));
 
 		WrappedResultSet results = null;
 
@@ -421,15 +419,15 @@ public class QualityAssessorImpl implements QualityAssessor {
 
 				if (appliedRules != null) appliedRules.add(rule);
 				
-				LOG.info(String.format("Applied rule %d: %s", rule.getId(), rule.getDescription()));
+				LOG.info(String.format("Rule %d matched%s", rule.getId(), rule.getDescription() != null ? "\n\n(" + rule.getDescription() + ")\n\n" : ""));
 			} else {
-				LOG.info(String.format("Did not apply rule %d: %s", rule.getId(), rule.getDescription()));
+				LOG.info(String.format("Rule %d did not match%s", rule.getId(), rule.getDescription() != null ? "\n\n(" + rule.getDescription() + ")\n\n" : ""));
 			}
 		} catch (DatabaseException e) {
-			LOG.error(String.format(Locale.ROOT, "Failed to apply rule %d: %s\n\n%s\n\n%s", rule.getId(), rule.getDescription(), query, e.getMessage()));
+			LOG.error(String.format(Locale.ROOT, "Failed to apply rule %d: %s\n\n%s\n\n%s", rule.getId(), rule.getDescription() != null ? rule.getDescription() : "", query, e.getMessage()));
 			throw new QualityAssessmentException(e);
 		} catch (SQLException e) {
-			LOG.error(String.format(Locale.ROOT, "Failed to apply rule %d: %s\n\n%s\n\n%s", rule.getId(), rule.getDescription(), query, e.getMessage()));
+			LOG.error(String.format(Locale.ROOT, "Failed to apply rule %d: %s\n\n%s\n\n%s", rule.getId(), rule.getDescription() != null ? rule.getDescription() : "", query, e.getMessage()));
 			throw new QualityAssessmentException(e);
 		} finally {
 			if (results != null) {

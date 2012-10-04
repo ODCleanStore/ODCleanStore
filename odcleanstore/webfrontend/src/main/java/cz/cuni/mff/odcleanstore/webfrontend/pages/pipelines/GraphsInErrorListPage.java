@@ -10,13 +10,13 @@ import org.apache.wicket.authroles.authorization.strategies.role.annotations.Aut
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.GraphInError;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentSortableDataProvider;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.GraphInErrorDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.en.InputGraphStateDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 @AuthorizeInstantiation({ Role.PIC })
@@ -26,7 +26,10 @@ public class GraphsInErrorListPage extends FrontendPage {
 	private static Logger LOG = Logger.getLogger(GraphsInErrorListPage.class);
 	
 	private final GraphInErrorDao graphInErrorDao;
-	private final InputGraphStateDao inputGraphStateDao;
+
+	// Disable showing engine UUID while there is only one engine instance allowed
+	// May change in the future
+	private static final boolean showEngineUUID = false;
 	
 	public GraphsInErrorListPage() {
 		this(new Object[]{});
@@ -48,22 +51,83 @@ public class GraphsInErrorListPage extends FrontendPage {
 		);
 
 		graphInErrorDao = daoLookupFactory.getDao(GraphInErrorDao.class);
-		inputGraphStateDao = daoLookupFactory.getDao(InputGraphStateDao.class);
 
 		addGraphsTable(params);
 	}
 	
-	private void addGraphsTable(Object... params) {
+	private void addGraphsTable(final Object... params) {
 		DependentSortableDataProvider<GraphInError> data;
 		
-		QueryCriteria wrongStateCriteria = new QueryCriteria();
+		add(new Link<GraphInError>("finishAll") {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick() {
+				try {
+					Object[] criteria = new Object[params.length + 2];
+
+					criteria[0] = "iGraph.isInCleanDB";
+					criteria[1] = 1;
+					
+					for (int i = 2; i < criteria.length; ++i) {
+						criteria[i] = params[i - 2];
+					}
+
+					graphInErrorDao.markAllFinished(criteria);
+					getSession().info(
+							"All related graphs accepted successfully."
+						);
+				} catch (Exception e) {
+					LOG.error(String.format("Could not mark all wrong graphs finished: %s", e.getMessage()));
+					getSession().error(
+							"Could not accept all related graphs."
+					);
+				}
+			}
+			
+		});
 		
-		wrongStateCriteria.addWhereClause("label", "WRONG");
+		add(new Link<GraphInError>("rerunAll") {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick() {
+				try {
+					graphInErrorDao.markAllQueued(params);
+					getSession().info(
+						"All related graphs queued for rerun successfully."
+					);
+				} catch (Exception e) {
+					LOG.error(String.format("Could not mark all wrong graphs queued: %s", e.getMessage()));
+					getSession().error(
+						"Could not queue all related graphs for rerun."
+					);
+				}
+			}
+			
+		});
+
+		add(new DeleteButton<GraphInError>(graphInErrorDao, null, "deleteAll", "graphs", new DeleteConfirmationMessage("graphs"), GraphsInErrorListPage.this) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void delete() {
+				try {
+					graphInErrorDao.markAllQueuedForDelete(params);
+				} catch (Exception e) {
+					LOG.error(String.format("Could not mark all wrong graphs queued for delete: %s", e.getMessage()));
+					throw new RuntimeException(e);
+				}
+			}
+		});
 		
 		Object[] criteria = new Object[params.length + 2];
 
-		criteria[0] = "stateId";
-		criteria[1] = inputGraphStateDao.loadAllBy(wrongStateCriteria).get(0).id;
+		criteria[0] = "iState.label";
+		criteria[1] = "WRONG";
 
 		for (int i = 2; i < criteria.length; ++i) {
 			criteria[i] = params[i - 2];
@@ -81,7 +145,15 @@ public class GraphsInErrorListPage extends FrontendPage {
 				
 				item.setModel(new CompoundPropertyModel<GraphInError>(graphInError));
 				
-				item.add(new Label("engineUUID"));
+				item.add(new Label("engineUUID") {
+
+					private static final long serialVersionUID = 1L;
+					
+					@Override
+					public boolean isVisible() {
+						return showEngineUUID;
+					}
+				});
 				item.add(new Label("pipelineLabel"));
 				item.add(new Label("UUID"));
 				item.add(new Label("stateLabel"));
@@ -96,8 +168,14 @@ public class GraphsInErrorListPage extends FrontendPage {
 					public void onClick() {
 						try {
 							graphInErrorDao.markFinished(graphInError);
+							getSession().info(
+									"The graph was queued for rerun successfully."
+								);
 						} catch (Exception e) {
 							LOG.error(String.format("Could not mark graph %s finished: %s", graphInError.UUID, e.getMessage()));
+							getSession().error(
+								"Could not accept the graph."
+							);
 						}
 					}
 					
@@ -115,22 +193,29 @@ public class GraphsInErrorListPage extends FrontendPage {
 					public void onClick() {
 						try {
 							graphInErrorDao.markQueued(graphInError);
+							getSession().info(
+								"The graph was queued for rerun successfully."
+							);
 						} catch (Exception e) {
 							LOG.error(String.format("Could not mark graph %s queued: %s", graphInError.UUID, e.getMessage()));
+							getSession().error(
+								"Could not queue the graph for rerun."
+							);
 						}
 					}
 				});
 
-				item.add(new Link<GraphInError>("deleteGraph") {
+				item.add(new DeleteButton<GraphInError>(graphInErrorDao, null, "deleteGraph", "graph", new DeleteConfirmationMessage("graph"), GraphsInErrorListPage.this) {
 
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public void onClick() {
+					public void delete() {
 						try {
 							graphInErrorDao.markQueuedForDelete(graphInError);
 						} catch (Exception e) {
 							LOG.error(String.format("Could not mark graph %s queued for delete: %s", graphInError.UUID, e.getMessage()));
+							throw new RuntimeException(e);
 						}
 					}
 				});
@@ -139,7 +224,15 @@ public class GraphsInErrorListPage extends FrontendPage {
 		
 		dataView.setItemsPerPage(ITEMS_PER_PAGE);
 		
-		add(new SortTableButton<GraphInError>("sortByEngine", "engineUuid", data, dataView));
+		add(new SortTableButton<GraphInError>("sortByEngine", "engineUuid", data, dataView) {
+
+			private static final long serialVersionUID = 1L;
+			
+			@Override
+			public boolean isVisible() {
+				return showEngineUUID;
+			}
+		});
 		add(new SortTableButton<GraphInError>("sortByPipeline", "pipelineLabel", data, dataView));
 		add(new SortTableButton<GraphInError>("sortByGraph", "uuid", data, dataView));
 		add(new SortTableButton<GraphInError>("sortByState", "stateLabel", data, dataView));
