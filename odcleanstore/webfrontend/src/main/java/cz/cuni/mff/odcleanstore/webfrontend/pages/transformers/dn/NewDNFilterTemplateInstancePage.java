@@ -6,8 +6,12 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.CompiledDNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNFilterTemplateInstance;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNFilterTemplateInstanceCompiler;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRenameTemplateInstanceCompiler;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.CompiledDNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNFilterTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
@@ -21,6 +25,7 @@ public class NewDNFilterTemplateInstancePage extends LimitedEditingPage
 	private static Logger logger = Logger.getLogger(NewDNFilterTemplateInstancePage.class);
 	
 	private DNFilterTemplateInstanceDao dnFilterTemplateInstanceDao;
+	private CompiledDNRuleDao compiledDNRuleDao;
 	
 	public NewDNFilterTemplateInstancePage(final Integer groupId) 
 	{
@@ -36,6 +41,7 @@ public class NewDNFilterTemplateInstancePage extends LimitedEditingPage
 		// prepare DAO objects
 		//
 		this.dnFilterTemplateInstanceDao = daoLookupFactory.getDao(DNFilterTemplateInstanceDao.class);
+		this.compiledDNRuleDao = daoLookupFactory.getDao(CompiledDNRuleDao.class);
 		
 		// register page components
 		//
@@ -68,7 +74,13 @@ public class NewDNFilterTemplateInstancePage extends LimitedEditingPage
 				DNFilterTemplateInstance instance = this.getModelObject();
 				instance.setGroupId(groupId);
 				
-				try {
+				CompiledDNRule compiledRule = DNFilterTemplateInstanceCompiler.compile(instance);
+				
+				try 
+				{
+					int rawRuleId = compiledDNRuleDao.saveAndGetKey(compiledRule);
+					
+					instance.setRawRuleId(rawRuleId);
 					dnFilterTemplateInstanceDao.save(instance);
 				}
 				catch (DaoException ex)

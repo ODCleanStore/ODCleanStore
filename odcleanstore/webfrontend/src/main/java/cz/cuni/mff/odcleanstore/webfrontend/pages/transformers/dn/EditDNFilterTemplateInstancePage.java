@@ -7,9 +7,13 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.CompiledDNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNFilterTemplateInstance;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNFilterTemplateInstanceCompiler;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRenameTemplateInstanceCompiler;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.LimitedEditingForm;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.CompiledDNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNFilterTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
@@ -22,6 +26,7 @@ public class EditDNFilterTemplateInstancePage extends LimitedEditingPage
 	private static Logger logger = Logger.getLogger(NewDNReplaceTemplateInstancePage.class);
 	
 	private DNFilterTemplateInstanceDao dnFilterTemplateInstanceDao;
+	private CompiledDNRuleDao compiledDNRuleDao;
 	
 	public EditDNFilterTemplateInstancePage(final Integer ruleId) 
 	{
@@ -35,6 +40,7 @@ public class EditDNFilterTemplateInstancePage extends LimitedEditingPage
 		// prepare DAO objects
 		//
 		this.dnFilterTemplateInstanceDao = daoLookupFactory.getDao(DNFilterTemplateInstanceDao.class);
+		this.compiledDNRuleDao = daoLookupFactory.getDao(CompiledDNRuleDao.class);
 		
 		// register page components
 		//
@@ -65,9 +71,20 @@ public class EditDNFilterTemplateInstancePage extends LimitedEditingPage
 			protected void onSubmitImpl()
 			{
 				DNFilterTemplateInstance instance = this.getModelObject();
-				
+
+				CompiledDNRule compiledRule = DNFilterTemplateInstanceCompiler.compile(instance);
+							
 				try {
-					dnFilterTemplateInstanceDao.update(instance);
+					compiledDNRuleDao.delete(instance.getRawRuleId());
+					int rawRuleId = compiledDNRuleDao.saveAndGetKey(compiledRule);
+					
+					instance.setRawRuleId(rawRuleId);
+
+					// note that when deleting the raw rule, the template instance
+					// gets automatically deleted as well, due to on delete constraints;
+					// it is therefore necessary to insert the template instance (not update)
+					dnFilterTemplateInstanceDao.save(instance);
+
 				}
 				catch (DaoException ex)
 				{
