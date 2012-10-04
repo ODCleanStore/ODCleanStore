@@ -65,7 +65,7 @@ public class DataNormalizationRule implements Serializable {
 		}
 
 		public String getDescription() {
-			return description == null ? "" : description;
+			return description;
 		}
 
 		/**
@@ -130,7 +130,7 @@ public class DataNormalizationRule implements Serializable {
 	}
 
 	public String getDescription() {
-		return description == null ? "" : description;
+		return description;
 	}
 
 	public Component[] getComponents() {

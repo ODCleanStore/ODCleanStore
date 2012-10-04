@@ -61,6 +61,6 @@ public class QualityAssessmentRule implements Serializable {
 	}
 
 	public String getDescription() {
-		return description == null ? "" : description;
+		return description;
 	}
 }

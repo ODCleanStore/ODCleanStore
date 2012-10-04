@@ -634,7 +634,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 				getDirtyConnection().execute(unmarkTemporaryGraph, modified);
 			}
 		}
-		LOG.info(String.format(Locale.ROOT, "Data Normalization rule %d applied: %s", rule.getId(), rule.getDescription()));
+		LOG.info(String.format(Locale.ROOT, "Data Normalization rule %d applied: %s", rule.getId(), rule.getDescription() != null ? rule.getDescription() : ""));
 	}
 
 	private void performComponents(DataNormalizationRule rule, String graphName) throws DataNormalizationException {
@@ -644,7 +644,12 @@ public class DataNormalizerImpl implements DataNormalizer {
 			try {
 				getDirtyConnection().execute(components[j]);
 			} catch (Exception e) {
-				LOG.error(String.format(Locale.ROOT, "Failed to apply rule %d (component %d): %s\n\n%s\n\n%s", rule.getId(), rule.getComponents()[j].getId(), rule.getDescription(), components[j], e.getMessage()));
+				LOG.error(String.format(Locale.ROOT, "Failed to apply rule %d (component %d): %s\n\n%s\n\n%s",
+						rule.getId(),
+						rule.getComponents()[j].getId(),
+						rule.getDescription() != null ? rule.getDescription() : "",
+						components[j],
+						e.getMessage()));
 				throw new DataNormalizationException(e);
 			}
 		}

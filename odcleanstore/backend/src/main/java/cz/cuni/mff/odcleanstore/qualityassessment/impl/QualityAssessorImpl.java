@@ -395,7 +395,6 @@ public class QualityAssessorImpl implements QualityAssessor {
 	 */
 	protected void applyRule(QualityAssessmentRule rule, Collection<QualityAssessmentRule> appliedRules) throws QualityAssessmentException {
 		String query = rule.toString(inputGraph.getGraphName());
-		System.err.println(rule.toString("..."));
 
 		WrappedResultSet results = null;
 
@@ -420,15 +419,15 @@ public class QualityAssessorImpl implements QualityAssessor {
 
 				if (appliedRules != null) appliedRules.add(rule);
 				
-				LOG.info(String.format("Applied rule %d: %s", rule.getId(), rule.getDescription()));
+				LOG.info(String.format("Rule %d matched%s", rule.getId(), rule.getDescription() != null ? "\n\n(" + rule.getDescription() + ")\n\n" : ""));
 			} else {
-				LOG.info(String.format("Did not apply rule %d: %s", rule.getId(), rule.getDescription()));
+				LOG.info(String.format("Rule %d did not match%s", rule.getId(), rule.getDescription() != null ? "\n\n(" + rule.getDescription() + ")\n\n" : ""));
 			}
 		} catch (DatabaseException e) {
-			LOG.error(String.format(Locale.ROOT, "Failed to apply rule %d: %s\n\n%s\n\n%s", rule.getId(), rule.getDescription(), query, e.getMessage()));
+			LOG.error(String.format(Locale.ROOT, "Failed to apply rule %d: %s\n\n%s\n\n%s", rule.getId(), rule.getDescription() != null ? rule.getDescription() : "", query, e.getMessage()));
 			throw new QualityAssessmentException(e);
 		} catch (SQLException e) {
-			LOG.error(String.format(Locale.ROOT, "Failed to apply rule %d: %s\n\n%s\n\n%s", rule.getId(), rule.getDescription(), query, e.getMessage()));
+			LOG.error(String.format(Locale.ROOT, "Failed to apply rule %d: %s\n\n%s\n\n%s", rule.getId(), rule.getDescription() != null ? rule.getDescription() : "", query, e.getMessage()));
 			throw new QualityAssessmentException(e);
 		} finally {
 			if (results != null) {
