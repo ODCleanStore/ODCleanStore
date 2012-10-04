@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
+import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.GraphInError;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
@@ -89,24 +90,38 @@ public class GraphInErrorDao extends DaoForEntityWithSurrogateKey<GraphInError> 
 		mark(graphInError, EnumGraphState.QUEUED_FOR_DELETE);
 	}
 
-	private void mark(GraphInError graphInError, EnumGraphState state) throws Exception {
-		QueryCriteria criteria = new QueryCriteria();
-		
-		criteria.addWhereClause("iGraph.uuid", graphInError.UUID);
-		criteria.addWhereClause("state.label", state.toString());
+	private void mark(final GraphInError graphInError, final EnumGraphState state) throws Exception {
+		executeInTransaction(new CodeSnippet() {
+			@Override
+			public void execute() throws Exception {
+				QueryCriteria criteria;
+				String query;
+				Object[] param;
+				
+				query = "DELETE FROM " + GRAPHS_IN_ERROR_TABLE_NAME + " AS eGraph WHERE " +
+						"eGraph.graphId IN " +
+						"(SELECT iGraph.id FROM " + INPUT_GRAPHS_TABLE_NAME + " AS iGraph WHERE iGraph.uuid = ? AND iGraph.pipelineId = ? AND iGraph.engineId = ?)";
 
-		String query =
-				"INSERT REPLACING " + INPUT_GRAPHS_TABLE_NAME + " (id, uuid, stateId, engineId, pipelineId, isInCleanDB) " +
-				"SELECT  iGraph.id, iGraph.uuid, state.id, iGraph.engineId, iGraph.pipelineId, iGraph.isInCleanDB " +
-				"FROM " +
-				INPUT_GRAPHS_TABLE_NAME + " AS iGraph, " +
-				INPUT_GRAPHS_STATES_TABLE_NAME + " AS state " +
-				criteria.buildWhereClause() +
-				criteria.buildOrderByClause();
+				param = new Object[] {graphInError.UUID, graphInError.pipelineId, graphInError.engineId};
+				GraphInErrorDao.this.jdbcUpdate(query, param);
+				
+				criteria = new QueryCriteria();
+				criteria.addWhereClause("iGraph.uuid", graphInError.UUID);
+				criteria.addWhereClause("iGraph.pipelineId", graphInError.pipelineId);
+				criteria.addWhereClause("iGraph.engineId", graphInError.engineId);
+				criteria.addWhereClause("state.label", state.toString());
 
-		Object[] param = criteria.buildWhereClauseParams();
+				query = "INSERT REPLACING " + INPUT_GRAPHS_TABLE_NAME + " (id, uuid, stateId, engineId, pipelineId, isInCleanDB) " +
+						"SELECT  iGraph.id, iGraph.uuid, state.id, iGraph.engineId, iGraph.pipelineId, iGraph.isInCleanDB " +
+						"FROM " +
+						INPUT_GRAPHS_TABLE_NAME + " AS iGraph, " +
+						INPUT_GRAPHS_STATES_TABLE_NAME + " AS state " +
+						criteria.buildWhereClause();
 
-		this.jdbcUpdate(query, param);
+				param = criteria.buildWhereClauseParams();
+				GraphInErrorDao.this.jdbcUpdate(query, param);
+			}
+		});
 	}
 
 	public void markAllQueued(Object[] params) throws Exception {
@@ -121,27 +136,54 @@ public class GraphInErrorDao extends DaoForEntityWithSurrogateKey<GraphInError> 
 		markAll(params, EnumGraphState.FINISHED);
 	}
 	
-	private void markAll(Object[] params, EnumGraphState state) throws Exception {
-		QueryCriteria criteria = new QueryCriteria();
+	private void markAll(final Object[] params, final EnumGraphState state) throws Exception {
+		executeInTransaction(new CodeSnippet() {
+			@Override
+			public void execute() throws Exception {
+				QueryCriteria criteria;
+				String query;
+				Object[] param;
+				
+				/**
+				 * DELETE ALL ERRORS BOUND TO GRAPHS (GIVEN BY CRITERIA AND IN STATE = WRONG)
+				 */
+				criteria = new QueryCriteria();
 
-		for (int i = 0; i < params.length; i += 2) {
-			criteria.addWhereClause((String)params[i], params[i + 1]);
-		}
-		criteria.addWhereClause("iState.label", "WRONG");
-		criteria.addWhereClause("state.label", state.toString());
+				for (int i = 0; i < params.length; i += 2) {
+					criteria.addWhereClause((String)params[i], params[i + 1]);
+				}
+				
+				query = "DELETE FROM " + GRAPHS_IN_ERROR_TABLE_NAME + " AS eGraph WHERE " +
+						"eGraph.graphId IN " +
+						"(SELECT iGraph.id FROM " + INPUT_GRAPHS_TABLE_NAME + " AS iGraph " + criteria.buildWhereClause() + " AND stateId IN" +
+						"(SELECT iState.id FROM " + INPUT_GRAPHS_STATES_TABLE_NAME + " AS iState WHERE iState.label = 'WRONG'))";
 
-		String query =
-				"INSERT REPLACING " + INPUT_GRAPHS_TABLE_NAME + " (id, uuid, stateId, engineId, pipelineId, isInCleanDB) " +
-				"SELECT  iGraph.id, iGraph.uuid, state.id, iGraph.engineId, iGraph.pipelineId, iGraph.isInCleanDB " +
-				"FROM " +
-				INPUT_GRAPHS_TABLE_NAME + " AS iGraph JOIN " +
-				INPUT_GRAPHS_STATES_TABLE_NAME + " AS iState ON iGraph.stateId = iState.id, " +
-				INPUT_GRAPHS_STATES_TABLE_NAME + " AS state " +
-				criteria.buildWhereClause() +
-				criteria.buildOrderByClause();
+				param = criteria.buildWhereClauseParams();
+				GraphInErrorDao.this.jdbcUpdate(query, param);
+				
+				/**
+				 * REPLACE STATE ID
+				 */
+				criteria = new QueryCriteria();
 
-		Object[] param = criteria.buildWhereClauseParams();
+				for (int i = 0; i < params.length; i += 2) {
+					criteria.addWhereClause((String)params[i], params[i + 1]);
+				}
+				criteria.addWhereClause("iState.label", "WRONG");
+				criteria.addWhereClause("state.label", state.toString());
 
-		this.jdbcUpdate(query, param);
+				query =
+						"INSERT REPLACING " + INPUT_GRAPHS_TABLE_NAME + " (id, uuid, stateId, engineId, pipelineId, isInCleanDB) " +
+						"SELECT  iGraph.id, iGraph.uuid, state.id, iGraph.engineId, iGraph.pipelineId, iGraph.isInCleanDB " +
+						"FROM " +
+						INPUT_GRAPHS_TABLE_NAME + " AS iGraph JOIN " +
+						INPUT_GRAPHS_STATES_TABLE_NAME + " AS iState ON iGraph.stateId = iState.id, " +
+						INPUT_GRAPHS_STATES_TABLE_NAME + " AS state " +
+						criteria.buildWhereClause();
+
+				param = criteria.buildWhereClauseParams();
+				GraphInErrorDao.this.jdbcUpdate(query, param);
+			}
+		});
 	}
 }
