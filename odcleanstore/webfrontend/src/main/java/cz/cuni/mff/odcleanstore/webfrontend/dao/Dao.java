@@ -19,6 +19,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 
 /**
  * Generic DAO interface.
@@ -273,6 +274,16 @@ public abstract class Dao implements Serializable
 	
 	private void handleDAOException(Exception ex) throws Exception
 	{
+		// throw the exception out right away if it has been already processed before
+		// (this is necessary as an exception might get processed twice - once in
+		// the jdbcUpdate method and then again in the executeInTransaction method)
+		//
+		if ((ex.getCause() != null) && (ex.getCause() instanceof DaoException))
+			throw (DaoException) ex.getCause();
+		
+		// throw the exeption out right away if it's message does not bear a virtuoso
+		// failure number and therefore cannot be processed using DAO exception handlers)
+		//
 		String relevantMessagePart = getRelevantMessagePart(ex.getMessage());
 		if (relevantMessagePart == null)
 			throw ex;

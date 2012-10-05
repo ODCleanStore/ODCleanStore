@@ -85,7 +85,7 @@ class Insert implements Runnable {
 			if (responseID != 0) {
 				throw new InsertException(responseID, responseMessage, responseMoreInfo);
 			}
-			if (response.getResponseCode() != 200) {
+			if (response.getResponseCode() < 200 || response.getResponseCode() >= 300 ) {
 				throw new InsertException(129, "Connection error", "Connection error");
 			}
 		} catch (InsertException e) {
@@ -169,6 +169,7 @@ class Insert implements Runnable {
 		request.writeln(String.format("POST %s HTTP/1.0", serviceURL.toString()));
 		request.writeln("Content-Type: text/xml;charset=utf-8");
 		request.writeln(String.format("Content-Length: %d", contentLength));
+		request.writeln("Accept-Charset: utf-8");
 		request.writeln("SOAPAction: \"\"");
 		request.writeln();
 	}
@@ -239,7 +240,7 @@ class Insert implements Runnable {
 				responseMoreInfo = handler.getMoreInfo();
 			}
 			
-			if (response.getResponseCode() != 200) {
+			if (response.getResponseCode() < 200 || response.getResponseCode() >= 300 ) {
 				try { socket.shutdownOutput(); } catch(Exception e) {}
 			}
 			try { socket.shutdownInput(); } catch(Exception e) {}
