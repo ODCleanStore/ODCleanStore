@@ -1,7 +1,5 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo.dn;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
-
 /**
  * The BO to represent an instance of the replace template.
  * 

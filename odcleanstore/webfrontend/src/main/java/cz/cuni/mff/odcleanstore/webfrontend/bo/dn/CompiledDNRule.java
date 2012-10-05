@@ -3,8 +3,6 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo.dn;
 import java.util.LinkedList;
 import java.util.List;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
-
 /**
  * The BO to represent a compiled DN rule. Contains a list of
  * dependent components to ease manipulation.
