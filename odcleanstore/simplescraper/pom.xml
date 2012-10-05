@@ -18,7 +18,7 @@
 	</parent>
 
 	<name>ODCleanStore - Simple Scraper</name>
-	<description>TO BE ADDED</description>
+	<description>Simple utility for import data using odcs input client library</description>
 
 	<dependencies>
 		<dependency>
