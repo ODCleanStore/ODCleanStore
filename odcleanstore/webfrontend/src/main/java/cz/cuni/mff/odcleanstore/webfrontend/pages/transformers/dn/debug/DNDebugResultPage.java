@@ -15,6 +15,7 @@ import cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl.Triple
 import cz.cuni.mff.odcleanstore.datanormalization.rules.DataNormalizationRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButtonWithLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.DNRuleDetailPage;
 
@@ -65,13 +66,12 @@ public class DNDebugResultPage extends FrontendPage
 						item.add(new Label("predicate", record.getPredicate()));
 						item.add(new Label("object", record.getObject()));
 						
-						item.add(new Label("description", record.getRule().getDescription()));
 						item.add(
-							new RedirectWithParamButton
+							new RedirectWithParamButtonWithLabel
 							(
 								DNRuleDetailPage.class,
-								record.getRule().getId(),
-								"showDNRuleDetailPage"
+								"showDNRuleDetailPage",
+								record.getRule().getDescription()
 							)
 						);			
 					}

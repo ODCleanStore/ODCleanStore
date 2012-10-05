@@ -21,7 +21,7 @@ public class DNFilterTemplateInstanceCompiler
 		//
 		String modification = String.format
 		(
-			"{?s ?p ?o} WHERE {GRAPH $$graph$$ {?s ?p ?o} FILTER (?p = %s AND %sfn:match(str(?o), %s))}", 
+			"{?s ?p ?o} WHERE {GRAPH $$graph$$ {?s ?p ?o} FILTER (?p = %s AND %sfn:match(str(?o), '%s'))}", 
 			instance.getPropertyName(),
 			instance.getKeep() ? "!" : "",
 			instance.getPattern()

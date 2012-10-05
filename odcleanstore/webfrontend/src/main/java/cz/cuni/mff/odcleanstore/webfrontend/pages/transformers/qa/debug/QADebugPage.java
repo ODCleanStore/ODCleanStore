@@ -1,6 +1,8 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.debug;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -12,6 +14,8 @@ import org.apache.wicket.markup.html.form.upload.FileUploadField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.util.ListModel;
 
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.data.MultipleFormatLoader;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl.GraphScoreWithTrace;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
@@ -50,17 +54,36 @@ public class QADebugPage extends FrontendPage
 			protected void onSubmit()
 			{	
 				QualityAssessorImpl assessor = new QualityAssessorImpl(groupId);
+				
+				HashMap<String, String> graphs = null;
+				MultipleFormatLoader loader = new MultipleFormatLoader(
+						ConfigLoader.getConfig().getQualityAssessmentGroup().getTemporaryGraphURIPrefix().toString(),
+						ConfigLoader.getConfig().getBackendGroup().getDirtyDBJDBCConnectionCredentials());
+				
 				try 
 				{
-					List<GraphScoreWithTrace> results = assessor.debugRules(rdfInput, createContext());
+					graphs = loader.load(rdfInput);
+					List<GraphScoreWithTrace> results = assessor.debugRules(graphs, createContext());
 					setResponsePage(new QADebugResultPage(results, groupId));
-				} 
+				}
+				catch (IOException e)
+				{
+					logger.error(e.getMessage(), e);
+					
+					getSession().error("Input could not be processed.");
+				}
 				catch (TransformerException e)
 				{
 					logger.error(e.getMessage(), e);
 					
 					getSession().error("Rule debugging failed due to an unexpected error.");
-				}		
+				}
+				finally
+				{
+					if (graphs != null) {
+						loader.unload(graphs);
+					}
+				}
 			}
 		};
 				
