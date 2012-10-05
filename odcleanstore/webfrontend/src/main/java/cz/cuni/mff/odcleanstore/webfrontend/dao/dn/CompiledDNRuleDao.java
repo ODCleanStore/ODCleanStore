@@ -5,8 +5,6 @@ import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.CompiledDNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.CompiledDNRuleComponent;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.SimpleKeyHolder;
 

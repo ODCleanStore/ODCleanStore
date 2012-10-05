@@ -4,7 +4,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.CompiledDNRule;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.CustomRowMapper;
 
 
