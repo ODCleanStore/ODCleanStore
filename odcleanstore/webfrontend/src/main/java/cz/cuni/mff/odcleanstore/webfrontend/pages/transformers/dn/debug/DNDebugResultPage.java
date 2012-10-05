@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.model.Model;
 
 import cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl.GraphModification;
 import cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl.RuleModification;
@@ -59,6 +61,8 @@ public class DNDebugResultPage extends FrontendPage
 					@Override
 					protected void populateItem(ListItem<ModificationRecord> item) {
 						ModificationRecord record = item.getModelObject();
+						
+						item.add(new AttributeModifier("class", new Model<String>("dn" + record.getType().toString())));
 						
 						item.add(new Label("modification", record.getType().toString()));
 						

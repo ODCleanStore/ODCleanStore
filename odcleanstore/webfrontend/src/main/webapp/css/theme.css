@@ -75,3 +75,6 @@ form.disabledForm span.required:after { display: none };
 .wicket_orderDown a:before {content:''; margin-right: -19px; margin-top: -10px; position:absolute; top:18px; right:3px; border:5px solid transparent; border-top:5px solid #fff;}
 
 #content {margin-top: 8px;}
+
+.dnINSERT {background-color: rgba(0, 200, 20, 0.3);}
+.dnDELETE {background-color: rgba(200, 0, 20, 0.3);}
