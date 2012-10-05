@@ -40,7 +40,8 @@ import java.util.Map;
  *
  * @author Jakub Daniel
  */
-public class DataNormalizerImpl implements DataNormalizer {
+public class DataNormalizerImpl implements DataNormalizer, Serializable {
+	private static final long serialVersionUID = 1L;
 
 	private static final Logger LOG = LoggerFactory.getLogger(DataNormalizerImpl.class);
 

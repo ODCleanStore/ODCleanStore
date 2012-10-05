@@ -36,7 +36,9 @@ import java.util.regex.Pattern;
  * Depending on the situation selects implementation of quality assessment
  * and delegates the work to that implementation.
  */
-public class QualityAssessorImpl implements QualityAssessor {
+public class QualityAssessorImpl implements QualityAssessor, Serializable {
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * SPARQL queries for Quality Assessor transformation of input graph and metadata graph
 	 */
