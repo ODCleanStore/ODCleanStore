@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.debug;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -89,8 +90,10 @@ public class DNDebugResultPage extends FrontendPage
 		add(tables);
 	}
 	
-	private class ModificationRecord 
+	private class ModificationRecord implements Serializable
 	{
+		private static final long serialVersionUID = 1L;
+
 		DataNormalizationRule rule;
 		ModificationType type;
 		String subject;

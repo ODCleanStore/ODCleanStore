@@ -130,6 +130,10 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 			dirtyConnection = null;
 		}
 	}
+	
+	public static abstract class SerializableTransformedGraph implements TransformedGraph, Serializable {
+		private static final long serialVersionUID = 1L;
+	}
 
 	/**
 	 * constructs input graph for the transformer interface
@@ -137,7 +141,8 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 	 * @return the input graph
 	 */
 	private static TransformedGraph prepareInputGraph (final String name) {
-		return new TransformedGraph() {
+		return new SerializableTransformedGraph() {
+			private static final long serialVersionUID = 1L;
 
 			@Override
 			public String getGraphName() {
@@ -173,6 +178,10 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 		};
 	}
 
+	public static abstract class SerializableTransformationContext implements TransformationContext, Serializable {
+		private static final long serialVersionUID = 1L;
+	}
+
 	/**
 	 * constructs context for the transformer interface
 	 * @param clean the clean database connection credentials
@@ -180,7 +189,9 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 	 * @return the context
 	 */
 	private static TransformationContext prepareContext (final JDBCConnectionCredentials clean, final JDBCConnectionCredentials dirty) {
-		return new TransformationContext() {
+		return new SerializableTransformationContext() {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public JDBCConnectionCredentials getDirtyDatabaseCredentials() {
 				return dirty;
