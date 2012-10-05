@@ -27,10 +27,12 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
@@ -56,40 +58,43 @@ public class DataNormalizerImpl implements DataNormalizer {
 				contentBuilder.append(contentScanner.nextLine() + "\n");
 			}
 
-			Map<String, GraphModification> result = new DataNormalizerImpl("Group 1").debugRules(contentBuilder.toString(),
+			List<GraphModification> result = new DataNormalizerImpl("Group 1").debugRules(contentBuilder.toString(),
 					prepareContext(
 							config.getCleanDBJDBCConnectionCredentials(),
 							config.getDirtyDBJDBCConnectionCredentials()));
 
-			Iterator<String> i = result.keySet().iterator();
+			Iterator<GraphModification> i = result.iterator();
 
 			while (i.hasNext()) {
-				String graph = i.next();
+				GraphModification modification = i.next();
+				String graph = modification.getGraphName();
 
 				System.err.println(graph);
 
-				Iterator<DataNormalizationRule> j = result.get(graph).getRuleIterator();
+				Iterator<DataNormalizationRule> j = modification.getRuleIterator();
 
 				while (j.hasNext()) {
 					DataNormalizationRule rule = j.next();
 
 					Iterator<TripleModification> k;
 
-					k = result.get(graph).getModificationsByRule(rule).getInsertions().iterator();
+					k = modification.getModificationsByRule(rule).getInsertions().iterator();
 
 					while (k.hasNext()) {
-						TripleModification modification = k.next();
+						TripleModification tripleModification = k.next();
 
-						System.err.println(modification.s + " " + modification.p + " " + modification.o + " INSERTED (Rule #" + rule.getId() + ")");
+						System.err.println(tripleModification.subject + " " + tripleModification.predicate + " " + 
+							tripleModification.object + " INSERTED (Rule #" + rule.getId() + ")");
 						System.err.println();
 					}
 
-					k = result.get(graph).getModificationsByRule(rule).getDeletions().iterator();
+					k = modification.getModificationsByRule(rule).getDeletions().iterator();
 
 					while (k.hasNext()) {
-						TripleModification modification = k.next();
+						TripleModification tripleModification = k.next();
 
-						System.err.println(modification.s + " " + modification.p + " " + modification.o + " DELETED (Rule #" + rule.getId() + ")");
+						System.err.println(tripleModification.subject + " " + tripleModification.predicate + " " + 
+							tripleModification.object + " DELETED (Rule #" + rule.getId() + ")");
 						System.err.println();
 					}
 				}
@@ -264,7 +269,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 	 * @return per graph specification of modifications
 	 * @throws TransformerException
 	 */
-	public Map<String, GraphModification> debugRules (String source, TransformationContext context)
+	public List<GraphModification> debugRules (String source, TransformationContext context)
 			throws TransformerException {
 		/**
 		 * Prepare fallback empty collection of input graphs (map original names to temporary names)
@@ -289,7 +294,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 			/**
 			 * Start collecting modifications of the individual graphs
 			 */
-			Map<String, GraphModification> result = new HashMap<String, GraphModification>();
+			List<GraphModification> result = new ArrayList<GraphModification>();
 
 			Iterator<String> it = originalGraphs.iterator();
 
@@ -300,8 +305,9 @@ public class DataNormalizerImpl implements DataNormalizer {
 				GraphModification subResult = getGraphModifications(temporaryName,
 						context.getCleanDatabaseCredentials(),
 						context.getDirtyDatabaseCredentials());
+				subResult.setGraphName(originalName);
 
-				result.put(originalName, subResult);
+				result.add(subResult);
 			}
 
 			return result;
@@ -360,14 +366,26 @@ public class DataNormalizerImpl implements DataNormalizer {
 	public class TripleModification implements Serializable {
 		private static final long serialVersionUID = 1L;
 
-		String s;
-		String p;
-		String o;
+		String subject;
+		String predicate;
+		String object;
 
 		public TripleModification(String s, String p, String o) {
-			this.s = s;
-			this.p = p;
-			this.o = o;
+			this.subject = s;
+			this.predicate = p;
+			this.object = o;
+		}
+
+		public String getSubject() {
+			return subject;
+		}
+
+		public String getPredicate() {
+			return predicate;
+		}
+
+		public String getObject() {
+			return object;
 		}
 	}
 
@@ -406,6 +424,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 		private static final long serialVersionUID = 1L;
 
 		private Map<DataNormalizationRule, RuleModification> modifications = new HashMap<DataNormalizationRule, RuleModification>();
+		private String graphName;
 
 		public void addInsertion (DataNormalizationRule rule, String s, String p, String o) {
 			if (modifications.containsKey(rule)) {
@@ -449,6 +468,14 @@ public class DataNormalizerImpl implements DataNormalizer {
 
 		public RuleModification getModificationsByRule(DataNormalizationRule rule) {
 			return modifications.get(rule);
+		}
+
+		public String getGraphName() {
+			return graphName;
+		}
+
+		public void setGraphName(String graphName) {
+			this.graphName = graphName;
 		}
 	}
 

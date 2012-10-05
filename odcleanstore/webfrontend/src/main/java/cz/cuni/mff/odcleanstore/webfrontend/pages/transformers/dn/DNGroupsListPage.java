@@ -25,14 +25,14 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.en.DNRuleAssignmentDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.EngineOperationsDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.OIGroupsListPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.debug.DNDebugPage;
 
 @AuthorizeInstantiation({ Role.PIC })
 public class DNGroupsListPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger(OIGroupsListPage.class);
+	private static Logger logger = Logger.getLogger(DNGroupsListPage.class);
 	
 	private DNRulesGroupDao dnRulesGroupDao;
 	private EngineOperationsDao engineOperationsDao;
@@ -90,6 +90,14 @@ public class DNGroupsListPage extends FrontendPage
 						DNGroupDetailPage.class,
 						group.getId(),
 						"showEditDNGroupPage"
+					)
+				);
+				
+				item.add(
+					new RedirectWithParamButton(
+						DNDebugPage.class,
+						group.getId(),
+						"debugDNGroup"
 					)
 				);
 				
