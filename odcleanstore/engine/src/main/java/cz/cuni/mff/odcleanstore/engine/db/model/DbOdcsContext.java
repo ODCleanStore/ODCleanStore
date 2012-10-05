@@ -139,6 +139,7 @@ public class DbOdcsContext extends DbContext {
                 mbr.runOnCleanDB = resultSet.getInt(5) != 0;
                 mbr.transformerInstanceID = resultSet.getInt(6);
                 mbr.transformerLabel = resultSet.getString(7);
+                mbr.transformerID =  resultSet.getInt(8);
                 dbPipelineCommands.add(mbr);
             }
             return dbPipelineCommands.toArray(new PipelineCommand[0]);
