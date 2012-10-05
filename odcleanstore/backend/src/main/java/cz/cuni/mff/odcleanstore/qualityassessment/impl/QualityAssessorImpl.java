@@ -7,7 +7,7 @@ import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
-import cz.cuni.mff.odcleanstore.data.DebugGraphFileLoader;
+import cz.cuni.mff.odcleanstore.data.DebugGraphLoader;
 import cz.cuni.mff.odcleanstore.qualityassessment.QualityAssessor;
 import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRule;
@@ -214,7 +214,7 @@ public class QualityAssessorImpl implements QualityAssessor {
 		HashMap<String, String> graphs = new HashMap<String, String>();
 		QualityAssessmentConfig config = ConfigLoader.getConfig().getQualityAssessmentGroup();
 
-		DebugGraphFileLoader loader = new DebugGraphFileLoader(
+		DebugGraphLoader loader = new DebugGraphLoader(
 		        config.getTemporaryGraphURIPrefix(), context.getDirtyDatabaseCredentials());
 
 		try {

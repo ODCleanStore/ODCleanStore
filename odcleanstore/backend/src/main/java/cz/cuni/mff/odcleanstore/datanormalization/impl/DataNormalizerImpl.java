@@ -8,7 +8,7 @@ import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
-import cz.cuni.mff.odcleanstore.data.DebugGraphFileLoader;
+import cz.cuni.mff.odcleanstore.data.DebugGraphLoader;
 import cz.cuni.mff.odcleanstore.datanormalization.DataNormalizer;
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
 import cz.cuni.mff.odcleanstore.datanormalization.rules.DataNormalizationRule;
@@ -126,6 +126,12 @@ public class DataNormalizerImpl implements DataNormalizer {
 	 */
 	private TransformedGraph inputGraph;
 	private TransformationContext context;
+	
+	/**
+	 * Debug utility graph names
+	 */
+	private String original;
+	private String modified;
 
 	/**
 	 * At construction the transformer is bound to use rules from particular rule groups
@@ -281,7 +287,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 		 */
 		DataNormalizationConfig config = ConfigLoader.getConfig().getDataNormalizationGroup();
 
-		DebugGraphFileLoader loader = new DebugGraphFileLoader(config.getTemporaryGraphURIPrefix(), context.getDirtyDatabaseCredentials());
+		DebugGraphLoader loader = new DebugGraphLoader(config.getTemporaryGraphURIPrefix(), context.getDirtyDatabaseCredentials());
 
 		try {
 			/**
@@ -297,6 +303,15 @@ public class DataNormalizerImpl implements DataNormalizer {
 			List<GraphModification> result = new ArrayList<GraphModification>();
 
 			Iterator<String> it = originalGraphs.iterator();
+
+			/**
+			 * In case we need to know what changed we need to create copies of the graph to compare them after
+			 * the rule was applied
+			 */
+			UniqueGraphNameGenerator generator = new UniqueGraphNameGenerator(config.getTemporaryGraphURIPrefix() + this.getClass().getSimpleName() + "/diff/", context.getDirtyDatabaseCredentials());
+
+			original = generator.nextURI(0);
+			modified = generator.nextURI(1);
 
 			while (it.hasNext()) {
 				String originalName = it.next();
@@ -596,20 +611,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 			 */
 			performComponents(rule, inputGraph.getGraphName());
 		} else {
-			/**
-			 * In case we need to know what changed we need to create copies of the graph to compare them after
-			 * the rule was applied
-			 */
-			DataNormalizationConfig config = ConfigLoader.getConfig().getDataNormalizationGroup();
-
-			UniqueGraphNameGenerator generator = new UniqueGraphNameGenerator(config.getTemporaryGraphURIPrefix() + this.getClass().getSimpleName() + "/diff/", context.getDirtyDatabaseCredentials());
-			String original = "";
-			String modified = "";
-
 			try {
-				original = generator.nextURI(0);
-				modified = generator.nextURI(1);
-
 				getDirtyConnection().execute(markTemporaryGraph, original);
 				getDirtyConnection().execute(String.format(Locale.ROOT, backupQueryFormat, original, inputGraph.getGraphName()));
 

@@ -25,7 +25,7 @@ public class MultipleFormatLoader {
     public NamedGraphSetImpl load(String source, String defaultGraphName) throws IOException {
         NamedGraphSetImpl namedGraphSet = new NamedGraphSetImpl();
         
-        String[] formats = {"TRIG", "RDF/XML", "TTL", "N3"};
+        String[] formats = {"RDF/XML", "TTL", "N3", "TRIG"};
         
         for (String format : formats) {
         	if (attemptToReadInto(source, defaultGraphName, namedGraphSet, format)) {
@@ -33,7 +33,7 @@ public class MultipleFormatLoader {
         	}
         }
 
-        throw new IOException("Could not interpret input source: \n\n" + source + "\n");
+        throw new IOException("Could not interpret input source.");
     }
     
     private boolean attemptToReadInto(String source, String defaultGraphName, NamedGraphSetImpl namedGraphSet, String format) {
@@ -45,7 +45,7 @@ public class MultipleFormatLoader {
             
             return true;
         } catch (Exception e) {
-        	LOG.warn("Attempt to interpret " + format + " failed.");
+        	LOG.warn("Attempt to interpret " + format + " failed: " + e.getMessage());
         	return false;
         }
     }

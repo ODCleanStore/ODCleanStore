@@ -10,9 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import virtuoso.jena.driver.VirtGraph;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.util.iterator.ExtendedIterator;
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
 
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
@@ -25,8 +24,8 @@ import de.fuberlin.wiwiss.ng4j.impl.NamedGraphSetImpl;
  * Utility used to copy graphs into temporary graphs in dirty database
  * @author Jakub Daniel
  */
-public class DebugGraphFileLoader {
-	private static final Logger LOG = LoggerFactory.getLogger(DebugGraphFileLoader.class);
+public class DebugGraphLoader {
+	private static final Logger LOG = LoggerFactory.getLogger(DebugGraphLoader.class);
 
 	private static String markTemporaryGraph = "INSERT INTO DB.ODCLEANSTORE.TEMPORARY_GRAPHS (graphName) VALUES (?)";
 	private static String unmarkTemporaryGraph = "DELETE FROM DB.ODCLEANSTORE.TEMPORARY_GRAPHS WHERE graphName = ?";
@@ -34,7 +33,7 @@ public class DebugGraphFileLoader {
 	private String temporaryGraphURIPrefix;
 	private JDBCConnectionCredentials connectionCredentials;
 	
-	public DebugGraphFileLoader(URI temporaryGraphURIPrefix, JDBCConnectionCredentials connectionCredentials) {
+	public DebugGraphLoader(URI temporaryGraphURIPrefix, JDBCConnectionCredentials connectionCredentials) {
 		this.temporaryGraphURIPrefix = temporaryGraphURIPrefix.toString();
 		this.connectionCredentials = connectionCredentials;
 	}
@@ -112,21 +111,25 @@ public class DebugGraphFileLoader {
 						connectionCredentials.getConnectionString(),
 						connectionCredentials.getUsername(),
 						connectionCredentials.getPassword());
-			
-				ExtendedIterator<Triple> triples = graph.find(Node.ANY, Node.ANY, Node.ANY);
 
 				/**
 				 * Copying contents into unique temporary destination graphs in dirty database
 				 */
-				while (triples.hasNext()) {
-					Triple triple = triples.next();
+				LOG.info("Copying input data from <{}> to debug graph <{}>", name, temporaryName);
 				
-					temporaryGraph.add(triple);
+				Model modelTemp = ModelFactory.createModelForGraph(temporaryGraph);
+				Model modelInput = ModelFactory.createModelForGraph(graph);
+				
+				try {
+					modelTemp.add(modelInput, false);
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
 			
 				LOG.info("Input debug graph <{}> copied into <{}>", name, temporaryName);
 			}
 		} catch (Exception e) {
+			LOG.error("Could not load debug graphs due to: " + e.getMessage());
 			
 			unload(graphs);
 			
