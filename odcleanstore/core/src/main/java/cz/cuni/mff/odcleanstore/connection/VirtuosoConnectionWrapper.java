@@ -32,7 +32,11 @@ public final class VirtuosoConnectionWrapper {
      * Query timeout in seconds.
      * Loaded from global configuration settings.
      */
-    private static int queryTimeout = -1;
+    private int queryTimeout = -1;
+    
+    public void setQueryTimeout(int queryTimeout) {
+    	this.queryTimeout = queryTimeout;
+    }
 
     /**
      * Create a new connection and return its wrapper.
@@ -43,9 +47,7 @@ public final class VirtuosoConnectionWrapper {
      */
     public static VirtuosoConnectionWrapper createConnection(JDBCConnectionCredentials connectionCredentials)
             throws ConnectionException {
-        if (queryTimeout < 0) {
-            queryTimeout = ConfigLoader.getConfig().getBackendGroup().getQueryTimeout();
-        }
+        
         try {
             Class.forName(Utils.JDBC_DRIVER);
         } catch (ClassNotFoundException e) {
@@ -73,6 +75,7 @@ public final class VirtuosoConnectionWrapper {
      */
     private VirtuosoConnectionWrapper(Connection connection) {
         this.connection = connection;
+        queryTimeout = ConfigLoader.getConfig().getBackendGroup().getQueryTimeout();
     }
 
     /**
@@ -275,6 +278,90 @@ public final class VirtuosoConnectionWrapper {
             super.finalize();
         } catch (Throwable e) {
             // do nothing
+        }
+    }
+    
+	/**
+	 * Insert a quad to the database.
+	 * 
+	 * @param subject subject part of the quad to insert
+	 * @param predicate predicate part of the quad to insert
+	 * @param object object part of the quad to insert
+	 * @param graphName graph name part of the quad to insert
+	 * @throws QueryException query error
+	 */
+	public void insertQuad(String subject, String predicate, String object, String graphName) throws QueryException {
+		execute(String.format(Locale.ROOT, "SPARQL INSERT INTO GRAPH <%s> { %s %s %s }", graphName, subject, predicate, object));
+	}
+	
+	/**
+	 * Rename graph in DB.DBA.RDF_QUAD.
+	 * 
+	 * @param srcGraphName graph
+	 * @param dstGraphName graph
+	 * @throws QueryException query error
+	 * @throws SQLException 
+	 */
+	public void renameGraph(String srcGraphName, String dstGraphName) throws QueryException, SQLException {
+		execute("UPDATE DB.DBA.RDF_QUAD TABLE OPTION (index RDF_QUAD_GS)" + 
+		   "SET g = iri_to_id ('?')" + 
+		   "WHERE g = iri_to_id ('?', 0);", dstGraphName, srcGraphName); 
+	}
+		
+	/**
+	 * Clear graph from the database.
+	 * 
+	 * @param graphName name of the graph to clear
+	 * @throws QueryException query error  
+	 */
+	public void clearGraph(String graphName) throws QueryException {
+		execute(String.format(Locale.ROOT, "SPARQL CLEAR GRAPH <%s>", graphName));
+	}
+
+	/**
+	 * Insert RDF data from file in rdfXml  format to the database.
+	 * @param relativeBase relative URI base for payload
+	 * @param rdfXmlFileName file name with payload in RdfXml format
+	 * @param graphName name of the graph to insert
+	 * @throws QueryException query error
+	 */
+	public void insertRdfXmlFromFile(String relativeBase, String rdfXmlFileName, String graphName) throws QueryException {
+		String statement = relativeBase != null ?
+				"{call DB.DBA.RDF_LOAD_RDFXML(file_to_string_output('" + rdfXmlFileName + "'), '" + relativeBase + "', '" + graphName + "')}" :
+				"{call DB.DBA.RDF_LOAD_RDFXML(file_to_string_output('" + rdfXmlFileName + "'), '' , '"	+ graphName + "')}";
+
+		executeCall(statement);
+	}
+	
+	/**
+	 * Insert RDF data from file in TTL format to the database.
+	 * 
+	 * @param relativeBase relative URI base for payload
+	 * @param ttlFileName file name with payload in ttl format
+	 * @param graphName name of the graph to insert
+	 * @throws QueryException query error
+	 */
+	public void insertTtlFromFile(String relativeBase, String ttlFileName, String graphName) throws QueryException {
+		String statement = relativeBase != null ?
+				"{call DB.DBA.TTLP(file_to_string_output('" + ttlFileName + "'), '" + relativeBase + "', '" + graphName + "', 0)}" :
+				"{call DB.DBA.TTLP(file_to_string_output('" + ttlFileName + "'), '' , '"	+ graphName + "', 0)}";
+
+		executeCall(statement);
+	}
+	
+	/**
+     * Executes callable SQL/SPARQL query.
+     * 
+     * @param query SQL/SPARQL query
+     * @throws QueryException query error
+     */
+    private void executeCall(String query) throws QueryException {
+        try {
+            CallableStatement cst = connection.prepareCall(query);
+            cst.setQueryTimeout(queryTimeout);
+            cst.execute();
+        } catch (SQLException e) {
+            throw new QueryException(e);
         }
     }
 }

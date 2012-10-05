@@ -124,7 +124,7 @@ public final class PipelineService extends Service implements Runnable {
 			throws PipelineGraphManipulatorException, PipelineGraphStatusException {
 
 		LOG.info(format("deleting started", status));
-		manipulator.deleteGraphsInCleanDB();
+		manipulator.clearGraphsInCleanDB();
 		manipulator.clearGraphsInDirtyDB();
 		manipulator.deleteInputFile();
 		status.setNoDirtyState(GraphStates.DELETED);
