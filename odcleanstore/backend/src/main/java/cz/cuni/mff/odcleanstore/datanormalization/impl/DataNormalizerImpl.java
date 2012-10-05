@@ -50,7 +50,7 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 	private static final String diffQueryFormat = "SPARQL DELETE FROM <%s> {?s ?p ?o} WHERE {GRAPH <%s> {?s ?p ?o}}";
 	private static final String dropBackupQueryFormat = "SPARQL CLEAR GRAPH <%s>";
 
-	private static final String markTemporaryGraph = "INSERT INTO DB.ODCLEANSTORE.TEMPORARY_GRAPHS (graphName) VALUES (?)";
+	private static final String markTemporaryGraph = "INSERT REPLACING DB.ODCLEANSTORE.TEMPORARY_GRAPHS (graphName) VALUES (?)";
 	private static final String unmarkTemporaryGraph = "DELETE FROM DB.ODCLEANSTORE.TEMPORARY_GRAPHS WHERE graphName = ?";
 
 	/**
