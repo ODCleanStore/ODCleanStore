@@ -22,8 +22,8 @@ public enum GraphStates {
     FINISHED,
     WRONG,
     DELETED,
-    FINISHEDINDIRTY,
-    REMOVEDOLDGRAPH;
+    OLDGRAPHSPREFIXED,
+    NEWGRAPHSPREPARED;
 
     private static final String ERROR_DECODE_GRAPH_STATE = "Error during decoding id to GraphState";
 
