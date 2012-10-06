@@ -85,7 +85,7 @@ public class DNRuleComponentDao extends DaoForAuthorableEntity<DNRuleComponent>
 	{
 		String query = "SELECT g.authorId " +
 				"\n FROM " + getRuleTableName() + " AS r JOIN " + DNRulesGroupDao.TABLE_NAME + " AS g ON (g.id = r.groupId)" +
-				"\n   JOIN " + TABLE_NAME + " AS c ON (c.ruleId = r.id)" +
+				"\n   JOIN " + getTableName() + " AS c ON (c.ruleId = r.id)" +
 				"\n WHERE c.id = ?";
 		return jdbcQueryForInt(query, entityId);
 	}
