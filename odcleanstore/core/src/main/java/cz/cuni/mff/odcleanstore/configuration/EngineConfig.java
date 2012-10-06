@@ -1,13 +1,13 @@
 package cz.cuni.mff.odcleanstore.configuration;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Properties;
 
 import cz.cuni.mff.odcleanstore.configuration.exceptions.IllegalParameterFormatException;
 import cz.cuni.mff.odcleanstore.configuration.exceptions.ParameterNotAvailableException;
 import cz.cuni.mff.odcleanstore.configuration.formats.FormatLong;
 import cz.cuni.mff.odcleanstore.configuration.formats.FormatString;
-import cz.cuni.mff.odcleanstore.configuration.formats.FormatURI;
 import cz.cuni.mff.odcleanstore.configuration.formats.ParameterFormat;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 
@@ -28,13 +28,18 @@ public class EngineConfig extends ConfigGroup {
     /** Prefix of names of properties belonging to this group. */
     public static final String GROUP_PREFIX = "engine" + NAME_DELIMITER;
     
+    public static final String DATA_GRAPH_PREFIX = "http://opendata.cz/infrastructure/odcleanstore/data/";
+    public static final String METADATA_GRAPH_PREFIX = "http://opendata.cz/infrastructure/odcleanstore/metadata/";
+    public static final String PROVENANCE_METADATA_GRAPH_PREFIX = "http://opendata.cz/infrastructure/odcleanstore/provenanceMetadata/";
+    
+    private final URI dataGraphURIPrefix;
+    private final URI metadataGraphURIPrefix;
+    private final URI provenanceMetadataGraphURIPrefix;
+    
     private final JDBCConnectionCredentials dirtyDBJDBCConnectionCredentials;
     private final JDBCConnectionCredentials cleanDBJDBCConnectionCredentials;
     private final Long startupTimeout;
     private final Long shutdownTimeout;
-    private final URI dataGraphURIPrefix;
-    private final URI metadataGraphURIPrefix;
-    private final URI provenanceMetadataGraphURIPrefix;
     private final Long lookForGraphInterval;
     private final Long secondCrashPenalty;
     private final String dirtyImportExportDir;
@@ -81,6 +86,7 @@ public class EngineConfig extends ConfigGroup {
      * @return
      * @throws ParameterNotAvailableException
      * @throws IllegalParameterFormatException
+     * @throws URISyntaxException 
      */
     public static EngineConfig load(Properties properties)
             throws ParameterNotAvailableException, IllegalParameterFormatException
@@ -96,12 +102,19 @@ public class EngineConfig extends ConfigGroup {
         Long lookForGraphInterval = loadParam(properties, GROUP_PREFIX + "look_for_graph_interval", formatLong);
         Long secondCrashPenalty = loadParam(properties, GROUP_PREFIX + "second_crash_penalty", formatLong);
         
-        ParameterFormat<URI> formatURI = new FormatURI();
-        URI dataGraphURIPrefix = loadParam(properties, GROUP_PREFIX + "data_graph_uri_prefix", formatURI);
-        URI metadataGraphURIPrefix = loadParam(properties, GROUP_PREFIX + "metadata_graph_uri_prefix", formatURI);
-        URI provenanceMetadataGraphURIPrefix = loadParam(
-                properties, GROUP_PREFIX + "provenance_metadata_graph_uri_prefix", formatURI);
         
+        URI dataGraphURIPrefix;
+		try { dataGraphURIPrefix = new URI(DATA_GRAPH_PREFIX); }
+    	catch (URISyntaxException e) { throw new IllegalParameterFormatException("dataGraphURIPrefix"); }
+        
+		URI metadataGraphURIPrefix;
+		try { metadataGraphURIPrefix = new URI(METADATA_GRAPH_PREFIX); }
+		catch (URISyntaxException e) { throw new IllegalParameterFormatException("metadataGraphURIPrefix"); }
+		
+		URI provenanceMetadataGraphURIPrefix;
+		try { provenanceMetadataGraphURIPrefix = new URI(PROVENANCE_METADATA_GRAPH_PREFIX); }
+		catch (URISyntaxException e) { throw new IllegalParameterFormatException("provenanceMetadataGraphURIPrefix"); }
+       
         ParameterFormat<String> formatString = new FormatString();
         String dirtyImportExportDir = loadParam(properties, GROUP_PREFIX + "dirty_import_export_dir", formatString);
         String cleanImportExportDir = loadParam(properties, GROUP_PREFIX + "clean_import_export_dir", formatString);

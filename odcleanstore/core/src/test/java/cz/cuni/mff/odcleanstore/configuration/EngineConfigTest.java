@@ -3,8 +3,6 @@ package cz.cuni.mff.odcleanstore.configuration;
 import static org.junit.Assert.assertEquals;
 
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Properties;
 
 import org.junit.Test;
@@ -20,10 +18,9 @@ import cz.cuni.mff.odcleanstore.configuration.exceptions.ParameterNotAvailableEx
  *
  */
 public class EngineConfigTest extends ConfigTestBase {
-    private static final String GROUP_NAME = "engine";
 
     @Test
-    public void testCorrectConfiguration() throws ConfigurationException, URISyntaxException, MalformedURLException {
+    public void testCorrectConfiguration() throws ConfigurationException, MalformedURLException {
         Properties properties = Mockito.mock(Properties.class);
 
         Mockito.when(properties.getProperty(EngineConfig.GROUP_PREFIX + "startup_timeout")).thenReturn("30000");
@@ -32,8 +29,7 @@ public class EngineConfigTest extends ConfigTestBase {
         Mockito.when(properties.getProperty(EngineConfig.GROUP_PREFIX + "second_crash_penalty")).thenReturn("60000");
         Mockito.when(properties.getProperty(EngineConfig.GROUP_PREFIX + "dirty_import_export_dir")).thenReturn("dirty/");
         Mockito.when(properties.getProperty(EngineConfig.GROUP_PREFIX + "clean_import_export_dir")).thenReturn("clean/");
-        
-        mockGraphUriPrefixes(properties);
+
         mockJDBCConnectionCredentials(properties, EnumDbConnectionType.CLEAN);
         mockJDBCConnectionCredentials(properties, EnumDbConnectionType.DIRTY);
 
@@ -45,12 +41,11 @@ public class EngineConfigTest extends ConfigTestBase {
         assertEquals(new Long(60000), enConfig.getSecondCrashPenalty());
         assertEquals(new String("dirty/"), enConfig.getDirtyImportExportDir());
         assertEquals(new String("clean/"), enConfig.getCleanImportExportDir());
-        checkGraphUriPrefixes(enConfig);
+
         checkJDBCConnectionCredentials(
                 enConfig.getCleanDBJDBCConnectionCredentials(), EnumDbConnectionType.CLEAN);
         checkJDBCConnectionCredentials(
                 enConfig.getDirtyDBJDBCConnectionCredentials(), EnumDbConnectionType.DIRTY);
-
     }
     
     @Test(expected = ParameterNotAvailableException.class)
@@ -64,27 +59,5 @@ public class EngineConfigTest extends ConfigTestBase {
         Mockito.when(properties.getProperty("ngine.dirty_import_export_dir")).thenReturn("dirty/");
         Mockito.when(properties.getProperty("ngine.clean_import_export_dir")).thenReturn("clean/");
         EngineConfig.load(properties);
-    }
-    
-
-    private void mockGraphUriPrefixes(Properties properties) {
-        Mockito.when(properties.getProperty(GROUP_NAME + ".data_graph_uri_prefix")).thenReturn(
-                "http://opendata.cz/infrastructure/odcleanstore/");
-
-        Mockito.when(properties.getProperty(GROUP_NAME + ".metadata_graph_uri_prefix")).thenReturn(
-                "http://opendata.cz/infrastructure/odcleanstore/metadata/");
-        
-        Mockito.when(properties.getProperty(GROUP_NAME + ".provenance_metadata_graph_uri_prefix")).thenReturn(
-                "http://opendata.cz/infrastructure/odcleanstore/provenanceMetadata/");
-    }
-    
-    private void checkGraphUriPrefixes(EngineConfig config) throws URISyntaxException {
-        assertEquals(new URI("http://opendata.cz/infrastructure/odcleanstore/"), config.getDataGraphURIPrefix());
-
-        assertEquals(new URI("http://opendata.cz/infrastructure/odcleanstore/metadata/"),
-                config.getMetadataGraphURIPrefix());
-        
-        assertEquals(new URI("http://opendata.cz/infrastructure/odcleanstore/provenanceMetadata/"),
-                config.getProvenanceMetadataGraphURIPrefix());
     }
 }
