@@ -95,6 +95,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		}
 		catch (UnsupportedEncodingException e)
 		{
+			logger.error("Failed serializing ontology definition", e);
 			// TODO handle
 		}
 		return result;

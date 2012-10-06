@@ -30,7 +30,6 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 public abstract class Dao implements Serializable
 {
 	public static final String TABLE_NAME_PREFIX = "DB.ODCLEANSTORE.";
-	public static final String BACKUP_TABLE_PREFIX = "BACKUP_";
 	
 	private static final long serialVersionUID = 1L;
 	

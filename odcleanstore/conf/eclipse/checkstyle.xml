@@ -96,7 +96,7 @@
         <!-- Checks for Javadoc comments.                     -->
         <!-- See http://checkstyle.sf.net/config_javadoc.html -->
         <module name="JavadocMethod">
-        	<!-- <property name="excludeScope" value="private"/> -->
+        	<property name="excludeScope" value="private"/>
         </module>
         <module name="JavadocType">
         	<property name="allowUnknownTags" value="true" />
