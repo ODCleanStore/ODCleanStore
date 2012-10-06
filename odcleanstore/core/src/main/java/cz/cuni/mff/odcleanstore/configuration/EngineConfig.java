@@ -1,15 +1,13 @@
 package cz.cuni.mff.odcleanstore.configuration;
 
-import java.net.URI;
-import java.util.Properties;
-
 import cz.cuni.mff.odcleanstore.configuration.exceptions.IllegalParameterFormatException;
 import cz.cuni.mff.odcleanstore.configuration.exceptions.ParameterNotAvailableException;
 import cz.cuni.mff.odcleanstore.configuration.formats.FormatLong;
 import cz.cuni.mff.odcleanstore.configuration.formats.FormatString;
-import cz.cuni.mff.odcleanstore.configuration.formats.FormatURI;
 import cz.cuni.mff.odcleanstore.configuration.formats.ParameterFormat;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+
+import java.util.Properties;
 
 /**
  * Encapsulates Engine configuration.

@@ -3,7 +3,8 @@ package cz.cuni.mff.odcleanstore.engine.db.model;
 public enum PipelineErrorTypes {
 
 	TRANSFORMER_FAILURE,
-	DATA_LOADING_FAILURE;
+	DATA_LOADING_FAILURE,
+	COPY_TO_CLEAN_DB_FAILURE;
 
 	private static final String ERROR_DECODE_PIPELINE_ERROR_TYPE = "Error during decoding id to PipelineErrorType";
 
