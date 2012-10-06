@@ -4,8 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.io.OutputStreamWriter;
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.ArrayList;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.configuration.EngineConfig;
@@ -96,7 +95,7 @@ final class PipelineGraphManipulator {
 			
 		// copy graphs from dirty to clean DB
 		try {
-			Collection<String> graphs = getAllGraphNames();
+			String[] graphs = getAllGraphNames();
 			JDBCConnectionCredentials creditDirty = ConfigLoader.getConfig().getEngineGroup().getDirtyDBJDBCConnectionCredentials();
 			JDBCConnectionCredentials creditClean = ConfigLoader.getConfig().getEngineGroup().getCleanDBJDBCConnectionCredentials();
 				
@@ -179,22 +178,22 @@ final class PipelineGraphManipulator {
 		}
 	}
 	
-	private HashSet<String> getAllGraphNames() {
+	private String[] getAllGraphNames() {
 		EngineConfig engineConfig = ConfigLoader.getConfig().getEngineGroup();
 		String uuid = graphStatus.getUuid();
 		
-		HashSet<String> graphs = graphStatus.getAttachedGraphs();
+		ArrayList<String> graphs = new ArrayList<String>();
 		graphs.add(engineConfig.getDataGraphURIPrefix() + uuid);
 		graphs.add(engineConfig.getMetadataGraphURIPrefix() + uuid);
 		graphs.add(engineConfig.getProvenanceMetadataGraphURIPrefix() + uuid);
-		
-		return graphs;
+		graphs.addAll(graphStatus.getAttachedGraphs());
+		return graphs.toArray(new String[0]);
 	}
 	
 	private void clearGraphsFromDB(boolean fromCleanDB, boolean temporaryGraphs) throws Exception  {
 		VirtuosoConnectionWrapper con = null;
 		try {
-			Collection<String> graphs = getAllGraphNames();
+			String[] graphs = getAllGraphNames();
 			con = fromCleanDB ? 
 					VirtuosoConnectionWrapper.createConnection(ConfigLoader.getConfig().getEngineGroup().getCleanDBJDBCConnectionCredentials()):
 					VirtuosoConnectionWrapper.createConnection(ConfigLoader.getConfig().getEngineGroup().getDirtyDBJDBCConnectionCredentials());
@@ -289,7 +288,7 @@ final class PipelineGraphManipulator {
 
 	private void loadGraphsIntoDirtyDBFromCleanDB() throws Exception {
 		try {
-			Collection<String> graphs = getAllGraphNames();
+			String[] graphs = getAllGraphNames();
 			JDBCConnectionCredentials creditDirty = ConfigLoader.getConfig().getEngineGroup().getDirtyDBJDBCConnectionCredentials();
 			JDBCConnectionCredentials creditClean = ConfigLoader.getConfig().getEngineGroup().getCleanDBJDBCConnectionCredentials();
 				
