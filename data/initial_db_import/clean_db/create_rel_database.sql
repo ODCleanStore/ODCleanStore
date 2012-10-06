@@ -421,6 +421,7 @@ CREATE TABLE DB.ODCLEANSTORE.EN_PIPELINE_ERROR_TYPES
 
 INSERT INTO DB.ODCLEANSTORE.EN_PIPELINE_ERROR_TYPES (id, label, description) VALUES (1, n'TRANSFORMER_FAILURE', n'A failure of a transformer in the pipeline.');
 INSERT INTO DB.ODCLEANSTORE.EN_PIPELINE_ERROR_TYPES (id, label, description) VALUES (2, n'DATA_LOADING_FAILURE', n'A failure during data loading to the pipeline.');
+INSERT INTO DB.ODCLEANSTORE.EN_PIPELINE_ERROR_TYPES (id, label, description) VALUES (3, n'COPY_TO_CLEAN_DB_FAILURE', n'A failure during data copying from dirty to clean database.');
 
 CREATE TABLE DB.ODCLEANSTORE.EN_GRAPHS_IN_ERROR
 (
