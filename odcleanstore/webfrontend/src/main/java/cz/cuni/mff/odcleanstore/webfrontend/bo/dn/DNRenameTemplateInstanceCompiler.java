@@ -20,7 +20,7 @@ public class DNRenameTemplateInstanceCompiler
 		//
 		String modification = String.format
 		(
-			"DELETE {?s ?p ?o} INSERT {?s %s ?o} WHERE {{?s ?p ?o} FILTER (?p = %s)}", 
+			"DELETE {?s ?p ?o} INSERT {?s %s ?o} WHERE { ?s ?p ?o FILTER (?p = %s)}", 
 			instance.getTargetPropertyName(), 
 			instance.getSourcePropertyName()
 		);
