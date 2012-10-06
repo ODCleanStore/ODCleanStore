@@ -21,7 +21,9 @@ public enum GraphStates {
     QUEUED,
     FINISHED,
     WRONG,
-    DELETED;
+    DELETED,
+    FINISHEDINDIRTY,
+    REMOVEDOLDGRAPH;
 
     private static final String ERROR_DECODE_GRAPH_STATE = "Error during decoding id to GraphState";
 
