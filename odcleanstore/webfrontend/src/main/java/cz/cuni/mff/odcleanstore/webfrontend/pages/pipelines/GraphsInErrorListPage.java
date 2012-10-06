@@ -19,7 +19,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentSortableDataPro
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.GraphInErrorDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
-@AuthorizeInstantiation({ Role.PIC })
+@AuthorizeInstantiation({ Role.PIC, Role.ADM })
 public class GraphsInErrorListPage extends FrontendPage {
 	private static final long serialVersionUID = 1L;
 	

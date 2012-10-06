@@ -3,6 +3,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.core;
 import org.apache.wicket.protocol.http.WebApplication;
 
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LogInPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.engine.EngineStatePage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.myaccount.EditPasswordPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.myaccount.MyAccountPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.ontologies.EditOntologyPage;
@@ -14,6 +15,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.outputws.EditPropertyPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.outputws.NewPropertyPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.outputws.NewQELabelPropertyPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.outputws.QELabelPropertiesListPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.GraphsInErrorListPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.NewGroupAssignmentPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.NewPipelinePage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.NewTransformerAssignmentPage;
@@ -152,12 +154,14 @@ public class URLRouter
 	 */
 	private void setupPipelinesRoutes(WebApplication app) 
 	{
+		app.mountPage(webUrlPrefix + "/engine/state", EngineStatePage.class);
 		app.mountPage(webUrlPrefix + "/backend/pipelines/list", PipelinesListPage.class);
 		app.mountPage(webUrlPrefix + "/backend/pipelines/new", NewPipelinePage.class);
 		app.mountPage(webUrlPrefix + "/backend/pipelines/detail", PipelineDetailPage.class);
 		app.mountPage(webUrlPrefix + "/backend/pipelines/transformer-instances/new", NewTransformerAssignmentPage.class);
 		app.mountPage(webUrlPrefix + "/backend/pipelines/transformer-instances/detail", TransformerAssignmentDetailPage.class);
 		app.mountPage(webUrlPrefix + "/backend/pipelines/transformer-instances/assigned-groups/new", NewGroupAssignmentPage.class);
+		app.mountPage(webUrlPrefix + "/backend/pipelines/errors", GraphsInErrorListPage.class);
 	}
 	
 	/**

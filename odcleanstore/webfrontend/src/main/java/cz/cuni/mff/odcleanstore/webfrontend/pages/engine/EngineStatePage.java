@@ -1,7 +1,5 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.engine;
 
-import java.util.Locale;
-
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
@@ -21,7 +19,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.en.GraphInErrorCountDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.GraphsInErrorListPage;
 
-@AuthorizeInstantiation({ Role.PIC })
+@AuthorizeInstantiation({ Role.PIC, Role.ADM })
 public class EngineStatePage extends FrontendPage 
 {
 	private static final long serialVersionUID = 1L;
@@ -69,7 +67,6 @@ public class EngineStatePage extends FrontendPage
 				item.setModel(new CompoundPropertyModel<AttachedEngine>(attachedEngine));
 
 				item.add(new Label("uuid") {
-
 					private static final long serialVersionUID = 1L;
 					
 					@Override
@@ -77,24 +74,8 @@ public class EngineStatePage extends FrontendPage
 						return showEngineUUID;
 					}
 				});
-				item.add(new BooleanLabel("isPipelineError")
-				{
-					private static final long serialVersionUID = 1L;
-					@Override
-					public String convertToString(Boolean value, Locale locale)
-					{
-						return super.convertToString(value, locale);
-					}
-				});
-				item.add(new BooleanLabel("isNotifyRequired")
-				{
-					private static final long serialVersionUID = 1L;
-					@Override
-					public String convertToString(Boolean value, Locale locale)
-					{
-						return super.convertToString(value, locale);
-					}
-				});
+				item.add(new BooleanLabel("isPipelineError"));
+				item.add(new BooleanLabel("isNotifyRequired"));
 				item.add(new Label("stateDescription"));
 				item.add(new Label("updated"));
 			}
