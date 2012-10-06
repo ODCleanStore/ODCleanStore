@@ -13,7 +13,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.qe.LabelPropertyDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.validators.IRIValidator;
 
-@AuthorizeInstantiation({ Role.PIC })
+@AuthorizeInstantiation({ Role.PIC, Role.ADM })
 public class NewQELabelPropertyPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;

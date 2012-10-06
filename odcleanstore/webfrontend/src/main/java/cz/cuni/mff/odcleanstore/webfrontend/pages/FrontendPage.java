@@ -36,6 +36,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.engine.EngineStatePage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.ontologies.OntologiesListPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.outputws.AggregationSettingsPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.PipelinesListPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.prefixes.PrefixesListPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.TransformersListPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.OIGroupsListPage;
@@ -90,7 +91,8 @@ public abstract class FrontendPage extends WebPage
 		});
 		
 		// set up menu
-		add(new MenuGroupComponent("engineAndPipelinesMenuGroup", EngineStatePage.class));
+		add(new MenuGroupComponent("pipelinesMenuGroup", PipelinesListPage.class));
+		add(new MenuGroupComponent("engineStateMenuGroup", EngineStatePage.class));
 		add(new MenuGroupComponent("rulesMenuGroup", OIGroupsListPage.class));
 		add(new MenuGroupComponent("outputWSMenuGroup", AggregationSettingsPage.class));
 		add(new MenuGroupComponent("ontologyMenuGroup", OntologiesListPage.class));
