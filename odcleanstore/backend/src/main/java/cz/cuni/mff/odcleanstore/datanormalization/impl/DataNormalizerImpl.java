@@ -11,12 +11,14 @@ import cz.cuni.mff.odcleanstore.datanormalization.DataNormalizer;
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
 import cz.cuni.mff.odcleanstore.datanormalization.rules.DataNormalizationRule;
 import cz.cuni.mff.odcleanstore.datanormalization.rules.DataNormalizationRulesModel;
-import cz.cuni.mff.odcleanstore.shared.UniqueGraphNameGenerator;
+import cz.cuni.mff.odcleanstore.shared.UUIDUniqueURIGenerator;
+import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraphException;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +64,7 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 	 */
 	private TransformedGraph inputGraph;
 	private TransformationContext context;
-	
+
 	/**
 	 * Debug utility graph names
 	 */
@@ -130,7 +132,7 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 			dirtyConnection = null;
 		}
 	}
-	
+
 	public static abstract class SerializableTransformedGraph implements TransformedGraph, Serializable {
 		private static final long serialVersionUID = 1L;
 	}
@@ -240,10 +242,10 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 			 * In case we need to know what changed we need to create copies of the graph to compare them after
 			 * the rule was applied
 			 */
-			UniqueGraphNameGenerator generator = new UniqueGraphNameGenerator(ODCS.debugTempGraphUriPrefix + this.getClass().getSimpleName() + "/diff/", context.getDirtyDatabaseCredentials());
+			UniqueURIGenerator generator = new UUIDUniqueURIGenerator(ODCSInternal.debugTempGraphUriPrefix + this.getClass().getSimpleName() + "/diff/");
 
-			original = generator.nextURI(0);
-			modified = generator.nextURI(1);
+			original = generator.nextURI();
+			modified = generator.nextURI();
 
 			while (it.hasNext()) {
 				String originalName = it.next();

@@ -1,26 +1,27 @@
 package cz.cuni.mff.odcleanstore.data;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Set;
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
+import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
+import cz.cuni.mff.odcleanstore.shared.UUIDUniqueURIGenerator;
+import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
+
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+
+import de.fuberlin.wiwiss.ng4j.NamedGraph;
+import de.fuberlin.wiwiss.ng4j.impl.GraphReaderService;
+import de.fuberlin.wiwiss.ng4j.impl.NamedGraphSetImpl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import virtuoso.jena.driver.VirtGraph;
 
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-
-import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
-import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
-import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
-import cz.cuni.mff.odcleanstore.shared.UniqueGraphNameGenerator;
-
-import de.fuberlin.wiwiss.ng4j.NamedGraph;
-import de.fuberlin.wiwiss.ng4j.impl.GraphReaderService;
-import de.fuberlin.wiwiss.ng4j.impl.NamedGraphSetImpl;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * Utility used to transform input streams in RDF/XML, ...
@@ -30,12 +31,12 @@ public class MultipleFormatLoader {
 	private static final Logger LOG = LoggerFactory.getLogger(MultipleFormatLoader.class);
 	
 	private String uriBase;
-	private UniqueGraphNameGenerator graphNameGenerator;
+	private UniqueURIGenerator graphNameGenerator;
 	private JDBCConnectionCredentials connectionCredentials;
 	
 	public MultipleFormatLoader(String uriBase, JDBCConnectionCredentials connectionCredentials) {
 		this.uriBase = uriBase;
-		this.graphNameGenerator = new UniqueGraphNameGenerator(uriBase, connectionCredentials);
+		this.graphNameGenerator = new UUIDUniqueURIGenerator(uriBase);
 		this.connectionCredentials = connectionCredentials;
 	}
 
