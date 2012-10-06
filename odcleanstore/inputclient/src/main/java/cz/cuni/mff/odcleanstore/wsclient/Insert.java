@@ -73,7 +73,7 @@ class Insert implements Runnable {
 			// send soap request to server
 			writeHttpRequestHeader(dos.getCount());
 			writeSoapPayload(user, password, metadata, payload);
-			socket.shutdownOutput();
+			try { socket.shutdownOutput(); } catch(Exception e) {}
 			
 			// wait for response
 			responseThread.join(RESPONSE_TIMEOUT);

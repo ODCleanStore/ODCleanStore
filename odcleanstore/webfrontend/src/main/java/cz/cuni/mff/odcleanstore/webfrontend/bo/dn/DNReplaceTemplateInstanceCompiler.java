@@ -22,7 +22,7 @@ public class DNReplaceTemplateInstanceCompiler
 		String modification = String.format
 		(
 			"DELETE {?s ?p ?o} INSERT {?s ?p ?x} " +
-			"WHERE {GRAPH $$graph$$ {SELECT ?s ?p ?o (fn:replace(str(?o), %s, %s)) AS ?x WHERE {{?s ?p ?o} FILTER (?p = %s)}}}", 
+			"WHERE {GRAPH $$graph$$ {SELECT ?s ?p ?o (fn:replace(str(?o), '%s', '%s')) AS ?x WHERE {{?s ?p ?o} FILTER (?p = %s)}}}", 
 			instance.getPattern(), 
 			instance.getReplacement(), 
 			instance.getPropertyName()

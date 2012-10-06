@@ -1,13 +1,9 @@
 package cz.cuni.mff.odcleanstore.qualityassessment.impl;
 
-import cz.cuni.mff.odcleanstore.configuration.BackendConfig;
-import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
-import cz.cuni.mff.odcleanstore.configuration.QualityAssessmentConfig;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
-import cz.cuni.mff.odcleanstore.data.DebugGraphFileLoader;
 import cz.cuni.mff.odcleanstore.qualityassessment.QualityAssessor;
 import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRule;
@@ -24,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -33,7 +28,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Scanner;
 import java.util.regex.Pattern;
 
 /**
@@ -42,47 +36,9 @@ import java.util.regex.Pattern;
  * Depending on the situation selects implementation of quality assessment
  * and delegates the work to that implementation.
  */
-public class QualityAssessorImpl implements QualityAssessor {
-	
-	public static void main(String[] args) {
-		try {
-			ConfigLoader.loadConfig();
-			BackendConfig config = ConfigLoader.getConfig().getBackendGroup();
+public class QualityAssessorImpl implements QualityAssessor, Serializable {
+	private static final long serialVersionUID = 1L;
 
-			StringBuilder contentBuilder = new StringBuilder();
-			Scanner contentScanner = new Scanner(new FileReader(System.getProperty("user.home") + "/odcleanstore/debugQA.ttl"));
-			
-			while (contentScanner.hasNextLine()) {
-				contentBuilder.append(contentScanner.nextLine() + "\n");
-			}
-			
-			List<GraphScoreWithTrace> result = new QualityAssessorImpl("Group 1").debugRules(contentBuilder.toString(),
-					prepareContext(
-							config.getCleanDBJDBCConnectionCredentials(),
-							config.getDirtyDBJDBCConnectionCredentials()));
-
-			Iterator<GraphScoreWithTrace> i = result.iterator();
-
-			while (i.hasNext()) {
-				GraphScoreWithTrace graphScoreWithTrace = i.next();
-
-				System.err.println(graphScoreWithTrace.graphName + " " + graphScoreWithTrace.score);
-
-				Iterator<QualityAssessmentRule> j = graphScoreWithTrace.trace.iterator();
-
-				while (j.hasNext()) {
-					QualityAssessmentRule rule = j.next();
-
-					System.err.println("\t" + rule.getDescription() + " " + rule.getCoefficient());
-				}
-
-				System.err.println();
-			}
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-		}
-	}
-	
 	/**
 	 * SPARQL queries for Quality Assessor transformation of input graph and metadata graph
 	 */
@@ -209,17 +165,11 @@ public class QualityAssessorImpl implements QualityAssessor {
 	}
 
 	public List<GraphScoreWithTrace> debugRules(
-	        String source, TransformationContext context)
+			HashMap<String, String> graphs,
+	        TransformationContext context)
 			throws TransformerException {
-		HashMap<String, String> graphs = new HashMap<String, String>();
-		QualityAssessmentConfig config = ConfigLoader.getConfig().getQualityAssessmentGroup();
-
-		DebugGraphFileLoader loader = new DebugGraphFileLoader(
-		        config.getTemporaryGraphURIPrefix(), context.getDirtyDatabaseCredentials());
 
 		try {
-			graphs = loader.load(source, this.getClass().getSimpleName());
-
 			Collection<String> originalGraphs = graphs.keySet();
 			List<GraphScoreWithTrace> result = new ArrayList<GraphScoreWithTrace>();
 
@@ -242,8 +192,6 @@ public class QualityAssessorImpl implements QualityAssessor {
 			LOG.error("Debugging of Quality Assessment rules failed: " + e.getMessage());
 
 			throw new TransformerException(e);
-		} finally {
-			loader.unload(graphs);
 		}
 	}
 

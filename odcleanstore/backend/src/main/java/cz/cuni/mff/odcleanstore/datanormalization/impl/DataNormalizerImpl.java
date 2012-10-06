@@ -1,6 +1,5 @@
 package cz.cuni.mff.odcleanstore.datanormalization.impl;
 
-import cz.cuni.mff.odcleanstore.configuration.BackendConfig;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.configuration.DataNormalizationConfig;
 import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
@@ -8,7 +7,6 @@ import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
-import cz.cuni.mff.odcleanstore.data.DebugGraphFileLoader;
 import cz.cuni.mff.odcleanstore.datanormalization.DataNormalizer;
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
 import cz.cuni.mff.odcleanstore.datanormalization.rules.DataNormalizationRule;
@@ -24,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -35,7 +32,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Scanner;
 
 /**
  * DataNormalizerImpl implements the default Data Normalization for ODCS
@@ -44,68 +40,8 @@ import java.util.Scanner;
  *
  * @author Jakub Daniel
  */
-public class DataNormalizerImpl implements DataNormalizer {
-
-	public static void main(String[] args) {
-		try {
-			ConfigLoader.loadConfig();
-			BackendConfig config = ConfigLoader.getConfig().getBackendGroup();
-			
-			StringBuilder contentBuilder = new StringBuilder();
-			Scanner contentScanner = new Scanner(new FileReader(System.getProperty("user.home") + "/odcleanstore/debugDN.ttl"));
-			
-			while (contentScanner.hasNextLine()) {
-				contentBuilder.append(contentScanner.nextLine() + "\n");
-			}
-
-			List<GraphModification> result = new DataNormalizerImpl("Group 1").debugRules(contentBuilder.toString(),
-					prepareContext(
-							config.getCleanDBJDBCConnectionCredentials(),
-							config.getDirtyDBJDBCConnectionCredentials()));
-
-			Iterator<GraphModification> i = result.iterator();
-
-			while (i.hasNext()) {
-				GraphModification modification = i.next();
-				String graph = modification.getGraphName();
-
-				System.err.println(graph);
-
-				Iterator<DataNormalizationRule> j = modification.getRuleIterator();
-
-				while (j.hasNext()) {
-					DataNormalizationRule rule = j.next();
-
-					Iterator<TripleModification> k;
-
-					k = modification.getModificationsByRule(rule).getInsertions().iterator();
-
-					while (k.hasNext()) {
-						TripleModification tripleModification = k.next();
-
-						System.err.println(tripleModification.subject + " " + tripleModification.predicate + " " + 
-							tripleModification.object + " INSERTED (Rule #" + rule.getId() + ")");
-						System.err.println();
-					}
-
-					k = modification.getModificationsByRule(rule).getDeletions().iterator();
-
-					while (k.hasNext()) {
-						TripleModification tripleModification = k.next();
-
-						System.err.println(tripleModification.subject + " " + tripleModification.predicate + " " + 
-							tripleModification.object + " DELETED (Rule #" + rule.getId() + ")");
-						System.err.println();
-					}
-				}
-
-				System.err.println();
-				System.err.println();
-			}
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-		}
-	}
+public class DataNormalizerImpl implements DataNormalizer, Serializable {
+	private static final long serialVersionUID = 1L;
 
 	private static final Logger LOG = LoggerFactory.getLogger(DataNormalizerImpl.class);
 
@@ -114,7 +50,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 	private static final String diffQueryFormat = "SPARQL DELETE FROM <%s> {?s ?p ?o} WHERE {GRAPH <%s> {?s ?p ?o}}";
 	private static final String dropBackupQueryFormat = "SPARQL CLEAR GRAPH <%s>";
 
-	private static final String markTemporaryGraph = "INSERT INTO DB.ODCLEANSTORE.TEMPORARY_GRAPHS (graphName) VALUES (?)";
+	private static final String markTemporaryGraph = "INSERT REPLACING DB.ODCLEANSTORE.TEMPORARY_GRAPHS (graphName) VALUES (?)";
 	private static final String unmarkTemporaryGraph = "DELETE FROM DB.ODCLEANSTORE.TEMPORARY_GRAPHS WHERE graphName = ?";
 
 	/**
@@ -126,6 +62,12 @@ public class DataNormalizerImpl implements DataNormalizer {
 	 */
 	private TransformedGraph inputGraph;
 	private TransformationContext context;
+	
+	/**
+	 * Debug utility graph names
+	 */
+	private String original;
+	private String modified;
 
 	/**
 	 * At construction the transformer is bound to use rules from particular rule groups
@@ -188,6 +130,10 @@ public class DataNormalizerImpl implements DataNormalizer {
 			dirtyConnection = null;
 		}
 	}
+	
+	public static abstract class SerializableTransformedGraph implements TransformedGraph, Serializable {
+		private static final long serialVersionUID = 1L;
+	}
 
 	/**
 	 * constructs input graph for the transformer interface
@@ -195,7 +141,8 @@ public class DataNormalizerImpl implements DataNormalizer {
 	 * @return the input graph
 	 */
 	private static TransformedGraph prepareInputGraph (final String name) {
-		return new TransformedGraph() {
+		return new SerializableTransformedGraph() {
+			private static final long serialVersionUID = 1L;
 
 			@Override
 			public String getGraphName() {
@@ -231,6 +178,10 @@ public class DataNormalizerImpl implements DataNormalizer {
 		};
 	}
 
+	public static abstract class SerializableTransformationContext implements TransformationContext, Serializable {
+		private static final long serialVersionUID = 1L;
+	}
+
 	/**
 	 * constructs context for the transformer interface
 	 * @param clean the clean database connection credentials
@@ -238,7 +189,9 @@ public class DataNormalizerImpl implements DataNormalizer {
 	 * @return the context
 	 */
 	private static TransformationContext prepareContext (final JDBCConnectionCredentials clean, final JDBCConnectionCredentials dirty) {
-		return new TransformationContext() {
+		return new SerializableTransformationContext() {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public JDBCConnectionCredentials getDirtyDatabaseCredentials() {
 				return dirty;
@@ -264,31 +217,16 @@ public class DataNormalizerImpl implements DataNormalizer {
 
 	/**
 	 * collects information about graph transformations
-	 * @param source stream containing TriG or RDF/XML input graph(s)
+	 * @param graphs input graphs
 	 * @param context context containing clean and dirty database connection credentials
 	 * @return per graph specification of modifications
 	 * @throws TransformerException
 	 */
-	public List<GraphModification> debugRules (String source, TransformationContext context)
+	public List<GraphModification> debugRules (HashMap<String, String> graphs, TransformationContext context)
 			throws TransformerException {
-		/**
-		 * Prepare fallback empty collection of input graphs (map original names to temporary names)
-		 */
-		HashMap<String, String> graphs = new HashMap<String, String>();
-
-		/**
-		 * Prepare graph loader connected to the dirty database
-		 */
 		DataNormalizationConfig config = ConfigLoader.getConfig().getDataNormalizationGroup();
 
-		DebugGraphFileLoader loader = new DebugGraphFileLoader(config.getTemporaryGraphURIPrefix(), context.getDirtyDatabaseCredentials());
-
 		try {
-			/**
-			 * Load the graphs from the input stream (let default name discriminator be the name of this class)
-			 */
-			graphs = loader.load(source, this.getClass().getSimpleName());
-
 			Collection<String> originalGraphs = graphs.keySet();
 
 			/**
@@ -297,6 +235,15 @@ public class DataNormalizerImpl implements DataNormalizer {
 			List<GraphModification> result = new ArrayList<GraphModification>();
 
 			Iterator<String> it = originalGraphs.iterator();
+
+			/**
+			 * In case we need to know what changed we need to create copies of the graph to compare them after
+			 * the rule was applied
+			 */
+			UniqueGraphNameGenerator generator = new UniqueGraphNameGenerator(config.getTemporaryGraphURIPrefix() + this.getClass().getSimpleName() + "/diff/", context.getDirtyDatabaseCredentials());
+
+			original = generator.nextURI(0);
+			modified = generator.nextURI(1);
 
 			while (it.hasNext()) {
 				String originalName = it.next();
@@ -315,12 +262,6 @@ public class DataNormalizerImpl implements DataNormalizer {
 			LOG.error("Debugging of Data Normalization rules failed.");
 
 			throw new TransformerException(e);
-		} finally {
-			/**
-			 * Always make sure all the graphs are thrown away after all the results are collected or an error
-			 * occurs
-			 */
-			loader.unload(graphs);
 		}
 	}
 
@@ -596,20 +537,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 			 */
 			performComponents(rule, inputGraph.getGraphName());
 		} else {
-			/**
-			 * In case we need to know what changed we need to create copies of the graph to compare them after
-			 * the rule was applied
-			 */
-			DataNormalizationConfig config = ConfigLoader.getConfig().getDataNormalizationGroup();
-
-			UniqueGraphNameGenerator generator = new UniqueGraphNameGenerator(config.getTemporaryGraphURIPrefix() + this.getClass().getSimpleName() + "/diff/", context.getDirtyDatabaseCredentials());
-			String original = "";
-			String modified = "";
-
 			try {
-				original = generator.nextURI(0);
-				modified = generator.nextURI(1);
-
 				getDirtyConnection().execute(markTemporaryGraph, original);
 				getDirtyConnection().execute(String.format(Locale.ROOT, backupQueryFormat, original, inputGraph.getGraphName()));
 

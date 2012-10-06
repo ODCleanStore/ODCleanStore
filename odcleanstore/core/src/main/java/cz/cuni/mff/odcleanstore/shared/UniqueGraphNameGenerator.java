@@ -3,6 +3,9 @@ package cz.cuni.mff.odcleanstore.shared;
 import java.sql.SQLException;
 import java.util.Locale;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
@@ -14,7 +17,8 @@ import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
  * @author Jakub Daniel
  */
 public class UniqueGraphNameGenerator implements UniqueURIGenerator {
-	
+	private static final Logger LOG = LoggerFactory.getLogger(UniqueGraphNameGenerator.class);
+
 	/*
 	public static void main (String[] args) {
 		System.err.println(new UniqueGraphNameGenerator("http://opendata.cz/data/", new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1112/UID=dba/PWD=dba", "dba", "dba")).nextURI());
@@ -82,12 +86,20 @@ public class UniqueGraphNameGenerator implements UniqueURIGenerator {
 				}
 			}
 			
-			return uriBase + (start + id + 1);
+			String name = uriBase + (start + id + 1);
+			
+			LOG.info("New Unique Graph Name generated: " + name);
+			
+			return name;
 		} catch (DatabaseException e) {
+			LOG.error("Could not generate Unique Graph Name due to: " + e.getMessage());
 		} catch (SQLException e) {
+			LOG.error("Could not generate Unique Graph Name due to: " + e.getMessage());
 		} finally {
 			closeConnection();
 		}
+		
+		LOG.error("Could not generate Unique Graph Name.");
 
 		return null;
 	}

@@ -1,13 +1,16 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.debug;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.model.Model;
 
 import cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl.GraphModification;
 import cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl.RuleModification;
@@ -15,6 +18,7 @@ import cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl.Triple
 import cz.cuni.mff.odcleanstore.datanormalization.rules.DataNormalizationRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButtonWithLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.DNRuleDetailPage;
 
@@ -59,19 +63,21 @@ public class DNDebugResultPage extends FrontendPage
 					protected void populateItem(ListItem<ModificationRecord> item) {
 						ModificationRecord record = item.getModelObject();
 						
+						item.add(new AttributeModifier("class", new Model<String>("dn" + record.getType().toString())));
+						
 						item.add(new Label("modification", record.getType().toString()));
 						
 						item.add(new Label("subject", record.getSubject()));						
 						item.add(new Label("predicate", record.getPredicate()));
 						item.add(new Label("object", record.getObject()));
 						
-						item.add(new Label("description", record.getRule().getDescription()));
 						item.add(
-							new RedirectWithParamButton
+							new RedirectWithParamButtonWithLabel
 							(
 								DNRuleDetailPage.class,
-								record.getRule().getId(),
-								"showDNRuleDetailPage"
+								"showDNRuleDetailPage",
+								record.getRule().getDescription(),
+								record.getRule().getId()
 							)
 						);			
 					}
@@ -85,8 +91,10 @@ public class DNDebugResultPage extends FrontendPage
 		add(tables);
 	}
 	
-	private class ModificationRecord 
+	private class ModificationRecord implements Serializable
 	{
+		private static final long serialVersionUID = 1L;
+
 		DataNormalizationRule rule;
 		ModificationType type;
 		String subject;
