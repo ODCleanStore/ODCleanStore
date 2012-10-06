@@ -6,6 +6,9 @@ import java.io.ObjectInputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.configuration.EngineConfig;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
@@ -21,14 +24,16 @@ import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
  */
 final class PipelineGraphManipulator {
 	
-	private static final String ERROR_DELETE_INPUT_FILE = "deleting input file.";
-	private static final String ERROR_INPUT_FILE_STILL_EXIST = ERROR_DELETE_INPUT_FILE + ", file still exists.";
+	private static final String ERROR_DELETE_INPUT_FILE = "deleting input file";
+	private static final String ERROR_INPUT_FILE_STILL_EXIST = ERROR_DELETE_INPUT_FILE + ", file still exists";
 	private static final String ERROR_DELETE_GRAPHS_FROM_DIRTYDB = "deleting graphs from dirty db";
 	private static final String ERROR_DELETE_GRAPHS_FROM_CLEANDB = "deleting graphs from clean db";
 	// private static final String ERROR_DELETE_TEMP_GRAPHS_FROM_CLEANDB = "deleting temporary graphs from clean db";
 	private static final String ERROR_REPLACE_GRAPHS_IN_CLEANDB = "replacing graphs in clean db from dirty db";
 	private static final String ERROR_LOAD_GRAPHS_FROM_FILE = "loading graphs into clean db from input file";
 	private static final String ERROR_LOAD_GRAPHS_FROM_CLEAN_DB = "loading graphs into dirty db from clean db";
+	
+	private static final Logger LOG = LoggerFactory.getLogger(PipelineGraphManipulator.class);
 	
 	private PipelineGraphStatus graphStatus;
 	
@@ -37,35 +42,55 @@ final class PipelineGraphManipulator {
 	}
 	
 	void deleteInputFile() throws PipelineGraphManipulatorException {
+		String inputDirPath = null;
+		File inputFile = null;
+		boolean hasError = false;
 		try {
-			String inputDirPath = Engine.getCurrent().getDirtyDBImportExportDir();
-			File inputFile = null;
+			inputDirPath = Engine.getCurrent().getDirtyDBImportExportDir();
+
+			inputFile = new File(inputDirPath, graphStatus.getUuid() + ".rdf");
+			if (!inputFile.delete() && inputFile.exists()) {
+				hasError = true;
+			}
+			inputFile = new File(inputDirPath, graphStatus.getUuid() + ".ttl");
+			if (!inputFile.delete() && inputFile.exists()) {
+				hasError = true;
+			}
+			inputFile = new File(inputDirPath, graphStatus.getUuid() + "-m.rdf");
+			if (!inputFile.delete() && inputFile.exists()) {
+				hasError = true;
+			}
+			inputFile = new File(inputDirPath, graphStatus.getUuid() + "-m.ttl");
+			if (!inputFile.delete() && inputFile.exists()) {
+				hasError = true;
+			}
+			inputFile = new File(inputDirPath, graphStatus.getUuid() + "-pvm.rdf");
+			if (!inputFile.delete() && inputFile.exists()) {
+				hasError = true;
+			}
+			inputFile = new File(inputDirPath, graphStatus.getUuid() + "-pvm.ttl");
+			if (!inputFile.delete() && inputFile.exists()) {
+				hasError = true;
+			}
 			
-			inputFile = new File(inputDirPath  + graphStatus.getUuid() + ".hdr");
-			if (!inputFile.delete() && inputFile.exists()) {
-				throw new PipelineGraphManipulatorException(format(ERROR_INPUT_FILE_STILL_EXIST));
-			}
-			inputFile = new File(inputDirPath + graphStatus.getUuid() + ".rdf");
-			if (!inputFile.delete() && inputFile.exists()) {
-				throw new PipelineGraphManipulatorException(format(ERROR_INPUT_FILE_STILL_EXIST));
-			}
-			inputFile = new File(inputDirPath + graphStatus.getUuid() + ".ttl");
-			if (!inputFile.delete() && inputFile.exists()) {
-				throw new PipelineGraphManipulatorException(format(ERROR_INPUT_FILE_STILL_EXIST));
-			}
-			inputFile = new File(inputDirPath + graphStatus.getUuid() + "-pvm.rdf");
-			if (!inputFile.delete() && inputFile.exists()) {
-				throw new PipelineGraphManipulatorException(format(ERROR_INPUT_FILE_STILL_EXIST));
-			}
-			inputFile = new File(inputDirPath + graphStatus.getUuid() + "-pvm.ttl");
-			if (!inputFile.delete() && inputFile.exists()) {
-				throw new PipelineGraphManipulatorException(format(ERROR_INPUT_FILE_STILL_EXIST));
+			if(hasError) {
+				LOG.error(format(ERROR_INPUT_FILE_STILL_EXIST));
+				createDeletionMarkFile(inputDirPath);	
 			}
 		}
-		catch(PipelineGraphManipulatorException e) { throw e; }
 		catch(Exception e) {
-			throw new PipelineGraphManipulatorException(format(ERROR_DELETE_INPUT_FILE), e);
+			LOG.error(format(ERROR_DELETE_INPUT_FILE));
+			createDeletionMarkFile(inputDirPath);
 		}
+	}
+	
+	private void createDeletionMarkFile(String inputDirPath) {
+		try {
+			if (inputDirPath != null) {
+				File file = new File(inputDirPath, graphStatus.getUuid() + "-forDeletionMark");
+				file.createNewFile();
+			}
+		} catch(Exception e) {}
 	}
 	
 	void clearGraphsInDirtyDB() throws PipelineGraphManipulatorException {
@@ -107,8 +132,8 @@ final class PipelineGraphManipulator {
 				VirtuosoConnectionWrapper cleanConnection = null;
 				try {
 					String tempFileName = Utils.extractUUID(graphName) + "-temp.ttl";
-					srcFile = new File(Engine.getCurrent().getDirtyDBImportExportDir() + tempFileName);
-					dstFile = new File(Engine.getCurrent().getCleanDBImportExportDir() + tempFileName);
+					srcFile = new File(Engine.getCurrent().getDirtyDBImportExportDir(), tempFileName);
+					dstFile = new File(Engine.getCurrent().getCleanDBImportExportDir(), tempFileName);
 					srcFile.delete();
 					dstFile.delete();
 						
@@ -248,6 +273,9 @@ final class PipelineGraphManipulator {
 					con.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.license + ">", "<" + license + ">", metadataGraphURI);
 				}
 			}
+			
+			// con.insertRdfXmlFromFile("", inputDirPath + "a.ttl", metadataGraphURI);
+			
 			if (containProvenance) {
 				if (isProvenanceRdfXml) {
 					con.insertRdfXmlFromFile(metadata.dataBaseUrl, inputDirPath + uuid + "-pvm.rdf", provenanceGraphURI);
@@ -282,8 +310,8 @@ final class PipelineGraphManipulator {
 				VirtuosoConnectionWrapper dirtyConnection = null;
 				try {
 					String tempFileName = Utils.extractUUID(graphName) + "-temp.ttl";
-					srcFile = new File(Engine.getCurrent().getCleanDBImportExportDir() + tempFileName);
-					dstFile = new File(Engine.getCurrent().getDirtyDBImportExportDir() + tempFileName);
+					srcFile = new File(Engine.getCurrent().getCleanDBImportExportDir(), tempFileName);
+					dstFile = new File(Engine.getCurrent().getDirtyDBImportExportDir(), tempFileName);
 					srcFile.delete();
 					dstFile.delete();
 						
