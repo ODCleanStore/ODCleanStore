@@ -9,6 +9,7 @@ import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.RelationType;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
@@ -72,6 +73,6 @@ public class OntologyMappingDao extends DaoForEntityWithSurrogateKey<RelationTyp
 	
 	public static String createGraphName(Integer ontologyId)
 	{
-		return ConfigLoader.getConfig().getWebFrontendGroup().getOntologyMappingsGraphURIPrefix() + ontologyId;
+		return ODCSInternal.ontologyMappingsGraphUriPrefix + ontologyId;
 	}
 }

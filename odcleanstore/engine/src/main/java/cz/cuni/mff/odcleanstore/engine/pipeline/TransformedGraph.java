@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraphException;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 
 /**
  *  @author Petr Jerman
@@ -36,7 +37,7 @@ public final class TransformedGraph implements cz.cuni.mff.odcleanstore.transfor
 			LOG.error(ERROR_NOT_ACTIVE_TRANSFORMER);
 			throw new TransformedGraphRuntimeException(ERROR_NOT_ACTIVE_TRANSFORMER);
 		}
-		return ConfigLoader.getConfig().getEngineGroup().getDataGraphURIPrefix() + graphStatus.getUuid();
+		return ODCSInternal.dataGraphUriPrefix + graphStatus.getUuid();
 	}
 
 	@Override
@@ -56,7 +57,7 @@ public final class TransformedGraph implements cz.cuni.mff.odcleanstore.transfor
             LOG.error(ERROR_NOT_ACTIVE_TRANSFORMER);
             throw new TransformedGraphRuntimeException(ERROR_NOT_ACTIVE_TRANSFORMER);
         }
-        return ConfigLoader.getConfig().getEngineGroup().getMetadataGraphURIPrefix() + graphStatus.getUuid();
+        return ODCSInternal.metadataGraphUriPrefix + graphStatus.getUuid();
     }
 
     @Override
@@ -66,7 +67,7 @@ public final class TransformedGraph implements cz.cuni.mff.odcleanstore.transfor
             LOG.error(ERROR_NOT_ACTIVE_TRANSFORMER);
             throw new TransformedGraphRuntimeException(ERROR_NOT_ACTIVE_TRANSFORMER);
         }
-        return ConfigLoader.getConfig().getEngineGroup().getProvenanceMetadataGraphURIPrefix() + graphStatus.getUuid();
+        return ODCSInternal.provenanceMetadataGraphUriPrefix + graphStatus.getUuid();
     }
 
     @Override

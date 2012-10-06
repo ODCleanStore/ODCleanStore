@@ -13,7 +13,7 @@ import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
 import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
-import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 
 import org.restlet.representation.Representation;
 import org.slf4j.Logger;
@@ -60,7 +60,7 @@ public class MetadataQueryExecutorResource extends QueryExecutorResourceBase {
         Config config = ConfigLoader.getConfig();
         GraphScoreWithTrace qaResult = null;
         String graphUuid = Utils.extractUUID(namedGraphURI);
-        if (graphUuid != null && !namedGraphURI.startsWith(ODCS.engineTemporaryGraph)) {
+        if (graphUuid != null && !namedGraphURI.startsWith(ODCSInternal.engineTemporaryGraphPrefix)) {
             JDBCConnectionCredentials connectionCredentials =
                     config.getQueryExecutionGroup().getCleanDBJDBCConnectionCredentials();
             Integer[] qaGroupIDs = qaRuleGroupsForGraph(graphUuid, connectionCredentials);

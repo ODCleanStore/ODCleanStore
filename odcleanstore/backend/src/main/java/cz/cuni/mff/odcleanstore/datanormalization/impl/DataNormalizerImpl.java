@@ -240,7 +240,7 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 			 * In case we need to know what changed we need to create copies of the graph to compare them after
 			 * the rule was applied
 			 */
-			UniqueGraphNameGenerator generator = new UniqueGraphNameGenerator(config.getTemporaryGraphURIPrefix() + this.getClass().getSimpleName() + "/diff/", context.getDirtyDatabaseCredentials());
+			UniqueGraphNameGenerator generator = new UniqueGraphNameGenerator(ODCS.debugTempGraphUriPrefix + this.getClass().getSimpleName() + "/diff/", context.getDirtyDatabaseCredentials());
 
 			original = generator.nextURI(0);
 			modified = generator.nextURI(1);

@@ -32,9 +32,6 @@ public class EngineConfig extends ConfigGroup {
     private final JDBCConnectionCredentials cleanDBJDBCConnectionCredentials;
     private final Long startupTimeout;
     private final Long shutdownTimeout;
-    private final URI dataGraphURIPrefix;
-    private final URI metadataGraphURIPrefix;
-    private final URI provenanceMetadataGraphURIPrefix;
     private final Long lookForGraphInterval;
     private final Long secondCrashPenalty;
     private final String dirtyImportExportDir;
@@ -51,9 +48,6 @@ public class EngineConfig extends ConfigGroup {
             JDBCConnectionCredentials cleanDBJDBCConnectionCredentials,
             Long startupTimeout,
             Long shutdownTimeout,
-            URI dataGraphURIPrefix, 
-            URI metadataGraphURIPrefix,
-            URI provenanceMetadataGraphURIPrefix,
             Long lookForGraphInterval,
             Long secondCrashPenalty,
             String dirtyImportExportDir,
@@ -62,9 +56,6 @@ public class EngineConfig extends ConfigGroup {
         this.cleanDBJDBCConnectionCredentials = cleanDBJDBCConnectionCredentials;
         this.startupTimeout = startupTimeout;
         this.shutdownTimeout = shutdownTimeout;
-        this.dataGraphURIPrefix = dataGraphURIPrefix;
-        this.metadataGraphURIPrefix = metadataGraphURIPrefix;
-        this.provenanceMetadataGraphURIPrefix = provenanceMetadataGraphURIPrefix;
         this.lookForGraphInterval = lookForGraphInterval;
         this.secondCrashPenalty = secondCrashPenalty;
         this.dirtyImportExportDir = dirtyImportExportDir;
@@ -96,12 +87,6 @@ public class EngineConfig extends ConfigGroup {
         Long lookForGraphInterval = loadParam(properties, GROUP_PREFIX + "look_for_graph_interval", formatLong);
         Long secondCrashPenalty = loadParam(properties, GROUP_PREFIX + "second_crash_penalty", formatLong);
         
-        ParameterFormat<URI> formatURI = new FormatURI();
-        URI dataGraphURIPrefix = loadParam(properties, GROUP_PREFIX + "data_graph_uri_prefix", formatURI);
-        URI metadataGraphURIPrefix = loadParam(properties, GROUP_PREFIX + "metadata_graph_uri_prefix", formatURI);
-        URI provenanceMetadataGraphURIPrefix = loadParam(
-                properties, GROUP_PREFIX + "provenance_metadata_graph_uri_prefix", formatURI);
-        
         ParameterFormat<String> formatString = new FormatString();
         String dirtyImportExportDir = loadParam(properties, GROUP_PREFIX + "dirty_import_export_dir", formatString);
         String cleanImportExportDir = loadParam(properties, GROUP_PREFIX + "clean_import_export_dir", formatString);
@@ -111,9 +96,6 @@ public class EngineConfig extends ConfigGroup {
                 cleanJDBCConnectionCredentials,
                 startupTimeout,
                 shutdownTimeout,
-                dataGraphURIPrefix,
-                metadataGraphURIPrefix,
-                provenanceMetadataGraphURIPrefix,
                 lookForGraphInterval,
                 secondCrashPenalty,
                 dirtyImportExportDir,
@@ -150,30 +132,6 @@ public class EngineConfig extends ConfigGroup {
      */
     public Long getShutdownTimeout() {
         return shutdownTimeout;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public URI getDataGraphURIPrefix() {
-        return dataGraphURIPrefix;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public URI getMetadataGraphURIPrefix() {
-        return metadataGraphURIPrefix;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public URI getProvenanceMetadataGraphURIPrefix() {
-        return provenanceMetadataGraphURIPrefix;
     }
     
     /**

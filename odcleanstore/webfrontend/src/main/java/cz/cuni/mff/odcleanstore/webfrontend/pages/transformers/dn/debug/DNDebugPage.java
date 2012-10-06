@@ -19,6 +19,7 @@ import cz.cuni.mff.odcleanstore.data.MultipleFormatLoader;
 import cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl;
 import cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl.GraphModification;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UploadButton;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
@@ -57,7 +58,7 @@ public class DNDebugPage extends FrontendPage
 
 				HashMap<String, String> graphs = null;
 				MultipleFormatLoader loader = new MultipleFormatLoader(
-						ConfigLoader.getConfig().getQualityAssessmentGroup().getTemporaryGraphURIPrefix().toString(),
+						ODCSInternal.debugTempGraphUriPrefix,
 						ConfigLoader.getConfig().getBackendGroup().getDirtyDBJDBCConnectionCredentials());
 				
 				try 

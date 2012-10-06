@@ -33,7 +33,6 @@ public class EngineConfigTest extends ConfigTestBase {
         Mockito.when(properties.getProperty(EngineConfig.GROUP_PREFIX + "dirty_import_export_dir")).thenReturn("dirty/");
         Mockito.when(properties.getProperty(EngineConfig.GROUP_PREFIX + "clean_import_export_dir")).thenReturn("clean/");
         
-        mockGraphUriPrefixes(properties);
         mockJDBCConnectionCredentials(properties, EnumDbConnectionType.CLEAN);
         mockJDBCConnectionCredentials(properties, EnumDbConnectionType.DIRTY);
 
@@ -45,7 +44,6 @@ public class EngineConfigTest extends ConfigTestBase {
         assertEquals(new Long(60000), enConfig.getSecondCrashPenalty());
         assertEquals(new String("dirty/"), enConfig.getDirtyImportExportDir());
         assertEquals(new String("clean/"), enConfig.getCleanImportExportDir());
-        checkGraphUriPrefixes(enConfig);
         checkJDBCConnectionCredentials(
                 enConfig.getCleanDBJDBCConnectionCredentials(), EnumDbConnectionType.CLEAN);
         checkJDBCConnectionCredentials(
@@ -66,25 +64,4 @@ public class EngineConfigTest extends ConfigTestBase {
         EngineConfig.load(properties);
     }
     
-
-    private void mockGraphUriPrefixes(Properties properties) {
-        Mockito.when(properties.getProperty(GROUP_NAME + ".data_graph_uri_prefix")).thenReturn(
-                "http://opendata.cz/infrastructure/odcleanstore/");
-
-        Mockito.when(properties.getProperty(GROUP_NAME + ".metadata_graph_uri_prefix")).thenReturn(
-                "http://opendata.cz/infrastructure/odcleanstore/metadata/");
-        
-        Mockito.when(properties.getProperty(GROUP_NAME + ".provenance_metadata_graph_uri_prefix")).thenReturn(
-                "http://opendata.cz/infrastructure/odcleanstore/provenanceMetadata/");
-    }
-    
-    private void checkGraphUriPrefixes(EngineConfig config) throws URISyntaxException {
-        assertEquals(new URI("http://opendata.cz/infrastructure/odcleanstore/"), config.getDataGraphURIPrefix());
-
-        assertEquals(new URI("http://opendata.cz/infrastructure/odcleanstore/metadata/"),
-                config.getMetadataGraphURIPrefix());
-        
-        assertEquals(new URI("http://opendata.cz/infrastructure/odcleanstore/provenanceMetadata/"),
-                config.getProvenanceMetadataGraphURIPrefix());
-    }
 }

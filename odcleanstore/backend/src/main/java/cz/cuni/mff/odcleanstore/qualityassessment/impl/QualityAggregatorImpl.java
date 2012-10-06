@@ -14,6 +14,7 @@ import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraphException;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 
 import org.slf4j.Logger;
@@ -225,10 +226,10 @@ public class QualityAggregatorImpl implements QualityAggregator {
 
 					getCleanConnection().adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL, false);
 
-					final String dropOutdated = String.format(Locale.ROOT, dropOutdatedQueryFormat, ConfigLoader.getConfig().getQualityAssessmentGroup().getAggregatedPublisherScoreGraphURI(), publisher);
+					final String dropOutdated = String.format(Locale.ROOT, dropOutdatedQueryFormat, ODCSInternal.aggregatedPublisherScoreGraphUri, publisher);
 					getCleanConnection().execute(dropOutdated);
 
-					final String storeUpdated = String.format(Locale.ROOT, storeUpdatedQueryFormat, ConfigLoader.getConfig().getQualityAssessmentGroup().getAggregatedPublisherScoreGraphURI(), publisher, score);
+					final String storeUpdated = String.format(Locale.ROOT, storeUpdatedQueryFormat, ODCSInternal.aggregatedPublisherScoreGraphUri, publisher, score);
 					getCleanConnection().execute(storeUpdated);
 
 					getCleanConnection().commit();

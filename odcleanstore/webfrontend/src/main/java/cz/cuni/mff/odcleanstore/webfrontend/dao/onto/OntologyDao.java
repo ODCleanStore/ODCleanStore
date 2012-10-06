@@ -11,12 +11,13 @@ import virtuoso.jena.driver.VirtGraph;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
-import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
 import cz.cuni.mff.odcleanstore.datanormalization.rules.DataNormalizationRulesModel;
 import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRulesModel;
 import cz.cuni.mff.odcleanstore.util.CodeSnippet;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.Ontology;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
@@ -37,12 +38,10 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 	private static final long serialVersionUID = 1L;
 
 	private ParameterizedRowMapper<Ontology> rowMapper;
-	private String graphNamePrefix;
 
 	public OntologyDao()
 	{
 		this.rowMapper = new OntologyRowMapper();
-		this.graphNamePrefix = ConfigLoader.getConfig().getWebFrontendGroup().getOntologiesGraphURIPrefix();
 	}
 
 	@Override
@@ -141,7 +140,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 	{
 		try
 		{
-			item.setGraphName(graphNamePrefix + URLEncoder.encode(item.getLabel(), ENCODING));
+			item.setGraphName(ODCSInternal.ontologyGraphUriPrefix + URLEncoder.encode(item.getLabel(), ENCODING));
 		}
 		catch (UnsupportedEncodingException e)
 		{

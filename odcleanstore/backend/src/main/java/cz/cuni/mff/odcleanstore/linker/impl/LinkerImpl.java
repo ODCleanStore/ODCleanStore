@@ -1,5 +1,40 @@
 package cz.cuni.mff.odcleanstore.linker.impl;
 
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.configuration.ObjectIdentificationConfig;
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
+import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
+import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
+import cz.cuni.mff.odcleanstore.data.RDFprefix;
+import cz.cuni.mff.odcleanstore.linker.Linker;
+import cz.cuni.mff.odcleanstore.linker.rules.SilkRule;
+import cz.cuni.mff.odcleanstore.shared.RDFPrefixesLoader;
+import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
+import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
+import cz.cuni.mff.odcleanstore.transformer.TransformedGraphException;
+import cz.cuni.mff.odcleanstore.transformer.TransformerException;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
+import cz.cuni.mff.odcleanstore.vocabulary.RDFS;
+
+import com.hp.hpl.jena.graph.Node;
+
+import de.fuberlin.wiwiss.ng4j.NamedGraphSet;
+import de.fuberlin.wiwiss.ng4j.Quad;
+import de.fuberlin.wiwiss.ng4j.impl.GraphReaderService;
+import de.fuberlin.wiwiss.ng4j.impl.NamedGraphSetImpl;
+
+import de.fuberlin.wiwiss.silk.Silk;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -17,97 +52,65 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-
-import com.hp.hpl.jena.graph.Node;
-
-import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
-import cz.cuni.mff.odcleanstore.configuration.ObjectIdentificationConfig;
-import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
-import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
-import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
-import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
-import cz.cuni.mff.odcleanstore.data.RDFprefix;
-import cz.cuni.mff.odcleanstore.linker.Linker;
-import cz.cuni.mff.odcleanstore.linker.rules.SilkRule;
-import cz.cuni.mff.odcleanstore.shared.RDFPrefixesLoader;
-import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
-import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
-import cz.cuni.mff.odcleanstore.transformer.TransformedGraphException;
-import cz.cuni.mff.odcleanstore.transformer.TransformerException;
-import cz.cuni.mff.odcleanstore.vocabulary.RDFS;
-import de.fuberlin.wiwiss.ng4j.NamedGraphSet;
-import de.fuberlin.wiwiss.ng4j.Quad;
-import de.fuberlin.wiwiss.ng4j.impl.GraphReaderService;
-import de.fuberlin.wiwiss.ng4j.impl.NamedGraphSetImpl;
-import de.fuberlin.wiwiss.silk.Silk;
-
 /**
  * Default implementation of the {link #Linker} interface.
- * 
+ *
  * @author Tomas Soukup
  */
 public class LinkerImpl implements Linker {
 	private static final Logger LOG = LoggerFactory.getLogger(LinkerImpl.class);
-	
+
 	private static final String DEBUG_INPUT_FILENAME = "debugInput.xml";
 	private static final String DEBUG_OUTPUT_FILENAME = "debugResult.xml";
-	
+
 	private static final String CONFIG_XML_CELL = "Cell";
 	private static final String CONFIG_XML_ENTITY1 = "entity1";
 	private static final String CONFIG_XML_ENTITY2 = "entity2";
 	private static final String CONFIG_XML_RESOURCE = "rdf:resource";
 	private static final String CONFIG_XML_MEASURE = "measure";
-	
+
 	private static final String LINK_WITHIN_GRAPH_KEY = "linkWithinGraph";
 	private static final String JENA_FILE_FORMAT = "N3";
-	
+
 	private ObjectIdentificationConfig globalConfig;
 	private Integer[] groupIds;
-	
+
 	public LinkerImpl(Integer... groupIds) {
 		this.globalConfig = ConfigLoader.getConfig().getObjectIdentificationConfig();
 		this.groupIds = groupIds;
 	}
-	
+
 	 /**
      * {@inheritDoc}
-     * 
+     *
      * Generates links between input graph in dirty database and graphs in clean database.
-     * 
+     *
      * Obtains linkage rule-groups from transformer configuration.
      * When no groups are specified, uses configuration files from designated directory.
-     * 
+     *
      * @param inputGraph {@inheritDoc}
      * @param context {@inheritDoc}
      */
 	@Override
-	public void transformNewGraph(TransformedGraph inputGraph, TransformationContext context) 
+	public void transformNewGraph(TransformedGraph inputGraph, TransformationContext context)
 			throws TransformerException {
 		LOG.info("Linking new graph: {}", inputGraph.getGraphName());
 		File configFile = null;
-		try {				
+		try {
 			List<SilkRule> rules = loadRules(context);
 			if (rules.isEmpty()) {
 			    LOG.info("Nothing to link.");
 			} else {
     			List<RDFprefix> prefixes = RDFPrefixesLoader.loadPrefixes(context.getCleanDatabaseCredentials());
-    			
+
     			Properties transformerProperties = parseProperties(context.getTransformerConfiguration());
     			boolean linkWithinGraph = isLinkWithinGraph(transformerProperties);
-    			
+
     			configFile = ConfigBuilder.createLinkConfigFile(
     					rules, prefixes, inputGraph, context, globalConfig, linkWithinGraph);
-			
+
     			inputGraph.addAttachedGraph(getLinksGraphId(inputGraph));
-			
+
     			LOG.info("Calling Silk with temporary configuration file: {}", configFile.getAbsolutePath());
     			Silk.executeFile(configFile, null, Silk.DefaultThreads(), true);
     			LOG.info("Linking finished.");
@@ -122,13 +125,13 @@ public class LinkerImpl implements Linker {
 			}
 		}
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 *
 	 * @param inputGraph {@inheritDoc}
 	 * @param context {@inheritDoc}
-	 * @throws TransformerException 
+	 * @throws TransformerException
 	 */
 	@Override
 	public void transformExistingGraph(TransformedGraph inputGraph, TransformationContext context) throws TransformerException {
@@ -142,42 +145,45 @@ public class LinkerImpl implements Linker {
 			throw new TransformerException(e);
 		}
 	}
-	
+
 	@Override
     public void shutdown() {
     }
-	
+
 	/**
 	 * Loads list of rules from database.
-	 * 
+	 *
 	 * Parses transformer configuration to obtain rule groups.
 	 * Then loads rules from these groups from DB using {@link LinkerDao}
-	 * 
+	 *
 	 * @param transformerConfiguration string containing the list of rule-groups IDs
 	 * @param dao is used to load rules from DB
 	 */
-	private List<SilkRule> loadRules(TransformationContext context) 
+	private List<SilkRule> loadRules(TransformationContext context)
 			throws ConnectionException, QueryException {
 		LOG.info("Loading rule groups: {}", groupIds);
 		LinkerDao dao = LinkerDao.getInstance(context.getCleanDatabaseCredentials(), context.getDirtyDatabaseCredentials());
 		return dao.loadRules(groupIds);
 	}
-	
+
 	private String getLinksGraphId(TransformedGraph inputGraph) {
-		return globalConfig.getLinksGraphURIPrefix().toString() + inputGraph.getGraphId();
+		return ODCSInternal.generatedLinksGraphUriPrefix + inputGraph.getGraphId();
 	}
-	
-	public List<DebugResult> debugRules(InputStream source, TransformationContext context) 
+
+	@Override
+    public List<DebugResult> debugRules(InputStream source, TransformationContext context)
 			throws TransformerException {
 		return debugRules(streamToFile(source, context.getTransformerDirectory()), context);
 	}
-	
-	public List<DebugResult> debugRules(String input, TransformationContext context)
+
+	@Override
+    public List<DebugResult> debugRules(String input, TransformationContext context)
 			throws TransformerException {
 		return debugRules(stringToFile(input, context.getTransformerDirectory()), context);
 	}
-	
-	public List<DebugResult> debugRules(File inputFile, TransformationContext context) 
+
+	@Override
+    public List<DebugResult> debugRules(File inputFile, TransformationContext context)
 			throws TransformerException {
 		List<DebugResult> resultList = new ArrayList<DebugResult>();
 		File configFile = null;
@@ -200,7 +206,7 @@ public class LinkerImpl implements Linker {
 				deleteFile(resultFileName);
 				resultFileName = null;
 			}
-			
+
 		} catch (Exception e) {
 			throw new TransformerException(e);
 		} finally {
@@ -212,15 +218,15 @@ public class LinkerImpl implements Linker {
 				deleteFile(resultFileName);
 			}
 		}
-		
+
 		return resultList;
 	}
-	
+
 	private String createFileName(String ruleId, File transformerDirectory, String fileName) {
-		return new File(transformerDirectory, 
+		return new File(transformerDirectory,
 				ruleId + UUID.randomUUID().toString() + fileName).getAbsolutePath();
 	}
-	
+
 	private List<LinkedPair> parseLinkedPairs(String resultFileName) throws TransformerException {
 		List<LinkedPair> pairList = new ArrayList<LinkedPair>();
 		try {
@@ -228,7 +234,7 @@ public class LinkerImpl implements Linker {
 			Document doc = builder.parse(resultFileName);
 			NodeList cells = doc.getElementsByTagName(CONFIG_XML_CELL);
 			int cellLength = cells.getLength();
-			
+
 			for (int i = 0; i < cellLength; i++) {
 				String firstUri = null;
 				String secondUri = null;
@@ -236,7 +242,7 @@ public class LinkerImpl implements Linker {
 				Element cell = (Element)cells.item(i);
 				NodeList cellChildern = cell.getChildNodes();
 				int childLength = cellChildern.getLength();
-				
+
 				for (int j = 0; j < childLength; j++) {
 					org.w3c.dom.Node child = cellChildern.item(j);
 					String childName = child.getNodeName();
@@ -255,46 +261,46 @@ public class LinkerImpl implements Linker {
 								rightIndex = content.length();
 							}
 							content = content.substring(leftIndex + 1, rightIndex);
-						}				
+						}
 						confidence = Double.valueOf(content);
 					}
 				}
-				
+
 				pairList.add(new LinkedPair(firstUri, secondUri, confidence));
 			}
-			
+
 		} catch (Exception e) {
 			throw new TransformerException(e);
-		} 
-		
+		}
+
 		return pairList;
 	}
-	
+
 	private File streamToFile(InputStream stream, File targetDirectory) throws TransformerException {
 		try {
 			File file = new File(createFileName("", targetDirectory, DEBUG_INPUT_FILENAME));
-		    OutputStream os = new FileOutputStream(file);  
-		    try {  
-		        byte[] buffer = new byte[4096];  
-		        for (int n; (n = stream.read(buffer)) != -1; )   
+		    OutputStream os = new FileOutputStream(file);
+		    try {
+		        byte[] buffer = new byte[4096];
+		        for (int n; (n = stream.read(buffer)) != -1; )
 		            os.write(buffer, 0, n);
 		        return file;
 		    } catch (IOException e) {
 				throw new TransformerException(e);
-			} finally { 
+			} finally {
 		    	try {
 					os.close();
-				} catch (IOException e) { /* do nothing */ } 
+				} catch (IOException e) { /* do nothing */ }
 		    }
 		} catch (FileNotFoundException e) {
 			throw new TransformerException(e);
-		} finally { 
+		} finally {
 			try {
 				stream.close();
-			} catch (IOException e) { /* do nothing */ } 
+			} catch (IOException e) { /* do nothing */ }
 		}
 	}
-	
+
 	private File stringToFile(String input, File targetDirectory) throws TransformerException {
 		File file = new File(createFileName("", targetDirectory, DEBUG_INPUT_FILENAME));
 		PrintWriter writer = null;
@@ -311,7 +317,7 @@ public class LinkerImpl implements Linker {
 		}
 		return file;
 	}
-	
+
 	private void loadLabels(File inputFile, List<LinkedPair> linkedPairs) {
 		NamedGraphSet graphSet = loadGraphs(inputFile);
 		for (LinkedPair pair: linkedPairs) {
@@ -322,7 +328,7 @@ public class LinkerImpl implements Linker {
 				quad = (Quad)it.next();
 				pair.setFirstLabel(quad.getObject().toString());
 			}
-			
+
 			it = graphSet.findQuads(
 					Node.ANY, Node.createURI(pair.getSecondUri()), Node.createURI(RDFS.label), Node.ANY);
 			if (it.hasNext()) {
@@ -331,17 +337,17 @@ public class LinkerImpl implements Linker {
 			}
 		}
 	}
-	
+
 	private NamedGraphSet loadGraphs(File inputFile) {
 		GraphReaderService reader = new GraphReaderService();
 		reader.setLanguage(JENA_FILE_FORMAT);
 		reader.setSourceFile(inputFile);
 		NamedGraphSet graphSet = new NamedGraphSetImpl();
 		reader.readInto(graphSet);
-		
+
 		return graphSet;
 	}
-	
+
 	private void loadLabels(JDBCConnectionCredentials cleanDBCredentials, JDBCConnectionCredentials dirtyDBCredentials,
 			List<LinkedPair> linkedPairs) throws TransformerException {
 		Map<String, String> uriLabelMap = createUriLabelMap(linkedPairs);
@@ -365,7 +371,7 @@ public class LinkerImpl implements Linker {
 			throw new TransformerException(e);
 		}
 	}
-	
+
 	private Map<String, String> createUriLabelMap(List<LinkedPair> linkedPairs) {
 		Map<String, String> uriLabelMap = new HashMap<String, String>();
 		for (LinkedPair pair: linkedPairs) {
@@ -374,18 +380,18 @@ public class LinkerImpl implements Linker {
 		}
 		return uriLabelMap;
 	}
-	
+
 	private void deleteFile(String fileName) {
 		File file = new File(fileName);
 		deleteFile(file);
 	}
-	
+
 	private void deleteFile(File file) {
 		if (!file.delete()) {
 			LOG.warn("Failed to delete file {}", file.getAbsolutePath());
 		}
 	}
-	
+
 	private Properties parseProperties(String input) {
 		Properties properties = new Properties();
 		try {
@@ -395,7 +401,7 @@ public class LinkerImpl implements Linker {
 		}
 		return properties;
 	}
-	
+
 	private boolean isLinkWithinGraph(Properties properties) {
 		String property = (String)properties.get(LINK_WITHIN_GRAPH_KEY);
 		if (property != null) {

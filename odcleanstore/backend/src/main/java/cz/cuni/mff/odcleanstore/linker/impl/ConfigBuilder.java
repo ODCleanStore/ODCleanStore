@@ -11,6 +11,7 @@ import cz.cuni.mff.odcleanstore.linker.rules.SilkRule;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -517,7 +518,7 @@ public class ConfigBuilder {
 			outputElement.appendChild(createParam(doc, CONFIG_XML_URI,
 					config.getDirtyDBSparqlConnectionCredentials().getUrl().toString()));
 			outputElement.appendChild(createParam(doc, CONFIG_XML_GRAPH_URI,
-					config.getLinksGraphURIPrefix().toString() + graphId));
+			        ODCSInternal.generatedLinksGraphUriPrefix + graphId));
 		}
 		return outputElement;
 	}

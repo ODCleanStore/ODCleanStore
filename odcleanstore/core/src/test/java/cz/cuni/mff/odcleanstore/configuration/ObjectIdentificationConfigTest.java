@@ -24,15 +24,12 @@ public class ObjectIdentificationConfigTest extends ConfigTestBase {
     public void testCorrectConfiguration() throws ConfigurationException, URISyntaxException, MalformedURLException {
         Properties properties = Mockito.mock(Properties.class);
 
-        Mockito.when(properties.getProperty(
-                ObjectIdentificationConfig.GROUP_PREFIX + "links_graph_uri_prefix")).thenReturn("http://www.seznam.cz");
         Mockito.when(properties.getProperty(ObjectIdentificationConfig.GROUP_PREFIX + "link_within_graph")).thenReturn("false");
         mockSparqlEndpointsConnectionCredentials(properties, EnumDbConnectionType.CLEAN, false);
         mockSparqlEndpointsConnectionCredentials(properties, EnumDbConnectionType.DIRTY_UPDATE, true);
         
         ObjectIdentificationConfig oiConfig = ObjectIdentificationConfig.load(properties);
 
-        assertEquals(new URI("http://www.seznam.cz"), oiConfig.getLinksGraphURIPrefix());
         checkSparqlEndpointsConnectionCredentials(
                 oiConfig.getCleanDBSparqlConnectionCredentials(), EnumDbConnectionType.CLEAN, false);
         checkSparqlEndpointsConnectionCredentials(

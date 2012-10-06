@@ -70,7 +70,6 @@ public class ConfigBuilderTest {
 		TransformationContext context = new TransformationContextMock("target/linkerTest");
 
 		Properties properties = Mockito.mock(Properties.class);
-		Mockito.when(properties.getProperty(ObjectIdentificationConfig.GROUP_PREFIX + "links_graph_uri_prefix")).thenReturn("http://www.seznam.cz");
 		Mockito.when(properties.getProperty(ObjectIdentificationConfig.GROUP_PREFIX + "link_within_graph")).thenReturn("false");
         Mockito.when(properties.getProperty("db.clean.sparql.endpoint_url")).thenReturn("http://www.google.cz");
         Mockito.when(properties.getProperty("db.dirty_update.sparql.endpoint_url")).thenReturn("http://www.yahoo.com");

@@ -28,20 +28,20 @@ public class QueryExecutionConfig extends ConfigGroup {
     public static final String GROUP_PREFIX = "query_execution" + NAME_DELIMITER;
 
     private Long maxQueryResultSize;
-    private URI resultGraphURIPrefix;
+    private URI resultDataURIPrefix;
     private final JDBCConnectionCredentials cleanDBJDBCConnectionCredentials;
 
     /**
      *
      * @param maxQueryResultSize
-     * @param resultGraphURIPrefix
+     * @param resultDataURIPrefix
      */
     public QueryExecutionConfig(
             Long maxQueryResultSize, 
-            URI resultGraphURIPrefix, 
+            URI resultDataURIPrefix, 
             JDBCConnectionCredentials cleanDBJDBCConnectionCredentials) {
         this.maxQueryResultSize = maxQueryResultSize;
-        this.resultGraphURIPrefix = resultGraphURIPrefix;
+        this.resultDataURIPrefix = resultDataURIPrefix;
         this.cleanDBJDBCConnectionCredentials = cleanDBJDBCConnectionCredentials;
     }
 
@@ -60,7 +60,7 @@ public class QueryExecutionConfig extends ConfigGroup {
         Long maxQueryResultSize = loadParam(properties, GROUP_PREFIX + "max_query_result_size", formatLong);
 
         ParameterFormat<URI> formatURI = new FormatURI();
-        URI resultGraphURIPrefix = loadParam(properties, GROUP_PREFIX + "result_graph_uri_prefix", formatURI);
+        URI resultGraphURIPrefix = loadParam(properties, OutputWSConfig.GROUP_PREFIX + "result_data_prefix", formatURI);
         
         JDBCConnectionCredentials cleanJDBCConnectionCredentials =
                 loadJDBCConnectionCredentials(properties,  EnumDbConnectionType.CLEAN);
@@ -83,8 +83,8 @@ public class QueryExecutionConfig extends ConfigGroup {
      *
      * @return
      */
-    public URI getResultGraphURIPrefix() {
-        return resultGraphURIPrefix;
+    public URI getResultDataURIPrefix() {
+        return resultDataURIPrefix;
     }
     
     /**

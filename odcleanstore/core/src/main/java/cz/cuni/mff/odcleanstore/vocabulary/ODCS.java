@@ -143,15 +143,9 @@ public final class ODCS {
     public static final String QARule = NS + "QARule";
     
     /**
-     * Prefix for temporary graphs in clean database. 
-     */
-    public static final String engineTemporaryGraph = NS + "engineTemporaryGraph";
-
-    /**
      * Base for relative URI in input data. 
      */
     public static final String dataBaseUrl = NS + "dataBaseUrl";
-
     
     // CHECKSTYLE:ON
 }

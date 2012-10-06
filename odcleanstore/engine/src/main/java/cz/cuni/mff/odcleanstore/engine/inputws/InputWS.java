@@ -25,6 +25,7 @@ import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.IInputWS;
 import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.InsertException;
 import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.Metadata;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 
 /**
  *  @author Petr Jerman
@@ -140,8 +141,8 @@ public class InputWS implements IInputWS {
 		String inputDirectory =  Engine.getCurrent().getDirtyDBImportExportDir();
 		
 		EngineConfig engineConfig = ConfigLoader.getConfig().getEngineGroup();
-		String dataGraphURI = engineConfig.getDataGraphURIPrefix() + metadata.uuid;
-		String metadataGraphURI = engineConfig.getMetadataGraphURIPrefix() + metadata.uuid;
+		String dataGraphURI = ODCSInternal.dataGraphUriPrefix + metadata.uuid;
+		String metadataGraphURI = ODCSInternal.metadataGraphUriPrefix + metadata.uuid;
 		
 		StringBuilder metadatattl = new StringBuilder();
 		

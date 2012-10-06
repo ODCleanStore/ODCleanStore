@@ -1,13 +1,5 @@
 package cz.cuni.mff.odcleanstore.engine.pipeline;
 
-import java.io.File;
-import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.Locale;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.configuration.EngineConfig;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
@@ -18,6 +10,15 @@ import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.Locale;
 /**
  *  @author Petr Jerman
  */
@@ -210,7 +211,7 @@ final class PipelineGraphManipulator {
 			con.setQueryTimeout(0);					
 			for (int i= 0; i<graphs.length; i++) {
 				if (temporaryGraphs) {
-					graphs[i] = ODCS.engineTemporaryGraph  + "/" + graphs[i]; 
+					graphs[i] = ODCSInternal.engineTemporaryGraphPrefix + graphs[i]; 
 				}
 				con.clearGraph(graphs[i]);
 			}
@@ -228,9 +229,9 @@ final class PipelineGraphManipulator {
 		String uuid = graphStatus.getUuid();
 		
 		EngineConfig engineConfig = ConfigLoader.getConfig().getEngineGroup();		
-		String dataGraphURI = engineConfig.getDataGraphURIPrefix() + uuid;
-		String metadataGraphURI = engineConfig.getMetadataGraphURIPrefix() + uuid;
-		String provenanceGraphURI = engineConfig.getProvenanceMetadataGraphURIPrefix() + uuid;
+		String dataGraphURI = ODCSInternal.dataGraphUriPrefix + uuid;
+		String metadataGraphURI = ODCSInternal.metadataGraphUriPrefix + uuid;
+		String provenanceGraphURI = ODCSInternal.provenanceMetadataGraphUriPrefix + uuid;
 		
 		String dataBaseUrl = null;
 			
@@ -351,9 +352,9 @@ final class PipelineGraphManipulator {
 		String uuid = graphStatus.getUuid();
 		
 		ArrayList<String> graphs = new ArrayList<String>();
-		graphs.add(engineConfig.getDataGraphURIPrefix() + uuid);
-		graphs.add(engineConfig.getMetadataGraphURIPrefix() + uuid);
-		graphs.add(engineConfig.getProvenanceMetadataGraphURIPrefix() + uuid);
+		graphs.add(ODCSInternal.dataGraphUriPrefix + uuid);
+		graphs.add(ODCSInternal.metadataGraphUriPrefix + uuid);
+		graphs.add(ODCSInternal.provenanceMetadataGraphUriPrefix + uuid);
 		graphs.addAll(graphStatus.getAttachedGraphs());
 		return graphs.toArray(new String[0]);
 	}
