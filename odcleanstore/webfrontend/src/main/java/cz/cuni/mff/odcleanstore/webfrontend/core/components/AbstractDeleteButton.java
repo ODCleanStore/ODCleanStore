@@ -82,7 +82,10 @@ public abstract class AbstractDeleteButton <BO extends EntityWithSurrogateKey> e
 		}
     	
 		getSession().info("The " + objName + " was successfuly deleted.");
-		setResponsePage(redirectPage);
+		if (redirectPage != null)
+		{
+			setResponsePage(redirectPage);
+		}
 	}
 	
 	/**

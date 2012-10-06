@@ -2,6 +2,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn;
 
 import java.util.Map;
 
+import org.apache.wicket.Component;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.Item;
@@ -10,6 +11,7 @@ import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNFilterTemplateInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRenameTemplateInstance;
@@ -27,6 +29,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamBut
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.CompiledDNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNFilterTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRenameTemplateInstanceDao;
@@ -154,7 +157,6 @@ public class DNGroupDetailPage extends LimitedEditingPage
 				}
 				
 				getSession().info("The group was successfuly updated.");
-				//setResponsePage(DNGroupsListPage.class);
 			}
 		};
 		
@@ -195,17 +197,12 @@ public class DNGroupDetailPage extends LimitedEditingPage
 				
 				item.add(new TruncatedLabel("description", MAX_LIST_COLUMN_TEXT_LENGTH));
 				
-				item.add(
-					new AuthorizedDeleteButton<DNRule>
-					(
-						dnRuleDao,
-						rule.getId(),
-						isEditable(),
-						"rule",
-						new DeleteConfirmationMessage("rule"),
-						DNGroupDetailPage.this
-					)
-				);
+				item.add(createAuthorizedDeleteButton(
+					dnRuleDao,
+					rule,
+					"rule",
+					new DeleteConfirmationMessage("rule")
+					));
 				
 				
 				item.add(
@@ -443,5 +440,21 @@ public class DNGroupDetailPage extends LimitedEditingPage
 				setResponsePage(new DNGroupDetailPage(group.getId()));
 			}
 		});
+	}
+	
+	private <BO extends EntityWithSurrogateKey> Component createAuthorizedDeleteButton(DaoForEntityWithSurrogateKey<BO> dao, final DNRule rule,
+		String objName, DeleteConfirmationMessage message)
+	{
+		return new AuthorizedDeleteButton<BO>(dao, rule.getId(), isEditable(), objName, message, null)
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick()
+			{
+				super.onClick();
+				setResponsePage(new DNGroupDetailPage(rule.getGroupId()));
+			}
+		};
 	}
 }
