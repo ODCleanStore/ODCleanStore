@@ -10,7 +10,7 @@ public class AuthorizedDeleteButton<BO extends EntityWithSurrogateKey> extends D
 {
 	private static final long serialVersionUID = 1L;
 	
-	private boolean isAuthorized;
+	protected final boolean isAuthorized;
 	
 	public AuthorizedDeleteButton(DaoForEntityWithSurrogateKey<BO> dao, AuthoredEntity entity, String objName,
 		DeleteConfirmationMessage message, FrontendPage redirectPage) 

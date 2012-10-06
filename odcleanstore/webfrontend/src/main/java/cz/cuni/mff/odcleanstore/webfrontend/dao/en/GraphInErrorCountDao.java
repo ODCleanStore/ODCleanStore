@@ -24,6 +24,12 @@ public class GraphInErrorCountDao extends DaoForEntityWithSurrogateKey<GraphInEr
 	protected ParameterizedRowMapper<GraphInErrorCount> getRowMapper() {
 		return new GraphInErrorCountRowMapper();
 	}
+	
+	@Override
+	protected String getSelectAndFromClause()
+	{
+		throw new UnsupportedOperationException();
+	}
 
 	@Override
 	public List<GraphInErrorCount> loadAllBy (QueryCriteria criteria) {

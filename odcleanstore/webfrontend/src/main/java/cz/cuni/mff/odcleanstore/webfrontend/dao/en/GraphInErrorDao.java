@@ -12,21 +12,9 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
 public class GraphInErrorDao extends DaoForEntityWithSurrogateKey<GraphInError> {
 	
 	private enum EnumGraphState {
-		QUEUED {
-			public String toString() {
-				return "QUEUED";
-			}
-		},
-		QUEUED_FOR_DELETE {
-			public String toString() {
-				return "QUEUED_FOR_DELETE";
-			}
-		},
-		FINISHED {
-			public String toString() {
-				return "FINISHED";
-			}
-		}
+		QUEUED, 
+		QUEUED_FOR_DELETE,
+		FINISHED
 	}
 
 	private static final long serialVersionUID = 1L;
@@ -109,7 +97,7 @@ public class GraphInErrorDao extends DaoForEntityWithSurrogateKey<GraphInError> 
 				criteria.addWhereClause("iGraph.uuid", graphInError.UUID);
 				criteria.addWhereClause("iGraph.pipelineId", graphInError.pipelineId);
 				criteria.addWhereClause("iGraph.engineId", graphInError.engineId);
-				criteria.addWhereClause("state.label", state.toString());
+				criteria.addWhereClause("state.label", state.name());
 
 				query = "INSERT REPLACING " + INPUT_GRAPHS_TABLE_NAME + " (id, uuid, stateId, engineId, pipelineId, isInCleanDB) " +
 						"SELECT  iGraph.id, iGraph.uuid, state.id, iGraph.engineId, iGraph.pipelineId, iGraph.isInCleanDB " +
@@ -170,7 +158,7 @@ public class GraphInErrorDao extends DaoForEntityWithSurrogateKey<GraphInError> 
 					criteria.addWhereClause((String)params[i], params[i + 1]);
 				}
 				criteria.addWhereClause("iState.label", "WRONG");
-				criteria.addWhereClause("state.label", state.toString());
+				criteria.addWhereClause("state.label", state.name());
 
 				query =
 						"INSERT REPLACING " + INPUT_GRAPHS_TABLE_NAME + " (id, uuid, stateId, engineId, pipelineId, isInCleanDB) " +

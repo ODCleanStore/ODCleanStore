@@ -1,6 +1,5 @@
 package cz.cuni.mff.odcleanstore.webfrontend.core.components;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.CompiledDNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNTemplateInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
@@ -27,12 +26,15 @@ public class AuthorizedDeleteTemplateInstanceButton<BO extends DNTemplateInstanc
 		this.compiledRuleDao = compiledRuleDao;
 		this.bo = bo;
 	}
-	
+
 	@Override
-	protected void delete() throws Exception 
+	protected void delete() throws Exception
 	{
-		// TODO: to be put into a transaction
-		templateInstanceDao.delete(bo);
-		compiledRuleDao.delete(bo.getRawRuleId());
+		if (isAuthorized)
+		{
+			// TODO: to be put into a transaction
+			templateInstanceDao.delete(bo);
+			compiledRuleDao.delete(bo.getRawRuleId());
+		}
 	}
 }

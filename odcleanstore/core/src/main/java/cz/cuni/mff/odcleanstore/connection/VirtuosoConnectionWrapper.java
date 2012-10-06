@@ -29,16 +29,6 @@ public final class VirtuosoConnectionWrapper {
     private static final Logger LOG = LoggerFactory.getLogger(VirtuosoConnectionWrapper.class);
 
     /**
-     * Query timeout in seconds.
-     * Loaded from global configuration settings.
-     */
-    private int queryTimeout = -1;
-    
-    public void setQueryTimeout(int queryTimeout) {
-    	this.queryTimeout = queryTimeout;
-    }
-
-    /**
      * Create a new connection and return its wrapper.
      * Should be used only for connection to a Virtuoso instance.
      * @param connectionCredentials connection settings for the SPARQL endpoint
@@ -67,6 +57,12 @@ public final class VirtuosoConnectionWrapper {
 
     /** Database connection. */
     private Connection connection;
+    
+    /**
+     * Query timeout in seconds.
+     * Default value loaded from global configuration settings.
+     */
+    private int queryTimeout = 0;
 
     /**
      * Create a new instance.
@@ -76,6 +72,14 @@ public final class VirtuosoConnectionWrapper {
     private VirtuosoConnectionWrapper(Connection connection) {
         this.connection = connection;
         queryTimeout = ConfigLoader.getConfig().getBackendGroup().getQueryTimeout();
+    }
+    
+    /**
+     * Sets query timeout for all queries executed through this wrapper.
+     * @param queryTimeout the new query timeout limit in seconds; zero means there is no limit
+     */
+    public void setQueryTimeout(int queryTimeout) {
+        this.queryTimeout = queryTimeout;
     }
 
     /**
@@ -280,76 +284,76 @@ public final class VirtuosoConnectionWrapper {
             // do nothing
         }
     }
-    
-	/**
-	 * Insert a quad to the database.
-	 * 
-	 * @param subject subject part of the quad to insert
-	 * @param predicate predicate part of the quad to insert
-	 * @param object object part of the quad to insert
-	 * @param graphName graph name part of the quad to insert
-	 * @throws QueryException query error
-	 */
-	public void insertQuad(String subject, String predicate, String object, String graphName) throws QueryException {
-		execute(String.format(Locale.ROOT, "SPARQL INSERT INTO GRAPH <%s> { %s %s %s }", graphName, subject, predicate, object));
-	}
-	
-	/**
-	 * Rename graph in DB.DBA.RDF_QUAD.
-	 * 
-	 * @param srcGraphName graph
-	 * @param dstGraphName graph
-	 * @throws QueryException query error
-	 * @throws SQLException 
-	 */
-	public void renameGraph(String srcGraphName, String dstGraphName) throws QueryException, SQLException {
-		execute("UPDATE DB.DBA.RDF_QUAD TABLE OPTION (index RDF_QUAD_GS)" + 
-		   "SET g = iri_to_id ('?')" + 
-		   "WHERE g = iri_to_id ('?', 0);", dstGraphName, srcGraphName); 
-	}
-		
-	/**
-	 * Clear graph from the database.
-	 * 
-	 * @param graphName name of the graph to clear
-	 * @throws QueryException query error  
-	 */
-	public void clearGraph(String graphName) throws QueryException {
-		execute(String.format(Locale.ROOT, "SPARQL CLEAR GRAPH <%s>", graphName));
-	}
 
-	/**
-	 * Insert RDF data from file in rdfXml  format to the database.
-	 * @param relativeBase relative URI base for payload
-	 * @param rdfXmlFileName file name with payload in RdfXml format
-	 * @param graphName name of the graph to insert
-	 * @throws QueryException query error
-	 */
-	public void insertRdfXmlFromFile(String relativeBase, String rdfXmlFileName, String graphName) throws QueryException {
-		String statement = relativeBase != null ?
-				"{call DB.DBA.RDF_LOAD_RDFXML(file_to_string_output('" + rdfXmlFileName + "'), '" + relativeBase + "', '" + graphName + "')}" :
-				"{call DB.DBA.RDF_LOAD_RDFXML(file_to_string_output('" + rdfXmlFileName + "'), '' , '"	+ graphName + "')}";
+    /**
+     * Insert a quad to the database.
+     * 
+     * @param subject subject part of the quad to insert
+     * @param predicate predicate part of the quad to insert
+     * @param object object part of the quad to insert
+     * @param graphName graph name part of the quad to insert
+     * @throws QueryException query error
+     */
+    public void insertQuad(String subject, String predicate, String object, String graphName) throws QueryException {
+        execute(String.format(Locale.ROOT, "SPARQL INSERT INTO GRAPH <%s> { %s %s %s }", graphName, subject, predicate, object));
+    }
 
-		executeCall(statement);
-	}
-	
-	/**
-	 * Insert RDF data from file in TTL format to the database.
-	 * 
-	 * @param relativeBase relative URI base for payload
-	 * @param ttlFileName file name with payload in ttl format
-	 * @param graphName name of the graph to insert
-	 * @throws QueryException query error
-	 */
-	public void insertTtlFromFile(String relativeBase, String ttlFileName, String graphName) throws QueryException {
-		String statement = relativeBase != null ?
-				"{call DB.DBA.TTLP(file_to_string_output('" + ttlFileName + "'), '" + relativeBase + "', '" + graphName + "', 0)}" :
-				"{call DB.DBA.TTLP(file_to_string_output('" + ttlFileName + "'), '' , '"	+ graphName + "', 0)}";
+    /**
+     * Rename graph in DB.DBA.RDF_QUAD.
+     * 
+     * @param srcGraphName graph
+     * @param dstGraphName graph
+     * @throws QueryException query error
+     * @throws SQLException
+     */
+    public void renameGraph(String srcGraphName, String dstGraphName) throws QueryException {
+        execute("UPDATE DB.DBA.RDF_QUAD TABLE OPTION (index RDF_QUAD_GS)"
+                + " SET g = iri_to_id ('?')"
+                + " WHERE g = iri_to_id ('?', 0);", dstGraphName, srcGraphName);
+    }
 
-		executeCall(statement);
-	}
-	
-	/**
+    /**
+     * Clear graph from the database.
+     * 
+     * @param graphName name of the graph to clear
+     * @throws QueryException query error
+     */
+    public void clearGraph(String graphName) throws QueryException {
+        execute(String.format(Locale.ROOT, "SPARQL CLEAR GRAPH <%s>", graphName));
+    }
+
+    /**
+     * Insert RDF data from file in rdfXml format to the database.
+     * @param relativeBase relative URI base for payload
+     * @param rdfXmlFileName file name with payload in RdfXml format
+     * @param graphName name of the graph to insert
+     * @throws QueryException query error
+     */
+    public void insertRdfXmlFromFile(String relativeBase, String rdfXmlFileName, String graphName) throws QueryException {
+        String base = (relativeBase == null) ? "" : relativeBase;
+        String statement = "{call DB.DBA.RDF_LOAD_RDFXML("
+                + "file_to_string_output('" + rdfXmlFileName + "'), '" + base + "', '" + graphName + "')}";
+
+        executeCall(statement);
+    }
+
+    /**
+     * Insert RDF data from file in TTL format to the database.
+     * 
+     * @param relativeBase relative URI base for payload
+     * @param ttlFileName file name with payload in ttl format
+     * @param graphName name of the graph to insert
+     * @throws QueryException query error
+     */
+    public void insertTtlFromFile(String relativeBase, String ttlFileName, String graphName) throws QueryException {
+        String base = (relativeBase == null) ? "" : relativeBase;
+        String statement =
+                "{call DB.DBA.TTLP(file_to_string_output('" + ttlFileName + "'), '" + base + "', '" + graphName + "', 0)}";
+
+        executeCall(statement);
+    }
+
+    /**
      * Executes callable SQL/SPARQL query.
      * 
      * @param query SQL/SPARQL query

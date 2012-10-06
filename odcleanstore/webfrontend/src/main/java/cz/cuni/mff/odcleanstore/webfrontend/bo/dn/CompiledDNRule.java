@@ -14,7 +14,7 @@ public class CompiledDNRule extends DNRule
 {
 	private static final long serialVersionUID = 1L;
 
-	private List<CompiledDNRuleComponent> components;
+	private final List<CompiledDNRuleComponent> components;
 	
 	/**
 	 * 
