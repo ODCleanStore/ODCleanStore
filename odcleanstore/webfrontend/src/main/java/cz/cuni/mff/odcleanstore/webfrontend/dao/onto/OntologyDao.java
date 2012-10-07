@@ -12,6 +12,8 @@ import virtuoso.jena.driver.VirtGraph;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 
+import cz.cuni.mff.odcleanstore.data.EnumDatabaseInstance;
+import cz.cuni.mff.odcleanstore.data.GraphLoader;
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
 import cz.cuni.mff.odcleanstore.datanormalization.rules.DataNormalizationRulesModel;
 import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
@@ -133,7 +135,8 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 				// to be able to drop a graph in Virtuoso, it has to be explicitly created before
 				createGraph(item.getGraphName());
 
-				storeRdfXml(item.getDefinition(), item.getGraphName());
+				GraphLoader graphLoader = new GraphLoader(EnumDatabaseInstance.CLEAN);
+				graphLoader.importGraph(item.getDefinition(), item.getGraphName());
 
 				// Call after working with RDF in case it fails
 				jdbcUpdate(query, params);
@@ -160,19 +163,6 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		String query = "SPARQL CREATE SILENT GRAPH ??";
 
 		Object[] params = { graphName };
-
-		jdbcUpdate(query, params);
-	}
-
-	private void storeRdfXml(String rdfData, String graphName) throws Exception
-	{
-		String query = "CALL DB.DBA.RDF_LOAD_RDFXML_MT(?, '', ?)";
-
-		Object[] params =
-		{
-			rdfData,
-			graphName
-		};
 
 		jdbcUpdate(query, params);
 	}

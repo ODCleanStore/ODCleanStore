@@ -464,7 +464,7 @@ public class DNGroupDetailPage extends LimitedEditingPage
 		DNTemplateInstanceDao<BO> templateInstanceDao, CompiledDNRuleDao compiledRuleDao, final BO instance, String objName, DeleteConfirmationMessage message)
 	{
 		return 
-			new AuthorizedDeleteTemplateInstanceButton(
+			new AuthorizedDeleteTemplateInstanceButton<BO>(
 				templateInstanceDao, 
 				compiledRuleDao,
 				instance, 
