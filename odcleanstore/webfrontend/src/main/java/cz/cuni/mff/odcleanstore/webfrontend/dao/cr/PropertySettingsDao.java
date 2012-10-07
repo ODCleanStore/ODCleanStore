@@ -1,12 +1,9 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.cr;
 
+import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.PropertySettings;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
-
-import java.util.List;
-
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 public class PropertySettingsDao extends DaoForEntityWithSurrogateKey<PropertySettings>
 {	
@@ -34,7 +31,7 @@ public class PropertySettingsDao extends DaoForEntityWithSurrogateKey<PropertySe
 	}
 	
 	@Override
-	public void save(PropertySettings item) 
+	public void save(PropertySettings item) throws Exception
 	{
 		String query = 
 			"INSERT INTO " + TABLE_NAME + " (property, multivalueTypeId, aggregationTypeId) " +
@@ -51,11 +48,10 @@ public class PropertySettingsDao extends DaoForEntityWithSurrogateKey<PropertySe
 		logger.debug("multivalueTypeId: " + item.getMultivalueType().getId());
 		logger.debug("aggregationTypeId: " + item.getAggregationType().getId());
 		
-		getCleanJdbcTemplate().update(query, arguments);
+		jdbcUpdate(query, arguments);
 	}
-	
-	@Override
-	public void update(PropertySettings item)
+
+	public void update(PropertySettings item) throws Exception
 	{
 		String query = 
 			"UPDATE " + TABLE_NAME + " SET property = ?, multivalueTypeId = ?, aggregationTypeId = ? " +
@@ -74,11 +70,11 @@ public class PropertySettingsDao extends DaoForEntityWithSurrogateKey<PropertySe
 		logger.debug("aggregationTypeId: " + item.getAggregationType().getId());
 		logger.debug("id: " + item.getId());
 		
-		getCleanJdbcTemplate().update(query, arguments);
+		jdbcUpdate(query, arguments);
 	}
-
+	
 	@Override
-	public List<PropertySettings> loadAllBy(QueryCriteria criteria)
+	protected String getSelectAndFromClause()
 	{
 		String query = 
 			"SELECT " +
@@ -89,32 +85,13 @@ public class PropertySettingsDao extends DaoForEntityWithSurrogateKey<PropertySe
 			"JOIN " + AggregationTypeDao.TABLE_NAME + " as AT " +
 			"ON P.aggregationTypeId = AT.id " +
 			"JOIN " + MultivalueTypeDao.TABLE_NAME + " as MT " +
-			"ON P.multivalueTypeId = MT.id " +
-			criteria.buildWhereClause() +
-			criteria.buildOrderByClause();
-		
-		Object[] params = criteria.buildWhereClauseParams();
-		
-		return getCleanJdbcTemplate().query(query, params, getRowMapper());
+			"ON P.multivalueTypeId = MT.id ";
+		return query;
 	}
 
 	@Override
-	public PropertySettings load(Long id)
+	public PropertySettings load(Integer id)
 	{
-		String query = 
-			"SELECT " +
-			"	P.id as id, P.property as property, " +
-			"	AT.id as atid, AT.label as atlbl, AT.description as atdescr, " +
-			"	MT.id as mtid, MT.label as mtlbl, MT.description as mtdescr " +
-			"FROM " + PropertySettingsDao.TABLE_NAME + " as P " +
-			"JOIN " + AggregationTypeDao.TABLE_NAME + " as AT " +
-			"ON P.aggregationTypeId = AT.id " +
-			"JOIN " + MultivalueTypeDao.TABLE_NAME + " as MT " +
-			"ON P.multivalueTypeId = MT.id " +
-			"WHERE P.id = ?";
-		
-		Object[] params = { id };
-			
-		return getCleanJdbcTemplate().queryForObject(query, params, getRowMapper());
+		return loadBy("P.id", id);
 	}
 }

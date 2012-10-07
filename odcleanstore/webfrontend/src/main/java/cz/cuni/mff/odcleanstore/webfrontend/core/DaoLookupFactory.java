@@ -3,25 +3,16 @@ package cz.cuni.mff.odcleanstore.webfrontend.core;
 import java.io.Serializable;
 import java.util.HashMap;
 
-
-import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.SafetyDaoDecorator;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.SafetyDaoDecoratorForEntityWithSurrogateKey;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.GlobalAggregationSettingsDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.en.OfficialPipelinesDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.en.EngineOperationsDao;
-
-import org.apache.log4j.Logger;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.support.AbstractPlatformTransactionManager;
 
 import virtuoso.jdbc3.VirtuosoDataSource;
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.CommittableDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 
 /**
- * A factory to lookup DAO Spring beans.
+ * A factory to lookup DAO objects.
  *  
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
@@ -34,18 +25,22 @@ public class DaoLookupFactory implements Serializable
 	
 	//private static Logger logger = Logger.getLogger(DaoLookupFactory.class);
 	
+	/** connection credentials to the clean Virtuoso DB */
 	private JDBCConnectionCredentials cleanConnectionCoords;
+	
+	/** data source to the clean Virtuoso DB */
 	private transient VirtuosoDataSource cleanDataSource;
 	
+	/** connection credentials to the dirty Virtuoso DB */
 	private JDBCConnectionCredentials dirtyConnectionCoords;
+	
+	/** data source to the dirty Virtuoso DB */
 	private transient VirtuosoDataSource dirtyDataSource;
 	
+	/** Spring transaction manager */
 	private transient AbstractPlatformTransactionManager transactionManager;
 	
-	private HashMap<Class<? extends Dao<?>>, Dao<?>> daos;
-	
-	//private GlobalAggregationSettingsDao globalAggregationSettingsDao;
-	private TransformerInstanceDao transformerInstanceDao;
+	private HashMap<Class<? extends Dao>, Dao> daos;
 	
 	/**
 	 * 
@@ -59,7 +54,7 @@ public class DaoLookupFactory implements Serializable
 		this.cleanConnectionCoords = cleanConnectionCoords;
 		this.dirtyConnectionCoords = dirtyConnectionCoords;
 		
-		this.daos = new HashMap<Class<? extends Dao<?>>, Dao<?>>();
+		this.daos = new HashMap<Class<? extends Dao>, Dao>();
 	}
 	
 	/**
@@ -73,65 +68,59 @@ public class DaoLookupFactory implements Serializable
 	 * @return
 	 * @throws AssertionError
 	 */
-	public Dao getDao(Class<? extends Dao<?>> daoClass) throws AssertionError
+	@SuppressWarnings("unchecked")
+	public <T extends Dao> T getDao(Class<T> daoClass) throws AssertionError
 	{
 		if (daos.containsKey(daoClass))
-			return daos.get(daoClass);
+			return (T) daos.get(daoClass);
 		
-		Dao<?> daoInstance = createDaoInstance(daoClass);
-		Dao<?> safeDaoInstance = new SafetyDaoDecorator(daoInstance);
-		
-		daos.put(daoClass, safeDaoInstance);
-		
-		return safeDaoInstance;
+		T daoInstance = createDaoInstance(daoClass);
+		daos.put(daoClass, daoInstance);
+	
+		return daoInstance;
 	}
 	
 	/**
-	 * 
+	 * Creates requested DAO object with the option to look for "uncommitted" version of the DAO
+	 * @see #getDao(Class)
 	 * @param daoClass
+	 * @param commitable if true, the uncommitted version of the DAO will be returned
 	 * @return
 	 * @throws AssertionError
 	 */
-	public DaoForEntityWithSurrogateKey getDaoForEntityWithSurrogateKey(Class<? extends Dao<?>> daoClass) 
-		throws AssertionError
+	@SuppressWarnings("unchecked")
+	public <T extends Dao> T getDao(Class<T> daoClass, boolean commitable) throws AssertionError
 	{
-		if (daos.containsKey(daoClass))
-			return (DaoForEntityWithSurrogateKey<?>) daos.get(daoClass);
-		
-		DaoForEntityWithSurrogateKey<?> daoInstance = (DaoForEntityWithSurrogateKey<?>) createDaoInstance(daoClass);
-		DaoForEntityWithSurrogateKey<?> safeDaoInstance = new SafetyDaoDecoratorForEntityWithSurrogateKey(daoInstance);
-		
-		daos.put(daoClass, safeDaoInstance);
-		
-		return safeDaoInstance;
-	}
-	
-	/**
-	 * Creates and returns a bew raw (e.g. undecorated) instance of the
-	 * requested DAO class.
-	 * 
-	 * Throws an AssertionError if the requested DAO class cannot be 
-	 * instantiated.
-	 * 
-	 * @param daoClass
-	 * @return
-	 * @throws AssertionError
-	 */
-	public Dao<?> getUnsafeDao(Class<? extends Dao<?>> daoClass) throws AssertionError
-	{
-		return createDaoInstance(daoClass);
+		Class<T> requestedClass = daoClass;
+		if (commitable)
+		{
+			CommittableDao annotation = daoClass.getAnnotation(CommittableDao.class);
+			if (annotation == null) 
+			{
+				throw new AssertionError("Could not load committable version of DAO class: " + daoClass);
+			}
+			if (!daoClass.isAssignableFrom(annotation.value()))
+			{
+				throw new AssertionError("Committable version of DAO must inhterit from the requested class " + daoClass);
+			}
+			requestedClass = (Class<T>) annotation.value();
+			
+		}
+		return getDao(requestedClass);
 	}
 	
 	/**
 	 * Creates and returns a DAO instance related to the given class.
+	 * 
+	 * Throws AssertionError if the requested DAO class cannot be instantiated.
 	 *  
 	 * @param daoClass
 	 * @return
 	 * @throws AssertionError
 	 */
-	private Dao<?> createDaoInstance(Class<? extends Dao<?>> daoClass) throws AssertionError
+	private <T extends Dao> T createDaoInstance(Class<T> daoClass) throws AssertionError
 	{
-		Dao<?> daoInstance;
+		T daoInstance;
 		
 		try {
 			daoInstance = daoClass.newInstance();
@@ -149,37 +138,21 @@ public class DaoLookupFactory implements Serializable
 	}
 	
 	/**
+	 * Returns the data source for the clean Virtuoso DB.
 	 * 
+	 * The data source is lazily created (based on the connection credentials)
+	 * on every request, which allows the factory to be stored in the session
+	 * by the Wicket framework.
+	 * 
+	 * Only for DAO classes.
 	 * @return
 	 */
-	public OfficialPipelinesDao getOfficialPipelinesDao()
-	{
-		OfficialPipelinesDao dao = new OfficialPipelinesDao();
-		dao.setDaoLookupFactory(this);
-		return dao;
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public EngineOperationsDao getEngineOperationsDao() 
-	{
-		EngineOperationsDao dao = new EngineOperationsDao();
-		dao.setDaoLookupFactory(this);
-		return dao;
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public VirtuosoDataSource getCleanDataSource()
+	public  VirtuosoDataSource getCleanDataSource()
 	{
 		if (cleanDataSource == null)
 		{
 			cleanDataSource = new VirtuosoDataSource();
-			cleanDataSource.setServerName(cleanConnectionCoords.getConnectionString());
+			cleanDataSource.setServerName(makeVirtuosoDataSourceConnectionString(cleanConnectionCoords.getConnectionString()));
 			cleanDataSource.setUser(cleanConnectionCoords.getUsername());
 			cleanDataSource.setPassword(cleanConnectionCoords.getPassword());
 			cleanDataSource.setCharset(CONNECTION_ENCODING);
@@ -189,7 +162,13 @@ public class DaoLookupFactory implements Serializable
 	}
 	
 	/**
+	 * Returns the data source for the dirty Virtuoso DB.
 	 * 
+	 * The data source is lazily created (based on the connection credentials)
+	 * on every request, which allows the factory to be stored in the session
+	 * by the Wicket framework.
+	 * 
+	 * Only for DAO classes.
 	 * @return
 	 */
 	public VirtuosoDataSource getDirtyDataSource()
@@ -197,7 +176,7 @@ public class DaoLookupFactory implements Serializable
 		if (dirtyDataSource == null)
 		{
 			dirtyDataSource = new VirtuosoDataSource();
-			dirtyDataSource.setServerName(dirtyConnectionCoords.getConnectionString());
+			dirtyDataSource.setServerName(makeVirtuosoDataSourceConnectionString(dirtyConnectionCoords.getConnectionString()));
 			dirtyDataSource.setUser(dirtyConnectionCoords.getUsername());
 			dirtyDataSource.setPassword(dirtyConnectionCoords.getPassword());
 			dirtyDataSource.setCharset(CONNECTION_ENCODING);
@@ -205,31 +184,35 @@ public class DaoLookupFactory implements Serializable
 		
 		return dirtyDataSource;
 	}
+
+	private String makeVirtuosoDataSourceConnectionString(String jdbcConnectionString) 
+	{
+		final String connectionPrefix = "jdbc:virtuoso://";
+		String result = jdbcConnectionString;
+		if (result.startsWith(connectionPrefix))
+		{
+			result = result.substring(connectionPrefix.length());
+		}
+		int paramsIndex = result.indexOf('/');
+		if (paramsIndex >= 0)
+		{
+			result = result.substring(0, paramsIndex);
+		}
+		return result;
+	}
 	
 	/**
-	 * 
+	 * Returns the (lazily created on every request) transaction manager over
+	 * the clean data source.
+	 *  
+	 * Only for DAO classes.
 	 * @return
 	 */
-	public AbstractPlatformTransactionManager getTransactionManager()
+	public AbstractPlatformTransactionManager getCleanTransactionManager()
 	{
 		if (transactionManager == null)
 			transactionManager = new DataSourceTransactionManager(getCleanDataSource());
 		
 		return transactionManager;
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public TransformerInstanceDao getTransformerInstanceDao()
-	{
-		if (transformerInstanceDao == null)
-		{
-			transformerInstanceDao = new TransformerInstanceDao();
-			transformerInstanceDao.setDaoLookupFactory(this);
-		}
-		
-		return transformerInstanceDao;
 	}
 }

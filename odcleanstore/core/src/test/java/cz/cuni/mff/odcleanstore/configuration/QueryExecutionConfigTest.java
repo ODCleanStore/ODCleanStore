@@ -29,14 +29,14 @@ public class QueryExecutionConfigTest extends ConfigTestBase {
         Mockito.when(properties.getProperty(
                 QueryExecutionConfig.GROUP_PREFIX + "max_query_result_size")).thenReturn(RESULT_SIZE.toString());
         Mockito.when(properties.getProperty(
-                QueryExecutionConfig.GROUP_PREFIX + "result_graph_uri_prefix"))
+                OutputWSConfig.GROUP_PREFIX + "result_data_prefix"))
                 .thenReturn("http://odcs.mff.cuni.cz/query/results/");
         mockJDBCConnectionCredentials(properties, EnumDbConnectionType.CLEAN);
 
         QueryExecutionConfig qeConfig = QueryExecutionConfig.load(properties);
 
         assertEquals(RESULT_SIZE, qeConfig.getMaxQueryResultSize());
-        assertEquals(new URI("http://odcs.mff.cuni.cz/query/results/"), qeConfig.getResultGraphURIPrefix());
+        assertEquals(new URI("http://odcs.mff.cuni.cz/query/results/"), qeConfig.getResultDataURIPrefix());
         checkJDBCConnectionCredentials(
                 qeConfig.getCleanDBJDBCConnectionCredentials(), EnumDbConnectionType.CLEAN);
     }
@@ -46,7 +46,7 @@ public class QueryExecutionConfigTest extends ConfigTestBase {
         Properties properties = Mockito.mock(Properties.class);
 
         Mockito.when(properties.getProperty("qery_execution.max_query_result_size")).thenReturn(RESULT_SIZE.toString());
-        Mockito.when(properties.getProperty("qery_execution.result_graph_uri_prefix")).thenReturn(
+        Mockito.when(properties.getProperty("qery_execution.result_data_prefix")).thenReturn(
                 "http://odcs.mff.cuni.cz/query/results/");
 
         QueryExecutionConfig.load(properties);

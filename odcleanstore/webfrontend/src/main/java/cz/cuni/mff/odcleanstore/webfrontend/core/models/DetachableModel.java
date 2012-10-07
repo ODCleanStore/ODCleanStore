@@ -11,12 +11,12 @@ public class DetachableModel<BO extends EntityWithSurrogateKey> extends Loadable
 	
 	private DaoForEntityWithSurrogateKey<BO> dao;
 	private BO item;
-	private Long id;
+	private Integer id;
 	
 	/**
 	 * 
 	 */
-	public DetachableModel(DaoForEntityWithSurrogateKey<BO> dao, Long id)
+	public DetachableModel(DaoForEntityWithSurrogateKey<BO> dao, Integer id)
 	{
 		this.dao = dao;
 		this.id = id;

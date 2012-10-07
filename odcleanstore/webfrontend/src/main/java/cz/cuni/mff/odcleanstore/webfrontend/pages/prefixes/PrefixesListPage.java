@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.prefixes;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
@@ -13,7 +14,6 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.prefixes.Prefix;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.prefixes.PrefixDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
@@ -21,8 +21,9 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 public class PrefixesListPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
+	private static Logger logger = Logger.getLogger(PrefixesListPage.class);
 	
-	private Dao<Prefix> prefixMappingDao;
+	private PrefixDao prefixMappingDao;
 	
 	public PrefixesListPage() 
 	{
@@ -74,9 +75,9 @@ public class PrefixesListPage extends FrontendPage
 		add(new UnobtrusivePagingNavigator("navigator", dataView));
 	}
 	
-	private Link createDeletePrefixButton(final Prefix mapping)
+	private Link<String> createDeletePrefixButton(final Prefix mapping)
 	{
-		Link button = new Link("deletePrefix")
+		Link<String> button = new Link<String>("deletePrefix")
 	    {
 			private static final long serialVersionUID = 1L;
 	
@@ -87,14 +88,15 @@ public class PrefixesListPage extends FrontendPage
 					prefixMappingDao.delete(mapping);
 				} 
 	        	catch (Exception e) 
-	        	{
+	        	{	
+	        		logger.error(e.getMessage(), e);
 	        		getSession().error("Could not delete prefix mapping due to an unexpected error.");
 	        		return;
 				}
 	        	
 				getSession().info("The prefix mapping was successfuly deleted.");
 				
-				setResponsePage(PrefixesListPage.this);
+				//setResponsePage(PrefixesListPage.this);
 	        }
 	    };
 	    

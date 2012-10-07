@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.prefixes;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
@@ -8,8 +9,8 @@ import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.prefixes.Prefix;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.NonUniquePrimaryKeyException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.prefixes.PrefixDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.validators.IRIValidator;
@@ -19,7 +20,9 @@ public class NewPrefixPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private Dao<Prefix> prefixMappingDao;
+	private static Logger logger = Logger.getLogger(NewPrefixPage.class);
+	
+	private PrefixDao prefixMappingDao;
 	
 	public NewPrefixPage() 
 	{
@@ -56,14 +59,20 @@ public class NewPrefixPage extends FrontendPage
 				try {
 					prefixMappingDao.save(mapping);
 				}
+				catch (NonUniquePrimaryKeyException ex)
+				{	
+					getSession().error("The given prefix has already been registered.");
+					return;
+				}
 				catch (DaoException ex)
-				{
+				{	
+					logger.error(ex.getMessage(), ex);
 					getSession().error(ex.getMessage());
 					return;
 				}
 				catch (Exception ex)
 				{
-					// TODO: log the error
+					logger.error(ex.getClass() + ": " + ex.getMessage());
 					
 					getSession().error(
 						"The prefix could not be registered due to an unexpected error."

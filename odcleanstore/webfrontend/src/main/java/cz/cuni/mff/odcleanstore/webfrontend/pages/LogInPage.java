@@ -1,8 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.LogInPanel;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
 
 /**
@@ -23,7 +21,7 @@ public class LogInPage extends FrontendPage
 	{
 		super("Home > Log In", "Log in");
 
-		DaoForEntityWithSurrogateKey<User> userDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(UserDao.class);
+		UserDao userDao = daoLookupFactory.getDao(UserDao.class);
 		add(new LogInPanel("logInForm", userDao));
 	}
 }

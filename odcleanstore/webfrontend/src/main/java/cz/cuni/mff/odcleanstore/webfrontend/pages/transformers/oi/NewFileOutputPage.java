@@ -1,5 +1,8 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi;
 
+import java.math.BigDecimal;
+
+import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
@@ -8,38 +11,41 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.validation.validator.RangeValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIFileFormat;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutput;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutputType;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.LimitedEditingForm;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIFileFormatDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputTypeDao;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
 @AuthorizeInstantiation({ Role.PIC })
-public class NewFileOutputPage extends FrontendPage 
+public class NewFileOutputPage extends LimitedEditingPage 
 {
 	private static final long serialVersionUID = 1L;
+	private static Logger logger = Logger.getLogger(NewFileOutputPage.class);
 	
-	private DaoForEntityWithSurrogateKey<OIOutput> oiOutputDao;
-	private DaoForEntityWithSurrogateKey<OIOutputType> oiOutputTypeDao;
-	private DaoForEntityWithSurrogateKey<OIFileFormat> oiFileFormatDao;
+	private OIOutputDao oiOutputDao;
+	private OIOutputTypeDao oiOutputTypeDao;
+	private OIFileFormatDao oiFileFormatDao;
 	
-	public NewFileOutputPage(final Long ruleId) 
+	public NewFileOutputPage(final Integer ruleId) 
 	{
 		super(
 			"Home > Backend > OI > Groups > Rules > File Outputs > New", 
-			"Add a new file output"
+			"Add a new file output",
+			OIRuleDao.class,
+			ruleId
 		);
 		
 		// prepare DAO objects
 		//
-		oiOutputDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIOutputDao.class);
-		oiOutputTypeDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIOutputTypeDao.class);
-		oiFileFormatDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIFileFormatDao.class);
+		oiOutputDao = daoLookupFactory.getDao(OIOutputDao.class, isEditable());
+		oiOutputTypeDao = daoLookupFactory.getDao(OIOutputTypeDao.class);
+		oiFileFormatDao = daoLookupFactory.getDao(OIFileFormatDao.class);
 		
 		// register page components
 		//
@@ -56,16 +62,16 @@ public class NewFileOutputPage extends FrontendPage
 		addNewFileOutputForm(ruleId);
 	}
 
-	private void addNewFileOutputForm(final Long ruleId)
+	private void addNewFileOutputForm(final Integer ruleId)
 	{
 		IModel<OIOutput> formModel = new CompoundPropertyModel<OIOutput>(new OIOutput());
 		
-		Form<OIOutput> form = new Form<OIOutput>("newFileOutputForm", formModel)
+		Form<OIOutput> form = new LimitedEditingForm<OIOutput>("newFileOutputForm", formModel, isEditable())
 		{
 			private static final long serialVersionUID = 1L;
 			
 			@Override
-			protected void onSubmit()
+			protected void onSubmitImpl()
 			{
 				OIOutput output = getModelObject();
 				
@@ -78,14 +84,14 @@ public class NewFileOutputPage extends FrontendPage
 					oiOutputDao.save(output);
 				}
 				catch (DaoException ex)
-				{
+				{	
+					logger.error(ex.getMessage(), ex);
 					getSession().error(ex.getMessage());
 					return;
 				}
 				catch (Exception ex)
 				{
-					// TODO: log the error
-					
+					logger.error(ex.getMessage(), ex);
 					getSession().error(
 						"The output could not be registered due to an unexpected error."
 					);
@@ -113,7 +119,7 @@ public class NewFileOutputPage extends FrontendPage
 	private TextField<String> createConfidenceTextfield(String compName)
 	{
 		TextField<String> textfield = createTextfield(compName, false);
-		textfield.add(new RangeValidator<Double>(0.0, Double.MAX_VALUE));
+		textfield.add(new RangeValidator<BigDecimal>(new BigDecimal(0), new BigDecimal(Double.MAX_VALUE)));
 		return textfield;
 	}
 }

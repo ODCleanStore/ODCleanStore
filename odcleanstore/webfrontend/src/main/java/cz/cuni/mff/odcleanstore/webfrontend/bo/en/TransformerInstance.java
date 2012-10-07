@@ -2,18 +2,34 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo.en;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
+/**
+ * The BO to represent an instance of a transformer.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class TransformerInstance extends EntityWithSurrogateKey
 {
 	private static final long serialVersionUID = 1L;
 	
-	private Long transformerId;
-	private Long pipelineId;
+	private Integer transformerId;
+	private Integer pipelineId;
 	private String label;
 	private String configuration;
 	private Boolean runOnCleanDB;
 	private Integer priority;
 	
-	public TransformerInstance(Long id, Long transformerId, Long pipelineId, String label,
+	/**
+	 * 
+	 * @param id
+	 * @param transformerId
+	 * @param pipelineId
+	 * @param label
+	 * @param configuration
+	 * @param runOnCleanDB
+	 * @param priority
+	 */
+	public TransformerInstance(Integer id, Integer transformerId, Integer pipelineId, String label,
 		String configuration, Boolean runOnCleanDB, Integer priority) 
 	{
 		super(id);
@@ -32,9 +48,10 @@ public class TransformerInstance extends EntityWithSurrogateKey
 	 * @param pipelineId
 	 * @param label
 	 * @param configuration
+	 * @param runOnCleanDB
 	 * @param priority
 	 */
-	public TransformerInstance(Long transformerId, Long pipelineId, String label, 
+	public TransformerInstance(Integer transformerId, Integer pipelineId, String label, 
 		String configuration, Boolean runOnCleanDB, Integer priority) 
 	{
 		this.transformerId = transformerId;
@@ -51,9 +68,10 @@ public class TransformerInstance extends EntityWithSurrogateKey
 	 * @param transformerId
 	 * @param pipelineId
 	 * @param configuration
+	 * @param runOnCleanDB
 	 * @param priority
 	 */
-	public TransformerInstance(Long transformerId, Long pipelineId,  
+	public TransformerInstance(Integer transformerId, Integer pipelineId,  
 		String configuration, Boolean runOnCleanDB, Integer priority) 
 	{
 		this.transformerId = transformerId;
@@ -74,7 +92,7 @@ public class TransformerInstance extends EntityWithSurrogateKey
 	 * 
 	 * @return
 	 */
-	public Long getTransformerId()
+	public Integer getTransformerId()
 	{
 		return transformerId;
 	}
@@ -83,7 +101,7 @@ public class TransformerInstance extends EntityWithSurrogateKey
 	 * 
 	 * @param transformerId
 	 */
-	public void setTransformerId(Long transformerId)
+	public void setTransformerId(Integer transformerId)
 	{
 		this.transformerId = transformerId;
 	}
@@ -92,7 +110,7 @@ public class TransformerInstance extends EntityWithSurrogateKey
 	 * 
 	 * @return
 	 */
-	public Long getPipelineId()
+	public Integer getPipelineId()
 	{
 		return pipelineId;
 	}
@@ -101,7 +119,7 @@ public class TransformerInstance extends EntityWithSurrogateKey
 	 * 
 	 * @param pipelineId
 	 */
-	public void setPipelineId(Long pipelineId)
+	public void setPipelineId(Integer pipelineId)
 	{
 		this.pipelineId = pipelineId;
 	}
@@ -140,5 +158,14 @@ public class TransformerInstance extends EntityWithSurrogateKey
 	public Integer getPriority() 
 	{
 		return priority;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public void setPriority(Integer priority) 
+	{
+		this.priority = priority;
 	}
 }

@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -7,7 +8,6 @@ import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
@@ -16,8 +16,9 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 public class NewPipelinePage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
+	private static Logger logger = Logger.getLogger(NewPipelinePage.class);
 
-	private DaoForEntityWithSurrogateKey<Pipeline> pipelineDao;
+	private PipelineDao pipelineDao;
 	
 	public NewPipelinePage() 
 	{
@@ -30,7 +31,7 @@ public class NewPipelinePage extends FrontendPage
 
 		// prepare DAO objects
 		//
-		pipelineDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(PipelineDao.class);
+		pipelineDao = daoLookupFactory.getDao(PipelineDao.class);
 		
 		// register page components
 		//
@@ -50,20 +51,21 @@ public class NewPipelinePage extends FrontendPage
 			protected void onSubmit()
 			{
 				Pipeline pipeline = this.getModelObject();
-				long insertId;
+				pipeline.setAuthorId(getODCSSession().getUser().getId());
+				int insertId;
 				try 
 				{
 					insertId = pipelineDao.saveAndGetKey(pipeline);
 				}
 				catch (DaoException ex)
 				{
+					logger.error(ex.getMessage(), ex);
 					getSession().error(ex.getMessage());
 					return;
 				}
 				catch (Exception ex)
 				{
-					// TODO: log the error
-					
+					logger.error(ex.getMessage(), ex);
 					getSession().error(
 						"The pipeline could not be registered due to an unexpected error."
 					);

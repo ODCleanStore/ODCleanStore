@@ -1,36 +1,56 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo.dn;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.RuleEntity;
 
-public class DNRule extends EntityWithSurrogateKey
+/**
+ * The BO to represent a DN rule.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
+public class DNRule extends RuleEntity
 {
 	private static final long serialVersionUID = 1L;
 
-	private Long groupId;
 	private String description;
 	
-	public DNRule(Long id, Long groupId, String description) 
+	/**
+	 * 
+	 * @param id
+	 * @param groupId
+	 * @param description
+	 */
+	public DNRule(Integer id, Integer groupId, String description) 
 	{
-		super(id);
+		super(id, groupId);
 		
-		this.groupId = groupId;
 		this.description = description;
 	}
 	
+	/**
+	 * 
+	 * @param groupId
+	 * @param description
+	 */
+	public DNRule(Integer groupId, String description)
+	{
+		super(groupId);
+		
+		this.description = description;
+	}
+	
+	/**
+	 * 
+	 */
 	public DNRule()
 	{
 	}
 
-	public Long getGroupId()
-	{
-		return groupId;
-	}
-	
-	public void setGroupId(Long groupId)
-	{
-		this.groupId = groupId;
-	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public String getDescription() 
 	{
 		return description;

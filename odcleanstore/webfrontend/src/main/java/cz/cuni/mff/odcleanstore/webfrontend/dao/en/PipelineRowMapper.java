@@ -14,11 +14,13 @@ public class PipelineRowMapper extends CustomRowMapper<Pipeline>
 	{
 		return new Pipeline
 		(
-			rs.getLong("id"),
+			rs.getInt("id"),
 			blobToString(rs.getBlob("label")),
 			blobToString(rs.getBlob("description")),
 			rs.getBoolean("isDefault"),
-			rs.getBoolean("isLocked")
+			rs.getBoolean("isLocked"),
+			rs.getInt("authorId"),
+			blobToString(rs.getBlob("username"))
 		);
 	}
 }

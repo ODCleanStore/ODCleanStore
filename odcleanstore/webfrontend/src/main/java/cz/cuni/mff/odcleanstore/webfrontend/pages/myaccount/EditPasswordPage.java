@@ -11,7 +11,6 @@ import org.apache.wicket.model.CompoundPropertyModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.core.ODCSWebFrontendSession;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LogInPage;
@@ -24,7 +23,7 @@ public class EditPasswordPage extends FrontendPage
 
 	//private static Logger logger = Logger.getLogger(EditPasswordPage.class);
 	
-	private DaoForEntityWithSurrogateKey<User> userDao;
+	private UserDao userDao;
 	
 	public EditPasswordPage() 
 	{
@@ -35,7 +34,7 @@ public class EditPasswordPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		userDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(UserDao.class);
+		userDao = daoLookupFactory.getDao(UserDao.class);
 		
 		// register page components
 		//
@@ -60,17 +59,19 @@ public class EditPasswordPage extends FrontendPage
 	}
 }
 
-class ChangePasswordForm extends Form
+class ChangePasswordForm extends Form<ChangePasswordForm>
 {
 	private static final long serialVersionUID = 1L;
 
 	private static Logger logger = Logger.getLogger(ChangePasswordForm.class);
 
-	private DaoForEntityWithSurrogateKey<User> userDao;
+	private UserDao userDao;
 	private User user;
 	
+	@SuppressWarnings("unused")
 	private String oldPassword;
 	private String newPassword;
+	@SuppressWarnings("unused")
 	private String newPasswordAgain;
 
 	/**
@@ -79,14 +80,14 @@ class ChangePasswordForm extends Form
 	 * @param userDao
 	 * @param user
 	 */
-	public ChangePasswordForm(String id, DaoForEntityWithSurrogateKey<User> userDao, User user) 
+	public ChangePasswordForm(String id, UserDao userDao, User user) 
 	{
 		super(id);
 		
 		this.userDao = userDao;
 		this.user = user;
 		
-		setModel(new CompoundPropertyModel<Form>(this));
+		setModel(new CompoundPropertyModel<ChangePasswordForm>(this));
 		
 		add(createOldPasswordField(user));
 
@@ -114,6 +115,7 @@ class ChangePasswordForm extends Form
 		}
 		catch (NoSuchAlgorithmException ex) 
 		{
+			logger.error(ex.getMessage(), ex);
 			getSession().error("Could not change the password due to an unexpected error.");
 			setResponsePage(EditPasswordPage.class);
 			
@@ -131,8 +133,7 @@ class ChangePasswordForm extends Form
 		} 
 		catch (Exception ex)
 		{
-			// TODO: log the error
-			
+			logger.error(ex.getMessage(), ex);			
 			getSession().error(
 				"Could not change the password due to an unexpected error."
 			);

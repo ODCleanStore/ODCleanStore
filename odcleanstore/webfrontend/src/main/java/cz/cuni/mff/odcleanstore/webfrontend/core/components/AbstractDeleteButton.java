@@ -7,13 +7,27 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
+/**
+ * A generic delete button.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ * @param <BO> The type of the primary BO to be deleted
+ */
 public abstract class AbstractDeleteButton <BO extends EntityWithSurrogateKey> extends Link<BO>
 {
 	private static final long serialVersionUID = 1L;
 
-	protected DaoForEntityWithSurrogateKey<BO> dao; 
-	protected Long boId;
+	/** the DAO to do the deletion */
+	protected DaoForEntityWithSurrogateKey<BO> dao;
+	
+	/** the id of the BO to be deleted */
+	protected Integer boId;
+	
+	/** the root of the component name */
 	protected String objName;
+	
+	/** the page to which to redirect after the deletion */
 	protected FrontendPage redirectPage;
 	
 	/**
@@ -25,7 +39,7 @@ public abstract class AbstractDeleteButton <BO extends EntityWithSurrogateKey> e
 	 * @param message
 	 * @param redirectPage
 	 */
-	public AbstractDeleteButton(DaoForEntityWithSurrogateKey<BO> dao, Long boId, String compName,
+	public AbstractDeleteButton(DaoForEntityWithSurrogateKey<BO> dao, Integer boId, String compName,
 		String objName, DeleteConfirmationMessage message, FrontendPage redirectPage) 
 	{
 		super(compName);
@@ -46,7 +60,7 @@ public abstract class AbstractDeleteButton <BO extends EntityWithSurrogateKey> e
 	 * @param message
 	 * @param redirectPage
 	 */
-	public AbstractDeleteButton(DaoForEntityWithSurrogateKey<BO> dao, Long boId, String objName,
+	public AbstractDeleteButton(DaoForEntityWithSurrogateKey<BO> dao, Integer boId, String objName,
 		DeleteConfirmationMessage message, FrontendPage redirectPage) 
 	{
 		this(dao, boId, createCompName(objName), objName, message, redirectPage);
@@ -68,17 +82,32 @@ public abstract class AbstractDeleteButton <BO extends EntityWithSurrogateKey> e
 		}
     	
 		getSession().info("The " + objName + " was successfuly deleted.");
-		setResponsePage(redirectPage);
+		if (redirectPage != null)
+		{
+			setResponsePage(redirectPage);
+		}
 	}
 	
+	/**
+	 * Constructs the name of the component from the given name root.
+	 * 
+	 * @param objName
+	 * @return
+	 */
 	protected static String createCompName(String objName)
 	{
 		assert objName != null && !objName.isEmpty();
+		
 		return
 			"delete" +
 			Character.toUpperCase(objName.charAt(0)) +
 			objName.substring(1);
 	}
 	
+	/**
+	 * Does the actual deletion operation.
+	 * 
+	 * @throws Exception
+	 */
 	abstract protected void delete() throws Exception;
 }

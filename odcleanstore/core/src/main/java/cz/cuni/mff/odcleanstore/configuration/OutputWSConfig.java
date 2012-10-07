@@ -27,8 +27,7 @@ public class OutputWSConfig extends ConfigGroup {
     /** Prefix of names of properties belonging to this group. */
     public static final String GROUP_PREFIX = "output_ws" + NAME_DELIMITER;
 
-    private URI metadataGraphURIPrefix;
-    private String qaRuleURIPrefix;
+    private URI resultDataURIPrefix;
     private Integer port;
     private String keywordPath;
     private String uriPath;
@@ -37,18 +36,16 @@ public class OutputWSConfig extends ConfigGroup {
 
     /**
      *
-     * @param metadataGraphURIPrefix URI of named graph where metadata in the output are stored
-     * @param qaRuleURIPrefix Prefix or URIs identifying a Quality Assessment rule
+     * @param resultDataURIPrefix Prefix of URIs used in results.
      * @param port Port of the output webservice
      * @param keywordPath Relative path fragment for the keyword query over the output webservice
      * @param uriPath Relative path fragment for the uri query over the output webservice
      * @param metadataPath Relative path fragment for the metadata query over the output webservice
      * @param namedGraphPath Relative path fragment for the named graph query over the output webservice
      */
-    public OutputWSConfig(URI metadataGraphURIPrefix, String qaRuleURIPrefix, Integer port,
+    public OutputWSConfig(URI resultDataURIPrefix, Integer port,
             String keywordPath, String uriPath, String metadataPath, String namedGraphPath) {
-        this.metadataGraphURIPrefix = metadataGraphURIPrefix;
-        this.qaRuleURIPrefix = qaRuleURIPrefix;
+        this.resultDataURIPrefix = resultDataURIPrefix;
         this.port = port;
         this.keywordPath = keywordPath;
         this.uriPath = uriPath;
@@ -69,8 +66,7 @@ public class OutputWSConfig extends ConfigGroup {
             throws ParameterNotAvailableException, IllegalParameterFormatException {
         ParameterFormat<URI> formatURI = new FormatURI();
         ParameterFormat<String> formatString = new FormatString();
-        URI metadataGraphURIPrefix = loadParam(properties, GROUP_PREFIX + "metadata_graph_uri", formatURI);
-        String qaRuleURIPrefix = loadParam(properties, GROUP_PREFIX + "qa_rule_uri_prefix", formatString);
+        URI resultDataURIPrefix = loadParam(properties, GROUP_PREFIX + "result_data_prefix", formatURI);
 
         ParameterFormat<Integer> formatInteger = new FormatInteger();
         Integer port = loadParam(properties, GROUP_PREFIX + "port", formatInteger);
@@ -81,8 +77,7 @@ public class OutputWSConfig extends ConfigGroup {
         String namedGraphPath = loadParam(properties, GROUP_PREFIX + "named_graph_path", formatString);
 
         return new OutputWSConfig(
-                metadataGraphURIPrefix,
-                qaRuleURIPrefix,
+                resultDataURIPrefix,
                 port,
                 keywordPath,
                 uriPath,
@@ -92,20 +87,11 @@ public class OutputWSConfig extends ConfigGroup {
 
     /**
      *
-     * @return URI of named graph where metadata in the output are stored
+     * @return prefix of URIs used in results
      */
-    public URI getMetadataGraphURIPrefix() {
-        return metadataGraphURIPrefix;
+    public URI getResultDataURIPrefix() {
+        return resultDataURIPrefix;
     }
-
-    /**
-    *
-    * @return Prefix or URIs identifying a Quality Assessment rule
-    */
-   public String getQARuleURIPrefix() {
-       return qaRuleURIPrefix;
-   }
-
     
     /**
      *

@@ -1,13 +1,9 @@
 package cz.cuni.mff.odcleanstore.qualityassessment.impl;
 
-import cz.cuni.mff.odcleanstore.configuration.BackendConfig;
-import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
-import cz.cuni.mff.odcleanstore.configuration.QualityAssessmentConfig;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
-import cz.cuni.mff.odcleanstore.data.DebugGraphFileLoader;
 import cz.cuni.mff.odcleanstore.qualityassessment.QualityAssessor;
 import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRule;
@@ -24,8 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,7 +28,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -42,40 +36,8 @@ import java.util.regex.Pattern;
  * Depending on the situation selects implementation of quality assessment
  * and delegates the work to that implementation.
  */
-public class QualityAssessorImpl implements QualityAssessor {
-
-	public static void main(String[] args) {
-		try {
-			ConfigLoader.loadConfig();
-			BackendConfig config = ConfigLoader.getConfig().getBackendGroup();
-
-			Map<String, GraphScoreWithTrace> result = new QualityAssessorImpl("Group 1").debugRules(new FileInputStream(System.getProperty("user.home") + "/odcleanstore/debugQA.ttl"),
-					"http://opendata.cz/data/metadataGraph",
-					prepareContext(
-							config.getCleanDBJDBCConnectionCredentials(),
-							config.getDirtyDBJDBCConnectionCredentials()));
-
-			Iterator<String> i = result.keySet().iterator();
-
-			while (i.hasNext()) {
-				String graph = i.next();
-
-				System.err.println(graph + " " + result.get(graph).score);
-
-				Iterator<QualityAssessmentRule> j = result.get(graph).trace.iterator();
-
-				while (j.hasNext()) {
-					QualityAssessmentRule rule = j.next();
-
-					System.err.println("\t" + rule.getDescription() + " " + rule.getCoefficient());
-				}
-
-				System.err.println();
-			}
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-		}
-	}
+public class QualityAssessorImpl implements QualityAssessor, Serializable {
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * SPARQL queries for Quality Assessor transformation of input graph and metadata graph
@@ -202,24 +164,14 @@ public class QualityAssessorImpl implements QualityAssessor {
 		};
 	}
 
-	public Map<String, GraphScoreWithTrace> debugRules(
-	        InputStream source, String commonMetadataGraph, TransformationContext context)
+	public List<GraphScoreWithTrace> debugRules(
+			HashMap<String, String> graphs,
+	        TransformationContext context)
 			throws TransformerException {
-		HashMap<String, String> graphs = new HashMap<String, String>();
-		QualityAssessmentConfig config = ConfigLoader.getConfig().getQualityAssessmentGroup();
-
-		DebugGraphFileLoader loader = new DebugGraphFileLoader(
-		        config.getTemporaryGraphURIPrefix(), context.getDirtyDatabaseCredentials());
 
 		try {
-			graphs = loader.load(source, this.getClass().getSimpleName());
-
-			if (!graphs.containsKey(commonMetadataGraph)) {
-				throw new TransformerException("missing metadata graph");
-			}
-
 			Collection<String> originalGraphs = graphs.keySet();
-			Map<String, GraphScoreWithTrace> result = new HashMap<String, GraphScoreWithTrace>();
+			List<GraphScoreWithTrace> result = new ArrayList<GraphScoreWithTrace>();
 
 			Iterator<String> it = originalGraphs.iterator();
 
@@ -227,27 +179,19 @@ public class QualityAssessorImpl implements QualityAssessor {
 				String originalName = it.next();
 				String temporaryName = graphs.get(originalName);
 
-				/**
-				 * Perform QA for all graphs except the metadata graph
-				 */
-				if (!temporaryName.equals(graphs.get(commonMetadataGraph))) {
-					GraphScoreWithTrace subResult = getGraphScoreWithTrace(temporaryName,
-							context.getCleanDatabaseCredentials(),
-							context.getDirtyDatabaseCredentials());
+				GraphScoreWithTrace subResult = getGraphScoreWithTrace(temporaryName,
+						context.getCleanDatabaseCredentials(),
+						context.getDirtyDatabaseCredentials());
+				subResult.setGraphName(originalName);
 
-					result.put(originalName, subResult);
-				}
-
-				return result;
+				result.add(subResult);
 			}
 
-			return null;
+			return result;
 		} catch (Exception e) {
 			LOG.error("Debugging of Quality Assessment rules failed: " + e.getMessage());
 
 			throw new TransformerException(e);
-		} finally {
-			loader.unload(graphs);
 		}
 	}
 
@@ -293,24 +237,35 @@ public class QualityAssessorImpl implements QualityAssessor {
 			closeDirtyConnection();
 		}
 
-		LOG.info(String.format("Quality Assessment done for graph %s, %d rules tested, %d violations, score %f",
+		LOG.info(String.format(Locale.ROOT, "Quality Assessment done for graph %s, %d rules tested, %d violations, score %f",
 				inputGraph.getGraphName(), rules.size(), violations, score));
 	}
 
-	public static class GraphScoreWithTrace {
-		private Double score;
-		private Collection<QualityAssessmentRule> trace;
+	public static class GraphScoreWithTrace implements Serializable {
+		private static final long serialVersionUID = 1L;
 
-		public GraphScoreWithTrace(Double score, Collection<QualityAssessmentRule> trace) {
+		private String graphName;
+		private Double score;
+		private List<QualityAssessmentRule> trace;
+
+		public GraphScoreWithTrace(Double score, List<QualityAssessmentRule> trace) {
 			this.score = score;
 			this.trace = trace;
+		}
+
+		public String getGraphName() {
+			return graphName;
+		}
+
+		public void setGraphName(String graphName) {
+			this.graphName = graphName;
 		}
 
 		public Double getScore() {
 			return score;
 		}
 
-		public Collection<QualityAssessmentRule> getTrace() {
+		public List<QualityAssessmentRule> getTrace() {
 			return trace;
 		}
 	}
@@ -339,7 +294,7 @@ public class QualityAssessorImpl implements QualityAssessor {
 		trace = new ArrayList<String>();
 		violations = 0;
 
-		Collection<QualityAssessmentRule> rules = new ArrayList<QualityAssessmentRule>();
+		List<QualityAssessmentRule> rules = new ArrayList<QualityAssessmentRule>();
 
 		try
 		{
@@ -366,7 +321,7 @@ public class QualityAssessorImpl implements QualityAssessor {
 			rules = model.getRules(groupLabels);
 		}
 
-		LOG.info(String.format("Quality Assessment selected %d rules.", rules.size()));
+		LOG.info(String.format(Locale.ROOT, "Quality Assessment selected %d rules.", rules.size()));
 	}
 
 	/**
@@ -411,12 +366,16 @@ public class QualityAssessorImpl implements QualityAssessor {
 				++violations;
 
 				if (appliedRules != null) appliedRules.add(rule);
+				
+				LOG.info(String.format("Rule %d matched%s", rule.getId(), rule.getDescription() != null ? "\n\n(" + rule.getDescription() + ")\n\n" : ""));
+			} else {
+				LOG.info(String.format("Rule %d did not match%s", rule.getId(), rule.getDescription() != null ? "\n\n(" + rule.getDescription() + ")\n\n" : ""));
 			}
 		} catch (DatabaseException e) {
-			//LOG.fatal(e.getMessage());
+			LOG.error(String.format(Locale.ROOT, "Failed to apply rule %d: %s\n\n%s\n\n%s", rule.getId(), rule.getDescription() != null ? rule.getDescription() : "", query, e.getMessage()));
 			throw new QualityAssessmentException(e);
 		} catch (SQLException e) {
-			//...
+			LOG.error(String.format(Locale.ROOT, "Failed to apply rule %d: %s\n\n%s\n\n%s", rule.getId(), rule.getDescription() != null ? rule.getDescription() : "", query, e.getMessage()));
 			throw new QualityAssessmentException(e);
 		} finally {
 			if (results != null) {

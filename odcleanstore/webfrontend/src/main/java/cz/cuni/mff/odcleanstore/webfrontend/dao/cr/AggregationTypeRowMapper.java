@@ -13,7 +13,7 @@ public class AggregationTypeRowMapper extends CustomRowMapper<AggregationType>
 	public AggregationType mapRow(ResultSet rs, int rowNum) throws SQLException 
 	{
 		return new AggregationType(
-			rs.getLong("id"),
+			rs.getInt("id"),
 			rs.getString("label"),
 			blobToString(rs.getBlob("description"))
 		);

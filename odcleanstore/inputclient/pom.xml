@@ -1,16 +1,15 @@
 <?xml version="1.0" ?>
 <project
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-	xmlns="http://maven.apache.org/POM/4.0.0" 
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
 	<modelVersion>4.0.0</modelVersion>
-	
+
 	<groupId>cz.cuni.mff.odcleanstore</groupId>
 	<artifactId>odcs-inputclient</artifactId>
 	<version>0.3-SNAPSHOT</version>
 	<packaging>jar</packaging>
-	
+
 	<parent>
 		<groupId>cz.cuni.mff.odcleanstore</groupId>
 		<artifactId>odcs</artifactId>
@@ -20,5 +19,22 @@
 	<name>ODCleanStore - Input Client</name>
 	<description>Client library for the input webservice</description>
 
+	<dependencies>
+		<dependency>
+			<groupId>cz.cuni.mff.odcleanstore</groupId>
+			<artifactId>odcs-comlib</artifactId>
+			<version>0.3-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+					<groupId>cz.cuni.mff.odcleanstore</groupId>
+					<artifactId>odcs-comlib</artifactId>
+					<version>0.3-SNAPSHOT</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 </project>
 	

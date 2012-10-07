@@ -17,7 +17,6 @@ import org.apache.wicket.model.Model;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.RoleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
@@ -28,12 +27,12 @@ public class EditAccountPermissionsPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger(EditAccountPermissionsPage.class);
+	//private static Logger logger = Logger.getLogger(EditAccountPermissionsPage.class);
 	
-	private DaoForEntityWithSurrogateKey<User> userDao;
-	private DaoForEntityWithSurrogateKey<Role> roleDao;
+	private UserDao userDao;
+	private RoleDao roleDao;
 		
-	public EditAccountPermissionsPage(final Long userId) 
+	public EditAccountPermissionsPage(final Integer userId) 
 	{
 		super(
 			"Home > User accounts > Edit roles", 
@@ -42,8 +41,8 @@ public class EditAccountPermissionsPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		userDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(UserDao.class);
-		roleDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(RoleDao.class);
+		userDao = daoLookupFactory.getDao(UserDao.class);
+		roleDao = daoLookupFactory.getDao(RoleDao.class);
 		
 		// prepare the target User instance
 		//
@@ -64,16 +63,16 @@ public class EditAccountPermissionsPage extends FrontendPage
 	}
 }
 
-class UserPermissionsForm extends Form
+class UserPermissionsForm extends Form<UserPermissionsForm>
 {
 	private static final long serialVersionUID = 1L;
 
 	private static Logger logger = Logger.getLogger(UserPermissionsForm.class);
 	
-	private DaoForEntityWithSurrogateKey<User> userDao;
-	private DaoForEntityWithSurrogateKey<Role> roleDao;
+	private UserDao userDao;
+	private RoleDao roleDao;
 
-	private Long userId;
+	private Integer userId;
 	
 	private Map<Role, Boolean> currentRolesSettings;
 	
@@ -83,8 +82,8 @@ class UserPermissionsForm extends Form
 	 * @param userDao
 	 * @param roleDao
 	 */
-	public UserPermissionsForm(String id, Long userId,
-		DaoForEntityWithSurrogateKey<User> userDao, DaoForEntityWithSurrogateKey<Role> roleDao) 
+	public UserPermissionsForm(String id, Integer userId,
+		UserDao userDao, RoleDao roleDao) 
 	{
 		super(id);
 		
@@ -120,6 +119,7 @@ class UserPermissionsForm extends Form
 		} 
 		catch (DaoException ex)
 		{
+			logger.error(ex.getMessage(), ex);
 			getSession().error(ex.getMessage());
 			return;
 		}
@@ -158,7 +158,7 @@ class UserPermissionsForm extends Form
 	 * 
 	 * @param userId
 	 */
-	private void resetRolesSettings(final Long userId)
+	private void resetRolesSettings(final Integer userId)
 	{
 		currentRolesSettings = new HashMap<Role, Boolean>();
 		

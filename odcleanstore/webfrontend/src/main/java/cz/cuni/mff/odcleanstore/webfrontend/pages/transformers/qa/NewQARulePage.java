@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
@@ -10,28 +11,31 @@ import org.apache.wicket.validation.validator.RangeValidator;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
 @AuthorizeInstantiation({ Role.PIC })
-public class NewQARulePage extends FrontendPage
+public class NewQARulePage extends LimitedEditingPage
 {
 	private static final long serialVersionUID = 1L;
+	private static Logger logger = Logger.getLogger(NewQARulePage.class);
 	
-	private DaoForEntityWithSurrogateKey<QARule> qaRuleDao;
+	private QARuleDao qaRuleDao;
 	
-	public NewQARulePage(final Long groupId) 
+	public NewQARulePage(final Integer groupId) 
 	{
 		super(
 			"Home > Backend > QA > Groups > Rules > New", 
-			"Add a new QA rule"
+			"Add a new QA rule",
+			QARulesGroupDao.class,
+			groupId
 		);
 		
 		// prepare DAO objects
 		//
-		this.qaRuleDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(QARuleDao.class);
+		this.qaRuleDao = daoLookupFactory.getDao(QARuleDao.class, isEditable());
 		
 		// register page components
 		//
@@ -48,7 +52,7 @@ public class NewQARulePage extends FrontendPage
 		addNewQARuleForm(groupId);
 	}
 
-	private void addNewQARuleForm(final Long groupId)
+	private void addNewQARuleForm(final Integer groupId)
 	{
 		IModel<QARule> formModel = new CompoundPropertyModel<QARule>(new QARule());
 		
@@ -66,14 +70,14 @@ public class NewQARulePage extends FrontendPage
 					qaRuleDao.save(rule);
 				}
 				catch (DaoException ex)
-				{
+				{	
+					logger.error(ex.getMessage(), ex);
 					getSession().error(ex.getMessage());
 					return;
 				}
 				catch (Exception ex)
 				{
-					// TODO: log the error
-					
+					logger.error(ex.getMessage(), ex);
 					getSession().error(
 						"The rule could not be registered due to an unexpected error."
 					);

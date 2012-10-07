@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages;
 
+import java.io.File;
 import java.util.List;
 
 import org.apache.wicket.RuntimeConfigurationType;
@@ -20,17 +21,24 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 
+import cz.cuni.mff.odcleanstore.configuration.BackendConfig;
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
+import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
 import cz.cuni.mff.odcleanstore.webfrontend.core.ODCSWebFrontendApplication;
+import cz.cuni.mff.odcleanstore.webfrontend.core.ODCSWebFrontendSession;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.HelpWindow;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.MenuGroupComponent;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.engine.EngineStatePage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.ontologies.OntologiesListPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.outputws.CRPropertiesListPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.outputws.AggregationSettingsPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.PipelinesListPage;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.TransformersListPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.prefixes.PrefixesListPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.TransformersListPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.OIGroupsListPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts.AccountsListPage;
 
@@ -50,7 +58,7 @@ public abstract class FrontendPage extends WebPage
 
 	//private static Logger logger = Logger.getLogger(FrontendPage.class);
 	
-	protected DaoLookupFactory daoLookupFactory;
+	protected final DaoLookupFactory daoLookupFactory;
 	
 	/**
 	 * 
@@ -84,8 +92,9 @@ public abstract class FrontendPage extends WebPage
 		
 		// set up menu
 		add(new MenuGroupComponent("pipelinesMenuGroup", PipelinesListPage.class));
+		add(new MenuGroupComponent("engineStateMenuGroup", EngineStatePage.class));
 		add(new MenuGroupComponent("rulesMenuGroup", OIGroupsListPage.class));
-		add(new MenuGroupComponent("outputWSMenuGroup", CRPropertiesListPage.class));
+		add(new MenuGroupComponent("outputWSMenuGroup", AggregationSettingsPage.class));
 		add(new MenuGroupComponent("ontologyMenuGroup", OntologiesListPage.class));
 		add(new MenuGroupComponent("userAccountsMenuGroup", AccountsListPage.class));
 		add(new MenuGroupComponent("transformersMenuGroup", TransformersListPage.class));
@@ -110,27 +119,30 @@ public abstract class FrontendPage extends WebPage
 	/**
 	 * Creates a select-box form component for an SQL-table based enumeration.
 	 * 
-	 * @param dao
+	 * @param choices
 	 * @param componentName
 	 * @return
 	 */
 	protected <EnumBO extends EntityWithSurrogateKey> DropDownChoice<EnumBO> createEnumSelectbox(
-		DaoForEntityWithSurrogateKey<EnumBO> dao, String componentName, boolean required)
+		IModel<List<EnumBO>> choices, String componentName, final boolean required)
 	{
-		// create the model
-		IModel<List<EnumBO>> choices = createModelForListView(dao);
-		
 		// prepare the select-box renderer
 		ChoiceRenderer<EnumBO> renderer = new ChoiceRenderer<EnumBO>("label", "id");
 		
 		// create the select-box component
-		DropDownChoice<EnumBO> selectBox = new DropDownChoice<EnumBO>
-		(
-			componentName,
-			choices,
-			renderer
-		);
+		DropDownChoice<EnumBO> selectBox = new DropDownChoice<EnumBO>(componentName, choices, renderer)
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected CharSequence getDefaultChoice(String selectedValue)
+			{
+				return !isNullValid() && !getChoices().isEmpty() ? "" : super.getDefaultChoice(selectedValue);
+			}
+		};
 		
+		selectBox.setNullValid(!required);
+
 		// mark the select-box as a required form field
 		selectBox.setRequired(required);
 		
@@ -146,7 +158,19 @@ public abstract class FrontendPage extends WebPage
 	protected <EnumBO extends EntityWithSurrogateKey> DropDownChoice<EnumBO> createEnumSelectbox(
 			DaoForEntityWithSurrogateKey<EnumBO> dao, String componentName)
 	{
-		return createEnumSelectbox(dao, componentName, true);
+		return createEnumSelectbox(createModelForListView(dao), componentName, true);
+	}
+	
+	/**
+	 * 
+	 * @param dao
+	 * @param componentName
+	 * @return
+	 */
+	protected <EnumBO extends EntityWithSurrogateKey> DropDownChoice<EnumBO> createEnumSelectbox(
+		DaoForEntityWithSurrogateKey<EnumBO> dao, String componentName, boolean required)
+	{
+		return createEnumSelectbox(createModelForListView(dao), componentName, required);
 	}
 	
 	/**
@@ -263,7 +287,7 @@ public abstract class FrontendPage extends WebPage
 	}
 	
 	protected <BO extends EntityWithSurrogateKey> IModel<BO> createModelForOverview(
-		final DaoForEntityWithSurrogateKey<BO> dao, final Long boId)
+		final DaoForEntityWithSurrogateKey<BO> dao, final Integer boId)
 	{
 		IModel<BO> model = new LoadableDetachableModel<BO>() 
 		{
@@ -277,5 +301,41 @@ public abstract class FrontendPage extends WebPage
 		};
 		
 		return new CompoundPropertyModel<BO>(model);
+	}
+	
+	protected ODCSWebFrontendSession getODCSSession()
+	{
+		return (ODCSWebFrontendSession) getSession();
+	}
+	
+	protected TransformationContext createContext()
+	{
+		final BackendConfig config = ConfigLoader.getConfig().getBackendGroup();
+		return new TransformationContext()
+		{
+
+			public JDBCConnectionCredentials getDirtyDatabaseCredentials() {
+				return config.getDirtyDBJDBCConnectionCredentials();
+			}
+
+			public JDBCConnectionCredentials getCleanDatabaseCredentials() {
+				return config.getCleanDBJDBCConnectionCredentials();
+			}
+
+			public String getTransformerConfiguration() {
+				return "";
+			}
+
+			public File getTransformerDirectory() {
+				String path = ConfigLoader.getConfig().getWebFrontendGroup().getDebugDirectoryPath();
+				File dir = new File(path);
+				dir.mkdir();
+				return dir;
+			}
+
+			public EnumTransformationType getTransformationType() {
+				return EnumTransformationType.NEW;
+			}			
+		};
 	}
 }

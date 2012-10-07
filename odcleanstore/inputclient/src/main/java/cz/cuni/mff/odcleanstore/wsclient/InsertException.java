@@ -17,35 +17,48 @@ package cz.cuni.mff.odcleanstore.wsclient;
  * message : "Other error", id :  7, moreInfo :  "Other error"
  * message : "Fatal error", id :  8, moreInfo :  "Fatal error"
  * message : "Metadata error", id :  9, moreInfo :  detailed error description
+ * 
+ * message : "UnknownHost", id :  128, moreInfo :  "UnknownHost"
+ * message : "Connection error", id :  129, moreInfo :  "Connection error"
+ * message : "Connection error", id :  130, moreInfo :  "Response timeout" 
  *
  * @author Petr Jerman
  */
 public final class InsertException extends Exception {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2550516676285229902L;
 
-	private int _id;
-	private String _moreInfo;
+	private int id;
+	private String moreInfo;
 
 	/**
 	 * Get exception id. 
+	 * 
 	 * @return exception id
 	 */
 	public int getId() {
-		return _id;
+		return id;
 	}
 
 	/**
 	 * Get detailed exception information.
+	 * 
 	 * @return detailed exception information
 	 */
 	public String getMoreInfo() {
-		return _moreInfo;
+		return moreInfo;
 	}
 
+	/**
+	 * Create InsertException object.
+	 * 
+	 * @param id exception id
+	 * @param message exception message
+	 * @param moreInfo exception more info
+	 */
 	InsertException(int id, String message, String moreInfo) {
 		super(message);
-		_id = id;
-		_moreInfo = moreInfo;
+		this.id = id;
+		this.moreInfo = moreInfo;
 	}
 }

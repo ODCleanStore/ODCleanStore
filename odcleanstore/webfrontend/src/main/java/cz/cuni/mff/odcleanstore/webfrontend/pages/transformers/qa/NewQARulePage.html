@@ -9,15 +9,17 @@
 
 <a wicket:id="openHelpWindow" class="help">Help</a>
 
+<div class="clear">&nbsp;</div>
+
 <form wicket:id="newQARuleForm">
 	<p>
-		<label for="filter">Filter:</label>
-		<textarea wicket:id="filter" id="filter" class="required"></textarea>
-	</p>
-	<p>
-		<label for="coefficient">Coefficient:</label>
-		<input wicket:id="coefficient" id="coefficient" type="text" class="required" />
-	</p>
+        <label for="filter">Filter:</label>
+        <span class="required"><textarea wicket:id="filter" id="filter" placeholder="SPARQL WHERE clause, e.g. ?f foaf:name ?name FILTER regex(?name, &quot;[a-z]+ [a-z]+&quot;)" ></textarea></span>
+    </p>
+    <p>
+        <label for="coefficient">Coefficient:</label>
+        <span class="required"><input wicket:id="coefficient" id="coefficient" title="Quality decrease coefficient from range [0,1]" type="text"  /></span>
+    </p>
 	<p>
 		<label for="description">Description:</label>
 		<textarea wicket:id="description" id="description"></textarea>

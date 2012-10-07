@@ -9,11 +9,11 @@ import org.slf4j.LoggerFactory;
 
 import cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
-import cz.cuni.mff.odcleanstore.engine.common.Utils;
 import cz.cuni.mff.odcleanstore.engine.db.model.PipelineCommand;
 import cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAggregatorImpl;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
+import cz.cuni.mff.odcleanstore.shared.FileUtils;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.Transformer;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
@@ -68,7 +68,7 @@ public class PipelineGraphTransformerExecutor {
 		} catch(PipelineGraphTransformerExecutorException e) {
 			throw e;
 		}catch(Exception e) {
-			throw new PipelineGraphTransformerExecutorException(format(ERROR_ITERATE_TRANSFORMERS), e);
+			throw new PipelineGraphTransformerExecutorException(format(ERROR_ITERATE_TRANSFORMERS), null, e);
 		}
 	}
 	
@@ -82,7 +82,7 @@ public class PipelineGraphTransformerExecutor {
 			LOG.info(format("start processing", command));
 			
 			if ((this.currentTransformer = getTransformerForCommand(command, isInternal)) == null) {
-				throw new PipelineGraphTransformerExecutorException(format(ERROR_TRANSFORMER_UNKNOWN, command));
+				throw new PipelineGraphTransformerExecutorException(format(ERROR_TRANSFORMER_UNKNOWN, command), command);
 			}
 						
 			graph = new TransformedGraph(this.graphStatus);
@@ -98,14 +98,14 @@ public class PipelineGraphTransformerExecutor {
 				}
 			}
 			catch (Exception e) {
-				throw new PipelineGraphTransformerExecutorException(format(ERROR_TRANSFORMER_RUN, command), e);	
+				throw new PipelineGraphTransformerExecutorException(format(ERROR_TRANSFORMER_RUN, command), command, e);	
 			}
 			
 			LOG.info(format("finished processing", command));
 		} catch(PipelineGraphTransformerExecutorException e) {
 			throw e;
 		} catch(Exception e) {
-			throw new PipelineGraphTransformerExecutorException(format(ERROR_TRANSFORMER_PROCESSING, command), e);
+			throw new PipelineGraphTransformerExecutorException(format(ERROR_TRANSFORMER_PROCESSING, command), command, e);
 		}
 		finally {
 			Transformer transformer = this.currentTransformer;
@@ -122,7 +122,7 @@ public class PipelineGraphTransformerExecutor {
 					transformer.shutdown();
 				}
 			} catch(Exception e) {
-				throw new PipelineGraphTransformerExecutorException(format(ERROR_TRANSFORMER_SHUTDOWN, command), e);
+				throw new PipelineGraphTransformerExecutorException(format(ERROR_TRANSFORMER_SHUTDOWN, command), command, e);
 			}
 		}
 	}
@@ -152,9 +152,9 @@ public class PipelineGraphTransformerExecutor {
 	    File file = new File(command.workDirPath, Integer.toString(command.transformerInstanceID));
 	    String path = file.getPath();
 		try {
-			return Utils.satisfyDirectory(path);
+			return FileUtils.satisfyDirectory(path);
 		} catch (Exception e) {
-			throw new PipelineGraphTransformerExecutorException(format(ERROR_WORKING_DIRECTORY_CHECK, command), e);
+			throw new PipelineGraphTransformerExecutorException(format(ERROR_WORKING_DIRECTORY_CHECK, command), command, e);
 		}
 	}
 	
@@ -167,7 +167,7 @@ public class PipelineGraphTransformerExecutor {
 			return  obj instanceof Transformer ? (Transformer) obj : null;
 		}
 		catch(Exception e) {
-			throw new PipelineGraphTransformerExecutorException(format(ERROR_LOAD_CUSTOM_TRANSFORMER, command), e); 
+			throw new PipelineGraphTransformerExecutorException(format(ERROR_LOAD_CUSTOM_TRANSFORMER, command), command, e); 
 		}
 	}
 

@@ -11,10 +11,12 @@
 
 <a wicket:id="openHelpWindow"class="help">Help</a>
 
+<div class="clear">&nbsp;</div>
+
 <form wicket:id="newPropertyForm">
 	<p>
 		<label for="property">Property:</label>
-		<input wicket:id="property" id="property" type="text" class="required"/>
+		<span class="required"><input wicket:id="property" id="property" type="text" placeholder="RDF property" /></span>
 	</p>
 	<input type="submit" value="Submit" />
 </form>

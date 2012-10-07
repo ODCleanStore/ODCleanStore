@@ -6,6 +6,7 @@ import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl.Graph
 import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.MetadataQueryResult;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 
 import com.hp.hpl.jena.graph.Factory;
 import com.hp.hpl.jena.graph.Node;
@@ -70,7 +71,8 @@ public class TriGFormatter extends RDFFormatter {
      */
     private NamedGraphSet basicConvertToNGSet(BasicQueryResult queryResult, Reference requestReference) {
         NamedGraphSet result = new NamedGraphSetImpl();
-        NamedGraph metadataGraph = new NamedGraphImpl(outputWSConfig.getMetadataGraphURIPrefix().toString(),
+        NamedGraph metadataGraph = new NamedGraphImpl(
+                outputWSConfig.getResultDataURIPrefix().toString() + ODCSInternal.queryMetadataGraphUriInfix,
                 Factory.createGraphMem(ReificationStyle.Standard));
 
         Node requestURI = Node.createURI(requestReference.toString(true, false));
@@ -135,7 +137,7 @@ public class TriGFormatter extends RDFFormatter {
 
         NamedGraphSet result = new NamedGraphSetImpl();
         NamedGraph metadataGraph = new NamedGraphImpl(
-                outputWSConfig.getMetadataGraphURIPrefix().toString(),
+                outputWSConfig.getResultDataURIPrefix().toString() + ODCSInternal.queryMetadataGraphUriInfix,
                 Factory.createGraphMem(ReificationStyle.Standard));
 
         // Quality Assessment results

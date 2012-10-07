@@ -1,20 +1,23 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo.oi;
 
+import java.math.BigDecimal;
+
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
 /**
+ * The BO which represents an OI output.
  * 
- * @author Dusan
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
 public class OIOutput extends EntityWithSurrogateKey 
 {
 	private static final long serialVersionUID = 1L;
 
-	private Long ruleId;
-	private Long outputTypeId;
-	private Double minConfidence;
-	private Double maxConfidence;
+	private Integer ruleId;
+	private Integer outputTypeId;
+	private BigDecimal minConfidence;
+	private BigDecimal maxConfidence;
 	private String filename;
 	private OIFileFormat fileFormat;
 	
@@ -28,8 +31,8 @@ public class OIOutput extends EntityWithSurrogateKey
 	 * @param filename
 	 * @param fileFormat
 	 */
-	public OIOutput(Long id, Long ruleId, Long outputTypeId, Double minConfidence, 
-		Double maxConfidence, String filename, OIFileFormat fileFormat) 
+	public OIOutput(Integer id, Integer ruleId, Integer outputTypeId, BigDecimal minConfidence, 
+		BigDecimal maxConfidence, String filename, OIFileFormat fileFormat) 
 	{
 		super(id);
 		
@@ -52,7 +55,7 @@ public class OIOutput extends EntityWithSurrogateKey
 	 * 
 	 * @return
 	 */
-	public Long getRuleId() 
+	public Integer getRuleId() 
 	{
 		return ruleId;
 	}
@@ -61,7 +64,7 @@ public class OIOutput extends EntityWithSurrogateKey
 	 * 
 	 * @return
 	 */
-	public Long getOutputTypeId() 
+	public Integer getOutputTypeId() 
 	{
 		return outputTypeId;
 	}
@@ -70,7 +73,7 @@ public class OIOutput extends EntityWithSurrogateKey
 	 * 
 	 * @return
 	 */
-	public Double getMinConfidence() 
+	public BigDecimal getMinConfidence() 
 	{
 		return minConfidence;
 	}
@@ -79,7 +82,7 @@ public class OIOutput extends EntityWithSurrogateKey
 	 * 
 	 * @return
 	 */
-	public Double getMaxConfidence() 
+	public BigDecimal getMaxConfidence() 
 	{
 		return maxConfidence;
 	}
@@ -106,7 +109,7 @@ public class OIOutput extends EntityWithSurrogateKey
 	 * 
 	 * @param ruleId
 	 */
-	public void setRuleId(Long ruleId) 
+	public void setRuleId(Integer ruleId) 
 	{
 		this.ruleId = ruleId;
 	}
@@ -115,7 +118,7 @@ public class OIOutput extends EntityWithSurrogateKey
 	 * 
 	 * @param outputTypeId
 	 */
-	public void setOutputTypeId(Long outputTypeId)
+	public void setOutputTypeId(Integer outputTypeId)
 	{
 		this.outputTypeId = outputTypeId;
 	}

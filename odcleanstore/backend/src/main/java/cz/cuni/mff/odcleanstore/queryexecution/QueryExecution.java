@@ -10,6 +10,7 @@ import cz.cuni.mff.odcleanstore.queryexecution.impl.PrefixMappingCache;
 import cz.cuni.mff.odcleanstore.queryexecution.impl.QueryExecutionHelper;
 import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
 import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -203,7 +204,7 @@ public class QueryExecution {
      */
     private ConflictResolverFactory createConflictResolverFactory() throws QueryExecutionException {
         AggregationSpec defaultConfiguration = expandedDefaultConfigurationCache.getCachedValue();
-        String resultGraphPrefix = globalConfig.getQueryExecutionGroup().getResultGraphURIPrefix().toString();
+        String resultGraphPrefix = globalConfig.getQueryExecutionGroup().getResultDataURIPrefix().toString() + ODCSInternal.queryResultGraphUriInfix;
         return new ConflictResolverFactory(resultGraphPrefix,
                 globalConfig.getConflictResolutionGroup(), defaultConfiguration);
     }

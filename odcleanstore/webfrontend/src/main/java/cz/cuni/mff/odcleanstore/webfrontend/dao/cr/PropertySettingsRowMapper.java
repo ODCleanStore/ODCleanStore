@@ -18,21 +18,21 @@ public class PropertySettingsRowMapper extends CustomRowMapper<PropertySettings>
 	{
 		AggregationType aggregationType = new AggregationType
 		(
-			rs.getLong("atid"),
+			rs.getInt("atid"),
 			rs.getString("atlbl"),
 			blobToString(rs.getBlob("atdescr"))
 		);
 		
 		MultivalueType multivalueType = new MultivalueType
 		(
-			rs.getLong("mtid"),
+			rs.getInt("mtid"),
 			rs.getString("mtlbl"),
 			blobToString(rs.getBlob("mtdescr"))
 		);
 		
 		return new PropertySettings
 		(
-			rs.getLong("id"),
+			rs.getInt("id"),
 			rs.getString("property"),
 			multivalueType,
 			aggregationType

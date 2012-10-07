@@ -1,0 +1,24 @@
+<wicket:extend>
+
+<div wicket:id="helpWindow"></div>
+
+<div>
+	<a class="placedright button" href="#" wicket:id="manageGroupRules">Back to the group overview</a>
+	<div class="clear">&nbsp;</div>
+</div>
+
+<a wicket:id="openHelpWindow"class="help">Help</a>
+
+<form wicket:id="newDNRenameTemplateInstanceForm">
+	<p>
+		<label for="sourcePropertyName">Source property name:</label>
+		<span class="required"><input wicket:id="sourcePropertyName" id="sourcePropertyName" type="text"  placeholder="RDF property"  /></span>
+	</p>
+	<p>
+		<label for="targetPropertyName">Target property name:</label>
+		<span class="required"><input wicket:id="targetPropertyName" id="targetPropertyName" type="text" placeholder="RDF property"  /></span>
+	</p>
+	<input type="submit" value="Submit" />
+</form>
+
+</wicket:extend>

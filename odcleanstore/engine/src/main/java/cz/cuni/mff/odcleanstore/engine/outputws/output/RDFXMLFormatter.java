@@ -135,7 +135,7 @@ public class RDFXMLFormatter extends RDFFormatter {
     /**
      * Replaces '[' and ']' by their URI-encoded equivalent.
      * Raw square brackets may be sent by Firefox and it throws an exception during serialization.
-     * @param string URI
+     * @param uri URI
      * @return fixed URI
      */
     private String fixSqBrackets(String uri) {

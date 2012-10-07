@@ -5,7 +5,6 @@ package cz.cuni.mff.odcleanstore.engine.inputws;
 
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.URI;
@@ -17,12 +16,16 @@ import javax.jws.WebService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.configuration.EngineConfig;
 import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
-import cz.cuni.mff.odcleanstore.engine.common.Utils;
 import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.IInputWS;
 import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.InsertException;
 import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.Metadata;
+import cz.cuni.mff.odcleanstore.shared.FileUtils;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 
 /**
  *  @author Petr Jerman
@@ -49,7 +52,7 @@ public class InputWS implements IInputWS {
 				throw new InsertException("metadata is null");
 			}
 			
-			metadata.provenance = Utils.removeInitialBOMXml(metadata.provenance);
+			metadata.provenance = FileUtils.removeInitialBOMXml(metadata.provenance);
 
 			checkUuid(metadata.uuid);
 			checkUries(metadata.publishedBy, 1, "publishedBy");
@@ -61,7 +64,7 @@ public class InputWS implements IInputWS {
 				throw new InsertException("payload is null");
 			}
 			
-			payload = Utils.removeInitialBOMXml(payload);
+			payload = FileUtils.removeInitialBOMXml(payload);
 
 			String sessionUuid = _importedInputGraphStates.beginImportSession(metadata.uuid, metadata.pipelineName, null);
 			saveFiles(metadata, payload);
@@ -135,45 +138,58 @@ public class InputWS implements IInputWS {
 	}
 	
 	private void saveFiles(Metadata metadata, String payload) throws Exception {
-		FileOutputStream fout = null;
-		ObjectOutputStream oos = null;
 		String inputDirectory =  Engine.getCurrent().getDirtyDBImportExportDir();
-		boolean isPayloadRdfXml = payload.startsWith("<?xml");
-		String provenance = metadata.provenance;
-		metadata.provenance = null;
-		boolean containProvenance = provenance != null;
-		boolean isProvenanceRdfXml = containProvenance && provenance.startsWith("<?xml");
 		
+		EngineConfig engineConfig = ConfigLoader.getConfig().getEngineGroup();
+		String dataGraphURI = ODCSInternal.dataGraphUriPrefix + metadata.uuid;
+		String metadataGraphURI = ODCSInternal.metadataGraphUriPrefix + metadata.uuid;
 		
-		try {
-			fout = new FileOutputStream(inputDirectory + metadata.uuid + ".hdr");
-			oos = new ObjectOutputStream(fout);
-			oos.writeObject(FormatHelper.getTypedW3CDTFCurrent());
-			oos.writeObject(metadata);
-			oos.writeBoolean(isPayloadRdfXml);
-			oos.writeBoolean(containProvenance);
-			oos.writeBoolean(isProvenanceRdfXml);
-		} finally {
-			if (oos != null) {
-				oos.close();
-			}
-			if (fout != null) {
-				fout.close();
+		StringBuilder metadatattl = new StringBuilder();
+		
+		append(metadatattl, dataGraphURI, ODCS.dataBaseUrl, "<" + metadata.dataBaseUrl + ">");
+		append(metadatattl, dataGraphURI, ODCS.metadataGraph, "<" + metadataGraphURI + ">");	
+		append(metadatattl, dataGraphURI, ODCS.insertedAt, FormatHelper.getTypedW3CDTFCurrent());
+		append(metadatattl, dataGraphURI, ODCS.insertedBy, "'scraper'");
+		
+		for (String source : metadata.source) {
+			append(metadatattl, dataGraphURI, ODCS.source, "<" + source + ">");
+		}
+		for (String publishedBy : metadata.publishedBy) {
+			append(metadatattl, dataGraphURI, ODCS.publishedBy, "<" + publishedBy + ">");
+		}
+		if (metadata.license != null) {
+			for (String license : metadata.license) {
+				append(metadatattl, dataGraphURI, ODCS.license, "<" + license + ">");
 			}
 		}
-			
-		Writer output = null;
 
+		Writer output = null;
+		try {
+			String fullFileName = inputDirectory + metadata.uuid + "-m.ttl";
+			// String metadatastr = Utils.unicodeToAscii(metadatattl.toString());
+			// output = new BufferedWriter(new OutputStreamWriter( new FileOutputStream(fullFileName), "US-ASCII"));
+			output = new BufferedWriter(new OutputStreamWriter( new FileOutputStream(fullFileName), "UTF-8"));
+			output.write(metadatattl.toString());
+		} finally {
+			if (output != null) {
+				output.close();
+			}
+		}
+		
+		output = null;
+		boolean containProvenance = metadata.provenance != null && !metadata.provenance.isEmpty();
 		if (containProvenance) {
 			try {
+				boolean isProvenanceRdfXml = containProvenance && metadata.provenance.startsWith("<?xml");
 				String fullFileName = inputDirectory + metadata.uuid + (isProvenanceRdfXml ? "-pvm.rdf" : "-pvm.ttl");
 				if(!isProvenanceRdfXml) {
-					provenance = Utils.unicodeToAscii(provenance);
-					output = new BufferedWriter(new OutputStreamWriter( new FileOutputStream(fullFileName), "US-ASCII"));
+					// metadata.provenance = Utils.unicodeToAscii(metadata.provenance);
+					// output = new BufferedWriter(new OutputStreamWriter( new FileOutputStream(fullFileName), "US-ASCII"));
+					output = new BufferedWriter(new OutputStreamWriter( new FileOutputStream(fullFileName), "UTF-8"));
 				} else {
 					output = new BufferedWriter(new OutputStreamWriter( new FileOutputStream(fullFileName), "UTF-8"));
 				}
-				output.write(provenance);
+				output.write(metadata.provenance);
 			} finally {
 				if (output != null) {
 					output.close();
@@ -183,10 +199,12 @@ public class InputWS implements IInputWS {
 		
 		output = null;
 		try {
+			boolean isPayloadRdfXml = payload.startsWith("<?xml");
 			String fullFileName = inputDirectory + metadata.uuid + (isPayloadRdfXml ? ".rdf" : ".ttl");
 			if (!isPayloadRdfXml) {
-				payload = Utils.unicodeToAscii(payload);
-				output = new BufferedWriter(new OutputStreamWriter( new FileOutputStream(fullFileName), "US-ASCII"));
+				// payload = Utils.unicodeToAscii(payload);
+				// output = new BufferedWriter(new OutputStreamWriter( new FileOutputStream(fullFileName), "US-ASCII"));
+				output = new BufferedWriter(new OutputStreamWriter( new FileOutputStream(fullFileName), "UTF-8"));
 			} else {
 				output = new BufferedWriter(new OutputStreamWriter( new FileOutputStream(fullFileName), "UTF-8"));
 			}
@@ -196,5 +214,15 @@ public class InputWS implements IInputWS {
 				output.close();
 			}
 		}
+	}
+	
+	private void append(StringBuilder metadata, String subject, String predicate, String object) {
+		metadata.append("<");
+		metadata.append(subject);
+		metadata.append("> <");	
+		metadata.append(predicate);
+		metadata.append("> ");
+		metadata.append(object);
+		metadata.append(" .\r\n");
 	}
 }

@@ -1,23 +1,25 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo.oi;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
+import java.math.BigDecimal;
+
+import cz.cuni.mff.odcleanstore.webfrontend.bo.RuleEntity;
 
 /**
+ * The BO which represents an OI rule.
  * 
- * @author Dusan
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
-public class OIRule extends EntityWithSurrogateKey
+public class OIRule extends RuleEntity
 {
 	private static final long serialVersionUID = 1L;
 
-	private Long groupId;
 	private String label;
 	private String linkType;
 	private String sourceRestriction;
 	private String targetRestriction;
 	private String linkageRule;
-	private Double filterThreshold;
+	private BigDecimal filterThreshold;
 	private Integer filterLimit;
 	
 	/**
@@ -32,12 +34,11 @@ public class OIRule extends EntityWithSurrogateKey
 	 * @param filterThreshold
 	 * @param filterLimit
 	 */
-	public OIRule(Long id, Long groupId, String label, String linkType, String sourceRestriction, 
-		String targetRestriction, String linkageRule, Double filterThreshold, Integer filterLimit) 
+	public OIRule(Integer id, Integer groupId, String label, String linkType, String sourceRestriction, 
+		String targetRestriction, String linkageRule, BigDecimal filterThreshold, Integer filterLimit) 
 	{
-		super(id);
+		super(id, groupId);
 		
-		this.groupId = groupId;
 		this.label = label;
 		this.linkType = linkType;
 		this.sourceRestriction = sourceRestriction;
@@ -58,15 +59,6 @@ public class OIRule extends EntityWithSurrogateKey
 	 * 
 	 * @return
 	 */
-	public Long getGroupId() 
-	{
-		return groupId;
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
 	public String getLabel() 
 	{
 		return label;
@@ -80,6 +72,16 @@ public class OIRule extends EntityWithSurrogateKey
 	{
 		return linkType;
 	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public void setLinkType(String linkType) 
+	{
+		this.linkType = linkType;
+	}
+	
 	
 	/**
 	 * 
@@ -112,7 +114,7 @@ public class OIRule extends EntityWithSurrogateKey
 	 * 
 	 * @return
 	 */
-	public Double getFilterThreshold() 
+	public BigDecimal getFilterThreshold() 
 	{
 		return filterThreshold;
 	}
@@ -126,12 +128,4 @@ public class OIRule extends EntityWithSurrogateKey
 		return filterLimit;
 	}
 
-	/**
-	 * 
-	 * @param groupId
-	 */
-	public void setGroupId(Long groupId) 
-	{
-		this.groupId = groupId;
-	}
 }

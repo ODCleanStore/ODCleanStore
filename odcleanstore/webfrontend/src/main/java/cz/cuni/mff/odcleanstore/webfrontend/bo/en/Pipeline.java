@@ -3,9 +3,16 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo.en;
 import java.util.LinkedList;
 import java.util.List;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.AuthoredEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
-public class Pipeline extends EntityWithSurrogateKey
+/**
+ * The BO to represent a pipeline.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
+public class Pipeline extends EntityWithSurrogateKey implements AuthoredEntity
 {
 	private static final long serialVersionUID = 1L;
 
@@ -14,6 +21,8 @@ public class Pipeline extends EntityWithSurrogateKey
 	private Boolean isDefault;
 	private Boolean isLocked;
 	private List<TransformerInstance> transformers;
+	private Integer authorId;
+	private String authorName;
 	
 	/**
 	 * 
@@ -21,8 +30,10 @@ public class Pipeline extends EntityWithSurrogateKey
 	 * @param label
 	 * @param description
 	 * @param isDefault
+	 * @param isLocked
+	 * @param authorId
 	 */
-	public Pipeline(Long id, String label, String description, Boolean isDefault, Boolean isLocked) 
+	public Pipeline(Integer id, String label, String description, Boolean isDefault, Boolean isLocked, Integer authorId, String authorName) 
 	{
 		super(id);
 		
@@ -32,6 +43,8 @@ public class Pipeline extends EntityWithSurrogateKey
 		this.description = description;
 		this.isDefault = isDefault;
 		this.isLocked = isLocked;
+		this.authorId = authorId;
+		this.setAuthorName(authorName);
 	}
 	
 	/**
@@ -50,6 +63,15 @@ public class Pipeline extends EntityWithSurrogateKey
 	{
 		return label;
 	}
+	
+	/**
+	 * 
+	 * @param label
+	 */
+	public void setLabel(String label) 
+	{
+		this.label = label;
+	}
 
 	/**
 	 * 
@@ -58,6 +80,11 @@ public class Pipeline extends EntityWithSurrogateKey
 	public String getDescription() 
 	{
 		return description;
+	}
+	
+	public void setDescription(String description) 
+	{
+		this.description = description;
 	}
 
 	/**
@@ -76,6 +103,24 @@ public class Pipeline extends EntityWithSurrogateKey
 	public void setDefault(Boolean isDefault)
 	{
 		this.isDefault = isDefault;
+	}
+	
+	/**
+	 * 
+	 * @param authorId
+	 */
+	public void setAuthorId(Integer authorId) 
+	{
+		this.authorId = authorId;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public Integer getAuthorId() 
+	{
+		return authorId;
 	}
 	
 	/**
@@ -112,5 +157,23 @@ public class Pipeline extends EntityWithSurrogateKey
 	public void setTransformers(List<TransformerInstance> transformers)
 	{
 		this.transformers = transformers;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getAuthorName()
+	{
+		return authorName;
+	}
+
+	/**
+	 * 
+	 * @param authorName
+	 */
+	public void setAuthorName(String authorName)
+	{
+		this.authorName = authorName;
 	}
 }

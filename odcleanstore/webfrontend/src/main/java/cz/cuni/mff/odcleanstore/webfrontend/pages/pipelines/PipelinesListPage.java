@@ -1,5 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
 
+import java.util.Locale;
+
 import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
@@ -13,14 +15,15 @@ import org.apache.wicket.model.Model;
 import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
+import cz.cuni.mff.odcleanstore.webfrontend.core.AuthorizationHelper;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.BooleanLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvider;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.EngineOperationsDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
@@ -33,7 +36,7 @@ public class PipelinesListPage extends FrontendPage
 
 	private static Logger logger = Logger.getLogger(PipelinesListPage.class);
 	
-	private DaoForEntityWithSurrogateKey<Pipeline> pipelineDao;
+	private PipelineDao pipelineDao;
 	//private OfficialPipelinesDao officialPipelinesDao;
 	private EngineOperationsDao engineOperationsDao;
 
@@ -47,9 +50,9 @@ public class PipelinesListPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		pipelineDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(PipelineDao.class);
+		pipelineDao = daoLookupFactory.getDao(PipelineDao.class);
 		//officialPipelinesDao = daoLookupFactory.getOfficialPipelinesDao();
-		engineOperationsDao = daoLookupFactory.getEngineOperationsDao();
+		engineOperationsDao = daoLookupFactory.getDao(EngineOperationsDao.class);
 		
 		// register page components
 		//
@@ -73,15 +76,26 @@ public class PipelinesListPage extends FrontendPage
 				item.setModel(new CompoundPropertyModel<Pipeline>(pipeline));
 
 				item.add(new Label("label"));
+				item.add(new Label("authorName"));
 				item.add(new TruncatedLabel("description", MAX_LIST_COLUMN_TEXT_LENGTH));
-				item.add(new Label("isDefault"));
-				item.add(new Label("isLocked"));
+				item.add(new BooleanLabel("isLocked"));
+				item.add(new BooleanLabel("isDefault")
+				{
+					private static final long serialVersionUID = 1L;
+					@Override
+					public String convertToString(Boolean value, Locale locale)
+					{
+						if (Boolean.FALSE.equals(value))
+							return "";
+						return super.convertToString(value, locale);
+					}
+				});
 				
 				item.add(
-					new DeleteRawButton<Pipeline>
+					new AuthorizedDeleteButton<Pipeline>
 					(
 						pipelineDao,
-						pipeline.getId(),
+						pipeline,
 						"pipeline",
 						new DeleteConfirmationMessage("pipeline", "transformer assignment"),
 						PipelinesListPage.this
@@ -91,14 +105,6 @@ public class PipelinesListPage extends FrontendPage
 				item.add(
 					new RedirectWithParamButton(
 						PipelineDetailPage.class,
-						pipeline.getId(), 
-						"managePipelineTransformers"
-					)
-				);
-				
-				item.add(
-					new RedirectWithParamButton(
-						EditPipelinePage.class,
 						pipeline.getId(), 
 						"showEditPipelinePage"
 					)
@@ -114,6 +120,7 @@ public class PipelinesListPage extends FrontendPage
 		dataView.setItemsPerPage(ITEMS_PER_PAGE);
 		
 		add(new SortTableButton<Pipeline>("sortByLabel", "label", data, dataView));
+		add(new SortTableButton<Pipeline>("sortByAuthor", "username", data, dataView));
 		add(new SortTableButton<Pipeline>("sortByIsDefault", "isDefault", data, dataView));
 		add(new SortTableButton<Pipeline>("sortByIsLocked", "isLocked", data, dataView));
 		
@@ -127,10 +134,21 @@ public class PipelinesListPage extends FrontendPage
 		Link<String> button = new Link<String>("markPipelineDefault", new Model<String>("XXX"))
         {
 			private static final long serialVersionUID = 1L;
+			
+			@Override
+			public boolean isVisible()
+			{
+				return AuthorizationHelper.isAuthorizedForSettingDefaultPipeline();
+			}
 
 			@Override
             public void onClick()
             {
+				if (!AuthorizationHelper.isAuthorizedForSettingDefaultPipeline()) 
+				{
+					return;
+				}
+				
 				pipeline.setDefault(true);
 				
 				try {
@@ -138,13 +156,13 @@ public class PipelinesListPage extends FrontendPage
 				}
 				catch (DaoException ex)
 				{
+					logger.error(ex.getMessage(), ex);
 					getSession().error(ex.getMessage());
 					return;
 				}
 				catch (Exception ex)
 				{
-					// logger.error(ex.getMessage());
-					
+					logger.error(ex.getMessage(), ex);					
 					getSession().error(
 						"The pipeline could not be marked as default due to an unexpected error."
 					);
@@ -153,7 +171,7 @@ public class PipelinesListPage extends FrontendPage
 				}
 				
 				getSession().info("The pipeline was successfuly marked as default.");
-				setResponsePage(PipelinesListPage.class);
+				//setResponsePage(PipelinesListPage.class);
             }
         };
 
@@ -176,6 +194,11 @@ public class PipelinesListPage extends FrontendPage
 			@Override
             public void onClick()
             {
+				if (!AuthorizationHelper.isAuthorizedForEntityEditing(pipeline)) 
+				{
+					return;
+				}
+				
 				pipeline.setLocked(lock);
 				
 				try 
@@ -184,6 +207,7 @@ public class PipelinesListPage extends FrontendPage
 				}
 				catch (Exception ex)
 				{
+					logger.error(ex.getMessage(), ex);
 					getSession().error("The pipeline could not be " + status + "ed due to an unexpected error.");
 					return;
 				}
@@ -195,12 +219,12 @@ public class PipelinesListPage extends FrontendPage
 			@Override
 			public boolean isVisible()
 			{
-				return pipeline.isLocked() != lock && pipeline.isLocked() != null;
+				return pipeline.isLocked() != lock && pipeline.isLocked() != null && AuthorizationHelper.isAuthorizedForEntityEditing(pipeline);
 			}
         });
 	}
 	
-	private void addRerunAssociatedGraphsButton(final Item<Pipeline> item, final Long pipelineId)
+	private void addRerunAssociatedGraphsButton(final Item<Pipeline> item, final Integer pipelineId)
 	{
 		Link<String> button = new Link<String>("rerunAssociatedGraphs")
         {
@@ -224,7 +248,7 @@ public class PipelinesListPage extends FrontendPage
 				}
 				
 				getSession().info("The associated graphs were successfuly marked to be rerun.");
-				setResponsePage(PipelinesListPage.class);
+				//setResponsePage(PipelinesListPage.class);
             }
         };
 

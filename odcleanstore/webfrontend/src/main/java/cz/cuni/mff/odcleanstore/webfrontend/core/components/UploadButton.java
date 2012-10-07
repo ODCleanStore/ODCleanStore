@@ -8,6 +8,11 @@ import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.form.upload.FileUploadField;
 import org.apache.wicket.util.io.IOUtils;
 
+/**
+ * 
+ * @author Tomáš Soukup
+ *
+ */
 public class UploadButton extends Button 
 {
 	private static final long serialVersionUID = 1L;
@@ -35,7 +40,8 @@ public class UploadButton extends Button
 				String content = IOUtils.toString(uploadedFile.getInputStream(), ENCODING);
 				textArea.getModel().setObject(content);
 				textArea.modelChanged();
-			} catch (IOException e) 
+			}
+			catch (IOException e) 
 			{
 				getSession().error("Failed to read file: " + fileUpload.getValue());
 			}

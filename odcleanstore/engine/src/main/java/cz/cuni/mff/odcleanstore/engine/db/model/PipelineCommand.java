@@ -8,6 +8,7 @@ public class PipelineCommand {
 	public String configuration;
 	public boolean runOnCleanDB;
 	public int transformerInstanceID;
+	public int transformerID;
 	public String transformerLabel;
 	
 	
@@ -25,6 +26,7 @@ public class PipelineCommand {
 			mbr.configuration = src[i].configuration;
 			mbr.runOnCleanDB = src[i].runOnCleanDB;
 			mbr.transformerInstanceID = src[i].transformerInstanceID;
+			mbr.transformerID = src[i].transformerID;
 			mbr.transformerLabel = src[i].transformerLabel;
 			dst[i] = mbr; 
 		}

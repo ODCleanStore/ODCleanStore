@@ -1,0 +1,54 @@
+<wicket:extend>
+
+<div wicket:id="helpWindow"></div>
+
+<wicket:link>
+<div>
+	<a class="placedright button" href="PipelinesListPage.html">Back to the list of pipelines</a>
+	<div class="clear">&nbsp;</div>
+</div>
+</wicket:link>
+
+<a wicket:id="openHelpWindow"class="help">Help</a>
+
+<div class="clear">&nbsp;</div>
+
+<div>
+    <input wicket:id="deleteAll" type="button" class="placedright delete" title="Remove all wrong graphs associated with this pipeline" value="Delete all" />
+    <input wicket:id="rerunAll" type="button" class="placedright" title="Process again all wrong graphs associated with this pipeline" value="Rerun all" />
+	<input wicket:id="finishAll" type="button" class="placedright" title="Accept all wrong graphs residing in clean DB and associated with this pipeline as clean" value="Accept all in clean DB" />
+	<div class="clear">&nbsp;</div>
+</div>
+
+<span class="navigation" wicket:id="navigator">[dataview navigator]</span>
+
+<table border="1">
+	
+	<tr>
+		<th wicket:id="sortByEngine">Engine</th>
+		<th wicket:id="sortByPipeline">Pipeline</th>
+		<th wicket:id="sortByGraph">Graph</th>
+		<th wicket:id="sortByState">State</th>
+		<th wicket:id="sortByError">Error type</th>
+		<th>Error message</th>
+		<th>Action</th>
+	</tr>
+	
+	<tr  wicket:id="graphInError">
+	
+		<td wicket:id="engineUUID">[engine]</td>
+		<td wicket:id="pipelineLabel">[pipeline]</td>
+		<td wicket:id="UUID">[uuid]</td>
+		<td wicket:id="stateLabel">[state]</td>
+		<td wicket:id="errorTypeLabel">[error type]</td>
+		<td wicket:id="errorMessage">[message]</td>
+		
+		<td class="actions">
+			<input wicket:id="finishGraph" type="button" title="Mark the graph as finished" value="Accept" />
+			<input wicket:id="rerunGraph" type="button" title="Queue the graph to be rerun" value="Rerun" />
+			<input wicket:id="deleteGraph" type="button" class="delete" title="Queue the graph to be deleted" value="Delete" />
+		</td>
+	</tr>
+</table>
+
+</wicket:extend>

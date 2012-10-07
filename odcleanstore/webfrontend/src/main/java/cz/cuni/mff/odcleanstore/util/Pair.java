@@ -3,7 +3,7 @@ package cz.cuni.mff.odcleanstore.util;
 /**
  * Represents an ordered pair of variables of types T and U.
  * 
- * @author Dušan Rychnovský
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  * @param <T>
  * @param <U>

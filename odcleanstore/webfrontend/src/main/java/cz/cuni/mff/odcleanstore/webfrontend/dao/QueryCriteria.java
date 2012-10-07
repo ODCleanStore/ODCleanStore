@@ -10,7 +10,7 @@ import cz.cuni.mff.odcleanstore.util.Pair;
  * @author Dusan
  *
  */
-public class QueryCriteria 
+public class QueryCriteria implements Cloneable
 {
 	public enum SortOrder { ASC, DESC };
 	
@@ -117,5 +117,14 @@ public class QueryCriteria
 		}
 		
 		return builder.toString();
+	}
+	
+	@Override
+	public Object clone()
+	{
+		QueryCriteria clone = new QueryCriteria();
+		clone.whereClauses = new LinkedList<Pair<String, Object>>(this.whereClauses);
+		clone.orderByClauses = new LinkedList<Pair<String, SortOrder>>(this.orderByClauses);
+		return clone;
 	}
 }

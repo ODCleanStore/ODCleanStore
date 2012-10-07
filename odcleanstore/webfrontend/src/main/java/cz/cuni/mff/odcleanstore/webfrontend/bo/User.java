@@ -8,7 +8,7 @@ import java.util.Set;
 /**
  * The User BO.
  * 
- * @author Dusan Rychnovsky (dusan.rychnovsky@gmail.com)
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
 public class User extends EntityWithSurrogateKey
@@ -32,7 +32,7 @@ public class User extends EntityWithSurrogateKey
 	 * @param firstname
 	 * @param surname
 	 */
-	public User(Long id, String username, String email, String firstname, String surname)
+	public User(Integer id, String username, String email, String firstname, String surname)
 	{
 		super(id);
 
@@ -142,6 +142,12 @@ public class User extends EntityWithSurrogateKey
 		this.roles = roles;
 	}
 	
+	/**
+	 * Returns the list of the names of all roles assigned to the represented
+	 * user.
+	 * 
+	 * @return
+	 */
 	public String[] getRoleLabels()
 	{
 		List<String> labels = new LinkedList<String>();
@@ -170,13 +176,25 @@ public class User extends EntityWithSurrogateKey
 	}
 	
 	/**
+	 * Returns true if and only if the represented user has been assigned
+	 * the given role.
 	 * 
 	 * @param role
 	 * @return
 	 */
-	public boolean hasAssignedRole(Role role)
+	public boolean hasRoleAssigned(Role role)
 	{
 		return this.roles.contains(role);
+	}
+	
+	/**
+	 * 
+	 * @param roleLabel
+	 * @return
+	 */
+	public boolean hasAssignedRole(String roleLabel)
+	{
+		return this.roles.contains(new Role(roleLabel, ""));
 	}
 	
 	@Override

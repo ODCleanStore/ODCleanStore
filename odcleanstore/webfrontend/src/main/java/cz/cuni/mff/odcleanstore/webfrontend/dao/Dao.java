@@ -1,20 +1,26 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao;
 
-import cz.cuni.mff.odcleanstore.util.CodeSnippet;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessEntity;
-import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
+import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.List;
 
+import javax.mail.MessagingException;
 import javax.sql.DataSource;
 
 import org.apache.log4j.Logger;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.AbstractPlatformTransactionManager;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.io.Serializable;
-import java.util.List;
+import cz.cuni.mff.odcleanstore.data.EnumDatabaseInstance;
+import cz.cuni.mff.odcleanstore.util.CodeSnippet;
+import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 
 /**
  * Generic DAO interface.
@@ -22,32 +28,26 @@ import java.util.List;
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
-public abstract class Dao<T extends BusinessEntity> implements Serializable
+public abstract class Dao implements Serializable
 {
 	public static final String TABLE_NAME_PREFIX = "DB.ODCLEANSTORE.";
-	public static final String BACKUP_TABLE_PREFIX = "BACKUP_";
 	
 	private static final long serialVersionUID = 1L;
 	
 	protected static Logger logger = Logger.getLogger(Dao.class);
 	
-	protected DaoLookupFactory lookupFactory;
+	private static List<DaoExceptionHandler> exceptionHandlers = new LinkedList<DaoExceptionHandler>();
 	
+	private DaoLookupFactory lookupFactory;
 	private transient JdbcTemplate cleanJDBCTemplate;
 	private transient JdbcTemplate dirtyJDBCTemplate;
-	private transient TransactionTemplate transactionTemplate;
+	private transient TransactionTemplate cleanTransactionTemplate;
 	
-	/**
-	 * 
-	 * @return
-	 */
-	public abstract String getTableName();
-	
-	/**
-	 * 
-	 * @return
-	 */
-	protected abstract ParameterizedRowMapper<T> getRowMapper();
+	static 
+	{
+		exceptionHandlers.add(new UniquenessViolationHandler());
+		exceptionHandlers.add(new NonUniquePrimaryKeyHandler());
+	}
 	
 	/**
 	 * 
@@ -58,11 +58,29 @@ public abstract class Dao<T extends BusinessEntity> implements Serializable
 		this.lookupFactory = lookupFactory;
 	}
 	
+	private JdbcTemplate getJdbcTemplate()
+	{
+		return getCleanJdbcTemplate();
+	}
+
+	private JdbcTemplate getJdbcTemplate(EnumDatabaseInstance dbInstance)
+	{
+		switch (dbInstance)
+		{
+		case CLEAN:
+			return getCleanJdbcTemplate();
+		case DIRTY:
+			return getDirtyJdbcTemplate();
+		default:
+			throw new AssertionError("Unknown database instance");
+		}
+	}
+
 	/**
 	 * 
 	 * @return
 	 */
-	protected JdbcTemplate getCleanJdbcTemplate()
+	private JdbcTemplate getCleanJdbcTemplate()
 	{
 		if (cleanJDBCTemplate == null)
 		{
@@ -77,7 +95,7 @@ public abstract class Dao<T extends BusinessEntity> implements Serializable
 	 * 
 	 * @return
 	 */
-	protected JdbcTemplate getDirtyJdbcTemplate()
+	private JdbcTemplate getDirtyJdbcTemplate()
 	{
 		if (dirtyJDBCTemplate == null)
 		{
@@ -92,16 +110,16 @@ public abstract class Dao<T extends BusinessEntity> implements Serializable
 	 * 
 	 * @return
 	 */
-	protected TransactionTemplate getTransactionTemplate()
+	private TransactionTemplate getCleanTransactionTemplate()
 	{
-		if (transactionTemplate == null)
+		if (cleanTransactionTemplate == null)
 		{
-			AbstractPlatformTransactionManager manager = lookupFactory.getTransactionManager();
-			transactionTemplate = new TransactionTemplate(manager);
-			transactionTemplate.setPropagationBehavior(DefaultTransactionDefinition.PROPAGATION_REQUIRED);
+			AbstractPlatformTransactionManager manager = lookupFactory.getCleanTransactionManager();
+			cleanTransactionTemplate = new TransactionTemplate(manager);
+			cleanTransactionTemplate.setPropagationBehavior(DefaultTransactionDefinition.PROPAGATION_REQUIRED);
 		}
 		
-		return transactionTemplate;
+		return cleanTransactionTemplate;
 	}
 	
 	/**
@@ -115,166 +133,186 @@ public abstract class Dao<T extends BusinessEntity> implements Serializable
 		else
 			return 0;
 	}
-	/**
-	 * 
-	 * @return
-	 */
-	public List<T> loadAllRaw()
+	
+	protected <E> List<E> jdbcQuery(String sql, RowMapper<E> rowMapper) throws DataAccessException
 	{
-		String query = "SELECT * FROM " + getTableName();
-		return getCleanJdbcTemplate().query(query, getRowMapper());
+		return getJdbcTemplate().query(sql, rowMapper);
+	}
+
+	protected <E> List<E> jdbcQuery(String sql, Object[] args, RowMapper<E> rowMapper) throws DataAccessException
+	{
+		return getJdbcTemplate().query(sql, args, rowMapper);
+	}
+
+	protected <E> E jdbcQueryForObject(String sql, RowMapper<E> rowMapper) throws DataAccessException
+	{
+		return getJdbcTemplate().queryForObject(sql, rowMapper);
+	}
+
+	protected <E> E jdbcQueryForObject(String sql, Object[] args, RowMapper<E> rowMapper) throws DataAccessException
+	{
+		return getJdbcTemplate().queryForObject(sql, args, rowMapper);
+	}
+
+	public <E> E jdbcQueryForObject(String sql, Object[] args, Class<E> requiredType) throws DataAccessException
+	{
+		return getJdbcTemplate().queryForObject(sql, args, requiredType);
 	}
 	
-	public T loadFirstRaw()
+	protected <E> List<E> jdbcQueryForList(String sql, Class<E> elementType) throws DataAccessException
 	{
-		String query = "SELECT TOP 1 * FROM " + getTableName();
-		return getCleanJdbcTemplate().queryForObject(query, getRowMapper());
+		return getJdbcTemplate().queryForList(sql, elementType);
 	}
 	
-	/**
-	 * 
-	 * @param columnName
-	 * @param value
-	 * @return
-	 */
-	public List<T> loadAllRawBy(String columnName, Object value)
+	protected int jdbcQueryForInt(String sql) throws DataAccessException 
 	{
-		String query = "SELECT * FROM " + getTableName() + " WHERE " + columnName + " = ?";
-		Object[] params = { value };
+		return getJdbcTemplate().queryForInt(sql);
+	}
+	
+	protected int jdbcQueryForInt(String sql, Object... args) throws DataAccessException 
+	{
+		return getJdbcTemplate().queryForInt(sql, args);
+	}
+
+	protected int jdbcQueryForInt(String sql, Object[] args, EnumDatabaseInstance dbInstance) throws Exception
+	{
+		try
+		{
+			return getJdbcTemplate(dbInstance).queryForInt(sql, args);
+		}
+		catch (Exception e)
+		{
+			handleException(e);
+			throw e;
+		}
+	}
+	
+	protected int jdbcUpdate(final String sql) throws Exception
+	{
+		try
+		{
+			return getJdbcTemplate().update(sql);
+		}
+		catch (Exception e)
+		{
+			handleException(e);
+			throw e;
+		}
+	}
+
+	protected int jdbcUpdate(String sql, Object... args) throws Exception
+	{
+		return this.jdbcUpdate(sql, args, EnumDatabaseInstance.CLEAN);
+	}
+
+	protected int jdbcUpdate(String sql, Object[] args, EnumDatabaseInstance dbInstance) throws Exception
+	{
+		try
+		{
+			return getJdbcTemplate(dbInstance).update(sql, args);
+		}
+		catch (Exception e)
+		{
+			handleException(e);
+			throw e;
+		}
+	}
+
+	protected void executeInTransaction(final CodeSnippet code) throws Exception
+	{
+		try
+		{
+			getCleanTransactionTemplate().execute(new TransactionCallbackWithoutResult()
+			{
+				@Override
+				protected void doInTransactionWithoutResult(TransactionStatus status)
+				{
+					try
+					{
+						code.execute();
+					}
+					catch (Exception ex)
+					{
+						throw new RuntimeException(ex.getMessage(), ex);
+					}
+				}
+			});
+		}
+		catch (Exception ex)
+		{
+			handleException(ex);
+			throw ex;
+		}
+	}
+	
+	private void handleException(Exception ex) throws Exception
+	{
+		handleMessagingException(ex);
+		handleDAOException(ex);
 		
-		logger.debug("value: " + value);
-		
-		return getCleanJdbcTemplate().query(query, params, getRowMapper());
-	}
-	
-	/**
-	 * Finds all entities in the database.
-	 * 
-	 * @return
-	 * @throws Exception 
-	 */
-	public List<T> loadAll()
-	{
-		return loadAllRaw();
+		// if neither of the routines above handled the exception (e.g. they
+		// did not throw any exceptions), re-throw the exception unchanged
+		throw ex;
 	}
 	
 	/**
 	 * 
-	 * @param criteria
-	 * @return
-	 */
-	public List<T> loadAllBy(QueryCriteria criteria)
-	{
-		String query = 
-			"SELECT * FROM " + getTableName() +
-			criteria.buildWhereClause() +
-			criteria.buildOrderByClause();
-		
-		Object[] params = criteria.buildWhereClauseParams();
-		
-		return getCleanJdbcTemplate().query(query, params, getRowMapper());
-	}
-	
-	/**
-	 * 
-	 * @param columnName
-	 * @param value
-	 * @return
-	 */
-	public T loadRawBy(String columnName, Object value)
-	{
-		String query = "SELECT * FROM " + getTableName() + " WHERE " + columnName + " = ?";
-		Object[] params = { value };
-		
-		logger.debug("value: " + value);
-		
-		return (T) getCleanJdbcTemplate().queryForObject(query, params, getRowMapper());
-	}
-	
-	/**
-	 * Finds the entity with the given id in the database.
-	 * 
-	 * @param id
-	 * @return
-	 */
-	public T loadBy(String columnName, Object value)
-	{
-		return loadRawBy(columnName, value);
-	}
-	
-	/**
-	 * Saves the given item in the database.
-	 * 
-	 * @param item
-	 */
-	public void save(T item) throws Exception
-	{
-		throw new UnsupportedOperationException(
-			"Cannot insert rows into table:" + getTableName() + "."
-		);
-	}
-	
-	/**
-	 * 
-	 * @param item
-	 * @param doAfter
+	 * @param ex
 	 * @throws Exception
 	 */
-	public void save(T item, CodeSnippet doAfter) throws Exception
+	private void handleMessagingException(Exception ex) throws Exception
 	{
-		throw new UnsupportedOperationException(
-			"Cannot insert rows into table:" + getTableName() + "."
-		);
+		if (ex instanceof RuntimeException)
+		{
+			Throwable innerEx = ex.getCause();
+			if (innerEx != null && (innerEx instanceof MessagingException))
+			{
+				throw (MessagingException) innerEx;
+			}
+		}
 	}
 	
-	/**
-	 * 
-	 * @param item
-	 * @param doAfter
-	 * @throws Exception
-	 */
-	public long saveAndGetKey(final T item) throws Exception
+	private void handleDAOException(Exception ex) throws Exception
 	{
-		throw new UnsupportedOperationException(
-			"Cannot insert rows into table:" + getTableName() + "."
-		);
+		// throw the exception out right away if it has been already processed before
+		// (this is necessary as an exception might get processed twice - once in
+		// the jdbcUpdate method and then again in the executeInTransaction method)
+		//
+		if ((ex.getCause() != null) && (ex.getCause() instanceof DaoException))
+			throw (DaoException) ex.getCause();
+		
+		// throw the exeption out right away if it's message does not bear a virtuoso
+		// failure number and therefore cannot be processed using DAO exception handlers)
+		//
+		String relevantMessagePart = getRelevantMessagePart(ex.getMessage());
+		if (relevantMessagePart == null)
+			throw ex;
+		
+		for (DaoExceptionHandler handler : exceptionHandlers)
+		{
+			if (!handler.comprisesException(relevantMessagePart))
+				continue;
+			
+			handler.handleException(relevantMessagePart);
+			return;
+		}
 	}
 	
-	/**
-	 * Updates the given item in the database.
-	 * 
-	 * @param item
-	 * @throws Exception 
-	 */
-	public void update(T item) throws Exception
+	private String getRelevantMessagePart(String originalMessage)
 	{
-		throw new UnsupportedOperationException(
-			"Cannot update rows in table: " + getTableName() + "."
-		);
+		String[] tokens = originalMessage.split("; ");
+		
+		for (String token : tokens)
+		{
+			if (token.startsWith("SR"))
+				return token;
+		}
+		
+		return null;
 	}
 	
-	/**
-	 * 
-	 * @param item
-	 * @param doAfter
-	 * @throws Exception
-	 */
-	public void update(T item, CodeSnippet doAfter) throws Exception
+	protected DaoLookupFactory getLookupFactory() 
 	{
-		throw new UnsupportedOperationException(
-			"Cannot update rows in table: " + getTableName() + "."
-		);
-	}
-	
-	/**
-	 * 
-	 * @param item
-	 * @throws Exception
-	 */
-	public void delete(T item) throws Exception
-	{
-		throw new UnsupportedOperationException(
-			"Cannot delete rows from table: " + getTableName() + "."
-		);
+		return lookupFactory;
 	}
 }

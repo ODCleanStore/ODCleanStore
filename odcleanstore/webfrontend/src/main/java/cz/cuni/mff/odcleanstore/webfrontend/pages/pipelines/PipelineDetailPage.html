@@ -10,57 +10,67 @@
 </div>
 </wicket:link>
 
-<a wicket:id="openPipelineHelpWindow"class="help">Help</a>
+<a wicket:id="openPipelineHelpWindow" class="help">Help</a>
+
+<div class="clear">&nbsp;</div>
+
+<form wicket:id="editPipelineForm">
+	<p>
+		<label for="label">Label:</label>
+		<span class="required"><input wicket:id="label" id="label" type="text"/></span>
+	</p>
+	<p>
+		<label for="description">Description:</label>
+		<textarea wicket:id="description" id="description"></textarea>
+	</p>
+	<input type="submit" wicket:id="submit" value="Submit" />
+</form>
+
 
 <div class="datalistitem">
-	<strong class="block">Label:</strong>
-	<span wicket:id="label">[label]</span>
-</div>
-				
-<div class="datalistitem">
-	<strong class="block">Description:</strong>
-	<span wicket:id="description">[description]</span>
-</div>
-
-<div class="datalistitem">
-	<strong class="block">Is default:</strong>
-	<span wicket:id="isDefault">[is default]</span>
+    <strong class="block">Is default:</strong>
+    <span wicket:id="isDefault">[is default]</span>
 </div>
 
 <h2>Assigned transformers</h2>
 
 <div>
-	<a class="placedright button" href="#" wicket:id="newAssignmentLink">Assign a transformer</a>
+    <a class="placedright button" href="#" wicket:id="newAssignmentLink">Assign a transformer</a>
+    <div class="clear">&nbsp;</div>
+    <a class="placedright button" href="#" wicket:id="viewGraphsInError">View graphs in error</a>
 	<div class="clear">&nbsp;</div>
 </div>
 
 
 <span class="navigation" wicket:id="navigator">[dataview navigator]</span>
-<a wicket:id="openTransformerInstanceHelpWindow"class="help">Help</a>
+<a wicket:id="openTransformerInstanceHelpWindow" class="help">Help</a>
+
+<div class="clear">&nbsp;</div>
 
 <table border="1">
-	
-	<tr>
-		<th wicket:id="sortByLabel">Label</th>
-		<th>Configuration</th>
-		<th wicket:id="sortByRunOnCleanDB">Allow to be run on clean DB</th>
-		<th wicket:id="sortByPriority">Priority</th>
-		<th>Action</th>
-	</tr>
-	
-	<tr  wicket:id="assignmentTable">
-	
-		<td wicket:id="label">[label]</td>
-		<td wicket:id="configuration">[configuration]</td>
-		<td wicket:id="runOnCleanDB">[run on clean db]</td>
-		<td wicket:id="priority">[priority]</td>
-		
-		<td class="centered">
-			<input wicket:id="deleteAssignment" type="button" value="Delete" />
-			<input wicket:id="showTransformerInstanceDetailPage" type="button" value="Detail" />
-			<input wicket:id="showEditTransformerInstancePage" type="button" value="Edit" />
-		</td>
-	</tr>
+    
+    <tr>
+        <th wicket:id="sortByPriority">Order</th>
+        <th wicket:id="sortByLabel">Label</th>
+        <th>Configuration</th>
+        <th wicket:id="sortByRunOnCleanDB">Allow to be run on clean DB</th>
+        <th>Action</th>
+    </tr>
+    
+    <tr  wicket:id="assignmentTable">
+
+        <td wicket:id="priority" class="centered">[priority]</td>    
+        <td wicket:id="label">[label]</td>
+        <td wicket:id="configuration">[configuration]</td>
+        <td wicket:id="runOnCleanDB" class="centered">[run on clean db]</td>
+        
+        <td class="actions">
+            <input wicket:id="showEditTransformerInstancePage" type="button" value="Detail" />
+            <input wicket:id="moveUp" type="button" value="Up" />
+            <input wicket:id="moveDown" type="button" value="Down" />
+            <input wicket:id="deleteAssignment" type="button" value="Delete" class="delete"/>
+        </td>
+    </tr>
 </table>
 
 </wicket:extend>

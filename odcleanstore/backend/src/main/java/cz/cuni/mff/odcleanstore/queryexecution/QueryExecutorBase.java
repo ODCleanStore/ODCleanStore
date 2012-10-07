@@ -14,6 +14,7 @@ import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 
@@ -58,7 +59,7 @@ import java.util.TreeSet;
      * If the value is null, there is now restriction on named graph URIs.
      * This constant is only for debugging purposes and should be null in production environment.
      */
-    protected static final String ENGINE_TEMP_GRAPH_PREFIX = ODCS.engineTemporaryGraph;
+    protected static final String ENGINE_TEMP_GRAPH_PREFIX = ODCSInternal.engineTemporaryGraphPrefix;
 
     /**
      * (Debug) Only named graph having URI starting with this prefix can be included in query result.

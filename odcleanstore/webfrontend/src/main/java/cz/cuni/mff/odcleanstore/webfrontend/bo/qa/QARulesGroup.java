@@ -1,33 +1,36 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo.qa;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.AuthoredEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.RulesGroupEntity;
 
-public class QARulesGroup extends RulesGroupEntity 
+/**
+ * The BO which represents a group of QA rules.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
+public class QARulesGroup extends RulesGroupEntity implements AuthoredEntity
 {
 	private static final long serialVersionUID = 1L;
 
-	private String label;
-	private String description;
-	
-	public QARulesGroup(Long id, String label, String description) 
+	/**
+	 * 
+	 * @param id
+	 * @param label
+	 * @param description
+	 * @param authorId
+	 * @param isUncommitted 
+	 * @param authorName
+	 */
+	public QARulesGroup(Integer id, String label, String description, Integer authorId, boolean isUncommitted, String authorName) 
 	{
-		super(id);
-		
-		this.label = label;
-		this.description = description;
+		super(id, label, description, authorId, isUncommitted, authorName);
 	}
 
-	public QARulesGroup() 
+	/**
+	 * 
+	 */
+	public QARulesGroup()
 	{
-	}
-
-	public String getLabel() 
-	{
-		return label;
-	}
-
-	public String getDescription() 
-	{
-		return description;
 	}
 }

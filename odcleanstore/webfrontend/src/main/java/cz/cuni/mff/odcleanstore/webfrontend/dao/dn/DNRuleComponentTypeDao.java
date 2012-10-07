@@ -36,7 +36,7 @@ public class DNRuleComponentTypeDao extends DaoForEntityWithSurrogateKey<DNRuleC
 	}
 	
 	@Override
-	public void deleteRaw(Long id)
+	protected void deleteRaw(Integer item) throws Exception
 	{
 		throw new UnsupportedOperationException(
 			"Cannot delete rows from table: " + getTableName() + "."

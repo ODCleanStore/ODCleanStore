@@ -3,56 +3,57 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
 import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.validation.validator.RangeValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
 @AuthorizeInstantiation({ Role.PIC })
-public class NewTransformerAssignmentPage extends FrontendPage
+public class NewTransformerAssignmentPage extends LimitedEditingPage
 {
 	private static final long serialVersionUID = 1L;
 
 	private static Logger logger = Logger.getLogger(NewTransformerAssignmentPage.class);
 	
-	private DaoForEntityWithSurrogateKey<Transformer> transformerDao;
-	private DaoForEntityWithSurrogateKey<TransformerInstance> transformerInstanceDao;
+	private TransformerDao transformerDao;
+	private TransformerInstanceDao transformerInstanceDao;
 	
 	private Transformer transformer;
 	private String workDirPath;
 	private String configuration;
 	private Boolean runOnCleanDB;
-	private Integer priority;
+	private TransformerInstance transformerPlaceBefore;
 	
-	public NewTransformerAssignmentPage(final Long pipelineId) 
+	public NewTransformerAssignmentPage(final Integer pipelineId) 
 	{
 		super
 		(
 			"Home > Backend > Pipelines > Transformer Instances > New", 
-			"Add a new transformer instance"
+			"Add a new transformer instance",
+			PipelineDao.class,
+			pipelineId
 		);
 		
+		checkUnathorizedInstantiation();
 
 		// prepare DAO objects
 		//
-		transformerDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(TransformerDao.class);
-		transformerInstanceDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(TransformerInstanceDao.class);
+		transformerDao = daoLookupFactory.getDao(TransformerDao.class);
+		transformerInstanceDao = daoLookupFactory.getDao(TransformerInstanceDao.class);
 		
 		// register page components
 		//
 		addHelpWindow(new TransformerInstanceHelpPanel("content"));
 		
 		add(
-			new RedirectWithParamButton<String>(
+			new RedirectWithParamButton(
 				PipelineDetailPage.class,
 				pipelineId, 
 				"managePipelineTransformers"
@@ -62,7 +63,7 @@ public class NewTransformerAssignmentPage extends FrontendPage
 		addNewAssignmentForm(pipelineId);
 	}
 	
-	private void addNewAssignmentForm(final Long pipelineId)
+	private void addNewAssignmentForm(final Integer pipelineId)
 	{
 		Form<NewTransformerAssignmentPage> form = 
 			new Form<NewTransformerAssignmentPage>("newAssignmentForm", new CompoundPropertyModel<NewTransformerAssignmentPage>(this))
@@ -72,6 +73,10 @@ public class NewTransformerAssignmentPage extends FrontendPage
 			@Override
 			protected void onSubmit()
 			{
+				int priority = (transformerPlaceBefore == null)
+					? transformerInstanceDao.getInstancesCount(pipelineId) + 1
+					: transformerPlaceBefore.getPriority();
+				
 				TransformerInstance assignment = new TransformerInstance
 				(
 					transformer.getId(),
@@ -82,19 +87,19 @@ public class NewTransformerAssignmentPage extends FrontendPage
 					priority
 				);
 
-				long insertId;
+				int insertId;
 				try {
 					insertId = transformerInstanceDao.saveAndGetKey(assignment);
 				}
 				catch (DaoException ex)
-				{
+				{	
+					logger.error(ex.getMessage(), ex);
 					getSession().error(ex.getMessage());
 					return;
 				}
 				catch (Exception ex)
 				{
-					logger.error(ex.getMessage());
-					
+					logger.error(ex.getMessage(), ex);					
 					getSession().error(
 						"The assignment could not be registered due to an unexpected error."
 					);
@@ -103,24 +108,15 @@ public class NewTransformerAssignmentPage extends FrontendPage
 				}
 				
 				getSession().info("The assignment was successfuly registered.");
-				setResponsePage(new TransformerInstanceDetailPage(insertId));
+				setResponsePage(new TransformerAssignmentDetailPage(insertId));
 			}
 		};
 
 		form.add(createEnumSelectbox(transformerDao, "transformer"));
 		form.add(createTextarea("configuration", false));
 		form.add(createCheckbox("runOnCleanDB"));
-		addPriorityTextfield(form);
+		form.add(createEnumSelectbox(new AssignedInstancesModel(pipelineId, transformerInstanceDao, null), "transformerPlaceBefore", false));
 		
 		add(form);
-	}
-
-	private void addPriorityTextfield(Form<NewTransformerAssignmentPage> form)
-	{
-		TextField<String> textfield = new TextField<String>("priority");
-		
-		textfield.setRequired(true);
-		textfield.add(new RangeValidator<Integer>(Integer.MIN_VALUE, Integer.MAX_VALUE));
-		form.add(textfield);
 	}
 }

@@ -14,10 +14,12 @@ public class OntologyRowMapper extends CustomRowMapper<Ontology>
 	{
 		return new Ontology
 		(
-			rs.getLong("id"),
+			rs.getInt("id"),
 			rs.getString("label"),
 			blobToString(rs.getBlob("description")),
-			rs.getString("graphName")
+			rs.getString("graphName"),
+			rs.getInt("authorId"),
+			blobToString(rs.getBlob("username"))
 		);
 	}
 

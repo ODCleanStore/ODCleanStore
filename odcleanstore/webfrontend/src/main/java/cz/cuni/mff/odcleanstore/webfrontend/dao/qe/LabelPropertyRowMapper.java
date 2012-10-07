@@ -21,7 +21,7 @@ public class LabelPropertyRowMapper extends CustomRowMapper<LabelProperty>
 	public LabelProperty mapRow(ResultSet rs, int rowNum) throws SQLException 
 	{
 		return new LabelProperty(
-			rs.getLong("id"), 
+			rs.getInt("id"), 
 			rs.getString("property")
 		);
 	}

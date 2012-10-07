@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -7,33 +8,37 @@ import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponent;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponentType;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleComponentDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleComponentTypeDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
 @AuthorizeInstantiation({ Role.PIC })
-public class NewDNRuleComponentPage extends FrontendPage
+public class NewDNRuleComponentPage extends LimitedEditingPage
 {
 	private static final long serialVersionUID = 1L;
+	private static Logger logger = Logger.getLogger(NewDNRuleComponentPage.class);
 
-	private DaoForEntityWithSurrogateKey<DNRuleComponent> dnRuleComponentDao;
-	private DaoForEntityWithSurrogateKey<DNRuleComponentType> dnRuleComponentTypeDao;
+	private DNRuleComponentDao dnRuleComponentDao;
+	private DNRuleComponentTypeDao dnRuleComponentTypeDao;
 	
-	public NewDNRuleComponentPage(Long ruleId) 
+	public NewDNRuleComponentPage(Integer ruleId) 
 	{
 		super(
 			"Home > Backend > DN > Groups > Rules > Components > New", 
-			"Add a new DN rule component"
+			"Add a new DN rule component",
+			DNRuleDao.class,
+			ruleId
 		);
+		
+		checkUnathorizedInstantiation();
 
 		// prepare DAO objects
 		//
-		dnRuleComponentDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNRuleComponentDao.class);
-		dnRuleComponentTypeDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNRuleComponentTypeDao.class);
+		dnRuleComponentDao = daoLookupFactory.getDao(DNRuleComponentDao.class, isEditable());
+		dnRuleComponentTypeDao = daoLookupFactory.getDao(DNRuleComponentTypeDao.class);
 		
 		// register page components
 		//
@@ -50,7 +55,7 @@ public class NewDNRuleComponentPage extends FrontendPage
 		addNewComponentForm(ruleId);
 	}
 	
-	private void addNewComponentForm(final Long ruleId)
+	private void addNewComponentForm(final Integer ruleId)
 	{
 		IModel<DNRuleComponent> formModel = new CompoundPropertyModel<DNRuleComponent>(new DNRuleComponent());
 		
@@ -68,14 +73,14 @@ public class NewDNRuleComponentPage extends FrontendPage
 					dnRuleComponentDao.save(dnRuleComponent);
 				}
 				catch (DaoException ex)
-				{
+				{	
+					logger.error(ex.getMessage(), ex);
 					getSession().error(ex.getMessage());
 					return;
 				}
 				catch (Exception ex)
 				{
-					// TODO: log the error
-					
+					logger.error(ex.getMessage(), ex);
 					getSession().error(
 						"The component could not be registered due to an unexpected error."
 					);

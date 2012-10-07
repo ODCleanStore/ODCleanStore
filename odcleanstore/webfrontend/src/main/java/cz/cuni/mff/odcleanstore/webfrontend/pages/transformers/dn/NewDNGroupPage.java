@@ -1,5 +1,8 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn;
 
+import java.util.Map;
+
+import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -7,7 +10,6 @@ import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRulesGroup;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
@@ -17,19 +19,33 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPan
 public class NewDNGroupPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
+	private static Logger logger = Logger.getLogger(NewDNGroupPage.class);
 
-	private DaoForEntityWithSurrogateKey<DNRulesGroup> dnRulesGroupDao;
+	private DNRulesGroupDao dnRulesGroupDao;
+	
+	/**
+	 * Reference to id of transformer instance from which we navigated to this page.
+	 * Null if we didn't navigate to this page from transformer instance detail page. 
+	 */
+	private Integer transformerInstanceId;
 	
 	public NewDNGroupPage() 
+	{
+		this(null);
+	}
+	
+	public NewDNGroupPage(final Integer transformerInstanceId) 
 	{
 		super(
 			"Home > Backend > DN > Groups > New", 
 			"Add a new DN rule group"
 		);
+		
+		this.transformerInstanceId = transformerInstanceId;
 
 		// prepare DAO objects
 		//
-		this.dnRulesGroupDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(DNRulesGroupDao.class);
+		this.dnRulesGroupDao = daoLookupFactory.getDao(DNRulesGroupDao.class);
 		
 		// register page components
 		//
@@ -49,20 +65,21 @@ public class NewDNGroupPage extends FrontendPage
 			protected void onSubmit()
 			{
 				DNRulesGroup group = this.getModelObject();
+				group.setAuthorId(getODCSSession().getUser().getId());
 				
-				long insertId;
+				int insertId;
 				try {
 					insertId = dnRulesGroupDao.saveAndGetKey(group);
 				}
 				catch (DaoException ex)
-				{
+				{	
+					logger.error(ex.getMessage(), ex);
 					getSession().error(ex.getMessage());
 					return;
 				}
 				catch (Exception ex)
 				{
-					// TODO: log the error
-					
+					logger.error(ex.getMessage(), ex);					
 					getSession().error(
 						"The group could not be registered due to an unexpected error."
 					);
@@ -71,6 +88,7 @@ public class NewDNGroupPage extends FrontendPage
 				}
 				
 				getSession().info("The group was successfuly registered.");
+				updateBackToPipelineNavigation(insertId);
 				setResponsePage(new DNGroupDetailPage(insertId));
 			}
 		};
@@ -79,5 +97,14 @@ public class NewDNGroupPage extends FrontendPage
 		form.add(createTextarea("description", false));
 		
 		add(form);
+	}
+	
+	private void updateBackToPipelineNavigation(Integer groupId) 
+	{
+		Map<Integer, Integer> navigationMap = getODCSSession().getDnPipelineRulesNavigationMap();
+		if (transformerInstanceId != null) 
+		{
+			navigationMap.put(groupId, transformerInstanceId);
+		}
 	}
 }

@@ -1,6 +1,5 @@
 package cz.cuni.mff.odcleanstore.datanormalization.impl;
 
-import cz.cuni.mff.odcleanstore.configuration.BackendConfig;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.configuration.DataNormalizationConfig;
 import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
@@ -8,29 +7,31 @@ import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
-import cz.cuni.mff.odcleanstore.data.DebugGraphFileLoader;
 import cz.cuni.mff.odcleanstore.datanormalization.DataNormalizer;
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
 import cz.cuni.mff.odcleanstore.datanormalization.rules.DataNormalizationRule;
 import cz.cuni.mff.odcleanstore.datanormalization.rules.DataNormalizationRulesModel;
-import cz.cuni.mff.odcleanstore.shared.UniqueGraphNameGenerator;
+import cz.cuni.mff.odcleanstore.shared.UUIDUniqueURIGenerator;
+import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraphException;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
+import java.io.Serializable;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -41,58 +42,8 @@ import java.util.Map;
  *
  * @author Jakub Daniel
  */
-public class DataNormalizerImpl implements DataNormalizer {
-
-	public static void main(String[] args) {
-		try {
-			ConfigLoader.loadConfig();
-			BackendConfig config = ConfigLoader.getConfig().getBackendGroup();
-
-			Map<String, GraphModification> result = new DataNormalizerImpl("Group 1").debugRules(new FileInputStream(System.getProperty("user.home") + "/odcleanstore/debugDN.ttl"),
-					prepareContext(
-							config.getCleanDBJDBCConnectionCredentials(),
-							config.getDirtyDBJDBCConnectionCredentials()));
-
-			Iterator<String> i = result.keySet().iterator();
-
-			while (i.hasNext()) {
-				String graph = i.next();
-
-				System.err.println(graph);
-
-				Iterator<DataNormalizationRule> j = result.get(graph).getRuleIterator();
-
-				while (j.hasNext()) {
-					DataNormalizationRule rule = j.next();
-
-					Iterator<TripleModification> k;
-
-					k = result.get(graph).getModificationsByRule(rule).getInsertions().iterator();
-
-					while (k.hasNext()) {
-						TripleModification modification = k.next();
-
-						System.err.println(modification.s + " " + modification.p + " " + modification.o + " INSERTED (Rule #" + rule.getId() + ")");
-						System.err.println();
-					}
-
-					k = result.get(graph).getModificationsByRule(rule).getDeletions().iterator();
-
-					while (k.hasNext()) {
-						TripleModification modification = k.next();
-
-						System.err.println(modification.s + " " + modification.p + " " + modification.o + " DELETED (Rule #" + rule.getId() + ")");
-						System.err.println();
-					}
-				}
-
-				System.err.println();
-				System.err.println();
-			}
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-		}
-	}
+public class DataNormalizerImpl implements DataNormalizer, Serializable {
+	private static final long serialVersionUID = 1L;
 
 	private static final Logger LOG = LoggerFactory.getLogger(DataNormalizerImpl.class);
 
@@ -101,7 +52,7 @@ public class DataNormalizerImpl implements DataNormalizer {
 	private static final String diffQueryFormat = "SPARQL DELETE FROM <%s> {?s ?p ?o} WHERE {GRAPH <%s> {?s ?p ?o}}";
 	private static final String dropBackupQueryFormat = "SPARQL CLEAR GRAPH <%s>";
 
-	private static final String markTemporaryGraph = "INSERT INTO DB.ODCLEANSTORE.TEMPORARY_GRAPHS (graphName) VALUES (?)";
+	private static final String markTemporaryGraph = "INSERT REPLACING DB.ODCLEANSTORE.TEMPORARY_GRAPHS (graphName) VALUES (?)";
 	private static final String unmarkTemporaryGraph = "DELETE FROM DB.ODCLEANSTORE.TEMPORARY_GRAPHS WHERE graphName = ?";
 
 	/**
@@ -113,6 +64,12 @@ public class DataNormalizerImpl implements DataNormalizer {
 	 */
 	private TransformedGraph inputGraph;
 	private TransformationContext context;
+
+	/**
+	 * Debug utility graph names
+	 */
+	private String original;
+	private String modified;
 
 	/**
 	 * At construction the transformer is bound to use rules from particular rule groups
@@ -176,13 +133,18 @@ public class DataNormalizerImpl implements DataNormalizer {
 		}
 	}
 
+	public static abstract class SerializableTransformedGraph implements TransformedGraph, Serializable {
+		private static final long serialVersionUID = 1L;
+	}
+
 	/**
 	 * constructs input graph for the transformer interface
 	 * @param name the name of the graph to be passed to the transformer
 	 * @return the input graph
 	 */
 	private static TransformedGraph prepareInputGraph (final String name) {
-		return new TransformedGraph() {
+		return new SerializableTransformedGraph() {
+			private static final long serialVersionUID = 1L;
 
 			@Override
 			public String getGraphName() {
@@ -218,6 +180,10 @@ public class DataNormalizerImpl implements DataNormalizer {
 		};
 	}
 
+	public static abstract class SerializableTransformationContext implements TransformationContext, Serializable {
+		private static final long serialVersionUID = 1L;
+	}
+
 	/**
 	 * constructs context for the transformer interface
 	 * @param clean the clean database connection credentials
@@ -225,7 +191,9 @@ public class DataNormalizerImpl implements DataNormalizer {
 	 * @return the context
 	 */
 	private static TransformationContext prepareContext (final JDBCConnectionCredentials clean, final JDBCConnectionCredentials dirty) {
-		return new TransformationContext() {
+		return new SerializableTransformationContext() {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public JDBCConnectionCredentials getDirtyDatabaseCredentials() {
 				return dirty;
@@ -251,39 +219,33 @@ public class DataNormalizerImpl implements DataNormalizer {
 
 	/**
 	 * collects information about graph transformations
-	 * @param source stream containing TriG or RDF/XML input graph(s)
+	 * @param graphs input graphs
 	 * @param context context containing clean and dirty database connection credentials
 	 * @return per graph specification of modifications
 	 * @throws TransformerException
 	 */
-	public Map<String, GraphModification> debugRules (InputStream source, TransformationContext context)
+	public List<GraphModification> debugRules (HashMap<String, String> graphs, TransformationContext context)
 			throws TransformerException {
-		/**
-		 * Prepare fallback empty collection of input graphs (map original names to temporary names)
-		 */
-		HashMap<String, String> graphs = new HashMap<String, String>();
-
-		/**
-		 * Prepare graph loader connected to the dirty database
-		 */
 		DataNormalizationConfig config = ConfigLoader.getConfig().getDataNormalizationGroup();
 
-		DebugGraphFileLoader loader = new DebugGraphFileLoader(config.getTemporaryGraphURIPrefix(), context.getDirtyDatabaseCredentials());
-
 		try {
-			/**
-			 * Load the graphs from the input stream (let default name discriminator be the name of this class)
-			 */
-			graphs = loader.load(source, this.getClass().getSimpleName());
-
 			Collection<String> originalGraphs = graphs.keySet();
 
 			/**
 			 * Start collecting modifications of the individual graphs
 			 */
-			Map<String, GraphModification> result = new HashMap<String, GraphModification>();
+			List<GraphModification> result = new ArrayList<GraphModification>();
 
 			Iterator<String> it = originalGraphs.iterator();
+
+			/**
+			 * In case we need to know what changed we need to create copies of the graph to compare them after
+			 * the rule was applied
+			 */
+			UniqueURIGenerator generator = new UUIDUniqueURIGenerator(ODCSInternal.debugTempGraphUriPrefix + this.getClass().getSimpleName() + "/diff/");
+
+			original = generator.nextURI();
+			modified = generator.nextURI();
 
 			while (it.hasNext()) {
 				String originalName = it.next();
@@ -292,21 +254,16 @@ public class DataNormalizerImpl implements DataNormalizer {
 				GraphModification subResult = getGraphModifications(temporaryName,
 						context.getCleanDatabaseCredentials(),
 						context.getDirtyDatabaseCredentials());
+				subResult.setGraphName(originalName);
 
-				result.put(originalName, subResult);
+				result.add(subResult);
 			}
 
 			return result;
 		} catch (Exception e) {
-			LOG.error("Debugging of Data Normalization rules failed: " + e.getMessage());
+			LOG.error("Debugging of Data Normalization rules failed.");
 
 			throw new TransformerException(e);
-		} finally {
-			/**
-			 * Always make sure all the graphs are thrown away after all the results are collected or an error
-			 * occurs
-			 */
-			loader.unload(graphs);
 		}
 	}
 
@@ -349,15 +306,29 @@ public class DataNormalizerImpl implements DataNormalizer {
 	 * Triple that has either been deleted or inserted to a graph in one step of the normalization process
 	 * @author Jakub Daniel
 	 */
-	public class TripleModification {
-		String s;
-		String p;
-		String o;
+	public class TripleModification implements Serializable {
+		private static final long serialVersionUID = 1L;
+
+		String subject;
+		String predicate;
+		String object;
 
 		public TripleModification(String s, String p, String o) {
-			this.s = s;
-			this.p = p;
-			this.o = o;
+			this.subject = s;
+			this.predicate = p;
+			this.object = o;
+		}
+
+		public String getSubject() {
+			return subject;
+		}
+
+		public String getPredicate() {
+			return predicate;
+		}
+
+		public String getObject() {
+			return object;
 		}
 	}
 
@@ -365,7 +336,9 @@ public class DataNormalizerImpl implements DataNormalizer {
 	 * Collection of all the insertions and deletions that were applied by a certain rule
 	 * @author Jakub Daniel
 	 */
-	public class RuleModification {
+	public class RuleModification implements Serializable {
+		private static final long serialVersionUID = 1L;
+
 		private Collection<TripleModification> insertions = new HashSet<TripleModification>();
 		private Collection<TripleModification> deletions = new HashSet<TripleModification>();
 
@@ -390,8 +363,11 @@ public class DataNormalizerImpl implements DataNormalizer {
 	 * The collection of all modifications done to a graph (grouped by the rules that did them)
 	 * @author Jakub Daniel
 	 */
-	public class GraphModification {
+	public class GraphModification implements Serializable {
+		private static final long serialVersionUID = 1L;
+
 		private Map<DataNormalizationRule, RuleModification> modifications = new HashMap<DataNormalizationRule, RuleModification>();
+		private String graphName;
 
 		public void addInsertion (DataNormalizationRule rule, String s, String p, String o) {
 			if (modifications.containsKey(rule)) {
@@ -435,6 +411,14 @@ public class DataNormalizerImpl implements DataNormalizer {
 
 		public RuleModification getModificationsByRule(DataNormalizationRule rule) {
 			return modifications.get(rule);
+		}
+
+		public String getGraphName() {
+			return graphName;
+		}
+
+		public void setGraphName(String graphName) {
+			this.graphName = graphName;
 		}
 	}
 
@@ -519,7 +503,12 @@ public class DataNormalizerImpl implements DataNormalizer {
 			while (i.hasNext()) {
 				DataNormalizationRule rule = i.next();
 
-				performRule(rule, modifications);
+				try {
+					performRule(rule, modifications);
+				} catch (Exception e) {
+					LOG.error(String.format(Locale.ROOT, "Debugging of rule %d failed: %s", rule.getId(), e.getMessage()));
+					throw new DataNormalizationException(e);
+				}
 			}
 
 			getDirtyConnection().commit();
@@ -544,36 +533,18 @@ public class DataNormalizerImpl implements DataNormalizer {
 			throw new DataNormalizationException("Empty Graph Name is not allowed.");
 		}
 
-		String[] components = rule.getComponents(inputGraph.getGraphName());
-
 		if (modifications == null) {
 			/**
 			 * In case there is no interest in what was changed just perform all the components in the correct order
 			 */
-			for (int j = 0; j < components.length; ++j) {
-				getDirtyConnection().execute(components[j]);
-			}
+			performComponents(rule, inputGraph.getGraphName());
 		} else {
-			/**
-			 * In case we need to know what changed we need to create copies of the graph to compare them after
-			 * the rule was applied
-			 */
-			DataNormalizationConfig config = ConfigLoader.getConfig().getDataNormalizationGroup();
-
-			UniqueGraphNameGenerator generator = new UniqueGraphNameGenerator(config.getTemporaryGraphURIPrefix() + "/" + this.getClass().getSimpleName() + "/diff/", context.getDirtyDatabaseCredentials());
-			String original = "";
-			String modified = "";
-
 			try {
-				original = generator.nextURI(0);
 				getDirtyConnection().execute(markTemporaryGraph, original);
 				getDirtyConnection().execute(String.format(Locale.ROOT, backupQueryFormat, original, inputGraph.getGraphName()));
 
-				for (int j = 0; j < components.length; ++j) {
-					getDirtyConnection().execute(components[j]);
-				}
+				performComponents(rule, inputGraph.getGraphName());
 
-				modified = generator.nextURI(1);
 				getDirtyConnection().execute(markTemporaryGraph, modified);
 				getDirtyConnection().execute(String.format(Locale.ROOT, backupQueryFormat, modified, inputGraph.getGraphName()));
 
@@ -609,8 +580,6 @@ public class DataNormalizerImpl implements DataNormalizer {
 							deleted.getString("p"),
 							deleted.getString("o"));
 				}
-
-				LOG.info("Data Normalization rule applied.");
 			} finally {
 				try {
 					getDirtyConnection().execute(String.format(Locale.ROOT, dropBackupQueryFormat, original));
@@ -620,6 +589,25 @@ public class DataNormalizerImpl implements DataNormalizer {
 				} finally {}
 				getDirtyConnection().execute(unmarkTemporaryGraph, original);
 				getDirtyConnection().execute(unmarkTemporaryGraph, modified);
+			}
+		}
+		LOG.info(String.format(Locale.ROOT, "Data Normalization rule %d applied: %s", rule.getId(), rule.getDescription() != null ? rule.getDescription() : ""));
+	}
+
+	private void performComponents(DataNormalizationRule rule, String graphName) throws DataNormalizationException {
+		String[] components = rule.getComponents(graphName);
+
+		for (int j = 0; j < components.length; ++j) {
+			try {
+				getDirtyConnection().execute(components[j]);
+			} catch (Exception e) {
+				LOG.error(String.format(Locale.ROOT, "Failed to apply rule %d (component %d): %s\n\n%s\n\n%s",
+						rule.getId(),
+						rule.getComponents()[j].getId(),
+						rule.getDescription() != null ? rule.getDescription() : "",
+						components[j],
+						e.getMessage()));
+				throw new DataNormalizationException(e);
 			}
 		}
 	}

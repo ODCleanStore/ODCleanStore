@@ -1,6 +1,8 @@
 package cz.cuni.mff.odcleanstore.engine.pipeline;
 
 
+import java.util.Date;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,12 +12,15 @@ import cz.cuni.mff.odcleanstore.engine.Service;
 import cz.cuni.mff.odcleanstore.engine.ServiceState;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
 import cz.cuni.mff.odcleanstore.engine.db.model.GraphStates;
+import cz.cuni.mff.odcleanstore.engine.db.model.PipelineCommand;
 import cz.cuni.mff.odcleanstore.engine.db.model.PipelineErrorTypes;
 
 /**
  *  @author Petr Jerman
  */
 public final class PipelineService extends Service implements Runnable {
+	
+	private static final String FORMAT_ERROR = "Error during formating message for log";
 
 	private static final Logger LOG = LoggerFactory.getLogger(PipelineService.class);
 	
@@ -119,7 +124,7 @@ public final class PipelineService extends Service implements Runnable {
 			throws PipelineGraphManipulatorException, PipelineGraphStatusException {
 
 		LOG.info(format("deleting started", status));
-		manipulator.deleteGraphsInCleanDB();
+		manipulator.clearGraphsInCleanDB();
 		manipulator.clearGraphsInDirtyDB();
 		manipulator.deleteInputFile();
 		status.setNoDirtyState(GraphStates.DELETED);
@@ -154,7 +159,7 @@ public final class PipelineService extends Service implements Runnable {
 			manipulator.loadGraphsIntoDirtyDB();
 		} catch (PipelineGraphManipulatorException e) {
 			if(isRunnningAndDbInstancesAvailable(true)) {
-				String message = FormatHelper.formatExceptionForDB(e, format("data loading failure", status));
+				String message = formatExceptionForDB("data loading failure", e, null, status);
 				status.setDirtyState(PipelineErrorTypes.DATA_LOADING_FAILURE, message);
 			}
 			throw e; 		
@@ -167,9 +172,10 @@ public final class PipelineService extends Service implements Runnable {
 		try {
 			this.activeTransformerExecutor = new PipelineGraphTransformerExecutor(status);
 			activeTransformerExecutor.execute();
+
 		} catch (PipelineGraphTransformerExecutorException e) {
 			if(isRunnningAndDbInstancesAvailable(true)) {
-				String message = FormatHelper.formatExceptionForDB(e, format("transformer processing failure", status));
+				String message = formatExceptionForDB("transformer processing failure", e, e.getCommand(), status);
 				status.setDirtyState(PipelineErrorTypes.TRANSFORMER_FAILURE, message);
 			}
 			throw e;
@@ -223,5 +229,55 @@ public final class PipelineService extends Service implements Runnable {
 		} catch(Exception ie) {
 			return  message;
 		} 
+	}
+	
+	public static String formatExceptionForDB(String message, Throwable exception, PipelineCommand command, PipelineGraphStatus status) {
+		try {
+			StringBuilder sb = new StringBuilder();
+			
+			sb.append("Date: ");
+			sb.append(new Date());
+			sb.append("\n");
+			
+			sb.append("Pipeline-id: ");
+			if(status.getPipelineId() != null) {
+				sb.append(status.getPipelineId());
+				sb.append("; label: ");
+				sb.append(status.getPipelineLabel());
+			}
+			sb.append("\n");
+			
+			sb.append("Graph-uuid: ");
+			sb.append(status.getUuid());
+			sb.append("\n");
+			
+			if(command != null) {
+				sb.append("Transformer-id: ");
+				sb.append(command.transformerID);
+				sb.append("; label: ");
+				sb.append(command.transformerLabel);
+				sb.append("\n");
+				sb.append("Transformer-instance-id: ");
+				sb.append(command.transformerInstanceID);
+				sb.append("\n");
+			}
+			
+			sb.append("Message: ");
+			sb.append(message);
+			sb.append("\n");
+			sb.append("\n");
+			sb.append("Exception-list: ");
+			while(exception != null) {
+				sb.append("\n        ");
+				sb.append(exception.getClass().getSimpleName());
+				sb.append(" - ");
+				sb.append(exception.getMessage());
+				exception = exception.getCause();
+			}
+			sb.append('\n');
+			return sb.toString();
+		} catch(Exception ie) {
+			return  FORMAT_ERROR;
+		}
 	}
 }

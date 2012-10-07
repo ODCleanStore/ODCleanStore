@@ -12,19 +12,20 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.CommitChangesButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvider;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.EngineOperationsDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.OIRuleAssignmentDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.debug.OIDebugPage;
 
 @AuthorizeInstantiation({ Role.PIC })
 public class OIGroupsListPage extends FrontendPage
@@ -33,7 +34,7 @@ public class OIGroupsListPage extends FrontendPage
 
 	private static Logger logger = Logger.getLogger(OIGroupsListPage.class);
 	
-	private DaoForEntityWithSurrogateKey<OIRulesGroup> oiRulesGroupsDao;
+	private OIRulesGroupDao oiRulesGroupsDao;
 	private EngineOperationsDao engineOperationsDao;
 	
 	public OIGroupsListPage() 
@@ -45,8 +46,8 @@ public class OIGroupsListPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		oiRulesGroupsDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(OIRulesGroupDao.class);
-		engineOperationsDao = daoLookupFactory.getEngineOperationsDao();
+		oiRulesGroupsDao = daoLookupFactory.getDao(OIRulesGroupDao.class);
+		engineOperationsDao = daoLookupFactory.getDao(EngineOperationsDao.class);
 		
 		// register page components
 		//
@@ -70,13 +71,14 @@ public class OIGroupsListPage extends FrontendPage
 				item.setModel(new CompoundPropertyModel<OIRulesGroup>(group));
 
 				item.add(new Label("label"));
+				item.add(new Label("authorName"));
 				item.add(new TruncatedLabel("description", MAX_LIST_COLUMN_TEXT_LENGTH));
 				
 				item.add(
-					new DeleteRawButton<OIRulesGroup>
+					new AuthorizedDeleteButton<OIRulesGroup>
 					(
 						oiRulesGroupsDao,
-						group.getId(),
+						group,
 						"group",
 						new DeleteConfirmationMessage("group", "rule"),
 						OIGroupsListPage.this
@@ -86,35 +88,36 @@ public class OIGroupsListPage extends FrontendPage
 				item.add(
 					new RedirectWithParamButton(
 						OIGroupDetailPage.class,
-						group.getId(), 
-						"manageRules"
-					)
-				);
-				
-				item.add(
-					new RedirectWithParamButton(
-						EditOIGroupPage.class,
 						group.getId(),
 						"showEditOIGroupPage"
 					)
 				);
 				
 				item.add(createRerunAffectedGraphsButton(group.getId()));
+				item.add(new CommitChangesButton("commitChanges", group, oiRulesGroupsDao));
+				item.add(
+					new RedirectWithParamButton(
+						OIDebugPage.class,
+						group.getId(),
+						"debugOIGroup"
+					)
+				);
 			}
 		};
 
 		dataView.setItemsPerPage(ITEMS_PER_PAGE);
 		
 		add(new SortTableButton<OIRulesGroup>("orderByLabel", "label", data, dataView));
+		add(new SortTableButton<OIRulesGroup>("orderByAuthor", "username", data, dataView));
 		
 		add(dataView);
 		
 		add(new UnobtrusivePagingNavigator("navigator", dataView));
 	}
 	
-	private Link createRerunAffectedGraphsButton(final Long groupId)
+	private Link<String> createRerunAffectedGraphsButton(final Integer groupId)
 	{
-		Link button = new Link("rerunAffectedGraphs")
+		Link<String> button = new Link<String>("rerunAffectedGraphs")
         {
 			private static final long serialVersionUID = 1L;
 
@@ -136,7 +139,7 @@ public class OIGroupsListPage extends FrontendPage
 				}
 				
 				getSession().info("The affected graphs were successfuly marked to be rerun.");
-				setResponsePage(OIGroupsListPage.class);
+				//setResponsePage(OIGroupsListPage.class);
             }
         };
 

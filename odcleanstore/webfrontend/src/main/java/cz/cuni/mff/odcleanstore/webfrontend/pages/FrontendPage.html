@@ -28,38 +28,45 @@
 					<a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/HomePage.html"><span>Home</span></a>
 				</li>
 				<li wicket:id="pipelinesMenuGroup">
-					<a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/pipelines/PipelinesListPage.html"><span>Pipelines</span></a>
+				    <a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/pipelines/PipelinesListPage.html"><span>Pipelines</span></a>
 				</li>
 				<li class="has-sub" wicket:id="rulesMenuGroup">
-					<a href="#"><span>Rules</span></a>
-					<ul>
-						<li><a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/transformers/oi/OIGroupsListPage.html"><span>OI</span></a></li>
-						<li><a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/transformers/qa/QAGroupsListPage.html"><span>QA</span></a></li>
-						<li><a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/transformers/dn/DNGroupsListPage.html"><span>DN</span></a></li>
-					</ul>
-				</li>
+                    <a href="#"><span>Rules</span></a>
+                    <ul>
+                        <li><a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/transformers/oi/OIGroupsListPage.html"><span>OI</span></a></li>
+                        <li><a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/transformers/qa/QAGroupsListPage.html"><span>QA</span></a></li>
+                        <li><a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/transformers/dn/DNGroupsListPage.html"><span>DN</span></a></li>
+                    </ul>
+                </li>
+				<li wicket:id="engineStateMenuGroup">
+                    <a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/engine/EngineStatePage.html"><span>Engine state</span></a>
+                </li>
 				<li class="has-sub" wicket:id="outputWSMenuGroup">
 					<a href="#"><span>Output webservice</span></a>
 					<ul>
-						<li><a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/outputws/CRPropertiesListPage.html"><span>Aggregation</span></a></li>
+						<li><a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/outputws/AggregationSettingsPage.html"><span>Aggregation</span></a></li>
 						<li><a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/outputws/QELabelPropertiesListPage.html"><span>Label properties</span></a></li>
 					</ul>
 				</li>
-				<li wicket:id="ontologyMenuGroup">
-					<a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/ontologies/OntologiesListPage.html"><span>Ontologies</span></a>
+				<li class="has-sub" wicket:id="ontologyMenuGroup">
+					<a href="#"><span>Ontologies</span></a>
+					<ul>
+						<li><a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/ontologies/OntologiesListPage.html"><span>List all ontologies</span></a></li>
+						<li><a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/ontologies/ChooseOntologiesPage.html"><span>Ontology mappings</span></a></li>
+					</ul>
 				</li>
 				<li class="has-sub" wicket:id="userAccountsMenuGroup">
-					<a href="#"><span>User accounts</span></a>
+					<a href="#"><span>Accounts</span></a>
 					<ul>
 						<li><a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/useraccounts/AccountsListPage.html"><span>List all accounts</span></a></li>
 						<li><a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/useraccounts/NewAccountPage.html"><span>Create a new account</span></a></li>
 					</ul>
 				</li>
 				<li wicket:id="transformersMenuGroup">
-					<a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/pipelines/TransformersListPage.html"><span>Transformers</span></a>
+					<a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/transformers/TransformersListPage.html"><span>Transformers</span></a>
 				</li>
 				<li wicket:id="prefixesMenuGroup">
-					<a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/prefixes/PrefixesListPage.html"><span>Namespace prefixes</span></a>
+					<a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/prefixes/PrefixesListPage.html"><span>Prefixes</span></a>
 				</li>
 			</ul>
 			</wicket:link> 

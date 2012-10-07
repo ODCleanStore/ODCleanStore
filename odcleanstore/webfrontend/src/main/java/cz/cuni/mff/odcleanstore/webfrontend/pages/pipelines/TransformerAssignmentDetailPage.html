@@ -1,0 +1,42 @@
+<wicket:extend>
+
+<div wicket:id="helpWindow"></div>
+
+<div>
+	<a class="placedright button" href="#" wicket:id="managePipelineTransformers">Back to transformer assignment overview</a>
+	<div class="clear">&nbsp;</div>
+</div>
+
+<a wicket:id="openHelpWindow"class="help">Help</a>
+
+<div class="clear">&nbsp;</div>
+
+<div class="datalistitem">
+    <strong class="block">ID:</strong>
+    <span wicket:id="id">[id]</span>
+</div>
+
+<div class="datalistitem">
+    <strong class="block">Transformer:</strong>
+    <span wicket:id="transformer">[transformer]</span>
+</div>
+
+<form wicket:id="editAssignmentForm">
+	<p>
+		<label for="configuration">Configuration:</label>
+		<textarea wicket:id="configuration" id="configuration"></textarea>
+	</p>
+	<p>
+		<label for="runOnCleanDB">Allow to be run on clean DB:</label>
+		<input wicket:id="runOnCleanDB" id="runOnCleanDB" type="checkbox" />
+	</p>
+	<p>
+        <label for="priority">Place in pipeline before:</label>
+        <select wicket:id="transformerPlaceBefore" id="priority"/>
+	</p>
+	<input type="submit" wicket:id="submit" value="Submit" />
+</form>
+
+<div wicket:id="assignedGroupsListSection"></div>
+
+</wicket:extend>

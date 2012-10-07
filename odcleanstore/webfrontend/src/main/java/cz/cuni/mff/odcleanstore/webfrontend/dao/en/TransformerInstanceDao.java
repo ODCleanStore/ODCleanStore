@@ -1,14 +1,12 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.en;
 
-import java.util.List;
-
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
+import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 
-public class TransformerInstanceDao extends DaoForEntityWithSurrogateKey<TransformerInstance>
+public class TransformerInstanceDao extends DaoForAuthorableEntity<TransformerInstance>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "TRANSFORMER_INSTANCES";
 
@@ -34,33 +32,68 @@ public class TransformerInstanceDao extends DaoForEntityWithSurrogateKey<Transfo
 	}
 	
 	@Override
-	public List<TransformerInstance> loadAllBy(QueryCriteria criteria)
+	protected String getSelectAndFromClause()
 	{
-		String query = 
-			"SELECT T.label, TI.* FROM " + getTableName() + " AS TI " +
-			"JOIN " + TransformerDao.TABLE_NAME + " AS T ON (T.id = TI.transformerId) " +
-			criteria.buildWhereClause() +
-			criteria.buildOrderByClause();
-		
-		Object[] params = criteria.buildWhereClauseParams();
-		
-		return getCleanJdbcTemplate().query(query, params, getRowMapper());
+		return "SELECT T.label, TI.* FROM " + getTableName() + " AS TI " +
+			"JOIN " + TransformerDao.TABLE_NAME + " AS T ON (T.id = TI.transformerId) ";
 	}
 	
 	@Override
-	public TransformerInstance load(Long id)
+	public TransformerInstance load(Integer id)
 	{
-		String query = 
-			"SELECT T.label, TI.* FROM " + getTableName() + " AS TI " +
-			"JOIN " + TransformerDao.TABLE_NAME + " AS T ON (T.id = TI.transformerId) " +
-			"WHERE TI.id = ?";
-		
-		Object[] params = { id };
-		
-		return getCleanJdbcTemplate().queryForObject(query, params, getRowMapper());
+		return loadBy("TI.id", id);
+	}
+
+	@Override
+	protected void deleteRaw(final Integer id) throws Exception
+	{
+		executeInTransaction(new CodeSnippet()
+		{
+			@Override
+			public void execute() throws Exception
+			{
+				TransformerInstance item = load(id);
+				shiftPrioritiesDownFrom(item.getPipelineId(), item.getPriority());
+				TransformerInstanceDao.super.deleteRaw(id);
+			}
+		});
 	}
 	
-	public void save(TransformerInstance item)
+	@Override
+	public void save(final TransformerInstance item) throws Exception
+	{
+		executeInTransaction(new CodeSnippet()
+		{
+			@Override
+			public void execute() throws Exception
+			{
+				shiftPrioritiesUpFrom(item.getPipelineId(), item.getPriority());
+				saveRaw(item);
+			}
+		});
+	}
+	
+	private void shiftPrioritiesUpFrom(Integer pipelineId, Integer priority) throws Exception
+	{
+		String query = 
+			"UPDATE " + TABLE_NAME + 
+			" SET priority = priority + 1 " +
+			" WHERE pipelineId = ? AND priority >= ?";
+		
+		jdbcUpdate(query, pipelineId, priority);
+	}
+	
+	private void shiftPrioritiesDownFrom(Integer pipelineId, Integer priority) throws Exception
+	{
+		String query = 
+			"UPDATE " + TABLE_NAME + 
+			" SET priority = priority - 1 " +
+			" WHERE pipelineId = ? AND priority > ?";
+		
+		jdbcUpdate(query, pipelineId, priority);
+	}
+	
+	private void saveRaw(TransformerInstance item) throws Exception
 	{
 		String query = 
 			"INSERT INTO " + TABLE_NAME + " " +
@@ -76,10 +109,27 @@ public class TransformerInstanceDao extends DaoForEntityWithSurrogateKey<Transfo
 			item.getPriority()
 		};
 		
-		getCleanJdbcTemplate().update(query, params);
+		logger.debug("priority:" + item.getPriority());
+		
+		jdbcUpdate(query, params);
 	}
 	
-	public void update(TransformerInstance item)
+	public void update(final TransformerInstance item) throws Exception
+	{
+		executeInTransaction(new CodeSnippet()
+		{
+			@Override
+			public void execute() throws Exception
+			{
+				Integer oldPriority = load(item.getId()).getPriority();
+				shiftPrioritiesDownFrom(item.getPipelineId(), oldPriority);
+				shiftPrioritiesUpFrom(item.getPipelineId(), item.getPriority());
+				updateRaw(item);
+			}
+		});
+	}
+	
+	private void updateRaw(TransformerInstance item) throws Exception
 	{
 		String query = 
 			"UPDATE " + TABLE_NAME + 
@@ -94,6 +144,23 @@ public class TransformerInstanceDao extends DaoForEntityWithSurrogateKey<Transfo
 			item.getId()
 		};
 		
-		getCleanJdbcTemplate().update(query, params);
+		jdbcUpdate(query, params);
+	}
+
+	@Override
+	public int getAuthorId(Integer entityId)
+	{
+		String query = 
+			"SELECT P.authorId FROM " + getTableName() + " AS TI " +
+			"JOIN " + PipelineDao.TABLE_NAME + " AS P ON (P.id = TI.pipelineId) " +
+			"WHERE TI.id = ?";
+		
+		return jdbcQueryForInt(query, entityId);
+	}
+	
+	public int getInstancesCount(Integer pipelineId)
+	{
+		String query = "SELECT count(*) FROM " + getTableName() + " WHERE pipelineId = ?";
+		return jdbcQueryForInt(query, pipelineId);
 	}
 }

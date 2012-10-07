@@ -10,10 +10,9 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.validation.validator.EmailAddressValidator;
 
+import cz.cuni.mff.odcleanstore.configuration.WebFrontendConfig;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
-import cz.cuni.mff.odcleanstore.webfrontend.configuration.Configuration;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
@@ -24,9 +23,10 @@ import cz.cuni.mff.odcleanstore.webfrontend.util.PasswordHandling;
 @AuthorizeInstantiation({ Role.ADM })
 public class NewAccountPage extends FrontendPage
 {
+	private static final long serialVersionUID = 1L;
 	private static Logger logger = Logger.getLogger(NewAccountPage.class);
-	
-	private DaoForEntityWithSurrogateKey<User> userDao;
+
+	private UserDao userDao;
 	
 	public NewAccountPage() 
 	{
@@ -37,7 +37,7 @@ public class NewAccountPage extends FrontendPage
 
 		// prepare DAO objects
 		//
-		userDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(UserDao.class);
+		userDao = daoLookupFactory.getDao(UserDao.class);
 		
 		// register page components
 		//
@@ -47,15 +47,17 @@ public class NewAccountPage extends FrontendPage
 		
 	private void addNewAccountForm()
 	{
-		IModel formModel = new CompoundPropertyModel<User>(new User());
+		IModel<User> formModel = new CompoundPropertyModel<User>(new User());
 		
 		Form<User> form = new Form<User>("newAccountForm", formModel)
 		{
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			protected void onSubmit()
 			{
 				User user = this.getModelObject();
-				Configuration config = NewAccountPage.this.getApp().getConfiguration();
+				WebFrontendConfig config = NewAccountPage.this.getApp().getConfiguration();
 				
 				try 
 				{
@@ -75,16 +77,19 @@ public class NewAccountPage extends FrontendPage
 				}
 				catch (DaoException ex) 
 				{
+					logger.error(ex.getMessage());
 					getSession().error(ex.getMessage());
 					return;
 				}
 				catch (MessagingException ex)
 				{
+					logger.error(ex.getMessage());
 					getSession().error(ex.getMessage());
 					return;
 				}
 				catch (Exception ex)
 				{
+					logger.error(ex.getMessage());
 					getSession().error("The user account could not be created due to an unexpected error.");
 					return;
 				}

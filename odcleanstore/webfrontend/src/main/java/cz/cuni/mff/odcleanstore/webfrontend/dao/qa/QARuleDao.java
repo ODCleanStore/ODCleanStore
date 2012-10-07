@@ -3,14 +3,16 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.qa;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.AbstractRuleDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.CommittableDao;
 
-public class QARuleDao extends DaoForEntityWithSurrogateKey<QARule>
+@CommittableDao(QARuleUncommittedDao.class)
+public class QARuleDao extends AbstractRuleDao<QARule>
 {
 	private static final long serialVersionUID = 1L;
 	
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "QA_RULES";
-	public static final String RESTRICTIONS_TABLE_NAME = TABLE_NAME_PREFIX + "QA_RULES_TO_PUBLISHERS_RESTRICTIONS";
+	//public static final String RESTRICTIONS_TABLE_NAME = TABLE_NAME_PREFIX + "QA_RULES_TO_PUBLISHERS_RESTRICTIONS";
 	
 	private ParameterizedRowMapper<QARule> rowMapper;
 	
@@ -32,47 +34,11 @@ public class QARuleDao extends DaoForEntityWithSurrogateKey<QARule>
 	}
 	
 	@Override
-	public void save(QARule item) 
+	public int getAuthorId(Integer entityId)
 	{
-		String query = 
-			"INSERT INTO " + TABLE_NAME + " (groupId, filter, description, coefficient) " +
-			"VALUES (?, ?, ?, ?)";
-		
-		Object[] params =
-		{
-			item.getGroupId(),
-			item.getFilter(),
-			item.getDescription(),
-			item.getCoefficient()
-		};
-
-		logger.debug("groupId: " + item.getGroupId());
-		logger.debug("filter: " + item.getFilter());
-		logger.debug("description: " + item.getDescription());
-		logger.debug("coefficient: " + item.getCoefficient());
-		
-		getCleanJdbcTemplate().update(query, params);
-	}
-	
-	@Override
-	public void update(QARule item)
-	{
-		String query =
-			"UPDATE " + TABLE_NAME + " SET filter = ?, description = ?, coefficient = ? WHERE id = ?";
-		
-		Object[] params =
-		{
-			item.getFilter(),
-			item.getDescription(),
-			item.getCoefficient(),
-			item.getId()
-		};
-		
-		logger.debug("filter: " + item.getFilter());
-		logger.debug("description: " + item.getDescription());
-		logger.debug("coefficient: " + item.getCoefficient());
-		logger.debug("id: " + item.getId());
-		
-		getCleanJdbcTemplate().update(query, params);
+		String query = "SELECT g.authorId " +
+				"\n FROM " + getTableName() + " AS r JOIN " + QARulesGroupDao.TABLE_NAME + " AS g ON (g.id = r.groupId)" +
+				"\n WHERE r.id = ?";
+		return jdbcQueryForInt(query, entityId);
 	}
 }

@@ -10,22 +10,22 @@ import org.apache.wicket.model.IModel;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponent;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DetachableModel;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleComponentDao;
 
 @AuthorizeInstantiation({ Role.PIC })
 public class DNRuleComponentDataProvider implements IDataProvider<DNRuleComponent>
 {
 	private static final long serialVersionUID = 1L;
 	
-	private DaoForEntityWithSurrogateKey<DNRuleComponent> dao;
+	private DNRuleComponentDao dao;
 	private List<DNRuleComponent> data;
-	private Long ruleId;
+	private Integer ruleId;
 	
 	/**
 	 * 
 	 * @param dao
 	 */
-	public DNRuleComponentDataProvider(DaoForEntityWithSurrogateKey<DNRuleComponent> dao, Long ruleId)
+	public DNRuleComponentDataProvider(DNRuleComponentDao dao, Integer ruleId)
 	{
 		this.dao = dao;
 		this.ruleId = ruleId;
@@ -34,7 +34,7 @@ public class DNRuleComponentDataProvider implements IDataProvider<DNRuleComponen
 	private List<DNRuleComponent> getData()
 	{
 		if (data == null)
-			data = dao.loadAllRawBy("ruleId", ruleId);
+			data = dao.loadAllBy("ruleId", ruleId);
 		
 		return data;
 	}

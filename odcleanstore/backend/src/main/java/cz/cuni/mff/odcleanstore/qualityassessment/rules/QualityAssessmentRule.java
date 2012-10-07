@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.qualityassessment.rules;
 
+import java.io.Serializable;
 import java.util.Locale;
 
 /**
@@ -8,14 +9,16 @@ import java.util.Locale;
  * follow after WHERE clause), a coefficient and a human readable
  * explanation.
  */
-public class QualityAssessmentRule {
-	private Long id;
-	private Long groupId;
+public class QualityAssessmentRule implements Serializable {
+	private static final long serialVersionUID = 1L;
+
+	private Integer id;
+	private Integer groupId;
 	private String filter;
 	private Double coefficient;
 	private String description;
 
-	public QualityAssessmentRule (Long id, Long groupId, String filter, Double coefficient, String description) {
+	public QualityAssessmentRule (Integer id, Integer groupId, String filter, Double coefficient, String description) {
 		this.id = id;
 		this.groupId = groupId;
 		this.filter = filter;
@@ -23,11 +26,11 @@ public class QualityAssessmentRule {
 		this.description = description;
 	}
 
-	public Long getId() {
+	public Integer getId() {
 		return id;
 	}
 
-	public Long getGroupId() {
+	public Integer getGroupId() {
 		return groupId;
 	}
 	public String getFilter() {
@@ -41,10 +44,14 @@ public class QualityAssessmentRule {
 	 */
 	public String toString(String graphName) {
 	    // regex didn't work with multiline rules
-	    String filter = this.filter.trim();
-	    if (!filter.startsWith("{")) {
-	        filter = "{ " + filter + " }";
-	    }
+        int whereLength = "WHERE".length();
+
+        if (filter.length() > whereLength && filter.substring(0, whereLength).equalsIgnoreCase("WHERE")) {
+            filter = filter.substring(whereLength).trim();
+        }
+        if (!filter.startsWith("{")) {
+            filter = "{ " + filter + " }";
+        }
 
 		return String.format(Locale.ROOT, "SPARQL SELECT COUNT(*) FROM <%s> WHERE %s", graphName, filter);
 	}

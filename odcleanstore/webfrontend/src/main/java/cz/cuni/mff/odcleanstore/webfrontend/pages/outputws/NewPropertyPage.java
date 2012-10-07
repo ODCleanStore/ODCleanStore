@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.outputws;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
@@ -7,10 +8,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.AggregationType;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.MultivalueType;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.PropertySettings;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.AggregationTypeDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.MultivalueTypeDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.PropertySettingsDao;
@@ -18,14 +16,15 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.validators.IRIValidator;
 
-@AuthorizeInstantiation({ Role.PIC })
+@AuthorizeInstantiation({ Role.PIC, Role.ADM })
 public class NewPropertyPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
+	private static Logger logger = Logger.getLogger(NewPropertyPage.class);
 
-	private DaoForEntityWithSurrogateKey<PropertySettings> propertySettingsDao;
-	private DaoForEntityWithSurrogateKey<AggregationType> aggregationTypeDao;
-	private DaoForEntityWithSurrogateKey<MultivalueType> multivalueTypeDao;
+	private PropertySettingsDao propertySettingsDao;
+	private AggregationTypeDao aggregationTypeDao;
+	private MultivalueTypeDao multivalueTypeDao;
 	
 	public NewPropertyPage() 
 	{
@@ -36,9 +35,9 @@ public class NewPropertyPage extends FrontendPage
 
 		// prepare DAO objects
 		//
-		propertySettingsDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(PropertySettingsDao.class);
-		aggregationTypeDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(AggregationTypeDao.class);
-		multivalueTypeDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(MultivalueTypeDao.class);
+		propertySettingsDao = daoLookupFactory.getDao(PropertySettingsDao.class);
+		aggregationTypeDao = daoLookupFactory.getDao(AggregationTypeDao.class);
+		multivalueTypeDao = daoLookupFactory.getDao(MultivalueTypeDao.class);
 		
 		// register page components
 		//
@@ -63,14 +62,14 @@ public class NewPropertyPage extends FrontendPage
 					propertySettingsDao.save(propertySettings);
 				}
 				catch (DaoException ex)
-				{
+				{	
+					logger.error(ex.getMessage(), ex);
 					getSession().error(ex.getMessage());
 					return;
 				}
 				catch (Exception ex)
 				{
-					// TODO: log the error
-					
+					logger.error(ex.getMessage(), ex);
 					getSession().error(
 						"The property could not be registered due to an unexpected error."
 					);
@@ -79,7 +78,7 @@ public class NewPropertyPage extends FrontendPage
 				}
 				
 				getSession().info("The property was successfuly registered.");
-				setResponsePage(CRPropertiesListPage.class);
+				setResponsePage(AggregationSettingsPage.class);
 			}
 		};
 		

@@ -3,45 +3,44 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo.oi;
 import java.util.LinkedList;
 import java.util.List;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.AuthoredEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.RulesGroupEntity;
 
-public class OIRulesGroup extends RulesGroupEntity 
+/**
+ * The BO which represents a group of OI rules.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
+public class OIRulesGroup extends RulesGroupEntity implements AuthoredEntity
 {
 	private static final long serialVersionUID = 1L;
 
-	private String label;
-	private String description;
 	private List<OIRule> rules;
-	
-	public OIRulesGroup(Long id, String label, String description) 
+
+	public OIRulesGroup(Integer id, String label, String description, Integer authorId, boolean isUncommitted, String authorName) 
 	{
-		super(id);
-		
-		this.label = label;
-		this.description = description;
-		
+		super(id, label, description, authorId, isUncommitted, authorName);
 		this.rules = new LinkedList<OIRule>();
 	}
 
-	public OIRulesGroup() 
+	public OIRulesGroup()
 	{
 	}
 
-	public String getLabel() 
-	{
-		return label;
-	}
-
-	public String getDescription() 
-	{
-		return description;
-	}
-	
+	/**
+	 * 
+	 * @param rules
+	 */
 	public void setRules(List<OIRule> rules)
 	{
 		this.rules = rules;
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
 	public List<OIRule> getRules()
 	{
 		return rules;

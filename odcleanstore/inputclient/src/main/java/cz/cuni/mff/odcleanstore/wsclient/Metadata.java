@@ -12,20 +12,20 @@ import java.util.UUID;
  */
 public final class Metadata {
 
-	private UUID _uuid;
-	private List<URI> _publishedBy;
-	private List<URI> _source;
-	private List<URI> _license;
-	private URI _dataBaseUrl;
-	private String _provenance;
-	private String _pipelineName;
+	private UUID uuid;
+	private List<URI> publishedBy;
+	private List<URI> source;
+	private List<URI> license;
+	private URI dataBaseUrl;
+	private String provenance;
+	private String pipelineName;
 
 	/**
 	 * Get uuid of insert operation.
 	 * @return uuid
 	 */
 	public UUID getUuid() {
-		return _uuid;
+		return uuid;
 	}
 
 	/**
@@ -33,7 +33,7 @@ public final class Metadata {
 	 * @param value uuid of insert operation
 	 */
 	public void setUuid(UUID value) {
-		this._uuid = value;
+		this.uuid = value;
 	}
 
 	/**
@@ -41,10 +41,10 @@ public final class Metadata {
 	 * @return list of publishers
 	 */
 	public List<URI> getPublishedBy() {
-		if (_publishedBy == null) {
-			_publishedBy = new ArrayList<URI>();
+		if (publishedBy == null) {
+			publishedBy = new ArrayList<URI>();
 		}
-		return this._publishedBy;
+		return this.publishedBy;
 	}
 
 	/**
@@ -52,10 +52,10 @@ public final class Metadata {
 	 * @return appendable list of sources
 	 */
 	public List<URI> getSource() {
-		if (_source == null) {
-			_source = new ArrayList<URI>();
+		if (source == null) {
+			source = new ArrayList<URI>();
 		}
-		return this._source;
+		return this.source;
 	}
 
 	/**
@@ -63,10 +63,10 @@ public final class Metadata {
 	 * @return appendable list of licenses
 	 */
 	public List<URI> getLicense() {
-		if (_license == null) {
-			_license = new ArrayList<URI>();
+		if (license == null) {
+			license = new ArrayList<URI>();
 		}
-		return this._license;
+		return this.license;
 	}
 
 	/**
@@ -74,7 +74,7 @@ public final class Metadata {
 	 * @return provenance metadata
 	 */
 	public String getProvenance() {
-		return _provenance;
+		return provenance;
 	}
 
 	/**
@@ -82,7 +82,7 @@ public final class Metadata {
 	 * @param value provenance metadata of insert operation 
 	 */
 	public void setProvenance(String value) {
-		this._provenance = value;
+		this.provenance = value;
 	}
 
 	/**
@@ -90,7 +90,7 @@ public final class Metadata {
 	 * @return base URL for payload
 	 */
 	public URI getDataBaseUrl() {
-		return _dataBaseUrl;
+		return dataBaseUrl;
 	}
 
 	/**
@@ -98,7 +98,7 @@ public final class Metadata {
 	 * @param value base URL for payload
 	 */
 	public void setDataBaseUrl(URI value) {
-		this._dataBaseUrl = value;
+		this.dataBaseUrl = value;
 	}
 	
 	/**
@@ -106,7 +106,7 @@ public final class Metadata {
 	 * @return name for extra processing in odcs-cleanstore
 	 */
 	public String getPipelineName() {
-		return _pipelineName;
+		return pipelineName;
 	}
 
 	/**
@@ -114,6 +114,6 @@ public final class Metadata {
 	 * @param value name for extra processing in odcs-cleanstore
 	 */
 	public void setPipelineName(String value) {
-		this._pipelineName = value;
+		this.pipelineName = value;
 	}
 }

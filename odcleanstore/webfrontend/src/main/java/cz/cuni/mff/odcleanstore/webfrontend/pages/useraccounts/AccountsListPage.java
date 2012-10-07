@@ -2,6 +2,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts;
 
 import javax.mail.MessagingException;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
@@ -10,17 +11,16 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.CompoundPropertyModel;
 
+import cz.cuni.mff.odcleanstore.configuration.WebFrontendConfig;
 import cz.cuni.mff.odcleanstore.webfrontend.behaviours.ConfirmationBoxRenderer;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
-import cz.cuni.mff.odcleanstore.webfrontend.configuration.Configuration;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteRawButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvider;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
@@ -32,8 +32,9 @@ import cz.cuni.mff.odcleanstore.webfrontend.util.PasswordHandling;
 public class AccountsListPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
+	private static Logger logger = Logger.getLogger(AccountsListPage.class);
 
-	private DaoForEntityWithSurrogateKey<User> userDao;
+	private UserDao userDao;
 	
 	public AccountsListPage() 
 	{
@@ -44,7 +45,7 @@ public class AccountsListPage extends FrontendPage
 		
 		// prepare DAO objects
 		//
-		userDao = daoLookupFactory.getDaoForEntityWithSurrogateKey(UserDao.class);
+		userDao = daoLookupFactory.getDao(UserDao.class);
 		
 		// register page components
 		//
@@ -76,7 +77,7 @@ public class AccountsListPage extends FrontendPage
 					item.add(createRoleLabel(user, role));
 				
 				item.add(
-					new DeleteRawButton<User>
+					new DeleteButton<User>
 					(
 						userDao,
 						user.getId(),
@@ -110,9 +111,9 @@ public class AccountsListPage extends FrontendPage
 		add(new UnobtrusivePagingNavigator("navigator", dataView));
 	}
 	
-	protected Link createSendNewPasswordButton(final Long userId) 
+	protected Link<String> createSendNewPasswordButton(final Integer userId) 
 	{
-		Link button = new Link("sendNewPassword")
+		Link<String> button = new Link<String>("sendNewPassword")
 		{
 			private static final long serialVersionUID = 1L;
 			
@@ -120,7 +121,7 @@ public class AccountsListPage extends FrontendPage
 			public void onClick() 
 			{
 				User user = userDao.load(userId);
-				Configuration config = AccountsListPage.this.getApp().getConfiguration();
+				WebFrontendConfig config = AccountsListPage.this.getApp().getConfiguration();
 				
 				try 
 				{
@@ -140,22 +141,25 @@ public class AccountsListPage extends FrontendPage
 				}
 				catch (DaoException ex) 
 				{
+					logger.error(ex.getMessage(), ex);
 					getSession().error(ex.getMessage());
 					return;
 				}
 				catch (MessagingException ex)
 				{
+					logger.error(ex.getMessage(), ex);
 					getSession().error(ex.getMessage());
 					return;
 				}
 				catch (Exception ex)
 				{
+					logger.error(ex.getMessage(), ex);
 					getSession().error("The password could not be updated due to an unexpected error.");
 					return;
 				}
 								
 				getSession().info("The password was successfuly updated.");
-				setResponsePage(AccountsListPage.class);
+				//setResponsePage(AccountsListPage.class);
 			}
 		};
 		
@@ -181,7 +185,7 @@ public class AccountsListPage extends FrontendPage
 	{	
 		String roleLabel = "role" + role.getLabel();
 		
-		if (user.hasAssignedRole(role))
+		if (user.hasRoleAssigned(role))
 			return new Label(roleLabel, "X");
 		
 		Label label = new Label(roleLabel, "&nbsp;");

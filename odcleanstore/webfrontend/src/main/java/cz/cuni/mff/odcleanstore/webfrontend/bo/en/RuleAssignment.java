@@ -2,12 +2,19 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo.en;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
+/**
+ * The BO to represent an assignment to a group of rules to a transformer
+ * instance.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class RuleAssignment extends EntityWithSurrogateKey 
 {
 	private static final long serialVersionUID = 1L;
 
-	private Long transformerInstanceId;
-	private Long groupId;
+	private Integer transformerInstanceId;
+	private Integer groupId;
 	private String groupLabel;
 	private String groupDescription;
 	
@@ -16,8 +23,10 @@ public class RuleAssignment extends EntityWithSurrogateKey
 	 * @param id
 	 * @param transformerInstanceId
 	 * @param groupId
+	 * @param groupLabel
+	 * @param groupDescription
 	 */
-	public RuleAssignment(Long id, Long transformerInstanceId, Long groupId, String groupLabel, String groupDescription) 
+	public RuleAssignment(Integer id, Integer transformerInstanceId, Integer groupId, String groupLabel, String groupDescription) 
 	{
 		super(id);
 		
@@ -32,7 +41,7 @@ public class RuleAssignment extends EntityWithSurrogateKey
 	 * @param transformerInstanceId
 	 * @param groupId
 	 */
-	public RuleAssignment(Long transformerInstanceId, Long groupId) 
+	public RuleAssignment(Integer transformerInstanceId, Integer groupId) 
 	{
 		this.transformerInstanceId = transformerInstanceId;
 		this.groupId = groupId;
@@ -50,7 +59,7 @@ public class RuleAssignment extends EntityWithSurrogateKey
 	 * 
 	 * @return
 	 */
-	public Long getTransformerInstanceId() 
+	public Integer getTransformerInstanceId() 
 	{
 		return transformerInstanceId;
 	}
@@ -59,7 +68,7 @@ public class RuleAssignment extends EntityWithSurrogateKey
 	 * 
 	 * @return
 	 */
-	public Long getGroupId() 
+	public Integer getGroupId() 
 	{
 		return groupId;
 	}

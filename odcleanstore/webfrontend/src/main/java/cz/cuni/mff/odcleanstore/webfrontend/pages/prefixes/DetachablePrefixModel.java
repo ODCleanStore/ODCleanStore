@@ -3,20 +3,20 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.prefixes;
 import org.apache.wicket.model.LoadableDetachableModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.prefixes.Prefix;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.prefixes.PrefixDao;
 
 public class DetachablePrefixModel extends LoadableDetachableModel<Prefix>
 {
 	private static final long serialVersionUID = 1L;
 	
-	private Dao<Prefix> dao;
+	private PrefixDao dao;
 	private Prefix item;
 	private String id;
 	
 	/**
 	 * 
 	 */
-	public DetachablePrefixModel(Dao<Prefix> dao, String id)
+	public DetachablePrefixModel(PrefixDao dao, String id)
 	{
 		this.dao = dao;
 		this.id = id;
@@ -27,7 +27,7 @@ public class DetachablePrefixModel extends LoadableDetachableModel<Prefix>
 	 * @param dao
 	 * @param item
 	 */
-	public DetachablePrefixModel(Dao<Prefix> dao, Prefix item)
+	public DetachablePrefixModel(PrefixDao dao, Prefix item)
 	{
 		this.item = item;
 		
@@ -39,7 +39,7 @@ public class DetachablePrefixModel extends LoadableDetachableModel<Prefix>
 	protected Prefix load() 
 	{
 		if (item == null)
-			item = dao.loadRawBy("NS_PREFIX", id);
+			item = dao.loadBy("NS_PREFIX", id);
 		
 		return item;
 	}

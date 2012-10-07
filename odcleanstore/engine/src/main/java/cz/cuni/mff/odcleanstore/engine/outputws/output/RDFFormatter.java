@@ -9,6 +9,7 @@ import cz.cuni.mff.odcleanstore.queryexecution.QueryResultBase;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.vocabulary.DC;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.vocabulary.RDF;
 import cz.cuni.mff.odcleanstore.vocabulary.W3P;
 
@@ -160,7 +161,8 @@ public abstract class RDFFormatter extends ResultFormatterBase {
             LiteralLabel scoreLiteral = LiteralLabelFactory.create(qaResult.getScore());
             graph.add(new Triple(namedGraphURI, SCORE_PROPERTY, Node.createLiteral(scoreLiteral)));
             for (QualityAssessmentRule qaRule : qaResult.getTrace()) {
-                Node ruleNode = Node.createURI(outputWSConfig.getQARuleURIPrefix() + qaRule.getId().toString());
+                Node ruleNode = Node.createURI(outputWSConfig.getResultDataURIPrefix().toString() 
+                        + ODCSInternal.queryQARuleUriInfix + qaRule.getId().toString());
                 graph.add(new Triple(namedGraphURI, VIOLATED_QA_RULE_PROPERTY, ruleNode));
     
                 graph.add(new Triple(ruleNode, TYPE_PROPERTY, QARULE_CLASS));

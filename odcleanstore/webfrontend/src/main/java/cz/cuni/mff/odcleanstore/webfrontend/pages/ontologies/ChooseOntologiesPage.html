@@ -1,0 +1,19 @@
+<wicket:extend>
+
+<div wicket:id="helpWindow"></div>
+
+<a wicket:id="openHelpWindow"class="help">Help</a>
+
+<form wicket:id="chooseOntologiesForm">
+	<p>
+		<label for="sourceOntology">Source ontology:</label>
+		<span class="required"><select wicket:id="sourceOntology" id="sourceOntology"  /></span>
+	</p>
+	<p>
+		<label for="targetOntology">Target ontology:</label>
+		<select wicket:id="targetOntology" id="targetOntology" />
+	</p>
+	<input type="submit" value="Submit" />
+</form>
+
+</wicket:extend>

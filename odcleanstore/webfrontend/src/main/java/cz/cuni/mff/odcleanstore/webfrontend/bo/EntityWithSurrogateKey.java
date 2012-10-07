@@ -1,20 +1,31 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo;
 
-public abstract class EntityWithSurrogateKey extends BusinessEntity
+/**
+ * A generic parent of all classes which represent business entities with
+ * a surrogate key.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
+public abstract class EntityWithSurrogateKey extends BusinessEntity implements IdentifiedEntity
 {
 	private static final long serialVersionUID = 1L;
 
-	protected Long id;
+	/** the surrogate key */
+	protected Integer id;
 
 	/**
 	 * 
 	 * @param id
 	 */
-	public EntityWithSurrogateKey(Long id)
+	public EntityWithSurrogateKey(Integer id)
 	{
 		this.id = id;
 	}
 	
+	/**
+	 * 
+	 */
 	public EntityWithSurrogateKey()
 	{
 	}
@@ -23,7 +34,7 @@ public abstract class EntityWithSurrogateKey extends BusinessEntity
 	 * 
 	 * @return
 	 */
-	public Long getId() 
+	public Integer getId() 
 	{
 		return id;
 	}
@@ -32,7 +43,7 @@ public abstract class EntityWithSurrogateKey extends BusinessEntity
 	 * 
 	 * @param id
 	 */
-	public void setId(Long id) 
+	public void setId(Integer id) 
 	{
 		this.id = id;
 	}
