@@ -91,9 +91,9 @@ public abstract class ConfigGroup {
             throws ParameterNotAvailableException, IllegalParameterFormatException
     {
         ParameterFormat<String> formatString = new FormatString();
-        
-        String connectionString = loadParam(properties, 
-        		dbType.getConfigPrefix() + "jdbc.connection_string", formatString);
+
+        String connectionString = loadParam(properties,
+                dbType.getConfigPrefix() + "jdbc.connection_string", formatString);
         String username = loadParam(properties, dbType.getConfigPrefix() + "jdbc.username", formatString);
         String password = loadParam(properties, dbType.getConfigPrefix() + "jdbc.password", formatString);
 

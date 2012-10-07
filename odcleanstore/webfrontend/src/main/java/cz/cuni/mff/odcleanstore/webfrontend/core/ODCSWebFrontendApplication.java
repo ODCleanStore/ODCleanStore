@@ -49,7 +49,7 @@ public class ODCSWebFrontendApplication extends AuthenticatedWebApplication
 		super();
 		
 		// Add request cycle listener that redirects to homepage with a proper message after session has expired 
-		// getRequestCycleListeners().add(new ExceptionRequestCycleListener());
+		getRequestCycleListeners().add(new ExceptionRequestCycleListener());
 	}
 	
 	@Override

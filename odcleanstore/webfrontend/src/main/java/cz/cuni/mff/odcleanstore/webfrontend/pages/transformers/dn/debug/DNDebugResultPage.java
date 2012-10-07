@@ -158,10 +158,10 @@ public class DNDebugResultPage extends FrontendPage
 		DELETE(0),
 		INSERT(1);
 		
-		Integer order;
+		// Integer order;
 		
 		ModificationType(Integer order) {
-			this.order = order;
+			//this.order = order;
 		}
 	}
 	

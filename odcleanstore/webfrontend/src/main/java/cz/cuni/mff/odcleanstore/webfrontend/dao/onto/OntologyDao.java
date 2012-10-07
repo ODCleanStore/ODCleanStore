@@ -12,10 +12,13 @@ import virtuoso.jena.driver.VirtGraph;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 
+import cz.cuni.mff.odcleanstore.data.EnumDatabaseInstance;
+import cz.cuni.mff.odcleanstore.data.GraphLoader;
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
 import cz.cuni.mff.odcleanstore.datanormalization.rules.DataNormalizationRulesModel;
 import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRulesModel;
+import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.Ontology;
@@ -28,7 +31,6 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "ONTOLOGIES";
 	private static final String OUTPUT_LANGUAGE = "RDF/XML-ABBREV";
-	private static final String ENCODING = "UTF-8";
 	private static final String RULE_GROUP_PREFIX = "Generated from ontology: ";
 	private static final String QA_MAPPING_TABLE_NAME = "QA_RULES_GROUPS_TO_ONTOLOGIES_MAP";
 	private static final String DN_MAPPING_TABLE_NAME = "DN_RULES_GROUPS_TO_ONTOLOGIES_MAP";
@@ -70,6 +72,12 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		return loadBy("o.id", id);
 	}
 	
+	/** Load Ontology without retrieving its definition. */
+	private Ontology loadRaw(Integer id) 
+	{
+		return super.loadBy("o.id", id);
+	}
+	
 	@Override
 	public Ontology loadBy(String columnName, Object value)
 	{
@@ -91,7 +99,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		String result = null;
 		try
 		{
-			result = stream.toString(ENCODING);
+			result = stream.toString(Utils.DEFAULT_ENCODING);
 		}
 		catch (UnsupportedEncodingException e)
 		{
@@ -127,7 +135,8 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 				// to be able to drop a graph in Virtuoso, it has to be explicitly created before
 				createGraph(item.getGraphName());
 
-				storeRdfXml(item.getDefinition(), item.getGraphName());
+				GraphLoader graphLoader = new GraphLoader(EnumDatabaseInstance.CLEAN);
+				graphLoader.importGraph(item.getDefinition(), item.getGraphName());
 
 				// Call after working with RDF in case it fails
 				jdbcUpdate(query, params);
@@ -141,7 +150,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 	{
 		try
 		{
-			item.setGraphName(ODCSInternal.ontologyGraphUriPrefix + URLEncoder.encode(item.getLabel(), ENCODING));
+			item.setGraphName(ODCSInternal.ontologyGraphUriPrefix + URLEncoder.encode(item.getLabel(), Utils.DEFAULT_ENCODING));
 		}
 		catch (UnsupportedEncodingException e)
 		{
@@ -154,19 +163,6 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		String query = "SPARQL CREATE SILENT GRAPH ??";
 
 		Object[] params = { graphName };
-
-		jdbcUpdate(query, params);
-	}
-
-	private void storeRdfXml(String rdfData, String graphName) throws Exception
-	{
-		String query = "CALL DB.DBA.RDF_LOAD_RDFXML_MT(?, '', ?)";
-
-		Object[] params =
-		{
-			rdfData,
-			graphName
-		};
 
 		jdbcUpdate(query, params);
 	}
@@ -186,6 +182,22 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		});
 	}
 
+	@Override
+	protected void deleteRaw(final Integer id) throws Exception
+	{
+		executeInTransaction(new CodeSnippet()
+		{
+			@Override
+			public void execute() throws Exception
+			{
+				Ontology onto = loadRaw(id);
+				deleteGraph(onto.getGraphName());
+				deleteMappings(id);
+				OntologyDao.super.deleteRaw(id);
+			}
+		});
+	}
+	
 	private void deleteGraph(String graphName) throws Exception
 	{
 		String query = "SPARQL DROP SILENT GRAPH ??";
@@ -194,22 +206,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 
 		jdbcUpdate(query, params);
 	}
-
-	@Override
-	public void delete(final Ontology item) throws Exception
-	{
-		executeInTransaction(new CodeSnippet()
-		{
-			@Override
-			public void execute() throws Exception
-			{
-				OntologyDao.super.delete(item);
-				deleteGraph(item.getGraphName());
-				deleteMappings(item.getId());
-			}
-		});
-	}
-
+	
 	private void generateRules(String tableName, String ontologyLabel) throws Exception
 	{
 		String groupLabel = createGroupLabel(ontologyLabel);

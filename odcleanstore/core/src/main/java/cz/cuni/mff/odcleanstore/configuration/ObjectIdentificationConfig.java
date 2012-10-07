@@ -3,11 +3,9 @@ package cz.cuni.mff.odcleanstore.configuration;
 import cz.cuni.mff.odcleanstore.configuration.exceptions.IllegalParameterFormatException;
 import cz.cuni.mff.odcleanstore.configuration.exceptions.ParameterNotAvailableException;
 import cz.cuni.mff.odcleanstore.configuration.formats.FormatBoolean;
-import cz.cuni.mff.odcleanstore.configuration.formats.FormatURI;
 import cz.cuni.mff.odcleanstore.configuration.formats.ParameterFormat;
 import cz.cuni.mff.odcleanstore.connection.SparqlEndpointConnectionCredentials;
 
-import java.net.URI;
 import java.util.Properties;
 
 /**
