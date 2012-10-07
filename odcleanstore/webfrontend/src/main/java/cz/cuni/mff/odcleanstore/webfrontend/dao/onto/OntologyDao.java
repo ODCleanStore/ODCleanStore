@@ -70,6 +70,12 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		return loadBy("o.id", id);
 	}
 	
+	/** Load Ontology without retrieving its definition. */
+	private Ontology loadRaw(Integer id) 
+	{
+		return super.loadBy("o.id", id);
+	}
+	
 	@Override
 	public Ontology loadBy(String columnName, Object value)
 	{
@@ -141,7 +147,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 	{
 		try
 		{
-			item.setGraphName(ODCSInternal.ontologyGraphUriPrefix + URLEncoder.encode(item.getLabel(), ENCODING));
+			item.setGraphName(ODCSInternal.ontologyGraphUriPrefix + URLEncoder.encode(item.getLabel(), Utils.DEFAULT_ENCODING));
 		}
 		catch (UnsupportedEncodingException e)
 		{
@@ -186,6 +192,22 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		});
 	}
 
+	@Override
+	protected void deleteRaw(final Integer id) throws Exception
+	{
+		executeInTransaction(new CodeSnippet()
+		{
+			@Override
+			public void execute() throws Exception
+			{
+				Ontology onto = loadRaw(id);
+				deleteGraph(onto.getGraphName());
+				deleteMappings(id);
+				OntologyDao.super.deleteRaw(id);
+			}
+		});
+	}
+	
 	private void deleteGraph(String graphName) throws Exception
 	{
 		String query = "SPARQL DROP SILENT GRAPH ??";
@@ -194,22 +216,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 
 		jdbcUpdate(query, params);
 	}
-
-	@Override
-	public void delete(final Ontology item) throws Exception
-	{
-		executeInTransaction(new CodeSnippet()
-		{
-			@Override
-			public void execute() throws Exception
-			{
-				OntologyDao.super.delete(item);
-				deleteGraph(item.getGraphName());
-				deleteMappings(item.getId());
-			}
-		});
-	}
-
+	
 	private void generateRules(String tableName, String ontologyLabel) throws Exception
 	{
 		String groupLabel = createGroupLabel(ontologyLabel);
