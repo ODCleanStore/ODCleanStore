@@ -19,6 +19,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRenameTemplateInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNReplaceTemplateInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRulesGroup;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNTemplateInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteTemplateInstanceButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedRedirectButton;
@@ -37,6 +38,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRenameTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNReplaceTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.TransformerAssignmentDetailPage;
@@ -399,15 +401,13 @@ public class DNGroupDetailPage extends LimitedEditingPage
 				item.add(new BooleanLabel("keep"));
 				
 				item.add(
-					new AuthorizedDeleteTemplateInstanceButton<DNFilterTemplateInstance>
+					createAuthorizedDeleteTemplateInstanceButton
 					(
 						dnFilterTemplateInstanceDao,
 						compiledDnRuleDao,
 						instance,
-						isEditable(),
 						"filterTemplateInstance",
-						new DeleteConfirmationMessage("filter template instance"),
-						DNGroupDetailPage.this
+						new DeleteConfirmationMessage("filter template instance")
 					)
 				);
 				
@@ -458,5 +458,30 @@ public class DNGroupDetailPage extends LimitedEditingPage
 				setResponsePage(new DNGroupDetailPage(rule.getGroupId()));
 			}
 		};
+	}
+	
+	private <BO extends DNTemplateInstance> Component createAuthorizedDeleteTemplateInstanceButton(
+		DNTemplateInstanceDao<BO> templateInstanceDao, CompiledDNRuleDao compiledRuleDao, final BO instance, String objName, DeleteConfirmationMessage message)
+	{
+		return 
+			new AuthorizedDeleteTemplateInstanceButton(
+				templateInstanceDao, 
+				compiledRuleDao,
+				instance, 
+				isEditable(), 
+				objName, 
+				message, 
+				null
+			)
+			{
+				private static final long serialVersionUID = 1L;
+	
+				@Override
+				public void onClick()
+				{
+					super.onClick();
+					setResponsePage(new DNGroupDetailPage(instance.getGroupId()));
+				}
+			};
 	}
 }
