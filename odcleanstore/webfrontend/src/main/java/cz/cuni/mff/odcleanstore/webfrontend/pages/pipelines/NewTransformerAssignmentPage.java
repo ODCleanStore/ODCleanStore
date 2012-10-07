@@ -92,14 +92,14 @@ public class NewTransformerAssignmentPage extends LimitedEditingPage
 					insertId = transformerInstanceDao.saveAndGetKey(assignment);
 				}
 				catch (DaoException ex)
-				{
+				{	
+					logger.error(ex.getMessage(), ex);
 					getSession().error(ex.getMessage());
 					return;
 				}
 				catch (Exception ex)
 				{
-					logger.error(ex.getMessage());
-					
+					logger.error(ex.getMessage(), ex);					
 					getSession().error(
 						"The assignment could not be registered due to an unexpected error."
 					);

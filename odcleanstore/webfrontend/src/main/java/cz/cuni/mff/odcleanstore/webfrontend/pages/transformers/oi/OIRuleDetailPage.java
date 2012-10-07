@@ -225,13 +225,13 @@ public class OIRuleDetailPage extends LimitedEditingPage
 				}
 				catch (DaoException ex)
 				{
+					logger.error(ex.getMessage(), ex);
 					getSession().error(ex.getMessage());
 					return;
 				}
 				catch (Exception ex)
 				{
-					logger.error(ex.getMessage());
-					
+					logger.error(ex.getMessage(), ex);					
 					getSession().error(
 						"The rule could not be updated due to an unexpected error."
 					);

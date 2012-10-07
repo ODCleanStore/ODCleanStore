@@ -57,13 +57,14 @@ public class NewTransformerPage extends FrontendPage
 					transformerDao.save(transformer);
 				}
 				catch (DaoException ex)
-				{
+				{	
+					logger.error(ex.getMessage(), ex);
 					getSession().error(ex.getMessage());
 					return;
 				}
 				catch (Exception ex)
 				{
-					logger.error(ex.getMessage());
+					logger.error(ex.getMessage(), ex);
 					
 					getSession().error(
 						"The transformer could not be registered due to an unexpected error."

@@ -2,6 +2,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts;
 
 import javax.mail.MessagingException;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
@@ -31,6 +32,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.util.PasswordHandling;
 public class AccountsListPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
+	private static Logger logger = Logger.getLogger(AccountsListPage.class);
 
 	private UserDao userDao;
 	
@@ -139,16 +141,19 @@ public class AccountsListPage extends FrontendPage
 				}
 				catch (DaoException ex) 
 				{
+					logger.error(ex.getMessage(), ex);
 					getSession().error(ex.getMessage());
 					return;
 				}
 				catch (MessagingException ex)
 				{
+					logger.error(ex.getMessage(), ex);
 					getSession().error(ex.getMessage());
 					return;
 				}
 				catch (Exception ex)
 				{
+					logger.error(ex.getMessage(), ex);
 					getSession().error("The password could not be updated due to an unexpected error.");
 					return;
 				}

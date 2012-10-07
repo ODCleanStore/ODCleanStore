@@ -143,7 +143,8 @@ public class TransformerAssignmentDetailPage extends LimitedEditingPage
 					transformerInstanceDao.update(assignment);
 				}
 				catch (DaoException ex)
-				{
+				{	
+					logger.error(ex.getMessage(), ex);
 					getSession().error(ex.getMessage());
 					return;
 				}

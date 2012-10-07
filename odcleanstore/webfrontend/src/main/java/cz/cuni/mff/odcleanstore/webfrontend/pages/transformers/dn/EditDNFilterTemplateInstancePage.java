@@ -86,14 +86,14 @@ public class EditDNFilterTemplateInstancePage extends LimitedEditingPage
 
 				}
 				catch (DaoException ex)
-				{
+				{	
+					logger.error(ex.getMessage(), ex);
 					getSession().error(ex.getMessage());
 					return;
 				}
 				catch (Exception ex)
 				{
-					logger.error(ex.getMessage());
-					
+					logger.error(ex.getMessage(), ex);				
 					getSession().error(
 						"The filter template instance could not be updated due to an unexpected error."
 					);

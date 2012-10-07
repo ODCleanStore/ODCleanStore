@@ -119,6 +119,7 @@ class UserPermissionsForm extends Form<UserPermissionsForm>
 		} 
 		catch (DaoException ex)
 		{
+			logger.error(ex.getMessage(), ex);
 			getSession().error(ex.getMessage());
 			return;
 		}
