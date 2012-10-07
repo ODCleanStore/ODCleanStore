@@ -11,6 +11,7 @@ import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl.Graph
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RoundedNumberLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.QARuleDetailPage;
 
@@ -56,7 +57,7 @@ public class QADebugResultPage extends FrontendPage
 						
 						item.add(new Label("description", rule.getDescription()));
 						
-						item.add(new Label("coefficient", rule.getCoefficient().toString()));
+						item.add(new RoundedNumberLabel("coefficient", rule.getCoefficient()));
 						
 						item.add(
 							new RedirectWithParamButton
@@ -69,7 +70,8 @@ public class QADebugResultPage extends FrontendPage
 					}
 					
 				};
-				item.add(new Label("graphLabel", result.getGraphName() + ", Total score: " + result.getScore()));
+				item.add(new Label("graphLabel", result.getGraphName() + ", Total score: "));
+				item.add(new RoundedNumberLabel("graphScore", result.getScore()));
 				item.add(rows);
 			}		
 		};
