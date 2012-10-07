@@ -242,7 +242,7 @@ public class DataNormalizationRulesModel {
 		Set<DataNormalizationRule> rules = new HashSet<DataNormalizationRule>();
 
 		for (int i = 0; i < groupIds.length; ++i) {
-			Collection<DataNormalizationRule> groupSpecific = queryRules(String.format(ruleByGroupIdQueryFormat, tableVersion, tableVersion), groupIds[i]);
+			Collection<DataNormalizationRule> groupSpecific = queryRules(String.format(ruleByGroupIdQueryFormat, tableVersion.getTableSuffix(), tableVersion.getTableSuffix()), groupIds[i]);
 
 			rules.addAll(groupSpecific);
 		}
@@ -259,7 +259,7 @@ public class DataNormalizationRulesModel {
 		Set<DataNormalizationRule> rules = new HashSet<DataNormalizationRule>();
 
 		for (int i = 0; i < groupLabels.length; ++i) {
-			Collection<DataNormalizationRule> groupSpecific = queryRules(String.format(ruleByGroupLabelQueryFormat, tableVersion, tableVersion), groupLabels[i]);
+			Collection<DataNormalizationRule> groupSpecific = queryRules(String.format(ruleByGroupLabelQueryFormat, tableVersion.getTableSuffix(), tableVersion.getTableSuffix()), groupLabels[i]);
 
 			rules.addAll(groupSpecific);
 		}
