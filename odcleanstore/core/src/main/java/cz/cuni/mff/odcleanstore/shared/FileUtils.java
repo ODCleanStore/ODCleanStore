@@ -144,7 +144,7 @@ public final class FileUtils {
         if (XML_PATTERN.matcher(src).find()) {
             return SerializationLanguage.RDFXML;
         } else {
-            return SerializationLanguage.TTL;
+            return SerializationLanguage.N3;
         }
     }
 }

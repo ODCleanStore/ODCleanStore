@@ -39,8 +39,8 @@ public class GraphLoader {
     }
 
     /**
-     * Import graph serialized as TTL or RDF/XML to database into the given named graph. 
-     * @param contents RDF data serialized as TTL or RDF/XML
+     * Import graph serialized as N3 or RDF/XML to database into the given named graph. 
+     * @param contents RDF data serialized as N3 or RDF/XML
      * @param graphURI URI of graph to import to
      * @throws ODCleanStoreException error
      */
@@ -63,10 +63,10 @@ public class GraphLoader {
             case RDFXML:
                 connection.insertRdfXmlFromFile("", tmpFile.getAbsolutePath(), graphURI);
                 break;
-            case TTL:
+            case N3:
                 // src = FileUtils.unicodeToAscii(src);
                 // output = new OutputStreamWriter(new FileOutputStream(fullFileName), "US-ASCII")
-                connection.insertTtlFromFile("", tmpFile.getAbsolutePath(), graphURI);
+                connection.insertN3FromFile("", tmpFile.getAbsolutePath(), graphURI);
                 break;
             default:
                 throw new AssertionError();
