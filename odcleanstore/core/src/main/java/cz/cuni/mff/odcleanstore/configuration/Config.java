@@ -190,6 +190,6 @@ public final class Config {
      * @return web frontend configuration
      */
     public WebFrontendConfig getWebFrontendGroup() {
-    	return webFrontendGroup;
+        return webFrontendGroup;
     }
 }
