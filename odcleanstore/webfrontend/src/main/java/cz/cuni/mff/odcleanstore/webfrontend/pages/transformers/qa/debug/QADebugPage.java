@@ -18,12 +18,13 @@ import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl.Graph
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UploadButton;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 import cz.cuni.mff.odcleanstore.webfrontend.util.TemporaryGraphLoader;
 import cz.cuni.mff.odcleanstore.webfrontend.util.TemporaryGraphLoader.TemporaryGraph;
 
 @AuthorizeInstantiation({ Role.PIC })
-public class QADebugPage extends FrontendPage 
+public class QADebugPage extends LimitedEditingPage 
 {	
 	private static final long serialVersionUID = 1L;
 	protected static Logger logger = Logger.getLogger(QADebugPage.class);
@@ -34,7 +35,9 @@ public class QADebugPage extends FrontendPage
 	{
 		super(
 			"Home > Backend > QA > Groups > Debug", 
-			"Debug QA rule group"
+			"Debug QA rule group",
+			QARulesGroupDao.class,
+			groupId
 		);
 			
 		// register page components
