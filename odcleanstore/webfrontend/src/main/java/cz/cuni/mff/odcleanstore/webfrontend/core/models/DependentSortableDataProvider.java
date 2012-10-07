@@ -18,7 +18,7 @@ public class DependentSortableDataProvider<BO extends EntityWithSurrogateKey> ex
 	
 	private DaoForEntityWithSurrogateKey<BO> dao;
 	private List<BO> data;
-	private Object[] constraints;
+	private QueryCriteria criteria;
 	
 	/**
 	 * 
@@ -42,7 +42,23 @@ public class DependentSortableDataProvider<BO extends EntityWithSurrogateKey> ex
 		setSort(defaultSortColumnName, SortOrder.ASCENDING);
 		
 		this.dao = dao;
-		this.constraints = constraints;
+
+		QueryCriteria criteria = new QueryCriteria();
+		
+		for (int i = 0; i < constraints.length; i += 2) {
+			criteria.addWhereClause((String)constraints[i], constraints[i + 1]);
+		}
+		
+		this.criteria = criteria;
+	}
+	
+	public DependentSortableDataProvider(DaoForEntityWithSurrogateKey<BO> dao, String defaultSortColumnName,
+			QueryCriteria criteria)
+	{
+		setSort(defaultSortColumnName, SortOrder.ASCENDING);
+			
+		this.dao = dao;
+		this.criteria = criteria;
 	}
 	
 	private List<BO> getData()
@@ -51,11 +67,7 @@ public class DependentSortableDataProvider<BO extends EntityWithSurrogateKey> ex
 		{
 			SortParam sortParam = getSort();
 			
-			QueryCriteria criteria = new QueryCriteria();
-
-			for (int i = 0; i < constraints.length; i += 2) {
-				criteria.addWhereClause((String)constraints[i], constraints[i + 1]);
-			}
+			QueryCriteria criteria = (QueryCriteria)this.criteria.clone();
 			criteria.addOrderByClause(sortParam.getProperty(), sortParam.isAscending());
 			
 			data = dao.loadAllBy(criteria);

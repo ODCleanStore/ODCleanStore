@@ -34,12 +34,22 @@ public class GraphInErrorDao extends DaoForEntityWithSurrogateKey<GraphInError> 
 	protected ParameterizedRowMapper<GraphInError> getRowMapper() {
 		return new GraphInErrorRowMapper();
 	}
+	
+	@Override
+	public List<GraphInError> loadAllBy (String column, Object value) {
+		QueryCriteria criteria = new QueryCriteria();
+		
+		criteria.addWhereClause(column, value);
+		
+		return loadAllBy(criteria);
+	}
 
 	@Override
 	public List<GraphInError> loadAllBy (QueryCriteria criteria) {
 
 		String query =
 			"SELECT " +
+			"eGraph.id AS id, " +
 			"iGraph.engineId AS engineId, " +
 			"iGraph.pipelineId AS pipelineId, " +
 			"iGraph.uuid AS uuid, " +
@@ -112,34 +122,28 @@ public class GraphInErrorDao extends DaoForEntityWithSurrogateKey<GraphInError> 
 		});
 	}
 
-	public void markAllQueued(Object[] params) throws Exception {
-		markAll(params, EnumGraphState.QUEUED);
+	public void markAllQueued(QueryCriteria criteria) throws Exception {
+		markAll(criteria, EnumGraphState.QUEUED);
 	}
 	
-	public void markAllQueuedForDelete(Object[] params) throws Exception {
-		markAll(params, EnumGraphState.QUEUED_FOR_DELETE);
+	public void markAllQueuedForDelete(QueryCriteria criteria) throws Exception {
+		markAll(criteria, EnumGraphState.QUEUED_FOR_DELETE);
 	}
 	
-	public void markAllFinished(Object[] params) throws Exception {
-		markAll(params, EnumGraphState.FINISHED);
+	public void markAllFinished(QueryCriteria criteria) throws Exception {
+		markAll(criteria, EnumGraphState.FINISHED);
 	}
 	
-	private void markAll(final Object[] params, final EnumGraphState state) throws Exception {
+	private void markAll(final QueryCriteria criteria, final EnumGraphState state) throws Exception {
 		executeInTransaction(new CodeSnippet() {
 			@Override
 			public void execute() throws Exception {
-				QueryCriteria criteria;
 				String query;
 				Object[] param;
 				
 				/**
 				 * DELETE ALL ERRORS BOUND TO GRAPHS (GIVEN BY CRITERIA AND IN STATE = WRONG)
 				 */
-				criteria = new QueryCriteria();
-
-				for (int i = 0; i < params.length; i += 2) {
-					criteria.addWhereClause((String)params[i], params[i + 1]);
-				}
 				
 				query = "DELETE FROM " + GRAPHS_IN_ERROR_TABLE_NAME + " AS eGraph WHERE " +
 						"eGraph.graphId IN " +
@@ -152,11 +156,6 @@ public class GraphInErrorDao extends DaoForEntityWithSurrogateKey<GraphInError> 
 				/**
 				 * REPLACE STATE ID
 				 */
-				criteria = new QueryCriteria();
-
-				for (int i = 0; i < params.length; i += 2) {
-					criteria.addWhereClause((String)params[i], params[i + 1]);
-				}
 				criteria.addWhereClause("iState.label", "WRONG");
 				criteria.addWhereClause("state.label", state.name());
 
