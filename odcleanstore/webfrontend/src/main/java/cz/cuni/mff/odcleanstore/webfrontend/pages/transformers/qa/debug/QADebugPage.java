@@ -65,7 +65,7 @@ public class QADebugPage extends LimitedEditingPage
 				{
 					graph = loader.importToTemporaryGraph(rdfInput);
 					graphs.put("Debug Graph", graph.getGraphURI());
-					List<GraphScoreWithTrace> results = assessor.debugRules(graphs, createContext());
+					List<GraphScoreWithTrace> results = assessor.debugRules(graphs, createContext(), getVisibleTableVersion());
 					setResponsePage(new QADebugResultPage(results, groupId));
 				}
 				catch (TransformerException e)

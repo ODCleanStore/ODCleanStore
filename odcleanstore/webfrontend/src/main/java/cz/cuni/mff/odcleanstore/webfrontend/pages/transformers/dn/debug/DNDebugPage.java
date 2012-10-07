@@ -65,7 +65,7 @@ public class DNDebugPage extends LimitedEditingPage
 				{
 					graph = loader.importToTemporaryGraph(rdfInput);
 					graphs.put("Debug Graph", graph.getGraphURI());
-					List<GraphModification> results = normalizer.debugRules(graphs, createContext());
+					List<GraphModification> results = normalizer.debugRules(graphs, createContext(), getVisibleTableVersion());
 					setResponsePage(new DNDebugResultPage(results, groupId));
 				}
 				catch (TransformerException e)
