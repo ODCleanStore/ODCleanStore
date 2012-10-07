@@ -2,6 +2,8 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.debug;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -54,6 +56,27 @@ public class DNDebugResultPage extends FrontendPage
 			protected void populateItem(ListItem<GraphModification> item) {
 				GraphModification result = item.getModelObject();
 				List<ModificationRecord> modifications = flatten(result);
+				
+				Collections.sort(modifications, new Comparator<ModificationRecord>() {
+
+					public int compare(ModificationRecord o1, ModificationRecord o2) {
+
+						int r = o1.getRule().getId().compareTo(o2.getRule().getId());
+						int s = o1.getSubject().compareTo(o2.getSubject());
+						int p = o1.getPredicate().compareTo(o2.getPredicate());
+						int o = o1.getObject().compareTo(o2.getObject());
+						//int t = o1.getType().order - o2.getType().order;
+						
+						if (r != 0) return r; //Group by rule
+						if (s != 0) return s; //Order by s p o
+						if (p != 0) return p;
+						if (o != 0) return o;
+						//if (t != 0) return t; //Delete first, Insert second
+						
+						return 0;
+					}
+					
+				});
 				
 				ListView<ModificationRecord> rows = new ListView<ModificationRecord>("resultRow", modifications)
 				{
@@ -131,7 +154,16 @@ public class DNDebugResultPage extends FrontendPage
 		}
 	}
 	
-	private enum ModificationType { DELETE, INSERT }
+	private enum ModificationType {
+		DELETE(0),
+		INSERT(1);
+		
+		Integer order;
+		
+		ModificationType(Integer order) {
+			this.order = order;
+		}
+	}
 	
 	private List<ModificationRecord> flatten(GraphModification graphMod)
 	{
