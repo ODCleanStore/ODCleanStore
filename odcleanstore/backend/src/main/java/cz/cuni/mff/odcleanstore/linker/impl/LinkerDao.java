@@ -101,7 +101,7 @@ public class LinkerDao {
 					"from " + tableName + " where groupId in " + createInPart(groups));
 			while (resultSet.next()) {
 				SilkRule rule = createRule(resultSet);
-				rule.setOutputs(loadOutputs(connection, resultSet.getInt("id")));
+				rule.setOutputs(loadOutputs(connection, resultSet.getInt("id"), tableVersion));
 				ruleList.add(rule);
 			}
 		} catch (SQLException se) {
@@ -131,13 +131,14 @@ public class LinkerDao {
 		return rule;
 	}
 	
-	private List<Output> loadOutputs(VirtuosoConnectionWrapper connection, Integer ruleId) 
+	private List<Output> loadOutputs(VirtuosoConnectionWrapper connection, Integer ruleId, TableVersion tableVersion ) 
 			throws QueryException, SQLException {
 		List<Output> outputs = new ArrayList<Output>();
 		WrappedResultSet resultSet = null;
+		String tableName = "DB.ODCLEANSTORE.OI_OUTPUTS" + tableVersion.getTableSuffix();
 		try {
 		    String query = "select t.label as type, o.minConfidence, o.maxConfidence, o.fileName, f.label as format " +
-                    "from DB.ODCLEANSTORE.OI_OUTPUTS o join DB.ODCLEANSTORE.OI_OUTPUT_TYPES t on o.outputTypeId = t.id " +
+                    "from " + tableName + " o join DB.ODCLEANSTORE.OI_OUTPUT_TYPES t on o.outputTypeId = t.id " +
                     "left join DB.ODCLEANSTORE.OI_FILE_FORMATS f on o.fileFormatId = f.id " +
                     "where o.ruleId = " + ruleId;
 			resultSet = connection.executeSelect(query);
