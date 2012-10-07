@@ -1,5 +1,9 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo.dn;
 
+import java.util.regex.Pattern;
+
+import cz.cuni.mff.odcleanstore.shared.Utils;
+
 public class DNFilterTemplateInstanceCompiler 
 {
 	public static CompiledDNRule compile(DNFilterTemplateInstance instance)
@@ -19,12 +23,29 @@ public class DNFilterTemplateInstanceCompiler
 
 		// 2. Create components.
 		//
+		Pattern charsToBeRemoved = Pattern.compile("[\\x00-\\x09\\x0E-\\x1F]");
+		Pattern charsToBeEscaped = Pattern.compile("([\"'`\\\\])");
+
+		String property = instance.getPropertyName();
+		
+		if (!Utils.isPrefixedName(property)) {
+			property = "<" + property + ">";
+		}
+		
+		property = charsToBeRemoved.matcher(property).replaceAll("");
+		property = charsToBeEscaped.matcher(property).replaceAll("\\\\$1");
+		
+		String pattern = instance.getPattern();
+
+		pattern = charsToBeRemoved.matcher(pattern).replaceAll("");
+		pattern = charsToBeEscaped.matcher(pattern).replaceAll("\\\\$1");
+		
 		String modification = String.format
 		(
 			"{?s ?p ?o} WHERE { ?s ?p ?o FILTER (?p = %s AND %sfn:matches(str(?o), '%s'))}", 
-			instance.getPropertyName(),
+			property,
 			instance.getKeep() ? "!" : "",
-			instance.getPattern()
+			pattern
 		);
 
 		String compDescription = String.format
