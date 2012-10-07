@@ -2,6 +2,8 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo.dn;
 
 import java.util.regex.Pattern;
 
+import cz.cuni.mff.odcleanstore.shared.Utils;
+
 public class DNFilterTemplateInstanceCompiler 
 {
 	public static CompiledDNRule compile(DNFilterTemplateInstance instance)
@@ -25,6 +27,10 @@ public class DNFilterTemplateInstanceCompiler
 		Pattern charsToBeEscaped = Pattern.compile("([\"'`\\\\])");
 
 		String property = instance.getPropertyName();
+		
+		if (!Utils.isPrefixedName(property)) {
+			property = "<" + property + ">";
+		}
 		
 		property = charsToBeRemoved.matcher(property).replaceAll("");
 		property = charsToBeEscaped.matcher(property).replaceAll("\\\\$1");

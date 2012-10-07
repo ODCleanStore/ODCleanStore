@@ -2,6 +2,8 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo.dn;
 
 import java.util.regex.Pattern;
 
+import cz.cuni.mff.odcleanstore.shared.Utils;
+
 public class DNRenameTemplateInstanceCompiler 
 {
 	public static CompiledDNRule compile(DNRenameTemplateInstance instance)
@@ -25,10 +27,18 @@ public class DNRenameTemplateInstanceCompiler
 
 		String sourceProperty = instance.getSourcePropertyName();
 		
+		if (!Utils.isPrefixedName(sourceProperty)) {
+			sourceProperty = "<" + sourceProperty + ">";
+		}
+		
 		sourceProperty = charsToBeRemoved.matcher(sourceProperty).replaceAll("");
 		sourceProperty = charsToBeEscaped.matcher(sourceProperty).replaceAll("\\\\$1");
 		
 		String targetProperty = instance.getTargetPropertyName();
+		
+		if (!Utils.isPrefixedName(targetProperty)) {
+			targetProperty = "<" + targetProperty + ">";
+		}
 
 		targetProperty = charsToBeRemoved.matcher(targetProperty).replaceAll("");
 		targetProperty = charsToBeEscaped.matcher(targetProperty).replaceAll("\\\\$1");
