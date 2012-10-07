@@ -52,8 +52,8 @@ final class PipelineGraphManipulator {
 		try {
 			String inputDirPath = Engine.getCurrent().getDirtyDBImportExportDir();
 
-			safeDeleteFile(inputDirPath,  graphStatus.getUuid() + ".rdf");
-			safeDeleteFile(inputDirPath,  graphStatus.getUuid() + ".ttl");
+			safeDeleteFile(inputDirPath,  graphStatus.getUuid() + "-d.rdf");
+			safeDeleteFile(inputDirPath,  graphStatus.getUuid() + "-d.ttl");
 			safeDeleteFile(inputDirPath,  graphStatus.getUuid() + "-m.rdf");
 			safeDeleteFile(inputDirPath,  graphStatus.getUuid() + "-m.ttl");
 			safeDeleteFile(inputDirPath,  graphStatus.getUuid() + "-pvm.rdf");
@@ -285,14 +285,14 @@ final class PipelineGraphManipulator {
 				con.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.provenanceMetadataGraph + ">", "<" + provenanceGraphURI + ">", metadataGraphURI);
 				
 			}
-			if (new File(inputDirPath, uuid + ".rdf").exists()) {
+			if (new File(inputDirPath, uuid + "-d.rdf").exists()) {
 				LOG.info(format("Loading data from rdf input file"));
-				con.insertRdfXmlFromFile(dataBaseUrl, inputDirPath + uuid + ".rdf", dataGraphURI);
+				con.insertRdfXmlFromFile(dataBaseUrl, inputDirPath + uuid + "-d.rdf", dataGraphURI);
 				
 			}
-			if (new File(inputDirPath, uuid + ".ttl").exists()) {
+			if (new File(inputDirPath, uuid + "-d.ttl").exists()) {
 				LOG.info(format("Loading data from ttl input file"));
-				con.insertTtlFromFile(dataBaseUrl, inputDirPath + uuid + ".ttl", dataGraphURI);
+				con.insertTtlFromFile(dataBaseUrl, inputDirPath + uuid + "-d.ttl", dataGraphURI);
 			}
 		} finally {
 			if (con != null) {

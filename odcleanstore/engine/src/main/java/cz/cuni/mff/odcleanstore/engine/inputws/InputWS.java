@@ -197,7 +197,7 @@ public class InputWS implements IInputWS {
 		output = null;
 		try {
 			boolean isPayloadRdfXml = payload.startsWith("<?xml");
-			String fullFileName = inputDirectory + metadata.uuid + (isPayloadRdfXml ? ".rdf" : ".ttl");
+			String fullFileName = inputDirectory + metadata.uuid + (isPayloadRdfXml ? "-d.rdf" : "-d.ttl");
 			if (!isPayloadRdfXml) {
 				// payload = Utils.unicodeToAscii(payload);
 				// output = new BufferedWriter(new OutputStreamWriter( new FileOutputStream(fullFileName), "US-ASCII"));
