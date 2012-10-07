@@ -41,6 +41,9 @@ public final class Utils {
     
     /** Jdbc driver class. */
     public static final String JDBC_DRIVER = "virtuoso.jdbc3.Driver";
+    
+    /** Default encoding - UTF-8. */
+    public static final String DEFAULT_ENCODING = "UTF-8";
 
     /**
      * Compare two values which may be null. Null is considered less than all non-null values.

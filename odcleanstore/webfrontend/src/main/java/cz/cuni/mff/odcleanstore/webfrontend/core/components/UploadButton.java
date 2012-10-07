@@ -40,7 +40,8 @@ public class UploadButton extends Button
 				String content = IOUtils.toString(uploadedFile.getInputStream(), ENCODING);
 				textArea.getModel().setObject(content);
 				textArea.modelChanged();
-			} catch (IOException e) 
+			}
+			catch (IOException e) 
 			{
 				getSession().error("Failed to read file: " + fileUpload.getValue());
 			}

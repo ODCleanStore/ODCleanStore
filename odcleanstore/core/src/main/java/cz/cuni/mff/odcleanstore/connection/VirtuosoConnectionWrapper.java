@@ -27,6 +27,9 @@ import java.util.Locale;
  */
 public final class VirtuosoConnectionWrapper {
     private static final Logger LOG = LoggerFactory.getLogger(VirtuosoConnectionWrapper.class);
+    
+    /** Flags for TTL import. */
+    public static final int TTL_FLAGS = 64; // Relax TURTLE syntax to include popular violations
 
     /**
      * Create a new connection and return its wrapper.
@@ -330,9 +333,11 @@ public final class VirtuosoConnectionWrapper {
      * @throws QueryException query error
      */
     public void insertRdfXmlFromFile(String relativeBase, String rdfXmlFileName, String graphName) throws QueryException {
+        
         String base = (relativeBase == null) ? "" : relativeBase;
+        String escapedFileName = rdfXmlFileName.replace('\\', '/');
         String statement = "{call DB.DBA.RDF_LOAD_RDFXML("
-                + "file_to_string_output('" + rdfXmlFileName + "'), '" + base + "', '" + graphName + "')}";
+                + "file_to_string_output('" + escapedFileName + "'), '" + base + "', '" + graphName + "')}";
 
         executeCall(statement);
     }
@@ -347,8 +352,9 @@ public final class VirtuosoConnectionWrapper {
      */
     public void insertTtlFromFile(String relativeBase, String ttlFileName, String graphName) throws QueryException {
         String base = (relativeBase == null) ? "" : relativeBase;
-        String statement =
-                "{call DB.DBA.TTLP(file_to_string_output('" + ttlFileName + "'), '" + base + "', '" + graphName + "', 0)}";
+        String escapedFileName = ttlFileName.replace('\\', '/');
+        String statement = "{call DB.DBA.TTLP(file_to_string_output("
+                + "'" + escapedFileName + "'), '" + base + "', '" + graphName + "', " + TTL_FLAGS + ")}";
 
         executeCall(statement);
     }
@@ -367,5 +373,23 @@ public final class VirtuosoConnectionWrapper {
         } catch (SQLException e) {
             throw new QueryException(e);
         }
+    }
+    
+    
+    /**
+     * Returns Virtuoso server working directory.
+     * @return Virtuoso server working directory
+     * @throws QueryException exception
+     */
+    public String getServerRoot() throws QueryException {
+        WrappedResultSet resultSet = executeSelect("SELECT server_root()");
+        try {
+            if (resultSet.next()) {
+                return resultSet.getString(1);
+            }
+        } catch (SQLException e) {
+            throw new QueryException(e);
+        }
+        return null;
     }
 }

@@ -17,6 +17,7 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import cz.cuni.mff.odcleanstore.data.EnumDatabaseInstance;
 import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
@@ -30,7 +31,6 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 public abstract class Dao implements Serializable
 {
 	public static final String TABLE_NAME_PREFIX = "DB.ODCLEANSTORE.";
-	public static final String BACKUP_TABLE_PREFIX = "BACKUP_";
 	
 	private static final long serialVersionUID = 1L;
 	

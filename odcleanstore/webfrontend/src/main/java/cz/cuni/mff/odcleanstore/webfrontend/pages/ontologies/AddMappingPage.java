@@ -3,6 +3,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.ontologies;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.authorization.UnauthorizedInstantiationException;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteSettings;
@@ -25,6 +26,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.validators.JenaURIValidator;
 public class AddMappingPage extends FrontendPage {
 	
 	private static final long serialVersionUID = 1L;
+	private static Logger logger = Logger.getLogger(AddMappingPage.class);
 	private OntologyMappingDao mappingDao;
 	
 	private String sourceUri;
@@ -66,7 +68,7 @@ public class AddMappingPage extends FrontendPage {
 					mappingDao.addMapping(sourceOntology.getId(), sourceUri, relationType, targetUri);
 				} catch (Exception e) 
 				{	
-					// TODO: log the error
+					logger.error(e.getMessage(), e);
 					getSession().error("Mapping could not be created due to an unexpected error.");
 					return;
 				}

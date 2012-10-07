@@ -2,6 +2,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn;
 
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.Component;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
@@ -45,8 +46,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPan
 public class DNGroupDetailPage extends LimitedEditingPage
 {
 	private static final long serialVersionUID = 1L;
-
-	//private static Logger logger = Logger.getLogger(EditDNGroupPage.class);
+	private static Logger logger = Logger.getLogger(DNGroupDetailPage.class);
 	
 	private DNRulesGroupDao dnRulesGroupDao;
 	private DNRuleDao dnRuleDao;
@@ -141,14 +141,14 @@ public class DNGroupDetailPage extends LimitedEditingPage
 					dnRulesGroupDao.update(group);
 				}
 				catch (DaoException ex)
-				{
+				{	
+					logger.error(ex.getMessage(), ex);
 					getSession().error(ex.getMessage());
 					return;
 				}
 				catch (Exception ex)
 				{
-					// TODO: log the error
-					
+					logger.error(ex.getMessage(), ex);				
 					getSession().error(
 						"The group could not be updated due to an unexpected error."
 					);
@@ -330,10 +330,11 @@ public class DNGroupDetailPage extends LimitedEditingPage
 				item.add(new TruncatedLabel("targetPropertyName", MAX_LIST_COLUMN_TEXT_LENGTH));
 				
 				item.add(
-					new AuthorizedDeleteButton<DNRenameTemplateInstance>
+					new AuthorizedDeleteTemplateInstanceButton<DNRenameTemplateInstance>
 					(
 						dnRenameTemplateInstanceDao,
-						instance.getId(),
+						compiledDnRuleDao,
+						instance,
 						isEditable(),
 						"renameTemplateInstance",
 						new DeleteConfirmationMessage("rename template instance"),
@@ -398,10 +399,11 @@ public class DNGroupDetailPage extends LimitedEditingPage
 				item.add(new BooleanLabel("keep"));
 				
 				item.add(
-					new AuthorizedDeleteButton<DNFilterTemplateInstance>
+					new AuthorizedDeleteTemplateInstanceButton<DNFilterTemplateInstance>
 					(
 						dnFilterTemplateInstanceDao,
-						instance.getId(),
+						compiledDnRuleDao,
+						instance,
 						isEditable(),
 						"filterTemplateInstance",
 						new DeleteConfirmationMessage("filter template instance"),

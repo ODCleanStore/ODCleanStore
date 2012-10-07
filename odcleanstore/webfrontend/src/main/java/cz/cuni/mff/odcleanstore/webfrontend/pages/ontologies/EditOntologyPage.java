@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.ontologies;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.authorization.UnauthorizedInstantiationException;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
@@ -22,6 +23,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 public class EditOntologyPage extends FrontendPage 
 {
 	private static final long serialVersionUID = 1L;
+	private static Logger logger = Logger.getLogger(EditOntologyPage.class);
 	
 	private OntologyDao ontologyDao;
 
@@ -66,14 +68,14 @@ public class EditOntologyPage extends FrontendPage
 					ontologyDao.update(ontology);
 				}
 				catch (DaoException ex)
-				{
+				{	
+					logger.error(ex.getMessage(), ex);
 					getSession().error(ex.getMessage());
 					return;
 				}
 				catch (Exception ex)
 				{
-					// TODO: log the error
-					
+					logger.error(ex.getMessage(), ex);					
 					getSession().error(
 						"The ontology could not be updated due to an unexpected error."
 					);

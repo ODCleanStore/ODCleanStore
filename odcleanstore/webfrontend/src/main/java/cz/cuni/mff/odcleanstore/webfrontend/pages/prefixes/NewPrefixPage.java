@@ -60,12 +60,13 @@ public class NewPrefixPage extends FrontendPage
 					prefixMappingDao.save(mapping);
 				}
 				catch (NonUniquePrimaryKeyException ex)
-				{
+				{	
 					getSession().error("The given prefix has already been registered.");
 					return;
 				}
 				catch (DaoException ex)
-				{
+				{	
+					logger.error(ex.getMessage(), ex);
 					getSession().error(ex.getMessage());
 					return;
 				}

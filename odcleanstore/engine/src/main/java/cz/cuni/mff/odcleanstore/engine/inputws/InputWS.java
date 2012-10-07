@@ -18,10 +18,10 @@ import org.slf4j.LoggerFactory;
 
 import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
-import cz.cuni.mff.odcleanstore.engine.common.Utils;
 import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.IInputWS;
 import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.InsertException;
 import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.Metadata;
+import cz.cuni.mff.odcleanstore.shared.FileUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 
@@ -50,7 +50,7 @@ public class InputWS implements IInputWS {
 				throw new InsertException("metadata is null");
 			}
 			
-			metadata.provenance = Utils.removeInitialBOMXml(metadata.provenance);
+			metadata.provenance = FileUtils.removeInitialBOMXml(metadata.provenance);
 
 			checkUuid(metadata.uuid);
 			checkUries(metadata.publishedBy, 1, "publishedBy");
@@ -62,7 +62,7 @@ public class InputWS implements IInputWS {
 				throw new InsertException("payload is null");
 			}
 			
-			payload = Utils.removeInitialBOMXml(payload);
+			payload = FileUtils.removeInitialBOMXml(payload);
 
 			String sessionUuid = _importedInputGraphStates.beginImportSession(metadata.uuid, metadata.pipelineName, null);
 			saveFiles(metadata, payload);

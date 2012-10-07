@@ -41,6 +41,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.prefixes.PrefixesListPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.TransformersListPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.OIGroupsListPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.useraccounts.AccountsListPage;
+import cz.cuni.mff.odcleanstore.webfrontend.validators.IRIValidator;
 
 /**
  * An abstract base class for all WebFrontend page components, except for
@@ -191,9 +192,23 @@ public abstract class FrontendPage extends WebPage
 	 * @param componentName
 	 * @return
 	 */
-	protected CheckBox createCheckbox(String componentName)
+	protected TextField<String> createTextfield(String componentName)
 	{
-		return new CheckBox(componentName);
+		return createTextfield(componentName, true);
+	}
+	
+	/**
+	 * 
+	 * @param componentName
+	 * @param required
+	 * @return
+	 */
+	protected TextField<String> createIRITextfield(String componentName, boolean required)
+	{
+		TextField<String> textfield = new TextField<String>(componentName);
+		textfield.setRequired(required);
+		textfield.add(new IRIValidator());
+		return textfield;
 	}
 	
 	/**
@@ -201,9 +216,19 @@ public abstract class FrontendPage extends WebPage
 	 * @param componentName
 	 * @return
 	 */
-	protected TextField<String> createTextfield(String componentName)
+	protected TextField<String> createIRITextfield(String componentName)
 	{
-		return createTextfield(componentName, true);
+		return createIRITextfield(componentName, true);
+	}
+	
+	/**
+	 * 
+	 * @param componentName
+	 * @return
+	 */
+	protected CheckBox createCheckbox(String componentName)
+	{
+		return new CheckBox(componentName);
 	}
 	
 	/**

@@ -2,6 +2,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.myaccount;
 
 import java.security.NoSuchAlgorithmException;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.PasswordTextField;
@@ -62,7 +63,7 @@ class ChangePasswordForm extends Form<ChangePasswordForm>
 {
 	private static final long serialVersionUID = 1L;
 
-	//private static Logger logger = Logger.getLogger(ChangePasswordForm.class);
+	private static Logger logger = Logger.getLogger(ChangePasswordForm.class);
 
 	private UserDao userDao;
 	private User user;
@@ -114,6 +115,7 @@ class ChangePasswordForm extends Form<ChangePasswordForm>
 		}
 		catch (NoSuchAlgorithmException ex) 
 		{
+			logger.error(ex.getMessage(), ex);
 			getSession().error("Could not change the password due to an unexpected error.");
 			setResponsePage(EditPasswordPage.class);
 			
@@ -131,8 +133,7 @@ class ChangePasswordForm extends Form<ChangePasswordForm>
 		} 
 		catch (Exception ex)
 		{
-			// TODO: log the error
-			
+			logger.error(ex.getMessage(), ex);			
 			getSession().error(
 				"Could not change the password due to an unexpected error."
 			);

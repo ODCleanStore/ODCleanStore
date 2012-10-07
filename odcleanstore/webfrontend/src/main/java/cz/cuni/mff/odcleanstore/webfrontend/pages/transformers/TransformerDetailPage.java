@@ -58,13 +58,14 @@ public class TransformerDetailPage extends FrontendPage
 					transformerDao.update(transformer);
 				}
 				catch (DaoException ex)
-				{
+				{	
+					logger.error(ex.getMessage(), ex);
 					getSession().error(ex.getMessage());
 					return;
 				}
 				catch (Exception ex)
 				{
-					logger.error(ex.getMessage());
+					logger.error(ex.getMessage(), ex);
 					
 					getSession().error(
 						"The transformer could not be updated due to an unexpected error."

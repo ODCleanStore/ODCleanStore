@@ -85,14 +85,14 @@ public class EditDNRenameTemplateInstancePage extends LimitedEditingPage
 					dnRenameTemplateInstanceDao.save(instance);
 				}
 				catch (DaoException ex)
-				{
+				{	
+					logger.error(ex.getMessage(), ex);
 					getSession().error(ex.getMessage());
 					return;
 				}
 				catch (Exception ex)
 				{
-					logger.error(ex.getMessage());
-					
+					logger.error(ex.getMessage(), ex);			
 					getSession().error(
 						"The rename template instance could not be updated due to an unexpected error."
 					);
@@ -105,8 +105,8 @@ public class EditDNRenameTemplateInstancePage extends LimitedEditingPage
 			}
 		};
 		
-		form.add(createTextfield("sourcePropertyName"));
-		form.add(createTextfield("targetPropertyName"));
+		form.add(createIRITextfield("sourcePropertyName"));
+		form.add(createIRITextfield("targetPropertyName"));
 		
 		add(form);
 	}
