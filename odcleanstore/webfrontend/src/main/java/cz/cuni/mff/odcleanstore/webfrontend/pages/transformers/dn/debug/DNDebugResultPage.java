@@ -65,13 +65,13 @@ public class DNDebugResultPage extends FrontendPage
 						int s = o1.getSubject().compareTo(o2.getSubject());
 						int p = o1.getPredicate().compareTo(o2.getPredicate());
 						int o = o1.getObject().compareTo(o2.getObject());
-						//int t = o1.getType().order - o2.getType().order;
+						int t = o1.getType().order - o2.getType().order;
 						
 						if (r != 0) return r; //Group by rule
-						if (s != 0) return s; //Order by s p o
+						if (s != 0) return s; //Order by s p t o
 						if (p != 0) return p;
+						if (t != 0) return t; //Delete first, Insert second
 						if (o != 0) return o;
-						//if (t != 0) return t; //Delete first, Insert second
 						
 						return 0;
 					}
@@ -158,10 +158,10 @@ public class DNDebugResultPage extends FrontendPage
 		DELETE(0),
 		INSERT(1);
 		
-		// Integer order;
+		Integer order;
 		
 		ModificationType(Integer order) {
-			//this.order = order;
+			this.order = order;
 		}
 	}
 	
