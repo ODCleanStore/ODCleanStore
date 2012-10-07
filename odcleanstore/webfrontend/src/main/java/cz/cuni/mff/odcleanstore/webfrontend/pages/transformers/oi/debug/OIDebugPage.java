@@ -56,7 +56,7 @@ public class OIDebugPage extends LimitedEditingPage
 				Linker linker = new LinkerImpl(groupId);
 				try 
 				{
-					List<DebugResult> results = linker.debugRules(rdfInput, createContext());
+					List<DebugResult> results = linker.debugRules(rdfInput, createContext(), getVisibleTableVersion());
 					setResponsePage(new OIDebugResultPage(results, groupId));
 				} 
 				catch (TransformerException e)
