@@ -10,7 +10,6 @@ public class DNRenameTemplateInstance extends DNTemplateInstance
 {
 	private static final long serialVersionUID = 1L;
 
-	private Integer groupId;
 	private String sourcePropertyName;
 	private String targetPropertyName;
 	
@@ -23,9 +22,8 @@ public class DNRenameTemplateInstance extends DNTemplateInstance
 	 */
 	public DNRenameTemplateInstance(Integer id, Integer rawRuleId, Integer groupId, String sourcePropertyName, String targetPropertyName)
 	{
-		super(id, rawRuleId);
+		super(id, groupId, rawRuleId);
 		
-		this.groupId = groupId;
 		this.sourcePropertyName = sourcePropertyName;
 		this.targetPropertyName = targetPropertyName;
 	}
@@ -35,24 +33,6 @@ public class DNRenameTemplateInstance extends DNTemplateInstance
 	 */
 	public DNRenameTemplateInstance()
 	{
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public Integer getGroupId() 
-	{
-		return groupId;
-	}
-
-	/**
-	 * 
-	 * @param groupId
-	 */
-	public void setGroupId(Integer groupId) 
-	{
-		this.groupId = groupId;
 	}
 
 	/**

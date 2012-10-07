@@ -10,7 +10,6 @@ public class DNReplaceTemplateInstance extends DNTemplateInstance
 {
 	private static final long serialVersionUID = 1L;
 	
-	private Integer groupId;
 	private String propertyName;
 	private String pattern;
 	private String replacement;
@@ -25,9 +24,8 @@ public class DNReplaceTemplateInstance extends DNTemplateInstance
 	 */
 	public DNReplaceTemplateInstance(Integer id, Integer rawRuleId, Integer groupId, String propertyName, String pattern, String replacement) 
 	{
-		super(id, rawRuleId);
+		super(id, groupId, rawRuleId);
 		
-		this.groupId = groupId;
 		this.propertyName = propertyName;
 		this.pattern = pattern;
 		this.replacement = replacement;
@@ -40,24 +38,6 @@ public class DNReplaceTemplateInstance extends DNTemplateInstance
 	{
 	}
 	
-	/**
-	 * 
-	 * @param groupId
-	 */
-	public void setGroupId(Integer groupId)
-	{
-		this.groupId = groupId;
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public Integer getGroupId() 
-	{
-		return groupId;
-	}
-
 	/**
 	 * 
 	 * @return
