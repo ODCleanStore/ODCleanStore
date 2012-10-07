@@ -105,7 +105,7 @@ public class EditDNReplaceTemplateInstancePage extends LimitedEditingPage
 			}
 		};
 		
-		form.add(createTextfield("propertyName"));
+		form.add(createIRITextfield("propertyName"));
 		form.add(createTextfield("pattern"));
 		form.add(createTextfield("replacement"));
 		

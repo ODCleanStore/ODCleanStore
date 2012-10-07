@@ -103,8 +103,8 @@ public class NewDNRenameTemplateInstancePage extends LimitedEditingPage
 			}
 		};
 		
-		form.add(createTextfield("sourcePropertyName"));
-		form.add(createTextfield("targetPropertyName"));
+		form.add(createIRITextfield("sourcePropertyName"));
+		form.add(createIRITextfield("targetPropertyName"));
 		
 		add(form);
 	}

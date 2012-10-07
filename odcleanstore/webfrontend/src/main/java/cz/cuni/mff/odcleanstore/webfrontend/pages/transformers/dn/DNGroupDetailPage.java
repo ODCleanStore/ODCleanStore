@@ -330,10 +330,11 @@ public class DNGroupDetailPage extends LimitedEditingPage
 				item.add(new TruncatedLabel("targetPropertyName", MAX_LIST_COLUMN_TEXT_LENGTH));
 				
 				item.add(
-					new AuthorizedDeleteButton<DNRenameTemplateInstance>
+					new AuthorizedDeleteTemplateInstanceButton<DNRenameTemplateInstance>
 					(
 						dnRenameTemplateInstanceDao,
-						instance.getId(),
+						compiledDnRuleDao,
+						instance,
 						isEditable(),
 						"renameTemplateInstance",
 						new DeleteConfirmationMessage("rename template instance"),
@@ -398,10 +399,11 @@ public class DNGroupDetailPage extends LimitedEditingPage
 				item.add(new BooleanLabel("keep"));
 				
 				item.add(
-					new AuthorizedDeleteButton<DNFilterTemplateInstance>
+					new AuthorizedDeleteTemplateInstanceButton<DNFilterTemplateInstance>
 					(
 						dnFilterTemplateInstanceDao,
-						instance.getId(),
+						compiledDnRuleDao,
+						instance,
 						isEditable(),
 						"filterTemplateInstance",
 						new DeleteConfirmationMessage("filter template instance"),
