@@ -132,7 +132,7 @@ public final class PipelineService extends Service implements Runnable {
 		LOG.info(format("deleting started", status));
 		manipulator.clearGraphsInCleanDB();
 		manipulator.clearGraphsInDirtyDB();
-		manipulator.deleteInputFile();
+		manipulator.deleteInputFiles();
 		status.setNoDirtyState(GraphStates.DELETED);
 		LOG.info(format("deleting successfully finished", status));
 	}
@@ -235,7 +235,7 @@ public final class PipelineService extends Service implements Runnable {
 
 		LOG.info(format("cleaning dirty db started", status));
 		manipulator.clearGraphsInDirtyDB();
-		manipulator.deleteInputFile();
+		manipulator.deleteInputFiles();
 		status.setNoDirtyState(GraphStates.FINISHED);
 		LOG.info(format("pipeline successfully finished", status));
 	}
