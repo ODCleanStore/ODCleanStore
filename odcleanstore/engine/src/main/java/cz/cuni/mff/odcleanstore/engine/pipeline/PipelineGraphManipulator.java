@@ -260,7 +260,7 @@ final class PipelineGraphManipulator {
 			
 			try {
 				LOG.info(format("Loading metadata from ttl input file"));
-				con.insertTtlFromFile("", inputDirPath + uuid + "-m.ttl", metadataGraphURI);
+				con.insertN3FromFile("", inputDirPath + uuid + "-m.ttl", metadataGraphURI);
 				
 			} catch (Exception e) {
 				throw new PipelineGraphManipulatorException(format(ERROR_LOAD_METADATAGRAPH_FROM_FILE), e);
@@ -281,7 +281,7 @@ final class PipelineGraphManipulator {
 			}
 			if (new File(inputDirPath, uuid + "-pvm.ttl").exists()) {
 				LOG.info(format("Loading provenance metadata from ttl input file"));
-				con.insertTtlFromFile(dataBaseUrl, inputDirPath + uuid + "-pvm.ttl", provenanceGraphURI);
+				con.insertN3FromFile(dataBaseUrl, inputDirPath + uuid + "-pvm.ttl", provenanceGraphURI);
 				con.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.provenanceMetadataGraph + ">", "<" + provenanceGraphURI + ">", metadataGraphURI);
 				
 			}
@@ -292,7 +292,7 @@ final class PipelineGraphManipulator {
 			}
 			if (new File(inputDirPath, uuid + "-d.ttl").exists()) {
 				LOG.info(format("Loading data from ttl input file"));
-				con.insertTtlFromFile(dataBaseUrl, inputDirPath + uuid + "-d.ttl", dataGraphURI);
+				con.insertN3FromFile(dataBaseUrl, inputDirPath + uuid + "-d.ttl", dataGraphURI);
 			}
 		} finally {
 			if (con != null) {
