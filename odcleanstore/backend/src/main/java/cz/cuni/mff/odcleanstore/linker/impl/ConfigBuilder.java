@@ -8,6 +8,7 @@ import cz.cuni.mff.odcleanstore.linker.rules.FileOutput;
 import cz.cuni.mff.odcleanstore.linker.rules.Output;
 import cz.cuni.mff.odcleanstore.linker.rules.OutputType;
 import cz.cuni.mff.odcleanstore.linker.rules.SilkRule;
+import cz.cuni.mff.odcleanstore.shared.SerializationLanguage;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
@@ -107,8 +108,6 @@ public class ConfigBuilder {
 	private static final String CONFIG_XML_TRANSFORM_INPUT = "TransformInput";
 	private static final String CONFIG_XML_COMPARE = "Compare";
 	private static final String CONFIG_XML_AGGREGATE = "Aggregate";
-
-	private static final String SOURCE_FORMAT = "N3";
 
 	private static final BigDecimal MIN_CONFIDENCE = BigDecimal.ZERO;
 	private static final BigDecimal MAX_CONFIDENCE = BigDecimal.valueOf(1000);
@@ -593,7 +592,7 @@ public class ConfigBuilder {
 
 	public static File createDebugLinkConfigFile(SilkRule rule, List<RDFprefix> prefixes,
 			TransformationContext context, ObjectIdentificationConfig config, String inputFileName,
-			String resultFileName) throws TransformerException {
+			String resultFileName, SerializationLanguage language) throws TransformerException {
 		LOG.info("Creating debug link configuration file.");
 		Document configDoc;
 		File configFile;
@@ -603,7 +602,7 @@ public class ConfigBuilder {
 		try {
 			configDoc = createConfigDoc(rules, prefixes, null, randomId, config,
 					context.getTransformerDirectory(), config.isLinkWithinGraph());
-			changeSourceToFile(configDoc, inputFileName);
+			changeSourceToFile(configDoc, inputFileName, language);
 			redirectOutputToFile(configDoc, resultFileName, rule.getOutputs());
 			LOG.info("Created link configuration document.");
 			configFile = storeConfigDoc(configDoc, context.getTransformerDirectory(), randomId);
@@ -668,20 +667,20 @@ public class ConfigBuilder {
 		return max;
 	}
 
-	private static void changeSourceToFile(Document doc, String inputFileName) {
-		Element newSourceElement = createSourceElement(doc, inputFileName);
+	private static void changeSourceToFile(Document doc, String inputFileName, SerializationLanguage language) {
+		Element newSourceElement = createSourceElement(doc, inputFileName, language);
 		Element sources = getFirstElement(doc, CONFIG_XML_SOURCES);
 		Element oldSourceElement = getFirstChild(sources, CONFIG_XML_SOURCE);
 		sources.replaceChild(newSourceElement, oldSourceElement);
 	}
-
-	private static Element createSourceElement(Document doc, String inputFileName) {
+	
+	private static Element createSourceElement(Document doc, String inputFileName, SerializationLanguage language) {
 		Element sourceElement = doc.createElement(CONFIG_XML_SOURCE);
 
 		sourceElement.setAttribute(CONFIG_XML_TYPE, CONFIG_XML_FILE);
 		sourceElement.setAttribute(CONFIG_XML_ID, CONFIG_SOURCE_A_ID);
 		sourceElement.appendChild(createParam(doc, CONFIG_XML_FILE, inputFileName));
-		sourceElement.appendChild(createParam(doc, CONFIG_XML_FORMAT, SOURCE_FORMAT));
+		sourceElement.appendChild(createParam(doc, CONFIG_XML_FORMAT, language.toString()));
 
 		return sourceElement;
 	}
