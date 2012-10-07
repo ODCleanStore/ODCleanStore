@@ -100,7 +100,6 @@ public class PipelineGraphTransformerExecutor {
 			catch (Exception e) {
 				throw new PipelineGraphTransformerExecutorException(format(ERROR_TRANSFORMER_RUN, command), command, e);	
 			}
-			
 			LOG.info(format("finished processing", command));
 		} catch(PipelineGraphTransformerExecutorException e) {
 			throw e;
@@ -173,7 +172,7 @@ public class PipelineGraphTransformerExecutor {
 
 	private String format(String message) {
 		try {
-			return FormatHelper.formatGraphMessage(message, graphStatus.getUuid());
+			return FormatHelper.formatGraphMessage(message, graphStatus.getUuid(), graphStatus.isInCleanDbBeforeProcessing());
 		}
 		catch(Exception e) {
 			return message;
@@ -186,7 +185,7 @@ public class PipelineGraphTransformerExecutor {
 			sb.append(command.transformerLabel);
 			sb.append(" - ");
 			sb.append(message);
-			return FormatHelper.formatGraphMessage(sb.toString(), graphStatus.getUuid());
+			return FormatHelper.formatGraphMessage(sb.toString(), graphStatus.getUuid(), graphStatus.isInCleanDbBeforeProcessing());
 		} catch(Exception e) {
 			return message;
 		}

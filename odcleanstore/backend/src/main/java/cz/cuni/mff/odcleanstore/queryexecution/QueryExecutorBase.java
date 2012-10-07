@@ -59,7 +59,8 @@ import java.util.TreeSet;
      * If the value is null, there is now restriction on named graph URIs.
      * This constant is only for debugging purposes and should be null in production environment.
      */
-    protected static final String ENGINE_TEMP_GRAPH_PREFIX = ODCSInternal.engineTemporaryGraphPrefix;
+    // TODO FIX - now is newGraphPrefix and oldGraphPrefix! 
+    protected static final String ENGINE_TEMP_GRAPH_PREFIX = ODCSInternal.newGraphPrefix;
 
     /**
      * (Debug) Only named graph having URI starting with this prefix can be included in query result.

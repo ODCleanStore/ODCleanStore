@@ -25,14 +25,16 @@ class SQL {
 			+ " FROM ODCLEANSTORE.EN_INPUT_GRAPHS ig"
 			+ " LEFT JOIN ODCLEANSTORE.EN_ATTACHED_ENGINES ae ON ig.engineId = ae.id"
 			+ " LEFT JOIN ODCLEANSTORE.PIPELINES pi ON ig.pipelineId = pi.id"
-			+ " WHERE (ae.uuid = ? OR ae.uuid IS NULL) AND ig.stateId IN (%s,%s,%s,%s,%s)"
+			+ " WHERE (ae.uuid = ? OR ae.uuid IS NULL) AND ig.stateId IN (%s,%s,%s,%s,%s, %s, %s)"
 			+ "   AND (pi.isLocked = 0 OR pi.isLocked IS NULL)"
 			+ " ORDER BY ig.stateId, ig.updated",
 			GraphStates.DIRTY.toId(),
 			GraphStates.PROPAGATED.toId(),
 			GraphStates.DELETING.toId(),
 			GraphStates.PROCESSING.toId(),
-			GraphStates.PROCESSED.toId());
+			GraphStates.PROCESSED.toId(),
+			GraphStates.OLDGRAPHSPREFIXED.toId(),
+			GraphStates.NEWGRAPHSPREPARED.toId());
 	
 	static final String ERROR_SELECT_WORKING_GRAPH = "Error during selecting working graph";
 	

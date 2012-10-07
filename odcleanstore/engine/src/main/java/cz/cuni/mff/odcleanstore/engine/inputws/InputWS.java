@@ -16,8 +16,6 @@ import javax.jws.WebService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
-import cz.cuni.mff.odcleanstore.configuration.EngineConfig;
 import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
 import cz.cuni.mff.odcleanstore.engine.common.Utils;
@@ -140,7 +138,6 @@ public class InputWS implements IInputWS {
 	private void saveFiles(Metadata metadata, String payload) throws Exception {
 		String inputDirectory =  Engine.getCurrent().getDirtyDBImportExportDir();
 		
-		EngineConfig engineConfig = ConfigLoader.getConfig().getEngineGroup();
 		String dataGraphURI = ODCSInternal.dataGraphUriPrefix + metadata.uuid;
 		String metadataGraphURI = ODCSInternal.metadataGraphUriPrefix + metadata.uuid;
 		
