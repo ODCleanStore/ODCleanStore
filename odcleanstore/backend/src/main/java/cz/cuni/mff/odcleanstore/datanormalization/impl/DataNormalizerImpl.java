@@ -5,6 +5,7 @@ import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
+import cz.cuni.mff.odcleanstore.data.TableVersion;
 import cz.cuni.mff.odcleanstore.datanormalization.DataNormalizer;
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
 import cz.cuni.mff.odcleanstore.datanormalization.rules.DataNormalizationRule;
@@ -222,7 +223,7 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 	 * @return per graph specification of modifications
 	 * @throws TransformerException
 	 */
-	public List<GraphModification> debugRules (HashMap<String, String> graphs, TransformationContext context)
+	public List<GraphModification> debugRules (HashMap<String, String> graphs, TransformationContext context, TableVersion tableVersion)
 			throws TransformerException {
 		try {
 			Collection<String> originalGraphs = graphs.keySet();
@@ -249,7 +250,8 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 
 				GraphModification subResult = getGraphModifications(temporaryName,
 						context.getCleanDatabaseCredentials(),
-						context.getDirtyDatabaseCredentials());
+						context.getDirtyDatabaseCredentials(),
+						tableVersion);
 				subResult.setGraphName(originalName);
 
 				result.add(subResult);
@@ -428,7 +430,8 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 	 */
 	public GraphModification getGraphModifications(final String graphName,
 			final JDBCConnectionCredentials clean,
-			final JDBCConnectionCredentials source)
+			final JDBCConnectionCredentials source,
+			final TableVersion tableVersion)
 			throws TransformerException {
 		this.inputGraph = prepareInputGraph(graphName);
 		this.context = prepareContext(clean, source);
@@ -437,7 +440,7 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 
 		try
 		{
-			loadRules();
+			loadRules(tableVersion);
 
 			/**
 			 * Unlike during the transformation of graph running through the pipeline
@@ -458,7 +461,11 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 	 * @throws DataNormalizationException
 	 */
 	private void loadRules() throws DataNormalizationException {
-		DataNormalizationRulesModel model = new DataNormalizationRulesModel(context.getCleanDatabaseCredentials());
+		loadRules(TableVersion.COMMITTED);
+	}
+	
+	private void loadRules(TableVersion tableVersion) throws DataNormalizationException {
+		DataNormalizationRulesModel model = new DataNormalizationRulesModel(context.getCleanDatabaseCredentials(), tableVersion);
 
 		/**
 		 * Either IDs or Labels need to be specified
