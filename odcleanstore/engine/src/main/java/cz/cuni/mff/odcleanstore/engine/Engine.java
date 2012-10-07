@@ -12,10 +12,10 @@ import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
-import cz.cuni.mff.odcleanstore.engine.common.Utils;
 import cz.cuni.mff.odcleanstore.engine.inputws.InputWSService;
 import cz.cuni.mff.odcleanstore.engine.outputws.OutputWSService;
 import cz.cuni.mff.odcleanstore.engine.pipeline.PipelineService;
+import cz.cuni.mff.odcleanstore.shared.FileUtils;
 
 /**
  * @author Petr Jerman
@@ -242,10 +242,7 @@ public final class Engine {
 		try {
 			con = VirtuosoConnectionWrapper.createConnection(
 					ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
-			
-			WrappedResultSet resultSet = con.executeSelect("SELECT server_root()");
-			resultSet.next();
-			String path  = Utils.satisfyDirectory(cleanDBImportExportDir, resultSet.getString(1)) + File.separator;
+			String path  = FileUtils.satisfyDirectory(cleanDBImportExportDir, con.getServerRoot()) + File.separator;
 			return path.replace("\\", "/");
 		} catch (Exception e) {
 			throw new EngineException(e);
@@ -266,10 +263,7 @@ public final class Engine {
 		try {
 			con = VirtuosoConnectionWrapper.createConnection(
 					ConfigLoader.getConfig().getBackendGroup().getDirtyDBJDBCConnectionCredentials());
-			
-			WrappedResultSet resultSet = con.executeSelect("SELECT server_root()");
-			resultSet.next();
-			String path =  Utils.satisfyDirectory(dirtyDBImportExportDir, resultSet.getString(1)) + File.separator;
+			String path =  FileUtils.satisfyDirectory(dirtyDBImportExportDir, con.getServerRoot()) + File.separator;
 			return path.replace("\\", "/");
 		} catch (Exception e) {
 			throw new EngineException(e);

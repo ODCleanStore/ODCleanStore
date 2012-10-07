@@ -9,11 +9,11 @@ import org.slf4j.LoggerFactory;
 
 import cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
-import cz.cuni.mff.odcleanstore.engine.common.Utils;
 import cz.cuni.mff.odcleanstore.engine.db.model.PipelineCommand;
 import cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAggregatorImpl;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
+import cz.cuni.mff.odcleanstore.shared.FileUtils;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.Transformer;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
@@ -152,7 +152,7 @@ public class PipelineGraphTransformerExecutor {
 	    File file = new File(command.workDirPath, Integer.toString(command.transformerInstanceID));
 	    String path = file.getPath();
 		try {
-			return Utils.satisfyDirectory(path);
+			return FileUtils.satisfyDirectory(path);
 		} catch (Exception e) {
 			throw new PipelineGraphTransformerExecutorException(format(ERROR_WORKING_DIRECTORY_CHECK, command), command, e);
 		}
