@@ -1,7 +1,5 @@
 package cz.cuni.mff.odcleanstore.datanormalization.impl;
 
-import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
-import cz.cuni.mff.odcleanstore.configuration.DataNormalizationConfig;
 import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
@@ -226,8 +224,6 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 	 */
 	public List<GraphModification> debugRules (HashMap<String, String> graphs, TransformationContext context)
 			throws TransformerException {
-		DataNormalizationConfig config = ConfigLoader.getConfig().getDataNormalizationGroup();
-
 		try {
 			Collection<String> originalGraphs = graphs.keySet();
 
