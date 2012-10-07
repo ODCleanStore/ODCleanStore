@@ -18,12 +18,13 @@ import cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl.GraphM
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UploadButton;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 import cz.cuni.mff.odcleanstore.webfrontend.util.TemporaryGraphLoader;
 import cz.cuni.mff.odcleanstore.webfrontend.util.TemporaryGraphLoader.TemporaryGraph;
 
 @AuthorizeInstantiation({ Role.PIC })
-public class DNDebugPage extends FrontendPage 
+public class DNDebugPage extends LimitedEditingPage 
 {	
 	private static final long serialVersionUID = 1L;
 	protected static Logger logger = Logger.getLogger(DNDebugPage.class);
@@ -34,7 +35,9 @@ public class DNDebugPage extends FrontendPage
 	{
 		super(
 			"Home > Backend > DN > Groups > Debug", 
-			"Debug DN rule group"
+			"Debug DN rule group",
+			DNRulesGroupDao.class,
+			groupId
 		);
 			
 		// register page components
