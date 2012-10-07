@@ -16,6 +16,7 @@ import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationEx
 import cz.cuni.mff.odcleanstore.datanormalization.rules.DataNormalizationRulesModel;
 import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRulesModel;
+import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.Ontology;
@@ -28,7 +29,6 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "ONTOLOGIES";
 	private static final String OUTPUT_LANGUAGE = "RDF/XML-ABBREV";
-	private static final String ENCODING = "UTF-8";
 	private static final String RULE_GROUP_PREFIX = "Generated from ontology: ";
 	private static final String QA_MAPPING_TABLE_NAME = "QA_RULES_GROUPS_TO_ONTOLOGIES_MAP";
 	private static final String DN_MAPPING_TABLE_NAME = "DN_RULES_GROUPS_TO_ONTOLOGIES_MAP";
@@ -91,7 +91,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		String result = null;
 		try
 		{
-			result = stream.toString(ENCODING);
+			result = stream.toString(Utils.DEFAULT_ENCODING);
 		}
 		catch (UnsupportedEncodingException e)
 		{
