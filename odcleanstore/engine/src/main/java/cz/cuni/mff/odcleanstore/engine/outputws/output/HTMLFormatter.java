@@ -48,6 +48,7 @@ public class HTMLFormatter extends ResultFormatterBase {
     private static final String HTML_HEADER_COLOR = "FFE677";  
     private static final String HTML_EVEN_COLOR = "FFEEA6";  
     private static final String HTML_ODD_COLOR = "FFF5EC";
+    private static final String ENCODING = Utils.DEFAULT_ENCODING;
 
     private static final String[] PROPAGATED_QUERY_PARAMS = {
             QueryExecutorResourceBase.DEFAULT_AGGREGATION_PARAM,
@@ -137,9 +138,9 @@ public class HTMLFormatter extends ResultFormatterBase {
 
             try {
                 for (Entry<String, String> entry : queryParams.entrySet()) {
-                    result.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
+                    result.append(URLEncoder.encode(entry.getKey(), ENCODING));
                     result.append('=');
-                    result.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
+                    result.append(URLEncoder.encode(entry.getValue(), ENCODING));
                     result.append('&');
                 }
             } catch (UnsupportedEncodingException e) {
@@ -163,7 +164,7 @@ public class HTMLFormatter extends ResultFormatterBase {
             writer.write("<!DOCTYPE html>"
                     + "\n<html lang=\"en\">" 
                     + "\n<head>"
-                    + "\n <meta charset=\"utf-8\" />"
+                    + "\n <meta charset=\"" + ENCODING + "\" />"
                     + "\n <title>");
             writer.write(queryResult.getQueryType().toString());
             writer.write(" query</title>" 
@@ -400,7 +401,7 @@ public class HTMLFormatter extends ResultFormatterBase {
             StringBuilder result = new StringBuilder();
             result.append(outputWSConfig.getUriPath());
             result.append("?uri=");
-            result.append(URLEncoder.encode(uri, "UTF-8"));
+            result.append(URLEncoder.encode(uri, ENCODING));
             result.append("&");
             result.append(propagatedQueryString);
             return result.toString();
@@ -416,7 +417,7 @@ public class HTMLFormatter extends ResultFormatterBase {
             StringBuilder result = new StringBuilder();
             result.append(outputWSConfig.getKeywordPath());
             result.append("?kw=");
-            result.append(URLEncoder.encode(keyword, "UTF-8"));
+            result.append(URLEncoder.encode(keyword, ENCODING));
             result.append("&");
             result.append(propagatedQueryString);
             return result.toString();
@@ -432,7 +433,7 @@ public class HTMLFormatter extends ResultFormatterBase {
             StringBuilder result = new StringBuilder();
             result.append(outputWSConfig.getMetadataPath());
             result.append("?uri=");
-            result.append(URLEncoder.encode(namedGraphURI, "UTF-8"));
+            result.append(URLEncoder.encode(namedGraphURI, ENCODING));
             result.append("&format=HTML");
             return result.toString();
         }
@@ -447,7 +448,7 @@ public class HTMLFormatter extends ResultFormatterBase {
             StringBuilder result = new StringBuilder();
             result.append(outputWSConfig.getNamedGraphPath());
             result.append("?uri=");
-            result.append(URLEncoder.encode(namedGraphURI, "UTF-8"));
+            result.append(URLEncoder.encode(namedGraphURI, ENCODING));
             result.append("&format=HTML");
             return result.toString();
         }

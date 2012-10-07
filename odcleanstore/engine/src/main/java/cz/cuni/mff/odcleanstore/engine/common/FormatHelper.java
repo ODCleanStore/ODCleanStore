@@ -89,9 +89,13 @@ public class FormatHelper {
 		}
 	}
 	
-	public static String formatGraphMessage(String message, String graphUuid, Object... args) {
+	public static String formatGraphMessage(String message, String graphUuid, boolean isInCleanDB, Object... args) {
 		try {
-			return String.format("%s for graph %s", String.format(message, args), graphUuid);
+			if (isInCleanDB) {
+				return String.format("%s for existing graph %s", String.format(message, args), graphUuid);
+			} else {
+				return String.format("%s for new graph %s", String.format(message, args), graphUuid);
+			}
 		} catch(Exception ie) {
 			return  message;
 		}

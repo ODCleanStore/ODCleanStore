@@ -30,6 +30,7 @@ public final class PipelineGraphStatus {
     private GroupRule[] dnRules = null;
     private GroupRule[] oiRules = null;
     private boolean markedForDeleting = false;
+    private boolean isInCleanDbBeforeProcessing = false;
 
     private static final Object lockForGetNextGraphForPipeline = new Object();
 
@@ -89,6 +90,7 @@ public final class PipelineGraphStatus {
 
     private PipelineGraphStatus(DbOdcsContext context, Graph dbGraph) throws Exception {
         this.graph = dbGraph;
+        this.isInCleanDbBeforeProcessing = dbGraph.isInCleanDb;
         this.attachedGraphs = context.selectAttachedGraphs(dbGraph.id);
         pipeline = graph.pipeline != null ? graph.pipeline : context.selectDefaultPipeline();
         if (pipeline == null) {
@@ -110,6 +112,10 @@ public final class PipelineGraphStatus {
 
     boolean isInCleanDb() {
         return graph.isInCleanDb;
+    }
+    
+    boolean isInCleanDbBeforeProcessing() {
+        return isInCleanDbBeforeProcessing;
     }
 
     Integer getPipelineId() {
@@ -158,7 +164,7 @@ public final class PipelineGraphStatus {
             if (state == GraphStates.DELETED || (state == GraphStates.WRONG && !graph.isInCleanDb)) {
                 context.deleteAttachedGraphs(graph.id);
             }
-            if (state == GraphStates.PROPAGATED) {
+            if (state == GraphStates.NEWGRAPHSPREPARED) {
                 context.updateStateAndIsInCleanDb(graph.id, state, true);
             } else if (state == GraphStates.DELETING) {
                 context.updateStateAndIsInCleanDb(graph.id, state, false);
@@ -173,7 +179,7 @@ public final class PipelineGraphStatus {
             if (state == GraphStates.DELETED || (state == GraphStates.WRONG && !graph.isInCleanDb)) {
                 attachedGraphs.clear();
             }
-            if (state == GraphStates.PROPAGATED) {
+            if (state == GraphStates.NEWGRAPHSPREPARED) {
                 graph.isInCleanDb = true;
             }
             else if (state == GraphStates.DELETING) {
@@ -242,7 +248,7 @@ public final class PipelineGraphStatus {
 
     private String format(String message, GraphStates state) {
         try {
-            return FormatHelper.formatGraphMessage(message + " " + state.toString(), graph.uuid);
+            return FormatHelper.formatGraphMessage(message + " " + state.toString(), graph.uuid, isInCleanDbBeforeProcessing);
         } catch (Exception e) {
             return message;
         }
@@ -251,7 +257,7 @@ public final class PipelineGraphStatus {
 
     private String format(String message) {
         try {
-            return FormatHelper.formatGraphMessage(message, graph.uuid);
+            return FormatHelper.formatGraphMessage(message, graph.uuid, isInCleanDbBeforeProcessing);
         } catch (Exception e) {
             return message;
         }

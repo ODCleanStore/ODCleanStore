@@ -1,35 +1,40 @@
 package cz.cuni.mff.odcleanstore.engine.pipeline;
 
-import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
-import cz.cuni.mff.odcleanstore.configuration.EngineConfig;
-import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
-import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
-import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
-import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
-import cz.cuni.mff.odcleanstore.engine.Engine;
-import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
-import cz.cuni.mff.odcleanstore.shared.Utils;
-import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
-import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
+import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
+import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
+import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
+import cz.cuni.mff.odcleanstore.engine.Engine;
+import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 /**
  *  @author Petr Jerman
  */
 final class PipelineGraphManipulator {
 	
-	private static final String ERROR_DELETE_INPUT_FILE = "deleting input file";
-	private static final String ERROR_INPUT_FILE_STILL_EXIST = ERROR_DELETE_INPUT_FILE + ", file still exists";
-	private static final String ERROR_DELETE_GRAPHS_FROM_DIRTYDB = "deleting graphs from dirty db";
-	private static final String ERROR_DELETE_GRAPHS_FROM_CLEANDB = "deleting graphs from clean db";
-	// private static final String ERROR_DELETE_TEMP_GRAPHS_FROM_CLEANDB = "deleting temporary graphs from clean db";
-	private static final String ERROR_REPLACE_GRAPHS_IN_CLEANDB = "replacing graphs in clean db from dirty db";
+	private static final String ERROR_DELETE_INPUT_FILES = "deleting input files";
+	private static final String ERROR_DELETE_FILE = "deleting file";
+	private static final String ERROR_FILE_STILL_EXIST = ERROR_DELETE_FILE + ", file %s still exists";
+	private static final String ERROR_CLEAR_GRAPHS_IN_DIRTYDB = "clearing graphs in dirty db";
+	private static final String ERROR_COPY_NEW_GRAPHS_TO_CLEANDB = "copying new graphs from dirty db to clean db";
+	private static final String ERROR_RENAMING_OLD_GRAPHS_IN_CLEANDB = "renaming old graphs in clean db";
+	private static final String ERROR_RENAMING_NEW_GRAPHS_IN_CLEANDB = "renaming new graphs in clean db";
+	private static final String ERROR_CLEAR_OLD_GRAPHS_IN_CLEANDB = "clearing old graphs in clean db";
+	private static final String ERROR_CLEAR_NEW_GRAPHS_IN_CLEANDB = "clearing new graphs in clean db";
+	private static final String ERROR_CLEAR_GRAPHS_IN_CLEANDB = "clearing graphs in clean db";
 	private static final String ERROR_LOAD_GRAPHS_FROM_FILE = "loading graphs into clean db from input files";
 	private static final String ERROR_LOAD_METADATAGRAPH_FROM_FILE = "loading metadatagraph (-m.ttl) into clean db from input file";
 	private static final String ERROR_LOAD_METADATAGRAPH_DATABASE_URL = "loaded metadatagraph not contains databaseurl";
@@ -43,144 +48,181 @@ final class PipelineGraphManipulator {
 		this.graphStatus = graphStatus;
 	}
 	
-	void deleteInputFile() throws PipelineGraphManipulatorException {
-		String inputDirPath = null;
-		File inputFile = null;
-		boolean hasError = false;
+	void deleteInputFiles() {
 		try {
-			inputDirPath = Engine.getCurrent().getDirtyDBImportExportDir();
+			String inputDirPath = Engine.getCurrent().getDirtyDBImportExportDir();
 
-			inputFile = new File(inputDirPath, graphStatus.getUuid() + ".rdf");
-			if (!inputFile.delete() && inputFile.exists()) {
-				hasError = true;
-			}
-			inputFile = new File(inputDirPath, graphStatus.getUuid() + ".ttl");
-			if (!inputFile.delete() && inputFile.exists()) {
-				hasError = true;
-			}
-			inputFile = new File(inputDirPath, graphStatus.getUuid() + "-m.rdf");
-			if (!inputFile.delete() && inputFile.exists()) {
-				hasError = true;
-			}
-			inputFile = new File(inputDirPath, graphStatus.getUuid() + "-m.ttl");
-			if (!inputFile.delete() && inputFile.exists()) {
-				hasError = true;
-			}
-			inputFile = new File(inputDirPath, graphStatus.getUuid() + "-pvm.rdf");
-			if (!inputFile.delete() && inputFile.exists()) {
-				hasError = true;
-			}
-			inputFile = new File(inputDirPath, graphStatus.getUuid() + "-pvm.ttl");
-			if (!inputFile.delete() && inputFile.exists()) {
-				hasError = true;
-			}
-			
-			if(hasError) {
-				LOG.error(format(ERROR_INPUT_FILE_STILL_EXIST));
-				createDeletionMarkFile(inputDirPath);	
-			}
+			safeDeleteFile(inputDirPath,  graphStatus.getUuid() + "-d.rdf");
+			safeDeleteFile(inputDirPath,  graphStatus.getUuid() + "-d.ttl");
+			safeDeleteFile(inputDirPath,  graphStatus.getUuid() + "-m.rdf");
+			safeDeleteFile(inputDirPath,  graphStatus.getUuid() + "-m.ttl");
+			safeDeleteFile(inputDirPath,  graphStatus.getUuid() + "-pvm.rdf");
+			safeDeleteFile(inputDirPath,  graphStatus.getUuid() + "-pvm.ttl");
 		}
 		catch(Exception e) {
-			LOG.error(format(ERROR_DELETE_INPUT_FILE));
-			createDeletionMarkFile(inputDirPath);
+			LOG.error(format(ERROR_DELETE_INPUT_FILES));
 		}
 	}
 	
-	private void createDeletionMarkFile(String inputDirPath) {
-		try {
-			if (inputDirPath != null) {
-				File file = new File(inputDirPath, graphStatus.getUuid() + "-forDeletionMark");
-				file.createNewFile();
-			}
-		} catch(Exception e) {}
-	}
-	
-	void clearGraphsInDirtyDB() throws PipelineGraphManipulatorException {
-		try {
-			clearGraphsFromDB(false, false);
-		} catch(Exception e) {
-			throw new PipelineGraphManipulatorException(format(ERROR_DELETE_GRAPHS_FROM_DIRTYDB), e);
-		}
-	}
-	
-	void clearGraphsInCleanDB() throws PipelineGraphManipulatorException {
-		try {
-			clearGraphsFromDB(true, true);
-			clearGraphsFromDB(true, false);
-		} catch(Exception e) {
-			throw new PipelineGraphManipulatorException(format(ERROR_DELETE_GRAPHS_FROM_CLEANDB), e);
-		}
-	}
-	
-	// TODO must be refactored!
-	void replaceGraphsInCleanDBFromDirtyDB() throws PipelineGraphManipulatorException {
-		//		// delete temporary graphs in clean DB
-		//		try {
-		//		deleteGraphsFromDB(true, true);
-		//		} catch(Exception e) {
-		//		throw new PipelineGraphManipulatorException(format(ERROR_DELETE_TEMP_GRAPHS_FROM_CLEANDB), e);
-		//		}
-			
-		// copy graphs from dirty to clean DB
+	void copyNewGraphsFromDirtyToCleanDB() throws PipelineGraphManipulatorException {
 		try {
 			String[] graphs = getAllGraphNames();
 				
-			for (String graphName : graphs) {
-					
+			for (int i = graphs.length - 1; i >= 0; i--) {
+				VirtuosoConnectionWrapper dirtyConnection = null;
+				VirtuosoConnectionWrapper cleanConnection = null;	
+				OutputStreamWriter out = null;
 				File srcFile = null;
 				File dstFile = null;
-				OutputStreamWriter out = null;
-				VirtuosoConnectionWrapper dirtyConnection = null;
-				VirtuosoConnectionWrapper cleanConnection = null;
 				try {
-					String tempFileName = Utils.extractUUID(graphName) + "-temp.ttl";
+					String destGraph = ODCSInternal.newGraphPrefix + graphs[i];
+					String tempFileName = generateRandomFileNameForGraph();
 					srcFile = new File(Engine.getCurrent().getDirtyDBImportExportDir(), tempFileName);
 					dstFile = new File(Engine.getCurrent().getCleanDBImportExportDir(), tempFileName);
-					srcFile.delete();
-					dstFile.delete();
-						
-					// String destGraph = ODCS.engineTemporaryGraph + "/" + graphName;
 
 					dirtyConnection = createDirtyConnection();
-					String query = "CALL dump_graph_ttl('" + graphName + "', '" + srcFile.getAbsolutePath().replace("\\", "/") + "')";
+					LOG.info(String.format("Dumping data from dirty db to ttl temporary file for graph %s", graphs[i]));
+					String query = "CALL dump_graph_ttl('" + graphs[i] + "', '" + srcFile.getAbsolutePath().replace("\\", "/") + "')";
 					dirtyConnection.execute(query);
 					    
 					// move file if neccessary
 					if(!srcFile.getCanonicalFile().equals(dstFile.getCanonicalFile())) {
 						srcFile.renameTo(dstFile);
 					}
+					
 					cleanConnection = createCleanConnection();
-					cleanConnection.clearGraph(graphName);
-					query = "DB.DBA.TTLP (file_to_string_output ('" + dstFile.getAbsolutePath().replace("\\", "/") + "'), '" + graphName + "', '" + graphName + "',0)";
+					LOG.info(String.format("Loading data from ttl temporary file to clean db for graph %s", graphs[i]));
+					query = "DB.DBA.TTLP (file_to_string_output (" +
+							"'" + dstFile.getAbsolutePath().replace("\\", "/") + "'), '" + graphs[i] + "', '" +
+							destGraph + "', 0)";
 				    cleanConnection.execute(query);
 				} finally {
-					if (srcFile != null) {
-						srcFile.delete();
-					}
-					if (dstFile != null) {
-						dstFile.delete();
-					}
-				    if (out != null) {
-				        out.close();
-				    }
 				    if (dirtyConnection != null) {
 				    	dirtyConnection.closeQuietly();
 				    }
 				    if (cleanConnection != null) {
 				    	cleanConnection.closeQuietly();
 				    }
+				    if (out != null) {
+				    	try { out.close(); } catch(Exception e) {}
+				    }
+					if (srcFile != null) {
+						safeDeleteFile(srcFile);
+					}
+					if (dstFile != null) {
+						safeDeleteFile(dstFile);
+					}
 				}
 			}
-
-			// transactional processing - delete graph and replace it with temporary graphs in clean DB
-			// VirtuosoJdbcConnectionForRdf con = VirtuosoJdbcConnectionForRdf.createCleanDbConnection();
-			// for (String graphName : graphs) {
-				// con.renameGraph(ODCS.engineTemporaryGraph + "/" + graphName, graphName);
-				// con.commit();
-			// }
-			
 		} catch(Exception e) { 
-			throw new PipelineGraphManipulatorException(format(ERROR_REPLACE_GRAPHS_IN_CLEANDB), e);
+			throw new PipelineGraphManipulatorException(format(ERROR_COPY_NEW_GRAPHS_TO_CLEANDB), e);
+		}
+	}
+	
+	void renameGraphsToOldGraphsInCleanDB() throws PipelineGraphManipulatorException {
+		renameGraphsInCleanDB(null , ODCSInternal.oldGraphPrefix, ERROR_RENAMING_OLD_GRAPHS_IN_CLEANDB, false); 
+	}
+	
+	void renameNewGraphsToGraphsInCleanDB()	throws PipelineGraphManipulatorException {
+		renameGraphsInCleanDB(ODCSInternal.newGraphPrefix,  null, ERROR_RENAMING_NEW_GRAPHS_IN_CLEANDB, true);
+	}
+
+	private void renameGraphsInCleanDB(String srcPrefix, String dstPrefix, String errorMessage, boolean descendingDirection)
+			throws PipelineGraphManipulatorException {
+
+		try {
+			String[] graphs = getAllGraphNames();
+			if (descendingDirection) {
+				for (int i = graphs.length - 1; i >= 0;  i--) { 
+					renameGraphInCleanDB(srcPrefix, dstPrefix, graphs[i]); 
+				}
+			} else {
+				for (int i = 0; i < graphs.length;  i++) {
+					renameGraphInCleanDB(srcPrefix, dstPrefix, graphs[i]); 
+				}
+			}
+		} catch(Exception e) { 
+			throw new PipelineGraphManipulatorException(format(errorMessage), e);
+		}
+	}
+	
+	private void renameGraphInCleanDB(String srcPrefix, String dstPrefix, String graph)
+			throws ConnectionException, QueryException {
+
+		VirtuosoConnectionWrapper cleanConnection = null;	
+		try {
+			cleanConnection = createCleanConnection();
+			String srcGraph = (srcPrefix == null ? "" : srcPrefix) + graph;
+			String dstGraph = (dstPrefix == null ? "" : dstPrefix) + graph;
+			cleanConnection.renameGraph(srcGraph, dstGraph);
+		} finally {
+		    if (cleanConnection != null) {
+		    	cleanConnection.closeQuietly();
+		    }
+		}
+	}
+	
+	void clearGraphsInDirtyDB() throws PipelineGraphManipulatorException {
+		try {
+			String[] graphs = getAllGraphNames();
+			for (String graphName : graphs) {
+				VirtuosoConnectionWrapper dirtyConnection = null;	
+				try {
+					dirtyConnection = createDirtyConnection();
+					dirtyConnection.clearGraph(graphName);
+				} finally {
+				    if (dirtyConnection != null) {
+				    	dirtyConnection.closeQuietly();
+				    }
+				}
+			}
+		} catch(Exception e) { 
+			throw new PipelineGraphManipulatorException(format(ERROR_CLEAR_GRAPHS_IN_DIRTYDB), e);
+		}
+	}
+	
+	void clearOldGraphsInCleanDB() throws PipelineGraphManipulatorException {
+		clearGraphsInCleanDB(ODCSInternal.oldGraphPrefix, ERROR_CLEAR_OLD_GRAPHS_IN_CLEANDB, false);
+	}
+	
+	void clearNewGraphsInCleanDB() throws PipelineGraphManipulatorException {
+		clearGraphsInCleanDB(ODCSInternal.newGraphPrefix, ERROR_CLEAR_NEW_GRAPHS_IN_CLEANDB, false);
+	}
+	
+	void clearGraphsInCleanDB() throws PipelineGraphManipulatorException {
+		clearGraphsInCleanDB(null, ERROR_CLEAR_GRAPHS_IN_CLEANDB, false);
+	}
+	
+	private void clearGraphsInCleanDB(String prefix, String errorMessage, boolean descendingDirection)
+			throws PipelineGraphManipulatorException {
+		
+		try {
+			String[] graphs = getAllGraphNames();
+			if (descendingDirection) {
+				for (int i = graphs.length - 1; i >= 0;  i--) { 
+					clearGraphInCleanDB(prefix, graphs[i]); 
+				}
+			} else {
+				for (int i = 0; i < graphs.length;  i++) {
+					clearGraphInCleanDB(prefix, graphs[i]); 
+				}
+			}
+		} catch(Exception e) { 
+			throw new PipelineGraphManipulatorException(format(errorMessage), e);
+		}
+	}
+	
+	private void clearGraphInCleanDB(String prefix, String graph)
+			throws ConnectionException, QueryException {
+		VirtuosoConnectionWrapper cleanConnection = null;	
+		try {
+			cleanConnection = createCleanConnection();
+			String clearedGraph = (prefix == null ? "" : prefix) + graph;
+			cleanConnection.clearGraph(clearedGraph);
+		} finally {
+		    if (cleanConnection != null) {
+		    	cleanConnection.closeQuietly();
+		    }
 		}
 	}
 	
@@ -195,32 +237,10 @@ final class PipelineGraphManipulator {
 				errorMessage = ERROR_LOAD_GRAPHS_FROM_FILE;
 				loadGraphsIntoDirtyDBFromInputFile();
 			}
+			LOG.info(format("Data succefully loaded to dirty database"));
 		}
 		catch(Exception e) {
 			throw new PipelineGraphManipulatorException(format(errorMessage), e);
-		}
-	}
-	
-	private void clearGraphsFromDB(boolean fromCleanDB, boolean temporaryGraphs) throws Exception  {
-		VirtuosoConnectionWrapper con = null;
-		try {
-			String[] graphs = getAllGraphNames();
-			con = fromCleanDB ? 
-					createCleanConnection():
-					createDirtyConnection();
-			con.setQueryTimeout(0);					
-			for (int i= 0; i<graphs.length; i++) {
-				if (temporaryGraphs) {
-					graphs[i] = ODCSInternal.engineTemporaryGraphPrefix + graphs[i]; 
-				}
-				con.clearGraph(graphs[i]);
-			}
-			con.commit();
-		} 
-		finally {
-			if (con != null) {
-				con.closeQuietly();
-			}
 		}
 	}
 	
@@ -228,7 +248,6 @@ final class PipelineGraphManipulator {
 		String inputDirPath = Engine.getCurrent().getDirtyDBImportExportDir();
 		String uuid = graphStatus.getUuid();
 		
-		EngineConfig engineConfig = ConfigLoader.getConfig().getEngineGroup();		
 		String dataGraphURI = ODCSInternal.dataGraphUriPrefix + uuid;
 		String metadataGraphURI = ODCSInternal.metadataGraphUriPrefix + uuid;
 		String provenanceGraphURI = ODCSInternal.provenanceMetadataGraphUriPrefix + uuid;
@@ -240,8 +259,9 @@ final class PipelineGraphManipulator {
 			con = createDirtyConnection();
 			
 			try {
+				LOG.info(format("Loading metadata from ttl input file"));
 				con.insertTtlFromFile("", inputDirPath + uuid + "-m.ttl", metadataGraphURI);
-				LOG.info(format("Metadata loaded from ttl input file"));
+				
 			} catch (Exception e) {
 				throw new PipelineGraphManipulatorException(format(ERROR_LOAD_METADATAGRAPH_FROM_FILE), e);
 			}
@@ -253,26 +273,27 @@ final class PipelineGraphManipulator {
 			} catch (Exception e) {
 				throw new PipelineGraphManipulatorException(format(ERROR_LOAD_METADATAGRAPH_DATABASE_URL), e);
 			}
-					
 			if (new File(inputDirPath, uuid + "-pvm.rdf").exists()) {
+				LOG.info(format("Loading provenance metadata from rdfxml input file"));
 				con.insertRdfXmlFromFile(dataBaseUrl, inputDirPath + uuid + "-pvm.rdf", provenanceGraphURI);
 				con.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.provenanceMetadataGraph + ">", "<" + provenanceGraphURI + ">", metadataGraphURI);
-				LOG.info(format("Provenance metadata loaded from rdfxml input file"));
+				
 			}
 			if (new File(inputDirPath, uuid + "-pvm.ttl").exists()) {
+				LOG.info(format("Loading provenance metadata from ttl input file"));
 				con.insertTtlFromFile(dataBaseUrl, inputDirPath + uuid + "-pvm.ttl", provenanceGraphURI);
 				con.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.provenanceMetadataGraph + ">", "<" + provenanceGraphURI + ">", metadataGraphURI);
-				LOG.info(format("Provenance metadata loaded from ttl input file"));
+				
 			}
-			if (new File(inputDirPath, uuid + ".rdf").exists()) {
-				con.insertRdfXmlFromFile(dataBaseUrl, inputDirPath + uuid + ".rdf", dataGraphURI);
-				LOG.info(format("Data loaded from rdf input file"));
+			if (new File(inputDirPath, uuid + "-d.rdf").exists()) {
+				LOG.info(format("Loading data from rdf input file"));
+				con.insertRdfXmlFromFile(dataBaseUrl, inputDirPath + uuid + "-d.rdf", dataGraphURI);
+				
 			}
-			if (new File(inputDirPath, uuid + ".ttl").exists()) {
-				con.insertTtlFromFile(dataBaseUrl, inputDirPath + uuid + ".ttl", dataGraphURI);
-				LOG.info(format("Data loaded from ttl input file"));
+			if (new File(inputDirPath, uuid + "-d.ttl").exists()) {
+				LOG.info(format("Loading data from ttl input file"));
+				con.insertTtlFromFile(dataBaseUrl, inputDirPath + uuid + "-d.ttl", dataGraphURI);
 			}
-			con.commit();
 		} finally {
 			if (con != null) {
 				con.closeQuietly();
@@ -292,13 +313,12 @@ final class PipelineGraphManipulator {
 				VirtuosoConnectionWrapper cleanConnection = null;
 				VirtuosoConnectionWrapper dirtyConnection = null;
 				try {
-					String tempFileName = Utils.extractUUID(graphName) + "-temp.ttl";
+					String tempFileName = generateRandomFileNameForGraph();
 					srcFile = new File(Engine.getCurrent().getCleanDBImportExportDir(), tempFileName);
 					dstFile = new File(Engine.getCurrent().getDirtyDBImportExportDir(), tempFileName);
-					srcFile.delete();
-					dstFile.delete();
 						
 					cleanConnection = createCleanConnection();
+					LOG.info(String.format("Dumping data from clean db to ttl temporary file for graph %s", graphName));
 					String query = "CALL dump_graph_ttl('" + graphName + "', '" + srcFile.getAbsolutePath().replace("\\", "/") + "')";
 					cleanConnection.execute(query);
 					    
@@ -307,48 +327,33 @@ final class PipelineGraphManipulator {
 						srcFile.renameTo(dstFile);
 					}
 					dirtyConnection = createDirtyConnection();
-					dirtyConnection.clearGraph(graphName);
+					LOG.info(String.format("Loading data from ttl temporary file to dirty db for graph %s", graphName));
 					query = "DB.DBA.TTLP (file_to_string_output ('" + dstFile.getAbsolutePath().replace("\\", "/") + "'), '" + graphName + "', '" + graphName + "',0)";
 				    dirtyConnection.execute(query);
 				} finally {
-					if (cleanConnection != null) {
-				    	cleanConnection.closeQuietly();
-				    }
 				    if (dirtyConnection != null) {
 				    	dirtyConnection.closeQuietly();
 				    }
+				    if (cleanConnection != null) {
+				    	cleanConnection.closeQuietly();
+				    }
+				    if (out != null) {
+				    	try { out.close(); } catch(Exception e) {}
+				    }
 					if (srcFile != null) {
-						srcFile.delete();
+						safeDeleteFile(srcFile);
 					}
 					if (dstFile != null) {
-						dstFile.delete();
+						safeDeleteFile(dstFile);
 					}
-				    if (out != null) {
-				        out.close();
-				    }
 				}
 			}
 		} catch(Exception e) { 
 			throw new PipelineGraphManipulatorException(format(ERROR_LOAD_GRAPHS_FROM_CLEAN_DB), e);
 		}
 	}
-	
-	private VirtuosoConnectionWrapper createDirtyConnection() throws ConnectionException {
-		JDBCConnectionCredentials credit = ConfigLoader.getConfig().getEngineGroup().getDirtyDBJDBCConnectionCredentials();
-		VirtuosoConnectionWrapper con = VirtuosoConnectionWrapper.createConnection(credit);
-		con.setQueryTimeout(0);
-		return con;
-	}
-	
-	private VirtuosoConnectionWrapper createCleanConnection() throws ConnectionException {
-		JDBCConnectionCredentials credit = ConfigLoader.getConfig().getEngineGroup().getCleanDBJDBCConnectionCredentials();
-		VirtuosoConnectionWrapper con = VirtuosoConnectionWrapper.createConnection(credit);
-		con.setQueryTimeout(0);
-		return con;
-	}
-	
+
 	private String[] getAllGraphNames() {
-		EngineConfig engineConfig = ConfigLoader.getConfig().getEngineGroup();
 		String uuid = graphStatus.getUuid();
 		
 		ArrayList<String> graphs = new ArrayList<String>();
@@ -359,9 +364,59 @@ final class PipelineGraphManipulator {
 		return graphs.toArray(new String[0]);
 	}
 		
+	private void safeDeleteFile(String dirPath, String fileName) {
+		try {
+			if(dirPath == null) {
+				LOG.debug("dirPath is null");
+			}
+			if(fileName == null) {
+				LOG.debug("fileName is null");
+			}
+			File file = new File(dirPath, fileName);
+			safeDeleteFile(file);
+		} catch(Exception e) {
+			LOG.error(format(ERROR_DELETE_FILE));
+		}
+	}
+
+	// TODO add logging for service application (will be created) !!!	
+	private void safeDeleteFile(File file) {
+		try {
+			if(file == null) {
+				LOG.debug("file is null");
+			}
+			if (!file.delete() && file.exists()) {
+				String message = String.format(ERROR_FILE_STILL_EXIST, file.getName());
+				LOG.error(format(message));
+			}
+		} catch(Exception e) {
+			LOG.error(format(ERROR_DELETE_FILE));
+		}
+	}
+	
+	private String generateRandomFileNameForGraph() {
+		return graphStatus.getUuid() + "-" + UUID.randomUUID() + "-temp.ttl";
+	}
+	
+	private VirtuosoConnectionWrapper createDirtyConnection() throws ConnectionException {
+		JDBCConnectionCredentials credit = ConfigLoader.getConfig().getEngineGroup().getDirtyDBJDBCConnectionCredentials();
+		VirtuosoConnectionWrapper con = VirtuosoConnectionWrapper.createConnection(credit);
+		con.adjustTransactionLevel(EnumLogLevel.STATEMENT_LEVEL, true);
+		con.setQueryTimeout(0);
+		return con;
+	}
+	
+	private VirtuosoConnectionWrapper createCleanConnection() throws ConnectionException {
+		JDBCConnectionCredentials credit = ConfigLoader.getConfig().getEngineGroup().getCleanDBJDBCConnectionCredentials();
+		VirtuosoConnectionWrapper con = VirtuosoConnectionWrapper.createConnection(credit);
+		con.adjustTransactionLevel(EnumLogLevel.STATEMENT_LEVEL, true);
+		con.setQueryTimeout(0);
+		return con;
+	}
+		
 	private String format(String message) {
 		try {
-			return FormatHelper.formatGraphMessage(message, graphStatus.getUuid());
+			return FormatHelper.formatGraphMessage(message, graphStatus.getUuid(), graphStatus.isInCleanDbBeforeProcessing());
 		} catch(Exception e) {
 			return message;
 		}

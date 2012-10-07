@@ -311,8 +311,8 @@ public final class VirtuosoConnectionWrapper {
      */
     public void renameGraph(String srcGraphName, String dstGraphName) throws QueryException {
         execute("UPDATE DB.DBA.RDF_QUAD TABLE OPTION (index RDF_QUAD_GS)"
-                + " SET g = iri_to_id ('?')"
-                + " WHERE g = iri_to_id ('?', 0);", dstGraphName, srcGraphName);
+                + " SET g = iri_to_id (?)" 
+                + " WHERE g = iri_to_id (?, 0)", dstGraphName, srcGraphName);
     }
 
     /**

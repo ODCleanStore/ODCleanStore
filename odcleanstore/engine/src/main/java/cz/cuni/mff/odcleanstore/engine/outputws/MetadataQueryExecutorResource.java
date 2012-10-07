@@ -60,7 +60,8 @@ public class MetadataQueryExecutorResource extends QueryExecutorResourceBase {
         Config config = ConfigLoader.getConfig();
         GraphScoreWithTrace qaResult = null;
         String graphUuid = Utils.extractUUID(namedGraphURI);
-        if (graphUuid != null && !namedGraphURI.startsWith(ODCSInternal.engineTemporaryGraphPrefix)) {
+        // TODO FIX - now is newGraphPrefix and oldGraphPrefix not!
+        if (graphUuid != null && !namedGraphURI.startsWith(ODCSInternal.newGraphPrefix)) {
             JDBCConnectionCredentials connectionCredentials =
                     config.getQueryExecutionGroup().getCleanDBJDBCConnectionCredentials();
             Integer[] qaGroupIDs = qaRuleGroupsForGraph(graphUuid, connectionCredentials);

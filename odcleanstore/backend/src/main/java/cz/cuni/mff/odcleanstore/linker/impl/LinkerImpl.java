@@ -10,6 +10,7 @@ import cz.cuni.mff.odcleanstore.data.RDFprefix;
 import cz.cuni.mff.odcleanstore.linker.Linker;
 import cz.cuni.mff.odcleanstore.linker.rules.SilkRule;
 import cz.cuni.mff.odcleanstore.shared.RDFPrefixesLoader;
+import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraphException;
@@ -305,7 +306,7 @@ public class LinkerImpl implements Linker {
 		File file = new File(createFileName("", targetDirectory, DEBUG_INPUT_FILENAME));
 		PrintWriter writer = null;
 		try {
-			writer = new PrintWriter(file, "UTF-8");
+			writer = new PrintWriter(file, Utils.DEFAULT_ENCODING);
 			writer.write(input);
 		} catch (FileNotFoundException e) {
 			throw new TransformerException(e);
