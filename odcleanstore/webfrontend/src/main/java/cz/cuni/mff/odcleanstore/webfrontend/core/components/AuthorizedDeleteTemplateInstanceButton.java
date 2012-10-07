@@ -1,8 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.core.components;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.CompiledDNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNTemplateInstance;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.CompiledDNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
