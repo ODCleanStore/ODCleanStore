@@ -7,6 +7,7 @@ import java.util.Set;
 
 import cz.cuni.mff.odcleanstore.configuration.BackendConfig;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
@@ -79,7 +80,7 @@ public class QualityAssessmentRulesModel {
 	private static final String deleteRulesByOntology = "DELETE FROM DB.ODCLEANSTORE.QA_RULES WHERE groupId IN " +
 			"(SELECT groupId FROM DB.ODCLEANSTORE.QA_RULES_GROUPS_TO_ONTOLOGIES_MAP WHERE ontologyId = ?)";
 	private static final String deleteMapping = "DELETE FROM DB.ODCLEANSTORE.QA_RULES_GROUPS_TO_ONTOLOGIES_MAP WHERE groupId = ? AND ontologyId = ? ";
-	private static final String insertRule = "INSERT INTO DB.ODCLEANSTORE.QA_RULES (groupId, filter, coefficient, description) VALUES (?, ?, ?, ?)";
+	private static final String insertRule = "INSERT INTO DB.ODCLEANSTORE.QA_RULES%s (groupId, filter, coefficient, description) VALUES (?, ?, ?, ?)";
 	private static final String mapGroupToOntology = "INSERT INTO DB.ODCLEANSTORE.QA_RULES_GROUPS_TO_ONTOLOGIES_MAP (groupId, ontologyId) VALUES (?, ?)";
 
 	private static final Logger LOG = LoggerFactory.getLogger(QualityAssessmentRulesModel.class);
@@ -367,10 +368,19 @@ public class QualityAssessmentRulesModel {
 	
 	private void storeRule (QualityAssessmentRule rule, String ontology) throws QualityAssessmentException {
 		try{
-			getCleanConnection().execute(insertRule, rule.getGroupId(), rule.getFilter(), rule.getCoefficient(), rule.getDescription());
+			getCleanConnection().adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL, false);
+
+			getCleanConnection().execute(String.format(insertRule, ""), rule.getGroupId(), rule.getFilter(), rule.getCoefficient(), rule.getDescription());
+			getCleanConnection().execute(String.format(insertRule, "_UNCOMMITTED"), rule.getGroupId(), rule.getFilter(), rule.getCoefficient(), rule.getDescription());
+			
+			getCleanConnection().commit();
 			
 			LOG.info("Generated quality assessment rule from ontology " + ontology);
 		} catch (DatabaseException e) {
+			LOG.error("Could not store Quality Assessment rule generated from ontology");
+			throw new QualityAssessmentException(e);
+		} catch (SQLException e) {
+			LOG.error("Could not store Quality Assessment rule generated from ontology");
 			throw new QualityAssessmentException(e);
 		}
 	}

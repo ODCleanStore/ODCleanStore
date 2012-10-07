@@ -100,9 +100,9 @@ public class DataNormalizationRulesModel {
 	private static final String insertConvertedDatePropertyValueFormat = "{?s <%s> ?x} WHERE {GRAPH $$graph$$ {SELECT ?s <%s>(str(?o)) AS ?x WHERE {?s <%s> ?o}}}";
 	private static final String deleteUnconvertedDatePropertyValueFormat = "{?s <%s> ?o} WHERE {GRAPH $$graph$$ {?s <%s> ?o. FILTER (?o != <%s>(str(?o)))}}";
 
-	private static final String insertRule = "INSERT INTO DB.ODCLEANSTORE.DN_RULES (groupId, description) VALUES (?, ?)";
+	private static final String insertRule = "INSERT INTO DB.ODCLEANSTORE.DN_RULES%s (groupId, description) VALUES (?, ?)";
 	private static final String lastIdQuery = "SELECT identity_value() AS id";
-	private static final String insertComponent = "INSERT INTO DB.ODCLEANSTORE.DN_RULE_COMPONENTS (ruleId, typeId, modification, description) " +
+	private static final String insertComponent = "INSERT INTO DB.ODCLEANSTORE.DN_RULE_COMPONENTS%s (ruleId, typeId, modification, description) " +
 			"SELECT ? AS ruleId, id AS typeId, ? AS modification, ? AS description FROM DB.ODCLEANSTORE.DN_RULE_COMPONENT_TYPES WHERE label = ?";
 	private static final String mapGroupToOntology = "INSERT INTO DB.ODCLEANSTORE.DN_RULES_GROUPS_TO_ONTOLOGIES_MAP (groupId, ontologyId) VALUES (?, ?)";
 
@@ -449,33 +449,50 @@ public class DataNormalizationRulesModel {
 		try {
 			getCleanConnection().adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL, false);
 
-			getCleanConnection().execute(insertRule, rule.getGroupId(), rule.getDescription());
+			getCleanConnection().execute(String.format(insertRule, ""), rule.getGroupId(), rule.getDescription());
 
-			Component[] components = rule.getComponents();
-
+			WrappedResultSet result;
+			
 			Integer id = 0;
-			WrappedResultSet result = getCleanConnection().executeSelect(lastIdQuery);
-
+			result = getCleanConnection().executeSelect(lastIdQuery);
+			
 			if (result.next()) {
 				id = result.getInt("id");
 			} else {
 				throw new DataNormalizationException("Failed to bind rule component to rule.");
 			}
+			
+			getCleanConnection().execute(String.format(insertRule, "_UNCOMMITTED"), rule.getGroupId(), rule.getDescription());
+			
+			Integer idUncommitted = 0;
+			result = getCleanConnection().executeSelect(lastIdQuery);
+			
+			if (result.next()) {
+				idUncommitted = result.getInt("id");
+			} else {
+				throw new DataNormalizationException("Failed to bind rule component to rule (Uncommitted).");
+			}
+
+			Component[] components = rule.getComponents();
 
 			for (int i = 0; i < components.length; ++i) {
-				getCleanConnection().execute(insertComponent,
+				getCleanConnection().execute(String.format(insertComponent, ""),
 						id, components[i].getModification(), components[i].getDescription(), components[i].getType().toString());
+				getCleanConnection().execute(String.format(insertComponent, "_UNCOMMITTED"),
+						idUncommitted, components[i].getModification(), components[i].getDescription(), components[i].getType().toString());
 			}
 
 			getCleanConnection().commit();
 
 			LOG.info("Generated data normalization rule from ontology " + ontology);
 		} catch (DatabaseException e) {
-			e.printStackTrace(System.err);
+			LOG.error("Could not store Data Normalization rule generated from ontology");
 			throw new DataNormalizationException(e);
 		} catch (QueryException e) {
+			LOG.error("Could not store Data Normalization rule generated from ontology");
 			throw new DataNormalizationException(e);
 		} catch (SQLException e) {
+			LOG.error("Could not store Data Normalization rule generated from ontology");
 			throw new DataNormalizationException(e);
 		}
 	}
