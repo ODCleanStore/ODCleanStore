@@ -8,6 +8,8 @@ import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.form.upload.FileUploadField;
 import org.apache.wicket.util.io.IOUtils;
 
+import cz.cuni.mff.odcleanstore.shared.Utils;
+
 /**
  * 
  * @author Tomáš Soukup
@@ -16,7 +18,6 @@ import org.apache.wicket.util.io.IOUtils;
 public class UploadButton extends Button 
 {
 	private static final long serialVersionUID = 1L;
-	protected static final String ENCODING = "UTF-8";
 	
 	private FileUploadField fileUpload;
 	private TextArea<String> textArea;
@@ -37,7 +38,7 @@ public class UploadButton extends Button
 		{
 			try 
 			{
-				String content = IOUtils.toString(uploadedFile.getInputStream(), ENCODING);
+				String content = IOUtils.toString(uploadedFile.getInputStream(), Utils.DEFAULT_ENCODING);
 				textArea.getModel().setObject(content);
 				textArea.modelChanged();
 			}

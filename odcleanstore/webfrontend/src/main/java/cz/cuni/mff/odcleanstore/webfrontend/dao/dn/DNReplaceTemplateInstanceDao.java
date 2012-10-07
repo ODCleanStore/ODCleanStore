@@ -3,9 +3,8 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.dn;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNReplaceTemplateInstance;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 
-public class DNReplaceTemplateInstanceDao extends DaoForAuthorableEntity<DNReplaceTemplateInstance>
+public class DNReplaceTemplateInstanceDao extends DNTemplateInstanceDao<DNReplaceTemplateInstance>
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -28,15 +27,6 @@ public class DNReplaceTemplateInstanceDao extends DaoForAuthorableEntity<DNRepla
 	protected ParameterizedRowMapper<DNReplaceTemplateInstance> getRowMapper() 
 	{
 		return rowMapper;
-	}
-
-	@Override
-	public void delete(DNReplaceTemplateInstance item) throws Exception
-	{
-		super.delete(item);
-		
-		// Mark the group as dirty
-		getLookupFactory().getDao(DNRulesGroupDao.class).markUncommitted(item.getGroupId());
 	}
 	
 	@Override

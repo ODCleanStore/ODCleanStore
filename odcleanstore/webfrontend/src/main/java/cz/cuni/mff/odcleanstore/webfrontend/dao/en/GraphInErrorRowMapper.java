@@ -11,12 +11,19 @@ public class GraphInErrorRowMapper extends CustomRowMapper<GraphInError> {
 	private static final long serialVersionUID = 1L;
 
 	public GraphInError mapRow(ResultSet rs, int rowNum) throws SQLException {
+		Integer errorTypeId = rs.getInt("errorTypeId");
+		
+		if (rs.wasNull()) { // Detect whether there was an error message bound to the graph
+			errorTypeId = null;
+		}
+		
 		return new GraphInError(
+				rs.getInt("id"),
 				rs.getInt("engineId"),
 				rs.getInt("pipelineId"),
 				blobToString(rs.getBlob("uuid")),
 				rs.getInt("stateId"),
-				rs.getInt("errorTypeId"),
+				errorTypeId,
 				blobToString(rs.getBlob("errorMessage")),
 				rs.getBoolean("isInCleanDB"),
 

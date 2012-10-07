@@ -7,6 +7,7 @@ import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
+import cz.cuni.mff.odcleanstore.data.TableVersion;
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
 import cz.cuni.mff.odcleanstore.datanormalization.rules.DataNormalizationRule.Component;
 import cz.cuni.mff.odcleanstore.vocabulary.XPathFunctions;
@@ -64,8 +65,8 @@ public class DataNormalizationRulesModel {
 			"components.modification AS modification, " +
 			"rules.description AS description, " +
 			"components.description AS componentDescription FROM " +
-			"DB.ODCLEANSTORE.DN_RULES AS rules JOIN " +
-			"DB.ODCLEANSTORE.DN_RULE_COMPONENTS AS components ON components.ruleId = rules.id JOIN " +
+			"DB.ODCLEANSTORE.DN_RULES%s AS rules JOIN " +
+			"DB.ODCLEANSTORE.DN_RULE_COMPONENTS%s AS components ON components.ruleId = rules.id JOIN " +
 			"DB.ODCLEANSTORE.DN_RULE_COMPONENT_TYPES AS types ON components.typeId = types.id " +
 			"WHERE groupId = ?";
 	private static final String ruleByGroupLabelQueryFormat = "SELECT rules.id AS id, " +
@@ -75,16 +76,16 @@ public class DataNormalizationRulesModel {
 			"components.modification AS modification, " +
 			"rules.description AS description, " +
 			"components.description AS componentDescription FROM " +
-			"DB.ODCLEANSTORE.DN_RULES AS rules JOIN " +
+			"DB.ODCLEANSTORE.DN_RULES%s AS rules JOIN " +
 			"DB.ODCLEANSTORE.DN_RULES_GROUPS AS groups ON rules.groupId = groups.id JOIN " +
-			"DB.ODCLEANSTORE.DN_RULE_COMPONENTS AS components ON components.ruleId = rules.id JOIN " +
+			"DB.ODCLEANSTORE.DN_RULE_COMPONENTS%s AS components ON components.ruleId = rules.id JOIN " +
 			"DB.ODCLEANSTORE.DN_RULE_COMPONENT_TYPES AS types ON components.typeId = types.id " +
 			"WHERE groups.label = ?";
 	private static final String groupIdQuery = "SELECT id FROM DB.ODCLEANSTORE.QA_RULES_GROUPS WHERE label = ?";
 	private static final String ontologyIdQuery = "SELECT id FROM DB.ODCLEANSTORE.ONTOLOGIES WHERE label = ?";
 	private static final String ontologyGraphURIQuery = "SELECT graphName FROM DB.ODCLEANSTORE.ONTOLOGIES WHERE id = ?";
 	private static final String ontologyResourceQuery = "SELECT ?s WHERE {?s ?p ?o} GROUP BY ?s";
-	private static final String deleteRulesByOntology = "DELETE FROM DB.ODCLEANSTORE.DN_RULES WHERE groupId IN " +
+	private static final String deleteRulesByOntology = "DELETE FROM DB.ODCLEANSTORE.DN_RULES%s WHERE groupId IN " +
 			"(SELECT groupId FROM DB.ODCLEANSTORE.DN_RULES_GROUPS_TO_ONTOLOGIES_MAP WHERE ontologyId = ?)";
 	private static final String deleteMapping = "DELETE FROM DB.ODCLEANSTORE.DN_RULES_GROUPS_TO_ONTOLOGIES_MAP WHERE groupId = ? AND ontologyId = ? ";
 
@@ -100,15 +101,16 @@ public class DataNormalizationRulesModel {
 	private static final String insertConvertedDatePropertyValueFormat = "{?s <%s> ?x} WHERE {GRAPH $$graph$$ {SELECT ?s <%s>(str(?o)) AS ?x WHERE {?s <%s> ?o}}}";
 	private static final String deleteUnconvertedDatePropertyValueFormat = "{?s <%s> ?o} WHERE {GRAPH $$graph$$ {?s <%s> ?o. FILTER (?o != <%s>(str(?o)))}}";
 
-	private static final String insertRule = "INSERT INTO DB.ODCLEANSTORE.DN_RULES (groupId, description) VALUES (?, ?)";
+	private static final String insertRule = "INSERT INTO DB.ODCLEANSTORE.DN_RULES%s (groupId, description) VALUES (?, ?)";
 	private static final String lastIdQuery = "SELECT identity_value() AS id";
-	private static final String insertComponent = "INSERT INTO DB.ODCLEANSTORE.DN_RULE_COMPONENTS (ruleId, typeId, modification, description) " +
+	private static final String insertComponent = "INSERT INTO DB.ODCLEANSTORE.DN_RULE_COMPONENTS%s (ruleId, typeId, modification, description) " +
 			"SELECT ? AS ruleId, id AS typeId, ? AS modification, ? AS description FROM DB.ODCLEANSTORE.DN_RULE_COMPONENT_TYPES WHERE label = ?";
 	private static final String mapGroupToOntology = "INSERT INTO DB.ODCLEANSTORE.DN_RULES_GROUPS_TO_ONTOLOGIES_MAP (groupId, ontologyId) VALUES (?, ?)";
 
 	private static final Logger LOG = LoggerFactory.getLogger(DataNormalizationRulesModel.class);
 
 	private JDBCConnectionCredentials endpoint;
+	private TableVersion tableVersion;
 
 	/**
 	 * Connection to dirty database (needed in all cases to work on a new graph or a copy of an existing one)
@@ -141,9 +143,14 @@ public class DataNormalizationRulesModel {
 			cleanConnection = null;
 		}
 	}
-
+	
 	public DataNormalizationRulesModel (JDBCConnectionCredentials endpoint) {
+		this(endpoint, TableVersion.COMMITTED);
+	}
+
+	public DataNormalizationRulesModel (JDBCConnectionCredentials endpoint, TableVersion tableVersion) {
 		this.endpoint = endpoint;
+		this.tableVersion = tableVersion;
 	}
 
 	public DataNormalizationRulesModel (VirtuosoDataSource dataSource) {
@@ -235,7 +242,7 @@ public class DataNormalizationRulesModel {
 		Set<DataNormalizationRule> rules = new HashSet<DataNormalizationRule>();
 
 		for (int i = 0; i < groupIds.length; ++i) {
-			Collection<DataNormalizationRule> groupSpecific = queryRules(ruleByGroupIdQueryFormat, groupIds[i]);
+			Collection<DataNormalizationRule> groupSpecific = queryRules(String.format(ruleByGroupIdQueryFormat, tableVersion.getTableSuffix(), tableVersion.getTableSuffix()), groupIds[i]);
 
 			rules.addAll(groupSpecific);
 		}
@@ -252,7 +259,7 @@ public class DataNormalizationRulesModel {
 		Set<DataNormalizationRule> rules = new HashSet<DataNormalizationRule>();
 
 		for (int i = 0; i < groupLabels.length; ++i) {
-			Collection<DataNormalizationRule> groupSpecific = queryRules(ruleByGroupLabelQueryFormat, groupLabels[i]);
+			Collection<DataNormalizationRule> groupSpecific = queryRules(String.format(ruleByGroupLabelQueryFormat, tableVersion.getTableSuffix(), tableVersion.getTableSuffix()), groupLabels[i]);
 
 			rules.addAll(groupSpecific);
 		}
@@ -367,7 +374,8 @@ public class DataNormalizationRulesModel {
 	 */
 	private void dropRules(Integer groupId, Integer ontologyId) throws DataNormalizationException {
 		try {
-			getCleanConnection().execute(deleteRulesByOntology, ontologyId);
+			getCleanConnection().execute(String.format(deleteRulesByOntology, TableVersion.COMMITTED.getTableSuffix()), ontologyId);
+			getCleanConnection().execute(String.format(deleteRulesByOntology, TableVersion.UNCOMMITTED.getTableSuffix()), ontologyId);
 			getCleanConnection().execute(deleteMapping, groupId, ontologyId);
 		} catch (DatabaseException e) {
 			throw new DataNormalizationException(e);
@@ -449,33 +457,50 @@ public class DataNormalizationRulesModel {
 		try {
 			getCleanConnection().adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL, false);
 
-			getCleanConnection().execute(insertRule, rule.getGroupId(), rule.getDescription());
+			getCleanConnection().execute(String.format(insertRule, TableVersion.COMMITTED.getTableSuffix()), rule.getGroupId(), rule.getDescription());
 
-			Component[] components = rule.getComponents();
-
+			WrappedResultSet result;
+			
 			Integer id = 0;
-			WrappedResultSet result = getCleanConnection().executeSelect(lastIdQuery);
-
+			result = getCleanConnection().executeSelect(lastIdQuery);
+			
 			if (result.next()) {
 				id = result.getInt("id");
 			} else {
 				throw new DataNormalizationException("Failed to bind rule component to rule.");
 			}
+			
+			getCleanConnection().execute(String.format(insertRule, TableVersion.UNCOMMITTED.getTableSuffix()), rule.getGroupId(), rule.getDescription());
+			
+			Integer idUncommitted = 0;
+			result = getCleanConnection().executeSelect(lastIdQuery);
+			
+			if (result.next()) {
+				idUncommitted = result.getInt("id");
+			} else {
+				throw new DataNormalizationException("Failed to bind rule component to rule (Uncommitted).");
+			}
+
+			Component[] components = rule.getComponents();
 
 			for (int i = 0; i < components.length; ++i) {
-				getCleanConnection().execute(insertComponent,
+				getCleanConnection().execute(String.format(insertComponent, TableVersion.COMMITTED.getTableSuffix()),
 						id, components[i].getModification(), components[i].getDescription(), components[i].getType().toString());
+				getCleanConnection().execute(String.format(insertComponent, TableVersion.UNCOMMITTED.getTableSuffix()),
+						idUncommitted, components[i].getModification(), components[i].getDescription(), components[i].getType().toString());
 			}
 
 			getCleanConnection().commit();
 
 			LOG.info("Generated data normalization rule from ontology " + ontology);
 		} catch (DatabaseException e) {
-			e.printStackTrace(System.err);
+			LOG.error("Could not store Data Normalization rule generated from ontology");
 			throw new DataNormalizationException(e);
 		} catch (QueryException e) {
+			LOG.error("Could not store Data Normalization rule generated from ontology");
 			throw new DataNormalizationException(e);
 		} catch (SQLException e) {
+			LOG.error("Could not store Data Normalization rule generated from ontology");
 			throw new DataNormalizationException(e);
 		}
 	}

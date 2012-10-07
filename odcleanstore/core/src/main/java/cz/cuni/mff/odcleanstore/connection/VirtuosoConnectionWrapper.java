@@ -311,8 +311,8 @@ public final class VirtuosoConnectionWrapper {
      */
     public void renameGraph(String srcGraphName, String dstGraphName) throws QueryException {
         execute("UPDATE DB.DBA.RDF_QUAD TABLE OPTION (index RDF_QUAD_GS)"
-                + " SET g = iri_to_id ('?')"
-                + " WHERE g = iri_to_id ('?', 0);", dstGraphName, srcGraphName);
+                + " SET g = iri_to_id (?)" 
+                + " WHERE g = iri_to_id (?, 0)", dstGraphName, srcGraphName);
     }
 
     /**
@@ -343,14 +343,14 @@ public final class VirtuosoConnectionWrapper {
     }
 
     /**
-     * Insert RDF data from file in TTL format to the database.
+     * Insert RDF data from file in N3 format to the database.
      * 
      * @param relativeBase relative URI base for payload
-     * @param ttlFileName file name with payload in ttl format
+     * @param ttlFileName file name with payload in N3 format
      * @param graphName name of the graph to insert
      * @throws QueryException query error
      */
-    public void insertTtlFromFile(String relativeBase, String ttlFileName, String graphName) throws QueryException {
+    public void insertN3FromFile(String relativeBase, String ttlFileName, String graphName) throws QueryException {
         String base = (relativeBase == null) ? "" : relativeBase;
         String escapedFileName = ttlFileName.replace('\\', '/');
         String statement = "{call DB.DBA.TTLP(file_to_string_output("

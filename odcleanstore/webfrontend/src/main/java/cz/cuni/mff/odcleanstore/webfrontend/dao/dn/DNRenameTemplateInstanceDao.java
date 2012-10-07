@@ -3,9 +3,8 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.dn;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRenameTemplateInstance;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 
-public class DNRenameTemplateInstanceDao extends DaoForAuthorableEntity<DNRenameTemplateInstance>
+public class DNRenameTemplateInstanceDao extends DNTemplateInstanceDao<DNRenameTemplateInstance>
 {
 	private static final long serialVersionUID = 1L;
 	

@@ -5,13 +5,13 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 public class GraphInError extends EntityWithSurrogateKey {
 	private static final long serialVersionUID = 1L;
 
-	public int engineId;
-	public int pipelineId;
+	public Integer engineId;
+	public Integer pipelineId;
 	public String UUID;
-	public int stateId;
-	public int errorTypeId;
+	public Integer stateId;
+	public Integer errorTypeId;
 	public String errorMessage;
-	public boolean isInCleanDB;
+	public Boolean isInCleanDB;
 	
 	public String engineUUID;
 	public String pipelineLabel;
@@ -19,9 +19,10 @@ public class GraphInError extends EntityWithSurrogateKey {
 	public String errorTypeLabel;
 
 	public GraphInError (
-			int engineId, int pipelineId, String UUID, int stateId, int errorTypeId, String errorMessage, boolean isInCleanDB,
+			Integer id, Integer engineId, Integer pipelineId, String UUID, Integer stateId, Integer errorTypeId, String errorMessage, Boolean isInCleanDB,
 			String engineUUID, String pipelineLabel, String stateLabel, String errorTypeLabel) {
 
+		this.id = id;
 		this.engineId = engineId;
 		this.pipelineId = pipelineId;
 		this.UUID = UUID;

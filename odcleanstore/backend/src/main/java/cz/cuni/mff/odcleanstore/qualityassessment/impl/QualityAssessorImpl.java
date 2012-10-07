@@ -4,6 +4,7 @@ import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
+import cz.cuni.mff.odcleanstore.data.TableVersion;
 import cz.cuni.mff.odcleanstore.qualityassessment.QualityAssessor;
 import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRule;
@@ -166,7 +167,8 @@ public class QualityAssessorImpl implements QualityAssessor, Serializable {
 
 	public List<GraphScoreWithTrace> debugRules(
 			HashMap<String, String> graphs,
-	        TransformationContext context)
+	        TransformationContext context,
+	        TableVersion tableVersion)
 			throws TransformerException {
 
 		try {
@@ -181,7 +183,8 @@ public class QualityAssessorImpl implements QualityAssessor, Serializable {
 
 				GraphScoreWithTrace subResult = getGraphScoreWithTrace(temporaryName,
 						context.getCleanDatabaseCredentials(),
-						context.getDirtyDatabaseCredentials());
+						context.getDirtyDatabaseCredentials(),
+						tableVersion);
 				subResult.setGraphName(originalName);
 
 				result.add(subResult);
@@ -274,13 +277,14 @@ public class QualityAssessorImpl implements QualityAssessor, Serializable {
 	public GraphScoreWithTrace getGraphScoreWithTrace (final String graphName,
 			final JDBCConnectionCredentials clean)
 					throws TransformerException {
-		return getGraphScoreWithTrace(graphName, clean, clean);
+		return getGraphScoreWithTrace(graphName, clean, clean, TableVersion.COMMITTED);
 	}
 
 	//General version for rule debugging etc.
 	public GraphScoreWithTrace getGraphScoreWithTrace (final String graphName,
 			final JDBCConnectionCredentials clean,
-			final JDBCConnectionCredentials source)
+			final JDBCConnectionCredentials source,
+			final TableVersion tableVersion)
 		throws TransformerException {
 
 		this.inputGraph = prepareInputGraph(graphName, null, null);
@@ -298,7 +302,7 @@ public class QualityAssessorImpl implements QualityAssessor, Serializable {
 
 		try
 		{
-			loadRules();
+			loadRules(tableVersion);
 			applyRules(rules);
 		} catch (QualityAssessmentException e) {
 			throw new TransformerException(e);
@@ -308,12 +312,16 @@ public class QualityAssessorImpl implements QualityAssessor, Serializable {
 
 		return new GraphScoreWithTrace(score, rules);
 	}
+	
+	protected void loadRules() throws QualityAssessmentException {
+		loadRules(TableVersion.COMMITTED);
+	}
 
 	/**
 	 * Analyse what rules should be applied (find out what rule group is demanded)
 	 */
-	protected void loadRules() throws QualityAssessmentException {
-		QualityAssessmentRulesModel model = new QualityAssessmentRulesModel(context.getCleanDatabaseCredentials());
+	protected void loadRules(TableVersion tableVersion) throws QualityAssessmentException {
+		QualityAssessmentRulesModel model = new QualityAssessmentRulesModel(context.getCleanDatabaseCredentials(), tableVersion);
 
 		if (groupIds != null) {
 			rules = model.getRules(groupIds);

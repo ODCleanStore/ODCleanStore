@@ -1,10 +1,11 @@
 package cz.cuni.mff.odcleanstore.linker;
 
 import java.io.File;
-import java.io.InputStream;
 import java.util.List;
 
+import cz.cuni.mff.odcleanstore.data.TableVersion;
 import cz.cuni.mff.odcleanstore.linker.impl.DebugResult;
+import cz.cuni.mff.odcleanstore.shared.SerializationLanguage;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.Transformer;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
@@ -18,10 +19,8 @@ import cz.cuni.mff.odcleanstore.transformer.TransformerException;
  * @author Tomas Soukup
  */
 public interface Linker extends Transformer {
-	public List<DebugResult> debugRules(InputStream source, TransformationContext context) 
+	public List<DebugResult> debugRules(String input, TransformationContext context, TableVersion tableVersion)
 			throws TransformerException;
-	public List<DebugResult> debugRules(String input, TransformationContext context)
-			throws TransformerException;
-	public List<DebugResult> debugRules(File inputFile, TransformationContext context) 
-			throws TransformerException;
+	public List<DebugResult> debugRules(File inputFile, TransformationContext context, TableVersion tableVersion,
+			SerializationLanguage language) throws TransformerException;
 }

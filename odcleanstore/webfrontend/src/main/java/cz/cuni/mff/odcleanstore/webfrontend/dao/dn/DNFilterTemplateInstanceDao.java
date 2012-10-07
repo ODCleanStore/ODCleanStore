@@ -3,9 +3,8 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.dn;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNFilterTemplateInstance;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 
-public class DNFilterTemplateInstanceDao extends DaoForAuthorableEntity<DNFilterTemplateInstance>
+public class DNFilterTemplateInstanceDao extends DNTemplateInstanceDao<DNFilterTemplateInstance>
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -86,4 +85,5 @@ public class DNFilterTemplateInstanceDao extends DaoForAuthorableEntity<DNFilter
 			"\n WHERE t.id = ?";
 		return jdbcQueryForInt(query, entityId);
 	}
+
 }

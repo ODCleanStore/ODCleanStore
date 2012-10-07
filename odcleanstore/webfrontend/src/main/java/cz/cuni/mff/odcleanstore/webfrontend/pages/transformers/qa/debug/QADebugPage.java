@@ -1,6 +1,5 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.debug;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,18 +13,18 @@ import org.apache.wicket.markup.html.form.upload.FileUploadField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.util.ListModel;
 
-import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
-import cz.cuni.mff.odcleanstore.data.MultipleFormatLoader;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl.GraphScoreWithTrace;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
-import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UploadButton;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
+import cz.cuni.mff.odcleanstore.webfrontend.util.TemporaryGraphLoader;
+import cz.cuni.mff.odcleanstore.webfrontend.util.TemporaryGraphLoader.TemporaryGraph;
 
 @AuthorizeInstantiation({ Role.PIC })
-public class QADebugPage extends FrontendPage 
+public class QADebugPage extends LimitedEditingPage 
 {	
 	private static final long serialVersionUID = 1L;
 	protected static Logger logger = Logger.getLogger(QADebugPage.class);
@@ -36,7 +35,9 @@ public class QADebugPage extends FrontendPage
 	{
 		super(
 			"Home > Backend > QA > Groups > Debug", 
-			"Debug QA rule group"
+			"Debug QA rule group",
+			QARulesGroupDao.class,
+			groupId
 		);
 			
 		// register page components
@@ -56,33 +57,35 @@ public class QADebugPage extends FrontendPage
 			{	
 				QualityAssessorImpl assessor = new QualityAssessorImpl(groupId);
 				
-				HashMap<String, String> graphs = null;
-				MultipleFormatLoader loader = new MultipleFormatLoader(
-						ODCSInternal.debugTempGraphUriPrefix,
-						ConfigLoader.getConfig().getBackendGroup().getDirtyDBJDBCConnectionCredentials());
+				HashMap<String, String> graphs = new HashMap<String, String>();
+				TemporaryGraphLoader loader = new TemporaryGraphLoader();
+				TemporaryGraph graph = null;
 				
 				try 
 				{
-					graphs = loader.load(rdfInput);
-					List<GraphScoreWithTrace> results = assessor.debugRules(graphs, createContext());
+					graph = loader.importToTemporaryGraph(rdfInput);
+					graphs.put("Debug Graph", graph.getGraphURI());
+					List<GraphScoreWithTrace> results = assessor.debugRules(graphs, createContext(), getVisibleTableVersion());
 					setResponsePage(new QADebugResultPage(results, groupId));
-				}
-				catch (IOException e)
-				{
-					logger.error(e.getMessage(), e);
-					
-					getSession().error("Input could not be processed.");
 				}
 				catch (TransformerException e)
 				{
 					logger.error(e.getMessage(), e);
 					
 					getSession().error("Rule debugging failed due to an unexpected error.");
+				} catch (Exception e) {
+					logger.error(e.getMessage(), e);
+
+					getSession().error("Rule debugging failed due to an unexpected error.");
 				}
 				finally
 				{
-					if (graphs != null) {
-						loader.unload(graphs);
+					if (graph != null) {
+						try {
+							graph.deleteGraph();
+						} catch (Exception e) {
+							logger.error("Could not delete temporary graph <" + graph.getGraphURI() + ">.");
+						}
 					}
 				}
 			}

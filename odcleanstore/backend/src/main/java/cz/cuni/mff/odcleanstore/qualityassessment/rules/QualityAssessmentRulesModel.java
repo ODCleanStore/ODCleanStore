@@ -7,10 +7,12 @@ import java.util.Set;
 
 import cz.cuni.mff.odcleanstore.configuration.BackendConfig;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.data.TableVersion;
 import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
 
 import java.sql.ResultSet;
@@ -63,23 +65,23 @@ public class QualityAssessmentRulesModel {
 	}
 	
 	private static final String ruleByGroupIdQueryFormat = "SELECT id, groupId, filter, coefficient, description FROM " +
-			"DB.ODCLEANSTORE.QA_RULES WHERE groupId = ?";
+			"DB.ODCLEANSTORE.QA_RULES%s WHERE groupId = ?";
 	private static final String ruleByGroupLabelQueryFormat = "SELECT rules.id AS id," +
 			"rules.groupId AS groupId," +
 			"rules.filter AS filter," +
 			"rules.coefficient AS coefficient," +
 			"rules.description AS description FROM " +
-			"DB.ODCLEANSTORE.QA_RULES AS rules JOIN " +
+			"DB.ODCLEANSTORE.QA_RULES%s AS rules JOIN " +
 			"DB.ODCLEANSTORE.QA_RULES_GROUPS AS groups ON rules.groupId = groups.id " +
 			"WHERE groups.label = ?";
 	private static final String groupIdQuery = "SELECT id FROM DB.ODCLEANSTORE.QA_RULES_GROUPS WHERE label = ?";
 	private static final String ontologyIdQuery = "SELECT id FROM DB.ODCLEANSTORE.ONTOLOGIES WHERE label = ?";
 	private static final String ontologyGraphURIQuery = "SELECT graphName FROM DB.ODCLEANSTORE.ONTOLOGIES WHERE id = ?";
 	private static final String ontologyResourceQuery = "SELECT ?s WHERE {?s ?p ?o} GROUP BY ?s";
-	private static final String deleteRulesByOntology = "DELETE FROM DB.ODCLEANSTORE.QA_RULES WHERE groupId IN " +
+	private static final String deleteRulesByOntology = "DELETE FROM DB.ODCLEANSTORE.QA_RULES%s WHERE groupId IN " +
 			"(SELECT groupId FROM DB.ODCLEANSTORE.QA_RULES_GROUPS_TO_ONTOLOGIES_MAP WHERE ontologyId = ?)";
 	private static final String deleteMapping = "DELETE FROM DB.ODCLEANSTORE.QA_RULES_GROUPS_TO_ONTOLOGIES_MAP WHERE groupId = ? AND ontologyId = ? ";
-	private static final String insertRule = "INSERT INTO DB.ODCLEANSTORE.QA_RULES (groupId, filter, coefficient, description) VALUES (?, ?, ?, ?)";
+	private static final String insertRule = "INSERT INTO DB.ODCLEANSTORE.QA_RULES%s (groupId, filter, coefficient, description) VALUES (?, ?, ?, ?)";
 	private static final String mapGroupToOntology = "INSERT INTO DB.ODCLEANSTORE.QA_RULES_GROUPS_TO_ONTOLOGIES_MAP (groupId, ontologyId) VALUES (?, ?)";
 
 	private static final Logger LOG = LoggerFactory.getLogger(QualityAssessmentRulesModel.class);
@@ -90,6 +92,7 @@ public class QualityAssessmentRulesModel {
 	 * Connection to dirty database (needed in all cases to work on a new graph or a copy of an existing one)
 	 */
 	private VirtuosoConnectionWrapper cleanConnection;
+	private TableVersion tableVersion;
 
 	/**
 	 * constructs new connection to the dirty database.
@@ -119,7 +122,12 @@ public class QualityAssessmentRulesModel {
 	}
 	
 	public QualityAssessmentRulesModel (JDBCConnectionCredentials endpoint) {
+		this(endpoint, TableVersion.COMMITTED);
+	}
+	
+	public QualityAssessmentRulesModel (JDBCConnectionCredentials endpoint, TableVersion tableVersion) {
 		this.endpoint = endpoint;
+		this.tableVersion = tableVersion;
 	}
 	
 	public QualityAssessmentRulesModel (VirtuosoDataSource dataSource) {
@@ -179,7 +187,7 @@ public class QualityAssessmentRulesModel {
 		Set<QualityAssessmentRule> rules = new HashSet<QualityAssessmentRule>();
 		
 		for (int i = 0; i < groupIds.length; ++i) {
-			Collection<QualityAssessmentRule> groupSpecific = queryRules(ruleByGroupIdQueryFormat, groupIds[i]);
+			Collection<QualityAssessmentRule> groupSpecific = queryRules(String.format(ruleByGroupIdQueryFormat, tableVersion.getTableSuffix()), groupIds[i]);
 			
 			rules.addAll(groupSpecific);
 		}
@@ -194,7 +202,7 @@ public class QualityAssessmentRulesModel {
 		Set<QualityAssessmentRule> rules = new HashSet<QualityAssessmentRule>();
 		
 		for (int i = 0; i < groupLabels.length; ++i) {
-			Collection<QualityAssessmentRule> groupSpecific = queryRules(ruleByGroupLabelQueryFormat, groupLabels[i]);
+			Collection<QualityAssessmentRule> groupSpecific = queryRules(String.format(ruleByGroupLabelQueryFormat, tableVersion.getTableSuffix()), groupLabels[i]);
 			
 			rules.addAll(groupSpecific);
 		}
@@ -292,7 +300,8 @@ public class QualityAssessmentRulesModel {
 	
 	private void dropRules(Integer groupId, Integer ontologyId) throws QualityAssessmentException {
 		try {			
-			getCleanConnection().execute(deleteRulesByOntology, ontologyId);
+			getCleanConnection().execute(String.format(deleteRulesByOntology, TableVersion.COMMITTED.getTableSuffix()), ontologyId);
+			getCleanConnection().execute(String.format(deleteRulesByOntology, TableVersion.UNCOMMITTED.getTableSuffix()), ontologyId);
 			getCleanConnection().execute(deleteMapping, groupId, ontologyId);
 		} catch (DatabaseException e) {
 			throw new QualityAssessmentException(e);
@@ -367,10 +376,19 @@ public class QualityAssessmentRulesModel {
 	
 	private void storeRule (QualityAssessmentRule rule, String ontology) throws QualityAssessmentException {
 		try{
-			getCleanConnection().execute(insertRule, rule.getGroupId(), rule.getFilter(), rule.getCoefficient(), rule.getDescription());
+			getCleanConnection().adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL, false);
+
+			getCleanConnection().execute(String.format(insertRule, TableVersion.COMMITTED.getTableSuffix()), rule.getGroupId(), rule.getFilter(), rule.getCoefficient(), rule.getDescription());
+			getCleanConnection().execute(String.format(insertRule, TableVersion.UNCOMMITTED.getTableSuffix()), rule.getGroupId(), rule.getFilter(), rule.getCoefficient(), rule.getDescription());
+			
+			getCleanConnection().commit();
 			
 			LOG.info("Generated quality assessment rule from ontology " + ontology);
 		} catch (DatabaseException e) {
+			LOG.error("Could not store Quality Assessment rule generated from ontology");
+			throw new QualityAssessmentException(e);
+		} catch (SQLException e) {
+			LOG.error("Could not store Quality Assessment rule generated from ontology");
 			throw new QualityAssessmentException(e);
 		}
 	}

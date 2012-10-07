@@ -21,9 +21,14 @@ public final class ODCSInternal {
     // CHECKSTYLE:OFF
 
     /**
-     * Prefix for temporary graphs in clean database. 
+     * Temporary prefix for new graphs in clean database. 
      */
-    public static final String engineTemporaryGraphPrefix = NS_INTERNAL + "engineTemporaryGraph/";
+    public static final String newGraphPrefix = NS_INTERNAL + "newGraph/";
+    
+    /**
+     * Temporary prefix for old graphs in clean database. 
+     */
+    public static final String oldGraphPrefix = NS_INTERNAL + "oldGraph/";
     
     /**
      * Prefix of named graphs where incoming data are stored. 

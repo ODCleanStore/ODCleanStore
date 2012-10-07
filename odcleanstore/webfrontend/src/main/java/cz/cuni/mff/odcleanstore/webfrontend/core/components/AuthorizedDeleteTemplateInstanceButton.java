@@ -1,8 +1,8 @@
 package cz.cuni.mff.odcleanstore.webfrontend.core.components;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.CompiledDNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNTemplateInstance;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.CompiledDNRuleDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 public class AuthorizedDeleteTemplateInstanceButton<BO extends DNTemplateInstance> 
@@ -10,13 +10,13 @@ public class AuthorizedDeleteTemplateInstanceButton<BO extends DNTemplateInstanc
 {
 	private static final long serialVersionUID = 1L;
 	
-	private DaoForEntityWithSurrogateKey<BO> templateInstanceDao;
-	private DaoForEntityWithSurrogateKey<CompiledDNRule> compiledRuleDao;
+	private DNTemplateInstanceDao<BO> templateInstanceDao;
+	private CompiledDNRuleDao compiledRuleDao;
 	private BO bo;
 	
 	public AuthorizedDeleteTemplateInstanceButton(
-		DaoForEntityWithSurrogateKey<BO> templateInstanceDao,
-		DaoForEntityWithSurrogateKey<CompiledDNRule> compiledRuleDao,
+		DNTemplateInstanceDao<BO> templateInstanceDao,
+		CompiledDNRuleDao compiledRuleDao,
 		BO bo, boolean isAuthorized, String objName, 
 		DeleteConfirmationMessage message, FrontendPage redirectPage)
 	{

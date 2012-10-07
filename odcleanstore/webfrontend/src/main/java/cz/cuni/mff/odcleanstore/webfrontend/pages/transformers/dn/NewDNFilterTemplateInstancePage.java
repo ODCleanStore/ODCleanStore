@@ -103,7 +103,7 @@ public class NewDNFilterTemplateInstancePage extends LimitedEditingPage
 			}
 		};
 		
-		form.add(createTextfield("propertyName"));
+		form.add(createIRITextfield("propertyName"));
 		form.add(createTextfield("pattern"));
 		form.add(createCheckbox("keep"));
 		

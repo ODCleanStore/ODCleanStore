@@ -8,14 +8,17 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 
+import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.GraphInError;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentSortableDataProvider;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.GraphInErrorDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
@@ -59,23 +62,22 @@ public class GraphsInErrorListPage extends FrontendPage {
 	private void addGraphsTable(final Object... params) {
 		DependentSortableDataProvider<GraphInError> data;
 		
+		final QueryCriteria criteria = new QueryCriteria();
+		final QueryCriteria criteriaAll = new QueryCriteria();
+		
+		for (int i = 0; i < params.length; i += 2) {
+			criteria.addWhereClause((String)params[i], params[i + 1]);
+			criteriaAll.addWhereClause((String)params[i], params[i + 1]);
+		}
+		
 		add(new Link<GraphInError>("finishAll") {
 
 			private static final long serialVersionUID = 1L;
-
+			
 			@Override
 			public void onClick() {
 				try {
-					Object[] criteria = new Object[params.length + 2];
-
-					criteria[0] = "iGraph.isInCleanDB";
-					criteria[1] = 1;
-					
-					for (int i = 2; i < criteria.length; ++i) {
-						criteria[i] = params[i - 2];
-					}
-
-					graphInErrorDao.markAllFinished(criteria);
+					graphInErrorDao.markAllFinished(criteriaAll);
 					getSession().info(
 							"All related graphs accepted successfully."
 						);
@@ -96,7 +98,7 @@ public class GraphsInErrorListPage extends FrontendPage {
 			@Override
 			public void onClick() {
 				try {
-					graphInErrorDao.markAllQueued(params);
+					graphInErrorDao.markAllQueued(criteriaAll);
 					getSession().info(
 						"All related graphs queued for rerun successfully."
 					);
@@ -117,7 +119,7 @@ public class GraphsInErrorListPage extends FrontendPage {
 			@Override
 			public void delete() {
 				try {
-					graphInErrorDao.markAllQueuedForDelete(params);
+					graphInErrorDao.markAllQueuedForDelete(criteriaAll);
 				} catch (Exception e) {
 					LOG.error(String.format("Could not mark all wrong graphs queued for delete: %s", e.getMessage()));
 					throw new RuntimeException(e);
@@ -125,14 +127,7 @@ public class GraphsInErrorListPage extends FrontendPage {
 			}
 		});
 		
-		Object[] criteria = new Object[params.length + 2];
-
-		criteria[0] = "iState.label";
-		criteria[1] = "WRONG";
-
-		for (int i = 2; i < criteria.length; ++i) {
-			criteria[i] = params[i - 2];
-		}
+		criteria.addWhereClause("iState.label", "WRONG");
 		
 		data = new DependentSortableDataProvider<GraphInError>(graphInErrorDao, "uuid",
 			criteria);
@@ -156,7 +151,7 @@ public class GraphsInErrorListPage extends FrontendPage {
 					}
 				});
 				item.add(new Label("pipelineLabel"));
-				item.add(new Label("UUID"));
+				item.add(new Label("UUID", ODCSInternal.dataGraphUriPrefix + graphInError.UUID));
 				item.add(new Label("stateLabel"));
 				item.add(new Label("errorTypeLabel"));
 				item.add(new TruncatedLabel("errorMessage", MAX_LIST_COLUMN_TEXT_LENGTH));
@@ -218,6 +213,16 @@ public class GraphsInErrorListPage extends FrontendPage {
 							LOG.error(String.format("Could not mark graph %s queued for delete: %s", graphInError.UUID, e.getMessage()));
 							throw new RuntimeException(e);
 						}
+					}
+				});
+				
+				item.add(new RedirectWithParamButton(GraphInErrorDetailPage.class, "detail", graphInError.getId(), GraphsInErrorListPage.this) {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public boolean isVisible() {
+						return graphInError.errorTypeId != null;
 					}
 				});
 			}

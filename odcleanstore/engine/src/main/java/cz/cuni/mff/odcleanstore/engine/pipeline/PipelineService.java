@@ -111,6 +111,12 @@ public final class PipelineService extends Service implements Runnable {
 				case PROPAGATED:
 					executeStatePropagated(manipulator, status);
 					break;
+				case OLDGRAPHSPREFIXED:
+					executeStateOldGraphsPrefixed(manipulator, status);
+					break;
+				case NEWGRAPHSPREPARED:
+					executeStateNewGraphsPrepared(manipulator, status);
+					break;					
 				case DIRTY:
 					executeStateDirty(manipulator, status);
 					break;
@@ -126,7 +132,7 @@ public final class PipelineService extends Service implements Runnable {
 		LOG.info(format("deleting started", status));
 		manipulator.clearGraphsInCleanDB();
 		manipulator.clearGraphsInDirtyDB();
-		manipulator.deleteInputFile();
+		manipulator.deleteInputFiles();
 		status.setNoDirtyState(GraphStates.DELETED);
 		LOG.info(format("deleting successfully finished", status));
 	}
@@ -184,30 +190,61 @@ public final class PipelineService extends Service implements Runnable {
 			this.activeTransformerExecutor = null;
 		}
 	}
-	
+
 	private void executeStateProcessed(PipelineGraphManipulator manipulator, PipelineGraphStatus status) 
 			throws PipelineGraphManipulatorException, PipelineGraphStatusException {
 		
-		LOG.info(format("replacing from dirty to clean db started", status));
-		manipulator.replaceGraphsInCleanDBFromDirtyDB();
+		LOG.info(format("copying temporary new data from dirty to clean db started", status));
+		
+		try {
+			manipulator.clearNewGraphsInCleanDB();
+			manipulator.copyNewGraphsFromDirtyToCleanDB();
+		} catch (PipelineGraphManipulatorException e) {
+			if(isRunnningAndDbInstancesAvailable(true)) {
+				String message = formatExceptionForDB("copy to clean db", e, null, status);
+				status.setDirtyState(PipelineErrorTypes.COPY_TO_CLEAN_DB_FAILURE, message);
+			}
+			throw e; 		
+		}
+		
 		status.setNoDirtyState(GraphStates.PROPAGATED);
-		LOG.info(format("replacing from dirty to clean db successfully finished", status));
+		LOG.debug(format("copying temporary new data from dirty to clean db successfully finished", status));
 	}
 
 	private void executeStatePropagated(PipelineGraphManipulator manipulator, PipelineGraphStatus status)
 			throws PipelineGraphManipulatorException, PipelineGraphStatusException {
 
-		LOG.info(format("cleaning dirty db after moving graph to clean db started", status));
+		LOG.info(format("renaming old graphs in clean db started", status));
+		manipulator.renameGraphsToOldGraphsInCleanDB();
+		status.setNoDirtyState(GraphStates.OLDGRAPHSPREFIXED);
+		LOG.debug(format("renaming old graphs in clean db successfully finished", status));
+	}
+	
+	private void executeStateOldGraphsPrefixed(PipelineGraphManipulator manipulator, PipelineGraphStatus status)
+			throws PipelineGraphManipulatorException, PipelineGraphStatusException {
+
+		LOG.info(format("clearing temporary prefix of new graphs and clearing old graphs in clean db started", status));
+		manipulator.renameNewGraphsToGraphsInCleanDB();
+		manipulator.clearOldGraphsInCleanDB();
+		status.setNoDirtyState(GraphStates.NEWGRAPHSPREPARED);
+		LOG.debug(format("clearing temporary prefix of new graphs and clearing old graphs in clean dbsuccessfully finished", status));
+	}
+	
+	private void executeStateNewGraphsPrepared(PipelineGraphManipulator manipulator, PipelineGraphStatus status)
+			throws PipelineGraphManipulatorException, PipelineGraphStatusException {
+
+		LOG.info(format("cleaning dirty db started", status));
 		manipulator.clearGraphsInDirtyDB();
-		manipulator.deleteInputFile();
+		manipulator.deleteInputFiles();
 		status.setNoDirtyState(GraphStates.FINISHED);
-		LOG.info(format("pipeline for graph successfully finished", status));
+		LOG.info(format("pipeline successfully finished", status));
 	}
 
 	private void executeStateDirty(PipelineGraphManipulator manipulator, PipelineGraphStatus status)
 			throws PipelineGraphManipulatorException, PipelineGraphStatusException {
 
 		LOG.info(format("cleaning dirty graph started", status));
+		manipulator.clearNewGraphsInCleanDB();
 		manipulator.clearGraphsInDirtyDB();
 		status.setNoDirtyState(GraphStates.WRONG);
 		LOG.info(format("cleaning dirty graph successfully finished, graph moved to WRONG state", status));
@@ -223,7 +260,7 @@ public final class PipelineService extends Service implements Runnable {
 					sb.append(" - ");
 				}
 				sb.append(message);
-				return FormatHelper.formatGraphMessage(sb.toString(), status.getUuid());
+				return FormatHelper.formatGraphMessage(sb.toString(), status.getUuid(), status.isInCleanDbBeforeProcessing());
 			}
 			return  message;
 		} catch(Exception ie) {
@@ -249,6 +286,12 @@ public final class PipelineService extends Service implements Runnable {
 			
 			sb.append("Graph-uuid: ");
 			sb.append(status.getUuid());
+			if (status.isInCleanDbBeforeProcessing()) {
+				sb.append("; existing graph processing");
+			} else {
+				sb.append("; new graph processing");
+			}
+
 			sb.append("\n");
 			
 			if(command != null) {
