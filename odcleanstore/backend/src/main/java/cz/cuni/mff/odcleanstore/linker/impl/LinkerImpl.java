@@ -7,6 +7,7 @@ import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.data.RDFprefix;
+import cz.cuni.mff.odcleanstore.data.TableVersion;
 import cz.cuni.mff.odcleanstore.linker.Linker;
 import cz.cuni.mff.odcleanstore.linker.rules.SilkRule;
 import cz.cuni.mff.odcleanstore.shared.FileUtils;
@@ -158,11 +159,16 @@ public class LinkerImpl implements Linker {
 	 * @param transformerConfiguration string containing the list of rule-groups IDs
 	 * @param dao is used to load rules from DB
 	 */
-	private List<SilkRule> loadRules(TransformationContext context)
+	private List<SilkRule> loadRules(TransformationContext context, TableVersion tableVersion)
 			throws ConnectionException, QueryException {
 		LOG.info("Loading rule groups: {}", groupIds);
 		LinkerDao dao = LinkerDao.getInstance(context.getCleanDatabaseCredentials(), context.getDirtyDatabaseCredentials());
-		return dao.loadRules(groupIds);
+		return dao.loadRules(groupIds, tableVersion);
+	}
+	
+	private List<SilkRule> loadRules(TransformationContext context)
+			throws ConnectionException, QueryException {
+		return loadRules(context, TableVersion.COMMITTED);
 	}
 
 	private String getLinksGraphId(TransformedGraph inputGraph) {
@@ -170,20 +176,20 @@ public class LinkerImpl implements Linker {
 	}
 
 	@Override
-    public List<DebugResult> debugRules(String input, TransformationContext context)
+    public List<DebugResult> debugRules(String input, TransformationContext context, TableVersion tableVersion)
 			throws TransformerException {
-		return debugRules(stringToFile(input, context.getTransformerDirectory()), context, 
+		return debugRules(stringToFile(input, context.getTransformerDirectory()), context, tableVersion,
 				FileUtils.guessLanguage(input));
 	}
 
 	@Override
-    public List<DebugResult> debugRules(File inputFile, TransformationContext context, SerializationLanguage language)
-			throws TransformerException {
+    public List<DebugResult> debugRules(File inputFile, TransformationContext context, TableVersion tableVersion, 
+    		SerializationLanguage language) throws TransformerException {
 		List<DebugResult> resultList = new ArrayList<DebugResult>();
 		File configFile = null;
 		String resultFileName = null;
 		try {
-			List<SilkRule> rules = loadRules(context);
+			List<SilkRule> rules = loadRules(context, tableVersion);
 			List<RDFprefix> prefixes = RDFPrefixesLoader.loadPrefixes(context.getCleanDatabaseCredentials());
 			for (SilkRule rule: rules) {
 				resultFileName = createFileName(

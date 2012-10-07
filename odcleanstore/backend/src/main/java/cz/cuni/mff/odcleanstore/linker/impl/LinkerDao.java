@@ -5,6 +5,7 @@ import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
+import cz.cuni.mff.odcleanstore.data.TableVersion;
 import cz.cuni.mff.odcleanstore.linker.rules.FileOutput;
 import cz.cuni.mff.odcleanstore.linker.rules.Output;
 import cz.cuni.mff.odcleanstore.linker.rules.OutputType;
@@ -82,7 +83,8 @@ public class LinkerDao {
 	 * @throws SQLException
 	 * @throws ConnectionException 
 	 */
-	public List<SilkRule> loadRules(Integer[] groups) throws QueryException, ConnectionException {
+	public List<SilkRule> loadRules(Integer[] groups, TableVersion tableVersion) 
+			throws QueryException, ConnectionException {
 	    if (groups == null || groups.length == 0) {
 	        LOG.info("Loaded 0 linkage rules.");
 	        return Collections.<SilkRule>emptyList();
@@ -91,11 +93,12 @@ public class LinkerDao {
 		List<SilkRule> ruleList = new ArrayList<SilkRule>();
 		VirtuosoConnectionWrapper connection = null;
 		WrappedResultSet resultSet = null;
+		String tableName = "DB.ODCLEANSTORE.OI_RULES" + tableVersion.getTableSuffix();
 		try {
 			connection = VirtuosoConnectionWrapper.createConnection(cleanDBCredentials);
 			resultSet = connection.executeSelect(
 					"select id, label, linkType, sourceRestriction, targetRestriction, blob_to_string(linkageRule) as rule, filterThreshold, filterLimit " +
-					"from DB.ODCLEANSTORE.OI_RULES where groupId in " + createInPart(groups));
+					"from " + tableName + " where groupId in " + createInPart(groups));
 			while (resultSet.next()) {
 				SilkRule rule = createRule(resultSet);
 				rule.setOutputs(loadOutputs(connection, resultSet.getInt("id")));
