@@ -2,6 +2,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi;
 
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
@@ -35,8 +36,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPan
 public class OIGroupDetailPage extends LimitedEditingPage
 {
 	private static final long serialVersionUID = 1L;
-
-	//private static Logger logger = Logger.getLogger(OIGroupDetailPage.class);
+	private static Logger logger = Logger.getLogger(OIGroupDetailPage.class);
 	
 	private OIRulesGroupDao oiRulesGroupDao;
 	private OIRuleDao oiRuleDao;
@@ -111,13 +111,13 @@ public class OIGroupDetailPage extends LimitedEditingPage
 				}
 				catch (DaoException ex)
 				{
+					logger.error(ex.getMessage(), ex);
 					getSession().error(ex.getMessage());
 					return;
 				}
 				catch (Exception ex)
 				{
-					// TODO: log the error
-					
+					logger.error(ex.getMessage(), ex);
 					getSession().error(
 						"The group could not be updated due to an unexpected error."
 					);

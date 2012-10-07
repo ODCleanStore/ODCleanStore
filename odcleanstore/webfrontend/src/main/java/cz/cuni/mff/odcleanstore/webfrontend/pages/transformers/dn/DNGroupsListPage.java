@@ -130,8 +130,7 @@ public class DNGroupsListPage extends FrontendPage
 				}
 				catch (Exception ex)
 				{
-					logger.error(ex.getMessage());
-
+					logger.error(ex.getMessage(), ex);
 					getSession().error(
 						"The affected graphs could not be marked to be rerun due to an unexpected error."
 					);

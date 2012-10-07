@@ -156,13 +156,13 @@ public class PipelinesListPage extends FrontendPage
 				}
 				catch (DaoException ex)
 				{
+					logger.error(ex.getMessage(), ex);
 					getSession().error(ex.getMessage());
 					return;
 				}
 				catch (Exception ex)
 				{
-					// logger.error(ex.getMessage());
-					
+					logger.error(ex.getMessage(), ex);					
 					getSession().error(
 						"The pipeline could not be marked as default due to an unexpected error."
 					);
@@ -207,6 +207,7 @@ public class PipelinesListPage extends FrontendPage
 				}
 				catch (Exception ex)
 				{
+					logger.error(ex.getMessage(), ex);
 					getSession().error("The pipeline could not be " + status + "ed due to an unexpected error.");
 					return;
 				}

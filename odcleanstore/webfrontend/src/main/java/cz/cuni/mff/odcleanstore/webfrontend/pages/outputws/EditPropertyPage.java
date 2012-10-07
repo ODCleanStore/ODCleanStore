@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.outputws;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
@@ -19,8 +20,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.validators.IRIValidator;
 public class EditPropertyPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
-
-	//private static Logger logger = Logger.getLogger(EditPropertyPage.class);
+	private static Logger logger = Logger.getLogger(EditPropertyPage.class);
 	
 	private PropertySettingsDao propertySettingsDao;
 	private AggregationTypeDao aggregationTypeDao;
@@ -65,13 +65,13 @@ public class EditPropertyPage extends FrontendPage
 				}
 				catch (DaoException ex)
 				{
+					logger.error(ex.getMessage(), ex);
 					getSession().error(ex.getMessage());
 					return;
 				}
 				catch (Exception ex)
 				{
-					// TODO: log the error
-					
+					logger.error(ex.getMessage(), ex);
 					getSession().error(
 						"The property could not be updated due to an unexpected error."
 					);

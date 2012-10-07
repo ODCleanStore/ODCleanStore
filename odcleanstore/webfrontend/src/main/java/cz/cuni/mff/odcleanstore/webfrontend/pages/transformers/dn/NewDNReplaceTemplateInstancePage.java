@@ -83,14 +83,14 @@ public class NewDNReplaceTemplateInstancePage extends LimitedEditingPage
 					dnReplaceTemplateInstanceDao.save(instance);
 				}
 				catch (DaoException ex)
-				{
+				{	
+					logger.error(ex.getMessage(), ex);
 					getSession().error(ex.getMessage());
 					return;
 				}
 				catch (Exception ex)
 				{
-					logger.error(ex.getMessage());
-					
+					logger.error(ex.getMessage(), ex);				
 					getSession().error(
 						"The replace template instance could not be registered due to an unexpected error."
 					);

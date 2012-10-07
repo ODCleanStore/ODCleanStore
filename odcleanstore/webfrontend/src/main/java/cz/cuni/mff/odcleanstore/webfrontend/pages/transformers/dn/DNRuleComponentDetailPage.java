@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -18,6 +19,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 public class DNRuleComponentDetailPage extends LimitedEditingPage
 {
 	private static final long serialVersionUID = 1L;
+	private static Logger logger = Logger.getLogger(DNRuleComponentDetailPage.class);
 
 	private DNRuleComponentDao dnRuleComponentDao;
 	private DNRuleComponentTypeDao dnRuleComponentTypeDao;
@@ -75,14 +77,14 @@ public class DNRuleComponentDetailPage extends LimitedEditingPage
 					dnRuleComponentDao.update(dnRuleComponent);
 				}
 				catch (DaoException ex)
-				{
+				{	
+					logger.error(ex.getMessage(), ex);
 					getSession().error(ex.getMessage());
 					return;
 				}
 				catch (Exception ex)
 				{
-					// TODO: log the error
-					
+					logger.error(ex.getMessage(), ex);
 					getSession().error(
 						"The component could not be updated due to an unexpected error."
 					);

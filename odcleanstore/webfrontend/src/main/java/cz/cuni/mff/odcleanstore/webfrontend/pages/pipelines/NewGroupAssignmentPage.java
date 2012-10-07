@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -18,6 +19,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPan
 public class NewGroupAssignmentPage extends LimitedEditingPage
 {
 	private static final long serialVersionUID = 1L;
+	private static Logger logger = Logger.getLogger(NewGroupAssignmentPage.class);
 	
 	private DaoForEntityWithSurrogateKey<? extends RulesGroupEntity> groupsDao;
 	private DaoForEntityWithSurrogateKey<RuleAssignment> assignedGroupsDao;
@@ -78,14 +80,14 @@ public class NewGroupAssignmentPage extends LimitedEditingPage
 					assignedGroupsDao.save(assignment);
 				}
 				catch (DaoException ex)
-				{
+				{	
+					logger.error(ex.getMessage(), ex);
 					getSession().error(ex.getMessage());
 					return;
 				}
 				catch (Exception ex)
 				{
-					// TODO: log the error
-					
+					logger.error(ex.getMessage(), ex);
 					getSession().error(
 						"The group could not be assigned due to an unexpected error."
 					);

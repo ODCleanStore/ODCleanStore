@@ -131,14 +131,14 @@ public class PipelineDetailPage extends LimitedEditingPage
 					pipelineDao.update(pipeline);
 				}
 				catch (DaoException ex)
-				{
+				{	
+					logger.error(ex.getMessage(), ex);
 					getSession().error(ex.getMessage());
 					return;
 				}
 				catch (Exception ex)
 				{
-					// TODO: log the error
-					
+					logger.error(ex.getMessage(), ex);					
 					getSession().error(
 						"The pipeline could not be updated due to an unexpected error."
 					);

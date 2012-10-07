@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.prefixes;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
@@ -20,6 +21,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 public class PrefixesListPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
+	private static Logger logger = Logger.getLogger(PrefixesListPage.class);
 	
 	private PrefixDao prefixMappingDao;
 	
@@ -86,7 +88,8 @@ public class PrefixesListPage extends FrontendPage
 					prefixMappingDao.delete(mapping);
 				} 
 	        	catch (Exception e) 
-	        	{
+	        	{	
+	        		logger.error(e.getMessage(), e);
 	        		getSession().error("Could not delete prefix mapping due to an unexpected error.");
 	        		return;
 				}

@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -29,8 +30,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 public class DNRuleDetailPage extends LimitedEditingPage
 {
 	private static final long serialVersionUID = 1L;
-
-	//private static Logger logger = Logger.getLogger(EditDNRulePage.class);
+	private static Logger logger = Logger.getLogger(DNRuleDetailPage.class);
 	
 	private DNRuleDao dnRuleDao;
 	private DNRuleComponentDao dnRuleComponentDao;
@@ -82,14 +82,14 @@ public class DNRuleDetailPage extends LimitedEditingPage
 					dnRuleDao.update(rule);
 				}
 				catch (DaoException ex)
-				{
+				{	
+					logger.error(ex.getMessage(), ex);
 					getSession().error(ex.getMessage());
 					return;
 				}
 				catch (Exception ex)
 				{
-					// TODO: log the error
-					
+					logger.error(ex.getMessage(), ex);
 					getSession().error(
 						"The rule could not be updated due to an unexpected error."
 					);
