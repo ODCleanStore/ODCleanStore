@@ -30,7 +30,7 @@ public class TemporaryGraphsDao extends Dao
 	public void save(String graphName) throws Exception {
 		logger.debug("Registering temporary graph " + graphName);
 		
-		String query = "INSERT REPLACING INTO " + getTableName() + " (graphName) VALUES (?)";
+		String query = "INSERT REPLACING " + getTableName() + " (graphName) VALUES (?)";
 		Object[] params = { graphName };
 		jdbcUpdate(query, params, EnumDatabaseInstance.DIRTY);
 	}

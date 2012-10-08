@@ -343,14 +343,14 @@ public final class VirtuosoConnectionWrapper {
     }
 
     /**
-     * Insert RDF data from file in TTL format to the database.
+     * Insert RDF data from file in N3 format to the database.
      * 
      * @param relativeBase relative URI base for payload
-     * @param ttlFileName file name with payload in ttl format
+     * @param ttlFileName file name with payload in N3 format
      * @param graphName name of the graph to insert
      * @throws QueryException query error
      */
-    public void insertTtlFromFile(String relativeBase, String ttlFileName, String graphName) throws QueryException {
+    public void insertN3FromFile(String relativeBase, String ttlFileName, String graphName) throws QueryException {
         String base = (relativeBase == null) ? "" : relativeBase;
         String escapedFileName = ttlFileName.replace('\\', '/');
         String statement = "{call DB.DBA.TTLP(file_to_string_output("

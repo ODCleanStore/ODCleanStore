@@ -18,10 +18,11 @@ import cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UploadButton;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
 @AuthorizeInstantiation({ Role.PIC })
-public class OIDebugPage extends FrontendPage 
+public class OIDebugPage extends LimitedEditingPage 
 {	
 	private static final long serialVersionUID = 1L;
 	protected static Logger logger = Logger.getLogger(OIDebugPage.class);
@@ -32,7 +33,9 @@ public class OIDebugPage extends FrontendPage
 	{
 		super(
 			"Home > Backend > OI > Groups > Debug", 
-			"Debug OI rule group"
+			"Debug OI rule group",
+			OIRulesGroupDao.class,
+			groupId
 		);
 			
 		// register page components
@@ -53,7 +56,7 @@ public class OIDebugPage extends FrontendPage
 				Linker linker = new LinkerImpl(groupId);
 				try 
 				{
-					List<DebugResult> results = linker.debugRules(rdfInput, createContext());
+					List<DebugResult> results = linker.debugRules(rdfInput, createContext(), getVisibleTableVersion());
 					setResponsePage(new OIDebugResultPage(results, groupId));
 				} 
 				catch (TransformerException e)

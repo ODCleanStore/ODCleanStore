@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -10,8 +11,10 @@ import cz.cuni.mff.odcleanstore.util.Pair;
  * @author Dusan
  *
  */
-public class QueryCriteria implements Cloneable
+public class QueryCriteria implements Cloneable, Serializable
 {
+	private static final long serialVersionUID = 1L;
+
 	public enum SortOrder { ASC, DESC };
 	
 	private List<Pair<String, Object>> whereClauses;

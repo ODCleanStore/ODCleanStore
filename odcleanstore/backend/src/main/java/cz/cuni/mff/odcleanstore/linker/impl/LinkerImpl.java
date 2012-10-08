@@ -7,9 +7,12 @@ import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.data.RDFprefix;
+import cz.cuni.mff.odcleanstore.data.TableVersion;
 import cz.cuni.mff.odcleanstore.linker.Linker;
 import cz.cuni.mff.odcleanstore.linker.rules.SilkRule;
+import cz.cuni.mff.odcleanstore.shared.FileUtils;
 import cz.cuni.mff.odcleanstore.shared.RDFPrefixesLoader;
+import cz.cuni.mff.odcleanstore.shared.SerializationLanguage;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
@@ -38,10 +41,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
@@ -71,7 +71,6 @@ public class LinkerImpl implements Linker {
 	private static final String CONFIG_XML_MEASURE = "measure";
 
 	private static final String LINK_WITHIN_GRAPH_KEY = "linkWithinGraph";
-	private static final String JENA_FILE_FORMAT = "N3";
 
 	private ObjectIdentificationConfig globalConfig;
 	private Integer[] groupIds;
@@ -160,11 +159,16 @@ public class LinkerImpl implements Linker {
 	 * @param transformerConfiguration string containing the list of rule-groups IDs
 	 * @param dao is used to load rules from DB
 	 */
-	private List<SilkRule> loadRules(TransformationContext context)
+	private List<SilkRule> loadRules(TransformationContext context, TableVersion tableVersion)
 			throws ConnectionException, QueryException {
 		LOG.info("Loading rule groups: {}", groupIds);
 		LinkerDao dao = LinkerDao.getInstance(context.getCleanDatabaseCredentials(), context.getDirtyDatabaseCredentials());
-		return dao.loadRules(groupIds);
+		return dao.loadRules(groupIds, tableVersion);
+	}
+	
+	private List<SilkRule> loadRules(TransformationContext context)
+			throws ConnectionException, QueryException {
+		return loadRules(context, TableVersion.COMMITTED);
 	}
 
 	private String getLinksGraphId(TransformedGraph inputGraph) {
@@ -172,34 +176,29 @@ public class LinkerImpl implements Linker {
 	}
 
 	@Override
-    public List<DebugResult> debugRules(InputStream source, TransformationContext context)
+    public List<DebugResult> debugRules(String input, TransformationContext context, TableVersion tableVersion)
 			throws TransformerException {
-		return debugRules(streamToFile(source, context.getTransformerDirectory()), context);
+		return debugRules(stringToFile(input, context.getTransformerDirectory()), context, tableVersion,
+				FileUtils.guessLanguage(input));
 	}
 
 	@Override
-    public List<DebugResult> debugRules(String input, TransformationContext context)
-			throws TransformerException {
-		return debugRules(stringToFile(input, context.getTransformerDirectory()), context);
-	}
-
-	@Override
-    public List<DebugResult> debugRules(File inputFile, TransformationContext context)
-			throws TransformerException {
+    public List<DebugResult> debugRules(File inputFile, TransformationContext context, TableVersion tableVersion, 
+    		SerializationLanguage language) throws TransformerException {
 		List<DebugResult> resultList = new ArrayList<DebugResult>();
 		File configFile = null;
 		String resultFileName = null;
 		try {
-			List<SilkRule> rules = loadRules(context);
+			List<SilkRule> rules = loadRules(context, tableVersion);
 			List<RDFprefix> prefixes = RDFPrefixesLoader.loadPrefixes(context.getCleanDatabaseCredentials());
 			for (SilkRule rule: rules) {
 				resultFileName = createFileName(
 						rule.getId().toString(), context.getTransformerDirectory(), DEBUG_OUTPUT_FILENAME);
 				configFile = ConfigBuilder.createDebugLinkConfigFile(rule, prefixes, context, globalConfig,
-						inputFile.getAbsolutePath(), resultFileName);
+						inputFile.getAbsolutePath(), resultFileName, language);
 				Silk.executeFile(configFile, null, Silk.DefaultThreads(), true);
 				List<LinkedPair> linkedPairs = parseLinkedPairs(resultFileName);
-				loadLabels(inputFile, linkedPairs);
+				loadLabels(inputFile, linkedPairs, language);
 				loadLabels(context.getCleanDatabaseCredentials(), context.getDirtyDatabaseCredentials(), linkedPairs);
 				resultList.add(new DebugResult(rule.getLabel(), linkedPairs));
 				deleteFile(configFile);
@@ -277,31 +276,6 @@ public class LinkerImpl implements Linker {
 		return pairList;
 	}
 
-	private File streamToFile(InputStream stream, File targetDirectory) throws TransformerException {
-		try {
-			File file = new File(createFileName("", targetDirectory, DEBUG_INPUT_FILENAME));
-		    OutputStream os = new FileOutputStream(file);
-		    try {
-		        byte[] buffer = new byte[4096];
-		        for (int n; (n = stream.read(buffer)) != -1; )
-		            os.write(buffer, 0, n);
-		        return file;
-		    } catch (IOException e) {
-				throw new TransformerException(e);
-			} finally {
-		    	try {
-					os.close();
-				} catch (IOException e) { /* do nothing */ }
-		    }
-		} catch (FileNotFoundException e) {
-			throw new TransformerException(e);
-		} finally {
-			try {
-				stream.close();
-			} catch (IOException e) { /* do nothing */ }
-		}
-	}
-
 	private File stringToFile(String input, File targetDirectory) throws TransformerException {
 		File file = new File(createFileName("", targetDirectory, DEBUG_INPUT_FILENAME));
 		PrintWriter writer = null;
@@ -319,8 +293,8 @@ public class LinkerImpl implements Linker {
 		return file;
 	}
 
-	private void loadLabels(File inputFile, List<LinkedPair> linkedPairs) {
-		NamedGraphSet graphSet = loadGraphs(inputFile);
+	private void loadLabels(File inputFile, List<LinkedPair> linkedPairs, SerializationLanguage language) {
+		NamedGraphSet graphSet = loadGraphs(inputFile, language);
 		for (LinkedPair pair: linkedPairs) {
 			Iterator<?> it = graphSet.findQuads(
 					Node.ANY, Node.createURI(pair.getFirstUri()), Node.createURI(RDFS.label), Node.ANY);
@@ -339,9 +313,9 @@ public class LinkerImpl implements Linker {
 		}
 	}
 
-	private NamedGraphSet loadGraphs(File inputFile) {
+	private NamedGraphSet loadGraphs(File inputFile, SerializationLanguage language) {
 		GraphReaderService reader = new GraphReaderService();
-		reader.setLanguage(JENA_FILE_FORMAT);
+		reader.setLanguage(language.toString());
 		reader.setSourceFile(inputFile);
 		NamedGraphSet graphSet = new NamedGraphSetImpl();
 		reader.readInto(graphSet);

@@ -264,15 +264,12 @@ public class DNGroupDetailPage extends LimitedEditingPage
 				item.add(new TruncatedLabel("replacement", MAX_LIST_COLUMN_TEXT_LENGTH));
 				
 				item.add(
-					new AuthorizedDeleteTemplateInstanceButton<DNReplaceTemplateInstance>
-					(
+					createAuthorizedDeleteTemplateInstanceButton(
 						dnReplaceTemplateInstanceDao,
 						compiledDnRuleDao,
 						instance,
-						isEditable(),
 						"replaceTemplateInstance",
-						new DeleteConfirmationMessage("replace template instance"),
-						DNGroupDetailPage.this
+						new DeleteConfirmationMessage("replace template instance")
 					)
 				);
 				
@@ -332,15 +329,12 @@ public class DNGroupDetailPage extends LimitedEditingPage
 				item.add(new TruncatedLabel("targetPropertyName", MAX_LIST_COLUMN_TEXT_LENGTH));
 				
 				item.add(
-					new AuthorizedDeleteTemplateInstanceButton<DNRenameTemplateInstance>
-					(
+					createAuthorizedDeleteTemplateInstanceButton(
 						dnRenameTemplateInstanceDao,
 						compiledDnRuleDao,
 						instance,
-						isEditable(),
 						"renameTemplateInstance",
-						new DeleteConfirmationMessage("rename template instance"),
-						DNGroupDetailPage.this
+						new DeleteConfirmationMessage("rename template instance")
 					)
 				);
 				

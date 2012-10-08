@@ -2,6 +2,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages;
 
 import org.apache.wicket.authorization.UnauthorizedInstantiationException;
 
+import cz.cuni.mff.odcleanstore.data.TableVersion;
 import cz.cuni.mff.odcleanstore.webfrontend.core.AuthorizationHelper;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 
@@ -45,6 +46,11 @@ public abstract class LimitedEditingPage extends FrontendPage
 	protected boolean isEditable()
 	{
 		return isEditable;
+	}
+	
+	protected TableVersion getVisibleTableVersion() 
+	{
+		return isEditable ? TableVersion.UNCOMMITTED : TableVersion.COMMITTED;
 	}
 	
 	protected void checkUnathorizedInstantiation() throws UnauthorizedInstantiationException
