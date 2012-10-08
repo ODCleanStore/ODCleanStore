@@ -87,8 +87,13 @@ public final class PipelineService extends Service implements Runnable {
 					_waitPenalty = 0;
 				}
 			} catch (Exception e) {
+				if (status != null && status.isResetPipelineRequest()) {
+					LOG.info(format("--- reset pipeline request detected ---", status));
+				}
+				else {
 					_waitPenalty++;
 					LOG.error(FormatHelper.formatExceptionForLog(e, format("crashed", status)));
+				}
 			}
 		}
 	}
@@ -168,7 +173,7 @@ public final class PipelineService extends Service implements Runnable {
 				String message = formatExceptionForDB("data loading failure", e, null, status);
 				status.setDirtyState(PipelineErrorTypes.DATA_LOADING_FAILURE, message);
 			}
-			throw e; 		
+			throw e;
 		}
 	}
 	
@@ -204,7 +209,7 @@ public final class PipelineService extends Service implements Runnable {
 				String message = formatExceptionForDB("copy to clean db", e, null, status);
 				status.setDirtyState(PipelineErrorTypes.COPY_TO_CLEAN_DB_FAILURE, message);
 			}
-			throw e; 		
+			throw e;
 		}
 		
 		status.setNoDirtyState(GraphStates.PROPAGATED);
@@ -236,8 +241,11 @@ public final class PipelineService extends Service implements Runnable {
 		LOG.info(format("cleaning dirty db started", status));
 		manipulator.clearGraphsInDirtyDB();
 		manipulator.deleteInputFiles();
-		status.setNoDirtyState(GraphStates.FINISHED);
-		LOG.info(format("pipeline successfully finished", status));
+		if (status.setNoDirtyState(GraphStates.FINISHED) == GraphStates.QUEUED) {
+			LOG.info(format("pipeline successfully finished and graf is returned into queue due restart pipeline request", status));
+		} else {
+			LOG.info(format("pipeline successfully finished", status));
+		}
 	}
 
 	private void executeStateDirty(PipelineGraphManipulator manipulator, PipelineGraphStatus status)
@@ -247,7 +255,11 @@ public final class PipelineService extends Service implements Runnable {
 		manipulator.clearNewGraphsInCleanDB();
 		manipulator.clearGraphsInDirtyDB();
 		status.setNoDirtyState(GraphStates.WRONG);
-		LOG.info(format("cleaning dirty graph successfully finished, graph moved to WRONG state", status));
+		if (status.setNoDirtyState(GraphStates.FINISHED) == GraphStates.QUEUED) {
+			LOG.info(format("cleaning dirty graph successfully finished, graf is returned into queue due restart pipeline request", status));
+		} else {
+			LOG.info(format("cleaning dirty graph successfully finished, graph moved to WRONG state", status));
+		}
 	}
 	
 	private String format(String message, PipelineGraphStatus status) {
@@ -268,7 +280,7 @@ public final class PipelineService extends Service implements Runnable {
 		} 
 	}
 	
-	public static String formatExceptionForDB(String message, Throwable exception, PipelineCommand command, PipelineGraphStatus status) {
+	private static String formatExceptionForDB(String message, Throwable exception, PipelineCommand command, PipelineGraphStatus status) {
 		try {
 			StringBuilder sb = new StringBuilder();
 			

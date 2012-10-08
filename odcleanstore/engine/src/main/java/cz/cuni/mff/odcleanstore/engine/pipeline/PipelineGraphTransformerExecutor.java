@@ -90,6 +90,7 @@ public class PipelineGraphTransformerExecutor {
 			EnumTransformationType type = this.graphStatus.isInCleanDb() ? EnumTransformationType.EXISTING : EnumTransformationType.NEW;  			
 			context = new TransformationContext(command.configuration, path, type);
 			
+			graphStatus.checkResetPipelineRequest();
 			try {
 				if (this.graphStatus.isInCleanDb()) {
 					this.currentTransformer.transformExistingGraph(graph, context);

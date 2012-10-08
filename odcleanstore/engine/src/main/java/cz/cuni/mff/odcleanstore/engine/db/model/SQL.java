@@ -21,11 +21,12 @@ class SQL {
 	 * @param first Engine uuid
 	 */
 	static final String SELECT_WORKING_GRAPH = String.format(Locale.ROOT, 
-			  " SELECT TOP 1 ig.id, ig.uuid, ig.stateId, ig.pipelineId, pi.label, ig.isInCleanDB, ae.uuid" 
+			  " SELECT TOP 1 ig.id, ig.uuid, ig.stateId, ig.pipelineId, pi.label, ig.isInCleanDB, ae.uuid, ig.resetPipelineRequest" 
 			+ " FROM ODCLEANSTORE.EN_INPUT_GRAPHS ig"
 			+ " LEFT JOIN ODCLEANSTORE.EN_ATTACHED_ENGINES ae ON ig.engineId = ae.id"
 			+ " LEFT JOIN ODCLEANSTORE.PIPELINES pi ON ig.pipelineId = pi.id"
 			+ " WHERE (ae.uuid = ? OR ae.uuid IS NULL) AND ig.stateId IN (%s,%s,%s,%s,%s, %s, %s)"
+			// TODO remove next line after implementation in FE will be changed
 			+ "   AND (pi.isLocked = 0 OR pi.isLocked IS NULL)"
 			+ " ORDER BY ig.stateId, ig.updated",
 			GraphStates.DIRTY.toId(),
@@ -44,7 +45,7 @@ class SQL {
 	 * @param first Engine uuid
 	 */	
 	static final String SELECT_QUEUD_GRAPH = String.format(Locale.ROOT, 
-			  " SELECT TOP 1 ig.id, ig.uuid, ig.stateId, ig.pipelineId, pi.label, ig.isInCleanDB, ae.uuid" 
+			  " SELECT TOP 1 ig.id, ig.uuid, ig.stateId, ig.pipelineId, pi.label, ig.isInCleanDB, ae.uuid, ig.resetPipelineRequest" 
 			+ " FROM ODCLEANSTORE.EN_INPUT_GRAPHS ig"
 			+ " LEFT JOIN ODCLEANSTORE.EN_ATTACHED_ENGINES ae ON ig.engineId = ae.id"
 			+ " LEFT JOIN ODCLEANSTORE.PIPELINES pi ON ig.pipelineId = pi.id"
@@ -100,6 +101,30 @@ class SQL {
 			+ " WHERE id = ?");
 	
 	static final String ERROR_UPDATE_GRAPH_STATE_AND_ISINCLEANDB = "Error during updating graph state";
+	
+	
+	/**
+	 * Select graph resetPipelineRequest for given graphId.
+	 * @param first graphId
+	 */
+	static final String SELECT_GRAPH_RESETPIPELINEREQUEST =
+			  " SELECT TOP 1 resetPipelineRequest"
+			+ " FROM ODCLEANSTORE.EN_INPUT_GRAPHS"
+			+ " WHERE id = ?"; 
+	
+	static final String ERROR_GRAPH_RESETPIPELINEREQUEST = "Error during selecting graph resetPipelineRequest";
+
+	
+	/**
+	 * Clear graph resetPipelineRequest.
+	 * @param first graphId
+	 */
+	static final String CLEAR_GRAPH_RESETPIPELINEREQUEST =  
+			  " UPDATE ODCLEANSTORE.EN_INPUT_GRAPHS" 
+			+ " SET resetPipelineRequest = 0"
+			+ " WHERE id = ?";
+	
+	static final String ERROR_CLEAR_GRAPH_RESETPIPELINEREQUEST = "Error during clearing graph resetPipelineRequest";
 	
 	//-----------------------------------------------------------------------------------------------//
 		
@@ -229,4 +254,15 @@ class SQL {
 			+ " VALUES(?,?,?)";
 	
 	static final String ERROR_INSERT_GRAPH_IN_ERROR = "Error during inserting graph in graphs in error";
+	
+	/**
+	 * Delete graph from pipeline error table.
+	 * @param first graphId
+	 */
+	static final String DELETE_GRAPH_IN_ERROR = 
+			  " DELETE"  
+			+ " FROM ODCLEANSTORE.EN_GRAPHS_IN_ERROR"
+			+ " WHERE graphId = ?";
+
+	static final String ERROR_DELETE_GRAPH_IN_ERROR = "Error during deleting graph in error";
 }

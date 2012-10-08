@@ -7,5 +7,6 @@ public final class Graph {
 	public GraphStates state;
 	public Pipeline pipeline;
 	public boolean isInCleanDb;
+	public boolean resetPipelineRequest;
 	public String engineUuid;
 }

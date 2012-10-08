@@ -21,6 +21,8 @@ public final class PipelineGraphStatus {
     private static final String ERROR_ADD_ATTACHED_GRAPH = "Error during attaching graph to pipeline";
     private static final String ERROR_DELETE_ATTACHED_GRAPH = "Error during deleting attached graph";
     private static final String ERROR_SET_STATE = "Error during updating graph state";
+    private static final String ERROR_SELECT_RESETPIPELINESTATE = "Error during selecting graph reset pipeline state flag";
+    private static final String ERROR_RESETPIPELINESTATE_DETECTED = "Reset pipeline state detected";
 
     private Graph graph = null;
     private HashSet<String> attachedGraphs = null;
@@ -53,10 +55,14 @@ public final class PipelineGraphStatus {
                             break;
                         case QUEUED_URGENT:
                             context.updateState(graph.id, GraphStates.PROCESSING);
+                            context.clearResetPipelineRequest(graph.id);
+                            graph.resetPipelineRequest = false;
                             graph.state = GraphStates.PROCESSING;
                             break;
                         case QUEUED:
                             context.updateState(graph.id, GraphStates.PROCESSING);
+                            context.clearResetPipelineRequest(graph.id);
+                            graph.resetPipelineRequest = false;
                             graph.state = GraphStates.PROCESSING;
                             break;
                         default:
@@ -69,6 +75,7 @@ public final class PipelineGraphStatus {
                         }
                     }
                     graph.engineUuid = engineUuid;
+
                     PipelineGraphStatus pipelineGraphStatus = new PipelineGraphStatus(context, graph);
                     try {
                         context.commit();
@@ -117,6 +124,10 @@ public final class PipelineGraphStatus {
     boolean isInCleanDbBeforeProcessing() {
         return isInCleanDbBeforeProcessing;
     }
+    
+    boolean isResetPipelineRequest() {
+        return graph.resetPipelineRequest;
+    }
 
     Integer getPipelineId() {
         return new Integer(pipeline.id);
@@ -155,19 +166,27 @@ public final class PipelineGraphStatus {
         return markedForDeleting;
     }
 
-    void setNoDirtyState(GraphStates state) throws PipelineGraphStatusException {
+    GraphStates setNoDirtyState(GraphStates state) throws PipelineGraphStatusException {
         DbOdcsContext context = null;
         assert state != GraphStates.DIRTY;
         try {
             context = new DbOdcsContext();
+            
+            boolean isResetPipelineState = context.selectResetPipelineRequest(graph.id);
 
             if (state == GraphStates.DELETED || (state == GraphStates.WRONG && !graph.isInCleanDb)) {
                 context.deleteAttachedGraphs(graph.id);
             }
+            
             if (state == GraphStates.NEWGRAPHSPREPARED) {
                 context.updateStateAndIsInCleanDb(graph.id, state, true);
             } else if (state == GraphStates.DELETING) {
                 context.updateStateAndIsInCleanDb(graph.id, state, false);
+            } else if (state == GraphStates.WRONG && isResetPipelineState) {
+            	context.deleteGraphInError(graph.id);
+            	context.updateState(graph.id, GraphStates.QUEUED);
+            } else if (state == GraphStates.FINISHED && isResetPipelineState) {
+            	context.updateState(graph.id, GraphStates.QUEUED);
             } else {
                 context.updateState(graph.id, state);
             }
@@ -179,14 +198,19 @@ public final class PipelineGraphStatus {
             if (state == GraphStates.DELETED || (state == GraphStates.WRONG && !graph.isInCleanDb)) {
                 attachedGraphs.clear();
             }
+            
             if (state == GraphStates.NEWGRAPHSPREPARED) {
                 graph.isInCleanDb = true;
-            }
-            else if (state == GraphStates.DELETING) {
+            } else if (state == GraphStates.DELETING) {
                 graph.isInCleanDb = false;
-            }
+        	} else if (state == GraphStates.WRONG && isResetPipelineState) {
+        		state = GraphStates.QUEUED;
+        	} else if (state == GraphStates.FINISHED && isResetPipelineState) {
+        		state = GraphStates.QUEUED;
+        	}
+            return state;
         } catch (Exception e) {
-            throw new PipelineGraphStatusException(format(ERROR_SET_STATE, state), e);
+           throw new PipelineGraphStatusException(format(ERROR_SET_STATE, state), e);
         } finally {
             if (context != null) {
                 context.closeQuietly();
@@ -210,7 +234,24 @@ public final class PipelineGraphStatus {
             }
         }
     }
-
+    
+    void checkResetPipelineRequest() throws PipelineGraphStatusException {
+    	DbOdcsContext context = null;
+        try {
+            context = new DbOdcsContext();
+            if (context.selectResetPipelineRequest(graph.id)) {
+            	graph.resetPipelineRequest = true;
+            	throw new PipelineGraphStatusException(format(ERROR_RESETPIPELINESTATE_DETECTED));
+            }
+        } catch (Exception e) {
+            throw new PipelineGraphStatusException(format(ERROR_SELECT_RESETPIPELINESTATE), e);
+        } finally {
+            if (context != null) {
+                context.closeQuietly();
+            }
+        }
+    }
+    
     void addAttachedGraph(String name) throws PipelineGraphStatusException {
         DbOdcsContext context = null;
         try {
@@ -263,3 +304,4 @@ public final class PipelineGraphStatus {
         }
     }
 }
+

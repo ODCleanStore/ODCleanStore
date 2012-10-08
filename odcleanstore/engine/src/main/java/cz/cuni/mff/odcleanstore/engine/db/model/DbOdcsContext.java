@@ -45,7 +45,6 @@ public class DbOdcsContext extends DbContext {
         } finally {
             close(resultSet);
         }
-
     }
 
     private Graph createDbGraph(WrappedResultSet resultSet)
@@ -60,9 +59,31 @@ public class DbOdcsContext extends DbContext {
             dbGraph.pipeline.label = resultSet.getString(5);
             dbGraph.isInCleanDb = resultSet.getInt(6) != 0;
             dbGraph.engineUuid = resultSet.getString(7);
+            dbGraph.resetPipelineRequest = resultSet.getInt(8) != 0;
             return dbGraph;
         }
         return null;
+    }
+    
+    public boolean selectResetPipelineRequest(int graphId) throws DbOdcsException {
+        WrappedResultSet resultSet = null;
+        try {
+            resultSet = select(SQL.SELECT_GRAPH_RESETPIPELINEREQUEST,  graphId);
+            resultSet.next();
+            return resultSet.getInt(1) != 0;
+        } catch (Exception e) {
+            throw new DbOdcsException(SQL.ERROR_GRAPH_RESETPIPELINEREQUEST, e);
+        } finally {
+            close(resultSet);
+        }
+    }
+    
+    public void clearResetPipelineRequest(int graphId) throws DbOdcsException {
+        try {
+            execute(SQL.CLEAR_GRAPH_RESETPIPELINEREQUEST, graphId);
+        } catch (Exception e) {
+            throw new DbOdcsException(SQL.ERROR_CLEAR_GRAPH_RESETPIPELINEREQUEST, e);
+        }
     }
 
     public boolean updateAttachedEngine(int graphId, String engineUuid) throws DbOdcsException {
@@ -220,6 +241,14 @@ public class DbOdcsContext extends DbContext {
             execute(SQL.INSERT_GRAPH_IN_ERROR, graphId, type.toId(), message);
         } catch (Exception e) {
             throw new DbOdcsException(SQL.ERROR_INSERT_GRAPH_IN_ERROR, e);
+        }
+    }
+    
+    public void deleteGraphInError(int graphId) throws DbOdcsException {
+        try {
+            execute(SQL.DELETE_GRAPH_IN_ERROR, graphId);
+        } catch (Exception e) {
+            throw new DbOdcsException(SQL.DELETE_GRAPH_IN_ERROR, e);
         }
     }
 }

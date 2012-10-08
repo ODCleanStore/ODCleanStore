@@ -80,16 +80,19 @@ final class PipelineGraphManipulator {
 					srcFile = new File(Engine.getCurrent().getDirtyDBImportExportDir(), tempFileName);
 					dstFile = new File(Engine.getCurrent().getCleanDBImportExportDir(), tempFileName);
 
+					graphStatus.checkResetPipelineRequest();
 					dirtyConnection = createDirtyConnection();
 					LOG.info(String.format("Dumping data from dirty db to ttl temporary file for graph %s", graphs[i]));
 					String query = "CALL dump_graph_ttl('" + graphs[i] + "', '" + srcFile.getAbsolutePath().replace("\\", "/") + "')";
 					dirtyConnection.execute(query);
-					    
+					 
+					graphStatus.checkResetPipelineRequest();
 					// move file if neccessary
 					if(!srcFile.getCanonicalFile().equals(dstFile.getCanonicalFile())) {
 						srcFile.renameTo(dstFile);
 					}
 					
+					graphStatus.checkResetPipelineRequest();
 					cleanConnection = createCleanConnection();
 					LOG.info(String.format("Loading data from ttl temporary file to clean db for graph %s", graphs[i]));
 					query = "DB.DBA.TTLP (file_to_string_output (" +
@@ -257,7 +260,8 @@ final class PipelineGraphManipulator {
 		VirtuosoConnectionWrapper con = null;
 		try {
 			con = createDirtyConnection();
-			
+
+			graphStatus.checkResetPipelineRequest();
 			try {
 				LOG.info(format("Loading metadata from ttl input file"));
 				con.insertTtlFromFile("", inputDirPath + uuid + "-m.ttl", metadataGraphURI);
@@ -266,6 +270,7 @@ final class PipelineGraphManipulator {
 				throw new PipelineGraphManipulatorException(format(ERROR_LOAD_METADATAGRAPH_FROM_FILE), e);
 			}
 			
+			graphStatus.checkResetPipelineRequest();
 			try {
 				WrappedResultSet rs = con.executeSelect(String.format(Locale.ROOT, "SPARQL SELECT ?o WHERE { GRAPH <%s> {<%s> <%s> ?o}}", metadataGraphURI, dataGraphURI, ODCS.dataBaseUrl));
 				rs.next();
@@ -273,23 +278,30 @@ final class PipelineGraphManipulator {
 			} catch (Exception e) {
 				throw new PipelineGraphManipulatorException(format(ERROR_LOAD_METADATAGRAPH_DATABASE_URL), e);
 			}
+			
+			graphStatus.checkResetPipelineRequest();
 			if (new File(inputDirPath, uuid + "-pvm.rdf").exists()) {
 				LOG.info(format("Loading provenance metadata from rdfxml input file"));
 				con.insertRdfXmlFromFile(dataBaseUrl, inputDirPath + uuid + "-pvm.rdf", provenanceGraphURI);
 				con.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.provenanceMetadataGraph + ">", "<" + provenanceGraphURI + ">", metadataGraphURI);
-				
 			}
+			
+			graphStatus.checkResetPipelineRequest();
 			if (new File(inputDirPath, uuid + "-pvm.ttl").exists()) {
 				LOG.info(format("Loading provenance metadata from ttl input file"));
 				con.insertTtlFromFile(dataBaseUrl, inputDirPath + uuid + "-pvm.ttl", provenanceGraphURI);
 				con.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.provenanceMetadataGraph + ">", "<" + provenanceGraphURI + ">", metadataGraphURI);
 				
 			}
+			
+			graphStatus.checkResetPipelineRequest();
 			if (new File(inputDirPath, uuid + "-d.rdf").exists()) {
 				LOG.info(format("Loading data from rdf input file"));
 				con.insertRdfXmlFromFile(dataBaseUrl, inputDirPath + uuid + "-d.rdf", dataGraphURI);
 				
 			}
+			
+			graphStatus.checkResetPipelineRequest();
 			if (new File(inputDirPath, uuid + "-d.ttl").exists()) {
 				LOG.info(format("Loading data from ttl input file"));
 				con.insertTtlFromFile(dataBaseUrl, inputDirPath + uuid + "-d.ttl", dataGraphURI);
@@ -316,16 +328,20 @@ final class PipelineGraphManipulator {
 					String tempFileName = generateRandomFileNameForGraph();
 					srcFile = new File(Engine.getCurrent().getCleanDBImportExportDir(), tempFileName);
 					dstFile = new File(Engine.getCurrent().getDirtyDBImportExportDir(), tempFileName);
-						
+					
+					graphStatus.checkResetPipelineRequest();
 					cleanConnection = createCleanConnection();
 					LOG.info(String.format("Dumping data from clean db to ttl temporary file for graph %s", graphName));
 					String query = "CALL dump_graph_ttl('" + graphName + "', '" + srcFile.getAbsolutePath().replace("\\", "/") + "')";
 					cleanConnection.execute(query);
-					    
+					
+					graphStatus.checkResetPipelineRequest();
 					// move file if neccessary
 					if(!srcFile.getCanonicalFile().equals(dstFile.getCanonicalFile())) {
 						srcFile.renameTo(dstFile);
 					}
+					
+					graphStatus.checkResetPipelineRequest();
 					dirtyConnection = createDirtyConnection();
 					LOG.info(String.format("Loading data from ttl temporary file to dirty db for graph %s", graphName));
 					query = "DB.DBA.TTLP (file_to_string_output ('" + dstFile.getAbsolutePath().replace("\\", "/") + "'), '" + graphName + "', '" + graphName + "',0)";
