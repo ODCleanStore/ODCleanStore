@@ -23,12 +23,16 @@ public final class ODCSInternal {
     /**
      * Temporary prefix for new graphs in clean database. 
      */
-    public static final String newGraphPrefix = NS_INTERNAL + "newGraph/";
+    public static final String hiddenGraphPrefix = NS_INTERNAL + "hiddenGraph/";
+    /**
+     * Temporary prefix for new graphs in clean database. Must start with {@link #hiddenGraphPrefix}!
+     */
+    public static final String newGraphPrefix = hiddenGraphPrefix + "newGraph/";
     
     /**
-     * Temporary prefix for old graphs in clean database. 
+     * Temporary prefix for old graphs in clean database. Must start with {@link #hiddenGraphPrefix}!
      */
-    public static final String oldGraphPrefix = NS_INTERNAL + "oldGraph/";
+    public static final String oldGraphPrefix = hiddenGraphPrefix + "oldGraph/";
     
     /**
      * Prefix of named graphs where incoming data are stored. 
