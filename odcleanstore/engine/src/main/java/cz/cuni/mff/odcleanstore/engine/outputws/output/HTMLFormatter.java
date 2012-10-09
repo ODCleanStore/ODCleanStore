@@ -45,9 +45,6 @@ import java.util.Map.Entry;
  */
 public class HTMLFormatter extends ResultFormatterBase {
     
-    private static final String HTML_HEADER_COLOR = "FFE677";  
-    private static final String HTML_EVEN_COLOR = "FFEEA6";  
-    private static final String HTML_ODD_COLOR = "FFF5EC";
     private static final String ENCODING = Utils.DEFAULT_ENCODING;
 
     private static final String[] PROPAGATED_QUERY_PARAMS = {
@@ -165,6 +162,16 @@ public class HTMLFormatter extends ResultFormatterBase {
                     + "\n<html lang=\"en\">" 
                     + "\n<head>"
                     + "\n <meta charset=\"" + ENCODING + "\" />"
+                    + "\n <style type=\"text/css\">" 
+                    + "\n   body {font-family: Verdana,Sans-Serif,Arial; font-size:13px;}"
+                    + "\n   th, td, table {border: 1px solid lightgray;}"
+                    + "\n   td, th {border-left-width: 0px; border-top-width: 0px}"
+                    + "\n   th {background-color: #49B7E0; color:white; padding: 5px 2px;}"
+                    + "\n   td {background-color: #F2F4F5; padding: 5px 2px; }"
+                    + "\n   tr.odd td {background-color: #FFFFFF; }"
+                    + "\n   a { text-decoration:none; }"
+                    + "\n   a:hover {text-decoration:underline; }"
+                    + "\n </style>"
                     + "\n <title>");
             writer.write(queryResult.getQueryType().toString());
             writer.write(" query</title>" 
@@ -216,9 +223,7 @@ public class HTMLFormatter extends ResultFormatterBase {
          */
         protected void writeMetadata(Writer writer, NamedGraphMetadataMap metadataMap) throws IOException {
             writer.write(" <table border=\"1\" cellspacing=\"0\" cellpadding=\"2\">\n");
-            writer.write("  <tr style=\"background-color: #");
-            writer.write(HTML_HEADER_COLOR);
-            writer.write(";\"><th>Named graph</th><th>Data source</th><th>Inserted at</th>"
+            writer.write("  <tr><th>Named graph</th><th>Data source</th><th>Inserted at</th>"
                     + "<th>Graph score</th><th>License</th></tr>");
             int row = 0;
             for (NamedGraphMetadata metadata : metadataMap.listMetadata()) {
@@ -475,13 +480,11 @@ public class HTMLFormatter extends ResultFormatterBase {
          * @throws IOException exception
          */
         protected void writeOpeningTr(Writer writer, int rowIndex) throws IOException {
-            writer.write("  <tr style=\"background-color: #");
-            if (rowIndex % 2 == 0) {
-                writer.write(HTML_EVEN_COLOR);
-            } else {
-                writer.write(HTML_ODD_COLOR);
+            writer.write("  <tr");
+            if (rowIndex % 2 != 0) {
+                writer.write(" class=\"odd\"");
             }
-            writer.write(";\">");
+            writer.write(">");
         }
     }
 
@@ -518,9 +521,7 @@ public class HTMLFormatter extends ResultFormatterBase {
          */
         private void writeResultQuads(Writer writer) throws IOException {
             writer.write(" <table border=\"1\" cellspacing=\"0\" cellpadding=\"2\">\n");
-            writer.write("  <tr style=\"background-color: #");
-            writer.write(HTML_HEADER_COLOR);
-            writer.write(";\"><th>Subject</th><th>Predicate</th><th>Object</th>"
+            writer.write("  <tr><th>Subject</th><th>Predicate</th><th>Object</th>"
                     + "<th>Quality</th><th>Source named graphs</th></tr>\n");
             int row = 0;
             for (CRQuad crQuad : queryResult.getResultQuads()) {
@@ -612,9 +613,7 @@ public class HTMLFormatter extends ResultFormatterBase {
          */
         private void writeTriples(Writer writer, Collection<Quad> quads) throws IOException {
             writer.write(" <table border=\"1\" cellspacing=\"0\" cellpadding=\"2\">\n");
-            writer.write("  <tr style=\"background-color: #");
-            writer.write(HTML_HEADER_COLOR);
-            writer.write(";\"><th>Subject</th><th>Predicate</th><th>Object</th></tr>\n");
+            writer.write("  <tr><th>Subject</th><th>Predicate</th><th>Object</th></tr>\n");
             int row = 0;
             for (Quad quad : quads) {
                 writeOpeningTr(writer, ++row);
@@ -637,9 +636,7 @@ public class HTMLFormatter extends ResultFormatterBase {
          */
         private void writeQARules(Writer writer, Collection<QualityAssessmentRule> qaRules) throws IOException {
             writer.write(" <table border=\"1\" cellspacing=\"0\" cellpadding=\"2\">\n");
-            writer.write("  <tr style=\"background-color: #");
-            writer.write(HTML_HEADER_COLOR);
-            writer.write(";\"><th>Rule description</th><th>Score decreased by</th></tr>\n");
+            writer.write("  <tr><th>Rule description</th><th>Score decreased by</th></tr>\n");
             int row = 0;
             for (QualityAssessmentRule rule : qaRules) {
                 writeOpeningTr(writer, ++row);
