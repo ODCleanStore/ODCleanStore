@@ -42,7 +42,9 @@ td.actions { text-align: center; white-space: nowrap; }
 .navigation a:hover {color: white;}
 
 form.disabledForm input, form.disabledForm textarea, form.disabledForm select { color: black; border-width: 1px; background-color: #EEEEEE;}
-form.disabledForm span.required:after { display: none };
+form.disabledForm span.required:after { display: none; }
+
+.introtext { font-size: 1.2em; line-height: 1.3; }
 
 /* DEPLOYMENT MODE */
 #menu {height:37px; display:block; padding:0; margin:0;}
