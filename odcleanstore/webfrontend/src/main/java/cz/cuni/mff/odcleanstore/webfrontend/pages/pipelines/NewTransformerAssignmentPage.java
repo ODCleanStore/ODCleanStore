@@ -28,7 +28,7 @@ public class NewTransformerAssignmentPage extends LimitedEditingPage
 	private Transformer transformer;
 	private String workDirPath;
 	private String configuration;
-	private Boolean runOnCleanDB;
+	private Boolean runOnCleanDB = true;
 	private TransformerInstance transformerPlaceBefore;
 	
 	public NewTransformerAssignmentPage(final Integer pipelineId) 
