@@ -440,7 +440,7 @@ public class DNGroupDetailPage extends LimitedEditingPage
 			)
 		);
 		
-		addDNRenameTemplateInstancesTable(groupId);
+		addDNConcatenateTemplateInstancesTable(groupId);
 	}
 	
 	private void addDNConcatenateTemplateInstancesTable(final Integer groupId)
@@ -464,8 +464,7 @@ public class DNGroupDetailPage extends LimitedEditingPage
 				item.setModel(new CompoundPropertyModel<DNConcatenateTemplateInstance>(instance));
 	
 				item.add(new TruncatedLabel("propertyName", MAX_LIST_COLUMN_TEXT_LENGTH));
-				item.add(new TruncatedLabel("pattern", MAX_LIST_COLUMN_TEXT_LENGTH));
-				item.add(new BooleanLabel("keep"));
+				item.add(new TruncatedLabel("delimiter", MAX_LIST_COLUMN_TEXT_LENGTH));
 				
 				item.add(
 					createAuthorizedDeleteTemplateInstanceButton
