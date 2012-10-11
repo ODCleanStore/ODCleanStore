@@ -14,6 +14,7 @@ import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNConcatenateTemplateInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNFilterTemplateInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRenameTemplateInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNReplaceTemplateInstance;
@@ -33,6 +34,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNav
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.CompiledDNRuleDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNConcatenateTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNFilterTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRenameTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNReplaceTemplateInstanceDao;
@@ -55,6 +57,7 @@ public class DNGroupDetailPage extends LimitedEditingPage
 	private DNReplaceTemplateInstanceDao dnReplaceTemplateInstanceDao;
 	private DNRenameTemplateInstanceDao dnRenameTemplateInstanceDao;
 	private DNFilterTemplateInstanceDao dnFilterTemplateInstanceDao;
+	private DNConcatenateTemplateInstanceDao dnConcatenateTemplateInstanceDao;
 	private CompiledDNRuleDao compiledDnRuleDao;
 
 	public DNGroupDetailPage(final Integer groupId) 
@@ -78,6 +81,7 @@ public class DNGroupDetailPage extends LimitedEditingPage
 		dnReplaceTemplateInstanceDao = daoLookupFactory.getDao(DNReplaceTemplateInstanceDao.class);
 		dnRenameTemplateInstanceDao = daoLookupFactory.getDao(DNRenameTemplateInstanceDao.class);
 		dnFilterTemplateInstanceDao = daoLookupFactory.getDao(DNFilterTemplateInstanceDao.class);
+		dnConcatenateTemplateInstanceDao = daoLookupFactory.getDao(DNConcatenateTemplateInstanceDao.class);
 		compiledDnRuleDao = daoLookupFactory.getDao(CompiledDNRuleDao.class);
 		
 		// register page components
@@ -88,6 +92,7 @@ public class DNGroupDetailPage extends LimitedEditingPage
 		addHelpWindow("dnReplaceTemplateInstanceHelpWindow", "openDNReplaceTemplateInstanceHelpWindow", new DNReplaceTemplateInstanceHelpPanel("content"));
 		addHelpWindow("dnRenameTemplateInstanceHelpWindow", "openDNRenameTemplateInstanceHelpWindow", new DNRenameTemplateInstanceHelpPanel("content"));
 		addHelpWindow("dnFilterTemplateInstanceHelpWindow", "openDNFilterTemplateInstanceHelpWindow", new DNFilterTemplateInstanceHelpPanel("content"));
+		addHelpWindow("dnConcatenateTemplateInstanceHelpWindow", "openDNConcatenateTemplateInstanceHelpWindow", new DNConcatenateTemplateInstanceHelpPanel("content"));
 		
 		DNRulesGroup group = dnRulesGroupDao.load(groupId);
 		addEditDNRulesGroupForm(group);
@@ -96,6 +101,7 @@ public class DNGroupDetailPage extends LimitedEditingPage
 		addDNReplaceTemplateInstancesSection(groupId);
 		addDNRenameTemplateInstancesSection(groupId);
 		addDNFilterTemplateInstancesSection(groupId);
+		addDNConcatenateTemplateInstancesSection(groupId);
 	}
 	
 	private void addBackToPipelineLink(Integer groupId, Integer transformerInstanceId) 
@@ -421,6 +427,73 @@ public class DNGroupDetailPage extends LimitedEditingPage
 		add(dataView);
 		
 		add(new UnobtrusivePagingNavigator("filterTemplateInstancesNavigator", dataView));
+	}
+	
+	private void addDNConcatenateTemplateInstancesSection(final Integer groupId) 
+	{
+		add(
+			new AuthorizedRedirectButton(
+				NewDNConcatenateTemplateInstancePage.class,
+				groupId, 
+				isEditable(),
+				"addNewConcatenateTemplateInstanceLink"
+			)
+		);
+		
+		addDNRenameTemplateInstancesTable(groupId);
+	}
+	
+	private void addDNConcatenateTemplateInstancesTable(final Integer groupId)
+	{
+		IDataProvider<DNConcatenateTemplateInstance> data = new DependentDataProvider<DNConcatenateTemplateInstance>
+		(
+			dnConcatenateTemplateInstanceDao, 
+			"groupId", 
+			groupId
+		);
+	
+		DataView<DNConcatenateTemplateInstance> dataView = new DataView<DNConcatenateTemplateInstance>("dnConcatenateTemplateInstancesTable", data)
+		{
+			private static final long serialVersionUID = 1L;
+			
+			@Override
+			protected void populateItem(Item<DNConcatenateTemplateInstance> item) 
+			{
+				DNConcatenateTemplateInstance instance = item.getModelObject();
+				
+				item.setModel(new CompoundPropertyModel<DNConcatenateTemplateInstance>(instance));
+	
+				item.add(new TruncatedLabel("propertyName", MAX_LIST_COLUMN_TEXT_LENGTH));
+				item.add(new TruncatedLabel("pattern", MAX_LIST_COLUMN_TEXT_LENGTH));
+				item.add(new BooleanLabel("keep"));
+				
+				item.add(
+					createAuthorizedDeleteTemplateInstanceButton
+					(
+						dnConcatenateTemplateInstanceDao,
+						compiledDnRuleDao,
+						instance,
+						"concatenateTemplateInstance",
+						new DeleteConfirmationMessage("concatenate template instance")
+					)
+				);
+				
+				item.add(
+					new RedirectWithParamButton
+					(
+						EditDNConcatenateTemplateInstancePage.class,
+						instance.getId(),
+						"showEditDNConcatenateTemplateInstancePage"
+					)
+				);
+			}
+		};
+		
+		dataView.setItemsPerPage(ITEMS_PER_PAGE);
+		
+		add(dataView);
+		
+		add(new UnobtrusivePagingNavigator("concatenateTemplateInstancesNavigator", dataView));
 	}
 	
 	private void addCommitChangesButton(final DNRulesGroup group)

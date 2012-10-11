@@ -85,5 +85,4 @@ public class DNFilterTemplateInstanceDao extends DNTemplateInstanceDao<DNFilterT
 			"\n WHERE t.id = ?";
 		return jdbcQueryForInt(query, entityId);
 	}
-
 }

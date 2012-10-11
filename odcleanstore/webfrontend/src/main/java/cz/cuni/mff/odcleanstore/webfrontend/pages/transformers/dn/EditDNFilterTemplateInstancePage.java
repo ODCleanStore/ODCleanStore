@@ -22,7 +22,7 @@ public class EditDNFilterTemplateInstancePage extends LimitedEditingPage
 {
 	private static final long serialVersionUID = 1L;
 	
-	private static Logger logger = Logger.getLogger(NewDNReplaceTemplateInstancePage.class);
+	private static Logger logger = Logger.getLogger(NewDNFilterTemplateInstancePage.class);
 	
 	private DNFilterTemplateInstanceDao dnFilterTemplateInstanceDao;
 	private CompiledDNRuleDao compiledDNRuleDao;
