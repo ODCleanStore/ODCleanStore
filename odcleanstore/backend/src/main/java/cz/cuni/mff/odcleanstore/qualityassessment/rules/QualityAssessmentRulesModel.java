@@ -3,11 +3,9 @@ package cz.cuni.mff.odcleanstore.qualityassessment.rules;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-import cz.cuni.mff.odcleanstore.configuration.BackendConfig;
-import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
-import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
@@ -45,25 +43,7 @@ import com.hp.hpl.jena.vocabulary.RDFS;
  * @author Jakub Daniel
  */
 public class QualityAssessmentRulesModel {
-	public static void main(String[] args) {
-		try {
-			ConfigLoader.loadConfig();
-			BackendConfig config = ConfigLoader.getConfig().getBackendGroup();
-			
-			JDBCConnectionCredentials credentials = config.getCleanDBJDBCConnectionCredentials();
-			VirtuosoDataSource dataSource = new VirtuosoDataSource();
-			dataSource.setServerName(credentials.getConnectionString());
-			dataSource.setUser(credentials.getUsername());
-			dataSource.setPassword(credentials.getPassword());
 
-			new QualityAssessmentRulesModel(dataSource).compileOntologyToRules("public-contracts", "Group 1");
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-			
-			e.printStackTrace();
-		}
-	}
-	
 	private static final String ruleByGroupIdQueryFormat = "SELECT id, groupId, filter, coefficient, description FROM " +
 			"DB.ODCLEANSTORE.QA_RULES%s WHERE groupId = ?";
 	private static final String ruleByGroupLabelQueryFormat = "SELECT rules.id AS id," +
@@ -74,15 +54,7 @@ public class QualityAssessmentRulesModel {
 			"DB.ODCLEANSTORE.QA_RULES%s AS rules JOIN " +
 			"DB.ODCLEANSTORE.QA_RULES_GROUPS AS groups ON rules.groupId = groups.id " +
 			"WHERE groups.label = ?";
-	private static final String groupIdQuery = "SELECT id FROM DB.ODCLEANSTORE.QA_RULES_GROUPS WHERE label = ?";
-	private static final String ontologyIdQuery = "SELECT id FROM DB.ODCLEANSTORE.ONTOLOGIES WHERE label = ?";
-	private static final String ontologyGraphURIQuery = "SELECT graphName FROM DB.ODCLEANSTORE.ONTOLOGIES WHERE id = ?";
 	private static final String ontologyResourceQuery = "SELECT ?s WHERE {?s ?p ?o} GROUP BY ?s";
-	private static final String deleteRulesByOntology = "DELETE FROM DB.ODCLEANSTORE.QA_RULES%s WHERE groupId IN " +
-			"(SELECT groupId FROM DB.ODCLEANSTORE.QA_RULES_GROUPS_TO_ONTOLOGIES_MAP WHERE ontologyId = ?)";
-	private static final String deleteMapping = "DELETE FROM DB.ODCLEANSTORE.QA_RULES_GROUPS_TO_ONTOLOGIES_MAP WHERE groupId = ? AND ontologyId = ? ";
-	private static final String insertRule = "INSERT INTO DB.ODCLEANSTORE.QA_RULES%s (groupId, filter, coefficient, description) VALUES (?, ?, ?, ?)";
-	private static final String mapGroupToOntology = "INSERT INTO DB.ODCLEANSTORE.QA_RULES_GROUPS_TO_ONTOLOGIES_MAP (groupId, ontologyId) VALUES (?, ?)";
 
 	private static final Logger LOG = LoggerFactory.getLogger(QualityAssessmentRulesModel.class);
 
@@ -132,7 +104,7 @@ public class QualityAssessmentRulesModel {
 	
 	public QualityAssessmentRulesModel (VirtuosoDataSource dataSource) {
 		this.endpoint = new JDBCConnectionCredentials(
-				dataSource.getServerName(),
+				"jdbc:virtuoso://" + dataSource.getServerName(),
 				dataSource.getUser(),
 				dataSource.getPassword());
 	}
@@ -210,71 +182,8 @@ public class QualityAssessmentRulesModel {
 		return rules;
 	}
 	
-	private Integer getGroupId(String groupLabel) throws QualityAssessmentException {
+	public Collection<QualityAssessmentRule> compileOntologyToRules(Integer groupId, String ontologyGraphURI) throws QualityAssessmentException {
 		try {
-			WrappedResultSet resultSet = getCleanConnection().executeSelect(groupIdQuery, groupLabel);
-			
-			if (!resultSet.next()) throw new QualityAssessmentException("No '" + groupLabel + "' QA Rule group."); 
-		
-			return resultSet.getCurrentResultSet().getInt("id");
-		} catch (DatabaseException e) {
-			throw new QualityAssessmentException(e);
-		} catch (SQLException e) {
-			throw new QualityAssessmentException(e);
-		}
-	}
-	
-	private Integer getOntologyId(String ontologyLabel) throws QualityAssessmentException {
-		try {
-			WrappedResultSet resultSet = getCleanConnection().executeSelect(ontologyIdQuery, ontologyLabel);
-			
-			if (!resultSet.next()) throw new QualityAssessmentException("No '" + ontologyLabel + "' ontology."); 
-			
-			return resultSet.getCurrentResultSet().getInt("id");
-		} catch (DatabaseException e) {
-			throw new QualityAssessmentException(e);
-		} catch (SQLException e) {
-			throw new QualityAssessmentException(e);
-		}
-	}
-	
-	private String getOntologyGraphURI(Integer ontologyId) throws QualityAssessmentException {
-		try {
-			WrappedResultSet resultSet = getCleanConnection().executeSelect(ontologyGraphURIQuery, ontologyId);
-		
-			if (!resultSet.next()) throw new QualityAssessmentException("No ontology with id " + ontologyId + "."); 
-			
-			return resultSet.getCurrentResultSet().getString("graphName");
-		} catch (DatabaseException e) {
-			throw new QualityAssessmentException(e);
-		} catch (SQLException e) {
-			throw new QualityAssessmentException(e);
-		}
-	}
-	
-	private void mapGroupToOntology(Integer groupId, Integer ontologyId) throws QualityAssessmentException {
-		try {
-			getCleanConnection().execute(mapGroupToOntology, groupId, ontologyId);
-		} catch (DatabaseException e) {
-			throw new QualityAssessmentException(e);
-		}
-	}
-	
-	public void compileOntologyToRules(String ontologyLabel, String groupLabel) throws QualityAssessmentException {
-		try {
-			Integer groupId = getGroupId(groupLabel);
-			Integer ontologyId = getOntologyId(ontologyLabel);
-		
-			compileOntologyToRules(ontologyId, groupId);
-		} finally {
-			closeCleanConnection();
-		}
-	}
-	
-	public void compileOntologyToRules(Integer ontologyId, Integer groupId) throws QualityAssessmentException {
-		try {
-			String ontologyGraphURI = getOntologyGraphURI(ontologyId);
-
 			VirtModel ontology = VirtModel.openDatabaseModel(ontologyGraphURI,
 					endpoint.getConnectionString(),
 					endpoint.getUsername(),
@@ -283,50 +192,51 @@ public class QualityAssessmentRulesModel {
 			QueryExecution query = QueryExecutionFactory.create(ontologyResourceQuery, ontology);
 		
 			com.hp.hpl.jena.query.ResultSet resultSet = query.execSelect();
-		
-			dropRules(groupId, ontologyId);
-		
-			mapGroupToOntology(groupId, ontologyId);
+			
+			LOG.debug("Generating QA rules for <" + ontologyGraphURI + ">");
+			
+			List<QualityAssessmentRule> ruleList = new ArrayList<QualityAssessmentRule>();
 		
 			while (resultSet.hasNext()) {
 				QuerySolution solution = resultSet.next();
 			
-				processOntologyResource(solution.getResource("s"), ontology, ontologyGraphURI, groupId);
+				ruleList.addAll(processOntologyResource(solution.getResource("s"), ontology, ontologyGraphURI, groupId));
 			}
+			
+			return ruleList;
 		} finally {
 			closeCleanConnection();
 		}
 	}
 	
-	private void dropRules(Integer groupId, Integer ontologyId) throws QualityAssessmentException {
-		try {			
-			getCleanConnection().execute(String.format(deleteRulesByOntology, TableVersion.COMMITTED.getTableSuffix()), ontologyId);
-			getCleanConnection().execute(String.format(deleteRulesByOntology, TableVersion.UNCOMMITTED.getTableSuffix()), ontologyId);
-			getCleanConnection().execute(deleteMapping, groupId, ontologyId);
-		} catch (DatabaseException e) {
-			throw new QualityAssessmentException(e);
-		}
-	}
-	
-	private void processOntologyResource(Resource resource, Model model, String ontology, Integer groupId) throws QualityAssessmentException {
+	private Collection<QualityAssessmentRule> processOntologyResource(Resource resource,
+			Model model, String ontology, Integer groupId) throws QualityAssessmentException {
+		List<QualityAssessmentRule> ruleList = new ArrayList<QualityAssessmentRule>();
+
 		final String skosNS = "http://www.w3.org/2004/02/skos/core#";
+		
+		LOG.debug("Processing: " + resource.getLocalName() + "(" + resource.getURI() + ")");
 
 		/**
 		 * Functional Property can have only 1 value
 		 */
 		if (model.contains(resource, RDF.type, OWL.FunctionalProperty)) {	
-			QualityAssessmentRule rule = new QualityAssessmentRule(null, groupId, "{?s <" + resource.getURI() + "> ?o} GROUP BY ?s HAVING COUNT(?o) > 1", 0.8, resource.getLocalName() + " is FunctionalProperty (can have only 1 unique value)");
+			QualityAssessmentRule rule = new QualityAssessmentFunctionalPropertyAmbiguityRule(null, groupId, resource);
 			
-			storeRule(rule, ontology);
+			LOG.info("Generated QA Rule for functional property: " + resource.getLocalName());
+			
+			ruleList.add(rule);
 		}
 
 		/**
 		 * Value of Inverse Functional Property cannot be shared by two or more subjects
 		 */
 		if (model.contains(resource, RDF.type, OWL.InverseFunctionalProperty)) {
-			QualityAssessmentRule rule = new QualityAssessmentRule(null, groupId, "{?s <" + resource.getURI() + "> ?o} GROUP BY ?o HAVING COUNT(?s) > 1", 0.8, resource.getLocalName() + " is InverseFunctionalProperty (value cannot be shared by two distinct subjects)");
+			QualityAssessmentRule rule = new QualityAssessmentInverseFunctionalPropertyInjectivityRule(null, groupId, resource);
 			
-			storeRule(rule, ontology);
+			LOG.info("Generated QA Rule for inverse functional property: " + resource.getLocalName());
+			
+			ruleList.add(rule);
 		}
 
 		/**
@@ -338,23 +248,12 @@ public class QualityAssessmentRulesModel {
 			/**
 			 * Generate list of possible values
 			 */
-			StringBuilder valueList = new StringBuilder();
-			StringBuilder filter = new StringBuilder();
+			Set<Resource> values = new HashSet<Resource>();
 			
 			while (enumerations.hasNext()) {	
 				Statement conceptStmt = enumerations.next();
-
-				//if (model.contains(conceptStmt.getObject().asResource(), RDF.type, model.createProperty(skosNS, "Concept"))) {
-					valueList.append(conceptStmt.getObject().asNode().getURI());
-					filter.append("?o != <" + conceptStmt.getObject().asNode().getURI() + ">");
-					
-					if (enumerations.hasNext()) {
-						valueList.append(", ");
-						filter.append(" AND ");
-					}
-				//} else {
-				//	throw new QualityAssessmentException("Missing definition of a Concept in ConceptScheme");
-				//}
+				
+				values.add(conceptStmt.getObject().asResource());
 			}
 
 			/**
@@ -366,30 +265,15 @@ public class QualityAssessmentRulesModel {
 			
 			while (resultSet.hasNext()) {
 				QuerySolution solution = resultSet.nextSolution();
+				
+				LOG.info("Generated QA Rule for property with enumerable range: " + solution.getResource("s").getLocalName());
 
-				QualityAssessmentRule rule = new QualityAssessmentRule(null, groupId, "{?s <" + solution.get("s") + "> ?o. FILTER (" + filter + ")}", 0.8, solution.getResource("s").getLocalName() + " can have only these values: " + valueList.toString());
-
-				storeRule(rule, ontology);
+				QualityAssessmentRule rule = new QualityAssessmentEnumerablePropertyRule(groupId, solution.getResource("s"), values);
+				
+				ruleList.add(rule);
 			}
 		}
-	}
-	
-	private void storeRule (QualityAssessmentRule rule, String ontology) throws QualityAssessmentException {
-		try{
-			getCleanConnection().adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL, false);
-
-			getCleanConnection().execute(String.format(insertRule, TableVersion.COMMITTED.getTableSuffix()), rule.getGroupId(), rule.getFilter(), rule.getCoefficient(), rule.getDescription());
-			getCleanConnection().execute(String.format(insertRule, TableVersion.UNCOMMITTED.getTableSuffix()), rule.getGroupId(), rule.getFilter(), rule.getCoefficient(), rule.getDescription());
-			
-			getCleanConnection().commit();
-			
-			LOG.info("Generated quality assessment rule from ontology " + ontology);
-		} catch (DatabaseException e) {
-			LOG.error("Could not store Quality Assessment rule generated from ontology");
-			throw new QualityAssessmentException(e);
-		} catch (SQLException e) {
-			LOG.error("Could not store Quality Assessment rule generated from ontology");
-			throw new QualityAssessmentException(e);
-		}
+		
+		return ruleList;
 	}
 }

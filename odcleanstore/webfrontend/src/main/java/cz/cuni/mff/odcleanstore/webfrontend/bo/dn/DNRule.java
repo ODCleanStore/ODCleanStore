@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo.dn;
 
+import cz.cuni.mff.odcleanstore.datanormalization.rules.DataNormalizationRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.RuleEntity;
 
 /**
@@ -25,6 +26,12 @@ public class DNRule extends RuleEntity
 		super(id, groupId);
 		
 		this.description = description;
+	}
+	
+	public DNRule(DataNormalizationRule rule) {
+		super(rule.getId(), rule.getGroupId());
+		
+		this.description = rule.getDescription();
 	}
 	
 	/**

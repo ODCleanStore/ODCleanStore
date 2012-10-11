@@ -12,11 +12,11 @@ import java.util.Locale;
 public class QualityAssessmentRule implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private Integer id;
-	private Integer groupId;
-	private String filter;
-	private Double coefficient;
-	private String description;
+	protected Integer id;
+	protected Integer groupId;
+	protected String filter;
+	protected Double coefficient;
+	protected String description;
 
 	public QualityAssessmentRule (Integer id, Integer groupId, String filter, Double coefficient, String description) {
 		this.id = id;
