@@ -63,4 +63,24 @@ public class QualityAssessmentRule implements Serializable {
 	public String getDescription() {
 		return description;
 	}
+	
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	
+	public void setGroupId(Integer groupId) {
+		this.groupId = groupId;
+	}
+
+	public void setFilter(String filter) {
+		this.filter = filter;
+	}
+
+	public void setCoefficient(Double coefficient) {
+		this.coefficient = coefficient;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
 }

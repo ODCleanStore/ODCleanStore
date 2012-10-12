@@ -182,7 +182,7 @@ public class QualityAssessmentRulesModel {
 		return rules;
 	}
 	
-	public Collection<QualityAssessmentRule> compileOntologyToRules(Integer groupId, String ontologyGraphURI) throws QualityAssessmentException {
+	public Collection<QualityAssessmentRule> compileOntologyToRules(String ontologyGraphURI) throws QualityAssessmentException {
 		try {
 			VirtModel ontology = VirtModel.openDatabaseModel(ontologyGraphURI,
 					endpoint.getConnectionString(),
@@ -200,7 +200,7 @@ public class QualityAssessmentRulesModel {
 			while (resultSet.hasNext()) {
 				QuerySolution solution = resultSet.next();
 			
-				ruleList.addAll(processOntologyResource(solution.getResource("s"), ontology, ontologyGraphURI, groupId));
+				ruleList.addAll(processOntologyResource(solution.getResource("s"), ontology, ontologyGraphURI));
 			}
 			
 			return ruleList;
@@ -210,7 +210,7 @@ public class QualityAssessmentRulesModel {
 	}
 	
 	private Collection<QualityAssessmentRule> processOntologyResource(Resource resource,
-			Model model, String ontology, Integer groupId) throws QualityAssessmentException {
+			Model model, String ontology) throws QualityAssessmentException {
 		List<QualityAssessmentRule> ruleList = new ArrayList<QualityAssessmentRule>();
 
 		final String skosNS = "http://www.w3.org/2004/02/skos/core#";
@@ -221,7 +221,7 @@ public class QualityAssessmentRulesModel {
 		 * Functional Property can have only 1 value
 		 */
 		if (model.contains(resource, RDF.type, OWL.FunctionalProperty)) {	
-			QualityAssessmentRule rule = new QualityAssessmentFunctionalPropertyAmbiguityRule(null, groupId, resource);
+			QualityAssessmentRule rule = new QualityAssessmentFunctionalPropertyAmbiguityRule(null, null, resource);
 			
 			LOG.info("Generated QA Rule for functional property: " + resource.getLocalName());
 			
@@ -232,7 +232,7 @@ public class QualityAssessmentRulesModel {
 		 * Value of Inverse Functional Property cannot be shared by two or more subjects
 		 */
 		if (model.contains(resource, RDF.type, OWL.InverseFunctionalProperty)) {
-			QualityAssessmentRule rule = new QualityAssessmentInverseFunctionalPropertyInjectivityRule(null, groupId, resource);
+			QualityAssessmentRule rule = new QualityAssessmentInverseFunctionalPropertyInjectivityRule(null, null, resource);
 			
 			LOG.info("Generated QA Rule for inverse functional property: " + resource.getLocalName());
 			
@@ -268,7 +268,7 @@ public class QualityAssessmentRulesModel {
 				
 				LOG.info("Generated QA Rule for property with enumerable range: " + solution.getResource("s").getLocalName());
 
-				QualityAssessmentRule rule = new QualityAssessmentEnumerablePropertyRule(groupId, solution.getResource("s"), values);
+				QualityAssessmentRule rule = new QualityAssessmentEnumerablePropertyRule(null, solution.getResource("s"), values);
 				
 				ruleList.add(rule);
 			}

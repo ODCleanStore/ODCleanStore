@@ -29,6 +29,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponent;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponentType;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.Ontology;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.AbstractRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleComponentTypeDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleComponentUncommittedDao;
@@ -128,16 +129,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 			@Override
 			public void execute() throws Exception
 			{
-				String query = "INSERT INTO " + TABLE_NAME + " (label, description, graphName, authorId) VALUES (?, ?, ?, ?)";
-
 				setGraphName(item);
-				Object[] params =
-				{
-					item.getLabel(),
-					item.getDescription(),
-					item.getGraphName(),
-					item.getAuthorId()
-				};
 
 				logger.debug("label: " + item.getLabel());
 				logger.debug("description: " + item.getDescription());
@@ -150,7 +142,33 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 				graphLoader.importGraph(item.getDefinition(), item.getGraphName());
 
 				// Call after working with RDF in case it fails
-				jdbcUpdate(query, params);
+				if (item.getId() == null) {
+					String query = "INSERT INTO " + TABLE_NAME + " (label, description, graphName, authorId) VALUES (?, ?, ?, ?)";
+				
+					Object[] params =
+					{
+						item.getLabel(),
+						item.getDescription(),
+						item.getGraphName(),
+						item.getAuthorId()
+					};
+					
+					jdbcUpdate(query, params);
+				} else {
+					String query = "UPDATE " + TABLE_NAME + " SET label = ?, description = ?, graphName = ?, authorId = ? WHERE id = ?";
+					
+					Object[] params =
+					{
+						item.getLabel(),
+						item.getDescription(),
+						item.getGraphName(),
+						item.getAuthorId(),
+						item.getId()
+					};
+					
+					jdbcUpdate(query, params);
+				}
+
 				generateRules(item.getLabel());
 			}
 		});
@@ -185,11 +203,42 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 			@Override
 			public void execute() throws Exception
 			{
-				delete(item);
-				setGraphName(item);
+				Ontology onto = loadRaw(item.getId());
+				deleteRules(item.getId());
+				deleteGraph(onto.getGraphName());
+				deleteMappings(onto.getId());
 				save(item);
 			}
 		});
+	}
+	
+	protected void deleteRules(Integer ontologyId) throws Exception {
+		deleteRules(ontologyId, AbstractRulesGroupDao.UNCOMMITTED_TABLE_SUFFIX);
+		deleteRules(ontologyId, "");
+	}
+
+	protected void deleteRules(Integer ontologyId, String suffix) throws Exception {
+		String query;
+		Object[] params;
+
+		query =
+				"DELETE FROM " +
+				TABLE_NAME_PREFIX + "QA_RULES" + suffix + " WHERE groupId IN (SELECT groupId FROM " +
+				TABLE_NAME_PREFIX + "QA_RULES_GROUPS_TO_ONTOLOGIES_MAP WHERE ontologyId = ?)";
+		
+		params = new Object[] { ontologyId };
+		
+		jdbcUpdate(query, params);
+		
+		query =
+				"DELETE FROM " +
+				TABLE_NAME_PREFIX + "DN_RULES" + suffix + " WHERE groupId IN (SELECT groupId FROM " +
+				TABLE_NAME_PREFIX + "DN_RULES_GROUPS_TO_ONTOLOGIES_MAP WHERE ontologyId = ?)";
+
+		
+		params = new Object[] { ontologyId };
+		
+		jdbcUpdate(query, params);
 	}
 
 	@Override
@@ -229,27 +278,28 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		generateDataNormalizationRules(ontologyId, groupLabel, ontologyGraphName);
 	}
 	
-	private void generateQualityAssessmentRules(final Integer ontologyId, final String groupLabel, final String ontologyGraphName) throws Exception
+	private void generateQualityAssessmentRules(final Integer ontologyId,
+			final String groupLabel, final String ontologyGraphName) throws Exception
 	{
 		executeInTransaction(new CodeSnippet() {
 			@Override
 			public void execute() throws Exception {
-				createRulesGroup(QARulesGroupDao.TABLE_NAME, groupLabel);
-
-				Integer groupId = getGroupId(QARulesGroupDao.TABLE_NAME, groupLabel);
-
-				createMapping(createMappingTableName(QARulesGroupDao.TABLE_NAME), groupId, ontologyId);
-
 				QualityAssessmentRulesModel rulesModel = new QualityAssessmentRulesModel(getLookupFactory().getCleanDataSource());
 
 				try
 				{
-					Collection<QualityAssessmentRule> rules = rulesModel.compileOntologyToRules(groupId, ontologyGraphName);
+					Collection<QualityAssessmentRule> rules = rulesModel.compileOntologyToRules(ontologyGraphName);
 					
-					//TODO: ABORT IF EMPTY
+					if (rules.size() == 0) return;
+
+					Integer groupId = ensureGroupPresence(QARulesGroupDao.TABLE_NAME, groupLabel);
+
+					createMapping(createMappingTableName(QARulesGroupDao.TABLE_NAME), groupId, ontologyId);
 					
 					for (QualityAssessmentRule rule : rules) {
 						QARuleUncommittedDao ruleDao = OntologyDao.this.getLookupFactory().getDao(QARuleUncommittedDao.class);
+						
+						rule.setGroupId(groupId);
 						
 						ruleDao.save(new QARule(rule));
 					}
@@ -263,29 +313,30 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		});
 	}
 	
-	private void generateDataNormalizationRules(final Integer ontologyId, final String groupLabel, final String ontologyGraphName) throws Exception
+	private void generateDataNormalizationRules(final Integer ontologyId,
+			final String groupLabel, final String ontologyGraphName) throws Exception
 	{
 		executeInTransaction(new CodeSnippet() {
 			@Override
 			public void execute() throws Exception {
-				createRulesGroup(DNRulesGroupDao.TABLE_NAME, groupLabel);
-
-				Integer groupId = getGroupId(DNRulesGroupDao.TABLE_NAME, groupLabel);
-
-				createMapping(createMappingTableName(DNRulesGroupDao.TABLE_NAME), groupId, ontologyId);
-
 				DataNormalizationRulesModel rulesModel = new DataNormalizationRulesModel(getLookupFactory().getCleanDataSource());
 
 				try
 				{
-					Collection<DataNormalizationRule> rules = rulesModel.compileOntologyToRules(groupId, ontologyGraphName);
-					
-					//TODO: ABORT IF EMPTY
+					Collection<DataNormalizationRule> rules = rulesModel.compileOntologyToRules(ontologyGraphName);
+
+					if (rules.size() == 0) return;
+
+					Integer groupId = ensureGroupPresence(DNRulesGroupDao.TABLE_NAME, groupLabel);
+
+					createMapping(createMappingTableName(DNRulesGroupDao.TABLE_NAME), groupId, ontologyId);
 					
 					for (DataNormalizationRule rule : rules) {
 						DNRuleUncommittedDao ruleDao = OntologyDao.this.getLookupFactory().getDao(DNRuleUncommittedDao.class);
 						DNRuleComponentUncommittedDao ruleComponentDao = OntologyDao.this.getLookupFactory().getDao(DNRuleComponentUncommittedDao.class);
 						DNRuleComponentTypeDao ruleComponentTypeDao = OntologyDao.this.getLookupFactory().getDao(DNRuleComponentTypeDao.class);
+						
+						rule.setGroupId(groupId);
 						
 						Integer ruleId = ruleDao.saveAndGetKey(new DNRule(rule));
 						
@@ -307,6 +358,17 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 				}
 			}
 		});
+	}
+	
+	private Integer ensureGroupPresence(String tableName, String groupLabel) throws Exception {
+		try
+		{
+			return getGroupId(tableName, groupLabel);
+		} catch (Exception e) {
+			createRulesGroup(tableName, groupLabel);
+			
+			return getGroupId(tableName, groupLabel);
+		}
 	}
 
 	private String createGroupLabel(String ontologyLabel)
@@ -352,7 +414,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 
 	private void createMapping(String tableName, Integer groupId, Integer ontologyId) throws Exception
 	{
-		String query = "INSERT INTO " + TABLE_NAME_PREFIX + tableName + " (groupId, ontologyId) VALUES (?, ?)";
+		String query = "INSERT REPLACING " + TABLE_NAME_PREFIX + tableName + " (groupId, ontologyId) VALUES (?, ?)";
 
 		Object[] params =
 		{

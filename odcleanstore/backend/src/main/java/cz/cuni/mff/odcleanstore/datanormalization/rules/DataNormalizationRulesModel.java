@@ -221,7 +221,7 @@ public class DataNormalizationRulesModel {
 		return rules;
 	}
 
-	public Collection<DataNormalizationRule> compileOntologyToRules(Integer groupId, String ontologyGraphURI) throws DataNormalizationException {
+	public Collection<DataNormalizationRule> compileOntologyToRules(String ontologyGraphURI) throws DataNormalizationException {
 		try {
 			VirtModel ontology = VirtModel.openDatabaseModel(ontologyGraphURI,
 					endpoint.getConnectionString(),
@@ -242,7 +242,7 @@ public class DataNormalizationRulesModel {
 			while (resultSet.hasNext()) {
 				QuerySolution solution = resultSet.next();
 
-				ruleList.addAll(processOntologyResource(solution.getResource("s"), ontology, ontologyGraphURI, groupId));
+				ruleList.addAll(processOntologyResource(solution.getResource("s"), ontology, ontologyGraphURI));
 			}
 			
 			return ruleList;
@@ -251,7 +251,7 @@ public class DataNormalizationRulesModel {
 		}
 	}
 
-	private Collection<DataNormalizationRule> processOntologyResource(Resource resource, Model model, String ontology, Integer groupId) throws DataNormalizationException {
+	private Collection<DataNormalizationRule> processOntologyResource(Resource resource, Model model, String ontology) throws DataNormalizationException {
 		List<DataNormalizationRule> ruleList = new ArrayList<DataNormalizationRule>();
 
 		if (model.contains(resource, RDFS.range, model.asRDFNode(Node.ANY))) {
@@ -260,7 +260,7 @@ public class DataNormalizationRulesModel {
 			 * Correct boolean
 			 */
 			if (model.contains(resource, RDFS.range, XSD.xboolean)) {
-				DataNormalizationRule rule = new DataNormalizationBooleanRule(null, groupId, resource);
+				DataNormalizationRule rule = new DataNormalizationBooleanRule(null, null, resource);
 				
 				LOG.info("Generated DN rule for boolean");
 
@@ -271,7 +271,7 @@ public class DataNormalizationRulesModel {
 			 * Correct string
 			 */
 			if (model.contains(resource, RDFS.range, XSD.xstring)) {
-				DataNormalizationRule rule = new DataNormalizationStringRule(null, groupId, resource);
+				DataNormalizationRule rule = new DataNormalizationStringRule(null, null, resource);
 				
 				LOG.info("Generated DN rule for string");
 
@@ -282,7 +282,7 @@ public class DataNormalizationRulesModel {
 			 * Correct date formats ("YYYY" to "YYYY-MM-DD" etc.)
 			 */
 			if (model.contains(resource, RDFS.range, XSD.date)) {
-				DataNormalizationRule rule = new DataNormalizationDateRule(null, groupId, resource);
+				DataNormalizationRule rule = new DataNormalizationDateRule(null, null, resource);
 				
 				LOG.info("Generated DN rule for date");
 
