@@ -3,11 +3,13 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages;
 import java.io.File;
 import java.util.List;
 
+import org.apache.wicket.Application;
 import org.apache.wicket.RuntimeConfigurationType;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.markup.html.WebComponent;
+import org.apache.wicket.markup.html.IHeaderContributor;
+import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
@@ -80,14 +82,14 @@ public abstract class FrontendPage extends WebPage
 		add(new UserPanel("userPanel", LogOutPage.class));
 		add(new FeedbackPanel("feedback"));
 		
-		// show development stylesheet only in development mode
-		add(new WebComponent("developmentCss") {
+		final Application app = Application.get();
+		app.getHeaderContributorListenerCollection().add(new IHeaderContributor() {
 			private static final long serialVersionUID = 1L;
-			
-			@Override
-			public boolean isVisible()
-			{
-				return getApp().getConfigurationType() == RuntimeConfigurationType.DEVELOPMENT;
+
+			public void renderHead(IHeaderResponse response) {
+				if (app.getConfigurationType() == RuntimeConfigurationType.DEVELOPMENT) {
+						response.renderCSSReference("css/theme_development.css");
+				}
 			}
 		});
 		
