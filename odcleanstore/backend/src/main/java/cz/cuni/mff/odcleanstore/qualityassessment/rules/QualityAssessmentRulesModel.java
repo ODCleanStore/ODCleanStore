@@ -20,7 +20,6 @@ import java.sql.SQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import virtuoso.jdbc3.VirtuosoDataSource;
 import virtuoso.jena.driver.VirtModel;
 
 import com.hp.hpl.jena.graph.Node;
@@ -100,13 +99,6 @@ public class QualityAssessmentRulesModel {
 	public QualityAssessmentRulesModel (JDBCConnectionCredentials endpoint, TableVersion tableVersion) {
 		this.endpoint = endpoint;
 		this.tableVersion = tableVersion;
-	}
-	
-	public QualityAssessmentRulesModel (VirtuosoDataSource dataSource) {
-		this.endpoint = new JDBCConnectionCredentials(
-				"jdbc:virtuoso://" + dataSource.getServerName(),
-				dataSource.getUser(),
-				dataSource.getPassword());
 	}
 	
 	private Collection<QualityAssessmentRule> queryRules (String query, Object... objects) throws QualityAssessmentException {

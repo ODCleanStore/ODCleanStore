@@ -19,7 +19,6 @@ import com.hp.hpl.jena.vocabulary.XSD;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import virtuoso.jdbc3.VirtuosoDataSource;
 import virtuoso.jena.driver.VirtModel;
 
 import java.sql.Blob;
@@ -105,13 +104,6 @@ public class DataNormalizationRulesModel {
 	public DataNormalizationRulesModel (JDBCConnectionCredentials endpoint, TableVersion tableVersion) {
 		this.endpoint = endpoint;
 		this.tableVersion = tableVersion;
-	}
-
-	public DataNormalizationRulesModel (VirtuosoDataSource dataSource) {
-		this.endpoint = new JDBCConnectionCredentials(
-				dataSource.getServerName(),
-				dataSource.getUser(),
-				dataSource.getPassword());
 	}
 
 	/**
