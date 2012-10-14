@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -35,6 +36,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.math.BigDecimal;
@@ -146,24 +148,24 @@ public class ConfigBuilder {
 	/**
 	 * Parses given link configuration file.
 	 *
-	 * @param inputFile input file to parse
+	 * @param inputFile input stream to parse
 	 * @return parsed rule
 	 * @throws javax.xml.transform.TransformerException
 	 * @throws ParserConfigurationException
 	 * @throws SAXException
 	 * @throws IOException
 	 */
-	public static SilkRule parseRule(File inputFile)
+	public static SilkRule parseRule(InputStream input)
 			throws javax.xml.transform.TransformerException, ParserConfigurationException, SAXException, IOException {
-		LOG.info("Parsing link configuration file {}", inputFile.getAbsolutePath());
+		LOG.info("Parsing Silk linkage rule.");
 		DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-		Document doc = builder.parse(inputFile);
+		Document doc = builder.parse(input);
 
 		SilkRule rule = new SilkRule();
 
 		NodeList nodeList = doc.getElementsByTagName(CONFIG_XML_INTERLINK);
 		if (nodeList.getLength() < 1) {
-			return null;
+			return rule;
 		}
 		Element ruleElement = (Element)nodeList.item(0);
 
@@ -173,8 +175,10 @@ public class ConfigBuilder {
 		rule.setTargetRestriction(parseRestriction(ruleElement, CONFIG_XML_TARGET_DATASET));
 		rule.setLinkageRule(parseLinkageRule(ruleElement));
 		Element filterElement = getFirstChild(ruleElement, CONFIG_XML_FILTER);
-		rule.setFilterLimit(parseFilterLimit(filterElement));
-		rule.setFilterThreshold(parseFilterThreshold(filterElement));
+		if (filterElement != null) {
+			rule.setFilterLimit(parseFilterLimit(filterElement));
+			rule.setFilterThreshold(parseFilterThreshold(filterElement));
+		}		
 		rule.setOutputs(parseOutputs(ruleElement));
 
 		return rule;
@@ -239,10 +243,15 @@ public class ConfigBuilder {
 	private static List<Output> parseOutputs(Element parentElement) {
 		List<Output> outputs = new ArrayList<Output>();
 		Element outputsElement = getFirstChild(parentElement, CONFIG_XML_OUTPUTS);
-		NodeList nodeList = outputsElement.getChildNodes();
-		for (int i = 0; i < nodeList.getLength(); i++) {
-			outputs.add(parseOutput((Element)nodeList.item(i)));
-		}
+		if (outputsElement != null) {
+			NodeList nodeList = outputsElement.getChildNodes();
+			for (int i = 0; i < nodeList.getLength(); i++) {
+				Node node = nodeList.item(i);
+				if (node.getNodeType() == Node.ELEMENT_NODE) {
+					outputs.add(parseOutput((Element)nodeList.item(i)));
+				}			
+			}
+		}	
 		return outputs;
 	}
 

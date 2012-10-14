@@ -1,15 +1,28 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.form.upload.FileUpload;
+import org.apache.wicket.markup.html.form.upload.FileUploadField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.validation.validator.RangeValidator;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
+import cz.cuni.mff.odcleanstore.linker.impl.ConfigBuilder;
+import cz.cuni.mff.odcleanstore.linker.rules.SilkRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
@@ -106,6 +119,11 @@ public class NewOIRulePage extends LimitedEditingPage
 		form.add(createFilterThresholdTextfield());
 		form.add(createFilterLimitTextfield());
 		
+		form.setMultiPart(true);
+		FileUploadField fileUpload = new FileUploadField("fileUpload", new ListModel<FileUpload>(new ArrayList<FileUpload>()));
+		form.add(fileUpload);
+		form.add(new ImportButton(fileUpload, form, "import"));
+		
 		add(form);
 	}
 	
@@ -129,5 +147,72 @@ public class NewOIRulePage extends LimitedEditingPage
 		TextField<String> textfield = createTextfield("filterLimit", false);
 		textfield.add(new RangeValidator<Integer>(1, Integer.MAX_VALUE));
 		return textfield;
+	}
+	
+	private class ImportButton extends Button 
+	{
+		private static final long serialVersionUID = 1L;
+		
+		private FileUploadField fileUpload;
+		private Form<OIRule> form;
+		
+		public ImportButton(FileUploadField fileUpload, Form<OIRule> form, String compName)
+		{
+			super(compName);
+			this.fileUpload = fileUpload;
+			this.form = form;
+			setDefaultFormProcessing(false);
+		}
+		
+		@Override
+		public void onSubmit()
+		{
+			final FileUpload uploadedFile = fileUpload.getFileUpload();
+			if (uploadedFile != null)
+			{
+				try 
+				{
+					SilkRule silkRule = ConfigBuilder.parseRule(uploadedFile.getInputStream());
+					form.setModelObject(transformRule(silkRule));	
+					form.modelChanged();
+				}
+				catch (SAXParseException e) 
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (TransformerException e) 
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (ParserConfigurationException e) 
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (SAXException e) 
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) 
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		private OIRule transformRule(SilkRule silkRule)
+		{
+			return  new OIRule(
+						null,
+						null,
+						silkRule.getLabel(),
+						silkRule.getLinkType(),
+						silkRule.getSourceRestriction(),
+						silkRule.getTargetRestriction(),
+						silkRule.getLinkageRule(),
+						silkRule.getFilterThreshold(),
+						silkRule.getFilterLimit()
+					);
+		}
 	}
 }
