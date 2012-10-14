@@ -26,6 +26,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteButt
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedRedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.LimitedEditingForm;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.OIRuleExportButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.OIRuleImportButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
@@ -260,6 +261,7 @@ public class OIRuleDetailPage extends LimitedEditingPage
 		FileUploadField fileUpload = new FileUploadField("fileUpload", new ListModel<FileUpload>(new ArrayList<FileUpload>()));
 		form.add(fileUpload);
 		form.add(new OIRuleImportButton(fileUpload, form, "import"));
+		form.add(new OIRuleExportButton(form.getModelObject(), "export"));
 		
 		add(form);
 	}

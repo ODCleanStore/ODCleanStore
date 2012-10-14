@@ -16,6 +16,7 @@ import org.apache.wicket.validation.validator.RangeValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.OIRuleExportButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.OIRuleImportButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
@@ -115,6 +116,7 @@ public class NewOIRulePage extends LimitedEditingPage
 		FileUploadField fileUpload = new FileUploadField("fileUpload", new ListModel<FileUpload>(new ArrayList<FileUpload>()));
 		form.add(fileUpload);
 		form.add(new OIRuleImportButton(fileUpload, form, "import"));
+		form.add(new OIRuleExportButton(form.getModelObject(), "export"));
 		
 		add(form);
 	}
