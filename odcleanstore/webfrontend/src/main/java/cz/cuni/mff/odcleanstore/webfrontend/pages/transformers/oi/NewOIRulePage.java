@@ -176,26 +176,10 @@ public class NewOIRulePage extends LimitedEditingPage
 					form.setModelObject(transformRule(silkRule));	
 					form.modelChanged();
 				}
-				catch (SAXParseException e) 
+				catch (Exception e) 
 				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (TransformerException e) 
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (ParserConfigurationException e) 
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SAXException e) 
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) 
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.error(e.getMessage(), e);
+					getSession().error("Failed to parse the provided file.");
 				}
 			}
 		}
