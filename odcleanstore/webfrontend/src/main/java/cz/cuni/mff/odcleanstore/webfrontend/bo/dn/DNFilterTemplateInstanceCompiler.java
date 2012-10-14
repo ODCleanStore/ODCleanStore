@@ -6,7 +6,9 @@ import cz.cuni.mff.odcleanstore.shared.Utils;
 
 public class DNFilterTemplateInstanceCompiler 
 	extends DNTemplateInstanceCompiler<DNFilterTemplateInstance>
-{
+{	
+	private static final long serialVersionUID = 1L;
+
 	public CompiledDNRule compile(DNFilterTemplateInstance instance)
 	{
 		// 1. Create rule.

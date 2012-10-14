@@ -7,6 +7,8 @@ import cz.cuni.mff.odcleanstore.shared.Utils;
 public class DNConcatenateTemplateInstanceCompiler 
 	extends DNTemplateInstanceCompiler<DNConcatenateTemplateInstance>
 {
+	private static final long serialVersionUID = 1L;
+
 	public CompiledDNRule compile(DNConcatenateTemplateInstance instance)
 	{
 		// 1. Create rule.
