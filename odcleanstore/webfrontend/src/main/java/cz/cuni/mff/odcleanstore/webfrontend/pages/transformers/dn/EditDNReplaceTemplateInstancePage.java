@@ -70,15 +70,10 @@ public class EditDNReplaceTemplateInstancePage extends LimitedEditingPage
 			{
 				DNReplaceTemplateInstance instance = this.getModelObject();
 				
-				CompiledDNRule compiledRule = DNReplaceTemplateInstanceCompiler.compile(instance);
-				
 				try 
 				{
 					compiledDNRuleDao.delete(instance.getRawRuleId());
-					int rawRuleId = compiledDNRuleDao.saveAndGetKey(compiledRule);
 					
-					instance.setRawRuleId(rawRuleId);
-
 					// note that when deleting the raw rule, the template instance
 					// gets automatically deleted as well, due to on delete constraints;
 					// it is therefore necessary to insert the template instance (not update)

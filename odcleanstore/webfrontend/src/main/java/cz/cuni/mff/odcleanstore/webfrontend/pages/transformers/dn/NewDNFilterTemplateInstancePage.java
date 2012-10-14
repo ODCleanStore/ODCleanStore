@@ -72,14 +72,8 @@ public class NewDNFilterTemplateInstancePage extends LimitedEditingPage
 			{
 				DNFilterTemplateInstance instance = this.getModelObject();
 				instance.setGroupId(groupId);
-				
-				CompiledDNRule compiledRule = DNFilterTemplateInstanceCompiler.compile(instance);
-				
-				try 
-				{
-					int rawRuleId = compiledDNRuleDao.saveAndGetKey(compiledRule);
-					
-					instance.setRawRuleId(rawRuleId);
+						
+				try {
 					dnFilterTemplateInstanceDao.save(instance);
 				}
 				catch (DaoException ex)

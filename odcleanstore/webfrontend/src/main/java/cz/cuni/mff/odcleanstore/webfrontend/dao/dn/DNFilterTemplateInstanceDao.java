@@ -2,7 +2,9 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.dn;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.CompiledDNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNFilterTemplateInstance;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNFilterTemplateInstanceCompiler;
 
 public class DNFilterTemplateInstanceDao extends DNTemplateInstanceDao<DNFilterTemplateInstance>
 {
@@ -15,6 +17,7 @@ public class DNFilterTemplateInstanceDao extends DNTemplateInstanceDao<DNFilterT
 	public DNFilterTemplateInstanceDao()
 	{
 		this.rowMapper = new DNFilterTemplateInstanceRowMapper();
+		this.compiler = new DNFilterTemplateInstanceCompiler();
 	}
 	
 	@Override
@@ -32,6 +35,10 @@ public class DNFilterTemplateInstanceDao extends DNTemplateInstanceDao<DNFilterT
 	@Override
 	public void save(DNFilterTemplateInstance item) throws Exception
 	{
+		CompiledDNRule compiledRule = compiler.compile(item);
+		int rawRuleId = saveCompiledRuleAndGetKey(compiledRule);
+		item.setRawRuleId(rawRuleId);
+		
 		String query = 
 			"INSERT INTO " + TABLE_NAME + " (groupId, rawRuleId, propertyName, pattern, keep) " +
 			"VALUES (?, ?, ?, ?, ?)";

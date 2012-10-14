@@ -2,7 +2,10 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.dn;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.CompiledDNRule;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRenameTemplateInstanceCompiler;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNReplaceTemplateInstance;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNReplaceTemplateInstanceCompiler;
 
 public class DNReplaceTemplateInstanceDao extends DNTemplateInstanceDao<DNReplaceTemplateInstance>
 {
@@ -15,6 +18,7 @@ public class DNReplaceTemplateInstanceDao extends DNTemplateInstanceDao<DNReplac
 	public DNReplaceTemplateInstanceDao()
 	{
 		this.rowMapper = new DNReplaceTemplateInstanceRowMapper();
+		this.compiler = new DNReplaceTemplateInstanceCompiler();
 	}
 	
 	@Override
@@ -32,6 +36,10 @@ public class DNReplaceTemplateInstanceDao extends DNTemplateInstanceDao<DNReplac
 	@Override
 	public void save(DNReplaceTemplateInstance item) throws Exception
 	{
+		CompiledDNRule compiledRule = compiler.compile(item);
+		int rawRuleId = saveCompiledRuleAndGetKey(compiledRule);
+		item.setRawRuleId(rawRuleId);
+		
 		String query = 
 			"INSERT INTO " + TABLE_NAME + " (groupId, rawRuleId, propertyName, pattern, replacement) " +
 			"VALUES (?, ?, ?, ?, ?)";

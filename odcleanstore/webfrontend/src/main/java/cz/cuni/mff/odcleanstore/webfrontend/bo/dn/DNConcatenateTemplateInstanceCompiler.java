@@ -4,8 +4,10 @@ import java.util.regex.Pattern;
 
 import cz.cuni.mff.odcleanstore.shared.Utils;
 
-public class DNConcatenateTemplateInstanceCompiler {
-	public static CompiledDNRule compile(DNConcatenateTemplateInstance instance)
+public class DNConcatenateTemplateInstanceCompiler 
+	extends DNTemplateInstanceCompiler<DNConcatenateTemplateInstance>
+{
+	public CompiledDNRule compile(DNConcatenateTemplateInstance instance)
 	{
 		// 1. Create rule.
 		//

@@ -5,8 +5,9 @@ import java.util.regex.Pattern;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 
 public class DNReplaceTemplateInstanceCompiler 
+	extends DNTemplateInstanceCompiler<DNReplaceTemplateInstance>
 {
-	public static CompiledDNRule compile(DNReplaceTemplateInstance instance)
+	public CompiledDNRule compile(DNReplaceTemplateInstance instance)
 	{
 		// 1. Create rule.
 		//

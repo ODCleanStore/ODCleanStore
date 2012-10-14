@@ -2,7 +2,9 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.dn;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.CompiledDNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNConcatenateTemplateInstance;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNConcatenateTemplateInstanceCompiler;
 
 public class DNConcatenateTemplateInstanceDao extends DNTemplateInstanceDao<DNConcatenateTemplateInstance> {
 	private static final long serialVersionUID = 1L;
@@ -14,6 +16,7 @@ public class DNConcatenateTemplateInstanceDao extends DNTemplateInstanceDao<DNCo
 	public DNConcatenateTemplateInstanceDao()
 	{
 		this.rowMapper = new DNConcatenateTemplateInstanceRowMapper();
+		this.compiler = new DNConcatenateTemplateInstanceCompiler();
 	}
 	
 	@Override
@@ -31,6 +34,10 @@ public class DNConcatenateTemplateInstanceDao extends DNTemplateInstanceDao<DNCo
 	@Override
 	public void save(DNConcatenateTemplateInstance item) throws Exception
 	{
+		CompiledDNRule compiledRule = compiler.compile(item);
+		int rawRuleId = saveCompiledRuleAndGetKey(compiledRule);
+		item.setRawRuleId(rawRuleId);
+	
 		String query = 
 			"INSERT INTO " + TABLE_NAME + " (groupId, rawRuleId, propertyName, delimiter) " +
 			"VALUES (?, ?, ?, ?)";

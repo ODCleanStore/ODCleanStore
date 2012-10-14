@@ -73,13 +73,7 @@ public class NewDNReplaceTemplateInstancePage extends LimitedEditingPage
 				DNReplaceTemplateInstance instance = this.getModelObject();
 				instance.setGroupId(groupId);
 				
-				CompiledDNRule compiledRule = DNReplaceTemplateInstanceCompiler.compile(instance);
-				
-				try 
-				{
-					int rawRuleId = compiledDNRuleDao.saveAndGetKey(compiledRule);
-					
-					instance.setRawRuleId(rawRuleId);
+				try {
 					dnReplaceTemplateInstanceDao.save(instance);
 				}
 				catch (DaoException ex)

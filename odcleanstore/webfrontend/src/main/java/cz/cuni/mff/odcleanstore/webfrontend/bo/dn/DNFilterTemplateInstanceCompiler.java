@@ -5,8 +5,9 @@ import java.util.regex.Pattern;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 
 public class DNFilterTemplateInstanceCompiler 
+	extends DNTemplateInstanceCompiler<DNFilterTemplateInstance>
 {
-	public static CompiledDNRule compile(DNFilterTemplateInstance instance)
+	public CompiledDNRule compile(DNFilterTemplateInstance instance)
 	{
 		// 1. Create rule.
 		//

@@ -72,14 +72,8 @@ public class NewDNRenameTemplateInstancePage extends LimitedEditingPage
 			{
 				DNRenameTemplateInstance instance = this.getModelObject();
 				instance.setGroupId(groupId);
-
-				CompiledDNRule compiledRule = DNRenameTemplateInstanceCompiler.compile(instance);
-				
-				try 
-				{
-					int rawRuleId = compiledDNRuleDao.saveAndGetKey(compiledRule);
-					
-					instance.setRawRuleId(rawRuleId);
+		
+				try {
 					dnRenameTemplateInstanceDao.save(instance);
 				}
 				catch (DaoException ex)

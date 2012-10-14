@@ -2,7 +2,9 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.dn;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.CompiledDNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRenameTemplateInstance;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRenameTemplateInstanceCompiler;
 
 public class DNRenameTemplateInstanceDao extends DNTemplateInstanceDao<DNRenameTemplateInstance>
 {
@@ -15,6 +17,7 @@ public class DNRenameTemplateInstanceDao extends DNTemplateInstanceDao<DNRenameT
 	public DNRenameTemplateInstanceDao()
 	{
 		this.rowMapper = new DNRenameTemplateInstanceRowMapper();
+		this.compiler = new DNRenameTemplateInstanceCompiler();
 	}
 	
 	@Override
@@ -32,6 +35,10 @@ public class DNRenameTemplateInstanceDao extends DNTemplateInstanceDao<DNRenameT
 	@Override
 	public void save(DNRenameTemplateInstance item) throws Exception
 	{
+		CompiledDNRule compiledRule = compiler.compile(item);
+		int rawRuleId = saveCompiledRuleAndGetKey(compiledRule);
+		item.setRawRuleId(rawRuleId);
+		
 		String query = 
 			"INSERT INTO " + TABLE_NAME + " (groupId, rawRuleId, sourcePropertyName, targetPropertyName) " +
 			"VALUES (?, ?, ?, ?)";

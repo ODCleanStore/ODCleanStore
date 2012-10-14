@@ -73,13 +73,7 @@ public class NewDNConcatenateTemplateInstancePage extends LimitedEditingPage
 				DNConcatenateTemplateInstance instance = this.getModelObject();
 				instance.setGroupId(groupId);
 				
-				CompiledDNRule compiledRule = DNConcatenateTemplateInstanceCompiler.compile(instance);
-				
-				try 
-				{
-					int rawRuleId = compiledDNRuleDao.saveAndGetKey(compiledRule);
-					
-					instance.setRawRuleId(rawRuleId);
+				try {
 					dnConcatenateTemplateInstanceDao.save(instance);
 				}
 				catch (DaoException ex)

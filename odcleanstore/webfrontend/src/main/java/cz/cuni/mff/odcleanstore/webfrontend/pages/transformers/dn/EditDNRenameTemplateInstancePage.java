@@ -69,15 +69,10 @@ public class EditDNRenameTemplateInstancePage extends LimitedEditingPage
 			protected void onSubmitImpl()
 			{
 				DNRenameTemplateInstance instance = this.getModelObject();
-
-				CompiledDNRule compiledRule = DNRenameTemplateInstanceCompiler.compile(instance);
 				
 				try 
 				{
 					compiledDNRuleDao.delete(instance.getRawRuleId());
-					int rawRuleId = compiledDNRuleDao.saveAndGetKey(compiledRule);
-					
-					instance.setRawRuleId(rawRuleId);
 
 					// note that when deleting the raw rule, the template instance
 					// gets automatically deleted as well, due to on delete constraints;
