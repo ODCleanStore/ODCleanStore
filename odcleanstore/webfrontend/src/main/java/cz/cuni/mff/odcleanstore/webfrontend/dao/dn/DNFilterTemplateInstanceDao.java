@@ -2,6 +2,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.dn;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
+import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.CompiledDNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNFilterTemplateInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNFilterTemplateInstanceCompiler;
@@ -33,32 +34,39 @@ public class DNFilterTemplateInstanceDao extends DNTemplateInstanceDao<DNFilterT
 	}
 
 	@Override
-	public void save(DNFilterTemplateInstance item) throws Exception
+	public void save(final DNFilterTemplateInstance item) throws Exception
 	{
-		CompiledDNRule compiledRule = compiler.compile(item);
-		int rawRuleId = saveCompiledRuleAndGetKey(compiledRule);
-		item.setRawRuleId(rawRuleId);
+		executeInTransaction(new CodeSnippet() 
+		{	
+			@Override
+			public void execute() throws Exception 
+			{
+				CompiledDNRule compiledRule = compiler.compile(item);
+				int rawRuleId = saveCompiledRuleAndGetKey(compiledRule);
+				item.setRawRuleId(rawRuleId);
+				
+				String query = 
+					"INSERT INTO " + TABLE_NAME + " (groupId, rawRuleId, propertyName, pattern, keep) " +
+					"VALUES (?, ?, ?, ?, ?)";
+				
+				Object[] params =
+				{
+					item.getGroupId(),
+					item.getRawRuleId(),
+					item.getPropertyName(),
+					item.getPattern(),
+					item.getKeep()
+				};
 		
-		String query = 
-			"INSERT INTO " + TABLE_NAME + " (groupId, rawRuleId, propertyName, pattern, keep) " +
-			"VALUES (?, ?, ?, ?, ?)";
-		
-		Object[] params =
-		{
-			item.getGroupId(),
-			item.getRawRuleId(),
-			item.getPropertyName(),
-			item.getPattern(),
-			item.getKeep()
-		};
-
-		logger.debug("groupId: " + item.getGroupId());
-		logger.debug("rawRuleId: " + item.getRawRuleId());
-		logger.debug("propertyName: " + item.getPropertyName());
-		logger.debug("pattern: " + item.getPattern());
-		logger.debug("keep: " + item.getKeep());
-		
-		jdbcUpdate(query, params);
+				logger.debug("groupId: " + item.getGroupId());
+				logger.debug("rawRuleId: " + item.getRawRuleId());
+				logger.debug("propertyName: " + item.getPropertyName());
+				logger.debug("pattern: " + item.getPattern());
+				logger.debug("keep: " + item.getKeep());
+				
+				jdbcUpdate(query, params);
+			}
+		});
 	}
 	
 	public void update(DNFilterTemplateInstance item) throws Exception

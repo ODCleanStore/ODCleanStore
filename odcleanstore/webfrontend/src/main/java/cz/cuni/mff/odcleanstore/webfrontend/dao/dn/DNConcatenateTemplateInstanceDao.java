@@ -2,6 +2,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.dn;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
+import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.CompiledDNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNConcatenateTemplateInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNConcatenateTemplateInstanceCompiler;
@@ -32,30 +33,37 @@ public class DNConcatenateTemplateInstanceDao extends DNTemplateInstanceDao<DNCo
 	}
 
 	@Override
-	public void save(DNConcatenateTemplateInstance item) throws Exception
+	public void save(final DNConcatenateTemplateInstance item) throws Exception
 	{
-		CompiledDNRule compiledRule = compiler.compile(item);
-		int rawRuleId = saveCompiledRuleAndGetKey(compiledRule);
-		item.setRawRuleId(rawRuleId);
-	
-		String query = 
-			"INSERT INTO " + TABLE_NAME + " (groupId, rawRuleId, propertyName, delimiter) " +
-			"VALUES (?, ?, ?, ?)";
+		executeInTransaction(new CodeSnippet() 
+		{	
+			@Override
+			public void execute() throws Exception 
+			{
+				CompiledDNRule compiledRule = compiler.compile(item);
+				int rawRuleId = saveCompiledRuleAndGetKey(compiledRule);
+				item.setRawRuleId(rawRuleId);
+			
+				String query = 
+					"INSERT INTO " + TABLE_NAME + " (groupId, rawRuleId, propertyName, delimiter) " +
+					"VALUES (?, ?, ?, ?)";
+				
+				Object[] params =
+				{
+					item.getGroupId(),
+					item.getRawRuleId(),
+					item.getPropertyName(),
+					item.getDelimiter()
+				};
 		
-		Object[] params =
-		{
-			item.getGroupId(),
-			item.getRawRuleId(),
-			item.getPropertyName(),
-			item.getDelimiter()
-		};
-
-		logger.debug("groupId: " + item.getGroupId());
-		logger.debug("rawRuleId: " + item.getRawRuleId());
-		logger.debug("propertyName: " + item.getPropertyName());
-		logger.debug("delimiter: '" + item.getDelimiter() + "'");
-		
-		jdbcUpdate(query, params);
+				logger.debug("groupId: " + item.getGroupId());
+				logger.debug("rawRuleId: " + item.getRawRuleId());
+				logger.debug("propertyName: " + item.getPropertyName());
+				logger.debug("delimiter: '" + item.getDelimiter() + "'");
+				
+				jdbcUpdate(query, params);
+			}
+		});
 	}
 	
 	public void update(DNConcatenateTemplateInstance item) throws Exception
