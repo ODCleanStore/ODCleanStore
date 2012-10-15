@@ -38,6 +38,8 @@ public class DNConcatenateTemplateInstanceCompiler
 		property = charsToBeEscaped.matcher(property).replaceAll("\\\\$1");
 		
 		String delimiter = instance.getDelimiter();
+
+		if (delimiter == null) delimiter = "";
 		
 		delimiter = charsToBeRemoved.matcher(delimiter).replaceAll("");
 		delimiter = charsToBeEscaped.matcher(delimiter).replaceAll("\\\\$1");
