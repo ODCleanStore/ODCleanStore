@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -35,9 +36,12 @@ import javax.xml.transform.stream.StreamResult;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.math.BigDecimal;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -146,24 +150,24 @@ public class ConfigBuilder {
 	/**
 	 * Parses given link configuration file.
 	 *
-	 * @param inputFile input file to parse
+	 * @param inputFile input stream to parse
 	 * @return parsed rule
 	 * @throws javax.xml.transform.TransformerException
 	 * @throws ParserConfigurationException
 	 * @throws SAXException
 	 * @throws IOException
 	 */
-	public static SilkRule parseRule(File inputFile)
+	public static SilkRule parseRule(InputStream input)
 			throws javax.xml.transform.TransformerException, ParserConfigurationException, SAXException, IOException {
-		LOG.info("Parsing link configuration file {}", inputFile.getAbsolutePath());
+		LOG.info("Parsing Silk linkage rule.");
 		DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-		Document doc = builder.parse(inputFile);
+		Document doc = builder.parse(input);
 
 		SilkRule rule = new SilkRule();
 
 		NodeList nodeList = doc.getElementsByTagName(CONFIG_XML_INTERLINK);
 		if (nodeList.getLength() < 1) {
-			return null;
+			return rule;
 		}
 		Element ruleElement = (Element)nodeList.item(0);
 
@@ -173,8 +177,10 @@ public class ConfigBuilder {
 		rule.setTargetRestriction(parseRestriction(ruleElement, CONFIG_XML_TARGET_DATASET));
 		rule.setLinkageRule(parseLinkageRule(ruleElement));
 		Element filterElement = getFirstChild(ruleElement, CONFIG_XML_FILTER);
-		rule.setFilterLimit(parseFilterLimit(filterElement));
-		rule.setFilterThreshold(parseFilterThreshold(filterElement));
+		if (filterElement != null) {
+			rule.setFilterLimit(parseFilterLimit(filterElement));
+			rule.setFilterThreshold(parseFilterThreshold(filterElement));
+		}		
 		rule.setOutputs(parseOutputs(ruleElement));
 
 		return rule;
@@ -239,10 +245,15 @@ public class ConfigBuilder {
 	private static List<Output> parseOutputs(Element parentElement) {
 		List<Output> outputs = new ArrayList<Output>();
 		Element outputsElement = getFirstChild(parentElement, CONFIG_XML_OUTPUTS);
-		NodeList nodeList = outputsElement.getChildNodes();
-		for (int i = 0; i < nodeList.getLength(); i++) {
-			outputs.add(parseOutput((Element)nodeList.item(i)));
-		}
+		if (outputsElement != null) {
+			NodeList nodeList = outputsElement.getChildNodes();
+			for (int i = 0; i < nodeList.getLength(); i++) {
+				Node node = nodeList.item(i);
+				if (node.getNodeType() == Node.ELEMENT_NODE) {
+					outputs.add(parseOutput((Element)nodeList.item(i)));
+				}			
+			}
+		}	
 		return outputs;
 	}
 
@@ -323,7 +334,7 @@ public class ConfigBuilder {
 		root.appendChild(createPrefixes(configDoc, prefixes));
 		root.appendChild(createSources(configDoc, graphName, config));
 		root.appendChild(createLinkageRules(
-				configDoc, rules, fileId, builder, config, transformerDirectory, linkWithinGraph));
+				configDoc, rules, fileId, builder, config, transformerDirectory, linkWithinGraph, true));
 
 		return configDoc;
 	}
@@ -383,7 +394,6 @@ public class ConfigBuilder {
 
 		sourceElement.setAttribute(CONFIG_XML_TYPE, CONFIG_XML_SPARQL_ENDPOINT);
 		sourceElement.appendChild(createParam(doc, CONFIG_XML_ENDPOINT_URI, credentials.getUrl().toString()));
-
 		if (graphName != null) {
 			sourceElement.appendChild(createParam(doc, CONFIG_XML_GRAPH, graphName));
 		}
@@ -412,13 +422,13 @@ public class ConfigBuilder {
 	 */
 	private static Element createLinkageRules(Document doc, List<SilkRule> rules, String graphId,
 			DocumentBuilder builder, ObjectIdentificationConfig config, File transformerDirectory,
-			boolean linkWithinGraph) throws SAXException, IOException, InvalidLinkageRuleException {
+			boolean linkWithinGraph, boolean filterIDs) throws SAXException, IOException, InvalidLinkageRuleException {
 		Element rulesElement = doc.createElement(CONFIG_XML_INTERLINKS);
 		for (SilkRule rule: rules) {
-			rulesElement.appendChild(createLinkageRule(doc, rule, graphId, builder, config, transformerDirectory, false));
+			rulesElement.appendChild(createLinkageRule(doc, rule, graphId, builder, config, transformerDirectory, false, filterIDs));
 			if (linkWithinGraph) {
 				rulesElement.appendChild(
-						createLinkageRule(doc, rule, graphId, builder, config, transformerDirectory, true));
+						createLinkageRule(doc, rule, graphId, builder, config, transformerDirectory, true, filterIDs));
 			}
 		}
 
@@ -426,10 +436,15 @@ public class ConfigBuilder {
 	}
 
 	private static Element createLinkageRule(Document doc, SilkRule rule, String graphId, DocumentBuilder builder,
-			ObjectIdentificationConfig config, File transformerDirectory, boolean linkWithinGraph)
+			ObjectIdentificationConfig config, File transformerDirectory, boolean linkWithinGraph, boolean filterIDs)
 					throws SAXException, IOException, DOMException, InvalidLinkageRuleException {
 		Element ruleElement = doc.createElement(CONFIG_XML_INTERLINK);
-		String id = linkWithinGraph ? "id_within_" + rule.getId() : "id_" + rule.getId();
+		String id;
+		if (filterIDs) {
+			id = linkWithinGraph ? "id_within_" + rule.getId() : "id_" + rule.getId();
+		} else {
+			id = rule.getLabel();
+		}
 		ruleElement.setAttribute(CONFIG_XML_ID, id);
 
 		ruleElement.appendChild(createTextElement(doc, CONFIG_XML_LINK_TYPE, rule.getLinkType()));
@@ -442,8 +457,9 @@ public class ConfigBuilder {
 
 		Element linkageRuleElement = builder.parse(new InputSource(new StringReader(rule.getLinkageRule()))).
 				getDocumentElement();
-		filterIDs(linkageRuleElement);
-
+		if (filterIDs) {
+			filterIDs(linkageRuleElement);
+		}
 		ruleElement.appendChild(doc.importNode(linkageRuleElement, true));
 
 		ruleElement.appendChild(createFilter(doc, rule.getFilterLimit(), rule.getFilterThreshold()));
@@ -698,5 +714,40 @@ public class ConfigBuilder {
 			Element element = (Element)nodeList.item(i);
 			element.removeAttribute(CONFIG_XML_ID);
 		}
+	}
+	
+	public static String createRuleXML(SilkRule rule, List<RDFprefix> prefixes) throws ParserConfigurationException, DOMException, 
+			InvalidLinkageRuleException, SAXException, IOException, javax.xml.transform.TransformerException {
+		DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+		Document configDoc = builder.newDocument();
+		Element root = configDoc.createElement(CONFIG_XML_ROOT);
+		configDoc.appendChild(root);
+		List<SilkRule> ruleList = new ArrayList<SilkRule>();
+		ruleList.add(rule);
+		ObjectIdentificationConfig config = createFakeConfig();
+		root.appendChild(createPrefixes(configDoc, prefixes));
+		root.appendChild(createSources(configDoc, null, config));
+		root.appendChild(createLinkageRules(configDoc, ruleList, null, builder, config, null, false, false));
+		return transformToString(configDoc);	
+	}
+	
+	private static String transformToString(Document doc) throws javax.xml.transform.TransformerException {
+		TransformerFactory tf = TransformerFactory.newInstance();
+		Transformer transformer = tf.newTransformer();
+		transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+		StringWriter writer = new StringWriter();
+		transformer.transform(new DOMSource(doc), new StreamResult(writer));
+		return writer.toString();
+	}
+	
+	private static ObjectIdentificationConfig createFakeConfig() {
+		URL fakeURL = null;
+		try {
+			fakeURL = new URL("http://www.editme.com");
+		} catch (MalformedURLException e) { /* do nothing */ };
+		SparqlEndpointConnectionCredentials fakeCredentials = new SparqlEndpointConnectionCredentials(fakeURL);
+		ObjectIdentificationConfig config = new ObjectIdentificationConfig(false, fakeCredentials, fakeCredentials);
+		return config;
 	}
 }

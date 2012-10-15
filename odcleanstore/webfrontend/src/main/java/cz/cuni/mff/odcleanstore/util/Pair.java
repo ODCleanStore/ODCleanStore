@@ -1,5 +1,7 @@
 package cz.cuni.mff.odcleanstore.util;
 
+import java.io.Serializable;
+
 /**
  * Represents an ordered pair of variables of types T and U.
  * 
@@ -8,8 +10,10 @@ package cz.cuni.mff.odcleanstore.util;
  * @param <T>
  * @param <U>
  */
-public class Pair<T, U>
+public class Pair<T, U> implements Serializable
 {
+	private static final long serialVersionUID = 1L;
+	
 	private final T first;
 	private final U second;
 	

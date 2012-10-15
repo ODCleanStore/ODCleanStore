@@ -1,17 +1,23 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.form.upload.FileUpload;
+import org.apache.wicket.markup.html.form.upload.FileUploadField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.validation.validator.RangeValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.OIRuleExportButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.OIRuleImportButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
@@ -105,6 +111,12 @@ public class NewOIRulePage extends LimitedEditingPage
 		form.add(createTextarea("linkageRule"));
 		form.add(createFilterThresholdTextfield());
 		form.add(createFilterLimitTextfield());
+		
+		form.setMultiPart(true);
+		FileUploadField fileUpload = new FileUploadField("fileUpload", new ListModel<FileUpload>(new ArrayList<FileUpload>()));
+		form.add(fileUpload);
+		form.add(new OIRuleImportButton(fileUpload, form, "import"));
+		form.add(new OIRuleExportButton(form.getModelObject(), "export"));
 		
 		add(form);
 	}

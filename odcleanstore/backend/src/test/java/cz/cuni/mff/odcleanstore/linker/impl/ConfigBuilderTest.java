@@ -22,6 +22,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -92,7 +93,7 @@ public class ConfigBuilderTest {
 	public void testParseRule()
 			throws javax.xml.transform.TransformerException, ParserConfigurationException, SAXException, IOException {
 
-		SilkRule rule = ConfigBuilder.parseRule(new File("src/test/resources/expectedLinkConfig.xml"));
+		SilkRule rule = ConfigBuilder.parseRule(new FileInputStream("src/test/resources/expectedLinkConfig.xml"));
 		assertEquals(RULE_TYPE, rule.getLinkType());
 		assertEquals(RULE_SOURCE_RESTRICTION, rule.getSourceRestriction());
 		assertEquals(RULE_TARGET_RESTRICTION, rule.getTargetRestriction());
