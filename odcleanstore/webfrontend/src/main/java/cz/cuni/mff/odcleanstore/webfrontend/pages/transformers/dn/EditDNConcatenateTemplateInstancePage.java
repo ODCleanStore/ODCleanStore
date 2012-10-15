@@ -102,7 +102,7 @@ public class EditDNConcatenateTemplateInstancePage extends LimitedEditingPage
 		};
 		
 		form.add(createIRITextfield("propertyName"));
-		form.add(createTextfield("delimiter"));
+		form.add(createTextfield("delimiter", false));
 		
 		add(form);
 	}
