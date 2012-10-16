@@ -254,8 +254,7 @@ public final class PipelineService extends Service implements Runnable {
 		LOG.info(format("cleaning dirty graph started", status));
 		manipulator.clearNewGraphsInCleanDB();
 		manipulator.clearGraphsInDirtyDB();
-		status.setNoDirtyState(GraphStates.WRONG);
-		if (status.setNoDirtyState(GraphStates.FINISHED) == GraphStates.QUEUED) {
+		if (status.setNoDirtyState(GraphStates.WRONG) == GraphStates.QUEUED) {
 			LOG.info(format("cleaning dirty graph successfully finished, graf is returned into queue due restart pipeline request", status));
 		} else {
 			LOG.info(format("cleaning dirty graph successfully finished, graph moved to WRONG state", status));
