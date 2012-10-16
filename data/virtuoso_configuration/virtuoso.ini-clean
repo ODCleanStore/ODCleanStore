@@ -77,6 +77,7 @@ MaxMemPoolSize                  = 200000000
 PrefixResultNames               = 0
 MacSpotlight                    = 0
 IndexTreeMaps                   = 64
+TransactionAfterImageLimit	= 1000000000
 ;;
 ;; When running with large data sets, one should configure the Virtuoso
 ;; process to use between 2/3 to 3/5 of free system memory and to stripe
