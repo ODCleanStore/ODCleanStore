@@ -744,7 +744,7 @@ public class ConfigBuilder {
 	private static ObjectIdentificationConfig createFakeConfig() {
 		URL fakeURL = null;
 		try {
-			fakeURL = new URL("http://www.editme.com");
+			fakeURL = new URL("http://example.com");
 		} catch (MalformedURLException e) { /* do nothing */ };
 		SparqlEndpointConnectionCredentials fakeCredentials = new SparqlEndpointConnectionCredentials(fakeURL);
 		ObjectIdentificationConfig config = new ObjectIdentificationConfig(false, fakeCredentials, fakeCredentials);
