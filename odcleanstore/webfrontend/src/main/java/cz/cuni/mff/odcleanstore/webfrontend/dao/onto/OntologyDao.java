@@ -205,7 +205,6 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 			{
 				Ontology onto = loadRaw(item.getId());
 				deleteGraph(onto.getGraphName());
-				deleteMappings(onto.getId());
 				
 				item.setQaRulesGroup(getGroupId(QARulesGroupDao.TABLE_NAME, item.getId()));
 				item.setDnRulesGroup(getGroupId(DNRulesGroupDao.TABLE_NAME, item.getId()));
