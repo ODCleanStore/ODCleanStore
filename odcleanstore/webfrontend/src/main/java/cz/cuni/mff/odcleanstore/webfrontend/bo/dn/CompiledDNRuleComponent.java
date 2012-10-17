@@ -3,7 +3,8 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo.dn;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
 /**
- * The BO to represent a component of a compiled DN rule.
+ * The BO to represent a component of a compiled DN rule. Contains a label
+ * of the component type instead of the whole type object to ease manipulation.
  * 
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *

@@ -16,6 +16,7 @@ public class DNRenameTemplateInstance extends DNTemplateInstance
 	/**
 	 * 
 	 * @param id
+	 * @param rawRuleId
 	 * @param groupId
 	 * @param sourcePropertyName
 	 * @param targetPropertyName

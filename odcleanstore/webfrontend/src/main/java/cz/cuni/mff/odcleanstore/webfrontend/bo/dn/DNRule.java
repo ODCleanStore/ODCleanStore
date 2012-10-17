@@ -28,7 +28,12 @@ public class DNRule extends RuleEntity
 		this.description = description;
 	}
 	
-	public DNRule(DataNormalizationRule rule) {
+	/**
+	 * 
+	 * @param rule
+	 */
+	public DNRule(DataNormalizationRule rule) 
+	{
 		super(rule.getId(), rule.getGroupId());
 		
 		this.description = rule.getDescription();

@@ -4,11 +4,22 @@ import java.util.regex.Pattern;
 
 import cz.cuni.mff.odcleanstore.shared.Utils;
 
+/**
+ * A compiler to translate concatenate template instances into raw rules.
+ * 
+ * @author Jakub Daniel
+ *
+ */
 public class DNConcatenateTemplateInstanceCompiler 
 	extends DNTemplateInstanceCompiler<DNConcatenateTemplateInstance>
 {
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * 
+	 * @param instance
+	 */
+	@Override
 	public CompiledDNRule compile(DNConcatenateTemplateInstance instance)
 	{
 		// 1. Create rule.
