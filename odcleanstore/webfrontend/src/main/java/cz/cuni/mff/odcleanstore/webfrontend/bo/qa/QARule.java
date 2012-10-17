@@ -34,6 +34,10 @@ public class QARule extends RuleEntity
 		this.coefficient = coefficient;
 	}
 	
+	/**
+	 * 
+	 * @param rule
+	 */
 	public QARule(QualityAssessmentRule rule)
 	{
 		super(rule.getId(), rule.getGroupId());
@@ -50,6 +54,10 @@ public class QARule extends RuleEntity
 	{
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public String getFilter() 
 	{
 		return filter;

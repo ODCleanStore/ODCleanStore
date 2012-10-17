@@ -4,6 +4,11 @@ import java.sql.Timestamp;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
+/**
+ * 
+ * @author Jakub Daniel
+ *
+ */
 public class AttachedEngine extends EntityWithSurrogateKey
 {
 	private static final long serialVersionUID = 1L;

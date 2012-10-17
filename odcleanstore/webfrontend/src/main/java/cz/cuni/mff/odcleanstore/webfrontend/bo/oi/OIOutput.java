@@ -25,7 +25,7 @@ public class OIOutput extends EntityWithSurrogateKey
 	 * 
 	 * @param id
 	 * @param ruleId
-	 * @param outputType
+	 * @param outputTypeId
 	 * @param minConfidence
 	 * @param maxConfidence
 	 * @param filename

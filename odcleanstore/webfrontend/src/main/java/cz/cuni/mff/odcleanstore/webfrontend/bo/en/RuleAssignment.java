@@ -3,7 +3,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo.en;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
 /**
- * The BO to represent an assignment to a group of rules to a transformer
+ * The BO to represent an assignment of a group of rules to a transformer
  * instance.
  * 
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)

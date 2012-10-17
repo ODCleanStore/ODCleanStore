@@ -143,7 +143,7 @@ public class User extends EntityWithSurrogateKey
 	}
 	
 	/**
-	 * Returns the list of the names of all roles assigned to the represented
+	 * Returns the list of names of all roles assigned to the represented
 	 * user.
 	 * 
 	 * @return
