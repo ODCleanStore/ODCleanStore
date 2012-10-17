@@ -14,16 +14,16 @@ public class Role extends EntityWithSurrogateKey
 {
 	private static final long serialVersionUID = 1L;
 	
-	/** Administrator. */
+	/** Administrator label value. */
 	public static final String ADM = "ADM";
 	
-	/** Pipeline creator. */
+	/** Pipeline creator label value. */
 	public static final String PIC = "PIC";
 	
-	/** Ontology creator. */
+	/** Ontology creator label value. */
 	public static final String ONC = "ONC";
 	
-	/** Scraper. */
+	/** Scraper label value. */
 	public static final String SCR = "SCR";
 	
 	/** An enumeration of standard Web Frontend roles */
@@ -41,6 +41,10 @@ public class Role extends EntityWithSurrogateKey
 		standardRoles = Collections.unmodifiableList(roles);
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
 	public static List<Role> getStandardRoles() {
 		return standardRoles;
 	}
