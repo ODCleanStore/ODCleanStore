@@ -12,21 +12,20 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.model.IModel;
 
+/**
+ * A data provider to provide a collection of all registered instances of the 
+ * given BO, sorted by values in a column given by name.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ * @param <BO>
+ */
 public class GenericSortableDataProvider<BO extends EntityWithSurrogateKey> extends SortableDataProvider<BO>
 {
 	private static final long serialVersionUID = 1L;
 
 	private DaoForEntityWithSurrogateKey<BO> dao;
 	private List<BO> data;
-	
-	/**
-	 * 
-	 * @param dao
-	 */
-	/*public GenericSortableDataProvider(DaoForEntityWithSurrogateKey<BO> dao)
-	{
-		this(dao, "id");
-	}*/
 	
 	/**
 	 * 
@@ -40,6 +39,12 @@ public class GenericSortableDataProvider<BO extends EntityWithSurrogateKey> exte
 		this.dao = dao;
 	}
 	
+	/**
+	 * Loads all registered instances of the given BO in a lazy way. The data
+	 * get loaded sorted by the currently set column.
+	 * 
+	 * @return
+	 */
 	private List<BO> getData()
 	{
 		if (data == null)
@@ -61,6 +66,15 @@ public class GenericSortableDataProvider<BO extends EntityWithSurrogateKey> exte
 		data = null;
 	}
 	
+	/**
+	 * Returns an iterator over the (sorted) sub-collection of the represented
+	 * data starting at the first-th entity and ending at the 
+	 * (first+count)-th entity.
+	 * 
+	 * @param first
+	 * @param count
+	 * @return
+	 */
 	public Iterator<? extends BO> iterator(int first, int count) 
 	{
 		// TODO: consider if it would be viable to fetch only the required data from DB here, instead of creating
@@ -72,11 +86,22 @@ public class GenericSortableDataProvider<BO extends EntityWithSurrogateKey> exte
 					.iterator();
 	}
 
+	/**
+	 * Returns the size of the represented collection.
+	 * 
+	 * @return
+	 */
 	public int size() 
 	{
 		return getData().size();
 	}
 
+	/**
+	 * Returns the given BO encapsulated into a lodable-detachable
+	 * model.
+	 * 
+	 * @param object
+	 */
 	public IModel<BO> model(BO object) 
 	{
 		return new DetachableModel<BO>(dao, object);

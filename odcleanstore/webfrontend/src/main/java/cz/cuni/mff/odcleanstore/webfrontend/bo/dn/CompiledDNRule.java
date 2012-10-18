@@ -18,7 +18,6 @@ public class CompiledDNRule extends DNRule
 	
 	/**
 	 * 
-	 * @param id
 	 * @param groupId
 	 * @param description
 	 */
