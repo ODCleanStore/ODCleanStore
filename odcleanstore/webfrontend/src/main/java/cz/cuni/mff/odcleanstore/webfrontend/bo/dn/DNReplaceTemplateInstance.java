@@ -17,6 +17,7 @@ public class DNReplaceTemplateInstance extends DNTemplateInstance
 	/**
 	 * 
 	 * @param id
+	 * @param rawRuleId
 	 * @param groupId
 	 * @param propertyName
 	 * @param pattern

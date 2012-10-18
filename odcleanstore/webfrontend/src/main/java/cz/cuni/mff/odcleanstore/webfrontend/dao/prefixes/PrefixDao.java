@@ -74,6 +74,7 @@ public class PrefixDao extends DaoTemplate<Prefix>
 	@Override
 	public Prefix loadBy(String columnName, Object value)
 	{
+		// make loadBy() public
 		return super.loadBy(columnName, value);
 	}
 }

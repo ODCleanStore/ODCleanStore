@@ -6,9 +6,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.CompiledDNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRenameTemplateInstance;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRenameTemplateInstanceCompiler;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.LimitedEditingForm;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.CompiledDNRuleDao;
@@ -69,15 +67,10 @@ public class EditDNRenameTemplateInstancePage extends LimitedEditingPage
 			protected void onSubmitImpl()
 			{
 				DNRenameTemplateInstance instance = this.getModelObject();
-
-				CompiledDNRule compiledRule = DNRenameTemplateInstanceCompiler.compile(instance);
 				
 				try 
 				{
 					compiledDNRuleDao.delete(instance.getRawRuleId());
-					int rawRuleId = compiledDNRuleDao.saveAndGetKey(compiledRule);
-					
-					instance.setRawRuleId(rawRuleId);
 
 					// note that when deleting the raw rule, the template instance
 					// gets automatically deleted as well, due to on delete constraints;

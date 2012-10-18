@@ -32,6 +32,7 @@ public class Pipeline extends EntityWithSurrogateKey implements AuthoredEntity
 	 * @param isDefault
 	 * @param isLocked
 	 * @param authorId
+	 * @param authorName
 	 */
 	public Pipeline(Integer id, String label, String description, Boolean isDefault, Boolean isLocked, Integer authorId, String authorName) 
 	{

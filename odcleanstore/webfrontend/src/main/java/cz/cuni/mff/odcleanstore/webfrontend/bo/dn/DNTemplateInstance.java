@@ -2,6 +2,12 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo.dn;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
+/**
+ * A generic parent of all BO's to represent template instances of DN rules.
+ * 
+ * @author Dušan Rychnovský
+ *
+ */
 public abstract class DNTemplateInstance extends EntityWithSurrogateKey
 {
 	private static final long serialVersionUID = 1L;
@@ -12,6 +18,7 @@ public abstract class DNTemplateInstance extends EntityWithSurrogateKey
 	/**
 	 * 
 	 * @param id
+	 * @param groupId
 	 * @param rawRuleId
 	 */
 	public DNTemplateInstance(Integer id, Integer groupId, Integer rawRuleId)
@@ -24,6 +31,7 @@ public abstract class DNTemplateInstance extends EntityWithSurrogateKey
 	
 	/**
 	 * 
+	 * @param groupId
 	 * @param rawRuleId
 	 */
 	public DNTemplateInstance(Integer groupId, Integer rawRuleId)

@@ -130,6 +130,10 @@ public class ODCSWebFrontendApplication extends AuthenticatedWebApplication
 		return daoLookupFactory;
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
 	public WebFrontendConfig getConfiguration()
 	{
 		return configuration;

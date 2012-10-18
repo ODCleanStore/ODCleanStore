@@ -5,6 +5,13 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
+/**
+ * A BO encapsulated into a loadable detachable model.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ * @param <BO>
+ */
 public class DetachableModel<BO extends EntityWithSurrogateKey> extends LoadableDetachableModel<BO>
 {
 	private static final long serialVersionUID = 1L;
@@ -15,6 +22,8 @@ public class DetachableModel<BO extends EntityWithSurrogateKey> extends Loadable
 	
 	/**
 	 * 
+	 * @param dao
+	 * @param id
 	 */
 	public DetachableModel(DaoForEntityWithSurrogateKey<BO> dao, Integer id)
 	{

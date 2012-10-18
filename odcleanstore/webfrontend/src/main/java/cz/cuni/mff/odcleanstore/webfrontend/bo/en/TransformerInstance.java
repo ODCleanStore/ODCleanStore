@@ -3,7 +3,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo.en;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
 /**
- * The BO to represent an instance of a transformer.
+ * The BO to represent an instance of a transformer inside a pipeline.
  * 
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *

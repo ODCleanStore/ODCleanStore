@@ -3,7 +3,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo.cr;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessEntity;
 
 /**
- * The BO to rerepesent the default CR aggregation settings.
+ * The BO to represent the default CR aggregation settings.
  * 
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *

@@ -7,9 +7,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.CompiledDNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNFilterTemplateInstance;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNFilterTemplateInstanceCompiler;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.LimitedEditingForm;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.CompiledDNRuleDao;
@@ -22,7 +20,7 @@ public class EditDNFilterTemplateInstancePage extends LimitedEditingPage
 {
 	private static final long serialVersionUID = 1L;
 	
-	private static Logger logger = Logger.getLogger(NewDNReplaceTemplateInstancePage.class);
+	private static Logger logger = Logger.getLogger(NewDNFilterTemplateInstancePage.class);
 	
 	private DNFilterTemplateInstanceDao dnFilterTemplateInstanceDao;
 	private CompiledDNRuleDao compiledDNRuleDao;
@@ -70,14 +68,9 @@ public class EditDNFilterTemplateInstancePage extends LimitedEditingPage
 			protected void onSubmitImpl()
 			{
 				DNFilterTemplateInstance instance = this.getModelObject();
-
-				CompiledDNRule compiledRule = DNFilterTemplateInstanceCompiler.compile(instance);
-							
+		
 				try {
 					compiledDNRuleDao.delete(instance.getRawRuleId());
-					int rawRuleId = compiledDNRuleDao.saveAndGetKey(compiledRule);
-					
-					instance.setRawRuleId(rawRuleId);
 
 					// note that when deleting the raw rule, the template instance
 					// gets automatically deleted as well, due to on delete constraints;

@@ -9,6 +9,14 @@ import org.apache.wicket.model.IModel;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
+/**
+ * A simple data provider to provide a collection of all registered
+ * instances of the given BO.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ * @param <BO>
+ */
 public class DataProvider<BO extends EntityWithSurrogateKey> implements IDataProvider<BO>
 {
 	private static final long serialVersionUID = 1L;
@@ -25,6 +33,11 @@ public class DataProvider<BO extends EntityWithSurrogateKey> implements IDataPro
 		this.dao = dao;
 	}
 	
+	/**
+	 * Loads all registered instances of the given BO in a lazy way.
+	 * 
+	 * @return
+	 */
 	private List<BO> getData()
 	{
 		if (data == null)
@@ -32,12 +45,25 @@ public class DataProvider<BO extends EntityWithSurrogateKey> implements IDataPro
 		
 		return data;
 	}
-	
+
+	/**
+	 * Drops references to the allocated data structures.
+	 * 
+	 */
 	public void detach() 
 	{
 		data = null;
 	}
 
+	/**
+	 * Returns an iterator over the sub-collection of the represented
+	 * data starting at the first-th entity and ending at the 
+	 * (first+count)-th entity.
+	 * 
+	 * @param first
+	 * @param count
+	 * @return
+	 */
 	public Iterator<BO> iterator(int first, int count) 
 	{
 		return 
@@ -46,11 +72,22 @@ public class DataProvider<BO extends EntityWithSurrogateKey> implements IDataPro
 					.iterator();
 	}
 
+	/**
+	 * Returns the size of the represented collection.
+	 * 
+	 * @return
+	 */
 	public int size() 
 	{
 		return getData().size();
 	}
 
+	/**
+	 * Returns the given BO encapsulated into a lodable-detachable
+	 * model.
+	 * 
+	 * @param object
+	 */
 	public IModel<BO> model(BO object) 
 	{
 		return new DetachableModel<BO>(dao, object);

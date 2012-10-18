@@ -121,6 +121,22 @@ public class DataNormalizationRule implements Serializable {
 		}
 	}
 
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public void setGroupId(Integer groupId) {
+		this.groupId = groupId;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public void setComponents(ArrayList<Component> components) {
+		this.components = components;
+	}
+
 	public Integer getId() {
 		return id;
 	}

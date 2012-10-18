@@ -18,6 +18,8 @@ public class Ontology extends EntityWithSurrogateKey implements AuthoredEntity
 	private String definition;
 	private Integer authorId;
 	private String authorName;
+	private Integer qaRulesGroup = null;
+	private Integer dnRulesGroup = null;
 
 	/**
 	 * 
@@ -86,6 +88,14 @@ public class Ontology extends EntityWithSurrogateKey implements AuthoredEntity
 		return authorId;
 	}
 	
+	public Integer getQaRulesGroup() {
+		return qaRulesGroup;
+	}
+	
+	public Integer getDnRulesGroup() {
+		return dnRulesGroup;
+	}
+	
 	public void setAuthorId(Integer authorId) 
 	{
 		this.authorId = authorId;
@@ -99,5 +109,13 @@ public class Ontology extends EntityWithSurrogateKey implements AuthoredEntity
 	public void setAuthorName(String authorName)
 	{
 		this.authorName = authorName;
+	}
+	
+	public void setQaRulesGroup(Integer qaRulesGroup) {
+		this.qaRulesGroup = qaRulesGroup;
+	}
+
+	public void setDnRulesGroup(Integer dnRulesGroup) {
+		this.dnRulesGroup = dnRulesGroup;
 	}
 }

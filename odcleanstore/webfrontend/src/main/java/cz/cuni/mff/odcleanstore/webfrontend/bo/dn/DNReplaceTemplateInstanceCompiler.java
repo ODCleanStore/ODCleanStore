@@ -4,9 +4,23 @@ import java.util.regex.Pattern;
 
 import cz.cuni.mff.odcleanstore.shared.Utils;
 
+/**
+ * A compiler to translate replace template instances into raw rules.
+ * 
+ * @author Dušan Rychnovský
+ *
+ */
 public class DNReplaceTemplateInstanceCompiler 
+	extends DNTemplateInstanceCompiler<DNReplaceTemplateInstance>
 {
-	public static CompiledDNRule compile(DNReplaceTemplateInstance instance)
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * 
+	 * @param instance
+	 */
+	@Override
+	public CompiledDNRule compile(DNReplaceTemplateInstance instance)
 	{
 		// 1. Create rule.
 		//

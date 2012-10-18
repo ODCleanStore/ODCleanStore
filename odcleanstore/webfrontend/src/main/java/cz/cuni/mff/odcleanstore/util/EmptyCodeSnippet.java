@@ -8,6 +8,7 @@ package cz.cuni.mff.odcleanstore.util;
  */
 public class EmptyCodeSnippet extends CodeSnippet 
 {
+	@Override
 	public void execute()
 	{
 		// intentionally empty

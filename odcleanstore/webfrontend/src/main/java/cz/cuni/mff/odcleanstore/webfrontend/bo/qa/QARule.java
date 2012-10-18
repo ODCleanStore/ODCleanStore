@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo.qa;
 
+import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.RuleEntity;
 
 /**
@@ -35,11 +36,28 @@ public class QARule extends RuleEntity
 	
 	/**
 	 * 
+	 * @param rule
+	 */
+	public QARule(QualityAssessmentRule rule)
+	{
+		super(rule.getId(), rule.getGroupId());
+		
+		this.filter = rule.getFilter();
+		this.coefficient = rule.getCoefficient();
+		this.description = rule.getDescription();
+	}
+	
+	/**
+	 * 
 	 */
 	public QARule()
 	{
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public String getFilter() 
 	{
 		return filter;

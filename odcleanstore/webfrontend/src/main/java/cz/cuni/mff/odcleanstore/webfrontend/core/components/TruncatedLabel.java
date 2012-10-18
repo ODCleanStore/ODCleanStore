@@ -7,7 +7,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
 /**
- * A label, which has it's text truncated after a fixed number of characters.
+ * A label, which has it's text truncated upto a fixed number of characters.
  * 
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *

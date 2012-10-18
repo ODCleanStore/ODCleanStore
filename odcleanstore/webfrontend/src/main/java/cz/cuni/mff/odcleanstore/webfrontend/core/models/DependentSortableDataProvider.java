@@ -12,6 +12,18 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
 
+/**
+ * TODO: change doc to adhere to the fact that the following is no longer
+ * true (e.g. the data are not filtered by a single column anymore)
+ * 
+ * A data provider to provide a collection of all registered instances of the 
+ * given BO, which are associated with BO with the given id through the column
+ * given by name. The collection is sorted by values in a column given by name.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ * @param <BO>
+ */
 public class DependentSortableDataProvider<BO extends EntityWithSurrogateKey> extends SortableDataProvider<BO>
 {
 	private static final long serialVersionUID = 1L;
@@ -23,6 +35,7 @@ public class DependentSortableDataProvider<BO extends EntityWithSurrogateKey> ex
 	/**
 	 * 
 	 * @param dao
+	 * @param constraints
 	 */
 	public DependentSortableDataProvider(DaoForEntityWithSurrogateKey<BO> dao, Object... constraints)
 	{
@@ -33,8 +46,7 @@ public class DependentSortableDataProvider<BO extends EntityWithSurrogateKey> ex
 	 * 
 	 * @param dao
 	 * @param defaultSortColumnName
-	 * @param columnName
-	 * @param value
+	 * @param constraints
 	 */
 	public DependentSortableDataProvider(DaoForEntityWithSurrogateKey<BO> dao, String defaultSortColumnName,
 		Object... constraints)
@@ -52,6 +64,12 @@ public class DependentSortableDataProvider<BO extends EntityWithSurrogateKey> ex
 		this.criteria = criteria;
 	}
 	
+	/**
+	 * 
+	 * @param dao
+	 * @param defaultSortColumnName
+	 * @param criteria
+	 */
 	public DependentSortableDataProvider(DaoForEntityWithSurrogateKey<BO> dao, String defaultSortColumnName,
 			QueryCriteria criteria)
 	{
@@ -61,6 +79,12 @@ public class DependentSortableDataProvider<BO extends EntityWithSurrogateKey> ex
 		this.criteria = criteria;
 	}
 	
+	/**
+	 * Loads the represented collection in a lazy way, sorted by the values
+	 * in a single column.
+	 * 
+	 * @return
+	 */
 	private List<BO> getData()
 	{
 		if (data == null)
@@ -82,6 +106,15 @@ public class DependentSortableDataProvider<BO extends EntityWithSurrogateKey> ex
 		data = null;
 	}
 	
+	/**
+	 * Returns an iterator over the (sorted) sub-collection of the represented
+	 * data starting at the first-th entity and ending at the 
+	 * (first+count)-th entity.
+	 * 
+	 * @param first
+	 * @param count
+	 * @return
+	 */
 	public Iterator<? extends BO> iterator(int first, int count) 
 	{
 		// TODO: consider if it would be viable to fetch only the required data from DB here, instead of creating
@@ -93,11 +126,22 @@ public class DependentSortableDataProvider<BO extends EntityWithSurrogateKey> ex
 					.iterator();
 	}
 
+	/**
+	 * Returns the size of the represented collection.
+	 * 
+	 * @return
+	 */
 	public int size() 
 	{
 		return getData().size();
 	}
 
+	/**
+	 * Returns the given BO encapsulated into a lodable-detachable
+	 * model.
+	 * 
+	 * @param object
+	 */
 	public IModel<BO> model(BO object) 
 	{
 		return new DetachableModel<BO>(dao, object);

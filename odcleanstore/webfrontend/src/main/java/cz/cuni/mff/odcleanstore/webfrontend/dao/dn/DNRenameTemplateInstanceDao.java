@@ -2,7 +2,10 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.dn;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
+import cz.cuni.mff.odcleanstore.util.CodeSnippet;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.CompiledDNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRenameTemplateInstance;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRenameTemplateInstanceCompiler;
 
 public class DNRenameTemplateInstanceDao extends DNTemplateInstanceDao<DNRenameTemplateInstance>
 {
@@ -15,6 +18,7 @@ public class DNRenameTemplateInstanceDao extends DNTemplateInstanceDao<DNRenameT
 	public DNRenameTemplateInstanceDao()
 	{
 		this.rowMapper = new DNRenameTemplateInstanceRowMapper();
+		this.compiler = new DNRenameTemplateInstanceCompiler();
 	}
 	
 	@Override
@@ -30,26 +34,37 @@ public class DNRenameTemplateInstanceDao extends DNTemplateInstanceDao<DNRenameT
 	}
 
 	@Override
-	public void save(DNRenameTemplateInstance item) throws Exception
+	public void save(final DNRenameTemplateInstance item) throws Exception
 	{
-		String query = 
-			"INSERT INTO " + TABLE_NAME + " (groupId, rawRuleId, sourcePropertyName, targetPropertyName) " +
-			"VALUES (?, ?, ?, ?)";
+		executeInTransaction(new CodeSnippet() 
+		{	
+			@Override
+			public void execute() throws Exception 
+			{
+				CompiledDNRule compiledRule = compiler.compile(item);
+				int rawRuleId = saveCompiledRuleAndGetKey(compiledRule);
+				item.setRawRuleId(rawRuleId);
+				
+				String query = 
+					"INSERT INTO " + TABLE_NAME + " (groupId, rawRuleId, sourcePropertyName, targetPropertyName) " +
+					"VALUES (?, ?, ?, ?)";
+				
+				Object[] params =
+				{
+					item.getGroupId(),
+					item.getRawRuleId(),
+					item.getSourcePropertyName(),
+					item.getTargetPropertyName(),
+				};
 		
-		Object[] params =
-		{
-			item.getGroupId(),
-			item.getRawRuleId(),
-			item.getSourcePropertyName(),
-			item.getTargetPropertyName(),
-		};
-
-		logger.debug("groupId: " + item.getGroupId());
-		logger.debug("rawRuleId: " + item.getRawRuleId());
-		logger.debug("sourcePropertyName: " + item.getSourcePropertyName());
-		logger.debug("targetPropertyName: " + item.getTargetPropertyName());
-		
-		jdbcUpdate(query, params);
+				logger.debug("groupId: " + item.getGroupId());
+				logger.debug("rawRuleId: " + item.getRawRuleId());
+				logger.debug("sourcePropertyName: " + item.getSourcePropertyName());
+				logger.debug("targetPropertyName: " + item.getTargetPropertyName());
+				
+				jdbcUpdate(query, params);
+			}
+		});
 	}
 	
 	public void update(DNRenameTemplateInstance item) throws Exception

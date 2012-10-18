@@ -6,11 +6,8 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.CompiledDNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRenameTemplateInstance;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRenameTemplateInstanceCompiler;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.CompiledDNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRenameTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
@@ -24,7 +21,7 @@ public class NewDNRenameTemplateInstancePage extends LimitedEditingPage
 	private static Logger logger = Logger.getLogger(NewDNRenameTemplateInstancePage.class);
 	
 	private DNRenameTemplateInstanceDao dnRenameTemplateInstanceDao;
-	private CompiledDNRuleDao compiledDNRuleDao;
+	//private CompiledDNRuleDao compiledDNRuleDao;
 	
 	public NewDNRenameTemplateInstancePage(final Integer groupId) 
 	{
@@ -40,7 +37,7 @@ public class NewDNRenameTemplateInstancePage extends LimitedEditingPage
 		// prepare DAO objects
 		//
 		this.dnRenameTemplateInstanceDao = daoLookupFactory.getDao(DNRenameTemplateInstanceDao.class);
-		this.compiledDNRuleDao = daoLookupFactory.getDao(CompiledDNRuleDao.class);
+		//this.compiledDNRuleDao = daoLookupFactory.getDao(CompiledDNRuleDao.class);
 		
 		// register page components
 		//
@@ -72,14 +69,8 @@ public class NewDNRenameTemplateInstancePage extends LimitedEditingPage
 			{
 				DNRenameTemplateInstance instance = this.getModelObject();
 				instance.setGroupId(groupId);
-
-				CompiledDNRule compiledRule = DNRenameTemplateInstanceCompiler.compile(instance);
-				
-				try 
-				{
-					int rawRuleId = compiledDNRuleDao.saveAndGetKey(compiledRule);
-					
-					instance.setRawRuleId(rawRuleId);
+		
+				try {
 					dnRenameTemplateInstanceDao.save(instance);
 				}
 				catch (DaoException ex)
