@@ -6,6 +6,7 @@ import java.net.URLEncoder;
 import java.util.Collection;
 
 import org.apache.log4j.Logger;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import virtuoso.jena.driver.VirtGraph;
@@ -128,7 +129,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 			@Override
 			public void execute() throws Exception
 			{
-				setGraphName(item);
+				item.setGraphName(getGraphName(item));
 
 				logger.debug("label: " + item.getLabel());
 				logger.debug("description: " + item.getDescription());
@@ -143,30 +144,11 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 				// Call after working with RDF in case it fails
 				if (item.getId() == null) {
 					String query = "INSERT INTO " + TABLE_NAME + " (label, description, graphName, authorId) VALUES (?, ?, ?, ?)";
-				
-					Object[] params =
-					{
-						item.getLabel(),
-						item.getDescription(),
-						item.getGraphName(),
-						item.getAuthorId()
-					};
-					
-					jdbcUpdate(query, params);
+					jdbcUpdate(query, item.getLabel(), item.getDescription(), item.getGraphName(), item.getAuthorId());
 					item.setId(getLastInsertId());
 				} else {
 					String query = "UPDATE " + TABLE_NAME + " SET label = ?, description = ?, graphName = ?, authorId = ? WHERE id = ?";
-					
-					Object[] params =
-					{
-						item.getLabel(),
-						item.getDescription(),
-						item.getGraphName(),
-						item.getAuthorId(),
-						item.getId()
-					};
-					
-					jdbcUpdate(query, params);
+					jdbcUpdate(query, item.getLabel(), item.getDescription(), item.getGraphName(), item.getAuthorId(), item.getId());
 				}
 
 				generateRules(item);
@@ -174,15 +156,16 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		});
 	}
 
-	private void setGraphName(Ontology item) 
+	private String getGraphName(Ontology item) 
 	{
 		try
 		{
-			item.setGraphName(ODCSInternal.ontologyGraphUriPrefix + URLEncoder.encode(item.getLabel(), Utils.DEFAULT_ENCODING));
+			return ODCSInternal.ontologyGraphUriPrefix + URLEncoder.encode(item.getLabel(), Utils.DEFAULT_ENCODING);
 		}
 		catch (UnsupportedEncodingException e)
 		{
-			// TODO handle
+			logger.error(e.getMessage(), e);
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -369,7 +352,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		try
 		{
 			return getGroupId(tableName, groupLabel);
-		} catch (Exception e) {
+		} catch (EmptyResultDataAccessException e) {
 			createRulesGroup(tableName, groupLabel, authorId);
 			
 			return getGroupId(tableName, groupLabel);
