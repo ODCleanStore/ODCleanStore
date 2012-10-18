@@ -38,7 +38,7 @@ public abstract class AbstractRuleDao<T extends RuleEntity> extends DaoForAuthor
 	 * Commits changes in rules from uncommitted table to official table.
 	 * This method call should be wrapped in a transaction; for that reason it has package visibility only
 	 */
-	public final void commitChanges(final Integer groupId) throws Exception
+	/*package*/ final void commitChanges(final Integer groupId) throws Exception
 	{
 		executeInTransaction(new CodeSnippet()
 		{

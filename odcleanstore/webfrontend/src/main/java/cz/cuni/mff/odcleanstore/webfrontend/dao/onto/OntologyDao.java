@@ -235,46 +235,54 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 	}
 	
 	private void generateQualityAssessmentRules(final Integer ontologyId, final Integer existingGroupId,
-			final String groupLabel, final String ontologyGraphName, final Integer authorId) throws Exception
+		final String groupLabel, final String ontologyGraphName, final Integer authorId) throws Exception
 	{
-		executeInTransaction(new CodeSnippet() {
+		executeInTransaction(new CodeSnippet()
+		{
 			@Override
-			public void execute() throws Exception {
+			public void execute() throws Exception
+			{
 				try
 				{
-					JDBCConnectionCredentials connectionCredentials = ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials();
+					JDBCConnectionCredentials connectionCredentials = ConfigLoader.getConfig().getBackendGroup()
+						.getCleanDBJDBCConnectionCredentials();
 					QualityAssessmentRulesModel rulesModel = new QualityAssessmentRulesModel(connectionCredentials);
 
 					QARuleDao ruleDao = OntologyDao.this.getLookupFactory().getDao(QARuleDao.class, true);
 
 					Collection<QualityAssessmentRule> rules = rulesModel.compileOntologyToRules(ontologyGraphName);
-					
+
 					Integer groupId = existingGroupId;
-					
-					//DROP OUTDATED RULES
-					if (groupId != null) {
+
+					// DROP OUTDATED RULES
+					if (groupId != null)
+					{
 						logger.info("Dropping old generated rules assossiated with the ontology.");
 						ruleDao.deleteByGroup(groupId);
 					}
-					
-					//DO NOT CREATE NEW GROUP IF NO RULES WERE GENERATED
-					if (rules.size() == 0) return;
 
-					//CREATE NEW GROUP IF NECESSARY
-					if (groupId == null) {
+					// DO NOT CREATE NEW GROUP IF NO RULES WERE GENERATED
+					if (rules.size() == 0)
+						return;
+
+					// CREATE NEW GROUP IF NECESSARY
+					if (groupId == null)
+					{
 						logger.info("Creating new group for the ontology generated rules.");
 						groupId = ensureGroupPresence(QARulesGroupDao.TABLE_NAME, groupLabel, authorId);
 					}
 
 					createMapping(createMappingTableName(QARulesGroupDao.TABLE_NAME), groupId, ontologyId);
-					
-					for (QualityAssessmentRule rule : rules) {			
+
+					for (QualityAssessmentRule rule : rules)
+					{
 						rule.setGroupId(groupId);
-						
+
 						ruleDao.save(new QARule(rule));
 					}
-					
-					ruleDao.commitChanges(groupId);
+
+					QARulesGroupDao ruleGroupDao = OntologyDao.this.getLookupFactory().getDao(QARulesGroupDao.class);
+					ruleGroupDao.commitChanges(groupId);
 				}
 				catch (Exception e)
 				{
@@ -284,60 +292,71 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 			}
 		});
 	}
-	
+
 	private void generateDataNormalizationRules(final Integer ontologyId, final Integer existingGroupId,
-			final String groupLabel, final String ontologyGraphName, final Integer authorId) throws Exception
+		final String groupLabel, final String ontologyGraphName, final Integer authorId) throws Exception
 	{
-		executeInTransaction(new CodeSnippet() {
+		executeInTransaction(new CodeSnippet()
+		{
 			@Override
-			public void execute() throws Exception {
+			public void execute() throws Exception
+			{
 				try
 				{
-					JDBCConnectionCredentials connectionCredentials = ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials();
+					JDBCConnectionCredentials connectionCredentials = ConfigLoader.getConfig().getBackendGroup()
+						.getCleanDBJDBCConnectionCredentials();
 					DataNormalizationRulesModel rulesModel = new DataNormalizationRulesModel(connectionCredentials);
 
 					DNRuleDao ruleDao = OntologyDao.this.getLookupFactory().getDao(DNRuleDao.class, true);
-					DNRuleComponentDao ruleComponentDao = OntologyDao.this.getLookupFactory().getDao(DNRuleComponentDao.class, true);
-					DNRuleComponentTypeDao ruleComponentTypeDao = OntologyDao.this.getLookupFactory().getDao(DNRuleComponentTypeDao.class);
+					DNRuleComponentDao ruleComponentDao = OntologyDao.this.getLookupFactory().getDao(DNRuleComponentDao.class,
+						true);
+					DNRuleComponentTypeDao ruleComponentTypeDao = OntologyDao.this.getLookupFactory()
+						.getDao(DNRuleComponentTypeDao.class);
 
 					Collection<DataNormalizationRule> rules = rulesModel.compileOntologyToRules(ontologyGraphName);
-					
+
 					Integer groupId = existingGroupId;
-					
-					//DROP OUTDATED RULES
-					if (groupId != null) {
+
+					// DROP OUTDATED RULES
+					if (groupId != null)
+					{
 						logger.info("Dropping old generated rules assossiated with the ontology.");
 						ruleDao.deleteByGroup(groupId);
 					}
-					
-					//DO NOT CREATE NEW GROUP IF NO RULES WERE GENERATED
-					if (rules.size() == 0) return;
 
-					//CREATE NEW GROUP IF NECESSARY
-					if (groupId == null) {
+					// DO NOT CREATE NEW GROUP IF NO RULES WERE GENERATED
+					if (rules.size() == 0)
+						return;
+
+					// CREATE NEW GROUP IF NECESSARY
+					if (groupId == null)
+					{
 						logger.info("Creating new group for the ontology generated rules.");
 						groupId = ensureGroupPresence(DNRulesGroupDao.TABLE_NAME, groupLabel, authorId);
 					}
-					
+
 					createMapping(createMappingTableName(DNRulesGroupDao.TABLE_NAME), groupId, ontologyId);
-					
-					for (DataNormalizationRule rule : rules) {						
+
+					for (DataNormalizationRule rule : rules)
+					{
 						rule.setGroupId(groupId);
-						
+
 						Integer ruleId = ruleDao.saveAndGetKey(new DNRule(rule));
-						
-						for (DataNormalizationRule.Component component : rule.getComponents()) {
-							DNRuleComponentType type = ruleComponentTypeDao.loadAllBy("label", component.getType().toString()).get(0);
+
+						for (DataNormalizationRule.Component component : rule.getComponents())
+						{
+							DNRuleComponentType type = ruleComponentTypeDao.loadBy("label", component.getType().toString());
 							DNRuleComponent componentWithRuleId = new DNRuleComponent(null,
-									ruleId, type, component.getModification(), component.getDescription());
-							
+								ruleId, type, component.getModification(), component.getDescription());
+
 							componentWithRuleId.setRuleId(ruleId);
-							
+
 							ruleComponentDao.save(componentWithRuleId);
 						}
 					}
 
-					ruleDao.commitChanges(groupId);
+					DNRulesGroupDao ruleGroupDao = OntologyDao.this.getLookupFactory().getDao(DNRulesGroupDao.class);
+					ruleGroupDao.commitChanges(groupId);
 				}
 				catch (Exception e)
 				{
@@ -347,7 +366,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 			}
 		});
 	}
-	
+
 	private Integer ensureGroupPresence(String tableName, String groupLabel, Integer authorId) throws Exception {
 		try
 		{
