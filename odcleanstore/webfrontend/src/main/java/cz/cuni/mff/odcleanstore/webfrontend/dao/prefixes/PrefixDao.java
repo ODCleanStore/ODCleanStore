@@ -70,4 +70,10 @@ public class PrefixDao extends DaoTemplate<Prefix>
 				}
 		});
 	}
+	
+	@Override
+	public Prefix loadBy(String columnName, Object value)
+	{
+		return super.loadBy(columnName, value);
+	}
 }
