@@ -6,11 +6,8 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.CompiledDNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNConcatenateTemplateInstance;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNConcatenateTemplateInstanceCompiler;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.CompiledDNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNConcatenateTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
@@ -24,7 +21,7 @@ public class NewDNConcatenateTemplateInstancePage extends LimitedEditingPage
 	private static Logger logger = Logger.getLogger(NewDNConcatenateTemplateInstancePage.class);
 	
 	private DNConcatenateTemplateInstanceDao dnConcatenateTemplateInstanceDao;
-	private CompiledDNRuleDao compiledDNRuleDao;
+	//private CompiledDNRuleDao compiledDNRuleDao;
 	
 	public NewDNConcatenateTemplateInstancePage(final Integer groupId) 
 	{
@@ -40,7 +37,7 @@ public class NewDNConcatenateTemplateInstancePage extends LimitedEditingPage
 		// prepare DAO objects
 		//
 		this.dnConcatenateTemplateInstanceDao = daoLookupFactory.getDao(DNConcatenateTemplateInstanceDao.class);
-		this.compiledDNRuleDao = daoLookupFactory.getDao(CompiledDNRuleDao.class);
+		//this.compiledDNRuleDao = daoLookupFactory.getDao(CompiledDNRuleDao.class);
 		
 		// register page components
 		//

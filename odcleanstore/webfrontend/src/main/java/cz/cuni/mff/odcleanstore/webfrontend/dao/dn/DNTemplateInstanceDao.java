@@ -14,10 +14,10 @@ public abstract class DNTemplateInstanceDao<BO extends DNTemplateInstance> exten
 {
 	private static final long serialVersionUID = 1L;
 
-	protected DNTemplateInstanceCompiler compiler;
+	protected DNTemplateInstanceCompiler<BO> compiler;
 	
 	private DNRuleDao dnRuleDao;
-	private DNRuleComponentDao dnRuleComponentDao;
+	//private DNRuleComponentDao dnRuleComponentDao;
 	
 	@Override
 	public void setDaoLookupFactory(DaoLookupFactory factory)
@@ -25,7 +25,7 @@ public abstract class DNTemplateInstanceDao<BO extends DNTemplateInstance> exten
 		super.setDaoLookupFactory(factory);
 		
 		this.dnRuleDao = factory.getDao(DNRuleUncommittedDao.class);
-		this.dnRuleComponentDao = factory.getDao(DNRuleComponentDao.class);
+		//this.dnRuleComponentDao = factory.getDao(DNRuleComponentDao.class);
 	}
 	
 	@Override
