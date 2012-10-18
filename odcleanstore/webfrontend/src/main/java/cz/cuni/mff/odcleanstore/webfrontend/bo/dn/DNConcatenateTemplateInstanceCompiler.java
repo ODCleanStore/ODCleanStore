@@ -46,7 +46,7 @@ public class DNConcatenateTemplateInstanceCompiler
 		
 		String modification = String.format
 		(
-			"DELETE {?s ?p ?o} INSERT {?s ?p ?c} WHERE { GRAPH $$graph$$ {SELECT ?s ?p (sql:group_concat(str(?o), '%s')) AS ?c WHERE {?s ?p ?o} GROUP BY ?s ?p HAVING COUNT(?o) > 1} {?s ?p ?o} FILTER (?p = %s)}",
+			"DELETE {?s ?p ?o} INSERT {?s ?p ?c} WHERE { {SELECT ?s ?p (sql:group_concat(str(?o), '%s')) AS ?c WHERE {?s ?p ?o} GROUP BY ?s ?p HAVING COUNT(?o) > 1} {?s ?p ?o} FILTER (?p = %s)}",
 			delimiter,
 			property
 		);
