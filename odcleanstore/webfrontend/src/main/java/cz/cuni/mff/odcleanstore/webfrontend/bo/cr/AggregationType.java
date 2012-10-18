@@ -48,12 +48,6 @@ public class AggregationType extends EntityWithSurrogateKey
 	}
 
 	@Override
-	public String toString()
-	{
-		return "[ id: " + id + ", label: " + label + ", description: " + description + "]";
-	}
-
-	@Override
 	public boolean equals(Object obj)
 	{
 		if (!(obj instanceof AggregationType))
