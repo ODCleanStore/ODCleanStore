@@ -10,6 +10,15 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DetachableModel;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
+/**
+ * A data provider to provide a collection of all registered instances of the 
+ * given BO, which are associated with BO with the given id through the column
+ * given by name.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ * @param <BO>
+ */
 public class DependentDataProvider<BO extends EntityWithSurrogateKey> implements IDataProvider<BO>
 {
 	private static final long serialVersionUID = 1L;
@@ -22,6 +31,8 @@ public class DependentDataProvider<BO extends EntityWithSurrogateKey> implements
 	/**
 	 * 
 	 * @param dao
+	 * @param columnName
+	 * @param value
 	 */
 	public DependentDataProvider(DaoForEntityWithSurrogateKey<BO> dao, String columnName, Object value)
 	{
@@ -30,6 +41,11 @@ public class DependentDataProvider<BO extends EntityWithSurrogateKey> implements
 		this.value = value;
 	}
 	
+	/**
+	 * Loads the represented collection in a lazy way.
+	 * 
+	 * @return
+	 */
 	private List<BO> getData()
 	{
 		if (data == null)
@@ -38,11 +54,24 @@ public class DependentDataProvider<BO extends EntityWithSurrogateKey> implements
 		return data;
 	}
 	
+	/**
+	 * Drops references to the allocated data structures.
+	 * 
+	 */
 	public void detach() 
 	{
 		data = null;
 	}
 
+	/**
+	 * Returns an iterator over the sub-collection of the represented
+	 * data starting at the first-th entity and ending at the 
+	 * (first+count)-th entity.
+	 * 
+	 * @param first
+	 * @param count
+	 * @return
+	 */
 	public Iterator<BO> iterator(int first, int count) 
 	{
 		// replace this with a special DAO method to only select the sub-list
@@ -54,11 +83,22 @@ public class DependentDataProvider<BO extends EntityWithSurrogateKey> implements
 					.iterator();
 	}
 
+	/**
+	 * Returns the size of the represented collection.
+	 * 
+	 * @return
+	 */
 	public int size() 
 	{
 		return getData().size();
 	}
 
+	/**
+	 * Returns the given BO encapsulated into a lodable-detachable
+	 * model.
+	 * 
+	 * @param object
+	 */
 	public IModel<BO> model(BO object) 
 	{
 		return new DetachableModel<BO>(dao, object);
