@@ -71,4 +71,22 @@ public class EngineOperationsDao extends Dao
 		
 		jdbcUpdate(query, params);
 	}
+	
+	/**
+	 * Updates DB contents to signal Engine to rerun pipeline on graph with the given id.
+	 * 
+	 * @param graphId ID of graph to re-run pipeline od
+	 */
+	public void rerunGraph(final Integer graphId) throws Exception
+	{
+		String query =
+			"UPDATE " + INPUT_GRAPHS_TABLE_NAME + " " +
+			"SET stateId = (SELECT id FROM " + INPUT_GRAPHS_STATES_TABLE_NAME + " WHERE label = ?) " +
+			"WHERE id = ? AND " +
+			"	stateId = (SELECT id FROM " + INPUT_GRAPHS_STATES_TABLE_NAME + " WHERE label = ?)";
+		
+		logger.debug("graph id: " + graphId);
+		
+		jdbcUpdate(query, QUEUED_STATE_LABEL, graphId, FINISHED_STATE_LABEL);
+	}
 }
