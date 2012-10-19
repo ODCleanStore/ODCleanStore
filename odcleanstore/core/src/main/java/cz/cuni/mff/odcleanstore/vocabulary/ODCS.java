@@ -147,5 +147,10 @@ public final class ODCS {
      */
     public static final String dataBaseUrl = NS + "dataBaseUrl";
     
+    /**
+     * Update tag identifier for stored named graphs. 
+     */
+    public static final String updateTag = NS + "updateTag";
+    
     // CHECKSTYLE:ON
 }
