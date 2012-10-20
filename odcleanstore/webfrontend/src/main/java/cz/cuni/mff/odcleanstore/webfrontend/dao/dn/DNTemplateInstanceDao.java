@@ -29,12 +29,19 @@ public abstract class DNTemplateInstanceDao<BO extends DNTemplateInstance> exten
 	}
 	
 	@Override
-	public void delete(BO item) throws Exception
+	protected void deleteRaw(final Integer id) throws Exception
 	{
-		super.delete(item);
-		
-		// Mark the group as dirty
-		getLookupFactory().getDao(DNRulesGroupDao.class).markUncommitted(item.getGroupId());
+		executeInTransaction(new CodeSnippet()
+		{
+			@Override
+			public void execute() throws Exception
+			{
+				// Mark the group as dirty
+				getLookupFactory().getDao(DNRulesGroupDao.class).markUncommitted(load(id).getGroupId());
+				
+				DNTemplateInstanceDao.super.deleteRaw(id);
+			}
+		});
 	}
 	
 	protected int saveCompiledRuleAndGetKey(final CompiledDNRule item) throws Exception

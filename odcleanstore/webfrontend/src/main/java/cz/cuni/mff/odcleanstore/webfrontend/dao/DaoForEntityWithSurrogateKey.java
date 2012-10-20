@@ -3,7 +3,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao;
 import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
-public abstract class DaoForEntityWithSurrogateKey<T extends EntityWithSurrogateKey> extends DaoTemplate<T>
+public abstract class DaoForEntityWithSurrogateKey<T extends EntityWithSurrogateKey> extends DaoTemplate<T> implements DaoSortableDataProvidable<T>
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -28,12 +28,12 @@ public abstract class DaoForEntityWithSurrogateKey<T extends EntityWithSurrogate
 		return loadBy(KEY_COLUMN, id);
 	}
 	
-	public void delete(T item) throws Exception
+	public final void delete(T item) throws Exception
 	{
 		deleteRaw(item.getId());
 	}
 	
-	public void delete(Integer id) throws Exception
+	public final void delete(Integer id) throws Exception
 	{
 		deleteRaw(id);
 	}
@@ -63,7 +63,7 @@ public abstract class DaoForEntityWithSurrogateKey<T extends EntityWithSurrogate
 	 * @return last assigned identity column value
 	 * @throws Exception
 	 */
-	protected int getLastInsertId() throws Exception
+	protected final int getLastInsertId() throws Exception
 	{
 		String query = "SELECT identity_value()";
 		return jdbcQueryForInt(query);
