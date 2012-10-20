@@ -91,15 +91,12 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 	}
 	
 	@Override
-	public Ontology loadBy(String columnName, Object value)
+	protected Ontology postLoadBy(Ontology ontology)
 	{
-		Ontology ontology = super.loadBy(columnName, value);
-
 		ontology.setDefinition(loadRdfData(ontology.getGraphName()));
-
 		return ontology;
 	}
-
+	
 	private String loadRdfData(String graphName)
 	{
 		logger.debug("Loading RDF graph: " + graphName);

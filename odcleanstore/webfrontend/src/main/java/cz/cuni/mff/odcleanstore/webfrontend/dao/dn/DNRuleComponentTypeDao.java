@@ -42,11 +42,4 @@ public class DNRuleComponentTypeDao extends DaoForEntityWithSurrogateKey<DNRuleC
 			"Cannot delete rows from table: " + getTableName() + "."
 		);
 	}
-	
-	@Override
-	public DNRuleComponentType loadBy(String columnName, Object value)
-	{
-		// make loadBy() public
-		return super.loadBy(columnName, value);
-	}
 }

@@ -33,7 +33,6 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.CompiledDNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNConcatenateTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNFilterTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRenameTemplateInstanceDao;
@@ -58,7 +57,6 @@ public class DNGroupDetailPage extends LimitedEditingPage
 	private DNRenameTemplateInstanceDao dnRenameTemplateInstanceDao;
 	private DNFilterTemplateInstanceDao dnFilterTemplateInstanceDao;
 	private DNConcatenateTemplateInstanceDao dnConcatenateTemplateInstanceDao;
-	private CompiledDNRuleDao compiledDnRuleDao;
 
 	public DNGroupDetailPage(final Integer groupId) 
 	{
@@ -82,7 +80,6 @@ public class DNGroupDetailPage extends LimitedEditingPage
 		dnRenameTemplateInstanceDao = daoLookupFactory.getDao(DNRenameTemplateInstanceDao.class);
 		dnFilterTemplateInstanceDao = daoLookupFactory.getDao(DNFilterTemplateInstanceDao.class);
 		dnConcatenateTemplateInstanceDao = daoLookupFactory.getDao(DNConcatenateTemplateInstanceDao.class);
-		compiledDnRuleDao = daoLookupFactory.getDao(CompiledDNRuleDao.class);
 		
 		// register page components
 		//
@@ -272,7 +269,6 @@ public class DNGroupDetailPage extends LimitedEditingPage
 				item.add(
 					createAuthorizedDeleteTemplateInstanceButton(
 						dnReplaceTemplateInstanceDao,
-						compiledDnRuleDao,
 						instance,
 						"replaceTemplateInstance",
 						new DeleteConfirmationMessage("replace template instance")
@@ -337,7 +333,6 @@ public class DNGroupDetailPage extends LimitedEditingPage
 				item.add(
 					createAuthorizedDeleteTemplateInstanceButton(
 						dnRenameTemplateInstanceDao,
-						compiledDnRuleDao,
 						instance,
 						"renameTemplateInstance",
 						new DeleteConfirmationMessage("rename template instance")
@@ -404,7 +399,6 @@ public class DNGroupDetailPage extends LimitedEditingPage
 					createAuthorizedDeleteTemplateInstanceButton
 					(
 						dnFilterTemplateInstanceDao,
-						compiledDnRuleDao,
 						instance,
 						"filterTemplateInstance",
 						new DeleteConfirmationMessage("filter template instance")
@@ -470,7 +464,6 @@ public class DNGroupDetailPage extends LimitedEditingPage
 					createAuthorizedDeleteTemplateInstanceButton
 					(
 						dnConcatenateTemplateInstanceDao,
-						compiledDnRuleDao,
 						instance,
 						"concatenateTemplateInstance",
 						new DeleteConfirmationMessage("concatenate template instance")
@@ -527,12 +520,11 @@ public class DNGroupDetailPage extends LimitedEditingPage
 	}
 	
 	private <BO extends DNTemplateInstance> Component createAuthorizedDeleteTemplateInstanceButton(
-		DNTemplateInstanceDao<BO> templateInstanceDao, CompiledDNRuleDao compiledRuleDao, final BO instance, String objName, DeleteConfirmationMessage message)
+		DNTemplateInstanceDao<BO> templateInstanceDao, final BO instance, String objName, DeleteConfirmationMessage message)
 	{
 		return 
 			new AuthorizedDeleteTemplateInstanceButton<BO>(
 				templateInstanceDao, 
-				compiledRuleDao,
 				instance, 
 				isEditable(), 
 				objName, 

@@ -2,7 +2,6 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.users;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,7 +15,6 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
 
 /**
  * The User DAO.
@@ -62,16 +60,9 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 	 	LOAD SINGLE ROW
 	 	=======================================================================
 	*/
-	
-	public User load(Integer id) 
-	{
-		return loadBy(KEY_COLUMN, id);
-	}
-	
 	@Override
-	public User loadBy(String columnName, Object value)
+	protected User postLoadBy(User user)
 	{
-		User user = super.loadBy(columnName, value);
 		user.setRoles(loadRolesForUser(user.getId()));
 		return user;
 	}
@@ -96,9 +87,8 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 	*/
 	
 	@Override
-	public List<User> loadAllBy(QueryCriteria criteria)
+	protected List<User> postLoadAllBy(List<User> users)
 	{
-		List<User> users = super.loadAllBy(criteria);
 		Map<Integer, User> usersMapping = convertListToHashMap(users);
 		
 		Map<Integer, Role> rolesMapping = convertListToHashMap(loadAllRolesRaw());
@@ -106,7 +96,6 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 		List<Pair<Integer, Integer>> assignedRoles = loadAllPermissionRecordsRaw();
 		
 		// assign rules to users according to the assignment
-		//
 		for (Pair<Integer, Integer> assignment : assignedRoles)
 		{
 			User targetUser = usersMapping.get(assignment.getFirst());
@@ -115,7 +104,7 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 			targetUser.addRole(targetRole);
 		}
 		
-		return new LinkedList<User>(users);
+		return users;
 	}
 	
 	private <T extends EntityWithSurrogateKey> Map<Integer, T> convertListToHashMap(List<T> list)
@@ -130,8 +119,7 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 	
 	private List<Role> loadAllRolesRaw()
 	{
-		String query = "SELECT * FROM " + RoleDao.TABLE_NAME;
-		return jdbcQuery(query, new RoleRowMapper());
+		return getLookupFactory().getDao(RoleDao.class).loadAll();
 	}
 	
 	

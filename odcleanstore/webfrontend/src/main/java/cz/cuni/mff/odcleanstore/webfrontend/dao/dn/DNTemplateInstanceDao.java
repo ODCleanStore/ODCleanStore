@@ -36,10 +36,14 @@ public abstract class DNTemplateInstanceDao<BO extends DNTemplateInstance> exten
 			@Override
 			public void execute() throws Exception
 			{
+				DNTemplateInstance templateInstance = load(id);
+				
 				// Mark the group as dirty
-				getLookupFactory().getDao(DNRulesGroupDao.class).markUncommitted(load(id).getGroupId());
+				getLookupFactory().getDao(DNRulesGroupDao.class).markUncommitted(templateInstance.getGroupId());
 				
 				DNTemplateInstanceDao.super.deleteRaw(id);
+				
+				getLookupFactory().getDao(DNRuleDao.class, true).delete(templateInstance.getRawRuleId());
 			}
 		});
 	}
