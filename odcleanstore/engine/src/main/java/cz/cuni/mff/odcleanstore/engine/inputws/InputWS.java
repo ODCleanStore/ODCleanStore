@@ -147,6 +147,7 @@ public class InputWS implements IInputWS {
 		append(metadatattl, dataGraphURI, ODCS.metadataGraph, "<" + metadataGraphURI + ">");	
 		append(metadatattl, dataGraphURI, ODCS.insertedAt, FormatHelper.getTypedW3CDTFCurrent());
 		append(metadatattl, dataGraphURI, ODCS.insertedBy, "'scraper'");
+		append(metadatattl, dataGraphURI, ODCS.updateTag, "'" + metadata.updateTag + "'");
 		
 		for (String source : metadata.source) {
 			append(metadatattl, dataGraphURI, ODCS.source, "<" + source + ">");

@@ -208,6 +208,7 @@ class Insert implements Runnable {
 		request.writeSimpleXMLElement("dataBaseUrl", metadata.getDataBaseUrl());
 		request.writeSimpleXMLElement("provenance", metadata.getProvenance());
 		request.writeSimpleXMLElement("pipelineName", metadata.getPipelineName());
+		request.writeSimpleXMLElement("updateTag", metadata.getUpdateTag());
 		
 		request.write("</metadata>");
 		request.flush();

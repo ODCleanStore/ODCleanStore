@@ -39,6 +39,7 @@ public class App {
 			addPropertiesToList("license", props, metadata.getLicense());
 			
 			metadata.setPipelineName(props.getProperty("pipelineName"));
+			metadata.setUpdateTag(props.getProperty("updateTag"));
 			
 			FileInputStream fis = new FileInputStream(args[1]);
 			byte[] buf = new byte[fis.available()];
