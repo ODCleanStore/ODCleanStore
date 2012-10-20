@@ -22,7 +22,6 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNTemplateInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteButton;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteTemplateInstanceButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedRedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.BooleanLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.CommitChangesButton;
@@ -267,7 +266,7 @@ public class DNGroupDetailPage extends LimitedEditingPage
 				item.add(new TruncatedLabel("replacement", MAX_LIST_COLUMN_TEXT_LENGTH));
 				
 				item.add(
-					createAuthorizedDeleteTemplateInstanceButton(
+					createDeleteTemplateInstanceButton(
 						dnReplaceTemplateInstanceDao,
 						instance,
 						"replaceTemplateInstance",
@@ -331,7 +330,7 @@ public class DNGroupDetailPage extends LimitedEditingPage
 				item.add(new TruncatedLabel("targetPropertyName", MAX_LIST_COLUMN_TEXT_LENGTH));
 				
 				item.add(
-					createAuthorizedDeleteTemplateInstanceButton(
+					createDeleteTemplateInstanceButton(
 						dnRenameTemplateInstanceDao,
 						instance,
 						"renameTemplateInstance",
@@ -396,7 +395,7 @@ public class DNGroupDetailPage extends LimitedEditingPage
 				item.add(new BooleanLabel("keep"));
 				
 				item.add(
-					createAuthorizedDeleteTemplateInstanceButton
+					createDeleteTemplateInstanceButton
 					(
 						dnFilterTemplateInstanceDao,
 						instance,
@@ -461,7 +460,7 @@ public class DNGroupDetailPage extends LimitedEditingPage
 				item.add(new TruncatedLabel("delimiter", MAX_LIST_COLUMN_TEXT_LENGTH));
 				
 				item.add(
-					createAuthorizedDeleteTemplateInstanceButton
+					createDeleteTemplateInstanceButton
 					(
 						dnConcatenateTemplateInstanceDao,
 						instance,
@@ -519,13 +518,13 @@ public class DNGroupDetailPage extends LimitedEditingPage
 		};
 	}
 	
-	private <BO extends DNTemplateInstance> Component createAuthorizedDeleteTemplateInstanceButton(
+	private <BO extends DNTemplateInstance> Component createDeleteTemplateInstanceButton(
 		DNTemplateInstanceDao<BO> templateInstanceDao, final BO instance, String objName, DeleteConfirmationMessage message)
 	{
 		return 
-			new AuthorizedDeleteTemplateInstanceButton<BO>(
+			new AuthorizedDeleteButton<BO>(
 				templateInstanceDao, 
-				instance, 
+				instance.getId(), 
 				isEditable(), 
 				objName, 
 				message, 
