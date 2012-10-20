@@ -10,11 +10,18 @@ public class EngineOperationsDao extends Dao
 
 	public enum RULES_GROUPS_TYPE { OI, QA, DN };
 	
+	/** 
+	 * Enum with some graph states (note that not all states are included).
+	 */
+	private enum EnumGraphState {
+		QUEUED, 
+		QUEUED_FOR_DELETE,
+		FINISHED,
+		WRONG
+	}
+	
 	private static final String INPUT_GRAPHS_TABLE_NAME = Dao.TABLE_NAME_PREFIX + "EN_INPUT_GRAPHS";
 	private static final String INPUT_GRAPHS_STATES_TABLE_NAME = Dao.TABLE_NAME_PREFIX + "EN_INPUT_GRAPHS_STATES";
-	
-	private static final String QUEUED_STATE_LABEL = "QUEUED";
-	private static final String FINISHED_STATE_LABEL = "FINISHED";
 	
 	private static Logger logger = Logger.getLogger(EngineOperationsDao.class);
 	
@@ -32,11 +39,11 @@ public class EngineOperationsDao extends Dao
 			"	pipelineId = ? AND " +
 			"	stateId = (SELECT id FROM " + INPUT_GRAPHS_STATES_TABLE_NAME + " WHERE label = ?)";
 		
-		Object[] params = { QUEUED_STATE_LABEL, pipelineId, FINISHED_STATE_LABEL };
+		Object[] params = { EnumGraphState.QUEUED, pipelineId, EnumGraphState.FINISHED };
 		
-		logger.debug("queued state label: " + QUEUED_STATE_LABEL);
+		logger.debug("queued state label: " + EnumGraphState.QUEUED);
 		logger.debug("pipeline id: " + pipelineId);
-		logger.debug("finished state label: " + FINISHED_STATE_LABEL);
+		logger.debug("finished state label: " + EnumGraphState.FINISHED);
 		
 		jdbcUpdate(query, params);
 	}
@@ -63,12 +70,49 @@ public class EngineOperationsDao extends Dao
 			"		WHERE (RA.groupId = ?) " +
 			"	)";
 		
-		Object[] params = { QUEUED_STATE_LABEL, FINISHED_STATE_LABEL, groupId };
+		Object[] params = { EnumGraphState.QUEUED, EnumGraphState.FINISHED, groupId };
 		
-		logger.debug("queued state label: " + QUEUED_STATE_LABEL);
-		logger.debug("finished state label: " + FINISHED_STATE_LABEL);
+		logger.debug("queued state label: " + EnumGraphState.QUEUED);
+		logger.debug("finished state label: " + EnumGraphState.FINISHED);
 		logger.debug("group id: " + groupId);
 		
 		jdbcUpdate(query, params);
+	}
+	
+	/**
+	 * Updates DB contents to signal Engine to rerun pipeline on graph with the given id.
+	 * 
+	 * @param graphId ID of graph to re-run pipeline on
+	 */
+	public void rerunGraph(final Integer graphId) throws Exception
+	{
+		String query =
+			"UPDATE " + INPUT_GRAPHS_TABLE_NAME + " " +
+			"SET stateId = (SELECT id FROM " + INPUT_GRAPHS_STATES_TABLE_NAME + " WHERE label = ?) " +
+			"WHERE id = ? AND " +
+			"	stateId = (SELECT id FROM " + INPUT_GRAPHS_STATES_TABLE_NAME + " WHERE label = ?)";
+		
+		logger.debug("graph id: " + graphId);
+		
+		jdbcUpdate(query, EnumGraphState.QUEUED, graphId, EnumGraphState.FINISHED);
+	}
+	
+	
+	/**
+	 * Marks graph for deletion by Engine. Should be called only on graphs in state FINISHED or WRONG.
+	 * 
+	 * @param graphId ID of graph to be deleted
+	 */
+	public void queueGraphForDeletion(final Integer graphId) throws Exception
+	{
+		String query =
+			"UPDATE " + INPUT_GRAPHS_TABLE_NAME + " " +
+			"SET stateId = (SELECT id FROM " + INPUT_GRAPHS_STATES_TABLE_NAME + " WHERE label = ?) " +
+			"WHERE id = ? AND " +
+			"	stateId IN (SELECT id FROM " + INPUT_GRAPHS_STATES_TABLE_NAME + " WHERE label = ? OR label = ?)";
+		
+		logger.debug("graph id: " + graphId);
+		
+		jdbcUpdate(query, EnumGraphState.QUEUED_FOR_DELETE, graphId, EnumGraphState.FINISHED, EnumGraphState.WRONG);
 	}
 }
