@@ -31,7 +31,7 @@ public class QualityAggregatorImpl implements QualityAggregator {
 	public static void main(String[] args) {
 		try {
 			ConfigLoader.loadConfig();
-			new QualityAggregatorImpl().transformNewGraph(new TransformedGraph () {
+			new QualityAggregatorImpl().transformGraph(new TransformedGraph () {
 
 				@Override
 				public String getGraphName() {
@@ -131,49 +131,40 @@ public class QualityAggregatorImpl implements QualityAggregator {
 	private TransformationContext context;
 
 	/**
-	 * The aggregated score consists of all scores of graphs in the clean database and the score of the new graph (restrained to graphs published by the same publisher
-	 * who published the currently processed graph).
+	 * Compute aggregated score of all scores of graph in the clean database and the score of the new graph
+	 * (restrained to graphs published by the same publisher who published the currently processed graph).
 	 */
 	@Override
-	public void transformNewGraph(TransformedGraph inputGraph,
+	public void transformGraph(TransformedGraph inputGraph,
 			TransformationContext context) throws TransformerException {
 		this.context = context;
 
-		try
-		{
-			Double newScore = getGraphScore(inputGraph.getGraphName(), inputGraph.getMetadataGraphName(), getDirtyConnection());
+		try {
+            switch (context.getTransformationType()) {
+            case EXISTING:
+                Double outdatedScore = getGraphScore(inputGraph.getGraphName(), inputGraph.getMetadataGraphName(),
+                        getCleanConnection());
+                Double updatedScore = getGraphScore(inputGraph.getGraphName(), inputGraph.getMetadataGraphName(),
+                        getDirtyConnection());
 
-			updatePublisherScore(inputGraph.getGraphName(),
-					inputGraph.getMetadataGraphName(),
-					newScore,
-					1);
-		} catch (QualityAssessmentException e) {
-			throw new TransformerException(e);
-		} catch (DatabaseException e) {
-			throw new TransformerException(e);
-		} finally {
-			closeCleanConnection();
-			closeDirtyConnection();
-		}
-	}
+                updatePublisherScore(inputGraph.getGraphName(),
+                        inputGraph.getMetadataGraphName(),
+                        updatedScore - outdatedScore,
+                        0);
+                break;
+            case NEW:
+                Double newScore = getGraphScore(inputGraph.getGraphName(), inputGraph.getMetadataGraphName(),
+                        getDirtyConnection());
 
-	/**
-	 * Just compute score from all graphs in the clean database that share the publisher (the current graph is among them)
-	 */
-	@Override
-	public void transformExistingGraph(TransformedGraph inputGraph,
-			TransformationContext context) throws TransformerException {
-		this.context = context;
-
-		try
-		{
-			Double outdatedScore = getGraphScore(inputGraph.getGraphName(), inputGraph.getMetadataGraphName(), getCleanConnection());
-			Double updatedScore = getGraphScore(inputGraph.getGraphName(), inputGraph.getMetadataGraphName(), getDirtyConnection());
-
-			updatePublisherScore(inputGraph.getGraphName(),
-					inputGraph.getMetadataGraphName(),
-					updatedScore - outdatedScore,
-					0);
+                updatePublisherScore(inputGraph.getGraphName(),
+                        inputGraph.getMetadataGraphName(),
+                        newScore,
+                        1);
+                break;
+            default:
+                // we shouldn't get here
+                break;
+            }
 		} catch (QualityAssessmentException e) {
 			throw new TransformerException(e);
 		} catch (DatabaseException e) {

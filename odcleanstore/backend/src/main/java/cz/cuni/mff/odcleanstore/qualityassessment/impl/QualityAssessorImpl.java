@@ -199,17 +199,7 @@ public class QualityAssessorImpl implements QualityAssessor, Serializable {
 	}
 
 	@Override
-	public void transformNewGraph(TransformedGraph inputGraph,
-			TransformationContext context) throws TransformerException {
-
-		/**
-		 * Both cases involve graphs in dirty database and rules in clean database
-		 */
-		transformExistingGraph(inputGraph, context);
-	}
-
-	@Override
-	public void transformExistingGraph(TransformedGraph inputGraph,
+	public void transformGraph(TransformedGraph inputGraph,
 			TransformationContext context) throws TransformerException {
 
 		/**
@@ -312,7 +302,7 @@ public class QualityAssessorImpl implements QualityAssessor, Serializable {
 
 		return new GraphScoreWithTrace(score, rules);
 	}
-	
+
 	protected void loadRules() throws QualityAssessmentException {
 		loadRules(TableVersion.COMMITTED);
 	}
@@ -374,7 +364,7 @@ public class QualityAssessorImpl implements QualityAssessor, Serializable {
 				++violations;
 
 				if (appliedRules != null) appliedRules.add(rule);
-				
+
 				LOG.info(String.format("Rule %d matched%s", rule.getId(), rule.getDescription() != null ? "\n\n(" + rule.getDescription() + ")\n\n" : ""));
 			} else {
 				LOG.info(String.format("Rule %d did not match%s", rule.getId(), rule.getDescription() != null ? "\n\n(" + rule.getDescription() + ")\n\n" : ""));
