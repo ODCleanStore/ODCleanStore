@@ -3,27 +3,28 @@
  */
 package cz.cuni.mff.odcleanstore.engine.inputws;
 
-import java.io.BufferedWriter;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.net.URI;
-import java.util.UUID;
-
-import javax.jws.WebParam;
-import javax.jws.WebService;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
 import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.IInputWS;
 import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.InsertException;
 import cz.cuni.mff.odcleanstore.engine.inputws.ifaces.Metadata;
 import cz.cuni.mff.odcleanstore.shared.FileUtils;
+import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.jws.WebParam;
+import javax.jws.WebService;
+
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.net.URI;
+import java.util.UUID;
 
 /**
  *  @author Petr Jerman
@@ -147,7 +148,7 @@ public class InputWS implements IInputWS {
 		append(metadatattl, dataGraphURI, ODCS.metadataGraph, "<" + metadataGraphURI + ">");	
 		append(metadatattl, dataGraphURI, ODCS.insertedAt, FormatHelper.getTypedW3CDTFCurrent());
 		append(metadatattl, dataGraphURI, ODCS.insertedBy, "'scraper'");
-		append(metadatattl, dataGraphURI, ODCS.updateTag, "'" + metadata.updateTag + "'");
+		append(metadatattl, dataGraphURI, ODCS.updateTag, "'" + Utils.escapeSPARQLLiteral(metadata.updateTag) + "'");
 		
 		for (String source : metadata.source) {
 			append(metadatattl, dataGraphURI, ODCS.source, "<" + source + ">");
