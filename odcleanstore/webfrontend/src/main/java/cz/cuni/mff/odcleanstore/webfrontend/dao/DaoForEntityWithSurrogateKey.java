@@ -3,6 +3,20 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao;
 import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
+/**
+ * Base class for DAOs for business objects with unique ids. 
+ * Provides utility classes for loading, deleting and saving. 
+ * 
+ * Child classes can override the following methods to customize behavior:
+ * <ul>
+ * 	<li>{@link #deleteRaw(Integer)}</li>
+ *  <li>{@link #load(Integer)}</li>
+ *  <li>{@link #save(EntityWithSurrogateKey)}</li>
+ * </ul>
+ * 
+ * @author Jan Michelfeit
+ * @param <T> type of manipulated business object
+ */
 public abstract class DaoForEntityWithSurrogateKey<T extends EntityWithSurrogateKey> extends DaoTemplate<T> implements DaoSortableDataProvidable<T>
 {
 	private static final long serialVersionUID = 1L;

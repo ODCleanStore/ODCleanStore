@@ -6,6 +6,19 @@ import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessEntity;
 
+/**
+ * Utility base class for DAOs, implementing common methods for loading of business entities.
+ * 
+ * Child classes can override the following methods to customize behavior of the loading methods:
+ * <ul>
+ * 	<li>{@link #getSelectAndFromClause()}</li>
+ *  <li>{@link #postLoadAllBy(List)()}</li>
+ *  <li>{@link #postLoadBy(BusinessEntity)}</li>
+ * </ul>
+ * 
+ * @author Jan Michelfeit
+ * @param <T> type of business entity
+ */
 public abstract class DaoTemplate<T extends BusinessEntity> extends Dao
 {
 	private static final long serialVersionUID = 1L;

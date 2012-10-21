@@ -24,6 +24,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 
 /**
  * Generic DAO interface.
+ * Provides methods for access to database through jdbc and transaction handling.
  * 
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
