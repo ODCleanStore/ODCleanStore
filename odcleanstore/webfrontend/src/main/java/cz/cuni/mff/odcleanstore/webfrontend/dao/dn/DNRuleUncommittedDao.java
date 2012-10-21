@@ -3,6 +3,12 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.dn;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.AbstractRulesGroupDao;
 
+/**
+ * The DN rule DAO for uncommitted DN rules.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class DNRuleUncommittedDao extends DNRuleDao
 {
 	private static final long serialVersionUID = 1L;
@@ -47,6 +53,10 @@ public class DNRuleUncommittedDao extends DNRuleDao
 		jdbcUpdate(query, params);
 	}
 	
+	/**
+	 * 
+	 * @param item
+	 */
 	public void update(DNRule item) throws Exception
 	{
 		// Mark the group as dirty

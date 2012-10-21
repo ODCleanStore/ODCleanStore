@@ -4,8 +4,9 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponent;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.AbstractRulesGroupDao;
 
 /**
+ * The DN rule component type for uncommitted DN rules.
  * 
- * @author Dusan
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
 public class DNRuleComponentUncommittedDao extends DNRuleComponentDao
@@ -26,6 +27,11 @@ public class DNRuleComponentUncommittedDao extends DNRuleComponentDao
 		return DNRuleUncommittedDao.TABLE_NAME;
 	}
 	
+	/**
+	 * 
+	 * @param ruleId
+	 * @return
+	 */
 	private int getGroupId(Integer ruleId)
 	{
 		return getLookupFactory().getDao(DNRuleDao.class, true).load(ruleId).getGroupId();
@@ -69,6 +75,9 @@ public class DNRuleComponentUncommittedDao extends DNRuleComponentDao
 		jdbcUpdate(query, params);
 	}
 
+	/**
+	 * 
+	 */
 	public void update(DNRuleComponent item) throws Exception
 	{
 		// Mark the group as dirty
@@ -95,6 +104,11 @@ public class DNRuleComponentUncommittedDao extends DNRuleComponentDao
 		jdbcUpdate(query, params);
 	}
 	
+	/**
+	 * 
+	 * @param groupId
+	 * @throws Exception
+	 */
 	/*package*/void copyToOfficialTable(Integer groupId) throws Exception
 	{
 		String insertQuery = "INSERT INTO " + super.getTableName() +
