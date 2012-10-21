@@ -1,7 +1,11 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.engine;
 
+import java.util.Arrays;
+
+import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -9,9 +13,12 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.InputGraph;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentSortableDataProvider;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.en.EngineOperationsDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.InputGraphDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
@@ -19,8 +26,11 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 public class InputGraphsPage extends FrontendPage 
 {
 	private static final long serialVersionUID = 1L;
+	
+	private static Logger logger = Logger.getLogger(InputGraphsPage.class);
 
 	private InputGraphDao inputGraphDao;
+	private EngineOperationsDao engineOperationsDao;
 	
 	// Disable showing engine UUID while there is only one engine instance allowed
 	// May change in the future
@@ -37,6 +47,7 @@ public class InputGraphsPage extends FrontendPage
 		// prepare DAO objects
 		//
 		inputGraphDao = daoLookupFactory.getDao(InputGraphDao.class);
+		engineOperationsDao = daoLookupFactory.getDao(EngineOperationsDao.class);
 		
 		// register page components
 		//
@@ -54,7 +65,7 @@ public class InputGraphsPage extends FrontendPage
 				
 			@Override
 			protected void populateItem(Item<InputGraph> item) {
-				InputGraph inputGraph = item.getModelObject(); 
+				final InputGraph inputGraph = item.getModelObject(); 
 
 				item.setModel(new CompoundPropertyModel<InputGraph>(inputGraph));
 
@@ -72,6 +83,50 @@ public class InputGraphsPage extends FrontendPage
 				});
 				item.add(new Label("pipelineLabel"));
 				item.add(new Label("isInCleanDB"));
+				item.add(new Label("updated"));
+				
+				item.add(new Link<InputGraph>("rerunGraph") {
+
+					private static final long serialVersionUID = 1L;
+					
+					@Override
+					public boolean isVisible() {
+						String[] states = {"FINISHED"};
+						
+						return Arrays.asList(states).contains(inputGraph.stateLabel);
+					}
+
+					@Override
+					public void onClick() {
+						try {
+							engineOperationsDao.rerunGraph(inputGraph.getId());
+						} catch (Exception e) {
+							logger.error(e.getMessage());
+							
+							getSession().error(
+								"The graph could not be rerun."
+							);
+						}
+					}
+				});
+				
+				item.add(new DeleteButton<InputGraph>(inputGraphDao, inputGraph.getId(), "graph",
+						new DeleteConfirmationMessage("graph"), InputGraphsPage.this) {
+
+					private static final long serialVersionUID = 1L;
+					
+					@Override
+					public boolean isVisible() {
+						String[] states = {"FINISHED", "WRONG"};
+						
+						return Arrays.asList(states).contains(inputGraph.stateLabel);
+					}
+
+					@Override
+					public void delete() throws Exception {
+						engineOperationsDao.queueGraphForDeletion(inputGraph.getId());
+					}
+				});
 			}
 		};
 		
@@ -91,6 +146,7 @@ public class InputGraphsPage extends FrontendPage
 		});
 		add(new SortTableButton<InputGraph>("sortByPipeline", "pipelineLabel", data, dataView));
 		add(new SortTableButton<InputGraph>("sortByIsInCleanDB", "isInCleanDB", data, dataView));
+		add(new SortTableButton<InputGraph>("sortByUpdated", "updated", data, dataView));
 			
 		add(dataView);
 		

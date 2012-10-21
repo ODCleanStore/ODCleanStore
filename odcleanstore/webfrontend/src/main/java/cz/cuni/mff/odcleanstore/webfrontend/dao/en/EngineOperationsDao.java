@@ -14,10 +14,26 @@ public class EngineOperationsDao extends Dao
 	 * Enum with some graph states (note that not all states are included).
 	 */
 	private enum EnumGraphState {
-		QUEUED, 
-		QUEUED_FOR_DELETE,
-		FINISHED,
-		WRONG
+		QUEUED {
+			public String toString() {
+				 return "QUEUED";
+			}
+		},
+		QUEUED_FOR_DELETE {
+			public String toString() {
+				 return "QUEUED_FOR_DELETE";
+			}
+		},
+		FINISHED {
+			public String toString() {
+				 return "FINISHED";
+			}
+		},
+		WRONG {
+			public String toString() {
+				 return "WRONG";
+			}
+		}
 	}
 	
 	private static final String INPUT_GRAPHS_TABLE_NAME = Dao.TABLE_NAME_PREFIX + "EN_INPUT_GRAPHS";
@@ -39,7 +55,7 @@ public class EngineOperationsDao extends Dao
 			"	pipelineId = ? AND " +
 			"	stateId = (SELECT id FROM " + INPUT_GRAPHS_STATES_TABLE_NAME + " WHERE label = ?)";
 		
-		Object[] params = { EnumGraphState.QUEUED, pipelineId, EnumGraphState.FINISHED };
+		Object[] params = { EnumGraphState.QUEUED.toString(), pipelineId, EnumGraphState.FINISHED.toString() };
 		
 		logger.debug("queued state label: " + EnumGraphState.QUEUED);
 		logger.debug("pipeline id: " + pipelineId);
@@ -70,7 +86,7 @@ public class EngineOperationsDao extends Dao
 			"		WHERE (RA.groupId = ?) " +
 			"	)";
 		
-		Object[] params = { EnumGraphState.QUEUED, EnumGraphState.FINISHED, groupId };
+		Object[] params = { EnumGraphState.QUEUED.toString(), EnumGraphState.FINISHED.toString(), groupId };
 		
 		logger.debug("queued state label: " + EnumGraphState.QUEUED);
 		logger.debug("finished state label: " + EnumGraphState.FINISHED);
@@ -94,7 +110,7 @@ public class EngineOperationsDao extends Dao
 		
 		logger.debug("graph id: " + graphId);
 		
-		jdbcUpdate(query, EnumGraphState.QUEUED, graphId, EnumGraphState.FINISHED);
+		jdbcUpdate(query, EnumGraphState.QUEUED.toString(), graphId, EnumGraphState.FINISHED.toString());
 	}
 	
 	
@@ -113,6 +129,6 @@ public class EngineOperationsDao extends Dao
 		
 		logger.debug("graph id: " + graphId);
 		
-		jdbcUpdate(query, EnumGraphState.QUEUED_FOR_DELETE, graphId, EnumGraphState.FINISHED, EnumGraphState.WRONG);
+		jdbcUpdate(query, EnumGraphState.QUEUED_FOR_DELETE.toString(), graphId, EnumGraphState.FINISHED.toString(), EnumGraphState.WRONG.toString());
 	}
 }
