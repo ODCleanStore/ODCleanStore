@@ -5,6 +5,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
+/**
+ * The OI file format DAO.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class OIFileFormatDao extends DaoForEntityWithSurrogateKey<OIFileFormat>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "OI_FILE_FORMATS";
@@ -13,6 +19,9 @@ public class OIFileFormatDao extends DaoForEntityWithSurrogateKey<OIFileFormat>
 	
 	private ParameterizedRowMapper<OIFileFormat> rowMapper;
 	
+	/**
+	 * 
+	 */
 	public OIFileFormatDao()
 	{
 		this.rowMapper = new OIFileFormatRowMapper();

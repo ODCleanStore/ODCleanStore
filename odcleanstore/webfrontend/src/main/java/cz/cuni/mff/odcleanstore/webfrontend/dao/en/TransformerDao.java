@@ -5,6 +5,12 @@ import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Transformer;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
+/**
+ * The Transformer DAO.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class TransformerDao extends DaoForEntityWithSurrogateKey<Transformer> 
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "TRANSFORMERS";
@@ -13,6 +19,9 @@ public class TransformerDao extends DaoForEntityWithSurrogateKey<Transformer>
 	
 	private ParameterizedRowMapper<Transformer> rowMapper;
 	
+	/**
+	 * 
+	 */
 	public TransformerDao()
 	{
 		this.rowMapper = new TransformerRowMapper();
@@ -55,6 +64,11 @@ public class TransformerDao extends DaoForEntityWithSurrogateKey<Transformer>
 		jdbcUpdate(query, params);
 	}
 	
+	/**
+	 * 
+	 * @param item
+	 * @throws Exception
+	 */
 	public void update(Transformer item) throws Exception
 	{
 		// note that it is not possible to change the fullClassName of an existing transformer,

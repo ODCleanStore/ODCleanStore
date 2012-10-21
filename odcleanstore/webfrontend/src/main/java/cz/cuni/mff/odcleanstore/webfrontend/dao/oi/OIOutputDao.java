@@ -6,6 +6,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutput;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.CommittableDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 
+/**
+ * The OI output DAO for uncommited OI rules.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @CommittableDao(OIOutputUncommittedDao.class)
 public class OIOutputDao extends DaoForAuthorableEntity<OIOutput>
 {
@@ -15,6 +21,9 @@ public class OIOutputDao extends DaoForAuthorableEntity<OIOutput>
 	
 	private ParameterizedRowMapper<OIOutput> rowMapper;
 	
+	/**
+	 * 
+	 */
 	public OIOutputDao()
 	{
 		this.rowMapper = new OIOutputRowMapper();
@@ -26,6 +35,10 @@ public class OIOutputDao extends DaoForAuthorableEntity<OIOutput>
 		return TABLE_NAME;
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
 	protected String getRuleTableName()
 	{
 		return OIRuleDao.TABLE_NAME;
@@ -70,6 +83,11 @@ public class OIOutputDao extends DaoForAuthorableEntity<OIOutput>
 			"Cannot modify " + getTableName() + ", use uncommitted version table instead");
 	}
 	
+	/**
+	 * 
+	 * @param output
+	 * @throws Exception
+	 */
 	public void update(OIOutput output) throws Exception
 	{
 		throw new UnsupportedOperationException(

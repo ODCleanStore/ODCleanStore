@@ -7,8 +7,10 @@ import java.util.List;
 import cz.cuni.mff.odcleanstore.util.Pair;
 
 /**
- * 
- * @author Dusan
+ * Encapsulates advanced criteria of an SQL query - the where
+ * and order by clauses.
+ *  
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
 public class QueryCriteria implements Cloneable, Serializable
@@ -21,7 +23,7 @@ public class QueryCriteria implements Cloneable, Serializable
 	private List<Pair<String, SortOrder>> orderByClauses;
 	
 	/**
-	 * 
+	 * Creates a new instance with both where and order by clauses empty.
 	 */
 	public QueryCriteria()
 	{
@@ -30,6 +32,8 @@ public class QueryCriteria implements Cloneable, Serializable
 	}
 	
 	/**
+	 * Registers a new where clause to restrict the results of the query
+	 * to rows which contain the given value in the given column only.
 	 * 
 	 * @param column
 	 * @param value
@@ -40,6 +44,8 @@ public class QueryCriteria implements Cloneable, Serializable
 	}
 	
 	/**
+	 * Registers a new order by clause to have the result ordered
+	 * by the given column in the given order.
 	 * 
 	 * @param column
 	 */
@@ -49,6 +55,8 @@ public class QueryCriteria implements Cloneable, Serializable
 	}
 	
 	/**
+	 * Registers a new order by clause to have the result ordered
+	 * by the given column in the given order.
 	 * 
 	 * @param column
 	 * @param ascending
@@ -60,6 +68,8 @@ public class QueryCriteria implements Cloneable, Serializable
 	}
 	
 	/**
+	 * Returns a properly formated where clause to be appended to the
+	 * sql query string.
 	 * 
 	 * @return
 	 */
@@ -83,6 +93,8 @@ public class QueryCriteria implements Cloneable, Serializable
 	}
 	
 	/**
+	 * Returns a collection of parameters of the represented where
+	 * clause.
 	 * 
 	 * @return
 	 */
@@ -97,6 +109,8 @@ public class QueryCriteria implements Cloneable, Serializable
 	}
 	
 	/**
+	 * Returns a properly formated order by clause to be appended to the
+	 * sql query string.
 	 * 
 	 * @return
 	 */

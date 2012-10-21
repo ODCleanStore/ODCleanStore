@@ -7,6 +7,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * The User Row Mapper.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class UserRowMapper extends CustomRowMapper<User>
 {
 	private static final long serialVersionUID = 1L;

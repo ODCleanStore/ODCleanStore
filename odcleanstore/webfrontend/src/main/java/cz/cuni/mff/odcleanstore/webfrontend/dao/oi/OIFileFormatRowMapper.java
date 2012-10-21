@@ -6,6 +6,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIFileFormat;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * The OI file format Row Mapper.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class OIFileFormatRowMapper extends CustomRowMapper<OIFileFormat>
 {
 	private static final long serialVersionUID = 1L;

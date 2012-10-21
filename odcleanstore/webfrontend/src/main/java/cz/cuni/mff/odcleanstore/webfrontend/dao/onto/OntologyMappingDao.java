@@ -13,6 +13,12 @@ import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.RelationType;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
+/**
+ * The Ontology mapping DAO.
+ * 
+ * @author Tomáš Soukup
+ *
+ */
 public class OntologyMappingDao extends DaoForEntityWithSurrogateKey<RelationType> 
 {
 	private static final long serialVersionUID = 1L;
@@ -22,6 +28,9 @@ public class OntologyMappingDao extends DaoForEntityWithSurrogateKey<RelationTyp
 	
 	private ParameterizedRowMapper<RelationType> rowMapper;
 	
+	/**
+	 * 
+	 */
 	public OntologyMappingDao()
 	{
 		this.rowMapper = new OntologyMappingRowMapper();
@@ -39,6 +48,11 @@ public class OntologyMappingDao extends DaoForEntityWithSurrogateKey<RelationTyp
 		return rowMapper;
 	}
 	
+	/**
+	 * 
+	 * @param ontoGraphName
+	 * @return
+	 */
 	public List<String> loadEntityURIs(String ontoGraphName)
 	{	
 		String query = "SPARQL SELECT ?x FROM <" + ontoGraphName +
@@ -47,6 +61,15 @@ public class OntologyMappingDao extends DaoForEntityWithSurrogateKey<RelationTyp
 		return jdbcQueryForList(query, String.class);
 	}
 
+	/**
+	 * 
+	 * @param ontologyId
+	 * @param sourceUri
+	 * @param relationType
+	 * @param targetUri
+	 * @throws ConnectionException
+	 * @throws QueryException
+	 */
 	public void addMapping(Integer ontologyId, String sourceUri, String relationType, String targetUri) 
 			throws ConnectionException, QueryException
 	{	
@@ -71,6 +94,11 @@ public class OntologyMappingDao extends DaoForEntityWithSurrogateKey<RelationTyp
 		}		
 	}
 	
+	/**
+	 * 
+	 * @param ontologyId
+	 * @return
+	 */
 	public static String createGraphName(Integer ontologyId)
 	{
 		return ODCSInternal.ontologyMappingsGraphUriPrefix + ontologyId;

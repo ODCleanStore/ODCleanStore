@@ -7,8 +7,9 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.CommittableDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 
 /**
+ * The DN rule component DAO.
  * 
- * @author Dusan
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
 @CommittableDao(DNRuleComponentUncommittedDao.class)
@@ -20,6 +21,9 @@ public class DNRuleComponentDao extends DaoForAuthorableEntity<DNRuleComponent>
 	
 	private DNRuleComponentRowMapper rowMapper;
 	
+	/**
+	 * 
+	 */
 	public DNRuleComponentDao()
 	{
 		rowMapper = new DNRuleComponentRowMapper();
@@ -31,6 +35,10 @@ public class DNRuleComponentDao extends DaoForAuthorableEntity<DNRuleComponent>
 		return TABLE_NAME;
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
 	protected String getRuleTableName()
 	{
 		return DNRuleDao.TABLE_NAME;
@@ -74,6 +82,11 @@ public class DNRuleComponentDao extends DaoForAuthorableEntity<DNRuleComponent>
 			"Cannot modify " + getTableName() + ", use uncommitted version table instead");
 	}
 
+	/**
+	 * 
+	 * @param item
+	 * @throws Exception
+	 */
 	public void update(DNRuleComponent item) throws Exception
 	{
 		throw new UnsupportedOperationException(

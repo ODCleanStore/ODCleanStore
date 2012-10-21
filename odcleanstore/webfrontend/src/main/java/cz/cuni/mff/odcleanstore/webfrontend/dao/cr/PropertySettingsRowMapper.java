@@ -8,11 +8,15 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.MultivalueType;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.PropertySettings;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.CustomRowMapper;
 
+/**
+ * The Property settings Row Mapper.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class PropertySettingsRowMapper extends CustomRowMapper<PropertySettings>
 {
 	private static final long serialVersionUID = 1L;
-	
-	//private static Logger logger = Logger.getLogger(PropertySettingsRowMapper.class);
 	
 	public PropertySettings mapRow(ResultSet rs, int rowNum) throws SQLException 
 	{
