@@ -6,6 +6,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.AbstractRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.AbstractRulesGroupDao;
 
+/**
+ * The OI rules group DAO.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class OIRulesGroupDao extends AbstractRulesGroupDao<OIRulesGroup>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "OI_RULES_GROUPS";
@@ -14,6 +20,9 @@ public class OIRulesGroupDao extends AbstractRulesGroupDao<OIRulesGroup>
 	
 	private OIRulesGroupRowMapper rowMapper;
 	
+	/**
+	 * 
+	 */
 	public OIRulesGroupDao()
 	{
 		rowMapper = new OIRulesGroupRowMapper();

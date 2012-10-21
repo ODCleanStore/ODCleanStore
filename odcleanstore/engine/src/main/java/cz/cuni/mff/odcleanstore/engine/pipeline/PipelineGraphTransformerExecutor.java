@@ -92,11 +92,7 @@ public class PipelineGraphTransformerExecutor {
 			
 			graphStatus.checkResetPipelineRequest();
 			try {
-				if (this.graphStatus.isInCleanDb()) {
-					this.currentTransformer.transformExistingGraph(graph, context);
-				} else {
-					this.currentTransformer.transformNewGraph(graph, context);
-				}
+			    this.currentTransformer.transformGraph(graph, context);
 			}
 			catch (Exception e) {
 				throw new PipelineGraphTransformerExecutorException(format(ERROR_TRANSFORMER_RUN, command), command, e);	

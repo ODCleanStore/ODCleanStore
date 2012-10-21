@@ -6,6 +6,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponentType;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * The DN rule component type Row Mapper.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class DNRuleComponentTypeRowMapper extends CustomRowMapper<DNRuleComponentType>
 {
 	private static final long serialVersionUID = 1L;

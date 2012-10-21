@@ -104,6 +104,9 @@ public final class NamedGraphMetadataReader {
             } else if (predicateURI.equals(ODCS.insertedBy)) {
                 NamedGraphMetadata metadata = getMetadataObject(subject, result);
                 metadata.setInsertedBy(quad.getObject().toString());
+            } else if (predicateURI.equals(ODCS.updateTag)) {
+                NamedGraphMetadata metadata = getMetadataObject(subject, result);
+                metadata.setUpdateTag(quad.getObject().toString());
             }
         }
 

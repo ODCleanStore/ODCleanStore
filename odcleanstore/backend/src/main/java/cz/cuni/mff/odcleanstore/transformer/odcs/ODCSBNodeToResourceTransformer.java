@@ -47,7 +47,7 @@ public class ODCSBNodeToResourceTransformer implements Transformer {
             + "\n FROM <%1$s> WHERE { ?s ?p ?o FILTER (isBlank(?s) || isBlank(?o)) }";
 
     @Override
-    public void transformNewGraph(TransformedGraph inputGraph, TransformationContext context) throws TransformerException {
+    public void transformGraph(TransformedGraph inputGraph, TransformationContext context) throws TransformerException {
         LOG.info("Converting blank nodes to resources in graph <{}>.", inputGraph.getGraphName());
 
         Properties configuration = parseProperties(context.getTransformerConfiguration());
@@ -83,12 +83,6 @@ public class ODCSBNodeToResourceTransformer implements Transformer {
                 connection.closeQuietly();
             }
         }
-    }
-
-    @Override
-    public void transformExistingGraph(TransformedGraph inputGraph, TransformationContext context)
-            throws TransformerException {
-        transformNewGraph(inputGraph, context);
     }
 
     @Override

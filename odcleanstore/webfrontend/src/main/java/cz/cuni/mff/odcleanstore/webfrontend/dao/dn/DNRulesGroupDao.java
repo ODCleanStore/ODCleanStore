@@ -6,6 +6,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.AbstractRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.AbstractRulesGroupDao;
 
+/**
+ * The DN rules group DAO.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class DNRulesGroupDao extends AbstractRulesGroupDao<DNRulesGroup>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "DN_RULES_GROUPS";
@@ -14,6 +20,9 @@ public class DNRulesGroupDao extends AbstractRulesGroupDao<DNRulesGroup>
 	
 	private DNRulesGroupRowMapper rowMapper;
 	
+	/**
+	 * 
+	 */
 	public DNRulesGroupDao()
 	{
 		rowMapper = new DNRulesGroupRowMapper();

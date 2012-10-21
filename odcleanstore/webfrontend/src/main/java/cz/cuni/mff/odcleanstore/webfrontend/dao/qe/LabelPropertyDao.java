@@ -6,8 +6,9 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.qe.LabelProperty;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
 /**
+ * The Label property DAO.
  * 
- * @author Dusan
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
 public class LabelPropertyDao extends DaoForEntityWithSurrogateKey<LabelProperty>

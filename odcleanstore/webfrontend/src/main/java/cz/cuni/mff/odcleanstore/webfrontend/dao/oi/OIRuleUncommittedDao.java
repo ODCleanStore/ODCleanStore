@@ -3,6 +3,12 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.oi;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.AbstractRulesGroupDao;
 
+/**
+ * The OI rule DAO for uncommitted OI rules.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class OIRuleUncommittedDao extends OIRuleDao
 {
 	public static final String TABLE_NAME = OIRuleDao.TABLE_NAME + AbstractRulesGroupDao.UNCOMMITTED_TABLE_SUFFIX;
@@ -60,6 +66,10 @@ public class OIRuleUncommittedDao extends OIRuleDao
 		jdbcUpdate(query, params);
 	}
 	
+	/**
+	 * 
+	 * @param item
+	 */
 	public void update(OIRule item) throws Exception
 	{
 		// Mark the group as dirty

@@ -5,6 +5,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
+/**
+ * The Error strategy DAO.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class ErrorStrategyDao extends DaoForEntityWithSurrogateKey<ErrorStrategy>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "CR_ERROR_STRATEGIES";
@@ -13,6 +19,9 @@ public class ErrorStrategyDao extends DaoForEntityWithSurrogateKey<ErrorStrategy
 	
 	private ParameterizedRowMapper<ErrorStrategy> rowMapper;
 	
+	/**
+	 * 
+	 */
 	public ErrorStrategyDao()
 	{
 		this.rowMapper = new ErrorStrategyRowMapper();

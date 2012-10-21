@@ -2,6 +2,7 @@ package cz.cuni.mff.odcleanstore.transformer.odcs;
 
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
+import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.Transformer;
@@ -44,12 +45,17 @@ public class ODCSPropertyFilterTransformer implements Transformer {
             + "\n WHERE { ?s ?p ?o FILTER (?p IN (%2$s)) }";
 
     @Override
-    public void transformNewGraph(TransformedGraph inputGraph, TransformationContext context) throws TransformerException {
-        if (FILTERED_PROPERTIES.length == 0) {
+    public void transformGraph(TransformedGraph inputGraph, TransformationContext context) throws TransformerException {
+        if (context.getTransformationType() == EnumTransformationType.EXISTING) {
+            LOG.info("Filtering reserved predicates skipped for graph from clean database {}", inputGraph.getGraphName());
             return;
         }
 
         LOG.info("Filtering reserved predicates from {} and its metadata graph.", inputGraph.getGraphName());
+        if (FILTERED_PROPERTIES.length == 0) {
+            return;
+        }
+
         VirtuosoConnectionWrapper connection = null;
         try {
             connection = VirtuosoConnectionWrapper.createConnection(context.getDirtyDatabaseCredentials());
@@ -68,12 +74,6 @@ public class ODCSPropertyFilterTransformer implements Transformer {
             }
         }
 
-    }
-
-    @Override
-    public void transformExistingGraph(TransformedGraph inputGraph, TransformationContext context)
-            throws TransformerException {
-        return; // Do nothing
     }
 
     @Override

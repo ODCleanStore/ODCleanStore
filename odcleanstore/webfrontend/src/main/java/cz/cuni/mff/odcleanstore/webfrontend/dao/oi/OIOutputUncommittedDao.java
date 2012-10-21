@@ -3,6 +3,12 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.oi;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutput;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.AbstractRulesGroupDao;
 
+/**
+ * The OI output DAO for uncommitted OI rules.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class OIOutputUncommittedDao extends OIOutputDao
 {
 	public static final String TABLE_NAME = OIOutputDao.TABLE_NAME + AbstractRulesGroupDao.UNCOMMITTED_TABLE_SUFFIX;
@@ -21,6 +27,11 @@ public class OIOutputUncommittedDao extends OIOutputDao
 		return OIRuleUncommittedDao.TABLE_NAME;
 	}
 	
+	/**
+	 * 
+	 * @param ruleId
+	 * @return
+	 */
 	private int getGroupId(Integer ruleId)
 	{
 		return getLookupFactory().getDao(OIRuleDao.class, true).load(ruleId).getGroupId();
@@ -67,6 +78,10 @@ public class OIOutputUncommittedDao extends OIOutputDao
 		jdbcUpdate(query, params);
 	}
 	
+	/**
+	 * 
+	 * @param output
+	 */
 	public void update(OIOutput output) throws Exception
 	{
 		// Mark the group as dirty
@@ -96,6 +111,11 @@ public class OIOutputUncommittedDao extends OIOutputDao
 		jdbcUpdate(query, params);
 	}
 	
+	/**
+	 * 
+	 * @param groupId
+	 * @throws Exception
+	 */
 	/*package*/void copyToOfficialTable(Integer groupId) throws Exception
 	{
 		String insertQuery = "INSERT INTO " + super.getTableName() +

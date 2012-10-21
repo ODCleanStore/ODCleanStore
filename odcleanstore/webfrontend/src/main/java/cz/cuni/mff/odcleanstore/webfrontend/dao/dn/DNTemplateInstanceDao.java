@@ -10,6 +10,13 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.SimpleKeyHolder;
 
+/**
+ * An abstract parent of all DN template instance DAOs.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ * @param <BO>
+ */
 public abstract class DNTemplateInstanceDao<BO extends DNTemplateInstance> extends DaoForAuthorableEntity<BO>
 {
 	private static final long serialVersionUID = 1L;
@@ -17,7 +24,6 @@ public abstract class DNTemplateInstanceDao<BO extends DNTemplateInstance> exten
 	protected DNTemplateInstanceCompiler<BO> compiler;
 	
 	private DNRuleDao dnRuleDao;
-	//private DNRuleComponentDao dnRuleComponentDao;
 	
 	@Override
 	public void setDaoLookupFactory(DaoLookupFactory factory)
@@ -25,7 +31,6 @@ public abstract class DNTemplateInstanceDao<BO extends DNTemplateInstance> exten
 		super.setDaoLookupFactory(factory);
 		
 		this.dnRuleDao = factory.getDao(DNRuleUncommittedDao.class);
-		//this.dnRuleComponentDao = factory.getDao(DNRuleComponentDao.class);
 	}
 	
 	@Override
@@ -48,6 +53,12 @@ public abstract class DNTemplateInstanceDao<BO extends DNTemplateInstance> exten
 		});
 	}
 	
+	/**
+	 * 
+	 * @param item
+	 * @return
+	 * @throws Exception
+	 */
 	protected int saveCompiledRuleAndGetKey(final CompiledDNRule item) throws Exception
 	{
 		final SimpleKeyHolder keyHolder = new SimpleKeyHolder();
@@ -71,12 +82,24 @@ public abstract class DNTemplateInstanceDao<BO extends DNTemplateInstance> exten
 		return keyHolder.getKey();
 	}
 	
+	/**
+	 * 
+	 * @param item
+	 * @return
+	 * @throws Exception
+	 */
 	private int saveRawRuleAndGetKey(final CompiledDNRule item) throws Exception
 	{
 		DNRule rule = new DNRule(item.getGroupId(), item.getDescription());
 		return dnRuleDao.saveAndGetKey(rule);
 	}
 	
+	/**
+	 * 
+	 * @param ruleId
+	 * @param item
+	 * @throws Exception
+	 */
 	private void saveRawComponent(Integer ruleId, CompiledDNRuleComponent item) throws Exception
 	{
 		int typeId = getComponentTypeId(item.getTypeLabel().toString());
@@ -102,6 +125,11 @@ public abstract class DNTemplateInstanceDao<BO extends DNTemplateInstance> exten
 		jdbcUpdate(query, params);
 	}
 	
+	/**
+	 * 
+	 * @param componentTypeLabel
+	 * @return
+	 */
 	private int getComponentTypeId(String componentTypeLabel)
 	{
 		String query = 

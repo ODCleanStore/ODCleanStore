@@ -1,8 +1,8 @@
 package cz.cuni.mff.odcleanstore.simpletransformer;
 
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
-import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
+import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.Transformer;
@@ -23,46 +23,60 @@ public class CustomTransformer implements Transformer {
     private static final Logger LOG = LoggerFactory.getLogger(CustomTransformer.class);
 
     private static final String[] FILTERED_PROPERTIES = new String[] { ODCS.score, ODCS.publisherScore, ODCS.scoreTrace,
-            ODCS.metadataGraph, ODCS.provenanceMetadataGraph, ODCS.sourceGraph, ODCS.insertedAt, ODCS.insertedBy, 
-            ODCS.source, ODCS.publishedBy, ODCS.license };
+            ODCS.metadataGraph, ODCS.provenanceMetadataGraph, ODCS.sourceGraph, ODCS.insertedAt, ODCS.insertedBy,
+            ODCS.source, ODCS.publishedBy, ODCS.license, ODCS.propertyEndpointsBackup, ODCS.propertySubjectBackup,
+            ODCS.propertyObjectBackup, ODCS.updateTag };
 
-    private static final String DELETE_QUERY = "SPARQL DELETE FROM <%1$s> { ?s <%2$s> ?o } WHERE { ?s <%2$s> ?o }";
+    private static final String FILTERED_PROPERTIES_LIST;
+
+    static {
+        StringBuilder listBuilder = new StringBuilder();
+        if (FILTERED_PROPERTIES.length > 1) {
+            listBuilder.append('<').append(FILTERED_PROPERTIES[0]).append('>');
+            for (int i = 1; i < FILTERED_PROPERTIES.length; i++) {
+                listBuilder.append(", <").append(FILTERED_PROPERTIES[i]).append('>');
+            }
+        }
+        FILTERED_PROPERTIES_LIST = listBuilder.toString();
+    }
+
+    private static final String DELETE_QUERY = "SPARQL DELETE FROM <%1$s> { ?s ?p ?o }"
+            + "\n WHERE { ?s ?p ?o FILTER (?p IN (%2$s)) }";
 
     @Override
-    public void transformNewGraph(TransformedGraph inputGraph, TransformationContext context)
-            throws TransformerException {
+    public void transformGraph(TransformedGraph inputGraph, TransformationContext context) throws TransformerException {
+        if (context.getTransformationType() == EnumTransformationType.EXISTING) {
+            LOG.info("Filtering reserved predicates skipped for graph from clen database {}", inputGraph.getGraphName());
+            return;
+        }
 
-        LOG.info("Running CustomTransformer on graph {}", inputGraph.getGraphName());
+        LOG.info("Filtering reserved predicates from {} and its metadata graph.", inputGraph.getGraphName());
+        if (FILTERED_PROPERTIES.length == 0) {
+            return;
+        }
+
         VirtuosoConnectionWrapper connection = null;
         try {
             connection = VirtuosoConnectionWrapper.createConnection(context.getDirtyDatabaseCredentials());
-            for (String property : FILTERED_PROPERTIES) {
-                String query = String.format(Locale.ROOT, DELETE_QUERY, inputGraph.getGraphName(), property);
-                connection.execute(query);
+            String query = String.format(Locale.ROOT, DELETE_QUERY,
+                    inputGraph.getGraphName(), FILTERED_PROPERTIES_LIST);
+            connection.execute(query);
 
-                //query = String.format(Locale.ROOT, DELETE_QUERY, inputGraph.getMetadataGraphName(), property);
-                //connection.execute(query);
-            }
-
+            query = String.format(Locale.ROOT, DELETE_QUERY,
+                    inputGraph.getProvenanceMetadataGraphName(), FILTERED_PROPERTIES_LIST);
+            connection.execute(query);
         } catch (DatabaseException e) {
             throw new TransformerException(e);
         } finally {
             if (connection != null) {
-                try {
-                    connection.close();
-                } catch (ConnectionException e) {
-                    // do nothing
-                }
+                connection.closeQuietly();
             }
         }
-    }
 
-    @Override
-    public void transformExistingGraph(TransformedGraph inputGraph, TransformationContext context)
-            throws TransformerException {
     }
 
     @Override
     public void shutdown() throws TransformerException {
+        return; // Do nothing
     }
 }

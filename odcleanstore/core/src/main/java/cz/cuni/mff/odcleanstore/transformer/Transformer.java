@@ -14,21 +14,14 @@ package cz.cuni.mff.odcleanstore.transformer;
  */
 public interface Transformer {
     /**
-     * Transforms a new graph in the dirty database.
+     * Transforms a graph.
+     * Whether the graph is a new incoming graph or an existing graph from clean database can be 
+     * determined from context, however the transformed graph is always physically stored in the dirty database.
      * @param inputGraph holder for the transformed graph.
      * @param context context of the transformation
      * @throws TransformerException exception
      */
-    void transformNewGraph(TransformedGraph inputGraph, TransformationContext context) throws TransformerException;
-
-    /**
-     * Transforms an existing graph in the clean database.
-     * @param inputGraph holder for the transformed graph.
-     * @param context context of the transformation
-     * @throws TransformerException exception
-     */
-    void transformExistingGraph(TransformedGraph inputGraph, TransformationContext context)
-            throws TransformerException;
+    void transformGraph(TransformedGraph inputGraph, TransformationContext context) throws TransformerException;
 
     /**
      * Called when the instance of the transformer is no longer needed.

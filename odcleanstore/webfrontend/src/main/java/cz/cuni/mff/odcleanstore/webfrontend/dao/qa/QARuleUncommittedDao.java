@@ -3,6 +3,12 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.qa;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.AbstractRulesGroupDao;
 
+/**
+ * The QA rule DAO for uncommitted rules.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class QARuleUncommittedDao extends QARuleDao
 {
 	private static final long serialVersionUID = 1L;
@@ -51,6 +57,7 @@ public class QARuleUncommittedDao extends QARuleDao
 		jdbcUpdate(query, params);
 	}
 	
+	@Override
 	public void update(QARule item) throws Exception
 	{
 		// Mark the group as dirty

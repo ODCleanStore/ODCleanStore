@@ -13,18 +13,32 @@ import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.Mapping;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 
-public class OntologyMappingDao extends Dao 
+/**
+ * The Ontology mapping DAO.
+ * 
+ * @author Tomáš Soukup
+ *
+ */
+public class OntologyMappingDao extends Dao
 {
 	private static final long serialVersionUID = 1L;
 	protected static Logger logger = Logger.getLogger(OntologyMappingDao.class);
 	
 	private ParameterizedRowMapper<Mapping> rowMapper;
 	
+	/**
+	 * 
+	 */
 	public OntologyMappingDao()
 	{
 		this.rowMapper = new MappingRowMapper();
 	}
 	
+	/**
+	 * 
+	 * @param ontoGraphName
+	 * @return
+	 */
 	public List<String> loadEntityURIs(String ontoGraphName)
 	{	
 		String query = "SPARQL SELECT ?x FROM <" + ontoGraphName +

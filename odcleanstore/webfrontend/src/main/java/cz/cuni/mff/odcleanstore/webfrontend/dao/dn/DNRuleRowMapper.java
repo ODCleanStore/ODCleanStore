@@ -6,7 +6,12 @@ import java.sql.SQLException;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.CustomRowMapper;
 
-
+/**
+ * The DN rule Row Mapper.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class DNRuleRowMapper extends CustomRowMapper<DNRule>
 {
 	private static final long serialVersionUID = 1L;

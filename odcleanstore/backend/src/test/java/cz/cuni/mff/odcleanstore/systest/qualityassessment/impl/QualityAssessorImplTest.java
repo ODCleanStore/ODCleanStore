@@ -414,7 +414,7 @@ public class QualityAssessorImplTest extends TestCase {
 
 			QualityAssessor qualityAssessor = new QualityAssessorImpl((Integer)groups[0][0]);
 
-			qualityAssessor.transformExistingGraph(inputGraph, context);
+			qualityAssessor.transformGraph(inputGraph, context);
 		}
 
 		for (int i = 0; i < tests.length; ++i) {
