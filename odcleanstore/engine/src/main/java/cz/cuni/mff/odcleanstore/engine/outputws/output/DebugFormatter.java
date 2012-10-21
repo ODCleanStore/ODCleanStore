@@ -67,6 +67,11 @@ public class DebugFormatter extends ResultFormatterBase {
                         writer.write(metadata.getScore().toString());
                         writer.write('\n');
                     }
+                    if (metadata.getUpdateTag() != null) {
+                        writer.write("\tUpdate tage: ");
+                        writer.write(metadata.getUpdateTag().toString());
+                        writer.write('\n');
+                    }
                 }
             }
         };
@@ -114,6 +119,11 @@ public class DebugFormatter extends ResultFormatterBase {
                     if (metadata.getScore() != null) {
                         writer.write("\tGraph score: ");
                         writer.write(metadata.getScore().toString());
+                        writer.write('\n');
+                    }
+                    if (metadata.getUpdateTag() != null) {
+                        writer.write("\tUpdate tag: ");
+                        writer.write(metadata.getUpdateTag().toString());
                         writer.write('\n');
                     }
                 }

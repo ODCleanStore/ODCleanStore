@@ -51,6 +51,8 @@ public abstract class RDFFormatter extends ResultFormatterBase {
     protected static final Node INSERTED_AT_PROPERTY = Node.createURI(W3P.insertedAt);
     /** {@ W3P#publishedBy} as a {@link Node}. */
     protected static final Node PUBLISHED_BY_PROPERTY = Node.createURI(W3P.publishedBy);
+    /** {@link ODCS#updateTag} as a {@link Node}. */
+    protected static final Node UPDATE_TAG_PROPERTY = Node.createURI(ODCS.updateTag);
     /** {@ DC#license} as a {@link Node}. */
     protected static final Node LICENSE_PROPERTY = Node.createURI(DC.license);
     /** {@ DC#description} as a {@link Node}. */
@@ -146,6 +148,12 @@ public abstract class RDFFormatter extends ResultFormatterBase {
                     LiteralLabel literal = LiteralLabelFactory.create(publisherScore);
                     graph.add(new Triple(namedGraphURI, PUBLISHER_SCORE_PROPERTY, Node.createLiteral(literal)));
                 }
+            }
+            
+            String updateTag = graphMetadata.getUpdateTag();
+            if (updateTag != null) {
+                LiteralLabel literal = LiteralLabelFactory.create(updateTag);
+                graph.add(new Triple(namedGraphURI, UPDATE_TAG_PROPERTY, Node.createLiteral(literal)));
             }
         }
     }
