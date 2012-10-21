@@ -5,6 +5,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
+/**
+ * The OI output type DAO.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class OIOutputTypeDao extends DaoForEntityWithSurrogateKey<OIOutputType>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "OI_OUTPUT_TYPES";
@@ -13,6 +19,9 @@ public class OIOutputTypeDao extends DaoForEntityWithSurrogateKey<OIOutputType>
 	
 	private ParameterizedRowMapper<OIOutputType> rowMapper;
 	
+	/**
+	 * 
+	 */
 	public OIOutputTypeDao()
 	{
 		this.rowMapper = new OIOutputTypeRowMapper();
