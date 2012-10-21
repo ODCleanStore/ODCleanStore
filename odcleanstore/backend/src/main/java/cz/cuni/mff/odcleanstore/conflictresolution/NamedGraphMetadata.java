@@ -32,6 +32,9 @@ public class NamedGraphMetadata {
     /** The user that inserted the named graph. */
     private String insertedBy;
 
+    /** Tag identifying a set of graphs that update each other. */
+    private String updateTag;
+
     /** Licenses of the data. */
     private List<String> licenses;
 
@@ -161,6 +164,23 @@ public class NamedGraphMetadata {
      */
     public void setLicences(List<String> licenses) {
         this.licenses = licenses;
+    }
+
+
+    /**
+     * Returns update tag, which identifies set of graphs that update each other.
+     * @return graph update tag
+     */
+    public final String getUpdateTag() {
+        return updateTag;
+    }
+
+    /**
+     * Sets update tag, which identifies set of graphs that update each other.
+     * @param updateTag graph update tag
+     */
+    public final void setUpdateTag(String updateTag) {
+        this.updateTag = updateTag;
     }
 
     @Override

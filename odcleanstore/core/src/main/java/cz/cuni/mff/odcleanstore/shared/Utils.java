@@ -70,6 +70,20 @@ public final class Utils {
             return 0;
         }
     }
+    
+    /**
+     * Compare two values which may be null for equality.
+     * @param o1 first compared value or null
+     * @param o2 second compared value or null
+     * @return return true iff both values are null or if they satisfy equals()
+     */
+    public static boolean nullProofEquals(Object o1, Object o2) {
+        if (o1 == null) {
+            return o1 == o2;
+        } else {
+            return o1.equals(o2);
+        }
+    }
 
     /**
      * Checks whether the given URI is a valid IRI.

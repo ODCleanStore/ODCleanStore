@@ -11,6 +11,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationMethod
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationMethodFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationNotImplementedException;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
+import cz.cuni.mff.odcleanstore.shared.Utils;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.graph.Node;
@@ -130,11 +131,11 @@ public class ConflictResolverImpl implements ConflictResolver {
         // if there are none, there is no need to try to filter them in each
         // conflict cluster.
         boolean hasOldVersions = hasPotentialOldVersions(metadata);
-        ObjectSourceStoredComparator filterComparator = hasOldVersions
-                ? new ObjectSourceStoredComparator(metadata)
+        ObjectUpdateSourceStoredComparator filterComparator = hasOldVersions
+                ? new ObjectUpdateSourceStoredComparator(metadata)
                 : null;
         if (hasOldVersions) {
-            LOG.debug("Resolved data include named graphs with multiple versions");
+            LOG.debug("Resolved data may include named graphs with multiple versions");
         }
 
         // Resolve conflicts:
@@ -213,17 +214,18 @@ public class ConflictResolverImpl implements ConflictResolver {
      * A triple from named graph A is removed iff
      * <ul>
      * <li>(1) it is identical to another triple from a different named graph B,</li>
-     * <li>(2) named graphs A and B have the same data sources in metadata,</li>
-     * <li>(3) named graph A has an older stored date than named graph B,</li>
-     * <li>(4) named graphs A and B were inserted by the same user.</li>
+     * <li>(2) named graph A has an older stored date than named graph B,</li>
+     * <li>(3) named graphs A and B have the same update tag.</li>
+     * <li>(4) named graphs A and B have the same data sources in metadata,</li>
+     * <li>(5) named graphs A and B were inserted by the same user.</li>
      * </ul>
      *
-     * The current implementation has O(n log^2 n) time complexity.
+     * The current implementation has O(n log n log g) time complexity (n is number of quads, g number of graphs).
      *
      * @param conflictingQuads a cluster of conflicting quads (quads having
      *        the same subject and predicate)
      * @param metadata metadata for named graphs occurring in conflictingQuads
-     * @param objectSourceStoredComparator instance of {@link ObjectSourceStoredComparator} for
+     * @param objectUpdateSourceStoredComparator instance of {@link ObjectUpdateSourceStoredComparator} for
      *        metadata related to conflictingQuads; passed as a parameter, so that a new comparator
      *        instance doesn't have to be created for each cluster of conflicting quads
      * @return collection of quads where duplicate old version triples are removed
@@ -231,13 +233,13 @@ public class ConflictResolverImpl implements ConflictResolver {
     private Collection<Quad> filterOldVersions(
             Collection<Quad> conflictingQuads,
             NamedGraphMetadataMap metadata,
-            ObjectSourceStoredComparator objectSourceStoredComparator) {
+            ObjectUpdateSourceStoredComparator objectUpdateSourceStoredComparator) {
 
-        // Sort quads by object, data source and time in *reverse order*.
+        // Sort quads by object, update tag, data sources and time (time in *reverse order*).
         // Since for every comparison we search the metadata map in
-        // logarithmic time, sorting has time complexity O(n log^2 n)
+        // logarithmic time with number of graphs, sorting has time complexity O(n log n log g)
         LinkedList<Quad> result = new LinkedList<Quad>(conflictingQuads);
-        Collections.sort(result, objectSourceStoredComparator);
+        Collections.sort(result, objectUpdateSourceStoredComparator);
 
         // Remove unwanted quads in one pass
         Node lastObject = null;
@@ -252,13 +254,14 @@ public class ConflictResolverImpl implements ConflictResolver {
                 NamedGraphMetadata quadMetadata = metadata.getMetadata(quad.getGraphName());
                 if (lastMetadata != null
                         && quadMetadata != null
+                        && Utils.nullProofEquals(quadMetadata.getUpdateTag(), lastMetadata.getUpdateTag()) // (3) holds
                         && quadMetadata.getInsertedAt() != null
                         && lastMetadata.getInsertedAt() != null
-                        && quadMetadata.getInsertedAt().before(lastMetadata.getInsertedAt()) // (3) holds
+                        && quadMetadata.getInsertedAt().before(lastMetadata.getInsertedAt()) // (2) holds
                         && quadMetadata.getInsertedBy() != null
-                        && quadMetadata.getInsertedBy().equals(lastMetadata.getInsertedBy()) // (4) holds
+                        && quadMetadata.getInsertedBy().equals(lastMetadata.getInsertedBy()) // (5) holds
                         && quadMetadata.getSources() != null
-                        && quadMetadata.getSources().equals(lastMetadata.getSources())) { // (2) holds
+                        && quadMetadata.getSources().equals(lastMetadata.getSources())) { // (4) holds
                     resultIterator.remove();
                     removed = true;
                     LOG.debug("Filtered a triple from an outdated named graph {}.", quad.getGraphName().getURI());
@@ -277,7 +280,7 @@ public class ConflictResolverImpl implements ConflictResolver {
     /**
      * Check whether metadata contain two named graphs where one may be an updated of the other.
      * This is a only a heuristic based on source metadata.
-     * @see #filterOldVersions(Collection, NamedGraphMetadataMap, ObjectSourceStoredComparator)
+     * @see #filterOldVersions(Collection, NamedGraphMetadataMap, ObjectUpdateSourceStoredComparator)
      *
      * @param metadataMap named graph metadata to analyze
      * @return true iff metadata contain two named graphs where one is
@@ -286,17 +289,22 @@ public class ConflictResolverImpl implements ConflictResolver {
     private boolean hasPotentialOldVersions(NamedGraphMetadataMap metadataMap) {
         Collection<NamedGraphMetadata> metadataCollection = metadataMap.listMetadata();
         Set<Integer> sourceHashesSet = new HashSet<Integer>(metadataCollection.size());
+        Set<String> updateTags = new HashSet<String>();
 
         for (NamedGraphMetadata metadata : metadataCollection) {
             assert metadata != null;
             if (metadata.getInsertedAt() == null | metadata.getInsertedBy() == null | metadata.getSources() == null) {
                 // If any of the tested properties is null, the named graph cannot be marked as an update
                 continue;
+            } else if (!Utils.isNullOrEmpty(metadata.getUpdateTag()) && updateTags.contains(metadata.getUpdateTag())) {
+                // Occurrence of named graphs sharing the same update tag
+                return true;
             } else if (sourceHashesSet.contains(metadata.getSources().hashCode())) {
-                // Occurrence of named graphs sharing a common data source
+                // Occurrence of named graphs sharing a common data source (heuristic based on hashCode())
                 return true;
             } else {
                 sourceHashesSet.add(metadata.getSources().hashCode());
+                updateTags.add(metadata.getUpdateTag()); // null-proof
             }
         }
         return false;

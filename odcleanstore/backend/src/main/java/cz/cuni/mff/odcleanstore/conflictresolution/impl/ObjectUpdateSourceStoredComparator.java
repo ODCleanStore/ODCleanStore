@@ -15,16 +15,16 @@ import java.util.TreeSet;
 
 /**
  * Comparator of {@link Quad Quads} comparing first by objects, second
- * by data source in metadata, third by descending stored date in metadata.
+ * by update tag, third by data sources in metadata, fourth by descending stored date in metadata.
  */
-/*package*/class ObjectSourceStoredComparator implements Comparator<Quad> {
+/*package*/class ObjectUpdateSourceStoredComparator implements Comparator<Quad> {
     /** Metadata for named graphs occurring in compared quads. */
     private NamedGraphMetadataMap namedGraphMetadata;
 
     /**
      * @param metadata metadata for named graphs occurring in compared quads; must not be null
      */
-    public ObjectSourceStoredComparator(NamedGraphMetadataMap metadata) {
+    public ObjectUpdateSourceStoredComparator(NamedGraphMetadataMap metadata) {
         assert metadata != null;
         this.namedGraphMetadata = metadata;
     }
@@ -40,6 +40,14 @@ import java.util.TreeSet;
         // Get metadata
         NamedGraphMetadata metadata1 = namedGraphMetadata.getMetadata(q1.getGraphName());
         NamedGraphMetadata metadata2 = namedGraphMetadata.getMetadata(q2.getGraphName());
+
+        // Compare by update tag
+        String updateTag1 = (metadata1 != null) ? metadata1.getUpdateTag() : null;
+        String updateTag2 = (metadata2 != null) ? metadata2.getUpdateTag() : null;
+        int updateTagComparison = Utils.nullProofCompare(updateTag1, updateTag2);
+        if (updateTagComparison != 0) {
+            return updateTagComparison;
+        }
 
         // Compare by data source
         Set<String> dataSources1 = (metadata1 != null) ? metadata1.getSources() : null;
