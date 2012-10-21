@@ -6,6 +6,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.AggregationType;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * The Aggregation type Row Mapper.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class AggregationTypeRowMapper extends CustomRowMapper<AggregationType>
 {
 	private static final long serialVersionUID = 1L;
