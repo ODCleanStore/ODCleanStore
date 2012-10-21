@@ -4,7 +4,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.AuthoredEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
 /**
- * Business entity representing a ontology.
+ * Business entity representing an ontology.
  * 
  * @author Tomas Soukup
  */

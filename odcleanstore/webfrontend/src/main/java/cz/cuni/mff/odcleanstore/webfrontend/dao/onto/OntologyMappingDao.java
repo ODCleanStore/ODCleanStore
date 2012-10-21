@@ -10,33 +10,19 @@ import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.RelationType;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.Mapping;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 
-public class OntologyMappingDao extends DaoForEntityWithSurrogateKey<RelationType> 
+public class OntologyMappingDao extends Dao 
 {
 	private static final long serialVersionUID = 1L;
 	protected static Logger logger = Logger.getLogger(OntologyMappingDao.class);
 	
-	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "RELATION_TYPES";
-	
-	private ParameterizedRowMapper<RelationType> rowMapper;
+	private ParameterizedRowMapper<Mapping> rowMapper;
 	
 	public OntologyMappingDao()
 	{
-		this.rowMapper = new OntologyMappingRowMapper();
-	}
-	
-	@Override
-	public String getTableName() 
-	{
-		return TABLE_NAME;
-	}
-
-	@Override
-	protected ParameterizedRowMapper<RelationType> getRowMapper() 
-	{
-		return rowMapper;
+		this.rowMapper = new MappingRowMapper();
 	}
 	
 	public List<String> loadEntityURIs(String ontoGraphName)
@@ -47,32 +33,63 @@ public class OntologyMappingDao extends DaoForEntityWithSurrogateKey<RelationTyp
 		return jdbcQueryForList(query, String.class);
 	}
 
-	public void addMapping(Integer ontologyId, String sourceUri, String relationType, String targetUri) 
+	public void addMapping(Integer ontologyId, Mapping mapping) 
 			throws ConnectionException, QueryException
 	{	
 		String graphName = createGraphName(ontologyId);
-		logger.info("Adding ontology mapping: " + sourceUri + " " + relationType + " " + targetUri + 
-				" into graph: " + graphName);
+		logger.info("Adding ontology mapping: " + mapping.getSourceUri() + " " + mapping.getRelationType() + " "
+		+ mapping.getTargetUri() + " into graph: " + graphName);
+		
 		String query = "SPARQL INSERT INTO <" + graphName + "> {`iri(??)` `iri(??)` `iri(??)`}";
 		
+		executeMappingQuery(query, mapping);
+	}
+	
+	public static String createGraphName(Integer ontologyId)
+	{
+		return ODCSInternal.ontologyMappingsGraphUriPrefix + ontologyId;
+	}
+	
+	public List<Mapping> loadAll(Integer ontologyId)
+	{		
+		String query = "SPARQL SELECT ?sourceUri ?relationType ?targetUri FROM <" + createGraphName(ontologyId) + "> "
+				+ "WHERE {?sourceUri ?relationType ?targetUri}";
+		
+		return jdbcQuery(query, rowMapper);
+	}
+	
+	public void delete(Integer ontologyId, Mapping mapping) throws Exception
+	{	
+		String graphName = createGraphName(ontologyId);
+		logger.info("Deleting ontology mapping: " + mapping.getSourceUri() + " " + mapping.getRelationType() + " "
+		+ mapping.getTargetUri() + " from graph: " + graphName);
+		
+		String query = "SPARQL DELETE DATA FROM <" + graphName + "> {<" + mapping.getSourceUri() + "> <" 
+				+ mapping.getRelationType() + "> <" + mapping.getTargetUri() + ">}";
+		
+		executeMappingQuery(query, null);
+	}
+	
+	private void executeMappingQuery(String query, Mapping mapping) throws ConnectionException, QueryException
+	{
 		VirtuosoConnectionWrapper con = null;
 		try
 		{
 			con = VirtuosoConnectionWrapper.createConnection(
 					ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
-			
-			con.execute(query, sourceUri, relationType, targetUri);
+			if (mapping != null)
+			{
+				con.execute(query, mapping.getSourceUri(), mapping.getRelationType(), mapping.getTargetUri());
+			} else
+			{
+				con.execute(query);
+			}
 		} finally
 		{
 			if (con != null)
 			{
 				con.closeQuietly();
 			}
-		}		
-	}
-	
-	public static String createGraphName(Integer ontologyId)
-	{
-		return ODCSInternal.ontologyMappingsGraphUriPrefix + ontologyId;
+		}
 	}
 }
