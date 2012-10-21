@@ -44,6 +44,12 @@ public final class Utils {
     
     /** Default encoding - UTF-8. */
     public static final String DEFAULT_ENCODING = "UTF-8";
+    
+    /** Pattern matching characters to be removed from a literal when being escaped for a SPARQL query. */ 
+    public static final Pattern ESCAPE_LITERAL_CHARS_TO_REMOVE = Pattern.compile("[\\x00-\\x09\\x0E-\\x1F]");
+    
+    /** Pattern matching characters to be escaped in a literal when being escaped for a SPARQL query. */
+    public static final Pattern ESCAPE_LITERAL_CHARS_TO_ESCAPE = Pattern.compile("([\"'`\\\\])");
 
     /**
      * Compare two values which may be null. Null is considered less than all non-null values.
@@ -124,6 +130,23 @@ public final class Utils {
             }
         }
         return buf.toString();
+    }
+    
+    /**
+     * Escapes a literal for use in a SPARQL query.
+     * @param literalValue value to be escaped
+     * @return escaped value
+     */
+    public static String escapeSPARQLLiteral(String literalValue) {
+        if (literalValue == null) {
+            return "";
+        }
+        
+        String escapedValue = literalValue;
+        escapedValue = ESCAPE_LITERAL_CHARS_TO_REMOVE.matcher(escapedValue).replaceAll("");
+        escapedValue = ESCAPE_LITERAL_CHARS_TO_ESCAPE.matcher(escapedValue).replaceAll("\\\\$1");
+        
+        return escapedValue;
     }
         
     /** Disable constructor for a utility class. */

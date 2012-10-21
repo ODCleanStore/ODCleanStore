@@ -9,6 +9,7 @@ import cz.cuni.mff.odcleanstore.qualityassessment.QualityAssessor;
 import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRule;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRulesModel;
+import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
@@ -29,7 +30,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.regex.Pattern;
 
 /**
  * The default quality assessor.
@@ -419,13 +419,7 @@ public class QualityAssessorImpl implements QualityAssessor, Serializable {
 			Iterator<String> iterator = trace.iterator();
 
 			while (iterator.hasNext()) {
-				String escapedTrace = iterator.next();
-
-				Pattern charsToBeRemoved = Pattern.compile("[\\x00-\\x09\\x0E-\\x1F]");
-				Pattern charsToBeEscaped = Pattern.compile("([\"'`\\\\])");
-
-				escapedTrace = charsToBeRemoved.matcher(escapedTrace).replaceAll("");
-				escapedTrace = charsToBeEscaped.matcher(escapedTrace).replaceAll("\\\\$1");
+				String escapedTrace = Utils.escapeSPARQLLiteral(iterator.next());
 
 				final String storeNewScoreTrace = String.format(Locale.ROOT, storeNewScoreTraceQueryFormat,
 						metadataGraph,
