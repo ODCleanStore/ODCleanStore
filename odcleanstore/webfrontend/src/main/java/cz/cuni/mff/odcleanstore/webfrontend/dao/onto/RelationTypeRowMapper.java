@@ -6,6 +6,11 @@ import java.sql.SQLException;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.RelationType;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.CustomRowMapper;
 
+/**
+ * Row mapper for Relation type entity.
+ * 
+ * @author Tomas Soukup
+ */
 public class RelationTypeRowMapper extends CustomRowMapper<RelationType>
 {
 	private static final long serialVersionUID = 1L;

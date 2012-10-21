@@ -16,7 +16,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 /**
  * The Ontology mapping DAO.
  * 
- * @author Tomáš Soukup
+ * @author Tomas Soukup
  *
  */
 public class OntologyMappingDao extends Dao
@@ -47,6 +47,12 @@ public class OntologyMappingDao extends Dao
 		return jdbcQueryForList(query, String.class);
 	}
 
+	/**
+	 * @param ontologyId
+	 * @param mapping
+	 * @throws ConnectionException
+	 * @throws QueryException
+	 */
 	public void addMapping(Integer ontologyId, Mapping mapping) 
 			throws ConnectionException, QueryException
 	{	
@@ -59,11 +65,19 @@ public class OntologyMappingDao extends Dao
 		executeMappingQuery(query, mapping);
 	}
 	
+	/**
+	 * @param ontologyId
+	 * @return
+	 */
 	public static String createGraphName(Integer ontologyId)
 	{
 		return ODCSInternal.ontologyMappingsGraphUriPrefix + ontologyId;
 	}
 	
+	/**
+	 * @param ontologyId
+	 * @return
+	 */
 	public List<Mapping> loadAll(Integer ontologyId)
 	{		
 		String query = "SPARQL SELECT ?sourceUri ?relationType ?targetUri FROM <" + createGraphName(ontologyId) + "> "
@@ -72,6 +86,11 @@ public class OntologyMappingDao extends Dao
 		return jdbcQuery(query, rowMapper);
 	}
 	
+	/**
+	 * @param ontologyId
+	 * @param mapping
+	 * @throws Exception
+	 */
 	public void delete(Integer ontologyId, Mapping mapping) throws Exception
 	{	
 		String graphName = createGraphName(ontologyId);
