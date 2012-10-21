@@ -6,6 +6,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.CustomRowMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * The Role Row Mapper.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class RoleRowMapper extends CustomRowMapper<Role>
 {
 	private static final long serialVersionUID = 1L;
