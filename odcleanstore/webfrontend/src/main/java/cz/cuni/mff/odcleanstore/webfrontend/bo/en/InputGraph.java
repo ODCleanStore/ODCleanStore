@@ -2,6 +2,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo.en;
 
 import java.sql.Timestamp;
 
+import cz.cuni.mff.odcleanstore.data.EnumDatabaseInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
 /**
@@ -38,5 +39,9 @@ public class InputGraph extends EntityWithSurrogateKey {
 		this.engineUUID = engineUUID;
 		this.pipelineLabel = pipelineLabel;
 		this.stateLabel = stateLabel;
+	}
+
+	public EnumDatabaseInstance getDatabaseInstance() {
+		return isInCleanDB ? EnumDatabaseInstance.CLEAN : EnumDatabaseInstance.DIRTY;
 	}
 }

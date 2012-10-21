@@ -19,6 +19,10 @@ public class BooleanLabel extends Label implements IConverter<Boolean>
 		super(componentId);
 	}
 	
+	public BooleanLabel(String componentId, boolean value) {
+		super(componentId, Localizer.get().getString(((Boolean)value).toString(), null));
+	}
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public <C> IConverter<C> getConverter(Class<C> type)

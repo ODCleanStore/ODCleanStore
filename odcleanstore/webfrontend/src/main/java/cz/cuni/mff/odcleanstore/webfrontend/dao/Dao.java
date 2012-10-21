@@ -159,6 +159,19 @@ public abstract class Dao implements Serializable
 		return getJdbcTemplate().queryForObject(sql, args, requiredType);
 	}
 	
+	protected <E> E jdbcQueryForObject(String sql, Object[] args, RowMapper<E> rowMapper, EnumDatabaseInstance dbInstance) throws Exception
+	{
+		try
+		{
+			return getJdbcTemplate(dbInstance).queryForObject(sql, args, rowMapper);
+		}
+		catch (Exception e)
+		{
+			handleException(e);
+			throw e;
+		}
+	}
+	
 	protected <E> List<E> jdbcQueryForList(String sql, Class<E> elementType) throws DataAccessException
 	{
 		return getJdbcTemplate().queryForList(sql, elementType);
