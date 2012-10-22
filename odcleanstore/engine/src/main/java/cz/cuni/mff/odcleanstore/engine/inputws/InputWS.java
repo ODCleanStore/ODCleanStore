@@ -69,9 +69,9 @@ public class InputWS implements IInputWS {
 			saveFiles(metadata, payload);
 			_importedInputGraphStates.commitImportSession(sessionUuid);
 			Engine.getCurrent().signalToPipelineService();
-			LOG.info("InputWS webservice ends processing for input graph {}",metadata.uuid);
-
-		} catch (InsertException e) {
+			LOG.info("InputWS webservice ends processing for input graph {}", metadata.uuid);
+			LOG.info("InputWS webservice puts graph {} to pipeline service queue", metadata.uuid);
+			 		} catch (InsertException e) {
 			LOG.warn("InputWS webservice - insert exception {} : {}", e.getMessage(), e.getMoreInfo());
 			throw e;
 		} catch (InputGraphStatus.ServiceBusyException e) {

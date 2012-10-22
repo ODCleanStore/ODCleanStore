@@ -61,7 +61,6 @@ public final class Engine {
 		}
 	}
 	
-	
 	/**
 	 * Check and set logging configuration.
 	 */

@@ -11,6 +11,7 @@ import cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
 import cz.cuni.mff.odcleanstore.engine.db.model.PipelineCommand;
 import cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl;
+import cz.cuni.mff.odcleanstore.log4j.RollingFileAppender;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAggregatorImpl;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
 import cz.cuni.mff.odcleanstore.shared.FileUtils;
@@ -92,7 +93,13 @@ public class PipelineGraphTransformerExecutor {
 			
 			graphStatus.checkResetPipelineRequest();
 			try {
-			    this.currentTransformer.transformGraph(graph, context);
+				try {
+					String logFileName = new File(path, "odcs.engine.log").getAbsolutePath();
+					RollingFileAppender.setNewLogFile(logFileName);
+					this.currentTransformer.transformGraph(graph, context);
+				} finally {
+					RollingFileAppender.popPreviousLogFile();
+				}
 			}
 			catch (Exception e) {
 				throw new PipelineGraphTransformerExecutorException(format(ERROR_TRANSFORMER_RUN, command), command, e);	
