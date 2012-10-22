@@ -17,6 +17,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.BooleanLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.StateLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TimestampLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentSortableDataProvider;
@@ -72,7 +73,7 @@ public class InputGraphsPage extends FrontendPage
 				item.setModel(new CompoundPropertyModel<InputGraph>(inputGraph));
 
 				item.add(new Label("UUID", ODCSInternal.dataGraphUriPrefix + inputGraph.UUID));
-				item.add(new Label("stateLabel"));
+				item.add(new StateLabel("stateLabel"));
 				item.add(new Label("engineUUID") {
 
 					private static final long serialVersionUID = 1L;

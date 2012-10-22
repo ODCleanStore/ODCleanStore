@@ -1,12 +1,12 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 
 import cz.cuni.mff.odcleanstore.model.EnumGraphState;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
@@ -16,6 +16,8 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.StateLabel;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.StringifiedEnumLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TruncatedLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentSortableDataProvider;
@@ -153,8 +155,8 @@ public class GraphsInErrorListPage extends FrontendPage {
 				});
 				item.add(new Label("pipelineLabel"));
 				item.add(new Label("UUID", ODCSInternal.dataGraphUriPrefix + graphInError.UUID));
-				item.add(new Label("stateLabel"));
-				item.add(new Label("errorTypeLabel"));
+				item.add(new StateLabel("stateLabel"));
+				item.add(new StringifiedEnumLabel("errorTypeLabel"));
 				item.add(new TruncatedLabel("errorMessage", MAX_LIST_COLUMN_TEXT_LENGTH));
 				
 				item.add(new Link<GraphInError>("finishGraph") {
