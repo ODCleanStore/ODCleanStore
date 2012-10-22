@@ -93,9 +93,9 @@ public class PipelineGraphTransformerExecutor {
 			
 			graphStatus.checkResetPipelineRequest();
 			try {
+				String logFileName = new File(path, "odcs.engine.log").getAbsolutePath();
+				RollingFileAppender.setNewLogFile(logFileName);
 				try {
-					String logFileName = new File(path, "odcs.engine.log").getAbsolutePath();
-					RollingFileAppender.setNewLogFile(logFileName);
 					this.currentTransformer.transformGraph(graph, context);
 				} finally {
 					RollingFileAppender.popPreviousLogFile();
@@ -187,7 +187,9 @@ public class PipelineGraphTransformerExecutor {
 		try {
 			StringBuilder sb = new StringBuilder();
 			sb.append(command.transformerLabel);
-			sb.append(" - ");
+			sb.append(" (instance: ");
+			sb.append(command.transformerInstanceID);
+			sb.append(") - ");
 			sb.append(message);
 			return FormatHelper.formatGraphMessage(sb.toString(), graphStatus.getUuid(), graphStatus.isInCleanDbBeforeProcessing());
 		} catch(Exception e) {

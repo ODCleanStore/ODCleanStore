@@ -64,7 +64,9 @@ public class  RollingFileAppender extends org.apache.log4j.RollingFileAppender {
 	public synchronized static void setNewLogFile(String logFileName) {
 		RollingFileAppender previous = getCurrent();
 		RollingFileAppender appender = new RollingFileAppender(previous, logFileName);
-		Logger.getRootLogger().addAppender(appender);
+		try {
+			Logger.getRootLogger().addAppender(appender);
+		} catch(Exception e) {}
 		MDC.put(CURRENT_APPENDER, appender);
 	}
 
