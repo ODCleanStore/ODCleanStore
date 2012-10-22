@@ -45,6 +45,17 @@ public class DependentSortableDataProvider<BO extends EntityWithSurrogateKey> ex
 	/**
 	 * 
 	 * @param dao
+	 * @param constraints
+	 */
+	public DependentSortableDataProvider(DaoForEntityWithSurrogateKey<BO> dao, String defaultSortColumnName, SortOrder defaultSortOrder)
+	{
+		this(dao, "id");
+		setSort(defaultSortColumnName, defaultSortOrder);
+	}
+	
+	/**
+	 * 
+	 * @param dao
 	 * @param defaultSortColumnName
 	 * @param constraints
 	 */

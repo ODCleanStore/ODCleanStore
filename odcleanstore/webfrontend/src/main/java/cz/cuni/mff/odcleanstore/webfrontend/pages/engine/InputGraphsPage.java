@@ -1,9 +1,8 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.engine;
 
-import java.util.Arrays;
-
 import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.repeater.Item;
@@ -14,9 +13,11 @@ import cz.cuni.mff.odcleanstore.model.EnumGraphState;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.InputGraph;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.BooleanLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.TimestampLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentSortableDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.EngineOperationsDao;
@@ -58,7 +59,7 @@ public class InputGraphsPage extends FrontendPage
 
 	private void addInputGraphs() {
 		DependentSortableDataProvider<InputGraph> data =
-				new DependentSortableDataProvider<InputGraph>(inputGraphDao, "uuid");
+				new DependentSortableDataProvider<InputGraph>(inputGraphDao, "updated", SortOrder.DESCENDING);
 			
 		DataView<InputGraph> dataView = new DataView<InputGraph>("graphs", data)
 		{
@@ -83,8 +84,8 @@ public class InputGraphsPage extends FrontendPage
 					
 				});
 				item.add(new Label("pipelineLabel"));
-				item.add(new Label("isInCleanDB"));
-				item.add(new Label("updated"));
+				item.add(new BooleanLabel("isInCleanDB"));
+				item.add(new TimestampLabel("updated"));
 				
 				item.add(new Link<InputGraph>("rerunGraph") {
 
