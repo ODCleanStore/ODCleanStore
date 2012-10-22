@@ -159,6 +159,12 @@ public abstract class Dao implements Serializable
 		return getJdbcTemplate().queryForObject(sql, args, requiredType);
 	}
 	
+	protected <E> E jdbcQueryForObject(String sql, Object[] args, RowMapper<E> rowMapper, EnumDatabaseInstance dbInstance)
+		throws DataAccessException
+	{
+		return getJdbcTemplate(dbInstance).queryForObject(sql, args, rowMapper);
+	}
+	
 	protected <E> List<E> jdbcQueryForList(String sql, Class<E> elementType) throws DataAccessException
 	{
 		return getJdbcTemplate().queryForList(sql, elementType);
@@ -174,19 +180,11 @@ public abstract class Dao implements Serializable
 		return getJdbcTemplate().queryForInt(sql, args);
 	}
 
-	protected int jdbcQueryForInt(String sql, Object[] args, EnumDatabaseInstance dbInstance) throws Exception
+	protected int jdbcQueryForInt(String sql, Object[] args, EnumDatabaseInstance dbInstance) throws DataAccessException
 	{
-		try
-		{
-			return getJdbcTemplate(dbInstance).queryForInt(sql, args);
-		}
-		catch (Exception e)
-		{
-			handleException(e);
-			throw e;
-		}
+		return getJdbcTemplate(dbInstance).queryForInt(sql, args);
 	}
-	
+
 	protected int jdbcUpdate(final String sql) throws Exception
 	{
 		try

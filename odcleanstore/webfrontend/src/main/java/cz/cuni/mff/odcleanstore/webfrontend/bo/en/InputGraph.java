@@ -2,6 +2,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo.en;
 
 import java.sql.Timestamp;
 
+import cz.cuni.mff.odcleanstore.data.EnumDatabaseInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
 /**
@@ -39,7 +40,6 @@ public class InputGraph extends EntityWithSurrogateKey {
 		this.pipelineLabel = pipelineLabel;
 		this.stateLabel = stateLabel;
 	}
-	
 
 	public String getUUID()
 	{
@@ -84,5 +84,10 @@ public class InputGraph extends EntityWithSurrogateKey {
 	public String getStateLabel()
 	{
 		return stateLabel;
+	}
+
+	public EnumDatabaseInstance getDatabaseInstance()
+	{
+		return isInCleanDB ? EnumDatabaseInstance.CLEAN : EnumDatabaseInstance.DIRTY;
 	}
 }

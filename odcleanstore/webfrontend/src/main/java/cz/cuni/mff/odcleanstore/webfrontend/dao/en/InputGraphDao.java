@@ -1,10 +1,14 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.en;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
+import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.InputGraph;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.CustomRowMapper;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
 
@@ -26,6 +30,15 @@ public class InputGraphDao extends DaoForEntityWithSurrogateKey<InputGraph> {
 	@Override
 	protected ParameterizedRowMapper<InputGraph> getRowMapper() {
 		return new InputGraphRowMapper();
+	}
+	
+	@Override
+	public InputGraph load(Integer id) {
+		List<InputGraph> graphs = loadAllBy("iGraph.id", id);
+
+		if (graphs.size() != 1) return null;
+		
+		return graphs.get(0);
 	}
 	
 	@Override
@@ -63,5 +76,24 @@ public class InputGraphDao extends DaoForEntityWithSurrogateKey<InputGraph> {
 		Object[] param = criteria.buildWhereClauseParams();
 		
 		return jdbcQuery(query, param, getRowMapper());
+	}
+
+	public String getContent(Integer graphId) throws Exception {
+		InputGraph inputGraph = load(graphId);
+		
+		String query =
+				"SPARQL define output:format 'RDF/XML' SELECT * WHERE {GRAPH ?? {?s ?p ?o}}";
+		
+		Object[] param = { ODCSInternal.dataGraphUriPrefix + inputGraph.UUID };
+		
+		return jdbcQueryForObject(query, param, new CustomRowMapper<String>() {
+
+			private static final long serialVersionUID = 1L;
+
+			public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+				return blobToString(rs.getBlob(1));
+			}
+			
+		}, inputGraph.getDatabaseInstance());
 	}
 }

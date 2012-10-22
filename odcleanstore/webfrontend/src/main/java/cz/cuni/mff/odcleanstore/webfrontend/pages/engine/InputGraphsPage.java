@@ -16,6 +16,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.en.InputGraph;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.BooleanLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.StateLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TimestampLabel;
@@ -87,6 +88,8 @@ public class InputGraphsPage extends FrontendPage
 				item.add(new Label("pipelineLabel"));
 				item.add(new BooleanLabel("isInCleanDB"));
 				item.add(new TimestampLabel("updated"));
+				
+				item.add(new RedirectWithParamButton(InputGraphDetailPage.class, inputGraph.getId(), "detail"));
 				
 				item.add(new Link<InputGraph>("rerunGraph") {
 
