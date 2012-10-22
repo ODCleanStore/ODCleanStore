@@ -2,7 +2,6 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.en;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
@@ -10,7 +9,6 @@ import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.InputGraph;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.CustomRowMapper;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
 
 public class InputGraphDao extends DaoForEntityWithSurrogateKey<InputGraph> {
 
@@ -22,6 +20,18 @@ public class InputGraphDao extends DaoForEntityWithSurrogateKey<InputGraph> {
 	public static final String PIPELINES_TABLE_NAME = TABLE_NAME_PREFIX + "PIPELINES";
 	public static final String ATTACHED_ENGINES_TABLE_NAME = TABLE_NAME_PREFIX + "EN_ATTACHED_ENGINES";
 
+	private ParameterizedRowMapper<InputGraph> rowMapper;
+	
+	public InputGraphDao() {
+		rowMapper = new InputGraphRowMapper();
+	}
+	
+	@Override
+	public InputGraph load(Integer id)
+	{
+		return loadBy("iGraph.id", id);
+	}
+	
 	@Override
 	public String getTableName() {
 		return INPUT_GRAPHS_TABLE_NAME;
@@ -29,30 +39,12 @@ public class InputGraphDao extends DaoForEntityWithSurrogateKey<InputGraph> {
 
 	@Override
 	protected ParameterizedRowMapper<InputGraph> getRowMapper() {
-		return new InputGraphRowMapper();
+		return rowMapper;
 	}
 	
 	@Override
-	public InputGraph load(Integer id) {
-		List<InputGraph> graphs = loadAllBy("iGraph.id", id);
-
-		if (graphs.size() != 1) return null;
-		
-		return graphs.get(0);
-	}
-	
-	@Override
-	public List<InputGraph> loadAllBy (String column, Object value) {
-		QueryCriteria criteria = new QueryCriteria();
-		
-		criteria.addWhereClause(column, value);
-		
-		return loadAllBy(criteria);
-	}
-
-	@Override
-	public List<InputGraph> loadAllBy (QueryCriteria criteria) {
-
+	protected String getSelectAndFromClause()
+	{
 		String query =
 			"SELECT " +
 			"iGraph.id AS id, " +
@@ -69,13 +61,8 @@ public class InputGraphDao extends DaoForEntityWithSurrogateKey<InputGraph> {
 			INPUT_GRAPHS_TABLE_NAME + " AS iGraph JOIN " +
 			INPUT_GRAPHS_STATES_TABLE_NAME + " AS iState ON iGraph.stateId = iState.id JOIN " +
 			PIPELINES_TABLE_NAME + " AS pipeline ON pipeline.id = iGraph.pipelineId JOIN " +
-			ATTACHED_ENGINES_TABLE_NAME + " AS engine ON engine.id = iGraph.engineId " +
-			criteria.buildWhereClause() +
-			criteria.buildOrderByClause();
-
-		Object[] param = criteria.buildWhereClauseParams();
-		
-		return jdbcQuery(query, param, getRowMapper());
+			ATTACHED_ENGINES_TABLE_NAME + " AS engine ON engine.id = iGraph.engineId ";
+		return query;
 	}
 
 	public String getContent(Integer graphId) throws Exception {

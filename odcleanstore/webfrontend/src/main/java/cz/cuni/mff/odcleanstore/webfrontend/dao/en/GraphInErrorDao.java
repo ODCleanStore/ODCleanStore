@@ -1,7 +1,5 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.en;
 
-import java.util.List;
-
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.model.EnumGraphState;
@@ -31,19 +29,9 @@ public class GraphInErrorDao extends DaoForEntityWithSurrogateKey<GraphInError> 
 	}
 	
 	@Override
-	public List<GraphInError> loadAllBy (String column, Object value) {
-		QueryCriteria criteria = new QueryCriteria();
-		
-		criteria.addWhereClause(column, value);
-		
-		return loadAllBy(criteria);
-	}
-
-	@Override
-	public List<GraphInError> loadAllBy (QueryCriteria criteria) {
-
-		String query =
-			"SELECT " +
+	protected String getSelectAndFromClause()
+	{
+		String query = "SELECT " +
 			"eGraph.id AS id, " +
 			"iGraph.engineId AS engineId, " +
 			"iGraph.pipelineId AS pipelineId, " +
@@ -62,13 +50,9 @@ public class GraphInErrorDao extends DaoForEntityWithSurrogateKey<GraphInError> 
 			PIPELINES_TABLE_NAME + " AS pipeline ON pipeline.id = iGraph.pipelineId JOIN " +
 			ATTACHED_ENGINES_TABLE_NAME + " AS engine ON engine.id = iGraph.engineId LEFT JOIN " +
 			GRAPHS_IN_ERROR_TABLE_NAME + " AS eGraph ON eGraph.graphId = iGraph.id LEFT JOIN " +
-			PIPELINE_ERROR_TYPES_TABLE_NAME + " AS pError ON eGraph.errorTypeId = pError.id " +
-			criteria.buildWhereClause() +
-			criteria.buildOrderByClause();
-
-		Object[] param = criteria.buildWhereClauseParams();
+			PIPELINE_ERROR_TYPES_TABLE_NAME + " AS pError ON eGraph.errorTypeId = pError.id ";
 		
-		return jdbcQuery(query, param, getRowMapper());
+		return query;
 	}
 	
 	public void markFinished(GraphInError graphInError) throws Exception {

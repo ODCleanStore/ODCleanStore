@@ -266,23 +266,12 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 	}
 
 	/**
-	 * transforms graph in the dirty database
+	 * Transforms graph.
 	 * @param inputGraph the graph to be transformed
 	 * @param context the context specifying the connection credentials
 	 */
 	@Override
-	public void transformNewGraph(TransformedGraph inputGraph,
-			TransformationContext context) throws TransformerException {
-		transformExistingGraph(inputGraph, context);
-	}
-
-	/**
-	 * transforms graph in the dirty database (originally stored in clean db)
-	 * @param inputGraph the graph to be transformed
-	 * @param context the context specifying the connection credentials
-	 */
-	@Override
-	public void transformExistingGraph(TransformedGraph inputGraph,
+	public void transformGraph(TransformedGraph inputGraph,
 			TransformationContext context) throws TransformerException {
 		this.inputGraph = inputGraph;
 		this.context = context;
@@ -463,7 +452,7 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 	private void loadRules() throws DataNormalizationException {
 		loadRules(TableVersion.COMMITTED);
 	}
-	
+
 	private void loadRules(TableVersion tableVersion) throws DataNormalizationException {
 		DataNormalizationRulesModel model = new DataNormalizationRulesModel(context.getCleanDatabaseCredentials(), tableVersion);
 

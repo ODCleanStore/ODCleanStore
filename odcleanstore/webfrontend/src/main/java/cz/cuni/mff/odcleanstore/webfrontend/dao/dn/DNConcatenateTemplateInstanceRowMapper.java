@@ -6,6 +6,12 @@ import java.sql.SQLException;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNConcatenateTemplateInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.CustomRowMapper;
 
+/**
+ * The DN concatenate template instance Row Mapper.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class DNConcatenateTemplateInstanceRowMapper extends CustomRowMapper<DNConcatenateTemplateInstance>
 {
 	private static final long serialVersionUID = 1L;

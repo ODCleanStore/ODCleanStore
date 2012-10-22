@@ -40,6 +40,6 @@ public class DBconfigLinkerTest {
 		JDBCConnectionCredentials dirtyCredentials = new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1112/UID=dba/PWD=dba", "dba", "dba");
 		TransformationContext context = new TransformationContextTestImpl(transformerDirectory,"linkWithinGraph=true",cleanCredentials, dirtyCredentials);
 		TransformedGraph inputGraph = new TransformedGraphTestImpl("http://opendata.cz/data/namedGraph/1");
-		linker.transformExistingGraph(inputGraph, context);
+		linker.transformGraph(inputGraph, context);
 	}
 }

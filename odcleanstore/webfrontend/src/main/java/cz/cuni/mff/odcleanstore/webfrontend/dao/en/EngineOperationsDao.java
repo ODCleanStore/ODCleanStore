@@ -5,6 +5,13 @@ import org.apache.log4j.Logger;
 import cz.cuni.mff.odcleanstore.model.EnumGraphState;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 
+/**
+ * A DAO which contains methods to signal the Engine to rerun certain
+ * graphs in the clean DB. 
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class EngineOperationsDao extends Dao
 {
 	private static final long serialVersionUID = 1L;

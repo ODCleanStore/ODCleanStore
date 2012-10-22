@@ -7,6 +7,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIFileFormat;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutput;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.CustomRowMapper;
 
+/**
+ * The OI output Row Mapper.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class OIOutputRowMapper extends CustomRowMapper<OIOutput> 
 {
 	private static final long serialVersionUID = 1L;
@@ -29,6 +35,12 @@ public class OIOutputRowMapper extends CustomRowMapper<OIOutput>
 		);
 	}
 	
+	/**
+	 * 
+	 * @param rs
+	 * @return
+	 * @throws SQLException
+	 */
 	private OIFileFormat mapFileFormat(ResultSet rs) throws SQLException
 	{
 		// note that the getInt method returns 0 if the value of the 

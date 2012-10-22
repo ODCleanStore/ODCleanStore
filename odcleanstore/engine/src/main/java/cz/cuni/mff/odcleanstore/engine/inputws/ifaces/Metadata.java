@@ -6,7 +6,8 @@ import java.io.Serializable;
  *  @author Petr Jerman
  */
 public class Metadata implements Serializable {
-	private static final long serialVersionUID = 1L;
+	
+	private static final long serialVersionUID = 2014030287306465839L;
 	
 	public String uuid;
 	public String[] publishedBy;
@@ -15,4 +16,5 @@ public class Metadata implements Serializable {
 	public String dataBaseUrl;
 	public String provenance;
 	public String pipelineName;
+	public String updateTag;
 }

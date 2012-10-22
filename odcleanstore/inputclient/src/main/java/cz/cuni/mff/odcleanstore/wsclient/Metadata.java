@@ -19,7 +19,8 @@ public final class Metadata {
 	private URI dataBaseUrl;
 	private String provenance;
 	private String pipelineName;
-
+	private String updateTag;
+	
 	/**
 	 * Get uuid of insert operation.
 	 * @return uuid
@@ -115,5 +116,21 @@ public final class Metadata {
 	 */
 	public void setPipelineName(String value) {
 		this.pipelineName = value;
+	}
+	
+	/**
+	 * Get optional name for identify update of same source.
+	 * @return name for identify update of same source
+	 */
+	public String getUpdateTag() {
+		return updateTag;
+	}
+
+	/**
+	 * Set optional name for identify update of same source.
+	 * @param value name for identify update of same source
+	 */
+	public void setUpdateTag(String value) {
+		this.updateTag = value;
 	}
 }

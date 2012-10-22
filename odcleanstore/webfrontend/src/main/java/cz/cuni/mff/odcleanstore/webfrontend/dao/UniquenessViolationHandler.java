@@ -2,6 +2,13 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao;
 
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.UniquenessViolationException;
 
+/**
+ * Handles DAO exceptions thrown when trying to insert a row which would
+ * violate a uniqueness constraint.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class UniquenessViolationHandler extends DaoExceptionHandler 
 {
 	private static final long serialVersionUID = 1L;

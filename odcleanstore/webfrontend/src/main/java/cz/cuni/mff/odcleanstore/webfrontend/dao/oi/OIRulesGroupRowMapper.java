@@ -6,6 +6,12 @@ import java.sql.SQLException;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.CustomRowMapper;
 
+/**
+ * The OI rules group Row Mapper.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class OIRulesGroupRowMapper extends CustomRowMapper<OIRulesGroup>
 {
 	private static final long serialVersionUID = 1L;

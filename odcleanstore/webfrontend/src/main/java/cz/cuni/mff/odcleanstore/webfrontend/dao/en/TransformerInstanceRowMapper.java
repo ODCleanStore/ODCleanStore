@@ -6,11 +6,15 @@ import java.sql.SQLException;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.CustomRowMapper;
 
+/**
+ * The Transformer instance Row Mapper.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class TransformerInstanceRowMapper extends CustomRowMapper<TransformerInstance>
 {
 	private static final long serialVersionUID = 1L;
-	
-	//private static Logger logger = Logger.getLogger(TransformerInstanceRowMapper.class);
 	
 	public TransformerInstance mapRow(ResultSet rs, int rowNum) throws SQLException 
 	{

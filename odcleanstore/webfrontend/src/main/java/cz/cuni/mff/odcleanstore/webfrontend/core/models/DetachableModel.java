@@ -3,7 +3,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.core.models;
 import org.apache.wicket.model.LoadableDetachableModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoSortableDataProvidable;
 
 /**
  * A BO encapsulated into a loadable detachable model.
@@ -16,7 +16,7 @@ public class DetachableModel<BO extends EntityWithSurrogateKey> extends Loadable
 {
 	private static final long serialVersionUID = 1L;
 	
-	private DaoForEntityWithSurrogateKey<BO> dao;
+	private DaoSortableDataProvidable<BO> dao;
 	private BO item;
 	private Integer id;
 	
@@ -25,7 +25,7 @@ public class DetachableModel<BO extends EntityWithSurrogateKey> extends Loadable
 	 * @param dao
 	 * @param id
 	 */
-	public DetachableModel(DaoForEntityWithSurrogateKey<BO> dao, Integer id)
+	public DetachableModel(DaoSortableDataProvidable<BO> dao, Integer id)
 	{
 		this.dao = dao;
 		this.id = id;
@@ -36,7 +36,7 @@ public class DetachableModel<BO extends EntityWithSurrogateKey> extends Loadable
 	 * @param dao
 	 * @param item
 	 */
-	public DetachableModel(DaoForEntityWithSurrogateKey<BO> dao, BO item)
+	public DetachableModel(DaoSortableDataProvidable<BO> dao, BO item)
 	{
 		this.item = item;
 		

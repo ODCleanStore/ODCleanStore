@@ -14,58 +14,57 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.Mapping;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.Ontology;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.RelationType;
 import cz.cuni.mff.odcleanstore.webfrontend.core.AuthorizationHelper;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DetachableAutoCompleteTextField;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.onto.OntologyMappingDao;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.onto.RelationTypeDao;
 import cz.cuni.mff.odcleanstore.webfrontend.validators.JenaURIValidator;
 
 @AuthorizeInstantiation({ Role.ONC })
-public class AddMappingPage extends FrontendPage {
-	
+public class AddMappingPage extends MappingsListPage 
+{	
 	private static final long serialVersionUID = 1L;
 	private static Logger logger = Logger.getLogger(AddMappingPage.class);
-	private OntologyMappingDao mappingDao;
 	
-	private String sourceUri;
-	private String targetUri;
-	private String relationType;
+	private RelationTypeDao relationTypeDao;
 
-	public AddMappingPage(Ontology sourceOntology, String targetOntoGraphName) {
+	public AddMappingPage(Ontology sourceOntology, String targetOntoGraphName) 
+	{
 		super(
 			"Home > Ontologies > Mapping > Add mapping", 
-			"Ontologies mapping - add mapping"
+			"Ontologies mapping - add mapping",
+			sourceOntology.getId()
 		);
 		
-		// prepare DAO objects
-		//
-		mappingDao = daoLookupFactory.getDao(OntologyMappingDao.class);
-		
-		// register page components
-		//
 		if (!AuthorizationHelper.isAuthorizedForEntityEditing(sourceOntology)) 
 		{
 			throw new UnauthorizedInstantiationException(getClass());
 		}
+		
+		// prepare DAO objects
+		//
+		relationTypeDao =  daoLookupFactory.getDao(RelationTypeDao.class);
+		
+		// register page components
+		//
 		addHelpWindow(new OntologyMappingHelpPanel("content"));
 		addMappingForm(sourceOntology, targetOntoGraphName);
 	}
 
 	private void addMappingForm(final Ontology sourceOntology, final String targetOntoGraphName)
 	{
-		Form<AddMappingPage> form = new Form<AddMappingPage>(
-			"addMappingForm", new CompoundPropertyModel<AddMappingPage>(this))
+		Form<Mapping> form = new Form<Mapping>("addMappingForm", new CompoundPropertyModel<Mapping>(new Mapping()))
 		{
 			private static final long serialVersionUID = 1L;
 			
 			@Override
 			protected void onSubmit()
-			{
+			{	
 				try 
 				{
-					mappingDao.addMapping(sourceOntology.getId(), sourceUri, relationType, targetUri);
+					mappingDao.addMapping(sourceOntology.getId(), getModelObject());
 				} catch (Exception e) 
 				{	
 					logger.error(e.getMessage(), e);
@@ -129,7 +128,7 @@ public class AddMappingPage extends FrontendPage {
 
 			@Override
 			protected List<String> load() {
-				List<RelationType> typeList = mappingDao.loadAll();
+				List<RelationType> typeList = relationTypeDao.loadAll();
 				List<String> uriList = new ArrayList<String>();
 				for (RelationType type: typeList)
 				{

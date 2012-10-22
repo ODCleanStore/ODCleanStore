@@ -7,6 +7,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.CompiledDNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRenameTemplateInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRenameTemplateInstanceCompiler;
 
+/**
+ * The DN rename template instance DAO.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class DNRenameTemplateInstanceDao extends DNTemplateInstanceDao<DNRenameTemplateInstance>
 {
 	private static final long serialVersionUID = 1L;
@@ -15,6 +21,9 @@ public class DNRenameTemplateInstanceDao extends DNTemplateInstanceDao<DNRenameT
 	
 	private ParameterizedRowMapper<DNRenameTemplateInstance> rowMapper;
 
+	/**
+	 * 
+	 */
 	public DNRenameTemplateInstanceDao()
 	{
 		this.rowMapper = new DNRenameTemplateInstanceRowMapper();
@@ -67,6 +76,11 @@ public class DNRenameTemplateInstanceDao extends DNTemplateInstanceDao<DNRenameT
 		});
 	}
 	
+	/**
+	 * 
+	 * @param item
+	 * @throws Exception
+	 */
 	public void update(DNRenameTemplateInstance item) throws Exception
 	{
 		String query =

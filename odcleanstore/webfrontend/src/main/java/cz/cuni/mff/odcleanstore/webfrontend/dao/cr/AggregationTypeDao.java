@@ -5,6 +5,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
+/**
+ * The Aggregation type DAO.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class AggregationTypeDao extends DaoForEntityWithSurrogateKey<AggregationType>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "CR_AGGREGATION_TYPES";
@@ -13,6 +19,9 @@ public class AggregationTypeDao extends DaoForEntityWithSurrogateKey<Aggregation
 	
 	private ParameterizedRowMapper<AggregationType> rowMapper;
 	
+	/**
+	 * 
+	 */
 	public AggregationTypeDao()
 	{
 		this.rowMapper = new AggregationTypeRowMapper();

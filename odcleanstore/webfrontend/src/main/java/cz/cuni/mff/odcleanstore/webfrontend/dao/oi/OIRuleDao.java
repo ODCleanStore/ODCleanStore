@@ -6,6 +6,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.AbstractRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.CommittableDao;
 
+/**
+ * The OI rule DAO.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @CommittableDao(OIRuleUncommittedDao.class)
 public class OIRuleDao extends AbstractRuleDao<OIRule>
 {
@@ -15,6 +21,9 @@ public class OIRuleDao extends AbstractRuleDao<OIRule>
 	
 	private ParameterizedRowMapper<OIRule> rowMapper;
 	
+	/**
+	 * 
+	 */
 	public OIRuleDao()
 	{
 		this.rowMapper = new OIRuleRowMapper();

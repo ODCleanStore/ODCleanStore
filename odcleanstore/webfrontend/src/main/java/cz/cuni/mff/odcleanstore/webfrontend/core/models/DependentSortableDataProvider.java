@@ -10,6 +10,7 @@ import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoSortableDataProvidable;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
 
 /**
@@ -28,7 +29,7 @@ public class DependentSortableDataProvider<BO extends EntityWithSurrogateKey> ex
 {
 	private static final long serialVersionUID = 1L;
 	
-	private DaoForEntityWithSurrogateKey<BO> dao;
+	private DaoSortableDataProvidable<BO> dao;
 	private List<BO> data;
 	private QueryCriteria criteria;
 	
@@ -37,7 +38,7 @@ public class DependentSortableDataProvider<BO extends EntityWithSurrogateKey> ex
 	 * @param dao
 	 * @param constraints
 	 */
-	public DependentSortableDataProvider(DaoForEntityWithSurrogateKey<BO> dao, Object... constraints)
+	public DependentSortableDataProvider(DaoSortableDataProvidable<BO> dao, Object... constraints)
 	{
 		this(dao, "id", constraints);
 	}
@@ -59,7 +60,7 @@ public class DependentSortableDataProvider<BO extends EntityWithSurrogateKey> ex
 	 * @param defaultSortColumnName
 	 * @param constraints
 	 */
-	public DependentSortableDataProvider(DaoForEntityWithSurrogateKey<BO> dao, String defaultSortColumnName,
+	public DependentSortableDataProvider(DaoSortableDataProvidable<BO> dao, String defaultSortColumnName,
 		Object... constraints)
 	{
 		setSort(defaultSortColumnName, SortOrder.ASCENDING);
@@ -81,7 +82,7 @@ public class DependentSortableDataProvider<BO extends EntityWithSurrogateKey> ex
 	 * @param defaultSortColumnName
 	 * @param criteria
 	 */
-	public DependentSortableDataProvider(DaoForEntityWithSurrogateKey<BO> dao, String defaultSortColumnName,
+	public DependentSortableDataProvider(DaoSortableDataProvidable<BO> dao, String defaultSortColumnName,
 			QueryCriteria criteria)
 	{
 		setSort(defaultSortColumnName, SortOrder.ASCENDING);

@@ -397,6 +397,9 @@ import java.util.TreeSet;
                     } else if (ODCS.license.equals(property)) {
                         String object = resultSet.getString(valueIndex);
                         graphMetadata.setLicences(addToListNullProof(object, graphMetadata.getLicences()));
+                    } else if (ODCS.updateTag.equals(property)) {
+                        String updateTag = resultSet.getString(valueIndex);
+                        graphMetadata.setUpdateTag(updateTag);
                     }
                 } catch (SQLException e) {
                     LOG.warn("Query Execution: invalid metadata for graph {}", namedGraphURI);

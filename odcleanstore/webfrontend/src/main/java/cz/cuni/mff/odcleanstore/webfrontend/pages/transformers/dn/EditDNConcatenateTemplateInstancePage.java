@@ -10,8 +10,8 @@ import org.apache.wicket.model.IModel;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNConcatenateTemplateInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.LimitedEditingForm;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.CompiledDNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNConcatenateTemplateInstanceDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
@@ -23,7 +23,7 @@ public class EditDNConcatenateTemplateInstancePage extends LimitedEditingPage
 	private static Logger logger = Logger.getLogger(NewDNConcatenateTemplateInstancePage.class);
 	
 	private DNConcatenateTemplateInstanceDao dnConcatenateTemplateInstanceDao;
-	private CompiledDNRuleDao compiledDNRuleDao;
+	private DNRuleDao dnRuleDao;
 	
 	public EditDNConcatenateTemplateInstancePage(final Integer ruleId) 
 	{
@@ -37,7 +37,7 @@ public class EditDNConcatenateTemplateInstancePage extends LimitedEditingPage
 		// prepare DAO objects
 		//
 		this.dnConcatenateTemplateInstanceDao = daoLookupFactory.getDao(DNConcatenateTemplateInstanceDao.class);
-		this.compiledDNRuleDao = daoLookupFactory.getDao(CompiledDNRuleDao.class);
+		this.dnRuleDao = daoLookupFactory.getDao(DNRuleDao.class, true);
 		
 		// register page components
 		//
@@ -70,7 +70,7 @@ public class EditDNConcatenateTemplateInstancePage extends LimitedEditingPage
 				DNConcatenateTemplateInstance instance = this.getModelObject();
 					
 				try {
-					compiledDNRuleDao.delete(instance.getRawRuleId());
+					dnRuleDao.delete(instance.getRawRuleId());
 
 					// note that when deleting the raw rule, the template instance
 					// gets automatically deleted as well, due to on delete constraints;

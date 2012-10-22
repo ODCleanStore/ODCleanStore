@@ -6,6 +6,19 @@ import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.BusinessEntity;
 
+/**
+ * Utility base class for DAOs, implementing common methods for loading of business entities.
+ * 
+ * Child classes can override the following methods to customize behavior of the loading methods:
+ * <ul>
+ * 	<li>{@link #getSelectAndFromClause()}</li>
+ *  <li>{@link #postLoadAllBy(List)()}</li>
+ *  <li>{@link #postLoadBy(BusinessEntity)}</li>
+ * </ul>
+ * 
+ * @author Jan Michelfeit
+ * @param <T> type of business entity
+ */
 public abstract class DaoTemplate<T extends BusinessEntity> extends Dao
 {
 	private static final long serialVersionUID = 1L;
@@ -39,10 +52,10 @@ public abstract class DaoTemplate<T extends BusinessEntity> extends Dao
 	 * @return
 	 * @throws Exception 
 	 */
-	public List<T> loadAll()
+	public final List<T> loadAll()
 	{
 		String query = getSelectAndFromClause();
-		return jdbcQuery(query, getRowMapper());
+		return postLoadAllBy(jdbcQuery(query, getRowMapper()));
 	}
 	
 	/**
@@ -51,14 +64,14 @@ public abstract class DaoTemplate<T extends BusinessEntity> extends Dao
 	 * @param value
 	 * @return
 	 */
-	public List<T> loadAllBy(String columnName, Object value)
+	public final List<T> loadAllBy(String columnName, Object value)
 	{
 		String query = getSelectAndFromClause() + " WHERE " + columnName + " = ?";
 		Object[] params = { value };
 		
 		logger.debug("value: " + value);
 		
-		return jdbcQuery(query, params, getRowMapper());
+		return postLoadAllBy(jdbcQuery(query, params, getRowMapper()));
 	}
 	
 	/**
@@ -66,7 +79,7 @@ public abstract class DaoTemplate<T extends BusinessEntity> extends Dao
 	 * @param criteria
 	 * @return
 	 */
-	public List<T> loadAllBy(QueryCriteria criteria)
+	public final List<T> loadAllBy(QueryCriteria criteria)
 	{
 		String query = 
 			getSelectAndFromClause() +
@@ -75,26 +88,58 @@ public abstract class DaoTemplate<T extends BusinessEntity> extends Dao
 		
 		Object[] params = criteria.buildWhereClauseParams();
 		
-		return jdbcQuery(query, params, getRowMapper());
+		return postLoadAllBy(jdbcQuery(query, params, getRowMapper()));
 	}
 	
-	protected T loadBy(String columnName, Object value)
+	/**
+	 * Method called after list of items is loaded.
+	 * Override this method in order to perform additional actions (such as additional data loading). 
+	 * loadAll* methods will then return value modified by this method.
+	 * @param items items as loaded from database
+	 * @return modified values
+	 */
+	protected List<T> postLoadAllBy(List<T> items) {
+		return items;
+	}
+	
+	public final T loadBy(String columnName, Object value)
 	{
 		String selectAndFromClause = getSelectAndFromClause();
-		if (selectAndFromClause.startsWith("SELECT")) 
+		StringBuilder query = new StringBuilder();
+		if (selectAndFromClause.startsWith("SELECT") || selectAndFromClause.startsWith("select")) 
 		{
-			selectAndFromClause = "SELECT TOP 1 " + selectAndFromClause.substring("SELECT".length());
+			query.append("SELECT TOP 1 ");
+			query.append(selectAndFromClause.substring("SELECT".length()));
+		} 
+		else 
+		{
+			query.append(selectAndFromClause);
 		}
-		String query = selectAndFromClause + " WHERE " + columnName + " = ?";
+		query.append(" WHERE ");
+		query.append(columnName);
+		query.append(" = ?");
 		
 		Object[] params = { value };
 		
 		logger.debug("value: " + value);
 		
-		return (T) jdbcQueryForObject(query, params, getRowMapper());
+		T result = (T) jdbcQueryForObject(query.toString(), params, getRowMapper()); 
+		return postLoadBy(result);
 	}
 	
-	protected void copyBetweenTablesBy(String fromTable, String toTable, String byColumn, Object byValue) throws Exception
+	/**
+	 * Method called after a single item is loaded.
+	 * Override this method in order to perform additional actions (such as additional data loading). 
+	 * {@link #loadBy(String, Object)} will then return value modified by this method.
+	 * @param item item as loaded from database
+	 * @return modified value
+	 * @see #loadBy(String, Object)
+	 */
+	protected T postLoadBy(T item) {
+		return item;
+	}
+	
+	protected final void copyBetweenTablesBy(String fromTable, String toTable, String byColumn, Object byValue) throws Exception
 	{
 		String deleteQuery = "DELETE FROM " + toTable + " WHERE " + byColumn + " = ?";
 		jdbcUpdate(deleteQuery, byValue);

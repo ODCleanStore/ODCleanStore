@@ -10,6 +10,14 @@ import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import java.math.BigDecimal;
 
+/**
+ * An abstract parent of all row mappers used throughout the DAO layer.
+ * Provides some utility methods.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ * @param <T> the BO to be returned
+ */
 public abstract class CustomRowMapper<T> implements ParameterizedRowMapper<T>, Serializable
 {
 	private static final long serialVersionUID = 1L;
@@ -17,6 +25,8 @@ public abstract class CustomRowMapper<T> implements ParameterizedRowMapper<T>, S
 	protected static Logger logger = Logger.getLogger(CustomRowMapper.class);
 
 	/**
+	 * Accepts the value of a blob attribute and returns its value represented
+	 * as a String. Handles empty blobs correctly (returns an empty String).
 	 * 
 	 * @param blob
 	 * @return
@@ -40,6 +50,8 @@ public abstract class CustomRowMapper<T> implements ParameterizedRowMapper<T>, S
 	}
 	
 	/**
+	 * Returns the value of the given column from the given result set
+	 * converted to double. Handles null values correctly (returns null).
 	 * 
 	 * @param rs
 	 * @param columnName
@@ -56,6 +68,8 @@ public abstract class CustomRowMapper<T> implements ParameterizedRowMapper<T>, S
 	}
 	
 	/**
+	 * Returns the value of the given column from the given result set
+	 * converted to BigDecimal. Handles null values correctly (returns null).
 	 * 
 	 * @param rs
 	 * @param columnName
@@ -72,6 +86,8 @@ public abstract class CustomRowMapper<T> implements ParameterizedRowMapper<T>, S
 	}
 	
 	/**
+	 * Returns the value of the given column from the given result set
+	 * converted to integer. Handles null values correctly (returns null).
 	 * 
 	 * @param rs
 	 * @param columnName

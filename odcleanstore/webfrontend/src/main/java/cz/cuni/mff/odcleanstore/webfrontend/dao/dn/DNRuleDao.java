@@ -6,6 +6,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.AbstractRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.CommittableDao;
 
+/**
+ * The DN rule DAO for uncommitted DN rules.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @CommittableDao(DNRuleUncommittedDao.class)
 public class DNRuleDao extends AbstractRuleDao<DNRule>
 {
@@ -15,6 +21,9 @@ public class DNRuleDao extends AbstractRuleDao<DNRule>
 	
 	private ParameterizedRowMapper<DNRule> rowMapper;
 	
+	/**
+	 * 
+	 */
 	public DNRuleDao()
 	{
 		this.rowMapper = new DNRuleRowMapper();

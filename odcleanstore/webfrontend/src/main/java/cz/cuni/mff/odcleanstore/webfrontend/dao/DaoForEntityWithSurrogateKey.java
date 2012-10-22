@@ -3,7 +3,21 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao;
 import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
-public abstract class DaoForEntityWithSurrogateKey<T extends EntityWithSurrogateKey> extends DaoTemplate<T>
+/**
+ * Base class for DAOs for business objects with unique ids. 
+ * Provides utility classes for loading, deleting and saving. 
+ * 
+ * Child classes can override the following methods to customize behavior:
+ * <ul>
+ * 	<li>{@link #deleteRaw(Integer)}</li>
+ *  <li>{@link #load(Integer)}</li>
+ *  <li>{@link #save(EntityWithSurrogateKey)}</li>
+ * </ul>
+ * 
+ * @author Jan Michelfeit
+ * @param <T> type of manipulated business object
+ */
+public abstract class DaoForEntityWithSurrogateKey<T extends EntityWithSurrogateKey> extends DaoTemplate<T> implements DaoSortableDataProvidable<T>
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -28,12 +42,12 @@ public abstract class DaoForEntityWithSurrogateKey<T extends EntityWithSurrogate
 		return loadBy(KEY_COLUMN, id);
 	}
 	
-	public void delete(T item) throws Exception
+	public final void delete(T item) throws Exception
 	{
 		deleteRaw(item.getId());
 	}
 	
-	public void delete(Integer id) throws Exception
+	public final void delete(Integer id) throws Exception
 	{
 		deleteRaw(id);
 	}
@@ -63,7 +77,7 @@ public abstract class DaoForEntityWithSurrogateKey<T extends EntityWithSurrogate
 	 * @return last assigned identity column value
 	 * @throws Exception
 	 */
-	protected int getLastInsertId() throws Exception
+	protected final int getLastInsertId() throws Exception
 	{
 		String query = "SELECT identity_value()";
 		return jdbcQueryForInt(query);
