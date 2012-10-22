@@ -1,14 +1,18 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.en;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.io.File;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.configuration.EngineConfig;
+import cz.cuni.mff.odcleanstore.data.EnumDatabaseInstance;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.InputGraph;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.CustomRowMapper;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
 
@@ -77,21 +81,46 @@ public class InputGraphDao extends DaoForEntityWithSurrogateKey<InputGraph> {
 		
 		return jdbcQuery(query, param, getRowMapper());
 	}
+	
+	private String getDirName(EnumDatabaseInstance instance) {
+		EngineConfig config = ConfigLoader.getConfig().getEngineGroup();
+
+		return instance == EnumDatabaseInstance.CLEAN ? config.getCleanImportExportDir() : config.getDirtyImportExportDir();
+	}
+	
+	private File getDumpFile(InputGraph inputGraph) {
+		File file = new File(getDirName(inputGraph.isInCleanDB ? EnumDatabaseInstance.CLEAN : EnumDatabaseInstance.DIRTY), inputGraph.UUID + "-" + UUID.randomUUID());
+
+		file.deleteOnExit();
+
+		return file;
+	}
 
 	public String getContent(InputGraph inputGraph) throws Exception {
 		String query =
-				"SPARQL define output:format 'RDF/XML' SELECT * WHERE {GRAPH ?? {?s ?p ?o}}";
+				"CALL dump_graph_ttl(?, ?)";
 		
-		Object[] param = { ODCSInternal.dataGraphUriPrefix + inputGraph.UUID };
+		File file = getDumpFile(inputGraph);
+
+		String filename = file.getAbsolutePath().replace("\\", "/");
 		
-		return jdbcQueryForObject(query, param, new CustomRowMapper<String>() {
-
-			private static final long serialVersionUID = 1L;
-
-			public String mapRow(ResultSet rs, int rowNum) throws SQLException {
-				return blobToString(rs.getBlob(1));
+		try {
+			Object[] param = { ODCSInternal.dataGraphUriPrefix + inputGraph.UUID, filename };
+		
+			jdbcUpdate(query, param);
+			
+			StringBuilder content = new StringBuilder();
+			
+			for (String line : Files.readAllLines(file.toPath(), Charset.defaultCharset())) {
+				content.append(line);
+				content.append("\n");
 			}
 			
-		}, inputGraph.getDatabaseInstance());
+			return content.toString();
+		} finally {
+			file.delete();
+		}
+		
+		
 	}
 }
