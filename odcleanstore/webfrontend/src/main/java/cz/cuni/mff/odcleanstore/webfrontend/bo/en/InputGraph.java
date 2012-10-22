@@ -39,4 +39,50 @@ public class InputGraph extends EntityWithSurrogateKey {
 		this.pipelineLabel = pipelineLabel;
 		this.stateLabel = stateLabel;
 	}
+	
+
+	public String getUUID()
+	{
+		return UUID;
+	}
+
+	public Integer getStateId()
+	{
+		return stateId;
+	}
+
+	public Boolean getIsInCleanDB()
+	{
+		return isInCleanDB;
+	}
+
+	public Integer getEngineId()
+	{
+		return engineId;
+	}
+
+	public Integer getPipelineId()
+	{
+		return pipelineId;
+	}
+
+	public Timestamp getUpdated()
+	{
+		return updated;
+	}
+
+	public String getEngineUUID()
+	{
+		return engineUUID;
+	}
+
+	public String getPipelineLabel()
+	{
+		return pipelineLabel;
+	}
+
+	public String getStateLabel()
+	{
+		return stateLabel;
+	}
 }

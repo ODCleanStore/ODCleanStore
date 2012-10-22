@@ -2,6 +2,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.en;
 
 import org.apache.log4j.Logger;
 
+import cz.cuni.mff.odcleanstore.model.EnumGraphState;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 
 public class EngineOperationsDao extends Dao
@@ -9,32 +10,6 @@ public class EngineOperationsDao extends Dao
 	private static final long serialVersionUID = 1L;
 
 	public enum RULES_GROUPS_TYPE { OI, QA, DN };
-	
-	/** 
-	 * Enum with some graph states (note that not all states are included).
-	 */
-	private enum EnumGraphState {
-		QUEUED {
-			public String toString() {
-				 return "QUEUED";
-			}
-		},
-		QUEUED_FOR_DELETE {
-			public String toString() {
-				 return "QUEUED_FOR_DELETE";
-			}
-		},
-		FINISHED {
-			public String toString() {
-				 return "FINISHED";
-			}
-		},
-		WRONG {
-			public String toString() {
-				 return "WRONG";
-			}
-		}
-	}
 	
 	private static final String INPUT_GRAPHS_TABLE_NAME = Dao.TABLE_NAME_PREFIX + "EN_INPUT_GRAPHS";
 	private static final String INPUT_GRAPHS_STATES_TABLE_NAME = Dao.TABLE_NAME_PREFIX + "EN_INPUT_GRAPHS_STATES";
@@ -55,11 +30,11 @@ public class EngineOperationsDao extends Dao
 			"	pipelineId = ? AND " +
 			"	stateId = (SELECT id FROM " + INPUT_GRAPHS_STATES_TABLE_NAME + " WHERE label = ?)";
 		
-		Object[] params = { EnumGraphState.QUEUED.toString(), pipelineId, EnumGraphState.FINISHED.toString() };
+		Object[] params = { EnumGraphState.QUEUED.name(), pipelineId, EnumGraphState.FINISHED.name() };
 		
-		logger.debug("queued state label: " + EnumGraphState.QUEUED);
+		logger.debug("queued state label: " + EnumGraphState.QUEUED.name());
 		logger.debug("pipeline id: " + pipelineId);
-		logger.debug("finished state label: " + EnumGraphState.FINISHED);
+		logger.debug("finished state label: " + EnumGraphState.FINISHED.name());
 		
 		jdbcUpdate(query, params);
 	}
@@ -86,10 +61,10 @@ public class EngineOperationsDao extends Dao
 			"		WHERE (RA.groupId = ?) " +
 			"	)";
 		
-		Object[] params = { EnumGraphState.QUEUED.toString(), EnumGraphState.FINISHED.toString(), groupId };
+		Object[] params = { EnumGraphState.QUEUED.name(), EnumGraphState.FINISHED.name(), groupId };
 		
-		logger.debug("queued state label: " + EnumGraphState.QUEUED);
-		logger.debug("finished state label: " + EnumGraphState.FINISHED);
+		logger.debug("queued state label: " + EnumGraphState.QUEUED.name());
+		logger.debug("finished state label: " + EnumGraphState.FINISHED.name());
 		logger.debug("group id: " + groupId);
 		
 		jdbcUpdate(query, params);
@@ -110,7 +85,7 @@ public class EngineOperationsDao extends Dao
 		
 		logger.debug("graph id: " + graphId);
 		
-		jdbcUpdate(query, EnumGraphState.QUEUED.toString(), graphId, EnumGraphState.FINISHED.toString());
+		jdbcUpdate(query, EnumGraphState.QUEUED.name(), graphId, EnumGraphState.FINISHED.name());
 	}
 	
 	
@@ -129,6 +104,6 @@ public class EngineOperationsDao extends Dao
 		
 		logger.debug("graph id: " + graphId);
 		
-		jdbcUpdate(query, EnumGraphState.QUEUED_FOR_DELETE.toString(), graphId, EnumGraphState.FINISHED.toString(), EnumGraphState.WRONG.toString());
+		jdbcUpdate(query, EnumGraphState.QUEUED_FOR_DELETE.name(), graphId, EnumGraphState.FINISHED.name(), EnumGraphState.WRONG.name());
 	}
 }

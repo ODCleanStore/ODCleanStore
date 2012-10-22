@@ -8,6 +8,7 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 
+import cz.cuni.mff.odcleanstore.model.EnumGraphState;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.GraphInError;
@@ -127,7 +128,7 @@ public class GraphsInErrorListPage extends FrontendPage {
 			}
 		});
 		
-		criteria.addWhereClause("iState.label", "WRONG");
+		criteria.addWhereClause("iState.label", EnumGraphState.WRONG.name());
 		
 		data = new DependentSortableDataProvider<GraphInError>(graphInErrorDao, "uuid",
 			criteria);

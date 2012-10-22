@@ -10,6 +10,7 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.CompoundPropertyModel;
 
+import cz.cuni.mff.odcleanstore.model.EnumGraphState;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.InputGraph;
@@ -91,9 +92,7 @@ public class InputGraphsPage extends FrontendPage
 					
 					@Override
 					public boolean isVisible() {
-						String[] states = {"FINISHED"};
-						
-						return Arrays.asList(states).contains(inputGraph.stateLabel);
+						return inputGraph.getStateLabel().equals(EnumGraphState.FINISHED.name());
 					}
 
 					@Override
@@ -117,9 +116,8 @@ public class InputGraphsPage extends FrontendPage
 					
 					@Override
 					public boolean isVisible() {
-						String[] states = {"FINISHED", "WRONG"};
-						
-						return Arrays.asList(states).contains(inputGraph.stateLabel);
+						return inputGraph.getStateLabel().equals(EnumGraphState.FINISHED.name()) 
+							|| inputGraph.getStateLabel().equals(EnumGraphState.WRONG.name());
 					}
 
 					@Override
