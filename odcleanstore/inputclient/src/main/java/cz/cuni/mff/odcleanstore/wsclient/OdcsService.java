@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.wsclient;
 
+import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -44,6 +45,22 @@ public final class OdcsService {
 	public void insert(String user, String password, Metadata metadata, String payload) throws InsertException {
 		Insert insert = new Insert(serviceURL);
 		insert.Run(user, password, metadata, payload);
+	}
+	
+	/**
+	 * Send insert data message to odcs-inputclient SOAP webservice.
+	 * 
+	 * @param user odcs user for message
+	 * @param password odcs user password for message
+	 * @param metadata metadata asocciated with payload
+	 * @param payloadReader Reader with payload in rdfxml or ttl format
+	 * @param payloadReaderForSize Reader for computing payload size
+	 *  
+	 * @throws InsertException Exception returned from server or client
+	 */
+	public void insert(String user, String password, Metadata metadata, Reader payloadReader, Reader payloadReaderForSize) throws InsertException {
+		Insert insert = new Insert(serviceURL);
+		insert.Run(user, password, metadata, payloadReader, payloadReaderForSize);
 	}
 }
 

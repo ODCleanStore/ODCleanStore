@@ -1,14 +1,16 @@
 package cz.cuni.mff.odcleanstore.simplescraper;
 
-import cz.cuni.mff.odcleanstore.wsclient.Metadata;
-import cz.cuni.mff.odcleanstore.wsclient.OdcsService;
-
 import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
+
+import cz.cuni.mff.odcleanstore.wsclient.Metadata;
+import cz.cuni.mff.odcleanstore.wsclient.OdcsService;
 
 /**
  * Simple odcs-inputclient webservice client for testing purposes.
@@ -41,10 +43,8 @@ public class App {
 			metadata.setPipelineName(props.getProperty("pipelineName"));
 			metadata.setUpdateTag(props.getProperty("updateTag"));
 			
-			FileInputStream fis = new FileInputStream(args[1]);
-			byte[] buf = new byte[fis.available()];
-			fis.read(buf);
-			String payload = new String(buf, "UTF-8");
+			Reader payloadReader = new InputStreamReader(new FileInputStream(args[1]), "UTF-8");
+			Reader payloadReaderForSize = new InputStreamReader(new FileInputStream(args[1]), "UTF-8");
 			
 			if (args.length > 2) {
 				FileInputStream fis2 = new FileInputStream(args[2]);
@@ -54,7 +54,7 @@ public class App {
 				metadata.setProvenance(provenancePayload);
 			}
 
-			sc.insert("scraper", "reparcs", metadata, payload);
+			sc.insert("scraper", "reparcs", metadata, payloadReader, payloadReaderForSize);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

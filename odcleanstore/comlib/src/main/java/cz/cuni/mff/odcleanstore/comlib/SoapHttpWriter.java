@@ -2,6 +2,7 @@ package cz.cuni.mff.odcleanstore.comlib;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.UUID;
@@ -41,6 +42,29 @@ public class SoapHttpWriter extends HttpWriter {
 		writer.write(elementName);
 		writer.write('>');
 	}
+
+	/**
+	 * Write XML element with elementName and escaped text.
+	 * 
+	 * @param elementName XML element name
+	 * @param text input stream reader with element text
+	 * @throws IOException
+	 */
+	public void writeSimpleXMLElement(String elementName, Reader text) throws IOException {
+		writer.write('<');
+		writer.write(elementName);
+		writer.write('>');
+		
+		int ch = -1;
+		while((ch = text.read()) != -1) {
+		 writeXMLEscapedChar(ch);
+		}
+		
+		writer.write("</");
+		writer.write(elementName);
+		writer.write('>');
+	}
+	
 	
 	/**
 	 * Write XML element with elementName and escaped uuid.
@@ -91,18 +115,28 @@ public class SoapHttpWriter extends HttpWriter {
 	private void writeXMLEscapedTextBlock(String text) throws IOException {
 		for(int i = 0; i < text.length(); i++){
 		      char c = text.charAt(i);
-		      switch(c){
+		      writeXMLEscapedChar(c);
+		   }
+	}
+	
+	/**
+	 * Write character escaped for XML.
+	 * 
+	 * @param ch char
+	 * @throws IOException
+	 */
+	private void writeXMLEscapedChar(int ch) throws IOException {
+		switch(ch){
 		      case '<': writer.write("&lt;"); break;
 		      case '>': writer.write("&gt;"); break;
 		      case '\"': writer.write("&quot;"); break;
 		      case '&': writer.write("&amp;"); break;
 		      case '\'': writer.write("&apos;"); break;
 		      default:
-		         if(c > 127 || c < 32) {
-		        	 writer.write("&#"+((int)c)+";");
+		          if(ch > 127 || ch < 32) {
+		        	 writer.write("&#"+((int)ch)+";");
 		         }else
-		        	 writer.write(c);
-		      }
-		   }
+		         writer.write(ch);
+		}
 	}
 }

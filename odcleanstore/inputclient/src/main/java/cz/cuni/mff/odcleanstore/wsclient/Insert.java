@@ -1,6 +1,8 @@
 package cz.cuni.mff.odcleanstore.wsclient;
 
 import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URL;
@@ -53,11 +55,25 @@ class Insert implements Runnable {
 	 * @throws InsertException Exception returned from server or client
 	 */
 	public void Run(String user, String password, Metadata metadata, String payload) throws InsertException {
+		Run(user, password, metadata, new StringReader(payload), new StringReader(payload));
+	}
+	
+	/**
+	 * Send insert data message to odcs-inputclient SOAP webservice.
+	 * 
+	 * @param user odcs user for message
+	 * @param password odcs user password for message
+	 * @param metadata metadata asocciated with payload
+	 * @param payloadReader payload Reader for text in rdfxml or ttl format
+	 * @param payloadReaderForSIze payload Reader for computing size of text in rdfxml or ttl format 
+	 * @throws InsertException Exception returned from server or client
+	 */
+	public void Run(String user, String password, Metadata metadata, Reader payloadReader, Reader payloadReaderForSize) throws InsertException {
 		try {		
 			// compute payload size
 			DummyOutputStream  dos = new DummyOutputStream();
 			request = new SoapHttpWriter(dos);
-			writeSoapPayload(user, password, metadata, payload);
+			writeSoapPayload(user, password, metadata, payloadReaderForSize);
 			
 			// create connection
 			socket = createClientConnection();
@@ -72,7 +88,7 @@ class Insert implements Runnable {
 			
 			// send soap request to server
 			writeHttpRequestHeader(dos.getCount());
-			writeSoapPayload(user, password, metadata, payload);
+			writeSoapPayload(user, password, metadata, payloadReader);
 			try { socket.shutdownOutput(); } catch(Exception e) {}
 			
 			// wait for response
@@ -183,7 +199,7 @@ class Insert implements Runnable {
 	 * @param payload odcs payload
 	 * @throws IOException
 	 */
-	private void writeSoapPayload(String user, String password, Metadata metadata, String payload) throws IOException {
+	private void writeSoapPayload(String user, String password, Metadata metadata, Reader payload) throws IOException {
 		request.write("<?xml version='1.0' encoding='UTF-8'?>" +
 				"<s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\"" +
 				" xmlns:i=\"http://inputws.engine.odcleanstore.mff.cuni.cz/\">" +
