@@ -1,8 +1,7 @@
 package cz.cuni.mff.odcleanstore.simplescraper;
 
+import java.io.File;
 import java.io.FileInputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -43,8 +42,6 @@ public class App {
 			metadata.setPipelineName(props.getProperty("pipelineName"));
 			metadata.setUpdateTag(props.getProperty("updateTag"));
 			
-			Reader payloadReader = new InputStreamReader(new FileInputStream(args[1]), "UTF-8");
-			Reader payloadReaderForSize = new InputStreamReader(new FileInputStream(args[1]), "UTF-8");
 			
 			if (args.length > 2) {
 				FileInputStream fis2 = new FileInputStream(args[2]);
@@ -54,7 +51,7 @@ public class App {
 				metadata.setProvenance(provenancePayload);
 			}
 
-			sc.insert("scraper", "reparcs", metadata, payloadReader, payloadReaderForSize);
+			sc.insert("scraper", "reparcs", metadata, new File(args[1]), "UTF-8");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

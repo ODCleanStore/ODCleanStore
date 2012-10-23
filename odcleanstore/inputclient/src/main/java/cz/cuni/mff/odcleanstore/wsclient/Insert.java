@@ -2,7 +2,6 @@ package cz.cuni.mff.odcleanstore.wsclient;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.io.StringReader;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URL;
@@ -44,20 +43,7 @@ class Insert implements Runnable {
 	public Insert(URL serviceURL) {
 		this.serviceURL = serviceURL;
 	}
-	
-	/**
-	 * Send insert data message to odcs-inputclient SOAP webservice.
-	 * 
-	 * @param user odcs user for message
-	 * @param password odcs user password for message
-	 * @param metadata metadata asocciated with payload
-	 * @param payload payload in rdfxml or ttl format
-	 * @throws InsertException Exception returned from server or client
-	 */
-	public void Run(String user, String password, Metadata metadata, String payload) throws InsertException {
-		Run(user, password, metadata, new StringReader(payload), new StringReader(payload));
-	}
-	
+
 	/**
 	 * Send insert data message to odcs-inputclient SOAP webservice.
 	 * 
