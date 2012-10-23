@@ -1,15 +1,12 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.en;
 
 import java.io.File;
-import java.nio.charset.Charset;
-import java.util.UUID;
 
-import org.apache.wicket.util.file.Files;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
-import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
-import cz.cuni.mff.odcleanstore.configuration.EngineConfig;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.data.EnumDatabaseInstance;
+import cz.cuni.mff.odcleanstore.data.GraphLoaderUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.InputGraph;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
@@ -69,47 +66,32 @@ public class InputGraphDao extends DaoForEntityWithSurrogateKey<InputGraph> {
 		return query;
 	}
 	
-	private String getDirName(EnumDatabaseInstance instance) {
-		EngineConfig config = ConfigLoader.getConfig().getEngineGroup();
-
-		return instance == EnumDatabaseInstance.CLEAN ? config.getCleanImportExportDir() : config.getDirtyImportExportDir();
-	}
-	
-	private File getDumpFile(InputGraph inputGraph) {
-		File file = new File(getDirName(inputGraph.isInCleanDB ? EnumDatabaseInstance.CLEAN : EnumDatabaseInstance.DIRTY), inputGraph.UUID + "-" + UUID.randomUUID());
-
-		file.deleteOnExit();
-
-		return file;
-	}
-
 	public String getContent(Integer graphId) throws Exception {
 		InputGraph inputGraph = load(graphId);
+		String graphName = ODCSInternal.dataGraphUriPrefix + inputGraph.UUID;
 		
-		String query =
-				"CALL dump_graph_ttl(?, ?)";
-		
-		File file = getDumpFile(inputGraph);
-
-		String filename = file.getAbsolutePath().replace("\\", "/");
-		
-		try {
-			Object[] param = { ODCSInternal.dataGraphUriPrefix + inputGraph.UUID, filename };
-		
-			jdbcUpdate(query, param);
+		VirtuosoConnectionWrapper connection = null;
+		File tmpFile = null;
+		try
+		{
 			
-			StringBuilder content = new StringBuilder();
+			connection = createVirtuosoConnectionWrapper(EnumDatabaseInstance.CLEAN);
+			tmpFile = GraphLoaderUtils.getImportExportTmpFile(connection, EnumDatabaseInstance.CLEAN);
+			connection.exportToTTL(tmpFile, graphName);
 			
-			for (String line : Files.readAllLines(file.toPath(), Charset.defaultCharset())) {
-				content.append(line);
-				content.append("\n");
+			// TODO
+		} 
+		finally
+		{
+			if (connection != null)
+			{
+				connection.closeQuietly();
 			}
-			
-			return content.toString();
-		} finally {
-			file.delete();
+			if (tmpFile != null) 
+			{
+				tmpFile.delete();
+			}
 		}
-		
-		
+		return null;
 	}
 }

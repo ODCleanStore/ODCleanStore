@@ -17,6 +17,9 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
+import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.data.EnumDatabaseInstance;
 import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
@@ -72,6 +75,19 @@ public abstract class Dao implements Serializable
 			return getCleanJdbcTemplate();
 		case DIRTY:
 			return getDirtyJdbcTemplate();
+		default:
+			throw new AssertionError("Unknown database instance");
+		}
+	}
+	
+	private JDBCConnectionCredentials getConnectionCredentials(EnumDatabaseInstance dbInstance)
+	{
+		switch (dbInstance)
+		{
+		case CLEAN:
+			return lookupFactory.getCleanConnectionCredentials();
+		case DIRTY:
+			return lookupFactory.getDirtyConnectionCredentials();
 		default:
 			throw new AssertionError("Unknown database instance");
 		}
@@ -313,5 +329,11 @@ public abstract class Dao implements Serializable
 	protected DaoLookupFactory getLookupFactory() 
 	{
 		return lookupFactory;
+	}
+	
+	protected VirtuosoConnectionWrapper createVirtuosoConnectionWrapper(EnumDatabaseInstance dbInstance) 
+		throws ConnectionException
+	{
+			return VirtuosoConnectionWrapper.createConnection(getConnectionCredentials(dbInstance));
 	}
 }
