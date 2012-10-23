@@ -47,7 +47,8 @@ public class DNFilterTemplateInstanceCompiler
 
 		String modification = String.format
 		(
-			"{?s ?p ?o} WHERE { ?s ?p ?o FILTER (?p = %s AND %sfn:matches(str(?o), '%s'))}", 
+			"{?s %s ?o} WHERE { ?s %s ?o FILTER (%sfn:matches(str(?o), '%s'))}", 
+			property,
 			property,
 			instance.getKeep() ? "!" : "",
 			pattern
