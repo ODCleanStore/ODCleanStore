@@ -5,7 +5,6 @@ package cz.cuni.mff.odcleanstore.shared;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.regex.Pattern;
 
 /**
  * Utility methods for working with files.
@@ -13,8 +12,6 @@ import java.util.regex.Pattern;
  */
 @SuppressWarnings("serial")
 public final class FileUtils {
-    private static final Pattern XML_PATTERN = Pattern.compile("^\\s*<(\\?xml|rdf:RDF)");
-
     /** Disable constructor for utility class. */
     private FileUtils() {
     }
@@ -132,19 +129,5 @@ public final class FileUtils {
             // CHECKSTYLE:ON
         }
         return buffer.toString();
-    }
-    
-    /**
-     * Guess serialization format of the given RDF data.
-     * The detection is a heuristic.
-     * @param src serialized RDF data
-     * @return serialization type
-     */
-    public static SerializationLanguage guessLanguage(String src) {
-        if (XML_PATTERN.matcher(src).find()) {
-            return SerializationLanguage.RDFXML;
-        } else {
-            return SerializationLanguage.N3;
-        }
     }
 }

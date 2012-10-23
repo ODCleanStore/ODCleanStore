@@ -4,9 +4,7 @@ import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.configuration.EngineConfig;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
-import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.shared.FileUtils;
-import cz.cuni.mff.odcleanstore.shared.FileUtils.DirectoryException;
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 
@@ -27,7 +25,7 @@ import java.io.Writer;
 public class GraphLoader {
     private static final Logger LOG = LoggerFactory.getLogger(GraphLoader.class);
     
-    private static final String TMP_FILE_PREFIX = "odcs-";
+    
     private EnumDatabaseInstance databaseInstance;
 
     /**
@@ -54,19 +52,19 @@ public class GraphLoader {
             connection = createConnection();
             connection.setQueryTimeout(0);
 
-            tmpFile = getTmpFile(connection);
+            tmpFile = GraphLoaderUtils.getImportExportTmpFile(connection, databaseInstance);
             outputWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpFile), Utils.DEFAULT_ENCODING));
             outputWriter.write(src);
             outputWriter.close();
             
-            switch (FileUtils.guessLanguage(src)) {
+            switch (GraphLoaderUtils.guessLanguage(src)) {
             case RDFXML:
-                connection.insertRdfXmlFromFile("", tmpFile.getAbsolutePath(), graphURI);
+                connection.insertRdfXmlFromFile(tmpFile, graphURI, "");
                 break;
             case N3:
                 // src = FileUtils.unicodeToAscii(src);
                 // output = new OutputStreamWriter(new FileOutputStream(fullFileName), "US-ASCII")
-                connection.insertN3FromFile("", tmpFile.getAbsolutePath(), graphURI);
+                connection.insertN3FromFile(tmpFile, graphURI, "");
                 break;
             default:
                 throw new AssertionError();
@@ -104,26 +102,5 @@ public class GraphLoader {
         default:
             throw new AssertionError();
         }
-    }
-
-    private File getTmpFile(VirtuosoConnectionWrapper connection) throws QueryException, DirectoryException, IOException {
-        EngineConfig config = ConfigLoader.getConfig().getEngineGroup();
-        String relativeWDDir;
-        switch (databaseInstance) {
-        case CLEAN:
-            relativeWDDir = config.getCleanImportExportDir();
-            break;
-        case DIRTY:
-            relativeWDDir = config.getDirtyImportExportDir();
-            break;
-        default:
-            throw new AssertionError();
-        }
-
-        String dirPath = FileUtils.satisfyDirectory(relativeWDDir, connection.getServerRoot());
-        dirPath = dirPath.replace('\\', '/');
-        File dir = new File(dirPath);
-
-        return File.createTempFile(TMP_FILE_PREFIX, null, dir);
     }
 }
