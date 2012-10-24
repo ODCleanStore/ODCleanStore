@@ -75,7 +75,8 @@ public class DbOdcsContext extends DbContext {
         try {
             resultSet = select(SQL.SELECT_GRAPH_RESETPIPELINEREQUEST,  graphId);
             resultSet.next();
-            return resultSet.getInt(1) != 0;
+            Integer isLocked = resultSet.getInt(2);
+            return resultSet.getInt(1) != 0 || (isLocked != 0 && isLocked != null);
         } catch (Exception e) {
             throw new DbOdcsException(SQL.ERROR_GRAPH_RESETPIPELINEREQUEST, e);
         } finally {

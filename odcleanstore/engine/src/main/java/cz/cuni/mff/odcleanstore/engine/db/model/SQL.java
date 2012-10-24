@@ -27,8 +27,6 @@ class SQL {
 			+ " LEFT JOIN ODCLEANSTORE.EN_ATTACHED_ENGINES ae ON ig.engineId = ae.id"
 			+ " LEFT JOIN ODCLEANSTORE.PIPELINES pi ON ig.pipelineId = pi.id"
 			+ " WHERE (ae.uuid = ? OR ae.uuid IS NULL) AND ig.stateId IN (%s,%s,%s,%s,%s, %s, %s)"
-			// TODO remove next line after logic in engine has been changed 
-			+ "   AND (pi.isLocked = 0 OR pi.isLocked IS NULL)"
 			+ " ORDER BY ig.stateId, ig.updated",
 			EnumGraphState.DIRTY.toId(),
 			EnumGraphState.PROPAGATED.toId(),
@@ -105,13 +103,14 @@ class SQL {
 	
 	
 	/**
-	 * Select graph resetPipelineRequest for given graphId.
+	 * Select graph resetPipelineRequest and lock flags for pipeline for given graphId.
 	 * @param first graphId
 	 */
 	static final String SELECT_GRAPH_RESETPIPELINEREQUEST =
-			  " SELECT TOP 1 resetPipelineRequest"
-			+ " FROM ODCLEANSTORE.EN_INPUT_GRAPHS"
-			+ " WHERE id = ?"; 
+			  " SELECT TOP 1 ig.resetPipelineRequest, pi.isLocked"
+			+ " FROM ODCLEANSTORE.EN_INPUT_GRAPHS ig"
+			+ " LEFT JOIN ODCLEANSTORE.PIPELINES pi ON ig.pipelineId = pi.id"
+			+ " WHERE ig.id = ?"; 
 	
 	static final String ERROR_GRAPH_RESETPIPELINEREQUEST = "Error during selecting graph resetPipelineRequest";
 
