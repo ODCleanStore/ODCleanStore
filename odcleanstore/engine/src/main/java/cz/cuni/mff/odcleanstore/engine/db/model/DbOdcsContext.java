@@ -1,5 +1,10 @@
 package cz.cuni.mff.odcleanstore.engine.db.model;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
@@ -8,10 +13,6 @@ import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.engine.db.DbContext;
 import cz.cuni.mff.odcleanstore.model.EnumGraphState;
 import cz.cuni.mff.odcleanstore.model.EnumPipelineErrorType;
-
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
 
 public class DbOdcsContext extends DbContext {
 
@@ -63,6 +64,7 @@ public class DbOdcsContext extends DbContext {
             dbGraph.isInCleanDb = resultSet.getInt(6) != 0;
             dbGraph.engineUuid = resultSet.getString(7);
             dbGraph.resetPipelineRequest = resultSet.getInt(8) != 0;
+            dbGraph.pipeline.authorId = resultSet.getInt(9);
             return dbGraph;
         }
         return null;
@@ -235,13 +237,26 @@ public class DbOdcsContext extends DbContext {
             }
             return null;
         } catch (Exception e) {
-            throw new DbOdcsException(SQL.SELECT_DEFAULT_PIPELINE, e);
+            throw new DbOdcsException(SQL.ERROR_SELECT_DEFAULT_PIPELINE, e);
+        }
+    }
+    
+    public String selectErrorMessageFromGraphInError(int graphId) throws DbOdcsException {
+        WrappedResultSet resultSet = null;
+        try {
+            resultSet = select(SQL.SELECT_GRAPH_IN_ERROR, graphId);
+            if (resultSet.next()) {
+                return  resultSet.getString(1);
+            }
+            return null;
+        } catch (Exception e) {
+            throw new DbOdcsException(SQL.ERROR_SELECT_GRAPH_IN_ERROR, e);
         }
     }
 
     public void insertGraphInError(int graphId, EnumPipelineErrorType type, String message) throws DbOdcsException {
         try {
-            execute(SQL.INSERT_GRAPH_IN_ERROR, graphId, type.toId(), message);
+        	execute(SQL.INSERT_GRAPH_IN_ERROR, graphId, type.toId(), message);
         } catch (Exception e) {
             throw new DbOdcsException(SQL.ERROR_INSERT_GRAPH_IN_ERROR, e);
         }
@@ -252,6 +267,14 @@ public class DbOdcsContext extends DbContext {
             execute(SQL.DELETE_GRAPH_IN_ERROR, graphId);
         } catch (Exception e) {
             throw new DbOdcsException(SQL.DELETE_GRAPH_IN_ERROR, e);
+        }
+    }
+    
+    public void insertPipelineResult(int graphId, int pipelineId, Integer pipelineAuthorId, boolean isExistingGraph,  boolean isSuccess, String errorMessage, Date created) throws DbOdcsException {
+        try {
+            executeNullsAlllowed(SQL.INSERT_EN_PIPELINE_RESULTS, graphId, pipelineId, pipelineAuthorId, isExistingGraph ? 1 : 0, isSuccess ? 1 : 0, errorMessage, created);
+        } catch (Exception e) {
+            throw new DbOdcsException(SQL.ERROR_INSERT_EN_PIPELINE_RESULTS, e);
         }
     }
 }

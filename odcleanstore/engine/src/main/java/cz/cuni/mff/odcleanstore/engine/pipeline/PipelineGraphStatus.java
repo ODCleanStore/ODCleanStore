@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.engine.pipeline;
 
+import java.util.Date;
 import java.util.HashSet;
 
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
@@ -187,6 +188,13 @@ public final class PipelineGraphStatus {
             	context.updateState(graph.id, EnumGraphState.QUEUED);
             } else if (state == EnumGraphState.FINISHED && isResetPipelineState) {
             	context.updateState(graph.id, EnumGraphState.QUEUED);
+            } else if (state == EnumGraphState.FINISHED) {
+            	context.insertPipelineResult(graph.id, graph.pipeline.id, graph.pipeline.authorId, isInCleanDbBeforeProcessing , true, null, new Date());
+            	context.updateState(graph.id, state);
+            } else if (state == EnumGraphState.WRONG) {
+            	String errorMessage = context.selectErrorMessageFromGraphInError(graph.id);
+            	context.insertPipelineResult(graph.id, graph.pipeline.id, graph.pipeline.authorId, isInCleanDbBeforeProcessing , false, errorMessage, new Date());
+            	context.updateState(graph.id, state);
             } else {
                 context.updateState(graph.id, state);
             }
@@ -293,7 +301,6 @@ public final class PipelineGraphStatus {
         } catch (Exception e) {
             return message;
         }
-
     }
 
     private String format(String message) {

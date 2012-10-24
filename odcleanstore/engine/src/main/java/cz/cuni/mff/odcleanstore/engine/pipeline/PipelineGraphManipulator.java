@@ -168,7 +168,7 @@ final class PipelineGraphManipulator {
 				VirtuosoConnectionWrapper dirtyConnection = null;	
 				try {
 					dirtyConnection = createDirtyConnection();
-					dirtyConnection.clearGraph(graphName);
+					dirtyConnection.dropGraph(graphName);
 				} finally {
 				    if (dirtyConnection != null) {
 				    	dirtyConnection.closeQuietly();
@@ -217,7 +217,7 @@ final class PipelineGraphManipulator {
 		try {
 			cleanConnection = createCleanConnection();
 			String clearedGraph = (prefix == null ? "" : prefix) + graph;
-			cleanConnection.clearGraph(clearedGraph);
+			cleanConnection.dropGraph(clearedGraph);
 		} finally {
 		    if (cleanConnection != null) {
 		    	cleanConnection.closeQuietly();
