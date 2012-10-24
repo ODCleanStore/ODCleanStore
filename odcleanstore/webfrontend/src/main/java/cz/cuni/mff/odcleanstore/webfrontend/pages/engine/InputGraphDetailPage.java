@@ -38,7 +38,6 @@ public class InputGraphDetailPage extends FrontendPage {
 		setDefaultModel(createModelForOverview(inputGraphDao, graphId));
 		
 		add(new Label("UUID"));
-		add(new Label("engineUUID"));
 		add(new Label("pipelineLabel"));
 		add(new StateLabel("stateLabel"));
 		add(new BooleanLabel("isInCleanDB"));
