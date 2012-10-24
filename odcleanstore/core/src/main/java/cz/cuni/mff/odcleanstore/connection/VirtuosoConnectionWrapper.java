@@ -172,7 +172,7 @@ public final class VirtuosoConnectionWrapper {
             throw new QueryException(e);
         }
     }
-  
+    
     /**
      * Executes a general SQL/SPARQL query.
      * @param query SQL/SPARQL query
@@ -185,7 +185,35 @@ public final class VirtuosoConnectionWrapper {
             PreparedStatement statement = connection.prepareStatement(query);
 
             for (int i = 0; i < objects.length; ++i) {
-                statement.setObject(i + 1, objects[i]);
+            		statement.setObject(i + 1, objects[i]);
+            }
+
+            statement.setQueryTimeout(queryTimeout);
+            statement.execute();
+            int updatedCount = statement.getUpdateCount();
+            return updatedCount < 0 ? 0 : updatedCount; 
+        } catch (SQLException e) {
+            throw new QueryException(e);
+        }
+    }
+  
+    /**
+     * Executes a general SQL/SPARQL query with nulls object allowed.
+     * @param query SQL/SPARQL query
+     * @param objects query bindings
+     * @return updated row count 
+     * @throws QueryException query error
+     */
+    public int executeNullsAllowed(String query, Object... objects) throws QueryException {
+        try {
+            PreparedStatement statement = connection.prepareStatement(query);
+
+            for (int i = 0; i < objects.length; ++i) {
+            	if (objects[i] != null) {
+            		statement.setObject(i + 1, objects[i]);
+            	} else {
+            		statement.setNull(i + 1, java.sql.Types.NULL);
+            	}
             }
 
             statement.setQueryTimeout(queryTimeout);
