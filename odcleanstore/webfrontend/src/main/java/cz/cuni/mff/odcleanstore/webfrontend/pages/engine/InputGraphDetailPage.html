@@ -7,14 +7,30 @@
 </div>
 </wicket:link>
 
-<table>
-	<tr><th>UUID</th><td><span wicket:id="UUID">uuid</span></td></tr>
-	<tr><th>Pipeline</th><td><span wicket:id="pipelineLabel">pipeline</span></td></tr>
-	<tr><th>State</th><td><span wicket:id="stateLabel">state</span></td></tr>
-	<tr><th>In Clean DB</th><td><span wicket:id="isInCleanDB">is in clean db</span></td></tr>
-	<tr><th>Updated</th><td><span wicket:id="updated">updated</span></td></tr>
-</table>
+<div class="datalistitem">
+    <strong class="block">UUID:</strong>
+    <span wicket:id="UUID">uuid</span>
+</div>
+<div class="datalistitem">
+    <strong class="block">Pipeline:</strong>
+    <span wicket:id="pipelineLabel">pipeline</span>
+</div>
+<div class="datalistitem">
+    <strong class="block">State:</strong>
+    <span wicket:id="stateLabel">state</span>
+</div>
+<div class="datalistitem">
+    <strong class="block">In clean database:</strong>
+    <span wicket:id="isInCleanDB">is in clean db</span>
+</div>
+<div class="datalistitem">
+    <strong class="block">Updated:</strong>
+    <span wicket:id="updated">updated</span>
+</div>
 
-<a wicket:id="dump" href="#">Graph content</a>
+<div>
+    <br />
+    <a wicket:id="dump" class="button" href="#">Download graph contents</a>
+</div>
 
 </wicket:extend>

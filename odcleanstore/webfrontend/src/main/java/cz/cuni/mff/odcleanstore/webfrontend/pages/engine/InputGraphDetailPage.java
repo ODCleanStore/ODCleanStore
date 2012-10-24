@@ -1,15 +1,15 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.engine;
 
+import java.io.File;
+
 import org.apache.log4j.Logger;
+import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.link.ResourceLink;
-import org.apache.wicket.request.resource.ResourceStreamResource;
-import org.apache.wicket.util.resource.FileResourceStream;
-import org.apache.wicket.util.resource.StringResourceStream;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.InputGraph;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.BooleanLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.StateLabel;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.TemporaryFileResourceLink;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TimestampLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.InputGraphDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
@@ -42,20 +42,32 @@ public class InputGraphDetailPage extends FrontendPage {
 		add(new StateLabel("stateLabel"));
 		add(new BooleanLabel("isInCleanDB"));
 		add(new TimestampLabel("updated"));
-		
-		ResourceStreamResource resource = null;
-		
-		try {
-			resource = new ResourceStreamResource(new FileResourceStream(inputGraphDao.getContentFile(graphId)));
-		} catch (Exception e) {
-			getSession().error("Cannot dump graph");
-			logger.error(e.getMessage());
+		add(createDumpDownloadLink("dump", graphId));
+	}
+	
+	private Component createDumpDownloadLink(String componentId, final Integer graphId) {
+		TemporaryFileResourceLink.ITempFileCreator fileCreator = new TemporaryFileResourceLink.ITempFileCreator()
+		{
+			private static final long serialVersionUID = 1L;
+
+			public File createTempFile()
+			{
+				try {
+		            return inputGraphDao.getContentFile(graphId);
+		        } catch (Exception e) {
+		            getSession().error("Cannot dump graph");
+		            logger.error(e.getMessage());
+		        }		
+				return null;
+			}
 			
-			resource = new ResourceStreamResource(new StringResourceStream(""));
-		}
+			public String getFileName()
+			{
+				return String.format("dump-%d.ttl", graphId);
+			}
+		};
 		
-		add(new ResourceLink<InputGraph>("dump", resource));
-		
-		//DELETE FILE?
+		TemporaryFileResourceLink<InputGraph> downloadLink = new TemporaryFileResourceLink<InputGraph>(componentId, "text/turtle", fileCreator);		
+		return downloadLink;
 	}
 }
