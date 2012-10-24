@@ -122,7 +122,6 @@ public class EngineStatePage extends FrontendPage
 				
 				item.add(new RedirectWithParamButton(GraphsInErrorListPage.class,
 						"seeMore",
-						"pipelineId",
 						graphInErrorCount.pipelineId));
 			}
 		};

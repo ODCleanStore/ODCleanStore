@@ -69,6 +69,8 @@ public class InputGraphDetailPage extends FrontendPage {
 		};
 		
 		TemporaryFileResourceLink<InputGraph> downloadLink = new TemporaryFileResourceLink<InputGraph>(componentId, "text/turtle", fileCreator) {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public boolean isVisible()
 			{

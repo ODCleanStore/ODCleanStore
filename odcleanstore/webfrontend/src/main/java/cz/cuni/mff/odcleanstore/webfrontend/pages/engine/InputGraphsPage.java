@@ -4,7 +4,6 @@ import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -13,8 +12,10 @@ import cz.cuni.mff.odcleanstore.model.EnumGraphState;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.InputGraph;
+import cz.cuni.mff.odcleanstore.webfrontend.core.AuthorizationHelper;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedLink;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.BooleanLabel;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
@@ -70,6 +71,8 @@ public class InputGraphsPage extends FrontendPage
 			@Override
 			protected void populateItem(Item<InputGraph> item) {
 				final InputGraph inputGraph = item.getModelObject(); 
+				
+				boolean isAuthorizedForPipeline = AuthorizationHelper.isAuthorizedForEntityEditing(inputGraph.getPipelineAuthorId());
 
 				item.setModel(new CompoundPropertyModel<InputGraph>(inputGraph));
 
@@ -91,18 +94,18 @@ public class InputGraphsPage extends FrontendPage
 				
 				item.add(new RedirectWithParamButton(InputGraphDetailPage.class, inputGraph.getId(), "detail"));
 				
-				item.add(new Link<InputGraph>("rerunGraph") {
+				item.add(new AuthorizedLink<InputGraph>("rerunGraph", isAuthorizedForPipeline) {
 
 					private static final long serialVersionUID = 1L;
 					
 					@Override
-					public boolean isVisible() {
+					public boolean isVisibleAuthorized() {
 						return inputGraph.getStateLabel().equals(EnumGraphState.FINISHED.name())
 							|| inputGraph.getStateLabel().equals(EnumGraphState.WRONG.name());
 					}
 
 					@Override
-					public void onClick() {
+					public void onClickAuthorized() {
 						try {
 							engineOperationsDao.rerunGraph(inputGraph.getId());
 						} catch (Exception e) {
@@ -115,20 +118,30 @@ public class InputGraphsPage extends FrontendPage
 					}
 				});
 				
-				item.add(new DeleteButton<InputGraph>(inputGraphDao, inputGraph.getId(), "graph",
-						new DeleteConfirmationMessage("graph"), InputGraphsPage.this) {
+				item.add(new AuthorizedDeleteButton<InputGraph>(inputGraphDao, inputGraph.getId(), isAuthorizedForPipeline,
+					"graph", new DeleteConfirmationMessage("graph"), InputGraphsPage.this)
+				{
 
 					private static final long serialVersionUID = 1L;
-					
+
 					@Override
-					public boolean isVisible() {
-						return inputGraph.getStateLabel().equals(EnumGraphState.FINISHED.name()) 
+					public boolean isVisible()
+					{
+						if (!isAuthorized)
+						{
+							return false;
+						}
+						return inputGraph.getStateLabel().equals(EnumGraphState.FINISHED.name())
 							|| inputGraph.getStateLabel().equals(EnumGraphState.WRONG.name());
 					}
 
 					@Override
-					public void delete() throws Exception {
-						engineOperationsDao.queueGraphForDeletion(inputGraph.getId());
+					public void delete() throws Exception
+					{
+						if (isAuthorized)
+						{
+							engineOperationsDao.queueGraphForDeletion(inputGraph.getId());
+						}
 					}
 				});
 			}

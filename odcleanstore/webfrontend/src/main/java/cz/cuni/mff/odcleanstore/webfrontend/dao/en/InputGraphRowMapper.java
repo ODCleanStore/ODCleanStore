@@ -22,6 +22,7 @@ public class InputGraphRowMapper extends CustomRowMapper<InputGraph> {
 				
 				blobToString(rs.getBlob("engineUuid")),
 				blobToString(rs.getBlob("pipelineLabel")),
+				rs.getInt("pipelineAuthorId"),
 				blobToString(rs.getBlob("stateLabel"))
 		);
 	}

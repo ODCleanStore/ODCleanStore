@@ -61,6 +61,7 @@ public class InputGraphDao extends DaoForEntityWithSurrogateKey<InputGraph>
 				"iGraph.updated AS updated, " +
 				"engine.uuid AS engineUuid, " +
 				"pipeline.label AS pipelineLabel, " +
+				"pipeline.authorId AS pipelineAuthorId, " +
 				"iState.label AS stateLabel " +
 				"FROM " +
 				INPUT_GRAPHS_TABLE_NAME + " AS iGraph JOIN " +
