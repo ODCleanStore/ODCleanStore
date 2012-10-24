@@ -70,7 +70,7 @@ public class InputGraphDao extends DaoForEntityWithSurrogateKey<InputGraph>
 		return query;
 	}
 
-	public String getContent(Integer graphId) throws Exception
+	public File getContentFile(Integer graphId) throws Exception
 	{
 		InputGraph inputGraph = load(graphId);
 		String graphName = ODCSInternal.dataGraphUriPrefix + inputGraph.UUID;
@@ -83,8 +83,6 @@ public class InputGraphDao extends DaoForEntityWithSurrogateKey<InputGraph>
 			connection = createVirtuosoConnectionWrapper(EnumDatabaseInstance.CLEAN);
 			tmpFile = GraphLoaderUtils.getImportExportTmpFile(connection, EnumDatabaseInstance.CLEAN);
 			connection.exportToTTL(tmpFile, graphName);
-
-			// TODO
 		}
 		finally
 		{
@@ -92,57 +90,8 @@ public class InputGraphDao extends DaoForEntityWithSurrogateKey<InputGraph>
 			{
 				connection.closeQuietly();
 			}
-			if (tmpFile != null)
-			{
-				tmpFile.delete(); // ?
-			}
 		}
-		return "";
+
+		return tmpFile;
 	}
-
-	/*
-	private String getDirName(EnumDatabaseInstance instance) {
-		EngineConfig config = ConfigLoader.getConfig().getEngineGroup();
-
-		return instance == EnumDatabaseInstance.CLEAN ? config.getCleanImportExportDir() : config.getDirtyImportExportDir();
-	}
-	
-	private File getDumpFile(InputGraph inputGraph) {
-		File file = new File(getDirName(inputGraph.isInCleanDB ? EnumDatabaseInstance.CLEAN : EnumDatabaseInstance.DIRTY), inputGraph.UUID + "-" + UUID.randomUUID());
-
-		file.deleteOnExit();
-
-		return file;
-	}
-
-	public String getContent(Integer graphId) throws Exception {
-		InputGraph inputGraph = load(graphId);
-		
-		String query =
-				"CALL dump_graph_ttl(?, ?)";
-		
-		File file = getDumpFile(inputGraph);
-
-		String filename = file.getAbsolutePath().replace("\\", "/");
-		
-		try {
-			Object[] param = { ODCSInternal.dataGraphUriPrefix + inputGraph.UUID, filename };
-		
-			jdbcUpdate(query, param);
-			
-			StringBuilder content = new StringBuilder();
-			
-			for (String line : Files.readAllLines(file.toPath(), Charset.defaultCharset())) {
-				content.append(line);
-				content.append("\n");
-			}
-			
-			return content.toString();
-		} finally {
-			file.delete();
-		}
-		
-		
-	}
-	*/
 }

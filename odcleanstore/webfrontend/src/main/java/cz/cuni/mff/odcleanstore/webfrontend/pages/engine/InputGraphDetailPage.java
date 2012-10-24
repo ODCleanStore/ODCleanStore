@@ -2,7 +2,12 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.engine;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.ResourceLink;
+import org.apache.wicket.request.resource.ResourceStreamResource;
+import org.apache.wicket.util.resource.FileResourceStream;
+import org.apache.wicket.util.resource.StringResourceStream;
 
+import cz.cuni.mff.odcleanstore.webfrontend.bo.en.InputGraph;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.BooleanLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.StateLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TimestampLabel;
@@ -39,19 +44,19 @@ public class InputGraphDetailPage extends FrontendPage {
 		add(new BooleanLabel("isInCleanDB"));
 		add(new TimestampLabel("updated"));
 		
-		String content = "";
+		ResourceStreamResource resource = null;
 		
-		try
-		{
-			content = inputGraphDao.getContent(graphId);
-		}
-		catch (Exception e)
-		{
+		try {
+			resource = new ResourceStreamResource(new FileResourceStream(inputGraphDao.getContentFile(graphId)));
+		} catch (Exception e) {
+			getSession().error("Cannot dump graph");
 			logger.error(e.getMessage());
-
-			getSession().error("Could not retrieve the content of the graph.");
+			
+			resource = new ResourceStreamResource(new StringResourceStream(""));
 		}
 		
-		add(new Label("dump", content));
+		add(new ResourceLink<InputGraph>("dump", resource));
+		
+		//DELETE FILE?
 	}
 }
