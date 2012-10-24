@@ -345,13 +345,13 @@ public final class VirtuosoConnectionWrapper {
     }
 
     /**
-     * Clear graph from the database.
+     * Drop graph from the database.
      * 
      * @param graphName name of the graph to clear
      * @throws QueryException query error
      */
-    public void clearGraph(String graphName) throws QueryException {
-        execute(String.format(Locale.ROOT, "SPARQL CLEAR GRAPH <%s>", graphName));
+    public void dropGraph(String graphName) throws QueryException {
+        execute(String.format(Locale.ROOT, "SPARQL DROP SILENT GRAPH <%s>", graphName));
     }
 
     /**
