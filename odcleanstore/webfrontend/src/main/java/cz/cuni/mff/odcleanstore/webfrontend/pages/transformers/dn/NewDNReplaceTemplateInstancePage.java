@@ -8,6 +8,8 @@ import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNReplaceTemplateInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RegexField;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.ReplacementField;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNReplaceTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
@@ -95,8 +97,12 @@ public class NewDNReplaceTemplateInstancePage extends LimitedEditingPage
 		};
 		
 		form.add(createIRITextfield("propertyName"));
-		form.add(createTextfield("pattern"));
-		form.add(createTextfield("replacement"));
+		
+		RegexField pattern = createRegexTextfield("pattern");
+		form.add(pattern);
+		
+		ReplacementField replacement = createReplacementTextfield("replacement", pattern);
+		form.add(replacement);
 		
 		add(form);
 	}
