@@ -7,7 +7,7 @@ import java.util.Locale;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
-import cz.cuni.mff.odcleanstore.engine.db.model.GraphStates;
+import cz.cuni.mff.odcleanstore.model.EnumGraphState;
 
 /**
  *  @author Petr Jerman
@@ -41,7 +41,7 @@ public final class InputGraphStatus {
 		VirtuosoConnectionWrapper con = null;
 		try {
 			con = VirtuosoConnectionWrapper.createConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
-			String sqlStatement = String.format(Locale.ROOT, "Select uuid from %s.EN_INPUT_GRAPHS WHERE stateId=%d", DB_SCHEMA_PREFIX, GraphStates.IMPORTING.toId());
+			String sqlStatement = String.format(Locale.ROOT, "Select uuid from %s.EN_INPUT_GRAPHS WHERE stateId=%d", DB_SCHEMA_PREFIX, EnumGraphState.IMPORTING.toId());
 			WrappedResultSet resultSet = con.executeSelect(sqlStatement);
 			LinkedList<String> retVal = new LinkedList<String>();
 			while(resultSet.next()) {
@@ -59,7 +59,7 @@ public final class InputGraphStatus {
 		VirtuosoConnectionWrapper con = null;
 		try {
 			con = VirtuosoConnectionWrapper.createConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
-			String sqlStatement = String.format(Locale.ROOT, "Delete from %s.EN_INPUT_GRAPHS WHERE stateId=%d", DB_SCHEMA_PREFIX, GraphStates.IMPORTING.toId());
+			String sqlStatement = String.format(Locale.ROOT, "Delete from %s.EN_INPUT_GRAPHS WHERE stateId=%d", DB_SCHEMA_PREFIX, EnumGraphState.IMPORTING.toId());
 			con.execute(sqlStatement);
 			con.commit();
 		} finally {
@@ -95,7 +95,7 @@ public final class InputGraphStatus {
 			}
 			String pipelineId = resultSet.getString(1);
 			
-			sqlStatement = String.format(Locale.ROOT, "Insert into %s.EN_INPUT_GRAPHS(uuid, pipelineId, stateId) VALUES('%s', '%s', %d)", DB_SCHEMA_PREFIX, graphUuid, pipelineId , GraphStates.IMPORTING.toId());
+			sqlStatement = String.format(Locale.ROOT, "Insert into %s.EN_INPUT_GRAPHS(uuid, pipelineId, stateId) VALUES('%s', '%s', %d)", DB_SCHEMA_PREFIX, graphUuid, pipelineId , EnumGraphState.IMPORTING.toId());
 			con.execute(sqlStatement);
 			con.commit();
 
@@ -116,7 +116,7 @@ public final class InputGraphStatus {
 		VirtuosoConnectionWrapper con = null;
 		try {
 			con = VirtuosoConnectionWrapper.createConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
-			String sqlStatement = String.format(Locale.ROOT, "Update %s.EN_INPUT_GRAPHS SET stateId=%d WHERE uuid='%s'", DB_SCHEMA_PREFIX, GraphStates.QUEUED.toId(), importUuid);
+			String sqlStatement = String.format(Locale.ROOT, "Update %s.EN_INPUT_GRAPHS SET stateId=%d WHERE uuid='%s'", DB_SCHEMA_PREFIX, EnumGraphState.QUEUED.toId(), importUuid);
 			con.execute(sqlStatement);
 			con.commit();
 			_actualImportingGraphUuid = null;

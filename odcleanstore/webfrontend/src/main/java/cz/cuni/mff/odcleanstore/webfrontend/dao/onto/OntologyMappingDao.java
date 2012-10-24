@@ -9,6 +9,7 @@ import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
+import cz.cuni.mff.odcleanstore.data.EnumDatabaseInstance;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.Mapping;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
@@ -108,8 +109,7 @@ public class OntologyMappingDao extends Dao
 		VirtuosoConnectionWrapper con = null;
 		try
 		{
-			con = VirtuosoConnectionWrapper.createConnection(
-					ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
+			con = createVirtuosoConnectionWrapper(EnumDatabaseInstance.CLEAN);
 			if (mapping != null)
 			{
 				con.execute(query, mapping.getSourceUri(), mapping.getRelationType(), mapping.getTargetUri());
@@ -117,7 +117,8 @@ public class OntologyMappingDao extends Dao
 			{
 				con.execute(query);
 			}
-		} finally
+		} 
+		finally
 		{
 			if (con != null)
 			{

@@ -1,0 +1,36 @@
+<wicket:extend>
+
+<wicket:link>
+<div>
+	<a class="placedright button" href="InputGraphsPage.html">Back to the list of graphs</a>
+	<div class="clear">&nbsp;</div>
+</div>
+</wicket:link>
+
+<div class="datalistitem">
+    <strong class="block">UUID:</strong>
+    <span wicket:id="UUID">uuid</span>
+</div>
+<div class="datalistitem">
+    <strong class="block">Pipeline:</strong>
+    <span wicket:id="pipelineLabel">pipeline</span>
+</div>
+<div class="datalistitem">
+    <strong class="block">State:</strong>
+    <span wicket:id="stateLabel">state</span>
+</div>
+<div class="datalistitem">
+    <strong class="block">In clean database:</strong>
+    <span wicket:id="isInCleanDB">is in clean db</span>
+</div>
+<div class="datalistitem">
+    <strong class="block">Updated:</strong>
+    <span wicket:id="updated">updated</span>
+</div>
+
+<div>
+    <br />
+    <a wicket:id="dump" class="button" href="#">Download graph contents</a>
+</div>
+
+</wicket:extend>

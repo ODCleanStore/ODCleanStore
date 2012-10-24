@@ -4,6 +4,7 @@ import java.util.Locale;
 
 import cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl;
 import cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl;
+import cz.cuni.mff.odcleanstore.model.EnumGraphState;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
 
 class SQL {
@@ -29,13 +30,13 @@ class SQL {
 			// TODO remove next line after implementation in FE will be changed
 			+ "   AND (pi.isLocked = 0 OR pi.isLocked IS NULL)"
 			+ " ORDER BY ig.stateId, ig.updated",
-			GraphStates.DIRTY.toId(),
-			GraphStates.PROPAGATED.toId(),
-			GraphStates.DELETING.toId(),
-			GraphStates.PROCESSING.toId(),
-			GraphStates.PROCESSED.toId(),
-			GraphStates.OLDGRAPHSPREFIXED.toId(),
-			GraphStates.NEWGRAPHSPREPARED.toId());
+			EnumGraphState.DIRTY.toId(),
+			EnumGraphState.PROPAGATED.toId(),
+			EnumGraphState.DELETING.toId(),
+			EnumGraphState.PROCESSING.toId(),
+			EnumGraphState.PROCESSED.toId(),
+			EnumGraphState.OLDGRAPHSPREFIXED.toId(),
+			EnumGraphState.NEWGRAPHSPREPARED.toId());
 	
 	static final String ERROR_SELECT_WORKING_GRAPH = "Error during selecting working graph";
 	
@@ -52,9 +53,9 @@ class SQL {
 			+ " WHERE (ae.uuid = ? OR ae.uuid IS NULL) AND ig.stateId IN (%s,%s,%s)"
 			+ "   AND (pi.isLocked = 0 OR pi.isLocked IS NULL)"
 			+ " ORDER BY ig.stateId, ig.updated",
-			GraphStates.QUEUED_FOR_DELETE.toId(),
-			GraphStates.QUEUED_URGENT.toId(),
-			GraphStates.QUEUED.toId());
+			EnumGraphState.QUEUED_FOR_DELETE.toId(),
+			EnumGraphState.QUEUED_URGENT.toId(),
+			EnumGraphState.QUEUED.toId());
 	
 	static final String ERROR_SELECT_QUEUD_GRAPH = "Error during selecting queued graph";
 

@@ -9,6 +9,7 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvid
 import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoSortableDataProvidable;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
 
@@ -40,6 +41,17 @@ public class DependentSortableDataProvider<BO extends EntityWithSurrogateKey> ex
 	public DependentSortableDataProvider(DaoSortableDataProvidable<BO> dao, Object... constraints)
 	{
 		this(dao, "id", constraints);
+	}
+	
+	/**
+	 * 
+	 * @param dao
+	 * @param constraints
+	 */
+	public DependentSortableDataProvider(DaoForEntityWithSurrogateKey<BO> dao, String defaultSortColumnName, SortOrder defaultSortOrder)
+	{
+		this(dao, "id");
+		setSort(defaultSortColumnName, defaultSortOrder);
 	}
 	
 	/**

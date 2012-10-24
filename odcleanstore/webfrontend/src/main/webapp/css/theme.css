@@ -80,4 +80,4 @@ form.disabledForm span.required:after { display: none; }
 .dnINSERT {background-color: rgba(0, 200, 20, 0.3);}
 .dnDELETE {background-color: rgba(200, 0, 20, 0.3);}
 
-.errorListing {white-space: pre-wrap;}
+.graphDump, .errorListing {white-space: pre-wrap;}

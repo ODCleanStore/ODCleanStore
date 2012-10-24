@@ -1,14 +1,16 @@
 /**
  * 
  */
-package cz.cuni.mff.odcleanstore.engine.db.model;
+package cz.cuni.mff.odcleanstore.model;
+
+import cz.cuni.mff.odcleanstore.connection.exceptions.ModelException;
 
 /**
  * Contains symbolic names for id of Engine EN_INPUT_GRAPHS_STATES codebook table.
  * 
  * @author Petr Jerman
  */
-public enum GraphStates {
+public enum EnumGraphState {
 
     IMPORTING,
     DIRTY,
@@ -31,11 +33,11 @@ public enum GraphStates {
         return this.ordinal() + 1;
     }
 
-    public static GraphStates fromId(int id) throws DbOdcsException {
-        GraphStates[] values = GraphStates.values();
+    public static EnumGraphState fromId(int id) throws ModelException {
+        EnumGraphState[] values = EnumGraphState.values();
         if (id < 1 || id > values.length) {
-            throw new DbOdcsException(ERROR_DECODE_GRAPH_STATE);
+            throw new ModelException(ERROR_DECODE_GRAPH_STATE);
         }
-        return GraphStates.values()[id - 1];
+        return EnumGraphState.values()[id - 1];
     }
 }
