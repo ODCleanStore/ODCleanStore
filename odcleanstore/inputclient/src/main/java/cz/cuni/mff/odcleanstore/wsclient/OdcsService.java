@@ -50,7 +50,8 @@ public final class ODCSService {
      * @param payload the actual data to be inserted serialized as RDF/XML or Turtle
      * @throws InsertException Exception returned from server or client
      */
-    public void insert(String user, String password, Metadata metadata, String payload) throws InsertException {
+    public void insert(String user, String password, Metadata metadata, String payload) 
+            throws InsertException {
         Insert insert = new Insert(serviceURL);
         insert.run(user, password, metadata, new StringReader(payload), new StringReader(payload));
     }
