@@ -5,6 +5,13 @@ import org.apache.log4j.Logger;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.NonUniquePrimaryKeyException;
 
+/**
+ * Handles DAO exceptions thrown when trying to insert a new row with
+ * a primary key that already exists in the database.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class NonUniquePrimaryKeyHandler extends DaoExceptionHandler
 {
 	private static final long serialVersionUID = 1L;

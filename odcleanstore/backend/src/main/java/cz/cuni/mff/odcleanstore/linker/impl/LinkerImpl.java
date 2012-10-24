@@ -6,14 +6,15 @@ import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
+import cz.cuni.mff.odcleanstore.data.GraphLoaderUtils;
 import cz.cuni.mff.odcleanstore.data.RDFprefix;
 import cz.cuni.mff.odcleanstore.data.TableVersion;
 import cz.cuni.mff.odcleanstore.linker.Linker;
 import cz.cuni.mff.odcleanstore.linker.rules.SilkRule;
-import cz.cuni.mff.odcleanstore.shared.FileUtils;
 import cz.cuni.mff.odcleanstore.shared.RDFPrefixesLoader;
 import cz.cuni.mff.odcleanstore.shared.SerializationLanguage;
 import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraphException;
@@ -92,9 +93,22 @@ public class LinkerImpl implements Linker {
      * @param context {@inheritDoc}
      */
 	@Override
-	public void transformNewGraph(TransformedGraph inputGraph, TransformationContext context)
+	public void transformGraph(TransformedGraph inputGraph, TransformationContext context)
 			throws TransformerException {
-		LOG.info("Linking new graph: {}", inputGraph.getGraphName());
+
+        if (context.getTransformationType() == EnumTransformationType.EXISTING) {
+            LOG.info("Linking existing graph: {}", inputGraph.getGraphName());
+            LinkerDao dao;
+            try {
+                dao = LinkerDao.getInstance(context.getCleanDatabaseCredentials(), context.getDirtyDatabaseCredentials());
+                dao.clearGraph(getLinksGraphId(inputGraph));
+            } catch (DatabaseException e) {
+                throw new TransformerException(e);
+            }
+        } else {
+            LOG.info("Linking new graph: {}", inputGraph.getGraphName());
+        }
+
 		File configFile = null;
 		try {
 			List<SilkRule> rules = loadRules(context);
@@ -126,26 +140,6 @@ public class LinkerImpl implements Linker {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @param inputGraph {@inheritDoc}
-	 * @param context {@inheritDoc}
-	 * @throws TransformerException
-	 */
-	@Override
-	public void transformExistingGraph(TransformedGraph inputGraph, TransformationContext context) throws TransformerException {
-		LOG.info("Linking existing graph: {}", inputGraph.getGraphName());
-		LinkerDao dao;
-		try {
-			dao = LinkerDao.getInstance(context.getCleanDatabaseCredentials(), context.getDirtyDatabaseCredentials());
-			dao.clearGraph(getLinksGraphId(inputGraph));
-			transformNewGraph(inputGraph, context);
-		} catch (DatabaseException e) {
-			throw new TransformerException(e);
-		}
-	}
-
 	@Override
     public void shutdown() {
     }
@@ -165,7 +159,7 @@ public class LinkerImpl implements Linker {
 		LinkerDao dao = LinkerDao.getInstance(context.getCleanDatabaseCredentials(), context.getDirtyDatabaseCredentials());
 		return dao.loadRules(groupIds, tableVersion);
 	}
-	
+
 	private List<SilkRule> loadRules(TransformationContext context)
 			throws ConnectionException, QueryException {
 		return loadRules(context, TableVersion.COMMITTED);
@@ -179,11 +173,11 @@ public class LinkerImpl implements Linker {
     public List<DebugResult> debugRules(String input, TransformationContext context, TableVersion tableVersion)
 			throws TransformerException {
 		return debugRules(stringToFile(input, context.getTransformerDirectory()), context, tableVersion,
-				FileUtils.guessLanguage(input));
+				GraphLoaderUtils.guessLanguage(input));
 	}
 
 	@Override
-    public List<DebugResult> debugRules(File inputFile, TransformationContext context, TableVersion tableVersion, 
+    public List<DebugResult> debugRules(File inputFile, TransformationContext context, TableVersion tableVersion,
     		SerializationLanguage language) throws TransformerException {
 		List<DebugResult> resultList = new ArrayList<DebugResult>();
 		File configFile = null;

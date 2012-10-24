@@ -7,6 +7,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.CompiledDNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNFilterTemplateInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNFilterTemplateInstanceCompiler;
 
+/**
+ * The DN filter template instance Row Mapper.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class DNFilterTemplateInstanceDao extends DNTemplateInstanceDao<DNFilterTemplateInstance>
 {
 	private static final long serialVersionUID = 1L;
@@ -15,6 +21,9 @@ public class DNFilterTemplateInstanceDao extends DNTemplateInstanceDao<DNFilterT
 	
 	private ParameterizedRowMapper<DNFilterTemplateInstance> rowMapper;
 
+	/**
+	 * 
+	 */
 	public DNFilterTemplateInstanceDao()
 	{
 		this.rowMapper = new DNFilterTemplateInstanceRowMapper();
@@ -69,6 +78,11 @@ public class DNFilterTemplateInstanceDao extends DNTemplateInstanceDao<DNFilterT
 		});
 	}
 	
+	/**
+	 * 
+	 * @param item
+	 * @throws Exception
+	 */
 	public void update(DNFilterTemplateInstance item) throws Exception
 	{
 		String query =

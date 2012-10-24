@@ -6,6 +6,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARulesGroup;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.AbstractRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.AbstractRulesGroupDao;
 
+/**
+ * The QA rules group DAO.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class QARulesGroupDao extends AbstractRulesGroupDao<QARulesGroup>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "QA_RULES_GROUPS";
@@ -14,6 +20,9 @@ public class QARulesGroupDao extends AbstractRulesGroupDao<QARulesGroup>
 	
 	private QARulesGroupRowMapper rowMapper;
 	
+	/**
+	 * 
+	 */
 	public QARulesGroupDao()
 	{
 		rowMapper = new QARulesGroupRowMapper();

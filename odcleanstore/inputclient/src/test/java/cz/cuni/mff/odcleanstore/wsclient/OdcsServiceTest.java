@@ -1,8 +1,8 @@
 package cz.cuni.mff.odcleanstore.wsclient;
 
-import java.io.IOException;
-
 import org.junit.Test;
+
+import java.io.IOException;
 
 /**
  *  @author Petr Jerman

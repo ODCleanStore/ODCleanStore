@@ -8,8 +8,9 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponentType;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.CustomRowMapper;
 
 /**
+ * The DN rule component Row Mapper.
  * 
- * @author Dusan
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
 public class DNRuleComponentRowMapper extends CustomRowMapper<DNRuleComponent>

@@ -3,11 +3,13 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa;
 import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.validation.validator.RangeValidator;
 
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.LimitedEditingForm;
@@ -15,6 +17,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamBut
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
+import cz.cuni.mff.odcleanstore.webfrontend.validators.QARuleValidator;
 
 @AuthorizeInstantiation({ Role.PIC })
 public class QARuleDetailPage extends LimitedEditingPage
@@ -91,7 +94,11 @@ public class QARuleDetailPage extends LimitedEditingPage
 			}
 		};
 		
-		form.add(createTextarea("filter"));
+		TextArea<String> filter = new TextArea<String>("filter");
+		filter.setRequired(true);
+		filter.add(new QARuleValidator(ConfigLoader.getConfig().getBackendGroup().getDirtyDBJDBCConnectionCredentials()));
+		form.add(filter);
+
 		addCoefficientTextfield(form);
 		form.add(createTextarea("description", false));
 		

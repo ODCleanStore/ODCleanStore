@@ -1,7 +1,5 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo.dn;
 
-import java.util.regex.Pattern;
-
 import cz.cuni.mff.odcleanstore.shared.Utils;
 
 /**
@@ -24,42 +22,36 @@ public class DNConcatenateTemplateInstanceCompiler
 	{
 		// 1. Create rule.
 		//
+		String delimiter = instance.getDelimiter();
+
+		if (delimiter == null) delimiter = "";
+
 		String description = String.format
 		(
 			"Raw form of a cancatenate rule template instance. " +
 			"Property: %s; Delimiter: '%s';", 
 			instance.getPropertyName(),
-			instance.getDelimiter()
+			delimiter
 		);
 		
 		CompiledDNRule rule = new CompiledDNRule(instance.getGroupId(), description);
 
 		// 2. Create components.
 		//
-		Pattern charsToBeRemoved = Pattern.compile("[\\x00-\\x09\\x0E-\\x1F]");
-		Pattern charsToBeEscaped = Pattern.compile("([\"'`\\\\])");
-
-		String property = instance.getPropertyName();
+		String property = Utils.escapeSPARQLLiteral(instance.getPropertyName());
 		
 		if (!Utils.isPrefixedName(property)) {
 			property = "<" + property + ">";
 		}
 		
-		property = charsToBeRemoved.matcher(property).replaceAll("");
-		property = charsToBeEscaped.matcher(property).replaceAll("\\\\$1");
-		
-		String delimiter = instance.getDelimiter();
-
-		if (delimiter == null) delimiter = "";
-		
-		delimiter = charsToBeRemoved.matcher(delimiter).replaceAll("");
-		delimiter = charsToBeEscaped.matcher(delimiter).replaceAll("\\\\$1");
+		delimiter = Utils.escapeSPARQLLiteral(delimiter);
 		
 		String modification = String.format
 		(
-			"DELETE {?s ?p ?o} INSERT {?s ?p ?c} WHERE { {SELECT ?s ?p (sql:group_concat(str(?o), '%s')) AS ?c WHERE {?s ?p ?o} GROUP BY ?s ?p HAVING COUNT(?o) > 1} {?s ?p ?o} FILTER (?p = %s)}",
-			delimiter,
-			property
+			"DELETE {?s %s ?o} INSERT {?s %s ?c} WHERE { {SELECT ?s ?p (sql:group_concat(str(?o), '%s')) AS ?c WHERE {?s ?p ?o} GROUP BY ?s ?p HAVING COUNT(?o) > 1} {?s ?p ?o} FILTER (BOUND(?c))}",
+			property,
+			property,
+			delimiter
 		);
 
 		String compDescription = "Concatenate all objects of the property.";

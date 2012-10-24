@@ -6,7 +6,12 @@ import java.sql.SQLException;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.qa.QARule;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.CustomRowMapper;
 
-
+/**
+ * The QA rule Row Mapper.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class QARuleRowMapper extends CustomRowMapper<QARule>
 {
 	private static final long serialVersionUID = 1L;

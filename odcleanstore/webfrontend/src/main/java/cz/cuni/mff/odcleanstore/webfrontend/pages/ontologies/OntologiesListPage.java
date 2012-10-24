@@ -82,11 +82,19 @@ public class OntologiesListPage extends FrontendPage
 				);
 				
 				item.add(
+					new RedirectWithParamButton(
+						MappingsListPage.class,
+						ontology.getId(),
+						"mappings"
+					)
+				);
+				
+				item.add(
 					new AuthorizedRedirectButton(
 						ChooseOntologiesPage.class,
 						ontology.getId(),
 						AuthorizationHelper.isAuthorizedForEntityEditing(ontology),
-						"ontologyMapping"
+						"createMappings"
 					)
 				);
 				

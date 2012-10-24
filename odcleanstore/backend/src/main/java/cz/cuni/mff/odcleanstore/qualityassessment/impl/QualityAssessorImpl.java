@@ -9,6 +9,7 @@ import cz.cuni.mff.odcleanstore.qualityassessment.QualityAssessor;
 import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRule;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRulesModel;
+import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
@@ -29,7 +30,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.regex.Pattern;
 
 /**
  * The default quality assessor.
@@ -199,17 +199,7 @@ public class QualityAssessorImpl implements QualityAssessor, Serializable {
 	}
 
 	@Override
-	public void transformNewGraph(TransformedGraph inputGraph,
-			TransformationContext context) throws TransformerException {
-
-		/**
-		 * Both cases involve graphs in dirty database and rules in clean database
-		 */
-		transformExistingGraph(inputGraph, context);
-	}
-
-	@Override
-	public void transformExistingGraph(TransformedGraph inputGraph,
+	public void transformGraph(TransformedGraph inputGraph,
 			TransformationContext context) throws TransformerException {
 
 		/**
@@ -312,7 +302,7 @@ public class QualityAssessorImpl implements QualityAssessor, Serializable {
 
 		return new GraphScoreWithTrace(score, rules);
 	}
-	
+
 	protected void loadRules() throws QualityAssessmentException {
 		loadRules(TableVersion.COMMITTED);
 	}
@@ -374,16 +364,16 @@ public class QualityAssessorImpl implements QualityAssessor, Serializable {
 				++violations;
 
 				if (appliedRules != null) appliedRules.add(rule);
-				
-				LOG.info(String.format("Rule %d matched%s", rule.getId(), rule.getDescription() != null ? "\n\n(" + rule.getDescription() + ")\n\n" : ""));
+
+				LOG.info(String.format("Rule %d matched%s", rule.getId(), rule.getDescription() != null ? "\n(" + rule.getDescription() + ")" : ""));
 			} else {
-				LOG.info(String.format("Rule %d did not match%s", rule.getId(), rule.getDescription() != null ? "\n\n(" + rule.getDescription() + ")\n\n" : ""));
+				LOG.info(String.format("Rule %d did not match%s", rule.getId(), rule.getDescription() != null ? "\n(" + rule.getDescription() + ")" : ""));
 			}
 		} catch (DatabaseException e) {
-			LOG.error(String.format(Locale.ROOT, "Failed to apply rule %d: %s\n\n%s\n\n%s", rule.getId(), rule.getDescription() != null ? rule.getDescription() : "", query, e.getMessage()));
+			LOG.error(String.format(Locale.ROOT, "Failed to apply rule %d: %s\n%s\n%s", rule.getId(), rule.getDescription() != null ? rule.getDescription() : "", query, e.getMessage()));
 			throw new QualityAssessmentException(e);
 		} catch (SQLException e) {
-			LOG.error(String.format(Locale.ROOT, "Failed to apply rule %d: %s\n\n%s\n\n%s", rule.getId(), rule.getDescription() != null ? rule.getDescription() : "", query, e.getMessage()));
+			LOG.error(String.format(Locale.ROOT, "Failed to apply rule %d: %s\n%s\n%s", rule.getId(), rule.getDescription() != null ? rule.getDescription() : "", query, e.getMessage()));
 			throw new QualityAssessmentException(e);
 		} finally {
 			if (results != null) {
@@ -429,13 +419,7 @@ public class QualityAssessorImpl implements QualityAssessor, Serializable {
 			Iterator<String> iterator = trace.iterator();
 
 			while (iterator.hasNext()) {
-				String escapedTrace = iterator.next();
-
-				Pattern charsToBeRemoved = Pattern.compile("[\\x00-\\x09\\x0E-\\x1F]");
-				Pattern charsToBeEscaped = Pattern.compile("([\"'`\\\\])");
-
-				escapedTrace = charsToBeRemoved.matcher(escapedTrace).replaceAll("");
-				escapedTrace = charsToBeEscaped.matcher(escapedTrace).replaceAll("\\\\$1");
+				String escapedTrace = Utils.escapeSPARQLLiteral(iterator.next());
 
 				final String storeNewScoreTrace = String.format(Locale.ROOT, storeNewScoreTraceQueryFormat,
 						metadataGraph,

@@ -7,13 +7,23 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.CompiledDNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNConcatenateTemplateInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNConcatenateTemplateInstanceCompiler;
 
-public class DNConcatenateTemplateInstanceDao extends DNTemplateInstanceDao<DNConcatenateTemplateInstance> {
+/**
+ * The DN concatenate template instance Row Mapper.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
+public class DNConcatenateTemplateInstanceDao extends DNTemplateInstanceDao<DNConcatenateTemplateInstance> 
+{
 	private static final long serialVersionUID = 1L;
 	
 	public static String TABLE_NAME = TABLE_NAME_PREFIX + "DN_CONCATENATE_TEMPLATE_INSTANCES";
 
 	private ParameterizedRowMapper<DNConcatenateTemplateInstance> rowMapper;
 
+	/**
+	 * 
+	 */
 	public DNConcatenateTemplateInstanceDao()
 	{
 		this.rowMapper = new DNConcatenateTemplateInstanceRowMapper();
@@ -66,6 +76,11 @@ public class DNConcatenateTemplateInstanceDao extends DNTemplateInstanceDao<DNCo
 		});
 	}
 	
+	/**
+	 * 
+	 * @param item
+	 * @throws Exception
+	 */
 	public void update(DNConcatenateTemplateInstance item) throws Exception
 	{
 		String query =

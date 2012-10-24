@@ -2,36 +2,32 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.en;
 
 import java.util.List;
 
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
-
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.GraphInErrorCount;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoSortableDataProvidable;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
 
-public class GraphInErrorCountDao extends DaoForEntityWithSurrogateKey<GraphInErrorCount> {
+public class GraphInErrorCountDao extends Dao implements DaoSortableDataProvidable<GraphInErrorCount> {
 
 	private static final long serialVersionUID = 1L;
 	public static final String INPUT_GRAPHS_TABLE_NAME = TABLE_NAME_PREFIX + "EN_INPUT_GRAPHS";
 	public static final String INPUT_GRAPHS_STATES_TABLE_NAME = TABLE_NAME_PREFIX + "EN_INPUT_GRAPHS_STATES";
 	public static final String PIPELINES_TABLE_NAME = TABLE_NAME_PREFIX + "PIPELINES";
+	
+	private final GraphInErrorCountRowMapper rowMapper;
+	
+	public GraphInErrorCountDao() {
+		rowMapper = new GraphInErrorCountRowMapper();
+	}
 
-	@Override
 	public String getTableName() {
 		return INPUT_GRAPHS_TABLE_NAME;
 	}
 
-	@Override
-	protected ParameterizedRowMapper<GraphInErrorCount> getRowMapper() {
-		return new GraphInErrorCountRowMapper();
+	protected GraphInErrorCountRowMapper getRowMapper() {
+		return rowMapper;
 	}
 	
-	@Override
-	protected String getSelectAndFromClause()
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public List<GraphInErrorCount> loadAllBy (QueryCriteria criteria) {
 		String query =
 			"SELECT " +
@@ -49,5 +45,10 @@ public class GraphInErrorCountDao extends DaoForEntityWithSurrogateKey<GraphInEr
 		Object[] param = criteria.buildWhereClauseParams();
 		
 		return jdbcQuery(query, param, getRowMapper());
+	}
+
+	public GraphInErrorCount load(Integer id)
+	{
+		throw new UnsupportedOperationException();
 	}
 }

@@ -7,17 +7,15 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.qe.LabelProperty;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.CustomRowMapper;
 
 /**
+ * The Label property Row Mapper.
  * 
- * @author Dusan
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
 public class LabelPropertyRowMapper extends CustomRowMapper<LabelProperty>
 {
 	private static final long serialVersionUID = 1L;
 
-	/**
-	 * 
-	 */
 	public LabelProperty mapRow(ResultSet rs, int rowNum) throws SQLException 
 	{
 		return new LabelProperty(

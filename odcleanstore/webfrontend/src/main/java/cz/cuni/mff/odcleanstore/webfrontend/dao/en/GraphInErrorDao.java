@@ -1,9 +1,8 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.en;
 
-import java.util.List;
-
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
+import cz.cuni.mff.odcleanstore.model.EnumGraphState;
 import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.GraphInError;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
@@ -11,12 +10,6 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
 
 public class GraphInErrorDao extends DaoForEntityWithSurrogateKey<GraphInError> {
 	
-	private enum EnumGraphState {
-		QUEUED, 
-		QUEUED_FOR_DELETE,
-		FINISHED
-	}
-
 	private static final long serialVersionUID = 1L;
 	public static final String GRAPHS_IN_ERROR_TABLE_NAME = TABLE_NAME_PREFIX + "EN_GRAPHS_IN_ERROR";
 	public static final String INPUT_GRAPHS_TABLE_NAME = TABLE_NAME_PREFIX + "EN_INPUT_GRAPHS";
@@ -36,19 +29,9 @@ public class GraphInErrorDao extends DaoForEntityWithSurrogateKey<GraphInError> 
 	}
 	
 	@Override
-	public List<GraphInError> loadAllBy (String column, Object value) {
-		QueryCriteria criteria = new QueryCriteria();
-		
-		criteria.addWhereClause(column, value);
-		
-		return loadAllBy(criteria);
-	}
-
-	@Override
-	public List<GraphInError> loadAllBy (QueryCriteria criteria) {
-
-		String query =
-			"SELECT " +
+	protected String getSelectAndFromClause()
+	{
+		String query = "SELECT " +
 			"eGraph.id AS id, " +
 			"iGraph.engineId AS engineId, " +
 			"iGraph.pipelineId AS pipelineId, " +
@@ -67,13 +50,9 @@ public class GraphInErrorDao extends DaoForEntityWithSurrogateKey<GraphInError> 
 			PIPELINES_TABLE_NAME + " AS pipeline ON pipeline.id = iGraph.pipelineId JOIN " +
 			ATTACHED_ENGINES_TABLE_NAME + " AS engine ON engine.id = iGraph.engineId LEFT JOIN " +
 			GRAPHS_IN_ERROR_TABLE_NAME + " AS eGraph ON eGraph.graphId = iGraph.id LEFT JOIN " +
-			PIPELINE_ERROR_TYPES_TABLE_NAME + " AS pError ON eGraph.errorTypeId = pError.id " +
-			criteria.buildWhereClause() +
-			criteria.buildOrderByClause();
-
-		Object[] param = criteria.buildWhereClauseParams();
+			PIPELINE_ERROR_TYPES_TABLE_NAME + " AS pError ON eGraph.errorTypeId = pError.id ";
 		
-		return jdbcQuery(query, param, getRowMapper());
+		return query;
 	}
 	
 	public void markFinished(GraphInError graphInError) throws Exception {
@@ -148,7 +127,7 @@ public class GraphInErrorDao extends DaoForEntityWithSurrogateKey<GraphInError> 
 				query = "DELETE FROM " + GRAPHS_IN_ERROR_TABLE_NAME + " AS eGraph WHERE " +
 						"eGraph.graphId IN " +
 						"(SELECT iGraph.id FROM " + INPUT_GRAPHS_TABLE_NAME + " AS iGraph " + criteria.buildWhereClause() + " AND stateId IN" +
-						"(SELECT iState.id FROM " + INPUT_GRAPHS_STATES_TABLE_NAME + " AS iState WHERE iState.label = 'WRONG'))";
+						"(SELECT iState.id FROM " + INPUT_GRAPHS_STATES_TABLE_NAME + " AS iState WHERE iState.label = '" + EnumGraphState.WRONG.name() + "'))";
 
 				param = criteria.buildWhereClauseParams();
 				GraphInErrorDao.this.jdbcUpdate(query, param);
@@ -156,7 +135,7 @@ public class GraphInErrorDao extends DaoForEntityWithSurrogateKey<GraphInError> 
 				/**
 				 * REPLACE STATE ID
 				 */
-				criteria.addWhereClause("iState.label", "WRONG");
+				criteria.addWhereClause("iState.label", EnumGraphState.WRONG.name());
 				criteria.addWhereClause("state.label", state.name());
 
 				query =

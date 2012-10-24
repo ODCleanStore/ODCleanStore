@@ -224,7 +224,7 @@ public class HTMLFormatter extends ResultFormatterBase {
         protected void writeMetadata(Writer writer, NamedGraphMetadataMap metadataMap) throws IOException {
             writer.write(" <table border=\"1\" cellspacing=\"0\" cellpadding=\"2\">\n");
             writer.write("  <tr><th>Named graph</th><th>Data source</th><th>Inserted at</th>"
-                    + "<th>Graph score</th><th>License</th></tr>");
+                    + "<th>Graph score</th><th>License</th><th>Update tag</th></tr>");
             int row = 0;
             for (NamedGraphMetadata metadata : metadataMap.listMetadata()) {
                 writeOpeningTr(writer, ++row);
@@ -265,6 +265,10 @@ public class HTMLFormatter extends ResultFormatterBase {
                         writer.write(license);
                         isFirst = false;
                     }
+                }
+                writer.write("</td><td>");
+                if (metadata.getUpdateTag() != null) {
+                    writer.write(metadata.getUpdateTag());
                 }
                 writer.write("</td></tr>\n");
             }

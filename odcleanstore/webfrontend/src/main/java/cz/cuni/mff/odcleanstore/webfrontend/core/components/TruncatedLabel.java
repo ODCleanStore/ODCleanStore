@@ -5,6 +5,7 @@ import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.util.string.Strings;
 
 /**
  * A label, which has it's text truncated upto a fixed number of characters.
@@ -27,8 +28,9 @@ public class TruncatedLabel extends Label
 	public TruncatedLabel(String compName, int numOfCharacters) 
 	{
 		super(compName);
-
 		this.numOfCharacters = numOfCharacters;
+		
+		setEscapeModelStrings(false); // turn of escaping before the string gets truncated
 	}
 
 	/**
@@ -53,7 +55,7 @@ public class TruncatedLabel extends Label
 	{
 		this(compName, new Model<String>(label), numOfCharacters);
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -62,8 +64,9 @@ public class TruncatedLabel extends Label
 	{
 		String labelText = getDefaultModelObjectAsString();
 		String truncatedText = truncateText(labelText);
+		String escapedText = escapeText(truncatedText);
 		
-		replaceComponentTagBody(markupStream, openTag, truncatedText);
+		replaceComponentTagBody(markupStream, openTag, escapedText);
 	}
 	
 	/**
@@ -78,5 +81,10 @@ public class TruncatedLabel extends Label
 			return text;
 		
 		return text.substring(0, numOfCharacters - 1) + " ...";
+	}
+	
+	private String escapeText(String text) 
+	{
+		return Strings.escapeMarkup(text, false, false).toString();		
 	}
 }

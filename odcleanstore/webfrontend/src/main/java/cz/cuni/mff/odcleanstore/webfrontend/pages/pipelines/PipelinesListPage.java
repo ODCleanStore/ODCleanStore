@@ -17,6 +17,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
 import cz.cuni.mff.odcleanstore.webfrontend.core.AuthorizationHelper;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedLink;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.BooleanLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
@@ -113,7 +114,7 @@ public class PipelinesListPage extends FrontendPage
 				addMarkPipelineDefaultButton(item, pipeline);
 				addToggleLockButton(item, pipeline, true);
 				addToggleLockButton(item, pipeline, false);
-				addRerunAssociatedGraphsButton(item, pipeline.getId());
+				addRerunAssociatedGraphsButton(item, pipeline);
 			}
 		};
 
@@ -131,24 +132,13 @@ public class PipelinesListPage extends FrontendPage
 	
 	private void addMarkPipelineDefaultButton(Item<Pipeline> item, final Pipeline pipeline)
 	{
-		Link<String> button = new Link<String>("markPipelineDefault", new Model<String>("XXX"))
+		Link<String> button = new AuthorizedLink<String>("markPipelineDefault", new Model<String>("XXX"), AuthorizationHelper.isAuthorizedForSettingDefaultPipeline())
         {
 			private static final long serialVersionUID = 1L;
-			
-			@Override
-			public boolean isVisible()
-			{
-				return AuthorizationHelper.isAuthorizedForSettingDefaultPipeline();
-			}
 
 			@Override
-            public void onClick()
+            public void onClickAuthorized()
             {
-				if (!AuthorizationHelper.isAuthorizedForSettingDefaultPipeline()) 
-				{
-					return;
-				}
-				
 				pipeline.setDefault(true);
 				
 				try {
@@ -224,17 +214,17 @@ public class PipelinesListPage extends FrontendPage
         });
 	}
 	
-	private void addRerunAssociatedGraphsButton(final Item<Pipeline> item, final Integer pipelineId)
+	private void addRerunAssociatedGraphsButton(final Item<Pipeline> item, final Pipeline pipeline)
 	{
-		Link<String> button = new Link<String>("rerunAssociatedGraphs")
+		Link<String> button = new AuthorizedLink<String>("rerunAssociatedGraphs", AuthorizationHelper.isAuthorizedForEntityEditing(pipeline))
         {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-            public void onClick()
+            public void onClickAuthorized()
             {
 				try {
-					engineOperationsDao.rerunGraphsForPipeline(pipelineId);
+					engineOperationsDao.rerunGraphsForPipeline(pipeline.getId());
 				}
 				catch (Exception ex)
 				{

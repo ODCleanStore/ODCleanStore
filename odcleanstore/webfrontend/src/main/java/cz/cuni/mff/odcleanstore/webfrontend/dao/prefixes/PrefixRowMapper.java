@@ -6,6 +6,12 @@ import java.sql.SQLException;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.prefixes.Prefix;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.CustomRowMapper;
 
+/**
+ * The URI Prefix Row Mapper.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class PrefixRowMapper extends CustomRowMapper<Prefix>
 {
 	private static final long serialVersionUID = 1L;

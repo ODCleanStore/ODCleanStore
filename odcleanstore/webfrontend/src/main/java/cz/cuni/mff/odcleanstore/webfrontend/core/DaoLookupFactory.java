@@ -26,13 +26,13 @@ public class DaoLookupFactory implements Serializable
 	//private static Logger logger = Logger.getLogger(DaoLookupFactory.class);
 	
 	/** connection credentials to the clean Virtuoso DB */
-	private JDBCConnectionCredentials cleanConnectionCoords;
-	
+	private final JDBCConnectionCredentials cleanConnectionCredentials;
+
 	/** data source to the clean Virtuoso DB */
 	private transient VirtuosoDataSource cleanDataSource;
 	
 	/** connection credentials to the dirty Virtuoso DB */
-	private JDBCConnectionCredentials dirtyConnectionCoords;
+	private final JDBCConnectionCredentials dirtyConnectionCredentials;
 	
 	/** data source to the dirty Virtuoso DB */
 	private transient VirtuosoDataSource dirtyDataSource;
@@ -51,11 +51,22 @@ public class DaoLookupFactory implements Serializable
 		JDBCConnectionCredentials cleanConnectionCoords,
 		JDBCConnectionCredentials dirtyConnectionCoords)
 	{
-		this.cleanConnectionCoords = cleanConnectionCoords;
-		this.dirtyConnectionCoords = dirtyConnectionCoords;
+		this.cleanConnectionCredentials = cleanConnectionCoords;
+		this.dirtyConnectionCredentials = dirtyConnectionCoords;
 		
 		this.daos = new HashMap<Class<? extends Dao>, Dao>();
 	}
+	
+	public JDBCConnectionCredentials getCleanConnectionCredentials()
+	{
+		return cleanConnectionCredentials;
+	}
+
+	public JDBCConnectionCredentials getDirtyConnectionCredentials()
+	{
+		return dirtyConnectionCredentials;
+	}
+
 	
 	/**
 	 * Creates (lazily) and returns the requested DAO object decorated by
@@ -152,9 +163,9 @@ public class DaoLookupFactory implements Serializable
 		if (cleanDataSource == null)
 		{
 			cleanDataSource = new VirtuosoDataSource();
-			cleanDataSource.setServerName(makeVirtuosoDataSourceConnectionString(cleanConnectionCoords.getConnectionString()));
-			cleanDataSource.setUser(cleanConnectionCoords.getUsername());
-			cleanDataSource.setPassword(cleanConnectionCoords.getPassword());
+			cleanDataSource.setServerName(makeVirtuosoDataSourceConnectionString(cleanConnectionCredentials.getConnectionString()));
+			cleanDataSource.setUser(cleanConnectionCredentials.getUsername());
+			cleanDataSource.setPassword(cleanConnectionCredentials.getPassword());
 			cleanDataSource.setCharset(CONNECTION_ENCODING);
 		}
 		
@@ -176,9 +187,9 @@ public class DaoLookupFactory implements Serializable
 		if (dirtyDataSource == null)
 		{
 			dirtyDataSource = new VirtuosoDataSource();
-			dirtyDataSource.setServerName(makeVirtuosoDataSourceConnectionString(dirtyConnectionCoords.getConnectionString()));
-			dirtyDataSource.setUser(dirtyConnectionCoords.getUsername());
-			dirtyDataSource.setPassword(dirtyConnectionCoords.getPassword());
+			dirtyDataSource.setServerName(makeVirtuosoDataSourceConnectionString(dirtyConnectionCredentials.getConnectionString()));
+			dirtyDataSource.setUser(dirtyConnectionCredentials.getUsername());
+			dirtyDataSource.setPassword(dirtyConnectionCredentials.getPassword());
 			dirtyDataSource.setCharset(CONNECTION_ENCODING);
 		}
 		

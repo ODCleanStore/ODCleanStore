@@ -39,6 +39,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
 
+/**
+ * The Ontology Dao.
+ * 
+ * @author Tomáš Soukup
+ *
+ */
 public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "ONTOLOGIES";
@@ -53,6 +59,9 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 
 	private ParameterizedRowMapper<Ontology> rowMapper;
 
+	/**
+	 * 
+	 */
 	public OntologyDao()
 	{
 		this.rowMapper = new OntologyRowMapper();
@@ -91,15 +100,17 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 	}
 	
 	@Override
-	public Ontology loadBy(String columnName, Object value)
+	protected Ontology postLoadBy(Ontology ontology)
 	{
-		Ontology ontology = super.loadBy(columnName, value);
-
 		ontology.setDefinition(loadRdfData(ontology.getGraphName()));
-
 		return ontology;
 	}
-
+	
+	/**
+	 * 
+	 * @param graphName
+	 * @return
+	 */
 	private String loadRdfData(String graphName)
 	{
 		logger.debug("Loading RDF graph: " + graphName);
@@ -156,6 +167,11 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		});
 	}
 
+	/**
+	 * 
+	 * @param item
+	 * @return
+	 */
 	private String getGraphName(Ontology item) 
 	{
 		try
@@ -169,6 +185,11 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		}
 	}
 
+	/**
+	 * 
+	 * @param graphName
+	 * @throws Exception
+	 */
 	private void createGraph(String graphName) throws Exception
 	{
 		String query = "SPARQL CREATE SILENT GRAPH ??";
@@ -178,6 +199,11 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		jdbcUpdate(query, params);
 	}
 
+	/**
+	 * 
+	 * @param item
+	 * @throws Exception
+	 */
 	public void update(final Ontology item) throws Exception
 	{
 		executeInTransaction(new CodeSnippet()
@@ -213,6 +239,11 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		});
 	}
 	
+	/**
+	 * 
+	 * @param graphName
+	 * @throws Exception
+	 */
 	private void deleteGraph(String graphName) throws Exception
 	{
 		String query = "SPARQL DROP SILENT GRAPH ??";
@@ -222,6 +253,11 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		jdbcUpdate(query, params);
 	}
 	
+	/**
+	 * 
+	 * @param ontology
+	 * @throws Exception
+	 */
 	private void generateRules(Ontology ontology) throws Exception {
 		String groupLabel = createGroupLabel(ontology.getLabel());
 		String ontologyGraphName = ontology.getGraphName();
@@ -233,6 +269,15 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		generateDataNormalizationRules(ontology.getId(), ontology.getDnRulesGroup(), groupLabel, ontologyGraphName, ontology.getAuthorId());
 	}
 	
+	/**
+	 * 
+	 * @param ontologyId
+	 * @param existingGroupId
+	 * @param groupLabel
+	 * @param ontologyGraphName
+	 * @param authorId
+	 * @throws Exception
+	 */
 	private void generateQualityAssessmentRules(final Integer ontologyId, final Integer existingGroupId,
 		final String groupLabel, final String ontologyGraphName, final Integer authorId) throws Exception
 	{
@@ -292,6 +337,15 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		});
 	}
 
+	/**
+	 * 
+	 * @param ontologyId
+	 * @param existingGroupId
+	 * @param groupLabel
+	 * @param ontologyGraphName
+	 * @param authorId
+	 * @throws Exception
+	 */
 	private void generateDataNormalizationRules(final Integer ontologyId, final Integer existingGroupId,
 		final String groupLabel, final String ontologyGraphName, final Integer authorId) throws Exception
 	{
@@ -366,6 +420,14 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		});
 	}
 
+	/**
+	 * 
+	 * @param tableName
+	 * @param groupLabel
+	 * @param authorId
+	 * @return
+	 * @throws Exception
+	 */
 	private Integer ensureGroupPresence(String tableName, String groupLabel, Integer authorId) throws Exception {
 		try
 		{
@@ -377,11 +439,23 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		}
 	}
 
+	/**
+	 * 
+	 * @param ontologyLabel
+	 * @return
+	 */
 	private String createGroupLabel(String ontologyLabel)
 	{
 		return RULE_GROUP_PREFIX + ontologyLabel;
 	}
 
+	/**
+	 * 
+	 * @param tableName
+	 * @param groupLabel
+	 * @param authorId
+	 * @throws Exception
+	 */
 	private void createRulesGroup(String tableName, String groupLabel, Integer authorId) throws Exception
 	{
 		String query = "INSERT INTO " + tableName + " (label, authorId) VALUES (?, ?)";
@@ -393,6 +467,11 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		jdbcUpdate(query, params);
 	}
 
+	/**
+	 * 
+	 * @param groupTableName
+	 * @return
+	 */
 	private String createMappingTableName(String groupTableName)
 	{
 		if (QARulesGroupDao.TABLE_NAME.equals(groupTableName))
@@ -409,6 +488,12 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		}
 	}
 
+	/**
+	 * 
+	 * @param tableName
+	 * @param groupLabel
+	 * @return
+	 */
 	private Integer getGroupId(String tableName, String groupLabel)
 	{
 		String query = "SELECT id FROM " + tableName + " WHERE label = ?";
@@ -418,6 +503,12 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		return jdbcQueryForObject(query, params, Integer.class);
 	}
 	
+	/**
+	 * 
+	 * @param tableName
+	 * @param ontologyId
+	 * @return
+	 */
 	private Integer getGroupId(String tableName, Integer ontologyId)
 	{
 		String query = "SELECT groupId FROM " + TABLE_NAME_PREFIX + createMappingTableName(tableName) + " WHERE ontologyId = ?";
@@ -436,6 +527,13 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		}
 	}
 
+	/**
+	 * 
+	 * @param tableName
+	 * @param groupId
+	 * @param ontologyId
+	 * @throws Exception
+	 */
 	private void createMapping(String tableName, Integer groupId, Integer ontologyId) throws Exception
 	{
 		String query = "INSERT REPLACING " + TABLE_NAME_PREFIX + tableName + " (groupId, ontologyId) VALUES (?, ?)";
@@ -452,6 +550,11 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		jdbcUpdate(query, params);
 	}
 	
+	/**
+	 * 
+	 * @param ontologyId
+	 * @throws Exception
+	 */
 	private void deleteMappings(Integer ontologyId) throws Exception
 	{
 		String query = "SPARQL CLEAR GRAPH ??";

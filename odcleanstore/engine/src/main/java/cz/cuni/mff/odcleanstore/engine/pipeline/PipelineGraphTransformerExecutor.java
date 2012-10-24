@@ -11,6 +11,7 @@ import cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
 import cz.cuni.mff.odcleanstore.engine.db.model.PipelineCommand;
 import cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl;
+import cz.cuni.mff.odcleanstore.log4j.RollingFileAppender;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAggregatorImpl;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
 import cz.cuni.mff.odcleanstore.shared.FileUtils;
@@ -92,10 +93,12 @@ public class PipelineGraphTransformerExecutor {
 			
 			graphStatus.checkResetPipelineRequest();
 			try {
-				if (this.graphStatus.isInCleanDb()) {
-					this.currentTransformer.transformExistingGraph(graph, context);
-				} else {
-					this.currentTransformer.transformNewGraph(graph, context);
+				String logFileName = new File(path, "odcs.engine.log").getAbsolutePath();
+				RollingFileAppender.setNewLogFile(logFileName);
+				try {
+					this.currentTransformer.transformGraph(graph, context);
+				} finally {
+					RollingFileAppender.popPreviousLogFile();
 				}
 			}
 			catch (Exception e) {
@@ -184,7 +187,9 @@ public class PipelineGraphTransformerExecutor {
 		try {
 			StringBuilder sb = new StringBuilder();
 			sb.append(command.transformerLabel);
-			sb.append(" - ");
+			sb.append(" (instance: ");
+			sb.append(command.transformerInstanceID);
+			sb.append(") - ");
 			sb.append(message);
 			return FormatHelper.formatGraphMessage(sb.toString(), graphStatus.getUuid(), graphStatus.isInCleanDbBeforeProcessing());
 		} catch(Exception e) {

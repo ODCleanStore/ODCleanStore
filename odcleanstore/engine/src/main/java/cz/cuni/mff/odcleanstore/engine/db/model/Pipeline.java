@@ -4,4 +4,5 @@ public final class Pipeline {
 	
 	public int id;
 	public String label;
+	public Integer authorId;
 }

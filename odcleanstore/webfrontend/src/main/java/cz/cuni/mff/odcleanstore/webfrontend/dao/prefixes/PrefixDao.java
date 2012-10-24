@@ -7,6 +7,12 @@ import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.prefixes.Prefix;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoTemplate;
 
+/**
+ * The URI Prefix DAO.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class PrefixDao extends DaoTemplate<Prefix>
 {
 	public static final String TABLE_NAME = "DB.DBA.SYS_XML_PERSISTENT_NS_DECL";
@@ -15,6 +21,9 @@ public class PrefixDao extends DaoTemplate<Prefix>
 	
 	private ParameterizedRowMapper<Prefix> rowMapper;
 	
+	/**
+	 * 
+	 */
 	public PrefixDao()
 	{
 		this.rowMapper = new PrefixRowMapper();
@@ -32,6 +41,11 @@ public class PrefixDao extends DaoTemplate<Prefix>
 		return rowMapper;
 	}
 	
+	/**
+	 * 
+	 * @param item
+	 * @throws Exception
+	 */
 	public void delete(Prefix item) throws Exception
 	{
 		String query = "DB.DBA.XML_REMOVE_NS_BY_PREFIX (?, 2)";
@@ -44,7 +58,12 @@ public class PrefixDao extends DaoTemplate<Prefix>
 		jdbcUpdate(query, params, EnumDatabaseInstance.CLEAN);
 		jdbcUpdate(query, params, EnumDatabaseInstance.DIRTY);
 	}
-	
+
+	/**
+	 * 
+	 * @param item
+	 * @throws Exception
+	 */
 	public void save(final Prefix item) throws Exception
 	{
 		final PrefixDao dao = this;
@@ -69,12 +88,5 @@ public class PrefixDao extends DaoTemplate<Prefix>
 					dao.jdbcUpdate(query, params, EnumDatabaseInstance.DIRTY);
 				}
 		});
-	}
-	
-	@Override
-	public Prefix loadBy(String columnName, Object value)
-	{
-		// make loadBy() public
-		return super.loadBy(columnName, value);
 	}
 }

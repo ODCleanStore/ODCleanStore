@@ -5,6 +5,12 @@ import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.GlobalAggregationSettings;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
 
+/**
+ * The Global aggregatin settings DAO.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class GlobalAggregationSettingsDao extends Dao
 {
 	private static final long serialVersionUID = 1L;
@@ -13,16 +19,27 @@ public class GlobalAggregationSettingsDao extends Dao
 	
 	private ParameterizedRowMapper<GlobalAggregationSettings> rowMapper;
 
+	/**
+	 * 
+	 */
 	public GlobalAggregationSettingsDao()
 	{
 		this.rowMapper = new GlobalAggregationSettingsRowMapper();
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
 	protected ParameterizedRowMapper<GlobalAggregationSettings> getRowMapper() 
 	{
 		return rowMapper;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public GlobalAggregationSettings loadFirst()
 	{
 		String query =
@@ -38,6 +55,11 @@ public class GlobalAggregationSettingsDao extends Dao
 		return jdbcQueryForObject(query, getRowMapper());
 	}
 	
+	/**
+	 * 
+	 * @param settings
+	 * @throws Exception
+	 */
 	public void save(GlobalAggregationSettings settings) throws Exception
 	{
 		String query = 

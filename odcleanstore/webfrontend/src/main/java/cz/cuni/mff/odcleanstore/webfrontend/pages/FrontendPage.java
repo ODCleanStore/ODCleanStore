@@ -34,6 +34,8 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.ODCSWebFrontendApplication;
 import cz.cuni.mff.odcleanstore.webfrontend.core.ODCSWebFrontendSession;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.HelpWindow;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.MenuGroupComponent;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RegexField;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.ReplacementField;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.engine.EngineStatePage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.ontologies.OntologiesListPage;
@@ -212,7 +214,7 @@ public abstract class FrontendPage extends WebPage
 		textfield.add(new IRIValidator());
 		return textfield;
 	}
-	
+
 	/**
 	 * 
 	 * @param componentName
@@ -221,6 +223,52 @@ public abstract class FrontendPage extends WebPage
 	protected TextField<String> createIRITextfield(String componentName)
 	{
 		return createIRITextfield(componentName, true);
+	}
+	
+	/**
+	 * 
+	 * @param componentName
+	 * @param required
+	 * @return
+	 */
+	protected RegexField createRegexTextfield(String componentName, boolean required)
+	{
+		RegexField regexField = new RegexField(componentName, ConfigLoader.getConfig().getBackendGroup().getDirtyDBJDBCConnectionCredentials());
+		regexField.setRequired(required);
+		return regexField;
+	}
+
+	/**
+	 * 
+	 * @param componentName
+	 * @return
+	 */
+	protected RegexField createRegexTextfield(String componentName)
+	{
+		return createRegexTextfield(componentName, true);
+	}
+	
+	/**
+	 * 
+	 * @param componentName
+	 * @param required
+	 * @return
+	 */
+	protected ReplacementField createReplacementTextfield(String componentName, RegexField pattern, boolean required)
+	{
+		ReplacementField replacementField = new ReplacementField(componentName, pattern);
+		replacementField.setRequired(required);
+		return replacementField;
+	}
+
+	/**
+	 * 
+	 * @param componentName
+	 * @return
+	 */
+	protected ReplacementField createReplacementTextfield(String componentName, RegexField pattern)
+	{
+		return createReplacementTextfield(componentName, pattern, true);
 	}
 	
 	/**

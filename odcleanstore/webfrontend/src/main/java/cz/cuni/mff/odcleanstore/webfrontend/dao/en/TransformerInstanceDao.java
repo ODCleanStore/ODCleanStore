@@ -6,6 +6,12 @@ import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 
+/**
+ * The Transformer instance Row Mapper.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class TransformerInstanceDao extends DaoForAuthorableEntity<TransformerInstance>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "TRANSFORMER_INSTANCES";
@@ -14,6 +20,9 @@ public class TransformerInstanceDao extends DaoForAuthorableEntity<TransformerIn
 	
 	private ParameterizedRowMapper<TransformerInstance> rowMapper;
 	
+	/**
+	 * 
+	 */
 	public TransformerInstanceDao()
 	{
 		this.rowMapper = new TransformerInstanceRowMapper();
@@ -73,6 +82,12 @@ public class TransformerInstanceDao extends DaoForAuthorableEntity<TransformerIn
 		});
 	}
 	
+	/**
+	 * 
+	 * @param pipelineId
+	 * @param priority
+	 * @throws Exception
+	 */
 	private void shiftPrioritiesUpFrom(Integer pipelineId, Integer priority) throws Exception
 	{
 		String query = 
@@ -83,6 +98,12 @@ public class TransformerInstanceDao extends DaoForAuthorableEntity<TransformerIn
 		jdbcUpdate(query, pipelineId, priority);
 	}
 	
+	/**
+	 * 
+	 * @param pipelineId
+	 * @param priority
+	 * @throws Exception
+	 */
 	private void shiftPrioritiesDownFrom(Integer pipelineId, Integer priority) throws Exception
 	{
 		String query = 
@@ -93,6 +114,11 @@ public class TransformerInstanceDao extends DaoForAuthorableEntity<TransformerIn
 		jdbcUpdate(query, pipelineId, priority);
 	}
 	
+	/**
+	 * 
+	 * @param item
+	 * @throws Exception
+	 */
 	private void saveRaw(TransformerInstance item) throws Exception
 	{
 		String query = 
@@ -114,6 +140,11 @@ public class TransformerInstanceDao extends DaoForAuthorableEntity<TransformerIn
 		jdbcUpdate(query, params);
 	}
 	
+	/**
+	 * 
+	 * @param item
+	 * @throws Exception
+	 */
 	public void update(final TransformerInstance item) throws Exception
 	{
 		executeInTransaction(new CodeSnippet()
@@ -129,6 +160,11 @@ public class TransformerInstanceDao extends DaoForAuthorableEntity<TransformerIn
 		});
 	}
 	
+	/**
+	 * 
+	 * @param item
+	 * @throws Exception
+	 */
 	private void updateRaw(TransformerInstance item) throws Exception
 	{
 		String query = 
@@ -158,6 +194,11 @@ public class TransformerInstanceDao extends DaoForAuthorableEntity<TransformerIn
 		return jdbcQueryForInt(query, entityId);
 	}
 	
+	/**
+	 * 
+	 * @param pipelineId
+	 * @return
+	 */
 	public int getInstancesCount(Integer pipelineId)
 	{
 		String query = "SELECT count(*) FROM " + getTableName() + " WHERE pipelineId = ?";

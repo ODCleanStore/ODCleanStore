@@ -9,6 +9,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.GlobalAggregationSettings;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.MultivalueType;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.CustomRowMapper;
 
+/**
+ * The Global aggregation settings Row Mapper.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class GlobalAggregationSettingsRowMapper extends CustomRowMapper<GlobalAggregationSettings>
 {
 	private static final long serialVersionUID = 1L;

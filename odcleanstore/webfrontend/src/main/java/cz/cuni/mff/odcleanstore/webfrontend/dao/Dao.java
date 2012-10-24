@@ -17,6 +17,9 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
+import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.data.EnumDatabaseInstance;
 import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
@@ -24,6 +27,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 
 /**
  * Generic DAO interface.
+ * Provides methods for access to database through jdbc and transaction handling.
  * 
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
@@ -71,6 +75,19 @@ public abstract class Dao implements Serializable
 			return getCleanJdbcTemplate();
 		case DIRTY:
 			return getDirtyJdbcTemplate();
+		default:
+			throw new AssertionError("Unknown database instance");
+		}
+	}
+	
+	private JDBCConnectionCredentials getConnectionCredentials(EnumDatabaseInstance dbInstance)
+	{
+		switch (dbInstance)
+		{
+		case CLEAN:
+			return lookupFactory.getCleanConnectionCredentials();
+		case DIRTY:
+			return lookupFactory.getDirtyConnectionCredentials();
 		default:
 			throw new AssertionError("Unknown database instance");
 		}
@@ -159,6 +176,12 @@ public abstract class Dao implements Serializable
 		return getJdbcTemplate().queryForObject(sql, args, requiredType);
 	}
 	
+	protected <E> E jdbcQueryForObject(String sql, Object[] args, RowMapper<E> rowMapper, EnumDatabaseInstance dbInstance)
+		throws DataAccessException
+	{
+		return getJdbcTemplate(dbInstance).queryForObject(sql, args, rowMapper);
+	}
+	
 	protected <E> List<E> jdbcQueryForList(String sql, Class<E> elementType) throws DataAccessException
 	{
 		return getJdbcTemplate().queryForList(sql, elementType);
@@ -174,19 +197,11 @@ public abstract class Dao implements Serializable
 		return getJdbcTemplate().queryForInt(sql, args);
 	}
 
-	protected int jdbcQueryForInt(String sql, Object[] args, EnumDatabaseInstance dbInstance) throws Exception
+	protected int jdbcQueryForInt(String sql, Object[] args, EnumDatabaseInstance dbInstance) throws DataAccessException
 	{
-		try
-		{
-			return getJdbcTemplate(dbInstance).queryForInt(sql, args);
-		}
-		catch (Exception e)
-		{
-			handleException(e);
-			throw e;
-		}
+		return getJdbcTemplate(dbInstance).queryForInt(sql, args);
 	}
-	
+
 	protected int jdbcUpdate(final String sql) throws Exception
 	{
 		try
@@ -314,5 +329,11 @@ public abstract class Dao implements Serializable
 	protected DaoLookupFactory getLookupFactory() 
 	{
 		return lookupFactory;
+	}
+	
+	protected VirtuosoConnectionWrapper createVirtuosoConnectionWrapper(EnumDatabaseInstance dbInstance) 
+		throws ConnectionException
+	{
+			return VirtuosoConnectionWrapper.createConnection(getConnectionCredentials(dbInstance));
 	}
 }

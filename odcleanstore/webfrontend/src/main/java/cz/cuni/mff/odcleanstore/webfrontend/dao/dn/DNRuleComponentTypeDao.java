@@ -6,8 +6,9 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponentType;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
 /**
+ * The DN rule component type DAO.
  * 
- * @author Dusan
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
 public class DNRuleComponentTypeDao extends DaoForEntityWithSurrogateKey<DNRuleComponentType>
@@ -18,6 +19,9 @@ public class DNRuleComponentTypeDao extends DaoForEntityWithSurrogateKey<DNRuleC
 	
 	private ParameterizedRowMapper<DNRuleComponentType> rowMapper;
 	
+	/**
+	 * 
+	 */
 	public DNRuleComponentTypeDao()
 	{
 		this.rowMapper = new DNRuleComponentTypeRowMapper();
@@ -41,12 +45,5 @@ public class DNRuleComponentTypeDao extends DaoForEntityWithSurrogateKey<DNRuleC
 		throw new UnsupportedOperationException(
 			"Cannot delete rows from table: " + getTableName() + "."
 		);
-	}
-	
-	@Override
-	public DNRuleComponentType loadBy(String columnName, Object value)
-	{
-		// make loadBy() public
-		return super.loadBy(columnName, value);
 	}
 }

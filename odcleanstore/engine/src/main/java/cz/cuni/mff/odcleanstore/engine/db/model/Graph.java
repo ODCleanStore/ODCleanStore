@@ -1,10 +1,12 @@
 package cz.cuni.mff.odcleanstore.engine.db.model;
 
+import cz.cuni.mff.odcleanstore.model.EnumGraphState;
+
 public final class Graph {
 	
 	public int id;
 	public String uuid;
-	public GraphStates state;
+	public EnumGraphState state;
 	public Pipeline pipeline;
 	public boolean isInCleanDb;
 	public boolean resetPipelineRequest;

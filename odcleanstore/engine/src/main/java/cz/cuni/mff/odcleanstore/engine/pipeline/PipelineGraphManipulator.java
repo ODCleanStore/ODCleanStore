@@ -83,8 +83,7 @@ final class PipelineGraphManipulator {
 					graphStatus.checkResetPipelineRequest();
 					dirtyConnection = createDirtyConnection();
 					LOG.info(String.format("Dumping data from dirty db to ttl temporary file for graph %s", graphs[i]));
-					String query = "CALL dump_graph_ttl('" + graphs[i] + "', '" + srcFile.getAbsolutePath().replace("\\", "/") + "')";
-					dirtyConnection.execute(query);
+					dirtyConnection.exportToTTL(srcFile, graphs[i]);
 					 
 					graphStatus.checkResetPipelineRequest();
 					// move file if neccessary
@@ -95,10 +94,7 @@ final class PipelineGraphManipulator {
 					graphStatus.checkResetPipelineRequest();
 					cleanConnection = createCleanConnection();
 					LOG.info(String.format("Loading data from ttl temporary file to clean db for graph %s", graphs[i]));
-					query = "DB.DBA.TTLP (file_to_string_output (" +
-							"'" + dstFile.getAbsolutePath().replace("\\", "/") + "'), '" + graphs[i] + "', '" +
-							destGraph + "', 0)";
-				    cleanConnection.execute(query);
+					cleanConnection.insertN3FromFile(dstFile, destGraph, graphs[i]);
 				} finally {
 				    if (dirtyConnection != null) {
 				    	dirtyConnection.closeQuietly();
@@ -172,7 +168,7 @@ final class PipelineGraphManipulator {
 				VirtuosoConnectionWrapper dirtyConnection = null;	
 				try {
 					dirtyConnection = createDirtyConnection();
-					dirtyConnection.clearGraph(graphName);
+					dirtyConnection.dropGraph(graphName);
 				} finally {
 				    if (dirtyConnection != null) {
 				    	dirtyConnection.closeQuietly();
@@ -221,7 +217,7 @@ final class PipelineGraphManipulator {
 		try {
 			cleanConnection = createCleanConnection();
 			String clearedGraph = (prefix == null ? "" : prefix) + graph;
-			cleanConnection.clearGraph(clearedGraph);
+			cleanConnection.dropGraph(clearedGraph);
 		} finally {
 		    if (cleanConnection != null) {
 		    	cleanConnection.closeQuietly();
@@ -264,7 +260,8 @@ final class PipelineGraphManipulator {
 			graphStatus.checkResetPipelineRequest();
 			try {
 				LOG.info(format("Loading metadata from ttl input file"));
-				con.insertN3FromFile("", inputDirPath + uuid + "-m.ttl", metadataGraphURI);
+				File mTTLFile = new File(inputDirPath, uuid + "-m.ttl"); 
+				con.insertN3FromFile(mTTLFile, metadataGraphURI, "");
 				
 			} catch (Exception e) {
 				throw new PipelineGraphManipulatorException(format(ERROR_LOAD_METADATAGRAPH_FROM_FILE), e);
@@ -280,31 +277,36 @@ final class PipelineGraphManipulator {
 			}
 			
 			graphStatus.checkResetPipelineRequest();
-			if (new File(inputDirPath, uuid + "-pvm.rdf").exists()) {
+			File pvmRDFFile = new File(inputDirPath, uuid + "-pvm.rdf");
+			if (pvmRDFFile.exists()) {
 				LOG.info(format("Loading provenance metadata from rdfxml input file"));
-				con.insertRdfXmlFromFile(dataBaseUrl, inputDirPath + uuid + "-pvm.rdf", provenanceGraphURI);
-				con.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.provenanceMetadataGraph + ">", "<" + provenanceGraphURI + ">", metadataGraphURI);
+				con.insertRdfXmlFromFile(pvmRDFFile, provenanceGraphURI, dataBaseUrl);
+				con.execute(String.format(Locale.ROOT, "SPARQL INSERT INTO GRAPH <%s> { <%s> <%s> <%s> }", 
+                        metadataGraphURI, dataGraphURI, ODCS.provenanceMetadataGraph, provenanceGraphURI));
 			}
 			
 			graphStatus.checkResetPipelineRequest();
-			if (new File(inputDirPath, uuid + "-pvm.ttl").exists()) {
+			File pvmTTLFile = new File(inputDirPath, uuid + "-pvm.ttl");
+			if (pvmTTLFile.exists()) {
 				LOG.info(format("Loading provenance metadata from ttl input file"));
-				con.insertN3FromFile(dataBaseUrl, inputDirPath + uuid + "-pvm.ttl", provenanceGraphURI);
-				con.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.provenanceMetadataGraph + ">", "<" + provenanceGraphURI + ">", metadataGraphURI);
-				
+				con.insertN3FromFile(pvmTTLFile, provenanceGraphURI, dataBaseUrl);
+				con.execute(String.format(Locale.ROOT, "SPARQL INSERT INTO GRAPH <%s> { <%s> <%s> <%s> }", 
+				        metadataGraphURI, dataGraphURI, ODCS.provenanceMetadataGraph, provenanceGraphURI));
 			}
 			
 			graphStatus.checkResetPipelineRequest();
-			if (new File(inputDirPath, uuid + "-d.rdf").exists()) {
+			File dRDFFile = new File(inputDirPath, uuid + "-d.rdf");
+			if (dRDFFile.exists()) {
 				LOG.info(format("Loading data from rdf input file"));
-				con.insertRdfXmlFromFile(dataBaseUrl, inputDirPath + uuid + "-d.rdf", dataGraphURI);
+				con.insertRdfXmlFromFile(dRDFFile, dataGraphURI, dataBaseUrl);
 				
 			}
 			
 			graphStatus.checkResetPipelineRequest();
-			if (new File(inputDirPath, uuid + "-d.ttl").exists()) {
+			File dTTLFile = new File(inputDirPath, uuid + "-d.ttl");
+			if (dTTLFile.exists()) {
 				LOG.info(format("Loading data from ttl input file"));
-				con.insertN3FromFile(dataBaseUrl, inputDirPath + uuid + "-d.ttl", dataGraphURI);
+				con.insertN3FromFile(dTTLFile, dataGraphURI, dataBaseUrl);
 			}
 		} finally {
 			if (con != null) {
@@ -344,8 +346,7 @@ final class PipelineGraphManipulator {
 					graphStatus.checkResetPipelineRequest();
 					dirtyConnection = createDirtyConnection();
 					LOG.info(String.format("Loading data from ttl temporary file to dirty db for graph %s", graphName));
-					query = "DB.DBA.TTLP (file_to_string_output ('" + dstFile.getAbsolutePath().replace("\\", "/") + "'), '" + graphName + "', '" + graphName + "',0)";
-				    dirtyConnection.execute(query);
+					dirtyConnection.insertN3FromFile(dstFile, graphName, graphName);
 				} finally {
 				    if (dirtyConnection != null) {
 				    	dirtyConnection.closeQuietly();

@@ -2,7 +2,6 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.users;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,16 +15,9 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
 
 /**
  * The User DAO.
- * 
- * TODO: Implement Exceptions handling.
- * TODO: Implement transactions.
- * 
- * TODO: Consider the idea that a Dao can lookup another dao and query it for raw objects.
- * TODO: Also consider creating a Dao for the ROLES_TO_USERS_ASSIGNMENT table.
  * 
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
@@ -39,6 +31,9 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 	
 	private ParameterizedRowMapper<User> rowMapper;
 	
+	/**
+	 * 
+	 */
 	public UserDao()
 	{
 		this.rowMapper = new UserRowMapper();
@@ -59,23 +54,22 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 	
 	/*
 	 	=======================================================================
-	 	LOAD SINGLE ROW
+	 	LOAD A SINGLE ROW
 	 	=======================================================================
 	*/
 	
-	public User load(Integer id) 
-	{
-		return loadBy(KEY_COLUMN, id);
-	}
-	
 	@Override
-	public User loadBy(String columnName, Object value)
+	protected User postLoadBy(User user)
 	{
-		User user = super.loadBy(columnName, value);
 		user.setRoles(loadRolesForUser(user.getId()));
 		return user;
 	}
 	
+	/**
+	 * 
+	 * @param userId
+	 * @return
+	 */
 	private Set<Role> loadRolesForUser(Integer userId)
 	{
 		String query = 
@@ -96,9 +90,8 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 	*/
 	
 	@Override
-	public List<User> loadAllBy(QueryCriteria criteria)
+	protected List<User> postLoadAllBy(List<User> users)
 	{
-		List<User> users = super.loadAllBy(criteria);
 		Map<Integer, User> usersMapping = convertListToHashMap(users);
 		
 		Map<Integer, Role> rolesMapping = convertListToHashMap(loadAllRolesRaw());
@@ -106,7 +99,6 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 		List<Pair<Integer, Integer>> assignedRoles = loadAllPermissionRecordsRaw();
 		
 		// assign rules to users according to the assignment
-		//
 		for (Pair<Integer, Integer> assignment : assignedRoles)
 		{
 			User targetUser = usersMapping.get(assignment.getFirst());
@@ -115,9 +107,14 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 			targetUser.addRole(targetRole);
 		}
 		
-		return new LinkedList<User>(users);
+		return users;
 	}
 	
+	/**
+	 * 
+	 * @param list
+	 * @return
+	 */
 	private <T extends EntityWithSurrogateKey> Map<Integer, T> convertListToHashMap(List<T> list)
 	{
 		Map<Integer, T> mapping = new HashMap<Integer, T>();
@@ -128,17 +125,23 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 		return mapping;
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
 	private List<Role> loadAllRolesRaw()
 	{
-		String query = "SELECT * FROM " + RoleDao.TABLE_NAME;
-		return jdbcQuery(query, new RoleRowMapper());
+		return getLookupFactory().getDao(RoleDao.class).loadAll();
 	}
 	
-	
+	/**
+	 * 
+	 * @return
+	 */
 	private List<Pair<Integer, Integer>> loadAllPermissionRecordsRaw()
 	{
 		String query = "SELECT * FROM " + PERMISSIONS_TABLE_NAME;
-		return jdbcQuery(query,new RolesAssignedToUsersRowMapping());
+		return jdbcQuery(query,new RolesAssignedToUsersRowMapper());
 	}
 	
 	/*
@@ -147,6 +150,12 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 	 	=======================================================================
 	*/
 	
+	/**
+	 * 
+	 * @param item
+	 * @param doAfter
+	 * @throws Exception
+	 */
 	public void save(final User item, final CodeSnippet doAfter) throws Exception {
 		executeInTransaction(new CodeSnippet()
 		{
@@ -159,6 +168,11 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 		});
 	}
 	
+	/**
+	 * 
+	 * @param item
+	 * @throws Exception
+	 */
 	private void saveRaw(User item) throws Exception
 	{
 		String query = 
@@ -179,11 +193,22 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 		jdbcUpdate(query, arguments);
 	}
 
+	/**
+	 * 
+	 * @param item
+	 * @throws Exception
+	 */
 	public void update(User item) throws Exception
 	{
 		update(item, new EmptyCodeSnippet());
 	}
 	
+	/**
+	 * 
+	 * @param item
+	 * @param doAfter
+	 * @throws Exception
+	 */
 	public void update(final User item, final CodeSnippet doAfter) throws Exception
 	{
 		executeInTransaction(new CodeSnippet()
@@ -198,7 +223,12 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 			}
 		});
 	}
-		
+	
+	/**
+	 * 
+	 * @param user
+	 * @throws Exception
+	 */
 	private void updateRaw(User user) throws Exception
 	{
 		String query = 
@@ -220,6 +250,11 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 		jdbcUpdate(query, arguments);
 	}
 	
+	/**
+	 * 
+	 * @param user
+	 * @throws Exception
+	 */
 	private void clearRolesMappingForUser(User user) throws Exception
 	{
 		String query = "DELETE FROM " + PERMISSIONS_TABLE_NAME + " WHERE userId = ?";
@@ -227,10 +262,13 @@ public class UserDao extends DaoForEntityWithSurrogateKey<User>
 		jdbcUpdate(query, arguments);
 	}
 	
+	/**
+	 * 
+	 * @param user
+	 * @throws Exception
+	 */
 	private void addAllRolesToRolesMappingForUser(User user) throws Exception
 	{
-		// TODO: zvazit, zda by se vyplatilo toto provest v jednom SQL statementu
-	
 		for (Role role : user.getRoles())
 		{
 			Object[] arguments =

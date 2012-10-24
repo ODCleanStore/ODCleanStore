@@ -1,12 +1,9 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.en;
 
-import java.util.List;
-
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.InputGraphState;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
 
 public class InputGraphStateDao extends DaoForEntityWithSurrogateKey<InputGraphState> {
 
@@ -24,12 +21,10 @@ public class InputGraphStateDao extends DaoForEntityWithSurrogateKey<InputGraphS
 	}
 	
 	@Override
-	public List<InputGraphState> loadAllBy (QueryCriteria criteria) {
-
-		String query = "SELECT * FROM " + TABLE_NAME + criteria.buildWhereClause() + criteria.buildOrderByClause();
-
-		Object[] param = criteria.buildWhereClauseParams();
-		
-		return jdbcQuery(query, param, getRowMapper());
+	protected void deleteRaw(Integer item) throws Exception
+	{
+		throw new UnsupportedOperationException(
+			"Cannot delete rows from table: " + getTableName() + "."
+		);
 	}
 }

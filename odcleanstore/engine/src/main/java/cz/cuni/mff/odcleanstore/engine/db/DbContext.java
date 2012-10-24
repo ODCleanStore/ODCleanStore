@@ -80,6 +80,13 @@ public abstract class DbContext {
 		return connection.execute(query, objects);
 	}
 	
+	protected int executeNullsAlllowed(String query, Object... objects) throws ConnectionException, QueryException  {
+		if (connection == null) {
+			throw new ConnectionException(ERROR_CLOSED_CONNECTION);
+		}		
+		return connection.executeNullsAllowed(query, objects);
+	}
+	
 	protected static void close(WrappedResultSet resultSet) {
 		if (resultSet != null) {
 			resultSet.closeQuietly();

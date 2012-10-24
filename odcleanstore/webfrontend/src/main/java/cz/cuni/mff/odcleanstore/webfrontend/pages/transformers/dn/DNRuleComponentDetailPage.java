@@ -2,18 +2,23 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponent;
+import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponentType;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.LimitedEditingForm;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleComponentDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleComponentTypeDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
+import cz.cuni.mff.odcleanstore.webfrontend.validators.DNComponentValidator;
 
 @AuthorizeInstantiation({ Role.PIC })
 public class DNRuleComponentDetailPage extends LimitedEditingPage
@@ -97,8 +102,14 @@ public class DNRuleComponentDetailPage extends LimitedEditingPage
 			}
 		};
 		
-		form.add(createEnumSelectbox(dnRuleComponentTypeDao, "type"));
-		form.add(createTextarea("modification", true));
+		DropDownChoice<DNRuleComponentType> type= createEnumSelectbox(dnRuleComponentTypeDao, "type");
+		form.add(type);
+
+		TextArea<String> modification = new TextArea<String>("modification");
+		modification.setRequired(true);
+		modification.add(new DNComponentValidator(ConfigLoader.getConfig().getBackendGroup().getDirtyDBJDBCConnectionCredentials(), type));
+		form.add(modification);
+
 		form.add(createTextarea("description", false));
 		
 		add(form);

@@ -9,8 +9,10 @@ import org.apache.wicket.model.IModel;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNReplaceTemplateInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.LimitedEditingForm;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
-import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.CompiledDNRuleDao;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RegexField;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.ReplacementField;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNReplaceTemplateInstanceDao;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
@@ -22,7 +24,7 @@ public class EditDNReplaceTemplateInstancePage extends LimitedEditingPage
 	private static Logger logger = Logger.getLogger(NewDNReplaceTemplateInstancePage.class);
 	
 	private DNReplaceTemplateInstanceDao dnReplaceTemplateInstanceDao;
-	private CompiledDNRuleDao compiledDNRuleDao;
+	private DNRuleDao dnRuleDao;
 	
 	public EditDNReplaceTemplateInstancePage(final Integer ruleId) 
 	{
@@ -36,7 +38,7 @@ public class EditDNReplaceTemplateInstancePage extends LimitedEditingPage
 		// prepare DAO objects
 		//
 		this.dnReplaceTemplateInstanceDao = daoLookupFactory.getDao(DNReplaceTemplateInstanceDao.class);
-		this.compiledDNRuleDao = daoLookupFactory.getDao(CompiledDNRuleDao.class);
+		this.dnRuleDao = daoLookupFactory.getDao(DNRuleDao.class, true);
 		
 		// register page components
 		//
@@ -70,7 +72,7 @@ public class EditDNReplaceTemplateInstancePage extends LimitedEditingPage
 				
 				try 
 				{
-					compiledDNRuleDao.delete(instance.getRawRuleId());
+					dnRuleDao.delete(instance.getRawRuleId());
 					
 					// note that when deleting the raw rule, the template instance
 					// gets automatically deleted as well, due to on delete constraints;
@@ -99,8 +101,12 @@ public class EditDNReplaceTemplateInstancePage extends LimitedEditingPage
 		};
 		
 		form.add(createIRITextfield("propertyName"));
-		form.add(createTextfield("pattern"));
-		form.add(createTextfield("replacement"));
+
+		RegexField pattern = createRegexTextfield("pattern");
+		form.add(pattern);
+		
+		ReplacementField replacement = createReplacementTextfield("replacement", pattern);
+		form.add(replacement);
 		
 		add(form);
 	}

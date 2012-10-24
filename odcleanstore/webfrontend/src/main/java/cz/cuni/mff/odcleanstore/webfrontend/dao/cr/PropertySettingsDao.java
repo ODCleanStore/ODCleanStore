@@ -5,6 +5,12 @@ import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.cr.PropertySettings;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 
+/**
+ * The Property settings DAO.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class PropertySettingsDao extends DaoForEntityWithSurrogateKey<PropertySettings>
 {	
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "CR_PROPERTIES";
@@ -13,6 +19,9 @@ public class PropertySettingsDao extends DaoForEntityWithSurrogateKey<PropertySe
 	
 	private ParameterizedRowMapper<PropertySettings> rowMapper;
 	
+	/**
+	 * 
+	 */
 	public PropertySettingsDao()
 	{
 		this.rowMapper = new PropertySettingsRowMapper();
@@ -51,6 +60,11 @@ public class PropertySettingsDao extends DaoForEntityWithSurrogateKey<PropertySe
 		jdbcUpdate(query, arguments);
 	}
 
+	/**
+	 * 
+	 * @param item
+	 * @throws Exception
+	 */
 	public void update(PropertySettings item) throws Exception
 	{
 		String query = 
