@@ -22,12 +22,16 @@ public class DNConcatenateTemplateInstanceCompiler
 	{
 		// 1. Create rule.
 		//
+		String delimiter = instance.getDelimiter();
+
+		if (delimiter == null) delimiter = "";
+
 		String description = String.format
 		(
 			"Raw form of a cancatenate rule template instance. " +
 			"Property: %s; Delimiter: '%s';", 
 			instance.getPropertyName(),
-			instance.getDelimiter()
+			delimiter
 		);
 		
 		CompiledDNRule rule = new CompiledDNRule(instance.getGroupId(), description);
@@ -40,17 +44,14 @@ public class DNConcatenateTemplateInstanceCompiler
 			property = "<" + property + ">";
 		}
 		
-		String delimiter = instance.getDelimiter();
-
-		if (delimiter == null) delimiter = "";
-		
 		delimiter = Utils.escapeSPARQLLiteral(delimiter);
 		
 		String modification = String.format
 		(
-			"DELETE {?s ?p ?o} INSERT {?s ?p ?c} WHERE { {SELECT ?s ?p (sql:group_concat(str(?o), '%s')) AS ?c WHERE {?s ?p ?o} GROUP BY ?s ?p HAVING COUNT(?o) > 1} {?s ?p ?o} FILTER (?p = %s)}",
-			delimiter,
-			property
+			"DELETE {?s %s ?o} INSERT {?s %s ?c} WHERE { {SELECT ?s ?p (sql:group_concat(str(?o), '%s')) AS ?c WHERE {?s ?p ?o} GROUP BY ?s ?p HAVING COUNT(?o) > 1} {?s ?p ?o} FILTER (BOUND(?c))}",
+			property,
+			property,
+			delimiter
 		);
 
 		String compDescription = "Concatenate all objects of the property.";

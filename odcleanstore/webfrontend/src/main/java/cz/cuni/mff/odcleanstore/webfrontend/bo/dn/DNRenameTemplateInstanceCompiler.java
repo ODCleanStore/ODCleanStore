@@ -48,7 +48,8 @@ public class DNRenameTemplateInstanceCompiler
 
 		String modification = String.format
 		(
-			"DELETE {?s ?p ?o} INSERT {?s %s ?o} WHERE { ?s ?p ?o FILTER (?p = %s)}", 
+			"DELETE {?s %s ?o} INSERT {?s %s ?o} WHERE { ?s %s ?o}",
+			sourceProperty,
 			targetProperty, 
 			sourceProperty
 		);

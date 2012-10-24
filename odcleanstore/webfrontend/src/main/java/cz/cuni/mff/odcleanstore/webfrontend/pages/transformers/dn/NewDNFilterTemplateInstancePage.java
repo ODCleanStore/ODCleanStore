@@ -8,6 +8,7 @@ import org.apache.wicket.model.IModel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNFilterTemplateInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.RegexField;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNFilterTemplateInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
@@ -95,7 +96,10 @@ public class NewDNFilterTemplateInstancePage extends LimitedEditingPage
 		};
 		
 		form.add(createIRITextfield("propertyName"));
-		form.add(createTextfield("pattern"));
+
+		RegexField pattern = createRegexTextfield("pattern");
+		form.add(pattern);
+
 		form.add(createCheckbox("keep"));
 		
 		add(form);

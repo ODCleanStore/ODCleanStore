@@ -11,9 +11,9 @@ import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.Service;
 import cz.cuni.mff.odcleanstore.engine.ServiceState;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
-import cz.cuni.mff.odcleanstore.engine.db.model.GraphStates;
 import cz.cuni.mff.odcleanstore.engine.db.model.PipelineCommand;
-import cz.cuni.mff.odcleanstore.engine.db.model.PipelineErrorTypes;
+import cz.cuni.mff.odcleanstore.model.EnumGraphState;
+import cz.cuni.mff.odcleanstore.model.EnumPipelineErrorType;
 
 /**
  *  @author Petr Jerman
@@ -138,7 +138,7 @@ public final class PipelineService extends Service implements Runnable {
 		manipulator.clearGraphsInCleanDB();
 		manipulator.clearGraphsInDirtyDB();
 		manipulator.deleteInputFiles();
-		status.setNoDirtyState(GraphStates.DELETED);
+		status.setNoDirtyState(EnumGraphState.DELETED);
 		LOG.info(format("deleting successfully finished", status));
 	}
 	
@@ -154,11 +154,11 @@ public final class PipelineService extends Service implements Runnable {
 		executeStateProcessingLoadData(manipulator, status);
 		executeStateProcessingTransformers(status);
 		if (status.isMarkedForDeleting()) {
-			status.setNoDirtyState(GraphStates.DELETING);
+			status.setNoDirtyState(EnumGraphState.DELETING);
 			LOG.info(format("processing in dirty db successfully finished, graph is marked for deleting", status));
 		}
 		else {
-			status.setNoDirtyState(GraphStates.PROCESSED);
+			status.setNoDirtyState(EnumGraphState.PROCESSED);
 			LOG.info(format("processing in dirty db successfully finished", status));
 		}
 	}
@@ -171,7 +171,7 @@ public final class PipelineService extends Service implements Runnable {
 		} catch (PipelineGraphManipulatorException e) {
 			if(isRunnningAndDbInstancesAvailable(true)) {
 				String message = formatExceptionForDB("data loading failure", e, null, status);
-				status.setDirtyState(PipelineErrorTypes.DATA_LOADING_FAILURE, message);
+				status.setDirtyState(EnumPipelineErrorType.DATA_LOADING_FAILURE, message);
 			}
 			throw e;
 		}
@@ -187,7 +187,7 @@ public final class PipelineService extends Service implements Runnable {
 		} catch (PipelineGraphTransformerExecutorException e) {
 			if(isRunnningAndDbInstancesAvailable(true)) {
 				String message = formatExceptionForDB("transformer processing failure", e, e.getCommand(), status);
-				status.setDirtyState(PipelineErrorTypes.TRANSFORMER_FAILURE, message);
+				status.setDirtyState(EnumPipelineErrorType.TRANSFORMER_FAILURE, message);
 			}
 			throw e;
 		}
@@ -207,12 +207,12 @@ public final class PipelineService extends Service implements Runnable {
 		} catch (PipelineGraphManipulatorException e) {
 			if(isRunnningAndDbInstancesAvailable(true)) {
 				String message = formatExceptionForDB("copy to clean db", e, null, status);
-				status.setDirtyState(PipelineErrorTypes.COPY_TO_CLEAN_DB_FAILURE, message);
+				status.setDirtyState(EnumPipelineErrorType.COPY_TO_CLEAN_DB_FAILURE, message);
 			}
 			throw e;
 		}
 		
-		status.setNoDirtyState(GraphStates.PROPAGATED);
+		status.setNoDirtyState(EnumGraphState.PROPAGATED);
 		LOG.debug(format("copying temporary new data from dirty to clean db successfully finished", status));
 	}
 
@@ -221,7 +221,7 @@ public final class PipelineService extends Service implements Runnable {
 
 		LOG.info(format("renaming old graphs in clean db started", status));
 		manipulator.renameGraphsToOldGraphsInCleanDB();
-		status.setNoDirtyState(GraphStates.OLDGRAPHSPREFIXED);
+		status.setNoDirtyState(EnumGraphState.OLDGRAPHSPREFIXED);
 		LOG.debug(format("renaming old graphs in clean db successfully finished", status));
 	}
 	
@@ -231,7 +231,7 @@ public final class PipelineService extends Service implements Runnable {
 		LOG.info(format("clearing temporary prefix of new graphs and clearing old graphs in clean db started", status));
 		manipulator.renameNewGraphsToGraphsInCleanDB();
 		manipulator.clearOldGraphsInCleanDB();
-		status.setNoDirtyState(GraphStates.NEWGRAPHSPREPARED);
+		status.setNoDirtyState(EnumGraphState.NEWGRAPHSPREPARED);
 		LOG.debug(format("clearing temporary prefix of new graphs and clearing old graphs in clean dbsuccessfully finished", status));
 	}
 	
@@ -241,7 +241,7 @@ public final class PipelineService extends Service implements Runnable {
 		LOG.info(format("cleaning dirty db started", status));
 		manipulator.clearGraphsInDirtyDB();
 		manipulator.deleteInputFiles();
-		if (status.setNoDirtyState(GraphStates.FINISHED) == GraphStates.QUEUED) {
+		if (status.setNoDirtyState(EnumGraphState.FINISHED) == EnumGraphState.QUEUED) {
 			LOG.info(format("pipeline successfully finished and graf is returned into queue due restart pipeline request", status));
 		} else {
 			LOG.info(format("pipeline successfully finished", status));
@@ -254,7 +254,7 @@ public final class PipelineService extends Service implements Runnable {
 		LOG.info(format("cleaning dirty graph started", status));
 		manipulator.clearNewGraphsInCleanDB();
 		manipulator.clearGraphsInDirtyDB();
-		if (status.setNoDirtyState(GraphStates.WRONG) == GraphStates.QUEUED) {
+		if (status.setNoDirtyState(EnumGraphState.WRONG) == EnumGraphState.QUEUED) {
 			LOG.info(format("cleaning dirty graph successfully finished, graf is returned into queue due restart pipeline request", status));
 		} else {
 			LOG.info(format("cleaning dirty graph successfully finished, graph moved to WRONG state", status));

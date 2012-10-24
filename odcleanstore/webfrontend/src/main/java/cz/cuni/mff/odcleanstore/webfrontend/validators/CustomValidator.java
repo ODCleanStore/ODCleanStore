@@ -15,8 +15,14 @@ public abstract class CustomValidator implements IValidator<String>
 
 	protected void handleError(IValidatable<String> validatable, String errMsgKey)
 	{
+		handleError(validatable, errMsgKey, null);
+	}
+	
+	protected void handleError(IValidatable<String> validatable, String errMsgKey, String message)
+	{
 		ValidationError error = new ValidationError();
 		error.addMessageKey(ERR_MSG_KEY_PREFIX + errMsgKey);
+		error.setVariable("message", message);
 		validatable.error(error);
 	}
 }

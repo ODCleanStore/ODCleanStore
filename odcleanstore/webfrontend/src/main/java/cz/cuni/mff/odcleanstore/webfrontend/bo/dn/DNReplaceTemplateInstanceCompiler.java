@@ -47,8 +47,10 @@ public class DNReplaceTemplateInstanceCompiler
 
 		String modification = String.format
 		(
-			"DELETE {?s ?p ?o} INSERT {?s ?p ?x} " +
-			"WHERE { {SELECT ?s ?p ?o (fn:replace(str(?o), '%s', '%s')) AS ?x WHERE {{?s ?p ?o} FILTER (?p = %s)}}}", 
+			"DELETE {?s %s ?o} INSERT {?s %s ?x} " +
+			"WHERE { {SELECT ?s ?o (fn:replace(str(?o), '%s', '%s')) AS ?x WHERE {{?s %s ?o}}} FILTER (BOUND(?x))}",
+			property,
+			property,
 			pattern, 
 			replacement, 
 			property

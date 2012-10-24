@@ -37,8 +37,12 @@
                         <li><a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/transformers/dn/DNGroupsListPage.html"><span>DN</span></a></li>
                     </ul>
                 </li>
-				<li wicket:id="engineStateMenuGroup">
-                    <a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/engine/EngineStatePage.html"><span>Engine state</span></a>
+				<li class="has-sub" wicket:id="engineStateMenuGroup">
+                    <a href="#"><span>Engine</span></a>
+                    <ul>
+                    	<li><a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/engine/EngineStatePage.html"><span>State</span></a></li>
+                    	<li><a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/engine/InputGraphsPage.html"><span>Graphs</span></a></li>
+                    </ul>
                 </li>
 				<li class="has-sub" wicket:id="outputWSMenuGroup">
 					<a href="#"><span>Output webservice</span></a>

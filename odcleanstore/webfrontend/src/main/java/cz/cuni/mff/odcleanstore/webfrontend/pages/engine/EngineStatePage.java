@@ -6,12 +6,14 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.CompoundPropertyModel;
 
+import cz.cuni.mff.odcleanstore.model.EnumGraphState;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.AttachedEngine;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.GraphInErrorCount;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.BooleanLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.TimestampLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentSortableDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.AttachedEngineDao;
@@ -77,7 +79,7 @@ public class EngineStatePage extends FrontendPage
 				item.add(new BooleanLabel("isPipelineError"));
 				item.add(new BooleanLabel("isNotifyRequired"));
 				item.add(new Label("stateDescription"));
-				item.add(new Label("updated"));
+				item.add(new TimestampLabel("updated"));
 			}
 		};
 		
@@ -103,7 +105,7 @@ public class EngineStatePage extends FrontendPage
 
 	private void addGraphsInErrorPerPipeline() {
 		DependentSortableDataProvider<GraphInErrorCount> data =
-				new DependentSortableDataProvider<GraphInErrorCount>(graphInErrorCountDao, "pipelineLabel", "iState.label", "WRONG");
+				new DependentSortableDataProvider<GraphInErrorCount>(graphInErrorCountDao, "pipelineLabel", "iState.label", EnumGraphState.WRONG.name());
 			
 		DataView<GraphInErrorCount> dataView = new DataView<GraphInErrorCount>("graphsInErrorPerPipeline", data)
 		{

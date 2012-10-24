@@ -7,11 +7,11 @@ import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
 import cz.cuni.mff.odcleanstore.engine.db.DbTransactionException;
 import cz.cuni.mff.odcleanstore.engine.db.model.DbOdcsContext;
 import cz.cuni.mff.odcleanstore.engine.db.model.Graph;
-import cz.cuni.mff.odcleanstore.engine.db.model.GraphStates;
 import cz.cuni.mff.odcleanstore.engine.db.model.GroupRule;
 import cz.cuni.mff.odcleanstore.engine.db.model.Pipeline;
 import cz.cuni.mff.odcleanstore.engine.db.model.PipelineCommand;
-import cz.cuni.mff.odcleanstore.engine.db.model.PipelineErrorTypes;
+import cz.cuni.mff.odcleanstore.model.EnumGraphState;
+import cz.cuni.mff.odcleanstore.model.EnumPipelineErrorType;
 
 public final class PipelineGraphStatus {
 
@@ -51,20 +51,20 @@ public final class PipelineGraphStatus {
                         }
                         switch (graph.state) {
                         case QUEUED_FOR_DELETE:
-                            context.updateState(graph.id, GraphStates.DELETING);
-                            graph.state = GraphStates.DELETING;
+                            context.updateState(graph.id, EnumGraphState.DELETING);
+                            graph.state = EnumGraphState.DELETING;
                             break;
                         case QUEUED_URGENT:
-                            context.updateState(graph.id, GraphStates.PROCESSING);
+                            context.updateState(graph.id, EnumGraphState.PROCESSING);
                             context.clearResetPipelineRequest(graph.id);
                             graph.resetPipelineRequest = false;
-                            graph.state = GraphStates.PROCESSING;
+                            graph.state = EnumGraphState.PROCESSING;
                             break;
                         case QUEUED:
-                            context.updateState(graph.id, GraphStates.PROCESSING);
+                            context.updateState(graph.id, EnumGraphState.PROCESSING);
                             context.clearResetPipelineRequest(graph.id);
                             graph.resetPipelineRequest = false;
-                            graph.state = GraphStates.PROCESSING;
+                            graph.state = EnumGraphState.PROCESSING;
                             break;
                         default:
                             throw new PipelineGraphStatusException(ERROR_SELECT_QUEUED_GRAPH);
@@ -114,7 +114,7 @@ public final class PipelineGraphStatus {
         return graph.uuid;
     }
 
-    GraphStates getState() {
+    EnumGraphState getState() {
         return graph.state;
     }
 
@@ -167,31 +167,31 @@ public final class PipelineGraphStatus {
         return markedForDeleting;
     }
 
-    GraphStates setNoDirtyState(GraphStates state) throws PipelineGraphStatusException {
+    EnumGraphState setNoDirtyState(EnumGraphState state) throws PipelineGraphStatusException {
         DbOdcsContext context = null;
-        assert state != GraphStates.DIRTY;
+        assert state != EnumGraphState.DIRTY;
         try {
             context = new DbOdcsContext();
             
             boolean isResetPipelineState = context.selectResetPipelineRequest(graph.id);
 
-            if (state == GraphStates.DELETED || (state == GraphStates.WRONG && !graph.isInCleanDb)) {
+            if (state == EnumGraphState.DELETED || (state == EnumGraphState.WRONG && !graph.isInCleanDb)) {
                 context.deleteAttachedGraphs(graph.id);
             }
             
-            if (state == GraphStates.NEWGRAPHSPREPARED) {
+            if (state == EnumGraphState.NEWGRAPHSPREPARED) {
                 context.updateStateAndIsInCleanDb(graph.id, state, true);
-            } else if (state == GraphStates.DELETING) {
+            } else if (state == EnumGraphState.DELETING) {
                 context.updateStateAndIsInCleanDb(graph.id, state, false);
-            } else if (state == GraphStates.WRONG && isResetPipelineState) {
+            } else if (state == EnumGraphState.WRONG && isResetPipelineState) {
             	context.deleteGraphInError(graph.id);
-            	context.updateState(graph.id, GraphStates.QUEUED);
-            } else if (state == GraphStates.FINISHED && isResetPipelineState) {
-            	context.updateState(graph.id, GraphStates.QUEUED);
-            } else if (state == GraphStates.FINISHED) {
+            	context.updateState(graph.id, EnumGraphState.QUEUED);
+            } else if (state == EnumGraphState.FINISHED && isResetPipelineState) {
+            	context.updateState(graph.id, EnumGraphState.QUEUED);
+            } else if (state == EnumGraphState.FINISHED) {
             	context.insertPipelineResult(graph.id, graph.pipeline.id, graph.pipeline.authorId, isInCleanDbBeforeProcessing , true, null, new Date());
             	context.updateState(graph.id, state);
-            } else if (state == GraphStates.WRONG) {
+            } else if (state == EnumGraphState.WRONG) {
             	String errorMessage = context.selectErrorMessageFromGraphInError(graph.id);
             	context.insertPipelineResult(graph.id, graph.pipeline.id, graph.pipeline.authorId, isInCleanDbBeforeProcessing , false, errorMessage, new Date());
             	context.updateState(graph.id, state);
@@ -203,18 +203,18 @@ public final class PipelineGraphStatus {
 
             graph.state = state;
 
-            if (state == GraphStates.DELETED || (state == GraphStates.WRONG && !graph.isInCleanDb)) {
+            if (state == EnumGraphState.DELETED || (state == EnumGraphState.WRONG && !graph.isInCleanDb)) {
                 attachedGraphs.clear();
             }
             
-            if (state == GraphStates.NEWGRAPHSPREPARED) {
+            if (state == EnumGraphState.NEWGRAPHSPREPARED) {
                 graph.isInCleanDb = true;
-            } else if (state == GraphStates.DELETING) {
+            } else if (state == EnumGraphState.DELETING) {
                 graph.isInCleanDb = false;
-        	} else if (state == GraphStates.WRONG && isResetPipelineState) {
-        		state = GraphStates.QUEUED;
-        	} else if (state == GraphStates.FINISHED && isResetPipelineState) {
-        		state = GraphStates.QUEUED;
+        	} else if (state == EnumGraphState.WRONG && isResetPipelineState) {
+        		state = EnumGraphState.QUEUED;
+        	} else if (state == EnumGraphState.FINISHED && isResetPipelineState) {
+        		state = EnumGraphState.QUEUED;
         	}
             return state;
         } catch (Exception e) {
@@ -226,16 +226,16 @@ public final class PipelineGraphStatus {
         }
     }
 
-    void setDirtyState(PipelineErrorTypes pipelineErrorType, String message) throws PipelineGraphStatusException {
+    void setDirtyState(EnumPipelineErrorType pipelineErrorType, String message) throws PipelineGraphStatusException {
         DbOdcsContext context = null;
         try {
             context = new DbOdcsContext();
             context.insertGraphInError(graph.id, pipelineErrorType, message);
-            context.updateState(graph.id, GraphStates.DIRTY);
+            context.updateState(graph.id, EnumGraphState.DIRTY);
             context.commit();
-            graph.state = GraphStates.DIRTY;
+            graph.state = EnumGraphState.DIRTY;
         } catch (Exception e) {
-            throw new PipelineGraphStatusException(format(ERROR_SET_STATE, GraphStates.DIRTY), e);
+            throw new PipelineGraphStatusException(format(ERROR_SET_STATE, EnumGraphState.DIRTY), e);
         } finally {
             if (context != null) {
                 context.closeQuietly();
@@ -295,7 +295,7 @@ public final class PipelineGraphStatus {
         }
     }
 
-    private String format(String message, GraphStates state) {
+    private String format(String message, EnumGraphState state) {
         try {
             return FormatHelper.formatGraphMessage(message + " " + state.toString(), graph.uuid, isInCleanDbBeforeProcessing);
         } catch (Exception e) {

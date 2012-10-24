@@ -8,8 +8,11 @@ import java.util.HashSet;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
+import cz.cuni.mff.odcleanstore.connection.exceptions.ModelException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.engine.db.DbContext;
+import cz.cuni.mff.odcleanstore.model.EnumGraphState;
+import cz.cuni.mff.odcleanstore.model.EnumPipelineErrorType;
 
 public class DbOdcsContext extends DbContext {
 
@@ -49,13 +52,13 @@ public class DbOdcsContext extends DbContext {
     }
 
     private Graph createDbGraph(WrappedResultSet resultSet)
-            throws ConnectionException, QueryException, DbOdcsException, SQLException {
+            throws ConnectionException, QueryException, ModelException, SQLException {
         if (resultSet.next()) {
             Graph dbGraph = new Graph();
             dbGraph.pipeline = new Pipeline();
             dbGraph.id = resultSet.getInt(1);
             dbGraph.uuid = resultSet.getString(2);
-            dbGraph.state = GraphStates.fromId(resultSet.getInt(3));
+            dbGraph.state = EnumGraphState.fromId(resultSet.getInt(3));
             dbGraph.pipeline.id = resultSet.getInt(4);
             dbGraph.pipeline.label = resultSet.getString(5);
             dbGraph.isInCleanDb = resultSet.getInt(6) != 0;
@@ -97,7 +100,7 @@ public class DbOdcsContext extends DbContext {
         }
     }
 
-    public boolean updateState(int graphId, GraphStates newState) throws DbOdcsException {
+    public boolean updateState(int graphId, EnumGraphState newState) throws DbOdcsException {
         try {
             int updatedRowCount = execute(SQL.UPDATE_GRAPH_STATE, newState.toId(), graphId);
             return updatedRowCount > 0;
@@ -106,7 +109,7 @@ public class DbOdcsContext extends DbContext {
         }
     }
 
-    public boolean updateStateAndIsInCleanDb(int graphId, GraphStates newState, boolean isInCleanDb) throws DbOdcsException {
+    public boolean updateStateAndIsInCleanDb(int graphId, EnumGraphState newState, boolean isInCleanDb) throws DbOdcsException {
         try {
             int updatedRowCount = execute(SQL.UPDATE_GRAPH_STATE_AND_ISINCLEANDB, newState.toId(), isInCleanDb ? 1 : 0, graphId);
             return updatedRowCount > 0;
@@ -251,7 +254,7 @@ public class DbOdcsContext extends DbContext {
         }
     }
 
-    public void insertGraphInError(int graphId, PipelineErrorTypes type, String message) throws DbOdcsException {
+    public void insertGraphInError(int graphId, EnumPipelineErrorType type, String message) throws DbOdcsException {
         try {
         	execute(SQL.INSERT_GRAPH_IN_ERROR, graphId, type.toId(), message);
         } catch (Exception e) {

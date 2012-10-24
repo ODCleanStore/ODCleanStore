@@ -8,6 +8,7 @@ import cz.cuni.mff.odcleanstore.shared.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -355,15 +356,15 @@ public final class VirtuosoConnectionWrapper {
 
     /**
      * Insert RDF data from file in rdfXml format to the database.
-     * @param relativeBase relative URI base for payload
-     * @param rdfXmlFileName file name with payload in RdfXml format
+     * @param rdfXmlFile file with payload in RdfXml format
      * @param graphName name of the graph to insert
+     * @param relativeBase relative URI base for payload
      * @throws QueryException query error
      */
-    public void insertRdfXmlFromFile(String relativeBase, String rdfXmlFileName, String graphName) throws QueryException {
+    public void insertRdfXmlFromFile(File rdfXmlFile, String graphName, String relativeBase) throws QueryException {
         
         String base = (relativeBase == null) ? "" : relativeBase;
-        String escapedFileName = rdfXmlFileName.replace('\\', '/');
+        String escapedFileName = rdfXmlFile.getAbsolutePath().replace('\\', '/');
         String statement = "{call DB.DBA.RDF_LOAD_RDFXML("
                 + "file_to_string_output('" + escapedFileName + "'), '" + base + "', '" + graphName + "')}";
 
@@ -372,18 +373,30 @@ public final class VirtuosoConnectionWrapper {
 
     /**
      * Insert RDF data from file in N3 format to the database.
-     * 
-     * @param relativeBase relative URI base for payload
-     * @param ttlFileName file name with payload in N3 format
+     * @param ttlFile file with payload in N3 format
      * @param graphName name of the graph to insert
+     * @param relativeBase relative URI base for payload
+     * 
      * @throws QueryException query error
      */
-    public void insertN3FromFile(String relativeBase, String ttlFileName, String graphName) throws QueryException {
+    public void insertN3FromFile(File ttlFile, String graphName, String relativeBase) throws QueryException {
         String base = (relativeBase == null) ? "" : relativeBase;
-        String escapedFileName = ttlFileName.replace('\\', '/');
+        String escapedFileName = ttlFile.getAbsolutePath().replace('\\', '/');
         String statement = "{call DB.DBA.TTLP(file_to_string_output("
                 + "'" + escapedFileName + "'), '" + base + "', '" + graphName + "', " + TTL_FLAGS + ")}";
 
+        executeCall(statement);
+    }
+    
+    /**
+     * Exports a named graph to the given file in TTL format.
+     * @param exportFile file to export to
+     * @param graphName name of the graph to insert
+     * @throws QueryException query error
+     */
+    public void exportToTTL(File exportFile, String graphName) throws QueryException {
+        String escapedFileName = exportFile.getAbsolutePath().replace('\\', '/');
+        String statement = "{CALL dump_graph_ttl('" + graphName + "', '" + escapedFileName + "')}";
         executeCall(statement);
     }
 
