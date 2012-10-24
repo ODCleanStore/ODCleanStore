@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
 
+import cz.cuni.mff.odcleanstore.model.EnumGraphState;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.InputGraph;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.BooleanLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.StateLabel;
@@ -67,7 +68,14 @@ public class InputGraphDetailPage extends FrontendPage {
 			}
 		};
 		
-		TemporaryFileResourceLink<InputGraph> downloadLink = new TemporaryFileResourceLink<InputGraph>(componentId, "text/turtle", fileCreator);		
+		TemporaryFileResourceLink<InputGraph> downloadLink = new TemporaryFileResourceLink<InputGraph>(componentId, "text/turtle", fileCreator) {
+			@Override
+			public boolean isVisible()
+			{
+				InputGraph inputGraph = (InputGraph) InputGraphDetailPage.this.getDefaultModelObject();
+				return inputGraph.getStateLabel().equals(EnumGraphState.FINISHED.name());
+			}
+		};		
 		return downloadLink;
 	}
 }
