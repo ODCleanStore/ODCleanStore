@@ -28,7 +28,7 @@ import java.util.Locale;
  */
 public final class VirtuosoConnectionWrapper {
     private static final Logger LOG = LoggerFactory.getLogger(VirtuosoConnectionWrapper.class);
-    
+
     /** Flags for TTL import. */
     public static final int TTL_FLAGS = 64; // Relax TURTLE syntax to include popular violations
 
@@ -41,7 +41,7 @@ public final class VirtuosoConnectionWrapper {
      */
     public static VirtuosoConnectionWrapper createConnection(JDBCConnectionCredentials connectionCredentials)
             throws ConnectionException {
-        
+
         try {
             Class.forName(Utils.JDBC_DRIVER);
         } catch (ClassNotFoundException e) {
@@ -61,7 +61,7 @@ public final class VirtuosoConnectionWrapper {
 
     /** Database connection. */
     private Connection connection;
-    
+
     /**
      * Query timeout in seconds.
      * Default value loaded from global configuration settings.
@@ -77,7 +77,7 @@ public final class VirtuosoConnectionWrapper {
         this.connection = connection;
         queryTimeout = ConfigLoader.getConfig().getBackendGroup().getQueryTimeout();
     }
-    
+
     /**
      * Sets query timeout for all queries executed through this wrapper.
      * @param queryTimeout the new query timeout limit in seconds; zero means there is no limit
@@ -173,12 +173,12 @@ public final class VirtuosoConnectionWrapper {
             throw new QueryException(e);
         }
     }
-    
+
     /**
      * Executes a general SQL/SPARQL query.
      * @param query SQL/SPARQL query
      * @param objects query bindings
-     * @return updated row count 
+     * @return updated row count
      * @throws QueryException query error
      */
     public int execute(String query, Object... objects) throws QueryException {
@@ -186,23 +186,23 @@ public final class VirtuosoConnectionWrapper {
             PreparedStatement statement = connection.prepareStatement(query);
 
             for (int i = 0; i < objects.length; ++i) {
-            		statement.setObject(i + 1, objects[i]);
+                statement.setObject(i + 1, objects[i]);
             }
 
             statement.setQueryTimeout(queryTimeout);
             statement.execute();
             int updatedCount = statement.getUpdateCount();
-            return updatedCount < 0 ? 0 : updatedCount; 
+            return updatedCount < 0 ? 0 : updatedCount;
         } catch (SQLException e) {
             throw new QueryException(e);
         }
     }
-  
+
     /**
      * Executes a general SQL/SPARQL query with nulls object allowed.
      * @param query SQL/SPARQL query
      * @param objects query bindings
-     * @return updated row count 
+     * @return updated row count
      * @throws QueryException query error
      */
     public int executeNullsAllowed(String query, Object... objects) throws QueryException {
@@ -210,17 +210,17 @@ public final class VirtuosoConnectionWrapper {
             PreparedStatement statement = connection.prepareStatement(query);
 
             for (int i = 0; i < objects.length; ++i) {
-            	if (objects[i] != null) {
-            		statement.setObject(i + 1, objects[i]);
-            	} else {
-            		statement.setNull(i + 1, java.sql.Types.NULL);
-            	}
+                if (objects[i] != null) {
+                    statement.setObject(i + 1, objects[i]);
+                } else {
+                    statement.setNull(i + 1, java.sql.Types.NULL);
+                }
             }
 
             statement.setQueryTimeout(queryTimeout);
             statement.execute();
             int updatedCount = statement.getUpdateCount();
-            return updatedCount < 0 ? 0 : updatedCount; 
+            return updatedCount < 0 ? 0 : updatedCount;
         } catch (SQLException e) {
             throw new QueryException(e);
         }
@@ -262,14 +262,14 @@ public final class VirtuosoConnectionWrapper {
             throw new ConnectionException(e);
         }
     }
-    
+
     /**
      * Adjust transaction isolation level.
      * @param level - one of the following Connection constants:<br />
-     *  Connection.TRANSACTION_READ_UNCOMMITTED,<br />
-     *  Connection.TRANSACTION_READ_COMMITTED, <br />
-     *  Connection.TRANSACTION_REPEATABLE_READ, <br />
-     *  or Connection.TRANSACTION_SERIALIZABLE.
+     *        Connection.TRANSACTION_READ_UNCOMMITTED,<br />
+     *        Connection.TRANSACTION_READ_COMMITTED, <br />
+     *        Connection.TRANSACTION_REPEATABLE_READ, <br />
+     *        or Connection.TRANSACTION_SERIALIZABLE.
      * @throws ConnectionException database error
      */
     public void adjustTransactionIsolationLevel(int level) throws ConnectionException {
@@ -318,19 +318,6 @@ public final class VirtuosoConnectionWrapper {
     }
 
     /**
-     * Insert a quad to the database.
-     * 
-     * @param subject subject part of the quad to insert
-     * @param predicate predicate part of the quad to insert
-     * @param object object part of the quad to insert
-     * @param graphName graph name part of the quad to insert
-     * @throws QueryException query error
-     */
-    public void insertQuad(String subject, String predicate, String object, String graphName) throws QueryException {
-        execute(String.format(Locale.ROOT, "SPARQL INSERT INTO GRAPH <%s> { %s %s %s }", graphName, subject, predicate, object));
-    }
-
-    /**
      * Rename graph in DB.DBA.RDF_QUAD.
      * 
      * @param srcGraphName graph
@@ -340,7 +327,7 @@ public final class VirtuosoConnectionWrapper {
      */
     public void renameGraph(String srcGraphName, String dstGraphName) throws QueryException {
         execute("UPDATE DB.DBA.RDF_QUAD TABLE OPTION (index RDF_QUAD_GS)"
-                + " SET g = iri_to_id (?)" 
+                + " SET g = iri_to_id (?)"
                 + " WHERE g = iri_to_id (?, 0)", dstGraphName, srcGraphName);
     }
 
@@ -362,7 +349,7 @@ public final class VirtuosoConnectionWrapper {
      * @throws QueryException query error
      */
     public void insertRdfXmlFromFile(File rdfXmlFile, String graphName, String relativeBase) throws QueryException {
-        
+
         String base = (relativeBase == null) ? "" : relativeBase;
         String escapedFileName = rdfXmlFile.getAbsolutePath().replace('\\', '/');
         String statement = "{call DB.DBA.RDF_LOAD_RDFXML("
@@ -387,7 +374,7 @@ public final class VirtuosoConnectionWrapper {
 
         executeCall(statement);
     }
-    
+
     /**
      * Exports a named graph to the given file in TTL format.
      * @param exportFile file to export to
@@ -415,8 +402,7 @@ public final class VirtuosoConnectionWrapper {
             throw new QueryException(e);
         }
     }
-    
-    
+
     /**
      * Returns Virtuoso server working directory.
      * @return Virtuoso server working directory

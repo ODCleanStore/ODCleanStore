@@ -281,7 +281,8 @@ final class PipelineGraphManipulator {
 			if (pvmRDFFile.exists()) {
 				LOG.info(format("Loading provenance metadata from rdfxml input file"));
 				con.insertRdfXmlFromFile(pvmRDFFile, provenanceGraphURI, dataBaseUrl);
-				con.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.provenanceMetadataGraph + ">", "<" + provenanceGraphURI + ">", metadataGraphURI);
+				con.execute(String.format(Locale.ROOT, "SPARQL INSERT INTO GRAPH <%s> { <%s> <%s> <%s> }", 
+                        metadataGraphURI, dataGraphURI, ODCS.provenanceMetadataGraph, provenanceGraphURI));
 			}
 			
 			graphStatus.checkResetPipelineRequest();
@@ -289,8 +290,8 @@ final class PipelineGraphManipulator {
 			if (pvmTTLFile.exists()) {
 				LOG.info(format("Loading provenance metadata from ttl input file"));
 				con.insertN3FromFile(pvmTTLFile, provenanceGraphURI, dataBaseUrl);
-				con.insertQuad("<" + dataGraphURI + ">", "<" + ODCS.provenanceMetadataGraph + ">", "<" + provenanceGraphURI + ">", metadataGraphURI);
-				
+				con.execute(String.format(Locale.ROOT, "SPARQL INSERT INTO GRAPH <%s> { <%s> <%s> <%s> }", 
+				        metadataGraphURI, dataGraphURI, ODCS.provenanceMetadataGraph, provenanceGraphURI));
 			}
 			
 			graphStatus.checkResetPipelineRequest();

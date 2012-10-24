@@ -365,15 +365,15 @@ public class QualityAssessorImpl implements QualityAssessor, Serializable {
 
 				if (appliedRules != null) appliedRules.add(rule);
 
-				LOG.info(String.format("Rule %d matched%s", rule.getId(), rule.getDescription() != null ? "\n\n(" + rule.getDescription() + ")\n\n" : ""));
+				LOG.info(String.format("Rule %d matched%s", rule.getId(), rule.getDescription() != null ? "\n(" + rule.getDescription() + ")" : ""));
 			} else {
-				LOG.info(String.format("Rule %d did not match%s", rule.getId(), rule.getDescription() != null ? "\n\n(" + rule.getDescription() + ")\n\n" : ""));
+				LOG.info(String.format("Rule %d did not match%s", rule.getId(), rule.getDescription() != null ? "\n(" + rule.getDescription() + ")" : ""));
 			}
 		} catch (DatabaseException e) {
-			LOG.error(String.format(Locale.ROOT, "Failed to apply rule %d: %s\n\n%s\n\n%s", rule.getId(), rule.getDescription() != null ? rule.getDescription() : "", query, e.getMessage()));
+			LOG.error(String.format(Locale.ROOT, "Failed to apply rule %d: %s\n%s\n%s", rule.getId(), rule.getDescription() != null ? rule.getDescription() : "", query, e.getMessage()));
 			throw new QualityAssessmentException(e);
 		} catch (SQLException e) {
-			LOG.error(String.format(Locale.ROOT, "Failed to apply rule %d: %s\n\n%s\n\n%s", rule.getId(), rule.getDescription() != null ? rule.getDescription() : "", query, e.getMessage()));
+			LOG.error(String.format(Locale.ROOT, "Failed to apply rule %d: %s\n%s\n%s", rule.getId(), rule.getDescription() != null ? rule.getDescription() : "", query, e.getMessage()));
 			throw new QualityAssessmentException(e);
 		} finally {
 			if (results != null) {
