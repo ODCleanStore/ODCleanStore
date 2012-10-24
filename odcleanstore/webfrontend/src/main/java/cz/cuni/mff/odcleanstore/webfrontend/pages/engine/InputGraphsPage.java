@@ -97,7 +97,8 @@ public class InputGraphsPage extends FrontendPage
 					
 					@Override
 					public boolean isVisible() {
-						return inputGraph.getStateLabel().equals(EnumGraphState.FINISHED.name());
+						return inputGraph.getStateLabel().equals(EnumGraphState.FINISHED.name())
+							|| inputGraph.getStateLabel().equals(EnumGraphState.WRONG.name());
 					}
 
 					@Override

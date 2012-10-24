@@ -88,11 +88,11 @@ public class EngineOperationsDao extends Dao
 			"UPDATE " + INPUT_GRAPHS_TABLE_NAME + " " +
 			"SET stateId = (SELECT id FROM " + INPUT_GRAPHS_STATES_TABLE_NAME + " WHERE label = ?) " +
 			"WHERE id = ? AND " +
-			"	stateId = (SELECT id FROM " + INPUT_GRAPHS_STATES_TABLE_NAME + " WHERE label = ?)";
+			"	stateId IN (SELECT id FROM " + INPUT_GRAPHS_STATES_TABLE_NAME + " WHERE label = ? OR label = ?)";
 		
 		logger.debug("graph id: " + graphId);
 		
-		jdbcUpdate(query, EnumGraphState.QUEUED.name(), graphId, EnumGraphState.FINISHED.name());
+		jdbcUpdate(query, EnumGraphState.QUEUED.name(), graphId, EnumGraphState.FINISHED.name(), EnumGraphState.WRONG.name());
 	}
 	
 	
