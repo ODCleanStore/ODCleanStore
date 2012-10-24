@@ -18,9 +18,9 @@ h2 { margin-top: 30px; }
 span.required:after { content: " *"; color: red; font-size: 2em; vertical-align: top; }
 
 .feedbackPanel {padding-top: 8px; padding-bottom: 8px;}
-.feedbackPanelINFO, .feedbackPanelERROR, .uncommitedNotice {padding: 4px; font-weight: bold; font-size: 110%; }
+.feedbackPanelINFO, .feedbackPanelERROR, .uncommitedNotice {padding: 4px; font-weight: bold; font-size: 110%; white-space: pre-wrap;}
 .feedbackPanelINFO, .uncommitedNotice {color: #3589a1;}
-.feedbackPanelERROR { color: red;}
+.feedbackPanelERROR {color: red;}
 
 .button, .help {cursor: pointer;}
 .button, .help, input {display: inline-block; margin: 2px; outline:none; text-decoration: none; font: 13px/100% Arial, Helvetica, sans-serif; padding: 4px; border:1px solid #B8B8B8; border-radius: 5px;}
