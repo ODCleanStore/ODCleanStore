@@ -3,7 +3,6 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines;
 import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -12,7 +11,8 @@ import cz.cuni.mff.odcleanstore.model.EnumGraphState;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.GraphInError;
-import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedLink;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
@@ -23,10 +23,11 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNav
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentSortableDataProvider;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.GraphInErrorDao;
-import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
+import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
 @AuthorizeInstantiation({ Role.PIC, Role.ADM })
-public class GraphsInErrorListPage extends FrontendPage {
+public class GraphsInErrorListPage extends LimitedEditingPage {
 	private static final long serialVersionUID = 1L;
 	
 	private static Logger LOG = Logger.getLogger(GraphsInErrorListPage.class);
@@ -37,48 +38,36 @@ public class GraphsInErrorListPage extends FrontendPage {
 	// May change in the future
 	private static final boolean showEngineUUID = false;
 	
-	public GraphsInErrorListPage() {
-		this(new Object[]{});
-	}
-	
-	public GraphsInErrorListPage(String column, Integer id) {
-		this((Object)column, (Object)id);
-	}
-
-	public GraphsInErrorListPage(String column0, Integer id0, String column1, Integer id1) {
-		this((Object)column0, (Object)id0, (Object)column1, (Object)id1);
-	}
-	
-	private GraphsInErrorListPage(Object... params) {
+	public GraphsInErrorListPage(final Integer pipelineId) {
 		super
 		(
 			"Home > Backend > Pipelines > Graphs in Error", 
-			"Graphs in Error"
+			"Graphs in Error",
+			PipelineDao.class,
+			pipelineId
 		);
 
 		graphInErrorDao = daoLookupFactory.getDao(GraphInErrorDao.class);
 
 		addHelpWindow(new GraphsInErrorHelpPanel("content"));
-		addGraphsTable(params);
+		addGraphsTable(pipelineId);
 	}
 	
-	private void addGraphsTable(final Object... params) {
+	private void addGraphsTable(final Integer pipelineId) {
 		DependentSortableDataProvider<GraphInError> data;
 		
 		final QueryCriteria criteria = new QueryCriteria();
+		criteria.addWhereClause("pipelineId", pipelineId);
+		
 		final QueryCriteria criteriaAll = new QueryCriteria();
+		criteriaAll.addWhereClause("pipelineId", pipelineId);
 		
-		for (int i = 0; i < params.length; i += 2) {
-			criteria.addWhereClause((String)params[i], params[i + 1]);
-			criteriaAll.addWhereClause((String)params[i], params[i + 1]);
-		}
-		
-		add(new Link<GraphInError>("finishAll") {
+		add(new AuthorizedLink<GraphInError>("finishAll", isEditable()) {
 
 			private static final long serialVersionUID = 1L;
 			
 			@Override
-			public void onClick() {
+			public void onClickAuthorized() {
 				try {
 					graphInErrorDao.markAllFinished(criteriaAll);
 					getSession().info(
@@ -94,12 +83,12 @@ public class GraphsInErrorListPage extends FrontendPage {
 			
 		});
 		
-		add(new Link<GraphInError>("rerunAll") {
+		add(new AuthorizedLink<GraphInError>("rerunAll", isEditable()) {
 
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onClick() {
+			public void onClickAuthorized() {
 				try {
 					graphInErrorDao.markAllQueued(criteriaAll);
 					getSession().info(
@@ -115,17 +104,24 @@ public class GraphsInErrorListPage extends FrontendPage {
 			
 		});
 
-		add(new DeleteButton<GraphInError>(graphInErrorDao, null, "deleteAll", "graphs", new DeleteConfirmationMessage("graphs"), GraphsInErrorListPage.this) {
+		add(new AuthorizedDeleteButton<GraphInError>(graphInErrorDao, null, isEditable(), "deleteAll", "graphs", new DeleteConfirmationMessage("graphs"), GraphsInErrorListPage.this) {
 
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void delete() {
-				try {
-					graphInErrorDao.markAllQueuedForDelete(criteriaAll);
-				} catch (Exception e) {
-					LOG.error(String.format("Could not mark all wrong graphs queued for delete: %s", e.getMessage()));
-					throw new RuntimeException(e);
+			public void delete()
+			{
+				if (isAuthorized)
+				{
+					try
+					{
+						graphInErrorDao.markAllQueuedForDelete(criteriaAll);
+					}
+					catch (Exception e)
+					{
+						LOG.error(String.format("Could not mark all wrong graphs queued for delete: %s", e.getMessage()));
+						throw new RuntimeException(e);
+					}
 				}
 			}
 		});
@@ -159,12 +155,12 @@ public class GraphsInErrorListPage extends FrontendPage {
 				item.add(new StringifiedEnumLabel("errorTypeLabel"));
 				item.add(new TruncatedLabel("errorMessage", MAX_LIST_COLUMN_TEXT_LENGTH));
 				
-				item.add(new Link<GraphInError>("finishGraph") {
+				item.add(new AuthorizedLink<GraphInError>("finishGraph", isEditable()) {
 
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public void onClick() {
+					public void onClickAuthorized() {
 						try {
 							graphInErrorDao.markFinished(graphInError);
 							getSession().info(
@@ -179,17 +175,17 @@ public class GraphsInErrorListPage extends FrontendPage {
 					}
 					
 					@Override
-					public boolean isVisible() {
+					public boolean isVisibleAuthorized() {
 						return graphInError.isInCleanDB;
 					}
 				});
 				
-				item.add(new Link<GraphInError>("rerunGraph") {
+				item.add(new AuthorizedLink<GraphInError>("rerunGraph", isEditable()) {
 
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public void onClick() {
+					public void onClickAuthorized() {
 						try {
 							graphInErrorDao.markQueued(graphInError);
 							getSession().info(
@@ -204,17 +200,25 @@ public class GraphsInErrorListPage extends FrontendPage {
 					}
 				});
 
-				item.add(new DeleteButton<GraphInError>(graphInErrorDao, null, "deleteGraph", "graph", new DeleteConfirmationMessage("graph"), GraphsInErrorListPage.this) {
+				item.add(new AuthorizedDeleteButton<GraphInError>(graphInErrorDao, null, isEditable(), "deleteGraph", "graph", new DeleteConfirmationMessage("graph"), GraphsInErrorListPage.this) {
 
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public void delete() {
-						try {
-							graphInErrorDao.markQueuedForDelete(graphInError);
-						} catch (Exception e) {
-							LOG.error(String.format("Could not mark graph %s queued for delete: %s", graphInError.UUID, e.getMessage()));
-							throw new RuntimeException(e);
+					public void delete()
+					{
+						if (isAuthorized)
+						{
+							try
+							{
+								graphInErrorDao.markQueuedForDelete(graphInError);
+							}
+							catch (Exception e)
+							{
+								LOG.error(String.format("Could not mark graph %s queued for delete: %s", graphInError.UUID,
+									e.getMessage()));
+								throw new RuntimeException(e);
+							}
 						}
 					}
 				});

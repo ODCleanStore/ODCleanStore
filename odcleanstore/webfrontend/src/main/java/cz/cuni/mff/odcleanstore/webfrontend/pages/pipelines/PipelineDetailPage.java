@@ -5,7 +5,6 @@ import org.apache.wicket.authroles.authorization.strategies.role.annotations.Aut
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -15,6 +14,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedDeleteButton;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedLink;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.AuthorizedRedirectButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.BooleanLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMessage;
@@ -246,11 +246,12 @@ public class PipelineDetailPage extends LimitedEditingPage
 	
 	private void addMoveButton(final Item<TransformerInstance> item, final MoveDirection direction)
 	{
-		item.add(new Link<String>("move" + direction.getLabel()) 
+		item.add(new AuthorizedLink<String>("move" + direction.getLabel(), isEditable()) 
 		{
 			private static final long serialVersionUID = 1L;
+			
 			@Override
-			public void onClick()
+			protected void onClickAuthorized()
 			{
 				TransformerInstance instance = item.getModelObject();
 				int newPriority = instance.getPriority() + direction.getShift();
