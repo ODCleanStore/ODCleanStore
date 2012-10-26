@@ -17,7 +17,7 @@ public class UniquenessViolationException extends DaoException
 	public UniquenessViolationException(String attributeName)
 	{
 		super(
-			"Field '" + attributeName + "' must contain a unique value."
+			"The given '" + attributeName + "' value has already been used."
 		);
 	}
 }
