@@ -28,8 +28,8 @@ public class EditDNConcatenateTemplateInstancePage extends LimitedEditingPage
 	public EditDNConcatenateTemplateInstancePage(final Integer ruleId) 
 	{
 		super(
-			"Home > Backend > DN > Groups > Concatenate template instances > Edit", 
-			"Edit a DN concatenate template instance",
+			"Home > Backend > Data Normalization > Groups > Concatenate template instances > Edit", 
+			"Edit a Data Normalization concatenate template instance",
 			DNConcatenateTemplateInstanceDao.class,
 			ruleId
 		);

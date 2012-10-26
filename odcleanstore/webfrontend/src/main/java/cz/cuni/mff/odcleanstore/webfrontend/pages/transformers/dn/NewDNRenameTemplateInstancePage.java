@@ -26,8 +26,8 @@ public class NewDNRenameTemplateInstancePage extends LimitedEditingPage
 	public NewDNRenameTemplateInstancePage(final Integer groupId) 
 	{
 		super(
-			"Home > Backend > DN > Groups > Rename template instances > New", 
-			"Add a new DN rename template instance",
+			"Home > Backend > Data Normalization > Groups > Rename template instances > New", 
+			"Add a new Data Normalization rename template instance",
 			DNRulesGroupDao.class,
 			groupId
 		);

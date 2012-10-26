@@ -50,8 +50,8 @@ public class OIRuleDetailPage extends LimitedEditingPage
 	public OIRuleDetailPage(final Integer ruleId) 
 	{
 		super(
-			"Home > Backend > OI > Groups > Rules > Edit", 
-			"Edit OI rule",
+			"Home > Backend > Object Identification > Groups > Rules > Edit", 
+			"Edit Object Identification rule",
 			OIRuleDao.class,
 			ruleId
 		);

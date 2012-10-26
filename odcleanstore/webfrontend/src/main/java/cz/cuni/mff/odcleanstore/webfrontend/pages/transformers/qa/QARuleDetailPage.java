@@ -30,8 +30,8 @@ public class QARuleDetailPage extends LimitedEditingPage
 	public QARuleDetailPage(final Integer ruleId) 
 	{
 		super(
-			"Home > Backend > QA > Groups > Rules > Edt", 
-			"Edit a QA rule",
+			"Home > Backend > Quality Assessment > Groups > Rules > Edt", 
+			"Edit a Quality Assessment rule",
 			QARuleDao.class,
 			ruleId
 		);

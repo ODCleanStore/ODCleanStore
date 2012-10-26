@@ -29,8 +29,8 @@ public class EditDNReplaceTemplateInstancePage extends LimitedEditingPage
 	public EditDNReplaceTemplateInstancePage(final Integer ruleId) 
 	{
 		super(
-			"Home > Backend > DN > Groups > Replace template instances > Edit", 
-			"Edit a DN replace template instance",
+			"Home > Backend > Data Normalization > Groups > Replace template instances > Edit", 
+			"Edit a Data Normalization replace template instance",
 			DNReplaceTemplateInstanceDao.class,
 			ruleId
 		);

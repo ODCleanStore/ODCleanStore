@@ -30,7 +30,7 @@ public class FileOutputDetailPage extends LimitedEditingPage
 	public FileOutputDetailPage(final Integer outputId) 
 	{
 		super(
-			"Home > OI > Rules groups > Group > Rules > Rule > File Outputs > Edit", 
+			"Home > Object Identification > Rules groups > Group > Rules > Rule > File Outputs > Edit", 
 			"Add a new file output",
 			OIOutputDao.class,
 			outputId

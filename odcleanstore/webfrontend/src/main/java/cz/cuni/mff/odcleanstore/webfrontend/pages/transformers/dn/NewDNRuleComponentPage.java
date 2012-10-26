@@ -32,8 +32,8 @@ public class NewDNRuleComponentPage extends LimitedEditingPage
 	public NewDNRuleComponentPage(Integer ruleId) 
 	{
 		super(
-			"Home > Backend > DN > Groups > Rules > Components > New", 
-			"Add a new DN rule component",
+			"Home > Backend > Data Normalization > Groups > Rules > Components > New", 
+			"Add a new Data Normalization rule component",
 			DNRuleDao.class,
 			ruleId
 		);

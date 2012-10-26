@@ -33,7 +33,7 @@ public class NewDBOutputPage extends LimitedEditingPage
 	public NewDBOutputPage(final Integer ruleId) 
 	{
 		super(
-			"Home > Backend > OI > Groups > Rules > DB Outputs > New", 
+			"Home > Backend > Object Identification > Groups > Rules > DB Outputs > New", 
 			"Add a new DB Output",
 			OIRuleDao.class,
 			ruleId

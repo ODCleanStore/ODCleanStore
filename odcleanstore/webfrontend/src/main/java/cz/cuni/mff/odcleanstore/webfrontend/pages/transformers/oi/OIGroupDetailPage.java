@@ -49,8 +49,8 @@ public class OIGroupDetailPage extends LimitedEditingPage
 	public OIGroupDetailPage(final Integer groupId, final Integer transformerInstanceId) 
 	{
 		super(
-			"Home > Backend > OI > Groups > Edit", 
-			"Edit OI rule group",
+			"Home > Backend > Object Identification > Groups > Edit", 
+			"Edit Object Identification rule group",
 			OIRulesGroupDao.class,
 			groupId
 		);

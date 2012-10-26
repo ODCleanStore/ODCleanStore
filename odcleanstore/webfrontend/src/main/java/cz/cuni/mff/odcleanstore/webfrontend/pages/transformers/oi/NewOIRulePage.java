@@ -37,8 +37,8 @@ public class NewOIRulePage extends LimitedEditingPage
 	public NewOIRulePage(final Integer groupId) 
 	{
 		super(
-			"Home > Backend > OI > Groups > Rules > New", 
-			"Add a new OI rule",
+			"Home > Backend > Object Identification > Groups > Rules > New", 
+			"Add a new Object Identification rule",
 			OIRulesGroupDao.class,
 			groupId
 		);

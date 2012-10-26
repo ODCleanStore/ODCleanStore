@@ -37,7 +37,7 @@ public class NewOIGroupPage extends FrontendPage
 	public NewOIGroupPage(final Integer transformerInstanceId) 
 	{
 		super(
-			"Home > Backend > OI > Groups > New", 
+			"Home > Backend > Object Identification > Groups > New", 
 			"Add a new rule group"
 		);
 		

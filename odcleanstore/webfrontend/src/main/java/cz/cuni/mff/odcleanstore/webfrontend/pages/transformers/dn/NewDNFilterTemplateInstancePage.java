@@ -27,8 +27,8 @@ public class NewDNFilterTemplateInstancePage extends LimitedEditingPage
 	public NewDNFilterTemplateInstancePage(final Integer groupId) 
 	{
 		super(
-			"Home > Backend > DN > Groups > Filter template instances > New", 
-			"Add a new DN filter template instance",
+			"Home > Backend > Data Normalization > Groups > Filter template instances > New", 
+			"Add a new Data Normalization filter template instance",
 			DNRulesGroupDao.class,
 			groupId
 		);

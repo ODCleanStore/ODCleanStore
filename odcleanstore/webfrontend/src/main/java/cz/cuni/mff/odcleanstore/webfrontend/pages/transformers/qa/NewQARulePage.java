@@ -30,8 +30,8 @@ public class NewQARulePage extends LimitedEditingPage
 	public NewQARulePage(final Integer groupId) 
 	{
 		super(
-			"Home > Backend > QA > Groups > Rules > New", 
-			"Add a new QA rule",
+			"Home > Backend > Quality Assessment > Groups > Rules > New", 
+			"Add a new Quality Assessment rule",
 			QARulesGroupDao.class,
 			groupId
 		);
