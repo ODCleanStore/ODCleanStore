@@ -28,7 +28,7 @@ public class DBOutputDetailPage extends LimitedEditingPage
 	public DBOutputDetailPage(final Integer outputId) 
 	{
 		super(
-			"Home > Object Identification > Rules groups > Group > Rules > Rule > DB Outputs > Edit", 
+			"Home > Linker > Rules groups > Group > Rules > Rule > DB Outputs > Edit", 
 			"Add a new DB Output",
 			OIOutputDao.class,
 			outputId

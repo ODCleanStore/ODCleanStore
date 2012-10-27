@@ -40,8 +40,8 @@ public class OIGroupsListPage extends FrontendPage
 	public OIGroupsListPage() 
 	{
 		super(
-			"Home > Backend > Object Identification > Groups > List", 
-			"List all Object Identification rule groups"
+			"Home > Backend > Linker > Groups > List", 
+			"List all Linker rule groups"
 		);
 		
 		// prepare DAO objects
