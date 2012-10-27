@@ -152,5 +152,10 @@ public final class ODCS {
      */
     public static final String updateTag = NS + "updateTag";
     
+    /**
+     * Property marking the latest version of an inserted named graph. Range is 
+     */
+    public static final String isLatestUpdate = NS + "isLatestUpdate";
+    
     // CHECKSTYLE:ON
 }

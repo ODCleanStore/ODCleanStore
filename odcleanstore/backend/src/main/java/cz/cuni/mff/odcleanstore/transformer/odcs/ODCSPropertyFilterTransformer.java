@@ -26,7 +26,7 @@ public class ODCSPropertyFilterTransformer implements Transformer {
     private static final String[] FILTERED_PROPERTIES = new String[] { ODCS.score, ODCS.publisherScore, ODCS.scoreTrace,
             ODCS.metadataGraph, ODCS.provenanceMetadataGraph, ODCS.sourceGraph, ODCS.insertedAt, ODCS.insertedBy,
             ODCS.source, ODCS.publishedBy, ODCS.license, ODCS.propertyEndpointsBackup, ODCS.propertySubjectBackup,
-            ODCS.propertyObjectBackup, ODCS.updateTag };
+            ODCS.propertyObjectBackup, ODCS.updateTag, ODCS.isLatestUpdate };
 
     private static final String FILTERED_PROPERTIES_LIST;
 

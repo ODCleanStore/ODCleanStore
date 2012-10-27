@@ -53,6 +53,15 @@ public class PipelineGraphTransformerExecutor {
         ODCSPropertyFilterTransformerCommand.runOnCleanDB = false;
         ODCSPropertyFilterTransformerCommand.workDirPath = "transformers-working-dir/odcsInternalTransformers";
         ODCSPropertyFilterTransformerCommand.transformerLabel = "ODCSPropertyFilterTransformer";
+        
+        ODCSLatestUpdateMarkerTransformerCommand = new PipelineCommand();
+        ODCSLatestUpdateMarkerTransformerCommand.jarPath = ".";
+        ODCSLatestUpdateMarkerTransformerCommand.fullClassName = ODCSLatestUpdateMarkerTransformer.class.getCanonicalName();
+        ODCSLatestUpdateMarkerTransformerCommand.transformerInstanceID = 0;
+        ODCSLatestUpdateMarkerTransformerCommand.configuration = "";
+        ODCSLatestUpdateMarkerTransformerCommand.runOnCleanDB = false;
+        ODCSLatestUpdateMarkerTransformerCommand.workDirPath = "transformers-working-dir/odcsInternalTransformers";
+        ODCSLatestUpdateMarkerTransformerCommand.transformerLabel = "ODCSLatestUpdateMarkerTransformer";
     }
     
     private PipelineGraphStatus graphStatus = null;
@@ -75,6 +84,7 @@ public class PipelineGraphTransformerExecutor {
             for (PipelineCommand pipelineCommand : this.graphStatus.getPipelineCommands()) {
                 executeTransformer(pipelineCommand, false);
             }
+            executeTransformer(ODCSLatestUpdateMarkerTransformerCommand, true);
         } catch (PipelineGraphTransformerExecutorException e) {
             throw e;
         } catch (Exception e) {
@@ -166,6 +176,8 @@ public class PipelineGraphTransformerExecutor {
             transformer = new QualityAggregatorImpl();
         } else if (command.fullClassName.equals(ODCSBNodeToResourceTransformer.class.getCanonicalName())) {
             transformer = new ODCSBNodeToResourceTransformer();
+        } else if (command.fullClassName.equals(ODCSLatestUpdateMarkerTransformer.class.getCanonicalName()) && isInternal) {
+            transformer = new ODCSLatestUpdateMarkerTransformer();
         }
         return transformer;
     }
