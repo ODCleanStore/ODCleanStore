@@ -151,7 +151,7 @@ public abstract class QueryExecutorResourceBase extends ServerResource {
             LOG.warn("Response has no content");
             getResponse().setStatus(Status.SUCCESS_NO_CONTENT);
         } catch (QueryExecutionException e) {
-        	String message = String.format(Locale.ROOT, "%s (error code:%d)", e.getMessage(), e.getErrorCode());
+            String message = String.format(Locale.ROOT, "%s (error code:%d)", e.getMessage(), e.getErrorCode());
             switch (e.getErrorType()) {
             case QUERY_TOO_LONG:
             case INVALID_QUERY_FORMAT:
