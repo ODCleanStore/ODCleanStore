@@ -14,6 +14,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.qe.LabelPropertyDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.validators.IRIValidator;
 
+/**
+ * Configure-new-label-property page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.PIC, Role.ADM })
 public class NewQELabelPropertyPage extends FrontendPage
 {
@@ -22,6 +28,9 @@ public class NewQELabelPropertyPage extends FrontendPage
 
 	private LabelPropertyDao labelPropertyDao;
 	
+	/**
+	 * 
+	 */
 	public NewQELabelPropertyPage() 
 	{
 		super(
@@ -40,6 +49,9 @@ public class NewQELabelPropertyPage extends FrontendPage
 		addNewPropertyForm();
 	}
 	
+	/**
+	 * 
+	 */
 	private void addNewPropertyForm()
 	{
 		IModel<LabelProperty> formModel = new CompoundPropertyModel<LabelProperty>(new LabelProperty());
@@ -82,6 +94,10 @@ public class NewQELabelPropertyPage extends FrontendPage
 		add(form);
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
 	private TextField<String> createPropertyTextField()
 	{
 		TextField<String> textField = createTextfield("property");

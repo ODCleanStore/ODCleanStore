@@ -5,11 +5,21 @@ import org.apache.wicket.markup.html.panel.Panel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 
+/**
+ * Aggregation-property help pannel.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.PIC, Role.ADM })
 public class AggregationPropertyHelpPanel extends Panel
 {
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * 
+	 * @param compName
+	 */
 	public AggregationPropertyHelpPanel(String compName) 
 	{
 		super(compName);
