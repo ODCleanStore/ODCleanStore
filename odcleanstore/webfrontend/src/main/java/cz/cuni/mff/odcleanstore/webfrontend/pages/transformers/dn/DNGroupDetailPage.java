@@ -65,8 +65,8 @@ public class DNGroupDetailPage extends LimitedEditingPage
 	public DNGroupDetailPage(final Integer groupId, final Integer transformerInstanceId) 
 	{
 		super(
-			"Home > Backend > DN > Groups > Edit", 
-			"Edit DN rule group",
+			"Home > Backend > Data Normalization > Groups > Edit", 
+			"Edit Data Normalization rule group",
 			DNRulesGroupDao.class,
 			groupId
 		);

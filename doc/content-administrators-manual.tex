@@ -34,52 +34,55 @@ The configuration file is used both by ODCleanStore Engine and administration fr
 
 List with a description of all configuration options follows:
 
-\subsection*{General Configuration}
+\subsection*{Database Configuration}
 \begin{configlist}
-	\item[clean\_jdbc\_connection\_string]
-	  Connection string for JDBC access to the Virtuoso instance representing the clean database.
-		\configdefault{jdbc:virtuoso://localhost:111}
-	\item[clean\_jdbc\_username]
+	\item[db.clean.jdbc.connection\_string]
+	  Connection string for JDBC access to the Virtuoso instance representing the clean database. Must contain connection charset.
+		\configdefault{jdbc:virtuoso://localhost:1111/CHARSET=UTF-8}
+	\item[db.clean.jdbc.username]
 	  Username for JDBC access to the Virtuoso instance representing the clean database.
 		\configdefault{dba}
-	\item[clean\_jdbc\_password]
+	\item[db.clean.jdbc.password]
 	  Password for JDBC access to the Virtuoso instance representing the clean database.
 		\configdefault{dba}
-	\item[clean\_sparql\_endpoint\_url]
+	\item[db.clean.sparql.endpoint\_url]
 
-	\item[dirty\_jdbc\_connection\_string]
-	\item[dirty\_jdbc\_username]
-	\item[dirty\_jdbc\_password]
-	\item[dirty\_sparql\_endpoint\_url]
-	\item[dirty\_update\_sparql\_endpoint\_url]
-	\item[dirty\_update\_sparql\_endpoint\_username]
-	\item[dirty\_update\_sparql\_endpoint\_password]
-	
-	\item[debug\_temp\_graph\_uri\_prefix]
-		Prefix for names of temporary graphs created for rule debugging
-		\configdefault{http://opendata.cz/infrastructure/odcleanstore/debug\_tmp/}
+	\item[db.dirty.jdbc.connection\_string]
+	\item[db.dirty.jdbc.username]
+	\item[db.dirty.jdbc.password]
+	\item[db.dirty.sparql.endpoint\_url]
+	\item[db.dirty\_update.sparql.endpoint\_url]
+	\item[db.dirty\_update.sparql.endpoint\_username]
+	\item[db.dirty\_update.sparql.endpoint\_password]
 \end{configlist}
 
 \subsection*{Input Webservice Configuration}
 \begin{configlist}
-	\item[input\_ws.input\_dir\_path]
-		Path to a temporary directory for data incoming to Input Webservice.
-		\configdefault{input\_ws\_workdir}
-
-	\todo{}
+	\item[input\_ws.endpoint\_url]
+		URL where the input webservice is listening.
+		\configdefault{http://localhost:8088/inputws}
 \end{configlist}
 
 \subsection*{Output Webservice Configuration}
 \begin{configlist}
-		\item[query\_execution.max\_query\_result\_size]
-			Maximum number of results allowed in each database query performed during a query execution. This option effectively affects the maximum number of results returned in response to a query through Ouptut Webservice to a multiple of this number (cca 3 times the value of this option).
-			\configdefault{500}
-		\item[query\_execution.result\_graph\_uri\_prefix]
-			URI of the named graph where the result quads of a query are placed.
-			\configdefault{http://opendata.cz/infrastructure/odcleanstore/query/results/}
+	\item[output\_ws.result\_data\_prefix]
+		Prefix of named graphs and URIs where query results and metadata in the output are placed.
+		\configdefault{http://opendata.cz/infrastructure/odcleanstore/query/}
+	\item[output\_ws.port]
+	\item[output\_ws.keyword\_path]
+	\item[output\_ws.uri\_path]
+	\item[output\_ws.metadata\_path]
+	\item[output\_ws.named\_graph\_path]
 \end{configlist}
 
-\subsection*{Query Execution Configuration}
+\subsection*{Query Execution Configuration}	
+\begin{configlist}
+	\item[query\_execution.max\_query\_result\_size]
+		Maximum number of results allowed in each database query performed during a query execution. This option effectively affects the maximum number of results returned in response to a query through Ouptut Webservice to a multiple of this number (cca 3 times the value of this option).
+		\configdefault{500}
+\end{configlist}
+
+\subsection*{Conflict Resolution Configuration}
 \begin{configlist}
 	\item[conflict\_resolution.agree\_coefficient]
 		Agree coefficient used in aggregated quality formula -- value $N$ means that agreement of $N+1$ sources with score 1 on the same value will increase the quality of that value to 1.
@@ -94,26 +97,40 @@ List with a description of all configuration options follows:
 			Weight of the graph publisher's score in aggregated quality calculation (see \linebreak \code{conflict\_resolution.named\_graph\_score\_weight})
 			\configdefault{0.2}
 	\item[conflict\_resolution.max\_date\_difference]
-			Defference between two dates when their distance is equal to MAX\_DISTANCE constant, given in seconds. When the difference of two dates is higher or equal to this value, in Conflict Resolution, they are considered to be totally different; when the difference is smaller, the difference coefficient is proportionally smaller.
+			Difference between two dates when their distance is equal to MAX\_DISTANCE constant, given in seconds. When the difference of two dates is higher or equal to this value, in Conflict Resolution, they are considered to be totally different; when the difference is smaller, the difference coefficient is proportionally smaller.
 			\configdefault{31622400} (366 days)
 \end{configlist}
-		
-
-\subsection*{Conflict Resolution Configuration}
-%\begin{configlist}
-	%\item[]
-%\end{configlist}
 
 \subsection*{Transformers Configuration}
-%\begin{configlist}
-	%\item[]
-%\end{configlist}
+\begin{configlist}
+	\item[object\_identification.link\_within\_graph]
+		Sets whether to link incoming data against itself by default.
+		\configdefault{true}
+\end{configlist}
 
 \subsection*{Engine \& Backend Configuration}
 \begin{configlist}
 	\item[backend.query\_timeout]
-	\item[engine.data\_graph\_uri\_prefix]
+		Timeout for database queries executed by predefined transformers, Query Execution and Engine in seconds.
+		\configdefault{30}
+
+	\item[engine.clean\_import\_export\_dir]
+	\item[engine.dirty\_import\_export\_dir]
+	\item[engine.startup\_timeout]
+	\item[engine.shutdown\_timeout]
+	\item[engine.look\_for\_graph\_interval]
+	\item[engine.second\_crash\_penalty]
 \end{configlist}
+
+\subsection*{Administration Frontend Configuration}
+\begin{configlist}
+	%TODO
+
+	\item[web\_frontend.debug\_directory\_path]
+		Path to transformer directory for debugging.
+		\configdefault{./odcs-debug}
+\end{configlist}
+
 
 \chapter{Starting the Application}
 

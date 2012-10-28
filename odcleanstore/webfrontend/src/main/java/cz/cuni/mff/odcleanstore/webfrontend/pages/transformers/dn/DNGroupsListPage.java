@@ -40,8 +40,8 @@ public class DNGroupsListPage extends FrontendPage
 	public DNGroupsListPage() 
 	{
 		super(
-			"Home > Backend > DN > Groups > List", 
-			"List all DN rule groups"
+			"Home > Backend > Data Normalization > Groups > List", 
+			"List all Data Normalization rule groups"
 		);
 		
 		// prepare DAO objects

@@ -28,8 +28,8 @@ public class NewDNReplaceTemplateInstancePage extends LimitedEditingPage
 	public NewDNReplaceTemplateInstancePage(final Integer groupId) 
 	{
 		super(
-			"Home > Backend > DN > Groups > Replace template instances > New", 
-			"Add a new DN replace template instance",
+			"Home > Backend > Data Normalization > Groups > Replace template instances > New", 
+			"Add a new Data Normalization replace template instance",
 			DNRulesGroupDao.class,
 			groupId
 		);

@@ -37,8 +37,8 @@ public class NewDNGroupPage extends FrontendPage
 	public NewDNGroupPage(final Integer transformerInstanceId) 
 	{
 		super(
-			"Home > Backend > DN > Groups > New", 
-			"Add a new DN rule group"
+			"Home > Backend > Data Normalization > Groups > New", 
+			"Add a new Data Normalization rule group"
 		);
 		
 		this.transformerInstanceId = transformerInstanceId;

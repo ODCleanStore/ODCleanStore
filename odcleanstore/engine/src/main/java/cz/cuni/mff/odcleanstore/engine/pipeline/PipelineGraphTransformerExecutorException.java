@@ -10,33 +10,33 @@ import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
  */
 public class PipelineGraphTransformerExecutorException extends ODCleanStoreException {
 
-	private static final long serialVersionUID = -7628445944871159626L;
-	
-	private PipelineCommand command;
-	
-	
-	/**
-	 * @return Command which caused exception, may be null
-	 */
-	PipelineCommand getCommand() {
-		return command;
-	}
+    private static final long serialVersionUID = -7628445944871159626L;
+    
+    private PipelineCommand command;
+    
+    
+    /**
+     * @return Command which caused exception, may be null
+     */
+    PipelineCommand getCommand() {
+        return command;
+    }
 
-	/**
+    /**
      * Constructs a new exception with the given message.
      * @param message the detail message
      */
-	PipelineGraphTransformerExecutorException(String message, PipelineCommand command) {
-		super(message);
-		this.command = command;
-	}
-	
-	/**
+    PipelineGraphTransformerExecutorException(String message, PipelineCommand command) {
+        super(message);
+        this.command = command;
+    }
+    
+    /**
      * Constructs a new exception with the given message and cause.
      * @param message the detail message
      * @param cause the cause
      */
-	PipelineGraphTransformerExecutorException(String message, PipelineCommand command, Throwable cause) {
+    PipelineGraphTransformerExecutorException(String message, PipelineCommand command, Throwable cause) {
         super(message, cause);
         this.command = command;
     }

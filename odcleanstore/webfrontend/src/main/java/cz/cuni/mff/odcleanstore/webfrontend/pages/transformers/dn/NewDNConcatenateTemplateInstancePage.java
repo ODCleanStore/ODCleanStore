@@ -26,8 +26,8 @@ public class NewDNConcatenateTemplateInstancePage extends LimitedEditingPage
 	public NewDNConcatenateTemplateInstancePage(final Integer groupId) 
 	{
 		super(
-			"Home > Backend > DN > Groups > Concatenate template instances > New", 
-			"Add a new DN concatenate template instance",
+			"Home > Backend > Data Normalization > Groups > Concatenate template instances > New", 
+			"Add a new Data Normalization concatenate template instance",
 			DNRulesGroupDao.class,
 			groupId
 		);

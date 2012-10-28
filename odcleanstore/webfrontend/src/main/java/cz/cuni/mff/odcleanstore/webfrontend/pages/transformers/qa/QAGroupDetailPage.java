@@ -49,8 +49,8 @@ public class QAGroupDetailPage extends LimitedEditingPage
 	public QAGroupDetailPage(final Integer groupId, final Integer transformerInstanceId) 
 	{
 		super(
-			"Home > Backend > QA > Groups > Edit", 
-			"Edit QA rule group",
+			"Home > Backend > Quality Assessment > Groups > Edit", 
+			"Edit Quality Assessment rule group",
 			QARulesGroupDao.class,
 			groupId
 		);

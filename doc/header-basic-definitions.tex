@@ -99,7 +99,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\enumtable}[1]
 {
-	\begin{table}[!h]
+	\begin{table}[!ht]
 		\begin{tabularx}{\linewidth}{>{\textbf\bgroup}l<{\egroup}X}
 			#1
 		\end{tabularx}
@@ -111,9 +111,13 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\fieldtable}[1]
 {
-	\begin{table}[!h]
-		\begin{tabularx}{\linewidth}{>{\textbf\bgroup}l<{\egroup}p{3cm}X}
-			#1
+	\begin{table}[!ht]
+		\begin{tabularx}{\linewidth}{|>{\textbf\bgroup}l<{\egroup}|p{3cm}|X|}
+			\hline
+			\textnormal{Required} & Field & Description \\
+			\hline \hline
+			#1 \\
+			\hline
 		\end{tabularx}
 	\end{table}
 }

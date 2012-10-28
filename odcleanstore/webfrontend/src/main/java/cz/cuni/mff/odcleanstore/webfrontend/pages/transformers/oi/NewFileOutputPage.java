@@ -35,7 +35,7 @@ public class NewFileOutputPage extends LimitedEditingPage
 	public NewFileOutputPage(final Integer ruleId) 
 	{
 		super(
-			"Home > Backend > OI > Groups > Rules > File Outputs > New", 
+			"Home > Backend > Linker > Groups > Rules > File Outputs > New", 
 			"Add a new file output",
 			OIRuleDao.class,
 			ruleId

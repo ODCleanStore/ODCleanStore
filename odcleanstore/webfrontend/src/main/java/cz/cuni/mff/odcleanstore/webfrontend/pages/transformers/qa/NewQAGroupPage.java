@@ -37,7 +37,7 @@ public class NewQAGroupPage extends FrontendPage
 	public NewQAGroupPage(final Integer transformerInstanceId) 
 	{
 		super(
-			"Home > Backend > QA > Groups > New", 
+			"Home > Backend > Quality Assessment > Groups > New", 
 			"Add a new rule group"
 		);
 		

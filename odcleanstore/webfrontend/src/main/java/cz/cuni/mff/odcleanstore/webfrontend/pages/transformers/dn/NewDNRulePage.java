@@ -25,8 +25,8 @@ public class NewDNRulePage extends LimitedEditingPage
 	public NewDNRulePage(final Integer groupId) 
 	{
 		super(
-			"Home > Backend > DN > Groups > Rules > New", 
-			"Add a new DN rule",
+			"Home > Backend > Data Normalization > Groups > Rules > New", 
+			"Add a new Data Normalization rule",
 			DNRulesGroupDao.class,
 			groupId
 		);

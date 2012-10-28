@@ -38,8 +38,8 @@ public class DNRuleDetailPage extends LimitedEditingPage
 	public DNRuleDetailPage(final Integer ruleId) 
 	{
 		super(
-			"Home > Backend > DN > Groups > Rules > Edit", 
-			"Edit DN rule",
+			"Home > Backend > Data Normalization > Groups > Rules > Edit", 
+			"Edit Data Normalization rule",
 			DNRuleDao.class,
 			ruleId
 		);

@@ -18,7 +18,7 @@ public class HttpReader extends Utf8ReaderBase {
 	
 	static {
 		RESPONSE_FIRST_LINE_PATTERN = Pattern.compile("^HTTP/1\\.[0-1]\\s*([0-9]{3}).*$", Pattern.CASE_INSENSITIVE);
-		CONTENT_TYPE_PATTERN = Pattern.compile("^Content-type:\\s*([^;]*);charset=\"([^\"]*)\"$", Pattern.CASE_INSENSITIVE); 
+		CONTENT_TYPE_PATTERN = Pattern.compile("^\\s*Content-type\\s*:\\s*([^;]*);\\s*charset\\s*=\\s*\"*([^\"]*)\"?\\s*$", Pattern.CASE_INSENSITIVE); 
 	}
 	
 	private int responseCode;
@@ -62,7 +62,7 @@ public class HttpReader extends Utf8ReaderBase {
 	 * @throws IOException
 	 */
 	public void readResponseHttpHeader() throws UnsupportedEncodingException, IOException {
-		
+	
 		String line = reader.readLine();
 		if (line == null) throw new IOException();
 		
