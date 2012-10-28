@@ -46,8 +46,9 @@ public class PasswordHandling
 	
 	/**
 	 * Generates a random password (e.g. a random string value of
-	 * the standard password-length which consists only of members of the
-	 * standard char-set).
+	 * the standard password-length ({@link PasswordHandling#DEFAULT_PASSWORD_LENGTH})
+	 * which consists only of members of the standard char-set 
+	 * ({@link PasswordHandling#DEFAULT_CHARSET})).
 	 * 
 	 * @return
 	 */
@@ -61,8 +62,9 @@ public class PasswordHandling
 	
 	/**
 	 * Generates a random salt (e.g. a random string value of the
-	 * standard salt-length which consists only of members of the standard
-	 * char-set).
+	 * standard salt-length ({@link PasswordHandling#DEFAULT_SALT_LENGTH}) 
+	 * which consists only of members of the standard char-set 
+	 * ({@link PasswordHandling#DEFAULT_CHARSET})).
 	 * 
 	 * @return
 	 */
