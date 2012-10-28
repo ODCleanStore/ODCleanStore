@@ -14,6 +14,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
+/**
+ * Create-new-dn-rule page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.PIC })
 public class NewDNRulePage extends LimitedEditingPage
 {
@@ -22,6 +28,10 @@ public class NewDNRulePage extends LimitedEditingPage
 	
 	private DNRuleDao dnRuleDao;
 	
+	/**
+	 * 
+	 * @param groupId
+	 */
 	public NewDNRulePage(final Integer groupId) 
 	{
 		super(
@@ -52,6 +62,10 @@ public class NewDNRulePage extends LimitedEditingPage
 		addNewDNRuleForm(groupId);
 	}
 
+	/**
+	 * 
+	 * @param groupId
+	 */
 	private void addNewDNRuleForm(final Integer groupId)
 	{
 		IModel<DNRule> formModel = new CompoundPropertyModel<DNRule>(new DNRule());

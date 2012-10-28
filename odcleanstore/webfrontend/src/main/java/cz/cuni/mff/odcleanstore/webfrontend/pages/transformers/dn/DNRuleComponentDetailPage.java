@@ -20,6 +20,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 import cz.cuni.mff.odcleanstore.webfrontend.validators.DNComponentValidator;
 
+/**
+ * DN-rule-component-overview page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.PIC })
 public class DNRuleComponentDetailPage extends LimitedEditingPage
 {
@@ -64,6 +70,10 @@ public class DNRuleComponentDetailPage extends LimitedEditingPage
 		addEditComponentForm(component);
 	}
 	
+	/**
+	 * 
+	 * @param component
+	 */
 	private void addEditComponentForm(final DNRuleComponent component)
 	{
 		IModel<DNRuleComponent> formModel = new CompoundPropertyModel<DNRuleComponent>(component);

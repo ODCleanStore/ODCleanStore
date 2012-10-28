@@ -15,6 +15,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
+/**
+ * Concatenate-dn-template-instance-overview page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ "PIC" })
 public class EditDNConcatenateTemplateInstancePage extends LimitedEditingPage
 {
@@ -25,6 +31,10 @@ public class EditDNConcatenateTemplateInstancePage extends LimitedEditingPage
 	private DNConcatenateTemplateInstanceDao dnConcatenateTemplateInstanceDao;
 	private DNRuleDao dnRuleDao;
 	
+	/**
+	 * 
+	 * @param ruleId
+	 */
 	public EditDNConcatenateTemplateInstancePage(final Integer ruleId) 
 	{
 		super(
@@ -56,6 +66,10 @@ public class EditDNConcatenateTemplateInstancePage extends LimitedEditingPage
 		addEditDNConcatenateTemplateInstanceForm(instance);
 	}
 
+	/**
+	 * 
+	 * @param instance
+	 */
 	private void addEditDNConcatenateTemplateInstanceForm(final DNConcatenateTemplateInstance instance)
 	{
 		IModel<DNConcatenateTemplateInstance> formModel = new CompoundPropertyModel<DNConcatenateTemplateInstance>(instance);

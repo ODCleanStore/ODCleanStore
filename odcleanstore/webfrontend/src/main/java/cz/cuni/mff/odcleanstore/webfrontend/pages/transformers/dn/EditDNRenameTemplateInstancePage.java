@@ -14,6 +14,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
+/**
+ * Rename-dn-template-instance-overview page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ "PIC" })
 public class EditDNRenameTemplateInstancePage extends LimitedEditingPage
 {
@@ -24,6 +30,10 @@ public class EditDNRenameTemplateInstancePage extends LimitedEditingPage
 	private DNRenameTemplateInstanceDao dnRenameTemplateInstanceDao;
 	private DNRuleDao dnRuleDao;
 	
+	/**
+	 * 
+	 * @param ruleId
+	 */
 	public EditDNRenameTemplateInstancePage(final Integer ruleId) 
 	{
 		super(
@@ -55,6 +65,10 @@ public class EditDNRenameTemplateInstancePage extends LimitedEditingPage
 		addEditDNRenameTemplateInstanceForm(instance);
 	}
 
+	/**
+	 * 
+	 * @param instance
+	 */
 	private void addEditDNRenameTemplateInstanceForm(final DNRenameTemplateInstance instance)
 	{
 		IModel<DNRenameTemplateInstance> formModel = new CompoundPropertyModel<DNRenameTemplateInstance>(instance);

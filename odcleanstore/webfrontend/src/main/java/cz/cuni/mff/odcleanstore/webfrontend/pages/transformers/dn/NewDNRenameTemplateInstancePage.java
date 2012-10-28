@@ -13,6 +13,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
+/**
+ * Create-new-rename-dn-template-instance page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ "PIC" })
 public class NewDNRenameTemplateInstancePage extends LimitedEditingPage
 {
@@ -21,8 +27,11 @@ public class NewDNRenameTemplateInstancePage extends LimitedEditingPage
 	private static Logger logger = Logger.getLogger(NewDNRenameTemplateInstancePage.class);
 	
 	private DNRenameTemplateInstanceDao dnRenameTemplateInstanceDao;
-	//private CompiledDNRuleDao compiledDNRuleDao;
 	
+	/**
+	 * 
+	 * @param groupId
+	 */
 	public NewDNRenameTemplateInstancePage(final Integer groupId) 
 	{
 		super(
@@ -37,7 +46,6 @@ public class NewDNRenameTemplateInstancePage extends LimitedEditingPage
 		// prepare DAO objects
 		//
 		this.dnRenameTemplateInstanceDao = daoLookupFactory.getDao(DNRenameTemplateInstanceDao.class);
-		//this.compiledDNRuleDao = daoLookupFactory.getDao(CompiledDNRuleDao.class);
 		
 		// register page components
 		//
@@ -53,7 +61,11 @@ public class NewDNRenameTemplateInstancePage extends LimitedEditingPage
 		
 		addNewDNRuleForm(groupId);
 	}
-
+	
+	/**
+	 * 
+	 * @param groupId
+	 */
 	private void addNewDNRuleForm(final Integer groupId)
 	{
 		IModel<DNRenameTemplateInstance> formModel = new CompoundPropertyModel<DNRenameTemplateInstance>(

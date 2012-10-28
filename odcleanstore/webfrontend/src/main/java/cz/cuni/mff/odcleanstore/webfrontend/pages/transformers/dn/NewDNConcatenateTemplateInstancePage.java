@@ -13,6 +13,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
+/**
+ * Create-new-concatenate-dn-template-instance page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ "PIC" })
 public class NewDNConcatenateTemplateInstancePage extends LimitedEditingPage
 {
@@ -21,8 +27,11 @@ public class NewDNConcatenateTemplateInstancePage extends LimitedEditingPage
 	private static Logger logger = Logger.getLogger(NewDNConcatenateTemplateInstancePage.class);
 	
 	private DNConcatenateTemplateInstanceDao dnConcatenateTemplateInstanceDao;
-	//private CompiledDNRuleDao compiledDNRuleDao;
 	
+	/**
+	 * 
+	 * @param groupId
+	 */
 	public NewDNConcatenateTemplateInstancePage(final Integer groupId) 
 	{
 		super(
@@ -54,6 +63,10 @@ public class NewDNConcatenateTemplateInstancePage extends LimitedEditingPage
 		addNewDNRuleForm(groupId);
 	}
 
+	/**
+	 * 
+	 * @param groupId
+	 */
 	private void addNewDNRuleForm(final Integer groupId)
 	{
 		IModel<DNConcatenateTemplateInstance> formModel = new CompoundPropertyModel<DNConcatenateTemplateInstance>(

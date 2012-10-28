@@ -26,6 +26,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
+/**
+ * DN-rule-overview page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.PIC })
 public class DNRuleDetailPage extends LimitedEditingPage
 {
@@ -35,6 +41,10 @@ public class DNRuleDetailPage extends LimitedEditingPage
 	private DNRuleDao dnRuleDao;
 	private DNRuleComponentDao dnRuleComponentDao;
 
+	/**
+	 * 
+	 * @param ruleId
+	 */
 	public DNRuleDetailPage(final Integer ruleId) 
 	{
 		super(
@@ -65,6 +75,10 @@ public class DNRuleDetailPage extends LimitedEditingPage
 		addRuleComponentsSection(ruleId);
 	}
 
+	/**
+	 * 
+	 * @param rule
+	 */
 	private void addEditDNRuleForm(final DNRule rule)
 	{
 		IModel<DNRule> formModel = new CompoundPropertyModel<DNRule>(rule);
@@ -106,6 +120,10 @@ public class DNRuleDetailPage extends LimitedEditingPage
 		add(form);
 	}
 	
+	/**
+	 * 
+	 * @param ruleId
+	 */
 	private void addRuleComponentsSection(Integer ruleId) 
 	{
 		add(
@@ -120,6 +138,10 @@ public class DNRuleDetailPage extends LimitedEditingPage
 		addRuleComponentsTable(ruleId);
 	}
 
+	/**
+	 * 
+	 * @param ruleId
+	 */
 	private void addRuleComponentsTable(Integer ruleId) 
 	{
 		IDataProvider<DNRuleComponent> data = new DependentDataProvider<DNRuleComponent>(

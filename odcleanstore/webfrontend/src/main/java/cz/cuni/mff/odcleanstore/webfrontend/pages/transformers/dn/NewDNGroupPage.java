@@ -15,6 +15,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
+/**
+ * Create-new-group-of-dn-rules page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.PIC })
 public class NewDNGroupPage extends FrontendPage
 {
@@ -29,11 +35,18 @@ public class NewDNGroupPage extends FrontendPage
 	 */
 	private Integer transformerInstanceId;
 	
+	/**
+	 * 
+	 */
 	public NewDNGroupPage() 
 	{
 		this(null);
 	}
 	
+	/**
+	 * 
+	 * @param transformerInstanceId
+	 */
 	public NewDNGroupPage(final Integer transformerInstanceId) 
 	{
 		super(
@@ -53,6 +66,9 @@ public class NewDNGroupPage extends FrontendPage
 		addNewDNRulesGroupForm();
 	}
 	
+	/**
+	 * 
+	 */
 	private void addNewDNRulesGroupForm()
 	{
 		IModel<DNRulesGroup> formModel = new CompoundPropertyModel<DNRulesGroup>(new DNRulesGroup());
@@ -99,6 +115,10 @@ public class NewDNGroupPage extends FrontendPage
 		add(form);
 	}
 	
+	/**
+	 * 
+	 * @param groupId
+	 */
 	private void updateBackToPipelineNavigation(Integer groupId) 
 	{
 		Map<Integer, Integer> navigationMap = getODCSSession().getDnPipelineRulesNavigationMap();
