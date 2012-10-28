@@ -20,6 +20,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.util.Mail;
 import cz.cuni.mff.odcleanstore.webfrontend.util.NewAccountMail;
 import cz.cuni.mff.odcleanstore.webfrontend.util.PasswordHandling;
 
+/**
+ * Create-new-user-account page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.ADM })
 public class NewAccountPage extends FrontendPage
 {
@@ -28,6 +34,9 @@ public class NewAccountPage extends FrontendPage
 
 	private UserDao userDao;
 	
+	/**
+	 * 
+	 */
 	public NewAccountPage() 
 	{
 		super(
@@ -45,6 +54,9 @@ public class NewAccountPage extends FrontendPage
 		addNewAccountForm();
 	}
 		
+	/**
+	 * 
+	 */
 	private void addNewAccountForm()
 	{
 		IModel<User> formModel = new CompoundPropertyModel<User>(new User());
@@ -107,6 +119,10 @@ public class NewAccountPage extends FrontendPage
 		add(form);
 	}
 
+	/**
+	 * 
+	 * @param form
+	 */
 	private void addEmailTextfield(Form<User> form)
 	{
 		TextField<String> textField = new TextField<String>("email");

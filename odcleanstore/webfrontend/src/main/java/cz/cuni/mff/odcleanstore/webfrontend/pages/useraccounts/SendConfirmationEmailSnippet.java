@@ -8,6 +8,12 @@ import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.configuration.WebFrontendConfig;
 import cz.cuni.mff.odcleanstore.webfrontend.util.Mail;
 
+/**
+ * A code-snippet to send confirmation emails.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class SendConfirmationEmailSnippet extends CodeSnippet
 {
 	private static Logger logger = Logger.getLogger(SendConfirmationEmailSnippet.class);
