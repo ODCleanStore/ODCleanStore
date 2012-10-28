@@ -32,6 +32,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.TransformerAssignmentDetailPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
+/**
+ * Group-of-oi-rules-overview page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.PIC })
 public class OIGroupDetailPage extends LimitedEditingPage
 {
@@ -41,11 +47,20 @@ public class OIGroupDetailPage extends LimitedEditingPage
 	private OIRulesGroupDao oiRulesGroupDao;
 	private OIRuleDao oiRuleDao;
 	
+	/**
+	 * 
+	 * @param groupId
+	 */
 	public OIGroupDetailPage(final Integer groupId) 
 	{
 		this(groupId, null);
 	}
 	
+	/**
+	 * 
+	 * @param groupId
+	 * @param transformerInstanceId
+	 */
 	public OIGroupDetailPage(final Integer groupId, final Integer transformerInstanceId) 
 	{
 		super(
@@ -71,6 +86,11 @@ public class OIGroupDetailPage extends LimitedEditingPage
 		addOIRulesSection(groupId);
 	}
 	
+	/**
+	 * 
+	 * @param groupId
+	 * @param transformerInstanceId
+	 */
 	private void addBackToPipelineLink(Integer groupId, Integer transformerInstanceId) 
 	{
 		Map<Integer, Integer> navigationMap = getODCSSession().getOiPipelineRulesNavigationMap();
@@ -93,6 +113,10 @@ public class OIGroupDetailPage extends LimitedEditingPage
 		));
 	}
 	
+	/**
+	 * 
+	 * @param group
+	 */
 	private void addEditOIRulesGroupForm(final OIRulesGroup group)
 	{
 		IModel<OIRulesGroup> formModel = new CompoundPropertyModel<OIRulesGroup>(group);
@@ -136,6 +160,10 @@ public class OIGroupDetailPage extends LimitedEditingPage
 		add(form);
 	}
 	
+	/**
+	 * 
+	 * @param groupId
+	 */
 	private void addOIRulesSection(final Integer groupId) 
 	{
 		add(
@@ -150,6 +178,10 @@ public class OIGroupDetailPage extends LimitedEditingPage
 		addOIRulesTable(groupId);
 	}
 
+	/**
+	 * 
+	 * @param groupId
+	 */
 	private void addOIRulesTable(final Integer groupId) 
 	{
 		SortableDataProvider<OIRule> data = new DependentSortableDataProvider<OIRule>
@@ -216,6 +248,10 @@ public class OIGroupDetailPage extends LimitedEditingPage
 		add(new UnobtrusivePagingNavigator("navigator", dataView));
 	}
 	
+	/**
+	 * 
+	 * @param group
+	 */
 	private void addCommitChangesButton(final OIRulesGroup group)
 	{
 		add(new CommitChangesButton("commitChanges", group, oiRulesGroupDao)

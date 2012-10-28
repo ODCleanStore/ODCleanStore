@@ -27,6 +27,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.debug.OIDebugPage;
 
+/**
+ * List-all-registered-groups-of-oi-rules page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.PIC })
 public class OIGroupsListPage extends FrontendPage
 {
@@ -37,6 +43,9 @@ public class OIGroupsListPage extends FrontendPage
 	private OIRulesGroupDao oiRulesGroupsDao;
 	private EngineOperationsDao engineOperationsDao;
 	
+	/**
+	 * 
+	 */
 	public OIGroupsListPage() 
 	{
 		super(
@@ -55,6 +64,9 @@ public class OIGroupsListPage extends FrontendPage
 		addOIRulesGroupsTable();
 	}
 
+	/**
+	 * 
+	 */
 	private void addOIRulesGroupsTable()
 	{
 		SortableDataProvider<OIRulesGroup> data = new GenericSortableDataProvider<OIRulesGroup>(oiRulesGroupsDao, "label");
@@ -115,6 +127,11 @@ public class OIGroupsListPage extends FrontendPage
 		add(new UnobtrusivePagingNavigator("navigator", dataView));
 	}
 	
+	/**
+	 * 
+	 * @param groupId
+	 * @return
+	 */
 	private Link<String> createRerunAffectedGraphsButton(final Integer groupId)
 	{
 		Link<String> button = new Link<String>("rerunAffectedGraphs")

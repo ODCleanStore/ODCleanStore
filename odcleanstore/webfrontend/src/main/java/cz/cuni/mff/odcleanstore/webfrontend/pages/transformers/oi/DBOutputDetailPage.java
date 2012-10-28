@@ -16,6 +16,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
+/**
+ * DB-output-overview page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.PIC })
 public class DBOutputDetailPage extends LimitedEditingPage 
 {
@@ -23,8 +29,11 @@ public class DBOutputDetailPage extends LimitedEditingPage
 	private static Logger logger = Logger.getLogger(DBOutputDetailPage.class);
 	
 	private OIOutputDao oiOutputDao;
-	//private OIOutputTypeDao oiOutputTypeDao;
 	
+	/**
+	 * 
+	 * @param outputId
+	 */
 	public DBOutputDetailPage(final Integer outputId) 
 	{
 		super(
@@ -37,7 +46,6 @@ public class DBOutputDetailPage extends LimitedEditingPage
 		// prepare DAO objects
 		//
 		oiOutputDao = daoLookupFactory.getDao(OIOutputDao.class, isEditable());
-		//oiOutputTypeDao = daoLookupFactory.getDao(OIOutputTypeDao.class);
 		
 		// register page components
 		//
@@ -56,6 +64,10 @@ public class DBOutputDetailPage extends LimitedEditingPage
 		addEditDBOutputForm(output);
 	}
 
+	/**
+	 * 
+	 * @param output
+	 */
 	private void addEditDBOutputForm(final OIOutput output)
 	{
 		IModel<OIOutput> formModel = new CompoundPropertyModel<OIOutput>(output);
