@@ -36,6 +36,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputTypeDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
+/**
+ * OI-rule-overview page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.PIC })
 public class OIRuleDetailPage extends LimitedEditingPage
 {
@@ -47,6 +53,10 @@ public class OIRuleDetailPage extends LimitedEditingPage
 	private OIOutputDao oiOutputDao;
 	private OIOutputTypeDao oiOutputTypeDao;
 	
+	/**
+	 * 
+	 * @param ruleId
+	 */
 	public OIRuleDetailPage(final Integer ruleId) 
 	{
 		super(
@@ -74,6 +84,10 @@ public class OIRuleDetailPage extends LimitedEditingPage
 		addFileOutputsSection(ruleId);
 	}
 	
+	/**
+	 * 
+	 * @param ruleId
+	 */
 	private void addDBOutputsSection(final Integer ruleId) 
 	{
 		add(
@@ -90,6 +104,11 @@ public class OIRuleDetailPage extends LimitedEditingPage
 		addDBOutputsTable(ruleId, outputType.getId());
 	}
 
+	/**
+	 * 
+	 * @param ruleId
+	 * @param typeId
+	 */
 	private void addDBOutputsTable(final Integer ruleId, final Integer typeId) 
 	{		
 		IDataProvider<OIOutput> data = new OIOutputDataProvider(oiOutputDao, ruleId, typeId);
@@ -138,6 +157,10 @@ public class OIRuleDetailPage extends LimitedEditingPage
 		add(new UnobtrusivePagingNavigator("dbOutputsNavigator", dataView));
 	}
 	
+	/**
+	 * 
+	 * @param ruleId
+	 */
 	private void addFileOutputsSection(final Integer ruleId) 
 	{
 		add(
@@ -154,6 +177,11 @@ public class OIRuleDetailPage extends LimitedEditingPage
 		addFileOutputsTable(ruleId, outputType.getId());
 	}
 
+	/**
+	 * 
+	 * @param ruleId
+	 * @param typeId
+	 */
 	private void addFileOutputsTable(final Integer ruleId, final Integer typeId) 
 	{	
 		IDataProvider<OIOutput> data = new OIOutputDataProvider(oiOutputDao, ruleId, typeId);
@@ -204,6 +232,10 @@ public class OIRuleDetailPage extends LimitedEditingPage
 		add(new UnobtrusivePagingNavigator("fileOutputsNavigator", dataView));
 	}
 	
+	/**
+	 * 
+	 * @param ruleId
+	 */
 	private void addEditOIRuleForm(final Integer ruleId)
 	{
 		IModel<OIRule> formModel = createModelForOverview(oiRuleDao, ruleId);

@@ -15,6 +15,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
+/**
+ * Create-a-new-group-of-oi-rules page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.PIC })
 public class NewOIGroupPage extends FrontendPage
 {
@@ -29,11 +35,18 @@ public class NewOIGroupPage extends FrontendPage
 	 */
 	private Integer transformerInstanceId;
 	
+	/**
+	 * 
+	 */
 	public NewOIGroupPage() 
 	{
 		this(null);
 	}
 	
+	/**
+	 * 
+	 * @param transformerInstanceId
+	 */
 	public NewOIGroupPage(final Integer transformerInstanceId) 
 	{
 		super(
@@ -53,6 +66,9 @@ public class NewOIGroupPage extends FrontendPage
 		addNewOIRulesGroupForm();
 	}
 	
+	/**
+	 * 
+	 */
 	private void addNewOIRulesGroupForm()
 	{
 		IModel<OIRulesGroup> formModel = new CompoundPropertyModel<OIRulesGroup>(new OIRulesGroup());
@@ -99,6 +115,10 @@ public class NewOIGroupPage extends FrontendPage
 		add(form);
 	}
 	
+	/**
+	 * 
+	 * @param groupId
+	 */
 	private void updateBackToPipelineNavigation(Integer groupId) 
 	{
 		Map<Integer, Integer> navigationMap = getODCSSession().getOiPipelineRulesNavigationMap();

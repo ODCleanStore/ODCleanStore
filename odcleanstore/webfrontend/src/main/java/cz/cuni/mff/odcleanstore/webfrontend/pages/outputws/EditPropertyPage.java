@@ -16,6 +16,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.validators.IRIValidator;
 
+/**
+ * Edit-property-configuration page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.PIC, Role.ADM })
 public class EditPropertyPage extends FrontendPage
 {
@@ -26,6 +32,10 @@ public class EditPropertyPage extends FrontendPage
 	private AggregationTypeDao aggregationTypeDao;
 	private MultivalueTypeDao multivalueTypeDao;
 
+	/**
+	 * 
+	 * @param propertyId
+	 */
 	public EditPropertyPage(final Integer propertyId) 
 	{
 		super(
@@ -45,6 +55,10 @@ public class EditPropertyPage extends FrontendPage
 		addEditPropertyForm(propertyId);
 	}
 	
+	/**
+	 * 
+	 * @param propertyId
+	 */
 	private void addEditPropertyForm(final Integer propertyId)
 	{
 		PropertySettings property = propertySettingsDao.load(propertyId);
@@ -91,6 +105,10 @@ public class EditPropertyPage extends FrontendPage
 		add(form);
 	}
 	
+	/**
+	 * 
+	 * @param form
+	 */
 	private void addPropertyTextField(Form<PropertySettings> form)
 	{
 		TextField<String> textField = createTextfield("property");

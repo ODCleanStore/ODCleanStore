@@ -15,6 +15,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.prefixes.PrefixDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.validators.IRIValidator;
 
+/**
+ * Register-new-URI-prefix page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.ADM })
 public class NewPrefixPage extends FrontendPage
 {
@@ -24,6 +30,9 @@ public class NewPrefixPage extends FrontendPage
 	
 	private PrefixDao prefixMappingDao;
 	
+	/**
+	 * 
+	 */
 	public NewPrefixPage() 
 	{
 		super
@@ -43,6 +52,9 @@ public class NewPrefixPage extends FrontendPage
 		addNewPrefixForm();
 	}
 	
+	/**
+	 * 
+	 */
 	private void addNewPrefixForm()
 	{
 		IModel<Prefix> formModel = new CompoundPropertyModel<Prefix>(new Prefix());
@@ -92,6 +104,10 @@ public class NewPrefixPage extends FrontendPage
 		add(form);
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
 	private TextField<String> createURITextField()
 	{
 		TextField<String> textField = createTextfield("url");

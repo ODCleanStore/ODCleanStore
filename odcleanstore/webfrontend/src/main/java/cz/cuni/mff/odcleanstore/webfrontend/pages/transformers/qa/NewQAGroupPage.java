@@ -15,6 +15,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
+/**
+ * Add-new-group-of-QA-rules page components.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.PIC })
 public class NewQAGroupPage extends FrontendPage
 {
@@ -29,11 +35,18 @@ public class NewQAGroupPage extends FrontendPage
 	 */
 	private Integer transformerInstanceId;
 	
+	/**
+	 * 
+	 */
 	public NewQAGroupPage() 
 	{
 		this(null);
 	}
 	
+	/**
+	 * 
+	 * @param transformerInstanceId
+	 */
 	public NewQAGroupPage(final Integer transformerInstanceId) 
 	{
 		super(
@@ -53,6 +66,9 @@ public class NewQAGroupPage extends FrontendPage
 		addNewOIRulesGroupForm();
 	}
 	
+	/**
+	 * 
+	 */
 	private void addNewOIRulesGroupForm()
 	{
 		IModel<QARulesGroup> formModel = new CompoundPropertyModel<QARulesGroup>(new QARulesGroup());
@@ -99,6 +115,10 @@ public class NewQAGroupPage extends FrontendPage
 		add(form);
 	}
 	
+	/**
+	 * 
+	 * @param groupId
+	 */
 	private void updateBackToPipelineNavigation(Integer groupId) 
 	{
 		Map<Integer, Integer> navigationMap = getODCSSession().getQaPipelineRulesNavigationMap();

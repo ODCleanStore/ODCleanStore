@@ -21,6 +21,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputTypeDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
+/**
+ * Add-a-new-DB-output-to-an-oi-rule page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.PIC })
 public class NewDBOutputPage extends LimitedEditingPage 
 {
@@ -30,6 +36,10 @@ public class NewDBOutputPage extends LimitedEditingPage
 	private OIOutputDao oiOutputDao;
 	private OIOutputTypeDao oiOutputTypeDao;
 	
+	/**
+	 * 
+	 * @param ruleId
+	 */
 	public NewDBOutputPage(final Integer ruleId) 
 	{
 		super(
@@ -59,6 +69,10 @@ public class NewDBOutputPage extends LimitedEditingPage
 		addNewDBOutputForm(ruleId);
 	}
 
+	/**
+	 * 
+	 * @param ruleId
+	 */
 	private void addNewDBOutputForm(final Integer ruleId)
 	{
 		IModel<OIOutput> formModel = new CompoundPropertyModel<OIOutput>(new OIOutput());

@@ -31,6 +31,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
+/**
+ * Pipeline-overview page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.PIC })
 public class PipelineDetailPage extends LimitedEditingPage
 {
@@ -66,6 +72,10 @@ public class PipelineDetailPage extends LimitedEditingPage
 	private TransformerInstanceDao transformerInstanceDao;
 	private GraphInErrorDao graphInErrorDao;
 	
+	/**
+	 * 
+	 * @param pipelineId
+	 */
 	public PipelineDetailPage(final Integer pipelineId) 
 	{
 		super
@@ -101,6 +111,12 @@ public class PipelineDetailPage extends LimitedEditingPage
 		addAssignmentSection(pipelineId);
 	}
 	
+	/**
+	 * 
+	 * @param compName
+	 * @param pipelineId
+	 * @param errors
+	 */
 	private void addViewGraphsInError(final String compName, final Integer pipelineId, final Integer errors) {
 		add(new RedirectWithParamButton(GraphsInErrorListPage.class, compName, "pipelineId", pipelineId) {
 
@@ -113,6 +129,10 @@ public class PipelineDetailPage extends LimitedEditingPage
 		});
 	}
 	
+	/**
+	 * 
+	 * @param pipelineId
+	 */
 	private void addNewPipelineForm(final Integer pipelineId)
 	{
 		Pipeline pipeline = pipelineDao.load(pipelineId);
@@ -157,7 +177,10 @@ public class PipelineDetailPage extends LimitedEditingPage
 		add(form);
 	}
 	
-
+	/**
+	 * 
+	 * @param pipelineId
+	 */
 	private void addPipelineInformationSection(final Integer pipelineId)
 	{
 		setDefaultModel(createModelForOverview(pipelineDao, pipelineId));
@@ -165,6 +188,10 @@ public class PipelineDetailPage extends LimitedEditingPage
 		add(new BooleanLabel("isDefault"));
 	}
 
+	/**
+	 * 
+	 * @param pipelineId
+	 */
 	private void addAssignmentSection(final Integer pipelineId) 
 	{
 		add(
@@ -179,6 +206,10 @@ public class PipelineDetailPage extends LimitedEditingPage
 		addAssignmentTable(pipelineId);
 	}
 	
+	/**
+	 * 
+	 * @param pipelineId
+	 */
 	private void addAssignmentTable(final Integer pipelineId) 
 	{
 		SortableDataProvider<TransformerInstance> data = new DependentSortableDataProvider<TransformerInstance>
@@ -244,6 +275,11 @@ public class PipelineDetailPage extends LimitedEditingPage
 		add(new UnobtrusivePagingNavigator("navigator", dataView));
 	}	
 	
+	/**
+	 * 
+	 * @param item
+	 * @param direction
+	 */
 	private void addMoveButton(final Item<TransformerInstance> item, final MoveDirection direction)
 	{
 		item.add(new AuthorizedLink<String>("move" + direction.getLabel(), isEditable()) 

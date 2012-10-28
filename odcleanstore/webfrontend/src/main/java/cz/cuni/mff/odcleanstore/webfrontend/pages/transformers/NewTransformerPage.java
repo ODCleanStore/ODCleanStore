@@ -12,6 +12,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
+/**
+ * Register-a-new-transformer page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.ADM })
 public class NewTransformerPage extends FrontendPage
 {
@@ -21,6 +27,9 @@ public class NewTransformerPage extends FrontendPage
 	
 	private TransformerDao transformerDao;
 	
+	/**
+	 * 
+	 */
 	public NewTransformerPage() 
 	{
 		super
@@ -40,6 +49,9 @@ public class NewTransformerPage extends FrontendPage
 		addNewTransformerForm();
 	}
 	
+	/**
+	 * 
+	 */
 	private void addNewTransformerForm()
 	{
 		IModel<Transformer> formModel = new CompoundPropertyModel<Transformer>(new Transformer());

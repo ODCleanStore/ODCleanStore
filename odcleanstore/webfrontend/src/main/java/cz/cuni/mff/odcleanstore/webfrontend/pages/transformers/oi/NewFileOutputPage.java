@@ -22,6 +22,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputTypeDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
+/**
+ * Add-a-new-file-output-to-an-oi-rule page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.PIC })
 public class NewFileOutputPage extends LimitedEditingPage 
 {
@@ -32,6 +38,10 @@ public class NewFileOutputPage extends LimitedEditingPage
 	private OIOutputTypeDao oiOutputTypeDao;
 	private OIFileFormatDao oiFileFormatDao;
 	
+	/**
+	 * 
+	 * @param ruleId
+	 */
 	public NewFileOutputPage(final Integer ruleId) 
 	{
 		super(
@@ -62,6 +72,10 @@ public class NewFileOutputPage extends LimitedEditingPage
 		addNewFileOutputForm(ruleId);
 	}
 
+	/**
+	 * 
+	 * @param ruleId
+	 */
 	private void addNewFileOutputForm(final Integer ruleId)
 	{
 		IModel<OIOutput> formModel = new CompoundPropertyModel<OIOutput>(new OIOutput());

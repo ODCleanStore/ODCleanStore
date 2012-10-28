@@ -14,6 +14,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
+/**
+ * Create-new-filter-dn-template-instance page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ "PIC" })
 public class NewDNFilterTemplateInstancePage extends LimitedEditingPage
 {
@@ -22,8 +28,11 @@ public class NewDNFilterTemplateInstancePage extends LimitedEditingPage
 	private static Logger logger = Logger.getLogger(NewDNFilterTemplateInstancePage.class);
 	
 	private DNFilterTemplateInstanceDao dnFilterTemplateInstanceDao;
-	//private CompiledDNRuleDao compiledDNRuleDao;
 	
+	/**
+	 * 
+	 * @param groupId
+	 */
 	public NewDNFilterTemplateInstancePage(final Integer groupId) 
 	{
 		super(
@@ -55,6 +64,10 @@ public class NewDNFilterTemplateInstancePage extends LimitedEditingPage
 		addNewDNRuleForm(groupId);
 	}
 
+	/**
+	 * 
+	 * @param groupId
+	 */
 	private void addNewDNRuleForm(final Integer groupId)
 	{
 		IModel<DNFilterTemplateInstance> formModel = new CompoundPropertyModel<DNFilterTemplateInstance>(

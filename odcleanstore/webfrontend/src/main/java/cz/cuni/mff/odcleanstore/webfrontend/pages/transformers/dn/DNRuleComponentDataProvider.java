@@ -12,6 +12,13 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponent;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DetachableModel;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleComponentDao;
 
+/**
+ * Data-provider to obtain registered dn-rule-components which belong to
+ * the dn-rule given by it's id.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.PIC })
 public class DNRuleComponentDataProvider implements IDataProvider<DNRuleComponent>
 {
@@ -31,6 +38,11 @@ public class DNRuleComponentDataProvider implements IDataProvider<DNRuleComponen
 		this.ruleId = ruleId;
 	}
 	
+	/**
+	 * Lazily load the represented collection.
+	 * 
+	 * @return
+	 */
 	private List<DNRuleComponent> getData()
 	{
 		if (data == null)
@@ -39,11 +51,21 @@ public class DNRuleComponentDataProvider implements IDataProvider<DNRuleComponen
 		return data;
 	}
 	
+	/**
+	 * Free allocated memory.
+	 */
 	public void detach() 
 	{
 		data = null;
 	}
 
+	/**
+	 * Returns an iterator over the represented collection.
+	 * 
+	 * @param first
+	 * @param count
+	 * @return
+	 */
 	public Iterator<DNRuleComponent> iterator(int first, int count) 
 	{
 		// replace this with a special DAO method to only select the sub-list
@@ -55,11 +77,23 @@ public class DNRuleComponentDataProvider implements IDataProvider<DNRuleComponen
 					.iterator();
 	}
 
+	/**
+	 * Returns the size of the represented collection.
+	 * 
+	 * @return
+	 */
 	public int size() 
 	{
 		return getData().size();
 	}
 
+	/**
+	 * Returns the given component instance encapsulated into 
+	 * a loadable-detachable model.
+	 * 
+	 * @param object
+	 * @return
+	 */
 	public IModel<DNRuleComponent> model(DNRuleComponent object) 
 	{
 		return new DetachableModel<DNRuleComponent>(dao, object);

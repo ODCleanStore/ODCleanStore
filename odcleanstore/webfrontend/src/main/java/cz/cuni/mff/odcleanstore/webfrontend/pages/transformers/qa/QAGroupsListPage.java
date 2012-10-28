@@ -27,6 +27,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.debug.QADebugPage;
 
+/**
+ * List-all-registered-QA-rules-groups page components.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.PIC })
 public class QAGroupsListPage extends FrontendPage
 {
@@ -37,6 +43,9 @@ public class QAGroupsListPage extends FrontendPage
 	private QARulesGroupDao qaRulesGroupDao;
 	private EngineOperationsDao engineOperationsDao;
 	
+	/**
+	 * 
+	 */
 	public QAGroupsListPage() 
 	{
 		super(
@@ -55,6 +64,9 @@ public class QAGroupsListPage extends FrontendPage
 		addOIRulesGroupsTable();
 	}
 	
+	/**
+	 * 
+	 */
 	private void addOIRulesGroupsTable()
 	{
 		SortableDataProvider<QARulesGroup> data = new GenericSortableDataProvider<QARulesGroup>(qaRulesGroupDao, "label");
@@ -116,6 +128,11 @@ public class QAGroupsListPage extends FrontendPage
 		add(new UnobtrusivePagingNavigator("navigator", dataView));
 	}
 
+	/**
+	 * 
+	 * @param groupId
+	 * @return
+	 */
 	private Link<String> createRerunAffectedGraphsButton(final Integer groupId)
 	{
 		Link<String> button = new Link<String>("rerunAffectedGraphs")

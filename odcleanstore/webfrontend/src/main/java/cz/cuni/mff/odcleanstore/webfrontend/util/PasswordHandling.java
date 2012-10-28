@@ -4,14 +4,32 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
+/**
+ * Utility class to ease working with user-account passwords.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class PasswordHandling 
 {
+	/** the standard password/salt char-set */
 	public static final String DEFAULT_CHARSET = 
 		"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.!?:";
 	
+	/** the standard password length */
 	public static final int DEFAULT_PASSWORD_LENGTH = 12;
+	
+	/** the standard salt length */
 	public static final int DEFAULT_SALT_LENGTH = 64;
 	
+	/**
+	 * Generates a random string value of the given length, which consists
+	 * of characters of the given char-set only.
+	 * 
+	 * @param charset
+	 * @param length
+	 * @return
+	 */
 	public static String generateRandomString(String charset, int length)
 	{
 		Random rnd = new Random();
@@ -27,6 +45,10 @@ public class PasswordHandling
 	}
 	
 	/**
+	 * Generates a random password (e.g. a random string value of
+	 * the standard password-length ({@link PasswordHandling#DEFAULT_PASSWORD_LENGTH})
+	 * which consists only of members of the standard char-set 
+	 * ({@link PasswordHandling#DEFAULT_CHARSET})).
 	 * 
 	 * @return
 	 */
@@ -39,6 +61,10 @@ public class PasswordHandling
 	}
 	
 	/**
+	 * Generates a random salt (e.g. a random string value of the
+	 * standard salt-length ({@link PasswordHandling#DEFAULT_SALT_LENGTH}) 
+	 * which consists only of members of the standard char-set 
+	 * ({@link PasswordHandling#DEFAULT_CHARSET})).
 	 * 
 	 * @return
 	 */
@@ -50,6 +76,14 @@ public class PasswordHandling
 		);
 	}
 	
+	/**
+	 * Returns the has of the given plain-text password and the given salt.
+	 * 
+	 * @param password
+	 * @param salt
+	 * @return
+	 * @throws NoSuchAlgorithmException
+	 */
 	public static String calculatePasswordHash(String password, String salt) 
 		throws NoSuchAlgorithmException
 	{
@@ -62,10 +96,15 @@ public class PasswordHandling
 		}
 	}
 	
+	/**
+	 * Calculates an MD5 hash of the given string value.
+	 * 
+	 * @param pattern
+	 * @return
+	 * @throws NoSuchAlgorithmException
+	 */
 	public static String calculateHash(String pattern) throws NoSuchAlgorithmException
 	{
-		// TODO: make this function polymorphic against various hash calculation methods
-		
 		MessageDigest algorithm = MessageDigest.getInstance("MD5");
 		
 		algorithm.reset();

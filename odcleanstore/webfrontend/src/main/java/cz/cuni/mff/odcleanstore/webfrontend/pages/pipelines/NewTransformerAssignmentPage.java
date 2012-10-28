@@ -15,6 +15,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
+/**
+ * Assign-new-transformer-instance-to-a-pipeline page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.PIC })
 public class NewTransformerAssignmentPage extends LimitedEditingPage
 {
@@ -31,6 +37,10 @@ public class NewTransformerAssignmentPage extends LimitedEditingPage
 	private Boolean runOnCleanDB = true;
 	private TransformerInstance transformerPlaceBefore;
 	
+	/**
+	 * 
+	 * @param pipelineId
+	 */
 	public NewTransformerAssignmentPage(final Integer pipelineId) 
 	{
 		super
@@ -63,6 +73,10 @@ public class NewTransformerAssignmentPage extends LimitedEditingPage
 		addNewAssignmentForm(pipelineId);
 	}
 	
+	/**
+	 * 
+	 * @param pipelineId
+	 */
 	private void addNewAssignmentForm(final Integer pipelineId)
 	{
 		Form<NewTransformerAssignmentPage> form = 

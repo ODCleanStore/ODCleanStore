@@ -24,6 +24,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
+/**
+ * Create-new-oi-rule page component.
+ *  
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.PIC })
 public class NewOIRulePage extends LimitedEditingPage 
 {
@@ -34,6 +40,10 @@ public class NewOIRulePage extends LimitedEditingPage
 	
 	private OIRuleDao oiRuleDao;
 	
+	/**
+	 * 
+	 * @param groupId
+	 */
 	public NewOIRulePage(final Integer groupId) 
 	{
 		super(
@@ -64,6 +74,10 @@ public class NewOIRulePage extends LimitedEditingPage
 		addNewOIRuleForm(groupId);
 	}
 
+	/**
+	 * 
+	 * @param groupId
+	 */
 	private void addNewOIRuleForm(final Integer groupId)
 	{
 		IModel<OIRule> formModel = new CompoundPropertyModel<OIRule>(new OIRule());

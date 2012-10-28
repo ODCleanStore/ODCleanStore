@@ -17,15 +17,22 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvi
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qe.LabelPropertyDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
+/**
+ * List-registered-label-properties page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.PIC, Role.ADM })
 public class QELabelPropertiesListPage extends FrontendPage 
 {
 	private static final long serialVersionUID = 1L;
 
-	//private static Logger logger = Logger.getLogger(QELabelPropertiesListPage.class);
-	
 	private LabelPropertyDao labelPropertyDao;
 
+	/**
+	 * 
+	 */
 	public QELabelPropertiesListPage() 
 	{
 		super(
@@ -43,6 +50,9 @@ public class QELabelPropertiesListPage extends FrontendPage
 		addLabelPropertiesTable();
 	}
 
+	/**
+	 * 
+	 */
 	private void addLabelPropertiesTable()
 	{
 		SortableDataProvider<LabelProperty> data = new GenericSortableDataProvider<LabelProperty>(labelPropertyDao, "property");

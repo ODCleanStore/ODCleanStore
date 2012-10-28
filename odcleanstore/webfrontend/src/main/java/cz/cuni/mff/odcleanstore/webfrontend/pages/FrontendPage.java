@@ -61,8 +61,6 @@ public abstract class FrontendPage extends WebPage
 	
 	private static final long serialVersionUID = 1L;
 
-	//private static Logger logger = Logger.getLogger(FrontendPage.class);
-	
 	protected final DaoLookupFactory daoLookupFactory;
 	
 	/**
@@ -115,6 +113,46 @@ public abstract class FrontendPage extends WebPage
 		return (ODCSWebFrontendApplication) this.getApplication();
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
+	protected ODCSWebFrontendSession getODCSSession()
+	{
+		return (ODCSWebFrontendSession) getSession();
+	}
+	
+	protected TransformationContext createContext()
+	{
+		final BackendConfig config = ConfigLoader.getConfig().getBackendGroup();
+		return new TransformationContext()
+		{
+
+			public JDBCConnectionCredentials getDirtyDatabaseCredentials() {
+				return config.getDirtyDBJDBCConnectionCredentials();
+			}
+
+			public JDBCConnectionCredentials getCleanDatabaseCredentials() {
+				return config.getCleanDBJDBCConnectionCredentials();
+			}
+
+			public String getTransformerConfiguration() {
+				return "";
+			}
+
+			public File getTransformerDirectory() {
+				String path = ConfigLoader.getConfig().getWebFrontendGroup().getDebugDirectoryPath();
+				File dir = new File(path);
+				dir.mkdir();
+				return dir;
+			}
+
+			public EnumTransformationType getTransformationType() {
+				return EnumTransformationType.NEW;
+			}			
+		};
+	}
+	
 	/* 	
 	 	========================================================================
 		FORM HELPERS
@@ -126,6 +164,7 @@ public abstract class FrontendPage extends WebPage
 	 * 
 	 * @param choices
 	 * @param componentName
+	 * @param required
 	 * @return
 	 */
 	protected <EnumBO extends EntityWithSurrogateKey> DropDownChoice<EnumBO> createEnumSelectbox(
@@ -155,6 +194,9 @@ public abstract class FrontendPage extends WebPage
 	}
 	
 	/**
+	 * Creates a mandatory select-box form component for an SQL-table based 
+	 * enumeration.
+	 * 
 	 * 
 	 * @param dao
 	 * @param componentName
@@ -167,6 +209,7 @@ public abstract class FrontendPage extends WebPage
 	}
 	
 	/**
+	 * Creates a select-box form component for an SQL-table based enumeration.
 	 * 
 	 * @param dao
 	 * @param componentName
@@ -179,6 +222,7 @@ public abstract class FrontendPage extends WebPage
 	}
 	
 	/**
+	 * Creates a text field component.
 	 * 
 	 * @param componentName
 	 * @param required
@@ -192,6 +236,7 @@ public abstract class FrontendPage extends WebPage
 	}
 	
 	/**
+	 * Creates a mandatory text field component.
 	 * 
 	 * @param componentName
 	 * @return
@@ -202,6 +247,7 @@ public abstract class FrontendPage extends WebPage
 	}
 	
 	/**
+	 * Creates a text field component which accepts only IRIs.
 	 * 
 	 * @param componentName
 	 * @param required
@@ -216,6 +262,7 @@ public abstract class FrontendPage extends WebPage
 	}
 
 	/**
+	 * Creates a mandatory text field component which accepts only IRIs.
 	 * 
 	 * @param componentName
 	 * @return
@@ -282,6 +329,7 @@ public abstract class FrontendPage extends WebPage
 	}
 	
 	/**
+	 * Creates a text area component.
 	 * 
 	 * @param componentName
 	 * @param required
@@ -295,6 +343,7 @@ public abstract class FrontendPage extends WebPage
 	}
 	
 	/**
+	 * Creates a mandatory text area component.
 	 * 
 	 * @param componentName
 	 * @return
@@ -304,6 +353,14 @@ public abstract class FrontendPage extends WebPage
 		return createTextarea(componentName, true);
 	}
 	
+	/**
+	 * Creates a label component to be used in table cells (contains &nbsp;
+	 * when given a null value).
+	 * 
+	 * @param compName
+	 * @param value content of the label
+	 * @return
+	 */
 	protected Label createNullResistentTableCellLabel(String compName, Object value)
 	{
 		if (value != null)
@@ -321,11 +378,25 @@ public abstract class FrontendPage extends WebPage
 		=======================================================================
 	*/
 	
+	/**
+	 * Registers the given panel as a help window with the represented page
+	 * with default window and link component names.
+	 *  
+	 * @param content
+	 */
 	protected void addHelpWindow(Panel content)
 	{
 		addHelpWindow("helpWindow", "openHelpWindow", content);
 	}
 	
+	/**
+	 * Registers the given panel as a help window to the represented page.
+	 * 
+	 * @param compName the name of the window component
+	 * @param linkCompName the name of the component which forms a link to open
+	 * the window
+	 * @param content
+	 */
 	protected void addHelpWindow(String compName, String linkCompName, Panel content)
 	{
 		final ModalWindow helpWindow = new HelpWindow(
@@ -346,6 +417,13 @@ public abstract class FrontendPage extends WebPage
         });
 	}
 	
+	/**
+	 * Returns a loadable-detachable model for a list of entities determined
+	 * by the given dao - to be used as choices in select boxes.
+	 * 
+	 * @param dao
+	 * @return
+	 */
 	protected <BO extends EntityWithSurrogateKey> IModel<List<BO>> createModelForListView(
 		final DaoForEntityWithSurrogateKey<BO> dao)
 	{
@@ -361,6 +439,14 @@ public abstract class FrontendPage extends WebPage
 		};
 	}
 	
+	/**
+	 * Returns a loadable-detachable model for a single entity determined by 
+	 * the given dao and id.
+	 * 
+	 * @param dao
+	 * @param boId
+	 * @return
+	 */
 	protected <BO extends EntityWithSurrogateKey> IModel<BO> createModelForOverview(
 		final DaoForEntityWithSurrogateKey<BO> dao, final Integer boId)
 	{
@@ -376,41 +462,5 @@ public abstract class FrontendPage extends WebPage
 		};
 		
 		return new CompoundPropertyModel<BO>(model);
-	}
-	
-	protected ODCSWebFrontendSession getODCSSession()
-	{
-		return (ODCSWebFrontendSession) getSession();
-	}
-	
-	protected TransformationContext createContext()
-	{
-		final BackendConfig config = ConfigLoader.getConfig().getBackendGroup();
-		return new TransformationContext()
-		{
-
-			public JDBCConnectionCredentials getDirtyDatabaseCredentials() {
-				return config.getDirtyDBJDBCConnectionCredentials();
-			}
-
-			public JDBCConnectionCredentials getCleanDatabaseCredentials() {
-				return config.getCleanDBJDBCConnectionCredentials();
-			}
-
-			public String getTransformerConfiguration() {
-				return "";
-			}
-
-			public File getTransformerDirectory() {
-				String path = ConfigLoader.getConfig().getWebFrontendGroup().getDebugDirectoryPath();
-				File dir = new File(path);
-				dir.mkdir();
-				return dir;
-			}
-
-			public EnumTransformationType getTransformationType() {
-				return EnumTransformationType.NEW;
-			}			
-		};
 	}
 }

@@ -372,9 +372,10 @@ import java.util.Set;
      * @throws DatabaseException query error
      */
     private Collection<Quad> getLabels(String uri) throws DatabaseException {
+        return new ArrayList<Quad>();/*
         String query = String.format(Locale.ROOT, LABELS_QUERY, uri, getGraphFilterClause(),
                 labelPropertiesList, getGraphPrefixFilter("labelGraph"), maxLimit);
-        return getQuadsFromQuery(query, "getLabels()");
+        return getQuadsFromQuery(query, "getLabels()");*/
     }
 
     /**
