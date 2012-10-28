@@ -27,6 +27,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.debug.DNDebugPage;
 
+/**
+ * List-all-registered-dn-rules page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.PIC })
 public class DNGroupsListPage extends FrontendPage
 {
@@ -37,6 +43,9 @@ public class DNGroupsListPage extends FrontendPage
 	private DNRulesGroupDao dnRulesGroupDao;
 	private EngineOperationsDao engineOperationsDao;
 	
+	/**
+	 * 
+	 */
 	public DNGroupsListPage() 
 	{
 		super(
@@ -55,6 +64,9 @@ public class DNGroupsListPage extends FrontendPage
 		addDNRulesGroupsTable();
 	}
 	
+	/**
+	 * 
+	 */
 	private void addDNRulesGroupsTable()
 	{
 		SortableDataProvider<DNRulesGroup> data = new GenericSortableDataProvider<DNRulesGroup>(dnRulesGroupDao, "label");
@@ -116,6 +128,11 @@ public class DNGroupsListPage extends FrontendPage
 		add(new UnobtrusivePagingNavigator("navigator", dataView));
 	}
 	
+	/**
+	 * 
+	 * @param groupId
+	 * @return
+	 */
 	private Link<String> createRerunAffectedGraphsButton(final Integer groupId)
 	{
 		Link<String> button = new Link<String>("rerunAffectedGraphs")

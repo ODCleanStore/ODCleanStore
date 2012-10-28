@@ -44,6 +44,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.TransformerAssignmentDetailPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
+/**
+ * Group-of-dn-rules-overview page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.PIC })
 public class DNGroupDetailPage extends LimitedEditingPage
 {
@@ -57,11 +63,20 @@ public class DNGroupDetailPage extends LimitedEditingPage
 	private DNFilterTemplateInstanceDao dnFilterTemplateInstanceDao;
 	private DNConcatenateTemplateInstanceDao dnConcatenateTemplateInstanceDao;
 
+	/**
+	 * 
+	 * @param groupId
+	 */
 	public DNGroupDetailPage(final Integer groupId) 
 	{
 		this(groupId, null);
 	}
 	
+	/**
+	 * 
+	 * @param groupId
+	 * @param transformerInstanceId
+	 */
 	public DNGroupDetailPage(final Integer groupId, final Integer transformerInstanceId) 
 	{
 		super(
@@ -100,6 +115,11 @@ public class DNGroupDetailPage extends LimitedEditingPage
 		addDNConcatenateTemplateInstancesSection(groupId);
 	}
 	
+	/**
+	 * 
+	 * @param groupId
+	 * @param transformerInstanceId
+	 */
 	private void addBackToPipelineLink(Integer groupId, Integer transformerInstanceId) 
 	{
 		Map<Integer, Integer> navigationMap = getODCSSession().getDnPipelineRulesNavigationMap();
@@ -122,12 +142,10 @@ public class DNGroupDetailPage extends LimitedEditingPage
 		));
 	}
 	
-	/*
-	 	=======================================================================
-	 	Implementace qaRulesTable
-	 	=======================================================================
-	*/
-	
+	/**
+	 * 
+	 * @param group
+	 */
 	private void addEditDNRulesGroupForm(final DNRulesGroup group)
 	{
 		IModel<DNRulesGroup> formModel = new CompoundPropertyModel<DNRulesGroup>(group);
@@ -170,6 +188,10 @@ public class DNGroupDetailPage extends LimitedEditingPage
 		add(form);
 	}
 	
+	/**
+	 * 
+	 * @param groupId
+	 */
 	private void addDNRawRulesSection(final Integer groupId) 
 	{
 		add(
@@ -184,6 +206,10 @@ public class DNGroupDetailPage extends LimitedEditingPage
 		addDNRawRulesTable(groupId);
 	}
 
+	/**
+	 * 
+	 * @param groupId
+	 */
 	private void addDNRawRulesTable(final Integer groupId)
 	{
 		IDataProvider<DNRule> data = new DependentDataProvider<DNRule>(dnRuleDao, "groupId", groupId);
@@ -227,6 +253,10 @@ public class DNGroupDetailPage extends LimitedEditingPage
 		add(new UnobtrusivePagingNavigator("rawRulesNavigator", dataView));
 	}
 	
+	/**
+	 * 
+	 * @param groupId
+	 */
 	private void addDNReplaceTemplateInstancesSection(final Integer groupId) 
 	{
 		add(
@@ -241,6 +271,10 @@ public class DNGroupDetailPage extends LimitedEditingPage
 		addDNReplaceTemplateInstancesTable(groupId);
 	}
 	
+	/**
+	 * 
+	 * @param groupId
+	 */
 	private void addDNReplaceTemplateInstancesTable(final Integer groupId)
 	{
 		IDataProvider<DNReplaceTemplateInstance> data = new DependentDataProvider<DNReplaceTemplateInstance>
@@ -292,6 +326,10 @@ public class DNGroupDetailPage extends LimitedEditingPage
 		add(new UnobtrusivePagingNavigator("replaceTemplateInstancesNavigator", dataView));
 	}
 	
+	/**
+	 * 
+	 * @param groupId
+	 */
 	private void addDNRenameTemplateInstancesSection(final Integer groupId) 
 	{
 		add(
@@ -306,6 +344,10 @@ public class DNGroupDetailPage extends LimitedEditingPage
 		addDNRenameTemplateInstancesTable(groupId);
 	}
 	
+	/**
+	 * 
+	 * @param groupId
+	 */
 	private void addDNRenameTemplateInstancesTable(final Integer groupId)
 	{
 		IDataProvider<DNRenameTemplateInstance> data = new DependentDataProvider<DNRenameTemplateInstance>
@@ -356,6 +398,10 @@ public class DNGroupDetailPage extends LimitedEditingPage
 		add(new UnobtrusivePagingNavigator("renameTemplateInstancesNavigator", dataView));
 	}
 	
+	/**
+	 * 
+	 * @param groupId
+	 */
 	private void addDNFilterTemplateInstancesSection(final Integer groupId) 
 	{
 		add(
@@ -370,6 +416,10 @@ public class DNGroupDetailPage extends LimitedEditingPage
 		addDNFilterTemplateInstancesTable(groupId);
 	}
 	
+	/**
+	 * 
+	 * @param groupId
+	 */
 	private void addDNFilterTemplateInstancesTable(final Integer groupId)
 	{
 		IDataProvider<DNFilterTemplateInstance> data = new DependentDataProvider<DNFilterTemplateInstance>
@@ -422,6 +472,10 @@ public class DNGroupDetailPage extends LimitedEditingPage
 		add(new UnobtrusivePagingNavigator("filterTemplateInstancesNavigator", dataView));
 	}
 	
+	/**
+	 * 
+	 * @param groupId
+	 */
 	private void addDNConcatenateTemplateInstancesSection(final Integer groupId) 
 	{
 		add(
@@ -436,6 +490,10 @@ public class DNGroupDetailPage extends LimitedEditingPage
 		addDNConcatenateTemplateInstancesTable(groupId);
 	}
 	
+	/**
+	 * 
+	 * @param groupId
+	 */
 	private void addDNConcatenateTemplateInstancesTable(final Integer groupId)
 	{
 		IDataProvider<DNConcatenateTemplateInstance> data = new DependentDataProvider<DNConcatenateTemplateInstance>
@@ -487,6 +545,10 @@ public class DNGroupDetailPage extends LimitedEditingPage
 		add(new UnobtrusivePagingNavigator("concatenateTemplateInstancesNavigator", dataView));
 	}
 	
+	/**
+	 * 
+	 * @param group
+	 */
 	private void addCommitChangesButton(final DNRulesGroup group)
 	{
 		add(new CommitChangesButton("commitChanges", group, dnRulesGroupDao)
@@ -502,6 +564,14 @@ public class DNGroupDetailPage extends LimitedEditingPage
 		});
 	}
 	
+	/**
+	 * 
+	 * @param dao
+	 * @param rule
+	 * @param objName
+	 * @param message
+	 * @return
+	 */
 	private <BO extends EntityWithSurrogateKey> Component createAuthorizedDeleteButton(DaoForEntityWithSurrogateKey<BO> dao, final DNRule rule,
 		String objName, DeleteConfirmationMessage message)
 	{
@@ -518,6 +588,14 @@ public class DNGroupDetailPage extends LimitedEditingPage
 		};
 	}
 	
+	/**
+	 * 
+	 * @param templateInstanceDao
+	 * @param instance
+	 * @param objName
+	 * @param message
+	 * @return
+	 */
 	private <BO extends DNTemplateInstance> Component createDeleteTemplateInstanceButton(
 		DNTemplateInstanceDao<BO> templateInstanceDao, final BO instance, String objName, DeleteConfirmationMessage message)
 	{

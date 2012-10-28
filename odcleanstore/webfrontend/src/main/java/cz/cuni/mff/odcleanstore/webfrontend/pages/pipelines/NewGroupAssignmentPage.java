@@ -15,6 +15,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
+/**
+ * Assign-new-group-to-transformer-instance page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.PIC })
 public class NewGroupAssignmentPage extends LimitedEditingPage
 {
@@ -26,6 +32,12 @@ public class NewGroupAssignmentPage extends LimitedEditingPage
 	
 	private RulesGroupEntity rulesGroup;
 	
+	/**
+	 * 
+	 * @param groupsDao
+	 * @param assignedGroupsDao
+	 * @param transformerInstanceId
+	 */
 	public NewGroupAssignmentPage(
 		final DaoForEntityWithSurrogateKey<? extends RulesGroupEntity> groupsDao,
 		final DaoForEntityWithSurrogateKey<RuleAssignment> assignedGroupsDao,
@@ -51,6 +63,10 @@ public class NewGroupAssignmentPage extends LimitedEditingPage
 		addNewAssignmentForm(transformerInstanceId);
 	}
 	
+	/**
+	 * 
+	 * @param transformerInstanceId
+	 */
 	private void addGoBackButton(final Integer transformerInstanceId)
 	{
 		add(
@@ -62,6 +78,10 @@ public class NewGroupAssignmentPage extends LimitedEditingPage
 		);
 	}
 	
+	/**
+	 * 
+	 * @param transformerInstanceId
+	 */
 	private void addNewAssignmentForm(final Integer transformerInstanceId)
 	{
 		Form<NewGroupAssignmentPage> form = new Form<NewGroupAssignmentPage>("newAssignmentForm", new CompoundPropertyModel<NewGroupAssignmentPage>(this))

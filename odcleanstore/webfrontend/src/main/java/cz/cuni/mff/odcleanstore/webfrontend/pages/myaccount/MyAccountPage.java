@@ -10,14 +10,21 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.ODCSWebFrontendSession;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LogInPage;
 
+/**
+ * User-account-overview page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class MyAccountPage extends FrontendPage 
 {
 	private static final long serialVersionUID = 1L;
 
 	private static Logger logger = Logger.getLogger(MyAccountPage.class);
 	
-	//private UserDao userDao;
-	
+	/**
+	 * 
+	 */
 	public MyAccountPage() 
 	{
 		super(
@@ -32,6 +39,10 @@ public class MyAccountPage extends FrontendPage
 		addAccountInformationSection(user);
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	private User getUser()
 	{
 		ODCSWebFrontendSession session = ODCSWebFrontendSession.get();
@@ -42,6 +53,10 @@ public class MyAccountPage extends FrontendPage
 		return ODCSWebFrontendSession.get().getUser();
 	}
 	
+	/**
+	 * 
+	 * @param user
+	 */
 	private void addAccountInformationSection(User user)
 	{
 		

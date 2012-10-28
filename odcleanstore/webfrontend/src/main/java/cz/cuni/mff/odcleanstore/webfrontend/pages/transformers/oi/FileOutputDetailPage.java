@@ -17,6 +17,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIFileFormatDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIOutputDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
+/**
+ * File-output-overview page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.PIC })
 public class FileOutputDetailPage extends LimitedEditingPage 
 {
@@ -24,9 +30,12 @@ public class FileOutputDetailPage extends LimitedEditingPage
 	private static Logger logger = Logger.getLogger(FileOutputDetailPage.class);
 	
 	private OIOutputDao oiOutputDao;
-	//private OIOutputTypeDao oiOutputTypeDao;
 	private OIFileFormatDao oiFileFormatDao;
 	
+	/**
+	 * 
+	 * @param outputId
+	 */
 	public FileOutputDetailPage(final Integer outputId) 
 	{
 		super(
@@ -39,7 +48,6 @@ public class FileOutputDetailPage extends LimitedEditingPage
 		// prepare DAO objects
 		//
 		oiOutputDao = daoLookupFactory.getDao(OIOutputDao.class, isEditable());
-		//oiOutputTypeDao = daoLookupFactory.getDao(OIOutputTypeDao.class);
 		oiFileFormatDao = daoLookupFactory.getDao(OIFileFormatDao.class);
 		
 		// register page components
@@ -59,6 +67,10 @@ public class FileOutputDetailPage extends LimitedEditingPage
 		addEditFileOutputForm(output);
 	}
 
+	/**
+	 * 
+	 * @param output
+	 */
 	private void addEditFileOutputForm(final OIOutput output)
 	{
 		IModel<OIOutput> formModel = new CompoundPropertyModel<OIOutput>(output);

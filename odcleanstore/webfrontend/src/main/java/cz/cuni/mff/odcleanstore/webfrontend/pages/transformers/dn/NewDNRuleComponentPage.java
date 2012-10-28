@@ -20,6 +20,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 import cz.cuni.mff.odcleanstore.webfrontend.validators.DNComponentValidator;
 
+/**
+ * Add-new-component-to-a-dn-rule page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.PIC })
 public class NewDNRuleComponentPage extends LimitedEditingPage
 {
@@ -29,6 +35,10 @@ public class NewDNRuleComponentPage extends LimitedEditingPage
 	private DNRuleComponentDao dnRuleComponentDao;
 	private DNRuleComponentTypeDao dnRuleComponentTypeDao;
 	
+	/**
+	 * 
+	 * @param ruleId
+	 */
 	public NewDNRuleComponentPage(Integer ruleId) 
 	{
 		super(
@@ -60,6 +70,10 @@ public class NewDNRuleComponentPage extends LimitedEditingPage
 		addNewComponentForm(ruleId);
 	}
 	
+	/**
+	 * 
+	 * @param ruleId
+	 */
 	private void addNewComponentForm(final Integer ruleId)
 	{
 		IModel<DNRuleComponent> formModel = new CompoundPropertyModel<DNRuleComponent>(new DNRuleComponent());

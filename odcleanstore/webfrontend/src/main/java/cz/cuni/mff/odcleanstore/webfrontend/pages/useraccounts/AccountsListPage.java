@@ -28,6 +28,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.util.Mail;
 import cz.cuni.mff.odcleanstore.webfrontend.util.NewPasswordMail;
 import cz.cuni.mff.odcleanstore.webfrontend.util.PasswordHandling;
 
+/**
+ * List-all-registered-user-accounts page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.ADM })
 public class AccountsListPage extends FrontendPage
 {
@@ -36,6 +42,9 @@ public class AccountsListPage extends FrontendPage
 
 	private UserDao userDao;
 	
+	/**
+	 * 
+	 */
 	public AccountsListPage() 
 	{
 		super(
@@ -53,6 +62,9 @@ public class AccountsListPage extends FrontendPage
 		addAccountsListTable();
 	}
 	
+	/**
+	 * 
+	 */
 	private void addAccountsListTable()
 	{
 		SortableDataProvider<User> data = new GenericSortableDataProvider<User>(userDao, "username");
@@ -111,6 +123,11 @@ public class AccountsListPage extends FrontendPage
 		add(new UnobtrusivePagingNavigator("navigator", dataView));
 	}
 	
+	/**
+	 * 
+	 * @param userId
+	 * @return
+	 */
 	protected Link<String> createSendNewPasswordButton(final Integer userId) 
 	{
 		Link<String> button = new Link<String>("sendNewPassword")

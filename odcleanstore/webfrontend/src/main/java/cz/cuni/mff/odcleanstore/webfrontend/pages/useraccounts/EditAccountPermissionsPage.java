@@ -22,16 +22,24 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.users.RoleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
+/**
+ * Edit-account-permissions (e.g. assigned roles) page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.ADM })
 public class EditAccountPermissionsPage extends FrontendPage
 {
 	private static final long serialVersionUID = 1L;
 
-	//private static Logger logger = Logger.getLogger(EditAccountPermissionsPage.class);
-	
 	private UserDao userDao;
 	private RoleDao roleDao;
-		
+
+	/**
+	 * 
+	 * @param userId
+	 */
 	public EditAccountPermissionsPage(final Integer userId) 
 	{
 		super(
@@ -63,6 +71,12 @@ public class EditAccountPermissionsPage extends FrontendPage
 	}
 }
 
+/**
+ * Edit-account-permissions form component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 class UserPermissionsForm extends Form<UserPermissionsForm>
 {
 	private static final long serialVersionUID = 1L;

@@ -17,6 +17,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNav
 import cz.cuni.mff.odcleanstore.webfrontend.dao.prefixes.PrefixDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
+/**
+ * List-all-registered-URI-prefixes page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.ADM })
 public class PrefixesListPage extends FrontendPage
 {
@@ -25,6 +31,9 @@ public class PrefixesListPage extends FrontendPage
 	
 	private PrefixDao prefixMappingDao;
 	
+	/**
+	 * 
+	 */
 	public PrefixesListPage() 
 	{
 		super
@@ -43,6 +52,9 @@ public class PrefixesListPage extends FrontendPage
 		addPrefixesTable();
 	}
 	
+	/**
+	 * 
+	 */
 	private void addPrefixesTable()
 	{
 		SortableDataProvider<Prefix> data = new SortablePrefixDataProvider(prefixMappingDao, "NS_PREFIX");
@@ -75,6 +87,11 @@ public class PrefixesListPage extends FrontendPage
 		add(new UnobtrusivePagingNavigator("navigator", dataView));
 	}
 	
+	/**
+	 * 
+	 * @param mapping
+	 * @return
+	 */
 	private Link<String> createDeletePrefixButton(final Prefix mapping)
 	{
 		Link<String> button = new Link<String>("deletePrefix")

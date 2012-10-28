@@ -19,6 +19,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 import cz.cuni.mff.odcleanstore.webfrontend.validators.QARuleValidator;
 
+/**
+ * Add-new-QA-rule page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.PIC })
 public class NewQARulePage extends LimitedEditingPage
 {
@@ -27,6 +33,10 @@ public class NewQARulePage extends LimitedEditingPage
 	
 	private QARuleDao qaRuleDao;
 	
+	/**
+	 * 
+	 * @param groupId
+	 */
 	public NewQARulePage(final Integer groupId) 
 	{
 		super(
@@ -55,6 +65,10 @@ public class NewQARulePage extends LimitedEditingPage
 		addNewQARuleForm(groupId);
 	}
 
+	/**
+	 * 
+	 * @param groupId
+	 */
 	private void addNewQARuleForm(final Integer groupId)
 	{
 		IModel<QARule> formModel = new CompoundPropertyModel<QARule>(new QARule());
@@ -104,6 +118,10 @@ public class NewQARulePage extends LimitedEditingPage
 		add(form);
 	}
 
+	/**
+	 * 
+	 * @param form
+	 */
 	private void addCoefficientTextfield(Form<QARule> form)
 	{
 		TextField<String> textfield = new TextField<String>("coefficient");

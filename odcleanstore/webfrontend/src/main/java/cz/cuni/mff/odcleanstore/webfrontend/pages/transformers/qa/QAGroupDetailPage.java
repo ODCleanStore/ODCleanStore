@@ -32,6 +32,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.TransformerAssignmentDetailPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
+/**
+ * Group-of-QA-rules-overview page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.PIC })
 public class QAGroupDetailPage extends LimitedEditingPage
 {
@@ -41,11 +47,20 @@ public class QAGroupDetailPage extends LimitedEditingPage
 	private QARulesGroupDao qaRulesGroupDao;
 	private QARuleDao qaRuleDao;
 	
+	/**
+	 * 
+	 * @param groupId
+	 */
 	public QAGroupDetailPage(final Integer groupId) 
 	{
 		this(groupId, null);
 	}
 
+	/**
+	 * 
+	 * @param groupId
+	 * @param transformerInstanceId
+	 */
 	public QAGroupDetailPage(final Integer groupId, final Integer transformerInstanceId) 
 	{
 		super(
@@ -71,6 +86,11 @@ public class QAGroupDetailPage extends LimitedEditingPage
 		addQARulesSection(groupId);
 	}
 	
+	/**
+	 * 
+	 * @param groupId
+	 * @param transformerInstanceId
+	 */
 	private void addBackToPipelineLink(Integer groupId, Integer transformerInstanceId) 
 	{
 		Map<Integer, Integer> navigationMap = getODCSSession().getQaPipelineRulesNavigationMap();
@@ -93,6 +113,10 @@ public class QAGroupDetailPage extends LimitedEditingPage
 		));
 	}
 
+	/**
+	 * 
+	 * @param group
+	 */
 	private void addEditOIRulesGroupForm(final QARulesGroup group)
 	{
 		IModel<QARulesGroup> formModel = new CompoundPropertyModel<QARulesGroup>(group);
@@ -135,6 +159,10 @@ public class QAGroupDetailPage extends LimitedEditingPage
 		add(form);
 	}
 
+	/**
+	 * 
+	 * @param groupId
+	 */
 	private void addQARulesSection(final Integer groupId) 
 	{
 		add(
@@ -149,6 +177,10 @@ public class QAGroupDetailPage extends LimitedEditingPage
 		addQARulesTable(groupId);
 	}
 	
+	/**
+	 * 
+	 * @param groupId
+	 */
 	private void addQARulesTable(final Integer groupId)
 	{
 		SortableDataProvider<QARule> data = new DependentSortableDataProvider<QARule>
@@ -206,6 +238,10 @@ public class QAGroupDetailPage extends LimitedEditingPage
 		add(new UnobtrusivePagingNavigator("navigator", dataView));
 	}
 	
+	/**
+	 * 
+	 * @param group
+	 */
 	private void addCommitChangesButton(final QARulesGroup group)
 	{
 		add(new CommitChangesButton("commitChanges", group, qaRulesGroupDao)

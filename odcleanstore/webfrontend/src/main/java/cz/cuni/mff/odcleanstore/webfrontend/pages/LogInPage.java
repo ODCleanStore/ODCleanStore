@@ -4,6 +4,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.LogInPanel;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
 
 /**
+ * WebFrontend log-in page.
  * 
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *

@@ -31,6 +31,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.cr.PropertySettingsDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
+/**
+ * Aggregation-settings overview page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.PIC, Role.ADM })
 public class AggregationSettingsPage extends FrontendPage
 {
@@ -43,6 +49,9 @@ public class AggregationSettingsPage extends FrontendPage
 	private MultivalueTypeDao multivalueTypeDao;
 	private ErrorStrategyDao errorStrategyDao;
 	
+	/**
+	 * 
+	 */
 	public AggregationSettingsPage() 
 	{
 		super(
@@ -65,6 +74,9 @@ public class AggregationSettingsPage extends FrontendPage
 		addPropertySettingsTable();
 	}
 
+	/**
+	 * 
+	 */
 	private void addEditGlobalSettingsForm()
 	{
 		IModel<GlobalAggregationSettings> formModel = new CompoundPropertyModel<GlobalAggregationSettings>(
@@ -108,6 +120,9 @@ public class AggregationSettingsPage extends FrontendPage
 		add(form);
 	}
 	
+	/**
+	 * 
+	 */
 	private void addPropertySettingsTable()
 	{
 		SortableDataProvider<PropertySettings> data = new GenericSortableDataProvider<PropertySettings>
@@ -162,11 +177,20 @@ public class AggregationSettingsPage extends FrontendPage
 		add(new UnobtrusivePagingNavigator("navigator", dataView));
 	}
 	
+	/**
+	 * 
+	 * @param item
+	 */
 	private void addPropertyLabel(Item<PropertySettings> item)
 	{
 		item.add(new Label("property"));
 	}
 	
+	/**
+	 * 
+	 * @param item
+	 * @param property
+	 */
 	private void addMultivalueTypeLabel(Item<PropertySettings> item, 
 		PropertySettings property)
 	{
@@ -178,6 +202,11 @@ public class AggregationSettingsPage extends FrontendPage
 		item.add(label);
 	}
 	
+	/**
+	 * 
+	 * @param item
+	 * @param property
+	 */
 	private void addAggregationTypeLabel(Item<PropertySettings> item,
 		PropertySettings property)
 	{

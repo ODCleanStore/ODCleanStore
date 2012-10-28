@@ -12,6 +12,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.prefixes.Prefix;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.prefixes.PrefixDao;
 
+/**
+ * Sortable-data-provider for prefix entities.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class SortablePrefixDataProvider extends SortableDataProvider<Prefix>
 {
 	private static final long serialVersionUID = 1L;
@@ -40,6 +46,11 @@ public class SortablePrefixDataProvider extends SortableDataProvider<Prefix>
 		this.dao = dao;
 	}
 	
+	/**
+	 * Loads the represented collection of URI prefixes into memory (lazily).
+	 * 
+	 * @return
+	 */
 	private List<Prefix> getData()
 	{
 		if (data == null)
@@ -61,6 +72,11 @@ public class SortablePrefixDataProvider extends SortableDataProvider<Prefix>
 		data = null;
 	}
 	
+	/**
+	 * Returns an iterator over the represented collection of URI prefixes.
+	 * 
+	 * @return
+	 */
 	public Iterator<Prefix> iterator(int first, int count) 
 	{
 		// TODO: consider if it would be viable to fetch only the required data from DB here, instead of creating
@@ -72,11 +88,22 @@ public class SortablePrefixDataProvider extends SortableDataProvider<Prefix>
 					.iterator();
 	}
 
+	/**
+	 * Returns the size of the represented collection of URI prefixes.
+	 * 
+	 * @return
+	 */
 	public int size() 
 	{
 		return getData().size();
 	}
 
+	/**
+	 * Returns the given URI prefix encapsulated into a loadable-detachable
+	 * model.
+	 * 
+	 * @return
+	 */
 	public IModel<Prefix> model(Prefix object) 
 	{
 		return new DetachablePrefixModel(dao, object);

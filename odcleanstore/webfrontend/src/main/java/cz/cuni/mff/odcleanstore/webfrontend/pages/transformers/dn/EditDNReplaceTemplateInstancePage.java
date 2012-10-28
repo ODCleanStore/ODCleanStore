@@ -16,6 +16,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
+/**
+ * Replace-dn-template-instance-overview page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ "PIC" })
 public class EditDNReplaceTemplateInstancePage extends LimitedEditingPage
 {
@@ -26,6 +32,10 @@ public class EditDNReplaceTemplateInstancePage extends LimitedEditingPage
 	private DNReplaceTemplateInstanceDao dnReplaceTemplateInstanceDao;
 	private DNRuleDao dnRuleDao;
 	
+	/**
+	 * 
+	 * @param ruleId
+	 */
 	public EditDNReplaceTemplateInstancePage(final Integer ruleId) 
 	{
 		super(
@@ -57,6 +67,10 @@ public class EditDNReplaceTemplateInstancePage extends LimitedEditingPage
 		addEditDNReplaceTemplateInstanceForm(instance);
 	}
 
+	/**
+	 * 
+	 * @param instance
+	 */
 	private void addEditDNReplaceTemplateInstanceForm(final DNReplaceTemplateInstance instance)
 	{
 		IModel<DNReplaceTemplateInstance> formModel = new CompoundPropertyModel<DNReplaceTemplateInstance>(instance);

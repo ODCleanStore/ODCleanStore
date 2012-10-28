@@ -16,6 +16,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.validators.IRIValidator;
 
+/**
+ * Configure-new-aggregation-property page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.PIC, Role.ADM })
 public class NewPropertyPage extends FrontendPage
 {
@@ -26,6 +32,9 @@ public class NewPropertyPage extends FrontendPage
 	private AggregationTypeDao aggregationTypeDao;
 	private MultivalueTypeDao multivalueTypeDao;
 	
+	/**
+	 * 
+	 */
 	public NewPropertyPage() 
 	{
 		super(
@@ -45,6 +54,9 @@ public class NewPropertyPage extends FrontendPage
 		addNewPropertyForm();
 	}
 	
+	/**
+	 * 
+	 */
 	private void addNewPropertyForm()
 	{
 		IModel<PropertySettings> formModel = new CompoundPropertyModel<PropertySettings>(new PropertySettings());
@@ -89,6 +101,10 @@ public class NewPropertyPage extends FrontendPage
 		add(form);
 	}
 	
+	/**
+	 * 
+	 * @param form
+	 */
 	private void addPropertyTextField(Form<PropertySettings> form)
 	{
 		TextField<String> textField = createTextfield("property");

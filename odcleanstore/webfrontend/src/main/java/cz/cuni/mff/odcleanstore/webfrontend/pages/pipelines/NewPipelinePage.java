@@ -12,6 +12,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
+/**
+ * Create-new-pipeline page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.PIC })
 public class NewPipelinePage extends FrontendPage
 {
@@ -20,6 +26,9 @@ public class NewPipelinePage extends FrontendPage
 
 	private PipelineDao pipelineDao;
 	
+	/**
+	 * 
+	 */
 	public NewPipelinePage() 
 	{
 		super
@@ -39,6 +48,9 @@ public class NewPipelinePage extends FrontendPage
 		addNewPipelineForm();
 	}
 	
+	/**
+	 * 
+	 */
 	private void addNewPipelineForm()
 	{
 		IModel<Pipeline> formModel = new CompoundPropertyModel<Pipeline>(new Pipeline());

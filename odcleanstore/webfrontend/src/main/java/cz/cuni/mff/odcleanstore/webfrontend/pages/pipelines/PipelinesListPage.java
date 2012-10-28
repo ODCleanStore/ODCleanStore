@@ -30,6 +30,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
+/**
+ * List-all-registered-pipelines page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.PIC })
 public class PipelinesListPage extends FrontendPage 
 {
@@ -38,9 +44,11 @@ public class PipelinesListPage extends FrontendPage
 	private static Logger logger = Logger.getLogger(PipelinesListPage.class);
 	
 	private PipelineDao pipelineDao;
-	//private OfficialPipelinesDao officialPipelinesDao;
 	private EngineOperationsDao engineOperationsDao;
 
+	/**
+	 * 
+	 */
 	public PipelinesListPage() 
 	{
 		super
@@ -61,6 +69,9 @@ public class PipelinesListPage extends FrontendPage
 		addPipelinesTable();
 	}
 	
+	/**
+	 * 
+	 */
 	private void addPipelinesTable()
 	{
 		SortableDataProvider<Pipeline> data = new GenericSortableDataProvider<Pipeline>(pipelineDao, "label");
@@ -130,6 +141,11 @@ public class PipelinesListPage extends FrontendPage
 		add(new UnobtrusivePagingNavigator("navigator", dataView));
 	}
 	
+	/**
+	 * 
+	 * @param item
+	 * @param pipeline
+	 */
 	private void addMarkPipelineDefaultButton(Item<Pipeline> item, final Pipeline pipeline)
 	{
 		Link<String> button = new AuthorizedLink<String>("markPipelineDefault", new Model<String>("XXX"), AuthorizationHelper.isAuthorizedForSettingDefaultPipeline())
@@ -174,6 +190,12 @@ public class PipelinesListPage extends FrontendPage
 		item.add(button);
 	}
 	
+	/**
+	 * 
+	 * @param item
+	 * @param pipeline
+	 * @param lock
+	 */
 	private void addToggleLockButton(Item<Pipeline> item, final Pipeline pipeline, final boolean lock)
 	{
 		final String status = lock ? "lock" : "unlock";
@@ -214,6 +236,11 @@ public class PipelinesListPage extends FrontendPage
         });
 	}
 	
+	/**
+	 * 
+	 * @param item
+	 * @param pipeline
+	 */
 	private void addRerunAssociatedGraphsButton(final Item<Pipeline> item, final Pipeline pipeline)
 	{
 		Link<String> button = new AuthorizedLink<String>("rerunAssociatedGraphs", AuthorizationHelper.isAuthorizedForEntityEditing(pipeline))

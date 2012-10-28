@@ -19,6 +19,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvi
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
+/**
+ * List-all-registered-transformers page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.ADM })
 public class TransformersListPage extends FrontendPage
 {
@@ -26,6 +32,9 @@ public class TransformersListPage extends FrontendPage
 
 	private TransformerDao transformerDao;
 	
+	/**
+	 * 
+	 */
 	public TransformersListPage() 
 	{
 		super
@@ -44,6 +53,9 @@ public class TransformersListPage extends FrontendPage
 		addTransformersTable();
 	}
 
+	/**
+	 * 
+	 */
 	private void addTransformersTable()
 	{
 		SortableDataProvider<Transformer> data = new GenericSortableDataProvider<Transformer>(transformerDao, "label");

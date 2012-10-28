@@ -6,6 +6,13 @@ import java.security.NoSuchAlgorithmException;
 
 import org.apache.wicket.validation.IValidatable;
 
+/**
+ * Ensures that the a component only accepts the correct password
+ * of the currently logged-in user.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class OldPasswordValidator extends CustomValidator
 {
 	private static final long serialVersionUID = 1L;
@@ -32,6 +39,15 @@ public class OldPasswordValidator extends CustomValidator
 			handleError(validatable, "invalid-old-password");
 	}
 	
+	/**
+	 * Returns true if and only if the given password equals the given original
+	 * password.
+	 * 
+	 * @param password
+	 * @param salt
+	 * @param originalHash
+	 * @return
+	 */
 	private boolean passwordIsValid(String password, String salt, String originalHash)
 	{
 		String passwordHash;
