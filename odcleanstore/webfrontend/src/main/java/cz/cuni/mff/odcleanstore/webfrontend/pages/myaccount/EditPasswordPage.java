@@ -17,14 +17,21 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.LogInPage;
 import cz.cuni.mff.odcleanstore.webfrontend.util.PasswordHandling;
 import cz.cuni.mff.odcleanstore.webfrontend.validators.OldPasswordValidator;
 
+/**
+ * Edit-user-password page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 public class EditPasswordPage extends FrontendPage 
 {
 	private static final long serialVersionUID = 1L;
 
-	//private static Logger logger = Logger.getLogger(EditPasswordPage.class);
-	
 	private UserDao userDao;
-	
+
+	/**
+	 * 
+	 */
 	public EditPasswordPage() 
 	{
 		super(
@@ -40,9 +47,13 @@ public class EditPasswordPage extends FrontendPage
 		//
 		User user = getUser();
 		
-		addChangePasswordForm(user);
+		add(createChangePasswordForm(user));
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	private User getUser()
 	{
 		ODCSWebFrontendSession session = ODCSWebFrontendSession.get();
@@ -53,12 +64,22 @@ public class EditPasswordPage extends FrontendPage
 		return ODCSWebFrontendSession.get().getUser();
 	}
 	
-	private void addChangePasswordForm(User user)
+	/**
+	 * 
+	 * @param user
+	 */
+	private ChangePasswordForm createChangePasswordForm(User user)
 	{
-		add(new ChangePasswordForm("changePasswordForm", userDao, user));
+		return new ChangePasswordForm("changePasswordForm", userDao, user);
 	}
 }
 
+/**
+ * Edit-user-password form component. 
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 class ChangePasswordForm extends Form<ChangePasswordForm>
 {
 	private static final long serialVersionUID = 1L;
