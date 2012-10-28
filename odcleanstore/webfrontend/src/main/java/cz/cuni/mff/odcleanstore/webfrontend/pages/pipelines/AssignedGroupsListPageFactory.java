@@ -17,9 +17,22 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi.NewOIGroupPage
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.QAGroupDetailPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.NewQAGroupPage;
 
+/**
+ * A factory to instantiate list-of-assigned-groups panels according
+ * to transformer types.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.PIC })
 public class AssignedGroupsListPageFactory 
 {
+	/**
+	 * 
+	 * @param daoLookupFactory
+	 * @param transformerInstanceId
+	 * @return
+	 */
 	public static AssignedGroupsList createAssignedQAGroupsList(
 		DaoLookupFactory daoLookupFactory, Integer transformerInstanceId
 	)
@@ -35,6 +48,12 @@ public class AssignedGroupsListPageFactory
 		);
 	}
 	
+	/**
+	 * 
+	 * @param daoLookupFactory
+	 * @param transformerInstanceId
+	 * @return
+	 */
 	public static AssignedGroupsList createAssignedOIGroupsList(
 		DaoLookupFactory daoLookupFactory, Integer transformerInstanceId
 	)
@@ -50,6 +69,12 @@ public class AssignedGroupsListPageFactory
 		);
 	}
 	
+	/**
+	 * 
+	 * @param daoLookupFactory
+	 * @param transformerInstanceId
+	 * @return
+	 */
 	public static AssignedGroupsList createAssignedDNGroupsList(
 		DaoLookupFactory daoLookupFactory, Integer transformerInstanceId
 	)

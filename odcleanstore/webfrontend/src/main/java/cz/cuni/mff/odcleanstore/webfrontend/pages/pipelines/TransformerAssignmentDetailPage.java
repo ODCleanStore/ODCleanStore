@@ -20,6 +20,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
+/**
+ * Transformer-instance-to-pipeline-assignment-overview page component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.PIC })
 public class TransformerAssignmentDetailPage extends LimitedEditingPage
 {
@@ -53,10 +59,13 @@ public class TransformerAssignmentDetailPage extends LimitedEditingPage
 		}
 	}
 	
+	/** the full class-name of the QA transformer */
 	private static final String QA_FULL_CLASS_NAME = QualityAssessorImpl.class.getCanonicalName();
 	
+	/** the full class-name of the OI transformer */
 	private static final String OI_FULL_CLASS_NAME = LinkerImpl.class.getCanonicalName();
 	
+	/** the full class-name of the DN transformer */
 	private static final String DN_FULL_CLASS_NAME = DataNormalizerImpl.class.getCanonicalName();
 
 	private static Logger logger = Logger.getLogger(TransformerAssignmentDetailPage.class);
@@ -64,6 +73,10 @@ public class TransformerAssignmentDetailPage extends LimitedEditingPage
 	private TransformerDao transformerDao;
 	private TransformerInstanceDao transformerInstanceDao;
 	
+	/**
+	 * 
+	 * @param transformerInstanceId
+	 */
 	public TransformerAssignmentDetailPage(final Integer transformerInstanceId) 
 	{
 		super
@@ -101,6 +114,11 @@ public class TransformerAssignmentDetailPage extends LimitedEditingPage
 		addAssignedGroupsListSection(transformerInstance, transformer);
 	}
 	
+	/**
+	 * 
+	 * @param transformerInstance
+	 * @param transformer
+	 */
 	private void addTransformerInstanceInformationSection(
 		final TransformerInstance transformerInstance, 
 		final Transformer transformer)
@@ -109,6 +127,10 @@ public class TransformerAssignmentDetailPage extends LimitedEditingPage
 		add(new Label("transformer", transformer.getLabel()));
 	}
 	
+	/**
+	 * 
+	 * @param transformerInstance
+	 */
 	private void addEditAssignmentForm(final TransformerInstance transformerInstance)
 	{
 		AssignedInstancesModel assignedInstancesModel = 
@@ -166,6 +188,11 @@ public class TransformerAssignmentDetailPage extends LimitedEditingPage
 		add(form);
 	}
 
+	/**
+	 * 
+	 * @param transformerInstance
+	 * @param transformer
+	 */
 	private void addAssignedGroupsListSection(
 		final TransformerInstance transformerInstance,
 		final Transformer transformer) 

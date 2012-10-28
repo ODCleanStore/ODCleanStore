@@ -31,6 +31,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TransformerInstanceDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.RulesGroupHelpPanel;
 
+/**
+ * List-all-groups-assigned-to-the-given-transformer-instance panel component.
+ * 
+ * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
+ *
+ */
 @AuthorizeInstantiation({ Role.PIC })
 public class AssignedGroupsList extends Panel
 {
@@ -40,6 +46,16 @@ public class AssignedGroupsList extends Panel
 	private DaoForEntityWithSurrogateKey<RuleAssignment> assignedGroupsDao;
 	private boolean isEditable = true;
 	
+	/**
+	 * 
+	 * @param id
+	 * @param transformerInstanceId
+	 * @param daoLookupFactory
+	 * @param groupsDao
+	 * @param assignedGroupsDao
+	 * @param groupDetailPageClass
+	 * @param newGroupPageClass
+	 */
 	public AssignedGroupsList(
 		final String id, 
 		final Integer transformerInstanceId,
@@ -63,6 +79,9 @@ public class AssignedGroupsList extends Panel
 		addAssignmentTable(transformerInstanceId, groupDetailPageClass);
 	}
 	
+	/**
+	 * 
+	 */
 	protected void addHelpWindow()
 	{
 		final ModalWindow helpWindow = new HelpWindow(
@@ -83,6 +102,10 @@ public class AssignedGroupsList extends Panel
         });
 	}
 	
+	/**
+	 * 
+	 * @param transformerInstanceId
+	 */
 	private void addNewAssignmentLink(final Integer transformerInstanceId)
 	{
 		add(
@@ -109,11 +132,21 @@ public class AssignedGroupsList extends Panel
 		);
 	}
 	
+	/**
+	 * 
+	 * @param newGroupPageClass
+	 * @param transformerInstanceId
+	 */
 	private void addNewGroupLink(final Class<? extends FrontendPage> newGroupPageClass, Integer transformerInstanceId)
 	{
 		add(new RedirectWithParamButton(newGroupPageClass, transformerInstanceId, "showNewGroupPage"));
 	}
 	
+	/**
+	 * 
+	 * @param transformerInstanceId
+	 * @param groupDetailPageClass
+	 */
 	private void addAssignmentTable(
 		final Integer transformerInstanceId, 
 		final Class<? extends FrontendPage> groupDetailPageClass) 
