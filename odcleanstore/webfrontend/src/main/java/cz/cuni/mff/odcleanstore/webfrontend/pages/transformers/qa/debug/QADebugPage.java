@@ -34,8 +34,8 @@ public class QADebugPage extends LimitedEditingPage
 	public QADebugPage(Integer groupId)
 	{
 		super(
-			"Home > Backend > QA > Groups > Debug", 
-			"Debug QA rule group",
+			"Home > Backend > Quality Assessment > Groups > Debug", 
+			"Debug Quality Assessment rule group",
 			QARulesGroupDao.class,
 			groupId
 		);

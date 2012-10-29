@@ -72,6 +72,7 @@ public class ConfigBuilderTest {
 
 		Properties properties = Mockito.mock(Properties.class);
 		Mockito.when(properties.getProperty(ObjectIdentificationConfig.GROUP_PREFIX + "link_within_graph")).thenReturn("false");
+		Mockito.when(properties.getProperty(ObjectIdentificationConfig.GROUP_PREFIX + "link_attached_graphs")).thenReturn("false");
         Mockito.when(properties.getProperty("db.clean.sparql.endpoint_url")).thenReturn("http://www.google.cz");
         Mockito.when(properties.getProperty("db.dirty_update.sparql.endpoint_url")).thenReturn("http://www.yahoo.com");
         Mockito.when(properties.getProperty("db.dirty_update.sparql.endpoint_username")).thenReturn("Pepa");
@@ -79,7 +80,7 @@ public class ConfigBuilderTest {
 	    ObjectIdentificationConfig config = ObjectIdentificationConfig.load(properties);
 
 	    DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-		File configFile = ConfigBuilder.createLinkConfigFile(rules, prefixes, graph,
+		File configFile = ConfigBuilder.createLinkConfigFile(rules, prefixes, graph.getGraphId(), graph.getGraphName(),
 				context, config, false);
 		Document configDoc = builder.parse(configFile);
 

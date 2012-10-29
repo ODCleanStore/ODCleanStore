@@ -32,8 +32,8 @@ public class OIDebugPage extends LimitedEditingPage
 	public OIDebugPage(Integer groupId)
 	{
 		super(
-			"Home > Backend > OI > Groups > Debug", 
-			"Debug OI rule group",
+			"Home > Backend > Linker > Groups > Debug", 
+			"Debug Linker rule group",
 			OIRulesGroupDao.class,
 			groupId
 		);

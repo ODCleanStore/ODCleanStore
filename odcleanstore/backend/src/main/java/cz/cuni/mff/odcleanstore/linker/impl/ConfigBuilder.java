@@ -10,7 +10,6 @@ import cz.cuni.mff.odcleanstore.linker.rules.OutputType;
 import cz.cuni.mff.odcleanstore.linker.rules.SilkRule;
 import cz.cuni.mff.odcleanstore.shared.SerializationLanguage;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
-import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 
@@ -123,22 +122,23 @@ public class ConfigBuilder {
 	 *
 	 * @param rawRules list of XML fragments containing linkage rules
 	 * @param prefixes list of RDF prefix definitions
-	 * @param inputGraph graph to interlink
+	 * @param graphId id of graph to interlink
+	 * @param graphName URI of graph to interlink
 	 * @param context transformation context
 	 * @return file containing linkage configuration
 	 * @throws TransformerException when anything fails
 	 */
-	public static File createLinkConfigFile(List<SilkRule> rules, List<RDFprefix> prefixes,
-			TransformedGraph inputGraph, TransformationContext context, ObjectIdentificationConfig config,
+	public static File createLinkConfigFile(List<SilkRule> rules, List<RDFprefix> prefixes, String graphId,
+			String graphName, TransformationContext context, ObjectIdentificationConfig config,
 			boolean linkWithinGraph) throws TransformerException {
 		LOG.debug("Creating link configuration file.");
 		Document configDoc;
 		File configFile;
 		try {
-			configDoc = createConfigDoc(rules, prefixes, inputGraph.getGraphName(), inputGraph.getGraphId(), config,
+			configDoc = createConfigDoc(rules, prefixes, graphName, graphId, config,
 					context.getTransformerDirectory(), linkWithinGraph);
 			LOG.debug("Created link configuration document.");
-			configFile = storeConfigDoc(configDoc, context.getTransformerDirectory(), inputGraph.getGraphId());
+			configFile = storeConfigDoc(configDoc, context.getTransformerDirectory(), graphId);
 			LOG.debug("Stored link configuration to temporary file {}", configFile.getAbsolutePath());
 		} catch (Exception e) {
 			throw new TransformerException(e);
@@ -747,7 +747,7 @@ public class ConfigBuilder {
 			fakeURL = new URL("http://example.com");
 		} catch (MalformedURLException e) { /* do nothing */ };
 		SparqlEndpointConnectionCredentials fakeCredentials = new SparqlEndpointConnectionCredentials(fakeURL);
-		ObjectIdentificationConfig config = new ObjectIdentificationConfig(false, fakeCredentials, fakeCredentials);
+		ObjectIdentificationConfig config = new ObjectIdentificationConfig(false, false, fakeCredentials, fakeCredentials);
 		return config;
 	}
 }

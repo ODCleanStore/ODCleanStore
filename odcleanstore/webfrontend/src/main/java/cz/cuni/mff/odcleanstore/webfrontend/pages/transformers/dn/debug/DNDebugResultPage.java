@@ -32,8 +32,8 @@ public class DNDebugResultPage extends FrontendPage
 	public DNDebugResultPage(List<GraphModification> results, Integer ruleGroupId) 
 	{
 		super(
-			"Home > Backend > DN > Groups > Debug results", 
-			"Results of DN rule group debugging"
+			"Home > Backend > Data Normalization > Groups > Debug results", 
+			"Results of Data Normalization rule group debugging"
 		);
 			
 		// register page components

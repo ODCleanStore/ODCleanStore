@@ -34,8 +34,8 @@ public class DNDebugPage extends LimitedEditingPage
 	public DNDebugPage(Integer groupId)
 	{
 		super(
-			"Home > Backend > DN > Groups > Debug", 
-			"Debug DN rule group",
+			"Home > Backend > Data Normalization > Groups > Debug", 
+			"Debug Data Normalization rule group",
 			DNRulesGroupDao.class,
 			groupId
 		);
