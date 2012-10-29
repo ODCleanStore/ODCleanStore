@@ -25,6 +25,7 @@ public class ObjectIdentificationConfigTest extends ConfigTestBase {
         Properties properties = Mockito.mock(Properties.class);
 
         Mockito.when(properties.getProperty(ObjectIdentificationConfig.GROUP_PREFIX + "link_within_graph")).thenReturn("false");
+        Mockito.when(properties.getProperty(ObjectIdentificationConfig.GROUP_PREFIX + "link_attached_graphs")).thenReturn("false");
         mockSparqlEndpointsConnectionCredentials(properties, EnumDbConnectionType.CLEAN, false);
         mockSparqlEndpointsConnectionCredentials(properties, EnumDbConnectionType.DIRTY_UPDATE, true);
         

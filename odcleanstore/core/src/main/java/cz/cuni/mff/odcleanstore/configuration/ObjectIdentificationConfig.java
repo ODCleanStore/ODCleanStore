@@ -26,20 +26,21 @@ public class ObjectIdentificationConfig extends ConfigGroup {
     public static final String GROUP_PREFIX = "object_identification" + NAME_DELIMITER;
 
     private Boolean linkWithinGraph;
+    private Boolean linkAttachedGraphs;
     private SparqlEndpointConnectionCredentials cleanDBSparqlConnectionCredentials;
     private SparqlEndpointConnectionCredentials dirtyDBSparqlConnectionCredentials;
 
     /**
-     * @param linksGraphURIPrefix
-     * @param cleanSparqlEndpointUrl
-     * @param dirtySparqlEndpointUrl
-     * @param dirtySparqlEndpointUsername
-     * @param dirtySparqlEndpointPassword
+     * @param linkWithinGraph
+     * @param linkAttachedGraphs
+     * @param cleanDBSparqlConnectionCredentials
+     * @param dirtyDBSparqlConnectionCredentials
      */
-    public ObjectIdentificationConfig(Boolean linkWithinGraph,
+    public ObjectIdentificationConfig(Boolean linkWithinGraph, Boolean linkAttachedGraphs,
             SparqlEndpointConnectionCredentials cleanDBSparqlConnectionCredentials,
             SparqlEndpointConnectionCredentials dirtyDBSparqlConnectionCredentials) {
         this.linkWithinGraph = linkWithinGraph;
+        this.linkAttachedGraphs = linkAttachedGraphs;
         this.cleanDBSparqlConnectionCredentials = cleanDBSparqlConnectionCredentials;
         this.dirtyDBSparqlConnectionCredentials = dirtyDBSparqlConnectionCredentials;
     }
@@ -57,16 +58,21 @@ public class ObjectIdentificationConfig extends ConfigGroup {
             throws ParameterNotAvailableException, IllegalParameterFormatException {
         ParameterFormat<Boolean> formatBoolean = new FormatBoolean();
         Boolean linkWithinGraph = loadParam(properties, GROUP_PREFIX + "link_within_graph", formatBoolean);
+        Boolean linkAttachedGraphs = loadParam(properties, GROUP_PREFIX + "link_attached_graphs", formatBoolean);
         SparqlEndpointConnectionCredentials cleanDBSparqlConnectionCredentials =
                 loadSparqlEndpointConnectionCredentials(properties, EnumDbConnectionType.CLEAN, false);
         SparqlEndpointConnectionCredentials dirtyDBSparqlConnectionCredentials =
                 loadSparqlEndpointConnectionCredentials(properties, EnumDbConnectionType.DIRTY_UPDATE, true);
-        return new ObjectIdentificationConfig(linkWithinGraph,
+        return new ObjectIdentificationConfig(linkWithinGraph, linkAttachedGraphs,
                 cleanDBSparqlConnectionCredentials, dirtyDBSparqlConnectionCredentials);
     }
 
     public Boolean isLinkWithinGraph() {
         return linkWithinGraph;
+    }
+    
+    public Boolean isLinkAttachedGraphs() {
+    	return linkAttachedGraphs;
     }
 
     public SparqlEndpointConnectionCredentials getCleanDBSparqlConnectionCredentials() {
