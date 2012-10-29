@@ -427,7 +427,7 @@ final class PipelineGraphManipulator {
     private VirtuosoConnectionWrapper createDirtyConnection() throws ConnectionException {
         JDBCConnectionCredentials credit = ConfigLoader.getConfig().getEngineGroup().getDirtyDBJDBCConnectionCredentials();
         VirtuosoConnectionWrapper con = VirtuosoConnectionWrapper.createConnection(credit);
-        con.adjustTransactionLevel(EnumLogLevel.STATEMENT_LEVEL, true);
+        con.adjustTransactionLevel(EnumLogLevel.STATEMENT_LEVEL);
         con.setQueryTimeout(0);
         return con;
     }
@@ -435,7 +435,7 @@ final class PipelineGraphManipulator {
     private VirtuosoConnectionWrapper createCleanConnection() throws ConnectionException {
         JDBCConnectionCredentials credit = ConfigLoader.getConfig().getEngineGroup().getCleanDBJDBCConnectionCredentials();
         VirtuosoConnectionWrapper con = VirtuosoConnectionWrapper.createConnection(credit);
-        con.adjustTransactionLevel(EnumLogLevel.STATEMENT_LEVEL, true);
+        con.adjustTransactionLevel(EnumLogLevel.STATEMENT_LEVEL);
         con.setQueryTimeout(0);
         return con;
     }

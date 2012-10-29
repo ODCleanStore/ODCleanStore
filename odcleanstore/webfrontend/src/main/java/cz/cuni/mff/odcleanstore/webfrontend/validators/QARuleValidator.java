@@ -39,7 +39,7 @@ public class QARuleValidator extends CustomValidator {
 			).toString(new UUIDUniqueURIGenerator(ODCSInternal.debugTempGraphUriPrefix).nextURI());
 			
 			connection = VirtuosoConnectionWrapper.createConnection(credentials);
-			connection.adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL, false);
+			connection.adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL);
 
 			connection.execute(rule);
 		} catch (Exception e) {

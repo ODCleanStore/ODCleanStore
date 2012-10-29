@@ -26,7 +26,7 @@ public abstract class DbContext {
     
     protected void setConnection(JDBCConnectionCredentials connectionCredentials) throws ConnectionException {
         connection = VirtuosoConnectionWrapper.createConnection(connectionCredentials);
-        connection.adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL, false);
+        connection.adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL);
         connection.adjustTransactionIsolationLevel(Connection.TRANSACTION_SERIALIZABLE);
     }
     

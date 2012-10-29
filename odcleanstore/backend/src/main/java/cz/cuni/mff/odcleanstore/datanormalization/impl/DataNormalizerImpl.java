@@ -490,7 +490,7 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 			/**
 			 * Ensure that the graph is either transformed completely or not at all
 			 */
-			getDirtyConnection().adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL, false);
+			getDirtyConnection().adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL);
 
 			while (i.hasNext()) {
 				DataNormalizationRule rule = i.next();

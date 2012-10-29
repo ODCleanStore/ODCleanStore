@@ -61,6 +61,9 @@ public final class VirtuosoConnectionWrapper {
 
     /** Database connection. */
     private Connection connection;
+    
+    /** Last logging level set by {@link #adjustTransactionLevel(EnumLogLevel)}. */
+    private EnumLogLevel lastLogLevel = null;
 
     /**
      * Query timeout in seconds.
@@ -248,16 +251,24 @@ public final class VirtuosoConnectionWrapper {
 
     /**
      * Adjust transaction logging level and auto commit.
-     * @param logLevel Virtuoso transaction logging level
-     * @param autoCommit enable/disable auto commit
+     * @param logLevel Virtuoso transaction logging level and auto-commit settings
+     * @return old log level or null if the log level is unknown
      * @throws ConnectionException database error
      */
-    public void adjustTransactionLevel(EnumLogLevel logLevel, boolean autoCommit) throws ConnectionException {
+    public EnumLogLevel adjustTransactionLevel(EnumLogLevel logLevel) throws ConnectionException {
+        if (logLevel == null) {
+            return lastLogLevel;
+        }
         try {
             CallableStatement statement = connection.prepareCall(
-                    String.format(Locale.ROOT, "log_enable(%d)", logLevel.getBits()));
+                    String.format(Locale.ROOT, "log_enable(%d, 1)", logLevel.getBits()));
             statement.execute();
-            connection.setAutoCommit(autoCommit);
+            
+            connection.setAutoCommit(logLevel.getAutocommit());
+            
+            EnumLogLevel oldLogLevel = lastLogLevel;
+            lastLogLevel = logLevel;
+            return oldLogLevel;
         } catch (SQLException e) {
             throw new ConnectionException(e);
         }
@@ -348,8 +359,9 @@ public final class VirtuosoConnectionWrapper {
      * @param relativeBase relative URI base for payload
      * @throws QueryException query error
      */
-    public void insertRdfXmlFromFile(File rdfXmlFile, String graphName, String relativeBase) throws QueryException {
-
+    public void insertRdfXmlFromFile(File rdfXmlFile, String graphName, String relativeBase)
+            throws QueryException, ConnectionException {
+        
         String base = (relativeBase == null) ? "" : relativeBase;
         String escapedFileName = rdfXmlFile.getAbsolutePath().replace('\\', '/');
         String statement = "{call DB.DBA.RDF_LOAD_RDFXML("
@@ -366,7 +378,9 @@ public final class VirtuosoConnectionWrapper {
      * 
      * @throws QueryException query error
      */
-    public void insertN3FromFile(File ttlFile, String graphName, String relativeBase) throws QueryException {
+    public void insertN3FromFile(File ttlFile, String graphName, String relativeBase) 
+            throws QueryException, ConnectionException {
+        
         String base = (relativeBase == null) ? "" : relativeBase;
         String escapedFileName = ttlFile.getAbsolutePath().replace('\\', '/');
         String statement = "{call DB.DBA.TTLP(file_to_string_output("

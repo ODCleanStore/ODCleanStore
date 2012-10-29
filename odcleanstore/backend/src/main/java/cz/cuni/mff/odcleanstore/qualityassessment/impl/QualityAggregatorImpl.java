@@ -215,7 +215,7 @@ public class QualityAggregatorImpl implements QualityAggregator {
 						throw new QualityAssessmentException("Publisher has no score.");
 					}
 
-					getCleanConnection().adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL, false);
+					getCleanConnection().adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL);
 
 					final String dropOutdated = String.format(Locale.ROOT, dropOutdatedQueryFormat, ODCSInternal.aggregatedPublisherScoreGraphUri, publisher);
 					getCleanConnection().execute(dropOutdated);

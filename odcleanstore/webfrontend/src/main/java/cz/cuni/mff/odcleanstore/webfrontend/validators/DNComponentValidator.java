@@ -46,7 +46,7 @@ public class DNComponentValidator extends CustomValidator {
 			String component = rule.getComponents(new UUIDUniqueURIGenerator(ODCSInternal.debugTempGraphUriPrefix).nextURI())[0];
 			
 			connection = VirtuosoConnectionWrapper.createConnection(credentials);
-			connection.adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL, false);
+			connection.adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL);
 
 			connection.execute(component);
 		} catch (Exception e) {
