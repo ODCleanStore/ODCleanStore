@@ -29,14 +29,16 @@ public class Ontology extends EntityWithSurrogateKey implements AuthoredEntity
 	 * @param graphName
 	 * @param authorId
 	 * @param authorName
+	 * @param definition
 	 */
-	public Ontology(Integer id, String label, String description, String graphName, Integer authorId, String authorName) 
+	public Ontology(Integer id, String label, String description, String graphName, Integer authorId,
+			String authorName, String definition) 
 	{
 		super(id);
 		this.label = label;
 		this.description = description;
 		this.graphName = graphName;
-		this.definition = "";
+		this.definition = definition;
 		this.authorId = authorId;
 		this.setAuthorName(authorName);
 	}
