@@ -359,8 +359,10 @@ public final class VirtuosoConnectionWrapper {
      * @param relativeBase relative URI base for payload
      * @throws QueryException query error
      */
-    public void insertRdfXmlFromFile(File rdfXmlFile, String graphName, String relativeBase)
+    public void insertRdfXmlFromFile(File rdfXmlFile, String graphName, String relativeBase) 
             throws QueryException, ConnectionException {
+        // Adjust transaction level - important, see Virtuoso manual, section 10.7
+        EnumLogLevel originalLogLevel = adjustTransactionLevel(EnumLogLevel.AUTOCOMMIT);
         
         String base = (relativeBase == null) ? "" : relativeBase;
         String escapedFileName = rdfXmlFile.getAbsolutePath().replace('\\', '/');
@@ -368,6 +370,10 @@ public final class VirtuosoConnectionWrapper {
                 + "file_to_string_output('" + escapedFileName + "'), '" + base + "', '" + graphName + "')}";
 
         executeCall(statement);
+        
+        if (originalLogLevel != null && originalLogLevel != EnumLogLevel.AUTOCOMMIT) {
+            adjustTransactionLevel(originalLogLevel);
+        }
     }
 
     /**
@@ -378,8 +384,10 @@ public final class VirtuosoConnectionWrapper {
      * 
      * @throws QueryException query error
      */
-    public void insertN3FromFile(File ttlFile, String graphName, String relativeBase) 
+    public void insertN3FromFile(File ttlFile, String graphName, String relativeBase)
             throws QueryException, ConnectionException {
+        // Adjust transaction level - important, see Virtuoso manual, section 10.7
+        EnumLogLevel originalLogLevel = adjustTransactionLevel(EnumLogLevel.AUTOCOMMIT);
         
         String base = (relativeBase == null) ? "" : relativeBase;
         String escapedFileName = ttlFile.getAbsolutePath().replace('\\', '/');
@@ -387,6 +395,10 @@ public final class VirtuosoConnectionWrapper {
                 + "'" + escapedFileName + "'), '" + base + "', '" + graphName + "', " + TTL_FLAGS + ")}";
 
         executeCall(statement);
+        
+        if (originalLogLevel != null && originalLogLevel != EnumLogLevel.AUTOCOMMIT) {
+            adjustTransactionLevel(originalLogLevel);
+        }
     }
 
     /**
