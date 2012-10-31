@@ -83,11 +83,21 @@ public final class Engine {
             cleanDBImportExportDir =  ConfigLoader.getConfig().getEngineGroup().getCleanImportExportDir();
             dirtyDBImportExportDir =  ConfigLoader.getConfig().getEngineGroup().getDirtyImportExportDir();
     }
+    
+    private void setShutdownHook() {
+    	Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				shutdown();
+			}
+    	});
+    }
 
     private void init(String[] args) throws Exception {
         checkJavaVersion();
         checkLoggingConfiguration();
         loadConfiguration(args);
+        setShutdownHook();
         
         canRunDecision = false;
         shutdownIsInitiated = false;
@@ -154,14 +164,14 @@ public final class Engine {
                     LOG.info("Engine shutdown, but not all services properly shutdown");
                 }
                 LogManager.shutdown();
-                System.exit(0);
+                Runtime.getRuntime().halt(0);
             }
         } catch (Exception e) {
             try {
                 LOG.fatal(FormatHelper.formatExceptionForLog(e, "Engine shutdown crashed"));
                 LogManager.shutdown();
             } finally {
-                System.exit(0);
+            	Runtime.getRuntime().halt(0);
             }
         }
     }
