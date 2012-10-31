@@ -4,9 +4,12 @@ import org.apache.wicket.protocol.http.WebApplication;
 
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LogInPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.engine.EngineStatePage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.engine.InputGraphDetailPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.engine.InputGraphsPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.myaccount.EditPasswordPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.myaccount.MyAccountPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.ontologies.AddMappingPage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.ontologies.ChooseOntologiesPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.ontologies.EditOntologyPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.ontologies.NewOntologyPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.ontologies.OntologiesListPage;
@@ -149,7 +152,7 @@ public class URLRouter
 		app.mountPage(webUrlPrefix + "/backend/transformers/new", NewTransformerPage.class);
 		app.mountPage(webUrlPrefix + "/backend/transformers/detail", TransformerDetailPage.class);
 	}
-	
+
 	/**
 	 * 
 	 * @param app
@@ -158,6 +161,7 @@ public class URLRouter
 	{
 		app.mountPage(webUrlPrefix + "/engine/state", EngineStatePage.class);
 		app.mountPage(webUrlPrefix + "/engine/graphs", InputGraphsPage.class);
+		app.mountPage(webUrlPrefix + "/engine/graphs/detail", InputGraphDetailPage.class);
 	}
 	
 	/**
@@ -287,6 +291,8 @@ public class URLRouter
 		app.mountPage(webUrlPrefix + "/ontologies/new", NewOntologyPage.class);
 		app.mountPage(webUrlPrefix + "/ontologies/edit", EditOntologyPage.class);
 		app.mountPage(webUrlPrefix + "/ontologies/detail", OntologyDetailPage.class);
+		app.mountPage(webUrlPrefix + "/ontologies/choose", ChooseOntologiesPage.class);
+		app.mountPage(webUrlPrefix + "/ontologies/mapping", AddMappingPage.class);
 	}
 	
 	// 
