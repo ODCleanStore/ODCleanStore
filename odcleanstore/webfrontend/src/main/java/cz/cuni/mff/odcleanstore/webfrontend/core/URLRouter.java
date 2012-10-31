@@ -4,6 +4,7 @@ import org.apache.wicket.protocol.http.WebApplication;
 
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LogInPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.engine.EngineStatePage;
+import cz.cuni.mff.odcleanstore.webfrontend.pages.engine.InputGraphsPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.myaccount.EditPasswordPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.myaccount.MyAccountPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.ontologies.EditOntologyPage;
@@ -131,6 +132,7 @@ public class URLRouter
 	private void setupBackendRoutes(WebApplication app) 
 	{
 		setupTransformersRoutes(app);
+		setupEngineRoutes(app);
 		setupPipelinesRoutes(app);
 		setupOIRulesRoutes(app);
 		setupQARulesRoutes(app);
@@ -152,9 +154,18 @@ public class URLRouter
 	 * 
 	 * @param app
 	 */
-	private void setupPipelinesRoutes(WebApplication app) 
+	private void setupEngineRoutes(WebApplication app)
 	{
 		app.mountPage(webUrlPrefix + "/engine/state", EngineStatePage.class);
+		app.mountPage(webUrlPrefix + "/engine/graphs", InputGraphsPage.class);
+	}
+	
+	/**
+	 * 
+	 * @param app
+	 */
+	private void setupPipelinesRoutes(WebApplication app) 
+	{
 		app.mountPage(webUrlPrefix + "/backend/pipelines/list", PipelinesListPage.class);
 		app.mountPage(webUrlPrefix + "/backend/pipelines/new", NewPipelinePage.class);
 		app.mountPage(webUrlPrefix + "/backend/pipelines/detail", PipelineDetailPage.class);
