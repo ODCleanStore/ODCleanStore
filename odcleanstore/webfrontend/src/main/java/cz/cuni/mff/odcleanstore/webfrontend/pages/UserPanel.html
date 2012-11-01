@@ -3,9 +3,13 @@
 		<div><strong>User: </strong> <span wicket:id="username">[username]</span></div>
 		<div><strong>Roles:</strong> <span wicket:id="rolesList">[roles-list]</span></div>
 		<div>
-			<a wicket:id="myAccount" class="button">My Account</a>
-			<a wicket:id="logout" class="button">Log out</a>
+			<a wicket:id="myAccount" class="button" title="Show details about my user account.">
+				My Account
+			</a>
+			<a wicket:id="logout" class="button" title="Log me out.">
+				Log out
+			</a>
         </div>		
 	</wicket:enclosure>
-	<div><a wicket:id="login" class="button">Log in</a></div>
+	<div><a wicket:id="login" class="button" title="Log me in.">Log in</a></div>
 </wicket:panel>
