@@ -4,7 +4,9 @@
 <div wicket:id="dnRuleComponentHelpWindow"></div>
 
 <div>
-	<a class="placedright button" href="#" wicket:id="showDNGroupDetailPage">Back to group overview</a>
+	<a class="placedright button" href="#" wicket:id="showDNGroupDetailPage" title="Show the group overview.">
+		Back to group overview
+	</a>
 	<div class="clear">&nbsp;</div>
 </div>
 
@@ -23,7 +25,9 @@
 <h2>Rule components</h2>
 
 <div>
-	<a class="placedright button" href="#" wicket:id="addNewComponentLink">Add a new rule component</a>
+	<a class="placedright button" href="#" wicket:id="addNewComponentLink" title="Register a new rule component.">
+		Add a new rule component
+	</a>
 	<div class="clear">&nbsp;</div>
 </div>
 
@@ -48,8 +52,8 @@
 		<td wicket:id="modification">[modification]</td>
 		
 		<td class="actions">
-			<input wicket:id="showEditDNRuleComponentPage" type="button" value="Detail" />
-			<input wicket:id="deleteComponent" type="button" value="Delete" class="delete" />
+			<input wicket:id="showEditDNRuleComponentPage" type="button" value="Detail" title="Show the rule component in further details." />
+			<input wicket:id="deleteComponent" type="button" value="Delete" class="delete" title="Delete the rule component." />
 		</td>
 	</tr>
 </table>

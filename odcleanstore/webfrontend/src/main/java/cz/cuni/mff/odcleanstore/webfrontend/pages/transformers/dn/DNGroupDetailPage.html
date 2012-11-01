@@ -8,13 +8,23 @@
 <div wicket:id="dnConcatenateTemplateInstanceHelpWindow"></div>
 
 <wicket:enclosure>
-    <p class="uncommitedNotice"><a class="button" href="#" wicket:id="commitChanges">Commit changes</a> You have uncommitted changes in this group.</p>
+    <p class="uncommitedNotice">
+    	<a class="button" href="#" wicket:id="commitChanges" title="Make the changes visible to the engine.">
+    		Commit changes
+    	</a> 
+    	You have uncommitted changes in this group.
+    </p>
 </wicket:enclosure>
 
 <wicket:link>
 <div class="placedright">
-    <a class="button" href="#" wicket:id="backToPipelineLink">Back to transformer instance</a><br />
-    <a class="button" href="DNGroupsListPage.html">Back to the list of Data Normalization rule groups</a>
+    <a class="button" href="#" wicket:id="backToPipelineLink" title="Show the transformer instance overview.">
+    	Back to transformer instance
+    </a>
+    <br />
+    <a class="button" href="DNGroupsListPage.html" title="Show the rules group overview.">
+    	Back to the list of Data Normalization rule groups
+    </a>
 </div>
 </wicket:link>
 
@@ -39,7 +49,9 @@
 <h2>Raw rules</h2>
 
 <div>
-	<a class="placedright button" href="#" wicket:id="addNewRuleLink">Add a new raw rule</a>
+	<a class="placedright button" href="#" wicket:id="addNewRuleLink" title="Register a new raw rule.">
+		Add a new raw rule
+	</a>
 	<div class="clear">&nbsp;</div>
 </div>
 
@@ -60,8 +72,8 @@
 		<td wicket:id="description">[description]</td>
 		
 		<td class="actions">
-			<input wicket:id="showEditDNRulePage" type="button" value="Detail" />
-			<input wicket:id="deleteRule" type="button" value="Delete" class="delete"/>
+			<input wicket:id="showEditDNRulePage" type="button" value="Detail" title="Show the rule in further details." />
+			<input wicket:id="deleteRule" type="button" value="Delete" class="delete" title="Delete the rule." />
 		</td>
 	</tr>
 </table>
@@ -69,7 +81,9 @@
 <h2>Replace rules</h2>
 
 <div>
-	<a class="placedright button" href="#" wicket:id="addNewReplaceTemplateInstanceLink">Add a new replace rule</a>
+	<a class="placedright button" href="#" wicket:id="addNewReplaceTemplateInstanceLink" title="Register a new replace rule.">
+		Add a new replace rule
+	</a>
 	<div class="clear">&nbsp;</div>
 </div>
 
@@ -94,8 +108,8 @@
 		<td wicket:id="replacement">[replacement]</td>
 		
 		<td class="centered">
-			<input wicket:id="showEditDNReplaceTemplateInstancePage" type="button" value="Detail" />
-			<input wicket:id="deleteReplaceTemplateInstance" type="button" value="Delete" class="delete" />
+			<input wicket:id="showEditDNReplaceTemplateInstancePage" type="button" value="Detail" title="Show the rule in further details." />
+			<input wicket:id="deleteReplaceTemplateInstance" type="button" value="Delete" class="delete" title="Delete the rule." />
 		</td>
 	</tr>
 </table>
@@ -103,7 +117,9 @@
 <h2>Rename rules</h2>
 
 <div>
-	<a class="placedright button" href="#" wicket:id="addNewRenameTemplateInstanceLink">Add a new rename rule</a>
+	<a class="placedright button" href="#" wicket:id="addNewRenameTemplateInstanceLink" title="Register a new rename rule.">
+		Add a new rename rule
+	</a>
 	<div class="clear">&nbsp;</div>
 </div>
 
@@ -126,8 +142,8 @@
 		<td wicket:id="targetPropertyName">[target property name]</td>
 		
 		<td class="centered">
-			<input wicket:id="showEditDNRenameTemplateInstancePage" type="button" value="Detail" />
-			<input wicket:id="deleteRenameTemplateInstance" type="button" value="Delete" class="delete" />
+			<input wicket:id="showEditDNRenameTemplateInstancePage" type="button" value="Detail" title="Show the rule in further details." />
+			<input wicket:id="deleteRenameTemplateInstance" type="button" value="Delete" class="delete" title="Delete the rule." />
 		</td>
 	</tr>
 </table>
@@ -135,7 +151,9 @@
 <h2>Filter rules</h2>
 
 <div>
-	<a class="placedright button" href="#" wicket:id="addNewFilterTemplateInstanceLink">Add a new filter rule</a>
+	<a class="placedright button" href="#" wicket:id="addNewFilterTemplateInstanceLink" title="Register a new filter rule.">
+		Add a new filter rule
+	</a>
 	<div class="clear">&nbsp;</div>
 </div>
 
@@ -161,8 +179,8 @@
 		<td wicket:id="keep">[keep]</td>
 		
 		<td class="centered">
-			<input wicket:id="showEditDNFilterTemplateInstancePage" type="button" value="Detail" />
-			<input wicket:id="deleteFilterTemplateInstance" type="button" value="Delete" class="delete" />
+			<input wicket:id="showEditDNFilterTemplateInstancePage" type="button" value="Detail" title="Show the rule in further details." />
+			<input wicket:id="deleteFilterTemplateInstance" type="button" value="Delete" class="delete" title="Delete the rule." />
 		</td>
 	</tr>
 </table>
@@ -170,7 +188,9 @@
 <h2>Concatenate rules</h2>
 
 <div>
-	<a class="placedright button" href="#" wicket:id="addNewConcatenateTemplateInstanceLink">Add a new concatenate rule</a>
+	<a class="placedright button" href="#" wicket:id="addNewConcatenateTemplateInstanceLink" title="Register a new concatenate rule.">
+		Add a new concatenate rule
+	</a>
 	<div class="clear">&nbsp;</div>
 </div>
 
@@ -194,8 +214,8 @@
 		<td wicket:id="delimiter">[delimiter]</td>
 		
 		<td class="centered">
-			<input wicket:id="showEditDNConcatenateTemplateInstancePage" type="button" value="Detail" />
-			<input wicket:id="deleteConcatenateTemplateInstance" type="button" value="Delete" class="delete" />
+			<input wicket:id="showEditDNConcatenateTemplateInstancePage" type="button" value="Detail" title="Show the rule in further details." />
+			<input wicket:id="deleteConcatenateTemplateInstance" type="button" value="Delete" class="delete" title="Delete the rule." />
 		</td>
 	</tr>
 </table>
