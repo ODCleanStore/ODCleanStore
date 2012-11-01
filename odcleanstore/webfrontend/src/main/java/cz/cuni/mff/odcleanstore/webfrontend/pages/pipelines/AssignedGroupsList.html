@@ -3,8 +3,12 @@
 <div wicket:id="rulesGroupHelpWindow"></div>
 
 <div>
-	<a class="placedright button" href="#" wicket:id="showNewGroupAssignmentPage">Assign a group</a>
-	<a class="placedright button" href="#" wicket:id="showNewGroupPage">Create a new group</a>
+	<a class="placedright button" href="#" wicket:id="showNewGroupAssignmentPage" title="Assign a new group to the transformer instance.">
+		Assign a group
+	</a>
+	<a class="placedright button" href="#" wicket:id="showNewGroupPage" title="Create a new rules group.">
+		Create a new group
+	</a>
 	<div class="clear">&nbsp;</div>
 </div>
 
@@ -27,8 +31,8 @@
 		<td wicket:id="groupDescription">[description]</td>
 		
 		<td class="actions">
-            <input wicket:id="showGroupDetailPage" type="button" value="Detail" />
-			<input wicket:id="deleteAssignment" type="button" tile="Remove the group from transformer instance" value="Delete assignment" class="delete" />
+            <input wicket:id="showGroupDetailPage" type="button" value="Detail" title="Show the group in further details." />
+			<input wicket:id="deleteAssignment" type="button" tile="Remove the assignment of the group to the transformer instance." value="Delete assignment" class="delete" />
 		</td>
 	</tr>
 </table>

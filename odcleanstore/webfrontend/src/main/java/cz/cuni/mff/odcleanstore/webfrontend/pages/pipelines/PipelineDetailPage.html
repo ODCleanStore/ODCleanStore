@@ -5,7 +5,9 @@
 
 <wicket:link>
 <div>
-	<a class="placedright button" href="PipelinesListPage.html">Back to the list of pipelines</a>
+	<a class="placedright button" href="PipelinesListPage.html" title="Show all registered pipelines.">
+		Back to the list of pipelines
+	</a>
 	<div class="clear">&nbsp;</div>
 </div>
 </wicket:link>
@@ -35,9 +37,13 @@
 <h2>Assigned transformers</h2>
 
 <div>
-    <a class="placedright button" href="#" wicket:id="newAssignmentLink">Assign a transformer</a>
+    <a class="placedright button" href="#" wicket:id="newAssignmentLink" title="Assign a new transformer instance to the pipeline.">
+    	Assign a transformer
+    </a>
     <div class="clear">&nbsp;</div>
-    <a class="placedright button" href="#" wicket:id="viewGraphsInError">View graphs in error</a>
+    <a class="placedright button" href="#" wicket:id="viewGraphsInError" title="Show all related graphs, which were incorrectly processed.">
+    	View graphs in error
+    </a>
 	<div class="clear">&nbsp;</div>
 </div>
 
@@ -65,10 +71,10 @@
         <td wicket:id="runOnCleanDB" class="centered">[run on clean db]</td>
         
         <td class="actions">
-            <input wicket:id="showEditTransformerInstancePage" type="button" value="Detail" />
-            <input wicket:id="moveUp" type="button" value="Up" />
-            <input wicket:id="moveDown" type="button" value="Down" />
-            <input wicket:id="deleteAssignment" type="button" value="Delete" class="delete"/>
+            <input wicket:id="showEditTransformerInstancePage" type="button" value="Detail" title="Show the transformer-instance assignment in further details." />
+            <input wicket:id="moveUp" type="button" value="Up" title="Increase priority of the transformer-instance." />
+            <input wicket:id="moveDown" type="button" value="Down" title="Decrease priority of the transformer-instance." />
+            <input wicket:id="deleteAssignment" type="button" value="Delete" class="delete" title="Delete the transformer-instance-to-pipeline assignment." />
         </td>
     </tr>
 </table>
