@@ -4,7 +4,9 @@
      
 <wicket:link>
 <div>
-	<a class="placedright button" href="NewAccountPage.html">Create a new account</a>
+	<a class="placedright button" href="NewAccountPage.html" title="Register a new user account.">
+		Create a new account
+	</a>
 	<div class="clear">&nbsp;</div>
 </div>
 </wicket:link>
@@ -44,9 +46,9 @@
 		<td wicket:id="roleADM" class="centered">&nbsp;</td>
 		
 		<td class="actions">
-			<input wicket:id="managePermissions" type="button" title="Manage permissions" value="Roles" />
-			<input wicket:id="sendNewPassword" type="button" title="Generate and send new password" value="New password" />
-			<input wicket:id="deleteUser" type="button" value="Delete" class="delete" />
+			<input wicket:id="managePermissions" type="button" title="Manage permissions assigned to the account." value="Roles" />
+			<input wicket:id="sendNewPassword" type="button" title="Generate and send a new password for the account." value="New password" />
+			<input wicket:id="deleteUser" type="button" value="Delete" class="delete" title="Delete the account." />
 		</td>
 	</tr>
 </table>
