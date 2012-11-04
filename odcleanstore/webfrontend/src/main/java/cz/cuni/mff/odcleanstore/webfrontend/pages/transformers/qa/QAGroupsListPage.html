@@ -4,7 +4,9 @@
 
 <wicket:link>
 <div>
-	<a class="placedright button" href="NewQAGroupPage.html">Add a new rules group</a>
+	<a class="placedright button" href="NewQAGroupPage.html" title="Register a new rules group.">
+		Add a new rules group
+	</a>
 	<div class="clear">&nbsp;</div>
 </div>
 </wicket:link>
@@ -30,11 +32,11 @@
 		<td wicket:id="description">[description]</td>
 		
 		<td class="actions">
-			<input wicket:id="showEditQAGroupPage" type="button" value="Detail" />
-			<input wicket:id="commitChanges" type="button" value="Commit changes" />
-			<input wicket:id="rerunAffectedGraphs" type="button" value="Rerun affected graphs" />
-			<input wicket:id="debugQAGroup" type="button" value="Debug" />
-			<input wicket:id="deleteGroup" type="button" value="Delete" class="delete" />
+			<input wicket:id="showEditQAGroupPage" type="button" value="Detail" title="Show the group in further details." />
+			<input wicket:id="commitChanges" type="button" value="Commit changes" title="Make the changes visible to other users." />
+			<input wicket:id="rerunAffectedGraphs" type="button" value="Rerun affected graphs" title="Process all graphs in the clean database associated with pipelines, which have the group assigned via a transformer-instance, once more." />
+			<input wicket:id="debugQAGroup" type="button" value="Debug" title="Debug the group on custom RDF data." />
+			<input wicket:id="deleteGroup" type="button" value="Delete" class="delete" title="Delete the group." />
 		</td>
 	</tr>
 </table>
