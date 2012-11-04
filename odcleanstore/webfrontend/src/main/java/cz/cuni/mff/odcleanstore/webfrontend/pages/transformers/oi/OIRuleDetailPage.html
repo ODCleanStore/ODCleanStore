@@ -5,7 +5,9 @@
 <div wicket:id="fileOutputHelpWindow"></div>
 
 <div>
-	<a class="placedright button" href="#" wicket:id="showOIRulesList">Back to the group overview</a>
+	<a class="placedright button" href="#" wicket:id="showOIRulesList" title="Show the group overview.">
+		Back to the group overview
+	</a>
 	<div class="clear">&nbsp;</div>
 </div>
 
@@ -59,7 +61,9 @@
 <h2>Registered database outputs</h2>
 
 <div>
-	<a class="placedright button" href="#" wicket:id="showNewDBOutputPage">Add a new database output</a>
+	<a class="placedright button" href="#" wicket:id="showNewDBOutputPage" title="Register a new DB input.">
+		Add a new database output
+	</a>
 	<div class="clear">&nbsp;</div>
 </div>
 
@@ -82,8 +86,8 @@
 		<td wicket:id="maxConfidence">[max confidence]</td>
 		
 		<td class="actions">
-			<input wicket:id="showEditDBOutputPage" type="button" value="Detail" />
-			<input wicket:id="deleteDBOutput" type="button" value="Delete" class="delete" />
+			<input wicket:id="showEditDBOutputPage" type="button" value="Detail" title="Show the output in further details." />
+			<input wicket:id="deleteDBOutput" type="button" value="Delete" class="delete" title="Delete the output." />
 		</td>
 	</tr>
 </table>
@@ -91,7 +95,9 @@
 <h2>Registered file outputs</h2>
 
 <div>
-	<a class="placedright button" href="#" wicket:id="showNewFileOutputPage">Add a new file output</a>
+	<a class="placedright button" href="#" wicket:id="showNewFileOutputPage" title="Register a new file input.">
+		Add a new file output
+	</a>
 	<div class="clear">&nbsp;</div>
 </div>
 
@@ -118,8 +124,8 @@
 		<td wicket:id="fileFormat">[file format]</td>
 		
 		<td class="actions">
-			<input wicket:id="showEditFileOutputPage" type="button" value="Detail" />
-			<input wicket:id="deleteFileOutput" type="button" value="Delete" class="delete"/>
+			<input wicket:id="showEditFileOutputPage" type="button" value="Detail" title="Show the output in furhter details." />
+			<input wicket:id="deleteFileOutput" type="button" value="Delete" class="delete" title="Delete the output." />
 		</td>
 	</tr>
 </table>
