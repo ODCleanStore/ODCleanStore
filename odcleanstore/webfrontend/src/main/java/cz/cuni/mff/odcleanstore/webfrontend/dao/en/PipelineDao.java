@@ -4,11 +4,11 @@ import java.util.List;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
-import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.Pipeline;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
+import cz.cuni.mff.odcleanstore.webfrontend.util.CodeSnippet;
 
 /**
  * The Pipeline DAO.

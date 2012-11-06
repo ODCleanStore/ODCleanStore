@@ -3,10 +3,10 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.en;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.model.EnumGraphState;
-import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.GraphInError;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.QueryCriteria;
+import cz.cuni.mff.odcleanstore.webfrontend.util.CodeSnippet;
 
 public class GraphInErrorDao extends DaoForEntityWithSurrogateKey<GraphInError> {
 	

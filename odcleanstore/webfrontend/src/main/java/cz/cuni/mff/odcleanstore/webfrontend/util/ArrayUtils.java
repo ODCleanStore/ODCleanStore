@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.util;
+package cz.cuni.mff.odcleanstore.webfrontend.util;
 
 /**
  * Helper methods to ease working with arrays.

@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.util;
+package cz.cuni.mff.odcleanstore.webfrontend.util;
 
 import java.io.Serializable;
 

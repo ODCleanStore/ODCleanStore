@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.util;
+package cz.cuni.mff.odcleanstore.webfrontend.util;
 
 /**
  * An empty code snippet (e.g. an empty closure).

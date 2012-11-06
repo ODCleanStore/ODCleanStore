@@ -4,8 +4,8 @@ import javax.mail.MessagingException;
 
 import org.apache.log4j.Logger;
 
-import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.configuration.WebFrontendConfig;
+import cz.cuni.mff.odcleanstore.webfrontend.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.webfrontend.util.Mail;
 
 /**

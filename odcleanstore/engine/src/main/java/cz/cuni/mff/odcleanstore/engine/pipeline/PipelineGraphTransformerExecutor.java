@@ -126,6 +126,7 @@ public class PipelineGraphTransformerExecutor {
                     RollingFileAppender.popPreviousLogFile();
                 }
             } catch (Exception e) {
+                LOG.error(e.getMessage(), e);
                 throw new PipelineGraphTransformerExecutorException(
                         format(ERROR_TRANSFORMER_RUN, command), command, e);
             }
