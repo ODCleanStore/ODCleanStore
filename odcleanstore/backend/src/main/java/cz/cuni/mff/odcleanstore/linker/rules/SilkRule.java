@@ -68,4 +68,9 @@ public class SilkRule {
 	public void setOutputs(List<Output> outputs) {
 		this.outputs = outputs;
 	}
+	
+	@Override
+	public String toString() {
+		return "id: " + id + " label: " + label;
+	}
 }
