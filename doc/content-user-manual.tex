@@ -75,8 +75,6 @@ A real-world deployment is planned for storing public contracts data published b
 
 ODCleanStore consists of \term{Engine}, \term{Input Webservice} and \term{Output Webservice} (both run as part of the Engine), and administration webfrontend. The Engine processes incoming and stored data using \term{transformers}. A~transformer is a~pluggable Java class implementing a~defined interface; several transformers ship with ODCleanStore, such as Quality Assessment, Linker or Data Normalization.
 
-\todo{picture, EA diagramy}
-
 \section{Data Lifecycle}
 
 The lifecycle of data inside ODCleanStore is as follows:
@@ -1205,41 +1203,7 @@ The pipeline creator or administrator \todo{proper user role} can decide to re-r
 
 \chapter{Glossary}
 
-\section*{RDF-related}
-\begin{glossarylist}
-	\item[RDF] Resource Description Framework, a~language for representing information about resources in the World Wide Web\footnote{\url{http://www.w3.org/RDF/}}
-	\item[RDF triple] Statement about a~resource expressed in the form of subject-predicate-object expression
-	\item[URI] Uniform Resource Identifier, identifies RDF resources
-	\item[Named graph] A~set of related RDF triples (RDF graph) named with a~URI\footnote{\url{http://www.w3.org/2004/03/trix/}}
-	\item[RDF quad] An RDF triple plus named graph URI (subject, predicate, object, named graph)
-	\item[Ontology] Representation of the meaning of terms in a~vocabulary and of their interrelationships
-	\item[OWL] The Web Ontology Language\footnote{\url{http://www.w3.org/TR/owl-features/}}
-	\item[SPARQL] RDF query language\footnote{\url{http://www.w3.org/TR/rdf-sparql-query/}}
-	\item[RDF/XML] An XML-based serialization format for RDF graphs\footnote{\url{http://www.w3.org/TR/rdf-syntax-grammar/}}
-	\item[TTL] Turtle -- Terse RDF Triple Language\footnote{\url{http://www.w3.org/TeamSubmission/turtle/}}; a~human-friendly alternative to RDF/XML 
-\end{glossarylist}
-
-\section*{Data \& Data Quality}
-\begin{glossarylist}
-	\item[Dirty (staging) database] Database where incoming data are stored until they are processed by a~processing pipeline (e.g. clean, linked to other data, etc.)
-	\item[Clean database] Database where incoming data are stored after they are successfully processed by the respective processing pipeline; this database can be accessed using the Output Webservice
-	\item[\code{Payload} graph] Named graph where the actual inserted data, given in the \code{payload} parameter of Input Webservice, are stored
-	\item[\code{Provenance} graph] Named graph where additional provenance metadata, given in the \code{provenance} field of Input Web Service, are stored
-	\item[Metadata graph] Named graph where other metadata about a \code{payload} graph (such as source, timestamp, license, etc.) are stored
-	\item[Attached graph] Named graph attached to a \code{payload} graph by a transformer
-	\item[Named graph score] Quality of a~single (\code{payload}) named graph estimated by the Quality Assesment component and stored in the database, expressed as a~number from interval [0,1]
-	\item[Publisher score] Average score of named graphs from a~publisher
-	\item[Aggregate quality] Quality of a~triple in the results calculated by the Conflict Resolution component during query time, expressed as a~number from interval [0,1]
-\end{glossarylist}
-
-\section*{User Roles}
-\begin{glossarylist}
-	\item[ADM] Administrator
-	\item[ONC] Ontology creator
-	\item[PIC] Pipeline creator
-	\item[SCR] Data producer (scraper)
-	\item[USR] Data consumer
-\end{glossarylist}
+\include{glossary}
 
 \chapter{List of Used XML Namespaces}
 
