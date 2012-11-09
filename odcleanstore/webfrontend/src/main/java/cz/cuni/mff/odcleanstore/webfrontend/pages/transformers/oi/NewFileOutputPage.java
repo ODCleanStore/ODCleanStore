@@ -8,7 +8,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.validation.validator.RangeValidator;
+import org.apache.wicket.validation.validator.MinimumValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutput;
@@ -133,7 +133,7 @@ public class NewFileOutputPage extends LimitedEditingPage
 	private TextField<String> createConfidenceTextfield(String compName)
 	{
 		TextField<String> textfield = createTextfield(compName, false);
-		textfield.add(new RangeValidator<BigDecimal>(new BigDecimal(0), new BigDecimal(Double.MAX_VALUE)));
+		textfield.add(new MinimumValidator<BigDecimal>(BigDecimal.ZERO));
 		return textfield;
 	}
 }
