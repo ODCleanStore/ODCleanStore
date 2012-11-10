@@ -122,4 +122,19 @@ public class OIOutput extends EntityWithSurrogateKey
 	{
 		this.outputTypeId = outputTypeId;
 	}
+	
+	
+	/**
+	 * Validates if output is valid - minConfidence is not greater than maxConfidence
+	 * 
+	 * @return
+	 */
+	public boolean isValid()
+	{
+		if (minConfidence == null || maxConfidence == null)
+		{
+			return true;
+		}
+		return ( minConfidence.compareTo(maxConfidence) == -1 );
+	}
 }
