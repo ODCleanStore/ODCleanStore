@@ -80,7 +80,7 @@ ODCleanStore consists of \term{Engine}, \term{Input Webservice} and \term{Output
 The lifecycle of data inside ODCleanStore is as follows:
 
 \begin{enumerate}
-  \item RDF data (and additional metadata) is accepted by Input Webservice and stored as a~named graph to the \term{dirty database}. Data can be uploaded by any third-party application registered in ODCleanStore.
+  \item RDF data (and additional metadata) are accepted by Input Webservice and stored as a~named graph to the \term{dirty database}. Data can be uploaded by any third-party application registered in ODCleanStore.
   \item Engine successively processes named graphs in the dirty database by applying a~pipeline of transformers to it; the applied pipeline is selected according to the input metadata.
   \item Each transformer in the pipeline may modify the named graph or attach new related named graphs (such as a named graph with mappings to other resources or results of quality assessment).
   \item When the pipeline finishes, the augmented RDF data are populated to the \term{clean database} together with any auxiliary data and metadata created during the pipeline execution.
@@ -1203,7 +1203,7 @@ The pipeline creator or administrator \todo{proper user role} can decide to re-r
 
 \chapter{Glossary}
 
-\include{glossary}
+\input{appendix-glossary}
 
 \chapter{List of Used XML Namespaces}
 

@@ -1,5 +1,5 @@
 \include{header}
-\newcommand{\version}{0.3.1}
+\newcommand{\version}{0.3.6}
 \newcommand{\documentname}{\refprogrammersguide}
 
 
@@ -15,42 +15,241 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\chapwithtoc{Introduction}
-Lorem ipsum.
+% !List of features and intended use-cases (zduvodneni featur FE)
+	% rrequirements - functional, intraface, non-functional?
 
-\todo{že to je v javě}
 
+% release proces
+% issues redmine - debugging & spol
+% used technologies
+% FE
+	% zdokumentovat, co je potřeba pro přidání DN template apod.
+  % FE - popsat, že to je webová aplikace, dá se spouštět pod tomcatem, odkaz na install manual
+  % význam abstraktních Dao
+  % uncommitted tabulky
+  % jak přidat novou stránku
+
+
+	% třídy
+		% webfrontend.behavior - Wicket Behavior implementations
+		% webfrontend.bo
+		% webfrontend.configuration
+		% webfrontend.core
+			% DaoLookupFactory, ODCSWebFrontendApplicatoin .java/properties, ODCSWebFrontendSession, URLRouter
+		% webfrontend.core.components - custom Wicket components (buttons, labels, form components etc.)
+		% webfrontend.core.model - Wicket models and data providers
+		% webfrotend.dao
+		% webfrontend.pages - pages, panels, ...
+		% webfrontend.util
+		% webfrontend.validators
+
+	% naming conventions
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Introduction}
+\odcs is a~server application for management of Linked Data written in Java. It stores data in RDF, processes them and provides integrated views on the data.
+
+This document serves as the main documentation for developers. It describes basic architecture, implementation, development process, used technologies and other important information relevant for people who want to participate in the development of \odcs.
+
+\section{What is ODCleanStore}
+\odcs accepts arbitrary RDF data and metadata through a SOAP webservice (\term{Input Webservice}). The data is processed by \term{transformers} in one of a~set of customizable \term{pipelines} and stored to a~persistent store (OpenLink Virtuoso database instance). The stored data can be accessed again either  directly through a SPARQL endpoint or through \term{Output Webservice}. Linked Data consumers can send queries and custom query policies to Output Webservice and receive (aggregated/integrated) RDF data relevant for their query, together with information about provenance and data quality. 
+
+\section{Related documents}
+More detailed information about \odcs from the perspective of a user or an administrator can be found in related documents \quot{\refusermanual} and \quot{\refadminmanual}. \refusermanual also contains definition of user roles, glossary of terms etc.
+
+Other working documents related to development are located at the project's page at SourceForge\footnote{\url{https://sourceforge.net/p/odcleanstore/wiki/For\%20developers/}}. The Wiki tool at SourceForge is used for working documents, discussion of new features, description of testing scenarios etc. Not all pages are up-to-date, however, and this document is authoritative in case of conflicts.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\chapter{Requirements}
+% todo
+% features, interfaces, administration, future use
+% motivace, ostatní existující řešení, v čem je to nové
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{ODCleanStore overview} 
+An overview of how \odcs works is depicted on \figurename~\ref{fig:odcsInternal}.
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=\textwidth]{images/odcs-internal.png}
+    \caption{Overview of ODCleanStore architecture}
+	\label{fig:odcsInternal}
+\end{figure}
+
+The diagram lists all main functional units in \odcs:
 
 \begin{itemize}
-	\item What is ODCleanStore
-	\item architecture, architecture features, requirements
-	\item Components overview
-	\item Data processing overview
+	\item \importantterm{Engine.}
+		Engine runs the whole server part. It realizes all data processing and starts Input and Output Webservices.
+
+		\begin{itemize}
+			\item \importantterm{Input Webservice}. SOAP webservice that accepts new data and queues them for processing in the dirty database.
+			\item Pipeline processing. Processes queued data by running a series of transformers in a pipeline on it and moves the dat to the clean database.
+			\item \importantterm{Ouptut Webservice}. REST webservice for querying over data in the clean database.
+		\end{itemize}
+	\item \importantterm{Query Execution \& Conflict Resolution.}
+		Query Execution retrieves all data and metadata relevant for a query asked via Output Webservice. Conflict Resolution then resolves conflicts in the retrieved data, including resolution of \code{owl:sameAs} links.
+	\item Predefined transformers.
+		Transformers used for data processing that are included by default in \odcs.
+		\begin{itemize}
+			\item \importantterm{Quality Assessment}. Estimates quality of data based on user-defined or generated rules.
+			\item \importantterm{Data Normalization}. Transformations of data based on user-defined or generated rules.
+			\item \importantterm{Linker}. Generates links (e.g. \code{owl:sameAs}) between resources in the processed data and contents of the clean database.
+			\item Other transformers -- Other transformers such as Quality Aggregator, Blank Node Remover etc.
+		\end{itemize}
+	\item \importantterm{Administration Frontend.}
+		Web application written in Java from which \odcs can be managed. In Administration Frontend, the user can define pipelines for data processing, rules for transformers, manage ontologies, Output Webservice settings etc.
 \end{itemize}
+
+Each of these parts will be described later in this document. In the source code, the components are divided into several maven projects described in Section \ref{sec:mavenBuild}.
+
+\section{Important concepts}
+\odcs is about data. More specifically, it works with data represented in RDF\footnote{\url{http://www.w3.org/TR/2004/REC-rdf-primer-20040210/}}. \odcs implements three tasks regarding data:
+
+\begin{enumerate}
+	\item Data processing
+	\item Storing data
+	\item Querying over stored data
+\end{enumerate}
+
+\subsection*{Data Processing}
+Data processing is realized by \term{transformers} that are applied to data being processed by Engine in a \term{pipeline}. A transformer can be any class implementing the \code{Transformer} interface but typically it only manipulates (change, add, delete) processed data in database. Several transformers ship with \odcs, such as Quality Assessment, Linker or Data Normalization.
+
+It is important to distinct between a \term{transformer} and \term{transformer instance}. By \term{transformer}, we mean the Java class which implements the \code{Transformer} interface and is registered in ODCleanStore administration (managed by users in role Administrator). \term{Transformer instance} is assignment of such transformer to a pipeline. For example, the Quality Assessment transformer is registered in ODCleanStore by default. The user can create two pipelines and assign the Quality Assessment transformer to each of them, thus creating two transformer instances.
+
+Some transformers can be configured in Administration Frontend by \term{rules}. In general, these rules are grouped to \term{rule groups}. Rule groups can be then assigned to transformer instances.
+
+See also Section \ref{sec:dataLifecycle} \nameref{sec:dataLifecycle}.
+
+\subsection*{Storing Data}
+Data are stored using Open Link Virtuoso RDF database. Two instances of this database are used for every deployment of \odcs:
+
+\begin{itemize}
+	\item \term{Dirty (staging) database} -- contains data that are currently being processed. Contents of this instance is not directly visible for data consumers (users in role USR).
+	\item \term{Clean database} -- contains already processed data that are accessible through the Output Webservice to data consumers (users in role USR).
+\end{itemize}
+
+\subsection*{Querying over Stored Data}
+Querying over stored data is realized by Output Webservice which supports several types of queries (see \refusermanual). For retrieval of results and resolving conflicts, Output Webservice uses components Query Execution (Section \ref{sec:QE}) and Conflict Resolution (Section \ref{sec:CR}).
+
+\subsection*{}
+
+See also Glossary in Appendix \ref{chap:glossary} for explanation of important concepts.
+
+\section{Data Lifecycle}
+\label{sec:dataLifecycle}
+
+The lifecycle of data inside \odcs is as follows:
+
+\begin{enumerate}
+  \item RDF data (and additional metadata) are accepted by Input Webservice and stored as a~named graph to the {dirty database}. Data can be uploaded by any third-party application registered in \odcs.
+  \item Engine successively processes named graphs in the dirty database by applying a~pipeline of transformers to it; the applied pipeline is selected according to the input metadata.
+  \item Each transformer in the pipeline may modify the named graph or attach new related named graphs (such as a named graph with mappings to other resources or results of quality assessment).
+  \item When the pipeline finishes, the augmented RDF data are populated to the {clean database} together with any auxiliary data and metadata created during the pipeline execution.
+  \item Data consumers can use Output Webservice to query data in the clean database. Output Webservice provides several basic types of queries -- URI query, keyword and named graph query; in addition, metadata about a~given named graph can be requested. The response to a~query consists of relevant RDF triples together with their provenance information and quality estimate. The query can be further customized by user-defined conflict resolution policies.\\
+	Data in the clean database can be also queried using the SPARQL query language. While SPARQL queries are more expressive, there is no direct support for provenance tracking and quality estimation. 
+  \item When transformer rules change, the administrator may choose to re-run a~pipeline on data already stored in the clean database. Copy of this data is created in the dirty database where it is processed by the pipeline. After that, the processed version of data replaces the original in the clean database.
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Implementation}
+\section{Architecture}
+
+\subsection{Architecture Evolution}
+The architecture that is depicted on \figurename~\ref{fig:odcsInternal} was chosen for several reasons.
+
+First, the division into components is natural with regard to the original specification of the software project. All important components are included and we have also kept other concepts, such as two dataspaces for clean and dirty data, or the flexibility of data-processing pipeline.
+
+Second, the selected architecture allowed a clear division of work and enabled a relative independence of each component.
+
+Third, it is a result of a long process of analysis. From the initial vision and  requirements specification, which suggested an abstract concept of tranformers run in arbitrary order on data, we extracted several most important cases of transformers that were tightly bound to the system and could run only in a fixed order, only to generalize them back to transformers with a~very simple interface and flexible pipelines.
+
+
+\subsection{Architectural Features}
+
+\subsubsection{Components}
+\odcs consists of several components that are (mostly) loosely-coupled only through a simple interface specified in advance. This made it easy divide tasks among developers and enabled them to work independently.
+
+\subsubsection{Internal Interfaces}
+In order to minimize interfaces between parts of \odcs, to minimize system requirements and to make the system more robust, we decided to prefer communication through data shared in database.
+
+There is no direct interface between Engine and Administration Frontend, but the Administration Frontend saves all configuration to a relational database from which the Engine can retrieve it. This enbles updates of settings in transactions, prevents synchronization issues and enables the two parts to run completely independendently (even on separate machines).
+
+Transformers run in a pipeline are isolated and don't know about each other. Instead of passing data to be transformed through an interface in memory, only the names of named graphs where data are stored are passed to each transformer. This enables to write transformers that are oblivious to \odcs as much as possible and only need to work with data by manipulating the database. Also, it gives transformers the full power of the SPARQL/SPARUL language. Although we should note that in practice, the transformer implementation may be tied with the use of Virtuoso as the underlying database, this is not such a downside because Virtuoso is one of the most popular RDF databases.
+
+\subsubsection{Interoperability}
+The external interfaces are implemented using standard technologies (SOAP for Input Webservice, REST for Output Webservice) and standard formats (RDF/XML, Turtle/Notation3). This should minimize the effort for integration with third-party applications communicating with \odcs. We also provide a Java library for accessing the Input Webservice to futher minimize the effort.
+
+\subsubsection{Used Technologies}
+The choice of Java for implementation and Virtuoso as the underlying database ensure platform independence.
+
+Since Java is a very wide-spread language, \odcs can be extended with minimum effort for learning new technologies (e.g. when adding new transformers).
+
+\subsubsection{Scalability}
+ Although currently the Engine is processing data sequentially, it is designed for parallel processing in the future. It could even be extended to work in a distributed manner on several machines.
+
+ Most of the work the Input Webservice has is with data processing in pipelines. Since pipelines can run independently, each Engine instance could even use a dedicated database instance for dirty data.
+
+ On the other hand, the Output Webservices uses the clean database in a read-only manner and thus could be also deployed on several database instances if database replication is put in place.
+
+\section{Other requirements}
+The assignment of the project impose several additional requirements. This section lists how they were satisfied.
+
+\reqparagraph{It should be easy to incorporate other components, such as a component computing popularity of the data sources.} This requirement is satisfied with the introduction of custom transformers.
+
+\reqparagraph{The application will involve graphical user interface enabling management of all kinds of policies etc.} Administration Frontend enables management of all relevant settings. In addition, several user roles are supported and user accounts can be managed from Administration Frontend.
+
+\reqparagraph{The application will run at least on Windows 7, Windows Server 2008, Linux.} \odcs requires Java Runtime Environment and Virtuoso installation, both supported on all of the listed platforms. \odcs has been tested on Windows 7, Windows Server 2008 and Debian distribution of Linux.
+
+\reqparagraph{Application will be freely available under Apache Software License.} \odcs is published under the required license (see \refadminmanual) and source codes available at a public repository at SourceForge.net
 
 \section{Used technologies}
+The chosen language for implementation is Java. The reason is that there are many libraries and tools required for implemenation accessible in Java, it enables platform independence (one of the requirements on \odcs) and also it is very wide-spread so that developers don't need to learn a new syntax.
 
-% https://sourceforge.net/p/odcleanstore/wiki/Technologies/
+\subsection{Database}
+Openlink Virtuoso\footnote{\url{http://virtuoso.openlinksw.com/}} is used as the underlying data store. It is the most popular RDF storage with a solid support. Both a commercial version and Open Source edition\footnote{\url{http://virtuoso.openlinksw.com/dataspace/dav/wiki/Main/}} exists.
 
-\begin{itemize}
-	\item Java, platform (in)dependence
-	\item RDF, Virtuoso, relational database
-	\item references to other sources -- used formats (RDF/XML, TriG) etc.
-	\item Maven
-	\item libraries - Jena, \ldots
-	\item Wicket
-	\item webserver
-\end{itemize}
+RDF data store provided by Virtuoso supports reasoning, most notably \code{owl:sameAs} link resolution, which proved essential for Query Execution/Conflict Resolution components. Virtuoso also provides a relational database which relieves us from the need of another database for that purpose.
 
+The downside is somewhat buggy behavior (especially SPARQL query parsing) and lack of working support for transactions with RDF data.
+
+\subsection{Administration Frontend}
+Apache Wicket\footnote{\url{http://wicket.apache.org/}} is used for implemenation of the Administration Frontend. It is a component system for writing web applications in Java. Advantages are proper mark-up and logic separation, POJO data model and rapid development of this particular type of web application. Wicket was also chosen by our sister project Strigil\footnote{\url{http://strigil.sourceforge.net/}} so a more tight integration of the two tools may be possible in the future.
+
+Spring\footnote{\url{http://www.springsource.org/}} is used for simplified access to the relational database and transaction management. Use of Hibernate\footnote{\url{http://www.hibernate.org/}} for the DAO layer was rejected because of problems with integration with Wicket.
+
+\subsection{Libraries}
+\subsubsection*{Jena}
+Apache Jena\footnote{\url{http://jena.sourceforge.net/}} is a library for manipulation with RDF data. It supports represenation of RDF data in memory, parsing, loading and updating of RDF models. In \odcs, it is used mainly for representation of RDF triples (quads) and serialization of RDF, because other features proved problematic when used with large data.
+
+We chose Jena over its alternative Sesame\footnote{\url{http://www.openrdf.org/}} because it supports working with named graphs through NG4J and we had previous experience with it.
+
+\subsubsection*{NG4J}
+NG4J\footnote{\url{http://wifo5-03.informatik.uni-mannheim.de/bizer/ng4j/}} extends Jena with named graphs API.
+
+\subsubsection*{SLF4J}
+SLF4J\footnote{\url{http://www.slf4j.org/}} is a flexible and efficient library used for logging. 
+
+\subsection{Development tools}
+\subsubsection*{Maven}
+Apache Maven\footnote{\url{http://maven.apache.org/}} is used as the build tool. It was chosen over Apache Ant because Maven saves work with its many available plugins (such as Maven Jetty Plugin) and offers simple management of dependencies.
+
+\subsubsection*{Git}
+Git is used as the version control system. We used it because it enables simple manipulation with branches and merging but most importantly it is less dependent on a central server whose potential unavailability was identified as a potential risk.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Setting up Development Environment}
 
 \section{Quick Start}
 \subsection{Tools}
-	In order to to prepare environment for building ODCleanStore, first make sure to have installed all necessary tools:
+	In order to to prepare environment for building \odcs, first make sure to have installed all necessary tools:
 
 \begin{itemize}
-	\item Java Development Kit\footnote{\url{www.oracle.com/technetwork/java/javase/downloads/}} version 6\todo{} or newer
+	\item Java Development Kit\footnote{\url{www.oracle.com/technetwork/java/javase/downloads/}} version 6 or newer
 	\item Git version control system\footnote{\url{http://git-scm.com/}}
 	\item Apache Maven\footnote{\url{http://maven.apache.org/}}
 \end{itemize}
@@ -58,7 +257,7 @@ Lorem ipsum.
 Also, make sure you have all the binaries used in the following steps on your classpath. 
 
 \subsection{Obtaining sources} 
-ODCleanStore sources are hosted at SourceForge.\footnote{\url{http://sourceforge.net/p/odcleanstore/code/}} Use git to check out the sources:
+\odcs sources are hosted at SourceForge.\footnote{\url{http://sourceforge.net/p/odcleanstore/code/}} Use git to check out the sources:
 
 \begin{verbatim}
       git clone git://git.code.sf.net/p/odcleanstore/code odcleanstore-code
@@ -71,7 +270,7 @@ Move to directory \code{odcleanstore} within your local clone of the repository 
 
 \begin{verbatim}
       cd odcleanstore-code/odcleanstore
-      mvn clean package
+      mvn clean package install
 \end{verbatim}
 
 After that, Engine binaries can be found in directory \code{odcleanstore/engine/target} and the WAR file of Administration Frontend at \code{odcleanstore/webfrontend/target}. Now you can deploy the application as described in \refadminmanual. \todo{jestli tam bude jenom popis instalatoru, mel by se rucni deploy popsat tady a pridat referenci na instalaci Virtuosa}
@@ -93,13 +292,14 @@ This is an outline of directory structure in the git repository:
 					\item[clean\_db/] -- SQL files to be imported to the clean database
 					\item[dirty\_db/] -- SQL files to be imported to the dirty database
 				\end{dirlist}
-			\item[odcs\_configuration/] -- the default ODCleanStore configuration file
+			\item[odcs\_configuration/] -- the default \odcs configuration file
 			\item[virtuoso\_configuration/] -- configuration files for Virtuoso database instances
 		\end{dirlist}
 	\item[doc/] -- documentation sources (in \LaTeX)
 	\item[odcleanstore/] -- Java sources
 		\begin{dirlist}
 			\item[backend/] -- sources of \code{odcs-backend} artifact (transformers, Query Execution, Conflict Resolution)
+			\item[comlib/] -- sources of \code{odcs-comlib} artifact (code related to sending data to Input Webservice)
 			\item[conf/] -- configuration files for development in Eclipse
 			\item[core/] -- sources of \code{odcs-core} artifact (common code shared by other artifacts)
 			\item[engine/]  -- sources of \code{odcs-engine} artifact (Engine component)
@@ -113,12 +313,14 @@ This is an outline of directory structure in the git repository:
 
 
 \section{Maven build}
-The project is divided into several artifacts. The root POM (\code{pom.xml}) in \code{odcleanstore} directory defines the parent project while each component of ODCleanStore is in a separate artifact in subdirectories of \code{odcleanstore}. These artifacts are:
+\label{sec:mavenBuild}
+The project is divided into several artifacts. The root POM (\code{pom.xml}) in \code{odcleanstore} directory defines the parent project while each component of \odcs is in a separate artifact in subdirectories of \code{odcleanstore}. These artifacts are:
 
 \begin{itemize}
 	\item \code{odcs-core} -- common code shared by other artifacts; also defines interfaces for custom transformers
 	\item \code{odcs-backend} -- predefined transformers, Query Execution and Conflict Resolution
 	\item \code{odcs-engine} -- Engine component (running Input and Output Webservice and the data processing queue)
+	\item \code{odcs-comlib} -- components shared by \code{odcs-inputclient} and Input Webservice
 	\item \code{odcs-webfrontend} -- Administration Frontend web application
 	\item \code{odcs-inputclient} -- client library for Input Webservice (provides a Java API for accessing the webservice)
 	\item \code{odcs-simplescraper} -- a simple command-line tool for importing data through Input Webservices
@@ -148,30 +350,64 @@ Maven build for the selected profile can be executed with command line option \c
 \end{verbatim}
 
 
-\chapter{Webservices \& Interfaces}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Interfaces}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Engine}
 
+\todo{jak se to spousti, vypina, celkova architektura}
+
+\section{Pipeline Processing}
+
+\section{Input Webservice}
+
+\section{Output Webservice}
+
+\subsection{Output Formatters}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Query Execution}
+\label{sec:QE}
+\todo{zmínka o engine prefixu}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Conflict Resolution}
+\label{sec:CR}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Transformers}
 
 \section{Custom Transformers}
-\section{Quality Assessment}
+\todo{co by měly dodržovat - nešahat do čisté db, transakce, registrovat grafy, nesahat jinam do špinavé db atd.}
+\section{Quality Assessment \& Quality Aggregator}
 \section{Data Normalization}
-\section{Object Identification}
+\section{Linker}
 \section{Other Transformers}
+\subsection{Blank Node Remover}
+\subsection{Last Update Marker}
+\subsection{Property Filter}
 
-\chapter{Query Execution}
-
-\chapter{Conflict Resolution}
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Administration Frontend}
 
+\todo{authorization system}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{(Conclusion, evaluation)}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{(Testing scenario)}
+\todo{Do uzivatelskeho manualu?}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{(Related Work)}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Future Work}
+\todo{plus known bugs?}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapwithtoc{References}
 
 
@@ -179,16 +415,27 @@ Maven build for the selected profile can be executed with command line option \c
 
 \appendix
 
+\chapter{Glossary}
+\label{chap:glossary}
+\input{appendix-glossary}
+
 \chapter{ODCS ontology}
 
 \chapter{Relational database schema}
 
-% TODO asi SQL create tables dotazy + popis významu jednotlivých tabulek v textu u každé komponenty, která je používá
-% https://sourceforge.net/p/odcleanstore/wiki/Relational%20database%20documentation/
+\todo{asi SQL create tables dotazy + popis významu jednotlivých tabulek v textu u každé komponenty, která je používá}
+\todo{ https://sourceforge.net/p/odcleanstore/wiki/Relational\%20database\%20documentation/}
+
 
 \chapter{(\quot{chronologicky popis prubehu praci na projektu})}
 
-\chapter{(The Team)}
+\chapter{Project organization}
 
+\begin{itemize}
+	\item Team, task division (Developer-Component-Main responsibilities)
+	\item Meetings
+	\item Release process (+ presentation)
+	\item Remarks?
+\end{itemize}
 
 \end{document}
