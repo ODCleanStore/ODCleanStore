@@ -90,7 +90,7 @@ The diagram lists all main functional units in \odcs:
 			\item \importantterm{Ouptut Webservice}. REST webservice for querying over data in the clean database.
 		\end{itemize}
 	\item \importantterm{Query Execution \& Conflict Resolution.}
-		Query Execution retrieves all data and metadata relevant for a query asked via Output Webservice. Conflict Resolution then resolves conflicts in the retrieved data, including resolution of \code{owl:sameAs} links.
+		\QE retrieves all data and metadata relevant for a query asked via Output Webservice. Conflict Resolution then resolves conflicts in the retrieved data, including resolution of \code{owl:sameAs} links.
 	\item Predefined transformers.
 		Transformers used for data processing that are included by default in \odcs.
 		\begin{itemize}
@@ -114,7 +114,7 @@ Each of these parts will be described later in this document. In the source code
 	\item Querying over stored data
 \end{enumerate}
 
-\subsection*{Data Processing}
+\subsection{Data Processing}
 Data processing is realized by \term{transformers} that are applied to data being processed by Engine in a \term{pipeline}. A transformer can be any class implementing the \code{Transformer} interface but typically it only manipulates (change, add, delete) processed data in database. Several transformers ship with \odcs, such as Quality Assessment, Linker or Data Normalization.
 
 It is important to distinct between a \term{transformer} and \term{transformer instance}. By \term{transformer}, we mean the Java class which implements the \code{Transformer} interface and is registered in ODCleanStore administration (managed by users in role Administrator). \term{Transformer instance} is assignment of such transformer to a pipeline. For example, the Quality Assessment transformer is registered in ODCleanStore by default. The user can create two pipelines and assign the Quality Assessment transformer to each of them, thus creating two transformer instances.
@@ -123,7 +123,7 @@ Some transformers can be configured in Administration Frontend by \term{rules}. 
 
 See also Section \ref{sec:dataLifecycle} \nameref{sec:dataLifecycle}.
 
-\subsection*{Storing Data}
+\subsection{Storing Data}
 Data are stored using Open Link Virtuoso RDF database. Two instances of this database are used for every deployment of \odcs:
 
 \begin{itemize}
@@ -131,8 +131,8 @@ Data are stored using Open Link Virtuoso RDF database. Two instances of this dat
 	\item \term{Clean database} -- contains already processed data that are accessible through the Output Webservice to data consumers (users in role USR).
 \end{itemize}
 
-\subsection*{Querying over Stored Data}
-Querying over stored data is realized by Output Webservice which supports several types of queries (see \refusermanual). For retrieval of results and resolving conflicts, Output Webservice uses components Query Execution (Section \ref{sec:QE}) and Conflict Resolution (Section \ref{sec:CR}).
+\subsection{Querying over Stored Data}
+Querying over stored data is realized by Output Webservice which supports several types of queries (see \refusermanual). For retrieval of results and resolving conflicts, Output Webservice uses components \QE (Section \ref{sec:QE}) and Conflict Resolution (Section \ref{sec:CR}).
 
 \subsection*{}
 
@@ -349,9 +349,8 @@ Maven build for the selected profile can be executed with command line option \c
       mvn clean package -P systest	
 \end{verbatim}
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{Interfaces}
+\chapter{Common code}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Engine}
@@ -369,6 +368,53 @@ Maven build for the selected profile can be executed with command line option \c
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Query Execution}
 \label{sec:QE}
+
+\section{Purpose}
+The purpose of \QE is to retrieve result for a query (asked through Input Webservice), resolve conflicts using the Conflict Resolution component and return result.
+
+Triples that \QE retrieves are:
+\begin{enumerate}
+	\item \label{item:queryTriples} Triples relevant for the query (e.g. containing the given URI).
+	\item Triples with metadata about named graphs containing triples from (\ref{item:queryTriples}).
+	\item Triples containing human-readable labels for URI resources occuring in triples from (\ref{item:queryTriples}).
+\end{enumerate}
+A special case is the metadata query which retrieves only named graph metadata.
+
+Because the result of conflict resolution depends on the data it is given, \QE and \CR are not independent but rather \QE extracts exactly the data that \CR needs and calls it directly.
+
+\section{Interface}
+The public interface of the \QE component is represented by class \code{QueryExecution}.
+
+ This class exposes methods for executing all kinds of supported queries and returns result as an instance of \code{MetadataQueryResult} (wraps collection of provenance metadata triples and other metadata) or \code{BasicQueryResult} (wraps collection of \code{CRQuad}s returned from \CR plus metadata). The query can be further parametrized by passing \code{QueryConstraintSpec} and \code{AggregationSpec} affecting the retrieved data and the conflict resolution process, respectively.
+
+\section{Implementation}
+The actual implementation is in classes inheriting from \code{QueryExecutorBase}, each implementing one type of query: \code{URIQueryExecutor}, \code{KeywordQueryExecutor}, \code{NamedGraphQueryExecutor} and \code{MetadataQueryExecutor}. These classes are called internally from the \code{QueryExecution} class.
+
+For each query, the following steps are executed: input is validated, result quads retrieved from the database, metadata and labels are retrieved from the database and conflict resolution is applied to the result.
+
+To improve performance, values that are used for each query but rarely changed are cached. Cached values are: default aggregation settings, prefix mappings and label properties.
+
+\section{Extending}
+In order to implement a new type of query, the following steps should be taken:
+
+\begin{enumerate}
+	\item Create a class implementating the new query, preferably inheriting from \code{QueryExecutorBase}.
+	\item Extend \code{QueryExecution} class with method for executing the query.
+	\item Extend Input Webservice to provide access to the new query for users.
+\end{enumerate}
+
+\section{Database}
+\QE retrieves RDF data from the clean database instance. Because Virtuoso doesn't fully support transactions with RDF data, the clean database may contain incomplete data partially inserted by Engine. In order to filter such data from the result, \QE ignores all named graphs whose URI starts with an agreed prefix\footnote{\code{http://opendata.cz/infrastructure/odcleanstore/internal/hiddenGraph/}} given by Engine to such named graphs.
+
+In addition, \QE loads settings from the following tables in relational database (see Appendix \ref{chap:reldb}):
+
+\begin{itemize}
+	\item \dbodcs{qe\_label\_properties}
+	\item \dbodcs{cr\_properties} 
+	\item \dbodcs{cr\_settings} 
+	\item and tables referenced from tables above
+\end{itemize}
+
 \todo{zmínka o engine prefixu}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -422,6 +468,8 @@ Maven build for the selected profile can be executed with command line option \c
 \chapter{ODCS ontology}
 
 \chapter{Relational database schema}
+\label{chap:reldb}
+
 
 \todo{asi SQL create tables dotazy + popis významu jednotlivých tabulek v textu u každé komponenty, která je používá}
 \todo{ https://sourceforge.net/p/odcleanstore/wiki/Relational\%20database\%20documentation/}
