@@ -53,7 +53,10 @@ public final class VirtuosoConnectionWrapper {
                     connectionCredentials.getConnectionString(),
                     connectionCredentials.getUsername(),
                     connectionCredentials.getPassword());
-            return new VirtuosoConnectionWrapper(connection);
+            VirtuosoConnectionWrapper wrapper = new VirtuosoConnectionWrapper(connection);
+            // disable log by default in order to prevent log size problems; transactions don't work much with SPARQL anyway 
+            wrapper.adjustTransactionLevel(EnumLogLevel.AUTOCOMMIT); 
+            return wrapper;
         } catch (SQLException e) {
             throw new ConnectionException(e);
         }
