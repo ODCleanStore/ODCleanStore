@@ -16,7 +16,7 @@ import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
-import org.apache.wicket.validation.validator.RangeValidator;
+import org.apache.wicket.validation.validator.MinimumValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutput;
@@ -305,7 +305,7 @@ public class OIRuleDetailPage extends LimitedEditingPage
 	private TextField<String> createFilterThresholdTextfield()
 	{
 		TextField<String> textfield = createTextfield("filterThreshold", false);
-		textfield.add(new RangeValidator<BigDecimal>(new BigDecimal(0), new BigDecimal(Double.MAX_VALUE)));
+		textfield.add(new MinimumValidator<BigDecimal>(BigDecimal.ZERO));
 		return textfield;
 	}
 	
@@ -316,7 +316,7 @@ public class OIRuleDetailPage extends LimitedEditingPage
 	private TextField<String> createFilterLimitTextfield()
 	{
 		TextField<String> textfield = createTextfield("filterLimit", false);
-		textfield.add(new RangeValidator<Integer>(1, Integer.MAX_VALUE));
+		textfield.add(new MinimumValidator<Integer>(1));
 		return textfield;
 	}
 }

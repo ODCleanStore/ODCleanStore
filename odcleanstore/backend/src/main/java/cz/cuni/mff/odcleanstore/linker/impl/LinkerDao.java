@@ -114,7 +114,7 @@ public class LinkerDao {
 				connection.closeQuietly();
 			}
 		}		
-		LOG.info("Loaded {} linkage rules.", ruleList.size());
+		LOG.info("Loaded {} linkage rules: {}", ruleList.size(), ruleList.toString());
 		return ruleList;
 	}
 	

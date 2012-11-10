@@ -193,12 +193,14 @@ public class LinkerImpl implements Linker {
 		List<DebugResult> resultList = new ArrayList<DebugResult>();
 		File configFile = null;
 		String resultFileName = null;
+		String resultFileNameWithin = null;
 		try {
 			List<SilkRule> rules = loadRules(context, tableVersion);
 			List<RDFprefix> prefixes = RDFPrefixesLoader.loadPrefixes(context.getCleanDatabaseCredentials());
 			for (SilkRule rule: rules) {
 				resultFileName = createFileName(
 						rule.getId().toString(), context.getTransformerDirectory(), DEBUG_OUTPUT_FILENAME);
+				resultFileNameWithin = ConfigBuilder.updateFilenameWithin(resultFileName);
 				configFile = ConfigBuilder.createDebugLinkConfigFile(rule, prefixes, context, globalConfig,
 						inputFile.getAbsolutePath(), resultFileName, language);
 				Silk.executeFile(configFile, null, Silk.DefaultThreads(), true);
@@ -210,6 +212,15 @@ public class LinkerImpl implements Linker {
 				configFile = null;
 				deleteFile(resultFileName);
 				resultFileName = null;
+				
+				if (globalConfig.isLinkWithinGraph()) {
+					linkedPairs = parseLinkedPairs(resultFileNameWithin);
+					loadLabels(inputFile, linkedPairs, language);
+					loadLabels(context.getCleanDatabaseCredentials(), context.getDirtyDatabaseCredentials(), linkedPairs);
+					resultList.add(new DebugResult(rule.getLabel() + " - links within input", linkedPairs));
+					deleteFile(resultFileNameWithin);
+					resultFileNameWithin = null;
+				}
 			}
 
 		} catch (Exception e) {
@@ -221,6 +232,9 @@ public class LinkerImpl implements Linker {
 			}
 			if (resultFileName != null) {
 				deleteFile(resultFileName);
+			}
+			if (resultFileNameWithin != null) {
+				deleteFile(resultFileNameWithin);
 			}
 		}
 
