@@ -280,6 +280,7 @@ public class OIRuleDetailPage extends LimitedEditingPage
 		};
 		
 		form.add(createTextfield("label"));
+		form.add(createTextarea("description", false));
 		form.add(createTextfield("linkType"));
 		form.add(createTextfield("sourceRestriction", false));
 		form.add(createTextfield("targetRestriction", false));

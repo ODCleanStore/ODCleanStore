@@ -3,6 +3,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.oi;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
@@ -203,7 +204,9 @@ public class OIGroupDetailPage extends LimitedEditingPage
 				
 				item.setModel(new CompoundPropertyModel<OIRule>(rule));
 				
-				item.add(new Label("label"));
+				Label label = new Label("label");
+				label.add(new AttributeModifier("title", rule.getDescription()));
+				item.add(label);
 				item.add(new Label("linkType"));
 				item.add(createNullResistentTableCellLabel("sourceRestriction", rule.getSourceRestriction()));
 				item.add(createNullResistentTableCellLabel("targetRestriction", rule.getTargetRestriction()));

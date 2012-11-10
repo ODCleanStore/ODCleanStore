@@ -39,13 +39,14 @@ public class OIRuleUncommittedDao extends OIRuleDao
 		
 		String query = 
 			"INSERT INTO " + getTableName() + " " +
-			"(groupId, label, linkType, sourceRestriction, targetRestriction, linkageRule, filterThreshold, filterLimit) " +
-			"VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+			"(groupId, label, description, linkType, sourceRestriction, targetRestriction, linkageRule, filterThreshold, filterLimit) " +
+			"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		
 		Object[] params =
 		{
 			item.getGroupId(),
 			item.getLabel(),
+			item.getDescription(),
 			item.getLinkType(),
 			item.getSourceRestriction(),
 			item.getTargetRestriction(),
@@ -56,6 +57,7 @@ public class OIRuleUncommittedDao extends OIRuleDao
 
 		logger.debug("groupId: " + item.getGroupId());
 		logger.debug("label: " + item.getLabel());
+		logger.debug("description: " + item.getDescription());
 		logger.debug("linkType: " + item.getLinkType());
 		logger.debug("sourceRestriction: " + item.getSourceRestriction());
 		logger.debug("targetRestriction: " + item.getTargetRestriction());
@@ -77,12 +79,13 @@ public class OIRuleUncommittedDao extends OIRuleDao
 		
 		String query =
 			"UPDATE " + getTableName() + 
-			" SET label = ?, linkType = ?, sourceRestriction = ?, targetRestriction = ?, linkageRule = ?, filterThreshold = ?, filterLimit = ? " +
+			" SET label = ?, description = ?, linkType = ?, sourceRestriction = ?, targetRestriction = ?, linkageRule = ?, filterThreshold = ?, filterLimit = ? " +
 			" WHERE id = ?";
 		
 		Object[] params =
 		{
 			item.getLabel(),
+			item.getDescription(),
 			item.getLinkType(),
 			item.getSourceRestriction(),
 			item.getTargetRestriction(),
@@ -93,6 +96,7 @@ public class OIRuleUncommittedDao extends OIRuleDao
 		};
 		
 		logger.debug("label: " + item.getLabel());
+		logger.debug("description: " + item.getDescription());
 		logger.debug("linkType: " + item.getLinkType());
 		logger.debug("sourceRestriction: " + item.getSourceRestriction());
 		logger.debug("targetRestriction: " + item.getTargetRestriction());

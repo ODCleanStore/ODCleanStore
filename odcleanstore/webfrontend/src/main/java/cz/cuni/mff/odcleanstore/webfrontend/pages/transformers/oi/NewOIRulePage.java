@@ -116,6 +116,7 @@ public class NewOIRulePage extends LimitedEditingPage
 		};
 		
 		form.add(createTextfield("label"));
+		form.add(createTextarea("description", false));
 		form.add(createTextfield("linkType"));
 		formModel.getObject().setLinkType(DEFAULT_LINK_TYPE);
 		form.add(createTextfield("sourceRestriction", false));
