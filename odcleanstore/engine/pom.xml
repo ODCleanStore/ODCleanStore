@@ -1,11 +1,10 @@
 <?xml version="1.0" ?>
 <project
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-	xmlns="http://maven.apache.org/POM/4.0.0" 
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
 	<modelVersion>4.0.0</modelVersion>
-	
+
 	<groupId>cz.cuni.mff.odcleanstore</groupId>
 	<artifactId>odcs-engine</artifactId>
 	<version>0.3-SNAPSHOT</version>
@@ -19,7 +18,7 @@
 
 	<name>ODCleanStore - Engine</name>
 	<description>Server that runs the input and output webservices</description>
-	
+
 	<repositories>
 		<repository>
 			<id>maven-restlet</id>
@@ -35,9 +34,14 @@
 				<artifactId>odcs-backend</artifactId>
 				<version>0.3-SNAPSHOT</version>
 			</dependency>
+			<dependency>
+				<groupId>cz.cuni.mff.odcleanstore</groupId>
+				<artifactId>odcs-comlib</artifactId>
+				<version>0.3-SNAPSHOT</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>cz.cuni.mff.odcleanstore</groupId>
@@ -47,7 +51,6 @@
 		<dependency>
 			<groupId>cz.cuni.mff.odcleanstore</groupId>
 			<artifactId>odcs-backend</artifactId>
-			<version>0.3-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.restlet.jse</groupId>
@@ -59,26 +62,19 @@
 			<artifactId>org.restlet.ext.slf4j</artifactId>
 			<version>2.1-RC4</version>
 		</dependency>
+		<dependency>
+			<groupId>cz.cuni.mff.odcleanstore</groupId>
+			<artifactId>odcs-comlib</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+		</resources>
 		<plugins>
-			<plugin>
-				<groupId>org.jvnet.jax-ws-commons</groupId>
-				<artifactId>jaxws-maven-plugin</artifactId>
-				<version>2.1</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>wsgen</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<sei>cz.cuni.mff.odcleanstore.engine.inputws.InputWS</sei>
-				</configuration>
-			</plugin>
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
@@ -126,25 +122,6 @@
 					<configuration>
 						<lifecycleMappingMetadata>
 							<pluginExecutions>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>
-											org.jvnet.jax-ws-commons
-										</groupId>
-										<artifactId>
-											jaxws-maven-plugin
-										</artifactId>
-										<versionRange>
-											[2.1,)
-										</versionRange>
-										<goals>
-											<goal>wsgen</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore></ignore>
-									</action>
-								</pluginExecution>
 								<pluginExecution>
 									<pluginExecutionFilter>
 										<groupId>org.apache.maven.plugins</groupId>

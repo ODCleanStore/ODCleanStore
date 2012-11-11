@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.comlib;
+package cz.cuni.mff.odcleanstore.comlib.io;
 
 import java.io.IOException;
 import java.io.OutputStream;
