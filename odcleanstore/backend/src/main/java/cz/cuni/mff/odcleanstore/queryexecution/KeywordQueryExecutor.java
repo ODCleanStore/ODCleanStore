@@ -278,6 +278,12 @@ import java.util.regex.Pattern;
     private static final Pattern CONTAINS_KEYWORD_PATTERN = Pattern.compile("\"[^\"]+\"\\s*|[^\"\\s]+\\s*");
 
     /**
+     * Pattern matching "noise words" in contains query that cause Virtuoso to throw
+     * a "phrase consists of noise words exclusively" exception (e.g. "-").
+     */
+    private static final Pattern NOISE_WORD_PATTERN = Pattern.compile("[-.,?!_]*");
+
+    /**
      * Pattern matching characters removed from the searched keyword for exact match (equality comparison).
      * Must remove quotes (single and double).
      * @see #getExactMatchExpr(String)
@@ -352,6 +358,9 @@ import java.util.regex.Pattern;
         boolean hasMatch = false;
         int count = 0;
         for (String keyword : keywords) {
+            if (NOISE_WORD_PATTERN.matcher(keyword).matches()) {
+                continue;
+            }
             if (++count > MAX_CONTAINS_KEYWORDS) {
                 break;
             }
@@ -371,6 +380,10 @@ import java.util.regex.Pattern;
             }
         }
         expr.append('\'');
+
+        if (count == 0) {
+            return "";
+        }
         return expr.toString();
     }
 
