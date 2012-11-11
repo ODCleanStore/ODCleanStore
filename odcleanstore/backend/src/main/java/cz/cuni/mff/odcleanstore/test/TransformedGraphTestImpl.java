@@ -22,7 +22,7 @@ public class TransformedGraphTestImpl implements TransformedGraph {
 
 	@Override
 	public String getGraphId() {
-		return UUID.randomUUID().toString();
+		return "demoData";
 	}
 
 	@Override
@@ -40,9 +40,7 @@ public class TransformedGraphTestImpl implements TransformedGraph {
 	@Override
 	public Collection<String> getAttachedGraphNames() {
 		Collection<String> result = new ArrayList<String>();
-		result.add("http://example.foo");
-		result.add("http://opendata.cz/data/namedGraph/2");
-		result.add("http://opendata.cz/data/namedGraph/3");
+		result.add("http://opendata.cz/infrastructure/odcleanstore/internal/generatedLinks/demoData");
 		return result;
 	}
 

@@ -126,19 +126,22 @@ public class LinkerImpl implements Linker {
     			if (linkAttachedGraphs) {
     				graphName = createGraphGroup(context, inputGraph);
     			}
-
-    			configFile = ConfigBuilder.createLinkConfigFile(
-    					rules, prefixes, inputGraph.getGraphId(), graphName, context, globalConfig, linkWithinGraph);
-
+    			
     			inputGraph.addAttachedGraph(getLinksGraphId(inputGraph));
-
-    			LOG.info("Calling Silk with temporary configuration file: {}", configFile.getAbsolutePath());
-    			Silk.executeFile(configFile, null, Silk.DefaultThreads(), true);
-    			LOG.info("Linking finished.");
+    			
+    			for (SilkRule rule: rules) {
+    				LOG.info("Creating link configuration file for rule: {}", rule.toString());
+    				configFile = ConfigBuilder.createLinkConfigFile(rule, prefixes, inputGraph.getGraphId(), graphName,
+    						context, globalConfig, linkWithinGraph);
+        			LOG.info("Calling Silk with temporary configuration file: {}", configFile.getAbsolutePath());
+        			Silk.executeFile(configFile, null, Silk.DefaultThreads(), true);
+        			LOG.info("Linking by one rule finished.");
+    			}
     			
     			if (linkAttachedGraphs) {
     				deleteGraphGroup(context, graphName);
-    			}
+    			}  			
+    			LOG.info("Linking by all rules finished.");
 			}
 		} catch (DatabaseException e) {
 			throw new TransformerException(e);

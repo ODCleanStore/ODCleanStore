@@ -44,7 +44,6 @@ public class ConfigBuilderTest {
 	@Test
 	public void testCreateConfigFile() throws TransformerException, ParserConfigurationException, SAXException,
 	IOException, ConfigurationException {
-		List<SilkRule> rules = new ArrayList<SilkRule>();
 		SilkRule rule = new SilkRule();
 		rule.setLabel(RULE_LABEL);
 		rule.setLinkType(RULE_TYPE);
@@ -60,8 +59,6 @@ public class ConfigBuilderTest {
 		output.setMaxConfidence(RULE_MAX_CONFIDENCE);
 		outputs.add(output);
 		rule.setOutputs(outputs);
-
-		rules.add(rule);
 
 		List<RDFprefix> prefixes = new ArrayList<RDFprefix>();
 		prefixes.add(new RDFprefix("rdf:", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"));
@@ -80,7 +77,7 @@ public class ConfigBuilderTest {
 	    ObjectIdentificationConfig config = ObjectIdentificationConfig.load(properties);
 
 	    DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-		File configFile = ConfigBuilder.createLinkConfigFile(rules, prefixes, graph.getGraphId(), graph.getGraphName(),
+		File configFile = ConfigBuilder.createLinkConfigFile(rule, prefixes, graph.getGraphId(), graph.getGraphName(),
 				context, config, false);
 		Document configDoc = builder.parse(configFile);
 
