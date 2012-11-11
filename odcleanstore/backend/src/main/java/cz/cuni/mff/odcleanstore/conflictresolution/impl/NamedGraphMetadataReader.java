@@ -112,19 +112,36 @@ public final class NamedGraphMetadataReader {
 
         if (!publisherScores.isEmpty()) {
             for (NamedGraphMetadata metadata : result.listMetadata()) {
-                if (metadata.getPublishers() == null) {
-                    continue;
-                }
-                for (String publisherURI : metadata.getPublishers()) {
-                    if (publisherScores.containsKey(publisherURI)) {
-                        metadata.setPublisherScores(
-                                addToListNullProof(publisherScores.get(publisherURI), metadata.getPublisherScores()));
-                    }
-                }
+                Double publisherScore = calculatePublisherScore(metadata, publisherScores);
+                metadata.setTotalPublishersScore(publisherScore);
             }
         }
 
         return result;
+    }
+
+    /**
+     * Calculates effective average publisher score - returns average of publisher scores or
+     * null if there is none.
+     * @param metadata named graph metadata; must not be null
+     * @param publisherScores map of publisher scores
+     * @return effective publisher score or null if unknown
+     */
+    private static Double calculatePublisherScore(final NamedGraphMetadata metadata, final Map<String, Double> publisherScores) {
+        List<String> publishers = metadata.getPublishers();
+        if (publishers == null) {
+            return null;
+        }
+        double result = 0;
+        int count = 0;
+        for (String publisher : publishers) {
+            Double score = publisherScores.get(publisher);
+            if (score != null) {
+                result += score;
+                count++;
+            }
+        }
+        return (count > 0) ? result / count : null;
     }
 
     /**

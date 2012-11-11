@@ -24,7 +24,7 @@ public class NamedGraphMetadata {
     private Double score;
 
     /** (Error localization) scores of publishers (see {@link #publishers}). */
-    private List<Double> publisherScores;
+    private Double totalPublishersScore;
 
     /** Date the named graph was stored to the RDF store. */
     private Date insertedAt;
@@ -109,17 +109,17 @@ public class NamedGraphMetadata {
      * Return (Quality Assessment) score of the publishers.
      * @return scores of publishers of the named graph or null if the score is unknown
      */
-    public final List<Double> getPublisherScores() {
-        return publisherScores;
+    public final Double getTotalPublishersScore() {
+        return totalPublishersScore;
     }
 
     /**
      * Set (Quality Assessment) scores of the publishers.
-     * @param publisherScores scores of the publishers of the named graph or null
+     * @param totalPublishersScore total score of the publishers of the named graph or null
      *        if the score is unknown
      */
-    public final void setPublisherScores(List<Double> publisherScores) {
-        this.publisherScores = publisherScores;
+    public final void setTotalPublishersScore(Double totalPublishersScore) {
+        this.totalPublishersScore = totalPublishersScore;
     }
 
     /**
@@ -189,7 +189,7 @@ public class NamedGraphMetadata {
                 + " { Source: " + toStringWithNull(sources)
                 + "; Publisher: " + toStringWithNull(publishers)
                 + "; Score: " + toStringWithNull(score)
-                + "; Publisher score: " + toStringWithNull(publisherScores)
+                + "; Publisher score: " + toStringWithNull(totalPublishersScore)
                 + "; Inserted at: " + toStringWithNull(insertedAt)
                 + "; Inserted by: " + toStringWithNull(insertedBy)
                 + "; License: " + toStringWithNull(licenses)

@@ -81,7 +81,7 @@ public class CalculatedValueAggregationTest {
         NamedGraphMetadataMap metadataMap = new NamedGraphMetadataMap();
         NamedGraphMetadata metadata = new NamedGraphMetadata(quad.getGraphName().getURI());
         metadata.setScore(score);
-        metadata.setPublisherScores(Collections.singletonList(score));
+        metadata.setTotalPublishersScore(score);
         metadataMap.addMetadata(metadata);
 
         double computedQuality = instance.computeQuality(
@@ -114,7 +114,7 @@ public class CalculatedValueAggregationTest {
         NamedGraphMetadata lowerMetadata =
                 new NamedGraphMetadata(lowerQuad.getGraphName().getURI());
         lowerMetadata.setScore(lowerScore);
-        lowerMetadata.setPublisherScores(Collections.singletonList(lowerScore));
+        lowerMetadata.setTotalPublishersScore(lowerScore);
         metadataMap.addMetadata(lowerMetadata);
         conflictingQuads.add(lowerQuad);
 
@@ -122,7 +122,7 @@ public class CalculatedValueAggregationTest {
         NamedGraphMetadata higherMetadata =
                 new NamedGraphMetadata(higherQuad.getGraphName().getURI());
         higherMetadata.setScore(higherScore);
-        higherMetadata.setPublisherScores(Collections.singletonList(higherScore));
+        higherMetadata.setTotalPublishersScore(higherScore);
         metadataMap.addMetadata(higherMetadata);
         conflictingQuads.add(higherQuad);
         Collection<String> sourceNamedGraphs = instance.allSourceNamedGraphs(conflictingQuads);
