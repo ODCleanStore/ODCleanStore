@@ -35,11 +35,11 @@ public class DBconfigLinkerTest {
 		File transformerDirectory = new File(args[0]);
 
 		ConfigLoader.loadConfig(args[1]);
-		Linker linker = new LinkerImpl(false, 1);
+		Linker linker = new LinkerImpl(false,2,3);
 		JDBCConnectionCredentials cleanCredentials = new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba");
 		JDBCConnectionCredentials dirtyCredentials = new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1112/UID=dba/PWD=dba", "dba", "dba");
 		TransformationContext context = new TransformationContextTestImpl(transformerDirectory,"linkWithinGraph=true",cleanCredentials, dirtyCredentials);
-		TransformedGraph inputGraph = new TransformedGraphTestImpl("http://opendata.cz/data/namedGraph/1");
+		TransformedGraph inputGraph = new TransformedGraphTestImpl("http://opendata.cz/data/demoData");
 		linker.transformGraph(inputGraph, context);
 	}
 }
