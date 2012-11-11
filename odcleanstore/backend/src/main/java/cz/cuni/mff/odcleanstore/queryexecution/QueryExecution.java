@@ -204,7 +204,8 @@ public class QueryExecution {
      */
     private ConflictResolverFactory createConflictResolverFactory() throws QueryExecutionException {
         AggregationSpec defaultConfiguration = expandedDefaultConfigurationCache.getCachedValue();
-        String resultGraphPrefix = globalConfig.getQueryExecutionGroup().getResultDataURIPrefix().toString() + ODCSInternal.queryResultGraphUriInfix;
+        String resultGraphPrefix =
+                globalConfig.getQueryExecutionGroup().getResultDataURIPrefix().toString() + ODCSInternal.queryResultGraphUriInfix;
         return new ConflictResolverFactory(resultGraphPrefix,
                 globalConfig.getConflictResolutionGroup(), defaultConfiguration);
     }
