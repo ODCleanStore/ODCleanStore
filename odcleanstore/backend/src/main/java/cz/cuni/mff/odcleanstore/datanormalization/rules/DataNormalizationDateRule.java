@@ -15,7 +15,10 @@ public class DataNormalizationDateRule extends DataNormalizationRule {
 	private static final String deleteUnconvertedDatePropertyValueFormat = "{?s <%s> ?o} WHERE {GRAPH $$graph$$ {?s <%s> ?o. FILTER (?o != <%s>(str(?o)))}}";
 
 	public DataNormalizationDateRule(Integer id, Integer groupId, Resource property) throws DataNormalizationException {	
-		super(id, groupId, "Convert " + property.getLocalName() + " into " + XSD.date.getLocalName(),
+		super(id, groupId,
+				property.getLocalName() + "-date-conversion",
+				"Convert " + property.getLocalName() + " into " + XSD.date.getLocalName(),
+				
 				"INSERT",
 				String.format(Locale.ROOT, insertConvertedDatePropertyValueFormat, property.getURI(), XPathFunctions.dateFunction, property.getURI()),
 				"Create proper " + XSD.date.getLocalName() + " value for the property " + property.getURI(),

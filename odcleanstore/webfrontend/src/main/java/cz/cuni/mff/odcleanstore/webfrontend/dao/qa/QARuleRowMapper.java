@@ -23,6 +23,7 @@ public class QARuleRowMapper extends CustomRowMapper<QARule>
 			rs.getInt("id"),
 			rs.getInt("groupId"),
 			blobToString(rs.getBlob("filter")),
+			blobToString(rs.getBlob("label")),
 			blobToString(rs.getBlob("description")),
 			rs.getDouble("coefficient")
 		);

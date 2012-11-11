@@ -34,7 +34,7 @@ public class DNConcatenateTemplateInstanceCompiler
 			delimiter
 		);
 		
-		CompiledDNRule rule = new CompiledDNRule(instance.getGroupId(), description);
+		CompiledDNRule rule = new CompiledDNRule(instance.getGroupId(), instance.getPropertyName() + "-concatenate-rule", description);
 
 		// 2. Create components.
 		//

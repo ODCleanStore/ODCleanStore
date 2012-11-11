@@ -16,6 +16,7 @@ public class QualityAssessmentFunctionalPropertyAmbiguityRule extends
 				groupId,
 				"{?s <" + property.getURI() + "> ?o} GROUP BY ?s HAVING COUNT(?o) > 1",
 				0.8,
+				property.getLocalName() + "-functional-property-check",
 				property.getLocalName() + " is FunctionalProperty (can have only 1 unique value)"
 		);
 	}

@@ -14,6 +14,7 @@ public class QARule extends RuleEntity
 	private static final long serialVersionUID = 1L;
 
 	private String filter;
+	private String label;
 	private String description;
 	private Double coefficient;
 	
@@ -22,14 +23,16 @@ public class QARule extends RuleEntity
 	 * @param id
 	 * @param groupId
 	 * @param filter
+	 * @param label
 	 * @param description
 	 * @param coefficient
 	 */
-	public QARule(Integer id, Integer groupId, String filter, String description, Double coefficient) 
+	public QARule(Integer id, Integer groupId, String filter, String label, String description, Double coefficient) 
 	{
 		super(id, groupId);
 		
 		this.filter = filter;
+		this.label = label;
 		this.description = description;
 		this.coefficient = coefficient;
 	}
@@ -44,6 +47,7 @@ public class QARule extends RuleEntity
 		
 		this.filter = rule.getFilter();
 		this.coefficient = rule.getCoefficient();
+		this.label = rule.getLabel();
 		this.description = rule.getDescription();
 	}
 	
@@ -63,6 +67,15 @@ public class QARule extends RuleEntity
 		return filter;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
+	public String getLabel() 
+	{
+		return label;
+	}
+	
 	/**
 	 * 
 	 * @return

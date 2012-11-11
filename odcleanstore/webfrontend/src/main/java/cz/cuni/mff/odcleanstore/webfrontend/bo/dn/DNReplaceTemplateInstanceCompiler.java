@@ -31,7 +31,7 @@ public class DNReplaceTemplateInstanceCompiler
 			instance.getReplacement()
 		);
 		
-		CompiledDNRule rule = new CompiledDNRule(instance.getGroupId(), description);
+		CompiledDNRule rule = new CompiledDNRule(instance.getGroupId(), instance.getPropertyName() + "-replace-rule", description);
 		
 		// 2. Create components.
 		//

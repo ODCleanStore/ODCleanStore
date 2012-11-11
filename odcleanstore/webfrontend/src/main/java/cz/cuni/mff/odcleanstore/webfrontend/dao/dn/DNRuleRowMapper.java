@@ -22,6 +22,7 @@ public class DNRuleRowMapper extends CustomRowMapper<DNRule>
 		(
 			rs.getInt("id"),
 			rs.getInt("groupId"),
+			blobToString(rs.getBlob("label")),
 			blobToString(rs.getBlob("description"))
 		);
 	}

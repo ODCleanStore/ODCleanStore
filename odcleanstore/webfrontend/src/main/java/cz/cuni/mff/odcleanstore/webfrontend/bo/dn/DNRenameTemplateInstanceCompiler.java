@@ -30,7 +30,7 @@ public class DNRenameTemplateInstanceCompiler
 			instance.getTargetPropertyName()
 		);
 		
-		CompiledDNRule rule = new CompiledDNRule(instance.getGroupId(), description);
+		CompiledDNRule rule = new CompiledDNRule(instance.getGroupId(), instance.getSourcePropertyName() + "-rename-rule", description);
 
 		// 2. Create components.
 		//

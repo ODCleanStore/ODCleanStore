@@ -90,7 +90,7 @@ public abstract class DNTemplateInstanceDao<BO extends DNTemplateInstance> exten
 	 */
 	private int saveRawRuleAndGetKey(final CompiledDNRule item) throws Exception
 	{
-		DNRule rule = new DNRule(item.getGroupId(), item.getDescription());
+		DNRule rule = new DNRule(item.getGroupId(), item.getLabel(), item.getDescription());
 		return dnRuleDao.saveAndGetKey(rule);
 	}
 	

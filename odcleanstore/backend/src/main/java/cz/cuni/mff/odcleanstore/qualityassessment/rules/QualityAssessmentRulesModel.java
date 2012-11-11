@@ -14,7 +14,6 @@ import cz.cuni.mff.odcleanstore.data.TableVersion;
 import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
 
 import java.sql.ResultSet;
-import java.sql.Blob;
 import java.sql.SQLException;
 
 import org.slf4j.Logger;
@@ -43,12 +42,13 @@ import com.hp.hpl.jena.vocabulary.RDFS;
  */
 public class QualityAssessmentRulesModel {
 
-	private static final String ruleByGroupIdQueryFormat = "SELECT id, groupId, filter, coefficient, description FROM " +
+	private static final String ruleByGroupIdQueryFormat = "SELECT id, groupId, filter, coefficient, label, description FROM " +
 			"DB.ODCLEANSTORE.QA_RULES%s WHERE groupId = ?";
 	private static final String ruleByGroupLabelQueryFormat = "SELECT rules.id AS id," +
 			"rules.groupId AS groupId," +
 			"rules.filter AS filter," +
 			"rules.coefficient AS coefficient," +
+			"rules.label AS label, " +
 			"rules.description AS description FROM " +
 			"DB.ODCLEANSTORE.QA_RULES%s AS rules JOIN " +
 			"DB.ODCLEANSTORE.QA_RULES_GROUPS AS groups ON rules.groupId = groups.id " +
@@ -114,24 +114,13 @@ public class QualityAssessmentRulesModel {
 				ResultSet result = results.getCurrentResultSet();
 				
 				Integer id = result.getInt("id");
-				
 				Integer groupId = result.getInt("groupId");
-				
-				Blob filterBlob = result.getBlob("filter");
-				String filter = new String(filterBlob.getBytes(1, (int)filterBlob.length()));
-				
+				String filter = result.getNString("filter");
 				Double coefficient = result.getDouble("coefficient");
+				String label = result.getNString("label");
+				String description = result.getNString("description");
 				
-				Blob descriptionBlob = result.getBlob("description");
-				String description;
-				
-				if (descriptionBlob != null && !result.wasNull()) {
-					description = new String(descriptionBlob.getBytes(1, (int)descriptionBlob.length()));
-				} else {
-					description = null;
-				}
-				
-				rules.add(new QualityAssessmentRule(id, groupId, filter, coefficient, description));
+				rules.add(new QualityAssessmentRule(id, groupId, filter, coefficient, label, description));
 			}
 		} catch (DatabaseException e) {
 			throw new QualityAssessmentException(e);

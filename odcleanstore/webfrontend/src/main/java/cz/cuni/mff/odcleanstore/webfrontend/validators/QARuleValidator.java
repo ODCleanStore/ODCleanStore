@@ -35,6 +35,7 @@ public class QARuleValidator extends CustomValidator {
 					null, /* Rule Group ID */
 					filterValue,
 					1.0,
+					"validation-rule",
 					null  /* Rule Description */
 			).toString(new UUIDUniqueURIGenerator(ODCSInternal.debugTempGraphUriPrefix).nextURI());
 			

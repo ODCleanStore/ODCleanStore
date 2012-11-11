@@ -98,6 +98,7 @@ public class DataNormalizationRule implements Serializable {
 
 	Integer id;
 	Integer groupId;
+	String label;
 	String description;
 	ArrayList<Component> components = new ArrayList<Component>();
 
@@ -109,9 +110,10 @@ public class DataNormalizationRule implements Serializable {
 	 * @param components the list of triples (component type, component code, component description)
 	 * @throws DataNormalizationException
 	 */
-	public DataNormalizationRule(Integer id, Integer groupId, String description, String... components) throws DataNormalizationException {
+	public DataNormalizationRule(Integer id, Integer groupId, String label, String description, String... components) throws DataNormalizationException {
 		this.id = id;
 		this.groupId = groupId;
+		this.label = label;
 		this.description = description;
 
 		if (components.length % 3 != 0) throw new DataNormalizationException("Incomplete rule initialization list");
@@ -128,6 +130,10 @@ public class DataNormalizationRule implements Serializable {
 	public void setGroupId(Integer groupId) {
 		this.groupId = groupId;
 	}
+	
+	public void setLabel(String label) {
+		this.label = label;
+	}
 
 	public void setDescription(String description) {
 		this.description = description;
@@ -143,6 +149,10 @@ public class DataNormalizationRule implements Serializable {
 
 	public Integer getGroupId() {
 		return groupId;
+	}
+	
+	public String getLabel() {
+		return label;
 	}
 
 	public String getDescription() {

@@ -3,6 +3,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
@@ -202,9 +203,13 @@ public class QAGroupDetailPage extends LimitedEditingPage
 				
 				item.setModel(new CompoundPropertyModel<QARule>(rule));
 				
+				Label label = new Label("label");
+				
+				label.add(new AttributeModifier("title", rule.getDescription()));
+				
+				item.add(label);
 				item.add(new TruncatedLabel("filter", MAX_LIST_COLUMN_TEXT_LENGTH));
 				item.add(new Label("coefficient"));
-				item.add(new TruncatedLabel("description", MAX_LIST_COLUMN_TEXT_LENGTH));
 				
 				item.add(
 					new AuthorizedDeleteButton<QARule>
