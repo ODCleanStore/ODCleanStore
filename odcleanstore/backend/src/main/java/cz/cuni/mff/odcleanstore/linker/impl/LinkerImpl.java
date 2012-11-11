@@ -74,10 +74,12 @@ public class LinkerImpl implements Linker {
 	private static final String LINK_WITHIN_GRAPH_KEY = "linkWithinGraph";
 	private static final String LINK_ATTACHED_GRAPHS_KEY = "linkAttachedGraphs";
 
+	private boolean isFirstInPipeline;
 	private ObjectIdentificationConfig globalConfig;
 	private Integer[] groupIds;
 
 	public LinkerImpl(boolean isFirstInPipeline, Integer... groupIds) {
+		this.isFirstInPipeline = isFirstInPipeline;
 		this.globalConfig = ConfigLoader.getConfig().getObjectIdentificationConfig();
 		this.groupIds = groupIds;
 	}
@@ -99,12 +101,15 @@ public class LinkerImpl implements Linker {
 
         if (context.getTransformationType() == EnumTransformationType.EXISTING) {
             LOG.info("Linking existing graph: {}", inputGraph.getGraphName());
-            LinkerDao dao;
-            try {
-                dao = LinkerDao.getInstance(context.getCleanDatabaseCredentials(), context.getDirtyDatabaseCredentials());
-                dao.clearGraph(getLinksGraphId(inputGraph));
-            } catch (DatabaseException e) {
-                throw new TransformerException(e);
+            if (isFirstInPipeline) {
+		        LinkerDao dao;
+		        try {
+		            dao = LinkerDao.getInstance(context.getCleanDatabaseCredentials(),
+		            		context.getDirtyDatabaseCredentials());
+		            dao.clearGraph(getLinksGraphId(inputGraph));
+		        } catch (DatabaseException e) {
+		            throw new TransformerException(e);
+		        }
             }
         } else {
             LOG.info("Linking new graph: {}", inputGraph.getGraphName());
@@ -116,7 +121,8 @@ public class LinkerImpl implements Linker {
 			if (rules.isEmpty()) {
 			    LOG.info("Nothing to link.");
 			} else {
-    			List<RDFprefix> prefixes = RDFPrefixesLoader.loadPrefixes(context.getCleanDatabaseCredentials());
+    			List<RDFprefix> prefixes = RDFPrefixesLoader.loadPrefixes(
+    					context.getCleanDatabaseCredentials());
 
     			Properties transformerProperties = parseProperties(context.getTransformerConfiguration());
     			boolean linkWithinGraph = isLinkWithinGraph(transformerProperties);
