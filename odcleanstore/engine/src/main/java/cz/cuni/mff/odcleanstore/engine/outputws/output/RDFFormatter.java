@@ -142,12 +142,10 @@ public abstract class RDFFormatter extends ResultFormatterBase {
                 }
             }
 
-            List<Double> publisherScoreList = graphMetadata.getPublisherScores();
-            if (publisherScoreList != null) {
-                for (Double publisherScore : publisherScoreList) {
-                    LiteralLabel literal = LiteralLabelFactory.create(publisherScore);
-                    graph.add(new Triple(namedGraphURI, PUBLISHER_SCORE_PROPERTY, Node.createLiteral(literal)));
-                }
+            Double totalPublisherScore = graphMetadata.getTotalPublishersScore();
+            if (totalPublisherScore != null) {
+                LiteralLabel literal = LiteralLabelFactory.create(totalPublisherScore);
+                graph.add(new Triple(namedGraphURI, PUBLISHER_SCORE_PROPERTY, Node.createLiteral(literal)));
             }
             
             String updateTag = graphMetadata.getUpdateTag();
