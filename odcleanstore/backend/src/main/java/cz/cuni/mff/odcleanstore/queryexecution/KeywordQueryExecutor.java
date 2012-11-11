@@ -10,7 +10,6 @@ import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolution
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
-import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 
@@ -326,7 +325,7 @@ import java.util.regex.Pattern;
         }
         StringBuilder result = new StringBuilder();
         for (String keyword : keywords) {
-            result.append(Utils.toAscii(keyword));
+            result.append((keyword));
             result.append(' ');
         }
         return result.substring(0, result.length() - 1).toString();
@@ -356,19 +355,18 @@ import java.util.regex.Pattern;
             if (++count > MAX_CONTAINS_KEYWORDS) {
                 break;
             }
-            String keywordAscii = Utils.toAscii(keyword);
             if (!hasMatch) {
                 hasMatch = true;
             } else {
                 expr.append(" AND ");
             }
-            if (keywordAscii.startsWith("\"")) {
-                assert keywordAscii.length() > 2;
-                expr.append(keywordAscii);
+            if (keyword.startsWith("\"")) {
+                assert keyword.length() > 2;
+                expr.append(keyword);
             } else {
-                assert keywordAscii.length() > 0;
+                assert keyword.length() > 0;
                 expr.append('"');
-                expr.append(keywordAscii);
+                expr.append(keyword);
                 expr.append('"');
             }
         }
@@ -398,8 +396,8 @@ import java.util.regex.Pattern;
                     ? '"' + keywordsQuery + "\"^^<" + XMLSchema.dateTimeType + '>'
                     : '"' + keywordsQuery + "Z\"^^<" + XMLSchema.dateTimeType + '>'; // Virtuoso won't match without 'Z'
         }
-        String asciiQuery = Utils.toAscii(EXACT_MATCH_FILTER_PATTERN.matcher(keywordsQuery).replaceAll(""));
-        return '"' + asciiQuery + '"';
+        String query = (EXACT_MATCH_FILTER_PATTERN.matcher(keywordsQuery).replaceAll(""));
+        return '"' + query + '"';
     }
 
     /**
