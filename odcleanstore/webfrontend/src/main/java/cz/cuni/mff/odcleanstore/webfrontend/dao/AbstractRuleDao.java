@@ -1,7 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao;
 
-import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.RuleEntity;
+import cz.cuni.mff.odcleanstore.webfrontend.util.CodeSnippet;
 
 /** 
  * Base DAO class for rules in a group (see {@link AbstractRulesGroupDao})

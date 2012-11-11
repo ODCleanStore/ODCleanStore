@@ -5,10 +5,8 @@ import java.math.BigDecimal;
 import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.validation.validator.RangeValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIOutput;
@@ -83,6 +81,13 @@ public class DBOutputDetailPage extends LimitedEditingPage
 			{
 				OIOutput output = getModelObject();
 				
+				if (!output.isValid())
+				{
+					getSession()
+					.error("The field 'Min confidence' must contain a smaller number than the field 'Max confidence'");
+					return;
+				}
+				
 				try {
 					oiOutputDao.update(output);
 				}
@@ -107,20 +112,9 @@ public class DBOutputDetailPage extends LimitedEditingPage
 			}
 		};
 		
-		form.add(createConfidenceTextfield("minConfidence"));
-		form.add(createConfidenceTextfield("maxConfidence"));
+		form.add(createMinimumTextfield("minConfidence", BigDecimal.ZERO));
+		form.add(createMinimumTextfield("maxConfidence", BigDecimal.ZERO));
 		
 		add(form);
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	private TextField<String> createConfidenceTextfield(String compName)
-	{
-		TextField<String> textfield = createTextfield(compName, false);
-		textfield.add(new RangeValidator<BigDecimal>(new BigDecimal(0), new BigDecimal(Double.MAX_VALUE)));
-		return textfield;
 	}
 }

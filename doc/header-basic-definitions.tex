@@ -29,6 +29,7 @@
 \newcommand{\tab}{\rule{30pt}{0pt}}
 \newcommand{\term}[1]{\textit{#1}}
 \newcommand{\todo}[1]{}
+\newcommand{\importantterm}[1]{\textbf{#1}}
 
 % These macros use a dirty trick to persuade LaTeX to typeset chapter headers
 % more readably and not to leave plenty of space above them.
@@ -89,10 +90,18 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Document-specific commands
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newcommand{\refusermanual}{User Manual}
-\newcommand{\refadminmanual}{Administrator's \& Installation Manual}
-\newcommand{\refprogrammersguide}{Programmer's Guide}
+\newcommand{\refusermanual}{User Manual\xspace}
+\newcommand{\refadminmanual}{Administrator's \& Installation Manual\xspace}
+\newcommand{\refprogrammersguide}{Programmer's Guide\xspace}
 \newcommand{\configdefault}[1]{\newline\textit{Default value:}~\code{#1}}
+\newcommand{\odcs}{ODCleanStore\xspace}
+\newcommand{\QE}{Query Execution\xspace}
+\newcommand{\CR}{Conflict Resolution\xspace}
+\newcommand{\OI}{Linker\xspace}
+\newcommand{\QA}{Quality Assessment\xspace}
+\newcommand{\DN}{Data Normalization\xspace}
+\newcommand{\dbodcs}[1]{\code{DB.ODCLEANSTORE.\uppercase{#1}}}
+\newcommand{\reqparagraph}[1]{\paragraph{\textnormal{\textit{#1}}}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Aligned enumeration tables

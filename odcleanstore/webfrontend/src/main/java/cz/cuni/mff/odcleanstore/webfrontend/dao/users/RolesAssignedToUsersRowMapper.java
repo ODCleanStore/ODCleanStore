@@ -1,6 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.users;
 
-import cz.cuni.mff.odcleanstore.util.Pair;
+import cz.cuni.mff.odcleanstore.webfrontend.util.Pair;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 

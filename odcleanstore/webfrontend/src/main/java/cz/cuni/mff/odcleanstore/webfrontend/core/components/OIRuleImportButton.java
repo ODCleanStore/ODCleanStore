@@ -52,6 +52,7 @@ public class OIRuleImportButton extends Button
 					null,
 					null,
 					silkRule.getLabel(),
+					null,
 					silkRule.getLinkType(),
 					silkRule.getSourceRestriction(),
 					silkRule.getTargetRestriction(),

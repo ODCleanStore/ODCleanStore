@@ -9,8 +9,13 @@
 
 <wicket:link>
 <div class="placedright">
-    <a class="button" href="#" wicket:id="backToPipelineLink">Back to transformer instance</a><br />
-    <a class="button" href="OIGroupsListPage.html">Back to the list of Linker rule groups</a>
+    <a class="button" href="#" wicket:id="backToPipelineLink" title="Show the transformer-instance overview.">
+    	Back to transformer instance
+    </a>
+    <br />
+    <a class="button" href="OIGroupsListPage.html" title="Show all registered Linker rules groups.">
+    	Back to the list of Linker rule groups
+    </a>
 </div>
 </wicket:link>
 
@@ -35,7 +40,9 @@
 <h2>Rules in group</h2>
 
 <div>
-    <a class="placedright button" href="#" wicket:id="addNewRuleLink">Add a new rule</a>
+    <a class="placedright button" href="#" wicket:id="addNewRuleLink" title="Register a new Linker rule.">
+    	Add a new rule
+    </a>
     <div class="clear">&nbsp;</div>
 </div>
 
@@ -68,8 +75,8 @@
         <td wicket:id="filterLimit">[filter limit]</td>
         
         <td class="actions">
-            <input wicket:id="showEditOIRulePage" type="button" value="Detail" />
-            <input wicket:id="deleteRule" type="button" value="Delete" class="delete" />
+            <input wicket:id="showEditOIRulePage" type="button" value="Detail" title="Show the rule in further details." />
+            <input wicket:id="deleteRule" type="button" value="Delete" class="delete" title="Delete the rule." />
         </td>
     </tr>
 </table>

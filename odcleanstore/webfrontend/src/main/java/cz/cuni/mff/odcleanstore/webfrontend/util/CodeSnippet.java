@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.util;
+package cz.cuni.mff.odcleanstore.webfrontend.util;
 
 /**
  * A generic code snippet (e.g. a closure). Subclass this class in order

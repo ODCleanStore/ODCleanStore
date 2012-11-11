@@ -10,10 +10,10 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
-import cz.cuni.mff.odcleanstore.util.ArrayUtils;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.core.ODCSWebFrontendSession;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.myaccount.MyAccountPage;
+import cz.cuni.mff.odcleanstore.webfrontend.util.ArrayUtils;
 
 /**
  * A panel which contains basic information about the currently logged-in

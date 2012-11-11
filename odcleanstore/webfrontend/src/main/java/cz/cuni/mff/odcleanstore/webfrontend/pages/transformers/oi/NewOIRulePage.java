@@ -6,13 +6,11 @@ import java.util.ArrayList;
 import org.apache.log4j.Logger;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.form.upload.FileUploadField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
-import org.apache.wicket.validation.validator.RangeValidator;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
@@ -118,13 +116,14 @@ public class NewOIRulePage extends LimitedEditingPage
 		};
 		
 		form.add(createTextfield("label"));
+		form.add(createTextarea("description", false));
 		form.add(createTextfield("linkType"));
 		formModel.getObject().setLinkType(DEFAULT_LINK_TYPE);
 		form.add(createTextfield("sourceRestriction", false));
 		form.add(createTextfield("targetRestriction", false));
 		form.add(createTextarea("linkageRule"));
-		form.add(createFilterThresholdTextfield());
-		form.add(createFilterLimitTextfield());
+		form.add(createMinimumTextfield("filterThreshold", BigDecimal.ZERO));
+		form.add(createMinimumTextfield("filterLimit", 1));
 		
 		form.setMultiPart(true);
 		FileUploadField fileUpload = new FileUploadField("fileUpload", new ListModel<FileUpload>(new ArrayList<FileUpload>()));
@@ -133,27 +132,5 @@ public class NewOIRulePage extends LimitedEditingPage
 		form.add(new OIRuleExportButton(form.getModelObject(), "export"));
 		
 		add(form);
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	private TextField<String> createFilterThresholdTextfield()
-	{
-		TextField<String> textfield = createTextfield("filterThreshold", false);
-		textfield.add(new RangeValidator<BigDecimal>(new BigDecimal(0), new BigDecimal(Double.MAX_VALUE)));
-		return textfield;
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	private TextField<String> createFilterLimitTextfield()
-	{
-		TextField<String> textfield = createTextfield("filterLimit", false);
-		textfield.add(new RangeValidator<Integer>(1, Integer.MAX_VALUE));
-		return textfield;
 	}
 }

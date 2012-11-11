@@ -291,20 +291,28 @@ public class ConfigBuilder {
 	}
 
 	private static Element getFirstChild(Element parentElement, String tagName) {
+		return getChild(parentElement, tagName, 1);
+	}
+	
+	private static Element getChild(Element parentElement, String tagName, int order) {
 		NodeList nodeList = parentElement.getElementsByTagName(tagName);
-		if (nodeList.getLength() < 1) {
+		if (nodeList.getLength() < order) {
 			return null;
 		} else {
-			return (Element)nodeList.item(0);
+			return (Element)nodeList.item(order - 1);
 		}
 	}
-
+	
 	private static Element getFirstElement(Document doc, String tagName) {
+		return getElement(doc, tagName, 1);
+	}
+	
+	private static Element getElement(Document doc, String tagName, int order) {
 		NodeList nodeList = doc.getElementsByTagName(tagName);
-		if (nodeList.getLength() < 1) {
+		if (nodeList.getLength() < order) {
 			return null;
 		} else {
-			return (Element)nodeList.item(0);
+			return (Element)nodeList.item(order - 1);
 		}
 	}
 
@@ -464,7 +472,8 @@ public class ConfigBuilder {
 
 		ruleElement.appendChild(createFilter(doc, rule.getFilterLimit(), rule.getFilterThreshold()));
 
-		ruleElement.appendChild(createOutputs(doc, rule.getOutputs(), graphId, config, transformerDirectory));
+		ruleElement.appendChild(createOutputs(doc, rule.getOutputs(), graphId, config, transformerDirectory,
+				linkWithinGraph));
 
 		return ruleElement;
 	}
@@ -498,17 +507,18 @@ public class ConfigBuilder {
 	}
 
 	private static Element createOutputs(Document doc, List<Output> outputs, String graphId,
-			ObjectIdentificationConfig config, File transformerDirectory)
+			ObjectIdentificationConfig config, File transformerDirectory, boolean linkWithinGraph)
 					throws DOMException, InvalidLinkageRuleException {
 		Element outputsElement = doc.createElement(CONFIG_XML_OUTPUTS);
 		for (Output output: outputs) {
-			outputsElement.appendChild(createOutput(doc, output, graphId, config, transformerDirectory));
+			outputsElement.appendChild(createOutput(doc, output, graphId, config, transformerDirectory,
+					linkWithinGraph));
 		}
 		return outputsElement;
 	}
 
-	private static Element createOutput(Document doc, Output output, String graphId,
-			ObjectIdentificationConfig config, File transformerDirectory) throws InvalidLinkageRuleException {
+	private static Element createOutput(Document doc, Output output, String graphId, ObjectIdentificationConfig config,
+			File transformerDirectory, boolean linkWithinGraph) throws InvalidLinkageRuleException {
 		Element outputElement = doc.createElement(CONFIG_XML_OUTPUT);
 		if (output.getMinConfidence() != null) {
 			outputElement.setAttribute(CONFIG_XML_MIN_CONFIDENCE, output.getMinConfidence().toString());
@@ -523,7 +533,7 @@ public class ConfigBuilder {
 				throw new InvalidLinkageRuleException("Missing file name (file parameter) in output element.");
 			}
 			outputElement.appendChild(createParam(doc, CONFIG_XML_FILE, updateFileName(
-					fileOutput.getName(), graphId, transformerDirectory)));
+					fileOutput.getName(), graphId, transformerDirectory, linkWithinGraph)));
 			if (fileOutput.getFormat() == null) {
 				throw new InvalidLinkageRuleException("Missing file format parameter in output element.");
 			}
@@ -546,7 +556,8 @@ public class ConfigBuilder {
 	 * @param transformerDirectory transformer working directory
 	 * @return unique file name
 	 */
-	private static String updateFileName(String name, String graphId, File transformerDirectory) {
+	private static String updateFileName(String name, String graphId, File transformerDirectory,
+			boolean linkWithinGraph) {
 	    Pattern pattern = Pattern.compile("(.*:)?(.*)(\\..*)?");
 	    Matcher matcher = pattern.matcher(name);
 
@@ -562,7 +573,10 @@ public class ConfigBuilder {
 	        }
 	        // CHECKSTYLE:OFF
 	    }
-	    return new File(transformerDirectory, namePart + graphId + "."  + extension).getAbsolutePath();
+	    
+	    String withinSuffix = (linkWithinGraph ? "within" : "");
+	    
+	    return new File(transformerDirectory, namePart + graphId + withinSuffix + "."  + extension).getAbsolutePath();
 	}
 
 	/**
@@ -619,7 +633,7 @@ public class ConfigBuilder {
 			configDoc = createConfigDoc(rules, prefixes, null, randomId, config,
 					context.getTransformerDirectory(), config.isLinkWithinGraph());
 			changeSourceToFile(configDoc, inputFileName, language);
-			redirectOutputToFile(configDoc, resultFileName, rule.getOutputs());
+			redirectOutputToFile(configDoc, resultFileName, rule.getOutputs(), config.isLinkWithinGraph());
 			LOG.info("Created link configuration document.");
 			configFile = storeConfigDoc(configDoc, context.getTransformerDirectory(), randomId);
 			LOG.info("Stored link configuration to temporary file {}", configFile.getAbsolutePath());
@@ -630,11 +644,19 @@ public class ConfigBuilder {
 		return configFile;
 	}
 
-	private static void redirectOutputToFile(Document doc, String resultFileName, List<Output> outputs) {
+	private static void redirectOutputToFile(Document doc, String resultFileName, List<Output> outputs,
+			boolean linkWithinGraph) {
 		Element debugOutputsElement = createDebugOutputsElement(doc, resultFileName, outputs);
 		Element ruleElement = getFirstElement(doc, CONFIG_XML_INTERLINK);
 		Element outputsElement = getFirstChild(ruleElement, CONFIG_XML_OUTPUTS);
 		ruleElement.replaceChild(debugOutputsElement, outputsElement);
+		
+		if (linkWithinGraph) {
+			ruleElement = getElement(doc, CONFIG_XML_INTERLINK, 2);
+			debugOutputsElement = createDebugOutputsElement(doc, updateFilenameWithin(resultFileName), outputs);
+			outputsElement = getFirstChild(ruleElement, CONFIG_XML_OUTPUTS);
+			ruleElement.replaceChild(debugOutputsElement, outputsElement);
+		}
 	}
 
 	private static Element createDebugOutputsElement(Document doc, String resultFileName, List<Output> outputs) {
@@ -749,5 +771,9 @@ public class ConfigBuilder {
 		SparqlEndpointConnectionCredentials fakeCredentials = new SparqlEndpointConnectionCredentials(fakeURL);
 		ObjectIdentificationConfig config = new ObjectIdentificationConfig(false, false, fakeCredentials, fakeCredentials);
 		return config;
+	}
+	
+	public static String updateFilenameWithin(String fileName) {
+		return fileName + ".within";
 	}
 }

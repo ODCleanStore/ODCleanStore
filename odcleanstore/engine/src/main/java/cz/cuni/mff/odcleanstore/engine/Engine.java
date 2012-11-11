@@ -85,12 +85,12 @@ public final class Engine {
     }
     
     private void setShutdownHook() {
-    	Runtime.getRuntime().addShutdownHook(new Thread() {
-			@Override
-			public void run() {
-				shutdown();
-			}
-    	});
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                shutdown();
+            }
+        });
     }
 
     private void init(String[] args) throws Exception {
@@ -171,7 +171,7 @@ public final class Engine {
                 LOG.fatal(FormatHelper.formatExceptionForLog(e, "Engine shutdown crashed"));
                 LogManager.shutdown();
             } finally {
-            	Runtime.getRuntime().halt(0);
+                Runtime.getRuntime().halt(0);
             }
         }
     }

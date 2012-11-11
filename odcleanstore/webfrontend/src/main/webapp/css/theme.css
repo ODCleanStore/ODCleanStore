@@ -17,6 +17,8 @@ h2 { margin-top: 30px; }
 
 span.required:after { content: " *"; color: red; font-size: 2em; vertical-align: top; }
 
+.cleanColor { color: #327CC1; }
+
 .feedbackPanel {padding-top: 8px; padding-bottom: 8px;}
 .feedbackPanelINFO, .feedbackPanelERROR, .uncommitedNotice {padding: 4px; font-weight: bold; font-size: 110%;}
 span.feedbackPanelINFO, span.feedbackPanelERROR, span.uncommitedNotice {display: block; white-space: pre-wrap;}

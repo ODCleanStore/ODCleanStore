@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.List;
 
 import org.apache.wicket.Application;
@@ -22,6 +23,9 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.validation.validator.MaximumValidator;
+import org.apache.wicket.validation.validator.MinimumValidator;
+import org.apache.wicket.validation.validator.RangeValidator;
 
 import cz.cuni.mff.odcleanstore.configuration.BackendConfig;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
@@ -370,6 +374,48 @@ public abstract class FrontendPage extends WebPage
 		label.setEscapeModelStrings(false);
 		
 		return label;
+	}
+	
+	/**
+	 * Creates a textfield with range validator (if min and max are both provided) 
+	 * or minimum/maximum validator (if one value is provided)
+	 * 
+	 * @return
+	 */
+	protected <T extends Comparable<T> & Serializable> TextField<String> createBoundedTextfield(
+			String compName, T min, T max)
+	{
+		TextField<String> textfield = createTextfield(compName, false);
+		
+		if (min != null)
+		{
+			if (max != null)
+			{
+				textfield.add(new RangeValidator<T>(min, max));
+			}
+			else
+			{
+				textfield.add(new MinimumValidator<T>(min));
+			}
+		}
+		else if (max != null)
+		{
+			textfield.add(new MaximumValidator<T>(max));
+		}
+		
+		return textfield;
+	}
+	
+	protected <T extends Comparable<T> & Serializable> TextField<String> createMinimumTextfield(
+			String compName, T min)
+	{
+		return createBoundedTextfield(compName, min, null);
+	}
+	
+	protected <T extends Comparable<T> & Serializable> TextField<String> createMaximumTextfield(
+			String compName, T max)
+	{
+		return createBoundedTextfield(compName, null, max);
 	}
 	
 	/*

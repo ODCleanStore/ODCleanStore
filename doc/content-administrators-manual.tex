@@ -69,6 +69,9 @@ List with a description of all configuration options follows:
 		Prefix of named graphs and URIs where query results and metadata in the output are placed.
 		\configdefault{http://opendata.cz/infrastructure/odcleanstore/query/}
 	\item[output\_ws.port]
+	\item[output\_ws.host]
+		Output Webservice host (used for references from Administration Frontend)
+		\configdefault{http://localhost}
 	\item[output\_ws.keyword\_path]
 	\item[output\_ws.uri\_path]
 	\item[output\_ws.metadata\_path]
@@ -105,6 +108,9 @@ List with a description of all configuration options follows:
 \begin{configlist}
 	\item[object\_identification.link\_within\_graph]
 		Sets whether to link incoming data against itself by default.
+		\configdefault{true}
+	\item[object\_identification.link\_attachd\_graphs]
+		Sets whether to link data from attached graphs created by preceding transformers by default.
 		\configdefault{true}
 \end{configlist}
 
