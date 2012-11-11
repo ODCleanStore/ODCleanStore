@@ -77,7 +77,7 @@ public class LinkerImpl implements Linker {
 	private ObjectIdentificationConfig globalConfig;
 	private Integer[] groupIds;
 
-	public LinkerImpl(Integer... groupIds) {
+	public LinkerImpl(boolean isFirstInPipeline, Integer... groupIds) {
 		this.globalConfig = ConfigLoader.getConfig().getObjectIdentificationConfig();
 		this.groupIds = groupIds;
 	}
