@@ -1,56 +1,73 @@
 package cz.cuni.mff.odcleanstore.engine.inputws;
 
-import java.io.File;
-import java.util.Collection;
+import java.net.URL;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
-import javax.xml.ws.Endpoint;
+import javax.net.ssl.KeyManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.configuration.InputWSConfig;
 import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.Service;
 
 /**
- *  @author Petr Jerman
+ * @author Petr Jerman
  */
 public final class InputWSService extends Service {
 
 	private static final Logger LOG = LoggerFactory.getLogger(InputWSService.class);
 	
-	private Endpoint endpoint;
+	private InputWSHttpServer server;
+	private ScheduledThreadPoolExecutor executor;
 
 	public InputWSService(Engine engine) {
 		super(engine, "InputWSService");
+		executor = new ScheduledThreadPoolExecutor(8);
 	}
 
 	@Override
 	protected void initialize() throws Exception {
-		recovery();
-		endpoint = Endpoint.publish(ConfigLoader.getConfig().getInputWSGroup().getEndpointURL().toString(), new InputWS());
+		
+		InputWSConfig inputWSConfig = ConfigLoader.getConfig().getInputWSGroup();
+		URL endpoint = inputWSConfig.getEndpointURL();
+		LOG.info("InputWS - Starting the server on {}", endpoint);
+		
+		if(endpoint.getProtocol().equalsIgnoreCase("https")) {
+				KeyManager[] keys = SslKeyManager.getKeys();
+				if (keys == null) {
+					LOG.error("Certificate for https server loading error");
+					throw new Exception();
+				}	
+				server = new InputWSHttpServer(endpoint, keys);
+		} else {
+			server = new InputWSHttpServer(endpoint, null);
+		}
+		server.start(executor);
 	}
 
-	private void recovery() throws Exception {
-		String inputDirectory =  engine.getDirtyDBImportExportDir();
-		
-		InputGraphStatus importedInputGraphStates = new InputGraphStatus();
-		Collection<String> importingGraphUuids = importedInputGraphStates.getAllImportingGraphUuids();
-		if (importingGraphUuids != null && !importingGraphUuids.isEmpty()) {
-			LOG.info("InputWSService starts recovery");
-			for (String uuid : importingGraphUuids) {
-				File inputFile = new File(inputDirectory + File.separator + uuid + ".dat");
-				inputFile.delete();
+	@Override
+	protected void execute() throws Exception {
+		executor.execute(new Runnable() {
+			@Override
+			public void run() {
+				executeInternal();
 			}
-			importedInputGraphStates.deleteAllImportingGraphUuids();
-			LOG.info("InputWSService ends recovery");
+		});
+	}
+
+	@Override
+	public void shutdown() throws Exception {
+		if (server != null) {
+			server.stop();
 		}
 	}
 	
-	@Override
-	public void shutdown() throws Exception {
-		if (endpoint != null) {
-			endpoint.stop();
-		}
+	private void executeInternal() {
+		InsertExecutor.recoveryOnStartup();
+		server.setAvailable(true);
+		LOG.info("InputWS - Server accepts incoming requests");
 	}
 }

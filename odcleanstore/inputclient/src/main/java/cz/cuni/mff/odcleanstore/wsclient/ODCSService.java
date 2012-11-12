@@ -12,6 +12,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import cz.cuni.mff.odcleanstore.wsclient.soap.InsertSoapMessage;
+
 /**
  * Java client for ODCleanStore Input Webservice.
  * Provides programmatic access in Java to the ODCleanStore SOAP Input Webservice.
@@ -25,14 +27,16 @@ public final class ODCSService {
      * Create new instance of Input Webservice java client.
      * 
      * @param serviceLocation location of the Input Webservice to send data to as a nURI
+     * @throws NullPointerException serviceLocation URL is null
      * @throws MalformedURLException serviceLocation URL format error
      */
     public ODCSService(String serviceLocation) throws MalformedURLException {
+    	if (serviceLocation == null) {
+    		throw new NullPointerException("serviceLocation parameter is null;"); 
+    	}
         try {
             this.serviceURL = new URI(serviceLocation).toURL();
         } catch (IllegalArgumentException e) {
-            throw new MalformedURLException();
-        } catch (NullPointerException e) {
             throw new MalformedURLException();
         } catch (URISyntaxException e) {
             throw new MalformedURLException();
@@ -51,8 +55,7 @@ public final class ODCSService {
      * @throws InsertException Exception returned from server or client
      */
     public void insert(String user, String password, Metadata metadata, String payload) throws InsertException {
-        Insert insert = new Insert(serviceURL);
-        insert.run(user, password, metadata, new StringReader(payload), new StringReader(payload));
+        InsertSoapMessage.send(serviceURL, user, password, metadata, new StringReader(payload), new StringReader(payload));
     }
 
     /**
@@ -71,9 +74,9 @@ public final class ODCSService {
      */
     public void insert(String user, String password, Metadata metadata, File payloadFile, String payloadFileEncoding)
             throws InsertException, FileNotFoundException, UnsupportedEncodingException {
-        Insert insert = new Insert(serviceURL);
         Reader payloadReader = new InputStreamReader(new FileInputStream(payloadFile), payloadFileEncoding);
         Reader payloadReaderForSize = new InputStreamReader(new FileInputStream(payloadFile), payloadFileEncoding);
-        insert.run(user, password, metadata, payloadReader, payloadReaderForSize);
+        
+        InsertSoapMessage.send(serviceURL, user, password, metadata, payloadReader, payloadReaderForSize);
     }
 }

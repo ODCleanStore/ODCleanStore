@@ -66,6 +66,7 @@ public class PipelineGraphTransformerExecutor {
     
     private PipelineGraphStatus graphStatus = null;
     private Transformer currentTransformer = null;
+    private boolean isLinkerImplFirstInPipeline = true;
     
     PipelineGraphTransformerExecutor(PipelineGraphStatus graphStatus) {
         this.graphStatus = graphStatus;
@@ -166,7 +167,8 @@ public class PipelineGraphTransformerExecutor {
         if (!command.jarPath.equals(".")) {
             transformer = loadCustomTransformer(command);
         } else if (command.fullClassName.equals(LinkerImpl.class.getCanonicalName())) {
-            transformer = new LinkerImpl(this.graphStatus.getOiGroups(command.transformerInstanceID));
+            transformer = new LinkerImpl(isLinkerImplFirstInPipeline, this.graphStatus.getOiGroups(command.transformerInstanceID));
+        	isLinkerImplFirstInPipeline = false;
         } else if (command.fullClassName.equals(QualityAssessorImpl.class.getCanonicalName())) {
             transformer = new QualityAssessorImpl(this.graphStatus.getQaGroups(command.transformerInstanceID));
         } else if (command.fullClassName.equals(DataNormalizerImpl.class.getCanonicalName())) {

@@ -74,10 +74,12 @@ public class LinkerImpl implements Linker {
 	private static final String LINK_WITHIN_GRAPH_KEY = "linkWithinGraph";
 	private static final String LINK_ATTACHED_GRAPHS_KEY = "linkAttachedGraphs";
 
+	private boolean isFirstInPipeline;
 	private ObjectIdentificationConfig globalConfig;
 	private Integer[] groupIds;
 
-	public LinkerImpl(Integer... groupIds) {
+	public LinkerImpl(boolean isFirstInPipeline, Integer... groupIds) {
+		this.isFirstInPipeline = isFirstInPipeline;
 		this.globalConfig = ConfigLoader.getConfig().getObjectIdentificationConfig();
 		this.groupIds = groupIds;
 	}
@@ -99,12 +101,15 @@ public class LinkerImpl implements Linker {
 
         if (context.getTransformationType() == EnumTransformationType.EXISTING) {
             LOG.info("Linking existing graph: {}", inputGraph.getGraphName());
-            LinkerDao dao;
-            try {
-                dao = LinkerDao.getInstance(context.getCleanDatabaseCredentials(), context.getDirtyDatabaseCredentials());
-                dao.clearGraph(getLinksGraphId(inputGraph));
-            } catch (DatabaseException e) {
-                throw new TransformerException(e);
+            if (isFirstInPipeline) {
+		        LinkerDao dao;
+		        try {
+		            dao = LinkerDao.getInstance(context.getCleanDatabaseCredentials(),
+		            		context.getDirtyDatabaseCredentials());
+		            dao.clearGraph(getLinksGraphId(inputGraph));
+		        } catch (DatabaseException e) {
+		            throw new TransformerException(e);
+		        }
             }
         } else {
             LOG.info("Linking new graph: {}", inputGraph.getGraphName());
@@ -116,7 +121,8 @@ public class LinkerImpl implements Linker {
 			if (rules.isEmpty()) {
 			    LOG.info("Nothing to link.");
 			} else {
-    			List<RDFprefix> prefixes = RDFPrefixesLoader.loadPrefixes(context.getCleanDatabaseCredentials());
+    			List<RDFprefix> prefixes = RDFPrefixesLoader.loadPrefixes(
+    					context.getCleanDatabaseCredentials());
 
     			Properties transformerProperties = parseProperties(context.getTransformerConfiguration());
     			boolean linkWithinGraph = isLinkWithinGraph(transformerProperties);
@@ -126,19 +132,22 @@ public class LinkerImpl implements Linker {
     			if (linkAttachedGraphs) {
     				graphName = createGraphGroup(context, inputGraph);
     			}
-
-    			configFile = ConfigBuilder.createLinkConfigFile(
-    					rules, prefixes, inputGraph.getGraphId(), graphName, context, globalConfig, linkWithinGraph);
-
+    			
     			inputGraph.addAttachedGraph(getLinksGraphId(inputGraph));
-
-    			LOG.info("Calling Silk with temporary configuration file: {}", configFile.getAbsolutePath());
-    			Silk.executeFile(configFile, null, Silk.DefaultThreads(), true);
-    			LOG.info("Linking finished.");
+    			
+    			for (SilkRule rule: rules) {
+    				LOG.info("Creating link configuration file for rule: {}", rule.toString());
+    				configFile = ConfigBuilder.createLinkConfigFile(rule, prefixes, inputGraph.getGraphId(), graphName,
+    						context, globalConfig, linkWithinGraph);
+        			LOG.info("Calling Silk with temporary configuration file: {}", configFile.getAbsolutePath());
+        			Silk.executeFile(configFile, null, Silk.DefaultThreads(), true);
+        			LOG.info("Linking by one rule finished.");
+    			}
     			
     			if (linkAttachedGraphs) {
     				deleteGraphGroup(context, graphName);
-    			}
+    			}  			
+    			LOG.info("Linking by all rules finished.");
 			}
 		} catch (DatabaseException e) {
 			throw new TransformerException(e);

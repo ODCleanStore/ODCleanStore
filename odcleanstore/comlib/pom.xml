@@ -18,4 +18,12 @@
 
 	<name>ODCleanStore - Communication utility library</name>
 	<description>Shared components of ODCleanStore</description>
+	<build>
+		<resources>
+			<resource>
+				<filtering>false</filtering>
+				<directory>src/main/resources</directory>
+			</resource>
+		</resources>
+	</build>
 </project>

@@ -53,7 +53,7 @@ public class OIDebugPage extends LimitedEditingPage
 			@Override
 			protected void onSubmit()
 			{
-				Linker linker = new LinkerImpl(groupId);
+				Linker linker = new LinkerImpl(false, groupId);
 				try 
 				{
 					List<DebugResult> results = linker.debugRules(rdfInput, createContext(), getVisibleTableVersion());

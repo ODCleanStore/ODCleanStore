@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://inputws.engine.odcleanstore.mff.cuni.cz/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.xmlsoap.org/wsdl/" targetNamespace="http://inputws.engine.odcleanstore.mff.cuni.cz/" name="InputWSService">
+<types>
+<xsd:schema>
+<xsd:import namespace="http://inputws.engine.odcleanstore.mff.cuni.cz/" schemaLocation="##-location-##?xsd=1"/>
+</xsd:schema>
+</types>
+<message name="insert">
+<part name="parameters" element="tns:insert"/>
+</message>
+<message name="insertResponse">
+<part name="parameters" element="tns:insertResponse"/>
+</message>
+<message name="InsertException">
+<part name="fault" element="tns:InsertException"/>
+</message>
+<portType name="InputWS">
+<operation name="insert">
+<input message="tns:insert"/>
+<output message="tns:insertResponse"/>
+<fault message="tns:InsertException" name="InsertException"/>
+</operation>
+</portType>
+<binding name="InputWSPortBinding" type="tns:InputWS">
+<soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+<operation name="insert">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+<fault name="InsertException">
+<soap:fault name="InsertException" use="literal"/>
+</fault>
+</operation>
+</binding>
+<service name="InputWSService">
+<port name="InputWSPort" binding="tns:InputWSPortBinding">
+<soap:address location="##-location-##"/>
+</port>
+</service>
+</definitions>
