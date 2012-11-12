@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.engine;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 import org.apache.log4j.Logger;
@@ -80,8 +81,6 @@ public class InputGraphsPage extends FrontendPage
 
 				item.setModel(new CompoundPropertyModel<InputGraph>(inputGraph));
 
-				Boolean link = inputGraph.getStateLabel().equals(EnumGraphState.FINISHED.name());
-
 				String uri = inputGraph.getNamedGraphsPrefix() + ODCSInternal.dataGraphUriInfix + inputGraph.getUUID();
 				String infoLink = "";
 				try {
@@ -94,13 +93,11 @@ public class InputGraphsPage extends FrontendPage
 						"?uri=" +
 						URLEncoder.encode(uri, "UTF-8") +
 						"&aggr=NONE&es=RETURN_ALL";
-				} catch (Exception e) {
+				} catch (UnsupportedEncodingException e) {
 					logger.error("Could not produce link to Output Web Service for graph: " + uri);
-					link = false;
 				}
 				
-				final Boolean useLink = link;
-
+				final Boolean useLink = true;
 				item.add(new Label("UUIDLabel", uri) {
 
 					private static final long serialVersionUID = 1L;
@@ -113,7 +110,6 @@ public class InputGraphsPage extends FrontendPage
 				Label label = new Label("UUIDLink", uri);
 				item.add(label);
 				label.add(new AttributeModifier("href", infoLink));
-				item.setVisible(link);
 				item.add(new StateLabel("stateLabel"));
 				item.add(new Label("engineUUID") {
 
