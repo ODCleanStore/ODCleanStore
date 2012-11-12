@@ -35,16 +35,6 @@ public final class ODCSInternal {
     public static final String oldGraphPrefix = hiddenGraphPrefix + "oldGraph/";
     
     /**
-     * Prefix of named graphs where incoming data are stored. 
-     */
-    public static final String dataGraphUriPrefix = NS_PUBLIC + "data/";
-    
-    /**
-     * Prefix of named graphs where metadata about incoming named graphs are stored.
-     */
-    public static final String metadataGraphUriPrefix = NS_PUBLIC + "metadata/";
-
-    /**
      * Infix of named graphs where incoming data are stored. 
      */
     public static final String dataGraphUriInfix = "data/";
