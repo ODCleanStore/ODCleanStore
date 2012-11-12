@@ -115,6 +115,7 @@ Each of these parts will be described later in this document. In the source code
 \end{enumerate}
 
 \subsection{Data Processing}
+\label{sec:dataProcessing}
 Data processing is realized by \term{transformers} that are applied to data being processed by Engine in a \term{pipeline}. A transformer can be any class implementing the \code{Transformer} interface but typically it only manipulates (change, add, delete) processed data in database. Several transformers ship with \odcs, such as Quality Assessment, Linker or Data Normalization.
 
 It is important to distinct between a \term{transformer} and \term{transformer instance}. By \term{transformer}, we mean the Java class which implements the \code{Transformer} interface and is registered in ODCleanStore administration (managed by users in role Administrator). \term{Transformer instance} is assignment of such transformer to a pipeline. For example, the Quality Assessment transformer is registered in ODCleanStore by default. The user can create two pipelines and assign the Quality Assessment transformer to each of them, thus creating two transformer instances.
@@ -179,6 +180,9 @@ There is no direct interface between Engine and Administration Frontend, but the
 
 Transformers run in a pipeline are isolated and don't know about each other. Instead of passing data to be transformed through an interface in memory, only the names of named graphs where data are stored are passed to each transformer. This enables to write transformers that are oblivious to \odcs as much as possible and only need to work with data by manipulating the database. Also, it gives transformers the full power of the SPARQL/SPARUL language. Although we should note that in practice, the transformer implementation may be tied with the use of Virtuoso as the underlying database, this is not such a downside because Virtuoso is one of the most popular RDF databases.
 
+\subsubsection{Extensibility}
+The main point of extensibility are custom transformers (see Section \ref{sec:customTransformers}). Because one only needs to implement a simple interface and is not bound to any specific technology (except of the limitations of the underlying Virtuoso database), transformers provide a very powerful way how to extend data processing capabilities.
+
 \subsubsection{Interoperability}
 The external interfaces are implemented using standard technologies (SOAP for Input Webservice, REST for Output Webservice) and standard formats (RDF/XML, Turtle/Notation3). This should minimize the effort for integration with third-party applications communicating with \odcs. We also provide a Java library for accessing the Input Webservice to futher minimize the effort.
 
@@ -206,6 +210,8 @@ The assignment of the project impose several additional requirements. This secti
 \reqparagraph{Application will be freely available under Apache Software License.} \odcs is published under the required license (see \refadminmanual) and source codes available at a public repository at SourceForge.net
 
 \section{Used technologies}
+
+\subsection{Implementation Language}
 The chosen language for implementation is Java. The reason is that there are many libraries and tools required for implemenation accessible in Java, it enables platform independence (one of the requirements on \odcs) and also it is very wide-spread so that developers don't need to learn a new syntax.
 
 \subsection{Database}
@@ -228,6 +234,9 @@ We chose Jena over its alternative Sesame\footnote{\url{http://www.openrdf.org/}
 
 \subsubsection*{NG4J}
 NG4J\footnote{\url{http://wifo5-03.informatik.uni-mannheim.de/bizer/ng4j/}} extends Jena with named graphs API.
+
+\subsubsection*{Restlet}
+Restlet\footnote{\url{http://www.restlet.org}} is an open source lightweight RESTful web framework for Java. Output Webservice is built on Restlet.
 
 \subsubsection*{SLF4J}
 SLF4J\footnote{\url{http://www.slf4j.org/}} is a flexible and efficient library used for logging. 
@@ -350,7 +359,83 @@ Maven build for the selected profile can be executed with command line option \c
 \end{verbatim}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{Common code}
+\chapter{Shared Code}
+Code shared by multiple components in \odcs is extracted to Maven artifact \code{odcs-core}. It contains:
+
+\begin{itemize}
+	\item Classes for accessing configuration from the global configuration class.
+
+		Java package: \code{cz.cuni.mff.odcleanstore.configuration}
+	\item Helper classes for accessing the Virtuoso database.
+
+		Java package: \code{cz.cuni.mff.odcleanstore.connection}
+
+	\item Helper classes for imports of data to Virtuoso database from files.
+
+		Java package: \code{cz.cuni.mff.odcleanstore.data}
+
+	\item Classes related to transformer interface.
+
+		Java package: \code{cz.cuni.mff.odcleanstore.transformer}
+
+	\item Definitions of vocabularies used in \odcs.
+
+		Java package: \code{cz.cuni.mff.odcleanstore.vocabulary}
+
+	\item And other utility and helper classes, such as unique URI generators, filesystem utilities etc.
+\end{itemize}
+
+\section{Configuration}
+The global configuration can be accessed using static methods of \code{ConfigLoader}. First, the configuration must be loaded using \code{loadConfig()} methods. Both Engine and Administration Frontend ensure that this is done as soon as they start so that other components may access the configuration already when they are loaded. See \refadminmanual for description of the configuration file.
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/dia-core-config.png}
+    \caption{Diagram of (selected) configuration classes}
+	\label{fig:configurationClasses}
+\end{figure}
+
+Configuration for each component is in classes called \code{XXXConfig} inheriting from \code{ConfigGroup}. Each instance of \code{ConfigGroup} loads configuration relevant only for that component so as to minimize dependencies. Configurations for all components are grouped in \code{Config} class accessible from \code{ConfigLoader}.
+
+\section{Database Access}
+Classes \code{JDBCConnectionCredentials} and \code{SparqlEndpointConnectionCredentials} are containers for information necessary for connecting to the database.
+
+Administration Frontend uses its own database access layer using Spring templates. The rest of \odcs should use classes \code{VirtuosoConnectionWrapper} and \code{WrappedResultSet}. These two classes provide methods for both querying and updating the relational database and working with SPARQL. They also provide methods for conversion of Virtuoso SQL types to Java types, working with transactions etc. Note that SPARQL update operations should be executed with log level set to AUTOCOMMIT (default).
+
+Use of \code{VirtuosoConnectionWrapper} is also recommended for implementation of custom transformers. An example of how it can be used is in  \lstlistingname~\ref{lst:virtuosoConnectionWrapper}.
+
+\begin{lstlisting}[caption={Example of programmatic access to Virtuoso database from a transformer},label=lst:virtuosoConnectionWrapper]
+
+  @Override
+  public void transformGraph(TransformedGraph inputGraph, TransformationContext context)
+      throws TransformerException {
+    VirtuosoConnectionWrapper connection = null;
+    WrappedResultSet resultSet = null;
+    try {
+      connection = VirtuosoConnectionWrapper.createConnection(
+          context.getDirtyDatabaseCredentials());
+
+      String query1 = "SPARQL SELECT ?s WHERE {?s ?p ?o}";
+      resultSet = connection.executeSelect(query1)
+      while (resultSet.next()) {
+        String s = resultSet.getString("s");
+      }
+
+      String query2 = "SPARQL INSERT INTO <a> { <b> <c> <d> }";
+      connection.execute(query2);
+    } catch (DatabaseException e) {
+      throw new TransformerException(e);
+    } catch (SQLException e) {
+      throw new TransformerException(e);
+    } finally {
+      if (resultSet != null) { resultSet.closeQuietly(); }
+      if (connection != null) { connection.closeQuietly(); }
+    }
+  }
+\end{lstlisting}
+
+\section{Data Import}
+When importing data to Virtuoso, one should use the \code{GraphLoader}  class or methods in \code{VirtuosoConnectionWrapper}. These make Virtuoso import the data itself. Other methods, such as using the Jena library may fail when used with too large data. Note that when importing from a file, it must be in directory listed in \code{DirsAllowed} directive of Virtuoso. See also \code{engine.clean\_import\_export\_dir} configuration option.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Engine}
@@ -362,8 +447,44 @@ Maven build for the selected profile can be executed with command line option \c
 \section{Input Webservice}
 
 \section{Output Webservice}
+\subsection{Purpose}
+Output Webservice is a RESTful webservices for queries over data in the clean database. More details about types of queries and request format are described in \refusermanual.
+
+\subsection{Implementation}
+Output Webservice is built on top of the Restlet library. \code{OutputWSService} started by Engine registers a Restlet application implemented by class \code{Root} which sets up URI routes and handlers for each type of query.
+
+Each type of query is handled by a class inheriting from \code{QueryExecutorResourceBase} which in turn implements Restlet \code{ServerResource}. This base class loads necessary configuration and handles requests (methods annotated with Restlet \code{@Get} and \code{@Post} annotations) -- parses request parameters (as described in \refusermanual), delegates the execution to the abstract \code{execute()} method implemented in child classes and handles returning of a proper response in case of an error.
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=0.7\textwidth]{images/dia-outputws-resources.png}
+    \caption{Diagram of selected Output Webservice classes}
+	\label{fig:outputwsResources}
+\end{figure}
+
+
+Classes implementing the actual execution of the query are \code{UriQueryExecutorResource}, \code{KeywordQueryExecutorResource}, \code{NamedGraphQueryExecutorResource} and \linebreak[4] \code{MetadataQueryExecutorResource}. They redefine the abstract \code{execute()} method where query-specific parameters are parsed and the execution is delegated to the Query Execution component. Instance of the \code{QueryExecution} class is shared between requests in order to utilize caching implemented in Query Execution. Finally, the result of the query is formatted and sent to the user.
 
 \subsection{Output Formatters}
+Query results returned from Query Execution are formatted using the format requested by the user. Formatting is done by classes implementing \code{QueryResultFormatter}.
+
+The default formatter is \code{HTMLFormatter} which outputs results in HTML. \code{RDFXMLFormatter} and \code{TriGFormatter} inherit from \code{RDFFormatter} and output results in RDF/XML and TriG, respectively. \code{DebugFormatter} formats result for output to console and is not accessible for users.
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/dia-outputws-formatters.png}
+    \caption{Diagram of output formatters hierarchy}
+	\label{fig:outputwsFormatters}
+\end{figure}
+
+\subsection{Extending}
+In order to add a new type of query to Output Webservice, the following steps should be taken:
+
+\begin{enumerate}
+	\item Implement a new \code{ServerResource} executing the query, preferably inheriting from \linebreak[4] \code{QueryExecutorResourceBase}. Typically, the actual query will be delegated to the Query Execution component -- see Section \ref{sec:qeExtending}.
+	\item Register the new \code{ServerResource} in method \code{Root\#createInboundRoot()}.
+\end{enumerate}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Query Execution}
@@ -387,14 +508,24 @@ The public interface of the \QE component is represented by class \code{QueryExe
 
  This class exposes methods for executing all kinds of supported queries and returns result as an instance of \code{MetadataQueryResult} (wraps collection of provenance metadata triples and other metadata) or \code{BasicQueryResult} (wraps collection of \code{CRQuad}s returned from \CR plus metadata). The query can be further parametrized by passing \code{QueryConstraintSpec} and \code{AggregationSpec} affecting the retrieved data and the conflict resolution process, respectively.
 
+ \code{QueryExecution} is thread-safe and its instance should be kept between requests in order to effectively utilize caching.
+
 \section{Implementation}
-The actual implementation is in classes inheriting from \code{QueryExecutorBase}, each implementing one type of query: \code{URIQueryExecutor}, \code{KeywordQueryExecutor}, \code{NamedGraphQueryExecutor} and \code{MetadataQueryExecutor}. These classes are called internally from the \code{QueryExecution} class.
+The actual implementation is in classes inheriting from \code{QueryExecutorBase}, each implementing one type of query: \code{URIQueryExecutor}, \code{KeywordQueryExecutor}, \code{NamedGraphQueryExecutor} and \code{MetadataQueryExecutor}. These classes are called internally from the \code{QueryExecution} class. Implementing classes are in Java package \code{cz.cuni.mff.odcleanstore.queryexecution}.
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/dia-qe.png}
+    \caption{Diagram of main Query Execution classes}
+	\label{fig:qeClasses}
+\end{figure}
 
 For each query, the following steps are executed: input is validated, result quads retrieved from the database, metadata and labels are retrieved from the database and conflict resolution is applied to the result.
 
 To improve performance, values that are used for each query but rarely changed are cached. Cached values are: default aggregation settings, prefix mappings and label properties.
 
 \section{Extending}
+\label{sec:qeExtending}
 In order to implement a new type of query, the following steps should be taken:
 
 \begin{enumerate}
@@ -421,18 +552,144 @@ In addition, \QE loads settings from the following tables in relational database
 \chapter{Conflict Resolution}
 \label{sec:CR}
 
+\section{Purpose}
+\section{Interface}
+\section{Implementation}
+\section{Extending}
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{Transformers}
+\chapter{Transformers -- Introduction}
+In this section, by a transformer we mean a Java class implementing the \code{Transformer} interface shown in \lstlistingname~\ref{lst:transformer} (and other related classes used for implementation).
+
+\begin{lstlisting}[caption={Transformer interface},label=lst:transformer]
+  package cz.cuni.mff.odcleanstore.transformer;
+  public interface Transformer {
+    void transformGraph(TransformedGraph inputGraph, TransformationContext context)
+         throws TransformerException;
+
+    void shutdown() throws TransformerException;
+}
+\end{lstlisting}
+
+The purpose of a transformer is to somehow process data. The data are not passed in memory, but rather stored in the (dirty) database instance and only the URI of the named graph to be processed and connection credentials for accessing the database are given to the transformer. This should minimize the need of complicated interfaces for data passing, make it easier to work with large data, let the transformer choose its own method of accessing the database and give it the full power of SPARQL/SPARUL (as implemented in Virtuoso).
+
+The actual data processing should be implemented in the \code{transformGraph()} method. All required information is passed in its arguments, one with information about the processed graph and one about the environment -- see \lstlistingname{}s~\ref{lst:transformedGraph} and \ref{lst:transformationContext}.
+
+The \code{shutdown} method is called when Engine shuts down and can be used e.g. to release acquired resources.
+
+\begin{lstlisting}[caption={TransformedGraph interface},label=lst:transformedGraph]
+  package cz.cuni.mff.odcleanstore.transformer;
+  import java.util.Collection;
+
+  public interface TransformedGraph {
+    String getGraphName();
+    String getGraphId();
+    String getMetadataGraphName();
+    String getProvenanceMetadataGraphName();
+    Collection<String> getAttachedGraphNames();
+    void addAttachedGraph(String attachedGraphName) throws TransformedGraphException;
+    void deleteGraph() throws TransformedGraphException;
+    boolean isDeleted();
+  }
+\end{lstlisting}
+
+\begin{lstlisting}[caption={TransformationContext interface},label=lst:transformationContext]
+  package cz.cuni.mff.odcleanstore.transformer;
+  import java.io.File;
+  import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+
+  public interface TransformationContext {
+    JDBCConnectionCredentials getDirtyDatabaseCredentials();
+    JDBCConnectionCredentials getCleanDatabaseCredentials();
+    String getTransformerConfiguration();
+    File getTransformerDirectory();
+    EnumTransformationType getTransformationType(); /* NEW or EXISTING */
+  }
+\end{lstlisting}
+
+\section{Transformer Instance Configuration}
+Each instance of a transformer in a pipeline may have its own configuration (for explanation of the difference between \term{transformer} and \term{transformer instance}, see Section \ref{sec:dataProcessing}). From the point of view of a transformer, it is a plain string which can be obtained by calling the \code{getTransformerConfiguration()} method.
+
+This configuration string can be edited in Administration Frontend. The transformer may use the value in any way it needs, e.g. it may contain XML configuration, the recommended practice is to use the Java \code{Properties} file format, however. This format is used by transformers included by default in \odcs unless stated otherwise.
+
+Instances of important transformers (\QA, \DN, \OI) can be also configured by assigning rule groups to them in Administration Frontend.
+
+\section{Contract between Engine and Transformers}
+\label{sec:transformerContract}
+Although Virtuoso doesn't fully support transactions over RDF data, data processing in \odcs is implemented so as to keep data consistent. In order to make it work, however, a contract between Engine and transformers must be satisfied.
+
+The Engine ensures that:
+
+\begin{itemize}
+	\item When a transformer is applied to a transformed graph, no other transformer (in the same nor different pipeline) is applied to it. In other words, the transformed graph is not changed externally while a transformer is working on it.
+	\item If the transformer throws an exception, all changes made in the pipeline on the graph in the dirty database are safely reverted (and the state of the graph is changed to WRONG). The graph may be processed again later. If the transformer was run on a graph already in the clean database, the version in the clean database in intact.
+	\item Transformers may use the directory given by the \code{getTransformerDirectory()} method for they own purposes, e.g. storing temporary files, log files etc. It is a subdirectory named as the ID of the executed transformer instance inside the \quot{working directory} of the transformer (configurable in Administration Frontend).
+
+		Data specific for one transformer instance may be stored in this directory. Data shared by all instances of the same transformer may be stored in the parent directory of that returned by \code{getTransformerDirectory()}. Engine ensures that this parent directory will be the same for all instances of the same transformer (unless working directory is changed in Administration Frontend, of course).
+\end{itemize}
+
+In return, transformers should satisfy:
+
+\begin{itemize}
+  \item Transformers may add/update/delete data in the \code{payload} graph, metadata graph, \code{provenance} graph or attached graphs. It may also add data to new graphs, but the transformer must
+		\begin{enumerate}
+			\item register the graph by calling \code{addAttachedGraph()} \textit{before} it writes any data to it,
+			\item make sure that the name of the new graph is unique in the database (transformer may use the \code{getGraphId()} method to create names unique for each named graph).
+		\end{enumerate}
+		Transformers shouldn't modify contents of the dirty database in any other way.
+	\item Transformers may access the clean database, but should use it only for reading. Because other transformer in the pipeline may fail, the changes executed by the current transformer in the dirty database may be discarded but changes in the clean database would be kept which may cause inconsistencies. The same applies should the transformer execute any other persistent actions.
+	\item Transformer should only use the directory given by \code{getTransformerDirectory()} or its parent directory for accessing the filesystem.
+\end{itemize}
 
 \section{Custom Transformers}
-\todo{co by měly dodržovat - nešahat do čisté db, transakce, registrovat grafy, nesahat jinam do špinavé db atd.}
+\label{sec:customTransformers}
+The administrator may extend data-processing capabilities of \odcs by adding new custom transformers. How to do so is described in \refadminmanual.
+
+From the technical point of view, a transformer implementation must implement the \code{Transformer} interface. This interface and other necessary classes are included in maven artifact \code{odcs-core}, so that only this artifact need to be referenced.
+
+Note that custom transformers should satisfy conditions listed in Section \ref{sec:transformerContract}.
+
+\chapter{Transformers included in ODCleanStore}
+
 \section{Quality Assessment \& Quality Aggregator}
 \section{Data Normalization}
 \section{Linker}
 \section{Other Transformers}
 \subsection{Blank Node Remover}
-\subsection{Last Update Marker}
+Blank Node Remover is a simple transformer for replacing of blank nodes in the \code{payload} graph with unique URI resources. It is implemened in class \code{ODCSBNodeToResourceTransformer}.
+
+The generated URIs have format {\varcode{prefix}\varcode{random UUID}-\varcode{Virtuoso nodeID}}. The transformer guarantees that occurrences of the same blank node within the transformed graph
+ will be assigned the same URI, however, occurrences of the blank node in other graphs will be assigned a different URI when they are processed by the transformer.
+
+Value of \code{input\_ws.named\_graphs\_prefix} configuration option concatenated with \quot{genResource/} is used as the default value of the \varcode{prefix} part. It can be overriden by \code{uriPrefix} option in transformer instance configuration.
+
+\subsubsection{Configuration}
+Possible configuration options for an instance of this transformer:
+\begin{configlist}
+	\item[uriPrefix] Sets the prefix of URIs generated in place of blank nodes.
+\end{configlist}
+
+\subsection{Latest Update Marker}
+Latest Update Marker is an internal transformer for marking the latest version of a named graph with \code{odcs:isLatestUpdate} property. The marker may be used when accessing the clean database directly through the SPARQL endpoint. Latest Update Marker is implemented in class \code{ODCSLatestUpdateMarkerTransformer}.
+
+A named graph $A$ is considered an update of named graph $B$ if:
+\begin{enumerate}
+		\item Named graphs $A$ and $B$ have the same update tag, or both have an unspecified (\code{null}) update tag.
+	  \item Named graphs $A$ and $B$ were inserted by the same (SCR) user.
+	  \item Named graphs $A$ and $B$ have the same set of sources in metadata.
+\end{enumerate}
+
+The transformed graph will be labeled as the latest version by adding  the triple\linebreak \varcode{payload-graph}-\code{odcs:isLatestUpdate}-\quot{1}. If it updates another graph in the clean database, the other graph will be unmarked as being the latest version.
+
+This transformer is automatically added by Engine to the end of every pipeline. This is neccessary because the transformer may modify the clean database and therefore should ensure that the pipeline won't fail afterwards.
+
 \subsection{Property Filter}
+Property Filter is an internal transformer for filtering of properties used internally by \odcs from input data. It is implemented in class \code{ODCSPropertyFilterTransformer}.
+
+Property Filter simply removes all triples that have any of the filtered URIs in place of the predicate (see Input Processing in \refusermanual{}) from the \code{payload} and \code{provenance} named graphs.
+
+This transformer is automatically added by Engine as the first transformer of every pipeline.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Administration Frontend}
