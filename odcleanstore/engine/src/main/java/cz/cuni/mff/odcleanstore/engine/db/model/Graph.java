@@ -14,4 +14,5 @@ public final class Graph {
     public boolean isInCleanDb;
     public boolean resetPipelineRequest;
     public String engineUuid;
+    public String namedGraphsPrefix;
 }

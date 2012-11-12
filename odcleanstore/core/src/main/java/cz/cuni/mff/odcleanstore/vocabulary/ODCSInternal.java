@@ -45,9 +45,19 @@ public final class ODCSInternal {
     public static final String metadataGraphUriPrefix = NS_PUBLIC + "metadata/";
 
     /**
-     * Prefix of named graphs where provenance metadata about incoming named graphs are stored.
+     * Infix of named graphs where incoming data are stored. 
      */
-    public static final String provenanceMetadataGraphUriPrefix = NS_PUBLIC + "provenanceMetadata/";
+    public static final String dataGraphUriInfix = "data/";
+    
+    /**
+     * Infix of named graphs where metadata about incoming named graphs are stored.
+     */
+    public static final String metadataGraphUriInfix = "metadata/";
+
+    /**
+     * Infix of named graphs where provenance metadata about incoming named graphs are stored.
+     */
+    public static final String provenanceMetadataGraphUriInfix = "provenanceMetadata/";
     
     /**
      * Prefix of named graphs where ontologies are stored.

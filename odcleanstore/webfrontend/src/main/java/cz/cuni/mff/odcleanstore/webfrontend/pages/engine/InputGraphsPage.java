@@ -82,7 +82,7 @@ public class InputGraphsPage extends FrontendPage
 
 				Boolean link = inputGraph.getStateLabel().equals(EnumGraphState.FINISHED.name());
 
-				String uri = ODCSInternal.dataGraphUriPrefix + inputGraph.UUID;
+				String uri = inputGraph.getNamedGraphsPrefix() + ODCSInternal.dataGraphUriInfix + inputGraph.getUUID();
 				String infoLink = "";
 				try {
 					infoLink =

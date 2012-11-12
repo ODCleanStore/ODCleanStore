@@ -1,12 +1,12 @@
 package cz.cuni.mff.odcleanstore.configuration;
 
-import java.net.URL;
-import java.util.Properties;
-
 import cz.cuni.mff.odcleanstore.configuration.exceptions.IllegalParameterFormatException;
 import cz.cuni.mff.odcleanstore.configuration.exceptions.ParameterNotAvailableException;
 import cz.cuni.mff.odcleanstore.configuration.formats.FormatURL;
 import cz.cuni.mff.odcleanstore.configuration.formats.ParameterFormat;
+
+import java.net.URL;
+import java.util.Properties;
 
 /**
  * Encapsulates InputWS configuration.
@@ -26,15 +26,16 @@ public class InputWSConfig extends ConfigGroup {
     public static final String GROUP_PREFIX = "input_ws" + NAME_DELIMITER;
     
     private URL endpointURL;
+    private URL namedGraphsPrefix;
 
     /**
      *
      * @param endpointURL
      * @param inputDirPath
      */
-    public InputWSConfig(
-            URL endpointURL) {
+    public InputWSConfig(URL endpointURL, URL namedGraphsPrefix) {
         this.endpointURL = endpointURL;
+        this.namedGraphsPrefix = namedGraphsPrefix;
     }
 
     /**
@@ -51,16 +52,24 @@ public class InputWSConfig extends ConfigGroup {
     {
         ParameterFormat<URL> formatURL = new FormatURL();
         URL endpointURL = loadParam(properties, GROUP_PREFIX + "endpoint_url", formatURL);
+        URL namedGraphsPrefix = loadParam(properties, GROUP_PREFIX + "named_graphs_prefix", formatURL);
 
-        return new InputWSConfig(
-                endpointURL);
+        return new InputWSConfig(endpointURL, namedGraphsPrefix);
     }
    
+    /**
+     *
+     * @return
+     */
+    public URL getEndpointURL() {
+        return endpointURL;
+    }
+    
     /**
     *
     * @return
     */
-    public URL getEndpointURL() {
-        return endpointURL;
-    }
+   public URL getNamedGraphsPrefix() {
+       return namedGraphsPrefix;
+   }
 }

@@ -16,6 +16,7 @@ public class InputGraphRowMapper extends CustomRowMapper<InputGraph> {
 				blobToString(rs.getBlob("uuid")),
 				rs.getInt("stateId"),
 				rs.getBoolean("isInCleanDB"),
+				blobToString(rs.getBlob("namedGraphsPrefix")),
 				rs.getInt("engineId"),
 				rs.getInt("pipelineId"),
 				rs.getTimestamp("updated"),

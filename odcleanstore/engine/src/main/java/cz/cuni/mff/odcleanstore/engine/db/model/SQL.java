@@ -108,7 +108,7 @@ import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
      */
     static final String SELECT_WORKING_GRAPH = String.format(Locale.ROOT,
             " SELECT TOP 1 ig.id, ig.uuid, ig.stateId, ig.pipelineId, pi.label, ig.isInCleanDB,"
-                    + " ae.uuid, ig.resetPipelineRequest, pi.authorId"
+                    + " ae.uuid, ig.resetPipelineRequest, pi.authorId, ig.namedGraphsPrefix"
                     + " FROM ODCLEANSTORE.EN_INPUT_GRAPHS ig"
                     + " LEFT JOIN ODCLEANSTORE.EN_ATTACHED_ENGINES ae ON ig.engineId = ae.id"
                     + " LEFT JOIN ODCLEANSTORE.PIPELINES pi ON ig.pipelineId = pi.id"
@@ -130,7 +130,7 @@ import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
      */
     static final String SELECT_QUEUD_GRAPH = String.format(Locale.ROOT,
             " SELECT TOP 1 ig.id, ig.uuid, ig.stateId, ig.pipelineId, pi.label, ig.isInCleanDB,"
-                    + " ae.uuid, ig.resetPipelineRequest, pi.authorId"
+                    + " ae.uuid, ig.resetPipelineRequest, pi.authorId, ig.namedGraphsPrefix"
                     + " FROM ODCLEANSTORE.EN_INPUT_GRAPHS ig"
                     + " LEFT JOIN ODCLEANSTORE.EN_ATTACHED_ENGINES ae ON ig.engineId = ae.id"
                     + " LEFT JOIN ODCLEANSTORE.PIPELINES pi ON ig.pipelineId = pi.id"

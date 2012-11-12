@@ -22,9 +22,10 @@ public class GraphInError extends EntityWithSurrogateKey {
 	public String pipelineLabel;
 	public String stateLabel;
 	public String errorTypeLabel;
+	public String namedGraphsPrefix;
 
 	public GraphInError (
-			Integer id, Integer engineId, Integer pipelineId, String UUID, Integer stateId, Integer errorTypeId, String errorMessage, Boolean isInCleanDB,
+			Integer id, Integer engineId, Integer pipelineId, String UUID, Integer stateId, Integer errorTypeId, String errorMessage, Boolean isInCleanDB, String namedGraphsPrefix,
 			String engineUUID, String pipelineLabel, String stateLabel, String errorTypeLabel) {
 
 		this.id = id;
@@ -35,6 +36,7 @@ public class GraphInError extends EntityWithSurrogateKey {
 		this.errorTypeId = errorTypeId;
 		this.errorMessage = errorMessage;
 		this.isInCleanDB = isInCleanDB;
+		this.namedGraphsPrefix = namedGraphsPrefix;
 
 		this.engineUUID = engineUUID;
 		this.pipelineLabel = pipelineLabel;

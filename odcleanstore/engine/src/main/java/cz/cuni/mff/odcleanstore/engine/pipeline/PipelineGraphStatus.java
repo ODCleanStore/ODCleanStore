@@ -119,6 +119,10 @@ public final class PipelineGraphStatus {
     String getUuid() {
         return graph.uuid;
     }
+    
+    String getNamedGraphsPrefix() {
+        return graph.namedGraphsPrefix;
+    }
 
     EnumGraphState getState() {
         return graph.state;

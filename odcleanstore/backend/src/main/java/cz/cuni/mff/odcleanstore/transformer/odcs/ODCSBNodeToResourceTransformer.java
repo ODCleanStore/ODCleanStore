@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.transformer.odcs;
 
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.shared.Utils;
@@ -7,7 +8,6 @@ import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.Transformer;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
-import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +32,7 @@ public class ODCSBNodeToResourceTransformer implements Transformer {
 
     private static final String URI_PREFIX_KEY = "uriPrefix";
 
-    private static final String DEFAULT_URI_PREFIX = ODCS.getURI() + "genResource/";
+    private static final String DEFAULT_URI_INFIX = "genResource/";
 
     private static final String INSERT_QUERY_OBJECTS = "SPARQL INSERT INTO <%1$s> "
             + "\n { ?s ?p `IRI(fn:concat('%2$s', fn:substring-after(str(?o), 'nodeID://')))` }"
@@ -52,12 +52,14 @@ public class ODCSBNodeToResourceTransformer implements Transformer {
 
         Properties configuration = parseProperties(context.getTransformerConfiguration());
         String prefix = configuration.getProperty(URI_PREFIX_KEY);
+        final String defaultUriPrefix = ConfigLoader.getConfig().getInputWSGroup().getNamedGraphsPrefix() + DEFAULT_URI_INFIX;
+
         if (prefix == null) {
-            prefix = DEFAULT_URI_PREFIX;
+            prefix = defaultUriPrefix;
         } else if (!Utils.isValidIRI(prefix)) {
             LOG.warn("Invalid URI <{}> passed as {} to ODCSBNodeToResourceTransformer - must be a valid URI",
                     prefix, URI_PREFIX_KEY);
-            prefix = DEFAULT_URI_PREFIX;
+            prefix = defaultUriPrefix;
         }
 
         // Make the generated resource URI really unique

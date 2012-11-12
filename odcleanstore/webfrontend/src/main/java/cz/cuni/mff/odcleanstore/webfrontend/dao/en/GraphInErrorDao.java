@@ -38,6 +38,7 @@ public class GraphInErrorDao extends DaoForEntityWithSurrogateKey<GraphInError> 
 			"iGraph.uuid AS uuid, " +
 			"iGraph.stateId AS stateId, " +
 			"iGraph.isInCleanDB AS isInCleanDB, " +
+			"iGraph.namedGraphsPrefix AS namedGraphsPrefix, " +
 			"eGraph.errorTypeId AS errorTypeId, " +
 			"eGraph.errorMessage AS errorMessage," +
 			"engine.uuid AS engineUuid, " +

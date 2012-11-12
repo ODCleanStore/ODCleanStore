@@ -249,9 +249,9 @@ final class PipelineGraphManipulator {
         String inputDirPath = Engine.getCurrent().getDirtyDBImportExportDir();
         String uuid = graphStatus.getUuid();
         
-        String dataGraphURI = ODCSInternal.dataGraphUriPrefix + uuid;
-        String metadataGraphURI = ODCSInternal.metadataGraphUriPrefix + uuid;
-        String provenanceGraphURI = ODCSInternal.provenanceMetadataGraphUriPrefix + uuid;
+        String dataGraphURI = graphStatus.getNamedGraphsPrefix() + ODCSInternal.dataGraphUriInfix + uuid;
+        String metadataGraphURI = graphStatus.getNamedGraphsPrefix() + ODCSInternal.metadataGraphUriInfix + uuid;
+        String provenanceGraphURI = graphStatus.getNamedGraphsPrefix() + ODCSInternal.provenanceMetadataGraphUriInfix + uuid;
         
         String dataBaseUrl = null;
             
@@ -383,9 +383,9 @@ final class PipelineGraphManipulator {
         String uuid = graphStatus.getUuid();
         
         ArrayList<String> graphs = new ArrayList<String>();
-        graphs.add(ODCSInternal.dataGraphUriPrefix + uuid);
-        graphs.add(ODCSInternal.metadataGraphUriPrefix + uuid);
-        graphs.add(ODCSInternal.provenanceMetadataGraphUriPrefix + uuid);
+        graphs.add(graphStatus.getNamedGraphsPrefix() + ODCSInternal.dataGraphUriInfix + uuid);
+        graphs.add(graphStatus.getNamedGraphsPrefix() + ODCSInternal.metadataGraphUriInfix + uuid);
+        graphs.add(graphStatus.getNamedGraphsPrefix() + ODCSInternal.provenanceMetadataGraphUriInfix + uuid);
         graphs.addAll(graphStatus.getAttachedGraphs());
         return graphs.toArray(new String[0]);
     }

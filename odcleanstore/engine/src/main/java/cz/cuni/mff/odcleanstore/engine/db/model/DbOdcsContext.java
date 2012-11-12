@@ -71,6 +71,7 @@ public class DbOdcsContext extends DbContext {
             dbGraph.engineUuid = resultSet.getString(column++);
             dbGraph.resetPipelineRequest = resultSet.getInt(column++) != 0;
             dbGraph.pipeline.authorId = resultSet.getInt(column++);
+            dbGraph.namedGraphsPrefix = resultSet.getString(column++);
             return dbGraph;
         }
         return null;

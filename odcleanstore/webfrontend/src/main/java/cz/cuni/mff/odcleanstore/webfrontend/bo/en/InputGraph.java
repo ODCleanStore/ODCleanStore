@@ -19,13 +19,14 @@ public class InputGraph extends EntityWithSurrogateKey {
 	public Integer engineId;
 	public Integer pipelineId;
 	public Timestamp updated;
+	public String namedGraphsPrefix;
 	
 	public String engineUUID;
 	public String pipelineLabel;
 	public Integer pipelineAuthorId;
 	public String stateLabel;
 	
-	public InputGraph (Integer id, String UUID, Integer stateId, Boolean isInCleanDB, Integer engineId, Integer pipelineId,
+	public InputGraph (Integer id, String UUID, Integer stateId, Boolean isInCleanDB, String namedGraphsPrefix, Integer engineId, Integer pipelineId,
 			Timestamp updated, String engineUUID, String pipelineLabel, Integer pipelineAuthorId, String stateLabel) {
 		
 		super(id);
@@ -36,6 +37,7 @@ public class InputGraph extends EntityWithSurrogateKey {
 		this.engineId = engineId;
 		this.pipelineId = pipelineId;
 		this.updated = updated;
+		this.namedGraphsPrefix = namedGraphsPrefix;
 		
 		this.engineUUID = engineUUID;
 		this.pipelineLabel = pipelineLabel;
@@ -56,6 +58,11 @@ public class InputGraph extends EntityWithSurrogateKey {
 	public Boolean getIsInCleanDB()
 	{
 		return isInCleanDB;
+	}
+	
+	public String getNamedGraphsPrefix()
+	{
+		return namedGraphsPrefix;
 	}
 
 	public Integer getEngineId()

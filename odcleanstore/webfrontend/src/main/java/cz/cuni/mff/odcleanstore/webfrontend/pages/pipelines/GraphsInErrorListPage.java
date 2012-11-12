@@ -150,7 +150,7 @@ public class GraphsInErrorListPage extends LimitedEditingPage {
 					}
 				});
 				item.add(new Label("pipelineLabel"));
-				item.add(new Label("UUID", ODCSInternal.dataGraphUriPrefix + graphInError.UUID));
+				item.add(new Label("UUID", graphInError.namedGraphsPrefix + ODCSInternal.dataGraphUriInfix + graphInError.UUID));
 				item.add(new StateLabel("stateLabel"));
 				item.add(new StringifiedEnumLabel("errorTypeLabel"));
 				item.add(new TruncatedLabel("errorMessage", MAX_LIST_COLUMN_TEXT_LENGTH));

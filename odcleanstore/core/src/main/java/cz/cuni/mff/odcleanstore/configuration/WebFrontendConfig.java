@@ -81,7 +81,7 @@ public class WebFrontendConfig extends ConfigGroup {
     }
     
     public String getOutputWSHost() {
-    	return outputWSHost;
+        return outputWSHost;
     }
 
     public String getDebugDirectoryPath() {

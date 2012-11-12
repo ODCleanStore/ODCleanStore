@@ -37,7 +37,7 @@ public final class TransformedGraph implements cz.cuni.mff.odcleanstore.transfor
             LOG.error(ERROR_NOT_ACTIVE_TRANSFORMER);
             throw new TransformedGraphRuntimeException(ERROR_NOT_ACTIVE_TRANSFORMER);
         }
-        return ODCSInternal.dataGraphUriPrefix + graphStatus.getUuid();
+        return graphStatus.getNamedGraphsPrefix() + ODCSInternal.dataGraphUriInfix + graphStatus.getUuid();
     }
 
     @Override
@@ -57,7 +57,7 @@ public final class TransformedGraph implements cz.cuni.mff.odcleanstore.transfor
             LOG.error(ERROR_NOT_ACTIVE_TRANSFORMER);
             throw new TransformedGraphRuntimeException(ERROR_NOT_ACTIVE_TRANSFORMER);
         }
-        return ODCSInternal.metadataGraphUriPrefix + graphStatus.getUuid();
+        return graphStatus.getNamedGraphsPrefix() + ODCSInternal.metadataGraphUriInfix + graphStatus.getUuid();
     }
 
     @Override
@@ -67,7 +67,7 @@ public final class TransformedGraph implements cz.cuni.mff.odcleanstore.transfor
             LOG.error(ERROR_NOT_ACTIVE_TRANSFORMER);
             throw new TransformedGraphRuntimeException(ERROR_NOT_ACTIVE_TRANSFORMER);
         }
-        return ODCSInternal.provenanceMetadataGraphUriPrefix + graphStatus.getUuid();
+        return graphStatus.getNamedGraphsPrefix() + ODCSInternal.provenanceMetadataGraphUriInfix + graphStatus.getUuid();
     }
 
     @Override
