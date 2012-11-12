@@ -21,6 +21,7 @@ public class CompiledDNRuleRowMapper extends CustomRowMapper<CompiledDNRule>
 		return new CompiledDNRule
 		(
 			rs.getInt("groupId"),
+			blobToString(rs.getBlob("label")),
 			blobToString(rs.getBlob("description"))
 		);
 	}

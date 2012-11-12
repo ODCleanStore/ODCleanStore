@@ -16,7 +16,10 @@ public class DataNormalizationStringRule extends DataNormalizationRule
 	private static final String deleteUnconvertedStringPropertyValueFormat = "{?s <%s> ?o} WHERE {GRAPH $$graph$$ {?s <%s> ?o. FILTER (?o != <%s>(str(?o)))}}";
 
 	public DataNormalizationStringRule(Integer id, Integer groupId, Resource property) throws DataNormalizationException {
-		super(id, groupId, "Convert " + property.getLocalName() + " into " + XSD.xstring.getLocalName(),
+		super(id, groupId,
+				property.getLocalName() + "-string-conversion",
+				"Convert " + property.getLocalName() + " into " + XSD.xstring.getLocalName(),
+				
 				"INSERT",
 				String.format(Locale.ROOT, insertConvertedStringPropertyValueFormat, property.getURI(), XPathFunctions.stringFunction, property.getURI()),
 				"Create proper " + XSD.xstring.getLocalName() + " value for the property " + property.getURI(),

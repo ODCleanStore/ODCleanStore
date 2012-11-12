@@ -14,7 +14,11 @@
 <div class="clear">&nbsp;</div>
 
 <form wicket:id="editQARuleForm">
-	<p>
+    <p>
+        <label for="label">Label:</label>
+        <span class="required"><input wicket:id="label" type="text" id="label"  /></span>
+    </p>
+    <p>
 		<label for="filter">Filter:</label>
 		<span class="required"><textarea wicket:id="filter" id="filter" placeholder="SPARQL WHERE clause, e.g. ?f foaf:name ?name FILTER regex(?name, &quot;[a-z]+ [a-z]+&quot;)" ></textarea></span>
 	</p>

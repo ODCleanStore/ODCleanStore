@@ -37,6 +37,7 @@ public class DNComponentValidator extends CustomValidator {
 			(
 					null, /* Rule ID */
 					null, /* Rule Group ID */
+					"validation-rule",
 					null, /* Rule Description */
 					type.getConvertedInput().getLabel(),
 					modificationValue,

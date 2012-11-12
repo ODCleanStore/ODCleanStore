@@ -106,6 +106,8 @@ public class NewQARulePage extends LimitedEditingPage
 				setResponsePage(new QAGroupDetailPage(groupId));
 			}
 		};
+		
+		form.add(createTextfield("label"));
 
 		TextArea<String> filter = new TextArea<String>("filter");
 		filter.setRequired(true);

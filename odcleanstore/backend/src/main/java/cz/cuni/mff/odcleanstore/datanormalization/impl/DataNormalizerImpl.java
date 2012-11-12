@@ -582,7 +582,7 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 				getDirtyConnection().execute(unmarkTemporaryGraph, modified);
 			}
 		}
-		LOG.info(String.format(Locale.ROOT, "Data Normalization rule %d applied: %s", rule.getId(), rule.getDescription() != null ? rule.getDescription() : ""));
+		LOG.info(String.format(Locale.ROOT, "Data Normalization rule %d applied: %s", rule.getId(), rule.getLabel() != null ? rule.getLabel() : ""));
 	}
 
 	private void performComponents(DataNormalizationRule rule, String graphName) throws DataNormalizationException {

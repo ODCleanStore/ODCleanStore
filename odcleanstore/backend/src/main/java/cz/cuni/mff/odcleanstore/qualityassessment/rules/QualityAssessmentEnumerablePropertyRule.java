@@ -17,6 +17,7 @@ public class QualityAssessmentEnumerablePropertyRule extends
 				groupId,
 				null,
 				0.8,
+				property.getLocalName() + "-values-check",
 				null
 		);
 		

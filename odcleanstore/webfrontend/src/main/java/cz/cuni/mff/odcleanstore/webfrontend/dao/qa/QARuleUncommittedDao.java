@@ -38,13 +38,14 @@ public class QARuleUncommittedDao extends QARuleDao
 		getLookupFactory().getDao(QARulesGroupDao.class).markUncommitted(item.getGroupId());
 		
 		String query = 
-			"INSERT INTO " + getTableName() + " (groupId, filter, description, coefficient) " +
-			"VALUES (?, ?, ?, ?)";
+			"INSERT INTO " + getTableName() + " (groupId, filter, label, description, coefficient) " +
+			"VALUES (?, ?, ?, ?, ?)";
 		
 		Object[] params =
 		{
 			item.getGroupId(),
 			item.getFilter(),
+			item.getLabel(),
 			item.getDescription(),
 			item.getCoefficient()
 		};
@@ -64,16 +65,18 @@ public class QARuleUncommittedDao extends QARuleDao
 		getLookupFactory().getDao(QARulesGroupDao.class).markUncommitted(item.getGroupId());
 		
 		String query =
-			"UPDATE " + getTableName() + " SET filter = ?, description = ?, coefficient = ? WHERE id = ?";
+			"UPDATE " + getTableName() + " SET label = ?, filter = ?, description = ?, coefficient = ? WHERE id = ?";
 		
 		Object[] params =
 		{
+			item.getLabel(),
 			item.getFilter(),
 			item.getDescription(),
 			item.getCoefficient(),
 			item.getId()
 		};
-		
+
+		logger.debug("label: " + item.getLabel());
 		logger.debug("filter: " + item.getFilter());
 		logger.debug("description: " + item.getDescription());
 		logger.debug("coefficient: " + item.getCoefficient());

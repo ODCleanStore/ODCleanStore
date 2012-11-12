@@ -115,6 +115,8 @@ public class DNRuleDetailPage extends LimitedEditingPage
 			}
 		};
 		
+		form.add(createTextfield("label"));
+
 		form.add(createTextarea("description", false));
 		
 		add(form);
