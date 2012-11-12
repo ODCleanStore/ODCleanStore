@@ -88,7 +88,7 @@ public class PipelineGraphTransformerExecutor {
             executeTransformer(ODCSLatestUpdateMarkerTransformerCommand, true);
         } catch (PipelineGraphTransformerExecutorException e) {
             throw e;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw new PipelineGraphTransformerExecutorException(format(ERROR_ITERATE_TRANSFORMERS), null, e);
         }
     }
@@ -126,7 +126,7 @@ public class PipelineGraphTransformerExecutor {
                 } finally {
                     RollingFileAppender.popPreviousLogFile();
                 }
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 LOG.error(e.getMessage(), e);
                 throw new PipelineGraphTransformerExecutorException(
                         format(ERROR_TRANSFORMER_RUN, command), command, e);
@@ -136,7 +136,7 @@ public class PipelineGraphTransformerExecutor {
             
         } catch (PipelineGraphTransformerExecutorException e) {
             throw e;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw new PipelineGraphTransformerExecutorException(
                     format(ERROR_TRANSFORMER_PROCESSING, command), command, e);
         } finally {
@@ -153,7 +153,7 @@ public class PipelineGraphTransformerExecutor {
                 if (transformer != null) {
                     transformer.shutdown();
                 }
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 throw new PipelineGraphTransformerExecutorException(
                         format(ERROR_TRANSFORMER_SHUTDOWN, command), command, e);
             }
