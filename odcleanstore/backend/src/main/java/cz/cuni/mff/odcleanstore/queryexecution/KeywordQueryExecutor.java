@@ -12,7 +12,6 @@ import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
-import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
@@ -232,11 +231,11 @@ import java.util.regex.Pattern;
 
     // CHECKSTYLE:OFF
     /** Pattern matching a valid xsd:dateTime value. */
-    private static final Pattern XSD_DATETIME_PATTERN = Pattern.compile("^-?[0-9]{4}-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?(Z|[+-][0-1][0-9]:[0-5][0-9])?$");
+    //private static final Pattern XSD_DATETIME_PATTERN = Pattern.compile("^-?[0-9]{4}-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?(Z|[+-][0-1][0-9]:[0-5][0-9])?$");
     // CHECKSTYLE:ON
 
     /** Pattern matching a numeric value. */
-    private static final Pattern NUMERIC_PATTERN = Pattern.compile("^[+-]?[0-9]*\\.?[0-9]+$");
+    //private static final Pattern NUMERIC_PATTERN = Pattern.compile("^[+-]?[0-9]*\\.?[0-9]+$");
 
     /** Maximum number of keyword in a contains query. */
     private static final int MAX_CONTAINS_KEYWORDS = 10;
@@ -340,7 +339,7 @@ import java.util.regex.Pattern;
      * @return a literal value equal to the given keyword, considering type
      */
     private static String buildExactMatchExpr(String keywordsQuery) {
-        if (NUMERIC_PATTERN.matcher(keywordsQuery).matches()) {
+        /*if (NUMERIC_PATTERN.matcher(keywordsQuery).matches()) {
             return keywordsQuery;
         }
         Matcher dateTimeMatcher = XSD_DATETIME_PATTERN.matcher(keywordsQuery);
@@ -348,7 +347,7 @@ import java.util.regex.Pattern;
             return (dateTimeMatcher.group(2) != null)
                     ? '"' + keywordsQuery + "\"^^<" + XMLSchema.dateTimeType + '>'
                     : '"' + keywordsQuery + "Z\"^^<" + XMLSchema.dateTimeType + '>'; // Virtuoso won't match without 'Z'
-        }
+        }*/
         String query = (EXACT_MATCH_FILTER_PATTERN.matcher(keywordsQuery).replaceAll(""));
         return '"' + query + '"';
     }
