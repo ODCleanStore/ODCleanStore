@@ -1,5 +1,7 @@
 package cz.cuni.mff.odcleanstore.shared;
 
+import com.hp.hpl.jena.graph.Node;
+
 import java.text.Normalizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -161,6 +163,16 @@ public final class Utils {
         escapedValue = ESCAPE_LITERAL_CHARS_TO_ESCAPE.matcher(escapedValue).replaceAll("\\\\$1");
         
         return escapedValue;
+    }
+    
+    /**
+     * Return the URI identifying a blank node in Virtuoso.
+     * @param bNode blank node
+     * @return URI identifying bNode in Virtuoso
+     * @throws UnsupportedOperationException bNode is not a blank node
+     */
+    public static String getVirtuosoURIForBlankNode(Node bNode) {
+        return "nodeID://" + bNode.getBlankNodeLabel();
     }
         
     /** Disable constructor for a utility class. */

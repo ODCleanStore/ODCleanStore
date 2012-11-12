@@ -10,9 +10,11 @@ import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolution
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
+import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 
+import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 
 import de.fuberlin.wiwiss.ng4j.Quad;
@@ -23,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
@@ -192,69 +195,6 @@ import java.util.regex.Pattern;
             //+ "\n   FILTER (bound(?source))"
             + "\n }"
             + "\n LIMIT %6$d";
-
-    /**
-     * SPARQL query for retrieving labels of resources contained in the result, except for the searched URI
-     * (we get that by {@link #URI_OCCURENCES_QUERY}).
-     *
-     * For the reason why UNIONs and subqueries are used, see {@link #URI_OCCURENCES_QUERY}.
-     *
-     * Must be formatted with arguments: (1) bif:contains match expressionURI, (2) exact match
-     * expression, (3) graph filter clause, (4) label properties, (5) ?labelGraph prefix filter, (6) limit.
-     *
-     * @see QueryExecutorBase#LABEL_PROPERTIES
-     */
-    private static final String LABELS_QUERY = "SPARQL"
-            + "\n DEFINE input:same-as \"yes\""
-            + "\n SELECT ?labelGraph ?r ?labelProp ?label WHERE {{"
-            + "\n SELECT DISTINCT ?labelGraph ?r ?labelProp ?label"
-            + "\n WHERE {"
-            + "\n   {"
-            + "\n     SELECT DISTINCT ?graph ?r"
-            + "\n     WHERE {"
-            + "\n       {"
-            + "\n         GRAPH ?graph {"
-            + "\n           ?r ?p ?o."
-            + "\n           ?o bif:contains %1$s"
-            // + "\n           OPTION (score ?sc)"
-            + "\n         }"
-            + "\n       }"
-            + "\n       UNION"
-            + "\n       {"
-            + "\n         GRAPH ?graph {"
-            + "\n           ?r ?p ?o."
-           // fix of SPARQL compiler error: "sparp_gp_deprecate(): equiv replaces filter but under deprecation"
-            + "\n           FILTER (str(?o) IN (%2$s, %2$s))"
-            + "\n         }"
-            + "\n       }"
-            + "\n       UNION"
-            + "\n       {"
-            + "\n         GRAPH ?graph {"
-            + "\n           ?s ?r ?o."
-            + "\n           ?o bif:contains %1$s"
-            // + "\n           OPTION (score ?sc)"
-            + "\n         }"
-            + "\n       }"
-            + "\n       UNION"
-            + "\n       {"
-            + "\n         GRAPH ?graph {"
-            + "\n           ?s ?r ?o."
-            // fix of SPARQL compiler error: "sparp_gp_deprecate(): equiv replaces filter but under deprecation"
-            + "\n           FILTER (str(?o) IN (%2$s, %2$s))"
-            + "\n         }"
-            + "\n       }"
-            + "\n       %3$s"
-            + "\n     }"
-            + "\n     LIMIT %6$d"
-            + "\n   }"
-            + "\n   GRAPH ?labelGraph {"
-            + "\n     ?r ?labelProp ?label"
-            + "\n   }"
-            + "\n   FILTER (?labelProp IN (%4$s))"
-            + "\n   %5$s"
-            + "\n }"
-            + "\n LIMIT %6$d"
-            + "\n }}";
 
     /**
      * Pattern matching characters removed from the searched keyword for bif:contains match.
@@ -465,7 +405,7 @@ import java.util.regex.Pattern;
                 return createResult(Collections.<CRQuad>emptyList(), new NamedGraphMetadataMap(), canonicalQuery,
                         System.currentTimeMillis() - startTime);
             }
-            quads.addAll(getLabels(containsMatchExpr, exactMatchExpr));
+            quads = addLabels(quads);
 
             // Apply conflict resolution
             NamedGraphMetadataMap metadata = getMetadata(containsMatchExpr, exactMatchExpr);
@@ -526,18 +466,30 @@ import java.util.regex.Pattern;
     }
 
     /**
-     * Return labels of resources returned by {{@link #getKeywordOccurrences(String)} as quads.
-     * @param containsMatchExpr an expression for bif:matches matching the searched keyword(s)
-     * @param exactMatchExpr a value matching the searched keyword for equality
-     * @return labels as quads
+     * Return quads collection enriched with labels of resources returned by {{@link #getKeywordOccurrences(String)} as quads.
+     * @param quads quads already retrieved for the query
+     * @return quads parameter with added label quads
      * @throws DatabaseException query error
      */
-    private Collection<Quad> getLabels(String containsMatchExpr, String exactMatchExpr) throws DatabaseException {
-        return new ArrayList<Quad>();/*
-        String query = String.format(Locale.ROOT, LABELS_QUERY, containsMatchExpr, exactMatchExpr,
-                getGraphFilterClause(), labelPropertiesList, getGraphPrefixFilter("labelGraph"),
-                maxLimit);
-        return getQuadsFromQuery(query, "getLabels()");*/
+    private Collection<Quad> addLabels(Collection<Quad> quads) throws DatabaseException {
+        HashSet<String> resources = new HashSet<String>();
+        for (Quad quad : quads) {
+            Node subject = quad.getSubject();
+            if (subject.isURI()) {
+                resources.add(subject.getURI());
+            } else if (subject.isBlank()) {
+                resources.add(Utils.getVirtuosoURIForBlankNode(subject));
+            }
+
+            Node predicate = quad.getPredicate();
+            if (predicate.isURI()) {
+                resources.add(predicate.getURI());
+            } else if (predicate.isBlank()) {
+                resources.add(Utils.getVirtuosoURIForBlankNode(predicate));
+            }
+        }
+
+        return addLabelsForResources(resources, quads);
     }
 
     /**

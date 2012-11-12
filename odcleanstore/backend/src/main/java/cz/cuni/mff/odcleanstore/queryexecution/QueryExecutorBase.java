@@ -87,7 +87,7 @@ import java.util.TreeSet;
     /**
      * Maximum number of values in a generated argument for the "?var IN (...)" SPARQL construct .
      */
-    private static final int MAX_QUERY_LIST_LENGTH = 20;
+    private static final int MAX_QUERY_LIST_LENGTH = 25;
 
     /**
      * A {@link Node} representing the owl:sameAs predicate.
@@ -130,6 +130,7 @@ import java.util.TreeSet;
      * SPARQL query for retrieving all synonyms (i.e. resources connected by an owl:sameAs path) of a given URI.
      * Must be formatted with arguments: (1) URI, (2) maximum length of owl:sameAs path considered, (3) limit.
      * @see #MAX_SAMEAS_PATH_LENGTH
+     * TODO: ignore links from graphs hidden by Engine?
      */
     private static final String URI_SYNONYMS_QUERY = "SPARQL"
                 + "\n SELECT ?r ?syn"
@@ -160,6 +161,26 @@ import java.util.TreeSet;
             + "\n   FILTER (?publishedBy IN (%1$s))"
             + "\n }"
             + "\n LIMIT %2$d";
+
+    /**
+     * SPARQL query that retrieves labels for given resources.
+     * Must be formatted with arguments: (1) non-empty comma separated list of resource URIs, (2) list of
+     * label properties, (3) ?labelGraph prefix filter, (4) limit.
+     */
+    private static final String LABELS_QUERY = "SPARQL"
+            + "\n DEFINE input:same-as \"yes\""
+            + "\n SELECT ?labelGraph ?r ?labelProp ?label WHERE {{"
+            + "\n SELECT DISTINCT ?labelGraph ?r ?labelProp ?label"
+            + "\n WHERE {"
+            + "\n   GRAPH ?labelGraph {"
+            + "\n     ?r ?labelProp ?label"
+            + "\n     FILTER (?r IN (%1$s))"
+            + "\n     FILTER (?labelProp IN (%2$s))"
+            + "\n   }"
+            + "\n   %3$s"
+            + "\n }"
+            + "\n LIMIT %4$d"
+            + "\n }}";
 
     /**
      * Returns a SPARQL snippet restricting a named graph URI referenced by the given variable to GRAPH_PREFIX_FILTER.
@@ -441,6 +462,12 @@ import java.util.TreeSet;
         return metadata;
     }
 
+    /**
+     * Retrieve scores of publishers for all publishers occurring in given metadata.
+     * @param metadata metadata retrieved for a query
+     * @return map of publishers' scores
+     * @throws DatabaseException database error
+     */
     protected Map<String, Double> getPublisherScores(NamedGraphMetadataMap metadata) throws DatabaseException {
         final int publisherIndex = 1;
         final int scoreIndex = 2;
@@ -509,6 +536,52 @@ import java.util.TreeSet;
             }
         }
         return (count > 0) ? result / count : null;
+    }
+
+    /**
+     * Retrieves labels for given resources, converts them to Quads, adds them to addToCollection and returns it.
+     * @param resourceURIs URIs of resources to retrieve labels for
+     * @param addToCollection collection where retrieved labels are added
+     * @return collection containing contents of addToCollection plus new quads for labels
+     * @throws DatabaseException database error
+     */
+    protected Collection<Quad> addLabelsForResources(Collection<String> resourceURIs, Collection<Quad> addToCollection)
+            throws DatabaseException {
+
+        long startTime = System.currentTimeMillis();
+        Iterable<CharSequence> resourceURIListBuilder =
+                QueryExecutionHelper.getLimitedURIListBuilder(resourceURIs, MAX_QUERY_LIST_LENGTH);
+
+        WrappedResultSet resultSet = null;
+        try {
+            for (CharSequence resourceURIList : resourceURIListBuilder) {
+                String query = String.format(Locale.ROOT, LABELS_QUERY, resourceURIList, labelPropertiesList,
+                        getGraphPrefixFilter("labelGraph"), maxLimit);
+
+                long queryStartTime = System.currentTimeMillis();
+                resultSet = getConnection().executeSelect(query);
+                LOG.debug("Query Execution: {} query took {} ms",
+                        "getLabelsForResources()", System.currentTimeMillis() - queryStartTime);
+
+                while (resultSet.next()) {
+                    // CHECKSTYLE:OFF
+                    Quad quad = new Quad(
+                            resultSet.getNode(1),
+                            resultSet.getNode(2),
+                            resultSet.getNode(3),
+                            resultSet.getNode(4));
+                    addToCollection.add(quad);
+                    // CHECKSTYLE:ON
+                }
+
+                resultSet.closeQuietly();
+            }
+        } catch (SQLException e) {
+            resultSet.closeQuietly();
+            throw new QueryException(e);
+        }
+        LOG.debug("Query Execution: {} in {} ms", "getLabelsForResources()", System.currentTimeMillis() - startTime);
+        return addToCollection;
     }
 
     /**

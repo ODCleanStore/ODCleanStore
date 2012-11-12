@@ -14,6 +14,7 @@ import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 
+import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 
 import de.fuberlin.wiwiss.ng4j.Quad;
@@ -24,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
@@ -194,74 +196,6 @@ import java.util.Set;
             + "\n LIMIT %5$d";
 
     /**
-     * SPARQL query for retrieving labels of resources contained in the result, except for the searched URI
-     * (we get that by {@link #URI_OCCURENCES_QUERY}).
-     *
-     * For the reason why UNIONs and subqueries are used, see {@link #URI_OCCURENCES_QUERY}.
-     *
-     * Must be formatted with arguments: (1) URI, (2) graph filter clause, (3) label properties, (4) ?labelGraph prefix
-     * filter, (5) limit.
-     *
-     * @see QueryExecutorBase#LABEL_PROPERTIES
-     */
-    private static final String LABELS_QUERY = "SPARQL"
-            + "\n DEFINE input:same-as \"yes\""
-            + "\n SELECT ?labelGraph ?r ?labelProp ?label WHERE {{"
-            + "\n SELECT DISTINCT ?labelGraph ?r ?labelProp ?label"
-            + "\n WHERE {"
-            + "\n   {"
-            + "\n     SELECT DISTINCT ?graph ?r"
-            + "\n     WHERE {"
-            + "\n       {"
-            + "\n         GRAPH ?graph {"
-            + "\n           ?s ?p ?r."
-            + "\n           FILTER (?s = <%1$s>)"
-            + "\n         }"
-            + "\n         %2$s"
-            + "\n         FILTER (!isLITERAL(?r) && ?p != <" + OWL.sameAs + ">)"
-            + "\n       }"
-            + "\n       UNION"
-            + "\n       {"
-            + "\n         GRAPH ?graph {"
-            + "\n           ?s ?r ?o."
-            + "\n           FILTER (?s = <%1$s>)"
-            + "\n           FILTER (?r != <" + OWL.sameAs + ">)"
-            + "\n         }"
-            + "\n         %2$s"
-            + "\n       }"
-            + "\n       UNION"
-            + "\n       {"
-            + "\n         GRAPH ?graph {"
-            + "\n           ?r ?p ?o."
-            + "\n           FILTER (?o = <%1$s>)"
-            + "\n         }"
-            + "\n         %2$s"
-            + "\n         FILTER (?p != <" + OWL.sameAs + ">)"
-            + "\n       }"
-            + "\n       UNION"
-            + "\n       {"
-            + "\n         GRAPH ?graph {"
-            + "\n           ?s ?r ?o."
-            // fix of SPARQL compiler error: "sparp_gp_deprecate(): equiv replaces filter but under deprecation"
-            + "\n           FILTER (?o IN (<%1$s>, <%1$s>))"
-            + "\n           FILTER (?r != <" + OWL.sameAs + ">)"
-            + "\n         }"
-            + "\n         %2$s"
-            + "\n       }"
-            + "\n       FILTER(?r != <%1$s>)"
-            + "\n     }"
-            + "\n     LIMIT %5$d"
-            + "\n   }"
-            + "\n   GRAPH ?labelGraph {"
-            + "\n     ?r ?labelProp ?label"
-            + "\n   }"
-            + "\n   FILTER (?labelProp IN (%3$s))"
-            + "\n   %4$s"
-            + "\n }"
-            + "\n LIMIT %5$d"
-            + "\n }}";
-
-    /**
      * Creates a new instance of UriQueryExecutor.
      * @param connectionCredentials connection settings for the SPARQL endpoint that will be queried
      * @param constraints constraints on triples returned in the result
@@ -307,7 +241,7 @@ import java.util.Set;
                 return createResult(Collections.<CRQuad>emptyList(), new NamedGraphMetadataMap(), uri,
                         System.currentTimeMillis() - startTime);
             }
-            quads.addAll(getLabels(uri));
+            quads = addLabels(quads, uri);
 
             // Apply conflict resolution
             NamedGraphMetadataMap metadata = getMetadata(uri);
@@ -366,16 +300,43 @@ import java.util.Set;
     }
 
     /**
-     * Return labels of resources returned by {{@link #getURIOccurrences(String)} as quads.
+     * Return quads collection enriched with labels of resources returned by {{@link #getURIOccurrences(String)} as quads.
+     * @param quads quads already retrieved for the query
      * @param uri searched URI
-     * @return labels as quads
+     * @return quads parameter with added label quads
      * @throws DatabaseException query error
      */
-    private Collection<Quad> getLabels(String uri) throws DatabaseException {
-        return new ArrayList<Quad>();/*
-        String query = String.format(Locale.ROOT, LABELS_QUERY, uri, getGraphFilterClause(),
-                labelPropertiesList, getGraphPrefixFilter("labelGraph"), maxLimit);
-        return getQuadsFromQuery(query, "getLabels()");*/
+    private Collection<Quad> addLabels(Collection<Quad> quads, String uri) throws DatabaseException {
+        long startTime = System.currentTimeMillis();
+        HashSet<String> resources = new HashSet<String>();
+        for (Quad quad : quads) {
+            Node subject = quad.getSubject();
+            if (subject.isURI()) {
+                resources.add(subject.getURI());
+            } else if (subject.isBlank()) {
+                resources.add(Utils.getVirtuosoURIForBlankNode(subject));
+            }
+
+            Node predicate = quad.getPredicate();
+            if (predicate.isURI()) {
+                resources.add(predicate.getURI());
+            } else if (predicate.isBlank()) {
+                resources.add(Utils.getVirtuosoURIForBlankNode(predicate));
+            }
+
+            Node object = quad.getObject();
+            if (object.isURI()) {
+                resources.add(object.getURI());
+            } else if (object.isBlank()) {
+                resources.add(Utils.getVirtuosoURIForBlankNode(object));
+            }
+        }
+        resources.remove(uri);
+        resources.remove(OWL.sameAs);
+        LOG.debug("Query Execution: addLabels() for {} resources (found in {} ms)",
+                resources.size(), System.currentTimeMillis() - startTime);
+
+        return addLabelsForResources(resources, quads);
     }
 
     /**
