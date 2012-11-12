@@ -190,7 +190,7 @@ public class PipelineGraphTransformerExecutor {
         File file = new File(command.workDirPath, Integer.toString(command.transformerInstanceID));
         String path = file.getPath();
         try {
-            return FileUtils.satisfyDirectory(path);
+            return FileUtils.satisfyDirectory(path, ".");
         } catch (Exception e) {
             throw new PipelineGraphTransformerExecutorException(
                     format(ERROR_WORKING_DIRECTORY_CHECK, command), command, e);
