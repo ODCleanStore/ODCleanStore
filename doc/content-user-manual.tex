@@ -266,7 +266,7 @@ Several transformers are included in ODCleanStore by default. This section provi
 \subsubsection{Blank Node Remover}
 This transformer replaces all blank nodes in \code{payload} named graph with unique URI resources. The transformer guarantees that occurrences of the same blank node withing the transformed graph (and only this graph) will be assigned the same URI.
 
-The URIs generated in place of blank nodes have form \varcode{prefix}\varcode{randomUUID}-\varcode{node number}. The prefix may be given in \code{Configuration} field of the transformer instance as \quot{\code{uriPrefix=}\varcode{URI prefix}} on a single line. If the prefix is not specified, the default value \code{odcs:genResource/} is used.
+The URIs generated in place of blank nodes have form \varcode{prefix}\varcode{randomUUID}-\varcode{node number}. The prefix may be given in \code{Configuration} field of the transformer instance as \quot{\code{uriPrefix=}\varcode{URI prefix}} on a single line. If the prefix is not specified, the concatenation of \code{input_ws.named_graphs_prefix} configuration option value and \quot{getResource} is used as the default value.
 
 \section{Transformer Rules}
 \label{sec:transformerRules}
