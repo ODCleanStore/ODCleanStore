@@ -44,7 +44,6 @@ public class ConfigBuilderTest {
 	@Test
 	public void testCreateConfigFile() throws TransformerException, ParserConfigurationException, SAXException,
 	IOException, ConfigurationException {
-		List<SilkRule> rules = new ArrayList<SilkRule>();
 		SilkRule rule = new SilkRule();
 		rule.setLabel(RULE_LABEL);
 		rule.setLinkType(RULE_TYPE);
@@ -61,8 +60,6 @@ public class ConfigBuilderTest {
 		outputs.add(output);
 		rule.setOutputs(outputs);
 
-		rules.add(rule);
-
 		List<RDFprefix> prefixes = new ArrayList<RDFprefix>();
 		prefixes.add(new RDFprefix("rdf:", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"));
 		prefixes.add(new RDFprefix("rdfs:", "http://www.w3.org/2000/01/rdf-schema#"));
@@ -72,6 +69,7 @@ public class ConfigBuilderTest {
 
 		Properties properties = Mockito.mock(Properties.class);
 		Mockito.when(properties.getProperty(ObjectIdentificationConfig.GROUP_PREFIX + "link_within_graph")).thenReturn("false");
+		Mockito.when(properties.getProperty(ObjectIdentificationConfig.GROUP_PREFIX + "link_attached_graphs")).thenReturn("false");
         Mockito.when(properties.getProperty("db.clean.sparql.endpoint_url")).thenReturn("http://www.google.cz");
         Mockito.when(properties.getProperty("db.dirty_update.sparql.endpoint_url")).thenReturn("http://www.yahoo.com");
         Mockito.when(properties.getProperty("db.dirty_update.sparql.endpoint_username")).thenReturn("Pepa");
@@ -79,7 +77,7 @@ public class ConfigBuilderTest {
 	    ObjectIdentificationConfig config = ObjectIdentificationConfig.load(properties);
 
 	    DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-		File configFile = ConfigBuilder.createLinkConfigFile(rules, prefixes, graph,
+		File configFile = ConfigBuilder.createLinkConfigFile(rule, prefixes, graph.getGraphId(), graph.getGraphName(),
 				context, config, false);
 		Document configDoc = builder.parse(configFile);
 

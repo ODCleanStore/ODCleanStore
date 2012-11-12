@@ -10,7 +10,6 @@ import cz.cuni.mff.odcleanstore.linker.rules.OutputType;
 import cz.cuni.mff.odcleanstore.linker.rules.SilkRule;
 import cz.cuni.mff.odcleanstore.shared.SerializationLanguage;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
-import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 
@@ -119,26 +118,27 @@ public class ConfigBuilder {
 	/**
 	 * Creates linkage configuration file.
 	 *
-	 * File contains RDF prefix definitions, source datasets and linkage rules.
+	 * File contains RDF prefix definitions, source datasets and linkage rule.
 	 *
-	 * @param rawRules list of XML fragments containing linkage rules
+	 * @param rule linkage rule
 	 * @param prefixes list of RDF prefix definitions
-	 * @param inputGraph graph to interlink
+	 * @param graphId id of graph to interlink
+	 * @param graphName URI of graph to interlink
 	 * @param context transformation context
 	 * @return file containing linkage configuration
 	 * @throws TransformerException when anything fails
 	 */
-	public static File createLinkConfigFile(List<SilkRule> rules, List<RDFprefix> prefixes,
-			TransformedGraph inputGraph, TransformationContext context, ObjectIdentificationConfig config,
+	public static File createLinkConfigFile(SilkRule rule, List<RDFprefix> prefixes, String graphId,
+			String graphName, TransformationContext context, ObjectIdentificationConfig config,
 			boolean linkWithinGraph) throws TransformerException {
 		LOG.debug("Creating link configuration file.");
 		Document configDoc;
 		File configFile;
 		try {
-			configDoc = createConfigDoc(rules, prefixes, inputGraph.getGraphName(), inputGraph.getGraphId(), config,
+			configDoc = createConfigDoc(rule, prefixes, graphName, graphId, config,
 					context.getTransformerDirectory(), linkWithinGraph);
 			LOG.debug("Created link configuration document.");
-			configFile = storeConfigDoc(configDoc, context.getTransformerDirectory(), inputGraph.getGraphId());
+			configFile = storeConfigDoc(configDoc, context.getTransformerDirectory(), graphId);
 			LOG.debug("Stored link configuration to temporary file {}", configFile.getAbsolutePath());
 		} catch (Exception e) {
 			throw new TransformerException(e);
@@ -291,27 +291,35 @@ public class ConfigBuilder {
 	}
 
 	private static Element getFirstChild(Element parentElement, String tagName) {
+		return getChild(parentElement, tagName, 1);
+	}
+	
+	private static Element getChild(Element parentElement, String tagName, int order) {
 		NodeList nodeList = parentElement.getElementsByTagName(tagName);
-		if (nodeList.getLength() < 1) {
+		if (nodeList.getLength() < order) {
 			return null;
 		} else {
-			return (Element)nodeList.item(0);
+			return (Element)nodeList.item(order - 1);
 		}
 	}
-
+	
 	private static Element getFirstElement(Document doc, String tagName) {
+		return getElement(doc, tagName, 1);
+	}
+	
+	private static Element getElement(Document doc, String tagName, int order) {
 		NodeList nodeList = doc.getElementsByTagName(tagName);
-		if (nodeList.getLength() < 1) {
+		if (nodeList.getLength() < order) {
 			return null;
 		} else {
-			return (Element)nodeList.item(0);
+			return (Element)nodeList.item(order - 1);
 		}
 	}
 
 	/**
 	 * Creates XML document containing linkage configuration.
 	 *
-	 * @param rawRules list of XML fragments containing linkage rules
+	 * @param rule linkage rule
 	 * @param prefixes list of RDF prefix definitions
 	 * @param inputGraph graph to interlink
 	 * @param context transformation context
@@ -322,7 +330,7 @@ public class ConfigBuilder {
 	 * @throws InvalidLinkageRuleException
 	 * @throws DOMException
 	 */
-	private static Document createConfigDoc(List<SilkRule> rules, List<RDFprefix> prefixes, String graphName,
+	private static Document createConfigDoc(SilkRule rule, List<RDFprefix> prefixes, String graphName,
 			String fileId, ObjectIdentificationConfig config, File transformerDirectory, boolean linkWithinGraph)
 					throws ParserConfigurationException, SAXException, IOException, DOMException,
 					InvalidLinkageRuleException {
@@ -333,8 +341,8 @@ public class ConfigBuilder {
 		configDoc.appendChild(root);
 		root.appendChild(createPrefixes(configDoc, prefixes));
 		root.appendChild(createSources(configDoc, graphName, config));
-		root.appendChild(createLinkageRules(
-				configDoc, rules, fileId, builder, config, transformerDirectory, linkWithinGraph, true));
+		root.appendChild(createLinkageRule(
+				configDoc, rule, fileId, builder, config, transformerDirectory, linkWithinGraph, true));
 
 		return configDoc;
 	}
@@ -408,10 +416,10 @@ public class ConfigBuilder {
 	}
 
 	/**
-	 * Creates XML element containing linkage rules.
+	 * Creates XML element containing linkage rule.
 	 *
 	 * @param doc configuration XML document
-	 * @param rawRules list of XML fragments containing linkage rules
+	 * @param rule linkage rule
 	 * @param context transformation context
 	 * @param graphId unique ID of the interlinked graph - used for unique filenames
 	 * @param builder XML document builder
@@ -420,22 +428,21 @@ public class ConfigBuilder {
 	 * @throws IOException
 	 * @throws InvalidLinkageRuleException
 	 */
-	private static Element createLinkageRules(Document doc, List<SilkRule> rules, String graphId,
+	private static Element createLinkageRule(Document doc, SilkRule rule, String graphId,
 			DocumentBuilder builder, ObjectIdentificationConfig config, File transformerDirectory,
 			boolean linkWithinGraph, boolean filterIDs) throws SAXException, IOException, InvalidLinkageRuleException {
 		Element rulesElement = doc.createElement(CONFIG_XML_INTERLINKS);
-		for (SilkRule rule: rules) {
-			rulesElement.appendChild(createLinkageRule(doc, rule, graphId, builder, config, transformerDirectory, false, filterIDs));
-			if (linkWithinGraph) {
-				rulesElement.appendChild(
-						createLinkageRule(doc, rule, graphId, builder, config, transformerDirectory, true, filterIDs));
-			}
+		
+		rulesElement.appendChild(createLinkageSubRule(doc, rule, graphId, builder, config, transformerDirectory, false, filterIDs));
+		if (linkWithinGraph) {
+			rulesElement.appendChild(
+					createLinkageSubRule(doc, rule, graphId, builder, config, transformerDirectory, true, filterIDs));
 		}
 
 		return rulesElement;
 	}
 
-	private static Element createLinkageRule(Document doc, SilkRule rule, String graphId, DocumentBuilder builder,
+	private static Element createLinkageSubRule(Document doc, SilkRule rule, String graphId, DocumentBuilder builder,
 			ObjectIdentificationConfig config, File transformerDirectory, boolean linkWithinGraph, boolean filterIDs)
 					throws SAXException, IOException, DOMException, InvalidLinkageRuleException {
 		Element ruleElement = doc.createElement(CONFIG_XML_INTERLINK);
@@ -464,7 +471,8 @@ public class ConfigBuilder {
 
 		ruleElement.appendChild(createFilter(doc, rule.getFilterLimit(), rule.getFilterThreshold()));
 
-		ruleElement.appendChild(createOutputs(doc, rule.getOutputs(), graphId, config, transformerDirectory));
+		ruleElement.appendChild(createOutputs(doc, rule.getOutputs(), graphId, config, transformerDirectory,
+				linkWithinGraph));
 
 		return ruleElement;
 	}
@@ -498,17 +506,18 @@ public class ConfigBuilder {
 	}
 
 	private static Element createOutputs(Document doc, List<Output> outputs, String graphId,
-			ObjectIdentificationConfig config, File transformerDirectory)
+			ObjectIdentificationConfig config, File transformerDirectory, boolean linkWithinGraph)
 					throws DOMException, InvalidLinkageRuleException {
 		Element outputsElement = doc.createElement(CONFIG_XML_OUTPUTS);
 		for (Output output: outputs) {
-			outputsElement.appendChild(createOutput(doc, output, graphId, config, transformerDirectory));
+			outputsElement.appendChild(createOutput(doc, output, graphId, config, transformerDirectory,
+					linkWithinGraph));
 		}
 		return outputsElement;
 	}
 
-	private static Element createOutput(Document doc, Output output, String graphId,
-			ObjectIdentificationConfig config, File transformerDirectory) throws InvalidLinkageRuleException {
+	private static Element createOutput(Document doc, Output output, String graphId, ObjectIdentificationConfig config,
+			File transformerDirectory, boolean linkWithinGraph) throws InvalidLinkageRuleException {
 		Element outputElement = doc.createElement(CONFIG_XML_OUTPUT);
 		if (output.getMinConfidence() != null) {
 			outputElement.setAttribute(CONFIG_XML_MIN_CONFIDENCE, output.getMinConfidence().toString());
@@ -523,7 +532,7 @@ public class ConfigBuilder {
 				throw new InvalidLinkageRuleException("Missing file name (file parameter) in output element.");
 			}
 			outputElement.appendChild(createParam(doc, CONFIG_XML_FILE, updateFileName(
-					fileOutput.getName(), graphId, transformerDirectory)));
+					fileOutput.getName(), graphId, transformerDirectory, linkWithinGraph)));
 			if (fileOutput.getFormat() == null) {
 				throw new InvalidLinkageRuleException("Missing file format parameter in output element.");
 			}
@@ -546,7 +555,8 @@ public class ConfigBuilder {
 	 * @param transformerDirectory transformer working directory
 	 * @return unique file name
 	 */
-	private static String updateFileName(String name, String graphId, File transformerDirectory) {
+	private static String updateFileName(String name, String graphId, File transformerDirectory,
+			boolean linkWithinGraph) {
 	    Pattern pattern = Pattern.compile("(.*:)?(.*)(\\..*)?");
 	    Matcher matcher = pattern.matcher(name);
 
@@ -562,7 +572,10 @@ public class ConfigBuilder {
 	        }
 	        // CHECKSTYLE:OFF
 	    }
-	    return new File(transformerDirectory, namePart + graphId + "."  + extension).getAbsolutePath();
+	    
+	    String withinSuffix = (linkWithinGraph ? "within" : "");
+	    
+	    return new File(transformerDirectory, namePart + graphId + withinSuffix + "."  + extension).getAbsolutePath();
 	}
 
 	/**
@@ -612,14 +625,12 @@ public class ConfigBuilder {
 		LOG.info("Creating debug link configuration file.");
 		Document configDoc;
 		File configFile;
-		List<SilkRule> rules = new ArrayList<SilkRule>();
-		rules.add(rule);
 		String randomId = UUID.randomUUID().toString();
 		try {
-			configDoc = createConfigDoc(rules, prefixes, null, randomId, config,
+			configDoc = createConfigDoc(rule, prefixes, null, randomId, config,
 					context.getTransformerDirectory(), config.isLinkWithinGraph());
 			changeSourceToFile(configDoc, inputFileName, language);
-			redirectOutputToFile(configDoc, resultFileName, rule.getOutputs());
+			redirectOutputToFile(configDoc, resultFileName, rule.getOutputs(), config.isLinkWithinGraph());
 			LOG.info("Created link configuration document.");
 			configFile = storeConfigDoc(configDoc, context.getTransformerDirectory(), randomId);
 			LOG.info("Stored link configuration to temporary file {}", configFile.getAbsolutePath());
@@ -630,11 +641,19 @@ public class ConfigBuilder {
 		return configFile;
 	}
 
-	private static void redirectOutputToFile(Document doc, String resultFileName, List<Output> outputs) {
+	private static void redirectOutputToFile(Document doc, String resultFileName, List<Output> outputs,
+			boolean linkWithinGraph) {
 		Element debugOutputsElement = createDebugOutputsElement(doc, resultFileName, outputs);
 		Element ruleElement = getFirstElement(doc, CONFIG_XML_INTERLINK);
 		Element outputsElement = getFirstChild(ruleElement, CONFIG_XML_OUTPUTS);
 		ruleElement.replaceChild(debugOutputsElement, outputsElement);
+		
+		if (linkWithinGraph) {
+			ruleElement = getElement(doc, CONFIG_XML_INTERLINK, 2);
+			debugOutputsElement = createDebugOutputsElement(doc, updateFilenameWithin(resultFileName), outputs);
+			outputsElement = getFirstChild(ruleElement, CONFIG_XML_OUTPUTS);
+			ruleElement.replaceChild(debugOutputsElement, outputsElement);
+		}
 	}
 
 	private static Element createDebugOutputsElement(Document doc, String resultFileName, List<Output> outputs) {
@@ -722,12 +741,10 @@ public class ConfigBuilder {
 		Document configDoc = builder.newDocument();
 		Element root = configDoc.createElement(CONFIG_XML_ROOT);
 		configDoc.appendChild(root);
-		List<SilkRule> ruleList = new ArrayList<SilkRule>();
-		ruleList.add(rule);
 		ObjectIdentificationConfig config = createFakeConfig();
 		root.appendChild(createPrefixes(configDoc, prefixes));
 		root.appendChild(createSources(configDoc, null, config));
-		root.appendChild(createLinkageRules(configDoc, ruleList, null, builder, config, null, false, false));
+		root.appendChild(createLinkageRule(configDoc, rule, null, builder, config, null, false, false));
 		return transformToString(configDoc);	
 	}
 	
@@ -747,7 +764,11 @@ public class ConfigBuilder {
 			fakeURL = new URL("http://example.com");
 		} catch (MalformedURLException e) { /* do nothing */ };
 		SparqlEndpointConnectionCredentials fakeCredentials = new SparqlEndpointConnectionCredentials(fakeURL);
-		ObjectIdentificationConfig config = new ObjectIdentificationConfig(false, fakeCredentials, fakeCredentials);
+		ObjectIdentificationConfig config = new ObjectIdentificationConfig(false, false, fakeCredentials, fakeCredentials);
 		return config;
+	}
+	
+	public static String updateFilenameWithin(String fileName) {
+		return fileName + ".within";
 	}
 }

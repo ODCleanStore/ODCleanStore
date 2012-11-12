@@ -3,9 +3,9 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.prefixes;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import cz.cuni.mff.odcleanstore.data.EnumDatabaseInstance;
-import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.prefixes.Prefix;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoTemplate;
+import cz.cuni.mff.odcleanstore.webfrontend.util.CodeSnippet;
 
 /**
  * The URI Prefix DAO.

@@ -3,7 +3,9 @@
 <div wicket:id="helpWindow"></div>
 
 <div>
-	<a class="placedright button" href="#" wicket:id="manageGroupRules">Back to the group overview</a>
+	<a class="placedright button" href="#" wicket:id="manageGroupRules" title="Show the group overview.">
+		Back to the group overview
+	</a>
 	<div class="clear">&nbsp;</div>
 </div>
 
@@ -12,6 +14,10 @@
 <div class="clear">&nbsp;</div>
 
 <form wicket:id="newDNRuleForm">
+    <p>
+        <label for="label">Label:</label>
+        <span class="required"><input wicket:id="label" type="text" id="label"  /></span>
+    </p>
 	<p>
 		<label for="description">Description:</label>
 		<textarea wicket:id="description" id="description"></textarea>

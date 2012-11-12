@@ -72,11 +72,14 @@ public class LinkerImpl implements Linker {
 	private static final String CONFIG_XML_MEASURE = "measure";
 
 	private static final String LINK_WITHIN_GRAPH_KEY = "linkWithinGraph";
+	private static final String LINK_ATTACHED_GRAPHS_KEY = "linkAttachedGraphs";
 
+	private boolean isFirstInPipeline;
 	private ObjectIdentificationConfig globalConfig;
 	private Integer[] groupIds;
 
-	public LinkerImpl(Integer... groupIds) {
+	public LinkerImpl(boolean isFirstInPipeline, Integer... groupIds) {
+		this.isFirstInPipeline = isFirstInPipeline;
 		this.globalConfig = ConfigLoader.getConfig().getObjectIdentificationConfig();
 		this.groupIds = groupIds;
 	}
@@ -98,12 +101,15 @@ public class LinkerImpl implements Linker {
 
         if (context.getTransformationType() == EnumTransformationType.EXISTING) {
             LOG.info("Linking existing graph: {}", inputGraph.getGraphName());
-            LinkerDao dao;
-            try {
-                dao = LinkerDao.getInstance(context.getCleanDatabaseCredentials(), context.getDirtyDatabaseCredentials());
-                dao.clearGraph(getLinksGraphId(inputGraph));
-            } catch (DatabaseException e) {
-                throw new TransformerException(e);
+            if (isFirstInPipeline) {
+		        LinkerDao dao;
+		        try {
+		            dao = LinkerDao.getInstance(context.getCleanDatabaseCredentials(),
+		            		context.getDirtyDatabaseCredentials());
+		            dao.clearGraph(getLinksGraphId(inputGraph));
+		        } catch (DatabaseException e) {
+		            throw new TransformerException(e);
+		        }
             }
         } else {
             LOG.info("Linking new graph: {}", inputGraph.getGraphName());
@@ -115,19 +121,33 @@ public class LinkerImpl implements Linker {
 			if (rules.isEmpty()) {
 			    LOG.info("Nothing to link.");
 			} else {
-    			List<RDFprefix> prefixes = RDFPrefixesLoader.loadPrefixes(context.getCleanDatabaseCredentials());
+    			List<RDFprefix> prefixes = RDFPrefixesLoader.loadPrefixes(
+    					context.getCleanDatabaseCredentials());
 
     			Properties transformerProperties = parseProperties(context.getTransformerConfiguration());
     			boolean linkWithinGraph = isLinkWithinGraph(transformerProperties);
-
-    			configFile = ConfigBuilder.createLinkConfigFile(
-    					rules, prefixes, inputGraph, context, globalConfig, linkWithinGraph);
-
+    			boolean linkAttachedGraphs = isLinkAttachedGraphs(transformerProperties);
+    			
+    			String graphName = inputGraph.getGraphName();
+    			if (linkAttachedGraphs) {
+    				graphName = createGraphGroup(context, inputGraph);
+    			}
+    			
     			inputGraph.addAttachedGraph(getLinksGraphId(inputGraph));
-
-    			LOG.info("Calling Silk with temporary configuration file: {}", configFile.getAbsolutePath());
-    			Silk.executeFile(configFile, null, Silk.DefaultThreads(), true);
-    			LOG.info("Linking finished.");
+    			
+    			for (SilkRule rule: rules) {
+    				LOG.info("Creating link configuration file for rule: {}", rule.toString());
+    				configFile = ConfigBuilder.createLinkConfigFile(rule, prefixes, inputGraph.getGraphId(), graphName,
+    						context, globalConfig, linkWithinGraph);
+        			LOG.info("Calling Silk with temporary configuration file: {}", configFile.getAbsolutePath());
+        			Silk.executeFile(configFile, null, Silk.DefaultThreads(), true);
+        			LOG.info("Linking by one rule finished.");
+    			}
+    			
+    			if (linkAttachedGraphs) {
+    				deleteGraphGroup(context, graphName);
+    			}  			
+    			LOG.info("Linking by all rules finished.");
 			}
 		} catch (DatabaseException e) {
 			throw new TransformerException(e);
@@ -182,12 +202,14 @@ public class LinkerImpl implements Linker {
 		List<DebugResult> resultList = new ArrayList<DebugResult>();
 		File configFile = null;
 		String resultFileName = null;
+		String resultFileNameWithin = null;
 		try {
 			List<SilkRule> rules = loadRules(context, tableVersion);
 			List<RDFprefix> prefixes = RDFPrefixesLoader.loadPrefixes(context.getCleanDatabaseCredentials());
 			for (SilkRule rule: rules) {
 				resultFileName = createFileName(
 						rule.getId().toString(), context.getTransformerDirectory(), DEBUG_OUTPUT_FILENAME);
+				resultFileNameWithin = ConfigBuilder.updateFilenameWithin(resultFileName);
 				configFile = ConfigBuilder.createDebugLinkConfigFile(rule, prefixes, context, globalConfig,
 						inputFile.getAbsolutePath(), resultFileName, language);
 				Silk.executeFile(configFile, null, Silk.DefaultThreads(), true);
@@ -199,6 +221,15 @@ public class LinkerImpl implements Linker {
 				configFile = null;
 				deleteFile(resultFileName);
 				resultFileName = null;
+				
+				if (globalConfig.isLinkWithinGraph()) {
+					linkedPairs = parseLinkedPairs(resultFileNameWithin);
+					loadLabels(inputFile, linkedPairs, language);
+					loadLabels(context.getCleanDatabaseCredentials(), context.getDirtyDatabaseCredentials(), linkedPairs);
+					resultList.add(new DebugResult(rule.getLabel() + " - links within input", linkedPairs));
+					deleteFile(resultFileNameWithin);
+					resultFileNameWithin = null;
+				}
 			}
 
 		} catch (Exception e) {
@@ -210,6 +241,9 @@ public class LinkerImpl implements Linker {
 			}
 			if (resultFileName != null) {
 				deleteFile(resultFileName);
+			}
+			if (resultFileNameWithin != null) {
+				deleteFile(resultFileNameWithin);
 			}
 		}
 
@@ -378,5 +412,34 @@ public class LinkerImpl implements Linker {
 		} else {
 			return globalConfig.isLinkWithinGraph();
 		}
+	}
+	
+	private boolean isLinkAttachedGraphs(Properties properties) {
+		String property = (String)properties.get(LINK_ATTACHED_GRAPHS_KEY);
+		if (property != null) {
+			return Boolean.parseBoolean(property);
+		} else {
+			return globalConfig.isLinkAttachedGraphs();
+		}
+	}
+	
+	private String createGraphGroup(TransformationContext context, TransformedGraph graph) 
+			throws ConnectionException, QueryException {
+		String groupName = graph.getGraphName() + "group";
+		LOG.info("Creating temporary graph group: {}", groupName);
+		List<String> graphNames = new ArrayList<String>(graph.getAttachedGraphNames());
+		graphNames.add(graph.getGraphName());
+		LinkerDao dao = LinkerDao.getInstance(
+				context.getCleanDatabaseCredentials(), context.getDirtyDatabaseCredentials());
+		dao.createGraphGroup(groupName, graphNames);
+		return groupName;
+	}
+	
+	private void deleteGraphGroup(TransformationContext context, String groupName) 
+			throws ConnectionException, QueryException {
+		LOG.info("Deleting temporary graph group: {}", groupName);
+		LinkerDao dao = LinkerDao.getInstance(
+				context.getCleanDatabaseCredentials(), context.getDirtyDatabaseCredentials());
+		dao.deleteGraphGroup(groupName);
 	}
 }

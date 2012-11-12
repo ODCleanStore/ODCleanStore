@@ -1,16 +1,15 @@
 <?xml version="1.0" ?>
 <project
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-	xmlns="http://maven.apache.org/POM/4.0.0" 
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
 	<modelVersion>4.0.0</modelVersion>
-	
+
 	<groupId>cz.cuni.mff.odcleanstore</groupId>
 	<artifactId>odcs-simplescraper</artifactId>
 	<version>0.3-SNAPSHOT</version>
 	<packaging>jar</packaging>
-	
+
 	<parent>
 		<groupId>cz.cuni.mff.odcleanstore</groupId>
 		<artifactId>odcs</artifactId>
@@ -25,6 +24,7 @@
 			<groupId>cz.cuni.mff.odcleanstore</groupId>
 			<artifactId>odcs-inputclient</artifactId>
 			<version>0.3-SNAPSHOT</version>
+			<type>jar</type>
 		</dependency>
 	</dependencies>
 
@@ -38,4 +38,34 @@
 		</dependencies>
 	</dependencyManagement>
 
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+		</resources>
+		<plugins>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>attached</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>cz.cuni.mff.odcleanstore.simplescraper.App</mainClass>
+						</manifest>
+					</archive>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

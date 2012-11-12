@@ -108,6 +108,8 @@ public class QARuleDetailPage extends LimitedEditingPage
 			}
 		};
 		
+		form.add(createTextfield("label"));
+
 		TextArea<String> filter = new TextArea<String>("filter");
 		filter.setRequired(true);
 		filter.add(new QARuleValidator(ConfigLoader.getConfig().getBackendGroup().getDirtyDBJDBCConnectionCredentials()));

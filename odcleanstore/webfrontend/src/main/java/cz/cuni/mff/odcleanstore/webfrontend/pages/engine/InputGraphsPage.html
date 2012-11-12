@@ -19,16 +19,19 @@
 	</tr>
 
 	<tr wicket:id="graphs">
-		<td wicket:id="UUID">[graph]</td>
+		<td>
+			<span wicket:id="UUIDLabel">[graph]</span>
+			<a href="#" wicket:id="UUIDLink">[graph]</a>
+		</td>
 		<td wicket:id="stateLabel">[state]</td>
 		<td wicket:id="engineUUID">[engine]</td>
 		<td wicket:id="pipelineLabel">[pipeline]</td>
 		<td wicket:id="isInCleanDB" class="centered">[is in clean db]</td>
 		<td wicket:id="updated" class="centered">[updated]</td>
 		<td class="actions">
-			<input wicket:id="detail" type="button" title="Show detail of the graph" value="Detail" />
-			<input wicket:id="rerunGraph" type="button" title="Rerun pipeline" value="Rerun" />
-			<input wicket:id="deleteGraph" type="button" class="delete" title="Delete graph" value="Delete" />
+			<input wicket:id="detail" type="button" title="Show the graph in further details." value="Detail" />
+			<input wicket:id="rerunGraph" type="button" title="Rerun the graphs again via the associated pipeline." value="Rerun" />
+			<input wicket:id="deleteGraph" type="button" class="delete" title="Delete the graph." value="Delete" />
 		</td>
 	</tr>
 </table>

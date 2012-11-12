@@ -66,6 +66,7 @@ public class PipelineGraphTransformerExecutor {
     
     private PipelineGraphStatus graphStatus = null;
     private Transformer currentTransformer = null;
+    private boolean isLinkerImplFirstInPipeline = true;
     
     PipelineGraphTransformerExecutor(PipelineGraphStatus graphStatus) {
         this.graphStatus = graphStatus;
@@ -87,7 +88,7 @@ public class PipelineGraphTransformerExecutor {
             executeTransformer(ODCSLatestUpdateMarkerTransformerCommand, true);
         } catch (PipelineGraphTransformerExecutorException e) {
             throw e;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw new PipelineGraphTransformerExecutorException(format(ERROR_ITERATE_TRANSFORMERS), null, e);
         }
     }
@@ -125,7 +126,8 @@ public class PipelineGraphTransformerExecutor {
                 } finally {
                     RollingFileAppender.popPreviousLogFile();
                 }
-            } catch (Exception e) {
+            } catch (Throwable e) {
+                LOG.error(e.getMessage(), e);
                 throw new PipelineGraphTransformerExecutorException(
                         format(ERROR_TRANSFORMER_RUN, command), command, e);
             }
@@ -134,7 +136,7 @@ public class PipelineGraphTransformerExecutor {
             
         } catch (PipelineGraphTransformerExecutorException e) {
             throw e;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw new PipelineGraphTransformerExecutorException(
                     format(ERROR_TRANSFORMER_PROCESSING, command), command, e);
         } finally {
@@ -151,7 +153,7 @@ public class PipelineGraphTransformerExecutor {
                 if (transformer != null) {
                     transformer.shutdown();
                 }
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 throw new PipelineGraphTransformerExecutorException(
                         format(ERROR_TRANSFORMER_SHUTDOWN, command), command, e);
             }
@@ -165,7 +167,8 @@ public class PipelineGraphTransformerExecutor {
         if (!command.jarPath.equals(".")) {
             transformer = loadCustomTransformer(command);
         } else if (command.fullClassName.equals(LinkerImpl.class.getCanonicalName())) {
-            transformer = new LinkerImpl(this.graphStatus.getOiGroups(command.transformerInstanceID));
+            transformer = new LinkerImpl(isLinkerImplFirstInPipeline, this.graphStatus.getOiGroups(command.transformerInstanceID));
+        	isLinkerImplFirstInPipeline = false;
         } else if (command.fullClassName.equals(QualityAssessorImpl.class.getCanonicalName())) {
             transformer = new QualityAssessorImpl(this.graphStatus.getQaGroups(command.transformerInstanceID));
         } else if (command.fullClassName.equals(DataNormalizerImpl.class.getCanonicalName())) {

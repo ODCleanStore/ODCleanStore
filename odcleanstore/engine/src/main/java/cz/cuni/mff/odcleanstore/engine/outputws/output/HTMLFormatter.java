@@ -312,7 +312,7 @@ public class HTMLFormatter extends ResultFormatterBase {
                     writeRelativeLink(writer, getRequestForKeyword(node.getLiteralLexicalForm()), text, "Keyword query");
                 }
             } else if (node.isBlank()) {
-                String uri = "nodeID://" + node.getBlankNodeLabel();
+                String uri = Utils.getVirtuosoURIForBlankNode(node);
                 assert queryResult.getQuery() != null;
                 if (queryResult.getQuery().equals(uri)) {
                     writer.write("<em>");

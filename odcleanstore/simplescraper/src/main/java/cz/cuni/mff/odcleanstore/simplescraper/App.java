@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.simplescraper;
 
+import cz.cuni.mff.odcleanstore.wsclient.InsertException;
 import cz.cuni.mff.odcleanstore.wsclient.Metadata;
 import cz.cuni.mff.odcleanstore.wsclient.ODCSService;
 
@@ -16,10 +17,10 @@ import java.util.UUID;
 
 /**
  * Example of usage of odcs-inputclient Java client for ODCleanStore Input Webservice.
+ * 
  * @author Petr Jerman
  */
 public final class App {
-    private static final String INPUT_WS_LOCATION = "http://localhost:8088/inputws";
     private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
     private static final String DEFAULT_ENCODING = "UTF-8";
 
@@ -31,27 +32,28 @@ public final class App {
         ODCSService sc;
         Properties props = new Properties();
         try {
-            if (args.length < 2) {
+            if (args.length < 4) {
                 printUsageAndExit();
             }
 
-            File metadataPropertyFile = new File(args[0]);
-            File payloadFile = new File(args[1]);
+            File metadataPropertyFile = new File(args[2]);
+            File payloadFile = new File(args[3]);
             if (!metadataPropertyFile.exists() || !metadataPropertyFile.canRead() || !payloadFile.exists()
                     || !payloadFile.canRead()) {
                 printUsageAndExit();
             }
             File provenanceFile = null;
-            if (args.length > 2) {
-                provenanceFile = new File(args[2]);
+            if (args.length > 4) {
+                provenanceFile = new File(args[4]);
                 if (!provenanceFile.exists() || !provenanceFile.canRead()) {
                     printUsageAndExit();
                 }
             }
-
-            sc = new ODCSService(INPUT_WS_LOCATION);
-
             props.load(new FileInputStream(metadataPropertyFile));
+
+            String odcsServiceLocation = props.getProperty("odcsServiceLocation");
+
+            sc = new ODCSService(odcsServiceLocation);
 
             String uuidString = props.getProperty("uuid");
             UUID uuid = UUID.fromString(uuidString);
@@ -73,9 +75,12 @@ public final class App {
                 metadata.setProvenance(provenancePayload);
             }
 
-            System.out.println("Sending data to ODCleanStore Input Websrvice at\n   " + INPUT_WS_LOCATION);
-            sc.insert("scraper", "reparcs", metadata, payloadFile, "UTF-8");
-            System.out.println("Data has been sent.");
+            System.out.println("Sending data to ODCleanStore Input Webservice at\n   " + odcsServiceLocation);
+            System.out.println();
+            sc.insert(args[0], args[1], metadata, payloadFile, DEFAULT_ENCODING);
+            System.out.println("Data has been sent with UUID " + uuid + ".");
+        } catch (InsertException e) {
+            System.out.format("InsertException\nid:%d\nmessage: %s\nmoreInfo: %s\n", e.getId(), e.getMessage(), e.getMoreInfo());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -98,7 +103,7 @@ public final class App {
 
     private static void printUsageAndExit() {
         System.out.println("Usage: java -jar simplescraper.jar"
-                + " <metadata property file> <RDF payload file> [<RDF provenance metadata file>]");
+                + "<user> <password> <metadata property file> <RDF payload file> [<RDF provenance metadata file>]");
         System.exit(-1);
     }
 

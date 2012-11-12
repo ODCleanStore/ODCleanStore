@@ -2,9 +2,9 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao.en;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
-import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.en.TransformerInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
+import cz.cuni.mff.odcleanstore.webfrontend.util.CodeSnippet;
 
 /**
  * The Transformer instance Row Mapper.

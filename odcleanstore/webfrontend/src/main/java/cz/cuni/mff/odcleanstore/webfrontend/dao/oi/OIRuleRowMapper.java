@@ -23,6 +23,7 @@ public class OIRuleRowMapper extends CustomRowMapper<OIRule>
 			rs.getInt("id"),
 			rs.getInt("groupId"),
 			rs.getString("label"),
+			blobToString(rs.getBlob("description")),
 			rs.getString("linkType"),
 			rs.getString("sourceRestriction"),
 			rs.getString("targetRestriction"),

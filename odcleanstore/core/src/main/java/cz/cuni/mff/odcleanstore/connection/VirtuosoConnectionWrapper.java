@@ -53,7 +53,10 @@ public final class VirtuosoConnectionWrapper {
                     connectionCredentials.getConnectionString(),
                     connectionCredentials.getUsername(),
                     connectionCredentials.getPassword());
-            return new VirtuosoConnectionWrapper(connection);
+            VirtuosoConnectionWrapper wrapper = new VirtuosoConnectionWrapper(connection);
+            // disable log by default in order to prevent log size problems; transactions don't work much with SPARQL anyway 
+            wrapper.adjustTransactionLevel(EnumLogLevel.AUTOCOMMIT); 
+            return wrapper;
         } catch (SQLException e) {
             throw new ConnectionException(e);
         }
@@ -61,6 +64,9 @@ public final class VirtuosoConnectionWrapper {
 
     /** Database connection. */
     private Connection connection;
+    
+    /** Last logging level set by {@link #adjustTransactionLevel(EnumLogLevel)}. */
+    private EnumLogLevel lastLogLevel = null;
 
     /**
      * Query timeout in seconds.
@@ -248,16 +254,24 @@ public final class VirtuosoConnectionWrapper {
 
     /**
      * Adjust transaction logging level and auto commit.
-     * @param logLevel Virtuoso transaction logging level
-     * @param autoCommit enable/disable auto commit
+     * @param logLevel Virtuoso transaction logging level and auto-commit settings
+     * @return old log level or null if the log level is unknown
      * @throws ConnectionException database error
      */
-    public void adjustTransactionLevel(EnumLogLevel logLevel, boolean autoCommit) throws ConnectionException {
+    public EnumLogLevel adjustTransactionLevel(EnumLogLevel logLevel) throws ConnectionException {
+        if (logLevel == null) {
+            return lastLogLevel;
+        }
         try {
             CallableStatement statement = connection.prepareCall(
-                    String.format(Locale.ROOT, "log_enable(%d)", logLevel.getBits()));
+                    String.format(Locale.ROOT, "log_enable(%d, 1)", logLevel.getBits()));
             statement.execute();
-            connection.setAutoCommit(autoCommit);
+            
+            connection.setAutoCommit(logLevel.getAutocommit());
+            
+            EnumLogLevel oldLogLevel = lastLogLevel;
+            lastLogLevel = logLevel;
+            return oldLogLevel;
         } catch (SQLException e) {
             throw new ConnectionException(e);
         }
@@ -348,14 +362,21 @@ public final class VirtuosoConnectionWrapper {
      * @param relativeBase relative URI base for payload
      * @throws QueryException query error
      */
-    public void insertRdfXmlFromFile(File rdfXmlFile, String graphName, String relativeBase) throws QueryException {
-
+    public void insertRdfXmlFromFile(File rdfXmlFile, String graphName, String relativeBase) 
+            throws QueryException, ConnectionException {
+        // Adjust transaction level - important, see Virtuoso manual, section 10.7
+        EnumLogLevel originalLogLevel = adjustTransactionLevel(EnumLogLevel.AUTOCOMMIT);
+        
         String base = (relativeBase == null) ? "" : relativeBase;
         String escapedFileName = rdfXmlFile.getAbsolutePath().replace('\\', '/');
         String statement = "{call DB.DBA.RDF_LOAD_RDFXML("
                 + "file_to_string_output('" + escapedFileName + "'), '" + base + "', '" + graphName + "')}";
 
         executeCall(statement);
+        
+        if (originalLogLevel != null && originalLogLevel != EnumLogLevel.AUTOCOMMIT) {
+            adjustTransactionLevel(originalLogLevel);
+        }
     }
 
     /**
@@ -366,13 +387,21 @@ public final class VirtuosoConnectionWrapper {
      * 
      * @throws QueryException query error
      */
-    public void insertN3FromFile(File ttlFile, String graphName, String relativeBase) throws QueryException {
+    public void insertN3FromFile(File ttlFile, String graphName, String relativeBase)
+            throws QueryException, ConnectionException {
+        // Adjust transaction level - important, see Virtuoso manual, section 10.7
+        EnumLogLevel originalLogLevel = adjustTransactionLevel(EnumLogLevel.AUTOCOMMIT);
+        
         String base = (relativeBase == null) ? "" : relativeBase;
         String escapedFileName = ttlFile.getAbsolutePath().replace('\\', '/');
         String statement = "{call DB.DBA.TTLP(file_to_string_output("
                 + "'" + escapedFileName + "'), '" + base + "', '" + graphName + "', " + TTL_FLAGS + ")}";
 
         executeCall(statement);
+        
+        if (originalLogLevel != null && originalLogLevel != EnumLogLevel.AUTOCOMMIT) {
+            adjustTransactionLevel(originalLogLevel);
+        }
     }
 
     /**

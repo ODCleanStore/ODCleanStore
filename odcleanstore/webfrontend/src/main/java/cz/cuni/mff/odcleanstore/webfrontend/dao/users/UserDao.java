@@ -8,13 +8,13 @@ import java.util.Set;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
-import cz.cuni.mff.odcleanstore.util.CodeSnippet;
-import cz.cuni.mff.odcleanstore.util.EmptyCodeSnippet;
-import cz.cuni.mff.odcleanstore.util.Pair;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.User;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForEntityWithSurrogateKey;
+import cz.cuni.mff.odcleanstore.webfrontend.util.CodeSnippet;
+import cz.cuni.mff.odcleanstore.webfrontend.util.EmptyCodeSnippet;
+import cz.cuni.mff.odcleanstore.webfrontend.util.Pair;
 
 /**
  * The User DAO.

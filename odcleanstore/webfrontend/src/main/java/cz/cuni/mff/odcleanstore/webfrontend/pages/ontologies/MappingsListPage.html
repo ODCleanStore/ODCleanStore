@@ -4,7 +4,9 @@
 
 <wicket:link>
 <div>
-	<a class="placedright button" href="OntologiesListPage.html">Back to the list of ontologies</a>
+	<a class="placedright button" href="OntologiesListPage.html" title="Show all registered ontologies.">
+		Back to the list of ontologies
+	</a>
 	<div class="clear">&nbsp;</div>
 </div>
 </wicket:link>
@@ -24,7 +26,7 @@
 		<td wicket:id="relationType">[relationType]</td>
 		<td wicket:id="targetUri">[targetUri]</td>
 		<td class="centered">
-			<input wicket:id="delete" type="button" value="Delete" class="delete" />
+			<input wicket:id="delete" type="button" value="Delete" class="delete" title="Delete the mapping." />
 		</td>
 	</tr>
 </table>

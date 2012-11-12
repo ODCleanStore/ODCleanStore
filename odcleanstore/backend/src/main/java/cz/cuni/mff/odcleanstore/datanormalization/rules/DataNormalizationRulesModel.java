@@ -21,8 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import virtuoso.jena.driver.VirtModel;
 
-import java.sql.Blob;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,6 +38,7 @@ public class DataNormalizationRulesModel {
 			"components.id AS componentId, " +
 			"components.modification AS modification, " +
 			"rules.description AS description, " +
+			"rules.label AS label, " +
 			"components.description AS componentDescription FROM " +
 			"DB.ODCLEANSTORE.DN_RULES%s AS rules JOIN " +
 			"DB.ODCLEANSTORE.DN_RULE_COMPONENTS%s AS components ON components.ruleId = rules.id JOIN " +
@@ -50,6 +49,7 @@ public class DataNormalizationRulesModel {
 			"types.label AS type, " +
 			"components.id AS componentId, " +
 			"components.modification AS modification, " +
+			"rules.label AS label, " +
 			"rules.description AS description, " +
 			"components.description AS componentDescription FROM " +
 			"DB.ODCLEANSTORE.DN_RULES%s AS rules JOIN " +
@@ -96,7 +96,7 @@ public class DataNormalizationRulesModel {
 			cleanConnection = null;
 		}
 	}
-	
+
 	public DataNormalizationRulesModel (JDBCConnectionCredentials endpoint) {
 		this(endpoint, TableVersion.COMMITTED);
 	}
@@ -124,47 +124,24 @@ public class DataNormalizationRulesModel {
 			 * Fill the collection with rule instances for all records in database.
 			 */
 			while (results.next()) {
-				ResultSet result = results.getCurrentResultSet();
-
-				Integer id = result.getInt("id");
-
-				Integer groupId = result.getInt("groupId");
-
-				Blob typeBlob = result.getBlob("type");
-				String type = new String(typeBlob.getBytes(1, (int)typeBlob.length()));
-				
-				Integer componentId = result.getInt("componentId");
-
-				Blob modificationBlob = result.getBlob("modification");
-				String modification = new String(modificationBlob.getBytes(1, (int)modificationBlob.length()));
-
-				Blob descriptionBlob = result.getBlob("description");
-				String description;
-
-				if (descriptionBlob != null && !result.wasNull()) {
-					description = new String(descriptionBlob.getBytes(1, (int)descriptionBlob.length()));
-				} else {
-					description = null;
-				}
-
-				Blob componentDescriptionBlob = result.getBlob("componentDescription");
-				String componentDescription;
-				
-				if (componentDescriptionBlob != null && !result.wasNull()) {
-					componentDescription = new String(componentDescriptionBlob.getBytes(1, (int)componentDescriptionBlob.length()));
-				} else {
-					componentDescription = null;
-				}
+				Integer id = results.getInt("id");
+				Integer groupId = results.getInt("groupId");
+				String type = results.getNString("type");
+				Integer componentId = results.getInt("componentId");
+				String modification = results.getNString("modification");
+				String label = results.getNString("label");
+				String description = results.getNString("description");
+				String componentDescription = results.getNString("componentDescription");
 
 				if (rules.containsKey(id)) {
 					DataNormalizationRule rule = rules.get(id);
 
 					rule.addComponent(componentId, type, modification, componentDescription);
 				} else {
-					DataNormalizationRule rule = new DataNormalizationRule(id, groupId, description);
-					
+					DataNormalizationRule rule = new DataNormalizationRule(id, groupId, label, description);
+
 					rule.addComponent(componentId, type, modification, componentDescription);
-					
+
 					rules.put(id, rule);
 				}
 			}
@@ -225,7 +202,7 @@ public class DataNormalizationRulesModel {
 			com.hp.hpl.jena.query.ResultSet resultSet = query.execSelect();
 
 			LOG.debug("Generating DN rules for <" + ontologyGraphURI + ">");
-			
+
 			List<DataNormalizationRule> ruleList = new ArrayList<DataNormalizationRule>();
 
 			/**
@@ -236,7 +213,7 @@ public class DataNormalizationRulesModel {
 
 				ruleList.addAll(processOntologyResource(solution.getResource("s"), ontology, ontologyGraphURI));
 			}
-			
+
 			return ruleList;
 		} finally {
 			closeCleanConnection();
@@ -253,7 +230,7 @@ public class DataNormalizationRulesModel {
 			 */
 			if (model.contains(resource, RDFS.range, XSD.xboolean)) {
 				DataNormalizationRule rule = new DataNormalizationBooleanRule(null, null, resource);
-				
+
 				LOG.info("Generated DN rule for boolean");
 
 				ruleList.add(rule);
@@ -264,7 +241,7 @@ public class DataNormalizationRulesModel {
 			 */
 			if (model.contains(resource, RDFS.range, XSD.xstring)) {
 				DataNormalizationRule rule = new DataNormalizationStringRule(null, null, resource);
-				
+
 				LOG.info("Generated DN rule for string");
 
 				ruleList.add(rule);
@@ -275,13 +252,13 @@ public class DataNormalizationRulesModel {
 			 */
 			if (model.contains(resource, RDFS.range, XSD.date)) {
 				DataNormalizationRule rule = new DataNormalizationDateRule(null, null, resource);
-				
+
 				LOG.info("Generated DN rule for date");
 
 				ruleList.add(rule);
 			}
 		}
-		
+
 		return ruleList;
 	}
 }

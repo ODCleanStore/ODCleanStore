@@ -1,6 +1,5 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.onto;
 
-import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Collection;
@@ -8,11 +7,6 @@ import java.util.Collection;
 import org.apache.log4j.Logger;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
-
-import virtuoso.jena.driver.VirtGraph;
-
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
@@ -23,7 +17,6 @@ import cz.cuni.mff.odcleanstore.datanormalization.rules.DataNormalizationRulesMo
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRule;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRulesModel;
 import cz.cuni.mff.odcleanstore.shared.Utils;
-import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponent;
@@ -38,6 +31,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.dn.DNRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARuleDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.qa.QARulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
+import cz.cuni.mff.odcleanstore.webfrontend.util.CodeSnippet;
 
 /**
  * The Ontology Dao.
@@ -48,7 +42,6 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
 public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 {
 	public static final String TABLE_NAME = TABLE_NAME_PREFIX + "ONTOLOGIES";
-	private static final String OUTPUT_LANGUAGE = "RDF/XML-ABBREV";
 	private static final String RULE_GROUP_PREFIX = "Generated from ontology: ";
 	private static final String QA_MAPPING_TABLE_NAME = "QA_RULES_GROUPS_TO_ONTOLOGIES_MAP";
 	private static final String DN_MAPPING_TABLE_NAME = "DN_RULES_GROUPS_TO_ONTOLOGIES_MAP";
@@ -98,39 +91,6 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 	{
 		return super.loadBy("o.id", id);
 	}
-	
-	@Override
-	protected Ontology postLoadBy(Ontology ontology)
-	{
-		ontology.setDefinition(loadRdfData(ontology.getGraphName()));
-		return ontology;
-	}
-	
-	/**
-	 * 
-	 * @param graphName
-	 * @return
-	 */
-	private String loadRdfData(String graphName)
-	{
-		logger.debug("Loading RDF graph: " + graphName);
-
-		VirtGraph graph = new VirtGraph(graphName, getLookupFactory().getCleanDataSource());
-		Model model = ModelFactory.createModelForGraph(graph);
-		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		model.write(stream, OUTPUT_LANGUAGE);
-		String result = null;
-		try
-		{
-			result = stream.toString(Utils.DEFAULT_ENCODING);
-		}
-		catch (UnsupportedEncodingException e)
-		{
-			logger.error("Failed serializing ontology definition", e);
-			// TODO handle
-		}
-		return result;
-	}
 
 	@Override
 	public void save(final Ontology item) throws Exception
@@ -154,12 +114,16 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 
 				// Call after working with RDF in case it fails
 				if (item.getId() == null) {
-					String query = "INSERT INTO " + TABLE_NAME + " (label, description, graphName, authorId) VALUES (?, ?, ?, ?)";
-					jdbcUpdate(query, item.getLabel(), item.getDescription(), item.getGraphName(), item.getAuthorId());
+					String query = "INSERT INTO " + TABLE_NAME 
+							+ " (label, description, graphName, authorId, definition) VALUES (?, ?, ?, ?, ?)";
+					jdbcUpdate(query, item.getLabel(), item.getDescription(), item.getGraphName(), item.getAuthorId(), 
+							item.getDefinition());
 					item.setId(getLastInsertId());
 				} else {
-					String query = "UPDATE " + TABLE_NAME + " SET label = ?, description = ?, graphName = ?, authorId = ? WHERE id = ?";
-					jdbcUpdate(query, item.getLabel(), item.getDescription(), item.getGraphName(), item.getAuthorId(), item.getId());
+					String query = "UPDATE " + TABLE_NAME 
+						+ " SET label = ?, description = ?, graphName = ?, authorId = ?, definition = ? WHERE id = ?";
+					jdbcUpdate(query, item.getLabel(), item.getDescription(), item.getGraphName(), item.getAuthorId(),
+							item.getDefinition(), item.getId());
 				}
 
 				generateRules(item);

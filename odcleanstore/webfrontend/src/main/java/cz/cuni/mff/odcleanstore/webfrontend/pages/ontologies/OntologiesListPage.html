@@ -4,7 +4,9 @@
 
 <wicket:link>
 <div>
-	<a class="placedright button" href="NewOntologyPage.html">Create a new ontology</a>
+	<a class="placedright button" href="NewOntologyPage.html" title="Register a new ontology.">
+		Create a new ontology
+	</a>
 	<div class="clear">&nbsp;</div>
 </div>
 </wicket:link>
@@ -30,11 +32,11 @@
 		<td wicket:id="graphName">[graphName]</td>
 		
 		<td class="actions">
-            <input wicket:id="showEditOntologyPage" type="button" value="Edit" />
-			<input wicket:id="ontologyDetail" type="button" value="Detail" />
-			<input wicket:id="mappings" type="button" value="Mappings" />
-			<input wicket:id="createMappings" type="button" value="Create mappings" />
-			<input wicket:id="deleteOntology" type="button" value="Delete" class="delete" />
+            <input wicket:id="showEditOntologyPage" type="button" value="Edit" title="Edit the ontology." />
+			<input wicket:id="ontologyDetail" type="button" value="Detail" title="Show the ontology in further details." />
+			<input wicket:id="mappings" type="button" value="Mappings" title="Show mappings registered for the ontology." />
+			<input wicket:id="createMappings" type="button" value="Create mappings" title="Create a new mapping for the ontology." />
+			<input wicket:id="deleteOntology" type="button" value="Delete" class="delete" title="Delete the ontology." />
 		</td>
 	</tr>
 </table>

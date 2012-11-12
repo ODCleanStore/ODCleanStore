@@ -404,8 +404,7 @@ final class PipelineGraphManipulator {
             LOG.error(format(ERROR_DELETE_FILE));
         }
     }
-
-    // TODO add logging for service application (will be created) !!!    
+        
     private void safeDeleteFile(File file) {
         try {
             if (file == null) {
@@ -427,7 +426,7 @@ final class PipelineGraphManipulator {
     private VirtuosoConnectionWrapper createDirtyConnection() throws ConnectionException {
         JDBCConnectionCredentials credit = ConfigLoader.getConfig().getEngineGroup().getDirtyDBJDBCConnectionCredentials();
         VirtuosoConnectionWrapper con = VirtuosoConnectionWrapper.createConnection(credit);
-        con.adjustTransactionLevel(EnumLogLevel.STATEMENT_LEVEL, true);
+        con.adjustTransactionLevel(EnumLogLevel.AUTOCOMMIT);
         con.setQueryTimeout(0);
         return con;
     }
@@ -435,7 +434,7 @@ final class PipelineGraphManipulator {
     private VirtuosoConnectionWrapper createCleanConnection() throws ConnectionException {
         JDBCConnectionCredentials credit = ConfigLoader.getConfig().getEngineGroup().getCleanDBJDBCConnectionCredentials();
         VirtuosoConnectionWrapper con = VirtuosoConnectionWrapper.createConnection(credit);
-        con.adjustTransactionLevel(EnumLogLevel.STATEMENT_LEVEL, true);
+        con.adjustTransactionLevel(EnumLogLevel.AUTOCOMMIT);
         con.setQueryTimeout(0);
         return con;
     }

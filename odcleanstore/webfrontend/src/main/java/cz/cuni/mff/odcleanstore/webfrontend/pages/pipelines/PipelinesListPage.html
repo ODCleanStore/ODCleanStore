@@ -4,7 +4,9 @@
 
 <wicket:link>
 <div>
-	<a class="placedright button" href="NewPipelinePage.html">Add a new pipeline</a>
+	<a class="placedright button" href="NewPipelinePage.html" title="Register a new pipeline.">
+		Add a new pipeline
+	</a>
 	<div class="clear">&nbsp;</div>
 </div>
 </wicket:link>
@@ -34,12 +36,12 @@
 		<td wicket:id="isLocked" class="centered">[is locked]</td>
 		
 		<td class="actions">
-			<input wicket:id="showEditPipelinePage" type="button" title="Edit pipeline and assigned transformers" value="Detail" />
-			<input wicket:id="markPipelineDefault" type="button" title="Mark as the default pipeline" value="Make default" />
-			<input wicket:id="lockPipeline" type="button" title="Lock pipeline for graph processing" value="Lock" />
-			<input wicket:id="unlockPipeline" type="button" title="Unlock pipeline for graph processing" value="Unlock" />
-			<input wicket:id="rerunAssociatedGraphs" type="button" title="Rerun pipeline on associated graphs in clean database" value="Rerun" />
-			<input wicket:id="deletePipeline" type="button" class="delete" title="Delete pipeline" value="Delete" />
+			<input wicket:id="showEditPipelinePage" type="button" title="Show the pipeline in further details." value="Detail" />
+			<input wicket:id="markPipelineDefault" type="button" title="Mark the pipeline as the default one." value="Make default" />
+			<input wicket:id="lockPipeline" type="button" title="Lock the pipeline - prevent engine from running graphs through this pipeline (temporarily - until unlocked)." value="Lock" />
+			<input wicket:id="unlockPipeline" type="button" title="Unlock the pipeline - allow engine to run graphs through this pipeline again." value="Unlock" />
+			<input wicket:id="rerunAssociatedGraphs" type="button" title="Process all associated graphs in the clean DB once more." value="Rerun" />
+			<input wicket:id="deletePipeline" type="button" class="delete" title="Delete the pipeline." value="Delete" />
 		</td>
 	</tr>
 </table>

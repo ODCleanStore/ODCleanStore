@@ -27,7 +27,9 @@
 
 <wicket:link>
 <div>
-	<a class="placedright button" href="NewPropertyPage.html">Register a new property</a>
+	<a class="placedright button" href="NewPropertyPage.html" title="Register a new property.">
+		Register a new property
+	</a>
 	<div class="clear">&nbsp;</div>
 </div>
 </wicket:link>
@@ -52,8 +54,8 @@
 		<td wicket:id="multivalueType">true</td>
 		<td wicket:id="aggregationType">LONGEST</td>
 		<td class="actions">
-			<input wicket:id="showEditGlobalAggregationSettingsPage" type="button" value="Edit" />
-			<input wicket:id="deleteProperty" type="button" value="Delete" class="delete" />
+			<input wicket:id="showEditGlobalAggregationSettingsPage" type="button" value="Edit" title="Edit the property." />
+			<input wicket:id="deleteProperty" type="button" value="Delete" class="delete" title="Delete the property." />
 		</td>
 	</tr>
 </table>

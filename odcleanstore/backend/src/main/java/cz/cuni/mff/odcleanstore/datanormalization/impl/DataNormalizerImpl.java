@@ -1,6 +1,5 @@
 package cz.cuni.mff.odcleanstore.datanormalization.impl;
 
-import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
@@ -490,7 +489,7 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 			/**
 			 * Ensure that the graph is either transformed completely or not at all
 			 */
-			getDirtyConnection().adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL, false);
+			//getDirtyConnection().adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL);
 
 			while (i.hasNext()) {
 				DataNormalizationRule rule = i.next();
@@ -503,11 +502,11 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 				}
 			}
 
-			getDirtyConnection().commit();
+			//getDirtyConnection().commit();
 		} catch (DatabaseException e) {
 			throw new DataNormalizationException(e);
-		} catch (SQLException e) {
-			throw new DataNormalizationException(e);
+		//} catch (SQLException e) {
+		//	throw new DataNormalizationException(e);
 		}
 	}
 
@@ -583,7 +582,7 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 				getDirtyConnection().execute(unmarkTemporaryGraph, modified);
 			}
 		}
-		LOG.info(String.format(Locale.ROOT, "Data Normalization rule %d applied: %s", rule.getId(), rule.getDescription() != null ? rule.getDescription() : ""));
+		LOG.info(String.format(Locale.ROOT, "Data Normalization rule %d applied: %s", rule.getId(), rule.getLabel() != null ? rule.getLabel() : ""));
 	}
 
 	private void performComponents(DataNormalizationRule rule, String graphName) throws DataNormalizationException {

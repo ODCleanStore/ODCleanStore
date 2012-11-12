@@ -4,7 +4,9 @@
 
 <wicket:link>
 <div>
-	<a class="placedright button" href="NewTransformerPage.html">Add a new transformer</a>
+	<a class="placedright button" href="NewTransformerPage.html" title="Register a new transformer.">
+		Add a new transformer
+	</a>
 	<div class="clear">&nbsp;</div>
 </div>
 </wicket:link>
@@ -34,8 +36,8 @@
 		<td wicket:id="simpleClassName">[simpleClassName]</td>
 		
 		<td class="actions">
-			<input wicket:id="showEditTransformerPage" type="button" value="Detail" />
-			<input wicket:id="deleteTransformer" type="button" value="Delete" class="delete" />
+			<input wicket:id="showEditTransformerPage" type="button" value="Detail" title="Show the transformer in further details." />
+			<input wicket:id="deleteTransformer" type="button" value="Delete" class="delete" title="Delete the transformer." />
 		</td>
 	</tr>
 	

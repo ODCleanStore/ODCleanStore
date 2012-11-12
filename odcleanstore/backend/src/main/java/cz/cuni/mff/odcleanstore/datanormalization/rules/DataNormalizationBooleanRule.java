@@ -19,7 +19,10 @@ public class DataNormalizationBooleanRule extends DataNormalizationRule {
 	private static final String deleteUnconvertedBoolPropertyValueFormat = "{?s <%s> ?o} WHERE {GRAPH $$graph$$ {?s <%s> ?o. FILTER (" + boolTruePattern + " OR " + boolFalsePattern + ")}}";
 
 	public DataNormalizationBooleanRule (Integer id, Integer groupId, Resource property) throws DataNormalizationException {
-		super(id, groupId, "Convert " + property.getLocalName() + " into " + XSD.xstring.getLocalName(),
+		super(id, groupId,
+				property.getLocalName() + "-bool-conversion",
+				"Convert " + property.getLocalName() + " into " + XSD.xstring.getLocalName(),
+				
 				"INSERT",
 				String.format(Locale.ROOT, insertConvertedTruePropertyValueFormat, property.getURI(), XPathFunctions.boolFunction, property.getURI()),
 				"Create proper " + XSD.xboolean.getLocalName() + " value for the property " + property.getURI() + " (\"1\", \"true\", ...)",

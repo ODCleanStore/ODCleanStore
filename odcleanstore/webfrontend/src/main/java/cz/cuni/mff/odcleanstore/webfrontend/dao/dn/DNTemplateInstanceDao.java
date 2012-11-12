@@ -1,6 +1,5 @@
 package cz.cuni.mff.odcleanstore.webfrontend.dao.dn;
 
-import cz.cuni.mff.odcleanstore.util.CodeSnippet;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.CompiledDNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.CompiledDNRuleComponent;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
@@ -9,6 +8,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNTemplateInstanceCompiler;
 import cz.cuni.mff.odcleanstore.webfrontend.core.DaoLookupFactory;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.DaoForAuthorableEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.SimpleKeyHolder;
+import cz.cuni.mff.odcleanstore.webfrontend.util.CodeSnippet;
 
 /**
  * An abstract parent of all DN template instance DAOs.
@@ -90,7 +90,7 @@ public abstract class DNTemplateInstanceDao<BO extends DNTemplateInstance> exten
 	 */
 	private int saveRawRuleAndGetKey(final CompiledDNRule item) throws Exception
 	{
-		DNRule rule = new DNRule(item.getGroupId(), item.getDescription());
+		DNRule rule = new DNRule(item.getGroupId(), item.getLabel(), item.getDescription());
 		return dnRuleDao.saveAndGetKey(rule);
 	}
 	

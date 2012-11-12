@@ -11,6 +11,7 @@ import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
+import cz.cuni.mff.odcleanstore.queryexecution.impl.QueryExecutionHelper;
 import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
@@ -32,9 +33,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -82,6 +85,11 @@ import java.util.TreeSet;
     private static final int MAX_SAMEAS_PATH_LENGTH = 30;
 
     /**
+     * Maximum number of values in a generated argument for the "?var IN (...)" SPARQL construct .
+     */
+    private static final int MAX_QUERY_LIST_LENGTH = 25;
+
+    /**
      * A {@link Node} representing the owl:sameAs predicate.
      */
     protected static final Node SAME_AS_PROPERTY = Node.createURI(OWL.sameAs);
@@ -122,6 +130,7 @@ import java.util.TreeSet;
      * SPARQL query for retrieving all synonyms (i.e. resources connected by an owl:sameAs path) of a given URI.
      * Must be formatted with arguments: (1) URI, (2) maximum length of owl:sameAs path considered, (3) limit.
      * @see #MAX_SAMEAS_PATH_LENGTH
+     * TODO: ignore links from graphs hidden by Engine?
      */
     private static final String URI_SYNONYMS_QUERY = "SPARQL"
                 + "\n SELECT ?r ?syn"
@@ -138,6 +147,40 @@ import java.util.TreeSet;
                 + "\n   FILTER (?r = <%1$s>)"
                 + "\n }"
                 + "\n LIMIT %3$d";
+
+    /**
+     * SPARQL query that gets the publisher scores for the given publishers.
+     *
+     * Must be formatted with arguments: (1) non-empty comma separated list of publisher URIs, (2) limit.
+     */
+    private static final String PUBLISHER_SCORE_QUERY = "SPARQL"
+            + "\n SELECT"
+            + "\n   ?publishedBy ?score"
+            + "\n WHERE {"
+            + "\n   ?publishedBy <" + ODCS.publisherScore + "> ?score."
+            + "\n   FILTER (?publishedBy IN (%1$s))"
+            + "\n }"
+            + "\n LIMIT %2$d";
+
+    /**
+     * SPARQL query that retrieves labels for given resources.
+     * Must be formatted with arguments: (1) non-empty comma separated list of resource URIs, (2) list of
+     * label properties, (3) ?labelGraph prefix filter, (4) limit.
+     */
+    private static final String LABELS_QUERY = "SPARQL"
+            + "\n DEFINE input:same-as \"yes\""
+            + "\n SELECT ?labelGraph ?r ?labelProp ?label WHERE {{"
+            + "\n SELECT DISTINCT ?labelGraph ?r ?labelProp ?label"
+            + "\n WHERE {"
+            + "\n   GRAPH ?labelGraph {"
+            + "\n     ?r ?labelProp ?label"
+            + "\n     FILTER (?r IN (%1$s))"
+            + "\n     FILTER (?labelProp IN (%2$s))"
+            + "\n   }"
+            + "\n   %3$s"
+            + "\n }"
+            + "\n LIMIT %4$d"
+            + "\n }}";
 
     /**
      * Returns a SPARQL snippet restricting a named graph URI referenced by the given variable to GRAPH_PREFIX_FILTER.
@@ -363,8 +406,8 @@ import java.util.TreeSet;
         LOG.debug("Query Execution: {} query took {} ms", debugName, System.currentTimeMillis() - startTime);
 
         // Build the result
+        NamedGraphMetadataMap metadata = new NamedGraphMetadataMap();
         try {
-            NamedGraphMetadataMap metadata = new NamedGraphMetadataMap();
             while (resultSet.next()) {
                 String namedGraphURI = resultSet.getString(graphIndex);
                 NamedGraphMetadata graphMetadata = metadata.getMetadata(namedGraphURI);
@@ -391,9 +434,6 @@ import java.util.TreeSet;
                     } else if (ODCS.publishedBy.equals(property)) {
                         String object = resultSet.getString(valueIndex);
                         graphMetadata.setPublishers(addToListNullProof(object, graphMetadata.getPublishers()));
-                    } else if (ODCS.publisherScore.equals(property)) {
-                        Double object = resultSet.getDouble(valueIndex);
-                        graphMetadata.setPublisherScores(addToListNullProof(object, graphMetadata.getPublisherScores()));
                     } else if (ODCS.license.equals(property)) {
                         String object = resultSet.getString(valueIndex);
                         graphMetadata.setLicences(addToListNullProof(object, graphMetadata.getLicences()));
@@ -405,13 +445,143 @@ import java.util.TreeSet;
                     LOG.warn("Query Execution: invalid metadata for graph {}", namedGraphURI);
                 }
             }
-            LOG.debug("Query Execution: {} in {} ms", debugName, System.currentTimeMillis() - startTime);
-            return metadata;
         } catch (SQLException e) {
             throw new QueryException(e);
         } finally {
             resultSet.closeQuietly();
         }
+
+        // Add publisher scores
+        Map<String, Double> publisherScores = getPublisherScores(metadata);
+        for (NamedGraphMetadata ngMetadata : metadata.listMetadata()) {
+            Double publisherScore = calculatePublisherScore(ngMetadata, publisherScores);
+            ngMetadata.setTotalPublishersScore(publisherScore);
+        }
+
+        LOG.debug("Query Execution: {} in {} ms", debugName, System.currentTimeMillis() - startTime);
+        return metadata;
+    }
+
+    /**
+     * Retrieve scores of publishers for all publishers occurring in given metadata.
+     * @param metadata metadata retrieved for a query
+     * @return map of publishers' scores
+     * @throws DatabaseException database error
+     */
+    protected Map<String, Double> getPublisherScores(NamedGraphMetadataMap metadata) throws DatabaseException {
+        final int publisherIndex = 1;
+        final int scoreIndex = 2;
+
+        long startTime = System.currentTimeMillis();
+
+        Map<String, Double> publisherScores = new HashMap<String, Double>();
+        for (NamedGraphMetadata ngMetadata : metadata.listMetadata()) {
+            List<String> publishers = ngMetadata.getPublishers();
+            if (publishers != null) {
+                for (String publisher : publishers) {
+                    publisherScores.put(publisher, null);
+                }
+            }
+        }
+
+        Iterable<CharSequence> limitedURIListBuilder =
+                QueryExecutionHelper.getLimitedURIListBuilder(publisherScores.keySet(), MAX_QUERY_LIST_LENGTH);
+        for (CharSequence publisherURIList : limitedURIListBuilder) {
+            String query = String.format(Locale.ROOT, PUBLISHER_SCORE_QUERY, publisherURIList, maxLimit);
+            long queryStartTime = System.currentTimeMillis();
+            WrappedResultSet resultSet = getConnection().executeSelect(query);
+            LOG.debug("Query Execution: getPublisherScores() query took {} ms", System.currentTimeMillis() - queryStartTime);
+
+            try {
+                while (resultSet.next()) {
+                    String publisher = "";
+                    try {
+                        publisher = resultSet.getString(publisherIndex);
+                        Double score = resultSet.getDouble(scoreIndex);
+                        publisherScores.put(publisher, score);
+                    } catch (SQLException e) {
+                        LOG.warn("Query Execution: invalid publisher score for {}", publisher);
+                    }
+                }
+            } catch (SQLException e) {
+                throw new QueryException(e);
+            } finally {
+                resultSet.closeQuietly();
+            }
+        }
+
+        LOG.debug("Query Execution: getPublisherScores() took {} ms", System.currentTimeMillis() - startTime);
+        return publisherScores;
+    }
+
+    /**
+     * Calculates effective average publisher score - returns average of publisher scores or
+     * null if there is none.
+     * @param metadata named graph metadata; must not be null
+     * @param publisherScores map of publisher scores
+     * @return effective publisher score or null if unknown
+     */
+    protected Double calculatePublisherScore(final NamedGraphMetadata metadata, final Map<String, Double> publisherScores) {
+        List<String> publishers = metadata.getPublishers();
+        if (publishers == null) {
+            return null;
+        }
+        double result = 0;
+        int count = 0;
+        for (String publisher : publishers) {
+            Double score = publisherScores.get(publisher);
+            if (score != null) {
+                result += score;
+                count++;
+            }
+        }
+        return (count > 0) ? result / count : null;
+    }
+
+    /**
+     * Retrieves labels for given resources, converts them to Quads, adds them to addToCollection and returns it.
+     * @param resourceURIs URIs of resources to retrieve labels for
+     * @param addToCollection collection where retrieved labels are added
+     * @return collection containing contents of addToCollection plus new quads for labels
+     * @throws DatabaseException database error
+     */
+    protected Collection<Quad> addLabelsForResources(Collection<String> resourceURIs, Collection<Quad> addToCollection)
+            throws DatabaseException {
+
+        long startTime = System.currentTimeMillis();
+        Iterable<CharSequence> resourceURIListBuilder =
+                QueryExecutionHelper.getLimitedURIListBuilder(resourceURIs, MAX_QUERY_LIST_LENGTH);
+
+        WrappedResultSet resultSet = null;
+        try {
+            for (CharSequence resourceURIList : resourceURIListBuilder) {
+                String query = String.format(Locale.ROOT, LABELS_QUERY, resourceURIList, labelPropertiesList,
+                        getGraphPrefixFilter("labelGraph"), maxLimit);
+
+                long queryStartTime = System.currentTimeMillis();
+                resultSet = getConnection().executeSelect(query);
+                LOG.debug("Query Execution: {} query took {} ms",
+                        "getLabelsForResources()", System.currentTimeMillis() - queryStartTime);
+
+                while (resultSet.next()) {
+                    // CHECKSTYLE:OFF
+                    Quad quad = new Quad(
+                            resultSet.getNode(1),
+                            resultSet.getNode(2),
+                            resultSet.getNode(3),
+                            resultSet.getNode(4));
+                    addToCollection.add(quad);
+                    // CHECKSTYLE:ON
+                }
+
+                resultSet.closeQuietly();
+            }
+        } catch (SQLException e) {
+            resultSet.closeQuietly();
+            throw new QueryException(e);
+        }
+        LOG.debug("Query Execution: {} in {} ms", "getLabelsForResources()", System.currentTimeMillis() - startTime);
+        return addToCollection;
     }
 
     /**

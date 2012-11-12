@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:tns="http://inputws.engine.odcleanstore.mff.cuni.cz/" xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.0" targetNamespace="http://inputws.engine.odcleanstore.mff.cuni.cz/">
+
+<xs:element name="insert" type="tns:insert"/>
+<xs:element name="insertResponse" type="tns:insertResponse"/>
+<xs:element name="InsertException" type="tns:InsertException"/>
+
+<xs:complexType name="insert">
+<xs:sequence>
+<xs:element name="user" type="xs:string" />
+<xs:element name="password" type="xs:string"/>
+<xs:element name="metadata" type="tns:metadata"/>
+<xs:element name="payload" type="tns:chunk" minOccurs="1" maxOccurs="unbounded"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="metadata">
+<xs:sequence>
+<xs:element name="pipelineName" type="xs:string" minOccurs="0"/>
+<xs:element name="uuid" type="xs:string"/>
+<xs:element name="publishedBy" type="xs:anyURI" minOccurs="1" maxOccurs="unbounded"/>
+<xs:element name="source" type="xs:anyURI" minOccurs="1" maxOccurs="unbounded"/>
+<xs:element name="license" type="xs:anyURI" minOccurs="0" maxOccurs="unbounded"/>
+<xs:element name="dataBaseUrl" type="xs:anyURI"/>
+<xs:element name="provenance" type="xs:string" minOccurs="0"/>
+<xs:element name="updateTag" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="insertResponse">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="InsertException">
+<xs:sequence>
+<xs:element name="id" type="xs:int"/>
+<xs:element name="message" type="xs:string"/>
+<xs:element name="moreInfo" type="xs:string"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:simpleType name="chunk">
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="4096" />
+    </xs:restriction>
+</xs:simpleType>
+
+</xs:schema>

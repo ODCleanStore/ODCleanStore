@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
-import cz.cuni.mff.odcleanstore.util.Pair;
+import cz.cuni.mff.odcleanstore.webfrontend.util.Pair;
 
 /**
  * Encapsulates advanced criteria of an SQL query - the where

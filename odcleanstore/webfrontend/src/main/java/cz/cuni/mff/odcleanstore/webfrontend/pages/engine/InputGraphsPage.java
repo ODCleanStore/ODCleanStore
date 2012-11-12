@@ -1,8 +1,13 @@
 package cz.cuni.mff.odcleanstore.webfrontend.pages.engine;
 
+import java.io.File;
+
 import org.apache.log4j.Logger;
+import org.apache.wicket.Component;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
+import org.apache.wicket.markup.ComponentTag;
+import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
@@ -20,6 +25,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.DeleteConfirmationMe
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.SortTableButton;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.StateLabel;
+import cz.cuni.mff.odcleanstore.webfrontend.core.components.TemporaryFileResourceLink;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.TimestampLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.core.models.DependentSortableDataProvider;
@@ -75,8 +81,19 @@ public class InputGraphsPage extends FrontendPage
 				boolean isAuthorizedForPipeline = AuthorizationHelper.isAuthorizedForEntityEditing(inputGraph.getPipelineAuthorId());
 
 				item.setModel(new CompoundPropertyModel<InputGraph>(inputGraph));
+				
+				final boolean link = inputGraph.getStateLabel().equals(EnumGraphState.FINISHED.name());
 
-				item.add(new Label("UUID", ODCSInternal.dataGraphUriPrefix + inputGraph.UUID));
+				item.add(new Label("UUIDLabel", ODCSInternal.dataGraphUriPrefix + inputGraph.UUID) {
+
+					private static final long serialVersionUID = 1L;
+					
+					@Override
+					public boolean isVisible() {
+						return !link;
+					}
+				});
+				item.add(createDumpDownloadLink("UUIDLink", inputGraph, link));
 				item.add(new StateLabel("stateLabel"));
 				item.add(new Label("engineUUID") {
 
@@ -168,5 +185,44 @@ public class InputGraphsPage extends FrontendPage
 		add(dataView);
 		
 		add(new UnobtrusivePagingNavigator("navigator", dataView));
+	}
+	
+	private Component createDumpDownloadLink(String componentId, final InputGraph inputGraph, final boolean visible) {
+		final String uri = ODCSInternal.dataGraphUriPrefix + inputGraph.UUID;
+
+		TemporaryFileResourceLink.ITempFileCreator fileCreator = new TemporaryFileResourceLink.ITempFileCreator()
+		{
+			private static final long serialVersionUID = 1L;
+
+			public File createTempFile()
+			{
+				try {
+		            return inputGraphDao.getContentFile(inputGraph.getId());
+		        } catch (Exception e) {
+		            getSession().error("Cannot dump graph");
+		            logger.error(e.getMessage());
+		        }		
+				return null;
+			}
+			
+			public String getFileName()
+			{
+				return String.format("dump-%d.ttl", inputGraph.getId());
+			}
+		};
+
+		return new TemporaryFileResourceLink<InputGraph>(componentId, "text/turtle", fileCreator) {
+			private static final long serialVersionUID = 1L;
+			
+			@Override
+			public void onComponentTagBody(MarkupStream markupStream, ComponentTag openTag) {
+				replaceComponentTagBody(markupStream, openTag, uri);
+			}
+			
+			@Override
+			public boolean isVisible() {
+				return visible;
+			}
+		};
 	}
 }

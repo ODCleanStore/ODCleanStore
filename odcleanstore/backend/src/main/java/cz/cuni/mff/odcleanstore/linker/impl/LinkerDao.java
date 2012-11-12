@@ -114,7 +114,7 @@ public class LinkerDao {
 				connection.closeQuietly();
 			}
 		}		
-		LOG.info("Loaded {} linkage rules.", ruleList.size());
+		LOG.info("Loaded {} linkage rules: {}", ruleList.size(), ruleList.toString());
 		return ruleList;
 	}
 	
@@ -237,5 +237,36 @@ public class LinkerDao {
 			count++;
 		}
 		return result.substring(0, result.length()-2) + ")";
+	}
+	
+	public void createGraphGroup(String groupName, List<String> graphNames) 
+			throws ConnectionException, QueryException {
+		String createQuery = "DB.DBA.RDF_GRAPH_GROUP_CREATE(?, 0)";
+		String insertQuery = "DB.DBA.RDF_GRAPH_GROUP_INS(?, ?)";
+		VirtuosoConnectionWrapper connection = null;
+		try {
+			connection = VirtuosoConnectionWrapper.createConnection(dirtyDBCredentials);
+			connection.execute(createQuery, groupName);
+			for (String graphName: graphNames) {
+				connection.execute(insertQuery, groupName, graphName);
+			}
+		} finally {
+			if (connection != null) {
+				connection.closeQuietly();
+			}
+		}
+	}
+	
+	public void deleteGraphGroup(String groupName) throws ConnectionException, QueryException {
+		String query = "DB.DBA.RDF_GRAPH_GROUP_DROP(?, 0)";
+		VirtuosoConnectionWrapper connection = null;
+		try {
+			connection = VirtuosoConnectionWrapper.createConnection(dirtyDBCredentials);
+			connection.execute(query, groupName);
+		} finally {
+			if (connection != null) {
+				connection.closeQuietly();
+			}
+		}
 	}
 }

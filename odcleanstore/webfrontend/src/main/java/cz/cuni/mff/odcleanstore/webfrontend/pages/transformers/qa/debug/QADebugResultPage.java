@@ -23,8 +23,8 @@ public class QADebugResultPage extends FrontendPage
 	public QADebugResultPage(List<GraphScoreWithTrace> results, Integer ruleGroupId) 
 	{
 		super(
-			"Home > Backend > QA > Groups > Debug results", 
-			"Results of QA rule group debugging"
+			"Home > Backend > Quality Assessment > Groups > Debug results", 
+			"Results of Quality Assessment rule group debugging"
 		);
 			
 		// register page components

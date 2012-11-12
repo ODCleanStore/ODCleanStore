@@ -26,6 +26,82 @@ import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
     // -----------------------------------------------------------------------------------------------//
 
     /**
+     * Select attached engine id for uuid.
+     * @param first engine uuid
+     */
+    static final String SELECT_ATTACHED_ENGINE_ID = 
+            " SELECT TOP 1 ae.id"
+            		+ " FROM ODCLEANSTORE.EN_ATTACHED_ENGINES ae"
+                    + " WHERE ae.uuid = ?";
+
+    static final String ERROR_SELECT_ATTACHED_ENGINE_ID = "Error during selecting engine id";
+
+    /**
+     * Select all importing graph uuids for given engine uuid.
+     * @param first Engine uuid
+     */
+    static final String SELECT_ALL_IMPORTING_GRAPH = String.format(Locale.ROOT,
+            " SELECT ig.uuid"
+            		+ " FROM ODCLEANSTORE.EN_INPUT_GRAPHS ig"
+                    + " LEFT JOIN ODCLEANSTORE.EN_ATTACHED_ENGINES ae ON ig.engineId = ae.id"
+                    + " WHERE ae.uuid = ? AND ig.stateId = %s",
+            EnumGraphState.IMPORTING.toId());
+
+    static final String ERROR_SELECT_ALL_IMPORTING_GRAPH = "Error during selecting all importing graph";
+    
+    /**
+     * Select graph id for uuid.
+     * @param first graph uuid
+     */
+    static final String SELECT_GRAPH_ID = 
+            " SELECT TOP 1 ig.id"
+            		+ " FROM ODCLEANSTORE.EN_INPUT_GRAPHS ig"
+                    + " WHERE ig.uuid = ?";
+
+    static final String ERROR_SELECT_GRAPH_ID = "Error during selecting graph id";
+
+    /**
+     * Insert importing graph.
+     * @param first graph uuid
+     * @param second pipelineId
+     * @param third engineId
+     */
+    static final String INSERT_IMPORTING_GRAPH = String.format(Locale.ROOT,
+            " INSERT"
+                    + " INTO ODCLEANSTORE.EN_INPUT_GRAPHS(uuid, stateId, pipelineId, engineId)"
+                    + " VALUES(?,%s,?,?)",
+            EnumGraphState.IMPORTING.toId());
+
+    static final String ERROR_INSERT_IMPORTING_GRAPH = "Error during inserting importing graph";
+    
+    /**
+     * Delete importing graph from input graphs table.
+     * @param first graph uuid
+     */
+    static final String DELETE_IMPORTING_GRAPH = String.format(Locale.ROOT,
+            " DELETE"
+                    + " FROM ODCLEANSTORE.EN_INPUT_GRAPHS"
+                    + " WHERE uuid = ? AND stateId = %s",
+                    EnumGraphState.IMPORTING.toId());                    
+    
+    static final String ERROR_DELETE_GRAPH = "Error during deleting importing graph";
+    
+    /**
+     * Update importing graph state for given graph uuid to queued.
+     * @param first graph uuid
+     */
+    static final String UPDATE_IMPORTING_GRAPH_STATE_TO_QUEUED = String.format(Locale.ROOT,
+            " UPDATE ODCLEANSTORE.EN_INPUT_GRAPHS"
+                    + " SET stateId = %s"
+                    + " WHERE uuid = ? AND stateId = %s",
+                    EnumGraphState.QUEUED.toId(),
+                    EnumGraphState.IMPORTING.toId());
+    
+    static final String ERROR_UPDATE_IMPORTING_GRAPH_STATE_TO_QUEUED = "Error during update state of importing graph to queued";
+    
+    // -----------------------------------------------------------------------------------------------//   
+    
+    /**
      * Select oldest working graph for given engine uuid.
      * @param first Engine uuid
      */
@@ -91,9 +167,9 @@ import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
             " UPDATE ODCLEANSTORE.EN_INPUT_GRAPHS"
                     + " SET stateId = ?"
                     + " WHERE id = ?");
-
+    
     static final String ERROR_UPDATE_GRAPH_STATE = "Error during updating graph state";
-
+    
     /**
      * Update graph stateId and isCleanDb for given graphId.
      * @param first stateId
@@ -168,6 +244,17 @@ import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
 
     // -----------------------------------------------------------------------------------------------//
 
+    /**
+     * Select pipelineId for pipeline label.
+     * @param first pipeline label 
+     */
+    static final String SELECT_PIPELINE_ID =
+            " SELECT TOP 1 id"
+                    + " FROM ODCLEANSTORE.PIPELINES"
+                    + " WHERE label = ?";
+
+    static final String ERROR_SELECT_PIPELINE_ID = "Error during selecting pipeline id";
+    
     /**
      * Select default pipelineId.
      */
@@ -292,4 +379,19 @@ import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
                     + " VALUES(?,?,?,?,?,?,?)";
 
     static final String ERROR_INSERT_EN_PIPELINE_RESULTS = "Error during inserting pipeline result";
+    
+    // -----------------------------------------------------------------------------------------------//
+
+    /**
+     * Select scraper credentials from users table for given userName.
+     * @param first userName
+     */
+    static final String SELECT_SCRAPER =
+            " SELECT u.passwordHash, u.salt"
+                    + " FROM DB.ODCLEANSTORE.USERS u"
+                    + " JOIN DB.ODCLEANSTORE.ROLES_ASSIGNED_TO_USERS ratu ON ratu.userId  = u.id"
+                    + " JOIN DB.ODCLEANSTORE.ROLES r ON r.id = ratu.roleId"
+                    + " WHERE u.userName = ? AND r.label = 'SCR'";
+    
+    static final String ERROR_SELECT_SCRAPER = "Error during selecting scraper credentials from users table";    
 }

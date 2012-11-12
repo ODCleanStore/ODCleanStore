@@ -16,13 +16,15 @@ public class QualityAssessmentRule implements Serializable {
 	protected Integer groupId;
 	protected String filter;
 	protected Double coefficient;
+	protected String label;
 	protected String description;
 
-	public QualityAssessmentRule (Integer id, Integer groupId, String filter, Double coefficient, String description) {
+	public QualityAssessmentRule (Integer id, Integer groupId, String filter, Double coefficient, String label, String description) {
 		this.id = id;
 		this.groupId = groupId;
 		this.filter = filter;
 		this.coefficient = coefficient;
+		this.label = label;
 		this.description = description;
 	}
 
@@ -59,6 +61,10 @@ public class QualityAssessmentRule implements Serializable {
 	public Double getCoefficient() {
 		return coefficient;
 	}
+	
+	public String getLabel() {
+		return label;
+	}
 
 	public String getDescription() {
 		return description;
@@ -78,6 +84,10 @@ public class QualityAssessmentRule implements Serializable {
 
 	public void setCoefficient(Double coefficient) {
 		this.coefficient = coefficient;
+	}
+	
+	public void setLabel(String label) {
+		this.label = label;
 	}
 
 	public void setDescription(String description) {

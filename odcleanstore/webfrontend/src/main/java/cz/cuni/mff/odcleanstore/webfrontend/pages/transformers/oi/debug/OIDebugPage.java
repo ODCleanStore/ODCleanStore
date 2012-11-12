@@ -32,8 +32,8 @@ public class OIDebugPage extends LimitedEditingPage
 	public OIDebugPage(Integer groupId)
 	{
 		super(
-			"Home > Backend > OI > Groups > Debug", 
-			"Debug OI rule group",
+			"Home > Backend > Linker > Groups > Debug", 
+			"Debug Linker rule group",
 			OIRulesGroupDao.class,
 			groupId
 		);
@@ -53,7 +53,7 @@ public class OIDebugPage extends LimitedEditingPage
 			@Override
 			protected void onSubmit()
 			{
-				Linker linker = new LinkerImpl(groupId);
+				Linker linker = new LinkerImpl(false, groupId);
 				try 
 				{
 					List<DebugResult> results = linker.debugRules(rdfInput, createContext(), getVisibleTableVersion());

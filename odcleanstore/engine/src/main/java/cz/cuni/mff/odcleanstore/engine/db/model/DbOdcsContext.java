@@ -287,4 +287,98 @@ public class DbOdcsContext extends DbContext {
             throw new DbOdcsException(SQL.ERROR_INSERT_EN_PIPELINE_RESULTS, e);
         }
     }
+    
+    public Credentials selectScraperCredentials(String userName) throws DbOdcsException {
+        WrappedResultSet resultSet = null;
+        try {
+            resultSet = select(SQL.SELECT_SCRAPER, userName);
+            if (resultSet.next()) {
+            	Credentials credential = new Credentials();
+            	credential.passwordHash = resultSet.getString(1);
+            	credential.salt = resultSet.getString(2);
+                return credential;
+            }
+            return null;
+        } catch (Exception e) {
+            throw new DbOdcsException(SQL.ERROR_SELECT_SCRAPER, e);
+        }
+    }
+    
+    public int selectEngineId(String uuid) throws DbOdcsException {
+        WrappedResultSet resultSet = null;
+        try {
+            resultSet = select(SQL.SELECT_ATTACHED_ENGINE_ID, uuid);
+            if (resultSet.next()) {
+                return resultSet.getInt(1);
+            }
+            return 0;
+        } catch (Exception e) {
+            throw new DbOdcsException(SQL.ERROR_SELECT_ATTACHED_ENGINE_ID, e);
+        }
+    }
+    
+    public int selectPipelineId(String label) throws DbOdcsException {
+        WrappedResultSet resultSet = null;
+        try {
+            resultSet = select(SQL.SELECT_PIPELINE_ID, label);
+            if (resultSet.next()) {
+                return resultSet.getInt(1);
+            }
+            return 0;
+        } catch (Exception e) {
+            throw new DbOdcsException(SQL.ERROR_SELECT_PIPELINE_ID, e);
+        }
+    }
+    
+    public String[] selectAllImportingGraphsForEngine(String engineUuid) throws DbOdcsException {
+        WrappedResultSet resultSet = null;
+        try {
+        	ArrayList<String> uuids = new ArrayList<String>();
+            resultSet = select(SQL.SELECT_ALL_IMPORTING_GRAPH, engineUuid);
+            while(resultSet.next()) {
+            	uuids.add(resultSet.getString(1));
+            }
+            return uuids.toArray(new String[0]);
+ 
+        } catch (Exception e) {
+            throw new DbOdcsException(SQL.ERROR_SELECT_ALL_IMPORTING_GRAPH, e);
+        }
+    }
+    
+    public boolean isGraphUuidInSystem(String uuid) throws DbOdcsException {
+        WrappedResultSet resultSet = null;
+        try {
+            resultSet = select(SQL.SELECT_GRAPH_ID, uuid);
+            if (resultSet.next()) {
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            throw new DbOdcsException(SQL.ERROR_SELECT_GRAPH_ID, e);
+        }
+    }
+
+    public void insertImportingGraph(String uuid, int pipelineId, int engineId) throws DbOdcsException {
+        try {
+            execute(SQL.INSERT_IMPORTING_GRAPH, uuid, pipelineId, engineId);
+        } catch (Exception e) {
+            throw new DbOdcsException(SQL.ERROR_INSERT_IMPORTING_GRAPH, e);
+        }
+    }    
+
+    public void deleteImportingGraph(String uuid) throws DbOdcsException {
+        try {
+            execute(SQL.DELETE_IMPORTING_GRAPH, uuid);
+        } catch (Exception e) {
+            throw new DbOdcsException(SQL.DELETE_IMPORTING_GRAPH, e);
+        }
+    }
+    
+    public void updateImportingGraphStateToQueued(String uuid) throws DbOdcsException {
+        try {
+            execute(SQL.UPDATE_IMPORTING_GRAPH_STATE_TO_QUEUED, uuid);
+        } catch (Exception e) {
+            throw new DbOdcsException(SQL.ERROR_UPDATE_IMPORTING_GRAPH_STATE_TO_QUEUED, e);
+        }
+    }
 }

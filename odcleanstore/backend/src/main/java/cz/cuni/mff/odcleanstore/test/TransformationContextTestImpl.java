@@ -56,8 +56,7 @@ public class TransformationContextTestImpl implements TransformationContext {
 
 	@Override
 	public EnumTransformationType getTransformationType() {
-		// TODO Auto-generated method stub
-		return null;
+		return EnumTransformationType.EXISTING;
 	}
 
 }

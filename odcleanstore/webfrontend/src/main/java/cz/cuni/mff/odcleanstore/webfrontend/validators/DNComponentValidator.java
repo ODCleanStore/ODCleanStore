@@ -37,6 +37,7 @@ public class DNComponentValidator extends CustomValidator {
 			(
 					null, /* Rule ID */
 					null, /* Rule Group ID */
+					"validation-rule",
 					null, /* Rule Description */
 					type.getConvertedInput().getLabel(),
 					modificationValue,
@@ -46,7 +47,7 @@ public class DNComponentValidator extends CustomValidator {
 			String component = rule.getComponents(new UUIDUniqueURIGenerator(ODCSInternal.debugTempGraphUriPrefix).nextURI())[0];
 			
 			connection = VirtuosoConnectionWrapper.createConnection(credentials);
-			connection.adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL, false);
+			connection.adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL);
 
 			connection.execute(component);
 		} catch (Exception e) {

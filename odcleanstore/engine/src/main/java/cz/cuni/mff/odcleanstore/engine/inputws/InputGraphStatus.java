@@ -1,148 +1,129 @@
 package cz.cuni.mff.odcleanstore.engine.inputws;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.Locale;
+import java.util.HashSet;
 
-import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
-import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
-import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
-import cz.cuni.mff.odcleanstore.model.EnumGraphState;
+import cz.cuni.mff.odcleanstore.engine.Engine;
+import cz.cuni.mff.odcleanstore.engine.db.model.DbOdcsContext;
+import cz.cuni.mff.odcleanstore.engine.db.model.Pipeline;
 
 /**
  *  @author Petr Jerman
  */
-@SuppressWarnings("serial")
 public final class InputGraphStatus {
-
-	class ServiceBusyException extends Exception {
-	}
-
-	class DuplicatedUuid extends Exception {
-	}
 	
-	class UnknownPipelineName extends Exception {
-	}
-	
-	class UnknownPipelineDefaultName extends Exception {
-	}
-
-	class NoActiveImportSession extends Exception {
-	}
-
-	private final static String DB_SCHEMA_PREFIX = "DB.ODCLEANSTORE";
-	
-	private String _actualImportingGraphUuid;
+	private HashSet<String> importingGraphs;
 	
 	InputGraphStatus() {
+		importingGraphs = new HashSet<String>();
+	}
+    
+	String[] getAllImportingGraphUuids() throws InputGraphStatusException {
+        DbOdcsContext context = null;
+        try {
+            context = new DbOdcsContext();
+            return context.selectAllImportingGraphsForEngine(Engine.getCurrent().getEngineUuid());
+        } catch (Exception e) {
+            throw new InputGraphStatusException("Error during getting all importing graph uuids", e);
+        } finally {
+            if (context != null) {
+                context.closeQuietly();
+            }
+        }
+	}
+	
+	static void deleteImportingGraph(String uuid) throws InputGraphStatusException {
+		DbOdcsContext context = null;
+        try {
+            context = new DbOdcsContext();
+            context.deleteImportingGraph(uuid);
+        } catch (Exception e) {
+            throw new InputGraphStatusException("Error during deleteting importing graph uuid", e);
+        } finally {
+            if (context != null) {
+                context.closeQuietly();
+            }
+        }
 	}
 
-	Collection<String> getAllImportingGraphUuids() throws Exception {
-		VirtuosoConnectionWrapper con = null;
-		try {
-			con = VirtuosoConnectionWrapper.createConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
-			String sqlStatement = String.format(Locale.ROOT, "Select uuid from %s.EN_INPUT_GRAPHS WHERE stateId=%d", DB_SCHEMA_PREFIX, EnumGraphState.IMPORTING.toId());
-			WrappedResultSet resultSet = con.executeSelect(sqlStatement);
-			LinkedList<String> retVal = new LinkedList<String>();
-			while(resultSet.next()) {
-				retVal.add(resultSet.getString(1));
-			}
-			return retVal;
-		} finally {
-			if (con != null) {
-				con.close();
-			}
-		}
-	}
+	synchronized void beginImport(String uuid, String pipelineName) throws InputGraphStatusException {
 
-	void deleteAllImportingGraphUuids() throws Exception {
-		VirtuosoConnectionWrapper con = null;
-		try {
-			con = VirtuosoConnectionWrapper.createConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
-			String sqlStatement = String.format(Locale.ROOT, "Delete from %s.EN_INPUT_GRAPHS WHERE stateId=%d", DB_SCHEMA_PREFIX, EnumGraphState.IMPORTING.toId());
-			con.execute(sqlStatement);
-			con.commit();
-		} finally {
-			if (con != null) {
-				con.close();
-			}
-		}
-	}
-
-	synchronized String beginImportSession(String graphUuid, String pipelineName, Runnable interruptNotifyTask) throws Exception {
-		if (_actualImportingGraphUuid != null) {
-			throw new ServiceBusyException();
-		}
-		VirtuosoConnectionWrapper con = null; 
-		try {
-			con = VirtuosoConnectionWrapper.createConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
+		DbOdcsContext context = null;
+        try {
+        	if (importingGraphs.contains(uuid)) {
+        		String message = String.format("Graph %s is already importing", uuid);
+    			throw new InputGraphStatusException(message, InputWSErrorEnumeration.SERVICE_BUSY);
+    		}
+        	
+        	context = new DbOdcsContext();
 			
-			String sqlStatement = String.format(Locale.ROOT, "Select uuid from %s.EN_INPUT_GRAPHS WHERE uuid='%s'", DB_SCHEMA_PREFIX, graphUuid);
-			WrappedResultSet resultSet = con.executeSelect(sqlStatement);
-			if (resultSet.next()) {
-				throw new DuplicatedUuid();
+			if (context.isGraphUuidInSystem(uuid)) {
+				String message = String.format("Graph %s is already imported", uuid);
+				throw new InputGraphStatusException(message, InputWSErrorEnumeration.DUPLICATED_UUID);
 			}
 			
+			int pipelineId = 0;
 			if (pipelineName == null || pipelineName.isEmpty())	{
-				sqlStatement = String.format(Locale.ROOT, "Select id from %s.PIPELINES WHERE isDefault <> 0", DB_SCHEMA_PREFIX);
+				Pipeline pipeline = context.selectDefaultPipeline();
+				if (pipeline == null) {
+					throw new InputGraphStatusException("Default pipeline is not defined", InputWSErrorEnumeration.FATAL_ERROR);
+				}
+				pipelineId = pipeline.id;
 			}
 			else {
-				sqlStatement = String.format(Locale.ROOT, "Select id from %s.PIPELINES WHERE label='%s'", DB_SCHEMA_PREFIX, pipelineName);
+				pipelineId = context.selectPipelineId(pipelineName);
+				if (pipelineId == 0) {
+					String message = String.format("Graph %s has unknown pipeline name %s", uuid, pipelineName);
+					throw new InputGraphStatusException(message, InputWSErrorEnumeration.UNKNOWN_PIPELINENAME);
+				}
 			}
-			resultSet = con.executeSelect(sqlStatement);
-			if (!resultSet.next()) {
-				throw pipelineName == null || pipelineName.isEmpty() ? new UnknownPipelineDefaultName(): new UnknownPipelineName();
-			}
-			String pipelineId = resultSet.getString(1);
 			
-			sqlStatement = String.format(Locale.ROOT, "Insert into %s.EN_INPUT_GRAPHS(uuid, pipelineId, stateId) VALUES('%s', '%s', %d)", DB_SCHEMA_PREFIX, graphUuid, pipelineId , EnumGraphState.IMPORTING.toId());
-			con.execute(sqlStatement);
-			con.commit();
-
-			_actualImportingGraphUuid = graphUuid;
-			return graphUuid;
-		} finally {
-			if (con != null) {
-				con.close();
-			}
-		}
+			int engineId = context.selectEngineId(Engine.getCurrent().getEngineUuid());
+			context.insertImportingGraph(uuid, pipelineId, engineId);
+			context.commit();
+			importingGraphs.add(uuid);
+        } catch (InputGraphStatusException e) {
+        	throw e;
+        } catch (Exception e) {
+        	String message = String.format("Fatal error in beginning import graph %s", uuid);
+            throw new InputGraphStatusException(message, e);
+        } finally {
+            if (context != null) {
+                context.closeQuietly();
+            }
+        }
+	}
+	
+	synchronized void revertImport(String uuid) throws InputGraphStatusException {
+		DbOdcsContext context = null;
+        try {
+        	context = new DbOdcsContext();
+        	context.deleteImportingGraph(uuid);
+        	context.commit();
+        	importingGraphs.remove(uuid);
+        } catch (Exception e) {
+        	String message = String.format("Fatal error in reverting import graph %s", uuid);
+            throw new InputGraphStatusException(message, e);
+        } finally {
+            if (context != null) {
+                context.closeQuietly();
+            }
+        }
 	}
 
-	synchronized void commitImportSession(String importUuid) throws Exception {
-		if (importUuid == null || _actualImportingGraphUuid != importUuid) {
-			throw new NoActiveImportSession();
-		}
-
-		VirtuosoConnectionWrapper con = null;
-		try {
-			con = VirtuosoConnectionWrapper.createConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
-			String sqlStatement = String.format(Locale.ROOT, "Update %s.EN_INPUT_GRAPHS SET stateId=%d WHERE uuid='%s'", DB_SCHEMA_PREFIX, EnumGraphState.QUEUED.toId(), importUuid);
-			con.execute(sqlStatement);
-			con.commit();
-			_actualImportingGraphUuid = null;
-		} finally {
-			if (con != null) {
-				con.close();
-			}
-		}
-	}
-
-	synchronized void revertImportSession(String importUuid) throws Exception {
-		if (importUuid == null || _actualImportingGraphUuid != importUuid) {
-			throw new NoActiveImportSession();
-		}
-
-		VirtuosoConnectionWrapper con = null;
-		try {
-			con = VirtuosoConnectionWrapper.createConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
-			String sqlStatement = String.format(Locale.ROOT, "Delete from %s.EN_INPUT_GRAPHS(uuid) VALUES('%s')", DB_SCHEMA_PREFIX, importUuid);
-			con.execute(sqlStatement);
-			con.commit();
-			_actualImportingGraphUuid = null;
-		} finally {
-			if (con != null) {
-				con.close();
-			}
-		}
+	synchronized void commitImport(String uuid) throws InputGraphStatusException {
+		DbOdcsContext context = null;
+        try {
+        	context = new DbOdcsContext();
+        	context.updateImportingGraphStateToQueued(uuid);
+        	context.commit();
+        	importingGraphs.remove(uuid);
+        } catch (Exception e) {
+        	String message = String.format("Fatal error in commiting import graph %s", uuid);
+            throw new InputGraphStatusException(message, e);
+        } finally {
+            if (context != null) {
+                context.closeQuietly();
+            }
+        }
 	}
 }

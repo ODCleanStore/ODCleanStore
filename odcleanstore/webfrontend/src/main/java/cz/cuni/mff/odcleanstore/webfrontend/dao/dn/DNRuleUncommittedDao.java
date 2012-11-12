@@ -38,16 +38,18 @@ public class DNRuleUncommittedDao extends DNRuleDao
 		getLookupFactory().getDao(DNRulesGroupDao.class).markUncommitted(item.getGroupId());
 				
 		String query = 
-			"INSERT INTO " + getTableName() + " (groupId, description) " +
-			"VALUES (?, ?)";
+			"INSERT INTO " + getTableName() + " (groupId, label, description) " +
+			"VALUES (?, ?, ?)";
 		
 		Object[] params =
 		{
 			item.getGroupId(),
+			item.getLabel(),
 			item.getDescription()
 		};
 
 		logger.debug("groupId: " + item.getGroupId());
+		logger.debug("label: " + item.getLabel());
 		logger.debug("description: " + item.getDescription());
 		
 		jdbcUpdate(query, params);
@@ -63,14 +65,16 @@ public class DNRuleUncommittedDao extends DNRuleDao
 		getLookupFactory().getDao(DNRulesGroupDao.class).markUncommitted(item.getGroupId());
 				
 		String query =
-			"UPDATE " + getTableName() + " SET description = ? WHERE id = ?";
+			"UPDATE " + getTableName() + " SET label = ?, description = ? WHERE id = ?";
 		
 		Object[] params =
 		{
+			item.getLabel(),
 			item.getDescription(),
 			item.getId()
 		};
 		
+		logger.debug("label: " + item.getLabel());
 		logger.debug("description: " + item.getDescription());
 		logger.debug("id: " + item.getId());
 		

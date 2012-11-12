@@ -1,5 +1,5 @@
 \include{header}
-\newcommand{\version}{0.3.6}
+\newcommand{\version}{0.3.7}
 \newcommand{\documentname}{\refusermanual}
 
 \begin{document}
@@ -25,7 +25,7 @@ To overcome these issues, we present a~framework enabling management of Linked D
 
 \section{What is ODCleanStore}
 
-In short, ODCleanStore is a~server application that stores RDF data, processes them and provides integrated views on the data.
+In short, ODCleanStore is a~server application for management of Linked Data -- it stores data in RDF, processes them and provides integrated views on the data.
 
 ODCleanStore accepts arbitrary RDF data through a~webservice (together with provenance and other metadata). The data is processed by \term{transformers} in one of a~set of customizable \term{pipelines} and stored to a~persistent store. The stored data can be accessed again through a~webservice. Linked Data consumers can send queries and custom query policies to this webservice and receive (aggregated/integrated) RDF data relevant for their query, together with information about provenance and data quality. Overview of ODCleanStore is depicted on \figurename~\ref{fig:odcsInternal}.
 
@@ -75,14 +75,12 @@ A real-world deployment is planned for storing public contracts data published b
 
 ODCleanStore consists of \term{Engine}, \term{Input Webservice} and \term{Output Webservice} (both run as part of the Engine), and administration webfrontend. The Engine processes incoming and stored data using \term{transformers}. A~transformer is a~pluggable Java class implementing a~defined interface; several transformers ship with ODCleanStore, such as Quality Assessment, Linker or Data Normalization.
 
-\todo{picture, EA diagramy}
-
 \section{Data Lifecycle}
 
 The lifecycle of data inside ODCleanStore is as follows:
 
 \begin{enumerate}
-  \item RDF data (and additional metadata) is accepted by Input Webservice and stored as a~named graph to the \term{dirty database}. Data can be uploaded by any third-party application registered in ODCleanStore.
+  \item RDF data (and additional metadata) are accepted by Input Webservice and stored as a~named graph to the \term{dirty database}. Data can be uploaded by any third-party application registered in ODCleanStore.
   \item Engine successively processes named graphs in the dirty database by applying a~pipeline of transformers to it; the applied pipeline is selected according to the input metadata.
   \item Each transformer in the pipeline may modify the named graph or attach new related named graphs (such as a named graph with mappings to other resources or results of quality assessment).
   \item When the pipeline finishes, the augmented RDF data are populated to the \term{clean database} together with any auxiliary data and metadata created during the pipeline execution.
@@ -203,10 +201,9 @@ Several terms and designations are used repeatedly in the frontend, however, the
 
 \enumtable
 {
-	Edit & edit attributes of the related entity\\
 	Delete & remove the related entity irrevertably from the system\\
-	Detail & view entities and configurations related to the related entity\\
-	Rerun affected graphs & due to a change of a configuration of a transformer (modification of a rule group) the stored data may be found in an inconsistent form, therefore it is possible for the user to identify such situations and decide to run the transformer again
+	Detail & view entities and configurations related to the related entity and provide the interface for entity adjustments\\
+	Rerun affected graphs & due to a change of a configuration of a transformer (modification of a rule group) the stored data may be found in an inconsistent form, therefore it is possible for the user to identify such situations and decide to run the transformer (or all transformers assosiated with a pipeline or a graph) again
 }
 
 \begin{figure}[tb]
@@ -319,17 +316,21 @@ Any snippet of SPARQL\footnote{\url{http://www.w3.org/TR/rdf-sparql-query/\#gram
 
 In the DN subsection of rules management page of the backend, one can prepare groups of rules to be assigned to instances of {Data Normalizer}. Each group is identified by its label and can (and should) come with a description of its semantical significance.
 
-The detail page of a group serves the user as means of specification of individual rules contained in the selected group. Each rule is essentially a sequence of \term{SPARUL}\footnote{\url{http://www.w3.org/Submission/SPARQL-Update}} \term{Inserts} and/or \term{Deletes}. New rule represents an empty sequence upon its creation.
+The detail page of a group serves the user as means of specification of individual rules contained in the selected group. Each rule is essentially a sequence of \term{SPARUL}\footnote{\url{http://www.w3.org/Submission/SPARQL-Update}} modifications put by \code{MODIFY}, \code{INSERT} and/or \code{DELETE}. New rule represents an empty sequence upon its creation.
 
-Similarly as with the rules themselves the detail page of a rule allows the user to construct any arbitrary sequence of {Inserts} and/or {Deletes}. Components of the rule (members of the sequence) can be added by specifying their type (either \code{INSERT} or \code{DELETE}), modification ({SPARUL} snippet stripped off of initial \code{INSERT INTO} / \code{DELETE FROM} clauses); e.g.,
+Similarly as with the rules themselves the detail page of a rule allows the user to construct any arbitrary sequence of modifications. Components of the rule (members of the sequence) can be added by specifying their type (either \code{MODIFY}, \code{INSERT} or \code{DELETE}), modification ({SPARUL} snippet stripped off of initial \code{MODIFY} / \code{INSERT INTO} / \code{DELETE FROM} clauses); e.g.,
 
 \begin{center}
-	\code{\{?s ?p1 ?o2\} WHERE \{GRAPH \$\$graph\$\$ \{?s ?p1 ?o1. ?o1 ?p2 ?o2.\}\}},
+	\code{\{?s ?p1 ?o2\} WHERE \{?s ?p1 ?o1. ?o1 ?p2 ?o2.\}}.
 \end{center}
 
-where \code{\$\$graph\$\$} is a place holder for name of the graph being currently processed. Expectedly triples (\code{?s ?p1 ?o2} in the example) are inserted into (deleted from) the current graph when the type of the component is \code{INSERT} (\code{DELETE}). Effects are immediate in respect to consecutive applications of other components of the same rule or other rules to the graph.
+Expectedly triples (\code{?s ?p1 ?o2} in the example) are inserted into (deleted from) the current graph when the type of the component is \code{INSERT} (\code{DELETE}). Effects are immediate in respect to consecutive applications of other components of the same rule or other rules to the graph. Another example would be:
 
-%%TODO: notice: use of GRAPH $$graph$$ is highly recommended in cases the other is not sure he tries to avoid restriction to the processed graph only
+\begin{center}
+	\code{\{?s ?p ?o\} WHERE \{GRAPH \$\$graph\$\$ \{SELECT ?s ?p 'Y' AS ?o WHERE \{?s ?p 1\}\}\}},
+\end{center}
+
+where \code{\$\$graph\$\$} in \code{GRAPH \$\$graph\$\$} is a place holder for name of the graph being currently processed and can be used for subqueries that need to be enclosed in \code{GraphGraphPattern}\footnote{\url{http://www.w3.org/TR/rdf-sparql-query/\#rGraphGraphPattern}}.
 
 \subsection{Linker}
 \label{sub:objectIdentification}
@@ -398,41 +399,102 @@ Add the ODCSPropertyFilterTransformer by following steps:
 \subsection*{Prepare Transformer}
 \label{sec:prepareTransformer}
 \begin{enumerate}
-	\item Choose \code{Backend/Transformers} from the frontend menu
+	\item Choose \code{Transformers} from the frontend menu
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\textwidth]{images/fe-walkthrough-menu-transformers.png}
+	\label{fig:feWTMenuTransformers}
+\end{figure}
+
 	\item Click \quot{Add a new transformer}
-	\item Fill in label of your choice:
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\textwidth]{images/fe-walkthrough-add-transformer.png}
+	\label{fig:feWTAddTransformer}
+\end{figure}
+
+	\item Fill in label of your choice
 	
-	ODCSPropertyFilterTransformer
+	\item Describe its purpose
 	
-	\item Describe its purpose:
+	\item Select the path to the backend JAR
 	
-	Removes reserved properties from the processed graph
+	\item Fill in the classname
 	
-	\item Select the path to the backend JAR:
-	
-	.
-	
-	\item Fill in the classname:
-	
-	cz.cuni.mff.odcleanstore.transformer.odcs.ODCSPropertyFilterTransformer
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\textwidth]{images/fe-walkthrough-new-transformer.png}
+	\label{fig:feWTNewTransformers}
+\end{figure}
 
 \end{enumerate}
 
 \subsection*{Prepare Rules for Standard Transformer}
 \begin{enumerate}[resume]
-	\item Choose \code{Backend/Rules/DN} from the frontend menu
-	\item Click \quot{Add a new group}
+	\item Choose \code{Rules/Data Normalization} from the frontend menu
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\textwidth]{images/fe-walkthrough-menu-rules.png}
+	\label{fig:feWTMenuRules}
+\end{figure}
+
+	\item Click \quot{Add a new rules group}
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\textwidth]{images/fe-walkthrough-add-group.png}
+	\label{fig:feWTAddGroup}
+\end{figure}
+
+\newpage
+
 	\item Fill in necessary information and submit it
-	\item Click \quot{Detail} in the row of the group created in the previous step
-	\item Click \quot{Add a new rule}, fill in its description and submit
-	\item Click \quot{Detail} in the row of the rule created in the previous step
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\textwidth]{images/fe-walkthrough-new-group.png}
+	\label{fig:feWTNewGroup}
+\end{figure}
+
+	\item Click \quot{Add a new raw rule}
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\textwidth]{images/fe-walkthrough-add-raw-rule.png}
+	\label{fig:feWTAddRawRule}
+\end{figure}
+
+	\item Fill in its description and submit
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\textwidth]{images/fe-walkthrough-new-raw-rule.png}
+	\label{fig:feWTNewRawRule}
+\end{figure}
+
 	\item Click \quot{Add a new rule component}
-	\item Choose the type of the data transformation (INSERT/DELETE)
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\textwidth]{images/fe-walkthrough-add-component.png}
+	\label{fig:feWTAddComponent}
+\end{figure}
+
+	\item Choose the type of the data transformation (\code{MODIFY}/\code{INSERT}/\code{DELETE})
 	\item Specify the triples that will modify the graph
-	
-	ex: \code{\{?s prefix1:property1 ?o\} WHERE \{?s prefix2:property2 ?o\}}
-	
 	\item Describe the meaning of this transformation and submit it
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\textwidth]{images/fe-walkthrough-new-component.png}
+	\label{fig:feWTNewComponent}
+\end{figure}
+
+\newpage
+
 	\item Repeat until the rule is complete
 \end{enumerate}
 
@@ -1141,41 +1203,7 @@ The pipeline creator or administrator \todo{proper user role} can decide to re-r
 
 \chapter{Glossary}
 
-\section*{RDF-related}
-\begin{glossarylist}
-	\item[RDF] Resource Description Framework, a~language for representing information about resources in the World Wide Web\footnote{\url{http://www.w3.org/RDF/}}
-	\item[RDF triple] Statement about a~resource expressed in the form of subject-predicate-object expression
-	\item[URI] Uniform Resource Identifier, identifies RDF resources
-	\item[Named graph] A~set of related RDF triples (RDF graph) named with a~URI\footnote{\url{http://www.w3.org/2004/03/trix/}}
-	\item[RDF quad] An RDF triple plus named graph URI (subject, predicate, object, named graph)
-	\item[Ontology] Representation of the meaning of terms in a~vocabulary and of their interrelationships
-	\item[OWL] The Web Ontology Language\footnote{\url{http://www.w3.org/TR/owl-features/}}
-	\item[SPARQL] RDF query language\footnote{\url{http://www.w3.org/TR/rdf-sparql-query/}}
-	\item[RDF/XML] An XML-based serialization format for RDF graphs\footnote{\url{http://www.w3.org/TR/rdf-syntax-grammar/}}
-	\item[TTL] Turtle -- Terse RDF Triple Language\footnote{\url{http://www.w3.org/TeamSubmission/turtle/}}; a~human-friendly alternative to RDF/XML 
-\end{glossarylist}
-
-\section*{Data \& Data Quality}
-\begin{glossarylist}
-	\item[Dirty (staging) database] Database where incoming data are stored until they are processed by a~processing pipeline (e.g. clean, linked to other data, etc.)
-	\item[Clean database] Database where incoming data are stored after they are successfully processed by the respective processing pipeline; this database can be accessed using the Output Webservice
-	\item[\code{Payload} graph] Named graph where the actual inserted data, given in the \code{payload} parameter of Input Webservice, are stored
-	\item[\code{Provenance} graph] Named graph where additional provenance metadata, given in the \code{provenance} field of Input Web Service, are stored
-	\item[Metadata graph] Named graph where other metadata about a \code{payload} graph (such as source, timestamp, license, etc.) are stored
-	\item[Attached graph] Named graph attached to a \code{payload} graph by a transformer
-	\item[Named graph score] Quality of a~single (\code{payload}) named graph estimated by the Quality Assesment component and stored in the database, expressed as a~number from interval [0,1]
-	\item[Publisher score] Average score of named graphs from a~publisher
-	\item[Aggregate quality] Quality of a~triple in the results calculated by the Conflict Resolution component during query time, expressed as a~number from interval [0,1]
-\end{glossarylist}
-
-\section*{User Roles}
-\begin{glossarylist}
-	\item[ADM] Administrator
-	\item[ONC] Ontology creator
-	\item[PIC] Pipeline creator
-	\item[SCR] Data producer (scraper)
-	\item[USR] Data consumer
-\end{glossarylist}
+\input{appendix-glossary}
 
 \chapter{List of Used XML Namespaces}
 

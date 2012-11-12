@@ -21,9 +21,9 @@ public class CompiledDNRule extends DNRule
 	 * @param groupId
 	 * @param description
 	 */
-	public CompiledDNRule(Integer groupId, String description) 
+	public CompiledDNRule(Integer groupId, String label, String description) 
 	{
-		super(groupId, description);
+		super(groupId, label, description);
 
 		this.components = new LinkedList<CompiledDNRuleComponent>();
 	}

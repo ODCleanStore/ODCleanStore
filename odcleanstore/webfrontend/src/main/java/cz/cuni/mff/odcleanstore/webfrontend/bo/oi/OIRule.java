@@ -15,6 +15,7 @@ public class OIRule extends RuleEntity
 	private static final long serialVersionUID = 1L;
 
 	private String label;
+	private String description;
 	private String linkType;
 	private String sourceRestriction;
 	private String targetRestriction;
@@ -27,6 +28,7 @@ public class OIRule extends RuleEntity
 	 * @param id
 	 * @param groupId
 	 * @param label
+	 * @param description
 	 * @param linkType
 	 * @param sourceRestriction
 	 * @param targetRestriction
@@ -34,12 +36,14 @@ public class OIRule extends RuleEntity
 	 * @param filterThreshold
 	 * @param filterLimit
 	 */
-	public OIRule(Integer id, Integer groupId, String label, String linkType, String sourceRestriction, 
-		String targetRestriction, String linkageRule, BigDecimal filterThreshold, Integer filterLimit) 
+	public OIRule(Integer id, Integer groupId, String label, String description, String linkType,
+			String sourceRestriction, String targetRestriction, String linkageRule, BigDecimal filterThreshold,
+			Integer filterLimit) 
 	{
 		super(id, groupId);
 		
 		this.label = label;
+		this.description = description;
 		this.linkType = linkType;
 		this.sourceRestriction = sourceRestriction;
 		this.targetRestriction = targetRestriction;
@@ -64,6 +68,13 @@ public class OIRule extends RuleEntity
 		return label;
 	}
 	
+	/**
+	 * @return the description
+	 */
+	public String getDescription() {
+		return description;
+	}
+
 	/**
 	 * 
 	 * @return

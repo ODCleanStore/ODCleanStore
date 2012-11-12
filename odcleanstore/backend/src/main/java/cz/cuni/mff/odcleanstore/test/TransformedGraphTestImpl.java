@@ -3,6 +3,7 @@ package cz.cuni.mff.odcleanstore.test;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraphException;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -21,7 +22,7 @@ public class TransformedGraphTestImpl implements TransformedGraph {
 
 	@Override
 	public String getGraphId() {
-		return UUID.randomUUID().toString();
+		return "demoData";
 	}
 
 	@Override
@@ -38,8 +39,9 @@ public class TransformedGraphTestImpl implements TransformedGraph {
 
 	@Override
 	public Collection<String> getAttachedGraphNames() {
-		// TODO Auto-generated method stub
-		return null;
+		Collection<String> result = new ArrayList<String>();
+		result.add("http://opendata.cz/infrastructure/odcleanstore/internal/generatedLinks/demoData");
+		return result;
 	}
 
 	@Override
