@@ -32,20 +32,7 @@ public final class FileUtils {
     }
 
     public static String satisfyDirectory(String dirName) throws DirectoryException {
-        try {
-            File file = createFileObject(dirName, "");
-
-            if (!file.exists()) {
-                satisfyParentDirectoryExist(file);
-                file.mkdir();
-            }
-
-            return checkDirectoryAndReturnCanonicalPath(file);
-        } catch (DirectoryException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new DirectoryException(e);
-        }
+        return satisfyDirectory(dirName, ".");
     }
 
     public static String satisfyDirectory(String dirName, String baseForRelativePath) throws DirectoryException {
