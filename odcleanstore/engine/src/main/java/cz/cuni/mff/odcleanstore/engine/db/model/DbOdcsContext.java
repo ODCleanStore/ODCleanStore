@@ -358,9 +358,9 @@ public class DbOdcsContext extends DbContext {
         }
     }
 
-    public void insertImportingGraph(String uuid, int pipelineId, int engineId) throws DbOdcsException {
+    public void insertImportingGraph(String uuid, String prefix, int pipelineId, int engineId) throws DbOdcsException {
         try {
-            execute(SQL.INSERT_IMPORTING_GRAPH, uuid, pipelineId, engineId);
+            execute(SQL.INSERT_IMPORTING_GRAPH, uuid, prefix, pipelineId, engineId);
         } catch (Exception e) {
             throw new DbOdcsException(SQL.ERROR_INSERT_IMPORTING_GRAPH, e);
         }
