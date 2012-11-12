@@ -63,13 +63,14 @@ import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
     /**
      * Insert importing graph.
      * @param first graph uuid
-     * @param second pipelineId
-     * @param third engineId
+     * @param second graph prefix
+     * @param third pipelineId
+     * @param forth engineId
      */
     static final String INSERT_IMPORTING_GRAPH = String.format(Locale.ROOT,
             " INSERT"
-                    + " INTO ODCLEANSTORE.EN_INPUT_GRAPHS(uuid, stateId, pipelineId, engineId)"
-                    + " VALUES(?,%s,?,?)",
+                    + " INTO ODCLEANSTORE.EN_INPUT_GRAPHS(uuid, namedGraphsPrefix, stateId, pipelineId, engineId)"
+                    + " VALUES(?,?,%s,?,?)",
             EnumGraphState.IMPORTING.toId());
 
     static final String ERROR_INSERT_IMPORTING_GRAPH = "Error during inserting importing graph";

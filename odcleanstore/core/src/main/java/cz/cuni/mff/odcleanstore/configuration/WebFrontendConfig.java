@@ -31,15 +31,18 @@ public class WebFrontendConfig extends ConfigGroup {
     private final String gmailAddress;
     private final String gmailPassword;
 
+    private final String outputWSHost;
+
     private final String debugDirectoryPath;
 
     public WebFrontendConfig(JDBCConnectionCredentials dirtyDBJDBCConnectionCredentials,
             JDBCConnectionCredentials cleanDBJDBCConnectionCredentials, String gmailAddress, String gmailPassword,
-            String debugDirectoryPath) {
+            String outputWSHost, String debugDirectoryPath) {
         this.dirtyDBJDBCConnectionCredentials = dirtyDBJDBCConnectionCredentials;
         this.cleanDBJDBCConnectionCredentials = cleanDBJDBCConnectionCredentials;
         this.gmailAddress = gmailAddress;
         this.gmailPassword = gmailPassword;
+        this.outputWSHost = outputWSHost;
         this.debugDirectoryPath = debugDirectoryPath;
     }
 
@@ -53,11 +56,12 @@ public class WebFrontendConfig extends ConfigGroup {
         ParameterFormat<String> formatString = new FormatString();
         String gmailAddress = loadParam(properties, GROUP_PREFIX + "gmail_address", formatString);
         String gmailPassword = loadParam(properties, GROUP_PREFIX + "gmail_password", formatString);
+        String outputWSHost = loadParam(properties, GROUP_PREFIX + "output_ws_host", formatString);
 
         String debugDirectoryPath = loadParam(properties, GROUP_PREFIX + "debug_directory_path", formatString);
 
         return new WebFrontendConfig(dirtyJDBCConnectionCredentials, cleanJDBCConnectionCredentials,
-                gmailAddress, gmailPassword, debugDirectoryPath);
+                gmailAddress, gmailPassword, outputWSHost, debugDirectoryPath);
     }
 
     public JDBCConnectionCredentials getDirtyDBJDBCConnectionCredentials() {
@@ -74,6 +78,10 @@ public class WebFrontendConfig extends ConfigGroup {
 
     public String getGmailPassword() {
         return gmailPassword;
+    }
+    
+    public String getOutputWSHost() {
+    	return outputWSHost;
     }
 
     public String getDebugDirectoryPath() {

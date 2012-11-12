@@ -5,6 +5,7 @@ import java.util.HashSet;
 import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.db.model.DbOdcsContext;
 import cz.cuni.mff.odcleanstore.engine.db.model.Pipeline;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 
 /**
  *  @author Petr Jerman
@@ -78,7 +79,7 @@ public final class InputGraphStatus {
 			}
 			
 			int engineId = context.selectEngineId(Engine.getCurrent().getEngineUuid());
-			context.insertImportingGraph(uuid, pipelineId, engineId);
+			context.insertImportingGraph(uuid, ODCS.getURI(), pipelineId, engineId);
 			context.commit();
 			importingGraphs.add(uuid);
         } catch (InputGraphStatusException e) {
