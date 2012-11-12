@@ -1,0 +1,150 @@
+<class-diagram version="1.0.10" icons="true" automaticImage="PNG" always-add-relationships="false" 
+  generalizations="true" realizations="true" associations="true" dependencies="false" nesting-relationships="true">  
+  <class id="1" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.engine.outputws.output.RDFXMLFormatter" project="odcs-engine" 
+    file="/odcs-engine/src/main/java/cz/cuni/mff/odcleanstore/engine/outputws/output/RDFXMLFormatter.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="469" y="271"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="2" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.engine.outputws.output.HTMLFormatter.BasicQueryHTMLRepresentation" 
+    project="odcs-engine" 
+    file="/odcs-engine/src/main/java/cz/cuni/mff/odcleanstore/engine/outputws/output/HTMLFormatter.java" binary="false">    
+    <position height="-1" width="-1" x="193" y="313"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="3" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.engine.outputws.output.HTMLFormatter.HTMLRepresentationBase" project="odcs-engine" 
+    file="/odcs-engine/src/main/java/cz/cuni/mff/odcleanstore/engine/outputws/output/HTMLFormatter.java" binary="false">    
+    <position height="-1" width="-1" x="303" y="275"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="4" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.engine.outputws.output.ResultFormatterBase" project="odcs-engine" 
+    file="/odcs-engine/src/main/java/cz/cuni/mff/odcleanstore/engine/outputws/output/ResultFormatterBase.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="361" y="133"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="5" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.engine.outputws.output.HTMLFormatter" project="odcs-engine" 
+    file="/odcs-engine/src/main/java/cz/cuni/mff/odcleanstore/engine/outputws/output/HTMLFormatter.java" binary="false">    
+    <position height="-1" width="-1" x="310" y="220"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="6" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.engine.outputws.output.RDFFormatter" project="odcs-engine" 
+    file="/odcs-engine/src/main/java/cz/cuni/mff/odcleanstore/engine/outputws/output/RDFFormatter.java" binary="false">    
+    <position height="-1" width="-1" x="518" y="226"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="7" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.engine.outputws.output.TriGFormatter" project="odcs-engine" 
+    file="/odcs-engine/src/main/java/cz/cuni/mff/odcleanstore/engine/outputws/output/TriGFormatter.java" binary="false">    
+    <position height="-1" width="-1" x="601" y="274"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="8" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.engine.outputws.output.DebugFormatter" project="odcs-engine" 
+    file="/odcs-engine/src/main/java/cz/cuni/mff/odcleanstore/engine/outputws/output/DebugFormatter.java" binary="false">    
+    <position height="-1" width="-1" x="180" y="220"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <interface id="9" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.engine.outputws.output.QueryResultFormatter" project="odcs-engine" 
+    file="/odcs-engine/src/main/java/cz/cuni/mff/odcleanstore/engine/outputws/output/QueryResultFormatter.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="362" y="79"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </interface>  
+  <class id="10" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.engine.outputws.output.HTMLFormatter.MetadataQueryHTMLRepresentation" 
+    project="odcs-engine" 
+    file="/odcs-engine/src/main/java/cz/cuni/mff/odcleanstore/engine/outputws/output/HTMLFormatter.java" binary="false">    
+    <position height="-1" width="-1" x="427" y="314"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <generalization id="11">    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="6"/>  
+  </generalization>  
+  <generalization id="12">    
+    <end type="SOURCE" refId="6"/>    
+    <end type="TARGET" refId="4"/>  
+  </generalization>  
+  <realization id="13">    
+    <end type="SOURCE" refId="4"/>    
+    <end type="TARGET" refId="9"/>  
+  </realization>  
+  <generalization id="14">    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="4"/>  
+  </generalization>  
+  <generalization id="15">    
+    <end type="SOURCE" refId="2"/>    
+    <end type="TARGET" refId="3"/>  
+  </generalization>  
+  <generalization id="16">    
+    <end type="SOURCE" refId="1"/>    
+    <end type="TARGET" refId="6"/>  
+  </generalization>  
+  <generalization id="17">    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="3"/>  
+  </generalization>  
+  <generalization id="18">    
+    <end type="SOURCE" refId="5"/>    
+    <end type="TARGET" refId="4"/>  
+  </generalization>  
+  <nesting id="19">    
+    <end type="SOURCE" refId="5"/>    
+    <end type="TARGET" refId="3"/>  
+  </nesting>  
+  <classifier-display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+    visibility="true">    
+    <attributes public="false" package="false" protected="false" private="false"/>    
+    <operations public="true" package="true" protected="true" private="false"/>  
+  </classifier-display>  
+  <association-display labels="true" multiplicity="true"/>
+</class-diagram>

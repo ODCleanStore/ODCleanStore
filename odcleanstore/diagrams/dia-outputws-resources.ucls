@@ -1,0 +1,141 @@
+<class-diagram version="1.0.10" icons="true" automaticImage="PNG" always-add-relationships="false" 
+  generalizations="true" realizations="true" associations="true" dependencies="false" nesting-relationships="true">  
+  <class id="1" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.engine.outputws.QueryExecutorResourceBase.QueryExecutionHolder" project="odcs-engine" 
+    file="/odcs-engine/src/main/java/cz/cuni/mff/odcleanstore/engine/outputws/QueryExecutorResourceBase.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="351" y="172"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="2" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.engine.outputws.MetadataQueryExecutorResource" project="odcs-engine" 
+    file="/odcs-engine/src/main/java/cz/cuni/mff/odcleanstore/engine/outputws/MetadataQueryExecutorResource.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="696" y="317"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="3" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.engine.outputws.QueryExecutorResourceBase" project="odcs-engine" 
+    file="/odcs-engine/src/main/java/cz/cuni/mff/odcleanstore/engine/outputws/QueryExecutorResourceBase.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="611" y="164"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="4" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.engine.outputws.KeywordQueryExecutorResource" project="odcs-engine" 
+    file="/odcs-engine/src/main/java/cz/cuni/mff/odcleanstore/engine/outputws/KeywordQueryExecutorResource.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="586" y="251"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="5" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.engine.outputws.QueryExecutorResourceBase.PrefixMappingHolder" project="odcs-engine" 
+    file="/odcs-engine/src/main/java/cz/cuni/mff/odcleanstore/engine/outputws/QueryExecutorResourceBase.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="353" y="142"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="6" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.engine.outputws.NamedGraphQueryExecutorResource" project="odcs-engine" 
+    file="/odcs-engine/src/main/java/cz/cuni/mff/odcleanstore/engine/outputws/NamedGraphQueryExecutorResource.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="648" y="283"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="7" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.engine.outputws.UriQueryExecutorResource" project="odcs-engine" 
+    file="/odcs-engine/src/main/java/cz/cuni/mff/odcleanstore/engine/outputws/UriQueryExecutorResource.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="534" y="219"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="8" corner="BOTTOM_RIGHT" language="java" name="org.restlet.resource.ServerResource" project="odcs-engine" 
+    file="C:/Users/mifeet/.m2/repository/org/restlet/jse/org.restlet/2.1-RC4/org.restlet-2.1-RC4.jar" binary="true">    
+    <position height="-1" width="-1" x="618" y="100"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="9" corner="BOTTOM_RIGHT" language="java" name="cz.cuni.mff.odcleanstore.queryexecution.QueryExecution" 
+    project="odcs-backend" 
+    file="/odcs-backend/src/main/java/cz/cuni/mff/odcleanstore/queryexecution/QueryExecution.java" binary="false">    
+    <position height="-1" width="-1" x="351" y="274"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="true" package="true" protected="true" private="false"/>    
+    </display>  
+  </class>  
+  <association id="10">    
+    <end type="SOURCE" refId="1" navigable="false">      
+      <attribute id="11" name="QUERY_EXECUTION"/>      
+      <multiplicity id="12" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="9" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <nesting id="13">    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="1"/>  
+  </nesting>  
+  <generalization id="14">    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="3"/>  
+  </generalization>  
+  <nesting id="15">    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="5"/>  
+  </nesting>  
+  <generalization id="16">    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="8"/>  
+  </generalization>  
+  <generalization id="17">    
+    <end type="SOURCE" refId="4"/>    
+    <end type="TARGET" refId="3"/>  
+  </generalization>  
+  <generalization id="18">    
+    <end type="SOURCE" refId="2"/>    
+    <end type="TARGET" refId="3"/>  
+  </generalization>  
+  <generalization id="19">    
+    <end type="SOURCE" refId="6"/>    
+    <end type="TARGET" refId="3"/>  
+  </generalization>  
+  <classifier-display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+    visibility="true">    
+    <attributes public="false" package="false" protected="false" private="false"/>    
+    <operations public="true" package="true" protected="true" private="false"/>  
+  </classifier-display>  
+  <association-display labels="true" multiplicity="true"/>
+</class-diagram>
