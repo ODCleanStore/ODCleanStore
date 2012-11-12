@@ -61,7 +61,7 @@ public class WrappedResultSet {
      * Retrieves the current result as a ResultSet object.
      * @return the current result as a ResultSet object
      */
-    public java.sql.ResultSet getCurrentResultSet() {
+    protected java.sql.ResultSet getCurrentResultSet() {
         return resultSetPrefetched ? resultSet : null;
     }
 

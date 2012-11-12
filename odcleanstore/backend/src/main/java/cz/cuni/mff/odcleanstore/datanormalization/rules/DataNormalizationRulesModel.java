@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import virtuoso.jena.driver.VirtModel;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -97,7 +96,7 @@ public class DataNormalizationRulesModel {
 			cleanConnection = null;
 		}
 	}
-	
+
 	public DataNormalizationRulesModel (JDBCConnectionCredentials endpoint) {
 		this(endpoint, TableVersion.COMMITTED);
 	}
@@ -125,16 +124,14 @@ public class DataNormalizationRulesModel {
 			 * Fill the collection with rule instances for all records in database.
 			 */
 			while (results.next()) {
-				ResultSet result = results.getCurrentResultSet();
-
-				Integer id = result.getInt("id");
-				Integer groupId = result.getInt("groupId");
-				String type = result.getNString("type");
-				Integer componentId = result.getInt("componentId");
-				String modification = result.getNString("modification");
-				String label = result.getNString("label");
-				String description = result.getNString("description");
-				String componentDescription = result.getNString("componentDescription");
+				Integer id = results.getInt("id");
+				Integer groupId = results.getInt("groupId");
+				String type = results.getNString("type");
+				Integer componentId = results.getInt("componentId");
+				String modification = results.getNString("modification");
+				String label = results.getNString("label");
+				String description = results.getNString("description");
+				String componentDescription = results.getNString("componentDescription");
 
 				if (rules.containsKey(id)) {
 					DataNormalizationRule rule = rules.get(id);
@@ -142,9 +139,9 @@ public class DataNormalizationRulesModel {
 					rule.addComponent(componentId, type, modification, componentDescription);
 				} else {
 					DataNormalizationRule rule = new DataNormalizationRule(id, groupId, label, description);
-					
+
 					rule.addComponent(componentId, type, modification, componentDescription);
-					
+
 					rules.put(id, rule);
 				}
 			}
@@ -205,7 +202,7 @@ public class DataNormalizationRulesModel {
 			com.hp.hpl.jena.query.ResultSet resultSet = query.execSelect();
 
 			LOG.debug("Generating DN rules for <" + ontologyGraphURI + ">");
-			
+
 			List<DataNormalizationRule> ruleList = new ArrayList<DataNormalizationRule>();
 
 			/**
@@ -216,7 +213,7 @@ public class DataNormalizationRulesModel {
 
 				ruleList.addAll(processOntologyResource(solution.getResource("s"), ontology, ontologyGraphURI));
 			}
-			
+
 			return ruleList;
 		} finally {
 			closeCleanConnection();
@@ -233,7 +230,7 @@ public class DataNormalizationRulesModel {
 			 */
 			if (model.contains(resource, RDFS.range, XSD.xboolean)) {
 				DataNormalizationRule rule = new DataNormalizationBooleanRule(null, null, resource);
-				
+
 				LOG.info("Generated DN rule for boolean");
 
 				ruleList.add(rule);
@@ -244,7 +241,7 @@ public class DataNormalizationRulesModel {
 			 */
 			if (model.contains(resource, RDFS.range, XSD.xstring)) {
 				DataNormalizationRule rule = new DataNormalizationStringRule(null, null, resource);
-				
+
 				LOG.info("Generated DN rule for string");
 
 				ruleList.add(rule);
@@ -255,13 +252,13 @@ public class DataNormalizationRulesModel {
 			 */
 			if (model.contains(resource, RDFS.range, XSD.date)) {
 				DataNormalizationRule rule = new DataNormalizationDateRule(null, null, resource);
-				
+
 				LOG.info("Generated DN rule for date");
 
 				ruleList.add(rule);
 			}
 		}
-		
+
 		return ruleList;
 	}
 }
