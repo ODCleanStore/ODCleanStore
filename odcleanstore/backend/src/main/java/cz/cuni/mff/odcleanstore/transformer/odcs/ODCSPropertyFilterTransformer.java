@@ -31,7 +31,7 @@ public class ODCSPropertyFilterTransformer implements Transformer {
 
     static {
         StringBuilder listBuilder = new StringBuilder();
-        if (FILTERED_PROPERTIES.length > 1) {
+        if (FILTERED_PROPERTIES.length >= 1) {
             listBuilder.append('<').append(FILTERED_PROPERTIES[0]).append('>');
             for (int i = 1; i < FILTERED_PROPERTIES.length; i++) {
                 listBuilder.append(", <").append(FILTERED_PROPERTIES[i]).append('>');
