@@ -100,7 +100,7 @@ The diagram lists all main functional units in \odcs:
 			\item Other transformers -- Other transformers such as Quality Aggregator, Blank Node Remover etc.
 		\end{itemize}
 	\item \importantterm{Administration Frontend.}
-		Web application written in Java from which \odcs can be managed. In Administration Frontend, the user can define pipelines for data processing, rules for transformers, manage ontologies, Output Webservice settings etc.
+		Web application written in Java from which \odcs can be managed. In \FE, the user can define pipelines for data processing, rules for transformers, manage ontologies, Output Webservice settings etc.
 \end{itemize}
 
 Each of these parts will be described later in this document. In the source code, the components are divided into several maven projects described in Section \ref{sec:mavenBuild}.
@@ -120,7 +120,7 @@ Data processing is realized by \term{transformers} that are applied to data bein
 
 It is important to distinct between a \term{transformer} and \term{transformer instance}. By \term{transformer}, we mean the Java class which implements the \code{Transformer} interface and is registered in ODCleanStore administration (managed by users in role Administrator). \term{Transformer instance} is assignment of such transformer to a pipeline. For example, the Quality Assessment transformer is registered in ODCleanStore by default. The user can create two pipelines and assign the Quality Assessment transformer to each of them, thus creating two transformer instances.
 
-Some transformers can be configured in Administration Frontend by \term{rules}. In general, these rules are grouped to \term{rule groups}. Rule groups can be then assigned to transformer instances.
+Some transformers can be configured in \FE by \term{rules}. In general, these rules are grouped to \term{rule groups}. Rule groups can be then assigned to transformer instances.
 
 See also Section \ref{sec:dataLifecycle} \nameref{sec:dataLifecycle}.
 
@@ -176,7 +176,7 @@ Third, it is a result of a long process of analysis. From the initial vision and
 \subsubsection{Internal Interfaces}
 In order to minimize interfaces between parts of \odcs, to minimize system requirements and to make the system more robust, we decided to prefer communication through data shared in database.
 
-There is no direct interface between Engine and Administration Frontend, but the Administration Frontend saves all configuration to a relational database from which the Engine can retrieve it. This enbles updates of settings in transactions, prevents synchronization issues and enables the two parts to run completely independendently (even on separate machines).
+There is no direct interface between Engine and \FE, but the \FE saves all configuration to a relational database from which the Engine can retrieve it. This enbles updates of settings in transactions, prevents synchronization issues and enables the two parts to run completely independendently (even on separate machines).
 
 Transformers run in a pipeline are isolated and don't know about each other. Instead of passing data to be transformed through an interface in memory, only the names of named graphs where data are stored are passed to each transformer. This enables to write transformers that are oblivious to \odcs as much as possible and only need to work with data by manipulating the database. Also, it gives transformers the full power of the SPARQL/SPARUL language. Although we should note that in practice, the transformer implementation may be tied with the use of Virtuoso as the underlying database, this is not such a downside because Virtuoso is one of the most popular RDF databases.
 
@@ -203,7 +203,7 @@ The assignment of the project impose several additional requirements. This secti
 
 \reqparagraph{It should be easy to incorporate other components, such as a component computing popularity of the data sources.} This requirement is satisfied with the introduction of custom transformers.
 
-\reqparagraph{The application will involve graphical user interface enabling management of all kinds of policies etc.} Administration Frontend enables management of all relevant settings. In addition, several user roles are supported and user accounts can be managed from Administration Frontend.
+\reqparagraph{The application will involve graphical user interface enabling management of all kinds of policies etc.} \FE enables management of all relevant settings. In addition, several user roles are supported and user accounts can be managed from \FE.
 
 \reqparagraph{The application will run at least on Windows 7, Windows Server 2008, Linux.} \odcs requires Java Runtime Environment and Virtuoso installation, both supported on all of the listed platforms. \odcs has been tested on Windows 7, Windows Server 2008 and Debian distribution of Linux.
 
@@ -222,7 +222,7 @@ RDF data store provided by Virtuoso supports reasoning, most notably \code{owl:s
 The downside is somewhat buggy behavior (especially SPARQL query parsing) and lack of working support for transactions with RDF data.
 
 \subsection{Administration Frontend}
-Apache Wicket\footnote{\url{http://wicket.apache.org/}} is used for implemenation of the Administration Frontend. It is a component system for writing web applications in Java. Advantages are proper mark-up and logic separation, POJO data model and rapid development of this particular type of web application. Wicket was also chosen by our sister project Strigil\footnote{\url{http://strigil.sourceforge.net/}} so a more tight integration of the two tools may be possible in the future.
+Apache Wicket\footnote{\url{http://wicket.apache.org/}} is used for implemenation of the \FE. It is a component system for writing web applications in Java. Advantages are proper mark-up and logic separation, POJO data model and rapid development of this particular type of web application. Wicket was also chosen by our sister project Strigil\footnote{\url{http://strigil.sourceforge.net/}} so a more tight integration of the two tools may be possible in the future.
 
 Spring\footnote{\url{http://www.springsource.org/}} is used for simplified access to the relational database and transaction management. Use of Hibernate\footnote{\url{http://www.hibernate.org/}} for the DAO layer was rejected because of problems with integration with Wicket.
 
@@ -282,7 +282,7 @@ Move to directory \code{odcleanstore} within your local clone of the repository 
       mvn clean package install
 \end{verbatim}
 
-After that, Engine binaries can be found in directory \code{odcleanstore/engine/target} and the WAR file of Administration Frontend at \code{odcleanstore/webfrontend/target}. Now you can deploy the application as described in \refadminmanual. \todo{jestli tam bude jenom popis instalatoru, mel by se rucni deploy popsat tady a pridat referenci na instalaci Virtuosa}
+After that, Engine binaries can be found in directory \code{odcleanstore/engine/target} and the WAR file of \FE at \code{odcleanstore/webfrontend/target}. Now you can deploy the application as described in \refadminmanual. \todo{jestli tam bude jenom popis instalatoru, mel by se rucni deploy popsat tady a pridat referenci na instalaci Virtuosa}
 
 \section{Repository structure}
 \subsection{Branches}
@@ -315,7 +315,7 @@ This is an outline of directory structure in the git repository:
 			\item[inputclient/]  -- sources of \code{odcs-imputclient} artifact (Java client for Input Webservice)
 			\item[simplescraper/]  -- simple Input Webservice import tool
 			\item[simpletransformer/]  -- example of a custom transformer
-			\item[webfrontend/]  -- sources of Administration Frontend
+			\item[webfrontend/]  -- sources of \FE
 			\item[pom.xml] -- the root maven POM file
 		\end{dirlist}
 \end{dirlist}
@@ -330,7 +330,7 @@ The project is divided into several artifacts. The root POM (\code{pom.xml}) in 
 	\item \code{odcs-backend} -- predefined transformers, Query Execution and Conflict Resolution
 	\item \code{odcs-engine} -- Engine component (running Input and Output Webservice and the data processing queue)
 	\item \code{odcs-comlib} -- components shared by \code{odcs-inputclient} and Input Webservice
-	\item \code{odcs-webfrontend} -- Administration Frontend web application
+	\item \code{odcs-webfrontend} -- \FE web application
 	\item \code{odcs-inputclient} -- client library for Input Webservice (provides a Java API for accessing the webservice)
 	\item \code{odcs-simplescraper} -- a simple command-line tool for importing data through Input Webservices
 	\item \code{odcs-simpletransformer} -- example of a custom transformer
@@ -386,7 +386,7 @@ Code shared by multiple components in \odcs is extracted to Maven artifact \code
 \end{itemize}
 
 \section{Configuration}
-The global configuration can be accessed using static methods of \code{ConfigLoader}. First, the configuration must be loaded using \code{loadConfig()} methods. Both Engine and Administration Frontend ensure that this is done as soon as they start so that other components may access the configuration already when they are loaded. See \refadminmanual for description of the configuration file.
+The global configuration can be accessed using static methods of \code{ConfigLoader}. First, the configuration must be loaded using \code{loadConfig()} methods. Both Engine and \FE ensure that this is done as soon as they start so that other components may access the configuration already when they are loaded. See \refadminmanual for description of the configuration file.
 
 \begin{figure}[htb]
     \centering
@@ -400,7 +400,7 @@ Configuration for each component is in classes called \code{XXXConfig} inheritin
 \section{Database Access}
 Classes \code{JDBCConnectionCredentials} and \code{SparqlEndpointConnectionCredentials} are containers for information necessary for connecting to the database.
 
-Administration Frontend uses its own database access layer using Spring templates. The rest of \odcs should use classes \code{VirtuosoConnectionWrapper} and \code{WrappedResultSet}. These two classes provide methods for both querying and updating the relational database and working with SPARQL. They also provide methods for conversion of Virtuoso SQL types to Java types, working with transactions etc. Note that SPARQL update operations should be executed with log level set to AUTOCOMMIT (default).
+\FE uses its own database access layer using Spring templates. The rest of \odcs should use classes \code{VirtuosoConnectionWrapper} and \code{WrappedResultSet}. These two classes provide methods for both querying and updating the relational database and working with SPARQL. They also provide methods for conversion of Virtuoso SQL types to Java types, working with transactions etc. Note that SPARQL update operations should be executed with log level set to AUTOCOMMIT (default).
 
 Use of \code{VirtuosoConnectionWrapper} is also recommended for implementation of custom transformers. An example of how it can be used is in  \lstlistingname~\ref{lst:virtuosoConnectionWrapper}.
 
@@ -611,9 +611,9 @@ The \code{shutdown} method is called when Engine shuts down and can be used e.g.
 \section{Transformer Instance Configuration}
 Each instance of a transformer in a pipeline may have its own configuration (for explanation of the difference between \term{transformer} and \term{transformer instance}, see Section \ref{sec:dataProcessing}). From the point of view of a transformer, it is a plain string which can be obtained by calling the \code{getTransformerConfiguration()} method.
 
-This configuration string can be edited in Administration Frontend. The transformer may use the value in any way it needs, e.g. it may contain XML configuration, the recommended practice is to use the Java \code{Properties} file format, however. This format is used by transformers included by default in \odcs unless stated otherwise.
+This configuration string can be edited in \FE. The transformer may use the value in any way it needs, e.g. it may contain XML configuration, the recommended practice is to use the Java \code{Properties} file format, however. This format is used by transformers included by default in \odcs unless stated otherwise.
 
-Instances of important transformers (\QA, \DN, \OI) can be also configured by assigning rule groups to them in Administration Frontend.
+Instances of important transformers (\QA, \DN, \OI) can be also configured by assigning rule groups to them in \FE.
 
 \section{Contract between Engine and Transformers}
 \label{sec:transformerContract}
@@ -624,9 +624,9 @@ The Engine ensures that:
 \begin{itemize}
 	\item When a transformer is applied to a transformed graph, no other transformer (in the same nor different pipeline) is applied to it. In other words, the transformed graph is not changed externally while a transformer is working on it.
 	\item If the transformer throws an exception, all changes made in the pipeline on the graph in the dirty database are safely reverted (and the state of the graph is changed to WRONG). The graph may be processed again later. If the transformer was run on a graph already in the clean database, the version in the clean database in intact.
-	\item Transformers may use the directory given by the \code{getTransformerDirectory()} method for they own purposes, e.g. storing temporary files, log files etc. It is a subdirectory named as the ID of the executed transformer instance inside the \quot{working directory} of the transformer (configurable in Administration Frontend).
+	\item Transformers may use the directory given by the \code{getTransformerDirectory()} method for they own purposes, e.g. storing temporary files, log files etc. It is a subdirectory named as the ID of the executed transformer instance inside the \quot{working directory} of the transformer (configurable in \FE).
 
-		Data specific for one transformer instance may be stored in this directory. Data shared by all instances of the same transformer may be stored in the parent directory of that returned by \code{getTransformerDirectory()}. Engine ensures that this parent directory will be the same for all instances of the same transformer (unless working directory is changed in Administration Frontend, of course).
+		Data specific for one transformer instance may be stored in this directory. Data shared by all instances of the same transformer may be stored in the parent directory of that returned by \code{getTransformerDirectory()}. Engine ensures that this parent directory will be the same for all instances of the same transformer (unless working directory is changed in \FE, of course).
 \end{itemize}
 
 In return, transformers should satisfy:
@@ -693,6 +693,80 @@ This transformer is automatically added by Engine as the first transformer of ev
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Administration Frontend}
+\section{Purpose}
+\section{Interface}
+\section{Implementation}
+
+\subsection{Database Access Layer}
+\FE has a layer for accessing the database based on Spring and its JDBC templates. We chose not to use Hibernate due to integration problems with Wicket and use custom implemenation of business and DAO objects.
+
+Entities retrieved from database are represented by POJOs (Plain Old Java Objects). The code that actually retrieves them is in a DAO class, by convention having suffix \code{Dao} and inheriting from the base class \code{Dao}. DAO objects internally call methods of the Spring's \code{JdbcTemplate} and passes to it a class extending \code{CustomRowMapper} which implements creation of the POJO business object(s) from query results.
+
+The DAO objects can be obtained from an instance of \code{DaoLookupFactory} (available e.g. as a protected member of \code{FrontendPage}). A DAO object can be obtained by calling a \code{getDao()} method which returns an existing DAO object or creates a new one if necessary. Signatures of \code{getDao()} methods are:
+
+\begin{verbatim}
+  public <T extends Dao> T getDao(Class<T> daoClass)
+  public <T extends Dao> T getDao(Class<T> daoClass, boolean commitable)
+\end{verbatim}
+
+We utilize generics in Java to obtain a specific type of a DAO class. In addition, there may be two versions of a DAO class -- one for a read-only view of commited version of an entity and one for the working version visible only to the author (see Section \ref{sec:authorshipAuth}). One can use the second version of the \code{getDao()} method and request either the read-only or commitable version.
+
+Commitable and read-only DAOs are implemented using a custom \code{@CommitableDao} annotation. The read-only version should be annotated with \code{@CommitableDao} having the commitable DAO class as its argument. The commitable version must inherit from the read-only DAO.
+
+Hierarchy of DAO objects is depicted on \figurename~\ref{fig:feDAO}.
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=1.05\textwidth]{images/dia-fe-dao.png}
+    \caption{Selected DAO classes used in \FE}
+	\label{fig:feDAO}
+\end{figure}
+
+\subsubsection{Important DAO Classes}
+Description of the most important DAO classes follows:
+
+\begin{description}[style=nextline,font=\ttfamily]
+	\item[Dao] This is the base class of all DAO classes. It keeps an instance of \code{JdbcTemplate} and provides access to it either directly or through utility methods \code{jdbcQuery()}, \code{jdbcQueryForInt()}, \code{jdbcQueryForList()}, etc. It can also execute code in a Spring transaction with \code{executeInTransaction()} and handles proper recognition of some exceptions thrown by Virtuoso JDBC driver.
+	\item[DaoTemplate] This method provides convenience methods for loading of one or more entities from the database. Its \code{getTableName()}, \code{getRowMapper()}, \code{getSelectAndFromClause()}, \code{postLoadAllBy()} and \code{postLoadBy()} methods can be used to customize the loading. Other methods are declared as final.
+	\item[DaoForEntityWithSurrogateKey] This DAO is used for working with entities with a primary key. The corresponding business objects must inherit from \code{EntityWithSurrogateKey}. It extends \code{DaoTemplate} with additional methods for loading, deleting and saving an entity by its primary key.
+	\item[DaoForAuthorableEntity] This class is intended for entities that can be edited only by their author. It adds an abstract method \code{getAuthorId()}.
+	\item[AbstractRuleDao] Base class for (QA, DN, Linker) transformer rules. It provides methods for commiting of changes and disables any delete and update operations.
+	\item[XXXRuleDao] Concrete classes inheriting from AbstractRuleDao. It can be used for read-only access to rules (their commited version, respectively). \code{save()} and \code{update()} methods throw an exception. It is annotated with \code{@CommittableDao(XXXRuleUncommittedDao.class)} so that the commitable/editable version can be obtained.
+
+		An instance of this DAO may be obtained by calling e.g.\\
+		\code{daoLookupFactory.getDao(XXXRuleDao, false)}.
+	\item[XXXRuleUncommittedDao] These classes inherit from \code{XXXRuleDao} and provide the editable and commitable view on transformer rules. Changes may be commited in transaction by calling \code{commitChanges()}.
+
+		An instance of this DAO may be obtained by calling e.g.\\
+		\code{daoLookupFactory.getDao(XXXRuleDao, true)}.
+\end{description}
+
+\subsection{Authorization}
+There are two main scopes of authorization in \odcs -- authorization based on roles and authorization based on the authorship of an entity.
+
+\subsubsection{Roles}
+Authorization based on roles recognizes 5 roles: Administrator (ADM), Pipeline Creator (PIC), Ontology Creator (ONC), Data Producer (SCR) and Data Consumer (USR). Their detailed description is given in \refusermanual. Roles can be assigned to users in \FE and a user can have any number of roles.
+
+We use means provided by Wicket to apply authorization by role. Pages and components can be marked with \code{@AuthorizeInstantiation} annotation with enumeration of roles that are required to access the page or component (at least one of the roles from the given list is required). The roles assigned to the currently logged-in user are kept in the session object \code{ODCSWebFrontendSession} which extends Wicket \code{AuthenticatedWebSession} for this purpose.
+
+\subsubsection{Authorship}
+\label{sec:authorshipAuth}
+Authorization based on authorship is necessary for entities that can be only edited by their author. Rule groups and rules, for example, can be only edited by the user who created them or by user having the role Administrator. To facilitate checking of whether the current user is authorized for entity editing, class \code{LimitedEditingPage} extending \code{FrontendPage} was introduced.
+
+\code{LimitedEditingPage} requires two additinal arguments in its constructor: edited entity ID and a DAO class for the authorable entity (\code{DaoForAuthorableEntity}), which can retrieve author based on entity ID. It then checks whether the current user is authorized using a helper class \code{AuthorizationHelper} and makes this information accessible with protected methods.
+
+Every page that needs information about whether the user is authorized for editation of can call protected methods \code{checkUnauthorizedInstantiation()} to prevent the user from displaying the page or \code{isEditable()} to detect whether the user is authorized for editation.
+
+Because transformer rules and related settings must be commited before the changes are visible to  users not 
+authorized for editation (who have a read-only access to rules), there are two versions of rules in the database -- one version is visible for the author and Administrators (these tables have suffix \code{\_UNCOMMITED}) and one version visible for Engine and other users. The proper table version for the current user can be obtained by method \code{getVisibleTableVersion()}.
+
+\code{}
+
+\section{Extending}
+\subsection{How to Add a New Page}
+\subsection{How to Add a New \DN Template}
+
+
 
 \todo{authorization system}
 
@@ -711,10 +785,6 @@ This transformer is automatically added by Engine as the first transformer of ev
 \todo{plus known bugs?}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapwithtoc{References}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \appendix
 
@@ -724,13 +794,64 @@ This transformer is automatically added by Engine as the first transformer of ev
 
 \chapter{ODCS ontology}
 
-\chapter{Relational database schema}
+\chapter{Relational Database Schema}
 \label{chap:reldb}
 
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[scale=0.6]{images/db-engine.png}
+    \caption{Diagrams of database tables related to Engine}
+	\label{fig:dbEngine}
+\end{figure}
 
-\todo{asi SQL create tables dotazy + popis významu jednotlivých tabulek v textu u každé komponenty, která je používá}
-\todo{ https://sourceforge.net/p/odcleanstore/wiki/Relational\%20database\%20documentation/}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[scale=0.6]{images/db-pipelines.png}
+    \caption{Diagrams of database tables related to pipelines}
+	\label{fig:dbPipelines}
+\end{figure}
 
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[scale=0.6]{images/db-fe.png}
+    \caption{Diagrams of database tables related to \FE}
+	\label{fig:dbFrontend}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[scale=0.6]{images/db-qa.png}
+    \caption{Diagrams of database tables related to \QA}
+	\label{fig:dbQA}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[scale=0.6]{images/db-dn.png}
+    \caption{Diagrams of database tables related to \DN}
+	\label{fig:dbDN}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[scale=0.6]{images/db-oi.png}
+    \caption{Diagrams of database tables related to \OI}
+	\label{fig:dbOI}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[scale=0.6]{images/db-cr.png}
+    \caption{Diagrams of database tables related to \CR}
+	\label{fig:dbCR}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[scale=0.6]{images/db-misc.png}
+    \caption{Diagrams of miscellaneous database tables}
+	\label{fig:dbMisc}
+\end{figure}
 
 \chapter{(\quot{chronologicky popis prubehu praci na projektu})}
 
