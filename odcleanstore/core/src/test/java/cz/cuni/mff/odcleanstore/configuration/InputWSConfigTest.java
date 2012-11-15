@@ -23,9 +23,12 @@ public class InputWSConfigTest extends ConfigTestBase {
 
         Mockito.when(properties.getProperty(
                 InputWSConfig.GROUP_PREFIX + "endpoint_url")).thenReturn("http://localhost:8088/inputws");
+        Mockito.when(properties.getProperty(
+                InputWSConfig.GROUP_PREFIX + "named_graphs_prefix")).thenReturn("http://opendata.cz/infrastructure/odcleanstore/");
         
         InputWSConfig inputWSConfig = InputWSConfig.load(properties);
 
         assertEquals(new URL("http://localhost:8088/inputws"), inputWSConfig.getEndpointURL());
+        assertEquals(new URL("http://opendata.cz/infrastructure/odcleanstore/"), inputWSConfig.getNamedGraphsPrefix());
     }
 }

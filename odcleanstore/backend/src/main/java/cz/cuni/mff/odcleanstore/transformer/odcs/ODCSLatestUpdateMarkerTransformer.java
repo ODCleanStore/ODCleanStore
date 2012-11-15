@@ -71,6 +71,7 @@ public class ODCSLatestUpdateMarkerTransformer implements Transformer {
             + "\n   OPTIONAL { ?graph <" + ODCS.updateTag + "> ?updateTag }."
             + "\n   FILTER (%3$s)."
             + "\n }"
+            + "\n GROUP BY ?graph ?metadataGraph"
             + "\n HAVING COUNT(?source) = %4$d";
 
     /**
