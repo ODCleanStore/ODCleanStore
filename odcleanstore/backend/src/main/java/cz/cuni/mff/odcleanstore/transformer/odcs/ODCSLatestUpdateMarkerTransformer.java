@@ -208,6 +208,7 @@ public class ODCSLatestUpdateMarkerTransformer implements Transformer {
     private void deleteLatestUpdateLabel(String graph, String metadataGraph, VirtuosoConnectionWrapper cleanConnection)
             throws QueryException {
 
+        LOG.info("Unmarking graph as the latest update - {}", graph);
         String query = String.format(Locale.ROOT, DELETE_MARKER_QUERY, metadataGraph, graph);
         cleanConnection.execute(query);
     }
