@@ -1,0 +1,444 @@
+<class-diagram version="1.0.10" icons="true" automaticImage="PNG" always-add-relationships="false" 
+  generalizations="true" realizations="true" associations="true" dependencies="false" nesting-relationships="true">  
+  <class id="1" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.conflictresolution.aggregation.NoneAggregation" project="odcs-backend" 
+    file="/odcs-backend/src/main/java/cz/cuni/mff/odcleanstore/conflictresolution/aggregation/NoneAggregation.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="1136" y="672"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="2" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.conflictresolution.aggregation.BestSelectedAggregation" project="odcs-backend" 
+    file="/odcs-backend/src/main/java/cz/cuni/mff/odcleanstore/conflictresolution/aggregation/BestSelectedAggregation.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="965" y="677"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="3" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.conflictresolution.aggregation.ShortestAggregation" project="odcs-backend" 
+    file="/odcs-backend/src/main/java/cz/cuni/mff/odcleanstore/conflictresolution/aggregation/ShortestAggregation.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="999" y="734"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="4" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.conflictresolution.aggregation.ConcatAggregation" project="odcs-backend" 
+    file="/odcs-backend/src/main/java/cz/cuni/mff/odcleanstore/conflictresolution/aggregation/ConcatAggregation.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="613" y="641"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="5" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.conflictresolution.aggregation.BestSourceAggregation" project="odcs-backend" 
+    file="/odcs-backend/src/main/java/cz/cuni/mff/odcleanstore/conflictresolution/aggregation/BestSourceAggregation.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="1106" y="884"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="6" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.conflictresolution.aggregation.BestAggregation" project="odcs-backend" 
+    file="/odcs-backend/src/main/java/cz/cuni/mff/odcleanstore/conflictresolution/aggregation/BestAggregation.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="1181" y="699"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="7" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.conflictresolution.aggregation.MedianAggegation.DateMedianAggregation" 
+    project="odcs-backend" 
+    file="/odcs-backend/src/main/java/cz/cuni/mff/odcleanstore/conflictresolution/aggregation/MedianAggegation.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="745" y="854"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="8" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.conflictresolution.aggregation.MedianAggegation.MedianAggregationImpl" 
+    project="odcs-backend" 
+    file="/odcs-backend/src/main/java/cz/cuni/mff/odcleanstore/conflictresolution/aggregation/MedianAggegation.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="778" y="739"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="9" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.conflictresolution.aggregation.CalculatedValueAggregation" project="odcs-backend" 
+    file="/odcs-backend/src/main/java/cz/cuni/mff/odcleanstore/conflictresolution/aggregation/CalculatedValueAggregation.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="700" y="593"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="10" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.conflictresolution.aggregation.MedianAggegation.BooleanMedianAggregation" 
+    project="odcs-backend" 
+    file="/odcs-backend/src/main/java/cz/cuni/mff/odcleanstore/conflictresolution/aggregation/MedianAggegation.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="810" y="917"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <interface id="11" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationMethod" project="odcs-backend" 
+    file="/odcs-backend/src/main/java/cz/cuni/mff/odcleanstore/conflictresolution/aggregation/AggregationMethod.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="925" y="448"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </interface>  
+  <class id="12" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.conflictresolution.aggregation.SingleValueAggregation" project="odcs-backend" 
+    file="/odcs-backend/src/main/java/cz/cuni/mff/odcleanstore/conflictresolution/aggregation/SingleValueAggregation.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="931" y="603"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="13" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AvgAggregation" project="odcs-backend" 
+    file="/odcs-backend/src/main/java/cz/cuni/mff/odcleanstore/conflictresolution/aggregation/AvgAggregation.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="648" y="666"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="14" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.conflictresolution.aggregation.SelectedValueAggregation" project="odcs-backend" 
+    file="/odcs-backend/src/main/java/cz/cuni/mff/odcleanstore/conflictresolution/aggregation/SelectedValueAggregation.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="1149" y="601"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="15" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AllAggregation" project="odcs-backend" 
+    file="/odcs-backend/src/main/java/cz/cuni/mff/odcleanstore/conflictresolution/aggregation/AllAggregation.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="1209" y="724"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="16" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationMethodFactory" project="odcs-backend" 
+    file="/odcs-backend/src/main/java/cz/cuni/mff/odcleanstore/conflictresolution/aggregation/AggregationMethodFactory.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="728" y="445"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="17" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AnyAggregation" project="odcs-backend" 
+    file="/odcs-backend/src/main/java/cz/cuni/mff/odcleanstore/conflictresolution/aggregation/AnyAggregation.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="1245" y="752"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="18" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.conflictresolution.aggregation.MedianAggegation" project="odcs-backend" 
+    file="/odcs-backend/src/main/java/cz/cuni/mff/odcleanstore/conflictresolution/aggregation/MedianAggegation.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="780" y="643"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="19" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.conflictresolution.aggregation.MedianAggegation.NumericMedianAggregation" 
+    project="odcs-backend" 
+    file="/odcs-backend/src/main/java/cz/cuni/mff/odcleanstore/conflictresolution/aggregation/MedianAggegation.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="781" y="884"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="20" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.conflictresolution.aggregation.MaxAggregation" project="odcs-backend" 
+    file="/odcs-backend/src/main/java/cz/cuni/mff/odcleanstore/conflictresolution/aggregation/MaxAggregation.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="1004" y="764"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="21" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.conflictresolution.aggregation.MinAggregation" project="odcs-backend" 
+    file="/odcs-backend/src/main/java/cz/cuni/mff/odcleanstore/conflictresolution/aggregation/MinAggregation.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="1026" y="795"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="22" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationMethodBase" project="odcs-backend" 
+    file="/odcs-backend/src/main/java/cz/cuni/mff/odcleanstore/conflictresolution/aggregation/AggregationMethodBase.java" 
+    binary="false">    
+    <position height="181" width="182" x="837" y="413"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="23" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.conflictresolution.aggregation.LatestAggregation" project="odcs-backend" 
+    file="/odcs-backend/src/main/java/cz/cuni/mff/odcleanstore/conflictresolution/aggregation/LatestAggregation.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="1044" y="827"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="24" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.conflictresolution.aggregation.LongestAggregation" project="odcs-backend" 
+    file="/odcs-backend/src/main/java/cz/cuni/mff/odcleanstore/conflictresolution/aggregation/LongestAggregation.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="1073" y="854"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <interface id="25" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.conflictresolution.aggregation.DistanceMetric" project="odcs-backend" 
+    file="/odcs-backend/src/main/java/cz/cuni/mff/odcleanstore/conflictresolution/aggregation/DistanceMetric.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="731" y="501"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </interface>  
+  <class id="26" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.conflictresolution.aggregation.MedianAggegation.StringMedianAggregation" 
+    project="odcs-backend" 
+    file="/odcs-backend/src/main/java/cz/cuni/mff/odcleanstore/conflictresolution/aggregation/MedianAggegation.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="727" y="823"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="27" corner="BOTTOM_RIGHT" language="java" 
+    name="cz.cuni.mff.odcleanstore.conflictresolution.aggregation.MedianAggegation.TimeMedianAggregation" 
+    project="odcs-backend" 
+    file="/odcs-backend/src/main/java/cz/cuni/mff/odcleanstore/conflictresolution/aggregation/MedianAggegation.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="695" y="794"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <generalization id="28">    
+    <end type="SOURCE" refId="23"/>    
+    <end type="TARGET" refId="2"/>  
+  </generalization>  
+  <generalization id="29">    
+    <end type="SOURCE" refId="15"/>    
+    <end type="TARGET" refId="14"/>  
+  </generalization>  
+  <generalization id="30">    
+    <end type="SOURCE" refId="13"/>    
+    <end type="TARGET" refId="9"/>  
+  </generalization>  
+  <generalization id="31">    
+    <end type="SOURCE" refId="24"/>    
+    <end type="TARGET" refId="2"/>  
+  </generalization>  
+  <generalization id="32">    
+    <end type="SOURCE" refId="26"/>    
+    <end type="TARGET" refId="8"/>  
+  </generalization>  
+  <generalization id="33">    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="8"/>  
+  </generalization>  
+  <association id="34">    
+    <end type="SOURCE" refId="16" navigable="false">      
+      <attribute id="35" name="singleValueAggregation">        
+        <position height="14" width="118" x="702" y="291"/>      
+      </attribute>      
+      <multiplicity id="36" minimum="0" maximum="1">        
+        <position height="14" width="18" x="823" y="283"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="11" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="37">    
+    <end type="SOURCE" refId="16" navigable="false">      
+      <attribute id="38" name="distanceMetric">        
+        <position height="14" width="74" x="444" y="240"/>      
+      </attribute>      
+      <multiplicity id="39" minimum="0" maximum="1">        
+        <position height="14" width="18" x="827" y="275"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="25" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="40">    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="8"/>  
+  </generalization>  
+  <generalization id="41">    
+    <end type="SOURCE" refId="1"/>    
+    <end type="TARGET" refId="14"/>  
+  </generalization>  
+  <generalization id="42">    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="2"/>  
+  </generalization>  
+  <nesting id="43">    
+    <end type="SOURCE" refId="18"/>    
+    <end type="TARGET" refId="8"/>  
+  </nesting>  
+  <generalization id="44">    
+    <end type="SOURCE" refId="20"/>    
+    <end type="TARGET" refId="2"/>  
+  </generalization>  
+  <generalization id="45">    
+    <end type="SOURCE" refId="5"/>    
+    <end type="TARGET" refId="2"/>  
+  </generalization>  
+  <generalization id="46">    
+    <end type="SOURCE" refId="6"/>    
+    <end type="TARGET" refId="14"/>  
+  </generalization>  
+  <generalization id="47">    
+    <end type="SOURCE" refId="17"/>    
+    <end type="TARGET" refId="14"/>  
+  </generalization>  
+  <generalization id="48">    
+    <end type="SOURCE" refId="27"/>    
+    <end type="TARGET" refId="8"/>  
+  </generalization>  
+  <generalization id="49">    
+    <end type="SOURCE" refId="18"/>    
+    <end type="TARGET" refId="9"/>  
+  </generalization>  
+  <generalization id="50">    
+    <end type="SOURCE" refId="19"/>    
+    <end type="TARGET" refId="8"/>  
+  </generalization>  
+  <generalization id="51">    
+    <end type="SOURCE" refId="21"/>    
+    <end type="TARGET" refId="2"/>  
+  </generalization>  
+  <generalization id="52">    
+    <end type="SOURCE" refId="2"/>    
+    <end type="TARGET" refId="14"/>  
+  </generalization>  
+  <generalization id="53">    
+    <end type="SOURCE" refId="9"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <association id="54">    
+    <end type="SOURCE" refId="22" navigable="false">      
+      <attribute id="55" name="distanceMetric">        
+        <position height="14" width="76" x="592" y="270"/>      
+      </attribute>      
+      <multiplicity id="56" minimum="0" maximum="1">        
+        <position height="14" width="18" x="582" y="255"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="25" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="57">    
+    <end type="SOURCE" refId="4"/>    
+    <end type="TARGET" refId="9"/>  
+  </generalization>  
+  <generalization id="58">    
+    <end type="SOURCE" refId="12"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <generalization id="59">    
+    <end type="SOURCE" refId="14"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <realization id="60">    
+    <end type="SOURCE" refId="22"/>    
+    <end type="TARGET" refId="11"/>  
+  </realization>  
+  <classifier-display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+    visibility="true">    
+    <attributes public="false" package="false" protected="false" private="false"/>    
+    <operations public="false" package="false" protected="false" private="false"/>  
+  </classifier-display>  
+  <association-display labels="false" multiplicity="true"/>
+</class-diagram>
