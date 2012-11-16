@@ -15,20 +15,16 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% todo
 % !List of features and intended use-cases (zduvodneni featur FE)
 	% rrequirements - functional, intraface, non-functional?
 
 
 % release proces
 % issues redmine - debugging & spol
-% used technologies
 % FE
-	% zdokumentovat, co je potřeba pro přidání DN template apod.
   % FE - popsat, že to je webová aplikace, dá se spouštět pod tomcatem, odkaz na install manual
-  % význam abstraktních Dao
   % uncommitted tabulky
-  % jak přidat novou stránku
-
 
 	% třídy
 		% webfrontend.behavior - Wicket Behavior implementations
@@ -116,9 +112,9 @@ Each of these parts will be described later in this document. In the source code
 
 \subsection{Data Processing}
 \label{sec:dataProcessing}
-Data processing is realized by \term{transformers} that are applied to data being processed by Engine in a \term{pipeline}. A transformer can be any class implementing the \code{Transformer} interface but typically it only manipulates (change, add, delete) processed data in database. Several transformers ship with \odcs, such as Quality Assessment, Linker or Data Normalization.
+Data processing is realized by \term{transformers} that are applied to data being processed by Engine in a \term{pipeline}. A transformer can be any class implementing the \code{Transformer} interface but typically it only manipulates (change, add, delete) processed data in database. Several transformers ship with \odcs, such as \QA, \OI or \DN.
 
-It is important to distinct between a \term{transformer} and \term{transformer instance}. By \term{transformer}, we mean the Java class which implements the \code{Transformer} interface and is registered in ODCleanStore administration (managed by users in role Administrator). \term{Transformer instance} is assignment of such transformer to a pipeline. For example, the Quality Assessment transformer is registered in ODCleanStore by default. The user can create two pipelines and assign the Quality Assessment transformer to each of them, thus creating two transformer instances.
+It is important to distinct between a \term{transformer} and \term{transformer instance}. By \term{transformer}, we mean the Java class which implements the \code{Transformer} interface and is registered in ODCleanStore administration (managed by users in role Administrator). \term{Transformer instance} is assignment of such transformer to a pipeline. For example, the \QA transformer is registered in ODCleanStore by default. The user can create two pipelines and assign the \QA transformer to each of them, thus creating two transformer instances.
 
 Some transformers can be configured in \FE by \term{rules}. In general, these rules are grouped to \term{rule groups}. Rule groups can be then assigned to transformer instances.
 
@@ -348,7 +344,7 @@ There are two profiles in addition to the default one in the root POM.
 
 \begin{itemize}
 	\item \code{javadoc} profile -- enables generation of javadoc (which is disabled in the default profile). 
-	\item \code{systest} profile -- enables unit tests in \code{systest/} subdirectories, which test functionality related to the database. In order to run these tests, a new Virtuoso instance with settings as in \code{/data/virtuoso\_configuration/virtuoso.ini-test} must be set up first. \todo{ref to Virtuoso installation guide}
+	\item \code{systest} profile -- enables unit tests in \code{systest/} subdirectories, which test functionality related to the database. In order to run these tests, a new Virtuoso instance with settings as in \code{/data/virtuoso\_configuration/virtuoso.ini-test} must be set up first.
 \end{itemize}
 
 Maven build for the selected profile can be executed with command line option \code{-P}:
@@ -491,7 +487,7 @@ In order to add a new type of query to Output Webservice, the following steps sh
 \label{sec:QE}
 
 \section{Purpose}
-The purpose of \QE is to retrieve result for a query (asked through Input Webservice), resolve conflicts using the Conflict Resolution component and return result.
+The purpose of \QE is to retrieve result for a query (asked through Input Webservice), resolve conflicts using the \CR and return result.
 
 Triples that \QE retrieves are:
 \begin{enumerate}
@@ -546,16 +542,183 @@ In addition, \QE loads settings from the following tables in relational database
 	\item and tables referenced from tables above
 \end{itemize}
 
-\todo{zmínka o engine prefixu}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Conflict Resolution}
 \label{sec:CR}
 
 \section{Purpose}
+Data stored in \odcs may come from multiple sources and conflicting statements may emerge. For example, data about a city stored in \odcs may state multiple different values for its population. The purpose of \CR is to resolve such conflicts according to default or user-defined policies (e.g. show the latest, average or all values for the population). In addition, it computes an estimate of \aggrq of each RDF triple in the resulting data and provides provenance tracking, 	i.e. provides URIs and metadata of named graphs from which the resulting value was selected or calculated from. Finally, \CR can filter out old versions of data for which a newer version was inserted.
+
+\todo{}
+
 \section{Interface}
+Interface of the \CR component is represented by Java interface \code{ConflictResolver}. It contains a single operation:
+\begin{verbatim}
+      Collection<CRQuad> resolveConflicts(Collection<Quad> quads)
+          throws ConflictResolutionException;
+\end{verbatim}
+\CR accepts a collection of quads (RDF triple + named graph) and returns a collection of \code{CRQuad}s (quad + \aggrq + source named graphs).
+
+An instance of \code{ConflictResolver} can be obtained from factory class \code{ConflictResolverFactory}. Constructor of this class takes query-independent settings and its \code{createResolver()} methods takes query-dependent settings (named graph metadata, sameAs links, aggregation settings, preferred URIs) and returns a new instance of \code{ConflictResolver} for these settings.
+
 \section{Implementation}
+The actual implementation of the \code{ConflictResolver} interface is in class \code{ConflictResolverImpl}. Its constructor requires two parameters -- one of type \code{ConflictResolverSpec} contains all settings for conflict resolution and one of type \code{ConflictResolutionConfig} is a container for global settings (configurable in the \odcs configuration file). \code{ConflictResolverSpec} contains default and per-property aggregation methods to be used, metadata of relevant named graphs including \QA scores, additional \code{owl:sameAs} links to consider and other technical settings.
+
+Implementation of the \code{resolveConflicts()} methods does the following:
+
+\begin{enumerate}
+	\item \code{owl:sameAs} links are used to find resources representing the same entity. The implementation is in class \code{URIMappingImpl} which uses the DFU (Disjoint Find and Union) data structure with path compression to find weakly connected components of the \code{owl:sameAs} links graph.
+	\item URI resources in input quads are translated so that a single URI is used for every resource representing the same entity using mapping created in the previous step.
+	\item The resulting quads are sorted and grouped to clusters of (potentially) \term{conflicting quads}, i.e. those sharing the same subject and predicate. Implemented in \code{ResolveQuadCollection}.
+	\item \CR iterates over groups of conflicting quads and applies the actual conflict resolution procedure.
+		\begin{enumerate}
+			\item The next group of conflicting quads is retrieved. All such quads have the same value in place of the subject and predicate.
+			\item If there are Identical triples which come from named graphs where one named graph is an update of the other named graphs, the old versions are removed (see Section \ref{sec:latestUpdateMarker} for definition of an update).
+			\item An aggregation method is chosen based on the predicate of quads in the current group and conflict resolution settings.
+			\item \label{item:crAggr}
+				The aggregation method is applied to the current group of conflicting quads. The output is a collection of \code{CRQuad}s and it is added to the result.
+		\end{enumerate}
+	\item The resulting \code{CRQuad}s are returned.
+\end{enumerate}
+
+We call steps 1-3 \term{implicit conflict resolution} and it doesn't depend on the given aggregation settings. It prepares input data for step 4 so that result quads and \aggrq can be computed independently on chosen resource URIs. Its time complexity is $\mathcal{O}(S \log S + N \log N)$ where $S$ is the number of \code{owl:sameAs} links and $N$ number of input quads. Step 4 is applied to sets of conflicting quads having the same subject and predicate so the context of aggregation is given mainly by quad objects.
+
+\subsection{Aggregation Methods}
+\CR accepts an argument of type \code{ConflictResolverSpec} which specifies which agregation method should be used for which predicate, among other things. This is set either by the user as a parameter of Output Webservice or a default setting in \odcs is used.
+The selected aggregation method determines how conflicts are resolved and \aggrq of the result is computed in step \ref{item:crAggr} of the conflict resolution algorithm.
+
+An aggregation method is represented by Java interface \code{AggregationMethod} with the following method:
+
+\begin{verbatim}
+      Collection<CRQuad> aggregate(
+          Collection<Quad> conflictingQuads, 
+          NamedGraphMetadataMap metadata);
+\end{verbatim}
+
+Objects implementing \code{AggregationMethod} are created by \code{AggregationMethodFactory}. Classes implementing an aggregation method inherit from \code{AggregationMethodBase} and their hierarchy is depicted on \figurename~\ref{fig:crAggregations}.
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=\textwidth]{images/dia-cr-aggregations.png}
+    \caption{Implementation classes of aggregation methods}
+	\label{fig:crAggregations}
+\end{figure}
+
+There are two basic types of aggregations. First type called \term{selected aggregations} selects one or more quads from input quads while the result of the second type called \term{calculated aggregation} returns values computed from all the input quads (e.g. average). The common functionality of these two types is in abstract classes \code{CalculatedValueAggregation} and \code{SelectedValueAggregation}.
+
+A special type of selected aggregation is \code{BestSelectedAggregation} which selects a single best quad based on a metric given as an instance of \code{AggregationComparator} (\figurename~\ref{fig:crComparators}).
+
+As an optimization, if there is only a single quad in a group of conflicting quads, a special optimized \code{SingleValueAggregation} aggregation can be used because all aggregation methods should return the same result in this case.
+
+If the selected aggregation method cannot be applied to a value (e.g. average of a string literal), the behavior depends on the given aggregaiton error strategy - the value may be either discarded, or included in the result without aggregation applied.
+
+More details about each aggregation method and their time complexity can be found in javadoc of the respective classes.
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=\textwidth]{images/dia-cr-comparators.png}
+    \caption{Comparators for \code{BestSelectedAggregation}}
+	\label{fig:crComparators}
+\end{figure}
+	
+\subsection{Quality and Provenance calculation}
+The aggregation methods described in the previous section solve conflicts by calculating or selecting values in place of the object of a quad (e.g. choose the quad with the highest \QA score, the latest insertion date, maximum value in place of the object, or calculate the average of all values in place of the object). In addition, they add provenance and quality information.
+
+The provenance information consists of a list of named graphs, let us denote them \term{source named graphs}, from which the result was selected or calculated from. For calculated aggregations, these are named graphs of all aggregated quads, for selected aggregations these are named graphs containing the quad(s) selected to the result.
+
+The \aggrq estimate is done for each result quad and is based on several factors based on real-world scenarios: quality scores of the source named graphs, number of graphs that agree on a value and the difference between a value and other (conflicting) values.
+
+\subsubsection{Notation}
+An aggregation method works on quads having the same subject and predicate and they may only differ in the object and the named graph. Let $n$ be the number of aggregated quads (in a single group of conflicting quads). Let $o_i$ be the value in place of object and $g_i$ the named graph of $i$-th quad.
+
+Let $s_{ng}(g)$ denote the \QA score of a named graph $g$ and $s_p(g)$ the average score of publishers of the named graphs. Both these values are given in named graph metadata as input of conflict resolution (they are computed in advance by \QA and Quality Aggregator transformers, respectively). $s(g)$  denotes the total score of a named graph based on $s_{ng}(g)$ and $s_p(g)$ (see Section~\ref{sec:qualityCalculation}).
+
+Let $agree(v)$ denote the set of named graphs that agree on the value $v$, i.e. $$agree(v) = \left\{g_i~|~v_i=v\right\}.$$
+
+Finally let $q(v)$ denote the \aggrq of a result quad that has value $v$ as its object.
+
+\subsubsection{Constraints on Quality Calculation}
+The algorithm calculating \aggrq was designed so that several constraints hold:
+\begin{itemize}
+	\item If $n= 1$, then $q(v_1) = s(g_1)$.
+	\item If there is a named graph $g$ asserting a non-conflicting value $v$, the quality (based just on the value $v$) should be at least $s(g)$.
+	\item $q(v)$ is increasing with \QA scores of source named graphs of quads having $v$ as object.
+	\item $q(v)$ is decreasing with increasing difference from other object values in input quads, taking their \QA scores into consideration (higher \QA score means higher weight of the value).
+	\item If multiple source named graphs agree on the same value $v$, then $q(v)$ is increased.
+	\item If $k$ sources with \QA scores equal to 1 (highest score) claim a value completely different from value $v$, then quality of $v$ should be decreased approximately $k$ times. If the sources have lower \QA scores, the decrease should be lower.
+\end{itemize}
+
+\subsubsection{Quality Calculation}
+\label{sec:qualityCalculation}
+Aggregate quality $q(v)$ is calculated in the following steps:
+\begin{enumerate}
+	\item A total \QA score $s(g)$ for each source named graph is determined. It is calculated as
+		$$s(g) = \alpha s_{ng}(g) + (1-\alpha) s_p(g),$$
+
+		where $\alpha\in[0,1]$ is a configurable parameter.
+	\item Quality based on source named graphs is calculated. For each quad object value $v$, we compute quality based on source named graphs, let us denote it $q_1(v)$.
+
+		$$q_1(v) = \begin{cases}
+				\mathrm{avg} \left\{s(g)~|~g\in \left\{g_1,\ldots,g_n\right\}	\right\} & \mbox{calculated aggregations} \\
+				\max \left\{s(g)~|~g\in agree(v)\right\} & \mbox{selected aggregations}
+			\end{cases} $$
+	\item Next, the differences between conflicting values are taken into consideration. We use a metric $d:U\times U\rightarrow[0,1]$ satisfying $d(v,v)=0$ for this purpose.
+
+		We use $d(x,y)=|(x-y) / \mathrm{avg}(x,y)|$ in case of numeric literals, normalized Levenshtein distance in case of string literals, difference divided by a configurable maximum value in case of dates and $d(x,y)=1$, where $x\neq y$, for URI resources, blank nodes and nodes of incompatible types.
+
+		Whether decreasing the aggregate quality based on conflicting values is the right solution depends on context, however. Predicate \code{rdf:type} often has multiple valid values which are not in fact conflicting. Therefore, whether to decrease score based on conflicts is set by the \term{multivalue} setting for the current predicate.
+		
+		If multivalue is false and there are conflicting values different from $v$, the  quality of $v$ is reduced increasingly with the value of metric $d$ and the score of the source of the conflicting value:
+
+		$$q_2(v) = \begin{cases}
+				q_1(v) \cdot \left(1- \frac{\sum_{i=1}^{n}s(g_i)d(v,v_i)}{\sum_{i=1}^ns(g_i)}\right) & \mbox{multivalue is false for the current property}\\
+				q_1(v) & \mbox{multivalue is true for the current property} 
+			\end{cases}
+		$$
+		
+	\item Aggregate quality should be increased if multiple values agree on the same value.
+		$$q_3(v) = q_2(v)+(1-q_2(v))\cdot \min \left(\frac{-q_1(v)+\sum_{g\in agree(v)} s(g)}{C}, 1\right),$$
+		where $C\in\mathbb{N}$ is a configurable constant.
+	\item Each aggregation method may adjust the general algorithm. In case of the CONCAT aggregation, computing $q_2$ and $q_3$ doesn't make sense and $q(v)=q_1(v)$ is returned. AVG and MEDIAN aggregations return $q(v)=q_2(v)$, and finally $q(v)=q_3(v)$ is returned for other aggregations.
+\end{enumerate}
+
+\subsubsection{Time Complexity}
+\label{aggrTimeComplexity}
+The time complexity of the \aggrq computation for a fixed value $v$ is $\mathcal{O}(n\cdot D)$, where $D$ is the complexity of the distance metric evaluation. This gives us the overall complexity of $\mathcal{O} (n^2 \cdot D)$ for ALL and BEST aggregations, $\mathcal{O}(n \log n + n \cdot D$ for MEDIAN and $\mathcal{O}(n\cdot D)$ for others.
+
+\section{Time Complexity}
+Let $N$ be the total number of input quads of the conflict resolution process, $S$ number of \code{owl:sameAs} links, $G$ number of named graphs for which we have metadata given. Let $CQ=\left\{cq_1, cq_2, \ldots, cq_K\right\}$ be the set of groups of conflicting quads and $n_i=|cq_i|$ be the size of $i$-th group of conflicting quads. $D$ is the complexity of distance metric evaluation.
+
+The complexity of implicit conflict resolution algorithm is $\mathcal{O}(N \log N + S\log S)$. Grouping the quads into clusters of conflicting quads requires sorting in $\mathcal{O}(N \log N)$, assuming comparison of two RDF nodes is in constant time. Filtering of old versions is implemented in $\mathcal{O}(n_i \log n_i \log G)$ (\code{NamedGraphMetadataMap} is implemented using a \code{TreeMap}, could be improved to $\mathcal{O}(n_i\log n_i)$ with a \code{HashMap}). Finally an aggregation method is applied with complexity given in Section \ref{aggrTimeComplexity}.
+
+To sum up, the total time complexity is:
+\begin{itemize}
+	\item In case of ALL and BEST aggregation:
+		$$ \mathcal{O}\left(N \log N + S\log S + \sum_{i=1}^K \left(n_i \log n_i \log G + n_i^2 D\right)\right)$$
+	\item For aggregations other than ALL, BEST and MEDIAN:
+	$$ \mathcal{O}\left(N \log N + S\log S + \sum_{i=1}^K \left(n_i \log n_i \log G + n_i D\right)\right)$$
+\end{itemize}
+
+In the worst case when $K = 1$ and $G = N$ ($G\leq N$ because at most $N$ named graphs can be among input quads and \CR gets in fact metadata only for these named graphs), this gives us
+
+\begin{itemize}
+	\item In case of ALL and BEST aggregation:
+		$$ \mathcal{O}\left(N^2 D+S\log S\right)$$
+	\item For aggregations other than ALL, BEST and MEDIAN:
+	$$ \mathcal{O}\left( N \log^2 N + ND+S\log S \right)$$
+\end{itemize}
+
+Distance metric is evaluated in linear time for strings (modified Levenshtein distance) and in constant time for other cases.
+
 \section{Extending}
+In order to add a new aggregation method, the following steps should be taken:
+\begin{enumerate}
+	\item Implement the aggregation in a class implementing the \code{AggregationMethod} interface.
+	\item Create a constant representing this aggregation method in enum \code{EnumAggregationType}.
+	\item Extend \code{AggregationMethodFactory} to create an instance of the new aggregation.
+\end{enumerate}
+
+If a new distance metric for a specific type of literal is to be added, this should be done in the \code{DistanceMetricImpl} class.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -671,6 +834,7 @@ Possible configuration options for an instance of this transformer:
 \end{configlist}
 
 \subsection{Latest Update Marker}
+\label{sec:latestUpdateMarker}
 Latest Update Marker is an internal transformer for marking the latest version of a named graph with \code{odcs:isLatestUpdate} property. The marker may be used when accessing the clean database directly through the SPARQL endpoint. Latest Update Marker is implemented in class \code{ODCSLatestUpdateMarkerTransformer}.
 
 A named graph $A$ is considered an update of named graph $B$ if:
@@ -766,10 +930,6 @@ authorized for editation (who have a read-only access to rules), there are two v
 \subsection{How to Add a New Page}
 \subsection{How to Add a New \DN Template}
 
-
-
-\todo{authorization system}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{(Conclusion, evaluation)}
 
@@ -792,7 +952,7 @@ authorized for editation (who have a read-only access to rules), there are two v
 \label{chap:glossary}
 \input{appendix-glossary}
 
-\chapter{ODCS ontology}
+%\chapter{ODCS ontology}
 
 \chapter{Relational Database Schema}
 \label{chap:reldb}
