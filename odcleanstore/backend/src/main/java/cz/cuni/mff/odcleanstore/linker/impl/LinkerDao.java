@@ -5,6 +5,7 @@ import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
+import cz.cuni.mff.odcleanstore.data.EnumDatabaseInstance;
 import cz.cuni.mff.odcleanstore.data.TableVersion;
 import cz.cuni.mff.odcleanstore.linker.rules.FileOutput;
 import cz.cuni.mff.odcleanstore.linker.rules.Output;
@@ -17,9 +18,11 @@ import org.slf4j.LoggerFactory;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A singleton class for loading linkage rules from the relational DB.
@@ -239,13 +242,17 @@ public class LinkerDao {
 		return result.substring(0, result.length()-2) + ")";
 	}
 	
-	public void createGraphGroup(String groupName, List<String> graphNames) 
+	public void createGraphGroup(String groupName, Set<String> graphNames, EnumDatabaseInstance db)
 			throws ConnectionException, QueryException {
 		String createQuery = "DB.DBA.RDF_GRAPH_GROUP_CREATE(?, 0)";
 		String insertQuery = "DB.DBA.RDF_GRAPH_GROUP_INS(?, ?)";
 		VirtuosoConnectionWrapper connection = null;
 		try {
-			connection = VirtuosoConnectionWrapper.createConnection(dirtyDBCredentials);
+			if (EnumDatabaseInstance.CLEAN.equals(db)) {
+				connection = VirtuosoConnectionWrapper.createConnection(cleanDBCredentials);
+			} else {
+				connection = VirtuosoConnectionWrapper.createConnection(dirtyDBCredentials);
+			}
 			connection.execute(createQuery, groupName);
 			for (String graphName: graphNames) {
 				connection.execute(insertQuery, groupName, graphName);
@@ -257,13 +264,42 @@ public class LinkerDao {
 		}
 	}
 	
-	public void deleteGraphGroup(String groupName) throws ConnectionException, QueryException {
+	public void deleteGraphGroup(String groupName, EnumDatabaseInstance db) 
+			throws ConnectionException, QueryException {
 		String query = "DB.DBA.RDF_GRAPH_GROUP_DROP(?, 0)";
 		VirtuosoConnectionWrapper connection = null;
 		try {
-			connection = VirtuosoConnectionWrapper.createConnection(dirtyDBCredentials);
+			if (EnumDatabaseInstance.CLEAN.equals(db)) {
+				connection = VirtuosoConnectionWrapper.createConnection(cleanDBCredentials);
+			} else {
+				connection = VirtuosoConnectionWrapper.createConnection(dirtyDBCredentials);
+			}
 			connection.execute(query, groupName);
 		} finally {
+			if (connection != null) {
+				connection.closeQuietly();
+			}
+		}
+	}
+	
+	public Set<String> getAllGraphNames() throws QueryException, ConnectionException {
+		String query = "DB.DBA.SPARQL_SELECT_KNOWN_GRAPHS()";
+		VirtuosoConnectionWrapper connection = null;
+		WrappedResultSet resultSet = null;
+		try {
+			connection = VirtuosoConnectionWrapper.createConnection(cleanDBCredentials);
+			resultSet = connection.executeSelect(query);
+			Set<String> result = new HashSet<String>();
+			while (resultSet.next()) {
+				result.add(resultSet.getString("GRAPH_IRI"));
+			}
+			return result;
+		} catch (SQLException e) {
+			throw new QueryException(e);
+		} finally {
+			if (resultSet != null) {
+				resultSet.closeQuietly();
+			}
 			if (connection != null) {
 				connection.closeQuietly();
 			}

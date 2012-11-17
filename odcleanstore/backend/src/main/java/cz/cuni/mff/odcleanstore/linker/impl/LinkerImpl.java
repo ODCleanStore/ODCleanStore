@@ -6,6 +6,7 @@ import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
+import cz.cuni.mff.odcleanstore.data.EnumDatabaseInstance;
 import cz.cuni.mff.odcleanstore.data.GraphLoaderUtils;
 import cz.cuni.mff.odcleanstore.data.RDFprefix;
 import cz.cuni.mff.odcleanstore.data.TableVersion;
@@ -48,10 +49,12 @@ import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -98,19 +101,19 @@ public class LinkerImpl implements Linker {
 	@Override
 	public void transformGraph(TransformedGraph inputGraph, TransformationContext context)
 			throws TransformerException {
-
+		String cleanGraphName = null;
         if (context.getTransformationType() == EnumTransformationType.EXISTING) {
             LOG.info("Linking existing graph: {}", inputGraph.getGraphName());
-            if (isFirstInPipeline) {
-		        LinkerDao dao;
-		        try {
-		            dao = LinkerDao.getInstance(context.getCleanDatabaseCredentials(),
-		            		context.getDirtyDatabaseCredentials());
-		            dao.clearGraph(getLinksGraphId(inputGraph));
-		        } catch (DatabaseException e) {
-		            throw new TransformerException(e);
-		        }
-            }
+            try {
+	            cleanGraphName = createCleanGraphGroup(context, inputGraph);
+	            if (isFirstInPipeline) {
+			        LinkerDao dao = LinkerDao.getInstance(context.getCleanDatabaseCredentials(),
+			        		context.getDirtyDatabaseCredentials());
+			        dao.clearGraph(getLinksGraphId(inputGraph));
+	            }
+            } catch (DatabaseException e) {
+	            throw new TransformerException(e);
+	        }
         } else {
             LOG.info("Linking new graph: {}", inputGraph.getGraphName());
         }
@@ -128,25 +131,28 @@ public class LinkerImpl implements Linker {
     			boolean linkWithinGraph = isLinkWithinGraph(transformerProperties);
     			boolean linkAttachedGraphs = isLinkAttachedGraphs(transformerProperties);
     			
-    			String graphName = inputGraph.getGraphName();
+    			String dirtyGraphName = inputGraph.getGraphName();
     			if (linkAttachedGraphs) {
-    				graphName = createGraphGroup(context, inputGraph);
+    				dirtyGraphName = createDirtyGraphGroup(context, inputGraph);
     			}
     			
     			inputGraph.addAttachedGraph(getLinksGraphId(inputGraph));
     			
     			for (SilkRule rule: rules) {
     				LOG.info("Creating link configuration file for rule: {}", rule.toString());
-    				configFile = ConfigBuilder.createLinkConfigFile(rule, prefixes, inputGraph.getGraphId(), graphName,
-    						context, globalConfig, linkWithinGraph);
+    				configFile = ConfigBuilder.createLinkConfigFile(rule, prefixes, inputGraph.getGraphId(),
+    						cleanGraphName, dirtyGraphName, context, globalConfig, linkWithinGraph);
         			LOG.info("Calling Silk with temporary configuration file: {}", configFile.getAbsolutePath());
         			Silk.executeFile(configFile, null, Silk.DefaultThreads(), true);
         			LOG.info("Linking by one rule finished.");
     			}
     			
     			if (linkAttachedGraphs) {
-    				deleteGraphGroup(context, graphName);
-    			}  			
+    				deleteGraphGroup(context, dirtyGraphName, EnumDatabaseInstance.DIRTY);
+    			}
+    			if (context.getTransformationType() == EnumTransformationType.EXISTING) {
+    				deleteGraphGroup(context, cleanGraphName, EnumDatabaseInstance.CLEAN);
+    			}
     			LOG.info("Linking by all rules finished.");
 			}
 		} catch (DatabaseException e) {
@@ -423,23 +429,36 @@ public class LinkerImpl implements Linker {
 		}
 	}
 	
-	private String createGraphGroup(TransformationContext context, TransformedGraph graph) 
+	private String createDirtyGraphGroup(TransformationContext context, TransformedGraph graph) 
 			throws ConnectionException, QueryException {
-		String groupName = graph.getGraphName() + "group";
-		LOG.info("Creating temporary graph group: {}", groupName);
-		List<String> graphNames = new ArrayList<String>(graph.getAttachedGraphNames());
+		String groupName = graph.getGraphName() + "WithAttached";
+		LOG.info("Creating temporary graph group with attached graphs in dirty DB: {}", groupName);
+		Set<String> graphNames = new HashSet<String>(graph.getAttachedGraphNames());
 		graphNames.add(graph.getGraphName());
 		LinkerDao dao = LinkerDao.getInstance(
 				context.getCleanDatabaseCredentials(), context.getDirtyDatabaseCredentials());
-		dao.createGraphGroup(groupName, graphNames);
+		dao.createGraphGroup(groupName, graphNames, EnumDatabaseInstance.DIRTY);
 		return groupName;
 	}
 	
-	private void deleteGraphGroup(TransformationContext context, String groupName) 
+	private void deleteGraphGroup(TransformationContext context, String groupName, EnumDatabaseInstance db) 
 			throws ConnectionException, QueryException {
-		LOG.info("Deleting temporary graph group: {}", groupName);
+		LOG.info("Deleting temporary graph group from {} DB: {}", db.toString(), groupName);
 		LinkerDao dao = LinkerDao.getInstance(
 				context.getCleanDatabaseCredentials(), context.getDirtyDatabaseCredentials());
-		dao.deleteGraphGroup(groupName);
+		dao.deleteGraphGroup(groupName, db);
+	}
+	
+	private String createCleanGraphGroup(TransformationContext context, TransformedGraph graph) 
+			throws ConnectionException, QueryException {
+		String groupName = graph.getGraphName() + "Group";
+		LOG.info("Creating temporary graph group without processed graph in clean DB: {}", groupName);
+		LinkerDao dao = LinkerDao.getInstance(
+				context.getCleanDatabaseCredentials(), context.getDirtyDatabaseCredentials());
+		Set<String> graphNames = dao.getAllGraphNames();
+		graphNames.removeAll(graph.getAttachedGraphNames());
+		graphNames.remove(graph.getGraphName());
+		dao.createGraphGroup(groupName, graphNames, EnumDatabaseInstance.CLEAN);
+		return groupName;
 	}
 }

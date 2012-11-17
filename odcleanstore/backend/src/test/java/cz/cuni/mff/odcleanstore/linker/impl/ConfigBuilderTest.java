@@ -77,7 +77,7 @@ public class ConfigBuilderTest {
 	    ObjectIdentificationConfig config = ObjectIdentificationConfig.load(properties);
 
 	    DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-		File configFile = ConfigBuilder.createLinkConfigFile(rule, prefixes, graph.getGraphId(), graph.getGraphName(),
+		File configFile = ConfigBuilder.createLinkConfigFile(rule, prefixes, graph.getGraphId(), null, graph.getGraphName(),
 				context, config, false);
 		Document configDoc = builder.parse(configFile);
 

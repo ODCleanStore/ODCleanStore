@@ -129,13 +129,13 @@ public class ConfigBuilder {
 	 * @throws TransformerException when anything fails
 	 */
 	public static File createLinkConfigFile(SilkRule rule, List<RDFprefix> prefixes, String graphId,
-			String graphName, TransformationContext context, ObjectIdentificationConfig config,
-			boolean linkWithinGraph) throws TransformerException {
+			String cleanGraphName, String dirtyGraphName, TransformationContext context, 
+			ObjectIdentificationConfig config, boolean linkWithinGraph) throws TransformerException {
 		LOG.debug("Creating link configuration file.");
 		Document configDoc;
 		File configFile;
 		try {
-			configDoc = createConfigDoc(rule, prefixes, graphName, graphId, config,
+			configDoc = createConfigDoc(rule, prefixes, cleanGraphName, dirtyGraphName, graphId, config,
 					context.getTransformerDirectory(), linkWithinGraph);
 			LOG.debug("Created link configuration document.");
 			configFile = storeConfigDoc(configDoc, context.getTransformerDirectory(), graphId);
@@ -330,17 +330,16 @@ public class ConfigBuilder {
 	 * @throws InvalidLinkageRuleException
 	 * @throws DOMException
 	 */
-	private static Document createConfigDoc(SilkRule rule, List<RDFprefix> prefixes, String graphName,
-			String fileId, ObjectIdentificationConfig config, File transformerDirectory, boolean linkWithinGraph)
-					throws ParserConfigurationException, SAXException, IOException, DOMException,
+	private static Document createConfigDoc(SilkRule rule, List<RDFprefix> prefixes, String cleanGraphName,
+			String dirtyGraphName, String fileId, ObjectIdentificationConfig config, File transformerDirectory,
+			boolean linkWithinGraph) throws ParserConfigurationException, SAXException, IOException, DOMException,
 					InvalidLinkageRuleException {
-
 		DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 		Document configDoc = builder.newDocument();
 		Element root = configDoc.createElement(CONFIG_XML_ROOT);
 		configDoc.appendChild(root);
 		root.appendChild(createPrefixes(configDoc, prefixes));
-		root.appendChild(createSources(configDoc, graphName, config));
+		root.appendChild(createSources(configDoc, cleanGraphName, dirtyGraphName, config));
 		root.appendChild(createLinkageRule(
 				configDoc, rule, fileId, builder, config, transformerDirectory, linkWithinGraph, true));
 
@@ -375,14 +374,15 @@ public class ConfigBuilder {
 	 * @param graphName name of the graph in dirty DB to be interlinked
 	 * @return
 	 */
-	private static Element createSources(Document doc, String graphName, ObjectIdentificationConfig config) {
+	private static Element createSources(Document doc, String cleanGraphName, String dirtyGraphName,
+			ObjectIdentificationConfig config) {
 		Element sourcesElement = doc.createElement(CONFIG_XML_SOURCES);
 
-		Element sourceElement = createSource(doc, config.getDirtyDBSparqlConnectionCredentials(), graphName);
+		Element sourceElement = createSource(doc, config.getDirtyDBSparqlConnectionCredentials(), dirtyGraphName);
 		sourceElement.setAttribute(CONFIG_XML_ID, CONFIG_SOURCE_A_ID);
 		sourcesElement.appendChild(sourceElement);
 
-		sourceElement = createSource(doc, config.getCleanDBSparqlConnectionCredentials(), null);
+		sourceElement = createSource(doc, config.getCleanDBSparqlConnectionCredentials(), cleanGraphName);
 		sourceElement.setAttribute(CONFIG_XML_ID, CONFIG_SOURCE_B_ID);
 		sourcesElement.appendChild(sourceElement);
 
@@ -627,7 +627,7 @@ public class ConfigBuilder {
 		File configFile;
 		String randomId = UUID.randomUUID().toString();
 		try {
-			configDoc = createConfigDoc(rule, prefixes, null, randomId, config,
+			configDoc = createConfigDoc(rule, prefixes, null, null, randomId, config,
 					context.getTransformerDirectory(), config.isLinkWithinGraph());
 			changeSourceToFile(configDoc, inputFileName, language);
 			redirectOutputToFile(configDoc, resultFileName, rule.getOutputs(), config.isLinkWithinGraph());
@@ -743,7 +743,7 @@ public class ConfigBuilder {
 		configDoc.appendChild(root);
 		ObjectIdentificationConfig config = createFakeConfig();
 		root.appendChild(createPrefixes(configDoc, prefixes));
-		root.appendChild(createSources(configDoc, null, config));
+		root.appendChild(createSources(configDoc, null, null, config));
 		root.appendChild(createLinkageRule(configDoc, rule, null, builder, config, null, false, false));
 		return transformToString(configDoc);	
 	}
