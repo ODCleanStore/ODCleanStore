@@ -23,33 +23,12 @@ import cz.cuni.mff.odcleanstore.transformer.*;
  * @author Jakub Daniel
  */
 public interface QualityAssessor extends Transformer {
-	public static class GraphScoreWithTrace implements Serializable {
-		private static final long serialVersionUID = 1L;
+	public static interface GraphScoreWithTrace extends Serializable {
 
-		private String graphName;
-		private Double score;
-		private List<QualityAssessmentRule> trace;
-
-		public GraphScoreWithTrace(Double score, List<QualityAssessmentRule> trace) {
-			this.score = score;
-			this.trace = trace;
-		}
-
-		public String getGraphName() {
-			return graphName;
-		}
-
-		public void setGraphName(String graphName) {
-			this.graphName = graphName;
-		}
-
-		public Double getScore() {
-			return score;
-		}
-
-		public List<QualityAssessmentRule> getTrace() {
-			return trace;
-		}
+		public String getGraphName();
+		public void setGraphName(String graphName);
+		public Double getScore();
+		public List<QualityAssessmentRule> getTrace();
 	}
 
 	public List<GraphScoreWithTrace> debugRules(HashMap<String, String> graphs, TransformationContext context, TableVersion tableVersion)
