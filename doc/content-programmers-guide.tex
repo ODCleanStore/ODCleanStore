@@ -815,7 +815,50 @@ Note that custom transformers should satisfy conditions listed in Section \ref{s
 
 \chapter{Transformers included in ODCleanStore}
 
-\section{Quality Assessment \& Quality Aggregator}
+\section{Quality Assessor \& Quality Aggregator}
+\subsection{Purpose}
+
+\paragraph{Quality Assessor:}
+Data processed by ODCleanstore come in a raw form that may be inconsistent with the expected format. The purpose of the Quality Assessor is to provide a way to identify patterns in data that are responsible for those inconsistencies. This is achieved by user-provided rules that specify RDF data patterns and a degree of inconsistency by use of SPARQL Select Where Clause and a coefficient that reduces the overall quality of the processed data chunk (graph).
+
+\paragraph{Quality Aggregator:}
+For Conflict Resolution purposes it is important to be able to assosiate a data source with quality of data it provides. Quality Assessor computes quality of individual data chunks, these have to be aggregated into a quality indicator for their sources.
+
+\subsection{Interface}
+
+While the \code{QualityAggregator} is a trivial extension of \code{Transformer} the \code{QualityAssessor} provides additional \code{debugRules} method
+
+apart of them \code{QualityAssessmentRulesModel} provides interface for rule generation from ontologies
+
+\subsection{Implementation}
+
+\subsection*{Quality Assessment Rules}
+
+The data patterns are described with \code{SPARQL Where Clause}\footnote{http://www.w3.org/TR/rdf-sparql-query/#rWhereClause} followed by optional \code{Group by Clause}\footnote{http://www.w3.org/TR/sparql11-query/#rGroupClause} and \code{Having Clause}\footnote{http://www.w3.org/TR/sparql11-query/#rHavingClause}
+
+As any other transformer the Quality Assessor and Aggregator are provided with an input named graph, a metadata graph and a list of groups of rules to be applied to the input. The \code{transformGraph} method then does the following:
+
+\subsection*{Quality Assessor}
+
+implemented by class \code{QualityAssessorImpl}
+
+\begin{enumerate}
+	\item Assume the graph quality has the maximal value
+	\item Load appropriate rules
+	\item For each rule determine whether the pattern is present in the input graph
+	\begin{itemize}
+		\item if so decrease the graph quality and log successful application of the rule
+		\item else continue
+	\end{itemize}
+	\item Store overall quality and all logged applications of rules to the metadata graph
+\end{enumerate}
+
+\subsection*{Quality Aggregator}
+
+implemented by class \code{QualityAggregatorImpl}
+
+The \code{transformGraph} method collects quality of all the graphs stored in the clean database and the currently processed graph and calculates the average value which is then assigned to the source. This operation is idempotent and thus robust to manual transformation of the database content because it is always corrected after update of a graph published by the given publisher.
+
 \section{Data Normalization}
 \section{Linker}
 \section{Other Transformers}

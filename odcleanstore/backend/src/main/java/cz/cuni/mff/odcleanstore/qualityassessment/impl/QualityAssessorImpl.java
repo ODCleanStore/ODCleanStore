@@ -38,6 +38,35 @@ import java.util.Locale;
  * and delegates the work to that implementation.
  */
 public class QualityAssessorImpl implements QualityAssessor, Serializable {
+	public static class GraphScoreWithTraceImpl implements GraphScoreWithTrace {
+		private static final long serialVersionUID = 1L;
+
+		private String graphName;
+		private Double score;
+		private List<QualityAssessmentRule> trace;
+
+		public GraphScoreWithTraceImpl(Double score, List<QualityAssessmentRule> trace) {
+			this.score = score;
+			this.trace = trace;
+		}
+
+		public String getGraphName() {
+			return graphName;
+		}
+
+		public void setGraphName(String graphName) {
+			this.graphName = graphName;
+		}
+
+		public Double getScore() {
+			return score;
+		}
+
+		public List<QualityAssessmentRule> getTrace() {
+			return trace;
+		}
+	}
+
 	private static final long serialVersionUID = 1L;
 
 	/**
@@ -271,7 +300,7 @@ public class QualityAssessorImpl implements QualityAssessor, Serializable {
 			closeDirtyConnection();
 		}
 
-		return new GraphScoreWithTrace(score, rules);
+		return new GraphScoreWithTraceImpl(score, rules);
 	}
 
 	protected void loadRules() throws QualityAssessmentException {
