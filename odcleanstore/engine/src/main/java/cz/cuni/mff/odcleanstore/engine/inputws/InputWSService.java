@@ -36,7 +36,7 @@ public final class InputWSService extends Service {
 		LOG.info("InputWS - Starting the server on {}", endpoint);
 		
 		if(endpoint.getProtocol().equalsIgnoreCase("https")) {
-				KeyManager[] keys = SslKeyManager.getKeys();
+				KeyManager[] keys = SslKeyLoader.getKeys();
 				if (keys == null) {
 					LOG.error("Certificate for https server loading error");
 					throw new Exception();
