@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.Properties;
+import java.util.UUID;
 
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -31,6 +32,7 @@ public class EngineConfigTest extends ConfigTestBase {
         Mockito.when(properties.getProperty(EngineConfig.GROUP_PREFIX + "state_to_db_writing_interval")).thenReturn("70000");
         Mockito.when(properties.getProperty(EngineConfig.GROUP_PREFIX + "dirty_import_export_dir")).thenReturn("dirty/");
         Mockito.when(properties.getProperty(EngineConfig.GROUP_PREFIX + "clean_import_export_dir")).thenReturn("clean/");
+        Mockito.when(properties.getProperty(EngineConfig.GROUP_PREFIX + "engine_uuid")).thenReturn("88888888-8888-8888-8888-888888888888");
         
         mockJDBCConnectionCredentials(properties, EnumDbConnectionType.CLEAN);
         mockJDBCConnectionCredentials(properties, EnumDbConnectionType.DIRTY);
@@ -44,6 +46,7 @@ public class EngineConfigTest extends ConfigTestBase {
         assertEquals(new Long(70000), enConfig.getStateToDbWritingInterval());
         assertEquals(new String("dirty/"), enConfig.getDirtyImportExportDir());
         assertEquals(new String("clean/"), enConfig.getCleanImportExportDir());
+        assertEquals(UUID.fromString("88888888-8888-8888-8888-888888888888"), enConfig.getEngineUuid());
         checkJDBCConnectionCredentials(
                 enConfig.getCleanDBJDBCConnectionCredentials(), EnumDbConnectionType.CLEAN);
         checkJDBCConnectionCredentials(

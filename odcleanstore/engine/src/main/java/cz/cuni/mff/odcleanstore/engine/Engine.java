@@ -241,7 +241,7 @@ public final class Engine {
     }
         
     public String getEngineUuid() {
-        return "88888888-8888-8888-8888-888888888888";
+        return ConfigLoader.getConfig().getEngineGroup().getEngineUuid().toString();
     }
 
     /**
