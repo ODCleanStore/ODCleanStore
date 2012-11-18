@@ -1012,6 +1012,28 @@ This transformer is automatically added by Engine as the first transformer of ev
 \section{Interface}
 \section{Implementation}
 
+\subsection{Codebase structure}
+
+The code of \FE is divided into multiple packages which all share a common name prefix - \code{cz.cuni.mff.odcleanstore.webfrontend}. In this section you'll find a brief description of each of them and of classes they contain. For more in-dept information please refere to the javadoc documentation.
+
+\subsubsection{behaviours}
+
+This package is intended to contain custom Wicket behaviours. Currently there's only a single class, the \code{ConfirmationBoxRenderer}, which serves to add javascript-based confirmation dialog boxes to delete buttons.
+
+\subsubsection{bo}
+
+The \code{bo} package contains all business objects used in the web frontend application, divided into subpackages. But for a few exceptions, every business entity represents a single relational table and is formed by a single Java class. The classes are simple Java beans where bean properties match columns of the represented table. The classes can aditionaly contain other methods to simplify using them.
+
+The hierarchy of the BO classes is depicted by the following diagram.
+
+Description of the most important BO classes follows:
+
+\begin{description}[style=nextline,font=\ttfamily]
+	\item[BusinessEntity] The base class for all BO classes. It provides no functionality and serves just as a common abstract parent.
+	\item[EntityWithSurrogateKey] The base class for BO classes for all entities with surrogate primary keys. It only contains the \code{id} property.
+	\item[AuthoredEntity] This interface serves as an abstract parent of all entities that track their authors.
+	\item[Prefix] This class represents an URI prefix. It maps to a internal Virtuoso relational table and it's structure is therefore fixed.
+
 \subsection{Database Access Layer}
 \FE has a layer for accessing the database based on Spring and its JDBC templates. We chose not to use Hibernate due to integration problems with Wicket and use custom implemenation of business and DAO objects.
 
