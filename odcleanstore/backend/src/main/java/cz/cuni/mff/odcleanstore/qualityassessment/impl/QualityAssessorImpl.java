@@ -234,35 +234,6 @@ public class QualityAssessorImpl implements QualityAssessor, Serializable {
 				inputGraph.getGraphName(), rules.size(), violations, score));
 	}
 
-	public static class GraphScoreWithTrace implements Serializable {
-		private static final long serialVersionUID = 1L;
-
-		private String graphName;
-		private Double score;
-		private List<QualityAssessmentRule> trace;
-
-		public GraphScoreWithTrace(Double score, List<QualityAssessmentRule> trace) {
-			this.score = score;
-			this.trace = trace;
-		}
-
-		public String getGraphName() {
-			return graphName;
-		}
-
-		public void setGraphName(String graphName) {
-			this.graphName = graphName;
-		}
-
-		public Double getScore() {
-			return score;
-		}
-
-		public List<QualityAssessmentRule> getTrace() {
-			return trace;
-		}
-	}
-
 	//Queries for clean graphs
 	public GraphScoreWithTrace getGraphScoreWithTrace (final String graphName,
 			final JDBCConnectionCredentials clean)

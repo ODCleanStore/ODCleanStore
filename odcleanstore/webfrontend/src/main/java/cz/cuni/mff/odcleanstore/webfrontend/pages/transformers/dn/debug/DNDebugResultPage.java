@@ -14,9 +14,9 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.Model;
 
-import cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl.GraphModification;
-import cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl.RuleModification;
-import cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl.TripleModification;
+import cz.cuni.mff.odcleanstore.datanormalization.DataNormalizer.GraphModification;
+import cz.cuni.mff.odcleanstore.datanormalization.DataNormalizer.RuleModification;
+import cz.cuni.mff.odcleanstore.datanormalization.DataNormalizer.TripleModification;
 import cz.cuni.mff.odcleanstore.datanormalization.rules.DataNormalizationRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamButton;
