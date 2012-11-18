@@ -929,6 +929,7 @@ authorized for editation (who have a read-only access to rules), there are two v
 \section{Extending}
 
 \subsection{How to Add a New Page}
+\label{sec:howToAddANewPage}
 
 First of all make sure that you are familiar with the Wicket framework, for the whole web application is based on it.
 
@@ -946,6 +947,19 @@ As a rule, every page should contain a single help pop-up window for every entit
 
 
 \subsection{How to Add a New \DN Template}
+
+To add a new \DN Template (named say XXX, such as Filter, Rename, Replace), follow these steps.
+
+Create a new relational table in the Virtuoso database. The table should be named \code{DB.ODCLEANSTORE.DN\_XXX\_TEMPLATE\_INSTANCES} and contain \code{id} as a surrogate primary key, \code{groupId} as a foreign key which points to the group of rules to which the template instance belongs, \code{rawRuleId} as a foreign key which points to the raw version of the represented rule and columns for attributes of the template.
+
+Add a new Business Object to the \code{cz.cuni.mff.odcleanstore.webfrontend.bo.dn} package named \code{DNXXXTemplateInstance}. The class should adhere to standard BO conventions (see the relevant section) and relate to the table created in the previous step.
+
+Add a compiler class to the same package called \code{DNXXXTemplateInstanceCompiler}. It must extend the \code{DNTemplateInstanceCompiler<DNXXXTemplateInstance>} class and override the \code{compile} method. This methods accepts an \code{DNXXXTemplateInstance} instance as a parameter and compiles it into a standard \code{CompiledDNRule} instance (e.g. into a raw rule form), which it then returns.
+
+Add a new section to the \code{DNGroupDetailPage} component and implement the \code{NewDNXXXTemplateInstancePage} and \code{EditDNXXXTemplateInstancePage} components. You will also need to add the \code{DNXXXTemplateInstanceHelpPanel} and use it as a pop-up help window. Fore a more detailed explanation of this step, see section How to add a New Page.
+
+Note that when implementing a new DN template type it is a good idea to copy and rename the classes which belong to an existing one and just overwrite the template specific parts.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{(Conclusion, evaluation)}
