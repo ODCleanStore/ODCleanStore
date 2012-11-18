@@ -815,8 +815,159 @@ Note that custom transformers should satisfy conditions listed in Section \ref{s
 
 \chapter{Transformers included in ODCleanStore}
 
-\section{Quality Assessment \& Quality Aggregator}
+\section{Quality Assessor \& Quality Aggregator}
+\subsection{Purpose}
+
+\paragraph{Quality Assessor:}
+Data processed by ODCleanStore come in a raw form that may be inconsistent with the expected format. The purpose of the Quality Assessor is to provide a way to identify patterns in data that are responsible for those inconsistencies. This is achieved by user-provided rules that specify RDF data patterns and a degree of inconsistency by use of SPARQL Select Where Clause and a coefficient that reduces the overall quality of the processed data chunk (graph) and a single floating point coefficient.
+
+\paragraph{Quality Aggregator:}
+For Conflict Resolution purposes it is important to be able to assosiate a data source with quality of data it provides. Quality Assessor computes quality of individual data chunks, these have to be aggregated into a quality indicator for their sources.
+
+\subsection{Interface}
+
+While the \code{QualityAggregator} is a trivial extension of \code{Transformer} the \code{QualityAssessor} provides additional functionality -- debugging:
+
+\begin{lstlisting}[caption=Quality Assessor interface,label=lst:qualityAssessor]
+package cz.cuni.mff.odcleanstore.qualityassessment;
+
+public interface QualityAssessor extends Transformer {
+  public static interface GraphScoreWithTrace extends Serializable {
+    public String getGraphName();
+    public void setGraphName(String graphName);
+    public Double getScore();
+    public List<QualityAssessmentRule> getTrace();
+  }
+
+  public List<GraphScoreWithTrace> debugRules(HashMap<String, String> graphs,
+    TransformationContext context,
+    TableVersion tableVersion) throws TransformerException;
+}
+\end{lstlisting}
+
+The method \code{debugRules} takes into account that any input graph may need to be loaded to the database under a different name so that no collisions occur during debugging. Therefore input graphs correspond to pairs $ \left< \text{originalName}, \text{actualName} \right> $ and are passed in \code{HashMap}. The \code{context} parameter provides environment similar to the one during ordinary transformation of a graph. \code{tableVersion} specifies whether committed or uncommitted versions of rule groups are to be used. The output is list of structures containing quality and all rules that affected it for each graph on the input.
+
+\subsubsection*{Generating Rules from Ontology}
+
+Another publicly accessible part of the interface to the quality assessment is the generation of rules from ontologies.
+
+\begin{lstlisting}[caption=Quality Assessment Rule Generation,label=lst:qualityAssessmentRulesModel]
+package cz.cuni.mff.odcleanstore.qualityassessment.rules;
+
+public class QualityAssessmentRulesModel {
+  public Collection<QualityAssessmentRule> compileOntologyToRules(String ontologyGraphURI)
+    throws QualityAssessmentException
+}
+\end{lstlisting}
+
+The method \code{compileOntologyToRules} expects a named graph \code{ontologyGraphURI} to be in the database. The statements of the graph are considered a definition of an ontology and are processed resource by resource and the following types of resources are handled:
+
+\begin{itemize}
+	\item Functional property implemented as \code{FunctionalProperty}
+	\item Inverse functional property implemented as \code{InverseFunctionalProperty}
+	\item Enumerated property implemented as \code{ConceptScheme} and resources with appropriate \code{hasTopConcept} property
+\end{itemize}
+
+\subsection{Implementation}
+
+\subsubsection*{Quality Assessment Rules}
+
+The data patterns are described with \code{SPARQL Where Clause}\footnote{http://www.w3.org/TR/rdf-sparql-query/#rWhereClause} followed by optional \code{Group by Clause}\footnote{http://www.w3.org/TR/sparql11-query/#rGroupClause} and \code{Having Clause}\footnote{http://www.w3.org/TR/sparql11-query/#rHavingClause}
+
+\subsubsection*{Assessment \& Aggregation}
+
+As any other transformer the Quality Assessor and Aggregator are provided with an input named graph, a metadata graph and a list of groups of rules to be applied to the input. The \code{transformGraph} method then does the following:
+
+\paragraph{Quality Assessor} implemented by class \code{QualityAssessorImpl}
+
+\begin{enumerate}
+	\item Assume the graph quality has the maximal value
+	\item Load appropriate rules
+	\item For each rule determine whether the pattern is present in the input graph
+	\begin{itemize}
+		\item if so decrease the graph quality and log successful application of the rule
+		\item else continue
+	\end{itemize}
+	\item Store overall quality and all logged applications of rules to the metadata graph
+\end{enumerate}
+
+\paragraph{Quality Aggregator} implemented by class \code{QualityAggregatorImpl}
+
+The \code{transformGraph} method collects quality of all the graphs stored in the clean database and the currently processed graph and calculates the average value which is then assigned to the source. This operation is idempotent and thus robust to manual transformation of the database content because it is always corrected after update of a graph published by the given publisher.
+
 \section{Data Normalization}
+
+\subsection{Purpose}
+
+The input data may come in different formats and flavours and it may show easier to normalize it before further transformations instead of adapting the rest of the process for all the forms the data may come in.
+
+\subsection{Interface}
+
+\begin{lstlisting}[caption=Data Normalizer interface,label=lst:dataNormalizer]
+package cz.cuni.mff.odcleanstore.datanormalization;
+
+public interface DataNormalizer extends Transformer {
+  public interface TripleModification extends Serializable {
+    public String getSubject();
+    public String getPredicate();
+    public String getObject();
+  }
+
+  public interface RuleModification extends Serializable {
+    public void addInsertion(String s, String p, String o);
+    public void addDeletion(String s, String p, String o);
+    public Collection<TripleModification> getInsertions();
+    public Collection<TripleModification> getDeletions();
+  }
+
+  public interface GraphModification extends Serializable {
+    public void addInsertion (DataNormalizationRule rule, String s, String p, String o);
+    public void addDeletion(DataNormalizationRule rule, String s, String p, String o);
+    public Iterator<DataNormalizationRule> getRuleIterator();
+    public RuleModification getModificationsByRule(DataNormalizationRule rule);
+    public String getGraphName();
+    public void setGraphName(String graphName);
+  }
+
+  List<GraphModification> debugRules (HashMap<String, String> graphs,
+    TransformationContext context,
+    TableVersion tableVersion) throws TransformerException;
+}
+\end{lstlisting}
+
+The method \code{debugRules} takes into account that any input graph may need to be loaded to the database under a different name so that no collisions occur during debugging. Therefore input graphs correspond to pairs $ \left< \text{originalName}, \text{actualName} \right> $ and are passed in \code{HashMap}. The \code{context} parameter provides environment similar to the one during ordinary transformation of a graph. \code{tableVersion} specifies whether committed or uncommitted versions of rule groups are to be used. The output is list of \code{GraphModification} structures describing how each of the input graphs changed.
+
+\begin{lstlisting}[caption=Data Normalization Rule Generation,label=lst:dataNormalizationRulesModel]
+package cz.cuni.mff.odcleanstore.datanormalization.rules;
+
+public class DataNormalizationRulesModel {
+  public Collection<DataNormalizationRule> compileOntologyToRules(String ontologyGraphURI)
+    throws DataNormalizationException;
+}
+\end{lstlisting}
+
+% \code{DataNormalizationBooleanRule}, \code{DataNormalizationDateRule}, \code{DataNormalizationStringRule}
+
+\subsection{Implementation}
+
+\subsubsection*{Data Normalization Rules}
+
+There exist three types of data normalization rules:
+
+\begin{itemize}
+	\item \code{INSERT},
+	\item \code{DELETE},
+	\item \code{MODIFY}.
+\end{itemize}
+
+They all closely follow semantics of \code{SPARQL} update queries\footnote{http://www.w3.org/Submission/SPARQL-Update/#rUpdate}
+
+\subsubsection*{Data Normalizer}
+
+\begin{enumerate}
+	\item Load appropriate rules
+	\item Try to apply all rules
+\end{enumerate}
 \section{Linker}
 \section{Other Transformers}
 \subsection{Blank Node Remover}
@@ -860,6 +1011,28 @@ This transformer is automatically added by Engine as the first transformer of ev
 \section{Purpose}
 \section{Interface}
 \section{Implementation}
+
+\subsection{Codebase structure}
+
+The code of \FE is divided into multiple packages which all share a common name prefix - \code{cz.cuni.mff.odcleanstore.webfrontend}. In this section you'll find a brief description of each of them and of classes they contain. For more in-dept information please refere to the javadoc documentation.
+
+\subsubsection{behaviours}
+
+This package is intended to contain custom Wicket behaviours. Currently there's only a single class, the \code{ConfirmationBoxRenderer}, which serves to add javascript-based confirmation dialog boxes to delete buttons.
+
+\subsubsection{bo}
+
+The \code{bo} package contains all business objects used in the web frontend application, divided into subpackages. But for a few exceptions, every business entity represents a single relational table and is formed by a single Java class. The classes are simple Java beans where bean properties match columns of the represented table. The classes can aditionaly contain other methods to simplify using them.
+
+The hierarchy of the BO classes is depicted by the following diagram.
+
+Description of the most important BO classes follows:
+
+\begin{description}[style=nextline,font=\ttfamily]
+	\item[BusinessEntity] The base class for all BO classes. It provides no functionality and serves just as a common abstract parent.
+	\item[EntityWithSurrogateKey] The base class for BO classes for all entities with surrogate primary keys. It only contains the \code{id} property.
+	\item[AuthoredEntity] This interface serves as an abstract parent of all entities that track their authors.
+	\item[Prefix] This class represents an URI prefix. It maps to a internal Virtuoso relational table and it's structure is therefore fixed.
 
 \subsection{Database Access Layer}
 \FE has a layer for accessing the database based on Spring and its JDBC templates. We chose not to use Hibernate due to integration problems with Wicket and use custom implemenation of business and DAO objects.

@@ -14,7 +14,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.util.ListModel;
 
 import cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl;
-import cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl.GraphModification;
+import cz.cuni.mff.odcleanstore.datanormalization.DataNormalizer.GraphModification;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UploadButton;

@@ -1,5 +1,11 @@
 package cz.cuni.mff.odcleanstore.qualityassessment;
 
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+
+import cz.cuni.mff.odcleanstore.data.TableVersion;
+import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRule;
 import cz.cuni.mff.odcleanstore.transformer.*;
 
 /**
@@ -17,4 +23,14 @@ import cz.cuni.mff.odcleanstore.transformer.*;
  * @author Jakub Daniel
  */
 public interface QualityAssessor extends Transformer {
+	public static interface GraphScoreWithTrace extends Serializable {
+
+		public String getGraphName();
+		public void setGraphName(String graphName);
+		public Double getScore();
+		public List<QualityAssessmentRule> getTrace();
+	}
+
+	public List<GraphScoreWithTrace> debugRules(HashMap<String, String> graphs, TransformationContext context, TableVersion tableVersion)
+			throws TransformerException;
 }

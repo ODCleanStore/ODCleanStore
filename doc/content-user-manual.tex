@@ -502,23 +502,54 @@ Add the ODCSPropertyFilterTransformer by following steps:
 \subsection*{Prepare Pipeline}
 \begin{enumerate}[resume]
 	\item Click \quot{Add a new pipeline}, fill in the label and description and submit it
-	\item Use the \quot{Back to the list of registered pipelines} button to go back
-	\item Click \quot{Detail} in the row of the pipeline created in the previous step
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\textwidth]{images/fe-walkthrough-menu-pipelines.png}
+	\label{fig:feWTMenuPipelines}
+\end{figure}
+
 	\item Click \quot{Assign a transformer}
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\textwidth]{images/fe-walkthrough-assign-transformer.png}
+	\label{fig:feWTAssignTransformer}
+\end{figure}
+
 	\item Select one of the transformers
 	
 	\emph{If there is no option then go back to the} \textbf{\nameref{sec:prepareTransformer}} \emph{section}
 	
 	To be able to assign rule groups select one of the standard transformers (QA, DN, OI)
-	
-	\item Dedicate a working directory to the transformer by filling in its path
+
 	\item Fill in the configuration needed by the transformer
 	\item Allow or disallow running on clean DB
-	\item Fill in any positive integer as indicator of the transformer's priority\newline 
+	\item Select place in the pipeline
 
-	  If you added a standard transformer
-	\item Click \quot{Detail} in the row of the transformer
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\textwidth]{images/fe-walkthrough-new-transformer-assignment.png}
+	\label{fig:feWTNewTransformerAssignment}
+\end{figure}
 
+\newpage
+
+	\item Click \quot{Assign a group} to assign a group of Data Normalization rules
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\textwidth]{images/fe-walkthrough-assign-group.png}
+	\label{fig:feWTAssignGroup}
+\end{figure}
+
+	\item Select the group created earlier
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\textwidth]{images/fe-walkthrough-new-group-assignment.png}
+	\label{fig:feWTNewGroupAssignment}
+\end{figure}
 	
 	%%TODO: nahrani dat? odkaz na scraper?
 	
