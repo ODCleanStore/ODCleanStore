@@ -927,7 +927,24 @@ authorized for editation (who have a read-only access to rules), there are two v
 \code{}
 
 \section{Extending}
+
 \subsection{How to Add a New Page}
+
+First of all make sure that you are familiar with the Wicket framework, for the whole web application is based on it.
+
+A standard Wicket \code{WebPage} component is used to create new pages. That means that you can use all the standard stuff that Wicket provides, such as adding standard child components (forms, tables, links, ...). Aditionaly, you should adhere to some specific conventions, which have been established to ease and fasten the development process and to make the web well structured and consistent. This section provides you with details on these conventions.
+
+The POJO part of the page component should extend the \code{FrontendPage} class. The \code{FrontendPage} component provides page layout and content for parts of the page which are common throughout the whole application (such as logo and menu bar). That's why, when creating a new page, you only need to take care of the custom content. There are two components handled by the \code{FrontendPage} which need per-page parameters - the page title and the bread crumbs. The newly created page should supply these values via a call to the constructor of the parent's class. The \code{FrontendPage} also contains several helper factory methods which can be used to construct simple child components. Last but not least, the \code{FrontendPage} provides two shortcut methods - \code{getApp} to obtain the application object and \code{getODCSSession} to get the session object. All of these are protected scoped and can be used arbitrarily in new page components.
+
+The POJO must provide a constructor. The constructor should be either parameter-less or accept a single parameter - the id of entity to be described on the page. Inside the constructor you generaly need to - call the parent's constructor (and suply the page title and crumbs values), obtain all needed DAO objects via the \code{daoLookupFactory} class attribute (see the section on the DAO layer) and add all child components, ideally through calls to private methods, one for each component.
+
+You will also want to update the HTML file of the \code{FrontendPage} component in order to add a link to the new page to the menu bar. Simply add a new standard Wicket link to the HTML list.
+
+All parts of the web frontend application adhere to the following structure rules. Every section describes registered entities of a single type (such as transformers, pipelines, ontologies, user accounts). For every entity type (say XXX) there are four page components - \code{XXXListPage} (shows a list of all registered entities), \code{NewXXXPage} (provides a form to register a new entity), \code{XXXDetailPage} (shows an existing entity in details and provides a form to edit it; if there are subentities bound to the entity then shows a list of all of them).
+
+As a rule, every page should contain a single help pop-up window for every entity the user can work with via that page. To create a help pop-up window for a new entity type (say XXX again), you only need to create an XXXHelpPanel component (you can copy an existing help panel component and update the contents in the related HTML page). Then use the \code{addHelpWindow} method of the \code{FrontendPage} class to add the pop-up window to the page.
+
+
 \subsection{How to Add a New \DN Template}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
