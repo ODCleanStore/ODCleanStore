@@ -25,10 +25,12 @@ public class InputWSConfigTest extends ConfigTestBase {
                 InputWSConfig.GROUP_PREFIX + "endpoint_url")).thenReturn("http://localhost:8088/inputws");
         Mockito.when(properties.getProperty(
                 InputWSConfig.GROUP_PREFIX + "named_graphs_prefix")).thenReturn("http://opendata.cz/infrastructure/odcleanstore/");
+        Mockito.when(properties.getProperty(InputWSConfig.GROUP_PREFIX + "recovery_crash_penalty")).thenReturn("60000");
         
         InputWSConfig inputWSConfig = InputWSConfig.load(properties);
 
         assertEquals(new URL("http://localhost:8088/inputws"), inputWSConfig.getEndpointURL());
         assertEquals(new URL("http://opendata.cz/infrastructure/odcleanstore/"), inputWSConfig.getNamedGraphsPrefix());
+        assertEquals(new Long(60000), inputWSConfig.getRecoveryCrashPenalty());
     }
 }

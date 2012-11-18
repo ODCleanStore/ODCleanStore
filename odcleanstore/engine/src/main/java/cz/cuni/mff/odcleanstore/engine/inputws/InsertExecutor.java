@@ -31,8 +31,6 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
     
     private static final Logger LOG = LoggerFactory.getLogger(InsertExecutor.class);
     
-    private static final long ON_EXCEPTION_WAIT_PERIOD_MS = 3000;
-
     private static InputGraphStatus importedInputGraphStates = new InputGraphStatus();
 
     private String user;
@@ -275,7 +273,7 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
             } catch (InputGraphStatusException e) {
                 LOG.warn("Input WS - get all importing graphs failure");
                 try {
-                    Thread.sleep(ON_EXCEPTION_WAIT_PERIOD_MS);
+                	Thread.sleep(ConfigLoader.getConfig().getInputWSGroup().getRecoveryCrashPenalty());
                 } catch (Exception ee) {
                     // do nothing
                 }
@@ -300,7 +298,7 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
             } catch (Exception e) {
                 LOG.warn("Input WS - reverting status of bad import graph {} failure", uuid);
                 try {
-                    Thread.sleep(ON_EXCEPTION_WAIT_PERIOD_MS);
+                    Thread.sleep(ConfigLoader.getConfig().getInputWSGroup().getRecoveryCrashPenalty());
                 } catch (Exception ee) {
                     // do nothing
                 }
