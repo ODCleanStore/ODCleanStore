@@ -107,6 +107,15 @@ public class DbOdcsContext extends DbContext {
             throw new DbOdcsException(SQL.ERROR_UPDATE_ATTACHED_ENGINE, e);
         }
     }
+    
+    public boolean updateEngineState(String engineUuid, String stateDescription) throws DbOdcsException {
+        try {
+            int updatedRowCount = execute(SQL.UPDATE_ENGINE_STATE, stateDescription, engineUuid);
+            return updatedRowCount > 0;
+        } catch (Exception e) {
+            throw new DbOdcsException(SQL.ERROR_UPDATE_ENGINE_STATE, e);
+        }
+    }
 
     public boolean updateState(int graphId, EnumGraphState newState) throws DbOdcsException {
         try {

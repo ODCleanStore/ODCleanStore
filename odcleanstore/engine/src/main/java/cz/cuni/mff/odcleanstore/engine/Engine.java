@@ -2,6 +2,7 @@ package cz.cuni.mff.odcleanstore.engine;
 
 import java.io.File;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -10,6 +11,7 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
+import cz.cuni.mff.odcleanstore.engine.db.model.DbOdcsContext;
 import cz.cuni.mff.odcleanstore.engine.inputws.InputWSService;
 import cz.cuni.mff.odcleanstore.engine.outputws.OutputWSService;
 import cz.cuni.mff.odcleanstore.engine.pipeline.PipelineService;
@@ -115,6 +117,7 @@ public final class Engine {
         try {
             LOG.info("Engine initializing");
             init(args);
+            updateEngineStatusToDb("Engine initializing");
             executor.execute(outputWSService);
             executor.execute(inputWSService);
             executor.execute(pipelineService);
@@ -129,6 +132,14 @@ public final class Engine {
                 }
             }
             LOG.info("Engine running");
+            updateEngineStatusToDb("Engine running");
+            long delay = ConfigLoader.getConfig().getEngineGroup().getStateToDbWritingInterval();
+            executor.scheduleWithFixedDelay(new Runnable() {
+				@Override
+				public void run() {
+					updateEngineStatusToDb();
+				}
+            }, delay, delay, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             LOG.fatal(FormatHelper.formatExceptionForLog(e, "Engine crashed"));
             shutdown();
@@ -144,6 +155,7 @@ public final class Engine {
                 shutdownIsInitiated = true;
             }
             LOG.info("Engine initiate shutdown");
+            updateEngineStatusToDb("Engine initiate shutdown");
             if (inputWSService != null) {
                 inputWSService.initiateShutdown(executor);
             }
@@ -163,6 +175,7 @@ public final class Engine {
                 } else {
                     LOG.info("Engine shutdown, but not all services properly shutdown");
                 }
+                updateEngineStatusToDb("Engine is shutdown");
                 LogManager.shutdown();
                 Runtime.getRuntime().halt(0);
             }
@@ -283,5 +296,42 @@ public final class Engine {
                 con.closeQuietly();
             }
         }
+    }
+    
+    private void updateEngineStatusToDb() {
+    	if (shutdownIsInitiated) {
+    		return;
+    	}
+    	StringBuilder sb = null;
+    	
+    	try {
+    	sb = new StringBuilder();
+    	sb.append(pipelineService.getServiceStateInfo());
+   		sb.append("\n");
+    	sb.append(inputWSService.getServiceStateInfo());
+    	sb.append("\n");
+   		sb.append(outputWSService.getServiceStateInfo());
+    	} catch (Exception e){
+    		LOG.warn("Getting dervice state info before updating engine state to db error");
+    	}
+    	
+    	if (sb != null) {
+    		updateEngineStatusToDb(sb.toString());
+    	}
+    }
+ 
+    private void updateEngineStatusToDb(String stateDescription) {
+    	DbOdcsContext context = null;
+    	try {
+    		context = new DbOdcsContext();
+    		context.updateEngineState(getEngineUuid(), stateDescription);
+    		context.commit();
+    	} catch(Exception e) {
+    		LOG.warn("Updating engine state to db error");
+    	} finally {
+    		if (context != null) {
+    			context.closeQuietly();
+    		}
+    	}
     }
 }

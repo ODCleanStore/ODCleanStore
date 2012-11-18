@@ -158,6 +158,18 @@ import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
                     + " AND EXISTS (SELECT * FROM ODCLEANSTORE.EN_ATTACHED_ENGINES WHERE uuid = ?)");
 
     static final String ERROR_UPDATE_ATTACHED_ENGINE = "Error during updating attached engine";
+    
+    /**
+     * Update attached engine state.
+     * @param first stateDescription
+     * @param second Engine uuid
+     */
+    static final String UPDATE_ENGINE_STATE = 
+            " UPDATE ODCLEANSTORE.EN_ATTACHED_ENGINES"
+                    + " SET stateDescription = ?"
+                    + " WHERE uuid = ?";
+
+    static final String ERROR_UPDATE_ENGINE_STATE = "Error during updating engine state";
 
     /**
      * Update graph stateId for given graphId.
