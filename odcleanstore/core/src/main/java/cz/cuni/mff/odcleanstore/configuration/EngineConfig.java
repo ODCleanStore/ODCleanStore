@@ -32,6 +32,7 @@ public class EngineConfig extends ConfigGroup {
     private final Long shutdownTimeout;
     private final Long lookForGraphInterval;
     private final Long secondCrashPenalty;
+    private final Long stateToDbWritingInterval;
     private final String dirtyImportExportDir;
     private final String cleanImportExportDir;
 
@@ -48,6 +49,7 @@ public class EngineConfig extends ConfigGroup {
             Long shutdownTimeout,
             Long lookForGraphInterval,
             Long secondCrashPenalty,
+            Long stateToDbWritingInterval,
             String dirtyImportExportDir,
             String cleanImportExportDir) {
         this.dirtyDBJDBCConnectionCredentials = dirtyDBJDBCConnectionCredentials;
@@ -56,6 +58,7 @@ public class EngineConfig extends ConfigGroup {
         this.shutdownTimeout = shutdownTimeout;
         this.lookForGraphInterval = lookForGraphInterval;
         this.secondCrashPenalty = secondCrashPenalty;
+        this.stateToDbWritingInterval = stateToDbWritingInterval;
         this.dirtyImportExportDir = dirtyImportExportDir;
         this.cleanImportExportDir = cleanImportExportDir;
     }
@@ -84,6 +87,7 @@ public class EngineConfig extends ConfigGroup {
         Long shutdownTimeout = loadParam(properties, GROUP_PREFIX + "shutdown_timeout", formatLong);
         Long lookForGraphInterval = loadParam(properties, GROUP_PREFIX + "look_for_graph_interval", formatLong);
         Long secondCrashPenalty = loadParam(properties, GROUP_PREFIX + "second_crash_penalty", formatLong);
+        Long stateToDbWritingInterval = loadParam(properties, GROUP_PREFIX + "state_to_db_writing_interval", formatLong);
         
         ParameterFormat<String> formatString = new FormatString();
         String dirtyImportExportDir = loadParam(properties, GROUP_PREFIX + "dirty_import_export_dir", formatString);
@@ -96,6 +100,7 @@ public class EngineConfig extends ConfigGroup {
                 shutdownTimeout,
                 lookForGraphInterval,
                 secondCrashPenalty,
+                stateToDbWritingInterval,
                 dirtyImportExportDir,
                 cleanImportExportDir);
     }
@@ -147,6 +152,14 @@ public class EngineConfig extends ConfigGroup {
   public Long getSecondCrashPenalty() {
       return secondCrashPenalty;
   }
+  
+  /**
+  *
+  * @return
+  */
+ public Long getStateToDbWritingInterval() {
+     return stateToDbWritingInterval;
+ }
 
   /**
   *
