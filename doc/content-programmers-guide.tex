@@ -308,7 +308,8 @@ This is an outline of directory structure in the git repository:
 			\item[conf/] -- configuration files for development in Eclipse
 			\item[core/] -- sources of \code{odcs-core} artifact (common code shared by other artifacts)
 			\item[engine/]  -- sources of \code{odcs-engine} artifact (Engine component)
-			\item[inputclient/]  -- sources of \code{odcs-imputclient} artifact (Java client for Input Webservice)
+			\item[installer/] -- sources of \code{odcs-installer} artifact (\odcs installer)
+			\item[inputclient/]  -- sources of \code{odcs-inputclient} artifact (Java client for Input Webservice)
 			\item[simplescraper/]  -- simple Input Webservice import tool
 			\item[simpletransformer/]  -- example of a custom transformer
 			\item[webfrontend/]  -- sources of \FE
@@ -327,6 +328,7 @@ The project is divided into several artifacts. The root POM (\code{pom.xml}) in 
 	\item \code{odcs-engine} -- Engine component (running Input and Output Webservice and the data processing queue)
 	\item \code{odcs-comlib} -- components shared by \code{odcs-inputclient} and Input Webservice
 	\item \code{odcs-webfrontend} -- \FE web application
+	\item \code{odcs-installer} -- \odcs installer
 	\item \code{odcs-inputclient} -- client library for Input Webservice (provides a Java API for accessing the webservice)
 	\item \code{odcs-simplescraper} -- a simple command-line tool for importing data through Input Webservices
 	\item \code{odcs-simpletransformer} -- example of a custom transformer
@@ -559,9 +561,9 @@ Interface of the \CR component is represented by Java interface \code{ConflictRe
 \end{verbatim}
 \CR accepts a collection of quads (RDF triple + named graph) and returns a collection of \code{CRQuad}s (quad + \aggrq + source named graphs).
 
-An instance of \code{ConflictResolver} can be obtained from factory class \code{ConflictResolverFactory}. Constructor of this class takes query-independent settings and its \code{createResolver()} methods takes query-dependent settings (named graph metadata, sameAs links, aggregation settings, preferred URIs) and returns a new instance of \code{ConflictResolver} for these settings. The~signatures of the constructor and the \code{createResolver()} method are:
+An instance of \code{ConflictResolver} can be obtained from factory class \code{ConflictResolverFactory}. Constructor of this class takes query-independent settings and its \code{createResolver()} methods takes query-dependent settings (named graph metadata, sameAs links, aggregation settings, preferred URIs) and returns a new instance of \code{ConflictResolver} for these settings. The~signatures of the constructor and the \code{createResolver()} method are in \lstlistingname~\ref{lst:crFactory}.
 
-\begin{verbatim}
+\begin{lstlisting}[caption={\code{ConflictResolverFactory} interface},label=lst:crFactory]
       public ConflictResolverFactory(
           String resultGraphPrefix,
           ConflictResolutionConfig globalConfig,
@@ -572,7 +574,7 @@ An instance of \code{ConflictResolver} can be obtained from factory class \code{
             NamedGraphMetadataMap metadata,
             Iterator<Triple> sameAsLinks,
             Set<String> preferredURIs)
-\end{verbatim}
+\end{lstlisting}
 
 \section{Implementation}
 The actual implementation of the \code{ConflictResolver} interface is in class \code{ConflictResolverImpl}. Its constructor requires two parameters -- one of type \code{ConflictResolverSpec} contains all settings for conflict resolution and one of type \code{ConflictResolutionConfig} is a container for global settings (configurable in the \odcs configuration file). \code{ConflictResolverSpec} contains default and per-property aggregation methods to be used, metadata of relevant named graphs including \QA scores, additional \code{owl:sameAs} links to consider and other technical settings.
@@ -832,10 +834,10 @@ Note that custom transformers should satisfy conditions listed in Section \ref{s
 \subsection{Purpose}
 
 \paragraph{Quality Assessor:}
-Data processed by ODCleanStore come in a raw form that may be inconsistent with the expected format. The purpose of the Quality Assessor is to provide a way to identify patterns in data that are responsible for those inconsistencies. This is achieved by user-provided rules that specify RDF data patterns and a degree of inconsistency by use of SPARQL Select Where Clause and a coefficient that reduces the overall quality of the processed data chunk (graph) and a single floating point coefficient.
+Data processed by ODCleanStore come in a raw form that may be inconsistent with the expected format. The purpose of the Quality Assessor is to provide a way to identify patterns in data that are responsible for those inconsistencies. This is achieved by user-provided or generated rules that specify RDF data patterns and a degree of inconsistency by use of SPARQL Select Where Clause and a coefficient that reduces the overall quality of the processed data chunk (named graph) and a single floating point coefficient.
 
 \paragraph{Quality Aggregator:}
-For Conflict Resolution purposes it is important to be able to assosiate a data source with quality of data it provides. Quality Assessor computes quality of individual data chunks, these have to be aggregated into a quality indicator for their sources.
+For Conflict Resolution purposes it is important to be able to associate a data source with quality of data it provides. Quality Assessor computes quality of individual data chunks, these have to be aggregated into a quality indicator for their sources.
 
 \subsection{Interface}
 
@@ -973,7 +975,7 @@ There exist three types of data normalization rules:
 	\item \code{MODIFY}.
 \end{itemize}
 
-They all closely follow semantics of \code{SPARQL} update queries\footnote{http://www.w3.org/Submission/SPARQL-Update/\#rUpdate}
+They all closely follow semantics of \code{SPARQL} update queries.\footnote{http://www.w3.org/Submission/SPARQL-Update/\#rUpdate}
 
 \subsubsection*{Data Normalizer}
 
