@@ -1038,6 +1038,12 @@ Description of the most important BO classes follows:
 	\item[DNRule and DNRuleComponent] These entities represent DN rules and rule components and are useful when working with rules in the raw form.
 	\item[CompiledDNRule and CompiledDNRuleComponent] These entities represent DN rules and rule components and are easier to use when working with rules compiled from template instances.
 
+\subsubsection{util}
+
+This package is intended for \WF specific utility classes, such as classes to ease working with arrays (\code{ArrayUtils}), sending email messages (\code{Mail}, \code{NewAccountMail}, \code{NewPasswordMail}) and generating and hashing passwords (\code{PasswordHandling}) - to name some of them.
+
+Some methods in other parts of the \WF codebase accept code snippets (e.g. closures) as arguments. Because the current version of Java (1.6) does not directly support closures, we have created two classes - \code{CodeSnippet} and \code{EmptyCodeSnippet} - to be used instead. They too belong in the \code{util} package.
+
 \subsubsection{validators}
 
 This package contains custom Wicket form validators, such as \code{IRIValidator} - ensures that the given value is a valid IRI, \code{EnumValidator} - ensures that the given value is an element of the represented enumeration or \code{OldPasswordValidator} - ensures that the given new password matches the original one.
