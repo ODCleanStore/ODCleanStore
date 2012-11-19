@@ -12,7 +12,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
-public class Pipeline extends EntityWithSurrogateKey implements AuthoredEntity
+public class Pipeline extends AuthoredEntity
 {
 	private static final long serialVersionUID = 1L;
 

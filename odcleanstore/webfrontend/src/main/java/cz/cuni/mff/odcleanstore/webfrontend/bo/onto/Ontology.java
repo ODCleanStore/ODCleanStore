@@ -8,7 +8,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
  * 
  * @author Tomas Soukup
  */
-public class Ontology extends EntityWithSurrogateKey implements AuthoredEntity
+public class Ontology extends AuthoredEntity
 {
 	private static final long serialVersionUID = 1L;
 	

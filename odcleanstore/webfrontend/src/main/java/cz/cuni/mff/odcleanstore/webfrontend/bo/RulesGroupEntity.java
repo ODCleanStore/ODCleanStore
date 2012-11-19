@@ -5,7 +5,7 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo;
  * 
  * @author Jan Michelfeit
  */
-public abstract class RulesGroupEntity extends EntityWithSurrogateKey implements AuthoredEntity
+public abstract class RulesGroupEntity extends AuthoredEntity
 {
 	private static final long serialVersionUID = 1L;
 	
