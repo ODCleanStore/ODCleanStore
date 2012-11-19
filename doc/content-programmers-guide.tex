@@ -559,7 +559,20 @@ Interface of the \CR component is represented by Java interface \code{ConflictRe
 \end{verbatim}
 \CR accepts a collection of quads (RDF triple + named graph) and returns a collection of \code{CRQuad}s (quad + \aggrq + source named graphs).
 
-An instance of \code{ConflictResolver} can be obtained from factory class \code{ConflictResolverFactory}. Constructor of this class takes query-independent settings and its \code{createResolver()} methods takes query-dependent settings (named graph metadata, sameAs links, aggregation settings, preferred URIs) and returns a new instance of \code{ConflictResolver} for these settings.
+An instance of \code{ConflictResolver} can be obtained from factory class \code{ConflictResolverFactory}. Constructor of this class takes query-independent settings and its \code{createResolver()} methods takes query-dependent settings (named graph metadata, sameAs links, aggregation settings, preferred URIs) and returns a new instance of \code{ConflictResolver} for these settings. The~signatures of the constructor and the \code{createResolver()} method are:
+
+\begin{verbatim}
+      public ConflictResolverFactory(
+          String resultGraphPrefix,
+          ConflictResolutionConfig globalConfig,
+          AggregationSpec defaultAggregationSpec)
+
+      public ConflictResolver createResolver(
+            AggregationSpec aggregationSpec,
+            NamedGraphMetadataMap metadata,
+            Iterator<Triple> sameAsLinks,
+            Set<String> preferredURIs)
+\end{verbatim}
 
 \section{Implementation}
 The actual implementation of the \code{ConflictResolver} interface is in class \code{ConflictResolverImpl}. Its constructor requires two parameters -- one of type \code{ConflictResolverSpec} contains all settings for conflict resolution and one of type \code{ConflictResolutionConfig} is a container for global settings (configurable in the \odcs configuration file). \code{ConflictResolverSpec} contains default and per-property aggregation methods to be used, metadata of relevant named graphs including \QA scores, additional \code{owl:sameAs} links to consider and other technical settings.
