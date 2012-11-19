@@ -1022,9 +1022,11 @@ This package is intended to contain custom Wicket behaviours. Currently there's 
 
 \subsubsection{bo}
 
-The \code{bo} package contains all business objects used in the web frontend application, divided into subpackages. But for a few exceptions, every business entity represents a single relational table and is formed by a single Java class. The classes are simple Java beans where bean properties match columns of the represented table. The classes can aditionaly contain other methods to simplify using them.
+The \code{bo} package contains all business objects used in the web frontend application, divided into subpackages. Every business entity represents a single relational table and is formed by a single Java class. The classes are simple Java beans where bean properties match columns of the represented table and can aditionaly contain other methods to simplify using them.
 
 The hierarchy of the BO classes is depicted by the following diagram.
+
+[TODO: insert the diagram]
 
 Description of the most important BO classes follows:
 
@@ -1032,7 +1034,13 @@ Description of the most important BO classes follows:
 	\item[BusinessEntity] The base class for all BO classes. It provides no functionality and serves just as a common abstract parent.
 	\item[EntityWithSurrogateKey] The base class for BO classes for all entities with surrogate primary keys. It only contains the \code{id} property.
 	\item[AuthoredEntity] This interface serves as an abstract parent of all entities that track their authors.
-	\item[Prefix] This class represents an URI prefix. It maps to a internal Virtuoso relational table and it's structure is therefore fixed.
+	\item[Prefix] This BO represents an URI prefix. It maps to an internal Virtuoso relational table and it's structure is therefore fixed.
+	\item[DNRule and DNRuleComponent] These entities represent DN rules and rule components and are useful when working with rules in the raw form.
+	\item[CompiledDNRule and CompiledDNRuleComponent] These entities represent DN rules and rule components and are easier to use when working with rules compiled from template instances.
+
+\subsubsection{}
+
+
 
 \subsection{Database Access Layer}
 \FE has a layer for accessing the database based on Spring and its JDBC templates. We chose not to use Hibernate due to integration problems with Wicket and use custom implemenation of business and DAO objects.
