@@ -826,7 +826,7 @@ From the technical point of view, a transformer implementation must implement th
 
 Note that custom transformers should satisfy conditions listed in Section \ref{sec:transformerContract}.
 
-\chapter{Transformers included in ODCleanStore}
+\chapter{Transformers Included in ODCleanStore}
 
 \section{Quality Assessor \& Quality Aggregator}
 \subsection{Purpose}
@@ -885,7 +885,7 @@ The method \code{compileOntologyToRules} expects a named graph \code{ontologyGra
 
 \subsubsection*{Quality Assessment Rules}
 
-The data patterns are described with \code{SPARQL Where Clause}\footnote{http://www.w3.org/TR/rdf-sparql-query/#rWhereClause} followed by optional \code{Group by Clause}\footnote{http://www.w3.org/TR/sparql11-query/#rGroupClause} and \code{Having Clause}\footnote{http://www.w3.org/TR/sparql11-query/#rHavingClause}
+The data patterns are described with \code{SPARQL Where Clause}\footnote{http://www.w3.org/TR/rdf-sparql-query/\#rWhereClause} followed by optional \code{Group by Clause}\footnote{http://www.w3.org/TR/sparql11-query/\#rGroupClause} and \code{Having Clause}\footnote{http://www.w3.org/TR/sparql11-query/\#rHavingClause}
 
 \subsubsection*{Assessment \& Aggregation}
 
@@ -973,7 +973,7 @@ There exist three types of data normalization rules:
 	\item \code{MODIFY}.
 \end{itemize}
 
-They all closely follow semantics of \code{SPARQL} update queries\footnote{http://www.w3.org/Submission/SPARQL-Update/#rUpdate}
+They all closely follow semantics of \code{SPARQL} update queries\footnote{http://www.w3.org/Submission/SPARQL-Update/\#rUpdate}
 
 \subsubsection*{Data Normalizer}
 
@@ -1051,11 +1051,12 @@ Description of the most important BO classes follows:
 	\item[DNRule and DNRuleComponent] These entities represent DN rules and rule components and are useful when working with rules in the raw form.
 	\item[CompiledDNRule and CompiledDNRuleComponent] These entities represent DN rules and rule components and are easier to use when working with rules compiled from template instances.
 
+\end{description}
 \subsubsection{util}
 
-This package is intended for \WF specific utility classes, such as classes to ease working with arrays (\code{ArrayUtils}), sending email messages (\code{Mail}, \code{NewAccountMail}, \code{NewPasswordMail}) and generating and hashing passwords (\code{PasswordHandling}) - to name some of them.
+This package is intended for \FE specific utility classes, such as classes to ease working with arrays (\code{ArrayUtils}), sending email messages (\code{Mail}, \code{NewAccountMail}, \code{NewPasswordMail}) and generating and hashing passwords (\code{PasswordHandling}) - to name some of them.
 
-Some methods in other parts of the \WF codebase accept code snippets (e.g. closures) as arguments. Because the current version of Java (1.6) does not directly support closures, we have created two classes - \code{CodeSnippet} and \code{EmptyCodeSnippet} - to be used instead. They too belong in the \code{util} package.
+Some methods in other parts of the \FE codebase accept code snippets (e.g. closures) as arguments. Because the current version of Java (1.6) does not directly support closures, we have created two classes - \code{CodeSnippet} and \code{EmptyCodeSnippet} - to be used instead. They too belong in the \code{util} package.
 
 \subsubsection{validators}
 
