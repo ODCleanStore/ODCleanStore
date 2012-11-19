@@ -7,6 +7,7 @@ import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.configuration.OutputWSConfig;
 import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.Service;
+import cz.cuni.mff.odcleanstore.engine.ServiceState;
 
 /**
  * @author Petr Jerman
@@ -39,4 +40,17 @@ public final class OutputWSService extends Service {
             component.stop();
         }
     }
+
+	@Override
+	public String getServiceStateInfo() {
+		if (isRunnningAndDbInstancesAvailable(false)) {
+			return "OutputWS is running";
+		}
+		
+		if (getServiceState() == ServiceState.RUNNING) {
+			return "OutputWS is running, but clean db instance is not available";
+        }
+		
+		return String.format("OutputWS is not running, has %s state", getServiceState().toString());
+	}
 }

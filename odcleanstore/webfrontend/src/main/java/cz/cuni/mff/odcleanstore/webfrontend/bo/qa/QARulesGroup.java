@@ -9,7 +9,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.RulesGroupEntity;
  * @author Dušan Rychnovský (dusan.rychnovsky@gmail.com)
  *
  */
-public class QARulesGroup extends RulesGroupEntity implements AuthoredEntity
+public class QARulesGroup extends RulesGroupEntity
 {
 	private static final long serialVersionUID = 1L;
 

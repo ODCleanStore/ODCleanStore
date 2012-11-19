@@ -1,13 +1,15 @@
 package cz.cuni.mff.odcleanstore.configuration;
 
+import java.util.Properties;
+import java.util.UUID;
+
 import cz.cuni.mff.odcleanstore.configuration.exceptions.IllegalParameterFormatException;
 import cz.cuni.mff.odcleanstore.configuration.exceptions.ParameterNotAvailableException;
 import cz.cuni.mff.odcleanstore.configuration.formats.FormatLong;
 import cz.cuni.mff.odcleanstore.configuration.formats.FormatString;
+import cz.cuni.mff.odcleanstore.configuration.formats.FormatUUID;
 import cz.cuni.mff.odcleanstore.configuration.formats.ParameterFormat;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
-
-import java.util.Properties;
 
 /**
  * Encapsulates Engine configuration.
@@ -32,8 +34,10 @@ public class EngineConfig extends ConfigGroup {
     private final Long shutdownTimeout;
     private final Long lookForGraphInterval;
     private final Long secondCrashPenalty;
+    private final Long stateToDbWritingInterval;
     private final String dirtyImportExportDir;
     private final String cleanImportExportDir;
+    private final UUID engineUuid;
 
     /**
      *
@@ -48,16 +52,20 @@ public class EngineConfig extends ConfigGroup {
             Long shutdownTimeout,
             Long lookForGraphInterval,
             Long secondCrashPenalty,
+            Long stateToDbWritingInterval,
             String dirtyImportExportDir,
-            String cleanImportExportDir) {
+            String cleanImportExportDir,
+            UUID engineUuid) {
         this.dirtyDBJDBCConnectionCredentials = dirtyDBJDBCConnectionCredentials;
         this.cleanDBJDBCConnectionCredentials = cleanDBJDBCConnectionCredentials;
         this.startupTimeout = startupTimeout;
         this.shutdownTimeout = shutdownTimeout;
         this.lookForGraphInterval = lookForGraphInterval;
         this.secondCrashPenalty = secondCrashPenalty;
+        this.stateToDbWritingInterval = stateToDbWritingInterval;
         this.dirtyImportExportDir = dirtyImportExportDir;
         this.cleanImportExportDir = cleanImportExportDir;
+        this.engineUuid = engineUuid;
     }
     
     // CHECKSTYLE:ON
@@ -84,10 +92,14 @@ public class EngineConfig extends ConfigGroup {
         Long shutdownTimeout = loadParam(properties, GROUP_PREFIX + "shutdown_timeout", formatLong);
         Long lookForGraphInterval = loadParam(properties, GROUP_PREFIX + "look_for_graph_interval", formatLong);
         Long secondCrashPenalty = loadParam(properties, GROUP_PREFIX + "second_crash_penalty", formatLong);
+        Long stateToDbWritingInterval = loadParam(properties, GROUP_PREFIX + "state_to_db_writing_interval", formatLong);
         
         ParameterFormat<String> formatString = new FormatString();
         String dirtyImportExportDir = loadParam(properties, GROUP_PREFIX + "dirty_import_export_dir", formatString);
         String cleanImportExportDir = loadParam(properties, GROUP_PREFIX + "clean_import_export_dir", formatString);
+        
+        ParameterFormat<UUID> formatUuid = new FormatUUID();
+        UUID engineUuid = loadParam(properties, GROUP_PREFIX + "engine_uuid", formatUuid);
         
         return new EngineConfig(
                 dirtyJDBCConnectionCredentials,
@@ -96,8 +108,10 @@ public class EngineConfig extends ConfigGroup {
                 shutdownTimeout,
                 lookForGraphInterval,
                 secondCrashPenalty,
+                stateToDbWritingInterval,
                 dirtyImportExportDir,
-                cleanImportExportDir);
+                cleanImportExportDir,
+                engineUuid);
     }
     
     /**
@@ -147,6 +161,14 @@ public class EngineConfig extends ConfigGroup {
   public Long getSecondCrashPenalty() {
       return secondCrashPenalty;
   }
+  
+  /**
+  *
+  * @return
+  */
+ public Long getStateToDbWritingInterval() {
+     return stateToDbWritingInterval;
+ }
 
   /**
   *
@@ -162,5 +184,13 @@ public class EngineConfig extends ConfigGroup {
   */
   public String getCleanImportExportDir() {
       return cleanImportExportDir;
+  }
+  
+  /**
+  *
+  * @return Gets engine uuid.
+  */
+  public UUID getEngineUuid() {
+      return engineUuid;
   }
 }

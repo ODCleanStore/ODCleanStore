@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.engine.inputws;
 
 import java.net.URL;
+import java.util.Date;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import javax.net.ssl.KeyManager;
@@ -19,7 +20,7 @@ import cz.cuni.mff.odcleanstore.engine.Service;
 public final class InputWSService extends Service {
 
 	private static final Logger LOG = LoggerFactory.getLogger(InputWSService.class);
-	
+
 	private InputWSHttpServer server;
 	private ScheduledThreadPoolExecutor executor;
 
@@ -29,19 +30,33 @@ public final class InputWSService extends Service {
 	}
 
 	@Override
-	protected void initialize() throws Exception {
+	public String getServiceStateInfo() {
+		Date lastRecoveryDate = InsertExecutor.getLastActiveWaitingForRecoveryDate();
+		if (lastRecoveryDate != null) {
+			return String.format("InputWS is waiting for recovery from %s", lastRecoveryDate.toString());
+		}
+
+		if (isRunnningAndDbInstancesAvailable(false)) {
+			return "InputWS is running";
+		}
 		
+		return String.format("InputWS is not running, has %s state", getServiceState().toString());
+	}
+
+	@Override
+	protected void initialize() throws Exception {
+
 		InputWSConfig inputWSConfig = ConfigLoader.getConfig().getInputWSGroup();
 		URL endpoint = inputWSConfig.getEndpointURL();
 		LOG.info("InputWS - Starting the server on {}", endpoint);
-		
-		if(endpoint.getProtocol().equalsIgnoreCase("https")) {
-				KeyManager[] keys = SslKeyManager.getKeys();
-				if (keys == null) {
-					LOG.error("Certificate for https server loading error");
-					throw new Exception();
-				}	
-				server = new InputWSHttpServer(endpoint, keys);
+
+		if (endpoint.getProtocol().equalsIgnoreCase("https")) {
+			KeyManager[] keys = SslKeyLoader.getKeys();
+			if (keys == null) {
+				LOG.error("Certificate for https server loading error");
+				throw new Exception();
+			}
+			server = new InputWSHttpServer(endpoint, keys);
 		} else {
 			server = new InputWSHttpServer(endpoint, null);
 		}
@@ -64,7 +79,7 @@ public final class InputWSService extends Service {
 			server.stop();
 		}
 	}
-	
+
 	private void executeInternal() {
 		InsertExecutor.recoveryOnStartup();
 		server.setAvailable(true);

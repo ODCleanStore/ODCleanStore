@@ -27,6 +27,7 @@ public final class PipelineService extends Service implements Runnable {
     private Object waitForGraphLock;
     private Object waitPenaltyLock;
     private PipelineGraphTransformerExecutor activeTransformerExecutor;
+    private String stateInfo;
     
     public PipelineService(Engine engine) {
         super(engine, "PipelineService");
@@ -37,7 +38,9 @@ public final class PipelineService extends Service implements Runnable {
 
     @Override
     public void shutdown() throws Exception {
-        synchronized (waitForGraphLock) {
+    	setServiceStateInfo("Pipeline is shutting down");
+     
+    	synchronized (waitForGraphLock) {
             waitForGraphLock.notify();
         }
         synchronized (waitPenaltyLock) {
@@ -47,6 +50,19 @@ public final class PipelineService extends Service implements Runnable {
             activeTransformerExecutor.shutdown();
         }
     }
+
+	@Override
+	public String getServiceStateInfo() {
+		return stateInfo;
+	}
+	
+	private void setServiceStateInfo(String message) {
+		try {
+			stateInfo = String.format("%s (%s)", message, new Date());
+		} catch(Exception e) {
+			stateInfo = message;
+		}
+	}
 
     public void notifyAboutGraphForPipeline() {
         synchronized (waitForGraphLock) {
@@ -74,6 +90,7 @@ public final class PipelineService extends Service implements Runnable {
         // CHECKSTYLE:OFF
         long _waitPenalty = 0;
         // CHEKCSTYLE:ON
+        	
         while (getServiceState() == ServiceState.RUNNING) {
             PipelineGraphStatus status = null;
             try {
@@ -84,17 +101,24 @@ public final class PipelineService extends Service implements Runnable {
                         }
                     }
                 }
+                setServiceStateInfo("Pipeline is waiting for graph");
                 while ((status = waitForGraphForPipeline()) != null) {
+                	setServiceStateInfo("Pipeline is running");
                     executePipeline(status);
                     _waitPenalty = 0;
+                    setServiceStateInfo("Pipeline is waiting for graph");
                 }
             } catch (Exception e) {
                 if (status != null && status.isResetPipelineRequest()) {
                     LOG.info(format("--- reset pipeline request detected ---", status));
+                    setServiceStateInfo("Pipeline detect reset request");
                 }
                 else {
                     _waitPenalty++;
                     LOG.error(FormatHelper.formatExceptionForLog(e, format("crashed", status)));
+                    if (_waitPenalty == 1) {
+                    	setServiceStateInfo("Pipeline crashed");
+                    }
                 }
             }
         }

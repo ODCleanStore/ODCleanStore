@@ -9,6 +9,7 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -31,11 +32,9 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
     
     private static final Logger LOG = LoggerFactory.getLogger(InsertExecutor.class);
     
-    private static final long ON_EXCEPTION_WAIT_PERIOD_MS = 3000;
-
     private static InputGraphStatus importedInputGraphStates = new InputGraphStatus();
-
-    private String user;
+    private static Date lastActiveWaitingForRecoveryDate;
+	private String user;
     private String pipelineName;
     private UUID uuid;
     private BufferedWriter metadataWriter, provenanceWriter, payloadWriter;
@@ -54,6 +53,10 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
         }
     }
 
+    public static Date getLastActiveWaitingForRecoveryDate() {
+		return lastActiveWaitingForRecoveryDate;
+	}
+    
     @Override
     protected void onElement(String name, String content) throws InsertExecutorException {
 
@@ -271,11 +274,14 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
             try {
                 LOG.info("InputWS - Starting recovery on startup");
                 uuids = importedInputGraphStates.getAllImportingGraphUuids();
+                lastActiveWaitingForRecoveryDate = null;
                 break;
             } catch (InputGraphStatusException e) {
                 LOG.warn("Input WS - get all importing graphs failure");
-                try {
-                    Thread.sleep(ON_EXCEPTION_WAIT_PERIOD_MS);
+                if (lastActiveWaitingForRecoveryDate == null) {
+                	lastActiveWaitingForRecoveryDate = new Date();
+                }                try {
+                	Thread.sleep(ConfigLoader.getConfig().getInputWSGroup().getRecoveryCrashPenalty());
                 } catch (Exception ee) {
                     // do nothing
                 }
@@ -296,11 +302,15 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
         while (true) {
             try {
                 importedInputGraphStates.revertImport(uuid);
+                lastActiveWaitingForRecoveryDate = null;
                 return;
             } catch (Exception e) {
                 LOG.warn("Input WS - reverting status of bad import graph {} failure", uuid);
+                if (lastActiveWaitingForRecoveryDate == null) {
+                	lastActiveWaitingForRecoveryDate = new Date();
+                }
                 try {
-                    Thread.sleep(ON_EXCEPTION_WAIT_PERIOD_MS);
+                    Thread.sleep(ConfigLoader.getConfig().getInputWSGroup().getRecoveryCrashPenalty());
                 } catch (Exception ee) {
                     // do nothing
                 }

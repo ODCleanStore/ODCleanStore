@@ -95,6 +95,7 @@
 		<module>simplescraper</module>
 		<module>simpletransformer</module>
 		<module>comlib</module>
+		<module>installer</module>
 	</modules>
 
 	<properties>

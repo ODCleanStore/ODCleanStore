@@ -1,6 +1,5 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo.dn;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.AuthoredEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.RulesGroupEntity;
 
 /**
@@ -9,7 +8,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.RulesGroupEntity;
  * @author Dušan Rychnovský
  *
  */
-public class DNRulesGroup extends RulesGroupEntity implements AuthoredEntity
+public class DNRulesGroup extends RulesGroupEntity
 {
 	private static final long serialVersionUID = 1L;
 

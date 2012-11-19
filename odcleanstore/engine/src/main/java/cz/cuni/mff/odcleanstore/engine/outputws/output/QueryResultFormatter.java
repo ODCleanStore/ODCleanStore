@@ -3,7 +3,7 @@ package cz.cuni.mff.odcleanstore.engine.outputws.output;
 import org.restlet.data.Reference;
 import org.restlet.representation.Representation;
 
-import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl.GraphScoreWithTrace;
+import cz.cuni.mff.odcleanstore.qualityassessment.QualityAssessor.GraphScoreWithTrace;
 import cz.cuni.mff.odcleanstore.queryexecution.MetadataQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
 

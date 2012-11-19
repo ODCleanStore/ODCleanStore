@@ -35,6 +35,8 @@ public abstract class Service implements Runnable {
     public final ServiceState getServiceState() {
         return this.state;
     }
+    
+    public abstract String getServiceStateInfo();
 
     private void setServiceState(ServiceState state) {
         ServiceState oldState = this.state;
