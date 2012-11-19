@@ -1038,9 +1038,11 @@ Description of the most important BO classes follows:
 	\item[DNRule and DNRuleComponent] These entities represent DN rules and rule components and are useful when working with rules in the raw form.
 	\item[CompiledDNRule and CompiledDNRuleComponent] These entities represent DN rules and rule components and are easier to use when working with rules compiled from template instances.
 
-\subsubsection{}
+\subsubsection{validators}
 
+This package contains custom Wicket form validators, such as \code{IRIValidator} - ensures that the given value is a valid IRI, \code{EnumValidator} - ensures that the given value is an element of the represented enumeration or \code{OldPasswordValidator} - ensures that the given new password matches the original one.
 
+All our custom validators extends the \code{CustomValidator} class, which handles the error message propagation so that the validators can focus just on the validation process.
 
 \subsection{Database Access Layer}
 \FE has a layer for accessing the database based on Spring and its JDBC templates. We chose not to use Hibernate due to integration problems with Wicket and use custom implemenation of business and DAO objects.
