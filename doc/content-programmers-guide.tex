@@ -24,21 +24,6 @@
 % issues redmine - debugging & spol
 % FE
   % FE - popsat, že to je webová aplikace, dá se spouštět pod tomcatem, odkaz na install manual
-  % uncommitted tabulky
-
-	% třídy
-		% webfrontend.behavior - Wicket Behavior implementations
-		% webfrontend.bo
-		% webfrontend.configuration
-		% webfrontend.core
-			% DaoLookupFactory, ODCSWebFrontendApplicatoin .java/properties, ODCSWebFrontendSession, URLRouter
-		% webfrontend.core.components - custom Wicket components (buttons, labels, form components etc.)
-		% webfrontend.core.model - Wicket models and data providers
-		% webfrotend.dao
-		% webfrontend.pages - pages, panels, ...
-		% webfrontend.util
-		% webfrontend.validators
-
 	% naming conventions
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1029,7 +1014,7 @@ This transformer is automatically added by Engine as the first transformer of ev
 
 \subsection{Codebase structure}
 
-The code of \FE is divided into multiple packages which all share a common name prefix - \code{cz.cuni.mff.odcleanstore.webfrontend}. In this section you'll find a brief description of each of them and of classes they contain. For more in-dept information please refere to the javadoc documentation.
+The code of \FE is divided into multiple packages which all share a common name prefix - \code{cz.cuni.mff.odcleanstore.webfrontend}. In this section you'll find a brief description of each of them and of classes they contain. For more in-dept information please refer to the javadoc documentation.
 
 \subsubsection{behaviours}
 
@@ -1175,10 +1160,50 @@ Note that when implementing a new DN template type it is a good idea to copy and
 \todo{Do uzivatelskeho manualu?}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{(Related Work)}
+\chapter{Related Work}
+\odcs provides means for cleaning, linking, and scoring incoming RDF data, storing it, and provides aggregated and integrated views on the data to Linked Data consumers. In addition, we support trustworthiness of the data with aggregate quality and provenance tracking. 
+
+\odcs focuses on the data processing and queries over stored data. Nevertheless, the extraction process that feeds data to  \odcs is also important -- our sister project Strigil implements a web scraper and document extractor that produces RDF data and integrates with ODCleanStore for storing the produced data.
+
+\section{Data Extraction}
+
+
+\subsection*{Strigil}
+
+Strigil\footnote{\url{http://sourceforge.net/p/strigil/home/Home/}} implements a web scraper and document extractor that produces RDF data and integrates with ODCleanStore as the producer of data.
+
+\subsection*{Linked Data Manager}
+Linked Data Manager\footnote{\url{http://www.semantic-web.at/linked-data-manager}} (LDM) is a Java based Linked (Open) Data Management Suite to schedule and monitor required Extract - Transform - Load jobs for web-based Linked Open Data portals as well as for sustainable Data Management and Data Integration usage.
+
+LDM data processing pipeline is similar to the data processing pipeline in ODCleanStore. LDM is a counterpart of ODCleanStore in that it provides facilities for managing the extraction process but doesn't provide any permanent storage or direct access to the data. Thus an LDM Loader could be used to send data to ODCleanStore and access it from here.
+
+\section{Data Processing}
+
+\subsection*{Linked Data Integration Framework}
+Linked Data Integration Framework\footnote{\url{http://www4.wiwiss.fu-berlin.de/bizer/ldif/}} (LDIF) is an open-source Linked Data Integration Framework that can be used by Linked Data applications to translate Web data and normalize URI while keeping track of data provenance.
+The framework consists of a Scheduler, Data Import and an Integration component with a set of pluggable modules.
+
+LDIF components encompass the whole process from data import and processing to integration and quality assessment. We use some of LDIF componets internally in ODCleanStore (Silk). The main difference is that LDIF is a framework other applications can built on, while ODCleanStore is a ready-to-use solution that can be easily deployed and managed via a web interface. Differences in quality assessment and data aggregation with Sieve, a part of the LDIF framework, are described below. LDIF also supports provenance tracking.\footnote{See Figure 2 of \href{http://static.lod2.eu/Deliverables/deliverable-4.3.2.pdf}{LOD2 Deliverable 4.3.2}}
+
+\section{Data aggregation and quality}
+
+\subsection*{Sieve}
+Sieve\footnote{\url{http://sieve.wbsg.de/}} adds quality assessment and data fusion capabilities to the LDIF architecture. It uses metadata about named graphs in order to assess data quality, agnostic to provenance vocabulary and quality models. Sieve uses customizable scoring functions to output data quality descriptors. Based on these quality descriptors (and/or optionally other descriptors ), Sieve can use configurable FusionFunctions to clean the data according to task-specific requirements.
+
+Sieve offers functionality similar to our Conflict Resolution component; however the purpose of Sieve in LDIF is different - it aggregates data while being stored to the clean database (unlike Conflict Resolution used at query time). This may be suitable when the desired data are known in advance but is not sufficient for open Web environments, where every consumer has different requirements on the aggregated data. Furthermore, ODCleanStore provides quality for each result statement where Sieve computes quality only for whole named graph.
+
+\subsection*{Integration systems in relational databases}
+
+The problem of integration of heterogeneous data (solved in ODCleanStore for RDF data) is solved by several systems for relational databases, e.g. Aurora\footnote{\url{http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.50.7261}} or Fusionplex\footnote{\url{http://dl.acm.org/citation.cfm?id=1221048}}.
+
+
+Aurora is an integration system of heterogenous data residing in relational and object-oriented databases, i.e. deals with non-RDF data; its query model enriches the SQL SELECT by enabling to define attribute conflict resolution functions (e.g. age[ANY] means that any attribute value for  the attribute age is used in the query) and record conflict  resolution function, which deal with key attributes of the records.   ODCS offers more built-in aggregation methods, on the other hand, Aurora allows user defined attribute aggregation functions; in ODCS, record conflicts are either discovered by linkers, or there is no record conflict.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Future Work}
+
+
+
 \todo{plus known bugs?}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
