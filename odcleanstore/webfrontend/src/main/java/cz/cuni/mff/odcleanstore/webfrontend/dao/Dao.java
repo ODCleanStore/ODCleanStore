@@ -34,6 +34,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.util.CodeSnippet;
  */
 public abstract class Dao implements Serializable
 {
+	/** Prefix of database table identifiers (database). */
 	public static final String TABLE_NAME_PREFIX = "DB.ODCLEANSTORE.";
 	
 	private static final long serialVersionUID = 1L;
@@ -140,7 +141,7 @@ public abstract class Dao implements Serializable
 	}
 	
 	/**
-	 * 
+	 * Convert boolean value to int
 	 * @param value
 	 */
 	protected static int boolToSmallint(boolean value)
@@ -151,57 +152,93 @@ public abstract class Dao implements Serializable
 			return 0;
 	}
 	
+	
+	/**
+	 * @see JdbcTemplate#query(String, RowMapper)
+	 */
 	protected <E> List<E> jdbcQuery(String sql, RowMapper<E> rowMapper) throws DataAccessException
 	{
 		return getJdbcTemplate().query(sql, rowMapper);
 	}
 
+	/**
+	 * @see JdbcTemplate#query(String, Object[], RowMapper)
+	 */
 	protected <E> List<E> jdbcQuery(String sql, Object[] args, RowMapper<E> rowMapper) throws DataAccessException
 	{
 		return getJdbcTemplate().query(sql, args, rowMapper);
 	}
 
+	/**
+	 * @see JdbcTemplate#queryForObject(String, RowMapper)
+	 */
 	protected <E> E jdbcQueryForObject(String sql, RowMapper<E> rowMapper) throws DataAccessException
 	{
 		return getJdbcTemplate().queryForObject(sql, rowMapper);
 	}
 
+	/**
+	 * @see JdbcTemplate#queryForObject(String, Object[], RowMapper)
+	 */
 	protected <E> E jdbcQueryForObject(String sql, Object[] args, RowMapper<E> rowMapper) throws DataAccessException
 	{
 		return getJdbcTemplate().queryForObject(sql, args, rowMapper);
 	}
 
+	/**
+	 * @see JdbcTemplate#queryForObject(String, Object[], Class)
+	 */
 	public <E> E jdbcQueryForObject(String sql, Object[] args, Class<E> requiredType) throws DataAccessException
 	{
 		return getJdbcTemplate().queryForObject(sql, args, requiredType);
 	}
 	
+	/**
+	 * @see JdbcTemplate#jdbcQueryForObject(String, Object[], RowMapper)
+	 * @param dbInstance the database instance to execute the query on
+	 */
 	protected <E> E jdbcQueryForObject(String sql, Object[] args, RowMapper<E> rowMapper, EnumDatabaseInstance dbInstance)
 		throws DataAccessException
 	{
 		return getJdbcTemplate(dbInstance).queryForObject(sql, args, rowMapper);
 	}
 	
+	/**
+	 * @see JdbcTemplate#queryForList(String, Class)
+	 */
 	protected <E> List<E> jdbcQueryForList(String sql, Class<E> elementType) throws DataAccessException
 	{
 		return getJdbcTemplate().queryForList(sql, elementType);
 	}
 	
+	/**
+	 * @see JdbcTemplate#queryForInt(String)
+	 */
 	protected int jdbcQueryForInt(String sql) throws DataAccessException 
 	{
 		return getJdbcTemplate().queryForInt(sql);
 	}
 	
+	/**
+	 * @see JdbcTemplate#queryForInt(String, Object...)
+	 */
 	protected int jdbcQueryForInt(String sql, Object... args) throws DataAccessException 
 	{
 		return getJdbcTemplate().queryForInt(sql, args);
 	}
 
+	/**
+	 * @see JdbcTemplate#queryForInt(String, Object[])
+	 * @param dbInstance the database instance to execute the query on
+	 */
 	protected int jdbcQueryForInt(String sql, Object[] args, EnumDatabaseInstance dbInstance) throws DataAccessException
 	{
 		return getJdbcTemplate(dbInstance).queryForInt(sql, args);
 	}
 
+	/**
+	 * @see JdbcTemplate#update(String)
+	 */
 	protected int jdbcUpdate(final String sql) throws Exception
 	{
 		try
@@ -215,11 +252,18 @@ public abstract class Dao implements Serializable
 		}
 	}
 
+	/**
+	 * @see JdbcTemplate#update(String, Object...)
+	 */
 	protected int jdbcUpdate(String sql, Object... args) throws Exception
 	{
 		return this.jdbcUpdate(sql, args, EnumDatabaseInstance.CLEAN);
 	}
 
+	/**
+	 * @see JdbcTemplate#update(String, Object[])
+	 * @param dbInstance the database instance to execute the query on
+	 */
 	protected int jdbcUpdate(String sql, Object[] args, EnumDatabaseInstance dbInstance) throws Exception
 	{
 		try
@@ -233,6 +277,12 @@ public abstract class Dao implements Serializable
 		}
 	}
 
+	/**
+	 * Executes the given code in a Spring transaction.
+	 * Throws a {@link RuntimeException} and rollbacks on exception in code.
+	 * @param code The code to execute in a transaction
+	 * @throws Exception error
+	 */
 	protected void executeInTransaction(final CodeSnippet code) throws Exception
 	{
 		try
@@ -326,11 +376,19 @@ public abstract class Dao implements Serializable
 		return null;
 	}
 	
+	/**
+	 * Returns dao factory instance.
+	 * @return
+	 */
 	protected DaoLookupFactory getLookupFactory() 
 	{
 		return lookupFactory;
 	}
 	
+	/**
+	 * Creates a {@link VirtuosoConnectionWrapper} for the given database instance.
+	 * @param dbInstance database instance to connect to.
+	 */
 	protected VirtuosoConnectionWrapper createVirtuosoConnectionWrapper(EnumDatabaseInstance dbInstance) 
 		throws ConnectionException
 	{

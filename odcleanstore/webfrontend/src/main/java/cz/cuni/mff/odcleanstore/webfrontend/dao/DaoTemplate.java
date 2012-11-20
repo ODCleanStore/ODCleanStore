@@ -24,14 +24,12 @@ public abstract class DaoTemplate<T extends BusinessEntity> extends Dao
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * 
-	 * @return
+	 * Returns the name of the table that contains business entities represented by <T>
 	 */
 	public abstract String getTableName();
 	
 	/**
-	 * 
-	 * @return
+	 * Returns the row mapper that creates an instance of the business object from a query result set.
 	 */
 	protected abstract ParameterizedRowMapper<T> getRowMapper();
 	
@@ -59,10 +57,10 @@ public abstract class DaoTemplate<T extends BusinessEntity> extends Dao
 	}
 	
 	/**
-	 * 
-	 * @param columnName
-	 * @param value
-	 * @return
+	 * Find all entities in the database by satisfying condition columnName = value
+	 * @param columnName column
+	 * @param value value
+	 * @return list of entities
 	 */
 	public final List<T> loadAllBy(String columnName, Object value)
 	{
@@ -75,8 +73,8 @@ public abstract class DaoTemplate<T extends BusinessEntity> extends Dao
 	}
 	
 	/**
-	 * 
-	 * @param criteria
+	 * Find all entities mathing the given query criteria.
+	 * @param criteria query filter and order by criteria
 	 * @return
 	 */
 	public final List<T> loadAllBy(QueryCriteria criteria)
@@ -102,6 +100,12 @@ public abstract class DaoTemplate<T extends BusinessEntity> extends Dao
 		return items;
 	}
 	
+	/**
+	 * Find the first entity in the database by satisfying condition columnName = value
+	 * @param columnName column
+	 * @param value value
+	 * @return loaded entity
+	 */
 	public final T loadBy(String columnName, Object value)
 	{
 		String selectAndFromClause = getSelectAndFromClause();
@@ -139,6 +143,7 @@ public abstract class DaoTemplate<T extends BusinessEntity> extends Dao
 		return item;
 	}
 	
+	/** Replaces records matching condition byColumn = byValue in toTable with matching record in fromTable. */
 	protected final void copyBetweenTablesBy(String fromTable, String toTable, String byColumn, Object byValue) throws Exception
 	{
 		String deleteQuery = "DELETE FROM " + toTable + " WHERE " + byColumn + " = ?";

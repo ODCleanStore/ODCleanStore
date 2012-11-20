@@ -7,7 +7,7 @@ import org.apache.wicket.markup.html.link.Link;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
 /**
- * 
+ * Button for redirection to group detail.
  * @author Jan Michelfeit
  *
  */

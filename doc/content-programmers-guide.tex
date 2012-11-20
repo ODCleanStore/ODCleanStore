@@ -299,7 +299,8 @@ This is an outline of directory structure in the git repository:
 			\item[conf/] -- configuration files for development in Eclipse
 			\item[core/] -- sources of \code{odcs-core} artifact (common code shared by other artifacts)
 			\item[engine/]  -- sources of \code{odcs-engine} artifact (Engine component)
-			\item[inputclient/]  -- sources of \code{odcs-imputclient} artifact (Java client for Input Webservice)
+			\item[installer/] -- sources of \code{odcs-installer} artifact (\odcs installer)
+			\item[inputclient/]  -- sources of \code{odcs-inputclient} artifact (Java client for Input Webservice)
 			\item[simplescraper/]  -- simple Input Webservice import tool
 			\item[simpletransformer/]  -- example of a custom transformer
 			\item[webfrontend/]  -- sources of \FE
@@ -318,6 +319,7 @@ The project is divided into several artifacts. The root POM (\code{pom.xml}) in 
 	\item \code{odcs-engine} -- Engine component (running Input and Output Webservice and the data processing queue)
 	\item \code{odcs-comlib} -- components shared by \code{odcs-inputclient} and Input Webservice
 	\item \code{odcs-webfrontend} -- \FE web application
+	\item \code{odcs-installer} -- \odcs installer
 	\item \code{odcs-inputclient} -- client library for Input Webservice (provides a Java API for accessing the webservice)
 	\item \code{odcs-simplescraper} -- a simple command-line tool for importing data through Input Webservices
 	\item \code{odcs-simpletransformer} -- example of a custom transformer
@@ -550,7 +552,20 @@ Interface of the \CR component is represented by Java interface \code{ConflictRe
 \end{verbatim}
 \CR accepts a collection of quads (RDF triple + named graph) and returns a collection of \code{CRQuad}s (quad + \aggrq + source named graphs).
 
-An instance of \code{ConflictResolver} can be obtained from factory class \code{ConflictResolverFactory}. Constructor of this class takes query-independent settings and its \code{createResolver()} methods takes query-dependent settings (named graph metadata, sameAs links, aggregation settings, preferred URIs) and returns a new instance of \code{ConflictResolver} for these settings.
+An instance of \code{ConflictResolver} can be obtained from factory class \code{ConflictResolverFactory}. Constructor of this class takes query-independent settings and its \code{createResolver()} methods takes query-dependent settings (named graph metadata, sameAs links, aggregation settings, preferred URIs) and returns a new instance of \code{ConflictResolver} for these settings. The~signatures of the constructor and the \code{createResolver()} method are in \lstlistingname~\ref{lst:crFactory}.
+
+\begin{lstlisting}[caption={\code{ConflictResolverFactory} interface},label=lst:crFactory]
+      public ConflictResolverFactory(
+          String resultGraphPrefix,
+          ConflictResolutionConfig globalConfig,
+          AggregationSpec defaultAggregationSpec)
+
+      public ConflictResolver createResolver(
+            AggregationSpec aggregationSpec,
+            NamedGraphMetadataMap metadata,
+            Iterator<Triple> sameAsLinks,
+            Set<String> preferredURIs)
+\end{lstlisting}
 
 \section{Implementation}
 The actual implementation of the \code{ConflictResolver} interface is in class \code{ConflictResolverImpl}. Its constructor requires two parameters -- one of type \code{ConflictResolverSpec} contains all settings for conflict resolution and one of type \code{ConflictResolutionConfig} is a container for global settings (configurable in the \odcs configuration file). \code{ConflictResolverSpec} contains default and per-property aggregation methods to be used, metadata of relevant named graphs including \QA scores, additional \code{owl:sameAs} links to consider and other technical settings.
@@ -804,16 +819,16 @@ From the technical point of view, a transformer implementation must implement th
 
 Note that custom transformers should satisfy conditions listed in Section \ref{sec:transformerContract}.
 
-\chapter{Transformers included in ODCleanStore}
+\chapter{Transformers Included in ODCleanStore}
 
 \section{Quality Assessor \& Quality Aggregator}
 \subsection{Purpose}
 
 \paragraph{Quality Assessor:}
-Data processed by ODCleanStore come in a raw form that may be inconsistent with the expected format. The purpose of the Quality Assessor is to provide a way to identify patterns in data that are responsible for those inconsistencies. This is achieved by user-provided rules that specify RDF data patterns and a degree of inconsistency by use of SPARQL Select Where Clause and a coefficient that reduces the overall quality of the processed data chunk (graph) and a single floating point coefficient.
+Data processed by ODCleanStore come in a raw form that may be inconsistent with the expected format. The purpose of the Quality Assessor is to provide a way to identify patterns in data that are responsible for those inconsistencies. This is achieved by user-provided or generated rules that specify RDF data patterns and a degree of inconsistency by use of SPARQL Select Where Clause and a coefficient that reduces the overall quality of the processed data chunk (named graph) and a single floating point coefficient.
 
 \paragraph{Quality Aggregator:}
-For Conflict Resolution purposes it is important to be able to assosiate a data source with quality of data it provides. Quality Assessor computes quality of individual data chunks, these have to be aggregated into a quality indicator for their sources.
+For Conflict Resolution purposes it is important to be able to associate a data source with quality of data it provides. Quality Assessor computes quality of individual data chunks, these have to be aggregated into a quality indicator for their sources.
 
 \subsection{Interface}
 
@@ -863,7 +878,7 @@ The method \code{compileOntologyToRules} expects a named graph \code{ontologyGra
 
 \subsubsection*{Quality Assessment Rules}
 
-The data patterns are described with \code{SPARQL Where Clause}\footnote{http://www.w3.org/TR/rdf-sparql-query/#rWhereClause} followed by optional \code{Group by Clause}\footnote{http://www.w3.org/TR/sparql11-query/#rGroupClause} and \code{Having Clause}\footnote{http://www.w3.org/TR/sparql11-query/#rHavingClause}
+The data patterns are described with \code{SPARQL Where Clause}\footnote{http://www.w3.org/TR/rdf-sparql-query/\#rWhereClause} followed by optional \code{Group by Clause}\footnote{http://www.w3.org/TR/sparql11-query/\#rGroupClause} and \code{Having Clause}\footnote{http://www.w3.org/TR/sparql11-query/\#rHavingClause}
 
 \subsubsection*{Assessment \& Aggregation}
 
@@ -951,7 +966,7 @@ There exist three types of data normalization rules:
 	\item \code{MODIFY}.
 \end{itemize}
 
-They all closely follow semantics of \code{SPARQL} update queries\footnote{http://www.w3.org/Submission/SPARQL-Update/#rUpdate}
+They all closely follow semantics of \code{SPARQL} update queries.\footnote{http://www.w3.org/Submission/SPARQL-Update/\#rUpdate}
 
 \subsubsection*{Data Normalizer}
 
@@ -1005,7 +1020,7 @@ This transformer is automatically added by Engine as the first transformer of ev
 
 \subsection{Codebase structure}
 
-The code of \FE is divided into multiple packages which all share a common name prefix - \code{cz.cuni.mff.odcleanstore.webfrontend}. In this section you'll find a brief description of each of them and of classes they contain. For more in-dept information please refere to the javadoc documentation.
+The code of \FE is divided into multiple packages which all share a common name prefix - \code{cz.cuni.mff.odcleanstore.webfrontend}. In this section you'll find a brief description of each of them and of classes they contain. For more in-dept information please refer to the javadoc documentation.
 
 \subsubsection{behaviours}
 
@@ -1051,11 +1066,12 @@ In this package there are Wicket components for individual pages. The structure 
 	
 	For more information on how to create a new page, see the relevant section.
 
+\end{description}
 \subsubsection{util}
 
-This package is intended for \WF specific utility classes, such as classes to ease working with arrays (\code{ArrayUtils}), sending email messages (\code{Mail}, \code{NewAccountMail}, \code{NewPasswordMail}) and generating and hashing passwords (\code{PasswordHandling}) - to name some of them.
+This package is intended for \FE specific utility classes, such as classes to ease working with arrays (\code{ArrayUtils}), sending email messages (\code{Mail}, \code{NewAccountMail}, \code{NewPasswordMail}) and generating and hashing passwords (\code{PasswordHandling}) - to name some of them.
 
-Some methods in other parts of the \WF codebase accept code snippets (e.g. closures) as arguments. Because the current version of Java (1.6) does not directly support closures, we have created two classes - \code{CodeSnippet} and \code{EmptyCodeSnippet} - to be used instead. They too belong in the \code{util} package.
+Some methods in other parts of the \FE codebase accept code snippets (e.g. closures) as arguments. Because the current version of Java (1.6) does not directly support closures, we have created two classes - \code{CodeSnippet} and \code{EmptyCodeSnippet} - to be used instead. They too belong in the \code{util} package.
 
 \subsubsection{validators}
 
@@ -1064,6 +1080,7 @@ This package contains custom Wicket form validators, such as \code{IRIValidator}
 All our custom validators extend the \code{CustomValidator} class, which handles error message propagation so that validators can focus just on the validation process.
 
 \subsection{Database Access Layer}
+\label{sec:frontendDao}
 \FE has a layer for accessing the database based on Spring and its JDBC templates. We chose not to use Hibernate due to integration problems with Wicket and use custom implemenation of business and DAO objects.
 
 Entities retrieved from database are represented by POJOs (Plain Old Java Objects). The code that actually retrieves them is in a DAO class, by convention having suffix \code{Dao} and inheriting from the base class \code{Dao}. DAO objects internally call methods of the Spring's \code{JdbcTemplate} and passes to it a class extending \code{CustomRowMapper} which implements creation of the POJO business object(s) from query results.
@@ -1137,9 +1154,9 @@ First of all make sure that you are familiar with the Wicket framework, for the 
 
 A standard Wicket \code{WebPage} component is used to create new pages. That means that you can use all the standard stuff that Wicket provides, such as adding standard child components (forms, tables, links, ...). Aditionaly, you should adhere to some specific conventions, which have been established to ease and fasten the development process and to make the web well structured and consistent. This section provides you with details on these conventions.
 
-The POJO part of the page component should extend the \code{FrontendPage} class. The \code{FrontendPage} component provides page layout and content for parts of the page which are common throughout the whole application (such as logo and menu bar). That's why, when creating a new page, you only need to take care of the custom content. There are two components handled by the \code{FrontendPage} which need per-page parameters - the page title and the bread crumbs. The newly created page should supply these values via a call to the constructor of the parent's class. The \code{FrontendPage} also contains several helper factory methods which can be used to construct simple child components. Last but not least, the \code{FrontendPage} provides two shortcut methods - \code{getApp} to obtain the application object and \code{getODCSSession} to get the session object. All of these are protected scoped and can be used arbitrarily in new page components.
+The POJO part of the page component should extend the \code{FrontendPage} class. The \code{FrontendPage} component provides page layout and content for parts of the page which are common throughout the whole application (such as logo and menu bar). That's why, when creating a new page, you only need to take care of the custom content. There are two components handled by the \code{FrontendPage} which need per-page parameters - the page title and the bread crumbs. The newly created page should supply these values via a call to the constructor of the parent's class. The \code{FrontendPage} also contains several helper factory methods which can be used to construct simple child components. Last but not least, the \code{FrontendPage} provides two shortcut methods - \code{getApp()} to obtain the application object and \code{getODCSSession()} to get the session object. All of these are protected scoped and can be used arbitrarily in new page components.
 
-The POJO must provide a constructor. The constructor should be either parameter-less or accept a single parameter - the id of entity to be described on the page. Inside the constructor you generaly need to - call the parent's constructor (and suply the page title and crumbs values), obtain all needed DAO objects via the \code{daoLookupFactory} class attribute (see the section on the DAO layer) and add all child components, ideally through calls to private methods, one for each component.
+The POJO must provide a constructor. The constructor should be either parameter-less or accept a single parameter -- the id of entity to be described on the page. Inside the constructor you generaly need to call the parent's constructor (and suply the page title and crumbs values), obtain all needed DAO objects via the \code{daoLookupFactory} class attribute (see Section \ref{sec:frontendDao} ) and add all child components, ideally through calls to private methods, one for each component.
 
 You will also want to update the HTML file of the \code{FrontendPage} component in order to add a link to the new page to the menu bar. Simply add a new standard Wicket link to the HTML list.
 
@@ -1158,7 +1175,7 @@ Add a new Business Object to the \code{cz.cuni.mff.odcleanstore.webfrontend.bo.d
 
 Add a compiler class to the same package called \code{DNXXXTemplateInstanceCompiler}. It must extend the \code{DNTemplateInstanceCompiler<DNXXXTemplateInstance>} class and override the \code{compile} method. This methods accepts an \code{DNXXXTemplateInstance} instance as a parameter and compiles it into a standard \code{CompiledDNRule} instance (e.g. into a raw rule form), which it then returns.
 
-Add a new section to the \code{DNGroupDetailPage} component and implement the \code{NewDNXXXTemplateInstancePage} and \code{EditDNXXXTemplateInstancePage} components. You will also need to add the \code{DNXXXTemplateInstanceHelpPanel} and use it as a pop-up help window. Fore a more detailed explanation of this step, see section How to add a New Page.
+Add a new section to the \code{DNGroupDetailPage} component and implement the \linebreak\code{NewDNXXXTemplateInstancePage} and \code{EditDNXXXTemplateInstancePage} components. You will also need to add the \code{DNXXXTemplateInstanceHelpPanel} and use it as a pop-up help window. Fore a more detailed explanation of this step, see Section \ref{sec:howToAddANewPage}.
 
 Note that when implementing a new DN template type it is a good idea to copy and rename the classes which belong to an existing one and just overwrite the template specific parts.
 
@@ -1171,10 +1188,50 @@ Note that when implementing a new DN template type it is a good idea to copy and
 \todo{Do uzivatelskeho manualu?}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{(Related Work)}
+\chapter{Related Work}
+\odcs provides means for cleaning, linking, and scoring incoming RDF data, storing it, and provides aggregated and integrated views on the data to Linked Data consumers. In addition, we support trustworthiness of the data with aggregate quality and provenance tracking. 
+
+\odcs focuses on the data processing and queries over stored data. Nevertheless, the extraction process that feeds data to  \odcs is also important -- our sister project Strigil implements a web scraper and document extractor that produces RDF data and integrates with ODCleanStore for storing the produced data.
+
+\section{Data Extraction}
+
+
+\subsection*{Strigil}
+
+Strigil\footnote{\url{http://sourceforge.net/p/strigil/home/Home/}} implements a web scraper and document extractor that produces RDF data and integrates with ODCleanStore as the producer of data.
+
+\subsection*{Linked Data Manager}
+Linked Data Manager\footnote{\url{http://www.semantic-web.at/linked-data-manager}} (LDM) is a Java based Linked (Open) Data Management Suite to schedule and monitor required Extract - Transform - Load jobs for web-based Linked Open Data portals as well as for sustainable Data Management and Data Integration usage.
+
+LDM data processing pipeline is similar to the data processing pipeline in ODCleanStore. LDM is a counterpart of ODCleanStore in that it provides facilities for managing the extraction process but doesn't provide any permanent storage or direct access to the data. Thus an LDM Loader could be used to send data to ODCleanStore and access it from here.
+
+\section{Data Processing}
+
+\subsection*{Linked Data Integration Framework}
+Linked Data Integration Framework\footnote{\url{http://www4.wiwiss.fu-berlin.de/bizer/ldif/}} (LDIF) is an open-source Linked Data Integration Framework that can be used by Linked Data applications to translate Web data and normalize URI while keeping track of data provenance.
+The framework consists of a Scheduler, Data Import and an Integration component with a set of pluggable modules.
+
+LDIF components encompass the whole process from data import and processing to integration and quality assessment. We use some of LDIF componets internally in ODCleanStore (Silk). The main difference is that LDIF is a framework other applications can built on, while ODCleanStore is a ready-to-use solution that can be easily deployed and managed via a web interface. Differences in quality assessment and data aggregation with Sieve, a part of the LDIF framework, are described below. LDIF also supports provenance tracking.\footnote{See Figure 2 of \href{http://static.lod2.eu/Deliverables/deliverable-4.3.2.pdf}{LOD2 Deliverable 4.3.2}}
+
+\section{Data aggregation and quality}
+
+\subsection*{Sieve}
+Sieve\footnote{\url{http://sieve.wbsg.de/}} adds quality assessment and data fusion capabilities to the LDIF architecture. It uses metadata about named graphs in order to assess data quality, agnostic to provenance vocabulary and quality models. Sieve uses customizable scoring functions to output data quality descriptors. Based on these quality descriptors (and/or optionally other descriptors ), Sieve can use configurable FusionFunctions to clean the data according to task-specific requirements.
+
+Sieve offers functionality similar to our Conflict Resolution component; however the purpose of Sieve in LDIF is different - it aggregates data while being stored to the clean database (unlike Conflict Resolution used at query time). This may be suitable when the desired data are known in advance but is not sufficient for open Web environments, where every consumer has different requirements on the aggregated data. Furthermore, ODCleanStore provides quality for each result statement where Sieve computes quality only for whole named graph.
+
+\subsection*{Integration systems in relational databases}
+
+The problem of integration of heterogeneous data (solved in ODCleanStore for RDF data) is solved by several systems for relational databases, e.g. Aurora\footnote{\url{http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.50.7261}} or Fusionplex\footnote{\url{http://dl.acm.org/citation.cfm?id=1221048}}.
+
+
+Aurora is an integration system of heterogenous data residing in relational and object-oriented databases, i.e. deals with non-RDF data; its query model enriches the SQL SELECT by enabling to define attribute conflict resolution functions (e.g. age[ANY] means that any attribute value for  the attribute age is used in the query) and record conflict  resolution function, which deal with key attributes of the records.   ODCS offers more built-in aggregation methods, on the other hand, Aurora allows user defined attribute aggregation functions; in ODCS, record conflicts are either discovered by linkers, or there is no record conflict.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Future Work}
+
+
+
 \todo{plus known bugs?}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
