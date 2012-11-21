@@ -154,6 +154,15 @@ Second, the selected architecture allowed a clear division of work and enabled a
 
 Third, it is a result of a long process of analysis. From the initial vision and  requirements specification, which suggested an abstract concept of tranformers run in arbitrary order on data, we extracted several most important cases of transformers that were tightly bound to the system and could run only in a fixed order, only to generalize them back to transformers with a~very simple interface and flexible pipelines.
 
+\subsection{Usage Assumptions}
+The architecture and in particular the way editing of pipelines and rules  in \FE is solved is based on several assumptions about how \odcs will be used. In this section we try to give an overview of these assumptions.
+
+\begin{itemize}
+	\item Data sent to Input Webservice are expected to be reasonably small. \odcs is designed to technically handle even very large data, however, for example results of \QA may not be relevant for a large graph because a small mistake in several values would decrease the \QA score for the whole large dataset. Motivation for this assumption is based on planned integration with project Strigil (see related work in Chapter \ref{chap:relatedWork}).
+	\item Pipeline creators understand the data for which their pipelines are created but not necessarily understand data for pipelines created by other users. For this reason, editing is limited to an author of a pipeline so that a pipeline creator's pipelines cannot be broken by other users without his knowledge.
+	\item The team of people working with a deployed \odcs may be decentralized and open, for example students using a shared instance for their own projects. For that reason the system should be robust, permissions should be reasonably limited, a single user shouldn't be able to block the whole system and there should be a possibility to correct wrong configuration for administrators.
+\end{itemize}
+
 
 \subsection{Architectural Features}
 
@@ -1184,8 +1193,10 @@ Note that when implementing a new DN template type it is a good idea to copy and
 \chapter{Conclusion, evaluation}
 
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Related Work}
+\label{chap:relatedWork}
 \odcs provides means for cleaning, linking, and scoring incoming RDF data, storing it, and provides aggregated and integrated views on the data to Linked Data consumers. In addition, we support trustworthiness of the data with aggregate quality and provenance tracking. 
 
 \odcs focuses on the data processing and queries over stored data. Nevertheless, the extraction process that feeds data to  \odcs is also important -- our sister project Strigil implements a web scraper and document extractor that produces RDF data and integrates with ODCleanStore for storing the produced data.
@@ -1226,16 +1237,18 @@ Aurora is an integration system of heterogenous data residing in relational and 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Future Work}
-\odcs could be extended in many ways. Suggestions for future work and improvements are maintained at a dedicated page\footnote{\url{https://sourceforge.net/p/odcleanstore/wiki/Future\%20extensions/}} at project website. This chapter lists the most important ideas for future work.
+\odcs could be extended in many ways. Suggestions for future work and improvements are maintained at a dedicated page\footnote{\url{https://sourceforge.net/p/odcleanstore/wiki/Future\%20extensions/}} at project website. This chapter lists the most important ideas for future work. Items in bold are should be implemented in future and were omitted for time reasons.
 
 \section{Data Processing}
 \begin{itemize}
 	\item Improved logging. As of now, There is one log file for Engine and a dedicated log file for each transformer instance. In addition, some information about Engine is updated in the relational database. However, structured logs in the database for transformers (e.g. with information about transformer instance, pipeline, its author etc.) may improve usage for both pipeline creators and transformer creators.
 	\item Quarantine. Data that are considered suspicious (e.g. having too low \QA score) would be moved to an isolated dataspace where it would wait to be checked by an administrator and then accepted, corrected or deleted.
 	\item Possibility to review data and modify it from a user interface. An advanced extension would be possibility to modify multiple named graphs in a batch operation. The provenance information for affected graphs should contain information about editing.
+	\item Transformer that would detect identical update of a named graph already stored in the database and would only update metadata of the stored graph instead of storing both copies.
+	\item Store the original unprocessed version of data so that the original version can be used again when a pipeline damages the data.
+	\item Automatically download missing ontologies used in processed data.
+	\item \textbf{Introduce concept of \quot{post-transformers}} that would be run on data \textit{after} they are processed by a pipeline and moved to the clean database. They could be used e.g. for updating data in the clean database depending on stored graphs, such as what Quality Aggregator does.
 \end{itemize}
-
-\section{\FE}
 
 \section{\QA}
 \begin{itemize}
@@ -1248,104 +1261,42 @@ Aurora is an integration system of heterogenous data residing in relational and 
 	\item More rule templates, improved administration in case there would be too many templates.
 \end{itemize}
 
-\section{\CR}
+\section{Output Webservice \& \CR}
 \begin{itemize}
+ 	\item Support queries for any SPARQL (CONSTRUCT) (not only the current URI, keyword and named graph query). This is a more complex extension as \CR would need to be able to load metadata and \code{owl:sameAs} links by itself and moreover efficiently.
+	\item Paging of results.
+	\item Sorting of results of a keyword query by relevance for the given keyword.
+	\item Add query which would return all resources of the given \code{rdf:type}.
 	\item Generalize the interface for passing metadata to \CR. As of now, there is an exactly defined set of metadata that are accepted by \CR which limits extending.
+	\item More customizable \aggrq computation. For example, the user could have the possibility to specify how much she trusts each publisher and the \aggrq would take that into consideration.
+	\item More aggregation methods, such as TOP-K -- K best values. This would require the possibility to parametrize aggregation methods.
 \end{itemize}
-    %dalsi policies (krome conflict resolution policies):
-        %(provenance) policies, tedy napr. mit možnost vyrazne snizit skore pro data pochazejici ze zdroje http://example.com - viz pravidlo "Distrust data coming from a datasource http://example.com". Byl bych pro nasledujici modifikatory v pravidlech: trust/distrust (znacny bonus/postih), prioritize/deprioritize (mensi bonus/postih), filter (jen dana data/jen ostatni data) - obecne pravidla spojena s kontextem dat. Dalsi priklad: "Distrust data older than 1 year (created at least one year ago)"
-        %content policies ("Distrust data with completeness less than ...") - obecne pravidla spojena s content analyzami v EL.
-        %rating policies ("Distrust least popular sources") - obecne pravidla spojena s hodnocenim popularity zdroju, pripadne jejich autoritativnosti (ma smysl az po vytvoreni patricnych analyz zdroju)
 
-    %podpora CR pro SPARQL odtazy
-    %stránkování výsledků
-    %razeni vysledku dotazu na klicove slovo dle relevance
-    %moznot omezit vysledky na resources s danym rdf:type - v URI search pro hledane URI, v KW search pro subjecty ve vysledku
-    %možnost dotázat se na všechny resources daného typu (rdf:type)
+\section{\FE}
+\begin{itemize}
+	\item \textbf{The possibility to create a custom (deep) copy of an arbitrary group of rules.}
+	\item \textbf{The possibility to create a custom copy of a rule.}
+	\item \textbf{The possibility to create a custom copy of a pipeline.}
+	\item \textbf{Labels and descriptions for transformer instances.}
+	\item Filtering of entities displayed in \FE by values for each column. Possibility to show only entities created by the current user.
+	\item Notification about changes in a rule group. If the author of a rule group modifies it, a notification would be sent to all users whose pipelines use the rule group and they would be provided with the option to accept of refuse the changes (would require versioning of rule groups or cloning of rule groups.).
+	\item Transformer instance templates. It would be possible to assign a pre-prepared transformer instance to a pipeline which could contain transformer configuration, assigned rule groups etc.
+	\item Possibility to upload a .jar archive containing a transformer directly through \FE.
+	\item Possibility to run affected pipelines when a rule group is deleted.
+	\item Show list of affected pipelines for a rule group or transformer.
+	\item Check syntactical validity of rules when they are entered. Could be implemented by running the rule on an empty testing graph and checking for an error.
+\end{itemize}
 
-%Conflict Resolution
+\section{Miscellaneous}
+\begin{itemize}
+	\item Provide a tool (command line or with GUI) for import of large graphs. \odcs is designed mainly for processing of smaller graphs (e.g. results of \QA might not be relevant for too large graphs). A large graph could be divided into multiple small graphs and sent to Input Webservice in parts.
+\end{itemize}
 
-    %hodnocení kvality i podle cratora nebo jiného agributu
-    %uživatel může nastavi svou (ne)důvěru v publishera
-    %v kvalitě zohledňovat aktuálnost dat
-    %agregace TOP-K (K nejlepších hodnot), obecně parametry agregačních funkcí (např. oddělovač u CONCAT)
-
-%Engine
-
-    %detekce identické aktualizace
-    %Nabizet data zpracovana pipeline a surova data, tak jak dorazila od scraperu. Mit moznost kdykoliv pri rerunu pouzit surova data. (pokud si je zprasim)
-        %Tedy data co se poslou na pipeline taky ulozit vedle ve spinave a propojit s danymi daty poslanymi do pipeline, tahle data tam zustanou.
-        %Viz viceropipeline, s tim, ze puvodni data jsou ta, co projdou prazdnou pipeline.
-    %? Podporovat vicero pipelines pro stejna data (~ vicero konfiguraci, profilu)
-        %jedna nechava surova data, druha konzervativni (jen QA, simple linkers, basic DN), tretia agresivni
-        %Realizace: Je mozne vytvorit nekolik pipeline {name}-1, {name}-2 .. Vstupni WS posle data do vsech pipeline, ulozi se pak jako alternativni grafy v ciste databazi - konzument ma moznost specifikovat, ze ho zajimaji jen konzertvativni data.
-        %Conflict resolution - ma to byt soucasti profilu nebo je to nastaveni ortogonalni?
-
-%Custom Transformers
-
-    %možnost konfigurace, kdy se má krabička spouštět (globálně/podle zdroje/podle ontologie - jako u ostatních policies)
-    %možnost nakonfigurovat krabičky pro jmenný graf při vkládání skrze vstupní WS
-
-%Webový frontend
-
-    %uživatel v roli ADM může editovat libovolnou pipeline i skupinu pravidel
-    %každý má možnost vytvořit vlastní kopii (i cizí) skupiny pravidel (dále fork); takové skupině musí přířadit unikátní název
-    %možnost forku pro jednotlivá pravidla
-    %možnost zobrazit pouze vlastní skupiny pravidel a pipelines
-    %řazení tabulek se skupinami/pipelinami podle sloupců
-    %vyhledávání ve skupinách/pipelinách
-    %viditelnost skupiny pravidel/pipeline může být označena jako private nebo public
-    %notifikace a příjímání změn ve skupině pravidel
-        %pokud autor skupinu edituje, všem, kdo ji používají, se odešle notifikace a dostanou možnost změny přijmout nebo odmítnout (na úrovni transformerů, nebo globálně?)
-        %dokud změny uživatel nepříjme, používá se v jeho pipelines stará verze
-        %pokud uživatel změny příjme, v jeho pipelines se bude používat nová verze; pokud ji odmítne, používá se stará verze
-        %uživatel by měl mít možnost nahradit skupinu novým forkem
-        %pokud má uživatel nějaké změny skupin ke schválení, v FE bude mít k dispozici přehled všech takových skupin (nejlépe na úvodní stránce)
-        %pokud uživatel příjme editaci, nahradí se stará verze skupiny tou nejnovější
-        %uživatel může v preferencích nastavit, jestli notifikaci posílat na mail; v případě více úprav jedné skupiny se notifikace pošle jenom jednou
-    %uživatel bude mít k dispozici předpřipravené instance transformerů (šablony), které může vložit do své pipeliny
-        %šablona je pojmenovaná a obsahuje skupiny pravidel a příznaky (spouštění nad čistou databází, případné další)
-        %vložením do pipeliny se vytvoří kopie šablony a vloží se do pipeline
-        %změny skupin pravidel, na které se šablona odkazuje se automaticky přijímají
-        %šablony může vytvářet/editovat pouze role ADM (číst je může PIC a ADM)
-    %zavést skupiny uživatelů, přidělovat oprávnění k editaci pipelines/pravidel na úrovni skupin
-    %Sprava dat v karantene, sprava uzivatelu (kdo je zodpovedny za data z jake domeny?)
-    %Možnost, aby skupiny pravidel mohly obsahovat další skupiny
-    %možnost upload transformeru přes administraci (pouze pro uživatele ADM)
-    %možnost dotáhnout ontologie ze zadaného URI
-    %možnost seběhnout ovlivněné pipelines při smazání skupiny pravidel
-    %možnost zastavit rerun pipeline
-    %Zobrazovat pro skupinu pravidel seznam dotčených pipelines
-    %Zobrazovat pro transformer seznam dotčených pipelines
-    %Udělat drobečkovou navigaci klikatelnou
-    %Umožnit filtrovat výpisy podle hodnot jednotlivých atributů
-    %Použít hodnoty z polí description z DB jako hinty
-
-%Ostatní
-
-    %u pravidel (QA, DN) kontrolovat validitu při ukládání (pokus o spuštění na nějakém grafu, jestli SPARQL neselže na syntaktickou chybu)
-    %automaticky získávat neznámé ontologie při příchodu dat
-    %role Corrector - editace dat uživatelem
-    %linkování na externí zdroje - zavést podporu pro spouštění (periodické/manuální) něčeho s jasně definovaným rozhraním (obdoba transformeru) s možností správy ve frontendu; viz meeting 17.6.
-    %možnost připojit k vkládanému jmennému grafu srozumitelný popisek
-    %vytvořit nějaký (více či méně user-friendly) nástroj pro nahrávání dat ze souboru; možnost rozdělení velkých souborů na menší grafy
-
-%Vizualizace
-
-    %Create GUI depicting quality scores/justifications, coloring results
-    %Create GUI which will enable user to annotated the given SPARQL query - sample annotation: select source XY for var ?a
-
-%Conceptual (?)
-
-    %? dirty database -> internal queue of graphs to be processed, clean dataase -> staging area, create new clean database (raw data mart) populated periodically from the staging area (once per day, all records/ only the newest updates will be merged with the clean database records)
-        %query execution will be done on top od the new clean database (raw data mart)
-    %conflict resolution as a library, which will enable to build customized clean databases (customized data marts) with already conflict resolved data.
-    %gui: management of the loads to the raw data mart (how often), management of the data marts (how often, which data, where - db, file, ..)
-
-
-
-
-\todo{plus known bugs?}
+\section{Known Issues}
+\begin{itemize}
+	\item Non-ASCII characters may get broken when entered into certain fields (descriptions, ontology definitions) in \FE. This is caused by incompatibility of  Spring's JdbcTemplate and Virtuoso.
+	
+\end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
