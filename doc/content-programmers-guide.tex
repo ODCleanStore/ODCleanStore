@@ -24,7 +24,13 @@
 % issues redmine - debugging & spol
 % FE
   % FE - popsat, že to je webová aplikace, dá se spouštět pod tomcatem, odkaz na install manual
-	% naming conventions
+  % uncommitted tabulky
+
+	% třídy
+		% webfrontend.core
+			% DaoLookupFactory, ODCSWebFrontendApplicatoin .java/properties, ODCSWebFrontendSession, URLRouter
+		% webfrontend.core.components - custom Wicket components (buttons, labels, form components etc.)
+		% webfrontend.core.model - Wicket models and data providers
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -1025,9 +1031,14 @@ This package is intended to contain custom Wicket behaviours. Currently there's 
 
 The \code{bo} package contains all business objects used in the web frontend application, divided into subpackages. Every business entity represents a single relational table and is formed by a single Java class. The classes are simple Java beans where bean properties match columns of the represented table and can aditionaly contain other methods to simplify using them.
 
-The hierarchy of the BO classes is depicted by the following diagram.
+The hierarchy of the most important BO classes is depicted on on \figurename~\ref{fig:feBO}.
 
-[TODO: insert the diagram]
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=1.05\textwidth]{images/dia-fe-bo.png}
+    \caption{Selected BO classes used in \FE}
+	\label{fig:feBO}
+\end{figure}
 
 Description of the most important BO classes follows:
 
@@ -1038,6 +1049,23 @@ Description of the most important BO classes follows:
 	\item[Prefix] This BO represents an URI prefix. It maps to an internal Virtuoso relational table and it's structure is therefore fixed.
 	\item[DNRule and DNRuleComponent] These entities represent DN rules and rule components and are useful when working with rules in the raw form.
 	\item[CompiledDNRule and CompiledDNRuleComponent] These entities represent DN rules and rule components and are easier to use when working with rules compiled from template instances.
+\end{description}
+
+\subsubsection{dao}
+
+This package (and it's subpackages) contains classes which form the DAO layer. See the related section for more information on that.
+
+\subsubsection{pages}
+
+In this package there are Wicket components for individual pages. The structure of subpackages mirrors the \WF menu. These are mostly standard Wicket components (but for a few conventions we have applied - see the relevant section). In this section, a brief description of some of the non-standard components will be given.
+
+\begin{description}[style=nextline,font=\ttfamily]
+	\item[FrontendPage] The parent component for almost all (see below) page components. Provides page layout and content common to all pages, as well as factory methods to create some basic child components.
+	\item[LogoutPage] This component does not extend \code{FrontendPage}, for it does not represent a proper page. It's purpose is to log out the current user and then redirect to home-page.
+	\item[UserPanel] This component forms the user-information panel - it shows the username and list of roles of the currently logged in user and provides means to log-in and log-out. It is included as a child component in the \code{FrontendPage}.
+\end{description}
+	
+	For more information on how to create a new page, see the relevant section.
 
 \end{description}
 \subsubsection{util}
@@ -1050,7 +1078,7 @@ Some methods in other parts of the \FE codebase accept code snippets (e.g. closu
 
 This package contains custom Wicket form validators, such as \code{IRIValidator} - ensures that the given value is a valid IRI, \code{EnumValidator} - ensures that the given value is an element of the represented enumeration or \code{OldPasswordValidator} - ensures that the given new password matches the original one.
 
-All our custom validators extends the \code{CustomValidator} class, which handles the error message propagation so that the validators can focus just on the validation process.
+All our custom validators extend the \code{CustomValidator} class, which handles error message propagation so that validators can focus just on the validation process.
 
 \subsection{Database Access Layer}
 \label{sec:frontendDao}
