@@ -1057,7 +1057,7 @@ This package (and it's subpackages) contains classes which form the DAO layer. S
 
 \subsubsection{pages}
 
-In this package there are Wicket components for individual pages. The structure of subpackages mirrors the \WF menu. These are mostly standard Wicket components (but for a few conventions we have applied - see the relevant section). In this section, a brief description of some of the non-standard components will be given.
+In this package there are Wicket components for individual pages. The structure of subpackages mirrors the \FE menu. These are mostly standard Wicket components (but for a few conventions we have applied - see the relevant section). In this section, a brief description of some of the non-standard components will be given.
 
 \begin{description}[style=nextline,font=\ttfamily]
 	\item[FrontendPage] The parent component for almost all (see below) page components. Provides page layout and content common to all pages, as well as factory methods to create some basic child components.
@@ -1065,9 +1065,8 @@ In this package there are Wicket components for individual pages. The structure 
 	\item[UserPanel] This component forms the user-information panel - it shows the username and list of roles of the currently logged in user and provides means to log-in and log-out. It is included as a child component in the \code{FrontendPage}.
 \end{description}
 	
-	For more information on how to create a new page, see the relevant section.
+For more information on how to create a new page, see the relevant section.
 
-\end{description}
 \subsubsection{util}
 
 This package is intended for \FE specific utility classes, such as classes to ease working with arrays (\code{ArrayUtils}), sending email messages (\code{Mail}, \code{NewAccountMail}, \code{NewPasswordMail}) and generating and hashing passwords (\code{PasswordHandling}) - to name some of them.
@@ -1230,9 +1229,11 @@ Aurora is an integration system of heterogenous data residing in relational and 
 \odcs could be extended in many ways. Suggestions for future work and improvements are maintained at a dedicated page\footnote{\url{https://sourceforge.net/p/odcleanstore/wiki/Future\%20extensions/}} at project website. This chapter lists the most important ideas for future work.
 
 \section{Data Processing}
-\item Improved logging. As of now, There is one log file for Engine and a dedicated log file for each transformer instance. In addition, some information about Engine is updated in the relational database. However, structured logs in the database for transformers (e.g. with information about transformer instance, pipeline, its author etc.) may improve usage for both pipeline creators and transformer creators.
-\item Quarantine. Data that are considered suspicious (e.g. having too low \QA score) would be moved to an isolated dataspace where it would wait to be checked by an administrator and then accepted, corrected or deleted.
-\item Possibility to review data and modify it from a user interface. An advanced extension would be possibility to modify multiple named graphs in a batch operation. The provenance information for affected graphs should contain information about editing.
+\begin{itemize}
+	\item Improved logging. As of now, There is one log file for Engine and a dedicated log file for each transformer instance. In addition, some information about Engine is updated in the relational database. However, structured logs in the database for transformers (e.g. with information about transformer instance, pipeline, its author etc.) may improve usage for both pipeline creators and transformer creators.
+	\item Quarantine. Data that are considered suspicious (e.g. having too low \QA score) would be moved to an isolated dataspace where it would wait to be checked by an administrator and then accepted, corrected or deleted.
+	\item Possibility to review data and modify it from a user interface. An advanced extension would be possibility to modify multiple named graphs in a batch operation. The provenance information for affected graphs should contain information about editing.
+\end{itemize}
 
 \section{\FE}
 
