@@ -426,6 +426,7 @@ When importing data to Virtuoso, one should use the \code{GraphLoader}  class or
 \todo{jak se to spousti, vypina, celkova architektura}
 
 \section{Pipeline Processing}
+\subsection{Logging}
 
 \section{Input Webservice}
 
@@ -1153,11 +1154,8 @@ Note that when implementing a new DN template type it is a good idea to copy and
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{(Conclusion, evaluation)}
+\chapter{Conclusion, evaluation}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{(Testing scenario)}
-\todo{Do uzivatelskeho manualu?}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Related Work}
@@ -1201,6 +1199,120 @@ Aurora is an integration system of heterogenous data residing in relational and 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Future Work}
+\odcs could be extended in many ways. Suggestions for future work and improvements are maintained at a dedicated page\footnote{\url{https://sourceforge.net/p/odcleanstore/wiki/Future\%20extensions/}} at project website. This chapter lists the most important ideas for future work.
+
+\section{Data Processing}
+\item Improved logging. As of now, There is one log file for Engine and a dedicated log file for each transformer instance. In addition, some information about Engine is updated in the relational database. However, structured logs in the database for transformers (e.g. with information about transformer instance, pipeline, its author etc.) may improve usage for both pipeline creators and transformer creators.
+\item Quarantine. Data that are considered suspicious (e.g. having too low \QA score) would be moved to an isolated dataspace where it would wait to be checked by an administrator and then accepted, corrected or deleted.
+\item Possibility to review data and modify it from a user interface. An advanced extension would be possibility to modify multiple named graphs in a batch operation. The provenance information for affected graphs should contain information about editing.
+
+\section{\FE}
+
+\section{\QA}
+\begin{itemize}
+	\item Track more quality dimensions (e.g. completnes, timeliness).
+	\item Machine learning. Rules could be derived from a given set of named graphs and their scores.
+\end{itemize}
+
+\section{\DN}
+\begin{itemize}
+	\item More rule templates, improved administration in case there would be too many templates.
+\end{itemize}
+
+\section{\CR}
+\begin{itemize}
+	\item Generalize the interface for passing metadata to \CR. As of now, there is an exactly defined set of metadata that are accepted by \CR which limits extending.
+\end{itemize}
+    %dalsi policies (krome conflict resolution policies):
+        %(provenance) policies, tedy napr. mit možnost vyrazne snizit skore pro data pochazejici ze zdroje http://example.com - viz pravidlo "Distrust data coming from a datasource http://example.com". Byl bych pro nasledujici modifikatory v pravidlech: trust/distrust (znacny bonus/postih), prioritize/deprioritize (mensi bonus/postih), filter (jen dana data/jen ostatni data) - obecne pravidla spojena s kontextem dat. Dalsi priklad: "Distrust data older than 1 year (created at least one year ago)"
+        %content policies ("Distrust data with completeness less than ...") - obecne pravidla spojena s content analyzami v EL.
+        %rating policies ("Distrust least popular sources") - obecne pravidla spojena s hodnocenim popularity zdroju, pripadne jejich autoritativnosti (ma smysl az po vytvoreni patricnych analyz zdroju)
+
+    %podpora CR pro SPARQL odtazy
+    %stránkování výsledků
+    %razeni vysledku dotazu na klicove slovo dle relevance
+    %moznot omezit vysledky na resources s danym rdf:type - v URI search pro hledane URI, v KW search pro subjecty ve vysledku
+    %možnost dotázat se na všechny resources daného typu (rdf:type)
+
+%Conflict Resolution
+
+    %hodnocení kvality i podle cratora nebo jiného agributu
+    %uživatel může nastavi svou (ne)důvěru v publishera
+    %v kvalitě zohledňovat aktuálnost dat
+    %agregace TOP-K (K nejlepších hodnot), obecně parametry agregačních funkcí (např. oddělovač u CONCAT)
+
+%Engine
+
+    %detekce identické aktualizace
+    %Nabizet data zpracovana pipeline a surova data, tak jak dorazila od scraperu. Mit moznost kdykoliv pri rerunu pouzit surova data. (pokud si je zprasim)
+        %Tedy data co se poslou na pipeline taky ulozit vedle ve spinave a propojit s danymi daty poslanymi do pipeline, tahle data tam zustanou.
+        %Viz viceropipeline, s tim, ze puvodni data jsou ta, co projdou prazdnou pipeline.
+    %? Podporovat vicero pipelines pro stejna data (~ vicero konfiguraci, profilu)
+        %jedna nechava surova data, druha konzervativni (jen QA, simple linkers, basic DN), tretia agresivni
+        %Realizace: Je mozne vytvorit nekolik pipeline {name}-1, {name}-2 .. Vstupni WS posle data do vsech pipeline, ulozi se pak jako alternativni grafy v ciste databazi - konzument ma moznost specifikovat, ze ho zajimaji jen konzertvativni data.
+        %Conflict resolution - ma to byt soucasti profilu nebo je to nastaveni ortogonalni?
+
+%Custom Transformers
+
+    %možnost konfigurace, kdy se má krabička spouštět (globálně/podle zdroje/podle ontologie - jako u ostatních policies)
+    %možnost nakonfigurovat krabičky pro jmenný graf při vkládání skrze vstupní WS
+
+%Webový frontend
+
+    %uživatel v roli ADM může editovat libovolnou pipeline i skupinu pravidel
+    %každý má možnost vytvořit vlastní kopii (i cizí) skupiny pravidel (dále fork); takové skupině musí přířadit unikátní název
+    %možnost forku pro jednotlivá pravidla
+    %možnost zobrazit pouze vlastní skupiny pravidel a pipelines
+    %řazení tabulek se skupinami/pipelinami podle sloupců
+    %vyhledávání ve skupinách/pipelinách
+    %viditelnost skupiny pravidel/pipeline může být označena jako private nebo public
+    %notifikace a příjímání změn ve skupině pravidel
+        %pokud autor skupinu edituje, všem, kdo ji používají, se odešle notifikace a dostanou možnost změny přijmout nebo odmítnout (na úrovni transformerů, nebo globálně?)
+        %dokud změny uživatel nepříjme, používá se v jeho pipelines stará verze
+        %pokud uživatel změny příjme, v jeho pipelines se bude používat nová verze; pokud ji odmítne, používá se stará verze
+        %uživatel by měl mít možnost nahradit skupinu novým forkem
+        %pokud má uživatel nějaké změny skupin ke schválení, v FE bude mít k dispozici přehled všech takových skupin (nejlépe na úvodní stránce)
+        %pokud uživatel příjme editaci, nahradí se stará verze skupiny tou nejnovější
+        %uživatel může v preferencích nastavit, jestli notifikaci posílat na mail; v případě více úprav jedné skupiny se notifikace pošle jenom jednou
+    %uživatel bude mít k dispozici předpřipravené instance transformerů (šablony), které může vložit do své pipeliny
+        %šablona je pojmenovaná a obsahuje skupiny pravidel a příznaky (spouštění nad čistou databází, případné další)
+        %vložením do pipeliny se vytvoří kopie šablony a vloží se do pipeline
+        %změny skupin pravidel, na které se šablona odkazuje se automaticky přijímají
+        %šablony může vytvářet/editovat pouze role ADM (číst je může PIC a ADM)
+    %zavést skupiny uživatelů, přidělovat oprávnění k editaci pipelines/pravidel na úrovni skupin
+    %Sprava dat v karantene, sprava uzivatelu (kdo je zodpovedny za data z jake domeny?)
+    %Možnost, aby skupiny pravidel mohly obsahovat další skupiny
+    %možnost upload transformeru přes administraci (pouze pro uživatele ADM)
+    %možnost dotáhnout ontologie ze zadaného URI
+    %možnost seběhnout ovlivněné pipelines při smazání skupiny pravidel
+    %možnost zastavit rerun pipeline
+    %Zobrazovat pro skupinu pravidel seznam dotčených pipelines
+    %Zobrazovat pro transformer seznam dotčených pipelines
+    %Udělat drobečkovou navigaci klikatelnou
+    %Umožnit filtrovat výpisy podle hodnot jednotlivých atributů
+    %Použít hodnoty z polí description z DB jako hinty
+
+%Ostatní
+
+    %u pravidel (QA, DN) kontrolovat validitu při ukládání (pokus o spuštění na nějakém grafu, jestli SPARQL neselže na syntaktickou chybu)
+    %automaticky získávat neznámé ontologie při příchodu dat
+    %role Corrector - editace dat uživatelem
+    %linkování na externí zdroje - zavést podporu pro spouštění (periodické/manuální) něčeho s jasně definovaným rozhraním (obdoba transformeru) s možností správy ve frontendu; viz meeting 17.6.
+    %možnost připojit k vkládanému jmennému grafu srozumitelný popisek
+    %vytvořit nějaký (více či méně user-friendly) nástroj pro nahrávání dat ze souboru; možnost rozdělení velkých souborů na menší grafy
+
+%Vizualizace
+
+    %Create GUI depicting quality scores/justifications, coloring results
+    %Create GUI which will enable user to annotated the given SPARQL query - sample annotation: select source XY for var ?a
+
+%Conceptual (?)
+
+    %? dirty database -> internal queue of graphs to be processed, clean dataase -> staging area, create new clean database (raw data mart) populated periodically from the staging area (once per day, all records/ only the newest updates will be merged with the clean database records)
+        %query execution will be done on top od the new clean database (raw data mart)
+    %conflict resolution as a library, which will enable to build customized clean databases (customized data marts) with already conflict resolved data.
+    %gui: management of the loads to the raw data mart (how often), management of the data marts (how often, which data, where - db, file, ..)
+
 
 
 
@@ -1210,12 +1322,14 @@ Aurora is an integration system of heterogenous data residing in relational and 
 
 \appendix
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Glossary}
 \label{chap:glossary}
 \input{appendix-glossary}
 
 %\chapter{ODCS ontology}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Relational Database Schema}
 \label{chap:reldb}
 
@@ -1275,8 +1389,7 @@ Aurora is an integration system of heterogenous data residing in relational and 
 	\label{fig:dbMisc}
 \end{figure}
 
-\chapter{(\quot{chronologicky popis prubehu praci na projektu})}
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Project organization}
 
 \begin{itemize}
