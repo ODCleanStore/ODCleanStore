@@ -15,16 +15,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% todo
-% !List of features and intended use-cases (zduvodneni featur FE)
-	% rrequirements - functional, intraface, non-functional?
-
-
-% release proces
-% issues redmine - debugging & spol
-% FE
   % FE - popsat, že to je webová aplikace, dá se spouštět pod tomcatem, odkaz na install manual
-  % uncommitted tabulky
 
 	% třídy
 		% webfrontend.core
@@ -161,6 +152,7 @@ The architecture and in particular the way editing of pipelines and rules  in \F
 	\item Data sent to Input Webservice are expected to be reasonably small. \odcs is designed to technically handle even very large data, however, for example results of \QA may not be relevant for a large graph because a small mistake in several values would decrease the \QA score for the whole large dataset. Motivation for this assumption is based on planned integration with project Strigil (see related work in Chapter \ref{chap:relatedWork}).
 	\item Pipeline creators understand the data for which their pipelines are created but not necessarily understand data for pipelines created by other users. For this reason, editing is limited to an author of a pipeline so that a pipeline creator's pipelines cannot be broken by other users without his knowledge.
 	\item The team of people working with a deployed \odcs may be decentralized and open, for example students using a shared instance for their own projects. For that reason the system should be robust, permissions should be reasonably limited, a single user shouldn't be able to block the whole system and there should be a possibility to correct wrong configuration for administrators.
+	\item We expect that pipeline creators will usually be  data producers  using the Input Webservice at the same time. These users need some technical knowledge -- at least they should understand RDF and SPARQL. On the other hand, data consumers need not be technically skilled or understand RDF, even though it is benefitial. Data for these users may be presented in the HTML output of Output Webservice or through a third-party interface.
 \end{itemize}
 
 
@@ -194,7 +186,7 @@ Since Java is a very wide-spread language, \odcs can be extended with minimum ef
 
  On the other hand, the Output Webservices uses the clean database in a read-only manner and thus could be also deployed on several database instances if database replication is put in place.
 
-\section{Other requirements}
+\section{Other Requirements}
 The assignment of the project impose several additional requirements. This section lists how they were satisfied.
 
 \reqparagraph{It should be easy to incorporate other components, such as a component computing popularity of the data sources.} This requirement is satisfied with the introduction of custom transformers.
@@ -205,7 +197,7 @@ The assignment of the project impose several additional requirements. This secti
 
 \reqparagraph{Application will be freely available under Apache Software License.} \odcs is published under the required license (see \refadminmanual) and source codes available at a public repository at SourceForge.net
 
-\section{Used technologies}
+\section{Used Technologies}
 
 \subsection{Implementation Language}
 The chosen language for implementation is Java. The reason is that there are many libraries and tools required for implemenation accessible in Java, it enables platform independence (one of the requirements on \odcs) and also it is very wide-spread so that developers don't need to learn a new syntax.
@@ -237,7 +229,7 @@ Restlet\footnote{\url{http://www.restlet.org}} is an open source lightweight RES
 \subsubsection*{SLF4J}
 SLF4J\footnote{\url{http://www.slf4j.org/}} is a flexible and efficient library used for logging. 
 
-\subsection{Development tools}
+\subsection{Development Tools}
 \subsubsection*{Maven}
 Apache Maven\footnote{\url{http://maven.apache.org/}} is used as the build tool. It was chosen over Apache Ant because Maven saves work with its many available plugins (such as Maven Jetty Plugin) and offers simple management of dependencies.
 
@@ -318,7 +310,7 @@ This is an outline of directory structure in the git repository:
 \end{dirlist}
 
 
-\section{Maven build}
+\section{Maven Build}
 \label{sec:mavenBuild}
 The project is divided into several artifacts. The root POM (\code{pom.xml}) in \code{odcleanstore} directory defines the parent project while each component of \odcs is in a separate artifact in subdirectories of \code{odcleanstore}. These artifacts are:
 
@@ -637,7 +629,7 @@ More details about each aggregation method and their time complexity can be foun
 	\label{fig:crComparators}
 \end{figure}
 	
-\subsection{Quality and Provenance calculation}
+\subsection{Quality and Provenance Calculation}
 The aggregation methods described in the previous section solve conflicts by calculating or selecting values in place of the object of a quad (e.g. choose the quad with the highest \QA score, the latest insertion date, maximum value in place of the object, or calculate the average of all values in place of the object). In addition, they add provenance and quality information.
 
 The provenance information consists of a list of named graphs, let us denote them \term{source named graphs}, from which the result was selected or calculated from. For calculated aggregations, these are named graphs of all aggregated quads, for selected aggregations these are named graphs containing the quad(s) selected to the result.
@@ -1044,7 +1036,7 @@ The hierarchy of the most important BO classes is depicted on on \figurename~\re
 
 \begin{figure}[htb]
     \centering
-    \includegraphics[width=1.05\textwidth]{images/dia-fe-bo.png}
+    \includegraphics[width=0.8\textwidth]{images/dia-fe-bo.png}
     \caption{Selected BO classes used in \FE}
 	\label{fig:feBO}
 \end{figure}
@@ -1189,51 +1181,6 @@ Add a new section to the \code{DNGroupDetailPage} component and implement the \l
 Note that when implementing a new DN template type it is a good idea to copy and rename the classes which belong to an existing one and just overwrite the template specific parts.
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{Conclusion, evaluation}
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{Related Work}
-\label{chap:relatedWork}
-\odcs provides means for cleaning, linking, and scoring incoming RDF data, storing it, and provides aggregated and integrated views on the data to Linked Data consumers. In addition, we support trustworthiness of the data with aggregate quality and provenance tracking. 
-
-\odcs focuses on the data processing and queries over stored data. Nevertheless, the extraction process that feeds data to  \odcs is also important -- our sister project Strigil implements a web scraper and document extractor that produces RDF data and integrates with ODCleanStore for storing the produced data.
-
-\section{Data Extraction}
-
-
-\subsection*{Strigil}
-
-Strigil\footnote{\url{http://sourceforge.net/p/strigil/home/Home/}} implements a web scraper and document extractor that produces RDF data and integrates with ODCleanStore as the producer of data.
-
-\subsection*{Linked Data Manager}
-Linked Data Manager\footnote{\url{http://www.semantic-web.at/linked-data-manager}} (LDM) is a Java based Linked (Open) Data Management Suite to schedule and monitor required Extract - Transform - Load jobs for web-based Linked Open Data portals as well as for sustainable Data Management and Data Integration usage.
-
-LDM data processing pipeline is similar to the data processing pipeline in ODCleanStore. LDM is a counterpart of ODCleanStore in that it provides facilities for managing the extraction process but doesn't provide any permanent storage or direct access to the data. Thus an LDM Loader could be used to send data to ODCleanStore and access it from here.
-
-\section{Data Processing}
-
-\subsection*{Linked Data Integration Framework}
-Linked Data Integration Framework\footnote{\url{http://www4.wiwiss.fu-berlin.de/bizer/ldif/}} (LDIF) is an open-source Linked Data Integration Framework that can be used by Linked Data applications to translate Web data and normalize URI while keeping track of data provenance.
-The framework consists of a Scheduler, Data Import and an Integration component with a set of pluggable modules.
-
-LDIF components encompass the whole process from data import and processing to integration and quality assessment. We use some of LDIF componets internally in ODCleanStore (Silk). The main difference is that LDIF is a framework other applications can built on, while ODCleanStore is a ready-to-use solution that can be easily deployed and managed via a web interface. Differences in quality assessment and data aggregation with Sieve, a part of the LDIF framework, are described below. LDIF also supports provenance tracking.\footnote{See Figure 2 of \href{http://static.lod2.eu/Deliverables/deliverable-4.3.2.pdf}{LOD2 Deliverable 4.3.2}}
-
-\section{Data aggregation and quality}
-
-\subsection*{Sieve}
-Sieve\footnote{\url{http://sieve.wbsg.de/}} adds quality assessment and data fusion capabilities to the LDIF architecture. It uses metadata about named graphs in order to assess data quality, agnostic to provenance vocabulary and quality models. Sieve uses customizable scoring functions to output data quality descriptors. Based on these quality descriptors (and/or optionally other descriptors ), Sieve can use configurable FusionFunctions to clean the data according to task-specific requirements.
-
-Sieve offers functionality similar to our Conflict Resolution component; however the purpose of Sieve in LDIF is different - it aggregates data while being stored to the clean database (unlike Conflict Resolution used at query time). This may be suitable when the desired data are known in advance but is not sufficient for open Web environments, where every consumer has different requirements on the aggregated data. Furthermore, ODCleanStore provides quality for each result statement where Sieve computes quality only for whole named graph.
-
-\subsection*{Integration systems in relational databases}
-
-The problem of integration of heterogeneous data (solved in ODCleanStore for RDF data) is solved by several systems for relational databases, e.g. Aurora\footnote{\url{http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.50.7261}} or Fusionplex\footnote{\url{http://dl.acm.org/citation.cfm?id=1221048}}.
-
-
-Aurora is an integration system of heterogenous data residing in relational and object-oriented databases, i.e. deals with non-RDF data; its query model enriches the SQL SELECT by enabling to define attribute conflict resolution functions (e.g. age[ANY] means that any attribute value for  the attribute age is used in the query) and record conflict  resolution function, which deal with key attributes of the records.   ODCS offers more built-in aggregation methods, on the other hand, Aurora allows user defined attribute aggregation functions; in ODCS, record conflicts are either discovered by linkers, or there is no record conflict.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Future Work}
@@ -1299,6 +1246,63 @@ Aurora is an integration system of heterogenous data residing in relational and 
 \end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Related Work}
+\label{chap:relatedWork}
+\odcs provides means for cleaning, linking, and scoring incoming RDF data, storing it, and provides aggregated and integrated views on the data to Linked Data consumers. In addition, we support trustworthiness of the data with aggregate quality and provenance tracking. 
+
+\odcs focuses on the data processing and queries over stored data. Nevertheless, the extraction process that feeds data to  \odcs is also important -- our sister project Strigil implements a web scraper and document extractor that produces RDF data and integrates with ODCleanStore for storing the produced data.
+
+\section{Data Extraction}
+
+
+\subsection*{Strigil}
+
+Strigil\footnote{\url{http://sourceforge.net/p/strigil/home/Home/}} implements a web scraper and document extractor that produces RDF data and integrates with ODCleanStore as the producer of data.
+
+\subsection*{Linked Data Manager}
+Linked Data Manager\footnote{\url{http://www.semantic-web.at/linked-data-manager}} (LDM) is a Java based Linked (Open) Data Management Suite to schedule and monitor required Extract - Transform - Load jobs for web-based Linked Open Data portals as well as for sustainable Data Management and Data Integration usage.
+
+LDM data processing pipeline is similar to the data processing pipeline in ODCleanStore. LDM is a counterpart of ODCleanStore in that it provides facilities for managing the extraction process but doesn't provide any permanent storage or direct access to the data. Thus an LDM Loader could be used to send data to ODCleanStore and access it from here.
+
+\section{Data Processing}
+
+\subsection*{Linked Data Integration Framework}
+Linked Data Integration Framework\footnote{\url{http://www4.wiwiss.fu-berlin.de/bizer/ldif/}} (LDIF) is an open-source Linked Data Integration Framework that can be used by Linked Data applications to translate Web data and normalize URI while keeping track of data provenance.
+The framework consists of a Scheduler, Data Import and an Integration component with a set of pluggable modules.
+
+LDIF components encompass the whole process from data import and processing to integration and quality assessment. We use some of LDIF componets internally in ODCleanStore (Silk). The main difference is that LDIF is a framework other applications can built on, while ODCleanStore is a ready-to-use solution that can be easily deployed and managed via a web interface. Differences in quality assessment and data aggregation with Sieve, a part of the LDIF framework, are described below. LDIF also supports provenance tracking.\footnote{See Figure 2 of \href{http://static.lod2.eu/Deliverables/deliverable-4.3.2.pdf}{LOD2 Deliverable 4.3.2}}
+
+\section{Data aggregation and quality}
+
+\subsection*{Sieve}
+Sieve\footnote{\url{http://sieve.wbsg.de/}} adds quality assessment and data fusion capabilities to the LDIF architecture. It uses metadata about named graphs in order to assess data quality, agnostic to provenance vocabulary and quality models. Sieve uses customizable scoring functions to output data quality descriptors. Based on these quality descriptors (and/or optionally other descriptors ), Sieve can use configurable FusionFunctions to clean the data according to task-specific requirements.
+
+Sieve offers functionality similar to our Conflict Resolution component; however the purpose of Sieve in LDIF is different - it aggregates data while being stored to the clean database (unlike Conflict Resolution used at query time). This may be suitable when the desired data are known in advance but is not sufficient for open Web environments, where every consumer has different requirements on the aggregated data. Furthermore, ODCleanStore provides quality for each result statement where Sieve computes quality only for whole named graph.
+
+\subsection*{Integration systems in relational databases}
+
+The problem of integration of heterogeneous data (solved in ODCleanStore for RDF data) is solved by several systems for relational databases, e.g. Aurora\footnote{\url{http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.50.7261}} or Fusionplex\footnote{\url{http://dl.acm.org/citation.cfm?id=1221048}}.
+
+
+Aurora is an integration system of heterogenous data residing in relational and object-oriented databases, i.e. deals with non-RDF data; its query model enriches the SQL SELECT by enabling to define attribute conflict resolution functions (e.g. age[ANY] means that any attribute value for  the attribute age is used in the query) and record conflict  resolution function, which deal with key attributes of the records.   ODCS offers more built-in aggregation methods, on the other hand, Aurora allows user defined attribute aggregation functions; in ODCS, record conflicts are either discovered by linkers, or there is no record conflict.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Conclusion}
+The goal of the project was to build a server application that would automate processing -- especially cleaning, linking and scoring -- of data in RDF format and provide aggregated and integrated views on the processed data to Linked Data consumers. We have successfully implemented all these features in \odcs and hope that the project will continue to be used and developed.
+
+\odcs brings several contributions. There are other tools for RDF data processing (see related work in Chapter~\ref{chap:relatedWork}) but they are mostly frameworks that other developers can build on. \odcs was developed as a whole solution that can be readily deployed and used. It ships with an web administration interface so that all neccessary configuration can be done in a web browser. It should be noted, however, that administrators of \odcs should have some technical knowledge -- at least understand RDF and SPARQL query language.
+
+Another novel aspect is provenance tracking and data fusion/conflict resolution. This feature should support addoption of Linked Data by justifying why users should (or shouldn't) believe the data they are presented and where they can verify it and thus increase trust in Linked Data. Unlike other solutions, \odcs solves conflicts at query time which is suitable for the open Web environment where every consumer may have different requirements.
+
+We hope that \odcs will provide basis for further work with Linked Data and other developers will extend it and customize it for their own purposes. We introduced the concept of pluggable transformers so that whatever functionality is needed can be added.
+
+Several papers about \odcs were accepted at scientific conferences. The reception was positive and we used the feedback to improve our project. In addition, \odcs was evaluated on real data, e.g. data extracted from information system for public contracts\footnote{\url{http://www.isvzus.cz/}} run by the Ministry of Regional Development in the Czech Republic. We also used the feedback to improve our project and adapt it to a real-world use case.
+
+We hope that \odcs will prove to be a useful tool for RDF data processing and will contribute to adoption of Linked Data. It was designed as a general tool for Linked Data management with basic data processing capabilities. We hope that the development will continue, new uses for \odcs will emerge and the project will be extended and customized for the particular use cases.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \appendix
 
@@ -1307,6 +1311,7 @@ Aurora is an integration system of heterogenous data residing in relational and 
 \label{chap:glossary}
 \input{appendix-glossary}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %\chapter{ODCS ontology}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1370,13 +1375,13 @@ Aurora is an integration system of heterogenous data residing in relational and 
 \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{Project organization}
+%\chapter{Project organization}
 
-\begin{itemize}
-	\item Team, task division (Developer-Component-Main responsibilities)
-	\item Meetings
-	\item Release process (+ presentation)
-	\item Remarks?
-\end{itemize}
+%begin{itemize}
+	%\item Team, task division (Developer-Component-Main responsibilities)
+	%\item Meetings
+	%\item Release process (+ presentation)
+	%\item Remarks?
+%\end{itemize}
 
 \end{document}
