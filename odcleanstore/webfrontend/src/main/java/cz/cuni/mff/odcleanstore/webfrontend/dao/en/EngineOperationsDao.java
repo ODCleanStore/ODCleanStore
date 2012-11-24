@@ -51,7 +51,7 @@ public class EngineOperationsDao extends Dao
 					
 				jdbcUpdate(query, params);
 				
-				query = "DELETE FROM " + GRAPHS_IN_ERROR_TABLE_NAME + " WHERE" +
+				query = "DELETE FROM " + GRAPHS_IN_ERROR_TABLE_NAME + " WHERE " +
 						"graphId IN (SELECT id FROM " + INPUT_GRAPHS_TABLE_NAME + " WHERE pipelineId = ?)";
 				
 				params = new Object[] {pipelineId};
@@ -95,7 +95,7 @@ public class EngineOperationsDao extends Dao
 					
 				jdbcUpdate(query, params);
 				
-				query = "DELETE FROM " + GRAPHS_IN_ERROR_TABLE_NAME + " WHERE" +
+				query = "DELETE FROM " + GRAPHS_IN_ERROR_TABLE_NAME + " WHERE " +
 						"graphId IN (SELECT id FROM " + INPUT_GRAPHS_TABLE_NAME +
 						"	WHERE pipelineId IN (" +
 						"		SELECT DISTINCT TI.pipelineId " +
@@ -103,6 +103,10 @@ public class EngineOperationsDao extends Dao
 						"		JOIN " + TransformerInstanceDao.TABLE_NAME + " as TI " +
 						"		ON (RA.transformerInstanceId = TI.id) " +
 						"		WHERE (RA.groupId = ?)))";
+				
+				params = new Object[] {groupId};
+				
+				jdbcUpdate(query, params);
 			}
 			
 		});
@@ -129,7 +133,7 @@ public class EngineOperationsDao extends Dao
 					
 				jdbcUpdate(query, EnumGraphState.QUEUED.name(), graphId, EnumGraphState.FINISHED.name(), EnumGraphState.WRONG.name());
 
-				query = "DELETE FROM " + GRAPHS_IN_ERROR_TABLE_NAME + " WHERE" +
+				query = "DELETE FROM " + GRAPHS_IN_ERROR_TABLE_NAME + " WHERE " +
 						"graphId = ?";
 				
 				jdbcUpdate(query, graphId);
