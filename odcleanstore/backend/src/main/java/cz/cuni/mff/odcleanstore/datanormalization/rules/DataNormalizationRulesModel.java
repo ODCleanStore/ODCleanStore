@@ -246,6 +246,41 @@ public class DataNormalizationRulesModel {
 
 				ruleList.add(rule);
 			}
+			
+			/**
+			 * Convert numbers
+			 */
+			if (model.contains(resource, RDFS.range, XSD.nonNegativeInteger)) {
+				DataNormalizationRule rule = new DataNormalizationNonNegativeIntegerRule(null, null, resource);
+
+				LOG.info("Generated DN rule for non negative integer");
+
+				ruleList.add(rule);
+			}
+
+			if (model.contains(resource, RDFS.range, XSD.nonPositiveInteger)) {
+				DataNormalizationRule rule = new DataNormalizationNonPositiveIntegerRule(null, null, resource);
+
+				LOG.info("Generated DN rule for non positive integer");
+
+				ruleList.add(rule);
+			}
+			
+			if (model.contains(resource, RDFS.range, XSD.integer)) {
+				DataNormalizationRule rule = new DataNormalizationIntegerRule(null, null, resource);
+
+				LOG.info("Generated DN rule for integer");
+
+				ruleList.add(rule);
+			}
+			
+			if (model.contains(resource, RDFS.range, XSD.xdouble) || model.contains(resource, RDFS.range, XSD.decimal)) {
+				DataNormalizationRule rule = new DataNormalizationNumberRule(null, null, resource);
+
+				LOG.info("Generated DN rule for number");
+
+				ruleList.add(rule);
+			}
 
 			/**
 			 * Correct date formats ("YYYY" to "YYYY-MM-DD" etc.)
