@@ -180,31 +180,38 @@ Data consumers accessing Output Webservice (see Section~\ref{sec:outputWS}) do n
 \chapter{Administration Frontend}
 \label{chap:administrationFrontend}
 
-% TODO
-\textbf{NOTE: This chapter is still a draft and may not be up to date.}
-
 \section{Administration Frontend Overview}
 
-Administration Frontend is the official tool for managing ODCleanStore. It covers configuration of all standard components.
+Administration Frontend is the official tool for managing ODCleanStore. It covers configuration of all standard components. It is restricted to authorized users only. Authentication is performed using a standard login form.
 
-Several terms and designations are used repeatedly in the frontend, however, their meanings do not change too much, therefore make sure to be familiar with them as they might not be described hereafter.
+The administration frontend controls various entities, allows the user to set different attributes and perform actions on those entities. Several terms and designations are used repeatedly in the frontend, however, their meanings do not change too much, therefore make sure to be familiar with them as they might not be described hereafter.
 
-\subsection*{Attributes}
-
-\enumtable
-{
-	label & A unique human readable identifier of the related entity\\
-	description & A description for user's purposes and better comprehension of semantics of the related entity
-}
-
-\subsection*{Actions}
+\subsection*{Common attributes}
 
 \enumtable
 {
-	Delete & remove the related entity irrevertably from the system\\
-	Detail & view entities and configurations related to the related entity and provide the interface for entity adjustments\\
-	Rerun affected graphs & due to a change of a configuration of a transformer (modification of a rule group) the stored data may be found in an inconsistent form, therefore it is possible for the user to identify such situations and decide to run the transformer (or all transformers assosiated with a pipeline or a graph) again
+	\vspace{0.5cm} Label & a unique human readable identifier of the related entity\\
+	\vspace{0.5cm} Description & a description for user's purposes and better comprehension of semantics of the related entity\\
+	\vspace{0.5cm} Author & the username of a the originator / creator of the related entity
 }
+
+\subsection*{Common actions}
+
+\enumtable
+{
+	\vspace{0.5cm} Delete & remove the related entity irrevertably from the system\\
+	\vspace{0.5cm} Detail & view entities and configurations related to the related entity and provide the interface for entity adjustments\\
+	\vspace{0.5cm} Rerun affected graphs & due to a change of a configuration of a transformer (modification of a rule group) the stored data may be found in an inconsistent form, therefore it is possible for the user to identify such situations and decide to run the transformer (or all transformers assosiated with a pipeline or a graph) again
+}
+
+The frontend is divided into several separate sections of logicaly related controls. The main menu bar at the top of the page can be used to switch between those sections.
+
+\begin{figure}[tb]
+    \centering
+    \includegraphics[width=\textwidth]{images/fe-main-menu-bar.png}
+    \caption{Main menu}
+	\label{fig:feHome}
+\end{figure}
 
 \begin{figure}[tb]
     \centering
@@ -212,7 +219,6 @@ Several terms and designations are used repeatedly in the frontend, however, the
     \caption{Administration Frontend after login}
 	\label{fig:feHome}
 \end{figure}
-
 
 \section{Pipeline Management}
 \label{sec:pipelineManagement}
@@ -252,16 +258,20 @@ Several terms and designations are used repeatedly in the frontend, however, the
 Several transformers are included in ODCleanStore by default. This section provides their overview.
 
 \subsubsection{Quality Assessment}
-%TODO co to je, co to dělá, odkaz na sub:qualityAssessment
+
+This transformer assigns a quality indicator to the processed named graph based on data properties contained in it. It will be further described in section \ref{sub:qualityAssessment}
 
 \subsubsection{Quality Aggregator}
-%% TODO coto je, co to dělá
+
+This transformer assigns a quality indicator to the publisher of the processed named graph based on quality of all graphs stored in the database and sharing this publisher. It will be further described in section \ref{sub:qualityAssessment}
 
 \subsubsection{Data Normalization}
-%TODO co to je, co to dělá, odkaz na sub:dataNormalization
+
+This transformer can be used to modify data contained in the processed graph. The main reason to allow modifications is to be able to cope with situations when data from different sources have different forms. It is also useful to preprocess data to better suit the rest of the transformation process and future queries of other users. For more information see section \ref{sub:dataNormalization}
 
 \subsubsection{Linker}
-%TODO co to je, co to dělá, odkaz na sub:objectIdentification
+
+This transformer ...
 
 \subsubsection{Blank Node Remover}
 This transformer replaces all blank nodes in \code{payload} named graph with unique URI resources. The transformer guarantees that occurrences of the same blank node withing the transformed graph (and only this graph) will be assigned the same URI.
@@ -283,7 +293,9 @@ The URIs generated in place of blank nodes have form \varcode{prefix}\varcode{ra
 \subsection{Quality Assessment}
 \label{sub:qualityAssessment}
 
-\term{Quality Assessor} is a special {transformer} that assigns a score to each graph based on coefficients of different patterns present in the graph to reflect to what degree the data contained in it comply to a certain policy.
+\subsubsection*{Quality Assessor}
+
+Quality Assessor is a special {transformer} that assigns a score to each graph based on coefficients of different patterns present in the graph to reflect to what degree the data contained in it comply to a certain policy.
 
 To be able to configure individual instances of {Quality Assessor} a group of rules needs to exist. To create one enter the QA subsection of the rules management page for the backend.
 
@@ -308,6 +320,10 @@ On the detail page, one can specify individual rules contained in the related gr
 
 Any snippet of SPARQL\footnote{\url{http://www.w3.org/TR/rdf-sparql-query/\#grammar}} to which \quot{\code{SELECT * FROM ... WHERE}} can be prepended is a valid filter and describes a property of a named graph that the author of the rule finds defective.
 %%TODO: mention/omit: The use of SPARQL 1.1 features depends on underlaying Virtuoso OpenSource version.
+
+\subsubsection*{Quality Aggregator}
+
+Quality Aggregator is a special transformer that accumulates quality score values of all the graphs corresponding to one publisher. It then calculates an average value and assesses this aggregated quality to the publisher.
 
 \subsection{Data Normalization}
 \label{sub:dataNormalization}
