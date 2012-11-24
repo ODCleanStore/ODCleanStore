@@ -133,7 +133,7 @@ public class QualityAssessmentRulesModel {
 	 * @param groupIds IDs of the rule groups from which the rules are selected
 	 */
 	public Collection<QualityAssessmentRule> getRules (Integer... groupIds) throws QualityAssessmentException {
-		Set<QualityAssessmentRule> rules = new HashSet<QualityAssessmentRule>();
+		List<QualityAssessmentRule> rules = new ArrayList<QualityAssessmentRule>();
 
 		for (int i = 0; i < groupIds.length; ++i) {
 			Collection<QualityAssessmentRule> groupSpecific = queryRules(String.format(ruleByGroupIdQueryFormat, tableVersion.getTableSuffix()), groupIds[i]);

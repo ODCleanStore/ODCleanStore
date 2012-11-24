@@ -179,7 +179,7 @@ public class DataNormalizationRulesModel {
 	 * @return a collection of the selected rules
 	 */
 	public Collection<DataNormalizationRule> getRules (String... groupLabels) throws DataNormalizationException {
-		Set<DataNormalizationRule> rules = new HashSet<DataNormalizationRule>();
+		List<DataNormalizationRule> rules = new ArrayList<DataNormalizationRule>();
 
 		for (int i = 0; i < groupLabels.length; ++i) {
 			Collection<DataNormalizationRule> groupSpecific = queryRules(String.format(ruleByGroupLabelQueryFormat, tableVersion.getTableSuffix(), tableVersion.getTableSuffix()), groupLabels[i]);
