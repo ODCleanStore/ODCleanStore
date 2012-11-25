@@ -210,9 +210,13 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 	 */
 	private void deleteGraph(String graphName) throws Exception
 	{
-		String query = "SPARQL DROP SILENT GRAPH ??";
+		String query = "SPARQL CLEAR GRAPH ??";
 
 		Object[] params = { graphName };
+
+		jdbcUpdate(query, params);
+		
+		query = "SPARQL DROP SILENT GRAPH ??";
 
 		jdbcUpdate(query, params);
 	}

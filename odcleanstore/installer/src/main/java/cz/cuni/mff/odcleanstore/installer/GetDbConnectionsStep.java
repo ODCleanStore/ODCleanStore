@@ -47,7 +47,7 @@ public class GetDbConnectionsStep extends WizardStep {
 
 	@Override
 	public String getNextNavigationButtonText() {
-		return "Validate Virtuoso instances connection parameters for running administator scripts";
+		return "Validate Virtuoso instances connection parameters for running administrator scripts";
 	}
 
 	@Override
