@@ -3,7 +3,12 @@
 	<h1>Pipeline</h1>
 
 	<wicket:link>
-		<p>New incoming data (in form of a named graph) accepted by Input Webservice are passed through a pipeline consisting of <a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/pipelines/TransformersListPage.html"><span>Transformers</span></a>. In this section of the administration frontend it is possible for the user to specify different pipelines. Individual pipelines can incorporate different already existing <a href="/cz/cuni/mff/odcleanstore/webfrontend/pages/pipelines/TransformersListPage.html"><span>Transformers</span></a>. To edit the structure of a pipeline, view its detail.</p>
+		<p>New incoming data (in form of a named graph) accepted by Input Webservice are passed through a pipeline consisting of <a href="/odcs-web-frontend/backend/transformers/list"><span>Transformers</span></a>. In this section of the administration frontend it is possible for the user to specify different pipelines. Individual pipelines can incorporate different already existing <a href="/odcs-web-frontend/backend/transformers/list"><span>Transformers</span></a>. To edit the structure of a pipeline, view its detail.</p>
 	</wicket:link>
+	
+	<p>Pipeline can be marked default with button <input class="button" disabled="disabled" style="width: 85px;" value="Make default" /> which means that it will be used for all incoming data that are not explicitly targeted to a different pipeline.</p>
+	<p>Pipeline can be locked with <input class="button" disabled="disabled" style="width: 35px;" value="Lock" /> which will block any future transformations in the pipeline. Any operation in progress will be finished and transformed graph will be placed back to queue.</p>
+	<p>Rerunning pipeline with <input class="button" disabled="disabled" style="width: 40px;" value="Rerun" /> will cause all graphs produced by transformation with this pipeline will be queued and processed again. Current state of the pipeline will be in effect.</p>
+	<p><input class="button delete" disabled="disabled" style="width: 45px;" value="Delete" /> will remove the pipeline irreversibly along with assigned instances of transformers.</p>
 
 </wicket:panel>
