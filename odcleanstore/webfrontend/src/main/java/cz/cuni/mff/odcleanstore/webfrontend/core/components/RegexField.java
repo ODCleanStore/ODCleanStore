@@ -3,6 +3,11 @@ package cz.cuni.mff.odcleanstore.webfrontend.core.components;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.webfrontend.validators.RegexValidator;
 
+/**
+ * Input component with validation for regexp supported in Virtuoso functions 
+ * 
+ * @author Jakub Daniel
+ */
 public class RegexField extends CustomValidableField {
 
 	private static final long serialVersionUID = 1L;

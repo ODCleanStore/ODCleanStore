@@ -3,9 +3,11 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo.en;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
 /**
+ * BO for a state of an input graph
+ * 
+ * This is an enumeration stored in database
  * 
  * @author Jakub Daniel
- *
  */
 public class InputGraphState extends EntityWithSurrogateKey {
 

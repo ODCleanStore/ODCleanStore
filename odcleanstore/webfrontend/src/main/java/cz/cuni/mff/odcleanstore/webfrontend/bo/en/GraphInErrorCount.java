@@ -3,9 +3,9 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo.en;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
 /**
+ * BO for an error counter for engine monitoring pages
  * 
  * @author Jakub Daniel
- *
  */
 public class GraphInErrorCount extends EntityWithSurrogateKey {
 

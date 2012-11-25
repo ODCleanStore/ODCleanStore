@@ -3,9 +3,9 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo.en;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
 /**
- * 
- * @author Jakub Daniel
+ * BO for error records bound to a certain input graph
  *
+ * @author Jakub Daniel
  */
 public class GraphInError extends EntityWithSurrogateKey {
 	private static final long serialVersionUID = 1L;
@@ -17,7 +17,8 @@ public class GraphInError extends EntityWithSurrogateKey {
 	public Integer errorTypeId;
 	public String errorMessage;
 	public Boolean isInCleanDB;
-	
+
+	/* Additional information */
 	public String engineUUID;
 	public String pipelineLabel;
 	public String stateLabel;

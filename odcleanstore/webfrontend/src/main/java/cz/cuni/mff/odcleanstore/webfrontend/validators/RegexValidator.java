@@ -10,6 +10,13 @@ import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 
+/**
+ * Validator that attempts to use regexp
+ * 
+ * either alone or with replacement value (may check for back references or forbidden characters)
+ * 
+ * @author Jakub Daniel
+ */
 public class RegexValidator extends CustomValidator
 {
 	private static final long serialVersionUID = 1L;

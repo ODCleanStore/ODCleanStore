@@ -4,7 +4,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.AuthoredEntity;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
 /**
  * The BO to represent a pipeline.

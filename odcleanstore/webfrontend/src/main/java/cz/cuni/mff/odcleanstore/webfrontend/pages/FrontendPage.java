@@ -86,6 +86,7 @@ public abstract class FrontendPage extends WebPage
 		add(new UserPanel("userPanel", LogOutPage.class));
 		add(new FeedbackPanel("feedback"));
 		
+		//Use additional style to cope with Wicket tags in developement mode
 		final Application app = Application.get();
 		app.getHeaderContributorListenerCollection().add(new IHeaderContributor() {
 			private static final long serialVersionUID = 1L;

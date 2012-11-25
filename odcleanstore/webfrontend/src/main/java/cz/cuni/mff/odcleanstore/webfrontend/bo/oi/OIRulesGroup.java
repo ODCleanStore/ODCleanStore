@@ -3,7 +3,6 @@ package cz.cuni.mff.odcleanstore.webfrontend.bo.oi;
 import java.util.LinkedList;
 import java.util.List;
 
-import cz.cuni.mff.odcleanstore.webfrontend.bo.AuthoredEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.RulesGroupEntity;
 
 /**
