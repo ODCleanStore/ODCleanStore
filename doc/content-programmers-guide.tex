@@ -1086,7 +1086,7 @@ This package (and it's subpackages) contains classes which form the DAO layer. S
 
 \subsubsection{pages}
 
-In this package there are Wicket components for individual pages. The structure of subpackages mirrors the \FE menu. These are mostly standard Wicket components (but for a few conventions we have applied - see the relevant section). In this section, a brief description of some of the non-standard components will be given.
+In this package there are Wicket components for individual pages. The structure of subpackages mirrors the \FE menu. These are mostly standard Wicket components (but for a few conventions we have applied - read more in section \ref{sec:howToAddANewPage}). In this section, a brief description of some of the non-standard components will be given.
 
 \begin{description}[style=nextline,font=\ttfamily]
 	\item[FrontendPage] The parent component for almost all (see below) page components. Provides page layout and content common to all pages, as well as factory methods to create some basic child components.
@@ -1094,7 +1094,7 @@ In this package there are Wicket components for individual pages. The structure 
 	\item[UserPanel] This component forms the user-information panel - it shows the username and list of roles of the currently logged in user and provides means to log-in and log-out. It is included as a child component in the \code{FrontendPage}.
 \end{description}
 	
-For more information on how to create a new page, see the relevant section.
+For more information on how to create a new page, see section \ref{sec:howToAddANewPage}.
 
 \subsubsection{util}
 
@@ -1195,6 +1195,7 @@ As a rule, every page should contain a single help pop-up window for every entit
 
 
 \subsection{How to Add a New \DN Template}
+\label{sec:howToAddANewDNTemplate}
 
 To add a new \DN Template (named say XXX, such as Filter, Rename, Replace), follow these steps.
 
