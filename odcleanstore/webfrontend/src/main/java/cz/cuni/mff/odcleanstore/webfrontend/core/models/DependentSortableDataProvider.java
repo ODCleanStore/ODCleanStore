@@ -129,6 +129,7 @@ public class DependentSortableDataProvider<BO extends EntityWithSurrogateKey> ex
 	 */
 	public Iterator<? extends BO> iterator(int first, int count) 
 	{
+		// TODO
 		// replace this with a special DAO method to only select the sub-list
 		// from the database call if necessary (instead of selecting all and 
 		// trimming)

@@ -848,7 +848,7 @@ public interface QualityAssessor extends Transformer {
 }
 \end{lstlisting}
 
-The method \code{debugRules} takes into account that any input graph may need to be loaded to the database under a different name so that no collisions occur during debugging. Therefore input graphs correspond to pairs $ \left< \text{originalName}, \text{actualName} \right> $ and are passed in \code{HashMap}. The graph is expected to already exist in the database when this method is invoked. The \code{context} parameter provides environment similar to the one during ordinary transformation of a graph. \code{tableVersion} specifies whether committed or uncommitted versions of rule groups are to be used. This approach allows the author of the debugged rule groups can test his lattest revisions of rules while hi is not forced to save the changes and overwrite their previous form. The output is a list of structures containing quality and all rules that affected it for each graph on the input.
+The method \code{debugRules} takes into account that any input graph may need to be loaded to the database under a different name so that no collisions occur during debugging. Therefore input graphs correspond to pairs $ \left< \text{originalName}, \text{actualName} \right> $ and are passed in \code{HashMap}. The graph is expected to already exist in the database when this method is invoked. The \code{context} parameter provides environment similar to the one during ordinary transformation of a graph. \code{tableVersion} specifies whether committed or uncommitted versions of rule groups are to be used. This approach allows the author of the debugged rule groups can test her latest revisions of rules while she is not forced to save the changes and overwrite their previous form. The output is a list of structures containing quality and all rules that affected it for each graph on the input.
 
 \subsubsection*{Generating Rules from Ontology}
 
@@ -863,7 +863,7 @@ public class QualityAssessmentRulesModel {
 }
 \end{lstlisting}
 
-The method \code{compileOntologyToRules} expects a named graph \code{ontologyGraphURI} to be in the database. The statements of the graph are considered a definition of an ontology and are processed resource by resource and the following types of resources are handled:
+The method \code{compileOntologyToRules()} expects a named graph \code{ontologyGraphURI} to be in the database. The statements of the graph are considered a definition of an ontology and are processed resource by resource and the following types of resources are handled:
 
 \begin{itemize}
 	\item Functional property implemented as \code{FunctionalProperty}
@@ -875,7 +875,7 @@ The method \code{compileOntologyToRules} expects a named graph \code{ontologyGra
 
 \subsubsection*{Quality Assessment Rules}
 
-\begin{lstlisting}[caption=Quality Assessment rule constructor,lst:qualityAssessmentRule]
+\begin{lstlisting}[caption=Quality Assessment rule constructor,label=lst:qualityAssessmentRule]
 public QualityAssessmentRule (Integer id, Integer groupId, String filter, Double coefficient,
   String label, String description) 
 \end{lstlisting}
@@ -904,18 +904,18 @@ Debugging invokes the same implementation but does not store the resulting score
 
 The \code{transformGraph} method collects quality of all the graphs stored in the clean database and the currently processed graph and calculates the average value which is then assigned to the source. This operation is idempotent and thus robust to manual transformation of the database content because it is always corrected after update of a graph published by the given publisher.
 
-\paragraph{Rule Generation} implemented in \code{QualityAssessmentRulesModel.compileOntologyToRules}
+\paragraph{Rule Generation} implemented in \code{QualityAssessmentRulesModel.compileOntologyToRules()}
 
-After the ontology is stored in the database in a separate named graph its graph name can be passed to \code{compileOntologyToRules} method. All resources specified in the ontology are processed based on their \code{RDF.type} property.
+After the ontology is stored in the database in a separate named graph, its graph name can be passed to the \code{compileOntologyToRules()} method. All resources specified in the ontology are processed based on their \code{rdf:type} property.
 
 \begin{center}
 \begin{tabular}{| l | l |}
 	\hline
 	Type of property $p$ & constraint checked by generated rule \\
 	\hline \hline
-	\code{OWL.FunctionalProperty} & $ [x,y_1], [x,y_2] \in p \rightarrow y_1 = y_2 $ \\
-	\code{OWL.InverseFunctionalProperty} & $ [x_1,y], [x_2, y] \in p \rightarrow x_1 = x_2 $ \\
-	\code{SKOS.ConceptScheme} & $ [x,y] \in p \rightarrow y \in p.hasTopConcept $ \\
+	\code{owl:FunctionalProperty} & $ [x,y_1], [x,y_2] \in p \rightarrow y_1 = y_2 $ \\
+	\code{owl:InverseFunctionalProperty} & $ [x_1,y], [x_2, y] \in p \rightarrow x_1 = x_2 $ \\
+	\code{skos:ConceptScheme} & $ [x,y] \in p \rightarrow y \in p.hasTopConcept $ \\
 	\hline
 \end{tabular}
 \end{center}
@@ -972,7 +972,7 @@ public class DataNormalizationRulesModel {
 }
 \end{lstlisting}
 
-The \code{compileOntologyToRules} expects a named graph of a name \code{ontologyGraphURI} to be present in the database. Its contents are interpreted as definition of an ontology and examined as such.
+\code{compileOntologyToRules()} expects a named graph of a name \code{ontologyGraphURI} to be present in the database. Its contents are interpreted as definition of an ontology and examined as such.
 
 \subsection{Implementation}
 
@@ -999,7 +999,7 @@ This process is further extended with modification detection for debugging purpo
 
 \subsubsection*{Rule generation}
 
-The method \code{DataNormalizationRulesModel.compileOntologyToRules} searches for resources with \code{RDFS.range} statements in the ontology graph in database and creates adequate rules. The following rules can be generated:
+The method \code{DataNormalizationRulesModel.compileOntologyToRules()} searches for resources with \code{rdfs:range} statements in the ontology graph in database and creates adequate rules. The following rules can be generated:
 
 \begin{itemize}
 	\item \code{DataNormalizationBooleanRule}
@@ -1034,7 +1034,7 @@ The method \code{DataNormalizationRulesModel.compileOntologyToRules} searches fo
 Number conversion uses Virtuoso built-in functions (\code{\_\_min\_notnull}, \code{\_\_max\_notnull}, \code{sign}, \code{abs}, \code{floor} \ldots) and thus heavily relies on their presence and implementation.
 \\
 
-These rules cover the basic and often used \code{XSD} datatypes with a reasonable conversion for general purposes. More specific transformations could be defined but are not suited for implicit rule generation as they may not effectively cover usual cases or could even produce bad results in different occassions. For example date conversions would often need additional information about the source of unnormalized date substrings to recongnize the format. The pre-transformation value is often ambiguous which could lead to incorrect interpretation (confusion of month for day of the month).
+These rules cover the basic and often used \code{XSD} datatypes with a reasonable conversion for general purposes. More specific transformations could be defined but are not suited for implicit rule generation as they may not effectively cover usual cases or could even produce bad results in different circumstances. For example, date conversions would often need additional information about the source of unnormalized date substrings to recongnize the format. The pre-transformation value is often ambiguous which could lead to incorrect interpretation (confusion of month for day of the month).
 
 \section{Linker}
 
@@ -1248,13 +1248,11 @@ This package (and it's subpackages) contains classes which form the DAO layer. S
 
 \subsubsection{core}
 
-This \code{core} package contains the following important classes. 
-
-The list contains neither the standard Wicket \code{ODCSWebFrontendApplication} and \code{ODCSWebFrontentSession} classes, nor thestandard \code{ODCSWebFrontendApplication.properties} file. The properties file contains custom validation messages and declarations of other string literals.
+The \code{core} package contains \code{ODCSWebFrontendApplication} and \code{ODCSWebFrontentSession}\linebreak classes extending the standard Wicket classes representing a web application and session, respectively, and the \code{ODCSWebFrontendApplication.properties} file. The properties file contains custom validation messages and declarations of other string literals. In addition, the package contains the following items:
 
 \begin{description}[style=nextline,font=\ttfamily]
 	\item[URLRouter] Handles URL routing - e.g. conversion from raw Wicket-like URL addresses to human readable ones (and vice versa).
-	\item[DaoLookupFactory] Encapsulates DB connections and serves DAO objects to page components (see section \ref{sec:frontendDao}).
+	\item[DaoLookupFactory] Encapsulates DB connections and serves DAO objects to page components (see Section \ref{sec:frontendDao}).
 \end{description}
 
 \subsubsection{core.models}
@@ -1269,7 +1267,7 @@ In the \code{core.components} package you'll find several custom components, suc
 	\item[UnobtrusivePagingNavigator] An implementation of the \code{PagingNavigator} component which is not visible if the list contains only a single page.
 	\item[TruncatedLabel] A label which only displays a few first characters of the given string.
 	\item[TimestampLabel] A label to display a properly formated timestamp.
-	\item[RedirectButton] A button to redirect to a different page, adjusted to suit the structure of the \WF application.
+	\item[RedirectButton] A button to redirect to a different page, adjusted to suit the structure of the \FE application.
 	\item[LogInPanel] A panel which contains the log-in form.
 	\item[LimitedEditingForm] A form that can only be confirmed by authorized users.
 	\item[HelpWindow] A generic modal window to display help information.
@@ -1277,7 +1275,7 @@ In the \code{core.components} package you'll find several custom components, suc
 
 \subsubsection{pages}
 
-In this package there are Wicket components for individual pages. The structure of subpackages mirrors the \FE menu. These are mostly standard Wicket components (but for a few conventions we have applied - read more in section \ref{sec:howToAddANewPage}). In this section, a brief description of some of the non-standard components will be given.
+In this package there are Wicket components for individual pages. The structure of subpackages mirrors the \FE menu. These are mostly standard Wicket components (but for a few conventions we have applied - read more in Section \ref{sec:howToAddANewPage}). In this section, a brief description of some of the non-standard components will be given.
 
 \begin{description}[style=nextline,font=\ttfamily]
 	\item[FrontendPage] The parent component for almost all (see below) page components. Provides page layout and content common to all pages, as well as factory methods to create some basic child components.
@@ -1285,7 +1283,7 @@ In this package there are Wicket components for individual pages. The structure 
 	\item[UserPanel] This component forms the user-information panel - it shows the username and list of roles of the currently logged in user and provides means to log-in and log-out. It is included as a child component in the \code{FrontendPage}.
 \end{description}
 	
-For more information on how to create a new page, see section \ref{sec:howToAddANewPage}.
+For more information on how to create a new page, see Section \ref{sec:howToAddANewPage}.
 
 \subsubsection{util}
 
@@ -1531,6 +1529,9 @@ We hope that \odcs will prove to be a useful tool for RDF data processing and wi
 \chapter{Glossary}
 \label{chap:glossary}
 \input{appendix-glossary}
+
+\chapter{List of Used XML Namespaces}
+\input{appendix-xml-namespaces}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %\chapter{ODCS ontology}
