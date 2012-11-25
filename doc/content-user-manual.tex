@@ -351,7 +351,40 @@ where \code{\$\$graph\$\$} in \code{GRAPH \$\$graph\$\$} is a place holder for n
 \subsection{Linker}
 \label{sub:objectIdentification}
 
-\term{(Object Identification) Linker} is a special implementation of a {trasformer}. The main purpose of this component is to interlink URIs which represent the same real-world entity by generating \code{owl:sameAs} links. It can be also used for creating other types of links between differently related URIs. {Silk framework}\footnote{\url{http://wifo5-03.informatik.uni-mannheim.de/bizer/silk/}} is used as the linking engine. Sets of linkage rules for the engine are written in {Silk-LSL}\footnote{\url{http://www.assembla.com/wiki/show/silk/Link\_Specification\_Language}} and stored in database.
+\term{Linker} is a special {trasformer}. Its main purpose is to interlink URIs which represent the same real-world entity by generating \code{owl:sameAs} links. It can be also used for creating other types of links between differently related URIs.
+
+To be able to configure individual instances of {Linker} a group of rules needs to exist. To create one enter the Linker subsection of the Rules management page.
+
+Here the user can prepare groups of rules to be assigned to instances of {Linker}. Each group is identified by its label and can (and should) come with a description of its semantical significance.
+
+On the detail page, one can specify individual rules contained in the related group. Fields to be filled in for each rule are described in Table TODO. For further details of their meaning see {Silk-LSL} specification\footnote{\url{http://www.assembla.com/wiki/show/silk/Link\_Specification\_Language}}.
+
+\fieldtable
+{
+	required & label & \\
+	\hline
+	optional & description & \\
+	\hline
+	required & Link type & Type of the link to create (typically \code{owl:sameAs})\\
+	\hline
+	optional & Source SPARQL restriction & Restriction on URIs from the transformed data, written in SPARQL.\\
+	\hline
+	optional & Target SPARQL restriction & Restriction on URIs from the clean database, written in SPARQL.\\
+	\hline
+	required & Linkage rule & Linkage rule itself, written in Silk-LSL. XML fragment \code{<LinkageRule>...</LinkageRule>} is expected.\\
+	\hline
+	optional & Filter threshold & Real number, serves as a global threshold, links with lesser confidence will not be sent to any output.\\
+	\hline
+	optional & Link limit &  Defines the number of links originating from a single data item. Only the n highest-rated links per source data item will remain after the filtering. If no limit is provided, all links will be returned.
+}
+
+Linkage rule an be created in Silk Workbench\footnote{\url{https://www.assembla.com/spaces/silk/wiki/Silk_Workbench}} and its \code{LinkageRule} element copy-pasted into corresponding field. More convenient way is to import the whole rule from XML file using the "Choose file" and "Import" buttons. For further editation in Silk Workbench the rule can be exported to XML file again using the "Export" button.
+
+Created rule will not produce any links, until it has its outputs assigned. This can be done on the rule detail page after submitting a new rule or when editing an existing one. Two types of outputs can be assigned to a linkage rule, database outputs and file outputs.
+
+Database output serves for storing generated links into the clean database. Minimal and maximal confidence of links to be stored can be specified as real numbers.
+
+File output serves for storing generated links into a file. Minimal and maximal confidence of links to be stored can be specified as real numbers. Filling in filename is required, files will be stored into the transformer directory on the server, their names will be prefixed by identifiers of graphs beeing processed. Two file formats are supported, NTRIPLES\footnote{\url{http://www.w3.org/2001/sw/RDFCore/ntriples/}} and ALIGNMENT\footnote{\url{http://alignapi.gforge.inria.fr/format.html}}. 
 
 \section{Engine \& Inserted Graphs Monitoring}
 \label{sec:engineState}
