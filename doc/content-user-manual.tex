@@ -180,31 +180,38 @@ Data consumers accessing Output Webservice (see Section~\ref{sec:outputWS}) do n
 \chapter{Administration Frontend}
 \label{chap:administrationFrontend}
 
-% TODO
-\textbf{NOTE: This chapter is still a draft and may not be up to date.}
-
 \section{Administration Frontend Overview}
 
-Administration Frontend is the official tool for managing ODCleanStore. It covers configuration of all standard components.
+Administration Frontend is the official tool for managing ODCleanStore. It covers configuration of all standard components. It is restricted to authorized users only. Authentication is performed using a standard login form.
 
-Several terms and designations are used repeatedly in the frontend, however, their meanings do not change too much, therefore make sure to be familiar with them as they might not be described hereafter.
+The administration frontend controls various entities, allows the user to set different attributes and perform actions on those entities. Several terms and designations are used repeatedly in the frontend, however, their meanings do not change too much, therefore make sure to be familiar with them as they might not be described hereafter.
 
-\subsection*{Attributes}
-
-\enumtable
-{
-	label & A unique human readable identifier of the related entity\\
-	description & A description for user's purposes and better comprehension of semantics of the related entity
-}
-
-\subsection*{Actions}
+\subsection*{Common attributes}
 
 \enumtable
 {
-	Delete & remove the related entity irrevertably from the system\\
-	Detail & view entities and configurations related to the related entity and provide the interface for entity adjustments\\
-	Rerun affected graphs & due to a change of a configuration of a transformer (modification of a rule group) the stored data may be found in an inconsistent form, therefore it is possible for the user to identify such situations and decide to run the transformer (or all transformers assosiated with a pipeline or a graph) again
+	\vspace{0.5cm} Label & a unique human readable identifier of the related entity\\
+	\vspace{0.5cm} Description & a description for user's purposes and better comprehension of semantics of the related entity\\
+	\vspace{0.5cm} Author & the username of a the originator / creator of the related entity
 }
+
+\subsection*{Common actions}
+
+\enumtable
+{
+	\vspace{0.5cm} Delete & remove the related entity irrevertably from the system\\
+	\vspace{0.5cm} Detail & view entities and configurations related to the related entity and provide the interface for entity adjustments\\
+	\vspace{0.5cm} Rerun affected graphs & due to a change of a configuration of a transformer (modification of a rule group) the stored data may be found in an inconsistent form, therefore it is possible for the user to identify such situations and decide to run the transformer (or all transformers assosiated with a pipeline or a graph) again
+}
+
+The frontend is divided into several separate sections of logicaly related controls. The main menu bar at the top of the page can be used to switch between those sections.
+
+\begin{figure}[tb]
+    \centering
+    \includegraphics[width=\textwidth]{images/fe-main-menu-bar.png}
+    \caption{Main menu}
+	\label{fig:feHome}
+\end{figure}
 
 \begin{figure}[tb]
     \centering
@@ -212,7 +219,6 @@ Several terms and designations are used repeatedly in the frontend, however, the
     \caption{Administration Frontend after login}
 	\label{fig:feHome}
 \end{figure}
-
 
 \section{Pipeline Management}
 \label{sec:pipelineManagement}
@@ -243,7 +249,7 @@ Several terms and designations are used repeatedly in the frontend, however, the
 		required & priority & The order of application of {transformers} to a named graph processed by the related {pipeline} is determined by its \term{priority} in ascending order. Every {transformer} runs before {transformers} with greater priority number. 
 	}
 
-	The detail page of the assigned QA, DN, OI transformers allows user to specify what rule groups are assigned to the transformer in the related pipeline.
+	The detail page of the assigned Quality Assessment, Data Normalization, Object Identification transformers allows user to specify what rule groups are assigned to the transformer in the related pipeline.
 
 %\paragraph{Important note:} Any changes done in this section need to be commited to ever take effect. To do so, please, click the \quot{Commit settings} button.
 % TODO: the previous paragraph is outdated, to be replaced by commiting of rules within a single group
@@ -252,16 +258,20 @@ Several terms and designations are used repeatedly in the frontend, however, the
 Several transformers are included in ODCleanStore by default. This section provides their overview.
 
 \subsubsection{Quality Assessment}
-%TODO co to je, co to dělá, odkaz na sub:qualityAssessment
+
+This transformer assigns a quality indicator to the processed named graph based on data properties contained in it. It will be further described in section \ref{sub:qualityAssessment}.
 
 \subsubsection{Quality Aggregator}
-%% TODO coto je, co to dělá
+
+This transformer assigns a quality indicator to the publisher of the processed named graph based on quality of all graphs stored in the database and sharing this publisher. It will be further described in section \ref{sub:qualityAssessment}.
 
 \subsubsection{Data Normalization}
-%TODO co to je, co to dělá, odkaz na sub:dataNormalization
+
+This transformer can be used to modify data contained in the processed graph. The main reason to allow modifications is to be able to cope with situations when data from different sources have different forms. It is also useful to preprocess data to better suit the rest of the transformation process and future queries of other users. For more information see section \ref{sub:dataNormalization}.
 
 \subsubsection{Linker}
-%TODO co to je, co to dělá, odkaz na sub:objectIdentification
+
+Purpose of this transformer is to identify related information and create links that represent the relation. To find out how to control this transformer see section \ref{sub:objectIdentification}.
 
 \subsubsection{Blank Node Remover}
 This transformer replaces all blank nodes in \code{payload} named graph with unique URI resources. The transformer guarantees that occurrences of the same blank node withing the transformed graph (and only this graph) will be assigned the same URI.
@@ -283,7 +293,9 @@ The URIs generated in place of blank nodes have form \varcode{prefix}\varcode{ra
 \subsection{Quality Assessment}
 \label{sub:qualityAssessment}
 
-\term{Quality Assessor} is a special {transformer} that assigns a score to each graph based on coefficients of different patterns present in the graph to reflect to what degree the data contained in it comply to a certain policy.
+\subsubsection*{Quality Assessor}
+
+Quality Assessor is a special {transformer} that assigns a score to each graph based on coefficients of different patterns present in the graph to reflect to what degree the data contained in it comply to a certain policy.
 
 To be able to configure individual instances of {Quality Assessor} a group of rules needs to exist. To create one enter the QA subsection of the rules management page for the backend.
 
@@ -308,6 +320,10 @@ On the detail page, one can specify individual rules contained in the related gr
 
 Any snippet of SPARQL\footnote{\url{http://www.w3.org/TR/rdf-sparql-query/\#grammar}} to which \quot{\code{SELECT * FROM ... WHERE}} can be prepended is a valid filter and describes a property of a named graph that the author of the rule finds defective.
 %%TODO: mention/omit: The use of SPARQL 1.1 features depends on underlaying Virtuoso OpenSource version.
+
+\subsubsection*{Quality Aggregator}
+
+Quality Aggregator is a special transformer that accumulates quality score values of all the graphs corresponding to one publisher. It then calculates an average value and assesses this aggregated quality to the publisher.
 
 \subsection{Data Normalization}
 \label{sub:dataNormalization}
@@ -340,10 +356,16 @@ where \code{\$\$graph\$\$} in \code{GRAPH \$\$graph\$\$} is a place holder for n
 \section{Engine \& Inserted Graphs Monitoring}
 \label{sec:engineState}
 
+There is a section dedicated to monitoring an overall state of the engine and graphs stored in the database. It can be found by selecting \emph{Engine} from the main menu and then choosing one of the subsections.
+
+The \emph{State} subsection displays all errors reported by the engine. Be it any failure of the engine itself or a data processing error related to only some of the graphs. The view on this page shows a simplified and well-arranged information about number of erroneous graphs. More exhaustive information will be displayed on the detail pages corresponding to individual pipelines. Each graph processed by the selected pipeline can then be processed by the pipeline once again with the rerun button (this transformation will reflect current state of the pipeline configuration) or it can be deleted. Graphs that are in clean database can in addition be accepted as they are despite the errors if the user considers them irrelevant. There are also shortcut buttons that allow to perform all of these actions on all graphs in one step. The clean database restriction for the accept action still applies so some graphs may not be affected. All of the actions can be invoked by administrator and the author of corresponding pipeline.
+
+The \emph{Graphs} subsection captures the content of the graph database. The table of all graphs contains their identifiers in form of \code{URI}, states, pipelines that processed them, information about residence in clean or dirty database, and timestamp of the last update. Each of the graphs can be deleted or rerun in which case it is processed by the pipeline in its current state. The \code{URI} is a link to output webservice and serves as detailed source of information about the graph.
+
 \section{Ontology Management}
 \label{sec:ontologyManagement}
 
-Ontologies can be used to produce common rules for QA, DN {transformers}. To load one into the storage one can provide an explicit definition through a text field or by uploading a file containing a valid {RDF/XML} ontology definition. The process of rules generation will automatically take place upon ontology submission.
+Ontologies can be used to produce common rules for Quality Assessment, Data Normalization {transformers}. To load one into the storage one can provide an explicit definition through a text field or by uploading a file containing a valid {RDF/XML} ontology definition. The process of rules generation will automatically take place upon ontology submission.
 
 \section{User Accounts Administration}
 
@@ -369,28 +391,31 @@ To be able to manage user accounts one has to have \term{ADM} user role (section
 		required & Full classname & Name of the class implementing the {transformer}.
 	}
 
-\section{Other Settings}
-
-\subsection{Output Webservice Management}
+\section{Output Webservice}
 \label{sec:outputWSMgmt}
 
-\subsection{Prefix Management}
+The output webservice configuration covers default policies for data aggregation. Multivalue in this context specifies whether a property may or may not have more values at a time. This effects the way conflicts are resolved in responses to user queries over the webservice. Aggregation type specifies which method to use to infer values in response. Aggregation error strategy specifies a fallback behaviour in case that aggregation cannot take place due to data types incompatibilities with the aggregation method.
+
+The configuration specifies one global behaviour and then it offers the user to override that behaviour for specific properties.
+
+\section{Prefixes}
 \label{sec:frontendPrefixMgmt}
 
-To avoid obligation of full manual URI expansion in \term{transformer} rules or queries it is possible to maintain set of global \term{RDF} prefixes that storage recognizes.
+To avoid obligation of full manual URI expansion in \term{transformer} rules or queries it is possible to maintain set of global \term{RDF} prefixes that storage recognizes. These can be added with \emph{add a new prefix} button and removed by \emph{delete} button next to the desired target of removal.
 
-\section{Custom User Account}
+\section{Accounts}
+
+As it has been already mentioned in chapter \ref{chap:userRoles} the frontend verifies user privileges before providing access to different configurations and content. To be able to maintain user roles and permissions that are implied for individual users the frontend administration provides this section. All registered accounts will be displayed in a table with all the information (username, e-mail address, first and second name, roles assigned to the account). The administrator can assign roles and reset password from this overview and related editable pages. For editing the roles simply use \emph{Roles} button and for reseting the password use \emph{New password} button which will prompt you for confimation and then generate a new password and send it via the e-mail address to the user in question if the confirmation is given.
+
+\section{My Account}
+
+This section is reachable with \emph{My Account} button below the main menu after a succesful login. It displays current user's name, first and second real name, and e-mail address. It is also possible to change the current password through a page to which \emph{Edit my password} redirects.
 
 \section{Configuration Example}
 
 In this section a basic concept of ODCleanStore configuration will be illustrated.
 
-{
-%%TODO: choose one:
-%%After the installation of the storage there will be a user account \emph{adm} with password \emph{adm} allowing the user to access the administration account in its full potential. It is necessary to log into the system and it is advisable to change users email address and then reset the password right away.
-
 It is necessary to log into the frontend with credentials given during the installation. All of the following operations will be possible to be done with the initial user account.
-}
 
 There need to be transformers for the storage to be able to handle incoming data. ODCleanStore comes with its built in transformers that are accessible from the frontend right after the installation. Custom transformers need to be added at this point.
 
@@ -449,8 +474,6 @@ Add the ODCSPropertyFilterTransformer by following steps:
 	\label{fig:feWTAddGroup}
 \end{figure}
 
-\newpage
-
 	\item Fill in necessary information and submit it
 
 \begin{figure}[!h]
@@ -493,8 +516,6 @@ Add the ODCSPropertyFilterTransformer by following steps:
 	\label{fig:feWTNewComponent}
 \end{figure}
 
-\newpage
-
 	\item Repeat until the rule is complete
 \end{enumerate}
 
@@ -521,7 +542,7 @@ Add the ODCSPropertyFilterTransformer by following steps:
 	
 	\emph{If there is no option then go back to the} \textbf{\nameref{sec:prepareTransformer}} \emph{section}
 	
-	To be able to assign rule groups select one of the standard transformers (QA, DN, OI)
+	To be able to assign rule groups select one of the standard transformers (QualityAssessor, DataNormalizer, Linker)
 
 	\item Fill in the configuration needed by the transformer
 	\item Allow or disallow running on clean DB
@@ -532,8 +553,6 @@ Add the ODCSPropertyFilterTransformer by following steps:
     \includegraphics[width=\textwidth]{images/fe-walkthrough-new-transformer-assignment.png}
 	\label{fig:feWTNewTransformerAssignment}
 \end{figure}
-
-\newpage
 
 	\item Click \quot{Assign a group} to assign a group of Data Normalization rules
 
@@ -551,10 +570,6 @@ Add the ODCSPropertyFilterTransformer by following steps:
 	\label{fig:feWTNewGroupAssignment}
 \end{figure}
 	
-	%%TODO: nahrani dat? odkaz na scraper?
-	
-	%%TODO: debugging ... neni jeste hotov
-
 \end{enumerate}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -12,6 +12,20 @@ import cz.cuni.mff.odcleanstore.shared.UUIDUniqueURIGenerator;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponentType;
 
+/**
+ * Validator that attempts to run a rule component to verify
+ * its syntactical correctness
+ *
+ * WARNING: it is still possible for the validated components
+ *          to fail due to errors in functions based on input
+ *          data as it will be performed over non-existent
+ *          (empty) graph (In case that UUID generator does
+ *          not create a conflict, graph names are prefixed
+ *          with a special prefix to avoid harm due to any
+ *          possible collision)
+ * 
+ * @author Jakub Daniel
+ */
 public class DNComponentValidator extends CustomValidator {
 
 	private static final long serialVersionUID = 1L;

@@ -21,6 +21,11 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.en.GraphInErrorCountDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.pipelines.GraphsInErrorListPage;
 
+/**
+ * Page containing errors reported by engines, errors grouped for each pipeline
+ *
+ * @author Jakub Daniel
+ */
 @AuthorizeInstantiation({ Role.PIC, Role.ADM })
 public class EngineStatePage extends FrontendPage 
 {
@@ -53,6 +58,14 @@ public class EngineStatePage extends FrontendPage
 		addGraphsInErrorPerPipeline();
 	}
 
+	/**
+	 * Adds table with global engine errors
+	 * 
+	 * Prepared to handle more engines as thats what DB.ODCLEANSTORE.EN_ATTACHED_ENGINES
+	 * is for.
+	 * 
+	 * Currently displays single entry
+	 */
 	private void addAttachedEngineStatus()
 	{
 		DependentSortableDataProvider<AttachedEngine> data =
@@ -103,6 +116,9 @@ public class EngineStatePage extends FrontendPage
 		add(new UnobtrusivePagingNavigator("navigator", dataView));
 	}
 
+	/**
+	 * Add table containing information about number of errors in individual pipelines
+	 */
 	private void addGraphsInErrorPerPipeline() {
 		DependentSortableDataProvider<GraphInErrorCount> data =
 				new DependentSortableDataProvider<GraphInErrorCount>(graphInErrorCountDao, "pipelineLabel", "iState.label", EnumGraphState.WRONG.name());

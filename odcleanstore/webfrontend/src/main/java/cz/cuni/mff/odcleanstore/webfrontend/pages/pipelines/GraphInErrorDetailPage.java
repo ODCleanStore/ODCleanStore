@@ -9,6 +9,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.en.GraphInError;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.GraphInErrorDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
+/**
+ * A separate page to display an error message in full length for an error
+ * in a particular pipeline
+ *
+ * @author Jakub Daniel
+ */
 public class GraphInErrorDetailPage extends FrontendPage {
 
 	private static final long serialVersionUID = 1L;

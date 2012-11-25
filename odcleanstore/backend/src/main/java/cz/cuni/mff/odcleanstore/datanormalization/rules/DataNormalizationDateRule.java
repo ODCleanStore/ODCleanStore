@@ -8,23 +8,25 @@ import com.hp.hpl.jena.vocabulary.XSD;
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
 import cz.cuni.mff.odcleanstore.vocabulary.XPathFunctions;
 
+/**
+ * A rule used by Data Normalization Rule Generation from Ontologies
+ * 
+ * replaces common date substrings with correct date strings if possible
+ * 
+ * @author Jakub Daniel
+ */
 public class DataNormalizationDateRule extends DataNormalizationRule {
 	private static final long serialVersionUID = 1L;
 	
-	private static final String insertConvertedDatePropertyValueFormat = "{?s <%s> ?x} WHERE {GRAPH $$graph$$ {SELECT ?s <%s>(str(?o)) AS ?x WHERE {?s <%s> ?o}}}";
-	private static final String deleteUnconvertedDatePropertyValueFormat = "{?s <%s> ?o} WHERE {GRAPH $$graph$$ {?s <%s> ?o. FILTER (?o != <%s>(str(?o)))}}";
+	private static final String convertedDatePropertyValueFormat = "DELETE {?s <%s> ?o} INSERT {?s <%s> ?x} WHERE {GRAPH $$graph$$ {SELECT ?s <%s>(str(?o)) AS ?x ?o WHERE {?s <%s> ?o}}}";
 
 	public DataNormalizationDateRule(Integer id, Integer groupId, Resource property) throws DataNormalizationException {	
 		super(id, groupId,
 				property.getLocalName() + "-date-conversion",
 				"Convert " + property.getLocalName() + " into " + XSD.date.getLocalName(),
 				
-				"INSERT",
-				String.format(Locale.ROOT, insertConvertedDatePropertyValueFormat, property.getURI(), XPathFunctions.dateFunction, property.getURI()),
-				"Create proper " + XSD.date.getLocalName() + " value for the property " + property.getURI(),
-
-				"DELETE",
-				String.format(Locale.ROOT, deleteUnconvertedDatePropertyValueFormat, property.getURI(), property.getURI(), XPathFunctions.dateFunction),
-				"Remove all improper values of the property " + property.getURI());
+				"MODIFY",
+				String.format(Locale.ROOT, convertedDatePropertyValueFormat, property.getURI(), property.getURI(), XPathFunctions.dateFunction, property.getURI()),
+				"Convert " + XSD.date.getLocalName() + " value for the property " + property.getURI());
 	}
 }

@@ -14,8 +14,10 @@ public class DNConcatenateTemplateInstanceCompiler
 	private static final long serialVersionUID = 1L;
 
 	/**
+	 * Creates a rule that can be used with DataNormalizer and performs action
+	 * expected from the instance of the concatenation template
 	 * 
-	 * @param instance
+	 * @param instance filled in template for a concatenation rule
 	 */
 	@Override
 	public CompiledDNRule compile(DNConcatenateTemplateInstance instance)

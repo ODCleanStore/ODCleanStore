@@ -32,6 +32,11 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.en.EngineOperationsDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.InputGraphDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
+/**
+ * Page listing all input graphs
+ * 
+ * @author Jakub Daniel
+ */
 @AuthorizeInstantiation({ Role.PIC, Role.ADM })
 public class InputGraphsPage extends FrontendPage 
 {

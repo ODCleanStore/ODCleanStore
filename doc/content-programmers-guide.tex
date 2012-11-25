@@ -15,22 +15,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% todo
-% !List of features and intended use-cases (zduvodneni featur FE)
-	% rrequirements - functional, intraface, non-functional?
-
-
-% release proces
-% issues redmine - debugging & spol
-% FE
   % FE - popsat, že to je webová aplikace, dá se spouštět pod tomcatem, odkaz na install manual
-  % uncommitted tabulky
-
-	% třídy
-		% webfrontend.core
-			% DaoLookupFactory, ODCSWebFrontendApplicatoin .java/properties, ODCSWebFrontendSession, URLRouter
-		% webfrontend.core.components - custom Wicket components (buttons, labels, form components etc.)
-		% webfrontend.core.model - Wicket models and data providers
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -161,6 +146,7 @@ The architecture and in particular the way editing of pipelines and rules  in \F
 	\item Data sent to Input Webservice are expected to be reasonably small. \odcs is designed to technically handle even very large data, however, for example results of \QA may not be relevant for a large graph because a small mistake in several values would decrease the \QA score for the whole large dataset. Motivation for this assumption is based on planned integration with project Strigil (see related work in Chapter \ref{chap:relatedWork}).
 	\item Pipeline creators understand the data for which their pipelines are created but not necessarily understand data for pipelines created by other users. For this reason, editing is limited to an author of a pipeline so that a pipeline creator's pipelines cannot be broken by other users without his knowledge.
 	\item The team of people working with a deployed \odcs may be decentralized and open, for example students using a shared instance for their own projects. For that reason the system should be robust, permissions should be reasonably limited, a single user shouldn't be able to block the whole system and there should be a possibility to correct wrong configuration for administrators.
+	\item We expect that pipeline creators will usually be  data producers  using the Input Webservice at the same time. These users need some technical knowledge -- at least they should understand RDF and SPARQL. On the other hand, data consumers need not be technically skilled or understand RDF, even though it is benefitial. Data for these users may be presented in the HTML output of Output Webservice or through a third-party interface.
 \end{itemize}
 
 
@@ -194,7 +180,7 @@ Since Java is a very wide-spread language, \odcs can be extended with minimum ef
 
  On the other hand, the Output Webservices uses the clean database in a read-only manner and thus could be also deployed on several database instances if database replication is put in place.
 
-\section{Other requirements}
+\section{Other Requirements}
 The assignment of the project impose several additional requirements. This section lists how they were satisfied.
 
 \reqparagraph{It should be easy to incorporate other components, such as a component computing popularity of the data sources.} This requirement is satisfied with the introduction of custom transformers.
@@ -205,7 +191,7 @@ The assignment of the project impose several additional requirements. This secti
 
 \reqparagraph{Application will be freely available under Apache Software License.} \odcs is published under the required license (see \refadminmanual) and source codes available at a public repository at SourceForge.net
 
-\section{Used technologies}
+\section{Used Technologies}
 
 \subsection{Implementation Language}
 The chosen language for implementation is Java. The reason is that there are many libraries and tools required for implemenation accessible in Java, it enables platform independence (one of the requirements on \odcs) and also it is very wide-spread so that developers don't need to learn a new syntax.
@@ -237,7 +223,7 @@ Restlet\footnote{\url{http://www.restlet.org}} is an open source lightweight RES
 \subsubsection*{SLF4J}
 SLF4J\footnote{\url{http://www.slf4j.org/}} is a flexible and efficient library used for logging. 
 
-\subsection{Development tools}
+\subsection{Development Tools}
 \subsubsection*{Maven}
 Apache Maven\footnote{\url{http://maven.apache.org/}} is used as the build tool. It was chosen over Apache Ant because Maven saves work with its many available plugins (such as Maven Jetty Plugin) and offers simple management of dependencies.
 
@@ -318,7 +304,7 @@ This is an outline of directory structure in the git repository:
 \end{dirlist}
 
 
-\section{Maven build}
+\section{Maven Build}
 \label{sec:mavenBuild}
 The project is divided into several artifacts. The root POM (\code{pom.xml}) in \code{odcleanstore} directory defines the parent project while each component of \odcs is in a separate artifact in subdirectories of \code{odcleanstore}. These artifacts are:
 
@@ -637,7 +623,7 @@ More details about each aggregation method and their time complexity can be foun
 	\label{fig:crComparators}
 \end{figure}
 	
-\subsection{Quality and Provenance calculation}
+\subsection{Quality and Provenance Calculation}
 The aggregation methods described in the previous section solve conflicts by calculating or selecting values in place of the object of a quad (e.g. choose the quad with the highest \QA score, the latest insertion date, maximum value in place of the object, or calculate the average of all values in place of the object). In addition, they add provenance and quality information.
 
 The provenance information consists of a list of named graphs, let us denote them \term{source named graphs}, from which the result was selected or calculated from. For calculated aggregations, these are named graphs of all aggregated quads, for selected aggregations these are named graphs containing the quad(s) selected to the result.
@@ -862,7 +848,7 @@ public interface QualityAssessor extends Transformer {
 }
 \end{lstlisting}
 
-The method \code{debugRules} takes into account that any input graph may need to be loaded to the database under a different name so that no collisions occur during debugging. Therefore input graphs correspond to pairs $ \left< \text{originalName}, \text{actualName} \right> $ and are passed in \code{HashMap}. The \code{context} parameter provides environment similar to the one during ordinary transformation of a graph. \code{tableVersion} specifies whether committed or uncommitted versions of rule groups are to be used. The output is list of structures containing quality and all rules that affected it for each graph on the input.
+The method \code{debugRules} takes into account that any input graph may need to be loaded to the database under a different name so that no collisions occur during debugging. Therefore input graphs correspond to pairs $ \left< \text{originalName}, \text{actualName} \right> $ and are passed in \code{HashMap}. The graph is expected to already exist in the database when this method is invoked. The \code{context} parameter provides environment similar to the one during ordinary transformation of a graph. \code{tableVersion} specifies whether committed or uncommitted versions of rule groups are to be used. This approach allows the author of the debugged rule groups can test his lattest revisions of rules while hi is not forced to save the changes and overwrite their previous form. The output is a list of structures containing quality and all rules that affected it for each graph on the input.
 
 \subsubsection*{Generating Rules from Ontology}
 
@@ -882,35 +868,57 @@ The method \code{compileOntologyToRules} expects a named graph \code{ontologyGra
 \begin{itemize}
 	\item Functional property implemented as \code{FunctionalProperty}
 	\item Inverse functional property implemented as \code{InverseFunctionalProperty}
-	\item Enumerated property implemented as \code{ConceptScheme} and resources with appropriate \code{hasTopConcept} property
+	\item Enumerated property implemented as \code{ConceptScheme}
 \end{itemize}
 
 \subsection{Implementation}
 
 \subsubsection*{Quality Assessment Rules}
 
-The data patterns are described with \code{SPARQL Where Clause}\footnote{http://www.w3.org/TR/rdf-sparql-query/\#rWhereClause} followed by optional \code{Group by Clause}\footnote{http://www.w3.org/TR/sparql11-query/\#rGroupClause} and \code{Having Clause}\footnote{http://www.w3.org/TR/sparql11-query/\#rHavingClause}
+\begin{lstlisting}[caption=Quality Assessment rule constructor,lst:qualityAssessmentRule]
+public QualityAssessmentRule (Integer id, Integer groupId, String filter, Double coefficient,
+  String label, String description) 
+\end{lstlisting}
+
+The data filters are described with \code{SPARQL Where Clause}\footnote{http://www.w3.org/TR/rdf-sparql-query/\#rWhereClause} followed by optional \code{Group by Clause}\footnote{http://www.w3.org/TR/sparql11-query/\#rGroupClause} and \code{Having Clause}\footnote{http://www.w3.org/TR/sparql11-query/\#rHavingClause}.
+The coefficient of quality is a number $c \in [0,1]$.
 
 \subsubsection*{Assessment \& Aggregation}
 
-As any other transformer the Quality Assessor and Aggregator are provided with an input named graph, a metadata graph and a list of groups of rules to be applied to the input. The \code{transformGraph} method then does the following:
+The implicit Quality Assessor Implementation is bound to concrete rule groups at instantiation. As any other transformer the Quality Assessor and Aggregator are provided with an input named graph, a metadata graph and a list of groups of rules to be applied to the input. The \code{transformGraph} method then does the following:
 
 \paragraph{Quality Assessor} implemented by class \code{QualityAssessorImpl}
 
 \begin{enumerate}
 	\item Assume the graph quality has the maximal value
-	\item Load appropriate rules
-	\item For each rule determine whether the pattern is present in the input graph
-	\begin{itemize}
-		\item if so decrease the graph quality and log successful application of the rule
-		\item else continue
-	\end{itemize}
+	\item Load committed versions of appropriate rules from database
+	\item \label{itm:QAApplyStep} For each rule determine whether the pattern is present in the input graph by means of \code{SPARQL SELECT COUNT(*) WHERE ...} and decrease the graph quality accordingly and log successful application of the rule
 	\item Store overall quality and all logged applications of rules to the metadata graph
 \end{enumerate}
+
+The reason why \code{SELECT} is used in step \ref{itm:QAApplyStep} instead of \code{ASK} is that underlaying Virtuoso supported \code{GroupClause} and \code{HavingClause} only in \code{SELECT} despite it being added to \code{SPARQL 1.1} to a production rule expanding a shared nonterminal.
+
+Debugging invokes the same implementation but does not store the resulting score and log of rule applications into the database. This information is returned in a structured form of \code{GraphScoreWithTrace} object (declared in listing \ref{lst:qualityAssessor}) instead.
 
 \paragraph{Quality Aggregator} implemented by class \code{QualityAggregatorImpl}
 
 The \code{transformGraph} method collects quality of all the graphs stored in the clean database and the currently processed graph and calculates the average value which is then assigned to the source. This operation is idempotent and thus robust to manual transformation of the database content because it is always corrected after update of a graph published by the given publisher.
+
+\paragraph{Rule Generation} implemented in \code{QualityAssessmentRulesModel.compileOntologyToRules}
+
+After the ontology is stored in the database in a separate named graph its graph name can be passed to \code{compileOntologyToRules} method. All resources specified in the ontology are processed based on their \code{RDF.type} property.
+
+\begin{center}
+\begin{tabular}{| l | l |}
+	\hline
+	Type of property $p$ & constraint checked by generated rule \\
+	\hline \hline
+	\code{OWL.FunctionalProperty} & $ [x,y_1], [x,y_2] \in p \rightarrow y_1 = y_2 $ \\
+	\code{OWL.InverseFunctionalProperty} & $ [x_1,y], [x_2, y] \in p \rightarrow x_1 = x_2 $ \\
+	\code{SKOS.ConceptScheme} & $ [x,y] \in p \rightarrow y \in p.hasTopConcept $ \\
+	\hline
+\end{tabular}
+\end{center}
 
 \section{Data Normalization}
 \label{sec:DN}
@@ -964,7 +972,7 @@ public class DataNormalizationRulesModel {
 }
 \end{lstlisting}
 
-% \code{DataNormalizationBooleanRule}, \code{DataNormalizationDateRule}, \code{DataNormalizationStringRule}
+The \code{compileOntologyToRules} expects a named graph of a name \code{ontologyGraphURI} to be present in the database. Its contents are interpreted as definition of an ontology and examined as such.
 
 \subsection{Implementation}
 
@@ -978,14 +986,55 @@ There exist three types of data normalization rules:
 	\item \code{MODIFY}.
 \end{itemize}
 
-They all closely follow semantics of \code{SPARQL} update queries.\footnote{http://www.w3.org/Submission/SPARQL-Update/\#rUpdate}
+They all closely follow semantics of \code{SPARQL} update queries\footnote{http://www.w3.org/Submission/SPARQL-Update/\#rUpdate}. Due to incomplete support for \code{SPARQL 1.1}, specificly missing \code{BIND($expression$ AS $var$)}, it was necessary to allow use of subqueries for data manipulation and transformation by introduction of \code{\$\$graph\$\$} macro used intead of \code{iri} in \code{GraphRef} which is replaced with actual graph name during the transformation.
 
 \subsubsection*{Data Normalizer}
 
 \begin{enumerate}
-	\item Load appropriate rules
-	\item Try to apply all rules
+	\item Load committed versions of appropriate rules
+	\item Invoke \code{SPARQL INSERT/DELETE/MODIFY} on the input graph for all components of all selected rules.
 \end{enumerate}
+
+This process is further extended with modification detection for debugging purposes. The underlaying software does not provide an easy way to determine triples affected by application of a rule, thus it is necessery to compare original state of the graph with the outcome of the operation (\code{INSERT}/\code{DELETE}/\code{MODIFY}) after each step. This considerably slows down the whole process but provides precise information about what happend during the graph transformation. The modification can be represented in a sense of standard \code{diff} between two plain text resources. The method \code{debugRules} of \code{DataNormalizer} returns a \code{GraphModification} structure containing differences grouped by rules that introduced them. This extension does not affect the ordinary transformation procedure.
+
+\subsubsection*{Rule generation}
+
+The method \code{DataNormalizationRulesModel.compileOntologyToRules} searches for resources with \code{RDFS.range} statements in the ontology graph in database and creates adequate rules. The following rules can be generated:
+
+\begin{itemize}
+	\item \code{DataNormalizationBooleanRule}
+	
+	converts \code{0, 1, y, n, yes, no, true, false} (case insensitively) to \code{0, 1}
+	
+	\item \code{DataNormalizationDateRule}
+	
+	attempts to interpret the converted value as date string (2012, 2012-01 \ldots)
+	
+	\item \code{DataNormalizationStringRule}
+	
+	converts to string so any subsequent calls to substring or regexp functions do not fail
+
+	\item \code{DataNormalizationNonNegativeIntegerRule}
+	
+	converts to number $\ge 0$ dropping fractional part if any ($1.9 \mapsto 1$, $-1 \mapsto 0$, "yes" $\mapsto 0$)
+
+	\item \code{DataNormalizationNonPositiveIntegerRule}
+	
+	converts to number $\le 0$ dropping fractional part if any ($1 \mapsto 0$, $-1.9 \mapsto -1$, "yes" $\mapsto 0$)
+
+	\item \code{DataNormalizationIntegerRule}
+
+	drops fractional part of a number interpretation ($1.9 \mapsto 1$, $-1.9 \mapsto -1$, "yes" $\mapsto 0$)
+
+	\item \code{DataNormalizationNumberRule}
+
+	converts to number ("yes" $\mapsto 0$)
+\end{itemize}
+
+Number conversion uses Virtuoso built-in functions (\code{\_\_min\_notnull}, \code{\_\_max\_notnull}, \code{sign}, \code{abs}, \code{floor} \ldots) and thus heavily relies on their presence and implementation.
+\\
+
+These rules cover the basic and often used \code{XSD} datatypes with a reasonable conversion for general purposes. More specific transformations could be defined but are not suited for implicit rule generation as they may not effectively cover usual cases or could even produce bad results in different occassions. For example date conversions would often need additional information about the source of unnormalized date substrings to recongnize the format. The pre-transformation value is often ambiguous which could lead to incorrect interpretation (confusion of month for day of the month).
 
 \section{Linker}
 
@@ -1177,7 +1226,7 @@ The hierarchy of the most important BO classes is depicted on on \figurename~\re
 
 \begin{figure}[htb]
     \centering
-    \includegraphics[width=1.05\textwidth]{images/dia-fe-bo.png}
+    \includegraphics[width=0.8\textwidth]{images/dia-fe-bo.png}
     \caption{Selected BO classes used in \FE}
 	\label{fig:feBO}
 \end{figure}
@@ -1197,9 +1246,38 @@ Description of the most important BO classes follows:
 
 This package (and it's subpackages) contains classes which form the DAO layer. See the related section for more information on that.
 
+\subsubsection{core}
+
+This \code{core} package contains the following important classes. 
+
+The list contains neither the standard Wicket \code{ODCSWebFrontendApplication} and \code{ODCSWebFrontentSession} classes, nor thestandard \code{ODCSWebFrontendApplication.properties} file. The properties file contains custom validation messages and declarations of other string literals.
+
+\begin{description}[style=nextline,font=\ttfamily]
+	\item[URLRouter] Handles URL routing - e.g. conversion from raw Wicket-like URL addresses to human readable ones (and vice versa).
+	\item[DaoLookupFactory] Encapsulates DB connections and serves DAO objects to page components (see section \ref{sec:frontendDao}).
+\end{description}
+
+\subsubsection{core.models}
+
+This package contains custom implementations of the \code{IDataProvider} and \code{SortableDataProvider} interfaces, which adhere to our DAO layer implementation.
+
+\subsubsection{core.components}
+
+In the \code{core.components} package you'll find several custom components, such as labels, buttons, etc. The following list describes some of them. For a more comperhensive description, please see the javadoc documentation.
+
+\begin{description}[style=nextline,font=\ttfamily]
+	\item[UnobtrusivePagingNavigator] An implementation of the \code{PagingNavigator} component which is not visible if the list contains only a single page.
+	\item[TruncatedLabel] A label which only displays a few first characters of the given string.
+	\item[TimestampLabel] A label to display a properly formated timestamp.
+	\item[RedirectButton] A button to redirect to a different page, adjusted to suit the structure of the \WF application.
+	\item[LogInPanel] A panel which contains the log-in form.
+	\item[LimitedEditingForm] A form that can only be confirmed by authorized users.
+	\item[HelpWindow] A generic modal window to display help information.
+\end{description}
+
 \subsubsection{pages}
 
-In this package there are Wicket components for individual pages. The structure of subpackages mirrors the \FE menu. These are mostly standard Wicket components (but for a few conventions we have applied - see the relevant section). In this section, a brief description of some of the non-standard components will be given.
+In this package there are Wicket components for individual pages. The structure of subpackages mirrors the \FE menu. These are mostly standard Wicket components (but for a few conventions we have applied - read more in section \ref{sec:howToAddANewPage}). In this section, a brief description of some of the non-standard components will be given.
 
 \begin{description}[style=nextline,font=\ttfamily]
 	\item[FrontendPage] The parent component for almost all (see below) page components. Provides page layout and content common to all pages, as well as factory methods to create some basic child components.
@@ -1207,7 +1285,7 @@ In this package there are Wicket components for individual pages. The structure 
 	\item[UserPanel] This component forms the user-information panel - it shows the username and list of roles of the currently logged in user and provides means to log-in and log-out. It is included as a child component in the \code{FrontendPage}.
 \end{description}
 	
-For more information on how to create a new page, see the relevant section.
+For more information on how to create a new page, see section \ref{sec:howToAddANewPage}.
 
 \subsubsection{util}
 
@@ -1309,6 +1387,7 @@ As a rule, every page should contain a single help pop-up window for every entit
 
 
 \subsection{How to Add a New \DN Template}
+\label{sec:howToAddANewDNTemplate}
 
 To add a new \DN Template (named say XXX, such as Filter, Rename, Replace), follow these steps.
 
@@ -1323,51 +1402,6 @@ Add a new section to the \code{DNGroupDetailPage} component and implement the \l
 Note that when implementing a new DN template type it is a good idea to copy and rename the classes which belong to an existing one and just overwrite the template specific parts.
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{Conclusion, evaluation}
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{Related Work}
-\label{chap:relatedWork}
-\odcs provides means for cleaning, linking, and scoring incoming RDF data, storing it, and provides aggregated and integrated views on the data to Linked Data consumers. In addition, we support trustworthiness of the data with aggregate quality and provenance tracking. 
-
-\odcs focuses on the data processing and queries over stored data. Nevertheless, the extraction process that feeds data to  \odcs is also important -- our sister project Strigil implements a web scraper and document extractor that produces RDF data and integrates with ODCleanStore for storing the produced data.
-
-\section{Data Extraction}
-
-
-\subsection*{Strigil}
-
-Strigil\footnote{\url{http://sourceforge.net/p/strigil/home/Home/}} implements a web scraper and document extractor that produces RDF data and integrates with ODCleanStore as the producer of data.
-
-\subsection*{Linked Data Manager}
-Linked Data Manager\footnote{\url{http://www.semantic-web.at/linked-data-manager}} (LDM) is a Java based Linked (Open) Data Management Suite to schedule and monitor required Extract - Transform - Load jobs for web-based Linked Open Data portals as well as for sustainable Data Management and Data Integration usage.
-
-LDM data processing pipeline is similar to the data processing pipeline in ODCleanStore. LDM is a counterpart of ODCleanStore in that it provides facilities for managing the extraction process but doesn't provide any permanent storage or direct access to the data. Thus an LDM Loader could be used to send data to ODCleanStore and access it from here.
-
-\section{Data Processing}
-
-\subsection*{Linked Data Integration Framework}
-Linked Data Integration Framework\footnote{\url{http://www4.wiwiss.fu-berlin.de/bizer/ldif/}} (LDIF) is an open-source Linked Data Integration Framework that can be used by Linked Data applications to translate Web data and normalize URI while keeping track of data provenance.
-The framework consists of a Scheduler, Data Import and an Integration component with a set of pluggable modules.
-
-LDIF components encompass the whole process from data import and processing to integration and quality assessment. We use some of LDIF componets internally in ODCleanStore (Silk). The main difference is that LDIF is a framework other applications can built on, while ODCleanStore is a ready-to-use solution that can be easily deployed and managed via a web interface. Differences in quality assessment and data aggregation with Sieve, a part of the LDIF framework, are described below. LDIF also supports provenance tracking.\footnote{See Figure 2 of \href{http://static.lod2.eu/Deliverables/deliverable-4.3.2.pdf}{LOD2 Deliverable 4.3.2}}
-
-\section{Data aggregation and quality}
-
-\subsection*{Sieve}
-Sieve\footnote{\url{http://sieve.wbsg.de/}} adds quality assessment and data fusion capabilities to the LDIF architecture. It uses metadata about named graphs in order to assess data quality, agnostic to provenance vocabulary and quality models. Sieve uses customizable scoring functions to output data quality descriptors. Based on these quality descriptors (and/or optionally other descriptors ), Sieve can use configurable FusionFunctions to clean the data according to task-specific requirements.
-
-Sieve offers functionality similar to our Conflict Resolution component; however the purpose of Sieve in LDIF is different - it aggregates data while being stored to the clean database (unlike Conflict Resolution used at query time). This may be suitable when the desired data are known in advance but is not sufficient for open Web environments, where every consumer has different requirements on the aggregated data. Furthermore, ODCleanStore provides quality for each result statement where Sieve computes quality only for whole named graph.
-
-\subsection*{Integration systems in relational databases}
-
-The problem of integration of heterogeneous data (solved in ODCleanStore for RDF data) is solved by several systems for relational databases, e.g. Aurora\footnote{\url{http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.50.7261}} or Fusionplex\footnote{\url{http://dl.acm.org/citation.cfm?id=1221048}}.
-
-
-Aurora is an integration system of heterogenous data residing in relational and object-oriented databases, i.e. deals with non-RDF data; its query model enriches the SQL SELECT by enabling to define attribute conflict resolution functions (e.g. age[ANY] means that any attribute value for  the attribute age is used in the query) and record conflict  resolution function, which deal with key attributes of the records.   ODCS offers more built-in aggregation methods, on the other hand, Aurora allows user defined attribute aggregation functions; in ODCS, record conflicts are either discovered by linkers, or there is no record conflict.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Future Work}
@@ -1433,6 +1467,63 @@ Aurora is an integration system of heterogenous data residing in relational and 
 \end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Related Work}
+\label{chap:relatedWork}
+\odcs provides means for cleaning, linking, and scoring incoming RDF data, storing it, and provides aggregated and integrated views on the data to Linked Data consumers. In addition, we support trustworthiness of the data with aggregate quality and provenance tracking. 
+
+\odcs focuses on the data processing and queries over stored data. Nevertheless, the extraction process that feeds data to  \odcs is also important -- our sister project Strigil implements a web scraper and document extractor that produces RDF data and integrates with ODCleanStore for storing the produced data.
+
+\section{Data Extraction}
+
+
+\subsection*{Strigil}
+
+Strigil\footnote{\url{http://sourceforge.net/p/strigil/home/Home/}} implements a web scraper and document extractor that produces RDF data and integrates with ODCleanStore as the producer of data.
+
+\subsection*{Linked Data Manager}
+Linked Data Manager\footnote{\url{http://www.semantic-web.at/linked-data-manager}} (LDM) is a Java based Linked (Open) Data Management Suite to schedule and monitor required Extract - Transform - Load jobs for web-based Linked Open Data portals as well as for sustainable Data Management and Data Integration usage.
+
+LDM data processing pipeline is similar to the data processing pipeline in ODCleanStore. LDM is a counterpart of ODCleanStore in that it provides facilities for managing the extraction process but doesn't provide any permanent storage or direct access to the data. Thus an LDM Loader could be used to send data to ODCleanStore and access it from here.
+
+\section{Data Processing}
+
+\subsection*{Linked Data Integration Framework}
+Linked Data Integration Framework\footnote{\url{http://www4.wiwiss.fu-berlin.de/bizer/ldif/}} (LDIF) is an open-source Linked Data Integration Framework that can be used by Linked Data applications to translate Web data and normalize URI while keeping track of data provenance.
+The framework consists of a Scheduler, Data Import and an Integration component with a set of pluggable modules.
+
+LDIF components encompass the whole process from data import and processing to integration and quality assessment. We use some of LDIF componets internally in ODCleanStore (Silk). The main difference is that LDIF is a framework other applications can built on, while ODCleanStore is a ready-to-use solution that can be easily deployed and managed via a web interface. Differences in quality assessment and data aggregation with Sieve, a part of the LDIF framework, are described below. LDIF also supports provenance tracking.\footnote{See Figure 2 of \href{http://static.lod2.eu/Deliverables/deliverable-4.3.2.pdf}{LOD2 Deliverable 4.3.2}}
+
+\section{Data aggregation and quality}
+
+\subsection*{Sieve}
+Sieve\footnote{\url{http://sieve.wbsg.de/}} adds quality assessment and data fusion capabilities to the LDIF architecture. It uses metadata about named graphs in order to assess data quality, agnostic to provenance vocabulary and quality models. Sieve uses customizable scoring functions to output data quality descriptors. Based on these quality descriptors (and/or optionally other descriptors ), Sieve can use configurable FusionFunctions to clean the data according to task-specific requirements.
+
+Sieve offers functionality similar to our Conflict Resolution component; however the purpose of Sieve in LDIF is different - it aggregates data while being stored to the clean database (unlike Conflict Resolution used at query time). This may be suitable when the desired data are known in advance but is not sufficient for open Web environments, where every consumer has different requirements on the aggregated data. Furthermore, ODCleanStore provides quality for each result statement where Sieve computes quality only for whole named graph.
+
+\subsection*{Integration systems in relational databases}
+
+The problem of integration of heterogeneous data (solved in ODCleanStore for RDF data) is solved by several systems for relational databases, e.g. Aurora\footnote{\url{http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.50.7261}} or Fusionplex\footnote{\url{http://dl.acm.org/citation.cfm?id=1221048}}.
+
+
+Aurora is an integration system of heterogenous data residing in relational and object-oriented databases, i.e. deals with non-RDF data; its query model enriches the SQL SELECT by enabling to define attribute conflict resolution functions (e.g. age[ANY] means that any attribute value for  the attribute age is used in the query) and record conflict  resolution function, which deal with key attributes of the records.   ODCS offers more built-in aggregation methods, on the other hand, Aurora allows user defined attribute aggregation functions; in ODCS, record conflicts are either discovered by linkers, or there is no record conflict.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Conclusion}
+The goal of the project was to build a server application that would automate processing -- especially cleaning, linking and scoring -- of data in RDF format and provide aggregated and integrated views on the processed data to Linked Data consumers. We have successfully implemented all these features in \odcs and hope that the project will continue to be used and developed.
+
+\odcs brings several contributions. There are other tools for RDF data processing (see related work in Chapter~\ref{chap:relatedWork}) but they are mostly frameworks that other developers can build on. \odcs was developed as a whole solution that can be readily deployed and used. It ships with an web administration interface so that all neccessary configuration can be done in a web browser. It should be noted, however, that administrators of \odcs should have some technical knowledge -- at least understand RDF and SPARQL query language.
+
+Another novel aspect is provenance tracking and data fusion/conflict resolution. This feature should support addoption of Linked Data by justifying why users should (or shouldn't) believe the data they are presented and where they can verify it and thus increase trust in Linked Data. Unlike other solutions, \odcs solves conflicts at query time which is suitable for the open Web environment where every consumer may have different requirements.
+
+We hope that \odcs will provide basis for further work with Linked Data and other developers will extend it and customize it for their own purposes. We introduced the concept of pluggable transformers so that whatever functionality is needed can be added.
+
+Several papers about \odcs were accepted at scientific conferences. The reception was positive and we used the feedback to improve our project. In addition, \odcs was evaluated on real data, e.g. data extracted from information system for public contracts\footnote{\url{http://www.isvzus.cz/}} run by the Ministry of Regional Development in the Czech Republic. We also used the feedback to improve our project and adapt it to a real-world use case.
+
+We hope that \odcs will prove to be a useful tool for RDF data processing and will contribute to adoption of Linked Data. It was designed as a general tool for Linked Data management with basic data processing capabilities. We hope that the development will continue, new uses for \odcs will emerge and the project will be extended and customized for the particular use cases.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \appendix
 
@@ -1441,6 +1532,7 @@ Aurora is an integration system of heterogenous data residing in relational and 
 \label{chap:glossary}
 \input{appendix-glossary}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %\chapter{ODCS ontology}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1504,13 +1596,13 @@ Aurora is an integration system of heterogenous data residing in relational and 
 \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{Project organization}
+%\chapter{Project organization}
 
-\begin{itemize}
-	\item Team, task division (Developer-Component-Main responsibilities)
-	\item Meetings
-	\item Release process (+ presentation)
-	\item Remarks?
-\end{itemize}
+%begin{itemize}
+	%\item Team, task division (Developer-Component-Main responsibilities)
+	%\item Meetings
+	%\item Release process (+ presentation)
+	%\item Remarks?
+%\end{itemize}
 
 \end{document}

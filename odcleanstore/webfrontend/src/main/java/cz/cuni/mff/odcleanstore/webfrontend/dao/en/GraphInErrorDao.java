@@ -89,8 +89,8 @@ public class GraphInErrorDao extends DaoForEntityWithSurrogateKey<GraphInError> 
 				criteria.addWhereClause("iGraph.engineId", graphInError.engineId);
 				criteria.addWhereClause("state.label", state.name());
 
-				query = "INSERT REPLACING " + INPUT_GRAPHS_TABLE_NAME + " (id, uuid, stateId, engineId, pipelineId, isInCleanDB) " +
-						"SELECT  iGraph.id, iGraph.uuid, state.id, iGraph.engineId, iGraph.pipelineId, iGraph.isInCleanDB " +
+				query = "INSERT REPLACING " + INPUT_GRAPHS_TABLE_NAME + " (id, uuid, stateId, engineId, pipelineId, isInCleanDB, namedGraphsPrefix) " +
+						"SELECT  iGraph.id, iGraph.uuid, state.id, iGraph.engineId, iGraph.pipelineId, iGraph.isInCleanDB, iGraph.namedGraphsPrefix " +
 						"FROM " +
 						INPUT_GRAPHS_TABLE_NAME + " AS iGraph, " +
 						INPUT_GRAPHS_STATES_TABLE_NAME + " AS state " +

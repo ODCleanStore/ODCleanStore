@@ -26,6 +26,11 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.en.GraphInErrorDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.PipelineDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
+/**
+ * Page listing errors registered in a concrete pipeline
+ * 
+ * @author Jakub Daniel
+ */
 @AuthorizeInstantiation({ Role.PIC, Role.ADM })
 public class GraphsInErrorListPage extends LimitedEditingPage {
 	private static final long serialVersionUID = 1L;

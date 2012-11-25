@@ -36,6 +36,8 @@ import java.util.Locale;
  *
  * Depending on the situation selects implementation of quality assessment
  * and delegates the work to that implementation.
+ * 
+ * @author Jakub Daniel
  */
 public class QualityAssessorImpl implements QualityAssessor, Serializable {
 	public static class GraphScoreWithTraceImpl implements GraphScoreWithTrace {
@@ -325,7 +327,7 @@ public class QualityAssessorImpl implements QualityAssessor, Serializable {
 	/**
 	 * Find out what rules are violated and change the score and trace accordingly.
 	 */
-	protected void applyRules(Collection<QualityAssessmentRule> appliedRules) throws QualityAssessmentException {
+	protected void applyRules(/*out*/ Collection<QualityAssessmentRule> appliedRules) throws QualityAssessmentException {
 
 		Iterator<QualityAssessmentRule> iterator = rules.iterator();
 
@@ -339,7 +341,7 @@ public class QualityAssessorImpl implements QualityAssessor, Serializable {
 	/**
 	 * Applies all the selected rules on the input graph
 	 */
-	protected void applyRule(QualityAssessmentRule rule, Collection<QualityAssessmentRule> appliedRules) throws QualityAssessmentException {
+	protected void applyRule(QualityAssessmentRule rule, /*out*/ Collection<QualityAssessmentRule> appliedRules) throws QualityAssessmentException {
 		String query = rule.toString(inputGraph.getGraphName());
 
 		WrappedResultSet results = null;

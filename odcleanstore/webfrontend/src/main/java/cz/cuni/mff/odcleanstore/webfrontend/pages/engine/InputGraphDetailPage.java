@@ -17,6 +17,10 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.TimestampLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.InputGraphDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
+/**
+ * Detail page for input graph. It allows to download graph if it is finished
+ * @author Jakub Daniel
+ */
 @AuthorizeInstantiation({ Role.PIC, Role.ADM })
 public class InputGraphDetailPage extends FrontendPage {
 
