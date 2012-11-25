@@ -246,7 +246,7 @@ The frontend is divided into several separate sections of logicaly related contr
 		\hline
 		implied & allow to be run on clean DB & As the importance of data modification that the pipelines can cause differs based on what database it is running upon, it is left for the user to decide whether a concrete {transformer} should be allowed to run on clean database (in addition to running on dirty database). Some transformations do not even make sense when working with clean database.\\
 		\hline
-		required & priority & The order of application of {transformers} to a named graph processed by the related {pipeline} is determined by its \term{priority} in ascending order. Every {transformer} runs before {transformers} with greater priority number. 
+		required & place in pipeline before & Determines when the transformer will be run in respect to other transformers in the pipeline
 	}
 
 	The detail page of the assigned \QA, \DN, \OI transformers allows user to specify what rule groups are assigned to the transformer in the related pipeline.
@@ -297,7 +297,7 @@ The URIs generated in place of blank nodes have form \varcode{prefix}\varcode{ra
 
 Quality Assessor is a special {transformer} that assigns a score to each graph based on coefficients of different patterns present in the graph to reflect to what degree the data contained in it comply to a certain policy.
 
-To be able to configure individual instances of {Quality Assessor} a group of rules needs to exist. To create one enter the QA subsection of the rules management page for the backend.
+To be able to configure individual instances of {Quality Assessor} a group of rules needs to exist. To create one enter the Quality Assessment section reachable from Rules submenu.
 
 Here the user can prepare groups of rules to be assigned to instances of {Quality Assessor}. Each group is identified by its label and can (and should) come with a description of its semantical significance.
 
@@ -311,7 +311,7 @@ On the detail page, one can specify individual rules contained in the related gr
 		\hline \hline
 		& \code{GroupGraphPattern} [\code{GROUP BY \ldots} [\code{HAVING \ldots}]] & $ x \in [0, 1] $ & description \\
 		&&&\\
-		e.g.: & \code{\{\{?s anatomy:limbs ?o\} FILTER (?o > 4)\}} & $ 0.4 $ & To many limbs\\
+		e.g.: & \code{\{\{?s anatomy:limbs ?o\} FILTER (?o > 4)\}} & $ 0.4 $ & Too many limbs\\
 		\hline
 	\end{tabular}
 	\caption{Quality Assessment rule fields}
@@ -328,9 +328,9 @@ Quality Aggregator is a special transformer that accumulates quality score value
 \subsection{Data Normalization}
 \label{sub:dataNormalization}
 
-\term{Data Normalizer} is a special type of {transformer} aimed to be applied early in the whole data evaluation process to simplify work of other {transformers}. Its main goal is to remove inconsistencies in forms the data is provided in. Therefore {Data Normalizer} instances are limited to dirty database only.
+\term{Data Normalizer} is a special type of {transformer} aimed to be applied early in the whole data evaluation process to simplify work of other {transformers}. Its main goal is to remove inconsistencies in forms the data is provided in.
 
-In the DN subsection of rules management page of the backend, one can prepare groups of rules to be assigned to instances of {Data Normalizer}. Each group is identified by its label and can (and should) come with a description of its semantical significance.
+In the Data Normalization section reachable from Rules submenu, one can prepare groups of rules to be assigned to instances of {Data Normalizer}. Each group is identified by its label and can (and should) come with a description of its semantical significance.
 
 The detail page of a group serves the user as means of specification of individual rules contained in the selected group. Each rule is essentially a sequence of \term{SPARUL}\footnote{\url{http://www.w3.org/Submission/SPARQL-Update}} modifications put by \code{MODIFY}, \code{INSERT} and/or \code{DELETE}. New rule represents an empty sequence upon its creation.
 
@@ -357,7 +357,7 @@ To be able to configure individual instances of {Linker} a group of rules needs 
 
 Here the user can prepare groups of rules to be assigned to instances of {Linker}. Each group is identified by its label and can (and should) come with a description of its semantical significance.
 
-On the detail page, one can specify individual rules contained in the related group. Fields to be filled in for each rule are described in Table TODO. For further details of their meaning see {Silk-LSL} specification\footnote{\url{http://www.assembla.com/wiki/show/silk/Link\_Specification\_Language}}.
+On the detail page, one can specify individual rules contained in the related group. Fields to be filled in for each rule are described in the table at the end of this section. For further details of their meaning see {Silk-LSL} specification\footnote{\url{http://www.assembla.com/wiki/show/silk/Link\_Specification\_Language}}.
 
 \fieldtable
 {
@@ -378,7 +378,7 @@ On the detail page, one can specify individual rules contained in the related gr
 	optional & Link limit &  Defines the number of links originating from a single data item. Only the n highest-rated links per source data item will remain after the filtering. If no limit is provided, all links will be returned.
 }
 
-Linkage rule an be created in Silk Workbench\footnote{\url{https://www.assembla.com/spaces/silk/wiki/Silk_Workbench}} and its \code{LinkageRule} element copy-pasted into corresponding field. More convenient way is to import the whole rule from XML file using the "Choose file" and "Import" buttons. For further editation in Silk Workbench the rule can be exported to XML file again using the "Export" button.
+Linkage rule an be created in Silk Workbench\footnote{\url{https://www.assembla.com/spaces/silk/wiki/Silk\_Workbench}} and its \code{LinkageRule} element copy-pasted into corresponding field. More convenient way is to import the whole rule from XML file using the "Choose file" and "Import" buttons. For further editation in Silk Workbench the rule can be exported to XML file again using the "Export" button.
 
 Created rule will not produce any links, until it has its outputs assigned. This can be done on the rule detail page after submitting a new rule or when editing an existing one. Two types of outputs can be assigned to a linkage rule, database outputs and file outputs.
 
@@ -432,6 +432,8 @@ To be able to manage user accounts one has to have \term{ADM} user role (section
 The output webservice configuration covers default policies for data aggregation. Multivalue in this context specifies whether a property may or may not have more values at a time. This effects the way conflicts are resolved in responses to user queries over the webservice. Aggregation type specifies which method to use to infer values in response. Aggregation error strategy specifies a fallback behaviour in case that aggregation cannot take place due to data types incompatibilities with the aggregation method.
 
 The configuration specifies one global behaviour and then it offers the user to override that behaviour for specific properties.
+
+The properties specified in the Label properties section are treated by query execution component as human readable labels of different entities. Simply add new label property by using "add a new property" button and remove any by use of corresponding delete button.
 
 \section{Prefixes}
 \label{sec:frontendPrefixMgmt}
@@ -1067,7 +1069,7 @@ The result in HTML format contains results in a~human-readable form (\figurename
 
 \begin{itemize}
   \item a table with ODCleanStore metadata,
-  \item the results of Quality Assessment, i.e. the resulting score and all QA rules the named graph violated and thus its score was decreased by the respective coefficient (only if there is at least one QA rule group applicable to the named graph),
+  \item the results of Quality Assessment, i.e. the resulting score and all Quality Assessment rules the named graph violated and thus its score was decreased by the respective coefficient (only if there is at least one Quality Assessment rule group applicable to the named graph),
   \item \code{provenance} metadata, if available.
 \end{itemize}
 

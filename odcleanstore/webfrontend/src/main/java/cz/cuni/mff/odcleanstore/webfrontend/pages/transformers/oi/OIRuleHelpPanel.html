@@ -1,9 +1,18 @@
 <wicket:panel>
 
 	<h1>Linker rule</h1>
+	
+	<table>
+		<tr><th>Link type</th><td>Type of the link to create (typically owl:sameAs)</td><td>required</td></tr>
+		<tr><th>Source SPARQL restriction</th><td>Restriction on URIs from the transformed data, written in SPARQL.</td><td>optional</td></tr>
+		<tr><th>Target SPARQL restriction</th><td>Restriction on URIs from the clean database, written in SPARQL.</td><td>optional</td></tr>
+		<tr><th>Linkage rule</th><td>Linkage rule itself, written in Silk-LSL. XML fragment &lt;LinkageRule&gt;...&lt;/LinkageRule&gt; is expected.</td><td>required</td></tr>
+		<tr><th>Filter threshold</th><td>Real number, serves as a global threshold, links with lesser confidence will not be sent to any output.</td><td>optional</td></tr>
+		<tr><th>Link limit</th><td>Defines the number of links originating from a single data item. Only the <em>n</em> highest-rated links per source data item will remain after the filtering. If no limit is provided, all links will be returned.</td><td>optional</td></tr>
+	</table>
 
 	<wicket:link>
-		<p>TODO: link to <a href="https://www.assembla.com/spaces/silk/wiki/Link_Specification_Language">Link Specification Language </a></p>
+		<p>See <a href="https://www.assembla.com/spaces/silk/wiki/Link_Specification_Language">Link Specification Language </a> for more detailed information about Silk-LSL.</p>
 	</wicket:link>
 
 </wicket:panel>

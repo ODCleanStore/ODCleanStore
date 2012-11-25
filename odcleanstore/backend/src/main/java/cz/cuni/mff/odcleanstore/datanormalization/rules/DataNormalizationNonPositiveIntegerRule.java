@@ -21,7 +21,7 @@ import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationEx
 public class DataNormalizationNonPositiveIntegerRule extends DataNormalizationRule {
 	private static final long serialVersionUID = 1L;
 	
-	private static final String convertedNonPositiveIntegerPropertyValueFormat = "DELETE {?s <%s> ?o} INSERT {?s <%s> ?x} WHERE {GRAPH $$graph$$ {SELECT ?s ceiling(bif:__min_notnull(fn:number(str(?o)), 0)) AS ?x ?o WHERE {?s <%s> ?o}}}";
+	private static final String convertedNonPositiveIntegerPropertyValueFormat = "DELETE {?s <%s> ?o} INSERT {?s <%s> ?x} WHERE {GRAPH $$graph$$ {SELECT ?s bif:ceiling(bif:__min_notnull(fn:number(str(?o)), 0)) AS ?x ?o WHERE {?s <%s> ?o}}}";
 
 	public DataNormalizationNonPositiveIntegerRule(Integer id, Integer groupId, Resource property) throws DataNormalizationException {
 		super(id, groupId,
