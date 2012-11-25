@@ -51,7 +51,7 @@ public class App extends WizardFrame {
 			break;
 		case 5:
 			setNextStep(new DBScriptExecutorStep(this, getDbConnectionsStep, true,
-					"run full text indexing sql script on clean DB - possible long runnig operation",
+					"run full text indexing sql script on clean DB - could be a long running operation",
 					"Run full text indexing sql script on clean DB by Virtuoso isql utility", "clean-fulltext-index.sql"));
 			break;
 		case 6:
