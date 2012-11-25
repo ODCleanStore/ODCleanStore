@@ -46,12 +46,12 @@ public class CopyFrontEndExecutorStep extends WizardStep {
 
 	@Override
 	public String getStepTitle() {
-		return "copy frontend war to java aplication server directory - existing file will be replaced";
+		return "copy frontend war to destination directory and save path to odcs.ini to front end war - existing file will be replaced";
 	}
 
 	@Override
 	public String getNextNavigationButtonText() {
-		return "Copy frontend war to java aplication server directory";
+		return "Copy frontend war to destination directory and save path to odcs.ini to front end war";
 	}
 	
 	@Override

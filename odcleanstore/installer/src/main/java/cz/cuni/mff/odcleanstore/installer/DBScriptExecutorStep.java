@@ -27,7 +27,10 @@ public class DBScriptExecutorStep extends WizardStep {
 	private String nextNavigationButtonText;
 	private String scriptFileName;
 
-	protected DBScriptExecutorStep(WizardFrame wizardFrame, GetDbConnectionsStep getDbConnectionsStep, boolean cleanDB, String title, String nextNavigationButtonText, String scriptFileName) {
+	private Process isqlProcess;
+
+	protected DBScriptExecutorStep(WizardFrame wizardFrame, GetDbConnectionsStep getDbConnectionsStep, boolean cleanDB,
+			String title, String nextNavigationButtonText, String scriptFileName) {
 		super(wizardFrame);
 		this.getDbConnectionsStep = getDbConnectionsStep;
 		this.cleanDB = cleanDB;
@@ -61,8 +64,6 @@ public class DBScriptExecutorStep extends WizardStep {
 		panel.add(scp);
 		return panel;
 	}
-	
-	
 
 	@Override
 	public boolean hasSkipButton() {
@@ -112,16 +113,31 @@ public class DBScriptExecutorStep extends WizardStep {
 	@Override
 	public void onFormEvent(ActionEvent arg) {
 	}
-	
-	public static void runIsql(String host, String port, String user, String password, String scriptName, Runnable stepCallback) throws IOException {
+
+	@Override
+	public boolean canCancel() {
+		if (isqlProcess != null) {
+			if (getWizardFrame().showConfirmDialog("Do you want interrupt script?", "Script interrupting")) {
+				isqlProcess.destroy();
+				isqlProcess = null;
+				return true;
+			} else {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public void runIsql(String host, String port, String user, String password, String scriptName, Runnable stepCallback)
+			throws IOException {
 		ProcessBuilder pb = new ProcessBuilder("isql", host + ":" + port, user, password, scriptName);
 		pb.redirectErrorStream(true);
-		Process p = pb.start();
+		isqlProcess = pb.start();
 
 		BufferedReader is;
 		String line;
 
-		is = new BufferedReader(new InputStreamReader(p.getInputStream(), "UTF-8"));
+		is = new BufferedReader(new InputStreamReader(isqlProcess.getInputStream(), "UTF-8"));
 
 		while ((line = is.readLine()) != null) {
 			System.out.println(line);
@@ -130,14 +146,18 @@ public class DBScriptExecutorStep extends WizardStep {
 		}
 
 		try {
-			p.waitFor();
+			if (isqlProcess != null) {
+				isqlProcess.waitFor();
+			}
 		} catch (InterruptedException e) {
 			System.err.println(e);
 			return;
 		}
-		System.err.println("Isql done with exit status " + p.exitValue());
-		if (p.exitValue() != 0) {
-			throw new IOException("Isql done with exit status " + p.exitValue());
+		if (isqlProcess != null) {
+			System.err.println("Isql done with exit status " + isqlProcess.exitValue());
+			if (isqlProcess.exitValue() != 0) {
+				throw new IOException("Isql done with exit status " + isqlProcess.exitValue());
+			}
 		}
 		return;
 	}

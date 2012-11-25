@@ -119,8 +119,10 @@ public abstract class WizardFrame {
 	}
 
 	protected void onCancel() {
-		if (showConfirmDialog("Are you sure terminate installation?", "Terminate installation")) {
-			onFinish();
+		if (step != null && step.canCancel()) {
+			if (showConfirmDialog("Are you sure terminate installation?", "Terminate installation")) {
+				onFinish();
+			}
 		}
 	}
 
@@ -152,9 +154,7 @@ public abstract class WizardFrame {
 				onNext();
 			}
 		} else if (arg.getSource() == cancel) {
-			if (step != null && step.canCancel()) {
 				onCancel();
-			}
 		} else if (step != null) {
 			step.onFormEvent(arg);
 		}
@@ -183,7 +183,7 @@ public abstract class WizardFrame {
 	public void showWarningDialog(String message, String title) {
 		JOptionPane.showMessageDialog(form, message, title, JOptionPane.WARNING_MESSAGE);
 	}
-	
+
 	public void showInfoDialog(String message, String title) {
 		JOptionPane.showMessageDialog(form, message, title, JOptionPane.INFORMATION_MESSAGE);
 	}
@@ -191,17 +191,17 @@ public abstract class WizardFrame {
 	public int getStepNumber() {
 		return stepNumber;
 	}
-	
+
 	public void endLongRunningOperation() {
 		next.setEnabled(true);
 		skip.setEnabled(true);
 		form.setCursor(null);
 	}
-	
+
 	public void next() throws IOException {
 		onNext();
 	}
-	
+
 	public void startLongRunningOperation() {
 		next.setEnabled(false);
 		skip.setEnabled(false);

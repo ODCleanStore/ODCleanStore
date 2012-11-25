@@ -367,6 +367,8 @@ The \emph{Graphs} subsection captures the content of the graph database. The tab
 
 Ontologies can be used to produce common rules for Quality Assessment, Data Normalization {transformers}. To load one into the storage one can provide an explicit definition through a text field or by uploading a file containing a valid {RDF/XML} ontology definition. The process of rules generation will automatically take place upon ontology submission.
 
+Another benefit of storing ontologies in the database is gain of ability to map properties from one ontology to properties from another with \code{owl:sameAs}, \code{owl:equivalentProperty}, \code{rdfs:subPropertyOf}, \code{rdfs:subClassOf} or a custom \code{URI} of any other property. This can be further used by Conflict Resolution component to produce more precise results. Such mapping can be added in the section Ontology mappings reachable from Ontologies submenu. In that section a pair of ontologies needs to be selected to restrain to a specific set of properties. After submitting the pair of ontologies a new form is presented where individual properties can be mapped. After filling in \code{URI}'s of source and target properties, selecting a relation type and submitting a mapping is created. Now on it will be considered during conflict resolution.
+
 \section{User Accounts Administration}
 
 To be able to manage user accounts one has to have \term{ADM} user role (section \ref{sec:adm}) associated with his account. It is possible to view currently active accounts and modify them or to add new accounts to the system from this page. The modification is limited to changes of user roles and resetting of passwords for safety reasons. A newly generated password is sent to the e-mail address of the affected user.
