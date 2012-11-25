@@ -2,6 +2,21 @@
 
 	<h1>DN rule component</h1>
 	
-	<p></p>
+	<p>Every component is of <em>INSERT</em> / <em>DELETE</em> / <em>MODIFY</em> type. This affects the behaviour of the component and its definition.</p>
+	
+	<table>
+		<tr><th>INSERT</th><td><a href="http://www.w3.org/TR/sparql11-query/#rQuadPattern"><em>QuadPattern</em></a> WHERE <a href="http://www.w3.org/TR/sparql11-query/#rGroupGraphPattern"><em>GroupGraphPattern</em></a></td></tr>
+		<tr style="color: #666;"><td>example:</td><td style="text-align: center; padding: 8px;">{?s ?p ?o} WHERE {GRAPH $$graph$$ {SELECT ?s ?p 'Y' AS ?o WHERE {?s ?p 1}}}</td></tr>
+
+		<tr><th>DELETE</th><td><a href="http://www.w3.org/TR/sparql11-query/#rQuadPattern"><em>QuadPattern</em></a> WHERE <a href="http://www.w3.org/TR/sparql11-query/#rGroupGraphPattern"><em>GroupGraphPattern</em></a></td></tr>
+		<tr style="color: #666;"><td>example:</td><td style="text-align: center; padding: 8px;">{?s ?p 1} WHERE {GRAPH $$graph$$ {?s ?p 1}}</td></tr>
+
+		<tr><th>MODIFY</th><td>DELETE <a href="http://www.w3.org/TR/sparql11-query/#rQuadPattern"><em>QuadPattern</em></a> INSERT <a href="http://www.w3.org/TR/sparql11-query/#rQuadPattern"><em>QuadPattern</em></a> WHERE <a href="http://www.w3.org/TR/sparql11-query/#rGroupGraphPattern"><em>GroupGraphPattern</em></a></td></tr>
+		<tr style="color: #666;"><td>example:</td><td style="text-align: center; padding: 8px;">DELETE {?s ?p 1} INSERT {?s ?p 'Y'} WHERE {?s ?p 1}</td></tr>
+	</table>
+	
+	<p>The examples above are intentionally overcomplicated to capture different aspects of the modifications</p>
+	
+	<p>Subqueries are used to bind variables instead of SPARQL 1.1 BIND for compatibility reasons. This is also the reason for introduction of $$graph$$ which is a placeholder for currently processed graph and should be used only in <a href="http://www.w3.org/TR/sparql11-query/#rGraphGraphPattern">GraphGraphPattern</a>.</p>
 
 </wicket:panel>
