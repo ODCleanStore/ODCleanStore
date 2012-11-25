@@ -129,9 +129,9 @@ public class DependentSortableDataProvider<BO extends EntityWithSurrogateKey> ex
 	 */
 	public Iterator<? extends BO> iterator(int first, int count) 
 	{
-		// TODO: consider if it would be viable to fetch only the required data from DB here, instead of creating
-		// sublists
-		
+		// replace this with a special DAO method to only select the sub-list
+		// from the database call if necessary (instead of selecting all and 
+		// trimming)
 		return 
 			getData()
 				.subList(first, first + count)
