@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.installer;
+package cz.cuni.mff.odcleanstore.installer.utils;
 
 import java.io.OutputStream;
 
