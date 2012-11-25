@@ -17,12 +17,6 @@
 
   % FE - popsat, že to je webová aplikace, dá se spouštět pod tomcatem, odkaz na install manual
 
-	% třídy
-		% webfrontend.core
-			% DaoLookupFactory, ODCSWebFrontendApplicatoin .java/properties, ODCSWebFrontendSession, URLRouter
-		% webfrontend.core.components - custom Wicket components (buttons, labels, form components etc.)
-		% webfrontend.core.model - Wicket models and data providers
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \chapter{Introduction}
@@ -1098,6 +1092,20 @@ The list contains neither the standard Wicket \code{ODCSWebFrontendApplication} 
 \subsubsection{core.models}
 
 This package contains custom implementations of the \code{IDataProvider} and \code{SortableDataProvider} interfaces, which adhere to our DAO layer implementation.
+
+\subsubsection{core.components}
+
+In the \code{core.components} package you'll find several custom components, such as labels, buttons, etc. The following list describes some of them. For a more comperhensive description, please see the javadoc documentation.
+
+\begin{description}[style=nextline,font=\ttfamily]
+	\item[UnobtrusivePagingNavigator] An implementation of the \code{PagingNavigator} component which is not visible if the list contains only a single page.
+	\item[TruncatedLabel] A label which only displays a few first characters of the given string.
+	\item[TimestampLabel] A label to display a properly formated timestamp.
+	\item[RedirectButton] A button to redirect to a different page, adjusted to suit the structure of the \WF application.
+	\item[LogInPanel] A panel which contains the log-in form.
+	\item[LimitedEditingForm] A form that can only be confirmed by authorized users.
+	\item[HelpWindow] A generic modal window to display help information.
+\end{description}
 
 \subsubsection{pages}
 
