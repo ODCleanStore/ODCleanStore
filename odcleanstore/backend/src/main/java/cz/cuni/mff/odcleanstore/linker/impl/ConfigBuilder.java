@@ -128,7 +128,7 @@ public class ConfigBuilder {
 	 * @return file containing linkage configuration
 	 * @throws TransformerException when anything fails
 	 */
-	public static File createLinkConfigFile(SilkRule rule, List<RDFprefix> prefixes, String graphId,
+	static File createLinkConfigFile(SilkRule rule, List<RDFprefix> prefixes, String graphId,
 			String cleanGraphName, String dirtyGraphName, TransformationContext context, 
 			ObjectIdentificationConfig config, boolean linkWithinGraph) throws TransformerException {
 		LOG.debug("Creating link configuration file.");
@@ -619,7 +619,7 @@ public class ConfigBuilder {
 		return configFile;
 	}
 
-	public static File createDebugLinkConfigFile(SilkRule rule, List<RDFprefix> prefixes,
+	static File createDebugLinkConfigFile(SilkRule rule, List<RDFprefix> prefixes,
 			TransformationContext context, ObjectIdentificationConfig config, String inputFileName,
 			String resultFileName, SerializationLanguage language) throws TransformerException {
 		LOG.info("Creating debug link configuration file.");
@@ -735,6 +735,17 @@ public class ConfigBuilder {
 		}
 	}
 	
+	/**
+	 * @param rule object representation of a linkage rule
+	 * @param prefixes list of all prefixes, must include ones used in the rule
+	 * @return linkage rule definition in Silk-LSL
+	 * @throws ParserConfigurationException
+	 * @throws DOMException
+	 * @throws InvalidLinkageRuleException
+	 * @throws SAXException
+	 * @throws IOException
+	 * @throws javax.xml.transform.TransformerException
+	 */
 	public static String createRuleXML(SilkRule rule, List<RDFprefix> prefixes) throws ParserConfigurationException, DOMException, 
 			InvalidLinkageRuleException, SAXException, IOException, javax.xml.transform.TransformerException {
 		DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -768,7 +779,7 @@ public class ConfigBuilder {
 		return config;
 	}
 	
-	public static String updateFilenameWithin(String fileName) {
+	static String updateFilenameWithin(String fileName) {
 		return fileName + ".within";
 	}
 }

@@ -183,6 +183,13 @@ public class LinkerDao {
 		return result.substring(0, result.length()-1) + ")";
 	}
 	
+	/**
+	 * Deletes given graph from the RDF database.
+	 * 
+	 * @param graphId ID of a graph to delete
+	 * @throws ConnectionException
+	 * @throws QueryException
+	 */
 	public void clearGraph(String graphId) throws ConnectionException, QueryException {
 		LOG.info("Clearing graph: {} ", graphId);
 		VirtuosoConnectionWrapper connection = null;
@@ -196,6 +203,13 @@ public class LinkerDao {
 		}
 	}
 	
+	/**
+	 * Loads labels (rdfs:label) for given URIs.
+	 * 
+	 * @param uriLabelMap in/out parameter, map URI:label
+	 * @throws QueryException
+	 * @throws ConnectionException
+	 */
 	public void loadLabels(Map<String, String> uriLabelMap) throws QueryException, ConnectionException {
 		if (uriLabelMap == null || uriLabelMap.isEmpty()) {
 			LOG.info("No URIs to load labels for.");
@@ -232,7 +246,7 @@ public class LinkerDao {
 		}
 	}
 	
-	public String createUriListString(Iterator<String> iterator) {
+	private String createUriListString(Iterator<String> iterator) {
 		int count = 0;
 		String result = "(";
 		while (iterator.hasNext() && count < IN_COUNT_LIMIT) {
@@ -241,7 +255,16 @@ public class LinkerDao {
 		}
 		return result.substring(0, result.length()-2) + ")";
 	}
-	
+		
+	/**
+	 * Creates a graph group (metagraph) in clean or dirty database and adds graphs to it.
+	 * 
+	 * @param groupName name of the group to be created
+	 * @param graphNames graphs to be added to the group
+	 * @param db database instance (clean/dirty)
+	 * @throws ConnectionException
+	 * @throws QueryException
+	 */
 	public void createGraphGroup(String groupName, Set<String> graphNames, EnumDatabaseInstance db)
 			throws ConnectionException, QueryException {
 		String createQuery = "DB.DBA.RDF_GRAPH_GROUP_CREATE(?, 0)";
@@ -264,6 +287,14 @@ public class LinkerDao {
 		}
 	}
 	
+	/**
+	 * Deletes given graph group.
+	 * 
+	 * @param groupName name of group to be deleted
+	 * @param db database instance (clean/dirty)
+	 * @throws ConnectionException
+	 * @throws QueryException
+	 */
 	public void deleteGraphGroup(String groupName, EnumDatabaseInstance db) 
 			throws ConnectionException, QueryException {
 		String query = "DB.DBA.RDF_GRAPH_GROUP_DROP(?, 0)";
@@ -282,6 +313,13 @@ public class LinkerDao {
 		}
 	}
 	
+	/**
+	 * Load all RDF graphs' names from the clean database
+	 * 
+	 * @return list of graphs' names
+	 * @throws QueryException
+	 * @throws ConnectionException
+	 */
 	public Set<String> getAllGraphNames() throws QueryException, ConnectionException {
 		String query = "DB.DBA.SPARQL_SELECT_KNOWN_GRAPHS()";
 		VirtuosoConnectionWrapper connection = null;

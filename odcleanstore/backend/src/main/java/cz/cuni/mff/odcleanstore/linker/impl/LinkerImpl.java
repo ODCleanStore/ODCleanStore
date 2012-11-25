@@ -81,6 +81,13 @@ public class LinkerImpl implements Linker {
 	private ObjectIdentificationConfig globalConfig;
 	private Integer[] groupIds;
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param isFirstInPipeline flag, when set to true, linker clears existing links before creating new 
+	 * when transforming existing graph
+	 * @param groupIds list of linkage rules groups IDs, which are used transformGraph and debugRules methods
+	 */
 	public LinkerImpl(boolean isFirstInPipeline, Integer... groupIds) {
 		this.isFirstInPipeline = isFirstInPipeline;
 		this.globalConfig = ConfigLoader.getConfig().getObjectIdentificationConfig();
@@ -195,6 +202,9 @@ public class LinkerImpl implements Linker {
 		return ODCSInternal.generatedLinksGraphUriPrefix + inputGraph.getGraphId();
 	}
 
+	/* (non-Javadoc)
+	 * @see cz.cuni.mff.odcleanstore.linker.Linker#debugRules(java.lang.String, cz.cuni.mff.odcleanstore.transformer.TransformationContext, cz.cuni.mff.odcleanstore.data.TableVersion)
+	 */
 	@Override
     public List<DebugResult> debugRules(String input, TransformationContext context, TableVersion tableVersion)
 			throws TransformerException {
@@ -202,6 +212,9 @@ public class LinkerImpl implements Linker {
 				GraphLoaderUtils.guessLanguage(input));
 	}
 
+	/* (non-Javadoc)
+	 * @see cz.cuni.mff.odcleanstore.linker.Linker#debugRules(java.io.File, cz.cuni.mff.odcleanstore.transformer.TransformationContext, cz.cuni.mff.odcleanstore.data.TableVersion, cz.cuni.mff.odcleanstore.shared.SerializationLanguage)
+	 */
 	@Override
     public List<DebugResult> debugRules(File inputFile, TransformationContext context, TableVersion tableVersion,
     		SerializationLanguage language) throws TransformerException {
