@@ -40,9 +40,9 @@ public class NewDNRuleComponentPage extends LimitedEditingPage
 	private DNRuleComponentDao dnRuleComponentDao;
 	private DNRuleComponentTypeDao dnRuleComponentTypeDao;
 	
-	private static String insertHint = "{?s ?p ?o} WHERE {GRAPH $$graph$$ {SELECT ?s ?p 'Y' AS ?o WHERE {?s ?p 1}}}";
-	private static String deleteHint = "{?s ?p 1} WHERE {GRAPH $$graph$$ {?s ?p 1}}";
-	private static String modifyHint = "DELETE {?s ?p 1} INSERT {?s ?p 'Y'} WHERE {?s ?p 1}";
+	private static String insertHint = "SPARQL construct template & where clause, e.g. {?s w3p:publishedBy ?o} WHERE {?s dc:publisher ?o}";
+	private static String deleteHint = "SPARQL construct template & where clause, e.g. {?s dc:publisher ?o} WHERE {?s dc:publisher ?o}";
+	private static String modifyHint = "SPARQL modify query, e.g. DELETE {?s dc:publisher ?o} INSERT {?s w3p:publishedby ?o} WHERE {?s dc:publisher ?o}";
 	
 	/**
 	 * 
