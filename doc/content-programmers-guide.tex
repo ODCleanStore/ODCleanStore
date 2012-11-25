@@ -880,7 +880,7 @@ public QualityAssessmentRule (Integer id, Integer groupId, String filter, Double
   String label, String description) 
 \end{lstlisting}
 
-The data filters are described with \code{SPARQL Where Clause}\footnote{http://www.w3.org/TR/rdf-sparql-query/\#rWhereClause} followed by optional \code{Group by Clause}\footnote{http://www.w3.org/TR/sparql11-query/\#rGroupClause} and \code{Having Clause}\footnote{http://www.w3.org/TR/sparql11-query/\#rHavingClause}.
+The data filters are described with \code{SPARQL Where Clause}\footnote{\url{http://www.w3.org/TR/rdf-sparql-query/\#rWhereClause}} followed by optional \code{Group by Clause}\footnote{\url{http://www.w3.org/TR/sparql11-query/\#rGroupClause}} and \code{Having Clause}\footnote{\url{http://www.w3.org/TR/sparql11-query/\#rHavingClause}}.
 The coefficient of quality is a number $c \in [0,1]$.
 
 \subsubsection*{Assessment \& Aggregation}
@@ -986,7 +986,7 @@ There exist three types of data normalization rules:
 	\item \code{MODIFY}.
 \end{itemize}
 
-They all closely follow semantics of \code{SPARQL} update queries\footnote{http://www.w3.org/Submission/SPARQL-Update/\#rUpdate}. Due to incomplete support for \code{SPARQL 1.1}, specificly missing \code{BIND($expression$ AS $var$)}, it was necessary to allow use of subqueries for data manipulation and transformation by introduction of \code{\$\$graph\$\$} macro used intead of \code{iri} in \code{GraphRef} which is replaced with actual graph name during the transformation.
+They all closely follow semantics of \code{SPARQL} update queries\footnote{\url{http://www.w3.org/Submission/SPARQL-Update/\#rUpdate}}. Due to incomplete support for \code{SPARQL 1.1}, specificly missing \code{BIND($expression$ AS $var$)}, it was necessary to allow use of subqueries for data manipulation and transformation by introduction of \code{\$\$graph\$\$} macro used intead of \code{iri} in \code{GraphRef} which is replaced with actual graph name during the transformation.
 
 \subsubsection*{Data Normalizer}
 
