@@ -8,6 +8,13 @@ import com.hp.hpl.jena.vocabulary.XSD;
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
 import cz.cuni.mff.odcleanstore.vocabulary.XPathFunctions;
 
+/**
+ * A rule used by Data Normalization Rule Generation from Ontologies
+ * 
+ * replaces common date substrings with correct date strings if possible
+ * 
+ * @author Jakub Daniel
+ */
 public class DataNormalizationDateRule extends DataNormalizationRule {
 	private static final long serialVersionUID = 1L;
 	

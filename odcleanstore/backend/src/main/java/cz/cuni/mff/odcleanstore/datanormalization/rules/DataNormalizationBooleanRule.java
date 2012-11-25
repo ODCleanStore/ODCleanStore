@@ -7,6 +7,13 @@ import com.hp.hpl.jena.vocabulary.XSD;
 
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
 
+/**
+ * A rule used by Data Normalization Rule Generation from Ontologies
+ * 
+ * replaces common expressions used to denote logical true / false: 0, 1, t, f, true, false, y, n, yes, no
+ * 
+ * @author Jakub Daniel
+ */
 public class DataNormalizationBooleanRule extends DataNormalizationRule {
 	private static final long serialVersionUID = 1L;
 	

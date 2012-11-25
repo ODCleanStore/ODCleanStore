@@ -7,6 +7,20 @@ import com.hp.hpl.jena.vocabulary.XSD;
 
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
 
+/**
+ * A rule used by Data Normalization Rule Generation from Ontologies
+ * 
+ * convert to integral value by calculating sign(x) * abs(number(x)), default to 0 if null or incompatible
+ * 
+ * Unwanted behaviour of different approaches:
+ * 
+ * floor(-1.2) = -2
+ * round(1.6) = 2
+ * 
+ * *("ahoj") = undefined -> fail
+ * 
+ * @author Jakub Daniel
+ */
 public class DataNormalizationIntegerRule extends DataNormalizationRule {
 	private static final long serialVersionUID = 1L;
 	

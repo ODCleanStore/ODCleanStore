@@ -12,6 +12,14 @@ import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.Transformer;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 
+/**
+ * Data normalization transformer interface
+ * 
+ * It is used to modify input graph according to DataNormalizationRules.
+ * 
+ * @author Jakub Daniel
+ *
+ */
 public interface DataNormalizer extends Transformer {
 	/**
 	 * Triple that has either been deleted or inserted to a graph in one step of the normalization process
@@ -47,6 +55,15 @@ public interface DataNormalizer extends Transformer {
 		public void setGraphName(String graphName);
 	}
 
+	/**
+	 * Allows the user to examine what changes took place after each rule was executed.
+	 * 
+	 * @param graphs (originalGraphName, temporaryGraphName) mapping of input graph names to database unique temporary identifiers.
+	 * @param context transformation context containing connection credentials
+	 * @param tableVersion specifies which version of rule tables will be used (committed / uncommitted)
+	 * @return modifications of the graph grouped by rules partitioned into insertions and deletions
+	 * @throws TransformerException
+	 */
 	List<GraphModification> debugRules (HashMap<String, String> graphs, TransformationContext context, TableVersion tableVersion)
 			throws TransformerException;
 }

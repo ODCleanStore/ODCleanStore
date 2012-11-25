@@ -30,6 +30,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Utility class used to query rules and generate new rules from ontologies
+ *
+ * @author Jakub Daniel
+ */
 public class DataNormalizationRulesModel {
 
 	private static final String ruleByGroupIdQueryFormat = "SELECT rules.id AS id, " +
@@ -190,6 +195,12 @@ public class DataNormalizationRulesModel {
 		return rules;
 	}
 
+	/**
+	 * Creates predefined rules for properties with range: Boolean, String, Date, Integer, NonNegativeInteger, NonPositiveInteger, Double/Decimal
+	 * @param ontologyGraphURI URI of a graph containing ontology definition (expected to already exist in the database to which the DataNormalizationRulesModel is connected)
+	 * @return set of generated rules
+	 * @throws DataNormalizationException
+	 */
 	public Collection<DataNormalizationRule> compileOntologyToRules(String ontologyGraphURI) throws DataNormalizationException {
 		try {
 			VirtModel ontology = VirtModel.openDatabaseModel(ontologyGraphURI,
@@ -220,6 +231,14 @@ public class DataNormalizationRulesModel {
 		}
 	}
 
+	/**
+	 * Identifies concrete resources that may be handled by generated rules
+	 * @param resource to be processed
+	 * @param model in which the resource exists
+	 * @param ontology
+	 * @return list of rules generated for the processed resource (may be empty)
+	 * @throws DataNormalizationException
+	 */
 	private Collection<DataNormalizationRule> processOntologyResource(Resource resource, Model model, String ontology) throws DataNormalizationException {
 		List<DataNormalizationRule> ruleList = new ArrayList<DataNormalizationRule>();
 
