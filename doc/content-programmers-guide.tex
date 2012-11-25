@@ -1084,6 +1084,21 @@ Description of the most important BO classes follows:
 
 This package (and it's subpackages) contains classes which form the DAO layer. See the related section for more information on that.
 
+\subsubsection{core}
+
+This \code{core} package contains the following important classes. 
+
+The list contains neither the standard Wicket \code{ODCSWebFrontendApplication} and \code{ODCSWebFrontentSession} classes, nor thestandard \code{ODCSWebFrontendApplication.properties} file. The properties file contains custom validation messages and declarations of other string literals.
+
+\begin{description}[style=nextline,font=\ttfamily]
+	\item[URLRouter] Handles URL routing - e.g. conversion from raw Wicket-like URL addresses to human readable ones (and vice versa).
+	\item[DaoLookupFactory] Encapsulates DB connections and serves DAO objects to page components (see section \ref{sec:frontendDao}).
+\end{description}
+
+\subsubsection{core.models}
+
+
+
 \subsubsection{pages}
 
 In this package there are Wicket components for individual pages. The structure of subpackages mirrors the \FE menu. These are mostly standard Wicket components (but for a few conventions we have applied - read more in section \ref{sec:howToAddANewPage}). In this section, a brief description of some of the non-standard components will be given.
