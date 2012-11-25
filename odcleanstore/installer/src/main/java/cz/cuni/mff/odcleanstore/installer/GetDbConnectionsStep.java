@@ -42,12 +42,12 @@ public class GetDbConnectionsStep extends WizardStep {
 
 	@Override
 	public String getStepTitle() {
-		return "setting Virtuoso instances connection parameters for running administrator scripts";
+		return "setting Virtuoso instances connection parameters for administrator scripts";
 	}
 
 	@Override
 	public String getNextNavigationButtonText() {
-		return "Validate Virtuoso instances connection parameters for running administrator scripts";
+		return "Validate Virtuoso instances connection parameters for administrator scripts";
 	}
 
 	@Override
