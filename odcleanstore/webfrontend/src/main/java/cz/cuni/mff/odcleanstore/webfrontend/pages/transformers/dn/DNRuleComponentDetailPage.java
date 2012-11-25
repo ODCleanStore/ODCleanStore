@@ -173,7 +173,16 @@ public class DNRuleComponentDetailPage extends LimitedEditingPage
 
 		modification.setRequired(true);
 		modification.add(new DNComponentValidator(ConfigLoader.getConfig().getBackendGroup().getDirtyDBJDBCConnectionCredentials(), type));
-		modification.add(new AttributeModifier("placeholder", insertHint));
+		
+		String typeHint = formModel.getObject().getType().getLabel();
+		
+		if (typeHint.equals("INSERT")) {
+			modification.add(new AttributeModifier("placeholder", insertHint));
+		} else if (typeHint.equals("DELETE")) {
+			modification.add(new AttributeModifier("placeholder", deleteHint));
+		} else {
+			modification.add(new AttributeModifier("placeholder", modifyHint));
+		}
 		form.add(modification);
 
 		form.add(createTextarea("description", false));
