@@ -199,7 +199,7 @@ The administration frontend controls various entities, allows the user to set di
 
 \enumtable
 {
-	\vspace{0.5cm} Delete & remove the related entity irrevertably from the system\\
+	\vspace{0.5cm} Delete & remove the related entity irreversibly from the system\\
 	\vspace{0.5cm} Detail & view entities and configurations related to the related entity and provide the interface for entity adjustments\\
 	\vspace{0.5cm} Rerun affected graphs & due to a change of a configuration of a transformer (modification of a rule group) the stored data may be found in an inconsistent form, therefore it is possible for the user to identify such situations and decide to run the transformer (or all transformers assosiated with a pipeline or a graph) again
 }
@@ -246,7 +246,7 @@ The frontend is divided into several separate sections of logicaly related contr
 		\hline
 		implied & allow to be run on clean DB & As the importance of data modification that the pipelines can cause differs based on what database it is running upon, it is left for the user to decide whether a concrete {transformer} should be allowed to run on clean database (in addition to running on dirty database). Some transformations do not even make sense when working with clean database.\\
 		\hline
-		required & priority & The order of application of {transformers} to a named graph processed by the related {pipeline} is determined by its \term{priority} in ascending order. Every {transformer} runs before {transformers} with greater priority number. 
+		required & place in pipeline before & Determines when the transformer will be run in respect to other transformers in the pipeline
 	}
 
 	The detail page of the assigned Quality Assessment, Data Normalization, Object Identification transformers allows user to specify what rule groups are assigned to the transformer in the related pipeline.
@@ -297,7 +297,7 @@ The URIs generated in place of blank nodes have form \varcode{prefix}\varcode{ra
 
 Quality Assessor is a special {transformer} that assigns a score to each graph based on coefficients of different patterns present in the graph to reflect to what degree the data contained in it comply to a certain policy.
 
-To be able to configure individual instances of {Quality Assessor} a group of rules needs to exist. To create one enter the QA subsection of the rules management page for the backend.
+To be able to configure individual instances of {Quality Assessor} a group of rules needs to exist. To create one enter the Quality Assessment section reachable from Rules submenu.
 
 Here the user can prepare groups of rules to be assigned to instances of {Quality Assessor}. Each group is identified by its label and can (and should) come with a description of its semantical significance.
 
@@ -330,7 +330,7 @@ Quality Aggregator is a special transformer that accumulates quality score value
 
 \term{Data Normalizer} is a special type of {transformer} aimed to be applied early in the whole data evaluation process to simplify work of other {transformers}. Its main goal is to remove inconsistencies in forms the data is provided in. Therefore {Data Normalizer} instances are limited to dirty database only.
 
-In the DN subsection of rules management page of the backend, one can prepare groups of rules to be assigned to instances of {Data Normalizer}. Each group is identified by its label and can (and should) come with a description of its semantical significance.
+In the Data Normalization section reachable from Rules submenu, one can prepare groups of rules to be assigned to instances of {Data Normalizer}. Each group is identified by its label and can (and should) come with a description of its semantical significance.
 
 The detail page of a group serves the user as means of specification of individual rules contained in the selected group. Each rule is essentially a sequence of \term{SPARUL}\footnote{\url{http://www.w3.org/Submission/SPARQL-Update}} modifications put by \code{MODIFY}, \code{INSERT} and/or \code{DELETE}. New rule represents an empty sequence upon its creation.
 
@@ -1067,7 +1067,7 @@ The result in HTML format contains results in a~human-readable form (\figurename
 
 \begin{itemize}
   \item a table with ODCleanStore metadata,
-  \item the results of Quality Assessment, i.e. the resulting score and all QA rules the named graph violated and thus its score was decreased by the respective coefficient (only if there is at least one QA rule group applicable to the named graph),
+  \item the results of Quality Assessment, i.e. the resulting score and all Quality Assessment rules the named graph violated and thus its score was decreased by the respective coefficient (only if there is at least one Quality Assessment rule group applicable to the named graph),
   \item \code{provenance} metadata, if available.
 \end{itemize}
 
