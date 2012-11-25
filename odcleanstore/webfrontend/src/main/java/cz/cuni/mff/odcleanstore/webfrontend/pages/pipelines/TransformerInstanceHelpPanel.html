@@ -1,5 +1,17 @@
 <wicket:panel>
 
 	<h1>Transformer instance</h1>
+	
+	<p>All known types of transformers need to be instantiated. This is done automatically by assigning a transformer to a pipeline. The following table describes what attributes need to be provided for an assignment.</p>
+	
+	<table>
+		<tr><th>transformer/label</th><td>required</td><td>an existing transformer label</td></tr>
+		<tr><th>working dir</th><td>required</td><td>an existing directory designated to the above selected transformer</td></tr>
+		<tr><th>configuration</th><td>required</td><td>configuration passed to an instance of the above selected transformer</td></tr>
+		<tr><th>allow to be run on clean DB</th><td>implied</td><td>As the importance of data modification that the pipelines can cause differs based on what database it is running upon, it is left for the user to decide whether a concrete transformer should be allowed to run on clean database (in addition to running on dirty database). Some transformations do not even make sense when working with clean database.</td></tr>
+		<tr><th>place in pipeline before</th><td>required</td><td>Determines when the transformer will be run in respect to other transformers in the pipeline</td></tr>
+	</table>
+	
+	<p>Each transformer instance can be view with <input class="button" disabled="disabled" style="width: 40px;" value="Detail" />, moved around in the pipeline with <input class="button" disabled="disabled" style="width: 20px;" value="Up" /> and <input class="button" disabled="disabled" style="width: 40px;" value="Down" /> or deleted by <input class="button delete" disabled="disabled" style="width: 45px;" value="Delete" /> next to it in the table of all instances assigned to one pipeline.</p>
 
 </wicket:panel>
