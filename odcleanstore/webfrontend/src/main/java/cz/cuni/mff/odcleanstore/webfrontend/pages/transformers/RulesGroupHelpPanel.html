@@ -2,10 +2,18 @@
 
 	<h1>Group of rules</h1>
 	
-	<p>As multiple rules are often ment to be applied together the user can group them and then operate the group as a whole.</p>
+	<p>As multiple rules are often meant to be applied together the user can group them and then operate the group as a whole.</p>
 	
 	<p>Each group is identified by its label and can (and should) come with a description of its semantical significance.</p>
 	
-	<p><em>Notice:  Each rule needs to belong to a group.</em></p>
+	<p><em>Notice: Each rule needs to belong to a group.</em></p>
+	
+	<p>Content of rule groups may have uncommitted changes. Those changes are visible only to the author and need to be committed to be visible publicly. Do so with <input class="button" disabled="disabled" style="width: 110px;" value="Commit changes" /> button. </p>
+	
+	<p>Rule groups affect input graphs by being applied to them via their related transformer in one or more pipelines. By use of <input class="button" disabled="disabled" style="width: 145px;" value="Rerun affected graphs" /> button it is possible to process those graphs again.</p>
+	
+	<p>Groups can be debugged by using the <input class="button" disabled="disabled" style="width: 45px;" value="Debug" />. In that process user needs to specify input RDF triples to try applying the group of rules to it.</p>
+	
+	<p>All groups can be modified (adding rules, removing rules) or deleted with corresponding buttons in the table.</p>
 
 </wicket:panel>

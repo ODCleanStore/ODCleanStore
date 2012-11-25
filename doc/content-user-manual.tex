@@ -351,7 +351,7 @@ where \code{\$\$graph\$\$} in \code{GRAPH \$\$graph\$\$} is a place holder for n
 \subsection{Linker}
 \label{sub:objectIdentification}
 
-\term{(Object Identification) Linker} is a special implementation of a {trasformer}. The main purpose of this component is to interlink URIs which represent the same real-world entity by generating \code{owl:sameAs} links. It can be also used for creating other types of links between differently related URIs. {Silk framework}\footnote{\url{http://www4.wiwiss.fu-berlin.de/bizer/silk}} is used as the linking engine. Sets of linkage rules for the engine are written in {Silk-LSL}\footnote{\url{http://www.assembla.com/wiki/show/silk/Link\_Specification\_Language}} and stored in database.
+\term{(Object Identification) Linker} is a special implementation of a {trasformer}. The main purpose of this component is to interlink URIs which represent the same real-world entity by generating \code{owl:sameAs} links. It can be also used for creating other types of links between differently related URIs. {Silk framework}\footnote{\url{http://wifo5-03.informatik.uni-mannheim.de/bizer/silk/}} is used as the linking engine. Sets of linkage rules for the engine are written in {Silk-LSL}\footnote{\url{http://www.assembla.com/wiki/show/silk/Link\_Specification\_Language}} and stored in database.
 
 \section{Engine \& Inserted Graphs Monitoring}
 \label{sec:engineState}
@@ -366,6 +366,8 @@ The \emph{Graphs} subsection captures the content of the graph database. The tab
 \label{sec:ontologyManagement}
 
 Ontologies can be used to produce common rules for Quality Assessment, Data Normalization {transformers}. To load one into the storage one can provide an explicit definition through a text field or by uploading a file containing a valid {RDF/XML} ontology definition. The process of rules generation will automatically take place upon ontology submission.
+
+Another benefit of storing ontologies in the database is gain of ability to map properties from one ontology to properties from another with \code{owl:sameAs}, \code{owl:equivalentProperty}, \code{rdfs:subPropertyOf}, \code{rdfs:subClassOf} or a custom \code{URI} of any other property. This can be further used by Conflict Resolution component to produce more precise results. Such mapping can be added in the section Ontology mappings reachable from Ontologies submenu. In that section a pair of ontologies needs to be selected to restrain to a specific set of properties. After submitting the pair of ontologies a new form is presented where individual properties can be mapped. After filling in \code{URI}'s of source and target properties, selecting a relation type and submitting a mapping is created. Now on it will be considered during conflict resolution.
 
 \section{User Accounts Administration}
 
