@@ -66,6 +66,9 @@ public class DataProvider<BO extends EntityWithSurrogateKey> implements IDataPro
 	 */
 	public Iterator<BO> iterator(int first, int count) 
 	{
+		// replace this with a special DAO method to only select the sub-list
+		// from the database call if necessary (instead of selecting all and 
+		// trimming)
 		return 
 			getData()
 				.subList(first, first + count)

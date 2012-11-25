@@ -1,17 +1,13 @@
 package cz.cuni.mff.odcleanstore.qualityassessment.impl;
 
-import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
-import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.qualityassessment.QualityAggregator;
 import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
-import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
-import cz.cuni.mff.odcleanstore.transformer.TransformedGraphException;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
@@ -20,106 +16,21 @@ import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.Locale;
 
+/**
+ * Default implementation of the Quality Aggregator
+ * 
+ * Compute average score of all graphs known to us (stored in db, including this one)
+ * and update its score in database in ODCSInternal.aggregatedPublisherScoreGraphUri
+ * graph
+ * 
+ * @author Jakub Daniel
+ *
+ */
 public class QualityAggregatorImpl implements QualityAggregator {
 	private static final Logger LOG = LoggerFactory.getLogger(QualityAggregatorImpl.class);
-
-	public static void main(String[] args) {
-		try {
-			ConfigLoader.loadConfig();
-			new QualityAggregatorImpl().transformGraph(new TransformedGraph () {
-
-				@Override
-				public String getGraphName() {
-					// TODO Auto-generated method stub
-					return "http://opendata.cz/data/namedGraph/3";
-				}
-
-				@Override
-				public String getGraphId() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-
-				@Override
-				public String getMetadataGraphName() {
-					// TODO Auto-generated method stub
-					return "http://opendata.cz/data/metadata";
-				}
-
-				@Override
-				public Collection<String> getAttachedGraphNames() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-
-				@Override
-				public void addAttachedGraph(String attachedGraphName)
-						throws TransformedGraphException {
-					// TODO Auto-generated method stub
-
-				}
-
-				@Override
-				public void deleteGraph() throws TransformedGraphException {
-					// TODO Auto-generated method stub
-
-				}
-
-				@Override
-				public boolean isDeleted() {
-					// TODO Auto-generated method stub
-					return false;
-				}
-
-                @Override
-                public String getProvenanceMetadataGraphName() {
-                 // TODO Auto-generated method stub
-                    return "http://opendata.cz/data/provenanceMetadata";
-                }
-
-			}, new TransformationContext() {
-
-				@Override
-				public JDBCConnectionCredentials getDirtyDatabaseCredentials() {
-					// TODO Auto-generated method stub
-					return new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1112/UID=dba/PWD=dba", "dba", "dba");
-				}
-
-				@Override
-				public JDBCConnectionCredentials getCleanDatabaseCredentials() {
-					// TODO Auto-generated method stub
-					return new JDBCConnectionCredentials("jdbc:virtuoso://localhost:1111/UID=dba/PWD=dba", "dba", "dba");
-				}
-
-				@Override
-				public String getTransformerConfiguration() {
-					return null;
-				}
-
-				@Override
-				public File getTransformerDirectory() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-
-				@Override
-				public EnumTransformationType getTransformationType() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-
-			});
-		} catch (Exception e) {
-			LOG.error(e.getMessage());
-		}
-	}
-
-	//TODO: null is just a special graph (might be replaced by something more configurable)
 
 	private final static String dropOutdatedQueryFormat = "SPARQL DELETE FROM <%s> {?publisher <" + ODCS.publisherScore + "> ?score} WHERE {?publisher <" + ODCS.publisherScore + "> ?score. FILTER (?publisher = <%s>)}";
 	private final static String computeSumUpdatedQueryFormat = "SPARQL SELECT SUM(?score) WHERE {?graph <" + ODCS.score + "> ?score; <" + ODCS.publishedBy + "> <%s>}";

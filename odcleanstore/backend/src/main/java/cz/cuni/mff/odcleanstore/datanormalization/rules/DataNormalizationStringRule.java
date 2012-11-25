@@ -8,6 +8,14 @@ import com.hp.hpl.jena.vocabulary.XSD;
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
 import cz.cuni.mff.odcleanstore.vocabulary.XPathFunctions;
 
+/**
+ * A rule used by Data Normalization Rule Generation from Ontologies
+ *
+ * converts numbers, dates... to string when the property is expected to have only string values
+ * this way subsequent queries do not need to care about stringification
+ *
+ * @author Jakub Daniel
+ */
 public class DataNormalizationStringRule extends DataNormalizationRule
 {
 	private static final long serialVersionUID = 1L;

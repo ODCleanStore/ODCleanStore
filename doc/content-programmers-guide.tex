@@ -17,12 +17,6 @@
 
   % FE - popsat, že to je webová aplikace, dá se spouštět pod tomcatem, odkaz na install manual
 
-	% třídy
-		% webfrontend.core
-			% DaoLookupFactory, ODCSWebFrontendApplicatoin .java/properties, ODCSWebFrontendSession, URLRouter
-		% webfrontend.core.components - custom Wicket components (buttons, labels, form components etc.)
-		% webfrontend.core.model - Wicket models and data providers
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \chapter{Introduction}
@@ -880,7 +874,12 @@ The method \code{compileOntologyToRules} expects a named graph \code{ontologyGra
 
 \subsubsection*{Quality Assessment Rules}
 
-The data patterns are described with \code{SPARQL Where Clause}\footnote{http://www.w3.org/TR/rdf-sparql-query/\#rWhereClause} followed by optional \code{Group by Clause}\footnote{http://www.w3.org/TR/sparql11-query/\#rGroupClause} and \code{Having Clause}\footnote{http://www.w3.org/TR/sparql11-query/\#rHavingClause}.
+\begin{lstlisting}[caption=Quality Assessment rule constructor,lst:qualityAssessmentRule]
+public QualityAssessmentRule (Integer id, Integer groupId, String filter, Double coefficient,
+  String label, String description) 
+\end{lstlisting}
+
+The data filters are described with \code{SPARQL Where Clause}\footnote{http://www.w3.org/TR/rdf-sparql-query/\#rWhereClause} followed by optional \code{Group by Clause}\footnote{http://www.w3.org/TR/sparql11-query/\#rGroupClause} and \code{Having Clause}\footnote{http://www.w3.org/TR/sparql11-query/\#rHavingClause}.
 The coefficient of quality is a number $c \in [0,1]$.
 
 \subsubsection*{Assessment \& Aggregation}
@@ -973,16 +972,6 @@ public class DataNormalizationRulesModel {
 
 The \code{compileOntologyToRules} expects a named graph of a name \code{ontologyGraphURI} to be present in the database. Its contents are interpreted as definition of an ontology and examined as such.
 
-\begin{itemize}
-	\code{DataNormalizationBooleanRule}
-	\code{DataNormalizationDateRule}
-	\code{DataNormalizationStringRule}
-	\code{DataNormalizationNonNegativeIntegerRule}
-	\code{DataNormalizationNonPositiveIntegerRule}
-	\code{DataNormalizationIntegerRule}
-	\code{DataNormalizationNumberRule}
-\end{itemize}
-
 \subsection{Implementation}
 
 \subsubsection*{Data Normalization Rules}
@@ -1003,6 +992,47 @@ They all closely follow semantics of \code{SPARQL} update queries\footnote{http:
 	\item Load committed versions of appropriate rules
 	\item Invoke \code{SPARQL INSERT/DELETE/MODIFY} on the input graph for all components of all selected rules.
 \end{enumerate}
+
+This process is further extended with modification detection for debugging purposes. The underlaying software does not provide an easy way to determine triples affected by application of a rule, thus it is necessery to compare original state of the graph with the outcome of the operation (\code{INSERT}/\code{DELETE}/\code{MODIFY}) after each step. This considerably slows down the whole process but provides precise information about what happend during the graph transformation. The modification can be represented in a sense of standard \code{diff} between two plain text resources. The method \code{debugRules} of \code{DataNormalizer} returns a \code{GraphModification} structure containing differences grouped by rules that introduced them. This extension does not affect the ordinary transformation procedure.
+
+\subsubsection*{Rule generation}
+
+The method \code{DataNormalizationRulesModel.compileOntologyToRules} searches for resources with \code{RDFS.range} statements in the ontology graph in database and creates adequate rules. The following rules can be generated:
+
+\begin{itemize}
+	\item \code{DataNormalizationBooleanRule}
+	
+	converts \code{0, 1, y, n, yes, no, true, false} (case insensitively) to \code{0, 1}
+	
+	\item \code{DataNormalizationDateRule}
+	
+	attempts to interpret the converted value as date string (2012, 2012-01 \ldots)
+	
+	\item \code{DataNormalizationStringRule}
+	
+	converts to string so any subsequent calls to substring or regexp functions do not fail
+
+	\item \code{DataNormalizationNonNegativeIntegerRule}
+	
+	converts to number $\ge 0$ dropping fractional part if any ($1.9 \mapsto 1$, $-1 \mapsto 0$, "yes" $\mapsto 0$)
+
+	\item \code{DataNormalizationNonPositiveIntegerRule}
+	
+	converts to number $\le 0$ dropping fractional part if any ($1 \mapsto 0$, $-1.9 \mapsto -1$, "yes" $\mapsto 0$)
+
+	\item \code{DataNormalizationIntegerRule}
+
+	drops fractional part of a number interpretation ($1.9 \mapsto 1$, $-1.9 \mapsto -1$, "yes" $\mapsto 0$)
+
+	\item \code{DataNormalizationNumberRule}
+
+	converts to number ("yes" $\mapsto 0$)
+\end{itemize}
+
+Number conversion uses Virtuoso built-in functions (\code{\_\_min\_notnull}, \code{\_\_max\_notnull}, \code{sign}, \code{abs}, \code{floor} \ldots) and thus heavily relies on their presence and implementation.
+\\
+
+These rules cover the basic and often used \code{XSD} datatypes with a reasonable conversion for general purposes. More specific transformations could be defined but are not suited for implicit rule generation as they may not effectively cover usual cases or could even produce bad results in different occassions. For example date conversions would often need additional information about the source of unnormalized date substrings to recongnize the format. The pre-transformation value is often ambiguous which could lead to incorrect interpretation (confusion of month for day of the month).
 
 \section{Linker}
 \section{Other Transformers}
@@ -1084,9 +1114,38 @@ Description of the most important BO classes follows:
 
 This package (and it's subpackages) contains classes which form the DAO layer. See the related section for more information on that.
 
+\subsubsection{core}
+
+This \code{core} package contains the following important classes. 
+
+The list contains neither the standard Wicket \code{ODCSWebFrontendApplication} and \code{ODCSWebFrontentSession} classes, nor thestandard \code{ODCSWebFrontendApplication.properties} file. The properties file contains custom validation messages and declarations of other string literals.
+
+\begin{description}[style=nextline,font=\ttfamily]
+	\item[URLRouter] Handles URL routing - e.g. conversion from raw Wicket-like URL addresses to human readable ones (and vice versa).
+	\item[DaoLookupFactory] Encapsulates DB connections and serves DAO objects to page components (see section \ref{sec:frontendDao}).
+\end{description}
+
+\subsubsection{core.models}
+
+This package contains custom implementations of the \code{IDataProvider} and \code{SortableDataProvider} interfaces, which adhere to our DAO layer implementation.
+
+\subsubsection{core.components}
+
+In the \code{core.components} package you'll find several custom components, such as labels, buttons, etc. The following list describes some of them. For a more comperhensive description, please see the javadoc documentation.
+
+\begin{description}[style=nextline,font=\ttfamily]
+	\item[UnobtrusivePagingNavigator] An implementation of the \code{PagingNavigator} component which is not visible if the list contains only a single page.
+	\item[TruncatedLabel] A label which only displays a few first characters of the given string.
+	\item[TimestampLabel] A label to display a properly formated timestamp.
+	\item[RedirectButton] A button to redirect to a different page, adjusted to suit the structure of the \WF application.
+	\item[LogInPanel] A panel which contains the log-in form.
+	\item[LimitedEditingForm] A form that can only be confirmed by authorized users.
+	\item[HelpWindow] A generic modal window to display help information.
+\end{description}
+
 \subsubsection{pages}
 
-In this package there are Wicket components for individual pages. The structure of subpackages mirrors the \FE menu. These are mostly standard Wicket components (but for a few conventions we have applied - see the relevant section). In this section, a brief description of some of the non-standard components will be given.
+In this package there are Wicket components for individual pages. The structure of subpackages mirrors the \FE menu. These are mostly standard Wicket components (but for a few conventions we have applied - read more in section \ref{sec:howToAddANewPage}). In this section, a brief description of some of the non-standard components will be given.
 
 \begin{description}[style=nextline,font=\ttfamily]
 	\item[FrontendPage] The parent component for almost all (see below) page components. Provides page layout and content common to all pages, as well as factory methods to create some basic child components.
@@ -1094,7 +1153,7 @@ In this package there are Wicket components for individual pages. The structure 
 	\item[UserPanel] This component forms the user-information panel - it shows the username and list of roles of the currently logged in user and provides means to log-in and log-out. It is included as a child component in the \code{FrontendPage}.
 \end{description}
 	
-For more information on how to create a new page, see the relevant section.
+For more information on how to create a new page, see section \ref{sec:howToAddANewPage}.
 
 \subsubsection{util}
 
@@ -1195,6 +1254,7 @@ As a rule, every page should contain a single help pop-up window for every entit
 
 
 \subsection{How to Add a New \DN Template}
+\label{sec:howToAddANewDNTemplate}
 
 To add a new \DN Template (named say XXX, such as Filter, Rename, Replace), follow these steps.
 

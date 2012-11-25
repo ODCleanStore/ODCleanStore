@@ -249,7 +249,7 @@ The frontend is divided into several separate sections of logicaly related contr
 		required & priority & The order of application of {transformers} to a named graph processed by the related {pipeline} is determined by its \term{priority} in ascending order. Every {transformer} runs before {transformers} with greater priority number. 
 	}
 
-	The detail page of the assigned QA, DN, OI transformers allows user to specify what rule groups are assigned to the transformer in the related pipeline.
+	The detail page of the assigned Quality Assessment, Data Normalization, Object Identification transformers allows user to specify what rule groups are assigned to the transformer in the related pipeline.
 
 %\paragraph{Important note:} Any changes done in this section need to be commited to ever take effect. To do so, please, click the \quot{Commit settings} button.
 % TODO: the previous paragraph is outdated, to be replaced by commiting of rules within a single group
@@ -365,7 +365,7 @@ The \emph{Graphs} subsection captures the content of the graph database. The tab
 \section{Ontology Management}
 \label{sec:ontologyManagement}
 
-Ontologies can be used to produce common rules for QA, DN {transformers}. To load one into the storage one can provide an explicit definition through a text field or by uploading a file containing a valid {RDF/XML} ontology definition. The process of rules generation will automatically take place upon ontology submission.
+Ontologies can be used to produce common rules for Quality Assessment, Data Normalization {transformers}. To load one into the storage one can provide an explicit definition through a text field or by uploading a file containing a valid {RDF/XML} ontology definition. The process of rules generation will automatically take place upon ontology submission.
 
 \section{User Accounts Administration}
 
@@ -542,7 +542,7 @@ Add the ODCSPropertyFilterTransformer by following steps:
 	
 	\emph{If there is no option then go back to the} \textbf{\nameref{sec:prepareTransformer}} \emph{section}
 	
-	To be able to assign rule groups select one of the standard transformers (QA, DN, OI)
+	To be able to assign rule groups select one of the standard transformers (QualityAssessor, DataNormalizer, Linker)
 
 	\item Fill in the configuration needed by the transformer
 	\item Allow or disallow running on clean DB

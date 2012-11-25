@@ -7,6 +7,14 @@ import com.hp.hpl.jena.vocabulary.XSD;
 
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
 
+/**
+ * A rule used by Data Normalization Rule Generation from Ontologies
+ * 
+ * converts anything to a number
+ * a bit to complicated but allows its argument to be incompatible -> result = 0
+ * 
+ * @author Jakub Daniel
+ */
 public class DataNormalizationNumberRule extends DataNormalizationRule {
 	private static final long serialVersionUID = 1L;
 	

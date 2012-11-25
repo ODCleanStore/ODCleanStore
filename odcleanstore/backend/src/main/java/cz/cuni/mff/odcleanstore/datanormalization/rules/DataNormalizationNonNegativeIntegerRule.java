@@ -7,6 +7,13 @@ import com.hp.hpl.jena.vocabulary.XSD;
 
 import cz.cuni.mff.odcleanstore.datanormalization.exceptions.DataNormalizationException;
 
+/**
+ * A rule used by Data Normalization Rule Generation from Ontologies
+ * 
+ * convert to non negative integral value by calculating number(x), default to 0 if null or incompatible or < 0
+ * 
+ * @author Jakub Daniel
+ */
 public class DataNormalizationNonNegativeIntegerRule extends DataNormalizationRule {
 	private static final long serialVersionUID = 1L;
 	

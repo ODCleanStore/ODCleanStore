@@ -6,9 +6,8 @@ import cz.cuni.mff.odcleanstore.data.EnumDatabaseInstance;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
 /**
- * 
+ * BO to represent all input graphs in database
  * @author Jakub Daniel
- *
  */
 public class InputGraph extends EntityWithSurrogateKey {
 	private static final long serialVersionUID = 1L;
@@ -20,7 +19,8 @@ public class InputGraph extends EntityWithSurrogateKey {
 	public Integer pipelineId;
 	public Timestamp updated;
 	public String namedGraphsPrefix;
-	
+
+	/* Additional information */
 	public String engineUUID;
 	public String pipelineLabel;
 	public Integer pipelineAuthorId;

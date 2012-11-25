@@ -10,6 +10,17 @@ import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRule;
 import cz.cuni.mff.odcleanstore.shared.UUIDUniqueURIGenerator;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 
+/**
+ * Validator that attempts to run a rule to verify
+ * its syntactical correctness
+ *
+ * WARNING: it is still possible for the validated rules
+ *          to fail due to errors in functions based on input
+ *          data as it will be performed over non-existent
+ *          (empty) graph
+ * 
+ * @author Jakub Daniel
+ */
 public class QARuleValidator extends CustomValidator {
 
 	private static final long serialVersionUID = 1L;

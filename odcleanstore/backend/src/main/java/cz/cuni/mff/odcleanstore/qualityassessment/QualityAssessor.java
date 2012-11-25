@@ -19,6 +19,10 @@ import cz.cuni.mff.odcleanstore.transformer.*;
  * defined by inputGraph (rdf property odcs:score). A textual
  * trace of the whole process is stored there too
  * (odcs:scoreTrace).
+ * 
+ * It provides a debugging interface that does not affect
+ * metadata graphs but instead returns a structured output in
+ * form of a GraphScoreWithTrace instance.
  *
  * @author Jakub Daniel
  */

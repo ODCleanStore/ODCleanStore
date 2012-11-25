@@ -1,7 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo.onto;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.AuthoredEntity;
-import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
 /**
  * Business entity representing an ontology.

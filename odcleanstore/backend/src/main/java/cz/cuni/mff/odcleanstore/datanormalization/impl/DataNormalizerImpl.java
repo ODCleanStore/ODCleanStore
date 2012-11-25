@@ -36,8 +36,6 @@ import java.util.Map;
 /**
  * DataNormalizerImpl implements the default Data Normalization for ODCS
  *
- * It is meant to be used over dirty database only.
- *
  * @author Jakub Daniel
  */
 public class DataNormalizerImpl implements DataNormalizer, Serializable {
@@ -99,7 +97,7 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 	}
 
 	/**
-	 * The collection of all modifications done to a graph (grouped by the rules that did them)
+	 * The collection of all modifications done to a graph (grouped by the rules that did them, divided into two groups: Insertions, Deletions)
 	 * @author Jakub Daniel
 	 */
 	public class GraphModificationImpl implements GraphModification {
@@ -144,18 +142,32 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 			}
 		}
 
+		/**
+		 * @return iterator over rules that have a record of modification (either insertion or deletion or both) in the structure
+		 */
 		public Iterator<DataNormalizationRule> getRuleIterator() {
 			return modifications.keySet().iterator();
 		}
 
+		/**
+		 * @param rule The rule to find modifications for (usually obtained through getRuleIterator dereferencing (.next()))
+		 * @return modifications (insertions and deletions) done by the rule
+		 */
 		public RuleModification getModificationsByRule(DataNormalizationRule rule) {
 			return modifications.get(rule);
 		}
 
+		/**
+		 * @return name of the graph the modifications were applied to
+		 */
 		public String getGraphName() {
 			return graphName;
 		}
 
+		/**
+		 * @param graphName the name of the modified graph
+		 * @return bind this modification to a concrete graph
+		 */
 		public void setGraphName(String graphName) {
 			this.graphName = graphName;
 		}
@@ -251,6 +263,10 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 		}
 	}
 
+	/**
+	 * Serialized version needed for serialization in frontend for example
+	 * @author Jakub Daniel
+	 */
 	public static abstract class SerializableTransformedGraph implements TransformedGraph, Serializable {
 		private static final long serialVersionUID = 1L;
 	}
@@ -298,6 +314,10 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 		};
 	}
 
+	/**
+	 * Serialized version needed for serialization in frontend for example
+	 * @author Jakub Daniel
+	 */
 	public static abstract class SerializableTransformationContext implements TransformationContext, Serializable {
 		private static final long serialVersionUID = 1L;
 	}

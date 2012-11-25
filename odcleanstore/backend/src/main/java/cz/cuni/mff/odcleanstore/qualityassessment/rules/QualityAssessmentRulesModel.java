@@ -34,7 +34,9 @@ import java.util.Set;
 /**
  * Rules Model.
  *
- * Facilitates changes and queries for quality assessment rules.
+ * Facilitates queries for quality assessment rules.
+ * 
+ * Also used to generate rules from ontologies
  *
  * @author Jakub Daniel
  */
@@ -90,15 +92,32 @@ public class QualityAssessmentRulesModel {
 		}
 	}
 
+	/**
+	 * Default to committed versions of rules
+	 * @param endpoint definition of database location and connection credentials
+	 */
 	public QualityAssessmentRulesModel (JDBCConnectionCredentials endpoint) {
 		this(endpoint, TableVersion.COMMITTED);
 	}
 
+	/**
+	 * 
+	 * @param endpoint definition of database location and connection credentials
+	 * @param tableVersion version of rule tables to be used
+	 */
 	public QualityAssessmentRulesModel (JDBCConnectionCredentials endpoint, TableVersion tableVersion) {
 		this.endpoint = endpoint;
 		this.tableVersion = tableVersion;
 	}
 
+	/**
+	 * Execute a query for rules
+	 * 
+	 * @param query the query with constraints
+	 * @param objects the variables to be binded to the query
+	 * @return collection of rules complying to the constraints of the query
+	 * @throws QualityAssessmentException
+	 */
 	private Collection<QualityAssessmentRule> queryRules (String query, Object... objects) throws QualityAssessmentException {
 		Collection<QualityAssessmentRule> rules = new ArrayList<QualityAssessmentRule>();
 
@@ -159,6 +178,12 @@ public class QualityAssessmentRulesModel {
 		return rules;
 	}
 
+	/**
+	 * Creates predefined rules for resources of types FunctionalProperty, InverseFunctionalProperty, ConceptScheme
+	 * @param ontologyGraphURI URI of a graph containing ontology definition (expected to already exist in the database to which the QualityAssessmentRulesModel is connected)
+	 * @return set of generated rules
+	 * @throws QualityAssessmentException
+	 */
 	public Collection<QualityAssessmentRule> compileOntologyToRules(String ontologyGraphURI) throws QualityAssessmentException {
 		try {
 			VirtModel ontology = VirtModel.openDatabaseModel(ontologyGraphURI,
@@ -186,6 +211,14 @@ public class QualityAssessmentRulesModel {
 		}
 	}
 
+	/**
+	 * Generate rules for the concrete resource
+	 * @param resource to be processed
+	 * @param model residence of the resource
+	 * @param ontology
+	 * @return rules generated for the resource
+	 * @throws QualityAssessmentException
+	 */
 	private Collection<QualityAssessmentRule> processOntologyResource(Resource resource,
 			Model model, String ontology) throws QualityAssessmentException {
 		List<QualityAssessmentRule> ruleList = new ArrayList<QualityAssessmentRule>();
