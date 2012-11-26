@@ -242,8 +242,6 @@ The frontend is divided into several separate sections of logicaly related contr
 	{
 		required & transformer/label & an existing transformer label\\
 		\hline
-		required & working dir & an existing directory designated to the above selected transformer\\
-		\hline
 		required & configuration & configuration passed to an instance of the above selected transformer\\
 		\hline
 		implied & allow to be run on clean DB & As the importance of data modification that the pipelines can cause differs based on what database it is running upon, it is left for the user to decide whether a concrete {transformer} should be allowed to run on clean database (in addition to running on dirty database). Some transformations do not even make sense when working with clean database.\\

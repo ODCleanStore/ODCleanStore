@@ -6,7 +6,6 @@
 	
 	<table>
 		<tr><th>transformer/label</th><td>required</td><td>an existing transformer label</td></tr>
-		<tr><th>working dir</th><td>required</td><td>an existing directory designated to the above selected transformer</td></tr>
 		<tr><th>configuration</th><td>required</td><td>configuration passed to an instance of the above selected transformer</td></tr>
 		<tr><th>allow to be run on clean DB</th><td>implied</td><td>As the importance of data modification that the pipelines can cause differs based on what database it is running upon, it is left for the user to decide whether a concrete transformer should be allowed to run on clean database (in addition to running on dirty database). Some transformations do not even make sense when working with clean database.</td></tr>
 		<tr><th>place in pipeline before</th><td>required</td><td>Determines when the transformer will be run in respect to other transformers in the pipeline</td></tr>
