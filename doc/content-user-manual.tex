@@ -520,26 +520,38 @@ There need to be transformers for the storage to be able to handle incoming data
 
 Add the ODCSPropertyFilterTransformer by following steps:
 
+\newpage
 \subsection*{Prepare Transformer}
 \label{sec:prepareTransformer}
 \begin{enumerate}
+
+\vspace*{0.2\textheight}
+
 	\item Choose \code{Transformers} from the frontend menu
 
-\begin{figure}[!h]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=\textwidth]{images/fe-walkthrough-menu-transformers.png}
+    \caption{Navigating to transformers page using the main menu}
 	\label{fig:feWTMenuTransformers}
 \end{figure}
 \FloatBarrier
 
+\vspace*{0.2\textheight}
+
 	\item Click \quot{Add a new transformer}
 
-\begin{figure}[!h]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=\textwidth]{images/fe-walkthrough-add-transformer.png}
+    \caption{Accessing the new transformer definition page}
 	\label{fig:feWTAddTransformer}
 \end{figure}
 \FloatBarrier
+
+\newpage
+
+\vspace*{0.2\textheight}
 
 	\item Fill in label of your choice
 	
@@ -549,105 +561,149 @@ Add the ODCSPropertyFilterTransformer by following steps:
 	
 	\item Fill in the classname
 	
-\begin{figure}[!h]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=\textwidth]{images/fe-walkthrough-new-transformer.png}
+    \caption{Transformer definition after filling in all necessary information}
 	\label{fig:feWTNewTransformers}
 \end{figure}
+
 \FloatBarrier
 
 \end{enumerate}
 
+\newpage
 \subsection*{Prepare Rules for Standard Transformer}
 \begin{enumerate}[resume]
+
+\vspace*{0.2\textheight}
+
 	\item Choose \code{Rules/Data Normalization} from the frontend menu
 
-\begin{figure}[!h]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=\textwidth]{images/fe-walkthrough-menu-rules.png}
+    \caption{Navigating to the rule group management section}
 	\label{fig:feWTMenuRules}
 \end{figure}
 \FloatBarrier
 
+\vspace*{0.2\textheight}
+
 	\item Click \quot{Add a new rules group}
 
-\begin{figure}[!h]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=\textwidth]{images/fe-walkthrough-add-group.png}
+    \caption{Proceeding to define a new group}
 	\label{fig:feWTAddGroup}
 \end{figure}
 \FloatBarrier
 
+\newpage
+
+\vspace*{0.1\textheight}
+
 	\item Fill in necessary information and submit it
 
-\begin{figure}[!h]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=\textwidth]{images/fe-walkthrough-new-group.png}
+    \caption{Definition of a new rule group}
 	\label{fig:feWTNewGroup}
 \end{figure}
 \FloatBarrier
 
+\vspace*{0.2\textheight}
+
 	\item Click \quot{Add a new raw rule}
 
-\begin{figure}[!h]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=\textwidth]{images/fe-walkthrough-add-raw-rule.png}
+    \caption{Adding a rule to the new group}
 	\label{fig:feWTAddRawRule}
 \end{figure}
 \FloatBarrier
 
+\newpage
+
+\vspace*{0.1\textheight}
+
 	\item Fill in its description and submit
 
-\begin{figure}[!h]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=\textwidth]{images/fe-walkthrough-new-raw-rule.png}
+    \caption{Filling in the necessary information}
 	\label{fig:feWTNewRawRule}
 \end{figure}
 \FloatBarrier
 
+\vspace*{0.2\textheight}
+
 	\item Click \quot{Add a new rule component}
 
-\begin{figure}[!h]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=\textwidth]{images/fe-walkthrough-add-component.png}
+    \caption{Proceeding to definition of individual components}
 	\label{fig:feWTAddComponent}
 \end{figure}
 \FloatBarrier
+
+\newpage
+
+\vspace*{0.2\textheight}
 
 	\item Choose the type of the data transformation (\code{MODIFY}/\code{INSERT}/\code{DELETE})
 	\item Specify the triples that will modify the graph
 	\item Describe the meaning of this transformation and submit it
 
-\begin{figure}[!h]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=\textwidth]{images/fe-walkthrough-new-component.png}
+    \caption{Definition of a new Data Normalization component}
 	\label{fig:feWTNewComponent}
 \end{figure}
 \FloatBarrier
 
+\vspace*{0.2\textheight}
+
 	\item Repeat until the rule is complete
 \end{enumerate}
 
-  
+\newpage  
 \subsection*{Prepare Pipeline}
 \begin{enumerate}[resume]
-	\item Click \quot{Add a new pipeline}, fill in the label and description and submit it
 
-\begin{figure}[!h]
+\vspace*{0.2\textheight}
+
+	\item Choose \code{Pipelines} from the main menu
+
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=\textwidth]{images/fe-walkthrough-menu-pipelines.png}
+    \caption{Navigating to the pipelines management section}
 	\label{fig:feWTMenuPipelines}
 \end{figure}
 \FloatBarrier
 
+\vspace*{0.2\textheight}
+
+	\item Click \quot{Add a new pipeline}, fill in the label and description and submit it
+
 	\item Click \quot{Assign a transformer}
 
-\begin{figure}[!h]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=\textwidth]{images/fe-walkthrough-assign-transformer.png}
+    \caption{Proceed to assignment of transformers to the pipeline}
 	\label{fig:feWTAssignTransformer}
 \end{figure}
 \FloatBarrier
+
+\vspace*{0.2\textheight}
 
 	\item Select one of the transformers
 	
@@ -659,30 +715,37 @@ Add the ODCSPropertyFilterTransformer by following steps:
 	\item Allow or disallow running on clean DB
 	\item Select place in the pipeline
 
-\begin{figure}[!h]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=\textwidth]{images/fe-walkthrough-new-transformer-assignment.png}
+    \caption{Assigning a new instance of previously defined transformer}
 	\label{fig:feWTNewTransformerAssignment}
 \end{figure}
 \FloatBarrier
 
+\newpage
+\vspace*{0.2\textheight}
+
 	\item Click \quot{Assign a group} to assign a group of Data Normalization rules
 
-\begin{figure}[!h]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=\textwidth]{images/fe-walkthrough-assign-group.png}
+    \caption{Continuing by assigning rule groups to the transformer instance}
 	\label{fig:feWTAssignGroup}
 \end{figure}
 \FloatBarrier
 
+\vspace*{0.2\textheight}
+
 	\item Select the group created earlier
 
-\begin{figure}[!h]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=\textwidth]{images/fe-walkthrough-new-group-assignment.png}
+    \caption{Selecting the desired group to be assigned}
 	\label{fig:feWTNewGroupAssignment}
 \end{figure}
-\FloatBarrier
 
 \end{enumerate}
 
