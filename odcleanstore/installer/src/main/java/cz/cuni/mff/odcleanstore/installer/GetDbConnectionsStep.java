@@ -56,7 +56,7 @@ public class GetDbConnectionsStep extends WizardStep {
 		panel = new JPanel();
 		panel.setLayout(new GridBagLayout());
 
-		jlbCleanHostName = new JLabel("Clean DB HostName:");
+		jlbCleanHostName = new JLabel("Clean DB Host name:");
 		jtfCleanHostName = new JTextField(40);
 		jlbCleanPort = new JLabel("Clean DB port:");
 		jtfCleanPort = new JTextField(40);
@@ -65,7 +65,7 @@ public class GetDbConnectionsStep extends WizardStep {
 		jlbCleanPassword = new JLabel("Clean DB password:");
 		jtfCleanPassword = new JTextField(40);
 
-		jlbDirtyHostName = new JLabel("Dirty DB HostName:");
+		jlbDirtyHostName = new JLabel("Dirty DB Host name:");
 		jtfDirtyHostName = new JTextField(40);
 		jlbDirtyPort = new JLabel("Dirty DB port:");
 		jtfDirtyPort = new JTextField(40);

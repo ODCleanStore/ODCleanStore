@@ -29,6 +29,7 @@ More detailed information about \odcs from the perspective of a user can be foun
 
 
 \chapter{System Requirements}
+\label{chap:requirements}
 \odcs is a multiplatform application written in Java. These are the system requirements for installing and running \odcs:
 
 \begin{itemize}
@@ -79,12 +80,148 @@ Virtuoso has paid enterprise licenses, but also an open source edition\footnote{
 \textit{Note:} For security reasons, don't forget to change credentials for your database instance.
 
 
-\chapter{CD Contents}
+\chapter{Installation CD Contents}
+This chapter describes the contents of the installation CD with \odcs:
+%TODO
+
+\begin{description}[style=nextline,font=\ttfamily]
+  \item[engine/] Contains binaries of \odcs Engine.
+  \item[odcs-installer.sh] Installation script for Linux.
+  \item[odcs-installer.bat] Installation script for Windows.
+  \item[odcs-installer.jar] Binary with the \odcs installer.
+  \item[clean-clear.sql] SQL script for clearing the clean database instance.
+  \item[clean-fulltext-index.sql] SQL script for creating a fulltext index on the clean database instance. Required for working keyword queries.
+  \item[clean.sql] SQL script for importing initial data to the clean database instance.
+  \item[dirty-clear.sql] SQL script for clearing the dirty database instance.
+  \item[dirty.sql] SQL script for importing initial data to the dirty database instance.
+  \item[odcs-webfrontend.war] Java web application archive containing Administration Frontend of \odcs.
+\end{description}
 
 \chapter{Step by Step Installation Guide}
+\odcs distribution contains an installer with graphical interface.
+%Alternatively, \odcs can be installed manually following instructions in the README file.
 
-% ?? https://sourceforge.net/p/odcleanstore/wiki/Install%20and%20Configure%20Virtuoso/
-%make sure you have two Virtuoso database instances created and \textit{started} before installation, as described in Section \ref{sec:virtuoso}.
+\section{Prerequisities}
+Before installation, make sure your system satisfies requirements listed in \ref{chap:requirements}. In particular, make sure to have two Virtuoso database instances created and \textit{started} before installation, as described in Section \ref{sec:virtuoso}.
+
+\section{Using the Installer}
+In order to run the installer, execute in the root directory of the distribution
+\begin{verbatim}
+  ./odcs-installer.sh
+\end{verbatim}
+on Linux, or run
+\begin{verbatim}
+  odcs-installer.bat
+\end{verbatim}
+on Windows. This should start the installer.
+
+On the first screen of the installer, enter the directory where \odcs binaries should be installed.
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/install-step01.png}
+    %\caption{}
+    %\label{fig:}
+\end{figure}
+
+\FloatBarrier
+
+%TODO
+On the second screen, you can see the progress of copying files to the installation directory.
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/install-step02.png}
+    %\caption{}
+    %\label{fig:}
+\end{figure}
+
+\FloatBarrier
+
+Next, enter the connection settings for the clean and dirty Virtuoso database instances. See Section \ref{sec:virtuoso} for more information about Virtuoso database instances.
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/install-step03.png}
+    %\caption{}
+    %\label{fig:}
+\end{figure}
+
+\FloatBarrier
+
+The next screen shows the progress of database import.
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/install-step04.png}
+    %\caption{}
+    %\label{fig:}
+\end{figure}
+
+\FloatBarrier
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/install-step05.png}
+    %\caption{}
+    %\label{fig:}
+\end{figure}
+
+\FloatBarrier
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/install-step06.png}
+    %\caption{}
+    %\label{fig:}
+\end{figure}
+
+\FloatBarrier
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/install-step07.png}
+    %\caption{}
+    %\label{fig:}
+\end{figure}
+
+\FloatBarrier
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/install-step08.png}
+    %\caption{}
+    %\label{fig:}
+\end{figure}
+
+\FloatBarrier
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/install-step09.png}
+    %\caption{}
+    %\label{fig:}
+\end{figure}
+
+\FloatBarrier
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/install-step10.png}
+    %\caption{}
+    %\label{fig:}
+\end{figure}
+
+\FloatBarrier
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/install-step11.png}
+    %\caption{}
+    %\label{fig:}
+\end{figure}
+
+\FloatBarrier
 
 
 \chapter{(Contents of the Deployed Application)}
