@@ -397,6 +397,15 @@ There are also shortcut buttons that allow to perform all of these actions on al
 
 The \emph{Graphs} subsection captures the content of the graph database. The table of all graphs contains their identifiers in form of \code{URI}, states, pipelines that processed them, information about residence in clean or dirty database, and timestamp of the last update. Each of the graphs can be deleted or rerun in which case it is processed by the pipeline in its current state. The \code{URI} is a link to output webservice and serves as detailed source of information about the graph.
 
+\section{Output Webservice}
+\label{sec:outputWSMgmt}
+
+The output webservice configuration covers default policies for data aggregation. Multivalue in this context specifies whether a property may or may not have more values at a time. This effects the way conflicts are resolved in responses to user queries over the webservice. Aggregation type specifies which method to use to infer values in response. Aggregation error strategy specifies a fallback behaviour in case that aggregation cannot take place due to data types incompatibilities with the aggregation method.
+
+The configuration specifies one global behaviour and then it offers the user to override that behaviour for specific properties.
+
+The properties specified in the Label properties section are treated by query execution component as human readable labels of different entities. Simply add new label property by using "add a new property" button and remove any by use of corresponding delete button.
+
 \section{Ontology Management}
 \label{sec:ontologyManagement}
 
@@ -405,9 +414,14 @@ Ontologies can be used to produce common rules for Quality Assessment, Data Norm
 Another benefit of storing ontologies in the database is gain of ability to map properties from one ontology to properties from another with \code{owl:sameAs}, \code{owl:equivalentProperty}, \code{rdfs:subPropertyOf}, \code{rdfs:subClassOf} or a custom \code{URI} of any other property. This can be further used by Conflict Resolution component to produce more precise results. Such mapping can be added in the section Ontology mappings reachable from Ontologies submenu.
 In that section a pair of ontologies needs to be selected to restrain to a specific set of properties. After submitting the pair of ontologies a new form is presented where individual properties can be mapped. After filling in \code{URI}'s of source and target properties, selecting a relation type and submitting a mapping is created. From that point on it will be considered during conflict resolution.
 
-\section{User Accounts Administration}
+\section{Accounts}
 
-To be able to manage user accounts one has to have \term{ADM} user role (section \ref{sec:adm}) associated with his account. It is possible to view currently active accounts and modify them or to add new accounts to the system from this page. The modification is limited to changes of user roles and resetting of passwords for safety reasons. A newly generated password is sent to the e-mail address of the affected user.
+As it has been already mentioned in chapter \ref{chap:userRoles} the frontend verifies user privileges before providing access to different configurations and content. To be able to maintain user roles and permissions that are implied for individual users the frontend administration provides this section. All registered accounts will be displayed in a table with all the information (username, e-mail address, first and second name, roles assigned to the account). 
+The administrator can assign roles and reset password from this overview and related editable pages. For editing the roles simply use \emph{Roles} button and for reseting the password use \emph{New password} button which will prompt you for confimation and then generate a new password and send it via the e-mail address to the user in question if the confirmation is given.
+
+\subsection*{My Account}
+
+This section is reachable with \emph{My Account} button below the main menu after a succesful login. It displays current user's name, first and second real name, and e-mail address. It is also possible to change the current password through a page to which \emph{Edit my password} redirects.
 
 \section{Transformer Management}
 \label{sec:transformerManagement}
@@ -427,28 +441,10 @@ To be able to manage user accounts one has to have \term{ADM} user role (section
 		required & Full classname & Name of the class implementing the {transformer}.
 	}
 
-\section{Output Webservice}
-\label{sec:outputWSMgmt}
-
-The output webservice configuration covers default policies for data aggregation. Multivalue in this context specifies whether a property may or may not have more values at a time. This effects the way conflicts are resolved in responses to user queries over the webservice. Aggregation type specifies which method to use to infer values in response. Aggregation error strategy specifies a fallback behaviour in case that aggregation cannot take place due to data types incompatibilities with the aggregation method.
-
-The configuration specifies one global behaviour and then it offers the user to override that behaviour for specific properties.
-
-The properties specified in the Label properties section are treated by query execution component as human readable labels of different entities. Simply add new label property by using "add a new property" button and remove any by use of corresponding delete button.
-
 \section{Prefixes}
 \label{sec:frontendPrefixMgmt}
 
 To avoid obligation of full manual URI expansion in \term{transformer} rules or queries it is possible to maintain set of global \term{RDF} prefixes that storage recognizes. These can be added with \emph{add a new prefix} button and removed by \emph{delete} button next to the desired target of removal.
-
-\section{Accounts}
-
-As it has been already mentioned in chapter \ref{chap:userRoles} the frontend verifies user privileges before providing access to different configurations and content. To be able to maintain user roles and permissions that are implied for individual users the frontend administration provides this section. All registered accounts will be displayed in a table with all the information (username, e-mail address, first and second name, roles assigned to the account). 
-The administrator can assign roles and reset password from this overview and related editable pages. For editing the roles simply use \emph{Roles} button and for reseting the password use \emph{New password} button which will prompt you for confimation and then generate a new password and send it via the e-mail address to the user in question if the confirmation is given.
-
-\section{My Account}
-
-This section is reachable with \emph{My Account} button below the main menu after a succesful login. It displays current user's name, first and second real name, and e-mail address. It is also possible to change the current password through a page to which \emph{Edit my password} redirects.
 
 \section{Configuration Example}
 
