@@ -1,6 +1,6 @@
 <wicket:panel>
 
-	<h1>DN rule component</h1>
+	<h1>Data Normalization rule component</h1>
 	
 	<p>Every component is of <em>INSERT</em> / <em>DELETE</em> / <em>MODIFY</em> type. This affects the behaviour of the component and its definition.</p>
 	
@@ -17,6 +17,6 @@
 	
 	<p>The examples above are intentionally overcomplicated to capture different aspects of the modifications</p>
 	
-	<p>Subqueries are used to bind variables instead of SPARQL 1.1 BIND for compatibility reasons. This is also the reason for introduction of $$graph$$ which is a placeholder for currently processed graph and should be used only in <a href="http://www.w3.org/TR/sparql11-query/#rGraphGraphPattern">GraphGraphPattern</a>.</p>
+	<p>Subqueries are used to bind variables instead of SPARQL 1.1 BIND for compatibility reasons. This is also the reason for introduction of $$graph$$ which is a placeholder for currently processed graph and should be used only in <a href="http://www.w3.org/TR/sparql11-query/#rGraphGraphPattern">GraphGraphPattern</a>. When there is no subquery it is not necessary to use the placeholder at all.</p>
 
 </wicket:panel>

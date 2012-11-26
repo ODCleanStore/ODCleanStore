@@ -1,6 +1,6 @@
 <wicket:panel>
 
-	<h1>QA rule</h1>
+	<h1>Quality Assessment rule</h1>
 
 	<wicket:link>
 		<p>Each rule consists of a <em>GroupGraphPattern</em><sup><a href="#GroupGraphPattern">1</a></sup> filter, quality decrease coefficient and description, as described in the following table.</p>
@@ -19,6 +19,9 @@
 			<li><a id="GroupGraphPattern" href="http://www.w3.org/TR/rdf-sparql-query/#rGroupGraphPattern">http://www.w3.org/TR/rdf-sparql-query/#rGroupGraphPattern</a></li>
 			<li><a id="SPARQL" href="http://www.w3.org/TR/rdf-sparql-query/#grammar">http://www.w3.org/TR/rdf-sparql-query/#grammar</a></li>
 		</ol>
+		
+		<p>The coefficient of a rule reduces <em>graph score</em> if the filter applies to that graph.</p>
+		<p>More precisely <em>graph score</em> = 1 * <em>c</em><sub>1</sub> * <em>c</em><sub>2</sub> * ... * <em>c</em><sub>n</sub> where <em>c</em><sub>i</sub> are coefficients of all rules <em>r</em><sub>i</sub> whose filters match the graph.</p>
 	</wicket:link>
 
 </wicket:panel>

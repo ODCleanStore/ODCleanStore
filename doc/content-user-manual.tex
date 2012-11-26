@@ -346,7 +346,7 @@ Expectedly triples (\code{?s ?p1 ?o2} in the example) are inserted into (deleted
 	\code{\{?s ?p ?o\} WHERE \{GRAPH \$\$graph\$\$ \{SELECT ?s ?p 'Y' AS ?o WHERE \{?s ?p 1\}\}\}},
 \end{center}
 
-where \code{\$\$graph\$\$} in \code{GRAPH \$\$graph\$\$} is a place holder for name of the graph being currently processed and can be used for subqueries that need to be enclosed in \code{GraphGraphPattern}\footnote{\url{http://www.w3.org/TR/rdf-sparql-query/\#rGraphGraphPattern}}.
+where \code{\$\$graph\$\$} in \code{GRAPH \$\$graph\$\$} is a place holder for name of the graph being currently processed and can be used for subqueries that need to be enclosed in \code{GraphGraphPattern}\footnote{\url{http://www.w3.org/TR/rdf-sparql-query/\#rGraphGraphPattern}}. When there is no subquery, however, it is not necessary to use the placeholder at all.
 
 \subsection{Linker}
 \label{sub:objectIdentification}

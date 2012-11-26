@@ -2,8 +2,10 @@
 
 	<h1>Graphs in Error</h1>
 
-	<wicket:link>
-		<p></p>
-	</wicket:link>
+	<p>Each graph processed by the selected pipeline can be processed by the pipeline once again with the <input class="button" disabled="disabled" style="width: 40px;" value="Rerun" /> button (this transformation will reflect current state of the pipeline configuration) or it can be deleted by <input class="button delete" disabled="disabled" style="width: 45px;" value="Delete" /> button. Graphs that are in clean database can in addition be accepted (<input class="button" disabled="disabled" style="width: 45px;" value="Accept" />) as they are despite the errors if the user considers them irrelevant.</p>
+	
+	<p>There are also shortcut buttons that allow to perform all of these actions on all graphs in one step. The clean database restriction for the accept action still applies so some graphs may not be affected.</p>
+	
+	<p>All of the actions can be invoked by administrator and the author of corresponding pipeline.</p>
 
 </wicket:panel>
