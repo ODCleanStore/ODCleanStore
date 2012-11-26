@@ -199,7 +199,7 @@ The administration frontend controls various entities, allows the user to set di
 
 \enumtable
 {
-	\vspace{0.5cm} Delete & Remove the related entity irrevertably from the system.\\
+	\vspace{0.5cm} Delete & Remove the related entity irreversibly from the system.\\
 	\vspace{0.5cm} Detail & View details and form for editing the related entity. For some entitis shows also entities related to the edited entity.\\
 	\vspace{0.5cm} Rerun affected graphs & Queues all graphs affected by the entity for pipeline processing, i.e. the graphs will be processed again by their respective pipeline.
 }
@@ -429,7 +429,7 @@ To be able to manage user accounts one has to have \term{ADM} user role (section
 \section{Output Webservice}
 \label{sec:outputWSMgmt}
 
-The output webservice configuration covers default policies for data aggregation. Multivalue in this context specifies whether a property may or may not have more values at a time. This effects the way conflicts are resolved in responses to user queries over the webservice. Aggregation type specifies which method to use to infer values in response. Aggregation error strategy specifies a fallback behaviour in case that aggregation cannot take place due to data types incompatibilities with the aggregation method.
+The output webservice configuration covers default policies for data aggregation. Multivalue in this context specifies whether a property may or may not have more values at a time. This effects the way quality is calculated in responses to user queries over the webservice. Aggregation type specifies which method to use to infer values in response. Aggregation error strategy specifies a fallback behaviour in case that aggregation cannot take place due to data types incompatibilities with the aggregation method.
 
 The configuration specifies one global behaviour and then it offers the user to override that behaviour for specific properties.
 
