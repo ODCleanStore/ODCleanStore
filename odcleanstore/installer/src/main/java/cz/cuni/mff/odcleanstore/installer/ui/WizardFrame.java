@@ -40,7 +40,7 @@ public abstract class WizardFrame {
 	public WizardFrame() throws IOException {
 
 		frame = new JFrame();
-		frame.setTitle("Odcleanstore installer");
+		frame.setTitle("ODCleanStore Installer");
 		frame.setIconImage(AwtUtils.loadResourceToImage("/cube.png"));
 		Point center = GraphicsEnvironment.getLocalGraphicsEnvironment().getCenterPoint();
 		frame.setBounds(center.x - 400, center.y - 300, 800, 600);

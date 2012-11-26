@@ -12,6 +12,7 @@ public class TextAreaOutputStream extends OutputStream {
 		this.textArea = textArea;
 	}
 
+	@Override
 	public void write(int val) {
 		textArea.append(Character.toString((char)val));
 	}
