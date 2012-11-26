@@ -16,19 +16,82 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\chapter{Introduction}
+\odcs is a~server application for management of Linked Data. It stores data in RDF, processes them and provides integrated views on the data.
+
+This document serves as the installation guide and manual for system administrators. It includes system requirements, installation instructions, configuration overview, manual how to start the application and basic information about extending ODCleanStore's data processing capabilities by adding \term{custom transformers}.
+
+\section*{What is ODCleanStore}
+\odcs accepts arbitrary RDF data and metadata through a SOAP webservice (\term{Input Webservice}). The data is processed by \term{transformers} in one of a~set of customizable \term{pipelines} and stored to a~persistent store (OpenLink Virtuoso database instance). The stored data can be accessed again either  directly through a SPARQL endpoint or through \term{Output Webservice}. Linked Data consumers can send queries and custom query policies to Output Webservice and receive (aggregated/integrated) RDF data relevant for their query, together with information about provenance and data quality. 
+
+\section*{Related documents}
+More detailed information about \odcs from the perspective of a user can be found in related document \quot{\refusermanual}. It also contains definition of user roles, glossary of terms etc. Document \quot{\refprogrammersguide} contains more detailed information intended primarily for developers, however system administrators may also find interesting in-depth information in \refprogrammersguide. 
+
+
 \chapter{System Requirements}
+\odcs is a multiplatform application written in Java. These are the system requirements for installing and running \odcs:
+
+\begin{itemize}
+  \item Operating System: Windows XP, Windows 7, Windows Server 2008, Linux
+  \item Java Runtime Environment 6 or newer\footnote{\url{http://www.java.com/en/download/}}
+  \item Installed OpenLink Virtuoso\footnote{\url{http://virtuoso.openlinksw.com/}} (see below)
+  \item Apache Tomcat (or an equivalent Java servlet container)
+\end{itemize}
+
+
+\section{OpenLink Virtuoso}
+\label{sec:virtuoso}
+\odcs uses two instances of Virtuoso database for storing data -- one is used for storing data that are currently being processed (\term{dirty database instance}) and the other for already processed data visible to end users (\term{clean database instance}). 
+
+\odcs requires that the two instances of Virtuoso database are created before the installation process. If you are familiar with Virtuoso and already have two Virtuoso instances that you would like to use, you can skip the rest of this section -- make sure, however, to modify \odcs configuration options accordingly  (see Chapter \ref{chap:configOptions}). In particular, set correct database settings and include a directory specified in \code{engine.clean\_import\_export\_dir} and \code{engine.dirty\_import\_export\_dir} configuration options in \code{DirsAllowed} option of Virtuoso configuration.
+
+\subsection{Creating Database Instances}
+Virtuoso has paid enterprise licenses, but also an open source edition\footnote{\url{http://virtuoso.openlinksw.com/dataspace/dav/wiki/Main/VOSDownload}} available for free. In order to install it, follow instructions on the download page. Make sure that the deployed binaries (\varcode{installation-directory}/bin) are on your system PATH (you can test it by running commands \code{isql} and \code{virtuoso-t}).
+
+\odcs distribution contains files \code{virtuoso.ini-clean} and \code{virtuoso.ini-dirty}. While it is not required, we strongly recommend creating the two database instances with these provided configuration files.
+
+\begin{enumerate}
+  \item \label{itm:dbInstDirs} Create one empty directory for each database instance.
+  \item \label{itm:dbInstCleanStart} Copy \code{virtuoso.ini-clean} to the directory for the clean database instance, create a copy of the file and name it \code{virtuoso.ini}. If you are familiar with Virtuoso, you may customize configuration in \code{virtuoso.ini} according to your needs. 
+  \item Create a new database instance by executing
+\begin{verbatim}
+  virtuoso-t +service create +instance odcsclean +configfile virtuoso.ini
+\end{verbatim}
+    in the directory for the clean database instance.
+    \item \label{itm:dbInstCleanEnd} Start the newly creted database instance by executing
+\begin{verbatim}
+  virtuoso-t +service start +instance odcsclean
+\end{verbatim}
+  
+  \item Copy \code{virtuoso.ini-dirty} to the directory for the dirty database instance created in step \ref{itm:dbInstDirs}. Create a copy of the file and name it \code{virtuoso.ini}. If you are familiar with Virtuoso, you may customize configuration in \code{virtuoso.ini} according to your needs. 
+  \item Create a new database instance by executing
+\begin{verbatim}
+  virtuoso-t +service create +instance odcsdirty +configfile virtuoso.ini
+\end{verbatim}
+    in the directory for the dirty database instance.
+    \item  Start the newly creted database instance by executing
+\begin{verbatim}
+  virtuoso-t +service start +instance odcsdirty
+\end{verbatim}
+\end{enumerate}
+
+
+\textit{Note:} For security reasons, don't forget to change credentials for your database instance.
+
 
 \chapter{CD Contents}
 
 \chapter{Step by Step Installation Guide}
 
 % ?? https://sourceforge.net/p/odcleanstore/wiki/Install%20and%20Configure%20Virtuoso/
-
+%make sure you have two Virtuoso database instances created and \textit{started} before installation, as described in Section \ref{sec:virtuoso}.
 
 
 \chapter{(Contents of the Deployed Application)}
 
+
 \chapter{Configuration Options}
+ \label{chap:configOptions}
 Global configuration options for ODCleanStore are stored in configuration file \code{odcs.ini}. \todo{location, how it can be passed to Engine and webfrontend}
 
 The configuration file is used both by ODCleanStore Engine and administration frontend. Configuration options are loaded only once when the Engine or administration frontend is started, therefore, it is necessary to restart the Engine or administration frontend web application for the changes to take effect.
@@ -143,6 +206,7 @@ List with a description of all configuration options follows:
 \chapter{Starting the Application}
 
 \todo{how to start the engine & webfrontend}
+% make sure virtuoso instance is started
 
 \chapter{Custom Transformers}
 
