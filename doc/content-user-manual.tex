@@ -290,13 +290,12 @@ The URIs generated in place of blank nodes have form \varcode{prefix}\varcode{ra
 	
 	These {transformers} are configured through groups of rules. Each instance of any of these predefined {transformers} can accept multiple groups of rules. That way it is possible to simply assign all interrelated rules to a certain instance of a transformer while it is still possible to avoid duplication of rules in different groups.
 
-\begin{figure}[tb]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=\textwidth]{images/fe-rule-groups.png}
     \caption{Example of a transformer rule group overview page}
 	\label{fig:feRuleGroups}
 \end{figure}
-
 
 \subsection{Quality Assessment}
 \label{sub:qualityAssessment}
@@ -403,7 +402,22 @@ The \emph{State} subsection displays all errors reported by the engine. Be it an
 or it can be deleted. Graphs that are in clean database can in addition be accepted as they are despite the errors if the user considers them irrelevant.
 There are also shortcut buttons that allow to perform all of these actions on all graphs in one step. The clean database restriction for the accept action still applies so some graphs may not be affected. All of the actions can be invoked by administrator and the author of corresponding pipeline.
 
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/fe-engine-state.png}
+    \caption{Engine state overview page}
+	\label{fig:feEngineState}
+\end{figure}
+\FloatBarrier
+
 The \emph{Graphs} subsection captures the content of the graph database. The table of all graphs contains their identifiers in form of \code{URI}, states, pipelines that processed them, information about residence in clean or dirty database, and timestamp of the last update. Each of the graphs can be deleted or rerun in which case it is processed by the pipeline in its current state. The \code{URI} is a link to output webservice and serves as detailed source of information about the graph.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/fe-engine-graphs.png}
+    \caption{Engine graphs overview page}
+	\label{fig:feEngineGraphs}
+\end{figure}
 
 \section{Output Webservice}
 \label{sec:outputWSMgmt}
@@ -414,18 +428,46 @@ The configuration specifies one global behaviour and then it offers the user to 
 
 The properties specified in the Label properties section are treated by query execution component as human readable labels of different entities. Simply add new label property by using "add a new property" button and remove any by use of corresponding delete button.
 
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/fe-outputws-aggregation.png}
+    \caption{Output WS aggregation properties page}
+	\label{fig:feOutputWSAggregation}
+\end{figure}
+
 \section{Ontology Management}
 \label{sec:ontologyManagement}
 
 Ontologies can be used to produce common rules for Quality Assessment, Data Normalization {transformers}. To load one into the storage one can provide an explicit definition through a text field or by uploading a file containing a valid {RDF/XML} ontology definition. The process of rules generation will automatically take place upon ontology submission.
 
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/fe-ontologies.png}
+    \caption{Ontologies page}
+	\label{fig:feOntologies}
+\end{figure}
+
 Another benefit of storing ontologies in the database is gain of ability to map properties from one ontology to properties from another with \code{owl:sameAs}, \code{owl:equivalentProperty}, \code{rdfs:subPropertyOf}, \code{rdfs:subClassOf} or a custom \code{URI} of any other property. This can be further used by Conflict Resolution component to produce more precise results. Such mapping can be added in the section Ontology mappings reachable from Ontologies submenu.
 In that section a pair of ontologies needs to be selected to restrain to a specific set of properties. After submitting the pair of ontologies a new form is presented where individual properties can be mapped. After filling in \code{URI}'s of source and target properties, selecting a relation type and submitting a mapping is created. From that point on it will be considered during conflict resolution.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/fe-ontology-mappings.png}
+    \caption{Ontologies page}
+	\label{fig:feOntologyMappings}
+\end{figure}
 
 \section{Accounts}
 
 As it has been already mentioned in chapter \ref{chap:userRoles} the frontend verifies user privileges before providing access to different configurations and content. To be able to maintain user roles and permissions that are implied for individual users the frontend administration provides this section. All registered accounts will be displayed in a table with all the information (username, e-mail address, first and second name, roles assigned to the account). 
 The administrator can assign roles and reset password from this overview and related editable pages. For editing the roles simply use \emph{Roles} button and for reseting the password use \emph{New password} button which will prompt you for confimation and then generate a new password and send it via the e-mail address to the user in question if the confirmation is given.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/fe-accounts.png}
+    \caption{Accounts page}
+	\label{fig:feAccounts}
+\end{figure}
 
 \subsection*{My Account}
 
@@ -449,10 +491,24 @@ This section is reachable with \emph{My Account} button below the main menu afte
 		required & Full classname & Name of the class implementing the {transformer}.
 	}
 
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/fe-transformers.png}
+    \caption{Transformers page}
+	\label{fig:feTransformers}
+\end{figure}
+
 \section{Prefixes}
 \label{sec:frontendPrefixMgmt}
 
 To avoid obligation of full manual URI expansion in \term{transformer} rules or queries it is possible to maintain set of global \term{RDF} prefixes that storage recognizes. These can be added with \emph{add a new prefix} button and removed by \emph{delete} button next to the desired target of removal.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/fe-prefixes.png}
+    \caption{Prefixes page}
+	\label{fig:fePrefixes}
+\end{figure}
 
 \section{Configuration Example}
 
