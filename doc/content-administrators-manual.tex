@@ -249,8 +249,12 @@ List with a description of all configuration options follows:
 	\item[db.clean.sparql.endpoint\_url]
 
 	\item[db.dirty.jdbc.connection\_string]
+		Connection string for JDBC access to the Virtuoso instance representing the dirty database. Must contain connection charset.
+		\configdefault{jdbc:virtuoso://localhost:1112/CHARSET=UTF-8}
 	\item[db.dirty.jdbc.username]
+		Username for JDBC access to the Virtuoso instance representing the dirty database.
 	\item[db.dirty.jdbc.password]
+		Password for JDBC access to the Virtuoso instance representing the dirty database.
 	\item[db.dirty.sparql.endpoint\_url]
 	\item[db.dirty\_update.sparql.endpoint\_url]
 	\item[db.dirty\_update.sparql.endpoint\_username]
@@ -262,6 +266,12 @@ List with a description of all configuration options follows:
 	\item[input\_ws.endpoint\_url]
 		URL where the input webservice is listening.
 		\configdefault{http://localhost:8088/inputws}
+	\item[input\_ws.recovery\_crash\_penalty]
+		Waiting penalty after inputws recovery crash before recovery restart in milliseconds.
+		\configdefault{60000}
+	\item[input\_ws.named\_graphs\_prefix]
+		Prefix of named graphs incoming where data & metadata are stored; must be a valid URL.
+		\configdefault{http://opendata.cz/infrastructure/odcleanstore/}
 \end{configlist}
 
 \subsection*{Output Webservice Configuration}
@@ -270,13 +280,20 @@ List with a description of all configuration options follows:
 		Prefix of named graphs and URIs where query results and metadata in the output are placed.
 		\configdefault{http://opendata.cz/infrastructure/odcleanstore/query/}
 	\item[output\_ws.port]
-	\item[output\_ws.host]
-		Output Webservice host (used for references from Administration Frontend)
-		\configdefault{http://localhost}
+		Port of the output webservice
+		\configdefault{8087}
 	\item[output\_ws.keyword\_path]
+		Relative path fragment for the keyword query over the output webservice.
+		\configdefault{keyword}
 	\item[output\_ws.uri\_path]
+		Relative path fragment for the uri query over the output webservice.
+		\configdefault{uri}
 	\item[output\_ws.metadata\_path]
+		Relative path fragment for the metadata query over the output webservice.
+		\configdefault{metadata}
 	\item[output\_ws.named\_graph\_path]
+		Relative path fragment for the named graph query over the output webservice.
+		\configdefault{namedGraph}
 \end{configlist}
 
 \subsection*{Query Execution Configuration}	
@@ -322,17 +339,52 @@ List with a description of all configuration options follows:
 		\configdefault{30}
 
 	\item[engine.clean\_import\_export\_dir]
+		Directory for Clean Virtuoso instance data import and export files. Base for relative path is clean db server root (directory of the Virtuoso INI file). Path or his parent must be specified in the DirsAllowed param in the virtuoso INI file and the Virtuoso server restarted for access to be allowed to the files by Virtuoso.
+		\configdefault{odcs/}
+		
 	\item[engine.dirty\_import\_export\_dir]
+		Directory for Dirty Virtuoso instance data import and export files. Base for relative path is clean db server root (directory of the Virtuoso INI file). Path or his parent must be specified in the DirsAllowed param in the virtuoso INI file and the Virtuoso server restarted for access to be allowed to the files by Virtuoso.  
+		\configdefault{odcs/}
+		
 	\item[engine.startup\_timeout]
+		Maximum time in milliseconds for services initializing before engine shutdown.
+		\configdefault{30000}
+		
 	\item[engine.shutdown\_timeout]
+		Maximum time in milliseconds for services shutdown before engine exit.
+		\configdefault{30000}
+	
 	\item[engine.look\_for\_graph\_interval]
+		Additional timer setting interval for lookup for graph for processing in milliseconds.
+		\configdefault{8000}
+		
 	\item[engine.second\_crash\_penalty]
+		Waiting penalty after double pipeline crash before pipeline restart in milliseconds
+		\configdefault{60000}
+		
+	\item[engine.state\_to\_db\_writing\_interval]
+		Interval for writing engine state information to db in milliseconds.
+		\configdefault{5000}
+	
+	\item[engine.engine\_uuid]
+		\configdefault{88888888-8888-8888-8888-888888888888}
 \end{configlist}
 
 \subsection*{Administration Frontend Configuration}
 \begin{configlist}
-	%TODO
-
+	
+	\item[web\_frontend.gmail\_address]
+		Username of a GMAIL accout to send emails through.
+		\configdefault{odcleanstore@gmail.com}
+		
+	\item[web\_frontend.gmail\_password]
+		Password of a GMAIL accout to send emails through.
+		\configdefault{odcleanstore2012}
+		
+	\item[web\_frontend.output\_ws\_host]
+		Output webservice host.
+		\configdefault{http://localhost}
+		
 	\item[web\_frontend.debug\_directory\_path]
 		Path to transformer directory for debugging.
 		\configdefault{./odcs-debug}
