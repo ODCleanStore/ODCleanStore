@@ -2,6 +2,8 @@
 \newcommand{\version}{0.3.7}
 \newcommand{\documentname}{\refusermanual}
 
+\hypersetup{pdftitle=ODCleanStore -- \documentname}
+
 \begin{document}
 
 \include{titlepage}
@@ -391,7 +393,9 @@ File output serves for storing generated links into a file. Minimal and maximal 
 
 There is a section dedicated to monitoring an overall state of the engine and graphs stored in the database. It can be found by selecting \emph{Engine} from the main menu and then choosing one of the subsections.
 
-The \emph{State} subsection displays all errors reported by the engine. Be it any failure of the engine itself or a data processing error related to only some of the graphs. The view on this page shows a simplified and well-arranged information about number of erroneous graphs. More exhaustive information will be displayed on the detail pages corresponding to individual pipelines. Each graph processed by the selected pipeline can then be processed by the pipeline once again with the rerun button (this transformation will reflect current state of the pipeline configuration) or it can be deleted. Graphs that are in clean database can in addition be accepted as they are despite the errors if the user considers them irrelevant. There are also shortcut buttons that allow to perform all of these actions on all graphs in one step. The clean database restriction for the accept action still applies so some graphs may not be affected. All of the actions can be invoked by administrator and the author of corresponding pipeline.
+The \emph{State} subsection displays all errors reported by the engine. Be it any failure of the engine itself or a data processing error related to only some of the graphs. The view on this page shows a simplified and well-arranged information about number of erroneous graphs. More exhaustive information will be displayed on the detail pages corresponding to individual pipelines. Each graph processed by the selected pipeline can then be processed by the pipeline once again with the rerun button (this transformation will reflect current state of the pipeline configuration)
+or it can be deleted. Graphs that are in clean database can in addition be accepted as they are despite the errors if the user considers them irrelevant.
+There are also shortcut buttons that allow to perform all of these actions on all graphs in one step. The clean database restriction for the accept action still applies so some graphs may not be affected. All of the actions can be invoked by administrator and the author of corresponding pipeline.
 
 The \emph{Graphs} subsection captures the content of the graph database. The table of all graphs contains their identifiers in form of \code{URI}, states, pipelines that processed them, information about residence in clean or dirty database, and timestamp of the last update. Each of the graphs can be deleted or rerun in which case it is processed by the pipeline in its current state. The \code{URI} is a link to output webservice and serves as detailed source of information about the graph.
 
@@ -400,7 +404,8 @@ The \emph{Graphs} subsection captures the content of the graph database. The tab
 
 Ontologies can be used to produce common rules for Quality Assessment, Data Normalization {transformers}. To load one into the storage one can provide an explicit definition through a text field or by uploading a file containing a valid {RDF/XML} ontology definition. The process of rules generation will automatically take place upon ontology submission.
 
-Another benefit of storing ontologies in the database is gain of ability to map properties from one ontology to properties from another with \code{owl:sameAs}, \code{owl:equivalentProperty}, \code{rdfs:subPropertyOf}, \code{rdfs:subClassOf} or a custom \code{URI} of any other property. This can be further used by Conflict Resolution component to produce more precise results. Such mapping can be added in the section Ontology mappings reachable from Ontologies submenu. In that section a pair of ontologies needs to be selected to restrain to a specific set of properties. After submitting the pair of ontologies a new form is presented where individual properties can be mapped. After filling in \code{URI}'s of source and target properties, selecting a relation type and submitting a mapping is created. From that point on it will be considered during conflict resolution.
+Another benefit of storing ontologies in the database is gain of ability to map properties from one ontology to properties from another with \code{owl:sameAs}, \code{owl:equivalentProperty}, \code{rdfs:subPropertyOf}, \code{rdfs:subClassOf} or a custom \code{URI} of any other property. This can be further used by Conflict Resolution component to produce more precise results. Such mapping can be added in the section Ontology mappings reachable from Ontologies submenu.
+In that section a pair of ontologies needs to be selected to restrain to a specific set of properties. After submitting the pair of ontologies a new form is presented where individual properties can be mapped. After filling in \code{URI}'s of source and target properties, selecting a relation type and submitting a mapping is created. From that point on it will be considered during conflict resolution.
 
 \section{User Accounts Administration}
 
@@ -440,7 +445,8 @@ To avoid obligation of full manual URI expansion in \term{transformer} rules or 
 
 \section{Accounts}
 
-As it has been already mentioned in chapter \ref{chap:userRoles} the frontend verifies user privileges before providing access to different configurations and content. To be able to maintain user roles and permissions that are implied for individual users the frontend administration provides this section. All registered accounts will be displayed in a table with all the information (username, e-mail address, first and second name, roles assigned to the account). The administrator can assign roles and reset password from this overview and related editable pages. For editing the roles simply use \emph{Roles} button and for reseting the password use \emph{New password} button which will prompt you for confimation and then generate a new password and send it via the e-mail address to the user in question if the confirmation is given.
+As it has been already mentioned in chapter \ref{chap:userRoles} the frontend verifies user privileges before providing access to different configurations and content. To be able to maintain user roles and permissions that are implied for individual users the frontend administration provides this section. All registered accounts will be displayed in a table with all the information (username, e-mail address, first and second name, roles assigned to the account). 
+The administrator can assign roles and reset password from this overview and related editable pages. For editing the roles simply use \emph{Roles} button and for reseting the password use \emph{New password} button which will prompt you for confimation and then generate a new password and send it via the e-mail address to the user in question if the confirmation is given.
 
 \section{My Account}
 
@@ -1224,7 +1230,8 @@ When a new request is sent to Input Webservice, the stored data \& metadata go t
 \section{Stored Data Structure}
 \label{sec:storedDataStructure}
 
-Data originating from a single request to Input Webservice can be stored in several named graphs. RDF data given in the \code{payload} parameter are stored in one named graph (\code{payload} graph). If \code{provenance} RDF metadata are given, they are stored in another named graph (\code{provenance} graph). Other metadata (such as the source of data, timestamp, etc.) are stored in yet another named graph (\term{metadata graph}). In addition, transformers in the respective pipeline may add more related RDF data to one or more named graphs (\term{attached graphs}), e.g. results of quality assessment, or mappings for resources in \code{payload}. 
+Data originating from a single request to Input Webservice can be stored in several named graphs. RDF data given in the \code{payload} parameter are stored in one named graph (\code{payload} graph). If \code{provenance} RDF metadata are given, they are stored in another named graph (\code{provenance} graph). Other metadata (such as the source of data, timestamp, etc.) are stored in yet another named graph (\term{metadata graph}).
+In addition, transformers in the respective pipeline may add more related RDF data to one or more named graphs (\term{attached graphs}), e.g. results of quality assessment, or mappings for resources in \code{payload}. 
 
 While contents of the \code{payload}, \code{provenance} and attached graphs may be arbitrary, the metadata graph has a set structure. Table~\ref{tbl:metadataGraph} describes the structure of a metadata graph. In the table, \varcode{payload-graph} stands for the name of the respective \code{payload} graph, \varcode{provenance-graph} and \varcode{metadata-graph} analogously.
 
