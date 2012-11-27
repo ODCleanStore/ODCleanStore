@@ -11,12 +11,12 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-import cz.cuni.mff.odcleanstore.installer.ui.WizardFrame;
-import cz.cuni.mff.odcleanstore.installer.ui.WizardStep;
+import cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardFrame;
+import cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardStep;
 import cz.cuni.mff.odcleanstore.installer.utils.FileUtils;
 import cz.cuni.mff.odcleanstore.installer.utils.TextAreaOutputStream;
 
-public class CopyEngineExecutorStep extends WizardStep {
+public class CopyEngineExecutorStep extends InstallationWizardStep {
 
 	private static final String ENGINE_SRC_PATH = "Engine";
 	private JPanel panel;
@@ -24,24 +24,14 @@ public class CopyEngineExecutorStep extends WizardStep {
 	private TextAreaOutputStream taos;
 	private File dstDirectory;
 
-	protected CopyEngineExecutorStep(WizardFrame wizardFrame, File dstDirectory) {
+	protected CopyEngineExecutorStep(InstallationWizardFrame wizardFrame, File dstDirectory) {
 		super(wizardFrame);
 		this.dstDirectory = dstDirectory;
 	}
 
 	@Override
 	public String getStepTitle() {
-		return "copy engine files to engine directory - all existing files will be replaced";
-	}
-
-	@Override
-	public String getNextNavigationButtonText() {
-		return "Copy engine files to engine directory";
-	}
-	
-	@Override
-	public boolean hasSkipButton() {
-		return true;
+		return "copy engine files - all existing files will be replaced";
 	}
 
 	@Override
@@ -64,12 +54,10 @@ public class CopyEngineExecutorStep extends WizardStep {
 	@Override
 	public boolean onNext() {
 		Thread copyThread = new Thread(new Runnable() {
-
 			@Override
 			public void run() {
 				try {
 					taos.clear();
-					getWizardFrame().startLongRunningOperation();
 					FileUtils.copyFolder(new File(ENGINE_SRC_PATH), new File(dstDirectory.getAbsolutePath()), new Runnable() {
 						@Override
 						public void run() {
@@ -77,17 +65,15 @@ public class CopyEngineExecutorStep extends WizardStep {
 							vertical.setValue(vertical.getMaximum());
 						}
 					});
-					getWizardFrame().showInfoDialog("Copying engine files ok", "Information");
 					getWizardFrame().next();
 				} catch (IOException ex) {
-					getWizardFrame().showWarningDialog("Copying engine files error", "Error");
-				} finally {
-					getWizardFrame().endLongRunningOperation();
+					ex.printStackTrace();
+					getWizardFrame().cancelInstallation("Copying engine files error");
+
 				}
 			}
 		});
 		copyThread.start();
-
 		return false;
 	}
 

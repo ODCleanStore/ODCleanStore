@@ -4,33 +4,25 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.JPanel;
 
-public abstract class WizardStep {
+public abstract class InstallationWizardStep {
 
-	private WizardFrame wizardFrame;
+	private InstallationWizardFrame wizardFrame;
 
-	protected WizardStep(WizardFrame wizardFrame) {
+	protected InstallationWizardStep(InstallationWizardFrame wizardFrame) {
 		this.wizardFrame = wizardFrame;
 	}
 
 	public abstract JPanel getFormPanel();
-
 	public abstract String getStepTitle();
-
-	public abstract String getNextNavigationButtonText();
-
-	public boolean hasSkipButton() {
-		return false;
-	}
-
-	public boolean canCancel() {
-		return true;
-	}
-
+	
 	public abstract boolean onNext();
 
 	public abstract void onFormEvent(ActionEvent arg);
 
-	public WizardFrame getWizardFrame() {
+	public void onCancel() {
+	}
+
+	public InstallationWizardFrame getWizardFrame() {
 		return wizardFrame;
 	}
 }

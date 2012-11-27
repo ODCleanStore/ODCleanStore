@@ -11,31 +11,26 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import cz.cuni.mff.odcleanstore.installer.ui.WizardFrame;
-import cz.cuni.mff.odcleanstore.installer.ui.WizardStep;
+import cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardFrame;
+import cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardStep;
 import cz.cuni.mff.odcleanstore.installer.utils.AwtUtils;
 import cz.cuni.mff.odcleanstore.installer.utils.FileUtils;
 import cz.cuni.mff.odcleanstore.installer.utils.FileUtils.DirectoryException;
 
-public class GetFrontendDirectoryStep extends WizardStep {
+public class GetFrontendDirectoryStep extends InstallationWizardStep {
 
 	private JPanel panel;
 	private JLabel jlbDirectory;
 	private JTextField jtfDirectory;
 	private JButton jbDirectory;
 
-	protected GetFrontendDirectoryStep(WizardFrame wizardFrame) {
+	protected GetFrontendDirectoryStep(InstallationWizardFrame wizardFrame) {
 		super(wizardFrame);
 	}
 
 	@Override
 	public String getStepTitle() {
 		return "setting the front end directory";
-	}
-
-	@Override
-	public String getNextNavigationButtonText() {
-		return "Validate and possibly create front end directory";
 	}
 
 	@Override

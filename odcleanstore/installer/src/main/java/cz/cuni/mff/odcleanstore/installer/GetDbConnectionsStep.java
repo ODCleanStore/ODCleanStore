@@ -10,12 +10,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import cz.cuni.mff.odcleanstore.installer.ui.WizardFrame;
-import cz.cuni.mff.odcleanstore.installer.ui.WizardStep;
+import cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardFrame;
+import cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardStep;
 import cz.cuni.mff.odcleanstore.installer.utils.AwtUtils;
 
 
-public class GetDbConnectionsStep extends WizardStep {
+public class GetDbConnectionsStep extends InstallationWizardStep {
 
 	private JPanel panel;
 
@@ -36,18 +36,13 @@ public class GetDbConnectionsStep extends WizardStep {
 	private JLabel jlbDirtyPassword;
 	private JTextField jtfDirtyPassword;
 
-	protected GetDbConnectionsStep(WizardFrame wizardFrame) {
+	protected GetDbConnectionsStep(InstallationWizardFrame wizardFrame) {
 		super(wizardFrame);
 	}
 
 	@Override
 	public String getStepTitle() {
 		return "setting Virtuoso instances connection parameters for administrator scripts";
-	}
-
-	@Override
-	public String getNextNavigationButtonText() {
-		return "Validate Virtuoso instances connection parameters for administrator scripts";
 	}
 
 	@Override

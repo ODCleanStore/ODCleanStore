@@ -11,31 +11,26 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import cz.cuni.mff.odcleanstore.installer.ui.WizardFrame;
-import cz.cuni.mff.odcleanstore.installer.ui.WizardStep;
+import cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardFrame;
+import cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardStep;
 import cz.cuni.mff.odcleanstore.installer.utils.AwtUtils;
 import cz.cuni.mff.odcleanstore.installer.utils.FileUtils;
 import cz.cuni.mff.odcleanstore.installer.utils.FileUtils.DirectoryException;
 
-public class GetEngineDirectoryStep extends WizardStep {
+public class GetEngineDirectoryStep extends InstallationWizardStep {
 
 	private JPanel panel;
 	private JLabel jlbDirectory;
 	private JTextField jtfDirectory;
 	private JButton jbDirectory;
 
-	protected GetEngineDirectoryStep(WizardFrame wizardFrame) {
+	protected GetEngineDirectoryStep(InstallationWizardFrame wizardFrame) {
 		super(wizardFrame);
 	}
 
 	@Override
 	public String getStepTitle() {
 		return "setting the engine directory";
-	}
-
-	@Override
-	public String getNextNavigationButtonText() {
-		return "Validate and possibly create engine directory";
 	}
 
 	@Override
