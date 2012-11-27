@@ -378,7 +378,7 @@ List with a description of all configuration options follows:
 		\configdefault{8000}
 		
 	\item[engine.second\_crash\_penalty]
-		Waiting penalty after double pipeline crash before pipeline restart in milliseconds
+		Waiting penalty after double pipeline crash before pipeline restart in milliseconds.
 		\configdefault{60000}
 		
 	\item[engine.state\_to\_db\_writing\_interval]
@@ -386,6 +386,7 @@ List with a description of all configuration options follows:
 		\configdefault{5000}
 	
 	\item[engine.engine\_uuid]
+		Identifier of Engine instance when data processing is distributed over multiple parallel nodes. This setting has currently no effect and is reserved for future extensions.
 		\configdefault{88888888-8888-8888-8888-888888888888}
 \end{configlist}
 
