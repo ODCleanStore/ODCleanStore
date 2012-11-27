@@ -5,12 +5,20 @@ import java.security.KeyStore;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 
+/**
+ * Class for loading internal certificate for ssl server.
+ * 
+ *  @author Petr Jerman
+ */
 public class SslKeyLoader {
 
 	private static final String JKS_CERTIFICATE_RESOURCE_NAME = "/odcs-engine.keystore";
 	private static final String STORE_PASSWORD = "a.&yu2-qS23#4";
 	private static final String KEY_PASSWORD = "bng,<j8*-+aS4n";
 
+	/**
+	 * @return KeyManager array for ssl server
+	 */
 	public static KeyManager[] getKeys() {
 		try {
 			KeyStore ks = KeyStore.getInstance("JKS");

@@ -86,6 +86,14 @@ public final class App {
         }
     }
 
+    /**
+     * Gets ordered properties values.
+     * 
+     * @param property ordered property name
+     * @param props proerties object
+     * @param list list for store values
+     * @throws URISyntaxException
+     */
     private static void addPropertiesToList(String property, Properties props, List<URI> list) throws URISyntaxException {
         String value = props.getProperty(property);
         if (value != null) {
@@ -101,12 +109,22 @@ public final class App {
         }
     }
 
+    /**
+     *  Print help for user to stdout.
+     */
     private static void printUsageAndExit() {
         System.out.println("Usage: java -jar simplescraper.jar"
                 + "<user> <password> <metadata property file> <RDF payload file> [<RDF provenance metadata file>]");
         System.exit(-1);
     }
 
+    /**
+     * Reads content of text file to string.
+     * 
+     * @param file file from reading
+     * @return content of text file
+     * @throws IOException
+     */
     private static String readFileToString(File file) throws IOException {
         InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
 

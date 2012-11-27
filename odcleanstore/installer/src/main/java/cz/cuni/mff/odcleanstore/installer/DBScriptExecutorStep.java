@@ -3,7 +3,6 @@ package cz.cuni.mff.odcleanstore.installer;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
@@ -17,7 +16,15 @@ import cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardFrame;
 import cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardStep;
 import cz.cuni.mff.odcleanstore.installer.utils.TextAreaOutputStream;
 
+/**
+ * A installer step for execution database script via external isql utility.
+ * 
+ * @author Petr Jerman
+ */
 public class DBScriptExecutorStep extends InstallationWizardStep {
+
+	private static final String DEFAULT_ISQL_COMMAND = "isql";
+	private static final String INPUTSTREAM_ISQL_CHARSET = "UTF-8";
 
 	private JPanel panel;
 	private TextAreaOutputStream taos;
@@ -30,21 +37,39 @@ public class DBScriptExecutorStep extends InstallationWizardStep {
 
 	private Process isqlProcess;
 
-	protected DBScriptExecutorStep(InstallationWizardFrame wizardFrame, GetDbConnectionsStep getDbConnectionsStep, boolean cleanDB,
-			String title, String scriptFileName, String isqlPath) {
+	/**
+	 * Create instance of database script executor object
+	 * 
+	 * @param wizardFrame parent wizard frame
+	 * @param getDbConnectionsStep step object with db connection parameters
+	 * @param cleanDB run in clean/dirty database flag
+	 * @param title title of wizard step
+	 * @param scriptFileName name of sql script file
+	 * @param isqlPath path to Virtuoso isql utility
+	 */
+	protected DBScriptExecutorStep(InstallationWizardFrame wizardFrame, GetDbConnectionsStep getDbConnectionsStep,
+			boolean cleanDB, String title, String scriptFileName, String isqlPath) {
 		super(wizardFrame);
 		this.getDbConnectionsStep = getDbConnectionsStep;
 		this.cleanDB = cleanDB;
 		this.title = title;
 		this.scriptFileName = scriptFileName;
-		this.isqlPath = isqlPath != null ? isqlPath : "isql";
+		this.isqlPath = isqlPath != null ? isqlPath : DEFAULT_ISQL_COMMAND;
 	}
 
+	/**
+	 * 
+	 * @see cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardStep#getStepTitle()
+	 */
 	@Override
 	public String getStepTitle() {
 		return title;
 	}
 
+	/**
+	 * 
+	 * @see cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardStep#getFormPanel()
+	 */
 	@Override
 	public JPanel getFormPanel() {
 		panel = new JPanel();
@@ -61,6 +86,10 @@ public class DBScriptExecutorStep extends InstallationWizardStep {
 		return panel;
 	}
 
+	/**
+	 * 
+	 * @see cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardStep#onNext()
+	 */
 	@Override
 	public boolean onNext() {
 		Thread scriptThread = new Thread(new Runnable() {
@@ -96,10 +125,17 @@ public class DBScriptExecutorStep extends InstallationWizardStep {
 		return false;
 	}
 
+	/**
+	 * 
+	 * @see cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardStep#onFormEvent(java.awt.event.ActionEvent)
+	 */
 	@Override
 	public void onFormEvent(ActionEvent arg) {
 	}
 
+	/**
+	 * @see cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardStep#onCancel()
+	 */
 	@Override
 	public void onCancel() {
 		if (isqlProcess != null) {
@@ -109,17 +145,28 @@ public class DBScriptExecutorStep extends InstallationWizardStep {
 		}
 	}
 
+	/**
+	 * Run sql script in isql utility.
+	 * 
+	 * @param host DB host name
+	 * @param port DB port
+	 * @param user DB user
+	 * @param password DB password
+	 * @param scriptName name of sql script
+	 * @param stepCallback callback called after writing line of text to stdout
+	 * @throws IOException
+	 */
 	private void runIsql(String host, String port, String user, String password, String scriptName, Runnable stepCallback)
 			throws IOException {
 		ProcessBuilder pb = new ProcessBuilder(isqlPath, host + ":" + port, user, password, scriptName);
-		
+
 		pb.redirectErrorStream(true);
 		isqlProcess = pb.start();
 
 		BufferedReader is;
 		String line;
 
-		is = new BufferedReader(new InputStreamReader(isqlProcess.getInputStream(), "UTF-8"));
+		is = new BufferedReader(new InputStreamReader(isqlProcess.getInputStream(), INPUTSTREAM_ISQL_CHARSET));
 
 		while ((line = is.readLine()) != null) {
 			System.out.println(line);

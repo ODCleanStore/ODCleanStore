@@ -4,6 +4,11 @@ import java.io.IOException;
 
 import cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardFrame;
 
+/**
+ * Main installer class for installing odcleanstore application.
+ * 
+ * @author Petr Jerman
+ */
 public class App extends InstallationWizardFrame {
 
 	private GetEngineDirectoryStep getEngineDirectoryStep;
@@ -27,11 +32,19 @@ public class App extends InstallationWizardFrame {
 		super();
 	}
 
+	/**
+	 * Sets first wizard step to wizard frame.
+	 * 
+	 * @throws IOException
+	 */
 	private void run() throws IOException {
 		getEngineDirectoryStep = new GetEngineDirectoryStep(this);
 		setNextStep(getEngineDirectoryStep);
 	}
 
+	/**
+	 * @see cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardFrame#next()
+	 */
 	@Override
 	public void next() throws IOException {
 		switch (getStepNumber()) {

@@ -17,6 +17,12 @@ import cz.cuni.mff.odcleanstore.model.EnumPipelineErrorType;
  * Class for obtaining, representing and manipulating a graph to be processed.
  * @author Petr Jerman
  */
+/**
+ * Status of current pipeline graph.
+ *
+ * @author Petr Jerman
+ *
+ */
 public final class PipelineGraphStatus {
 
     private static final String ERROR_NEXT_GRAPH_FOR_PIPELINE = "Error during getting next graph for pipeline";
@@ -43,6 +49,13 @@ public final class PipelineGraphStatus {
     private static final Object lockForGetNextGraphForPipeline = new Object();
     // CHECKSTYLE:ON
 
+    /**
+     * Gets next graph for pipeline execution.
+     * 
+     * @param engineUuid pipeline engine owner
+     * @return graph status object
+     * @throws PipelineGraphStatusException
+     */
     static PipelineGraphStatus getNextGraphForPipeline(String engineUuid) throws PipelineGraphStatusException {
         synchronized (lockForGetNextGraphForPipeline) {
             DbOdcsContext context = null;
@@ -102,6 +115,14 @@ public final class PipelineGraphStatus {
         }
     }
 
+    
+    /**
+     * Create PipelineGraphStatus instance.
+     *  
+     * @param context rel. datat context object
+     * @param dbGraph graph representation object
+     * @throws Exception
+     */
     private PipelineGraphStatus(DbOdcsContext context, Graph dbGraph) throws Exception {
         this.graph = dbGraph;
         this.isInCleanDbBeforeProcessing = dbGraph.isInCleanDb;
@@ -116,67 +137,129 @@ public final class PipelineGraphStatus {
         oiRules = context.selectOiRules(pipeline.id);
     }
 
+    /**
+     * @return get graph uuid
+     */
     String getUuid() {
         return graph.uuid;
     }
     
+    /**
+     * @return get named graphs prefix
+     */
     String getNamedGraphsPrefix() {
         return graph.namedGraphsPrefix;
     }
 
+    /**
+     * @return get current graph state
+     */
     EnumGraphState getState() {
         return graph.state;
     }
 
+    /**
+     * @return indicate if graph is currently existing (not new - incoming)
+     */
     boolean isInCleanDb() {
         return graph.isInCleanDb;
     }
     
+    /**
+     * @return indicate if graph was existing (not new - incoming) before processing
+     */
     boolean isInCleanDbBeforeProcessing() {
         return isInCleanDbBeforeProcessing;
     }
     
+    /**
+     * Indicate if reset pipeline request is present
+     * 
+     * @return
+     */
     boolean isResetPipelineRequest() {
         return graph.resetPipelineRequest;
     }
 
+    /**
+     * @return get pipeline id
+     */
     Integer getPipelineId() {
         return new Integer(pipeline.id);
     }
 
+    /**
+     * @return get pipeline label
+     */
     String getPipelineLabel() {
         return pipeline.label;
     }
 
+    /**
+     * @return get all attached graphs for graph
+     */
     @SuppressWarnings("unchecked")
     HashSet<String> getAttachedGraphs() {
         return (HashSet<String>) attachedGraphs.clone();
     }
 
+    /**
+     * @return get all pipeline command for graph
+     */
     PipelineCommand[] getPipelineCommands() {
         return PipelineCommand.deepClone(pipelineCommands);
     }
 
+    /**
+     * Get qa groups for transformer instance.
+     * 
+     * @param transformerInstanceId id of transformer instance
+     * @return array of qa groups
+     */
     Integer[] getQaGroups(int transformerInstanceId) {
         return GroupRule.selectDeepClone(qaRules, transformerInstanceId);
     }
 
-    Integer[] getDnGroups(int transformerInstanceId) {
+    /**
+     * Get data normalization groups for transformer instance.
+     * 
+     * @param transformerInstanceId id of transformer instance
+     * @return array of dn groups
+     */    Integer[] getDnGroups(int transformerInstanceId) {
         return GroupRule.selectDeepClone(dnRules, transformerInstanceId);
     }
 
+    /**
+     * Get object identification groups for transformer instance.
+     * 
+     * @param transformerInstanceId id of transformer instance
+     * @return array of oi groups
+     */
     Integer[] getOiGroups(int transformerInstanceId) {
         return GroupRule.selectDeepClone(oiRules, transformerInstanceId);
     }
 
+    /**
+     *  mark for deleting
+     */
     void markForDeleting() {
         markedForDeleting = true;
     }
 
+    /**
+     * @return graph is marked for deleting from transformer flag
+     */
     boolean isMarkedForDeleting() {
         return markedForDeleting;
     }
 
+    /**
+     * Request for graph state other than dirty. 
+     * 
+     * @param state requested graph state
+     * @return result graph state
+     * @throws PipelineGraphStatusException
+     */
     EnumGraphState setNoDirtyState(EnumGraphState state) throws PipelineGraphStatusException {
         DbOdcsContext context = null;
         assert state != EnumGraphState.DIRTY;
@@ -238,6 +321,13 @@ public final class PipelineGraphStatus {
         }
     }
 
+    /**
+     * Set dirty state of graph in database.
+     * 
+     * @param pipelineErrorType type of pipeline error.
+     * @param message message describing the error 
+     * @throws PipelineGraphStatusException
+     */
     void setDirtyState(EnumPipelineErrorType pipelineErrorType, String message) throws PipelineGraphStatusException {
         DbOdcsContext context = null;
         try {
@@ -255,6 +345,11 @@ public final class PipelineGraphStatus {
         }
     }
 
+    /**
+     * Check if reset pipeline request present in database.
+     * 
+     * @throws PipelineGraphStatusException
+     */
     void checkResetPipelineRequest() throws PipelineGraphStatusException {
         DbOdcsContext context = null;
         try {
@@ -272,6 +367,11 @@ public final class PipelineGraphStatus {
         }
     }
     
+    /**
+     * Add information of attached graphs to executed graph to database.
+     * @param name
+     * @throws PipelineGraphStatusException
+     */
     void addAttachedGraph(String name) throws PipelineGraphStatusException {
         DbOdcsContext context = null;
         try {
@@ -291,6 +391,11 @@ public final class PipelineGraphStatus {
         }
     }
 
+    /**
+     * Delete information of  attached graphs to executed graph from database.
+     * 
+     * @throws PipelineGraphStatusException
+     */
     void deleteAttachedGraphs() throws PipelineGraphStatusException {
         DbOdcsContext context = null;
         try {

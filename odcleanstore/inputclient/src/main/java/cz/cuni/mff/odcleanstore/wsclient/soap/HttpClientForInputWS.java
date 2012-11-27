@@ -19,6 +19,12 @@ import cz.cuni.mff.odcleanstore.comlib.SocketFactory;
 import cz.cuni.mff.odcleanstore.comlib.io.HttpUtils;
 import cz.cuni.mff.odcleanstore.comlib.io.InputStreamForHttp;
 
+/**
+ * Implements simple http lcient for insert method of odcs-inputclient SOAP webservice.
+ * 
+ * @author Petr Jerman
+ */
+
 public class HttpClientForInputWS {
 
 	private static final Pattern RESPONSE_FIRST_LINE_PATTERN;
@@ -33,18 +39,28 @@ public class HttpClientForInputWS {
 	private URL serverURL;
 	private Socket socket;
 	private Writer writer;
-	
+
 	private long contentLength;
 	private int responseCode = -1;
 	private String responseContentType;
 	private String responseContentCharset;
 
-	public HttpClientForInputWS(URL serverURL, long contentLength) throws UnknownHostException, IOException, KeyManagementException,
-			NoSuchAlgorithmException {
+	/**
+	 * Create instance of simple http lcient for insert method of odcs-inputclient SOAP webservice.
+	 * 
+	 * @param serverURL
+	 * @param contentLength
+	 * @throws UnknownHostException
+	 * @throws IOException
+	 * @throws KeyManagementException
+	 * @throws NoSuchAlgorithmException
+	 */
+	public HttpClientForInputWS(URL serverURL, long contentLength) throws UnknownHostException, IOException,
+			KeyManagementException, NoSuchAlgorithmException {
 
 		this.serverURL = serverURL;
 		this.contentLength = contentLength;
-		
+
 		if (serverURL.getProtocol().equalsIgnoreCase("https")) {
 			socket = SocketFactory.createAllTrustSSLSocket(serverURL.getHost(), serverURL.getPort());
 		} else {
@@ -52,6 +68,12 @@ public class HttpClientForInputWS {
 		}
 	}
 
+	/**
+	 * Write http reader and prepare writer of http content.
+	 * 
+	 * @return writer for writing http content
+	 * @throws IOException
+	 */
 	public Writer getWriter() throws IOException {
 		if (writer == null) {
 			OutputStream os = socket.getOutputStream();
@@ -61,8 +83,14 @@ public class HttpClientForInputWS {
 		return writer;
 	}
 
+	/**
+	 * Read http header and prepare reader for reading http content.
+	 * 
+	 * @return reader for reading http content
+	 * @throws IOException
+	 */
 	public Reader getResponse() throws IOException {
-		
+
 		InputStreamForHttp is = new InputStreamForHttp(socket.getInputStream());
 
 		String line = is.readAsciiLine();
@@ -94,21 +122,36 @@ public class HttpClientForInputWS {
 			responseContentCharset = "ISO-8859-1";
 		}
 
-		return  new InputStreamReader(is, responseContentCharset);
+		return new InputStreamReader(is, responseContentCharset);
 	}
 
+	/**
+	 * @return http response code
+	 */
 	public int getResponseCode() {
 		return responseCode;
 	}
-	
+
+	/**
+	 * @return http response type
+	 */
 	public String getResponseContentType() {
 		return responseContentType == null ? "" : responseContentType;
 	}
-	
+
+	/**
+	 * @return http response character set
+	 */
 	public String getResponseContentCharSet() {
 		return responseContentCharset == null ? "" : responseContentCharset;
 	}
 
+	/**
+	 * Send http request header to the server.
+	 * 
+	 * @param os output stream for writing header
+	 * @throws IOException
+	 */
 	private void sendRequestHeader(OutputStream os) throws IOException {
 		HttpUtils.writeHeaderLine(os, "POST %s HTTP/1.0", URLEncoder.encode(serverURL.getPath(), "UTF-8"));
 		HttpUtils.writeHeaderLine(os, "Content-Type:text/xml;charset=UTF-8");
@@ -120,6 +163,9 @@ public class HttpClientForInputWS {
 		os.flush();
 	}
 
+	/**
+	 * Close socket without any exceptions.
+	 */
 	public void closeQuietly() {
 
 		if (socket != null) {

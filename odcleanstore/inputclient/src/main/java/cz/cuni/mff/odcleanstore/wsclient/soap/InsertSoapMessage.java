@@ -35,6 +35,17 @@ public final class InsertSoapMessage {
 	private InsertException responseException;
 	private Exception requestException;
 
+	/**
+	 * Send soap message to server.
+	 * 
+	 * @param serviceURL
+	 * @param user
+	 * @param password
+	 * @param metadata
+	 * @param payloadReader
+	 * @param payloadReaderForSize
+	 * @throws InsertException
+	 */
 	public static void send(URL serviceURL, String user, String password, Metadata metadata, Reader payloadReader,
 			Reader payloadReaderForSize) throws InsertException {
 
@@ -86,6 +97,16 @@ public final class InsertSoapMessage {
 		}
 	}
 
+	/**
+	 * Create insert soap message instance.
+	 * 
+	 * @param serviceURL
+	 * @param user
+	 * @param password
+	 * @param metadata
+	 * @param payloadReaderForSize reader 
+	 * @throws Exception
+	 */
 	private InsertSoapMessage(URL serviceURL, String user, String password, Metadata metadata, Reader payloadReaderForSize)
 			throws Exception {
 
@@ -153,6 +174,11 @@ public final class InsertSoapMessage {
 		soapWriter.flush();
 	}
 
+	/**
+	 * Read http and possilbe soap response from server.
+	 * 
+	 * @throws InsertException
+	 */
 	protected void readResponse() throws InsertException {
 		Reader reader = null;
 		try {

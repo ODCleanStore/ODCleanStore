@@ -8,6 +8,11 @@ import java.nio.charset.Charset;
 
 import cz.cuni.mff.odcleanstore.comlib.io.InputStreamForHttp;
 
+/**
+ * Representation of request for http.
+ * 
+ * @author Petr Jerman
+ */
 public class HttpServerRequest {
 
 	HttpServer server;

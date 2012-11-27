@@ -10,8 +10,24 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
+/**
+ * Helpers for working with awt and swing framework.
+ * 
+ * @author Petr Jerman
+ */
 public class AwtUtils {
-
+	
+    /** Disable constructor for utility class. */
+    private AwtUtils() {
+    }
+    
+	/**
+	 * Create grid bag constraints object.
+	 * 
+	 * @param row row of grid bag
+	 * @param column column of grid bag
+	 * @return Grid bag constraints object
+	 */
 	public static GridBagConstraints createGbc(int row, int column) {
 		GridBagConstraints gridBagConstraints = new GridBagConstraints();
 		gridBagConstraints.gridy = row;
@@ -21,6 +37,15 @@ public class AwtUtils {
 		return gridBagConstraints;
 	}
 
+	/**
+	 * Create grid bag constraints object.
+	 * 
+	 * @param row row of grid bag
+	 * @param column column of grid bag
+	 * @param rowSpan number of occupying rows
+	 * @param colSpan number of occupying columns
+	 * @return Grid bag constraints object
+	 */
 	public static GridBagConstraints createGbc(int row, int column, int rowSpan, int colSpan) {
 		GridBagConstraints gridBagConstraints = new GridBagConstraints();
 		gridBagConstraints.gridy = row;
@@ -32,6 +57,12 @@ public class AwtUtils {
 		return gridBagConstraints;
 	}
 
+	/**
+	 * Create image button from embedded resource.
+	 * 
+	 * @param resourceName name of embedded resource
+	 * @return
+	 */
 	public static JButton createImageButton(String resourceName) {
 		JButton jbButton = new JButton();
 		try {
@@ -43,6 +74,13 @@ public class AwtUtils {
 		return jbButton;
 	}
 
+	/**
+	 * Create image from embedde resoprce.
+	 * 
+	 * @param resourceName name of embedded resource
+	 * @return image object
+	 * @throws IOException
+	 */
 	public static Image loadResourceToImage(String resourceName) throws IOException {
 		InputStream is = AwtUtils.class.getResourceAsStream(resourceName);
 		return ImageIO.read(is);

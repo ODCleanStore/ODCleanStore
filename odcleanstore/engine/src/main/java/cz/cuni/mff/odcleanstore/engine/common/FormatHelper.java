@@ -55,6 +55,14 @@ public final class FormatHelper {
         return getTypedW3CDTF(new Date());
     }
     
+    /**
+     * Format exception for logging.
+     * 
+     * @param exception exception for logging
+     * @param firstMessage preface
+     * @param args preface args
+     * @return formatted string
+     */
     public static String formatExceptionForLog(Throwable exception, String firstMessage, Object... args) {
         String message = firstMessage;
         try {
@@ -93,6 +101,14 @@ public final class FormatHelper {
         }
     }
 
+    /**
+     * Format graph message fro logging.
+     * @param message main message for logging
+     * @param graphUuid graph uuid  
+     * @param isInCleanDB graph is in clean database
+     * @param args message args
+     * @return formatted string
+     */
     public static String formatGraphMessage(String message, String graphUuid, boolean isInCleanDB, Object... args) {
         try {
             if (isInCleanDB) {

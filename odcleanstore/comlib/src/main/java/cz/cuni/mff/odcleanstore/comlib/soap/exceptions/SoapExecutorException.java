@@ -5,6 +5,12 @@ import java.io.StringWriter;
 
 import cz.cuni.mff.odcleanstore.comlib.soap.SoapWriter;
 
+/**
+ * Soap executor exception.
+ * 
+ * @author Petr Jerman
+ */
+
 public class SoapExecutorException extends Exception {
 
 	private static final long serialVersionUID = -7289298224322006665L;
@@ -28,6 +34,9 @@ public class SoapExecutorException extends Exception {
 			+ "<faultstring>Internal server error</faultstring>"
 			+ EPILOG;
  	
+	/**
+	 * @return soap  response message for exception
+	 */
 	public final String getSoapMessage() {
 		try {
 			StringWriter sw = new StringWriter();

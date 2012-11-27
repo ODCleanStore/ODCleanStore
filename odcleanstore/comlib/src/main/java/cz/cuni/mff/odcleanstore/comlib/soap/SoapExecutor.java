@@ -17,6 +17,11 @@ import cz.cuni.mff.odcleanstore.comlib.io.EndableReader;
 import cz.cuni.mff.odcleanstore.comlib.soap.exceptions.SoapExecutorException;
 import cz.cuni.mff.odcleanstore.comlib.soap.exceptions.SoapExecutorParserException;
 
+/**
+ * Soap envelope executor for SoapMethodExecutor.
+ * 
+ * @author Petr Jerman
+ */
 public class SoapExecutor {
 	private static final String ENVELOPE_XSD_RESOURCE_PATH = "/envelope.xsd";
 	private static final String HTTP_WWW_W3_ORG_2001_XML_SCHEMA = "http://www.w3.org/2001/XMLSchema";
@@ -26,6 +31,13 @@ public class SoapExecutor {
 
 	private SAXParserFactory saxParserFactory;
 
+	/**
+	 * Create SoapExecutor instance.
+	 * 
+	 * @param classWithResources
+	 * @param typesSchemaResourceName
+	 * @throws SAXException
+	 */
 	public SoapExecutor(@SuppressWarnings("rawtypes") Class classWithResources, String typesSchemaResourceName)
 			throws SAXException {
 		InputStream typesSchema = classWithResources.getResourceAsStream(typesSchemaResourceName);
@@ -36,6 +48,13 @@ public class SoapExecutor {
 		createParser(typesSchema);
 	}
 
+	/**
+	 * Parse message from reader for soap method executor.
+	 * 
+	 * @param reader
+	 * @param handler
+	 * @throws SoapExecutorException
+	 */
 	public void parse(Reader reader, SoapMethodExecutor handler) throws SoapExecutorException {
 
 		SAXParser saxParser = null;
@@ -62,6 +81,12 @@ public class SoapExecutor {
 		}
 	}
 
+	/**
+	 * Create parser factory for envelope schema validating.
+	 * 
+	 * @param typesSchema
+	 * @throws SAXException
+	 */
 	private void createParser(InputStream typesSchema) throws SAXException {
 
 		synchronized (envelopeSchemaLock) {

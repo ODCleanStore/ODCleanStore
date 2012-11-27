@@ -6,10 +6,24 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Writer;
 
+/**
+ * Some unfiled helpers.
+ * 
+ * @author Petr Jerman
+ */
 public class ComlibUtils {
 
 	private static final String DEFAULT_CHARSET = "UTF-8";
 
+	/**
+	 * Load embeded resource to string.
+	 * 
+	 * @param clazz
+	 * @param resourceName
+	 * @param charset
+	 * @return
+	 * @throws IOException
+	 */
 	public static String loadResourceToString(@SuppressWarnings("rawtypes") Class clazz, String resourceName, String charset)
 			throws IOException {
 		BufferedReader reader = null;
@@ -29,6 +43,11 @@ public class ComlibUtils {
 		}
 	}
 
+	/**
+	 * Close writer without causing any exceptions.
+	 * 
+	 * @param writer
+	 */
 	public static void closeQuietly(Writer writer) {
 		try {
 			if (writer != null) {
