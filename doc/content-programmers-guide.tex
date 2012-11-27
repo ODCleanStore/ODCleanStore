@@ -484,14 +484,21 @@ When shutdown is called on the pipeline processing service then if there is a ru
 \subsection{Logging}
 
 \section{Input Webservice}
-Input Webservice is a multithreaded SOAP webservice that accepts new data and queues them for data processing by a pipeline. It is implemented with a streaming SOAP message processing so that memory usage is minimized and even large data can be accepted.
+\subsection{Purpose and Features}
+Input Webservice is a multithreaded SOAP webservice that accepts new data and queues them for data processing by a pipeline. It is implemented with a streaming SOAP message processing so that memory usage is minimized and even large data can be accepted. Input Webservice also supports secure communication over HTTPS. 
 
-The counterpart of Input Webservice on the client side is \code{odcs-inputclient} library which is provided to data producers for convenience. Shared parts of Input Webservice and \code{odcs-inputclient} are in library \code{odcs-comlib}. \code{odcs-comlib} is implemented with minimum memory requirements compared to standard jax-ws implementation. Received data are evaluated as soon as they are received and errors are reported to the client immediately (unlike jax-ws). Streaming processing of the SOAP message is implemented using \code{javax.xml.parsers.SAXParser} supplemented by SOAP 1.1 envelope schema validation in \code{odcs-comlib}.  
+The counterpart of Input Webservice on the client side is \code{odcs-inputclient} library which is provided to data producers for convenience. Shared parts of Input Webservice and \code{odcs-inputclient} are in library \code{odcs-comlib}. \code{odcs-comlib} is implemented with minimum memory requirements compared to standard jax-ws implementation. Received data are evaluated as soon as they are received and errors are reported to the client immediately (unlike jax-ws). Streaming processing of the SOAP message is implemented using \code{javax.xml.parsers.SAXParser} supplemented by SOAP 1.1 envelope schema validation in \code{odcs-comlib}. 
 
 WSDL and XSD schema of the SOAP service are parts of Input Webservice as embedded resources and dynamically served according to the HTTP request.
 
-When Input Webservice is started, it starts a HTTP server listening on a given port and then tries to run recovery. If there are any unfinished requests from the previous run, then their records in the database and data files are deleted. HTTP 503 -- service unavailable response is given until recovery is finished. Shutdown of the service stops the HTTP server and all pending requests. 
+When Input Webservice is started, it starts a HTTP server listening on a given port and then tries to run recovery. If there are any unfinished requests from the previous run, then their records in the database and data files are deleted. HTTP 503 -- Service unavailable response is given until recovery is finished.
 
+Shutdown of the service stops all pending requests and the HTTP server.
+
+\subsection{Implementation}
+The implementation is in classes \code{SoapMethodInsertExecutor} extending \code{SoapMethodExecutor} in a way similar to standard \code{DefaultHandler} for \code{SAXParser}. \code{SoapMethodExecutor} is part of \code{odcs-comlib} and filters out parts of the message that belong to the SOAP protocol. The main execution part of message processing is in the \code{InsertExecutor} class which subsequently takes input parameters and saves received data to the filesystem as files with suffix \code{-d.ttl}/\code{-d.rdf} for the payload data, suffix \code{-m.ttl}/\code{-m.rdf} for metadata and \code{-pvm.ttl}/\code{-pvm.rdf} for provenance metadata, depending on the serialization format (Turtle or RDF/XML). In case of success, it signalizes that a new named graph was accepted to pipeline service which will eventually run a transformer pipeline on the new data.
+
+If updating the state of processing in the relational database fails, Input Webservice retries with in an interval defined in global configuration. If the process of receiving data fails in other cases, \code{InsertExecutor} throws an \code{InsertExecutorException} exception which can assemble a \code{InsertException} SOAP message for the client. These messages are sent in \code{InputWSHttpServer} together with other errors in the SOAP protocol. Created files are deleted on error and so are records of the import in the relational database. 
 
 
 \section{Output Webservice}
