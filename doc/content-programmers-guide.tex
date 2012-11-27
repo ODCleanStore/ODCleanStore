@@ -141,7 +141,7 @@ Second, the selected architecture allowed a clear division of work and enabled a
 Third, it is a result of a long process of analysis. From the initial vision and  requirements specification, which suggested an abstract concept of tranformers run in arbitrary order on data, we extracted several most important cases of transformers that were tightly bound to the system and could run only in a fixed order, only to generalize them back to transformers with a~very simple interface and flexible pipelines.
 
 \subsection{Usage Assumptions}
-The architecture and in particular the way editing of pipelines and rules  in \FE is based on several assumptions about how \odcs will be used. In this section we try to give an overview of these assumptions.
+The architecture, and in particular the way editing of pipelines and rules  in \FE is solved, is based on several assumptions about how \odcs will be used. In this section we try to give an overview of these assumptions.
 
 \begin{itemize}
 	\item Data sent to Input Webservice are expected to be reasonably small. \odcs is designed to technically handle even very large data, however, for example results of \QA may not be relevant for a large graph because a small mistake in several values would decrease the \QA score for the whole large dataset. Motivation for this assumption is based on planned integration with project Strigil (see related work in Chapter \ref{chap:relatedWork}).
@@ -424,14 +424,61 @@ When importing data to Virtuoso, one should use the \code{GraphLoader}  class or
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Engine}
+\section{Purpose}
+Engine runs the whole server part. This is the component that actually processes the RDF data. It also starts Input and Output Webservices and thus provides the outer interface for accepting data and querying over data.
 
 
-\todo{jak se to spousti, vypina, celkova architektura}
+
+
+
+\section{Implementation}
+Class \code{Engine} contains the \code{main()} method which represents the entry point of the application. It checks the environment, loads and validates configuration and starts the services that Engine consists of. Thereafter, Engine periodically updates its state in the database (for monitoring from \FE) and waits for shutdown (using the standard JVM shutdown hook).
+
+There are timeouts for service initialization and shut down. When the timeout is exceeded, the service is finished forcibly and Engine stops.
+
+\subsection{Services}
+Engine consists of three independent services: 
+\code{InputWSService}, \code{OutputWSService}, and \code{PipelineService} for Input Webservice, Output Webservice and pipeline processing, respectively. Services inherit from a common base class \code{Service}. Services are initialized and started as soon as Engine is started and can be asynchronously shut down when Engine is being shut down. Services have their own state and inform \code{Engine} about its changes. 
+
+Engine is implemented as multithreaded. Multiple requests for both Input and Output Webservice can be handled at the same time. The data processing part processes named graphs sequentially, one at a time. Engine is implemented so that extending to parallel data procesing should be simple, however. 
+
+\subsection{Transactional Processing}
+Data processing in \odcs is done by running a pipeline of transformers on the processed set of named graphs. Running a pipeline is a long-lasting operation on potentionally large data. Databases, including Virtuoso, usually process such operations in a non-transactional way. Engine, however, ensures a transactional character of running a pipeline. 
+
+As long as used transformers adhere to the contract specified in Section \ref{sec:transformerContract}, running pipelines has all ACID properties. In addition, an increased attention was given to robustness of Engine to errors. The foundation of this robustness is in implementation that ensures that Engine can be shut down at any time without permanent loss of data integrity. 
+
+These features were accomplished in the following way:
+\begin{itemize}
+  \item RDF data processing is divided into a sequence of operations that move from one consistent state to another consistent state.
+  \item All changes of state data at the beginning and end of each operation are executed strictly in a context of single transaction in the relational database.
+  \item In case of an error during an operation, the operation can be always either rolled back or finished.
+  \item Data processing is executed in the isolated dirty database instance so that inconsistent states of data being processed are invisible to the outside. 
+  \item Since moving data from the dirty database instance to the clean database instance cannot be executed in a transaction, the inserted named graphs are made invisible to \QE by adding a special prefix to their names. After the import is complete, the named graphs are renamed and made visible for queries. If the new data in the clean database replace older data after re-running a pipeline on them, the old data would be made invisible at the same time by adding the special prefix to them and deleted afterwards.
+\end{itemize}
+
+Several other mechanisms for transactional processing provided by Virtuoso were examined during development. However, they proved very limiting and often even caused the database instance to crash. Transactions for RDF data in Virtuoso were rejected for this reason and transactional properties are ensured by the mechanism presented above.    
+
+All services are also resilient to a loss of database connection. Engine doesn't need to restart when the connection is regained again. Input Webservice and pipeline processing require connection to both database instances, Output Webservice needs only the clean database instance.
 
 \section{Pipeline Processing}
+% Zpracovani dat v odcs lze nejlepe charakterizovat jako dlouho trvajici davkove operace nad potencionalne rozsahlymi podmnozinami dat uloziste. Databazove stroje, Virtuoso nevyjimaje, zpracovavaji takoveto davky povetsinou netransakcnim zpusobem, ktery nezajistuje dostatecnou robustnost pro zpracovani dat v Engine.
+
+%Data processing in Engine is driven by settings in the relational database which can be managed in \FE.
+
+%Processes queued data by running a series of transformers in a pipeline on it and moves the data to the clean database.
+
+
+
+%the administrator may choose to re-run a~pipeline on data already stored in the clean database. Copy of this data is created in the dirty database where it is processed by the pipeline. After that, the processed version of data replaces the original in the clean database.
+
+
+%Data processing is realized by \term{transformers} that are applied to data being processed by Engine in a \term{pipeline}. A transformer can be any class implementing the \code{Transformer} interface but typically it only manipulates (change, add, delete) processed data in database. Several transformers ship with \odcs, such as \QA, \OI or \DN.
+
+
 \subsection{Logging}
 
 \section{Input Webservice}
+% SOAP webservice that accepts new data and queues them for processing in the dirty database.
 
 \section{Output Webservice}
 \subsection{Purpose}
