@@ -407,9 +407,25 @@ List with a description of all configuration options follows:
 % make sure virtuoso instance is started
 
 \chapter{Custom Transformers}
+\label{chap:customTransformers}
+The administrator may extend data-processing capabilities of \odcs by adding new custom transformers. In order to start using the transformer:
+\begin{enumerate}
+  \item Implement your custom transformer by implementing the \code{Transformer} interface.
+  \item Save the .jar file with the implementation to a location where Engine can read it from the filesystem.
+  \item In \FE, go to \quot{Transformers} \textgreater \quot{Add a new transformer}. Enter the path to the .jar file with the implementation and fully qulified name of the class inside the .jar file that implements \code{Transformer}. 
+\end{enumerate}
 
-\chapter{(Troubleshooting)}
+%From the technical point of view, a transformer implementation must implement the \code{Transformer} interface. This interface and other necessary classes are included in maven artifact \code{odcs-core}, so that only this artifact need to be referenced.
 
+%Note that custom transformers should satisfy conditions listed in Section \ref{sec:transformerContract}.}
+T%he administrator may extend data-processing capabilities of \odcs by adding new custom transformers. How to do so is described in \refadminmanual.
+
+%From the technical point of view, a transformer implementation must implement the \code{Transformer} interface. This interface and other necessary classes are included in maven artifact \code{odcs-core}, so that only this artifact need to be referenced.
+
+Note that custom transformers should satisfy conditions listed in Section \ref{sec:transformerContract}.
+
+%\chapter{(Troubleshooting)}
+% TODO based on real-world problems
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
