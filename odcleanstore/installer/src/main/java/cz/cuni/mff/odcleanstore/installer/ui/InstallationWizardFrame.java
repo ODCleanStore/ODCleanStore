@@ -12,7 +12,6 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -21,7 +20,7 @@ import javax.swing.JPanel;
 
 import cz.cuni.mff.odcleanstore.installer.utils.AwtUtils;
 
-public abstract class WizardFrame {
+public abstract class InstallationWizardFrame {
 
 	private JFrame frame;
 	private JLabel title;
@@ -32,12 +31,11 @@ public abstract class WizardFrame {
 	private JButton next;
 	private JButton cancel;
 	private JButton finish;
-	private JButton skip;
 
 	private int stepNumber;
-	private WizardStep step;
+	private InstallationWizardStep step;
 
-	public WizardFrame() throws IOException {
+	public InstallationWizardFrame() throws IOException {
 
 		frame = new JFrame();
 		frame.setTitle("ODCleanStore Installer");
@@ -79,19 +77,10 @@ public abstract class WizardFrame {
 		panelStepTitle.add(title);
 
 		// next button
-		next = new JButton();
+		next = new JButton("Next");
 		navigator.add(next);
-		next.setToolTipText("Perform action and go to the next step");
+		next.setToolTipText("Go to the next step");
 		next.addActionListener(actionListener);
-
-		// skip button
-		skip = new JButton("Next");
-		skip.setToolTipText("Go to the next installation step");
-		skip.setVisible(false);
-		navigator.add(skip);
-		skip.addActionListener(actionListener);
-
-		navigator.add(Box.createHorizontalStrut(18));
 
 		// cancel button
 		cancel = new JButton("Cancel");
@@ -110,8 +99,6 @@ public abstract class WizardFrame {
 		frame.setVisible(true);
 	}
 
-	protected abstract void onNext() throws IOException;
-
 	protected void onFinish() {
 		frame.setVisible(false);
 		frame.dispose();
@@ -119,27 +106,25 @@ public abstract class WizardFrame {
 	}
 
 	protected void onCancel() {
-		if (step != null && step.canCancel()) {
+		if (step != null) {
 			if (showConfirmDialog("Are you sure terminate installation?", "Terminate installation")) {
+				step.onCancel();
 				onFinish();
 			}
 		}
 	}
 
-	protected void setNextStep(WizardStep step) throws IOException {
+	protected void setNextStep(InstallationWizardStep step) throws IOException {
 		form.removeAll();
 		this.step = step;
 		if (step != null) {
 			title.setText("Step " + ++stepNumber + " - " + step.getStepTitle());
-			String nextNavigationButtonText = step.getNextNavigationButtonText();
-			next.setText(nextNavigationButtonText);
-			skip.setVisible(step.hasSkipButton());
 			JPanel panel = step.getFormPanel();
 			form.add(panel);
 		} else {
 			navigator.removeAll();
 			navigator.add(finish);
-			title.setText("Installation completed");
+			title.setText("Installation successfully completed");
 		}
 		mainPanel.updateUI();
 	}
@@ -147,14 +132,12 @@ public abstract class WizardFrame {
 	private void ActionPerformed(ActionEvent arg) throws IOException {
 		if (arg.getSource() == finish) {
 			onFinish();
-		} else if (arg.getSource() == skip) {
-			onNext();
 		} else if (arg.getSource() == next) {
 			if (step != null && step.onNext()) {
-				onNext();
+				next();
 			}
 		} else if (arg.getSource() == cancel) {
-				onCancel();
+			onCancel();
 		} else if (step != null) {
 			step.onFormEvent(arg);
 		}
@@ -192,19 +175,19 @@ public abstract class WizardFrame {
 		return stepNumber;
 	}
 
-	public void endLongRunningOperation() {
-		next.setEnabled(true);
-		skip.setEnabled(true);
+	public abstract void next() throws IOException;
+	
+	public void startInstallation() {
+		next.setVisible(false);
+		form.setCursor(new Cursor(Cursor.WAIT_CURSOR));
+	}
+
+	public void endInstallation() {
 		form.setCursor(null);
 	}
 
-	public void next() throws IOException {
-		onNext();
-	}
-
-	public void startLongRunningOperation() {
-		next.setEnabled(false);
-		skip.setEnabled(false);
-		form.setCursor(new Cursor(Cursor.WAIT_CURSOR));
+	public void cancelInstallation(String message) {
+		JOptionPane.showMessageDialog(form, message + "\n installation terminate", "Error", JOptionPane.ERROR_MESSAGE);
+		onFinish();
 	}
 }
