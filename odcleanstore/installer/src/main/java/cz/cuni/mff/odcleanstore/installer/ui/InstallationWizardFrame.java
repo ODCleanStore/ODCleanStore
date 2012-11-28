@@ -240,6 +240,14 @@ public abstract class InstallationWizardFrame {
 	public abstract void next() throws IOException;
 
 	/**
+	 * Replaces the "Next" button with "Install"
+	 */
+	protected void showInstallButton() {
+		next.setText("Install");
+		next.setForeground(new Color(0, 0, 128));
+	}
+	
+	/**
 	 * Starts long running instalation, hide next button and set wait cursor.
 	 */
 	public void startInstallation() {
