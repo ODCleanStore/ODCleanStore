@@ -16,6 +16,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamBut
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.UnobtrusivePagingNavigator;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
+/**
+ * Policy creator can see a results of DN debugging on this page.
+ * Two tables are displayed for each rule. One for created links between input data and data in clean DB,
+ * another one for links within input data. 
+ * @author Tomas Soukup
+ */
 @AuthorizeInstantiation({ Role.PIC })
 public class OIDebugResultPage extends FrontendPage
 {

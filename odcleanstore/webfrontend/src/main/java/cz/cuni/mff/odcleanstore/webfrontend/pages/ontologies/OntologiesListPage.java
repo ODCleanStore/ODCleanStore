@@ -20,6 +20,11 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.models.GenericSortableDataProvi
 import cz.cuni.mff.odcleanstore.webfrontend.dao.onto.OntologyDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
+/**
+ * On this page Ontology creator can see all stored ontologies.
+ * He can also delete them, edit them or add mappings between them.
+ * @author Tomas Soukup
+ */
 @AuthorizeInstantiation({ Role.ONC })
 public class OntologiesListPage extends FrontendPage
 {

@@ -18,6 +18,11 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.onto.OntologyDao;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.onto.OntologyMappingDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
+/**
+ * On this page ontology creator can see a list of existing mappings for one ontology.
+ * He can also delete them.
+ * @author Tomas Soukup
+ */
 @AuthorizeInstantiation({ Role.ONC })
 public class MappingsListPage extends FrontendPage 
 {	

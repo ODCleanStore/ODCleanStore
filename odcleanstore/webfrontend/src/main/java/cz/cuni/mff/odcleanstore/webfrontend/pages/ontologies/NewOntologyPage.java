@@ -19,6 +19,11 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.onto.OntologyDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
+/**
+ * On this page Ontology creator can create and store a new ontology.
+ * Its definition can be uploaded from a file.
+ * @author Tomas Soukup
+ */
 @AuthorizeInstantiation({ Role.ONC })
 public class NewOntologyPage extends FrontendPage 
 {	
