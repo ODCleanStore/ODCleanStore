@@ -44,10 +44,10 @@ More detailed information about \odcs from the perspective of a user can be foun
 \label{sec:virtuoso}
 \odcs uses two instances of Virtuoso database for storing data -- one is used for storing data that are currently being processed (\term{dirty database instance}) and the other for already processed data visible to end users (\term{clean database instance}). 
 
-\odcs requires that the two instances of Virtuoso database are created before the installation process. If you are familiar with Virtuoso and already have two Virtuoso instances that you would like to use, you can skip the rest of this section -- make sure, however, to modify \odcs configuration options accordingly  (see Chapter \ref{chap:configOptions}). In particular, set correct database settings and include a directory specified in \code{engine.clean\_import\_export\_dir} and \code{engine.dirty\_import\_export\_dir} configuration options in \code{DirsAllowed} option of Virtuoso configuration.
+\odcs requires that the two instances of Virtuoso database are created before the installation process. If you are familiar with Virtuoso and already have two Virtuoso instances that you would like to use, you can skip the rest of this section -- make sure, however, to modify \odcs configuration options accordingly  (see Chapter \ref{chap:configOptions}). In particular, set correct database settings and include a directory specified in \code{engine.clean\_import\_export\_dir} and \code{engine.dirty\_import\_export\_dir} configuration options in \code{DirsAllowed} option of Virtuoso configuration. The user account which is used to run Engine must have permissions to both read and write in the directory.
 
 \subsection{Creating Database Instances}
-Virtuoso has a paid enterprise license, but also an open source edition\footnote{\url{http://virtuoso.openlinksw.com/dataspace/dav/wiki/Main/VOSDownload}} available for free. In order to install it, follow instructions on the download page. Make sure that the deployed binaries (\varcode{installation-directory}/bin) are on your system PATH (you can test it by running commands \code{isql} and \code{virtuoso-t}).
+Virtuoso has a paid enterprise license, but also an open source edition\footnote{\url{http://virtuoso.openlinksw.com/dataspace/dav/wiki/Main/VOSDownload}} available for free. In order to install it, follow instructions on the download page. Make sure that the deployed binaries (\varcode{installation-directory}/bin) are on your system PATH. You can test it by running commands \code{isql} (check that it is the Virtuoso isql) and \code{virtuoso-t}. If \code{isql} cannot be on PATH for any reason, pass the full path to the executable as a parametr of the installer.
 
 \odcs distribution contains files \code{virtuoso.ini-clean} and \code{virtuoso.ini-dirty}. While it is not required, we strongly recommend creating the two database instances with these provided configuration files.
 
@@ -77,7 +77,7 @@ Virtuoso has a paid enterprise license, but also an open source edition\footnote
 \end{enumerate}
 
 
-\textit{Note:} For security reasons, don't forget to change credentials for your database instance.
+\paragraph{Security note.} Don't forget to change credentials for your database instance.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Step by Step Installation Guide}
@@ -95,7 +95,10 @@ on Linux, or run
 \begin{verbatim}
   odcs-installer.bat
 \end{verbatim}
-on Windows. This should start the installer.
+on Windows. This should start the installer. If the Virtuoso's \code{isql} executable is not on system PATH for any reason, you can pass the full path to the installer manually:
+\begin{verbatim}
+    java -jar bin/odcs-installer-<version>.jar <full-path-to-Virtuoso-isql>
+\end{verbatim}
 
 On the first screen of the installer, choose the directory where \odcs binaries should be installed.
 
@@ -172,7 +175,8 @@ The installer deploys the web archive with \FE to the designated directory in yo
     </Context>
 \end{verbatim} 
 
-After a clean installation, \FE contains a single administrator account with username \quot{adm} and password \quot{adm}. For security reasons, \textbf{make sure to change the default credentials}.
+After a clean installation, \FE contains a single administrator account with username \quot{adm} and password \quot{adm}. For security reasons, \textbf{make sure to change the default credentials}. Also, the installer creates a user \quot{SILK} with password \quot{odcs} in the dirty database instance and grants it the \code{SPARQL\_UPDATE} role. You should change the credentials for this user and update the affected \code{db.dirty\_update.sparql.*} configuration options in odcs.ini. 
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Starting and Stopping the Application}
@@ -426,6 +430,12 @@ The administrator may extend data-processing capabilities of \odcs by adding new
 
 %\chapter{(Troubleshooting)}
 % TODO based on real-world problems
+
+% - kdyz se presune instalacni adresar Engine, rozbije to cestu v FE k odcs.ini -> co s tim
+% - jak se chova Engine/FE pri zastavenem Virtuosu
+% - duplicate UUID
+% - spatna cesta k odcs.ini
+% - uncommited changes u pravidel
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
