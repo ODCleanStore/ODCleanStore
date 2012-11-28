@@ -1,0 +1,44 @@
+<html>
+<head>
+	<title>ODCleanStore - API overview</title>
+</head>
+<body>
+	<style>
+		#codebase-structure dt { font-weight: bold; }
+		#codebase-structure dd { margin-top: 5px; margin-bottom: 10px; }
+	</style>
+	
+	<p>ODCleanStore is a server application for management of Linked Data written in Java. It stores data in RDF, processes them and provides integrated views on the data.</p>
+	
+	<p>The application is divided into several modules. The codebase structure reflects that of modules and is described below.</p>
+	
+	<dl id="codebase-structure">
+		<dt>Comlib (<em>odcleanstore/comlib</em>)</dt>
+		<dd>???</dd>
+		
+		<dt>Core (<em>odcleanstore/core</em>)</dt>
+		<dd>Contains basic classes which are common to all modules.</dd>
+		
+		<dt>Engine (<em>odcleanstore/engine</em>)</dt>
+		<dd>Engine runs the whole server part. It realizes all data processing and starts Input and Output Webservices.</dd>
+		
+		<dt>Input Client (<em>odcleanstore/inputclient</em>)</dt>
+		<dd>A library to be used in applications which serve as clients to ODCleanStore. It contains a simple SOAP WS client to the Input Webservice.</dd>
+
+		<dt>Installer (<em>odcleanstore/installer</em>)</dt>
+		<dd>A GUI installer of the whole application.</dd>
+		
+		<dt>Simple Scraper (<em>odcleanstore/simplescraper</em>)</dt>
+		<dd>A trivial scraper application which can be used to upload data to ODCleanStore via the Input Webservice.</dd>
+		
+		<dt>Simple Transformer (<em>odcleanstore/simpletransformer</em>)</dt>
+		<dd>???</dd>
+		
+		<dt>Administration Frontend (<em>odcleanstore/webfrontend</em>)</dt>
+		<dd>Web application written in Java from which ODCleanStore can be managed. In Adiminstration Frontend, the user can define pipelines for data processing, rules for transformers, manage ontologies, Output Webservice settings etc.</dd>
+	</dl>
+
+	<p>For an in-depth description of individual classes and their interfaces, refer to this javadoc documentation. For a description of the architecture and design of the application and other general information, see the Programmer's Guide.</p>
+	
+</body>
+</html>
