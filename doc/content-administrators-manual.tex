@@ -81,8 +81,7 @@ Virtuoso has a paid enterprise license, but also an open source edition\footnote
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Step by Step Installation Guide}
-\odcs can be installed with a provided installer with graphical interface.
-%Alternatively, \odcs can be installed manually following instructions in the README file.
+\odcs can be installed with a provided installer with graphical interface.\footnote{Alternatively, \odcs can be deployed manually. Steps for the manual installation are described in the \code{README.txt} file in the distribution, the manual installation is intended for experienced users and developers, however, and is not officially supported.}
 
 \section{Prerequisities}
 Before installation, make sure your system satisfies requirements listed in Chapter \ref{chap:requirements}. In particular, make sure to have two Virtuoso database instances created and \textit{started} before installation, as described in Section \ref{sec:virtuoso}.
@@ -167,7 +166,7 @@ The installer deploys the web archive with \FE to the designated directory in yo
     </Context>
 \end{verbatim} 
 
-After a clean insallation, \FE contains a single administration account with username \quot{adm} and password \quot{adm}. For security reasons, \textbf{make sure to change the default credentials}. In order to add new data processing pipelines in \FE, you will need to create a new user account, or add more privileges to the default administrator account.
+After a clean installation, \FE contains a single administrator account with username \quot{adm} and password \quot{adm}. For security reasons, \textbf{make sure to change the default credentials}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Starting and Stopping the Application}
@@ -180,6 +179,45 @@ Engine is also prepared to be run as a system service on Windows, or daemon on L
 
 \section{\FE}
 \FE is a standard Java web application and its lifecycle depends on its servlet container -- please refer to documentation of your server container\footnote{E.g. \url{http://tomcat.apache.org/tomcat-7.0-doc/index.html}}. Usually, \FE would be reached by navigating to \code{http://localhost:8080/} in your web browser. Please note that \FE also needs the clean Virtuoso database instance to be running.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Trying out ODCleanStore}
+When Engine is started and \FE successfully deployed, you may try out \odcs.
+
+\odcs can be managed from \FE in your web browser. Navigate to the address where it is deployed by your servlet container (e.g. http://localhost:8080/). By default, there is a single administrator account with username \quot{adm} and password \quot{adm}. In order to add new data processing pipelines in \FE, you will need to create a new user account, or add more roles to the default administrator account (log out and log in again for the changes to take effect).
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/fe-new-account.png}
+    \caption{\FE -- adding a new account}
+\end{figure}
+
+There should be one default pipeline created by default. You may customize it by assigning transformers to it.
+The functionality of Input and Output Webservices can be then demonstrated:
+
+\paragraph{Sending data to \odcs.}
+    To send data to Input Webservice, you can execute \code{run-example.cmd} or \code{run-example.sh} (on Windows or Linux, respectively) from 
+   directory \code{example/} in the distribution. The script will send data in \code{example-data.rdf}
+   to Input Webservice together with metadata in \code{example-metadata.properties}
+   and \code{example-provenance-metadata.rdf}
+   
+   Parameters for Input Webservice can be changed in 
+   \code{example-metadata.properties}, most notably the name of the pipeline to 
+   process the data in the \code{pipelineName} option (the default pipeline will be used when none is specified) and location of Input Webservice.
+      
+   Script \code{regenerate-uuid.cmd} (\code{regenerate-uuid.sh}) runs an utility that regenerates UUID in
+   \code{example-metadata.properties}. This is necessary because every request
+   to Input Webservice needs to have an unique UUID.
+
+\paragraph{Querying over data.} To query the stored data using Output Webservice, start with \code{query-\textit{*}.html} documents in 
+  the \code{example-queries/} subdirectory of the distribution. You can find more detailed information in \refusermanual.
+
+\begin{figure}[hb]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/uri-query-screenshot.png}
+    \caption{Sample results of an URI query}
+    \label{fig:uriQuery}
+\end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Configuration Options}
@@ -387,8 +425,8 @@ The administrator may extend data-processing capabilities of \odcs by adding new
 
 \appendix
 
-\chapter{Installation CD Contents}
-The installation CD contains \odcs binaries, installer, documentation and some testing data. For a quick start, the relevant files for you are \code{README.txt} and scripts \code{install.cmd} or \code{install.sh} (for Windows or Linux, respectively) which start the installer.
+\chapter{Distribution Contents}
+The distribution archive or CD contains \odcs binaries, installer, documentation and some testing data. For a quick start, the relevant files for you are \code{README.txt} and scripts \code{install.cmd} or \code{install.sh} (for Windows or Linux, respectively) which start the installer.
 
 Meaning of the other files and directories is explained below.
 
