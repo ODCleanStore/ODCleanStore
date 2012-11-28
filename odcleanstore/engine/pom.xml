@@ -11,7 +11,7 @@
 	<parent>
 		<groupId>cz.cuni.mff.odcleanstore</groupId>
 		<artifactId>odcs</artifactId>
-		<version>1.0-SNAPSHOT</version>
+		<version>1.0.0</version>
 	</parent>
 
 	<name>ODCleanStore - Engine</name>
@@ -30,12 +30,12 @@
 			<dependency>
 				<groupId>cz.cuni.mff.odcleanstore</groupId>
 				<artifactId>odcs-backend</artifactId>
-				<version>1.0-SNAPSHOT</version>
+				<version>1.0.0</version>
 			</dependency>
 			<dependency>
 				<groupId>cz.cuni.mff.odcleanstore</groupId>
 				<artifactId>odcs-comlib</artifactId>
-				<version>1.0-SNAPSHOT</version>
+				<version>1.0.0</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -44,7 +44,7 @@
 		<dependency>
 			<groupId>cz.cuni.mff.odcleanstore</groupId>
 			<artifactId>odcs-core</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>cz.cuni.mff.odcleanstore</groupId>

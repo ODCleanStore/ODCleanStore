@@ -11,7 +11,7 @@
 	<parent>
 		<groupId>cz.cuni.mff.odcleanstore</groupId>
 		<artifactId>odcs</artifactId>
-		<version>1.0-SNAPSHOT</version>
+		<version>1.0.0</version>
 	</parent>
 
 	<name>ODCleanStore - Simple Scraper</name>
@@ -21,7 +21,7 @@
 		<dependency>
 			<groupId>cz.cuni.mff.odcleanstore</groupId>
 			<artifactId>odcs-inputclient</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.0.0</version>
 			<type>jar</type>
 		</dependency>
 	</dependencies>
@@ -31,7 +31,7 @@
 			<dependency>
 				<groupId>cz.cuni.mff.odcleanstore</groupId>
 				<artifactId>odcs-inputclient</artifactId>
-				<version>1.0-SNAPSHOT</version>
+				<version>1.0.0</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
