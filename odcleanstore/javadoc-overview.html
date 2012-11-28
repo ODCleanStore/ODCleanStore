@@ -13,14 +13,18 @@
 	<p>The application is divided into several modules. The codebase structure reflects that of modules and is described below.</p>
 	
 	<dl id="codebase-structure">
+	
+		<dt>Backend (<em>odcleanstore/backend</em>)</td>
+		<dd>Contains predefined transformers, Query Execution and Conflict resolution modules implementations.</dd>
+		
 		<dt>Comlib (<em>odcleanstore/comlib</em>)</dt>
-		<dd>???</dd>
+		<dd>Contains code related to sending data to Input Webservice, to be used on both the server and the client sides (e.g. Input Client and Input Webservice).</dd>
 		
 		<dt>Core (<em>odcleanstore/core</em>)</dt>
-		<dd>Contains basic classes which are common to all modules.</dd>
+		<dd>Contains basic classes which are common to all modules. Most importantly interfaces for custom transformers.</dd>
 		
 		<dt>Engine (<em>odcleanstore/engine</em>)</dt>
-		<dd>Engine runs the whole server part. It realizes all data processing and starts Input and Output Webservices.</dd>
+		<dd>Contains the Engine component, which runs the web services and the data processing queue.</dd>
 		
 		<dt>Input Client (<em>odcleanstore/inputclient</em>)</dt>
 		<dd>A library to be used in applications which serve as clients to ODCleanStore. It contains a simple SOAP WS client to the Input Webservice.</dd>
@@ -29,10 +33,10 @@
 		<dd>A GUI installer of the whole application.</dd>
 		
 		<dt>Simple Scraper (<em>odcleanstore/simplescraper</em>)</dt>
-		<dd>A trivial scraper application which can be used to upload data to ODCleanStore via the Input Webservice.</dd>
+		<dd>A trivial scraper application which can be used to upload data to ODCleanStore through a command line.</dd>
 		
 		<dt>Simple Transformer (<em>odcleanstore/simpletransformer</em>)</dt>
-		<dd>???</dd>
+		<dd>An example custom transformer implementation.</dd>
 		
 		<dt>Administration Frontend (<em>odcleanstore/webfrontend</em>)</dt>
 		<dd>Web application written in Java from which ODCleanStore can be managed. In Adiminstration Frontend, the user can define pipelines for data processing, rules for transformers, manage ontologies, Output Webservice settings etc.</dd>
