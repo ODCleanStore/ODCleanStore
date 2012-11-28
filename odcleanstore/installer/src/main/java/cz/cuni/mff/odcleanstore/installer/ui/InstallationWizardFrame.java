@@ -123,7 +123,7 @@ public abstract class InstallationWizardFrame {
 	 */
 	protected void onCancel() {
 		if (step != null) {
-			if (showConfirmDialog("Are you sure terminate installation?", "Terminate installation")) {
+			if (showConfirmDialog("Are you sure you want to terminate the installation?", "Terminate installation")) {
 				step.onCancel();
 				onFinish();
 			}
@@ -149,6 +149,7 @@ public abstract class InstallationWizardFrame {
 			title.setText("Installation successfully completed");
 		}
 		mainPanel.updateUI();
+		frame.pack();
 	}
 
 	/**

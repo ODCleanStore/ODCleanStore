@@ -1301,19 +1301,16 @@ This transformer is automatically added by Engine as the first transformer of ev
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Administration Frontend}
-\section{Purpose}
-\section{Interface}
-\section{Implementation}
 
-\subsection{Codebase structure}
+\section{Codebase structure}
 
 The code of \FE is divided into multiple packages which all share a common name prefix - \code{cz.cuni.mff.odcleanstore.webfrontend}. In this section you'll find a brief description of each of them and of classes they contain. For more in-dept information please refer to the javadoc documentation.
 
-\subsubsection{behaviours}
+\subsection{behaviours}
 
 This package is intended to contain custom Wicket behaviours. Currently there's only a single class, the \code{ConfirmationBoxRenderer}, which serves to add javascript-based confirmation dialog boxes to delete buttons.
 
-\subsubsection{bo}
+\subsection{bo}
 
 The \code{bo} package contains all business objects used in the web frontend application, divided into subpackages. Every business entity represents a single relational table and is formed by a single Java class. The classes are simple Java beans where bean properties match columns of the represented table and can aditionaly contain other methods to simplify using them.
 
@@ -1337,11 +1334,11 @@ Description of the most important BO classes follows:
 	\item[CompiledDNRule and CompiledDNRuleComponent] These entities represent DN rules and rule components and are easier to use when working with rules compiled from template instances.
 \end{description}
 
-\subsubsection{dao}
+\subsection{dao}
 
 This package (and it's subpackages) contains classes which form the DAO layer. See the related section for more information on that.
 
-\subsubsection{core}
+\subsection{core}
 
 The \code{core} package contains \code{ODCSWebFrontendApplication} and \code{ODCSWebFrontentSession}\linebreak classes extending the standard Wicket classes representing a web application and session, respectively, and the \code{ODCSWebFrontendApplication.properties} file. The properties file contains custom validation messages and declarations of other string literals. In addition, the package contains the following items:
 
@@ -1350,11 +1347,11 @@ The \code{core} package contains \code{ODCSWebFrontendApplication} and \code{ODC
 	\item[DaoLookupFactory] Encapsulates DB connections and serves DAO objects to page components (see Section \ref{sec:frontendDao}).
 \end{description}
 
-\subsubsection{core.models}
+\subsection{core.models}
 
 This package contains custom implementations of the \code{IDataProvider} and \code{SortableDataProvider} interfaces, which adhere to our DAO layer implementation.
 
-\subsubsection{core.components}
+\subsection{core.components}
 
 In the \code{core.components} package you'll find several custom components, such as labels, buttons, etc. The following list describes some of them. For a more comperhensive description, please see the javadoc documentation.
 
@@ -1368,7 +1365,7 @@ In the \code{core.components} package you'll find several custom components, suc
 	\item[HelpWindow] A generic modal window to display help information.
 \end{description}
 
-\subsubsection{pages}
+\subsection{pages}
 
 In this package there are Wicket components for individual pages. The structure of subpackages mirrors the \FE menu. These are mostly standard Wicket components (but for a few conventions we have applied - read more in Section \ref{sec:howToAddANewPage}). In this section, a brief description of some of the non-standard components will be given.
 
@@ -1380,19 +1377,19 @@ In this package there are Wicket components for individual pages. The structure 
 	
 For more information on how to create a new page, see Section \ref{sec:howToAddANewPage}.
 
-\subsubsection{util}
+\subsection{util}
 
 This package is intended for \FE specific utility classes, such as classes to ease working with arrays (\code{ArrayUtils}), sending email messages (\code{Mail}, \code{NewAccountMail}, \code{NewPasswordMail}) and generating and hashing passwords (\code{PasswordHandling}) - to name some of them.
 
 Some methods in other parts of the \FE codebase accept code snippets (e.g. closures) as arguments. Because the current version of Java (1.6) does not directly support closures, we have created two classes - \code{CodeSnippet} and \code{EmptyCodeSnippet} - to be used instead. They too belong in the \code{util} package.
 
-\subsubsection{validators}
+\subsection{validators}
 
 This package contains custom Wicket form validators, such as \code{IRIValidator} - ensures that the given value is a valid IRI, \code{EnumValidator} - ensures that the given value is an element of the represented enumeration or \code{OldPasswordValidator} - ensures that the given new password matches the original one.
 
 All our custom validators extend the \code{CustomValidator} class, which handles error message propagation so that validators can focus just on the validation process.
 
-\subsection{Database Access Layer}
+\section{Database Access Layer}
 \label{sec:frontendDao}
 \FE has a layer for accessing the database based on Spring and its JDBC templates. We chose not to use Hibernate due to integration problems with Wicket and use custom implemenation of business and DAO objects.
 
@@ -1418,7 +1415,7 @@ Hierarchy of DAO objects is depicted on \figurename~\ref{fig:feDAO}.
 	\label{fig:feDAO}
 \end{figure}
 
-\subsubsection{Important DAO Classes}
+\subsection{Important DAO Classes}
 Description of the most important DAO classes follows:
 
 \begin{description}[style=nextline,font=\ttfamily]
@@ -1438,15 +1435,15 @@ Description of the most important DAO classes follows:
 	\item[OntologyDao] This class extends \code{DaoForEntityWithSurrogateKey} and is used for working with ontologies. When storing an ontology, firstly its definition is stored to a RDF graph, which's name is derive from ontology label. After that the ontology is stored to the relational database. This order is chosen to avoid using transaction across RDF and relation data, which does not work. Ontology definition is stored to the relational database as well to keep its formatting and possible comments. Finally quality assessment and data normalization rules are generated from stored ontology (see Sections \ref{sec:QA} and \ref{sec:DN}).
 \end{description}
 
-\subsection{Authorization}
+\section{Authorization}
 There are two main scopes of authorization in \odcs -- authorization based on roles and authorization based on the authorship of an entity.
 
-\subsubsection{Roles}
+\subsection{Roles}
 Authorization based on roles recognizes 5 roles: Administrator (ADM), Pipeline Creator (PIC), Ontology Creator (ONC), Data Producer (SCR) and Data Consumer (USR). Their detailed description is given in \refusermanual. Roles can be assigned to users in \FE and a user can have any number of roles.
 
 We use means provided by Wicket to apply authorization by role. Pages and components can be marked with \code{@AuthorizeInstantiation} annotation with enumeration of roles that are required to access the page or component (at least one of the roles from the given list is required). The roles assigned to the currently logged-in user are kept in the session object \code{ODCSWebFrontendSession} which extends Wicket \code{AuthenticatedWebSession} for this purpose.
 
-\subsubsection{Authorship}
+\subsection{Authorship}
 \label{sec:authorshipAuth}
 Authorization based on authorship is necessary for entities that can be only edited by their author. Rule groups and rules, for example, can be only edited by the user who created them or by user having the role Administrator. To facilitate checking of whether the current user is authorized for entity editing, class \code{LimitedEditingPage} extending \code{FrontendPage} was introduced.
 
