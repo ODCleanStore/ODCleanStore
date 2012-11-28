@@ -276,20 +276,20 @@ Common development takes place on branch \code{master}. New feature branches are
 \subsection{Directory structure}
 This is an outline of directory structure in the git repository:
 
-\begin{dirlist}
+\begin{dirlistbrief}
 	\item[data/] \mbox{}
-		\begin{dirlist}
+		\begin{dirlistbrief}
 			\item[initial\_db\_import/] -- database import files
-				\begin{dirlist}
+				\begin{dirlistbrief}
 					\item[clean\_db/] -- SQL files to be imported to the clean database
 					\item[dirty\_db/] -- SQL files to be imported to the dirty database
-				\end{dirlist}
+				\end{dirlistbrief}
 			\item[odcs\_configuration/] -- the default \odcs configuration file
 			\item[virtuoso\_configuration/] -- configuration files for Virtuoso database instances
-		\end{dirlist}
+		\end{dirlistbrief}
 	\item[doc/] -- documentation sources (in \LaTeX)
 	\item[odcleanstore/] -- Java sources
-		\begin{dirlist}
+		\begin{dirlistbrief}
 			\item[backend/] -- sources of \code{odcs-backend} artifact (transformers, Query Execution, Conflict Resolution)
 			\item[comlib/] -- sources of \code{odcs-comlib} artifact (code related to sending data to Input Webservice)
 			\item[conf/] -- configuration files for development in Eclipse
@@ -301,8 +301,8 @@ This is an outline of directory structure in the git repository:
 			\item[simpletransformer/]  -- example of a custom transformer
 			\item[webfrontend/]  -- sources of \FE
 			\item[pom.xml] -- the root maven POM file
-		\end{dirlist}
-\end{dirlist}
+		\end{dirlistbrief}
+\end{dirlistbrief}
 
 
 \section{Maven Build}

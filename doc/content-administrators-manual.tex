@@ -80,23 +80,6 @@ Virtuoso has a paid enterprise license, but also an open source edition\footnote
 \textit{Note:} For security reasons, don't forget to change credentials for your database instance.
 
 
-\chapter{Installation CD Contents}
-This chapter describes the contents of the installation CD with \odcs:
-%TODO
-
-\begin{description}[style=nextline,font=\ttfamily]
-  \item[engine/] Contains binaries of \odcs Engine.
-  \item[odcs-installer.sh] Installation script for Linux.
-  \item[odcs-installer.bat] Installation script for Windows.
-  \item[odcs-installer.jar] Binary with the \odcs installer.
-  \item[clean-clear.sql] SQL script for clearing the clean database instance.
-  \item[clean-fulltext-index.sql] SQL script for creating a fulltext index on the clean database instance. Required for working keyword queries.
-  \item[clean.sql] SQL script for importing initial data to the clean database instance.
-  \item[dirty-clear.sql] SQL script for clearing the dirty database instance.
-  \item[dirty.sql] SQL script for importing initial data to the dirty database instance.
-  \item[odcs-webfrontend.war] Java web application archive containing Administration Frontend of \odcs.
-\end{description}
-
 \chapter{Step by Step Installation Guide}
 \odcs can be installed with a provided installer with graphical interface.
 %Alternatively, \odcs can be installed manually following instructions in the README file.
@@ -176,52 +159,6 @@ The next screen shows the progress of database import.
     %\label{fig:}
 \end{figure}
 
-\FloatBarrier
-
-\begin{figure}[!h]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/install-step07.png}
-    %\caption{}
-    %\label{fig:}
-\end{figure}
-
-\FloatBarrier
-
-\begin{figure}[!h]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/install-step08.png}
-    %\caption{}
-    %\label{fig:}
-\end{figure}
-
-\FloatBarrier
-
-\begin{figure}[!h]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/install-step09.png}
-    %\caption{}
-    %\label{fig:}
-\end{figure}
-
-\FloatBarrier
-
-\begin{figure}[!h]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/install-step10.png}
-    %\caption{}
-    %\label{fig:}
-\end{figure}
-
-\FloatBarrier
-
-\begin{figure}[!h]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/install-step11.png}
-    %\caption{}
-    %\label{fig:}
-\end{figure}
-
-\FloatBarrier
 
 \section{Post-installation Steps}
 After successfull install, you may customize default \odcs settings in the configuration file \code{odcs.ini} in the Engine installation directory. See Chapter \ref{chap:configOptions} for description of all options.
@@ -232,6 +169,65 @@ The installer deploys the web archive with \FE to the designated directory in yo
 \end{verbatim} 
 
 %\chapter{(Contents of the Deployed Application)}
+
+\chapter{Installation CD Contents}
+The installation CD contains \odcs binaries, installer, documentation and some testing data. For a quick start, the relevant files for you are \code{README.txt} and scripts \code{install.cmd} or \code{install.sh} (for Windows or Linux, respectively) which start the installer.
+
+Meaning of the other files and directories is explained below.
+
+\begin{dirlistbrief}
+    \item[bin/] Contains all Java binaries of \odcs.
+        \begin{dirlist}
+            \item[engine/] Contains binaries and dependencies for Engine part of \odcs.
+            \item[webapp/] Contains the \FE web archive.
+            \item[utils/] Contains utilities. \code{regenerateUUID.jar} Generates a new UUID for metadata file used by \code{odcs-simplescraper}. \code{frontend-config.jar} is a utility for updating of path to the \odcs configuration file in the \FE web archive.
+            \item[odcs-installer-\varcode{version}.jar] Installer with a graphical user interface.
+            \item[odcs-simplescraper-\varcode{version}.jar] A simple utility for testing of sending of data to Input Webservice.
+            \item[odcs-simpletransformer-\varcode{version}.jar] A simple example of a custom transformer.
+        \end{dirlist}
+    \item[config/] Contains the default configuration file for \odcs and recommended configuration files for Virtuoso database instances.
+        \begin{dirlist}
+            \item[odcs.ini] The default global configuration file of \odcs.
+            \item[virtuoso.ini-clean] The recommended configuration file for the clean database instance of Virtuoso.
+            \item[virtuoso.ini-dirty] The recommended configuration file for the dirty database instance of Virtuoso.
+        \end{dirlist}
+    \item[database/] Scripts for initialization of database instances.
+        \begin{dirlist}
+            \item[install/] SQL scripts used by the installer.
+            \item[clean\_db/] SQL scripts for manual import for the clean database instance.
+            \item[dirty\_db/] SQL scripts for manual import for the dirty database instance.
+        \end{dirlist}
+    \item[doc/] Documentation for \odcs.
+        \begin{dirlist}
+            \item[javadoc/] API documentation of \odcs sources in generated from javadoc.
+            \item[LICENSE.txt] License under which \odcs is distributed.
+            \item[ODCleanStore User Manual.pdf] Documentation for \odcs users.
+            \item[ODCleanStore Administrator's and Installation Manual.pdf] This document.
+            \item[ODCleanStore Programmer's Guide.pdf] Detailed documentation intended for developers.
+            \item[sourceforge.txt] Link to the project homepage.
+        \end{dirlist}
+    \item[example/] Example data that can be send to Input Webservice.
+        \begin{dirlist}
+            \item[example-data.rdf, example-data-isvzus.ttl] The actual payload data to be sent to Input Webservice.
+            \item[example-metadata.properties, example-metadata-isvzus.properties] Property file with metadata sent together with payload data.
+            \item[example-provenance-metadata.rdf] Example provenance metadata to be sent together with payload data.
+            \item[run-example.cmd, run-example-isvzus.cmd] Script that sends the example data to Input Webservice.
+            \item[regenerate-uuid.cmd] Script for updating UUID in metadata property files. This is necessary as every new input graph needs to have a unique UUID.
+        \end{dirlist}
+    \item[example-queries/] Simple forms in HTML that can be used for querying over Output Webservice. These forms are provided for testing and debugging purposes.
+        \begin{dirlist}
+            \item[query-uri.html] Form for executing a URI query via Output Webservice.
+            \item[query-keyword.html] Form for executing a keyword query via Output Webservice.
+            \item[query-named-graph.html] Form for executing a named graph query via Output Webservice.
+            \item[query-metadata.html] Form for executing a metadata query via Output Webservice.
+        \end{dirlist}
+   \item[README.txt] File with basic information and instructions how to start with \odcs.
+   \item[release-notes.txt] Release notes with information about changes between versions.
+   \item[install.cmd, install.sh] Scripts for starting the installer in Windows and Unix, respectively.
+   \item[run-engine.cmd, run-engine.sh] Scripts that start Engine for case of a manual installation.
+   \item[update-war-path.cmd, update-war-path.sh] Scripts that update path to global configuration file in the \FE web archive. Supplied for convenience in case of manual installation.
+\end{dirlist}
+
 
 \chapter{Configuration Options}
  \label{chap:configOptions}
