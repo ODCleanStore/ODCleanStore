@@ -38,7 +38,8 @@ and is not officially supported.
    database instance in the indicated order. Alternatively, queries in ALL.sql
    can be executed INSTEAD of the numbered files. 
     
-   Queries can be executed using the isql utility:
+   Queries can be executed using the isql utility (make sure it is the 
+   Virtuoso's isql utility!):
    > isql -S 1111
    
    Note: Using the isql utility is the preferred way to execute the queries.
