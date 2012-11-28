@@ -101,8 +101,8 @@ On the first screen of the installer, choose the directory where \odcs binaries 
 
 \begin{figure}[!h]
     \centering
-    \includegraphics[width=0.8\textwidth]{images/install-step-01.png}
-    \caption{Installation - enter installation directory}
+    \includegraphics[width=\textwidth]{images/install-step-01.png}
+    %\caption{Installation - enter installation directory}
     %\label{fig:}
 \end{figure}
 
@@ -112,8 +112,8 @@ On the second screen, you can enter the directory where \FE web archive will be 
 
 \begin{figure}[!h]
     \centering
-    \includegraphics[width=0.8\textwidth]{images/install-step-02.png}
-    \caption{Installation - enter deployment directory for \FE web archive}
+    \includegraphics[width=\textwidth]{images/install-step-02.png}
+    %\caption{Installation - enter deployment directory for \FE web archive}
     %\label{fig:}
 \end{figure}
 
@@ -124,36 +124,42 @@ Next, enter the connection settings for the clean and dirty Virtuoso database in
 \begin{figure}[!h]
     \centering
     \includegraphics[width=0.8\textwidth]{images/install-step-03.png}
-    \caption{Installation - enter connection settings for Virtuoso databases}
+    %\caption{Installation - enter connection settings for Virtuoso databases}
     %\label{fig:}
 \end{figure}
 
+\FloatBarrier
 
+After entering valid connection settings, the installer starts the installation process. The installer will:
 
-After that, the installer starts the installation process. The installer will:
 \begin{enumerate}
     \item Copy Engine binaries and related files to the chosen Engine installation directory.
+        \\\\  \includegraphics[width=0.6\textwidth]{images/install-step-04.png}
     \item Copy the default configuration file to the Engine installation directory.
     \item Initilize database instances:
         \begin{enumerate}
             \item Clear old tables in the clean database, if there are any.
+                \\\\ \includegraphics[width=0.6\textwidth]{images/install-step-05.png}
             \item Import new database tables in the clean database.
-            \item Create a fulltext index for RDF data in clean database (in order to enable keyword queries).
+                \\\\ \includegraphics[width=0.6\textwidth]{images/install-step-06.png}
+            \item Create a fulltext index for RDF data in clean database (in order to enable keyword queries). 
+                    \\\\ \includegraphics[width=0.6\textwidth]{images/install-step-07.png}
             \item Clear old tables in the dirty database, if there are any.
+                    \\\\ \includegraphics[width=0.6\textwidth]{images/install-step-08.png}
             \item Import new database tables in the dirty database.
+                    \\\\ \includegraphics[width=0.6\textwidth]{images/install-step-09.png}
         \end{enumerate}
     \item Adjust \FE web archive so that it contains a proper path to the deployed configuration file and copy it to the chosen \FE installation directory.
+        \\\\ \includegraphics[width=0.7\textwidth]{images/install-step-10.png}
 \end{enumerate}
 
 If the installation was successfull, the last screen of the installer is displayed, or an error message describing what went wrong is displayed otherwise.
 
 \begin{figure}[!h]
     \centering
-    \includegraphics[width=0.8\textwidth]{images/install-step-last.png}
-    \caption{Installer - successfull installation}
+    \includegraphics[width=0.3\textwidth]{images/install-step-11.png}
     %\label{fig:}
-\end{figure}
-
+    \end{figure}
 \FloatBarrier
 
 
@@ -440,6 +446,8 @@ Meaning of the other files and directories is explained below.
             \item[odcs-simplescraper-\varcode{version}.jar] A simple utility for testing of sending of data to Input Webservice.
             \item[odcs-simpletransformer-\varcode{version}.jar] A simple example of a custom transformer.
             \item[odcs-core-\varcode{version}.jar] \code{odcs-core} artifact. This can be used as a library when writing custom transformers, as it contains definition of the \code{Transformer} interface and other related classes.
+            \item[run-engine.cmd, run-engine.sh] Scripts that start Engine for case of a manual installation.
+            \item[update-war-path.cmd, update-war-path.sh] Scripts that update path to global configuration file in the \FE web archive. Supplied for convenience in case of manual installation.
         \end{dirlist}
     \item[config/] Contains the default configuration file for \odcs and recommended configuration files for Virtuoso database instances.
         \begin{dirlist}
@@ -480,9 +488,7 @@ Meaning of the other files and directories is explained below.
    \item[README.txt] File with basic information and instructions how to start with \odcs.
    \item[release-notes.txt] Release notes with information about changes between versions.
    \item[install.cmd, install.sh] Scripts for starting the installer in Windows and Unix, respectively.
-   \item[run-engine.cmd, run-engine.sh] Scripts that start Engine for case of a manual installation.
-   \item[update-war-path.cmd, update-war-path.sh] Scripts that update path to global configuration file in the \FE web archive. Supplied for convenience in case of manual installation.
-\end{dirlist}
+\end{dirlistbrief}
 
 \chapter{License}
 ODCleanStore is released as open source software under Apache License, Version 2.0.
