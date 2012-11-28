@@ -8,19 +8,23 @@
 		#codebase-structure dd { margin-top: 5px; margin-bottom: 10px; }
 	</style>
 	
-	<p>ODCleanStore is a server application for management of Linked Data written in Java. It stores data in RDF, processes them and provides integrated views on the data.</p>
+	<p>ODCleanStore is a server application for management of Linked Data written in Java. It stores data in RDF, processes them and provides integrated views on the data. It accepts arbitrary RDF data and metadata through a SOAP webservice (Input Webservice). The data is processed by transformers in one of a set of customizable pipelines and stored to a persistent store (OpenLink Virtuoso database instance). The stored data can be accessed again either  directly through a SPARQL endpoint or through Output Webservice. Linked Data consumers can send queries and custom query policies to Output Webservice and receive (aggregated/integrated) RDF data relevant for their query, together with information about provenance and data quality.</p>
 	
 	<p>The application is divided into several modules. The codebase structure reflects that of modules and is described below.</p>
 	
 	<dl id="codebase-structure">
+	
+		<dt>Backend (<em>odcleanstore/backend</em>)</td>
+		<dd>Contains predefined transformers, Query Execution and Conflict resolution modules implementations.</dd>
+		
 		<dt>Comlib (<em>odcleanstore/comlib</em>)</dt>
-		<dd>???</dd>
+		<dd>Contains code related to sending data to Input Webservice, to be used on both the server and the client sides (e.g. Input Client and Input Webservice).</dd>
 		
 		<dt>Core (<em>odcleanstore/core</em>)</dt>
-		<dd>Contains basic classes which are common to all modules.</dd>
+		<dd>Contains basic classes which are common to all modules. Most importantly interfaces for custom transformers.</dd>
 		
 		<dt>Engine (<em>odcleanstore/engine</em>)</dt>
-		<dd>Engine runs the whole server part. It realizes all data processing and starts Input and Output Webservices.</dd>
+		<dd>Contains the Engine component, which runs the web services and the data processing queue.</dd>
 		
 		<dt>Input Client (<em>odcleanstore/inputclient</em>)</dt>
 		<dd>A library to be used in applications which serve as clients to ODCleanStore. It contains a simple SOAP WS client to the Input Webservice.</dd>
@@ -29,16 +33,16 @@
 		<dd>A GUI installer of the whole application.</dd>
 		
 		<dt>Simple Scraper (<em>odcleanstore/simplescraper</em>)</dt>
-		<dd>A trivial scraper application which can be used to upload data to ODCleanStore via the Input Webservice.</dd>
+		<dd>A trivial scraper application which can be used to upload data to ODCleanStore through a command line.</dd>
 		
 		<dt>Simple Transformer (<em>odcleanstore/simpletransformer</em>)</dt>
-		<dd>???</dd>
+		<dd>An example custom transformer implementation.</dd>
 		
 		<dt>Administration Frontend (<em>odcleanstore/webfrontend</em>)</dt>
 		<dd>Web application written in Java from which ODCleanStore can be managed. In Adiminstration Frontend, the user can define pipelines for data processing, rules for transformers, manage ontologies, Output Webservice settings etc.</dd>
 	</dl>
 
-	<p>For an in-depth description of individual classes and their interfaces, refer to this javadoc documentation. For a description of the architecture and design of the application and other general information, see the Programmer's Guide.</p>
+	<p>For an in-depth description of individual classes and their interfaces, refer to this javadoc documentation. For a description of the architecture and design of the application and other general information, please see the Programmer's Guide. You might also want to consult <a href="http://sourceforge.net/p/odcleanstore/home/Home/">the project webpage</a>, especially the <a href="http://sourceforge.net/p/odcleanstore/wiki/For%20developers/">For developers</a> section.</p>
 	
 </body>
 </html>
