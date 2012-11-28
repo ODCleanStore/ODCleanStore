@@ -1,6 +1,4 @@
 /**
- * The Query Execution component.
- * Classes for getting relevant data from the RDF store in response to a query
- * and preparing the result for output to the user (by applying conflict resolution).
+ * Components shared by odcs-inputclient and Input Webservice
  */
 package cz.cuni.mff.odcleanstore.queryexecution;
