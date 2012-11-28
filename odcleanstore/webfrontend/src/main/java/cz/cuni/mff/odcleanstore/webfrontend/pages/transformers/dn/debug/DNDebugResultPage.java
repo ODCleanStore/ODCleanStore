@@ -24,6 +24,11 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.RedirectWithParamBut
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.dn.DNRuleDetailPage;
 
+/**
+ * Policy creator can see a results of DN debugging on this page.
+ * One table is displayed for each RDF graph in input data.
+ * @author Tomas Soukup
+ */
 @AuthorizeInstantiation({ Role.PIC })
 public class DNDebugResultPage extends FrontendPage
 {

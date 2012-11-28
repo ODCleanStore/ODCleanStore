@@ -5,6 +5,10 @@ import org.apache.wicket.markup.html.panel.Panel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 
+/**
+ * Help panel for input graphs page.
+ * @author Jakub Daniel
+ */
 @AuthorizeInstantiation({ Role.PIC, Role.ADM })
 public class InputGraphsHelpPanel extends Panel
 {

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:owl="http://www.w3.org/2002/07/owl#"
+	xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#"
+	xmlns:dbpedia-owl="http://dbpedia.org/ontology/"
+	xmlns:pc="http://purl.org/procurement#"
+	xmlns:odcs="http://opendata.cz/infrastructure/odcleanstore/">  
+
+  <!-- Some general data with typed literals -->
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Prague">
+    <rdf:type rdf:resource="http://schema.org/Place" />
+    <rdfs:label>Praha</rdfs:label>
+    <dbpedia-owl:country rdf:resource="http://dbpedia.org/resource/Czech_Republic" />
+    <dbpedia-owl:populationAsOf rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2011-01-14</dbpedia-owl:populationAsOf>
+    <dbpedia-owl:populationTotal rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">1290846</dbpedia-owl:populationTotal>
+    <geo:lat rdf:datatype="http://www.w3.org/2001/XMLSchema#float">50.0833</geo:lat>
+    <geo:long rdf:datatype="http://www.w3.org/2001/XMLSchema#float">14.4167</geo:long>
+  </rdf:Description>
+  
+  <!-- Test data for odcs: property filtering -->
+  <!-- The triple with odcs:score property should be filtered out in the pipeline, the other one preserved -->
+  <rdf:Description rdf:about="http://example.com/somegraph/">
+  	<odcs:score rdf:datatype="http://www.w3.org/2001/XMLSchema#double">1.0</odcs:score>
+  	<odcs:example rdf:datatype="http://www.w3.org/2001/XMLSchema#double">1.0</odcs:example>
+  </rdf:Description>	
+  
+  <!-- Test data for Object Identification -->
+  <!-- <http://example.com/supplier1> should be linked to <http://opendata.cz/data/0781c6a4-1147-473d-968a-666284ebc977> -->
+  <rdf:Description rdf:about="http://example.com/tender1">
+    <pc:supplier rdf:resource="http://example.com/supplier1" />
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.com/supplier1">
+    <pc:title>ZAVOS s.r.o.</pc:title>
+  </rdf:Description>
+	
+  <!-- Test data for Quality Assessment -->
+  <!-- These triples should decrease score of the graph. -->
+  <rdf:Description rdf:about="http://opendata.cz/data/ff0d1f41-1e12-4005-ac20-9fb1655aa6e4">
+  	<rdf:type rdf:resource="http://purl.org/procurement#Contract"/>
+  	<pc:referenceNumber>146100</pc:referenceNumber>
+  	<pc:procedureType rdf:resource="http://purl.org/procurement#AcceleratedNegotiated"/>
+  	<pc:procedureType rdf:resource="http://purl.org/procurement#SimpleUnderLimit"/>
+  </rdf:Description>
+	
+</rdf:RDF>

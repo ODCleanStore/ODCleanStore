@@ -14,6 +14,10 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.AuthorizationHelper;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.onto.OntologyDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
+/**
+ * On this page ontology creator can choose two ontologies, which's entities are to be mapped on each other.
+ * @author Tomas Soukup
+ */
 @AuthorizeInstantiation({ Role.ONC })
 public class ChooseOntologiesPage extends FrontendPage {
 	
@@ -29,6 +33,9 @@ public class ChooseOntologiesPage extends FrontendPage {
 		this(null);
 	}
 	
+	/**
+	 * @param sourceOntologyId ID of preselected source ontology, can be null
+	 */
 	public ChooseOntologiesPage(Integer sourceOntologyId) 
 	{
 		super(
