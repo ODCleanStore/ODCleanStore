@@ -7,6 +7,10 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.onto.OntologyDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
+/**
+ * On this page Ontology creator can see a detailed information about chosen ontology.
+ * @author Tomas Soukup
+ */
 @AuthorizeInstantiation({ Role.ONC })
 public class OntologyDetailPage extends FrontendPage
 {

@@ -19,6 +19,10 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.exceptions.DaoException;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.onto.OntologyDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 
+/**
+ * Ontology creator edit existing ontology on this page.
+ * @author Tomas Soukup
+ */
 @AuthorizeInstantiation({ Role.ONC })
 public class EditOntologyPage extends FrontendPage 
 {
@@ -27,6 +31,9 @@ public class EditOntologyPage extends FrontendPage
 	
 	private OntologyDao ontologyDao;
 
+	/**
+	 * @param ontologyId ID of ontology to be edited
+	 */
 	public EditOntologyPage(final Integer ontologyId) 
 	{
 		super(

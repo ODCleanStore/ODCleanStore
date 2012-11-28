@@ -15,6 +15,11 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.RoundedNumberLabel;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.FrontendPage;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.transformers.qa.QARuleDetailPage;
 
+/**
+ * Policy creator can see a results of QA debugging on this page.
+ * One table is displayed for each RDF graph in input data.
+ * @author Tomas Soukup
+ */
 @AuthorizeInstantiation({ Role.PIC })
 public class QADebugResultPage extends FrontendPage
 {

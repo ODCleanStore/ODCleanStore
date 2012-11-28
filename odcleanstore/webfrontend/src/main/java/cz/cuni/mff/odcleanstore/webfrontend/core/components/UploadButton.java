@@ -11,9 +11,10 @@ import org.apache.wicket.util.io.IOUtils;
 import cz.cuni.mff.odcleanstore.shared.Utils;
 
 /**
+ * Button with file-upload functionality. 
+ * On submit loads the chosen file and displays its content in a textfield specified in constructor.
  * 
- * @author Tomáš Soukup
- *
+ * @author Tomas Soukup
  */
 public class UploadButton extends Button 
 {
@@ -22,6 +23,11 @@ public class UploadButton extends Button
 	private FileUploadField fileUpload;
 	private TextArea<String> textArea;
 	
+	/**
+	 * @param fileUpload object representing uploaded file
+	 * @param textArea content of the file will be displayed here
+	 * @param compName name of the component
+	 */
 	public UploadButton(FileUploadField fileUpload, TextArea<String> textArea, String compName) 
 	{
 		super(compName);

@@ -23,6 +23,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 import cz.cuni.mff.odcleanstore.webfrontend.util.TemporaryGraphLoader;
 import cz.cuni.mff.odcleanstore.webfrontend.util.TemporaryGraphLoader.TemporaryGraph;
 
+/**
+ * Policy creator can debug DN rules on this page.
+ * He can upload input RDF data from a file, 
+ * run DN with rules from selected group and see its results on following page. 
+ * @author Tomas Soukup
+ */
 @AuthorizeInstantiation({ Role.PIC })
 public class DNDebugPage extends LimitedEditingPage 
 {	
@@ -31,6 +37,9 @@ public class DNDebugPage extends LimitedEditingPage
 	
 	private String rdfInput;
 	
+	/**
+	 * @param groupId ID of a group of DN rules to debug
+	 */
 	public DNDebugPage(Integer groupId)
 	{
 		super(

@@ -15,6 +15,11 @@ public class Mapping extends BusinessEntity
 	private String targetUri;
 	private String relationType;
 	
+	/**
+	 * @param sourceUri first mapped URI
+	 * @param targetUri second mapped URI
+	 * @param relationType type of mapping between URIs
+	 */
 	public Mapping(String sourceUri, String targetUri, String relationType) 
 	{
 		super();
@@ -28,16 +33,25 @@ public class Mapping extends BusinessEntity
 		super();
 	}
 
+	/**
+	 * @return source URI
+	 */
 	public String getSourceUri() 
 	{
 		return sourceUri;
 	}
 
+	/**
+	 * @return target URI
+	 */
 	public String getTargetUri() 
 	{
 		return targetUri;
 	}
 
+	/**
+	 * @return relation type
+	 */
 	public String getRelationType() 
 	{
 		return relationType;

@@ -9,6 +9,10 @@ import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.webfrontend.core.components.RegexField;
 
+/**
+ * Validator which checks if inputed value matches replacement regex.
+ * @author Jakub Daniel
+ */
 public class ReplacementValidator extends CustomValidator
 {
 	private static final long serialVersionUID = 1L;
