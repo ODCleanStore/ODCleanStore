@@ -459,7 +459,7 @@ Several other mechanisms for transactional processing provided by Virtuoso were 
 
 All services are also resilient to a loss of database connection. Engine doesn't need to restart when the connection is regained again. Input Webservice and pipeline processing require connection to both database instances, Output Webservice needs only the clean database instance.
 
-\section{Database Access}
+\subsection{Database Access}
 Engine uses class \code{DbOdcsContext} extending \code{DbContext}
 which wraps \code{VirtuosoConnectionWrapper} and provides transactional processing of relational data. 
 Class \code{SQL} contains all SQL queries used by \code{DbOdcsContext}. 
@@ -501,7 +501,7 @@ Every named graph inserted through Input Webservice has a record in relational t
   \item[PROCESSING] Named graph is  being processed in a pipeline. That means the graph is loaded from temporary Input Webservice files or the clean database, and pipeline transformers are applied to it. All settings for the pipeline including the plan of transformers to execute and their assigned rule groups are loaded only when the graph transitions to this state so that their consistency during the pipeline processing is ensured.
   \item[PROCESSED] Transformers were successfully applied to the named graph and the data are being moved to the clean database into named graphs whose name starts with a special prefix hiding them from \QE (see point \ref{itm:enginePrefix} in Section \ref{sec:transactionalProcessing}). Let us call this prefix the \term{temporary prefix}.
   \item[PROPAGATED] The processed named graphs were all moved to the clean database. If there was an old version of the data, the old named graphs are prefixed with the temporary prefix.
-  \item[OLDGRAPHSPREFIXED] The temporary prefix is removed from the processed graphs and the possible old versions of named graphs, now prefixed with temporary prefix, are removed.
+  \item[OLDGRAPHSPREFIXED] The temporary prefix is removed from the processed graphs and the possible old versions of named graphs, now prefixed with the temporary prefix, are removed.
   \item[NEWGRAPHSPREPARED] Related graphs in the dirty database are deleted.
   \item[FINISHED] The processing of the named graphs was successfully finished and the data are stored in the clean database.
   \item[DELETING] The named graphs are being deleted in the clean and/or dirty database instance. Possible temporary files stored by Input Webservice will be also deleted.
@@ -511,15 +511,17 @@ Every named graph inserted through Input Webservice has a record in relational t
 \end{description}
 
 \subsection{Implementation}
-Data processing in Engine is driven by settings in the relational database which are managed from \FE. Engine logs its activity to a log file called odcs.engine.log in the working directory of Engine. In addition, there is a log file for each transformer instance where the respective transformer logs its activity. These transformer instance logs are in the working directory of the respective transformer.
+Data processing in Engine is driven by settings in the relational database which are managed from \FE. 
+
+Engine logs its activity to a log file called odcs.engine.log in the working directory of Engine. In addition, there is a log file for each transformer instance where the respective transformer logs its activity. These transformer instance logs are in the working directory of the respective transformer.
 
 When shutdown is called on the pipeline processing service then if there is a running transformer, its \code{shutdown()} method is called. Engine waits until the current operation is finished or the given timeout is exceeded and the finishes the pipeline processing service. 
 
-Running a pipeline is transactionally safe, as explained in Section \ref{sec:transactionalProcessing}.  If an error is caused by Engine (e.g. when it is shut down forcibly), the pending operations will be finished eventually. When an error occurs and a graph is in \code{PROPAGATED}, \code{OLDGRAPHSPREFIXED} or \code{NEWGRAPHSPREPARED}, the pipeline service continues in a forward way on recovery; other temporary states are rolled back. If an error is caused by a transformer, then the named graph is moved to state \code{WRONG} and it is up to the user to decide what to do next with the graph. An overview of failed graphs is in \FE. The reason why the transformer failed can be fixed and the pipeline re-run on the graph, or the graph may be qued for deletion.
+Running a pipeline is transactionally safe, as explained in Section \ref{sec:transactionalProcessing}.  If an error is caused by Engine (e.g. when it is shut down forcibly), the pending operations will be finished eventually. When an error occurs and a graph is in \code{PROPAGATED}, \code{OLDGRAPHSPREFIXED} or \code{NEWGRAPHSPREPARED}, the pipeline service continues in a forward way on recovery; other temporary states are rolled back. If an error is caused by a transformer, then the named graph is moved to state \code{WRONG} and it is up to the user to decide what to do next with the graph. An overview of failed graphs is in \FE. The reason why the transformer failed can be fixed and the pipeline re-run on the graph, or the graph may be queud for deletion.
 
 If an error is caused by unavailability of a Virtuoso database, Engine detects it and pending processing is retried when Engine is started again.
 
-Classes that cover implementation of pipeline service are \code{PipelineService} which handles processing of named graphs in different states, \code{PipelineGraphManipulator} for manipulation with named graphs (e.g. moving between databse instances) and \code{PipelineGraphStatus} for working with state data (e.g. loaded transformer instances for the processing pipelines). \code{PipelineGraphTransformerExecutor} called from \code{PipelineService} is responsible for running of transformers on named graphs and \code{TransformationContext} and \code{TransformationGraph} are implementations of context objects passed to transformers.
+Classes that cover implementation of pipeline service are \code{PipelineService}, which handles processing of named graphs in different states, \code{PipelineGraphManipulator} for manipulation with named graphs (e.g. moving between database instances) and \code{PipelineGraphStatus} for working with state data (e.g. loaded transformer instances for the processing pipelines). \code{PipelineGraphTransformerExecutor} called from \code{PipelineService} is responsible for executing transformers on named graphs and \code{TransformationContext} and \code{TransformationGraph} are implementations of context objects passed to transformers.
 
 
 \section{Output Webservice}
