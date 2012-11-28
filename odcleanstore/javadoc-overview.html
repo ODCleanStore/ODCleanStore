@@ -8,7 +8,7 @@
 		#codebase-structure dd { margin-top: 5px; margin-bottom: 10px; }
 	</style>
 	
-	<p>ODCleanStore is a server application for management of Linked Data written in Java. It stores data in RDF, processes them and provides integrated views on the data.</p>
+	<p>ODCleanStore is a server application for management of Linked Data written in Java. It stores data in RDF, processes them and provides integrated views on the data. It accepts arbitrary RDF data and metadata through a SOAP webservice (Input Webservice). The data is processed by transformers in one of a set of customizable pipelines and stored to a persistent store (OpenLink Virtuoso database instance). The stored data can be accessed again either  directly through a SPARQL endpoint or through Output Webservice. Linked Data consumers can send queries and custom query policies to Output Webservice and receive (aggregated/integrated) RDF data relevant for their query, together with information about provenance and data quality.</p>
 	
 	<p>The application is divided into several modules. The codebase structure reflects that of modules and is described below.</p>
 	
