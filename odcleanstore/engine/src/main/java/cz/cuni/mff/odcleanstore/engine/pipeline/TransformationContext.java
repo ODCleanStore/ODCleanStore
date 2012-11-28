@@ -12,6 +12,10 @@ import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 /**
  *  @author Petr Jerman
  */
+/**
+ * @author Administrator
+ *
+ */
 public class TransformationContext implements cz.cuni.mff.odcleanstore.transformer.TransformationContext {
     
     private static final Logger LOG = LoggerFactory.getLogger(TransformationContext.class);
@@ -24,6 +28,13 @@ public class TransformationContext implements cz.cuni.mff.odcleanstore.transform
     private EnumTransformationType type;
     private boolean active;
 
+    /**
+     * Create instance of TransformationContext.
+     *  
+     * @param configuration transformer configuration from DB
+     * @param path working transformer directory
+     * @param type new/existing transformation flag
+     */
     TransformationContext(String configuration, String path, EnumTransformationType type) {
         this.configuration = configuration;
         this.path = path;
@@ -31,6 +42,9 @@ public class TransformationContext implements cz.cuni.mff.odcleanstore.transform
         this.active = true;
     }
     
+    /**
+     * Deactivate context, calling deactivated object method caused exception.
+     */
     void deactivate() {
         this.active = false;
         this.configuration = null;
@@ -38,6 +52,9 @@ public class TransformationContext implements cz.cuni.mff.odcleanstore.transform
         this.type = null;
     }
     
+    /**
+     * @see cz.cuni.mff.odcleanstore.transformer.TransformationContext#getDirtyDatabaseCredentials()
+     */
     @Override
     public JDBCConnectionCredentials getDirtyDatabaseCredentials() {
         if (!this.active) {
@@ -47,6 +64,9 @@ public class TransformationContext implements cz.cuni.mff.odcleanstore.transform
         return ConfigLoader.getConfig().getEngineGroup().getDirtyDBJDBCConnectionCredentials();
     }
 
+    /**
+     * @see cz.cuni.mff.odcleanstore.transformer.TransformationContext#getCleanDatabaseCredentials()
+     */
     @Override
     public JDBCConnectionCredentials getCleanDatabaseCredentials() {
         if (!this.active) {
@@ -56,6 +76,9 @@ public class TransformationContext implements cz.cuni.mff.odcleanstore.transform
         return ConfigLoader.getConfig().getEngineGroup().getCleanDBJDBCConnectionCredentials();
     }
 
+    /**
+     * @see cz.cuni.mff.odcleanstore.transformer.TransformationContext#getTransformerConfiguration()
+     */
     @Override
     public String getTransformerConfiguration() {
         String configuration = this.configuration;
@@ -66,6 +89,9 @@ public class TransformationContext implements cz.cuni.mff.odcleanstore.transform
         return configuration;
     }
 
+    /**
+     * @see cz.cuni.mff.odcleanstore.transformer.TransformationContext#getTransformerDirectory()
+     */
     @Override
     public File getTransformerDirectory() {
         String path = this.path;
@@ -76,6 +102,9 @@ public class TransformationContext implements cz.cuni.mff.odcleanstore.transform
         return new File(path);
     }
 
+    /**
+     * @see cz.cuni.mff.odcleanstore.transformer.TransformationContext#getTransformationType()
+     */
     @Override
     public EnumTransformationType getTransformationType() {
         EnumTransformationType type = this.type;

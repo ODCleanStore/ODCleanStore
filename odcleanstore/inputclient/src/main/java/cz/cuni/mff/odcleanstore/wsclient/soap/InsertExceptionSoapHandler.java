@@ -50,6 +50,9 @@ class InsertExceptionSoapHandler extends SoapMethodExecutor {
 		return moreInfo.toString();
 	}
 
+	/**
+	 * @see cz.cuni.mff.odcleanstore.comlib.soap.SoapMethodExecutor#startElement(java.lang.String, java.lang.String)
+	 */
 	@Override
 	public void startElement(String uri, String localName) throws SoapMethodExecutorException {
 		if (!isNext && !uri.equals(HTTP_INPUTWS_ENGINE_ODCLEANSTORE_MFF_CUNI_CZ) && !localName.equals("InsertException")) {
@@ -70,6 +73,9 @@ class InsertExceptionSoapHandler extends SoapMethodExecutor {
 		}
 	}
 
+	/**
+	 * @see cz.cuni.mff.odcleanstore.comlib.soap.SoapMethodExecutor#characters(char[], int, int)
+	 */
 	@Override
 	public void characters(char[] ch, int start, int length) throws SoapMethodExecutorException {
 		if (currentBuilder != null) {
@@ -77,11 +83,17 @@ class InsertExceptionSoapHandler extends SoapMethodExecutor {
 		}
 	}
 
+	/**
+	 * @see cz.cuni.mff.odcleanstore.comlib.soap.SoapMethodExecutor#endElement(java.lang.String, java.lang.String)
+	 */
 	@Override
 	public void endElement(String uri, String localName) throws SoapMethodExecutorException {
 		currentBuilder = null;
 	}
 
+	/**
+	 * @see cz.cuni.mff.odcleanstore.comlib.soap.SoapMethodExecutor#endParsing()
+	 */
 	@Override
 	public void endParsing() throws SoapMethodExecutorException {
 		// do nothing

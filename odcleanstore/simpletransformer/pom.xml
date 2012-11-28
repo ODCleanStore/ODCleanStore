@@ -6,15 +6,13 @@
 	
 	<modelVersion>4.0.0</modelVersion>
 	
-	<groupId>cz.cuni.mff.odcleanstore</groupId>
 	<artifactId>odcs-simpletransformer</artifactId>
-	<version>0.3-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	
 	<parent>
 		<groupId>cz.cuni.mff.odcleanstore</groupId>
 		<artifactId>odcs</artifactId>
-		<version>0.3-SNAPSHOT</version>
+		<version>1.0-SNAPSHOT</version>
 	</parent>
 
 	<name>ODCleanStore - Simple Transformer</name>
@@ -24,7 +22,7 @@
 		<dependency>
 			<groupId>cz.cuni.mff.odcleanstore</groupId>
 			<artifactId>odcs-core</artifactId>
-			<version>0.3-SNAPSHOT</version>
+			<version>1.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 
@@ -33,7 +31,7 @@
 			<dependency>
 				<groupId>cz.cuni.mff.odcleanstore</groupId>
 				<artifactId>odcs-core</artifactId>
-				<version>0.3-SNAPSHOT</version>
+				<version>1.0-SNAPSHOT</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

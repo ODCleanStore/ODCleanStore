@@ -16,6 +16,7 @@ import cz.cuni.mff.odcleanstore.model.EnumPipelineErrorType;
 
 /**
  * Class for executing Engine queries to the relational database.
+ * 
  * @see SQL
  * @author Petr Jerman
  */

@@ -12,6 +12,7 @@ import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 
 /**
  * Base class wrapping a database connection.
+ * 
  * @author Petr Jerman
  */
 public abstract class DbContext {
@@ -24,12 +25,21 @@ public abstract class DbContext {
         
     }
     
+    /**
+     * Set connections to database.
+     * 
+     * @param connectionCredentials credentials for connections to database
+     * @throws ConnectionException
+     */
     protected void setConnection(JDBCConnectionCredentials connectionCredentials) throws ConnectionException {
         connection = VirtuosoConnectionWrapper.createConnection(connectionCredentials);
         connection.adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL);
         connection.adjustTransactionIsolationLevel(Connection.TRANSACTION_SERIALIZABLE);
     }
     
+    /**
+     * Close without causing exceptions.
+     */
     public void closeQuietly() {
         if (connection != null) {
             try {
@@ -42,6 +52,12 @@ public abstract class DbContext {
         }
     }
 
+    /**
+     * Commit changes.
+     * 
+     * @throws ConnectionException
+     * @throws DbTransactionException - Exception for transactions abort
+     */
     public void commit() throws ConnectionException, DbTransactionException {
         if (connection == null) {
             throw new ConnectionException(ERROR_CLOSED_CONNECTION);
@@ -53,6 +69,12 @@ public abstract class DbContext {
         }
     }
     
+    /**
+     * Rollback changes.
+     * 
+     * @throws ConnectionException
+     * @throws SQLException
+     */
     public void rollback() throws ConnectionException, SQLException {
         if (connection == null) {
             throw new ConnectionException(ERROR_CLOSED_CONNECTION);
@@ -60,6 +82,13 @@ public abstract class DbContext {
         connection.rollback();
     }
     
+    /**
+     * Select query.
+     * @param query
+     * @return WrappedResultSet
+     * @throws ConnectionException
+     * @throws QueryException
+     */
     protected WrappedResultSet select(String query) throws ConnectionException, QueryException  {
         if (connection == null) {
             throw new ConnectionException(ERROR_CLOSED_CONNECTION);
@@ -67,6 +96,15 @@ public abstract class DbContext {
         return connection.executeSelect(query);
     }
     
+    /**
+     * Select query with parameters.
+     * 
+     * @param query 
+     * @param objects
+     * @return WrappedResultSet
+     * @throws ConnectionException
+     * @throws QueryException
+     */
     protected WrappedResultSet select(String query, Object... objects) throws ConnectionException, QueryException  {
         if (connection == null) {
             throw new ConnectionException(ERROR_CLOSED_CONNECTION);
@@ -74,6 +112,14 @@ public abstract class DbContext {
         return connection.executeSelect(query, objects);
     }
     
+    /**
+     * Execute general query.
+     * 
+     * @param query
+     * @return number of rows processed
+     * @throws ConnectionException
+     * @throws QueryException
+     */
     protected int execute(String query) throws ConnectionException, QueryException  {
         if (connection == null) {
             throw new ConnectionException(ERROR_CLOSED_CONNECTION);
@@ -81,6 +127,14 @@ public abstract class DbContext {
         return connection.execute(query);
     }
     
+    /**
+     * Execute general query with parameters.
+     * @param query
+     * @param objects
+     * @return number of rows processed
+     * @throws ConnectionException
+     * @throws QueryException
+     */
     protected int execute(String query, Object... objects) throws ConnectionException, QueryException  {
         if (connection == null) {
             throw new ConnectionException(ERROR_CLOSED_CONNECTION);
@@ -88,6 +142,14 @@ public abstract class DbContext {
         return connection.execute(query, objects);
     }
     
+    /**
+     * Execute general query with parameters, nulls parameters are allowed.
+     * @param query
+     * @param objects
+     * @return number of rows processed
+     * @throws ConnectionException
+     * @throws QueryException
+     */
     protected int executeNullsAlllowed(String query, Object... objects) throws ConnectionException, QueryException  {
         if (connection == null) {
             throw new ConnectionException(ERROR_CLOSED_CONNECTION);

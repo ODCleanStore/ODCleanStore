@@ -21,6 +21,7 @@ import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 /**
+ * RDF manipulator of current executing graph.
  *  @author Petr Jerman
  */
 final class PipelineGraphManipulator {
@@ -45,10 +46,18 @@ final class PipelineGraphManipulator {
     
     private PipelineGraphStatus graphStatus;
     
+    /**
+     * Create graph manipulator object for graph status object.
+     * 
+     * @param graphStatus graph status object
+     */
     PipelineGraphManipulator(PipelineGraphStatus graphStatus) {
         this.graphStatus = graphStatus;
     }
     
+    /**
+     * Delete all input webservice files for current executing graph.
+     */
     void deleteInputFiles() {
         try {
             String inputDirPath = Engine.getCurrent().getDirtyDBImportExportDir();
@@ -64,6 +73,11 @@ final class PipelineGraphManipulator {
         }
     }
     
+    /**
+     * Copying new graphs from dirty to clean database for current executing graph.
+     * 
+     * @throws PipelineGraphManipulatorException
+     */
     void copyNewGraphsFromDirtyToCleanDB() throws PipelineGraphManipulatorException {
         try {
             String[] graphs = getAllGraphNames();
@@ -122,14 +136,33 @@ final class PipelineGraphManipulator {
         }
     }
     
+    /**
+     * Add prefix for existing current executing graphs in clean database.
+     * 
+     * @throws PipelineGraphManipulatorException
+     */
     void renameGraphsToOldGraphsInCleanDB() throws PipelineGraphManipulatorException {
         renameGraphsInCleanDB(null , ODCSInternal.oldGraphPrefix, ERROR_RENAMING_OLD_GRAPHS_IN_CLEANDB, false); 
     }
     
-    void renameNewGraphsToGraphsInCleanDB()    throws PipelineGraphManipulatorException {
+    /**
+     * Remove prefix from new copied graphs in clean database.
+     * 
+     * @throws PipelineGraphManipulatorException
+     */
+    void renameNewGraphsToGraphsInCleanDB()  throws PipelineGraphManipulatorException {
         renameGraphsInCleanDB(ODCSInternal.newGraphPrefix,  null, ERROR_RENAMING_NEW_GRAPHS_IN_CLEANDB, true);
     }
 
+    /**
+     * Rename all executing graphs in clean database.
+     * 
+     * @param srcPrefix source prefix
+     * @param dstPrefix destination prefix
+     * @param errorMessage message for possilby exception
+     * @param descendingDirection order of renaming
+     * @throws PipelineGraphManipulatorException
+     */
     private void renameGraphsInCleanDB(String srcPrefix, String dstPrefix, String errorMessage, boolean descendingDirection)
             throws PipelineGraphManipulatorException {
 
@@ -149,6 +182,15 @@ final class PipelineGraphManipulator {
         }
     }
     
+    /**
+     * Rename graph in clean db.
+     * 
+     * @param srcPrefix source prefix
+     * @param dstPrefix destination prefix
+     * @param graph graph name
+     * @throws ConnectionException
+     * @throws QueryException
+     */
     private void renameGraphInCleanDB(String srcPrefix, String dstPrefix, String graph)
             throws ConnectionException, QueryException {
 
@@ -164,7 +206,12 @@ final class PipelineGraphManipulator {
             }
         }
     }
-    
+
+    /**
+     * Clear all executing graphs from dirty database.
+     *  
+     * @throws PipelineGraphManipulatorException
+     */
     void clearGraphsInDirtyDB() throws PipelineGraphManipulatorException {
         try {
             String[] graphs = getAllGraphNames();
@@ -183,19 +230,43 @@ final class PipelineGraphManipulator {
             throw new PipelineGraphManipulatorException(format(ERROR_CLEAR_GRAPHS_IN_DIRTYDB), e);
         }
     }
-    
+
+    /**
+     * Clear old version graphs from clean database for current executing graph.
+     *  
+     * @throws PipelineGraphManipulatorException
+     */
     void clearOldGraphsInCleanDB() throws PipelineGraphManipulatorException {
         clearGraphsInCleanDB(ODCSInternal.oldGraphPrefix, ERROR_CLEAR_OLD_GRAPHS_IN_CLEANDB, false);
     }
-    
+
+    /**
+     * Clear new copied graphs from clean database for current executing graph.
+     *  
+     * @throws PipelineGraphManipulatorException
+     */
     void clearNewGraphsInCleanDB() throws PipelineGraphManipulatorException {
         clearGraphsInCleanDB(ODCSInternal.newGraphPrefix, ERROR_CLEAR_NEW_GRAPHS_IN_CLEANDB, false);
     }
     
+    /**
+     * Clear all existing graphs from clean database for current executing graph.
+     *  
+     * @throws PipelineGraphManipulatorException
+     */
     void clearGraphsInCleanDB() throws PipelineGraphManipulatorException {
         clearGraphsInCleanDB(null, ERROR_CLEAR_GRAPHS_IN_CLEANDB, false);
     }
     
+
+    /**
+     * Clear all executing graphs from clean database with given prefixes.
+     *  
+     * @param prefix graph extra prefix
+     * @param errorMessage message for possibly exception
+     * @param descendingDirection clear direction
+     * @throws PipelineGraphManipulatorException
+     */
     private void clearGraphsInCleanDB(String prefix, String errorMessage, boolean descendingDirection)
             throws PipelineGraphManipulatorException {
         
@@ -215,6 +286,14 @@ final class PipelineGraphManipulator {
         }
     }
     
+    /**
+     * Delete graph in clean db.
+     * 
+     * @param prefix graph extra prefix
+     * @param graph graph name 
+     * @throws ConnectionException
+     * @throws QueryException
+     */
     private void clearGraphInCleanDB(String prefix, String graph)
             throws ConnectionException, QueryException {
         VirtuosoConnectionWrapper cleanConnection = null;    
@@ -229,6 +308,11 @@ final class PipelineGraphManipulator {
         }
     }
     
+    /**
+     * Loads graphs from input webservice generated files or clean database into dirty database.
+     * 
+     * @throws PipelineGraphManipulatorException
+     */
     void loadGraphsIntoDirtyDB() throws PipelineGraphManipulatorException {
         String errorMessage = null;
         try {
@@ -245,6 +329,11 @@ final class PipelineGraphManipulator {
         }
     }
     
+    /**
+     * Loads graphs from input webservice generated files into dirty database.
+     * 
+     * @throws Exception
+     */
     private void loadGraphsIntoDirtyDBFromInputFile() throws Exception {
         String inputDirPath = Engine.getCurrent().getDirtyDBImportExportDir();
         String uuid = graphStatus.getUuid();
@@ -318,7 +407,12 @@ final class PipelineGraphManipulator {
             }
         }
     }
-
+    
+    /**
+     * Loads graphs into dirty database from clean database.
+     * 
+     * @throws Exception
+     */
     private void loadGraphsIntoDirtyDBFromCleanDB() throws Exception {
         try {
             String[] graphs = getAllGraphNames();
@@ -379,6 +473,9 @@ final class PipelineGraphManipulator {
         }
     }
 
+    /**
+     * @return array with all graph names for current executing graph
+     */
     private String[] getAllGraphNames() {
         String uuid = graphStatus.getUuid();
         
@@ -390,6 +487,11 @@ final class PipelineGraphManipulator {
         return graphs.toArray(new String[0]);
     }
         
+    /**
+     * Delete file without causing any exceptions.
+     * @param dirPath relative file path base
+     * @param fileName file name
+     */
     private void safeDeleteFile(String dirPath, String fileName) {
         try {
             if (dirPath == null) {
@@ -405,6 +507,11 @@ final class PipelineGraphManipulator {
         }
     }
         
+    /**
+     * Delete file without causing any exceptions.
+     * 
+     * @param file file to delete
+     */
     private void safeDeleteFile(File file) {
         try {
             if (file == null) {
@@ -419,10 +526,22 @@ final class PipelineGraphManipulator {
         }
     }
     
+    
+    /**
+     * Generate random file name with temporary suffix.
+     * 
+     * @return random uuid
+     */
     private String generateRandomFileNameForGraph() {
         return graphStatus.getUuid() + "-" + UUID.randomUUID() + "-temp.ttl";
     }
-    
+
+    /**
+     * Create connection to dirty db for graph manipulations. 
+     * 
+     * @return VirtuosoConnectionWrapper object
+     * @throws ConnectionException
+     */
     private VirtuosoConnectionWrapper createDirtyConnection() throws ConnectionException {
         JDBCConnectionCredentials credit = ConfigLoader.getConfig().getEngineGroup().getDirtyDBJDBCConnectionCredentials();
         VirtuosoConnectionWrapper con = VirtuosoConnectionWrapper.createConnection(credit);
@@ -431,6 +550,12 @@ final class PipelineGraphManipulator {
         return con;
     }
     
+    /**
+     * Create connection to clean db for graph manipulations. 
+     * 
+     * @return VirtuosoConnectionWrapper object
+     * @throws ConnectionException
+     */
     private VirtuosoConnectionWrapper createCleanConnection() throws ConnectionException {
         JDBCConnectionCredentials credit = ConfigLoader.getConfig().getEngineGroup().getCleanDBJDBCConnectionCredentials();
         VirtuosoConnectionWrapper con = VirtuosoConnectionWrapper.createConnection(credit);

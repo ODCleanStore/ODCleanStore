@@ -7,6 +7,8 @@ import cz.cuni.mff.odcleanstore.engine.db.model.Pipeline;
 import java.util.HashSet;
 
 /**
+ * Class for status information of importing graph. 
+ *  
  *  @author Petr Jerman
  */
 public final class InputGraphStatus {
@@ -17,6 +19,10 @@ public final class InputGraphStatus {
         importingGraphs = new HashSet<String>();
     }
     
+    /**
+     * @return array with all importing graph uuids from database
+     * @throws InputGraphStatusException
+     */
     String[] getAllImportingGraphUuids() throws InputGraphStatusException {
         DbOdcsContext context = null;
         try {
@@ -31,6 +37,12 @@ public final class InputGraphStatus {
         }
     }
     
+    /**
+     * Delete information of importing graph with given uuid from database. 
+     * 
+     * @param uuid graph uuid
+     * @throws InputGraphStatusException
+     */
     static void deleteImportingGraph(String uuid) throws InputGraphStatusException {
         DbOdcsContext context = null;
         try {
@@ -45,6 +57,16 @@ public final class InputGraphStatus {
         }
     }
 
+    /**
+     * Request for begin new import graph,
+     * if is not caused exception, can start import.
+     * Information is saved to database.
+     * 
+     * @param uuid graph uuid
+     * @param namedGraphsPrefix graph prefix
+     * @param pipelineName name of pipeline
+     * @throws InputGraphStatusException
+     */
     synchronized void beginImport(String uuid, String namedGraphsPrefix, String pipelineName)
             throws InputGraphStatusException {
 
@@ -93,6 +115,12 @@ public final class InputGraphStatus {
         }
     }
     
+    /**
+     * Delete status information about importing graph from database.
+     * 
+     * @param uuid graph uuid
+     * @throws InputGraphStatusException
+     */
     synchronized void revertImport(String uuid) throws InputGraphStatusException {
         DbOdcsContext context = null;
         try {
@@ -110,6 +138,12 @@ public final class InputGraphStatus {
         }
     }
 
+    /**
+     * Commit information of successfully imported graph into database.
+     * 
+     * @param uuid graph uuid
+     * @throws InputGraphStatusException
+     */
     synchronized void commitImport(String uuid) throws InputGraphStatusException {
         DbOdcsContext context = null;
         try {

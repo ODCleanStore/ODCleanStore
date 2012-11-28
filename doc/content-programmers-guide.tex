@@ -1,5 +1,5 @@
 \include{header}
-\newcommand{\version}{0.3.6}
+\newcommand{\version}{1.0.0}
 \newcommand{\documentname}{\refprogrammersguide}
 
 \hypersetup{pdftitle=ODCleanStore -- \documentname}
@@ -59,7 +59,7 @@ The diagram lists all main functional units in \odcs:
 
 		\begin{itemize}
 			\item \importantterm{Input Webservice}. SOAP webservice that accepts new data and queues them for processing in the dirty database.
-			\item Pipeline processing. Processes queued data by running a series of transformers in a pipeline on it and moves the dat to the clean database.
+			\item \importantterm{Pipeline processing}. Processes queued data by running a series of transformers in a pipeline on it and moves the data to the clean database.
 			\item \importantterm{Ouptut Webservice}. REST webservice for querying over data in the clean database.
 		\end{itemize}
 	\item \importantterm{Query Execution \& Conflict Resolution.}
@@ -141,7 +141,7 @@ Second, the selected architecture allowed a clear division of work and enabled a
 Third, it is a result of a long process of analysis. From the initial vision and  requirements specification, which suggested an abstract concept of tranformers run in arbitrary order on data, we extracted several most important cases of transformers that were tightly bound to the system and could run only in a fixed order, only to generalize them back to transformers with a~very simple interface and flexible pipelines.
 
 \subsection{Usage Assumptions}
-The architecture and in particular the way editing of pipelines and rules  in \FE is solved is based on several assumptions about how \odcs will be used. In this section we try to give an overview of these assumptions.
+The architecture, and in particular the way editing of pipelines and rules  in \FE is solved, is based on several assumptions about how \odcs will be used. In this section we try to give an overview of these assumptions.
 
 \begin{itemize}
 	\item Data sent to Input Webservice are expected to be reasonably small. \odcs is designed to technically handle even very large data, however, for example results of \QA may not be relevant for a large graph because a small mistake in several values would decrease the \QA score for the whole large dataset. Motivation for this assumption is based on planned integration with project Strigil (see related work in Chapter \ref{chap:relatedWork}).
@@ -207,7 +207,7 @@ The downside is somewhat buggy behavior (especially SPARQL query parsing) and la
 \subsection{Administration Frontend}
 Apache Wicket\footnote{\url{http://wicket.apache.org/}} is used for implemenation of the \FE. It is a component system for writing web applications in Java. Advantages are proper mark-up and logic separation, POJO data model and rapid development of this particular type of web application. Wicket was also chosen by our sister project Strigil\footnote{\url{http://strigil.sourceforge.net/}} so a more tight integration of the two tools may be possible in the future.
 
-Spring\footnote{\url{http://www.springsource.org/}} is used for simplified access to the relational database and transaction management. Use of Hibernate\footnote{\url{http://www.hibernate.org/}} for the DAO layer was rejected because of problems with integration with Wicket.
+Spring\footnote{\url{http://www.springsource.org/}} is used for simplified access to the relational database and transaction management. Use of Hibernate\footnote{\url{http://www.hibernate.org/}} for the DAO layer was rejected because of integration problems with Wicket.
 
 \subsection{Libraries}
 \subsubsection*{Jena}
@@ -269,7 +269,7 @@ After that, Engine binaries can be found in directory \code{odcleanstore/engine/
 
 \section{Repository structure}
 \subsection{Branches}
-There are several branches in the git repository. The latest development version of is on branch \code{master}. Then there are release branches for each release named \code{release-0.1.x}, \code{release-0.2.x} etc. which contain stable versions for  releases  packages. Each commit that where used to prepeare a release package is labeled with a tag \code{release}-\varcode{version}. Finally, there are feature branches prefixed with \code{feature-}.
+There are several branches in the git repository. The latest development version of is on branch \code{master}. Then there are release branches for each release named \code{release-0.1.x}, \code{release-0.2.x} etc. which contain stable versions for  releases  packages. Each commit that was used to prepeare a release package is labeled with a tag \code{release}-\varcode{version}. Finally, there are feature branches prefixed with \code{feature-}.
 
 Common development takes place on branch \code{master}. New feature branches are created for features that may or may not be accepted or that need time to be finished before they are applied to \code{master}. When whey are finished, they are merged to \code{master} and the branch may be removed in time. Release branches stem from \code{master} for every new major release. Fixes and modifications for minor releases take place on release branches and may be merged from/to \code{master}.
 
@@ -424,14 +424,105 @@ When importing data to Virtuoso, one should use the \code{GraphLoader}  class or
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Engine}
+\section{Purpose}
+Engine runs the whole server part. This is the component that actually processes the RDF data. It also starts Input and Output Webservices and thus provides the outer interface for accepting data and querying over data.
 
 
-\todo{jak se to spousti, vypina, celkova architektura}
 
-\section{Pipeline Processing}
-\subsection{Logging}
+
+
+\section{Implementation}
+Class \code{Engine} contains the \code{main()} method which represents the entry point of the application. It checks the environment, loads and validates configuration and starts the services that Engine consists of. Thereafter, Engine periodically updates its state in the database (for monitoring from \FE) and waits for shutdown (using the standard JVM shutdown hook).
+
+There are timeouts for service initialization and shut down. When the timeout is exceeded, the service is finished forcibly and Engine stops.
+
+\subsection{Services}
+Engine consists of three independent services: 
+\code{InputWSService}, \code{OutputWSService}, and \code{PipelineService} for Input Webservice, Output Webservice and pipeline processing, respectively. Services inherit from a common base class \code{Service}. Services are initialized and started as soon as Engine is started and can be asynchronously shut down when Engine is being shut down. Services have their own state and inform \code{Engine} about its changes. 
+
+Engine is implemented as a multithreaded server. Multiple requests for both Input and Output Webservice can be handled at the same time. The data processing part processes named graphs sequentially, one at a time. Engine is implemented so that extending to parallel data procesing should be simple, however. 
+
+\subsection{Transactional Processing}
+\label{sec:transactionalProcessing}
+Data processing in \odcs is done by running a pipeline of transformers on the processed set of named graphs. Running a pipeline is a long-lasting operation on potentionally large data. Databases, including Virtuoso, usually process such operations in a non-transactional way. Engine, however, ensures a transactional character of running a pipeline. 
+
+As long as used transformers adhere to the contract specified in Section \ref{sec:transformerContract}, pipelines have all ACID properties. In addition, an increased attention was given to robustness of Engine to errors. The foundation of this robustness is in implementation that ensures that Engine can be shut down at any time without permanent loss of data integrity. These features were accomplished in the following way:
+\begin{enumerate}
+  \item RDF data processing is divided into a sequence of operations that move from one consistent state to another consistent state.
+  \item All changes of state data at the beginning and end of each operation are executed strictly in a context of single transaction in the relational database.
+  \item In case of an error during an operation, the operation can be always either rolled back or finished.
+  \item Data processing is executed in the isolated dirty database instance so that inconsistent states of data being processed are invisible to the outside. 
+  \item \label{itm:enginePrefix} Since moving data from the dirty database instance to the clean database instance cannot be executed in a transaction, the named graphs inserted to the clean database are made invisible to \QE by adding a special prefix to their names. \QE ignores all graphs with this prefix. After the import is complete, the named graphs are renamed and made visible for queries. If the new data in the clean database replace older data after re-running a pipeline on them, the old data would be made invisible at the same time by adding the special prefix to them and deleted afterwards.
+\end{enumerate}
+
+Several other mechanisms for transactional processing provided by Virtuoso were examined during development. They proved very limiting and often even caused the database instance to crash, however. Transactions for RDF data in Virtuoso were rejected for this reason and transactional properties are ensured by the mechanism presented above.    
+
+All services are also resilient to a loss of database connection. Engine doesn't need to restart when the connection is regained again. Input Webservice and pipeline processing require connection to both database instances, Output Webservice needs only the clean database instance.
+
+\subsection{Database Access}
+Engine uses class \code{DbOdcsContext} extending \code{DbContext}
+which wraps \code{VirtuosoConnectionWrapper} and provides transactional processing of relational data. 
+Class \code{SQL} contains all SQL queries used by \code{DbOdcsContext}. 
+
+Note that relational database (in the clean database instance) is also the only means of communication with \FE. Settings for Engine managed in \FE are written to relational database from where Engine loads it and vice versa -- Engine updates its status and state of graphs processing in the relational database from where \FE can load it.
 
 \section{Input Webservice}
+\subsection{Purpose and Features}
+Input Webservice is a multithreaded SOAP webservice that accepts new data and queues them for data processing by a pipeline. It is implemented with a streaming SOAP message processing so that memory usage is minimized and even large data can be accepted. Input Webservice also supports secure communication over HTTPS. 
+
+The counterpart of Input Webservice on the client side is \code{odcs-inputclient} library which is provided to data producers for convenience. Shared parts of Input Webservice and \code{odcs-inputclient} are in library \code{odcs-comlib}. \code{odcs-comlib} is implemented with minimum memory requirements compared to the standard jax-ws implementation. Received data are evaluated as soon as they are received and errors are reported to the client immediately (unlike jax-ws). Streaming processing of the SOAP message is implemented using \code{javax.xml.parsers.SAXParser} supplemented by SOAP 1.1 envelope schema validation in \code{odcs-comlib}. 
+
+WSDL and XSD schema of the SOAP service are parts of Input Webservice as embedded resources and dynamically served according to the HTTP request.
+
+When Input Webservice is started, it starts a HTTP server listening on a given port and then tries to run recovery. If there are any unfinished requests from the previous run, then their records in the database and data files are deleted. HTTP 503 -- Service unavailable response is given until recovery is finished.
+
+Shutdown of the service stops all pending requests and the HTTP server.
+
+\subsection{Implementation}
+The implementation is in classes \code{SoapMethodInsertExecutor} extending \code{SoapMethodExecutor} in a way similar to the standard \code{DefaultHandler} for \code{SAXParser}. \code{SoapMethodExecutor} is part of \code{odcs-comlib} and filters out parts of the message that belong to the SOAP protocol. The main execution part of message processing is in the \code{InsertExecutor} class which subsequently takes input parameters and saves received data to the filesystem as files with suffix \code{-d.ttl} or \code{-d.rdf} for the payload data, suffix \code{-m.ttl} or \code{-m.rdf} for metadata and \code{-pvm.ttl} or \code{-pvm.rdf} for provenance metadata, depending on the serialization format (Turtle or RDF/XML). In case of success, it signalizes that a new named graph was accepted to pipeline service which will eventually run a transformer pipeline on the new data.
+
+If updating the state of processing in the relational database fails, Input Webservice retries with in an interval defined in global configuration. If the process of receiving data fails in other cases, \code{InsertExecutor} throws an \code{InsertExecutorException} exception which can assemble a \code{InsertException} SOAP message for the client. These messages are sent in \code{InputWSHttpServer} together with other errors in the SOAP protocol. Created files are deleted on error and so are records of the import in the relational database. 
+
+
+\section{Pipeline Service}
+\subsection{Purpose}
+Pipeline Service is responsible for processing of data which are marked to be processed or deleted. Data processing is realized by transformers that are applied to a set of related named graphs in a pipeline. Pipelines work exclusively on data in the dirty database instance and pipeline service is responsible to move the data to the clean database when a pipeline finishes successfully.
+
+Data to be processed are either new named graphs stored through Input Webservice, or data that were marked for deletion  or for processing in \FE. The last case occurs when a user chooses to re-run a~pipeline on data already stored in the clean database. Copy of this data is created in the dirty database where it is processed by the pipeline. After that, the processed version of data replaces the original in the clean database.
+
+\subsection{Graph States}
+Every named graph inserted through Input Webservice has a record in relational table \code{DB.ODCLEANSTORE.EN\_INPUT\_GRAPHS} with an associated state, among other things. The states can be:
+
+\begin{description}[style=nextline,font=\ttfamily]
+  \item[IMPORTING] The named graph is being imported through Input Webservice.
+  \item[QUEUED\_FOR\_DELETE] The named graph is queued for deletion. When a graph is deleted, all related graphs in both database instances are deleted. Related temporary files are deleted as well.
+  \item[QUEUED\_URGENT] Reserved for future use.
+  \item[QUEUED] Named graph is queued to be processed by its respective pipeline.
+  \item[PROCESSING] Named graph is  being processed in a pipeline. That means the graph is loaded from temporary Input Webservice files or the clean database, and pipeline transformers are applied to it. All settings for the pipeline including the plan of transformers to execute and their assigned rule groups are loaded only when the graph transitions to this state so that their consistency during the pipeline processing is ensured.
+  \item[PROCESSED] Transformers were successfully applied to the named graph and the data are being moved to the clean database into named graphs whose name starts with a special prefix hiding them from \QE (see point \ref{itm:enginePrefix} in Section \ref{sec:transactionalProcessing}). Let us call this prefix the \term{temporary prefix}.
+  \item[PROPAGATED] The processed named graphs were all moved to the clean database. If there was an old version of the data, the old named graphs are prefixed with the temporary prefix.
+  \item[OLDGRAPHSPREFIXED] The temporary prefix is removed from the processed graphs and the possible old versions of named graphs, now prefixed with the temporary prefix, are removed.
+  \item[NEWGRAPHSPREPARED] Related graphs in the dirty database are deleted.
+  \item[FINISHED] The processing of the named graphs was successfully finished and the data are stored in the clean database.
+  \item[DELETING] The named graphs are being deleted in the clean and/or dirty database instance. Possible temporary files stored by Input Webservice will be also deleted.
+  \item[DELETED] The named graph was successfully deleted.
+  \item[WRONG] An error occurred during the named graph processing.
+  \item[DIRTY] If an error occurs while the named graph is in state \code{PROCESSING} or \code{PROCESSED}, the graph is first marked as \code{DIRTY} and Engine cleans up unfinished work and only after that the graph is moved to state \code{WRONG}.
+\end{description}
+
+\subsection{Implementation}
+Data processing in Engine is driven by settings in the relational database which are managed from \FE. 
+
+Engine logs its activity to a log file called odcs.engine.log in the working directory of Engine. In addition, there is a log file for each transformer instance where the respective transformer logs its activity. These transformer instance logs are in the working directory of the respective transformer.
+
+When shutdown is called on the pipeline processing service then if there is a running transformer, its \code{shutdown()} method is called. Engine waits until the current operation is finished or the given timeout is exceeded and the finishes the pipeline processing service. 
+
+Running a pipeline is transactionally safe, as explained in Section \ref{sec:transactionalProcessing}.  If an error is caused by Engine (e.g. when it is shut down forcibly), the pending operations will be finished eventually. When an error occurs and a graph is in \code{PROPAGATED}, \code{OLDGRAPHSPREFIXED} or \code{NEWGRAPHSPREPARED}, the pipeline service continues in a forward way on recovery; other temporary states are rolled back. If an error is caused by a transformer, then the named graph is moved to state \code{WRONG} and it is up to the user to decide what to do next with the graph. An overview of failed graphs is in \FE. The reason why the transformer failed can be fixed and the pipeline re-run on the graph, or the graph may be queud for deletion.
+
+If an error is caused by unavailability of a Virtuoso database, Engine detects it and pending processing is retried when Engine is started again.
+
+Classes that cover implementation of pipeline service are \code{PipelineService}, which handles processing of named graphs in different states, \code{PipelineGraphManipulator} for manipulation with named graphs (e.g. moving between database instances) and \code{PipelineGraphStatus} for working with state data (e.g. loaded transformer instances for the processing pipelines). \code{PipelineGraphTransformerExecutor} called from \code{PipelineService} is responsible for executing transformers on named graphs and \code{TransformationContext} and \code{TransformationGraph} are implementations of context objects passed to transformers.
+
 
 \section{Output Webservice}
 \subsection{Purpose}
@@ -1406,7 +1497,7 @@ Note that when implementing a new DN template type it is a good idea to copy and
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Future Work}
-\odcs could be extended in many ways. Suggestions for future work and improvements are maintained at a dedicated page\footnote{\url{https://sourceforge.net/p/odcleanstore/wiki/Future\%20extensions/}} at project website. This chapter lists the most important ideas for future work. Items in bold are should be implemented in future and were omitted for time reasons.
+\odcs could be extended in many ways. Suggestions for future work and improvements are maintained at a dedicated page\footnote{\url{https://sourceforge.net/p/odcleanstore/wiki/Future\%20extensions/}} at project website. This chapter lists the most important ideas for future work. Items in bold should be implemented in future and were omitted for time reasons.
 
 \section{Data Processing}
 \begin{itemize}
@@ -1458,6 +1549,7 @@ Note that when implementing a new DN template type it is a good idea to copy and
 
 \section{Miscellaneous}
 \begin{itemize}
+	\item \textbf{Installer will be able to install Engine as a system service on Windows or a daemon on Linux, respectively.}
 	\item Provide a tool (command line or with GUI) for import of large graphs. \odcs is designed mainly for processing of smaller graphs (e.g. results of \QA might not be relevant for too large graphs). A large graph could be divided into multiple small graphs and sent to Input Webservice in parts.
 \end{itemize}
 

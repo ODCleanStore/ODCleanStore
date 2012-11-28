@@ -4,24 +4,41 @@ import java.net.URI;
 
 import cz.cuni.mff.odcleanstore.comlib.soap.exceptions.SoapMethodExecutorException;
 
+/**
+ * Soap method executor. 
+ * 
+ * @author Petr Jerman
+ */
 public abstract class SoapMethodExecutor {
 	private boolean isFault;
 	private String faultCode;
 	private String faultString;
 	private URI faultActor;
 
+	/**
+	 * @return message is fault
+	 */
 	public boolean isFault() {
 		return isFault;
 	}
 
+	/**
+	 * @return message fault code if any
+	 */
 	public String getFaultCode() {
 		return faultCode;
 	}
 
+	/**
+	 * @return message fault string if any
+	 */
 	public String getFaultString() {
 		return faultString;
 	}
 
+	/**
+	 * @return message fault actor  if any
+	 */
 	public URI getFaultActor() {
 		return faultActor;
 	}

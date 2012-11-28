@@ -10,12 +10,16 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import cz.cuni.mff.odcleanstore.installer.ui.WizardFrame;
-import cz.cuni.mff.odcleanstore.installer.ui.WizardStep;
+import cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardFrame;
+import cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardStep;
 import cz.cuni.mff.odcleanstore.installer.utils.AwtUtils;
 
-
-public class GetDbConnectionsStep extends WizardStep {
+/**
+ * A step for getting jdbc database connection data to odcs dirty and clean db instances from user.
+ * 
+ * @author Petr Jerman
+ */
+public class GetDbConnectionsStep extends InstallationWizardStep {
 
 	private JPanel panel;
 
@@ -36,20 +40,24 @@ public class GetDbConnectionsStep extends WizardStep {
 	private JLabel jlbDirtyPassword;
 	private JTextField jtfDirtyPassword;
 
-	protected GetDbConnectionsStep(WizardFrame wizardFrame) {
+	/**
+	 * @param wizardFrame
+	 */
+	protected GetDbConnectionsStep(InstallationWizardFrame wizardFrame) {
 		super(wizardFrame);
 	}
 
+	/**
+	 * @see cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardStep#getStepTitle()
+	 */
 	@Override
 	public String getStepTitle() {
 		return "setting Virtuoso instances connection parameters for administrator scripts";
 	}
 
-	@Override
-	public String getNextNavigationButtonText() {
-		return "Validate Virtuoso instances connection parameters for administrator scripts";
-	}
-
+	/**
+	 * @see cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardStep#getFormPanel()
+	 */
 	@Override
 	public JPanel getFormPanel() {
 
@@ -93,83 +101,117 @@ public class GetDbConnectionsStep extends WizardStep {
 		panel.add(jtfDirtyUser, AwtUtils.createGbc(7, 1));
 		panel.add(jlbDirtyPassword, AwtUtils.createGbc(8, 0));
 		panel.add(jtfDirtyPassword, AwtUtils.createGbc(8, 1));
-		
+
 		return panel;
 	}
 
+	/**
+	 *  Tests entered database connection paramaters from user,
+	 *  tests connection to dirty and clean database.
+	 *   
+	 * @see cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardStep#onNext()
+	 */
 	@Override
 	public boolean onNext() {
 		try {
-            Class.forName("virtuoso.jdbc3.Driver");
-        } catch (ClassNotFoundException e) {
-        	getWizardFrame().showWarningDialog("Couldn't load Virtuoso jdbc driver", "Error");
-       		return false;
-        }
+			Class.forName("virtuoso.jdbc3.Driver");
+		} catch (ClassNotFoundException e) {
+			getWizardFrame().showWarningDialog("Couldn't load Virtuoso jdbc driver", "Error");
+			return false;
+		}
 
-		boolean retVal = true;		
-        try {
-			DriverManager.getConnection(
-			        getCleanDBConnectionString(),
-			        getCleanDBUser(),
-			        getCleanDBPassword());
+		boolean retVal = true;
+		try {
+			DriverManager.getConnection(getCleanDBConnectionString(), getCleanDBUser(), getCleanDBPassword());
 		} catch (SQLException e) {
 			getWizardFrame().showWarningDialog("Connect to clean DB failed", "Error");
 			retVal = false;
 		}
-        
-        try {
-			DriverManager.getConnection(
-			        getDirtyDBConnectionString(),
-			        getDirtyDBUser(),
-			        getDirtyDBPassword());
+
+		try {
+			DriverManager.getConnection(getDirtyDBConnectionString(), getDirtyDBUser(), getDirtyDBPassword());
 		} catch (SQLException e) {
 			getWizardFrame().showWarningDialog("Connect to dirty DB failed", "Error");
 			retVal = false;
 		}
-        
+
 		return retVal;
 	}
 
+	/**
+	 *  
+	 * @see cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardStep#onFormEvent(java.awt.event.ActionEvent)
+	 */
 	@Override
 	public void onFormEvent(ActionEvent arg) {
 	}
-	
+
+	/**
+	 * @return clean database host name
+	 */
 	public String getCleanDBHostName() {
 		return jtfCleanHostName.getText();
 	}
-	
+
+	/**
+	 * @return clean database port
+	 */
 	public String getCleanDBPort() {
 		return jtfCleanPort.getText();
 	}
-	
+
+	/**
+	 * @return clean database jdbc connection string
+	 */
 	public String getCleanDBConnectionString() {
 		return "jdbc:virtuoso://" + getCleanDBHostName() + ":" + getCleanDBPort() + "/CHARSET=UTF-8";
 	}
-	
+
+	/**
+	 * @return clean database user
+	 */
 	public String getCleanDBUser() {
 		return jtfCleanUser.getText();
 	}
 
+	/**
+	 * @return clean database password
+	 */
 	public String getCleanDBPassword() {
 		return jtfCleanPassword.getText();
 	}
 
+	/**
+	 * @return dirty database host name
+	 */
 	public String getDirtyDBHostName() {
 		return jtfDirtyHostName.getText();
 	}
 
+	/**
+	 * @return dirty database port
+	 */
 	public String getDirtyDBPort() {
 		return jtfDirtyPort.getText();
 	}
-	
+
+	/**
+	 * @return dirty database jdbc connection string
+	 */
 	public String getDirtyDBConnectionString() {
 		return "jdbc:virtuoso://" + getDirtyDBHostName() + ":" + getDirtyDBPort() + "/CHARSET=UTF-8";
 	}
 
+	/**
+	 * @return dirty database user
+	 */
 	public String getDirtyDBUser() {
 		return jtfDirtyUser.getText();
 	}
 
+	/**
+	 * @return dirty database password
+	 */
 	public String getDirtyDBPassword() {
 		return jtfDirtyPassword.getText();
 	}

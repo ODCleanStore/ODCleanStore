@@ -27,6 +27,11 @@ import cz.cuni.mff.odcleanstore.transformer.odcs.ODCSPropertyFilterTransformer;
  * 
  * @author Petr Jerman
  */
+/**
+ * Transformer executor for pipeline graph.
+ * @author Petr Jerman
+ *
+ */
 public class PipelineGraphTransformerExecutor {
     
     private static final Logger LOG = LoggerFactory.getLogger(PipelineGraphTransformerExecutor.class);
@@ -68,10 +73,21 @@ public class PipelineGraphTransformerExecutor {
     private Transformer currentTransformer = null;
     private boolean isLinkerImplFirstInPipeline = true;
     
+    /**
+     * Create pipelineGraphTransformerExecutor instance.
+     * 
+     * @param graphStatus graph status object for transformer execution.
+     */
     PipelineGraphTransformerExecutor(PipelineGraphStatus graphStatus) {
         this.graphStatus = graphStatus;
     }
     
+    
+    /**
+     * Shutdown current transformer.
+     * 
+     * @throws TransformerException
+     */
     void shutdown() throws TransformerException {
         Transformer transformer = currentTransformer;
         if (transformer != null) {
@@ -79,6 +95,11 @@ public class PipelineGraphTransformerExecutor {
         }
     }
 
+    /**
+     * Main pipeline executor method.
+     * 
+     * @throws PipelineGraphTransformerExecutorException
+     */
     void execute() throws PipelineGraphTransformerExecutorException {
         try {
             executeTransformer(ODCSPropertyFilterTransformerCommand, true);
@@ -93,6 +114,12 @@ public class PipelineGraphTransformerExecutor {
         }
     }
     
+    /**
+     * Execute command on graph.
+     * @param command command for execution
+     * @param isInternal 
+     * @throws PipelineGraphTransformerExecutorException
+     */
     private void executeTransformer(PipelineCommand command, boolean isInternal) 
             throws PipelineGraphTransformerExecutorException {
         
@@ -160,6 +187,13 @@ public class PipelineGraphTransformerExecutor {
         }
     }
 
+    /**
+     * Find and create  transformer for command.
+     * @param command command to execute
+     * @param isInternal
+     * @return transformer object
+     * @throws PipelineGraphTransformerExecutorException
+     */
     private Transformer getTransformerForCommand(PipelineCommand command, boolean isInternal)
             throws PipelineGraphTransformerExecutorException  {
         
@@ -185,6 +219,12 @@ public class PipelineGraphTransformerExecutor {
         return transformer;
     }
 
+     /**
+     * Check if transformer directory exists.
+     * @param command command for execution
+     * @return transformer path
+     * @throws PipelineGraphTransformerExecutorException
+     */
     private String checkTransformerWorkingDirectory(PipelineCommand command) 
             throws PipelineGraphTransformerExecutorException {
         File file = new File(command.workDirPath, Integer.toString(command.transformerInstanceID));
@@ -197,6 +237,13 @@ public class PipelineGraphTransformerExecutor {
         }
     }
     
+    /**
+     * Load custom transformer.
+     * 
+     * @param command command for execution
+     * @return transformer object
+     * @throws PipelineGraphTransformerExecutorException
+     */
     private Transformer loadCustomTransformer(PipelineCommand command) throws PipelineGraphTransformerExecutorException  {
         try {
             URL url = new File(command.jarPath).toURI().toURL();

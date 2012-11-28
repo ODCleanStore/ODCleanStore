@@ -17,7 +17,7 @@ import java.util.Locale;
 /**
  * Simple Testing custom Transformer.
  * 
- * @author Bramburek
+ * @author Petr Jerman
  */
 public class CustomTransformer implements Transformer {
     private static final Logger LOG = LoggerFactory.getLogger(CustomTransformer.class);
@@ -42,6 +42,9 @@ public class CustomTransformer implements Transformer {
     private static final String DELETE_QUERY = "SPARQL DELETE FROM <%1$s> { ?s ?p ?o }"
             + "\n WHERE { ?s ?p ?o FILTER (?p IN (%2$s)) }";
 
+    /**
+     * @see cz.cuni.mff.odcleanstore.transformer.Transformer#transformGraph(cz.cuni.mff.odcleanstore.transformer.TransformedGraph, cz.cuni.mff.odcleanstore.transformer.TransformationContext)
+     */
     @Override
     public void transformGraph(TransformedGraph inputGraph, TransformationContext context) throws TransformerException {
         if (context.getTransformationType() == EnumTransformationType.EXISTING) {
@@ -74,6 +77,9 @@ public class CustomTransformer implements Transformer {
 
     }
 
+    /**
+     * @see cz.cuni.mff.odcleanstore.transformer.Transformer#shutdown()
+     */
     @Override
     public void shutdown() throws TransformerException {
         return; // Do nothing

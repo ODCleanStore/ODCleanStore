@@ -1,5 +1,10 @@
 package cz.cuni.mff.odcleanstore.comlib.soap.exceptions;
 
+/**
+ * Client soap executor exception.
+ * 
+ * @author Petr Jerman
+ */
 
 public class SoapExecutorParserException extends SoapExecutorException {
 

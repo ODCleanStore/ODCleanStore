@@ -1,5 +1,5 @@
 \include{header}
-\newcommand{\version}{0.3.1}
+\newcommand{\version}{1.0.0}
 \newcommand{\documentname}{\refadminmanual}
 
 \hypersetup{pdftitle=ODCleanStore -- \documentname}
@@ -25,7 +25,7 @@ This document serves as the installation guide and manual for system administrat
 \odcs accepts arbitrary RDF data and metadata through a SOAP webservice (\term{Input Webservice}). The data is processed by \term{transformers} in one of a~set of customizable \term{pipelines} and stored to a~persistent store (OpenLink Virtuoso database instance). The stored data can be accessed again either  directly through a SPARQL endpoint or through \term{Output Webservice}. Linked Data consumers can send queries and custom query policies to Output Webservice and receive (aggregated/integrated) RDF data relevant for their query, together with information about provenance and data quality. 
 
 \section*{Related documents}
-More detailed information about \odcs from the perspective of a user can be found in related document \quot{\refusermanual}. It also contains definition of user roles, glossary of terms etc. Document \quot{\refprogrammersguide} contains more detailed information intended primarily for developers, however system administrators may also find interesting in-depth information in \refprogrammersguide. 
+More detailed information about \odcs from the perspective of a user can be found in related document \quot{\refusermanual}. It also contains definition of user roles, glossary of terms etc. Document \quot{\refprogrammersguide} contains more detailed information intended primarily for developers, system administrators, however, may also find interesting in-depth information in \refprogrammersguide. 
 
 
 \chapter{System Requirements}
@@ -36,7 +36,7 @@ More detailed information about \odcs from the perspective of a user can be foun
   \item Operating System: Windows XP, Windows 7, Windows Server 2008, Linux
   \item Java Runtime Environment 6 or newer\footnote{\url{http://www.java.com/en/download/}}
   \item Installed OpenLink Virtuoso\footnote{\url{http://virtuoso.openlinksw.com/}} (see below)
-  \item Apache Tomcat (or an equivalent Java servlet container)
+  \item Apache Tomcat\footnote{\url{http://tomcat.apache.org/}} (or an equivalent Java servlet container)
 \end{itemize}
 
 
@@ -47,7 +47,7 @@ More detailed information about \odcs from the perspective of a user can be foun
 \odcs requires that the two instances of Virtuoso database are created before the installation process. If you are familiar with Virtuoso and already have two Virtuoso instances that you would like to use, you can skip the rest of this section -- make sure, however, to modify \odcs configuration options accordingly  (see Chapter \ref{chap:configOptions}). In particular, set correct database settings and include a directory specified in \code{engine.clean\_import\_export\_dir} and \code{engine.dirty\_import\_export\_dir} configuration options in \code{DirsAllowed} option of Virtuoso configuration.
 
 \subsection{Creating Database Instances}
-Virtuoso has paid enterprise licenses, but also an open source edition\footnote{\url{http://virtuoso.openlinksw.com/dataspace/dav/wiki/Main/VOSDownload}} available for free. In order to install it, follow instructions on the download page. Make sure that the deployed binaries (\varcode{installation-directory}/bin) are on your system PATH (you can test it by running commands \code{isql} and \code{virtuoso-t}).
+Virtuoso has a paid enterprise license, but also an open source edition\footnote{\url{http://virtuoso.openlinksw.com/dataspace/dav/wiki/Main/VOSDownload}} available for free. In order to install it, follow instructions on the download page. Make sure that the deployed binaries (\varcode{installation-directory}/bin) are on your system PATH (you can test it by running commands \code{isql} and \code{virtuoso-t}).
 
 \odcs distribution contains files \code{virtuoso.ini-clean} and \code{virtuoso.ini-dirty}. While it is not required, we strongly recommend creating the two database instances with these provided configuration files.
 
@@ -98,11 +98,11 @@ This chapter describes the contents of the installation CD with \odcs:
 \end{description}
 
 \chapter{Step by Step Installation Guide}
-\odcs distribution contains an installer with graphical interface.
+\odcs can be installed with a provided installer with graphical interface.
 %Alternatively, \odcs can be installed manually following instructions in the README file.
 
 \section{Prerequisities}
-Before installation, make sure your system satisfies requirements listed in \ref{chap:requirements}. In particular, make sure to have two Virtuoso database instances created and \textit{started} before installation, as described in Section \ref{sec:virtuoso}.
+Before installation, make sure your system satisfies requirements listed in Chapter \ref{chap:requirements}. In particular, make sure to have two Virtuoso database instances created and \textit{started} before installation, as described in Section \ref{sec:virtuoso}.
 
 \section{Using the Installer}
 In order to run the installer, execute in the root directory of the distribution
@@ -223,12 +223,19 @@ The next screen shows the progress of database import.
 
 \FloatBarrier
 
+\section{Post-installation Steps}
+After successfull install, you may customize default \odcs settings in the configuration file \code{odcs.ini} in the Engine installation directory. See Chapter \ref{chap:configOptions} for description of all options.
+
+The installer deploys the web archive with \FE to the designated directory in your servlet container. Depending on the configuration of your servlet container, you may need to add the \FE web application to its configuration explicitly. If that is the case, in Tomcat, for example, this can be accomplished by adding a line similar to the following to <Host> section of Tomcat's \code{server.xml}:  
+\begin{verbatim} 
+    <Context path="" docBase="{path to odcs-webfrontend-<version>.war}"></Context>
+\end{verbatim} 
 
 %\chapter{(Contents of the Deployed Application)}
 
 \chapter{Configuration Options}
  \label{chap:configOptions}
-Global configuration options for ODCleanStore are stored in configuration file \code{odcs.ini}. \todo{location, how it can be passed to Engine and webfrontend}
+Global configuration options for ODCleanStore are stored in configuration file \code{odcs.ini} in the Engine installation directory.
 
 The configuration file is used both by ODCleanStore Engine and administration frontend. Configuration options are loaded only once when the Engine or administration frontend is started, therefore, it is necessary to restart the Engine or administration frontend web application for the changes to take effect.
 \todo{how to restart engine and webfrontend}
@@ -247,18 +254,30 @@ List with a description of all configuration options follows:
 	  Password for JDBC access to the Virtuoso instance representing the clean database.
 		\configdefault{dba}
 	\item[db.clean.sparql.endpoint\_url]
+	  URL of the SPARQL endpoint of the clean database. Used by Linker to read RDF data.
+		\configdefault{http://localhost:8890/sparql}
 
 	\item[db.dirty.jdbc.connection\_string]
 		Connection string for JDBC access to the Virtuoso instance representing the dirty database. Must contain connection charset.
 		\configdefault{jdbc:virtuoso://localhost:1112/CHARSET=UTF-8}
 	\item[db.dirty.jdbc.username]
 		Username for JDBC access to the Virtuoso instance representing the dirty database.
+		\configdefault{dba}
 	\item[db.dirty.jdbc.password]
 		Password for JDBC access to the Virtuoso instance representing the dirty database.
+		
 	\item[db.dirty.sparql.endpoint\_url]
+		URL of the SPARQL endpoint of the dirty database. Used by Linker to read RDF data.
+		\configdefault{http://localhost:8891/sparql}
 	\item[db.dirty\_update.sparql.endpoint\_url]
+		URL of the secured SPARQL endpoint of the dirty database. Used by Linker to store created links.
+		\configdefault{http://localhost:8891/sparql-auth}
 	\item[db.dirty\_update.sparql.endpoint\_username]
+		Name of the user, who is authorized for using SPARQL UPDATE on the authorized endpoint.
+		\configdefault{SILK}
 	\item[db.dirty\_update.sparql.endpoint\_password]
+		Password of the user, who is authorized for using SPARQL UPDATE on the authorized endpoint.
+		\configdefault{odcs}
 \end{configlist}
 
 \subsection*{Input Webservice Configuration}
@@ -267,10 +286,10 @@ List with a description of all configuration options follows:
 		URL where the input webservice is listening.
 		\configdefault{http://localhost:8088/inputws}
 	\item[input\_ws.recovery\_crash\_penalty]
-		Waiting penalty after inputws recovery crash before recovery restart in milliseconds.
+		Waiting penalty after Input Webservice recovery crash before recovery restart in milliseconds.
 		\configdefault{60000}
 	\item[input\_ws.named\_graphs\_prefix]
-		Prefix of named graphs incoming where data & metadata are stored; must be a valid URL.
+		Prefix of named graphs incoming where data \& metadata are stored. Must be a valid URL.
 		\configdefault{http://opendata.cz/infrastructure/odcleanstore/}
 \end{configlist}
 
@@ -359,7 +378,7 @@ List with a description of all configuration options follows:
 		\configdefault{8000}
 		
 	\item[engine.second\_crash\_penalty]
-		Waiting penalty after double pipeline crash before pipeline restart in milliseconds
+		Waiting penalty after double pipeline crash before pipeline restart in milliseconds.
 		\configdefault{60000}
 		
 	\item[engine.state\_to\_db\_writing\_interval]
@@ -367,6 +386,7 @@ List with a description of all configuration options follows:
 		\configdefault{5000}
 	
 	\item[engine.engine\_uuid]
+		Identifier of Engine instance when data processing is distributed over multiple parallel nodes. This setting has currently no effect and is reserved for future extensions.
 		\configdefault{88888888-8888-8888-8888-888888888888}
 \end{configlist}
 
@@ -391,15 +411,39 @@ List with a description of all configuration options follows:
 \end{configlist}
 
 
-\chapter{Starting the Application}
+\chapter{Starting and Stopping the Application}
+\section{Engine}
+\odcs Engine can be started by executing the \code{run-engine.cmd} script (on Windows) or \code{run-engine.sh} script (on Unix) in the installation directory of \odcs Engine. The Engine will load its configuration from the \code{odcs.ini} file in this directory and, after initialization, automatically start listening on Input and Output Webservice ports for requests.
 
-\todo{how to start the engine & webfrontend}
-% make sure virtuoso instance is started
+In order to stop Engine, simply press \code{Ctrl}+\code{C} in the console window with Engine (send SIGINT signal to the Engine process on Linux). Engine will shutdown all services, wait (up until a timeout) until the currently active pipeline transformer finishes, and stop.
+
+Engine is also prepared to be run as a system service on Windows, or daemon on Linux, respectively. Installing \odcs as a service/daemon will be added to the installer in future.
+
+\section{\FE}
+\FE is a standard Java web application and its lifecycle depends on its servlet container -- please refer to documentation of your server container\footnote{E.g. \url{http://tomcat.apache.org/tomcat-7.0-doc/index.html}}. Usually, \FE would be reached by navigating to \code{http://localhost:8080/} in your web browser.
 
 \chapter{Custom Transformers}
+\label{chap:customTransformers}
+The administrator may extend data-processing capabilities of \odcs by adding new custom transformers. In order to start using the transformer:
+\begin{enumerate}
+  \item Implement your custom transformer by implementing the \code{Transformer} interface in Java or other compatible language.\\
+  The classfile for the \code{Transformer} interface is in \code{odcs-core-<version>.jar} file in the \odcs distribution, or can be obtained from sources in \code{odcs-core} maven artifact -- see chapter \quot{Setting up Development Environment} in \refprogrammersguide. \\
+  For more information about how to implement a custom transformer and what features it should have, please refer to chapter \quot{Transformers – Introduction} in \refprogrammersguide.
+  \item Save the .jar file with the implementation to a location where Engine can read it from the filesystem. The classfiles of the \code{odcs-core} maven artifact need not be included in the .jar file (as they will be already loaded by Engine when the custom transformer is loaded at runtime).
+  \item In \FE, go to \quot{Transformers}~\textgreater~\quot{Add a new transformer} (\figurename~\ref{fig:customTransformer}). Enter the path to the .jar file with the implementation, the fully qualified name of the your class that implements the \code{Transformer} interface and fill in the other fields. Submit the form.
+  \item Now, the custom transformer is registered and can be assigned to pipelines and used for data processing.
+\end{enumerate}
 
-\chapter{(Troubleshooting)}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{images/fe-custom-transformer.png}
+    \caption{Screen for registering a custom transformer}
+    \label{fig:customTransformer}
+\end{figure}
 
+
+%\chapter{(Troubleshooting)}
+% TODO based on real-world problems
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

@@ -13,6 +13,8 @@ import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
 
 /**
+ * Ancestor of services running in engine.
+ * 
  *  @author Petr Jerman
  */
 public abstract class Service implements Runnable {
@@ -23,6 +25,12 @@ public abstract class Service implements Runnable {
     protected final String serviceName;
     private ServiceState state;
     
+    /**
+     * Create service instance.
+     * 
+     * @param engine engine context
+     * @param serviceName name of service
+     */
     protected Service(Engine engine, String serviceName) {
         if (engine == null || serviceName == null) {
             throw new IllegalArgumentException();
@@ -32,10 +40,16 @@ public abstract class Service implements Runnable {
         this.state = ServiceState.NEW;
     }
 
+    /**
+     * @return service current state
+     */
     public final ServiceState getServiceState() {
         return this.state;
     }
     
+    /**
+     * @return get service current info
+     */
     public abstract String getServiceStateInfo();
 
     private void setServiceState(ServiceState state) {
@@ -44,6 +58,11 @@ public abstract class Service implements Runnable {
         engine.onServiceStateChanged(this, oldState);
     }
     
+    /**
+     * Main service routine.
+     * 
+     * @see java.lang.Runnable#run()
+     */
     @Override
     public void run() {
         try {
@@ -63,6 +82,11 @@ public abstract class Service implements Runnable {
         }
     }
     
+    /**
+     * Signaling and starting shutdown.
+     * 
+     * @param executor thread executor for free purpose 
+     */
     public final void initiateShutdown(ScheduledThreadPoolExecutor executor) {
         try {
             if (getServiceState().isForInitiateShutdown()) {
@@ -88,6 +112,12 @@ public abstract class Service implements Runnable {
         }
     }
     
+    /**
+     * Test if service is running and database is available.
+     * 
+     * @param includeDirty test dirty database included
+     * @return result of test  
+     */
     public final boolean isRunnningAndDbInstancesAvailable(boolean includeDirty) {
         try {
             if (getServiceState() != ServiceState.RUNNING) {
@@ -109,12 +139,27 @@ public abstract class Service implements Runnable {
         }
     }
 
+    /**
+     * Initialize routine for overriding.
+     * 
+     * @throws Exception
+     */
     protected void initialize() throws Exception {
     }
 
+    /**
+     * Execute routine for overriding.
+     * 
+     * @throws Exception
+     */    
     protected void execute() throws Exception {
     }
 
+    /**
+     * Shutdown routine for overriding.
+     * 
+     * @throws Exception
+     */
     protected abstract void shutdown() throws Exception; 
     
     private String format(String message) {

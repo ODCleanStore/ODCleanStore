@@ -11,6 +11,11 @@ import cz.cuni.mff.odcleanstore.comlib.io.EndableReader;
 import cz.cuni.mff.odcleanstore.comlib.soap.exceptions.SoapExecutorException;
 import cz.cuni.mff.odcleanstore.comlib.soap.exceptions.SoapMethodExecutorException;
 
+/**
+ * SoapSaxHandler for SaxParser.
+ * 
+ * @author Petr Jerman
+ */
 class SoapSaxHandler extends DefaultHandler {
 
 	private static final String HTTP_SCHEMAS_XMLSOAP_ORG_SOAP_ENVELOPE = "http://schemas.xmlsoap.org/soap/envelope/";

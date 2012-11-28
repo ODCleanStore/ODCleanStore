@@ -12,7 +12,6 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -21,7 +20,12 @@ import javax.swing.JPanel;
 
 import cz.cuni.mff.odcleanstore.installer.utils.AwtUtils;
 
-public abstract class WizardFrame {
+/**
+ * A Base class from GUI wizard based installer.
+ * 
+ * @author Petr Jerman
+ */
+public abstract class InstallationWizardFrame {
 
 	private JFrame frame;
 	private JLabel title;
@@ -32,12 +36,16 @@ public abstract class WizardFrame {
 	private JButton next;
 	private JButton cancel;
 	private JButton finish;
-	private JButton skip;
 
 	private int stepNumber;
-	private WizardStep step;
+	private InstallationWizardStep step;
 
-	public WizardFrame() throws IOException {
+	/**
+	 * Create instance of wizard frame object with all GUI elements.
+	 * 
+	 * @throws IOException
+	 */
+	public InstallationWizardFrame() throws IOException {
 
 		frame = new JFrame();
 		frame.setTitle("ODCleanStore Installer");
@@ -79,19 +87,10 @@ public abstract class WizardFrame {
 		panelStepTitle.add(title);
 
 		// next button
-		next = new JButton();
+		next = new JButton("Next");
 		navigator.add(next);
-		next.setToolTipText("Perform action and go to the next step");
+		next.setToolTipText("Go to the next step");
 		next.addActionListener(actionListener);
-
-		// skip button
-		skip = new JButton("Next");
-		skip.setToolTipText("Go to the next installation step");
-		skip.setVisible(false);
-		navigator.add(skip);
-		skip.addActionListener(actionListener);
-
-		navigator.add(Box.createHorizontalStrut(18));
 
 		// cancel button
 		cancel = new JButton("Cancel");
@@ -110,51 +109,63 @@ public abstract class WizardFrame {
 		frame.setVisible(true);
 	}
 
-	protected abstract void onNext() throws IOException;
-
+	/**
+	 * Called on finishing wizard.
+	 */
 	protected void onFinish() {
 		frame.setVisible(false);
 		frame.dispose();
 		System.exit(0);
 	}
 
+	/**
+	 * Called on closing request from user before wizard close by user decision.
+	 */
 	protected void onCancel() {
-		if (step != null && step.canCancel()) {
+		if (step != null) {
 			if (showConfirmDialog("Are you sure terminate installation?", "Terminate installation")) {
+				step.onCancel();
 				onFinish();
 			}
 		}
 	}
 
-	protected void setNextStep(WizardStep step) throws IOException {
+	/**
+	 * Set next wizard step, null parameter value sets finish page.
+	 * 
+	 * @param step next wizard step
+	 * @throws IOException
+	 */
+	protected void setNextStep(InstallationWizardStep step) throws IOException {
 		form.removeAll();
 		this.step = step;
 		if (step != null) {
 			title.setText("Step " + ++stepNumber + " - " + step.getStepTitle());
-			String nextNavigationButtonText = step.getNextNavigationButtonText();
-			next.setText(nextNavigationButtonText);
-			skip.setVisible(step.hasSkipButton());
 			JPanel panel = step.getFormPanel();
 			form.add(panel);
 		} else {
 			navigator.removeAll();
 			navigator.add(finish);
-			title.setText("Installation completed");
+			title.setText("Installation successfully completed");
 		}
 		mainPanel.updateUI();
 	}
 
+	/**
+	 * Called from ui framework on ui event.
+	 * 
+	 * @param arg parameters of ui action
+	 * @throws IOException
+	 */
 	private void ActionPerformed(ActionEvent arg) throws IOException {
 		if (arg.getSource() == finish) {
 			onFinish();
-		} else if (arg.getSource() == skip) {
-			onNext();
 		} else if (arg.getSource() == next) {
 			if (step != null && step.onNext()) {
-				onNext();
+				next();
 			}
 		} else if (arg.getSource() == cancel) {
-				onCancel();
+			onCancel();
 		} else if (step != null) {
 			step.onFormEvent(arg);
 		}
@@ -172,39 +183,83 @@ public abstract class WizardFrame {
 
 	private ActionListener actionListener = new ActionListener();
 
+	/**
+	 * Get action listener for listening button action.
+	 * 
+	 * @return action listener object
+	 */
 	public ActionListener getActionListener() {
 		return actionListener;
 	}
 
+	/**
+	 * Show confirm modal dialog and return user decision.
+	 * 
+	 * @param message message to display in dialog
+	 * @param title caption of dialog
+	 * @return user decision of confirmation
+	 */
 	public boolean showConfirmDialog(String message, String title) {
 		return JOptionPane.showConfirmDialog(form, message, title, JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION;
 	}
 
+	/**
+	 * Show warning modal dialog.
+	 * 
+	 * @param message message to display in dialog
+	 * @param title caption of dialog
+	 */
 	public void showWarningDialog(String message, String title) {
 		JOptionPane.showMessageDialog(form, message, title, JOptionPane.WARNING_MESSAGE);
 	}
 
+	/**
+	 * Show information modal dialog.
+	 * 
+	 * @param message message to display in dialog
+	 * @param title caption of dialog
+	 */
 	public void showInfoDialog(String message, String title) {
 		JOptionPane.showMessageDialog(form, message, title, JOptionPane.INFORMATION_MESSAGE);
 	}
 
+	/**
+	 * Get current step wizard number.
+	 * 
+	 * @return current step wizard number.
+	 */
 	public int getStepNumber() {
 		return stepNumber;
 	}
 
-	public void endLongRunningOperation() {
-		next.setEnabled(true);
-		skip.setEnabled(true);
+	/**
+	 * Abstract method for moving wizard to next step.
+	 * @throws IOException
+	 */
+	public abstract void next() throws IOException;
+
+	/**
+	 * Starts long running instalation, hide next button and set wait cursor.
+	 */
+	public void startInstallation() {
+		next.setVisible(false);
+		form.setCursor(new Cursor(Cursor.WAIT_CURSOR));
+	}
+
+	/**
+	 * Ends long running instalation, restore cursor.
+	 */
+	public void endInstallation() {
 		form.setCursor(null);
 	}
 
-	public void next() throws IOException {
-		onNext();
-	}
-
-	public void startLongRunningOperation() {
-		next.setEnabled(false);
-		skip.setEnabled(false);
-		form.setCursor(new Cursor(Cursor.WAIT_CURSOR));
+	/**
+	 * Display information message and terminate wizard.
+	 * 
+	 * @param message message to display in dialog box
+	 */
+	public void cancelInstallation(String message) {
+		JOptionPane.showMessageDialog(form, message + "\n installation terminate", "Error", JOptionPane.ERROR_MESSAGE);
+		onFinish();
 	}
 }

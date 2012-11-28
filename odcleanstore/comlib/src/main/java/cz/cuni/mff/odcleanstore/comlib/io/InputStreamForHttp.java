@@ -3,6 +3,11 @@ package cz.cuni.mff.odcleanstore.comlib.io;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * InputStream for reading http header and content.
+ * 
+ * @author Petr Jerman
+ */
 public final class InputStreamForHttp extends InputStream {
 	
 	private static final int MAXIMUM_HTTP_HEADER_LINE_SIZE = 4096;
@@ -14,6 +19,10 @@ public final class InputStreamForHttp extends InputStream {
 	private boolean isExtraHandling;
 	private int extraChar;
 
+	/**
+	 * Create InputStreamForHttp instance.
+	 * @param is  
+	 */
 	public InputStreamForHttp(InputStream is) {
 		if (is == null) {
 			throw new IllegalArgumentException("InputStream is null");
@@ -21,11 +30,20 @@ public final class InputStreamForHttp extends InputStream {
 		this.is = is;
 	}
 
+	/**
+	 * Set eof.
+	 */
 	public void setForceEOF() {
 		extraChar = -1;
 		isExtraHandling = true;
 	}
 
+	/**
+	 * Read ascii line, read http header line. 
+	 * 
+	 * @return line
+	 * @throws IOException
+	 */
 	public String readAsciiLine() throws IOException {
 		StringBuilder sb = new StringBuilder();
 		int ch = read();
@@ -48,6 +66,9 @@ public final class InputStreamForHttp extends InputStream {
 		return sb.toString();
 	}
 
+	/**
+	 * @see java.io.InputStream#available()
+	 */
 	@Override
 	public int available() throws IOException {
 		if (!isExtraHandling)
@@ -55,6 +76,9 @@ public final class InputStreamForHttp extends InputStream {
 		return extraChar == -1 ? 0 : 1;
 	}
 
+	/**
+	 * @see java.io.InputStream#read()
+	 */
 	@Override
 	public int read() throws IOException {
 		if (!isExtraHandling)
@@ -65,6 +89,9 @@ public final class InputStreamForHttp extends InputStream {
 		return extraChar;
 	}
 
+	/**
+	 * @see java.io.InputStream#read(byte[], int, int)
+	 */
 	@Override
 	public int read(byte[] b, int off, int len) throws IOException {
 		if (!isExtraHandling)
@@ -78,11 +105,17 @@ public final class InputStreamForHttp extends InputStream {
 		return 1;
 	}
 
+	/**
+	 * @see java.io.InputStream#close()
+	 */
 	@Override
 	public void close() throws IOException {
 		is.close();
 	}
 
+	/**
+	 * Close without causing any exception.
+	 */
 	public void closeQuietly() {
 		try {
 			is.close();

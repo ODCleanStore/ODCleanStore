@@ -3,11 +3,20 @@ package cz.cuni.mff.odcleanstore.engine.inputws;
 import cz.cuni.mff.odcleanstore.comlib.soap.SoapMethodExecutor;
 import cz.cuni.mff.odcleanstore.comlib.soap.exceptions.SoapMethodExecutorException;
 
+/**
+ * Class for parsing insert inputws soap message.
+ * Descendant of that class must implement only onElement method.
+ * 
+ *  @author Petr Jerman
+ */
 public abstract class SoapInsertMethodExecutor extends SoapMethodExecutor {
 
 	private boolean isNext;
 	private StringBuilder builder;
 
+	/**
+	 * @see cz.cuni.mff.odcleanstore.comlib.soap.SoapMethodExecutor#startElement(java.lang.String, java.lang.String)
+	 */
 	@Override
 	public void startElement(String uri, String localName) throws SoapMethodExecutorException {
 		
@@ -27,6 +36,9 @@ public abstract class SoapInsertMethodExecutor extends SoapMethodExecutor {
 		builder = new StringBuilder();
 	}
 
+	/**
+	 * @see cz.cuni.mff.odcleanstore.comlib.soap.SoapMethodExecutor#characters(char[], int, int)
+	 */
 	@Override
 	public void characters(char[] ch, int start, int length) throws SoapMethodExecutorException {
 		if (builder != null) {
@@ -34,6 +46,10 @@ public abstract class SoapInsertMethodExecutor extends SoapMethodExecutor {
 		}
 	}
 
+	/**
+	 * 
+	 * @see cz.cuni.mff.odcleanstore.comlib.soap.SoapMethodExecutor#endElement(java.lang.String, java.lang.String)
+	 */
 	@Override
 	public void endElement(String uri, String localName) throws SoapMethodExecutorException {
 		if (!uri.isEmpty() || localName.equals("metadata")) {
@@ -43,21 +59,12 @@ public abstract class SoapInsertMethodExecutor extends SoapMethodExecutor {
 		onElement(localName, builder.toString());
 	}
 
+	/**
+	 * For descendant, text for element arrived.
+	 * 
+	 * @param name name of element
+	 * @param content text of element
+	 * @throws InsertExecutorException
+	 */
 	protected abstract void onElement(String name, String content) throws InsertExecutorException;
-	
-	//
-	// try {
-	// insert.endParsing();
-	// } catch (Exception e) {
-	// error(e);
-	// }
-	// String payload = "<?xml version='1.0' encoding='UTF-8'?>"
-	// + "<s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\""
-	// + " xmlns:i=\"http://inputws.engine.odcleanstore.mff.cuni.cz/\">"
-	// + "<s:Header/><s:Body><i:insertResponse/></s:Body></s:Envelope>";
-	//
-	// try {
-	// request.SendResponse(HttpURLConnection.HTTP_OK, "text/xml", payload);
-	// } catch (Exception e) {}
-	// }
 }

@@ -11,12 +11,17 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-import cz.cuni.mff.odcleanstore.installer.ui.WizardFrame;
-import cz.cuni.mff.odcleanstore.installer.ui.WizardStep;
+import cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardFrame;
+import cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardStep;
 import cz.cuni.mff.odcleanstore.installer.utils.FileUtils;
 import cz.cuni.mff.odcleanstore.installer.utils.TextAreaOutputStream;
 
-public class CopyEngineExecutorStep extends WizardStep {
+/**
+ * A installer step for copying files from Engine source subdirectorty to destination directory.
+ * 
+ * @author Petr Jerman
+ */
+public class CopyEngineExecutorStep extends InstallationWizardStep {
 
 	private static final String ENGINE_SRC_PATH = "Engine";
 	private JPanel panel;
@@ -24,26 +29,28 @@ public class CopyEngineExecutorStep extends WizardStep {
 	private TextAreaOutputStream taos;
 	private File dstDirectory;
 
-	protected CopyEngineExecutorStep(WizardFrame wizardFrame, File dstDirectory) {
+	/**
+	 * Create CopyEngineExecutorStep instance.
+	 * 
+	 * @param wizardFrame parent wizard frame
+	 * @param dstDirectory destination directory of engine
+	 */
+	protected CopyEngineExecutorStep(InstallationWizardFrame wizardFrame, File dstDirectory) {
 		super(wizardFrame);
 		this.dstDirectory = dstDirectory;
 	}
 
+	/**
+	 * @see cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardStep#getStepTitle()
+	 */
 	@Override
 	public String getStepTitle() {
-		return "copy engine files to engine directory - all existing files will be replaced";
+		return "copy engine files - all existing files will be replaced";
 	}
 
-	@Override
-	public String getNextNavigationButtonText() {
-		return "Copy engine files to engine directory";
-	}
-	
-	@Override
-	public boolean hasSkipButton() {
-		return true;
-	}
-
+	/**
+	 * @see cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardStep#getFormPanel()
+	 */
 	@Override
 	public JPanel getFormPanel() {
 		panel = new JPanel();
@@ -61,15 +68,18 @@ public class CopyEngineExecutorStep extends WizardStep {
 		return panel;
 	}
 
+	/**
+	 * Copying engine files with own thread.
+	 * 
+	 * @see cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardStep#onNext()
+	 */
 	@Override
 	public boolean onNext() {
 		Thread copyThread = new Thread(new Runnable() {
-
 			@Override
 			public void run() {
 				try {
 					taos.clear();
-					getWizardFrame().startLongRunningOperation();
 					FileUtils.copyFolder(new File(ENGINE_SRC_PATH), new File(dstDirectory.getAbsolutePath()), new Runnable() {
 						@Override
 						public void run() {
@@ -77,20 +87,21 @@ public class CopyEngineExecutorStep extends WizardStep {
 							vertical.setValue(vertical.getMaximum());
 						}
 					});
-					getWizardFrame().showInfoDialog("Copying engine files ok", "Information");
 					getWizardFrame().next();
 				} catch (IOException ex) {
-					getWizardFrame().showWarningDialog("Copying engine files error", "Error");
-				} finally {
-					getWizardFrame().endLongRunningOperation();
+					ex.printStackTrace();
+					getWizardFrame().cancelInstallation("Copying engine files error");
+
 				}
 			}
 		});
 		copyThread.start();
-
 		return false;
 	}
 
+	/**
+	 * @see cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardStep#onFormEvent(java.awt.event.ActionEvent)
+	 */
 	@Override
 	public void onFormEvent(ActionEvent arg) {
 	}

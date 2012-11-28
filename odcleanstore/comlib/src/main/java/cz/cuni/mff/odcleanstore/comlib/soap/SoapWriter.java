@@ -15,14 +15,27 @@ public class SoapWriter {
 
 private Writer writer;
 	
+	/**
+	 * Create SoapWriter instance.
+	 * 
+	 * @param writer
+	 */
 	public SoapWriter(Writer writer) {
 		this.writer =  new BufferedWriter(writer);
 	}
 	
+	/**
+	 * Flush writes to underline stream.
+	 * 
+	 * @throws IOException
+	 */
 	public void flush() throws IOException {
 		writer.flush();
 	}
 	
+	/**
+	 * Close without causing any exception.
+	 */
 	public void closeQuietly() {
 		try {
 			writer.close();
