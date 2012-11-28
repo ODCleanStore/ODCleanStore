@@ -6,9 +6,7 @@
 	
 	<modelVersion>4.0.0</modelVersion>
 	
-	<groupId>cz.cuni.mff.odcleanstore</groupId>
 	<artifactId>odcs-simpletransformer</artifactId>
-	<version>0.3-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	
 	<parent>
