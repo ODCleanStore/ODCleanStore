@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8" />
+  <title>ODCleanStore - URI query</title>
+  <script>/* <![CDATA[ */ 
+  	function fillPropertySettings(form) {
+      var MAX_PROPERTIES = 20;
+      var i, propertyInput, valueInput, hiddenInput;
+      for (i = 1; i <= MAX_PROPERTIES; i++) {
+        propertyInput = document.getElementById("paggr-property-" + i);
+        if (!propertyInput) 
+          break;
+        valueInput = document.getElementById("paggr-value-" + i);  
+        hiddenInput = document.getElementById("paggr-hidden-" + i);
+      
+        hiddenInput.name = "paggr[" + propertyInput.value + "]";
+        hiddenInput.value = valueInput.value;
+      }
+      for (i = 1; i <= MAX_PROPERTIES; i++) {
+        propertyInput = document.getElementById("pmultivalue-property-" + i);
+        if (!propertyInput) 
+          break;
+        valueInput = document.getElementById("pmultivalue-value-" + i);  
+        hiddenInput = document.getElementById("pmultivalue-hidden-" + i);
+      
+        hiddenInput.name = "pmultivalue[" + propertyInput.value + "]";
+        hiddenInput.value = valueInput.value;
+      }
+    }
+  /* ]]> */</script>
+ </head>
+ <body> 
+  <h2>ODCleanStore - URI query</h2>
+  <form method="get" onsubmit="fillPropertySettings();" action="http://localhost:8087/uri">
+    <table>
+     <tr><td>Server address:</td><td><input type="text" value="localhost:8087" onChange="this.form.action='http://' + this.value + '/uri';" /></td><td>&nbsp;</td></tr>
+     <tr><td>Searched URI:</td><td><input style="width:500px;" type="text" name="uri" value="http://linkedgeodata.org/triplify/node240109189" /></td><td>&nbsp;</td></tr>
+     <tr><td>Default aggregation:</td><td>
+	  <select name="aggr">
+	   <option>ALL</option>
+	   <option>BEST</option>
+	   <option>ANY</option>
+	   <option>AVG</option>
+	   <option>MEDIAN</option>
+	   <option>CONCAT</option>
+	   <option>MIN</option>
+	   <option>MAX</option>
+	   <option>LONGEST</option>
+	   <option>SHORTEST</option>
+	   <option>LATEST</option>
+	   <option>BEST_SOURCE</option>
+	   <option>NONE</option>
+	  </select></td><td>&nbsp;</td></tr>
+	 <tr><td>Default multivalue:</td><td><select name="multivalue">
+	   <option value="0" selected="selected">NO</option>
+	   <option value="1">YES</option>
+	  </select></td><td>&nbsp;</td></tr> 
+	 <tr><td>Aggregation error strategy:</td><td>
+      <select name="es">
+	   <option>IGNORE</option>
+	   <option selected="selected">RETURN_ALL</option>
+	  </select></td><td>&nbsp;</td></tr>
+	 <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+	 <tr><td>Property aggregation</td><td><input id="paggr-property-1" style="width:400px;" type="text" name="_" value="http://rdf.freebase.com/ns/location.geocode.longtitude" /></td><td><select id="paggr-value-1" name="_">
+	   <option>ALL</option>
+	   <option>BEST</option>
+	   <option>ANY</option>
+	   <option selected="selected">AVG</option>
+	   <option>MEDIAN</option>
+	   <option>CONCAT</option>
+	   <option>MIN</option>
+	   <option>MAX</option>
+	   <option>LONGEST</option>
+	   <option>SHORTEST</option>
+	   <option>LATEST</option>
+	   <option>NONE</option>
+	  </select>
+	  <input type="hidden" id="paggr-hidden-1" /></td></tr>
+	<tr><td>Property aggregation</td><td><input id="paggr-property-2" style="width:400px;" type="text" name="_" value="http://www.w3.org/2000/01/rdf-schema#label" /></td><td><select id="paggr-value-2" name="_">
+	   <option>ALL</option>
+	   <option selected="selected">BEST</option>
+	   <option>ANY</option>
+	   <option>AVG</option>
+	   <option>MEDIAN</option>
+	   <option>CONCAT</option>
+	   <option>MIN</option>
+	   <option>MAX</option>
+	   <option>LONGEST</option>
+	   <option>SHORTEST</option>
+	   <option>LATEST</option>
+	   <option>BEST_SOURCE</option>
+	   <option>NONE</option>
+	  </select>
+	  <input type="hidden" id="paggr-hidden-2" /></td></tr>
+	 <tr><td>Property aggregation</td><td><input id="paggr-property-3" style="width:400px;" type="text" name="_" value="" /></td><td><select id="paggr-value-3" name="_">
+	   <option>ALL</option>
+	   <option>BEST</option>
+	   <option>ANY</option>
+	   <option>AVG</option>
+	   <option>MEDIAN</option>
+	   <option>CONCAT</option>
+	   <option>MIN</option>
+	   <option>MAX</option>
+	   <option>LONGEST</option>
+	   <option>SHORTEST</option>
+	   <option>LATEST</option>
+	   <option>BEST_SOURCE</option>
+	   <option>NONE</option>
+	  </select>
+	  <input type="hidden" id="paggr-hidden-3" /></td></tr>
+	 <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+	 <tr><td>Property multivalue</td><td><input id="pmultivalue-property-1" style="width:400px;" type="text" name="_" value="http://www.w3.org/1999/02/22-rdf-syntax-ns#type" /></td><td><select id="pmultivalue-value-1" name="_">
+	  <option value="0">NO</option>
+	  <option value="1" selected="selected">YES</option>
+	  </select>
+	  <input type="hidden" id="pmultivalue-hidden-1" /></td></tr>
+	 <tr><td>Property multivalue</td><td><input id="pmultivalue-property-2" style="width:400px;" type="text" name="_" value="" /></td><td><select id="pmultivalue-value-2" name="_">
+	  <option value="0" selected="selected">NO</option>
+	  <option value="1">YES</option>
+	  </select>
+	  <input type="hidden" id="pmultivalue-hidden-2" /></td></tr>
+	 <tr><td>Property multivalue</td><td><input id="pmultivalue-property-3" style="width:400px;" type="text" name="_" value="" /></td><td><select id="pmultivalue-value-3" name="_">
+	  <option value="0" selected="selected">NO</option>
+	  <option value="1">YES</option>
+	  </select>
+	  <input type="hidden" id="pmultivalue-hidden-3" /></td></tr>
+	 <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+	 <tr><td>Output format:</td><td>
+	  <select name="format">
+	   <option value="html" selected="selected">HTML</option>
+	   <option value="trig">TriG</option>
+	   <option value="rdfxml">RDF/XML</option>
+	  </select></td><td>&nbsp;</td></tr>
+     <tr><td>&nbsp;</td><td><input type="submit" value="Submit" /></td></tr>
+     </table>
+  </form>
+  <p>If you cannot connect to the server, make sure you have ODCleanStore Engine running.</p>
+ </body>
+</html>

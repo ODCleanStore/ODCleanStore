@@ -1,0 +1,200 @@
+For more information about ODCleanStore, please visit
+  https://sourceforge.net/p/odcleanstore/wiki/Home/
+  
+  or refer to the official documentation in doc/ subdirectory.
+
+=========================================
+What is new in ODCleanStore release 1.0
+=========================================
+
+1.0.0
+-----
+New features:
+* Graphical installer
+* Help panels in Administration Frontend
+* improved documentation, added Administrator's and Installation Guide, Programmer's Guide
+* Prefix of named graphs where incoming data and metadata are stored is configurable
+  
+Fixes & improvements:
+* Relative transformer working directory paths are relative to Engine's working directory
+* Fixed numeric keyword queries
+
+
+=========================================
+What is new in ODCleanStore release 0.3
+=========================================
+
+0.3.7
+-----
+New features:
+* option for linking including attached graphs
+* Engine can be safely shut down by Ctrl+C
+
+Changes:
+* New implementation of Input Webservice - improved stability, support for SSL (!NOT BACKWARD COMPATIBLE)
+
+Fixes & improvements:
+* fixed keyword queries, improved efficiency of queries
+* stored ontologies keep their formatting
+* fixed overwriting of links by Linker (bugs #533, #541)
+* improved form validators, added tooltips for buttons/links in Administration Frontend
+* improved logging
+* Fixed ODCSLatestUpdateMarkerTransformer SPARQL error
+
+0.3.6
+-----
+New features:
+* introduced update tag parameter of Input Webservice
+* new transformer (automatically added by Engine) for marking latest versions
+  of updated data
+* overview of existing ontology mappings
+* overview & management of all inserted named graphs
+* concatenate DN rule template
+* import/export of OI rules for Silk Workbench
+
+Changes:
+* changed interface of inputclient library (!NOT BACKWARD COMPATIBLE)
+
+Fixes & improvements:
+* improved stability of Input Webservice & Engine (especially for large data)
+* improved generated Data Normalization rules
+* improved logging
+* improved user authorization for graph management
+
+0.3.5
+-----
+New features:
+* generating QA and DN rules from ontology
+* concatenate DN rule template
+* import/export of OI rules for Silk Workbench
+
+Changes:
+* transformer runOnCleanDb defaults to true
+* OI link_within_graphs defaults to true 
+
+Fixes & improvements:
+* fixed bug in database import scripts (previous versions may cause Engine 
+  to fail)
+* utility for setting the path to odcs.ini configuration file for frontend .war
+* ontology mappings not deleted on ontology update
+* bugfixes in engine & database import
+* fixed CSS when frontend deployed with non-empty path 
+* improved style of HTML formatter for Output Webservice
+
+0.3.4
+-----
+New features:
+* management of failed graphs & overview of Engine state
+* pipelines, rule groups and ontologies can be edited only by their author
+* QA/DN/OI rules must be commited in their respective group in order to take effect 
+  (prevents inconsistent settings to be seen when data processing in Engine)
+* templates for Data Normalization rules
+* QA/DN/OI rules debugging draft 
+
+Fixes & improvements:
+* more intuitive navigation, less "clicks" required to complete a task
+* improved exception handling
+* improved help within Administration Frontend
+* simplified configuration file
+* improved memory demands of Input WS & SSL support
+* fix of Virtuoso caching inserted namespace prefixes
+* Improved logging
+
+
+0.3.3
+-----
+
+New features:
+* design for Administration Frontend
+* Quality Aggregator transformer
+* Blank node remover transformer
+* pipeline locking
+
+Changes:
+* removed the need to explicitly commit pipeline changes
+* registered namespace prefixes are updated both in clean and dirty database instance
+* same literals with different languages not considered as conflicting
+* Policy creator (POC) role renamed to Pipeline creator (PIC) 
+
+Fixes & improvements:
+* fixed import of large graphs
+* fixed diacritics in literals
+* simple QA rules don't need to be enclosed in { }
+* simple DN rules don't need to specify FROM $$graph$$ clause explicitly
+* redirect to entity detail after creation in Administration
+* namespace prefixes and blank nodes support in HTML output
+* restricted access by user roles in Administration Frontend
+* OI rule labels need not be unique
+* improved session expired behavior
+* various minor bugfixes
+
+0.3.1
+-----
+
+New features:
+* many improvements in Administration Frontend
+	* improved pipeline management
+	* running pipeline on clean database
+	* Data Normalization management
+	* user account managmenet		
+	* basic ontology management	
+	* label properties (used in Query Execution) management	
+	* sorting and editing of entities	
+* support for (limited) results in RDF/XML
+* new type of Output Webservice query - named graph query
+* Data Normalization transformer
+* support for rule groups for predefined transformers in frontend
+* support for TTL serialization in Input Webservice
+
+Changes:
+* changed interface of Input Webservice & updated client library
+	* client can now choose the processing pipeline
+* changed format of Output Webservice results - result quad graph URI now uses
+  odcs:sourceGraph instead of w3p:source to point to named graphs it was 
+  selected or calculated from
+* properties used for internal metadata representation changed from the W3P 
+  vocabulary to the ODCS vocabulary (visible from SPARQL)
+
+Fixes & improvements:
+* improved metadata query
+* improved error messages in Output Webservice
+* filtering of reserved properties from the ODCS vocabulary
+* support for multiple sources/publishers/licences in Output Webservices
+* bugfixes, SQL injection prevention
+* User Manual draft
+   
+=========================================
+What is new in ODCleanStore release 0.2
+=========================================
+
+0.2.3
+-----
+
+* workaround for Virtuoso SPARQL compiler bug manifesting in Output Webservice 
+  on some machines
+* fixed query issues caused by locale
+
+0.2.2
+-----
+
+* new interface of the Output Webservice
+
+0.2.1
+-----
+
+* administration through web frontend
+* support for multiple pipelines
+* prototype support for custom transformers
+* partial support for global configuration file
+
+=========================================
+What is new in ODCleanStore release 0.1
+=========================================
+
+The first official release of ODCleanStore prototype. 
+The following components are implemented in the prototype:
+
+* Engine - input & output webservices, basic input graph processing pipeline 
+* Quality Assessment transformer
+* Object Identification transformer
+* Query Execution & Conflict Resolution components 

@@ -1,5 +1,5 @@
 \include{header}
-\newcommand{\version}{0.3.6}
+\newcommand{\version}{1.0.0}
 \newcommand{\documentname}{\refprogrammersguide}
 
 \hypersetup{pdftitle=ODCleanStore -- \documentname}
@@ -74,6 +74,7 @@ The diagram lists all main functional units in \odcs:
 		\end{itemize}
 	\item \importantterm{Administration Frontend.}
 		Web application written in Java from which \odcs can be managed. In \FE, the user can define pipelines for data processing, rules for transformers, manage ontologies, Output Webservice settings etc.
+	
 \end{itemize}
 
 Each of these parts will be described later in this document. In the source code, the components are divided into several maven projects described in Section \ref{sec:mavenBuild}.
@@ -276,20 +277,20 @@ Common development takes place on branch \code{master}. New feature branches are
 \subsection{Directory structure}
 This is an outline of directory structure in the git repository:
 
-\begin{dirlist}
+\begin{dirlistbrief}
 	\item[data/] \mbox{}
-		\begin{dirlist}
+		\begin{dirlistbrief}
 			\item[initial\_db\_import/] -- database import files
-				\begin{dirlist}
+				\begin{dirlistbrief}
 					\item[clean\_db/] -- SQL files to be imported to the clean database
 					\item[dirty\_db/] -- SQL files to be imported to the dirty database
-				\end{dirlist}
+				\end{dirlistbrief}
 			\item[odcs\_configuration/] -- the default \odcs configuration file
 			\item[virtuoso\_configuration/] -- configuration files for Virtuoso database instances
-		\end{dirlist}
+		\end{dirlistbrief}
 	\item[doc/] -- documentation sources (in \LaTeX)
 	\item[odcleanstore/] -- Java sources
-		\begin{dirlist}
+		\begin{dirlistbrief}
 			\item[backend/] -- sources of \code{odcs-backend} artifact (transformers, Query Execution, Conflict Resolution)
 			\item[comlib/] -- sources of \code{odcs-comlib} artifact (code related to sending data to Input Webservice)
 			\item[conf/] -- configuration files for development in Eclipse
@@ -301,8 +302,8 @@ This is an outline of directory structure in the git repository:
 			\item[simpletransformer/]  -- example of a custom transformer
 			\item[webfrontend/]  -- sources of \FE
 			\item[pom.xml] -- the root maven POM file
-		\end{dirlist}
-\end{dirlist}
+		\end{dirlistbrief}
+\end{dirlistbrief}
 
 
 \section{Maven Build}
@@ -459,7 +460,7 @@ Several other mechanisms for transactional processing provided by Virtuoso were 
 
 All services are also resilient to a loss of database connection. Engine doesn't need to restart when the connection is regained again. Input Webservice and pipeline processing require connection to both database instances, Output Webservice needs only the clean database instance.
 
-\section{Database Access}
+\subsection{Database Access}
 Engine uses class \code{DbOdcsContext} extending \code{DbContext}
 which wraps \code{VirtuosoConnectionWrapper} and provides transactional processing of relational data. 
 Class \code{SQL} contains all SQL queries used by \code{DbOdcsContext}. 
@@ -501,7 +502,7 @@ Every named graph inserted through Input Webservice has a record in relational t
   \item[PROCESSING] Named graph is  being processed in a pipeline. That means the graph is loaded from temporary Input Webservice files or the clean database, and pipeline transformers are applied to it. All settings for the pipeline including the plan of transformers to execute and their assigned rule groups are loaded only when the graph transitions to this state so that their consistency during the pipeline processing is ensured.
   \item[PROCESSED] Transformers were successfully applied to the named graph and the data are being moved to the clean database into named graphs whose name starts with a special prefix hiding them from \QE (see point \ref{itm:enginePrefix} in Section \ref{sec:transactionalProcessing}). Let us call this prefix the \term{temporary prefix}.
   \item[PROPAGATED] The processed named graphs were all moved to the clean database. If there was an old version of the data, the old named graphs are prefixed with the temporary prefix.
-  \item[OLDGRAPHSPREFIXED] The temporary prefix is removed from the processed graphs and the possible old versions of named graphs, now prefixed with temporary prefix, are removed.
+  \item[OLDGRAPHSPREFIXED] The temporary prefix is removed from the processed graphs and the possible old versions of named graphs, now prefixed with the temporary prefix, are removed.
   \item[NEWGRAPHSPREPARED] Related graphs in the dirty database are deleted.
   \item[FINISHED] The processing of the named graphs was successfully finished and the data are stored in the clean database.
   \item[DELETING] The named graphs are being deleted in the clean and/or dirty database instance. Possible temporary files stored by Input Webservice will be also deleted.
@@ -511,15 +512,17 @@ Every named graph inserted through Input Webservice has a record in relational t
 \end{description}
 
 \subsection{Implementation}
-Data processing in Engine is driven by settings in the relational database which are managed from \FE. Engine logs its activity to a log file called odcs.engine.log in the working directory of Engine. In addition, there is a log file for each transformer instance where the respective transformer logs its activity. These transformer instance logs are in the working directory of the respective transformer.
+Data processing in Engine is driven by settings in the relational database which are managed from \FE. 
+
+Engine logs its activity to a log file called odcs.engine.log in the working directory of Engine. In addition, there is a log file for each transformer instance where the respective transformer logs its activity. These transformer instance logs are in the working directory of the respective transformer.
 
 When shutdown is called on the pipeline processing service then if there is a running transformer, its \code{shutdown()} method is called. Engine waits until the current operation is finished or the given timeout is exceeded and the finishes the pipeline processing service. 
 
-Running a pipeline is transactionally safe, as explained in Section \ref{sec:transactionalProcessing}.  If an error is caused by Engine (e.g. when it is shut down forcibly), the pending operations will be finished eventually. When an error occurs and a graph is in \code{PROPAGATED}, \code{OLDGRAPHSPREFIXED} or \code{NEWGRAPHSPREPARED}, the pipeline service continues in a forward way on recovery; other temporary states are rolled back. If an error is caused by a transformer, then the named graph is moved to state \code{WRONG} and it is up to the user to decide what to do next with the graph. An overview of failed graphs is in \FE. The reason why the transformer failed can be fixed and the pipeline re-run on the graph, or the graph may be qued for deletion.
+Running a pipeline is transactionally safe, as explained in Section \ref{sec:transactionalProcessing}.  If an error is caused by Engine (e.g. when it is shut down forcibly), the pending operations will be finished eventually. When an error occurs and a graph is in \code{PROPAGATED}, \code{OLDGRAPHSPREFIXED} or \code{NEWGRAPHSPREPARED}, the pipeline service continues in a forward way on recovery; other temporary states are rolled back. If an error is caused by a transformer, then the named graph is moved to state \code{WRONG} and it is up to the user to decide what to do next with the graph. An overview of failed graphs is in \FE. The reason why the transformer failed can be fixed and the pipeline re-run on the graph, or the graph may be queud for deletion.
 
 If an error is caused by unavailability of a Virtuoso database, Engine detects it and pending processing is retried when Engine is started again.
 
-Classes that cover implementation of pipeline service are \code{PipelineService} which handles processing of named graphs in different states, \code{PipelineGraphManipulator} for manipulation with named graphs (e.g. moving between databse instances) and \code{PipelineGraphStatus} for working with state data (e.g. loaded transformer instances for the processing pipelines). \code{PipelineGraphTransformerExecutor} called from \code{PipelineService} is responsible for running of transformers on named graphs and \code{TransformationContext} and \code{TransformationGraph} are implementations of context objects passed to transformers.
+Classes that cover implementation of pipeline service are \code{PipelineService}, which handles processing of named graphs in different states, \code{PipelineGraphManipulator} for manipulation with named graphs (e.g. moving between database instances) and \code{PipelineGraphStatus} for working with state data (e.g. loaded transformer instances for the processing pipelines). \code{PipelineGraphTransformerExecutor} called from \code{PipelineService} is responsible for executing transformers on named graphs and \code{TransformationContext} and \code{TransformationGraph} are implementations of context objects passed to transformers.
 
 
 \section{Output Webservice}
@@ -1298,19 +1301,16 @@ This transformer is automatically added by Engine as the first transformer of ev
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Administration Frontend}
-\section{Purpose}
-\section{Interface}
-\section{Implementation}
 
-\subsection{Codebase structure}
+\section{Codebase structure}
 
 The code of \FE is divided into multiple packages which all share a common name prefix - \code{cz.cuni.mff.odcleanstore.webfrontend}. In this section you'll find a brief description of each of them and of classes they contain. For more in-dept information please refer to the javadoc documentation.
 
-\subsubsection{behaviours}
+\subsection{behaviours}
 
 This package is intended to contain custom Wicket behaviours. Currently there's only a single class, the \code{ConfirmationBoxRenderer}, which serves to add javascript-based confirmation dialog boxes to delete buttons.
 
-\subsubsection{bo}
+\subsection{bo}
 
 The \code{bo} package contains all business objects used in the web frontend application, divided into subpackages. Every business entity represents a single relational table and is formed by a single Java class. The classes are simple Java beans where bean properties match columns of the represented table and can aditionaly contain other methods to simplify using them.
 
@@ -1334,11 +1334,11 @@ Description of the most important BO classes follows:
 	\item[CompiledDNRule and CompiledDNRuleComponent] These entities represent DN rules and rule components and are easier to use when working with rules compiled from template instances.
 \end{description}
 
-\subsubsection{dao}
+\subsection{dao}
 
 This package (and it's subpackages) contains classes which form the DAO layer. See the related section for more information on that.
 
-\subsubsection{core}
+\subsection{core}
 
 The \code{core} package contains \code{ODCSWebFrontendApplication} and \code{ODCSWebFrontentSession}\linebreak classes extending the standard Wicket classes representing a web application and session, respectively, and the \code{ODCSWebFrontendApplication.properties} file. The properties file contains custom validation messages and declarations of other string literals. In addition, the package contains the following items:
 
@@ -1347,11 +1347,11 @@ The \code{core} package contains \code{ODCSWebFrontendApplication} and \code{ODC
 	\item[DaoLookupFactory] Encapsulates DB connections and serves DAO objects to page components (see Section \ref{sec:frontendDao}).
 \end{description}
 
-\subsubsection{core.models}
+\subsection{core.models}
 
 This package contains custom implementations of the \code{IDataProvider} and \code{SortableDataProvider} interfaces, which adhere to our DAO layer implementation.
 
-\subsubsection{core.components}
+\subsection{core.components}
 
 In the \code{core.components} package you'll find several custom components, such as labels, buttons, etc. The following list describes some of them. For a more comperhensive description, please see the javadoc documentation.
 
@@ -1365,7 +1365,7 @@ In the \code{core.components} package you'll find several custom components, suc
 	\item[HelpWindow] A generic modal window to display help information.
 \end{description}
 
-\subsubsection{pages}
+\subsection{pages}
 
 In this package there are Wicket components for individual pages. The structure of subpackages mirrors the \FE menu. These are mostly standard Wicket components (but for a few conventions we have applied - read more in Section \ref{sec:howToAddANewPage}). In this section, a brief description of some of the non-standard components will be given.
 
@@ -1377,19 +1377,19 @@ In this package there are Wicket components for individual pages. The structure 
 	
 For more information on how to create a new page, see Section \ref{sec:howToAddANewPage}.
 
-\subsubsection{util}
+\subsection{util}
 
 This package is intended for \FE specific utility classes, such as classes to ease working with arrays (\code{ArrayUtils}), sending email messages (\code{Mail}, \code{NewAccountMail}, \code{NewPasswordMail}) and generating and hashing passwords (\code{PasswordHandling}) - to name some of them.
 
 Some methods in other parts of the \FE codebase accept code snippets (e.g. closures) as arguments. Because the current version of Java (1.6) does not directly support closures, we have created two classes - \code{CodeSnippet} and \code{EmptyCodeSnippet} - to be used instead. They too belong in the \code{util} package.
 
-\subsubsection{validators}
+\subsection{validators}
 
 This package contains custom Wicket form validators, such as \code{IRIValidator} - ensures that the given value is a valid IRI, \code{EnumValidator} - ensures that the given value is an element of the represented enumeration or \code{OldPasswordValidator} - ensures that the given new password matches the original one.
 
 All our custom validators extend the \code{CustomValidator} class, which handles error message propagation so that validators can focus just on the validation process.
 
-\subsection{Database Access Layer}
+\section{Database Access Layer}
 \label{sec:frontendDao}
 \FE has a layer for accessing the database based on Spring and its JDBC templates. We chose not to use Hibernate due to integration problems with Wicket and use custom implemenation of business and DAO objects.
 
@@ -1415,7 +1415,7 @@ Hierarchy of DAO objects is depicted on \figurename~\ref{fig:feDAO}.
 	\label{fig:feDAO}
 \end{figure}
 
-\subsubsection{Important DAO Classes}
+\subsection{Important DAO Classes}
 Description of the most important DAO classes follows:
 
 \begin{description}[style=nextline,font=\ttfamily]
@@ -1435,15 +1435,15 @@ Description of the most important DAO classes follows:
 	\item[OntologyDao] This class extends \code{DaoForEntityWithSurrogateKey} and is used for working with ontologies. When storing an ontology, firstly its definition is stored to a RDF graph, which's name is derive from ontology label. After that the ontology is stored to the relational database. This order is chosen to avoid using transaction across RDF and relation data, which does not work. Ontology definition is stored to the relational database as well to keep its formatting and possible comments. Finally quality assessment and data normalization rules are generated from stored ontology (see Sections \ref{sec:QA} and \ref{sec:DN}).
 \end{description}
 
-\subsection{Authorization}
+\section{Authorization}
 There are two main scopes of authorization in \odcs -- authorization based on roles and authorization based on the authorship of an entity.
 
-\subsubsection{Roles}
+\subsection{Roles}
 Authorization based on roles recognizes 5 roles: Administrator (ADM), Pipeline Creator (PIC), Ontology Creator (ONC), Data Producer (SCR) and Data Consumer (USR). Their detailed description is given in \refusermanual. Roles can be assigned to users in \FE and a user can have any number of roles.
 
 We use means provided by Wicket to apply authorization by role. Pages and components can be marked with \code{@AuthorizeInstantiation} annotation with enumeration of roles that are required to access the page or component (at least one of the roles from the given list is required). The roles assigned to the currently logged-in user are kept in the session object \code{ODCSWebFrontendSession} which extends Wicket \code{AuthenticatedWebSession} for this purpose.
 
-\subsubsection{Authorship}
+\subsection{Authorship}
 \label{sec:authorshipAuth}
 Authorization based on authorship is necessary for entities that can be only edited by their author. Rule groups and rules, for example, can be only edited by the user who created them or by user having the role Administrator. To facilitate checking of whether the current user is authorized for entity editing, class \code{LimitedEditingPage} extending \code{FrontendPage} was introduced.
 

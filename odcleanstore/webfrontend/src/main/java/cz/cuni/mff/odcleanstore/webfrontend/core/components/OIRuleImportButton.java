@@ -10,6 +10,11 @@ import cz.cuni.mff.odcleanstore.linker.impl.ConfigBuilder;
 import cz.cuni.mff.odcleanstore.linker.rules.SilkRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
 
+/**
+ * Button for importing OI rules.
+ * 
+ * @author Tomas Soukup
+ */
 public class OIRuleImportButton extends Button 
 {
 	private static final long serialVersionUID = 1L;
@@ -18,6 +23,11 @@ public class OIRuleImportButton extends Button
 	private FileUploadField fileUpload;
 	private Form<OIRule> form;
 	
+	/**
+	 * @param fileUpload
+	 * @param form
+	 * @param compName
+	 */
 	public OIRuleImportButton(FileUploadField fileUpload, Form<OIRule> form, String compName)
 	{
 		super(compName);

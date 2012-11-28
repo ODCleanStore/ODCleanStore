@@ -55,6 +55,7 @@ public class App extends InstallationWizardFrame {
 		case 2:
 			getDbConnectionsStep = new GetDbConnectionsStep(this);
 			setNextStep(getDbConnectionsStep);
+			showInstallButton();
 			break;
 		case 3:
 			startInstallation();

@@ -43,7 +43,7 @@ public class GetFrontendDirectoryStep extends InstallationWizardStep {
 	 */
 	@Override
 	public String getStepTitle() {
-		return "setting the front end directory";
+		return "setting the administration frontend directory";
 	}
 
 	/**
@@ -55,7 +55,7 @@ public class GetFrontendDirectoryStep extends InstallationWizardStep {
 		panel = new JPanel();
 		panel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-		jlbDirectory = new JLabel("Front end directory:");
+		jlbDirectory = new JLabel("Administration frontend directory:");
 		panel.add(jlbDirectory);
 		jtfDirectory = new JTextField(53);
 		panel.add(jtfDirectory);
@@ -76,24 +76,24 @@ public class GetFrontendDirectoryStep extends InstallationWizardStep {
 	public boolean onNext() {
 		String dirName = jtfDirectory.getText();
 		if (dirName.isEmpty()) {
-			getWizardFrame().showWarningDialog("Front end directory is empty - enter it", "Error");
+			getWizardFrame().showWarningDialog("Administration frontend directory is empty - enter it", "Error");
 			return false;
 		}
 
 		File file = new File(dirName);
 		if (!file.exists()) {
 			String message = String.format("Create directory %s?", file.getAbsolutePath());
-			if (getWizardFrame().showConfirmDialog(message, "Creating not existing front end directory")) {
+			if (getWizardFrame().showConfirmDialog(message, "Creating not existing administration frontend directory")) {
 				try {
 					FileUtils.satisfyDirectory(dirName);
 					if (!file.exists()) {
 						String messageError = String.format("Error creating %s directory.", file.getAbsolutePath());
-						getWizardFrame().showWarningDialog(messageError, "Creating not existing front end directory");
+						getWizardFrame().showWarningDialog(messageError, "Creating not existing administration frontend directory");
 						return false;
 					}
 				} catch (DirectoryException e) {
 					String messageError = String.format("Error creating %s directory.", file.getAbsolutePath());
-					getWizardFrame().showWarningDialog(messageError, "Creating not existing front end directory");
+					getWizardFrame().showWarningDialog(messageError, "Creating not existing administration frontend directory");
 					return false;
 				}
 			} else {

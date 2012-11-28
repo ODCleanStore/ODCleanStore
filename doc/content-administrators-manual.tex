@@ -1,5 +1,5 @@
 \include{header}
-\newcommand{\version}{0.3.1}
+\newcommand{\version}{1.0.0}
 \newcommand{\documentname}{\refadminmanual}
 
 \hypersetup{pdftitle=ODCleanStore -- \documentname}
@@ -27,7 +27,7 @@ This document serves as the installation guide and manual for system administrat
 \section*{Related documents}
 More detailed information about \odcs from the perspective of a user can be found in related document \quot{\refusermanual}. It also contains definition of user roles, glossary of terms etc. Document \quot{\refprogrammersguide} contains more detailed information intended primarily for developers, system administrators, however, may also find interesting in-depth information in \refprogrammersguide. 
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{System Requirements}
 \label{chap:requirements}
 \odcs is a multiplatform application written in Java. These are the system requirements for installing and running \odcs:
@@ -79,33 +79,15 @@ Virtuoso has a paid enterprise license, but also an open source edition\footnote
 
 \textit{Note:} For security reasons, don't forget to change credentials for your database instance.
 
-
-\chapter{Installation CD Contents}
-This chapter describes the contents of the installation CD with \odcs:
-%TODO
-
-\begin{description}[style=nextline,font=\ttfamily]
-  \item[engine/] Contains binaries of \odcs Engine.
-  \item[odcs-installer.sh] Installation script for Linux.
-  \item[odcs-installer.bat] Installation script for Windows.
-  \item[odcs-installer.jar] Binary with the \odcs installer.
-  \item[clean-clear.sql] SQL script for clearing the clean database instance.
-  \item[clean-fulltext-index.sql] SQL script for creating a fulltext index on the clean database instance. Required for working keyword queries.
-  \item[clean.sql] SQL script for importing initial data to the clean database instance.
-  \item[dirty-clear.sql] SQL script for clearing the dirty database instance.
-  \item[dirty.sql] SQL script for importing initial data to the dirty database instance.
-  \item[odcs-webfrontend.war] Java web application archive containing Administration Frontend of \odcs.
-\end{description}
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Step by Step Installation Guide}
-\odcs can be installed with a provided installer with graphical interface.
-%Alternatively, \odcs can be installed manually following instructions in the README file.
+\odcs can be installed with a provided installer with graphical interface.\footnote{Alternatively, \odcs can be deployed manually. Steps for the manual installation are described in the \code{README.txt} file in the distribution, the manual installation is intended for experienced users and developers, however, and is not officially supported.}
 
 \section{Prerequisities}
 Before installation, make sure your system satisfies requirements listed in Chapter \ref{chap:requirements}. In particular, make sure to have two Virtuoso database instances created and \textit{started} before installation, as described in Section \ref{sec:virtuoso}.
 
 \section{Using the Installer}
-In order to run the installer, execute in the root directory of the distribution
+In order to run the installer, execute in the root directory of the distribution:
 \begin{verbatim}
   ./odcs-installer.sh
 \end{verbatim}
@@ -115,24 +97,23 @@ on Linux, or run
 \end{verbatim}
 on Windows. This should start the installer.
 
-On the first screen of the installer, enter the directory where \odcs binaries should be installed.
+On the first screen of the installer, choose the directory where \odcs binaries should be installed.
 
 \begin{figure}[!h]
     \centering
-    \includegraphics[width=0.8\textwidth]{images/install-step01.png}
-    %\caption{}
+    \includegraphics[width=\textwidth]{images/install-step-01.png}
+    %\caption{Installation - enter installation directory}
     %\label{fig:}
 \end{figure}
 
 \FloatBarrier
 
-%TODO
-On the second screen, you can see the progress of copying files to the installation directory.
+On the second screen, you can enter the directory where \FE web archive will be deployed. This should be a directory for web applications of your servlet container. In Tomcat, for example, it would be \code{\$CATALINA\_BASE/webapps}.
 
 \begin{figure}[!h]
     \centering
-    \includegraphics[width=0.8\textwidth]{images/install-step02.png}
-    %\caption{}
+    \includegraphics[width=\textwidth]{images/install-step-02.png}
+    %\caption{Installation - enter deployment directory for \FE web archive}
     %\label{fig:}
 \end{figure}
 
@@ -142,97 +123,109 @@ Next, enter the connection settings for the clean and dirty Virtuoso database in
 
 \begin{figure}[!h]
     \centering
-    \includegraphics[width=0.8\textwidth]{images/install-step03.png}
-    %\caption{}
+    \includegraphics[width=0.8\textwidth]{images/install-step-03.png}
+    %\caption{Installation - enter connection settings for Virtuoso databases}
     %\label{fig:}
 \end{figure}
 
 \FloatBarrier
 
-The next screen shows the progress of database import.
+After entering valid connection settings, the installer starts the installation process. The installer will:
+
+\begin{enumerate}
+    \item Copy Engine binaries and related files to the chosen Engine installation directory.
+        \\\\  \includegraphics[width=0.6\textwidth]{images/install-step-04.png}
+    \item Copy the default configuration file to the Engine installation directory.
+    \item Initilize database instances:
+        \begin{enumerate}
+            \item Clear old tables in the clean database, if there are any.
+                \\\\ \includegraphics[width=0.6\textwidth]{images/install-step-05.png}
+            \item Import new database tables in the clean database.
+                \\\\ \includegraphics[width=0.6\textwidth]{images/install-step-06.png}
+            \item Create a fulltext index for RDF data in clean database (in order to enable keyword queries). 
+                    \\\\ \includegraphics[width=0.6\textwidth]{images/install-step-07.png}
+            \item Clear old tables in the dirty database, if there are any.
+                    \\\\ \includegraphics[width=0.6\textwidth]{images/install-step-08.png}
+            \item Import new database tables in the dirty database.
+                    \\\\ \includegraphics[width=0.6\textwidth]{images/install-step-09.png}
+        \end{enumerate}
+    \item Adjust \FE web archive so that it contains a proper path to the deployed configuration file and copy it to the chosen \FE installation directory.
+        \\\\ \includegraphics[width=0.7\textwidth]{images/install-step-10.png}
+\end{enumerate}
+
+If the installation was successfull, the last screen of the installer is displayed, or an error message describing what went wrong is displayed otherwise.
 
 \begin{figure}[!h]
     \centering
-    \includegraphics[width=0.8\textwidth]{images/install-step04.png}
-    %\caption{}
+    \includegraphics[width=0.3\textwidth]{images/install-step-11.png}
     %\label{fig:}
-\end{figure}
-
+    \end{figure}
 \FloatBarrier
 
-\begin{figure}[!h]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/install-step05.png}
-    %\caption{}
-    %\label{fig:}
-\end{figure}
-
-\FloatBarrier
-
-\begin{figure}[!h]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/install-step06.png}
-    %\caption{}
-    %\label{fig:}
-\end{figure}
-
-\FloatBarrier
-
-\begin{figure}[!h]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/install-step07.png}
-    %\caption{}
-    %\label{fig:}
-\end{figure}
-
-\FloatBarrier
-
-\begin{figure}[!h]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/install-step08.png}
-    %\caption{}
-    %\label{fig:}
-\end{figure}
-
-\FloatBarrier
-
-\begin{figure}[!h]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/install-step09.png}
-    %\caption{}
-    %\label{fig:}
-\end{figure}
-
-\FloatBarrier
-
-\begin{figure}[!h]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/install-step10.png}
-    %\caption{}
-    %\label{fig:}
-\end{figure}
-
-\FloatBarrier
-
-\begin{figure}[!h]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/install-step11.png}
-    %\caption{}
-    %\label{fig:}
-\end{figure}
-
-\FloatBarrier
 
 \section{Post-installation Steps}
 After successfull install, you may customize default \odcs settings in the configuration file \code{odcs.ini} in the Engine installation directory. See Chapter \ref{chap:configOptions} for description of all options.
 
-The installer deploys the web archive with \FE to the designated directory in your servlet container. Depending on the configuration of your servlet container, you may need to add the \FE web application to its configuration explicitly. If that is the case, in Tomcat, for example, this can be accomplished by adding a line similar to the following to <Host> section of Tomcat's \code{server.xml}:  
+The installer deploys the web archive with \FE to the designated directory in your servlet container. Depending on the configuration of your servlet container, you may need to add the \FE web application to its configuration explicitly. If that is the case, in Tomcat, for example, this can be accomplished by adding a line similar to the following to \textless{}Host\textgreater{} section of Tomcat's \code{server.xml}:  
 \begin{verbatim} 
-    <Context path="" docBase="{path to odcs-webfrontend-<version>.war}"></Context>
+    <Context path="" docBase="{path to odcs-webfrontend-<version>.war}">
+    </Context>
 \end{verbatim} 
 
-%\chapter{(Contents of the Deployed Application)}
+After a clean installation, \FE contains a single administrator account with username \quot{adm} and password \quot{adm}. For security reasons, \textbf{make sure to change the default credentials}.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Starting and Stopping the Application}
+\section{Engine}
+\odcs Engine can be started by executing the \code{run-engine.cmd} script (on Windows) or \code{run-engine.sh} script (on Unix) in the installation directory of \odcs Engine. The Engine will load its configuration from the \code{odcs.ini} file in this directory and, after initialization, automatically start listening on Input and Output Webservice ports for requests.
+
+In order to stop Engine, simply press \code{Ctrl}+\code{C} in the console window with Engine (send SIGINT signal to the Engine process on Linux). Engine will shutdown all services, wait (up until a timeout) until the currently active pipeline transformer finishes, and stop.
+
+Engine is also prepared to be run as a system service on Windows, or daemon on Linux, respectively. Installing \odcs as a service/daemon will be added to the installer in future.
+
+\section{\FE}
+\FE is a standard Java web application and its lifecycle depends on its servlet container -- please refer to documentation of your server container\footnote{E.g. \url{http://tomcat.apache.org/tomcat-7.0-doc/index.html}}. Usually, \FE would be reached by navigating to \code{http://localhost:8080/} in your web browser. Please note that \FE also needs the clean Virtuoso database instance to be running.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Trying out ODCleanStore}
+When Engine is started and \FE successfully deployed, you may try out \odcs.
+
+\odcs can be managed from \FE in your web browser. Navigate to the address where it is deployed by your servlet container (e.g. http://localhost:8080/). By default, there is a single administrator account with username \quot{adm} and password \quot{adm}. In order to add new data processing pipelines in \FE, you will need to create a new user account, or add more roles to the default administrator account (log out and log in again for the changes to take effect).
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/fe-new-account.png}
+    \caption{\FE -- adding a new account}
+\end{figure}
+
+There should be one default pipeline created by default. You may customize it by assigning transformers to it.
+The functionality of Input and Output Webservices can be then demonstrated:
+
+\paragraph{Sending data to \odcs.}
+    To send data to Input Webservice, you can execute \code{run-example.cmd} or \code{run-example.sh} (on Windows or Linux, respectively) from 
+   directory \code{example/} in the distribution. The script will send data in \code{example-data.rdf}
+   to Input Webservice together with metadata in \code{example-metadata.properties}
+   and \code{example-provenance-metadata.rdf}
+   
+   Parameters for Input Webservice can be changed in 
+   \code{example-metadata.properties}, most notably the name of the pipeline to 
+   process the data in the \code{pipelineName} option (the default pipeline will be used when none is specified) and location of Input Webservice.
+      
+   Script \code{regenerate-uuid.cmd} (\code{regenerate-uuid.sh}) runs an utility that regenerates UUID in
+   \code{example-metadata.properties}. This is necessary because every request
+   to Input Webservice needs to have an unique UUID.
+
+\paragraph{Querying over data.} To query the stored data using Output Webservice, start with \code{query-\textit{*}.html} documents in 
+  the \code{example-queries/} subdirectory of the distribution. You can find more detailed information in \refusermanual.
+
+\begin{figure}[hb]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/uri-query-screenshot.png}
+    \caption{Sample results of an URI query}
+    \label{fig:uriQuery}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Configuration Options}
  \label{chap:configOptions}
 Global configuration options for ODCleanStore are stored in configuration file \code{odcs.ini} in the Engine installation directory.
@@ -410,31 +403,20 @@ List with a description of all configuration options follows:
 		\configdefault{./odcs-debug}
 \end{configlist}
 
-
-\chapter{Starting and Stopping the Application}
-\section{Engine}
-\odcs Engine can be started by executing the \code{run-engine.cmd} script (on Windows) or \code{run-engine.sh} script (on Unix) in the installation directory of \odcs Engine. The Engine will load its configuration from the \code{odcs.ini} file in this directory and, after initialization, automatically start listening on Input and Output Webservice ports for requests.
-
-In order to stop Engine, simply press \code{Ctrl}+\code{C} in the console window with Engine (send SIGINT signal to the Engine process on Linux). Engine will shutdown all services, wait (up until a timeout) until the currently active pipeline transformer finishes, and stop.
-
-Engine is also prepared to be run as a system service on Windows, or daemon on Linux, respectively. Installing \odcs as a service/daemon will be added to the installer in future.
-
-\section{\FE}
-\FE is a standard Java web application and its lifecycle depends on its servlet container -- please refer to documentation of your server container\footnote{E.g. \url{http://tomcat.apache.org/tomcat-7.0-doc/index.html}}. Usually, \FE would be reached by navigating to \code{http://localhost:8080/} in your web browser.
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Custom Transformers}
 \label{chap:customTransformers}
 The administrator may extend data-processing capabilities of \odcs by adding new custom transformers. In order to start using the transformer:
 \begin{enumerate}
   \item Implement your custom transformer by implementing the \code{Transformer} interface in Java or other compatible language.\\
-  The classfile for the \code{Transformer} interface is in \code{odcs-core-<version>.jar} file in the \odcs distribution, or can be obtained from sources in \code{odcs-core} maven artifact -- see chapter \quot{Setting up Development Environment} in \refprogrammersguide. \\
+  The classfile for the \code{Transformer} interface is in \code{bin/odcs-core-\varcode{version}.jar} file in the \odcs distribution, or can be obtained from sources in \code{odcs-core} maven artifact -- see Chapter \quot{Setting up Development Environment} in \refprogrammersguide. \\
   For more information about how to implement a custom transformer and what features it should have, please refer to chapter \quot{Transformers – Introduction} in \refprogrammersguide.
-  \item Save the .jar file with the implementation to a location where Engine can read it from the filesystem. The classfiles of the \code{odcs-core} maven artifact need not be included in the .jar file (as they will be already loaded by Engine when the custom transformer is loaded at runtime).
-  \item In \FE, go to \quot{Transformers}~\textgreater~\quot{Add a new transformer} (\figurename~\ref{fig:customTransformer}). Enter the path to the .jar file with the implementation, the fully qualified name of the your class that implements the \code{Transformer} interface and fill in the other fields. Submit the form.
+  \item Save the .jar file with the implementing classfiles to a location where Engine can read it from the filesystem. The classfiles of the \code{odcs-core} maven artifact need not be included in the .jar file (as they will be already loaded by Engine when the custom transformer is loaded at runtime).
+  \item In \FE, go to \quot{Transformers}~\textgreater~\quot{Add a new transformer} (\figurename~\ref{fig:customTransformer}). Enter the path to the .jar file with the implementation, the fully qualified name of your class that implements the \code{Transformer} interface and fill in the other fields. Submit the form.
   \item Now, the custom transformer is registered and can be assigned to pipelines and used for data processing.
 \end{enumerate}
 
-\begin{figure}[h]
+\begin{figure}[hb]
     \centering
     \includegraphics[width=0.7\textwidth]{images/fe-custom-transformer.png}
     \caption{Screen for registering a custom transformer}
@@ -448,6 +430,65 @@ The administrator may extend data-processing capabilities of \odcs by adding new
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \appendix
+
+\chapter{Distribution Contents}
+The distribution archive or CD contains \odcs binaries, installer, documentation and some testing data. For a quick start, the relevant files for you are \code{README.txt} and scripts \code{install.cmd} or \code{install.sh} (for Windows or Linux, respectively) which start the installer.
+
+Meaning of the other files and directories is explained below.
+
+\begin{dirlistbrief}
+    \item[bin/] Contains all Java binaries of \odcs.
+        \begin{dirlist}
+            \item[engine/] Contains binaries and dependencies for Engine part of \odcs.
+            \item[webapp/] Contains the \FE web archive.
+            \item[utils/] Contains utilities. \code{regenerateUUID.jar} Generates a new UUID for metadata file used by \code{odcs-simplescraper}. \code{frontend-config.jar} is a utility for updating of path to the \odcs configuration file in the \FE web archive.
+            \item[odcs-installer-\varcode{version}.jar] Installer with a graphical user interface.
+            \item[odcs-simplescraper-\varcode{version}.jar] A simple utility for testing of sending of data to Input Webservice.
+            \item[odcs-simpletransformer-\varcode{version}.jar] A simple example of a custom transformer.
+            \item[odcs-core-\varcode{version}.jar] \code{odcs-core} artifact. This can be used as a library when writing custom transformers, as it contains definition of the \code{Transformer} interface and other related classes.
+            \item[run-engine.cmd, run-engine.sh] Scripts that start Engine for case of a manual installation.
+            \item[update-war-path.cmd, update-war-path.sh] Scripts that update path to global configuration file in the \FE web archive. Supplied for convenience in case of manual installation.
+        \end{dirlist}
+    \item[config/] Contains the default configuration file for \odcs and recommended configuration files for Virtuoso database instances.
+        \begin{dirlist}
+            \item[odcs.ini] The default global configuration file of \odcs.
+            \item[virtuoso.ini-clean] The recommended configuration file for the clean database instance of Virtuoso.
+            \item[virtuoso.ini-dirty] The recommended configuration file for the dirty database instance of Virtuoso.
+        \end{dirlist}
+    \item[database/] Scripts for initialization of database instances.
+        \begin{dirlist}
+            \item[install/] SQL scripts used by the installer.
+            \item[clean\_db/] SQL scripts for manual import for the clean database instance.
+            \item[dirty\_db/] SQL scripts for manual import for the dirty database instance.
+        \end{dirlist}
+    \item[doc/] Documentation for \odcs.
+        \begin{dirlist}
+            \item[javadoc/] API documentation of \odcs sources in generated from javadoc.
+            \item[LICENSE.txt] License under which \odcs is distributed.
+            \item[ODCleanStore User Manual.pdf] Documentation for \odcs users.
+            \item[ODCleanStore Administrator's and Installation Manual.pdf] This document.
+            \item[ODCleanStore Programmer's Guide.pdf] Detailed documentation intended for developers.
+            \item[sourceforge.txt] Link to the project homepage.
+        \end{dirlist}
+    \item[example/] Example data that can be send to Input Webservice.
+        \begin{dirlist}
+            \item[example-data.rdf, example-data-isvzus.ttl] The actual payload data to be sent to Input Webservice.
+            \item[example-metadata.properties, example-metadata-isvzus.properties] Property file with metadata sent together with payload data.
+            \item[example-provenance-metadata.rdf] Example provenance metadata to be sent together with payload data.
+            \item[run-example.cmd, run-example-isvzus.cmd] Script that sends the example data to Input Webservice.
+            \item[regenerate-uuid.cmd] Script for updating UUID in metadata property files. This is necessary as every new input graph needs to have a unique UUID.
+        \end{dirlist}
+    \item[example-queries/] Simple forms in HTML that can be used for querying over Output Webservice. These forms are provided for testing and debugging purposes.
+        \begin{dirlist}
+            \item[query-uri.html] Form for executing a URI query via Output Webservice.
+            \item[query-keyword.html] Form for executing a keyword query via Output Webservice.
+            \item[query-named-graph.html] Form for executing a named graph query via Output Webservice.
+            \item[query-metadata.html] Form for executing a metadata query via Output Webservice.
+        \end{dirlist}
+   \item[README.txt] File with basic information and instructions how to start with \odcs.
+   \item[release-notes.txt] Release notes with information about changes between versions.
+   \item[install.cmd, install.sh] Scripts for starting the installer in Windows and Unix, respectively.
+\end{dirlistbrief}
 
 \chapter{License}
 ODCleanStore is released as open source software under Apache License, Version 2.0.

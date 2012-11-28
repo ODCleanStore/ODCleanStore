@@ -34,9 +34,9 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
 import cz.cuni.mff.odcleanstore.webfrontend.util.CodeSnippet;
 
 /**
- * The Ontology Dao.
+ * The Ontology DAO.
  * 
- * @author Tomáš Soukup
+ * @author Tomas Soukup
  *
  */
 public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>

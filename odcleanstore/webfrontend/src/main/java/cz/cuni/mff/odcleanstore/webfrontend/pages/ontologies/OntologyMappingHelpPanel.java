@@ -5,6 +5,10 @@ import org.apache.wicket.markup.html.panel.Panel;
 
 import cz.cuni.mff.odcleanstore.webfrontend.bo.Role;
 
+/**
+ * Help panel for ontology mapping.
+ * @author Jakub Daniel
+ */
 @AuthorizeInstantiation({ Role.ONC })
 public class OntologyMappingHelpPanel extends Panel
 {
