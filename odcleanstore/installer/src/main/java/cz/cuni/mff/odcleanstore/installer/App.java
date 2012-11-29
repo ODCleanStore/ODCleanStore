@@ -10,6 +10,12 @@ import cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardFrame;
  * @author Petr Jerman
  */
 public class App extends InstallationWizardFrame {
+	public static final String ENGINE_DIR_PATH = "bin/engine";
+	public static final String FRONTEND_DIR_PATH = "bin/webapp";
+	public static final String FRONTEND_ARCHIVE_FILENAME = "odcs-webfrontend.war";
+	public static final String ODCS_INI_DIR_PATH = "config";
+	public static final String INSTALL_SQL_SCRIPTS_PATH = "database/install";
+	public static final String ODCS_INI_FILENAME = "odcs.ini";
 
 	private GetEngineDirectoryStep getEngineDirectoryStep;
 	private GetFrontendDirectoryStep getFrontendDirectoryStep;
@@ -65,32 +71,32 @@ public class App extends InstallationWizardFrame {
 			break;
 		case 4:
 			DBScriptExecutorStep step4 = new DBScriptExecutorStep(this, getDbConnectionsStep, true,
-					"run clearing sql script on clean DB", "clean-clear.sql", isqlPath);
+					"run clearing sql script on clean DB", "clean-db-clear.sql", isqlPath);
 			setNextStep(step4);
 			step4.onNext();
 			break;
 		case 5:
 			DBScriptExecutorStep step5 = new DBScriptExecutorStep(this, getDbConnectionsStep, true,
-					"run installation sql script on clean DB", "clean.sql", isqlPath);
+					"run installation sql script on clean DB", "clean-db-import.sql", isqlPath);
 			setNextStep(step5);
 			step5.onNext();
 			break;
 		case 6:
 			DBScriptExecutorStep step6 = new DBScriptExecutorStep(this, getDbConnectionsStep, true,
 					"run full text indexing sql script on clean DB - could be a long running operation",
-					"clean-fulltext-index.sql", isqlPath);
+					"clean-db-fulltext-index.sql", isqlPath);
 			setNextStep(step6);
 			step6.onNext();
 			break;
 		case 7:
 			DBScriptExecutorStep step7 = new DBScriptExecutorStep(this, getDbConnectionsStep, false,
-					"run clearing sql script on dirty DB", "dirty-clear.sql", isqlPath);
+					"run clearing sql script on dirty DB", "dirty-db-clear.sql", isqlPath);
 			setNextStep(step7);
 			step7.onNext();
 			break;
 		case 8:
 			DBScriptExecutorStep step8 = new DBScriptExecutorStep(this, getDbConnectionsStep, false,
-					"run installation sql script on dirty DB", "dirty.sql", isqlPath);
+					"run installation sql script on dirty DB", "dirty-db-import.sql", isqlPath);
 			setNextStep(step8);
 			step8.onNext();
 			break;

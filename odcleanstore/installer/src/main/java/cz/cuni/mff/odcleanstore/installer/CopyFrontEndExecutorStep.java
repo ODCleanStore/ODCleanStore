@@ -31,8 +31,6 @@ import cz.cuni.mff.odcleanstore.installer.utils.TextAreaOutputStream;
  */
 public class CopyFrontEndExecutorStep extends InstallationWizardStep {
 
-	private static final String ODCS_INI_FILE_NAME = "odcs.ini";
-	private static final String ODCS_WEBFRONTEND_WAR_FILE_NAME = "odcs-webfrontend.war";
 	private static final String WEB_INF_CLASSES_CONFIG_APPLICATION_PROPERTIES = "WEB-INF/classes/config/application.properties";
 	private static final String ODCS_CONFIG_PATH_PROPERTY_NAME = "odcs.config.path";
 
@@ -102,12 +100,12 @@ public class CopyFrontEndExecutorStep extends InstallationWizardStep {
 			public void run() {
 				try {
 					taos.clear();
-					String src = ODCS_WEBFRONTEND_WAR_FILE_NAME;
-					String dst = new File(getFrontendDirectoryStep.getFrontendDirectory().getAbsolutePath(),
-							ODCS_WEBFRONTEND_WAR_FILE_NAME).getCanonicalPath();
-					String odcsini = new File(getEngineDirectoryStep.getEngineDirectory().getAbsolutePath(), ODCS_INI_FILE_NAME)
+					File srcFile = new File(App.FRONTEND_DIR_PATH, App.FRONTEND_ARCHIVE_FILENAME);
+					File dst = new File(getFrontendDirectoryStep.getFrontendDirectory().getAbsolutePath(),
+							App.FRONTEND_ARCHIVE_FILENAME).getCanonicalFile();
+					String odcsini = new File(getEngineDirectoryStep.getEngineDirectory().getAbsolutePath(), App.ODCS_INI_FILENAME)
 							.getCanonicalPath();
-					installFE(src, dst, odcsini, new Runnable() {
+					installFE(srcFile, dst, odcsini, new Runnable() {
 						@Override
 						public void run() {
 							JScrollBar vertical = scp.getVerticalScrollBar();
@@ -141,14 +139,14 @@ public class CopyFrontEndExecutorStep extends InstallationWizardStep {
 	 * @param stepCallback callback called after each copy step
 	 * @throws IOException
 	 */
-	private static void installFE(String srcWarFileName, String dstWarFileName, String odcsIniFileName, Runnable stepCallback)
+	private static void installFE(File srcWarFile, File dstWarFile, String odcsIniFileName, Runnable stepCallback)
 			throws IOException {
-		JarFile war = new JarFile(srcWarFileName);
-		JarOutputStream append = new JarOutputStream(new FileOutputStream(dstWarFileName));
+		JarFile war = null;
+		JarOutputStream append = null;
 
 		try {
-			war = new JarFile(srcWarFileName);
-			append = new JarOutputStream(new FileOutputStream(dstWarFileName));
+			war = new JarFile(srcWarFile);
+			append = new JarOutputStream(new FileOutputStream(dstWarFile));
 
 			Enumeration<? extends JarEntry> entries = war.entries();
 			while (entries.hasMoreElements()) {
@@ -168,8 +166,12 @@ public class CopyFrontEndExecutorStep extends InstallationWizardStep {
 				append.closeEntry();
 			}
 		} finally {
-			war.close();
-			append.close();
+			if (war != null) {
+				war.close();
+			}
+			if (append != null) {
+				append.close();
+			}
 		}
 	}
 

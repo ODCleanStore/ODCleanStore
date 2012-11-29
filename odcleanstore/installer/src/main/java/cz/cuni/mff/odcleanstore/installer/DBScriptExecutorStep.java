@@ -3,6 +3,7 @@ package cz.cuni.mff.odcleanstore.installer;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
@@ -32,7 +33,7 @@ public class DBScriptExecutorStep extends InstallationWizardStep {
 	private GetDbConnectionsStep getDbConnectionsStep;
 	private boolean cleanDB;
 	private String title;
-	private String scriptFileName;
+	private File scriptFile;
 	private String isqlPath;
 
 	private Process isqlProcess;
@@ -53,7 +54,7 @@ public class DBScriptExecutorStep extends InstallationWizardStep {
 		this.getDbConnectionsStep = getDbConnectionsStep;
 		this.cleanDB = cleanDB;
 		this.title = title;
-		this.scriptFileName = scriptFileName;
+		this.scriptFile = new File(App.INSTALL_SQL_SCRIPTS_PATH, scriptFileName);
 		this.isqlPath = isqlPath != null ? isqlPath : DEFAULT_ISQL_COMMAND;
 	}
 
@@ -109,11 +110,11 @@ public class DBScriptExecutorStep extends InstallationWizardStep {
 					if (cleanDB) {
 						runIsql(getDbConnectionsStep.getCleanDBHostName(), getDbConnectionsStep.getCleanDBPort(),
 								getDbConnectionsStep.getCleanDBUser(), getDbConnectionsStep.getCleanDBPassword(),
-								scriptFileName, callBack);
+								scriptFile, callBack);
 					} else {
 						runIsql(getDbConnectionsStep.getDirtyDBHostName(), getDbConnectionsStep.getDirtyDBPort(),
 								getDbConnectionsStep.getDirtyDBUser(), getDbConnectionsStep.getDirtyDBPassword(),
-								scriptFileName, callBack);
+								scriptFile, callBack);
 					}
 					getWizardFrame().next();
 				} catch (IOException ex) {
@@ -156,9 +157,9 @@ public class DBScriptExecutorStep extends InstallationWizardStep {
 	 * @param stepCallback callback called after writing line of text to stdout
 	 * @throws IOException
 	 */
-	private void runIsql(String host, String port, String user, String password, String scriptName, Runnable stepCallback)
+	private void runIsql(String host, String port, String user, String password, File scriptFile, Runnable stepCallback)
 			throws IOException {
-		ProcessBuilder pb = new ProcessBuilder(isqlPath, host + ":" + port, user, password, scriptName);
+		ProcessBuilder pb = new ProcessBuilder(isqlPath, host + ":" + port, user, password, scriptFile.getPath());
 
 		pb.redirectErrorStream(true);
 		isqlProcess = pb.start();
