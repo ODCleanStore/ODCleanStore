@@ -36,7 +36,9 @@ and is not officially supported.
 2) Import clean database: 
    Execute queries in NUMBERED files in database/clean_db/*.sql over the clean 
    database instance in the indicated order. Alternatively, queries in ALL.sql
-   can be executed INSTEAD of the numbered files. 
+   can be executed INSTEAD of the numbered files. Note that the SQL scripts 
+   contain some testing data in addition to what the installer imports to the
+   database.
     
    Queries can be executed using the isql utility (make sure it is the 
    Virtuoso's isql utility!):
@@ -114,14 +116,13 @@ Trying out ODCleanStore
 In order to try out ODCleanStore, navigate to Administration Frontend in your 
 web browser (e.g. http://localhost:8080/). 
 
-By default, there is a single registered user:
-    * username: "adm", password: "adm" 
+By default, there are these registered users:
+    * username: "adm", password: "adm", roles: ADM, PIC, ONC
+    * username: "scraper", password: "reparcs", roles: SCR
     
-In order to create data processing pipelines, you will need to create a new 
-user account or add more roles to the default account. There should be one
-default pipeline created by default. You may customize it by assigning 
-transformers to it. The functionality of Input and Output Webservices can be 
-then demonstrated:
+There should be one default pipeline created by default. You may customize it 
+by assigning  transformers to it. The functionality of Input and Output 
+Webservices can be then demonstrated:
     
 * To send data to the input web service, you can run run-example.cmd (.sh) from
    directory example/. The script will send data in example-data.rdf

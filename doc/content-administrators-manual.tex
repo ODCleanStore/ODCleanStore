@@ -175,7 +175,7 @@ The installer deploys the web archive with \FE to the designated directory in yo
     </Context>
 \end{verbatim} 
 
-After a clean installation, \FE contains a single administrator account with username \quot{adm} and password \quot{adm}. For security reasons, \textbf{make sure to change the default credentials}. Also, the installer creates a user \quot{SILK} with password \quot{odcs} in the dirty database instance and grants it the \code{SPARQL\_UPDATE} role. You should change the credentials for this user and update the affected \code{db.dirty\_update.sparql.*} configuration options in odcs.ini. 
+After a clean installation, \FE contains two user accounts:  an administrator account with username \quot{adm}, password \quot{adm}, and a user in the Data Producer (SCR) role with username \quot{scraper}, password \quot{reparcs}. For security reasons, \textbf{make sure to change the default credentials}. Also, the installer creates a user \quot{SILK} with password \quot{odcs} in the dirty database instance and grants it the \code{SPARQL\_UPDATE} role. You should change the credentials for this user and update the affected \code{db.dirty\_update.sparql.*} configuration options in odcs.ini. 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
