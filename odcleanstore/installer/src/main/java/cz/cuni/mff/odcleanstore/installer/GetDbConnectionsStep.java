@@ -113,6 +113,10 @@ public class GetDbConnectionsStep extends InstallationWizardStep {
 	 */
 	@Override
 	public boolean onNext() {
+		if (App.FAKE_DB_CONNECTION) {
+			return true;
+		}
+		
 		try {
 			Class.forName("virtuoso.jdbc3.Driver");
 		} catch (ClassNotFoundException e) {

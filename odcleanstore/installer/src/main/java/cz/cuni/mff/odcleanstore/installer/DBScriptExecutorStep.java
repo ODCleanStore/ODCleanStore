@@ -159,6 +159,11 @@ public class DBScriptExecutorStep extends InstallationWizardStep {
 	 */
 	private void runIsql(String host, String port, String user, String password, File scriptFile, Runnable stepCallback)
 			throws IOException {
+		
+		if (App.FAKE_DB_CONNECTION) {
+			return;
+		}
+		
 		ProcessBuilder pb = new ProcessBuilder(isqlPath, host + ":" + port, user, password, scriptFile.getPath());
 
 		pb.redirectErrorStream(true);

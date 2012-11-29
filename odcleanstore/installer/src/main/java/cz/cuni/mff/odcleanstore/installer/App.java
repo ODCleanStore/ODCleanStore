@@ -16,6 +16,8 @@ public class App extends InstallationWizardFrame {
 	public static final String ODCS_INI_DIR_PATH = "config";
 	public static final String INSTALL_SQL_SCRIPTS_PATH = "database/install";
 	public static final String ODCS_INI_FILENAME = "odcs.ini";
+	
+	public static final boolean FAKE_DB_CONNECTION = false;
 
 	private GetEngineDirectoryStep getEngineDirectoryStep;
 	private GetFrontendDirectoryStep getFrontendDirectoryStep;
