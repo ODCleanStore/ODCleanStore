@@ -21,5 +21,7 @@
 		<tr><th>JAR path</th><td>Path to a Java Archive containing the transformer declaration.</td><td>required</td></tr>
 		<tr><th>Full classname</th><td>Name of the class implementing the transformer.</td><td>required</td></tr>
 	</table>
+	
+	<p>If <em>JAR path</em> is set to "." then it is handled as a special case and <em>Full classname</em> is treated as a built-in transformer.</p>
 
 </wicket:panel>

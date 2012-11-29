@@ -302,7 +302,7 @@ The URIs generated in place of blank nodes have form \varcode{prefix}\varcode{ra
 
 \subsubsection*{Quality Assessor}
 
-Quality Assessor is a special {transformer} that assigns a score to each graph based on coefficients of different patterns present in the graph to reflect to what degree the data contained in it comply to a certain policy.
+Quality Assessor is a special {transformer} that assigns a score to each graph based on coefficients of different patterns present in the graph to reflect to what degree the data contained in it comply to a certain policy. The resulting \QA score is used at query time to calculate quality of results -- see Section \ref{sec:outputWSQuality}.
 
 To be able to configure individual instances of {Quality Assessor} a group of rules needs to exist. To create one enter the Quality Assessment section reachable from Rules submenu.
 
@@ -353,7 +353,9 @@ Expectedly triples (\code{?s ?p1 ?o2} in the example) are inserted into (deleted
 	\code{\{?s ?p ?o\} WHERE \{GRAPH \$\$graph\$\$ \{SELECT ?s ?p 'Y' AS ?o WHERE \{?s ?p 1\}\}\}},
 \end{center}
 
-where \code{\$\$graph\$\$} in \code{GRAPH \$\$graph\$\$} is a place holder for name of the graph being currently processed and can be used for subqueries that need to be enclosed in \code{GraphGraphPattern}\footnote{\url{http://www.w3.org/TR/rdf-sparql-query/\#rGraphGraphPattern}}. When there is no subquery, however, it is not necessary to use the placeholder at all.
+where \code{\$\$graph\$\$} in \code{GRAPH \$\$graph\$\$} is a place holder for name of the graph being currently processed and can be used for subqueries that need to be enclosed in \code{GraphGraphPattern}\footnote{\url{http://www.w3.org/TR/rdf-sparql-query/\#rGraphGraphPattern}}.
+
+Note that when there is no subquery, the \code{\$\$graph\$\$} placeholder is optional and it is not necessary to use the placeholder at all.
 
 \subsection{Linker}
 \label{sub:objectIdentification}
@@ -484,12 +486,14 @@ This section is reachable with \emph{My Account} button below the main menu afte
 
 	\fieldtable
 	{
-		required & Working directory & A directory dedicated to instances of this transformer. Files may be stored in it.\\
+		required & Working directory & An (arbitrary) directory dedicated to instances of this transformer. Files may be stored in it.\\
 		\hline
 		required & JAR path & Path to a Java Archive containing the {transformer} declaration.\\
 		\hline
 		required & Full classname & Name of the class implementing the {transformer}.
 	}
+
+	If \emph{JAR path} is set to \quot{.} then it is handled as a special case and \emph{Full classname} is treated as a built-in transformer.
 
 \begin{figure}[!ht]
     \centering
@@ -1288,6 +1292,22 @@ See Section~\ref{sec:URIKWPaging}.
 \todo{JSON}
 \todo{Error handling!}
 \todo{Examples}
+
+\subsection{Quality Calculation}
+\label{sec:outputWSQuality}
+As stated in the previous sections, an \aggrq estimate for each triple in the result is part of the query results. The quality is expressed as a number from interval [0,1] where 0 means lowest quality and 1 highest quality. 
+
+The \aggrq estimate is done for each result quad and is based on several factors based on real-world scenarios. The factors include quality scores of the source named graphs (as calculated by the Quality Assessor transformer, Section \ref{sub:qualityAssessment}), number of graphs that agree on a value, and the difference between a value and other (conflicting) values.
+
+Since conflicts in data are resolved by aggregating values in place of objects of resolved triples, the quality also depends on object values (and not the subject or predicate of a triple). The exact calculation depends on the aggregation method used and other aggregation settings given to Output Webservice. In short, the calculation for a value in place of an object can be outlined as:
+\begin{itemize}
+    \item \QA scores of graphs that the value was selected or calculated from are taken. Depending on the aggregation method, their average or maximum is used as the initial score.
+    \item Differences with other conflicting values are taken into consideration. The more conflicting values differ, the more the quality is decreased. This step can be turned off by setting the \code{multivalue} parameter to false (\code{0}).
+    \item If there are multiple sources that agree on exactly the same value, the quality is increased.
+\end{itemize}
+
+This is a very crude description of the algorithm. You can find it explained in detail in section \quot{Quality and Provenance Calculation} of \refprogrammersguide.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

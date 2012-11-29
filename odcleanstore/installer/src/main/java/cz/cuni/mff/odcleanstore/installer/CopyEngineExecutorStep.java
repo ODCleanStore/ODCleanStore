@@ -23,7 +23,6 @@ import cz.cuni.mff.odcleanstore.installer.utils.TextAreaOutputStream;
  */
 public class CopyEngineExecutorStep extends InstallationWizardStep {
 
-	private static final String ENGINE_SRC_PATH = "Engine";
 	private JPanel panel;
 	private JScrollPane scp;
 	private TextAreaOutputStream taos;
@@ -80,13 +79,27 @@ public class CopyEngineExecutorStep extends InstallationWizardStep {
 			public void run() {
 				try {
 					taos.clear();
-					FileUtils.copyFolder(new File(ENGINE_SRC_PATH), new File(dstDirectory.getAbsolutePath()), new Runnable() {
+					File srcEngineDir = new File(App.ENGINE_DIR_PATH);
+					File targetEngineDir = new File(dstDirectory.getAbsolutePath());
+					FileUtils.copyFolder(srcEngineDir, targetEngineDir, new Runnable() {
 						@Override
 						public void run() {
 							JScrollBar vertical = scp.getVerticalScrollBar();
 							vertical.setValue(vertical.getMaximum());
 						}
 					});
+					
+					File srcOdcsIni = new File(App.ODCS_INI_DIR_PATH, App.ODCS_INI_FILENAME);
+					File dstOdcsIni = new File(targetEngineDir, App.ODCS_INI_FILENAME);
+					FileUtils.copyFolder(srcOdcsIni, dstOdcsIni, new Runnable() {
+						@Override
+						public void run() {
+							JScrollBar vertical = scp.getVerticalScrollBar();
+							vertical.setValue(vertical.getMaximum());
+						}
+					});
+					
+					
 					getWizardFrame().next();
 				} catch (IOException ex) {
 					ex.printStackTrace();
