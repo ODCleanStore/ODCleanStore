@@ -1637,25 +1637,34 @@ The project was solved in team of five people with the following responsibilitie
     Linker, ontology management, debugging.
 \end{description}
 
-Our supervisor was RNDr. Tom\'a \v s Knap.
+Our supervisor was RNDr. Tom\'a\v s Knap.
 
 \section*{Project phases}
 The project was developed according to the classical waterfall model. 
 
-We started with the initial analysis and specification of main functionalities approximately during the first two months. We devoted a lot of time to estabilishing goals of the project and finding real use-cases because the assignment of the project was not very specific in this point. The most important use case was integration with project Strigil for processing of data about public contracts scraped from web pages and XLS documents.
+We started with the initial analysis and specification of main functionalities  during the first two months, approximately. We devoted a lot of time to estabilishing goals of the project and finding real use-cases because the assignment of the project was not very specific in this point. The most important use case was integration with project Strigil for processing of data about public contracts scraped from web pages and XLS documents. Other use cases included student projects at the Faculty of Mathematics and Physics. 
 
 After the initial period, we divided responsibilities over the main functional units and started researching available tools and technologies and building a prototype. The output of this phase was our choice of technologies (most motably Virtuoso database and Silk), a basic working prototype and an outline of software architecture. The prototype provided us with a proof-of-concept and helped us to realistically estimate the scope of features that could  be implemented in the given timeframe. 
 
-After that we started working on the actual implementation, which was the longest phase lasting approximately 4-5 months. We started by defining interfaces between components, building the components and finally integrating them. In order to avoit pitfalls of the waterfall model, we maintained a working prototype during development and whenever a major functionality was finished, it was integrated to the prototype and evaluated. This helped us to get feedback, re-evaluate use cases and continuously test our results.
+After that, we started working on the actual implementation, which was the longest phase lasting approximately 4-5 months. We started by defining interfaces between components, building the components and finally integrating them. In order to avoid pitfalls of the waterfall model, we maintained a working prototype during development and whenever a major functionality was finished, it was integrated to the prototype and evaluated. This helped us to get feedback, re-evaluate use cases and continuously test our results.
 
-The last two months were devoted to parallel testing, documentation writing and debugging. We regularly produced releases which were deployed to a dedicated server and tested on real data.
+The last two months were devoted to parallel testing, documentation writing and debugging according to workload of team members. We regularly produced releases which were deployed to a dedicated server and tested on real data.
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=\textwidth]{images/lines-of-code.png}
+    \caption{Graph of number of lines of code during development}
+	\label{fig:linesOfCode}
+\end{figure}
+
+\figurename \ref{fig:linesOfCode} presents the number of lines of code in our repository in time of the development. The graph clearly shows rapid development of a prototype in May 2012 and the even distribution of our work afterwards which is the result of good planning and unrelenting effort.
 
 \section*{Organization}
 Since the very beginning of the project, we held regular weekly meetings and used several tools to facilitate management of the project. We estabilished an internal mailing list, a project page at SourceForge with a wiki tool for working documents, a public and private repository, an issue tracker and a testing server.
 
-The exact process was flexibly adjusted to the current project phase and circumstances. During the analysis phase,  we held weekly personal meetings and used our wiki to present research results, track ideas and discuss suggested solutions. During the development phase, we held regular meetings either in person or over the internet once or twice a week. A member of the team would be typically assigned a task, write specification which would be discussed by the other team members, implement the task, and the result would go through the process of code review and integration. In the final phases, we prefered immediate contact in our mailing list to regular meetings and employed the issue tracker.
+The exact process was flexibly adjusted to the current project phase and circumstances. During the analysis phase,  we held weekly personal meetings and used our wiki to present research results, track ideas and discuss suggested solutions. During the development phase, we held regular meetings either in person or over the internet once or twice a week. A member of the team would be typically assigned a task, write specification which would be discussed by the other team members, implement the task, and the result would go through the process of code review, integration and eventually release. In the final phases, we prefered immediate contact in our mailing list to regular meetings and employed the issue tracker.
 
-An immensely important things were regular releases during the development of the project. Since we had several oportunities to present our project at various meetings at conferences, we were pushed to finish integrated pieces of work, integrate them to the working prototype, debug them and publish. In addition, it provided us a valuable feedback.
+An immensely important things were regular releases during the development of the project. Since we had several oportunities to present our efforts at various meetings at conferences, we were pushed to finish integrated pieces of work, integrate them to the working prototype, debug them and publish. In addition, it provided us a valuable feedback.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Glossary}
