@@ -100,11 +100,11 @@ public class GetFrontendDirectoryStep extends InstallationWizardStep {
 				return false;
 			}
 		}
-		if (file.list().length > 0) {
+		/*if (file.list().length > 0) {
 			if (!getWizardFrame().showConfirmDialog("Directory is not empty,\n do you want to continue?", "warning")) {
 				return false;
 			}
-		}
+		}*/
 
 		return true;
 	}

@@ -101,11 +101,10 @@ public class CopyFrontEndExecutorStep extends InstallationWizardStep {
 				try {
 					taos.clear();
 					File srcFile = new File(App.FRONTEND_DIR_PATH, App.FRONTEND_ARCHIVE_FILENAME);
-					File dst = new File(getFrontendDirectoryStep.getFrontendDirectory().getAbsolutePath(),
+					File dstFile = new File(getFrontendDirectoryStep.getFrontendDirectory().getAbsolutePath(),
 							App.FRONTEND_ARCHIVE_FILENAME).getCanonicalFile();
-					String odcsini = new File(getEngineDirectoryStep.getEngineDirectory().getAbsolutePath(), App.ODCS_INI_FILENAME)
-							.getCanonicalPath();
-					installFE(srcFile, dst, odcsini, new Runnable() {
+					File odcsini = new File(getEngineDirectoryStep.getEngineDirectory().getAbsolutePath(), App.ODCS_INI_FILENAME);
+					installFE(srcFile, dstFile, odcsini, new Runnable() {
 						@Override
 						public void run() {
 							JScrollBar vertical = scp.getVerticalScrollBar();
@@ -139,7 +138,7 @@ public class CopyFrontEndExecutorStep extends InstallationWizardStep {
 	 * @param stepCallback callback called after each copy step
 	 * @throws IOException
 	 */
-	private static void installFE(File srcWarFile, File dstWarFile, String odcsIniFileName, Runnable stepCallback)
+	private static void installFE(File srcWarFile, File dstWarFile, File odcsIniFile, Runnable stepCallback)
 			throws IOException {
 		JarFile war = null;
 		JarOutputStream append = null;
@@ -154,7 +153,8 @@ public class CopyFrontEndExecutorStep extends InstallationWizardStep {
 				if (!e.isDirectory()) {
 					if (e.getName().equalsIgnoreCase(WEB_INF_CLASSES_CONFIG_APPLICATION_PROPERTIES)) {
 						append.putNextEntry(new JarEntry(e.getName()));
-						String appString = ODCS_CONFIG_PATH_PROPERTY_NAME + " = " + odcsIniFileName;
+						String escapedOdcsIniPath = odcsIniFile.getAbsolutePath().replace("\\", "\\\\");
+						String appString = ODCS_CONFIG_PATH_PROPERTY_NAME + " = " + escapedOdcsIniPath;
 						copy(appString, append);
 					} else {
 						append.putNextEntry(e);
