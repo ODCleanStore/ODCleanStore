@@ -2,10 +2,10 @@
 
 	<h1>Aggregation</h1>
 	
-	<p>Multivalue in this context specifies whether a property may or may not have more values at a time. This effects the way conflicts are resolved in responses to user queries over the webservice.</p>
-	<p>Aggregation type specifies which method to use to infer values in response.</p>
-	<p>Aggregation error strategy specifies a fallback behaviour in case that aggregation cannot take place due to data types incompatibilities with the aggregation method.</p>
-	<p>The configuration specifies one global behaviour and then it offers the user to override that behaviour for specific properties.</p>
+	<p>The multivalue parameter specifies whether a property may or may not have more values at a time. If set to true, multiple values do not decrease the aggregate score of the values.</p>
+	<p>Aggregation type specifies which method to use to resolve conflicting values in response.</p>
+	<p>Aggregation error strategy specifies a fallback behaviour in case that an aggregation cannot be applied to a value, e.g. due to data type incompatibility with the aggregation method.</p>
+	<p>The configuration can be specified globally or per property. These settings provide the default configuration which can be overriden by the user by settings supplied at query time.</p>
 	
 	<table>
 		<caption>General aggregation methods</caption>
