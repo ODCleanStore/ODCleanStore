@@ -1608,7 +1608,7 @@ Another novel aspect is provenance tracking and data fusion/conflict resolution.
 
 We hope that \odcs will provide basis for further work with Linked Data and other developers will extend it and customize it for their own purposes. We introduced the concept of pluggable transformers so that whatever functionality is needed can be added.
 
-Several papers about \odcs were accepted at scientific conferences. The reception was positive and we used the feedback to improve our project. In addition, \odcs was evaluated on real data, e.g. data extracted from information system for public contracts\footnote{\url{http://www.isvzus.cz/}} run by the Ministry of Regional Development in the Czech Republic. We also used the feedback to improve our project and adapt it to a real-world use case.
+Several papers, listed in Appendix \ref{chap:publications}, about \odcs were accepted at scientific conferences. The reception was positive and we used the feedback to improve our project. In addition, \odcs was evaluated on real data, e.g. data extracted from information system for public contracts\footnote{\url{http://www.isvzus.cz/}} run by the Ministry of Regional Development in the Czech Republic. We also used the feedback to improve our project and adapt it to a real-world use case.
 
 We hope that \odcs will prove to be a useful tool for RDF data processing and will contribute to adoption of Linked Data. It was designed as a general tool for Linked Data management with basic data processing capabilities. We hope that the development will continue, new uses for \odcs will emerge and the project will be extended and customized for the particular use cases.
 
@@ -1617,6 +1617,45 @@ We hope that \odcs will prove to be a useful tool for RDF data processing and wi
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \appendix
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Team \& Work Progress}
+
+\section*{The Team}
+The project was solved in team of five people with the following responsibilities:
+
+\begin{description}[style=nextline]
+  \item[Jan Michelfeit]
+    Conflict Resolution, Query Execution, project management, documentation.
+  \item[Petr Jerman] 
+    Engine, Input and Output Webservices.
+  \item[Du\v san Rychnovsk\' y]
+    Administration Frontend, global configuration.
+  \item[Jakub Daniel]
+    Quality Assessment, Data Normalization, Administration Frontend, documentation.
+  \item[Tom\' a\v s Soukup]
+    Linker, ontology management, debugging.
+\end{description}
+
+Our supervisor was RNDr. Tom\'a \v s Knap.
+
+\section*{Project phases}
+The project was developed according to the classical waterfall model. 
+
+We started with the initial analysis and specification of main functionalities approximately during the first two months. We devoted a lot of time to estabilishing goals of the project and finding real use-cases because the assignment of the project was not very specific in this point. The most important use case was integration with project Strigil for processing of data about public contracts scraped from web pages and XLS documents.
+
+After the initial period, we divided responsibilities over the main functional units and started researching available tools and technologies and building a prototype. The output of this phase was our choice of technologies (most motably Virtuoso database and Silk), a basic working prototype and an outline of software architecture. The prototype provided us with a proof-of-concept and helped us to realistically estimate the scope of features that could  be implemented in the given timeframe. 
+
+After that we started working on the actual implementation, which was the longest phase lasting approximately 4-5 months. We started by defining interfaces between components, building the components and finally integrating them. In order to avoit pitfalls of the waterfall model, we maintained a working prototype during development and whenever a major functionality was finished, it was integrated to the prototype and evaluated. This helped us to get feedback, re-evaluate use cases and continuously test our results.
+
+The last two months were devoted to parallel testing, documentation writing and debugging. We regularly produced releases which were deployed to a dedicated server and tested on real data.
+
+\section*{Organization}
+Since the very beginning of the project, we held regular weekly meetings and used several tools to facilitate management of the project. We estabilished an internal mailing list, a project page at SourceForge with a wiki tool for working documents, a public and private repository, an issue tracker and a testing server.
+
+The exact process was flexibly adjusted to the current project phase and circumstances. During the analysis phase,  we held weekly personal meetings and used our wiki to present research results, track ideas and discuss suggested solutions. During the development phase, we held regular meetings either in person or over the internet once or twice a week. A member of the team would be typically assigned a task, write specification which would be discussed by the other team members, implement the task, and the result would go through the process of code review and integration. In the final phases, we prefered immediate contact in our mailing list to regular meetings and employed the issue tracker.
+
+An immensely important things were regular releases during the development of the project. Since we had several oportunities to present our project at various meetings at conferences, we were pushed to finish integrated pieces of work, integrate them to the working prototype, debug them and publish. In addition, it provided us a valuable feedback.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Glossary}
@@ -1689,6 +1728,16 @@ We hope that \odcs will prove to be a useful tool for RDF data processing and wi
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{List of Used XML Namespaces}
 \input{appendix-xml-namespaces}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Publications}
+\label{chap:publications}
+\begingroup
+\renewcommand{\chapter}[2]{}
+\nocite{*}
+\bibliographystyle{plain}
+\bibliography{publications}
+\endgroup
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %\chapter{Project organization}
