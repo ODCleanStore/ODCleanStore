@@ -1,5 +1,5 @@
 \include{header}
-\newcommand{\version}{0.3.1}
+\newcommand{\version}{1.0.0}
 \newcommand{\documentname}{\refadminmanual}
 
 \begin{document}
@@ -46,14 +46,29 @@ List with a description of all configuration options follows:
 	  Password for JDBC access to the Virtuoso instance representing the clean database.
 		\configdefault{dba}
 	\item[db.clean.sparql.endpoint\_url]
-
+		URI of the SPARQL endpoint for the clean database (used for reading only).
+		\configdefault{http://localhost:8890/sparql}
 	\item[db.dirty.jdbc.connection\_string]
+		 Connection string for JDBC access to the Virtuoso instance representing the dirty database. Must contain connection charset.
+		\configdefault{jdbc:virtuoso://localhost:1112/CHARSET=UTF-8}
 	\item[db.dirty.jdbc.username]
+		Username for JDBC access to the Virtuoso instance representing the dirty database.
+		\configdefault{dba}
 	\item[db.dirty.jdbc.password]
+		Password for JDBC access to the Virtuoso instance representing the dirty  database.
+		\configdefault{dba}
 	\item[db.dirty.sparql.endpoint\_url]
+		URI of the SPARQL endpoint for the clean database (used for reading only).
+		\configdefault{http://localhost:8890/sparql}
 	\item[db.dirty\_update.sparql.endpoint\_url]
+		URI of the SPARQL endpoint which can be used for SPARUL modifications on the dirty database.
+		\configdefault{http://localhost:8891/sparql}
 	\item[db.dirty\_update.sparql.endpoint\_username]
+		Username for the SPARQL endpoint given in \code{db.dirty\_update.sparql.endpoint\_url}.
+		\configdefault{dba}
 	\item[db.dirty\_update.sparql.endpoint\_password]
+		Password for the SPARQL endpoint given in \code{db.dirty\_update.sparql.endpoint\_url}.
+		\configdefault{dba}
 \end{configlist}
 
 \subsection*{Input Webservice Configuration}
@@ -69,9 +84,9 @@ List with a description of all configuration options follows:
 		Prefix of named graphs and URIs where query results and metadata in the output are placed.
 		\configdefault{http://opendata.cz/infrastructure/odcleanstore/query/}
 	\item[output\_ws.port]
-	\item[output\_ws.host]
-		Output Webservice host (used for references from Administration Frontend)
-		\configdefault{http://localhost}
+		Port where Output Webservice runs.
+		\configdefault{8087}
+	
 	\item[output\_ws.keyword\_path]
 	\item[output\_ws.uri\_path]
 	\item[output\_ws.metadata\_path]
@@ -135,6 +150,9 @@ List with a description of all configuration options follows:
 	\item[web\_frontend.debug\_directory\_path]
 		Path to transformer directory for debugging.
 		\configdefault{./odcs-debug}
+	\item[web\_frontend.output\_ws\_host]
+		Output Webservice host (used for references from Administration Frontend)
+		\configdefault{http://localhost}
 \end{configlist}
 
 
