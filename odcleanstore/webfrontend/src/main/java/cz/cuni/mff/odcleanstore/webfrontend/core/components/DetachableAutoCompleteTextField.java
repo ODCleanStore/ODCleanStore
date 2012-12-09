@@ -11,9 +11,8 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.request.resource.PackageResourceReference;
 
 /**
- * 
- * @author Tomáš Soukup
- *
+ * Textfield with auto-complete feature and detachable model.
+ * @author Tomas Soukup
  */
 public class DetachableAutoCompleteTextField extends AutoCompleteTextField<String> 
 {
@@ -21,12 +20,21 @@ public class DetachableAutoCompleteTextField extends AutoCompleteTextField<Strin
 	
 	private IModel<List<String>> choicesModel;
 	
+	/**
+	 * @param componentName
+	 * @param choicesModel
+	 */
 	public DetachableAutoCompleteTextField(String componentName, IModel<List<String>> choicesModel)
 	{
 		super(componentName);
 		this.choicesModel = choicesModel;
 	}
 	
+	/**
+	 * @param componentName
+	 * @param settings
+	 * @param choicesModel
+	 */
 	public DetachableAutoCompleteTextField(
 			String componentName, AutoCompleteSettings settings, IModel<List<String>> choicesModel)
 	{

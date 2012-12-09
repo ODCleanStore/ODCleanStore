@@ -3,6 +3,11 @@ package cz.cuni.mff.odcleanstore.comlib.io;
 import java.io.IOException;
 import java.io.OutputStream;
 
+/**
+ * Helpers for http messages.
+ * 
+ * @author Petr Jerman
+ */
 public class HttpUtils {
 		
 	private static final int CR = 13;
@@ -12,7 +17,7 @@ public class HttpUtils {
 	}
 
 	/**
-	 * Write a http header line of data to the outputstream
+	 * Write a http header line of data to the outputstream.
 	 * 
 	 */
 	public static void writeHeaderLine(OutputStream os, String line, Object... params) throws IOException {

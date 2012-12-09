@@ -23,6 +23,10 @@ public class MappingDataProvider implements IDataProvider<Mapping>
 	private Integer ontologyId;
 	private List<Mapping> data;
 	
+	/**
+	 * @param dao DAO for loading mappings
+	 * @param ontologyId ID of the ontology to load mappings for
+	 */
 	public MappingDataProvider(OntologyMappingDao dao, Integer ontologyId)
 	{
 		this.dao = dao;

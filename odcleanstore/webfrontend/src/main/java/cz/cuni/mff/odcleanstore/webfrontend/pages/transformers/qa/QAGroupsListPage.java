@@ -50,7 +50,7 @@ public class QAGroupsListPage extends FrontendPage
 	{
 		super(
 			"Home > Backend > Quality Assessment > Groups > List", 
-			"Show all Quality Assessment rule groups"
+			"List all Quality Assessment rule groups"
 		);
 		
 		// prepare DAO objects

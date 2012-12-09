@@ -22,6 +22,11 @@ import cz.cuni.mff.odcleanstore.comlib.io.DummyOutputStream;
 import cz.cuni.mff.odcleanstore.comlib.io.HttpUtils;
 import cz.cuni.mff.odcleanstore.comlib.io.InputStreamForHttp;
 
+/**
+ * Http(s) server for soap services used by odcs.
+ * 
+ * @author Petr Jerman
+ */
 public abstract class HttpServer {
 
 	private static final String RESPONSE_CHARSET = "UTF-8";
@@ -86,8 +91,6 @@ public abstract class HttpServer {
 					listenAndSendRequestToNewThread();
 				}
 			});
-
-			// TODO pridat kontrolu zda-li server fakt bezi
 
 			isRunning = true;
 		} finally {

@@ -19,14 +19,18 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
 
-import cz.cuni.mff.odcleanstore.installer.ui.WizardFrame;
-import cz.cuni.mff.odcleanstore.installer.ui.WizardStep;
+import cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardFrame;
+import cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardStep;
 import cz.cuni.mff.odcleanstore.installer.utils.TextAreaOutputStream;
 
-public class CopyFrontEndExecutorStep extends WizardStep {
-	
-	private static final String ODCS_INI_FILE_NAME = "odcs.ini";
-	private static final String ODCS_WEBFRONTEND_WAR_FILE_NAME = "odcs-webfrontend.war";
+/**
+ * A installer step for repacking odcleanstore front end war file to destination directory with writing destination path to
+ * engine odcs.ini to war file.
+ * 
+ * @author Petr Jerman
+ */
+public class CopyFrontEndExecutorStep extends InstallationWizardStep {
+
 	private static final String WEB_INF_CLASSES_CONFIG_APPLICATION_PROPERTIES = "WEB-INF/classes/config/application.properties";
 	private static final String ODCS_CONFIG_PATH_PROPERTY_NAME = "odcs.config.path";
 
@@ -38,27 +42,33 @@ public class CopyFrontEndExecutorStep extends WizardStep {
 	private GetEngineDirectoryStep getEngineDirectoryStep;
 	private GetFrontendDirectoryStep getFrontendDirectoryStep;
 
-	protected CopyFrontEndExecutorStep(WizardFrame wizardFrame, GetFrontendDirectoryStep getFrontendDirectoryStep, GetEngineDirectoryStep getEngineDirectoryStep) {
+	/**
+	 * Create CopyFrontEndExecutorStep instance.
+	 * 
+	 * @param wizardFrame parent wizard frame
+	 * @param getFrontendDirectoryStep front end directory step
+	 * @param getEngineDirectoryStep engine directory step
+	 */
+	protected CopyFrontEndExecutorStep(InstallationWizardFrame wizardFrame, GetFrontendDirectoryStep getFrontendDirectoryStep,
+			GetEngineDirectoryStep getEngineDirectoryStep) {
 		super(wizardFrame);
 		this.getFrontendDirectoryStep = getFrontendDirectoryStep;
 		this.getEngineDirectoryStep = getEngineDirectoryStep;
 	}
 
+	/**
+	 * 
+	 * @see cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardStep#getStepTitle()
+	 */
 	@Override
 	public String getStepTitle() {
 		return "copy frontend war to destination directory and save path to odcs.ini to front end war - existing file will be replaced";
 	}
 
-	@Override
-	public String getNextNavigationButtonText() {
-		return "Copy frontend war to destination directory and save path to odcs.ini to front end war";
-	}
-	
-	@Override
-	public boolean hasSkipButton() {
-		return true;
-	}
-
+	/**
+	 * 
+	 * @see cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardStep#getFormPanel()
+	 */
 	@Override
 	public JPanel getFormPanel() {
 		panel = new JPanel();
@@ -77,6 +87,11 @@ public class CopyFrontEndExecutorStep extends WizardStep {
 		return panel;
 	}
 
+	/**
+	 * Repacks front end war file from source to destination with writing configuration operations in own thread.
+	 * 
+	 * @see cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardStep#onNext()
+	 */
 	@Override
 	public boolean onNext() {
 		Thread copyThread = new Thread(new Runnable() {
@@ -85,42 +100,52 @@ public class CopyFrontEndExecutorStep extends WizardStep {
 			public void run() {
 				try {
 					taos.clear();
-					getWizardFrame().startLongRunningOperation();
-					String src = ODCS_WEBFRONTEND_WAR_FILE_NAME;
-					String dst = new File(getFrontendDirectoryStep.getFrontendDirectory().getAbsolutePath(), ODCS_WEBFRONTEND_WAR_FILE_NAME).getCanonicalPath();
-					String odcsini = new File(getEngineDirectoryStep.getEngineDirectory().getAbsolutePath(), ODCS_INI_FILE_NAME).getCanonicalPath();
-					installFE(src, dst, odcsini,  new Runnable() {
+					File srcFile = new File(App.FRONTEND_DIR_PATH, App.FRONTEND_ARCHIVE_FILENAME);
+					File dstFile = new File(getFrontendDirectoryStep.getFrontendDirectory().getAbsolutePath(),
+							App.FRONTEND_ARCHIVE_FILENAME).getCanonicalFile();
+					File odcsini = new File(getEngineDirectoryStep.getEngineDirectory().getAbsolutePath(), App.ODCS_INI_FILENAME);
+					installFE(srcFile, dstFile, odcsini, new Runnable() {
 						@Override
 						public void run() {
 							JScrollBar vertical = scp.getVerticalScrollBar();
 							vertical.setValue(vertical.getMaximum());
 						}
 					});
-					getWizardFrame().showInfoDialog("Copying front end war ok", "Information");
 					getWizardFrame().next();
 				} catch (IOException ex) {
-					getWizardFrame().showWarningDialog("Copying front end war error", "Error");
-				} finally {
-					getWizardFrame().endLongRunningOperation();
+					getWizardFrame().cancelInstallation("Copying front end war error");
 				}
 			}
 		});
 		copyThread.start();
-
 		return false;
 	}
 
+	/**
+	 * 
+	 * @see cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardStep#onFormEvent(java.awt.event.ActionEvent)
+	 */
 	@Override
 	public void onFormEvent(ActionEvent arg) {
 	}
-	
-	private static void installFE(String srcWarFileName, String dstWarFileName, String odcsIniFileName, Runnable stepCallback) throws IOException {
-		JarFile war = new JarFile(srcWarFileName);
-		JarOutputStream append = new JarOutputStream(new FileOutputStream(dstWarFileName));
+
+	/**
+	 * Repacks front end war file from source to destination with writing configuration operations.
+	 * 
+	 * @param srcWarFileName source war file name
+	 * @param dstWarFileName destination war file name
+	 * @param odcsIniFileName odcs.ini file name in engine directory
+	 * @param stepCallback callback called after each copy step
+	 * @throws IOException
+	 */
+	private static void installFE(File srcWarFile, File dstWarFile, File odcsIniFile, Runnable stepCallback)
+			throws IOException {
+		JarFile war = null;
+		JarOutputStream append = null;
 
 		try {
-			war = new JarFile(srcWarFileName);
-			append = new JarOutputStream(new FileOutputStream(dstWarFileName));
+			war = new JarFile(srcWarFile);
+			append = new JarOutputStream(new FileOutputStream(dstWarFile));
 
 			Enumeration<? extends JarEntry> entries = war.entries();
 			while (entries.hasMoreElements()) {
@@ -128,7 +153,8 @@ public class CopyFrontEndExecutorStep extends WizardStep {
 				if (!e.isDirectory()) {
 					if (e.getName().equalsIgnoreCase(WEB_INF_CLASSES_CONFIG_APPLICATION_PROPERTIES)) {
 						append.putNextEntry(new JarEntry(e.getName()));
-						String appString = ODCS_CONFIG_PATH_PROPERTY_NAME + " = " + odcsIniFileName;
+						String escapedOdcsIniPath = odcsIniFile.getAbsolutePath().replace("\\", "\\\\");
+						String appString = ODCS_CONFIG_PATH_PROPERTY_NAME + " = " + escapedOdcsIniPath;
 						copy(appString, append);
 					} else {
 						append.putNextEntry(e);
@@ -140,11 +166,22 @@ public class CopyFrontEndExecutorStep extends WizardStep {
 				append.closeEntry();
 			}
 		} finally {
-			war.close();
-			append.close();
+			if (war != null) {
+				war.close();
+			}
+			if (append != null) {
+				append.close();
+			}
 		}
 	}
 
+	/**
+	 * Copying input stream to output stream via buffer.
+	 * 
+	 * @param input input stream
+	 * @param output output stream
+	 * @throws IOException
+	 */
 	private static void copy(InputStream input, OutputStream output) throws IOException {
 		int bytesRead;
 		while ((bytesRead = input.read(BUFFER)) != -1) {
@@ -152,6 +189,13 @@ public class CopyFrontEndExecutorStep extends WizardStep {
 		}
 	}
 
+	/**
+	 * Copying input string to output stream.
+	 * 
+	 * @param input input string
+	 * @param output output stream
+	 * @throws IOException
+	 */
 	private static void copy(String input, OutputStream output) throws IOException {
 		output.write(input.getBytes());
 	}

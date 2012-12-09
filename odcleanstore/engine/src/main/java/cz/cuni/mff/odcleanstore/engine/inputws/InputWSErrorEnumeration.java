@@ -1,5 +1,11 @@
 package cz.cuni.mff.odcleanstore.engine.inputws;
 
+/**
+ * InputWS errors enumeration. 
+ * 
+ * @author Petr Jerman
+ *
+ */
 public enum InputWSErrorEnumeration {
 	SERVICE_BUSY,
 	BAD_CREDENTIALS,

@@ -25,12 +25,23 @@ public class InputWSHttpServer extends HttpServer {
     private String location;
     private SoapExecutor soapExecutor = null;
 
+    /**
+     * Create http(s) server instance.
+     * @param serverURL url of server
+     * @param keyManager keymanager aray for https server
+     * @throws SAXException
+     */
     public InputWSHttpServer(URL serverURL, KeyManager[] keyManager) throws SAXException {
         super(serverURL.getHost(), serverURL.getPort(), keyManager);
         location = serverURL.toString();
         soapExecutor = new SoapExecutor(Engine.class, "/inputws.xsd");
     }
 
+    /**
+     * Execute inputws http(s) server request.
+     * 
+     * @see cz.cuni.mff.odcleanstore.comlib.HttpServer#executeRequest(cz.cuni.mff.odcleanstore.comlib.HttpServerRequest)
+     */
     @Override
     protected void executeRequest(HttpServerRequest request) {
         try {
@@ -59,6 +70,12 @@ public class InputWSHttpServer extends HttpServer {
         }
     }
 
+    /**
+     * Execute inputws soap message.
+     * 
+     * @param request http request
+     * @throws IOException
+     */
     private void executeSoapMessage(HttpServerRequest request) throws IOException {
         InsertExecutor insertExecutor = null;
         boolean isSuccess = false;

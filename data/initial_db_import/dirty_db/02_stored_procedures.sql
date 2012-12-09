@@ -1,5 +1,3 @@
-DROP PROCEDURE dump_graph_ttl;
-
 /* 
   Dump all triples in the given named graph to a file, serialized as TTL.
   @param srcgraph dumped graph URI

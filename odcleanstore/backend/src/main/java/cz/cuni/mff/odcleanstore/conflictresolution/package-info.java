@@ -1,4 +1,4 @@
 /**
- * The Conflict Resolution component.
+ * The Conflict Resolution component (public interface).
  */
 package cz.cuni.mff.odcleanstore.conflictresolution;

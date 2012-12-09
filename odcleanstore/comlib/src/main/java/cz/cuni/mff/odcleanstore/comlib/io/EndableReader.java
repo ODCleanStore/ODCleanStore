@@ -7,8 +7,9 @@ import java.io.IOException;
 import java.io.Reader;
 
 /**
- * @author Administrator
+ * Reader with set eof method.
  * 
+ * @author Petr Jerman
  */
 public class EndableReader extends Reader {
 
@@ -19,13 +20,15 @@ public class EndableReader extends Reader {
 		this.reader = reader;
 	}
 
+	/**
+	 * Set EOF.
+	 */
 	public void setForceEOF() {
 		isEnded = true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
+
 	 * @see java.io.Reader#close()
 	 */
 	@Override
@@ -33,6 +36,9 @@ public class EndableReader extends Reader {
 		// do nothing
 	}
 
+	/**
+	 * @see java.io.Reader#read()
+	 */
 	@Override
 	public int read() throws IOException {
 		if (isEnded) {
@@ -41,6 +47,9 @@ public class EndableReader extends Reader {
 		return super.read();
 	}
 
+	/**
+	 * @see java.io.Reader#read(char[], int, int)
+	 */
 	@Override
 	public int read(char[] cbuf, int off, int len) throws IOException {
 		if (isEnded) {
@@ -49,6 +58,9 @@ public class EndableReader extends Reader {
 		return reader.read(cbuf, off, len);
 	}
 
+	/**
+	 * @see java.io.Reader#ready()
+	 */
 	@Override
 	public boolean ready() throws IOException {
 		if (isEnded) {

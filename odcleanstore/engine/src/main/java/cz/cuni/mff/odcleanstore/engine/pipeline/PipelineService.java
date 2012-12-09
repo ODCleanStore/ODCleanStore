@@ -16,6 +16,8 @@ import cz.cuni.mff.odcleanstore.model.EnumGraphState;
 import cz.cuni.mff.odcleanstore.model.EnumPipelineErrorType;
 
 /**
+ * Pipeline service for processing graph manipulations.   
+ * 
  *  @author Petr Jerman
  */
 public final class PipelineService extends Service implements Runnable {
@@ -29,6 +31,11 @@ public final class PipelineService extends Service implements Runnable {
     private PipelineGraphTransformerExecutor activeTransformerExecutor;
     private String stateInfo;
     
+    /**
+     * Create pipeline service instance. 
+     * 
+     * @param engine 
+     */
     public PipelineService(Engine engine) {
         super(engine, "PipelineService");
         this.waitForGraphLock = new Object();
@@ -36,6 +43,9 @@ public final class PipelineService extends Service implements Runnable {
         this.activeTransformerExecutor = null;
     }
 
+    /**
+     * @see cz.cuni.mff.odcleanstore.engine.Service#shutdown()
+     */
     @Override
     public void shutdown() throws Exception {
     	setServiceStateInfo("Pipeline is shutting down");
@@ -51,11 +61,17 @@ public final class PipelineService extends Service implements Runnable {
         }
     }
 
+	/**
+	 * @see cz.cuni.mff.odcleanstore.engine.Service#getServiceStateInfo()
+	 */
 	@Override
 	public String getServiceStateInfo() {
 		return stateInfo;
 	}
 	
+	/**
+	 * @param message set service state info.
+	 */
 	private void setServiceStateInfo(String message) {
 		try {
 			stateInfo = String.format("%s (%s)", message, new Date());
@@ -64,12 +80,22 @@ public final class PipelineService extends Service implements Runnable {
 		}
 	}
 
+    /**
+     * Signal pipeline about graph processing.
+     */
     public void notifyAboutGraphForPipeline() {
         synchronized (waitForGraphLock) {
             waitForGraphLock.notify();
         }
     }
     
+    /**
+     * Waiting for graph routine.
+     * 
+     * @return status of graph or null if is not graph for processing
+     * @throws PipelineGraphStatusException
+     * @throws InterruptedException
+     */
     private PipelineGraphStatus waitForGraphForPipeline() throws PipelineGraphStatusException, InterruptedException {
         while (getServiceState() == ServiceState.RUNNING) {
             PipelineGraphStatus status = PipelineGraphStatus.getNextGraphForPipeline(engine.getEngineUuid());
@@ -85,6 +111,11 @@ public final class PipelineService extends Service implements Runnable {
         return null;    
     }
     
+    /**
+     * Wait for queued graph and process it, while service is running.
+     * 
+     * @see cz.cuni.mff.odcleanstore.engine.Service#execute()
+     */
     @Override
     public void execute() {
         // CHECKSTYLE:OFF
@@ -124,6 +155,14 @@ public final class PipelineService extends Service implements Runnable {
         }
     }
     
+    /**
+     * Main graph pipeline handler.
+     * 
+     * @param status graph status object
+     * @throws PipelineGraphManipulatorException
+     * @throws PipelineGraphTransformerExecutorException
+     * @throws PipelineGraphStatusException
+     */
     private void executePipeline(PipelineGraphStatus status) 
             throws PipelineGraphManipulatorException, PipelineGraphTransformerExecutorException, PipelineGraphStatusException {
         
@@ -157,6 +196,14 @@ public final class PipelineService extends Service implements Runnable {
         }
     }
     
+    /**
+     * Execute graph with deleting state. 
+     * 
+     * @param manipulator graph manipulator object
+     * @param status graph status object
+     * @throws PipelineGraphManipulatorException
+     * @throws PipelineGraphStatusException
+     */
     private void executeStateDeleting(PipelineGraphManipulator manipulator, PipelineGraphStatus status)
             throws PipelineGraphManipulatorException, PipelineGraphStatusException {
 
@@ -168,6 +215,15 @@ public final class PipelineService extends Service implements Runnable {
         LOG.info(format("deleting successfully finished", status));
     }
     
+    /**
+     * Execute graph with processing state. 
+     * 
+     * @param manipulator graph manipulator object
+     * @param status graph status object
+     * @throws PipelineGraphManipulatorException
+     * @throws PipelineGraphStatusException
+     * @throws PipelineGraphTransformerExecutorException
+     */
     private void executeStateProcessing(PipelineGraphManipulator manipulator, PipelineGraphStatus status)
             throws PipelineGraphManipulatorException, PipelineGraphStatusException, PipelineGraphTransformerExecutorException {
         
@@ -188,6 +244,14 @@ public final class PipelineService extends Service implements Runnable {
         }
     }
     
+    /**
+     * Load data for  graph with processing state. 
+     * 
+     * @param manipulator graph manipulator object
+     * @param status graph status object
+     * @throws PipelineGraphManipulatorException
+     * @throws PipelineGraphStatusException
+     */
     private void executeStateProcessingLoadData(PipelineGraphManipulator manipulator, PipelineGraphStatus status)
             throws PipelineGraphManipulatorException, PipelineGraphStatusException {
 
@@ -202,6 +266,14 @@ public final class PipelineService extends Service implements Runnable {
         }
     }
     
+    /**
+     * Execute transformers on graph with processing state. 
+     * 
+     * @param manipulator graph manipulator object
+     * @param status graph status object
+     * @throws PipelineGraphTransformerExecutorException
+     * @throws PipelineGraphStatusException
+     */
     private void executeStateProcessingTransformers(PipelineGraphStatus status)
             throws PipelineGraphTransformerExecutorException, PipelineGraphStatusException  {
 
@@ -220,6 +292,14 @@ public final class PipelineService extends Service implements Runnable {
         }
     }
 
+    /**
+     * Execute graph with processed state. 
+     * 
+     * @param manipulator graph manipulator object
+     * @param status graph status object
+     * @throws PipelineGraphManipulatorException
+     * @throws PipelineGraphStatusException
+     */
     private void executeStateProcessed(PipelineGraphManipulator manipulator, PipelineGraphStatus status) 
             throws PipelineGraphManipulatorException, PipelineGraphStatusException {
         
@@ -240,6 +320,14 @@ public final class PipelineService extends Service implements Runnable {
         LOG.debug(format("copying temporary new data from dirty to clean db successfully finished", status));
     }
 
+    /**
+     * Execute graph with propagated state. 
+     * 
+     * @param manipulator graph manipulator object
+     * @param status graph status object
+     * @throws PipelineGraphManipulatorException
+     * @throws PipelineGraphStatusException
+     */
     private void executeStatePropagated(PipelineGraphManipulator manipulator, PipelineGraphStatus status)
             throws PipelineGraphManipulatorException, PipelineGraphStatusException {
 
@@ -249,6 +337,14 @@ public final class PipelineService extends Service implements Runnable {
         LOG.debug(format("renaming old graphs in clean db successfully finished", status));
     }
     
+    /**
+     * Execute graph with old graphs state. 
+     * 
+     * @param manipulator graph manipulator object
+     * @param status graph status object
+     * @throws PipelineGraphManipulatorException
+     * @throws PipelineGraphStatusException
+     */
     private void executeStateOldGraphsPrefixed(PipelineGraphManipulator manipulator, PipelineGraphStatus status)
             throws PipelineGraphManipulatorException, PipelineGraphStatusException {
 
@@ -260,6 +356,14 @@ public final class PipelineService extends Service implements Runnable {
                 "clearing temporary prefix of new graphs and clearing old graphs in clean dbsuccessfully finished", status));
     }
     
+    /**
+     * Execute graph with new graphs prepared state. 
+     * 
+     * @param manipulator graph manipulator object
+     * @param status graph status object 
+     * @throws PipelineGraphManipulatorException
+     * @throws PipelineGraphStatusException
+     */
     private void executeStateNewGraphsPrepared(PipelineGraphManipulator manipulator, PipelineGraphStatus status)
             throws PipelineGraphManipulatorException, PipelineGraphStatusException {
 
@@ -274,6 +378,14 @@ public final class PipelineService extends Service implements Runnable {
         }
     }
 
+    /**
+     * Execute graph with dirty state. 
+     * 
+     * @param manipulator graph manipulator object
+     * @param status graph status object
+     * @throws PipelineGraphManipulatorException
+     * @throws PipelineGraphStatusException
+     */
     private void executeStateDirty(PipelineGraphManipulator manipulator, PipelineGraphStatus status)
             throws PipelineGraphManipulatorException, PipelineGraphStatusException {
 
@@ -289,6 +401,13 @@ public final class PipelineService extends Service implements Runnable {
         }
     }
     
+    /**
+     * Formats message for logging.
+     * 
+     * @param message message
+     * @param status graph status
+     * @return formatted message
+     */
     private String format(String message, PipelineGraphStatus status) {
         try {
             StringBuilder sb = new StringBuilder();
@@ -307,6 +426,15 @@ public final class PipelineService extends Service implements Runnable {
         } 
     }
 
+    /**
+     * Formats exception for logging to database.
+     * 
+     * @param message message text
+     * @param exception exception caused logging
+     * @param command executing command with logged exception   
+     * @param status graph status for logged exception
+     * @return formatted message
+     */
     private static String formatExceptionForDB(
             String message, Throwable exception, PipelineCommand command, PipelineGraphStatus status) {
         

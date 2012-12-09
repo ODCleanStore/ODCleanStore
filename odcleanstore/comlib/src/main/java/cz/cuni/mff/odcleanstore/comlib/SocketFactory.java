@@ -19,11 +19,24 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+/**
+ * Factory of sockets with support of ssl.
+ * 
+ * @author Petr Jerman
+ */
 public class SocketFactory {
 
 	private SocketFactory() {
 	}
 
+	/**
+	 * Create non sll server socket.
+	 * 
+	 * @param hostName
+	 * @param port
+	 * @return
+	 * @throws IOException
+	 */
 	public static ServerSocket createServerSocket(String hostName, int port) throws IOException {
 		ServerSocket serverSocket = new ServerSocket();
 		InetSocketAddress endpoint = new InetSocketAddress(hostName, port);
@@ -31,6 +44,17 @@ public class SocketFactory {
 		return serverSocket;
 	}
 
+	/**
+	 * Create ssl server socket.
+	 * 
+	 * @param hostName
+	 * @param port
+	 * @param keyManagers
+	 * @return
+	 * @throws IOException
+	 * @throws KeyManagementException
+	 * @throws NoSuchAlgorithmException
+	 */
 	public static SSLServerSocket createSSLServerSocket(String hostName, int port, KeyManager[] keyManagers)
 			throws IOException, KeyManagementException, NoSuchAlgorithmException {
 
@@ -44,10 +68,31 @@ public class SocketFactory {
 		return serverSocket;
 	}
 
+	/**
+	 * 
+	 * Create non ssl client socket.
+	 * 
+	 * @param hostName
+	 * @param port
+	 * @return
+	 * @throws IOException
+	 * @throws UnknownHostException
+	 */
 	public static Socket createClientSocket(String hostName, int port) throws IOException, UnknownHostException {
 		return new Socket(hostName, port);
 	}
 
+	/**
+	 * Create ssl client socket which trust all certificates.
+	 * 
+	 * @param hostName
+	 * @param port
+	 * @return
+	 * @throws IOException
+	 * @throws UnknownHostException
+	 * @throws KeyManagementException
+	 * @throws NoSuchAlgorithmException
+	 */
 	public static SSLSocket createAllTrustSSLSocket(String hostName, int port)
 			throws IOException, UnknownHostException, KeyManagementException, NoSuchAlgorithmException {
 
@@ -63,6 +108,9 @@ public class SocketFactory {
 		return socket;
 	}
 
+	/**
+	 * Create static trustAllCerts object.
+	 */
 	private static synchronized void satisfyTrustAllCerts() {
 		if (trustAllCerts == null) {
 			trustAllCerts = new TrustManager[] { new X509TrustManager() {

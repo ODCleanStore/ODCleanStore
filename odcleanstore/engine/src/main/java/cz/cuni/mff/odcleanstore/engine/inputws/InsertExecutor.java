@@ -28,6 +28,11 @@ import cz.cuni.mff.odcleanstore.shared.Utils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 
+/**
+ * Class for executing insert inputws soap message.
+ * 
+ *  @author Petr Jerman
+ */
 public class InsertExecutor extends SoapInsertMethodExecutor {
     
     private static final Logger LOG = LoggerFactory.getLogger(InsertExecutor.class);
@@ -44,6 +49,11 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
     private boolean isActive;
     private final String namedGraphsPrefix;
 
+    /**
+     * Create InsertExecutor instance.
+     * 
+     * @throws InsertExecutorException
+     */
     public InsertExecutor() throws InsertExecutorException {
         try {
             inputDirectory = Engine.getCurrent().getDirtyDBImportExportDir();
@@ -57,6 +67,11 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
 		return lastActiveWaitingForRecoveryDate;
 	}
     
+    /**
+     * Element arrived text dispatcher.
+     * 
+     * @see cz.cuni.mff.odcleanstore.engine.inputws.SoapInsertMethodExecutor#onElement(java.lang.String, java.lang.String)
+     */
     @Override
     protected void onElement(String name, String content) throws InsertExecutorException {
 
@@ -85,11 +100,22 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
         }
     }
 
+    /**
+     * User element handler.
+     * 
+     * @param content
+     */
     private void user(String content) {
         LOG.info("InputWS - Incoming request execution started", content);
         user = content;
     }
 
+    /**
+     * Password element handler.
+     * 
+     * @param content
+     * @throws InsertExecutorException
+     */
     private void password(String content) throws InsertExecutorException {
 
         DbOdcsContext context = null;
@@ -120,10 +146,21 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
         }
     }
 
+    /**
+     * PipelineName handler.
+     * 
+     * @param content
+     */
     private void pipelineName(String content) {
         pipelineName = content;
     }
 
+    /**
+     * UUID handler.
+     * 
+     * @param content
+     * @throws InsertExecutorException
+     */
     private void uuid(String content) throws InsertExecutorException {
         if (content.isEmpty()) {
             throw new InsertExecutorException(InputWSErrorEnumeration.UUID_BAD_FORMAT, "uuid is empty");
@@ -151,6 +188,12 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
         writeMetadataFirst();
     }
 
+    /**
+     * First occurrence of writing metadata to file.
+
+     * 
+     * @throws InsertExecutorException
+     */
     private void writeMetadataFirst() throws InsertExecutorException {
         metadataWriter = createFile(inputDirectory + uuid + "-m.ttl");
 
@@ -159,6 +202,13 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
         writeMetadata(ODCS.insertedBy, "'" + Utils.escapeSPARQLLiteral(user) + "'");
     }
 
+    /**
+     * Write metadata row to file.
+     * 
+     * @param predicate 
+     * @param object
+     * @throws InsertExecutorException
+     */
     private void writeMetadata(String predicate, String object) throws InsertExecutorException {
         try {
             metadataWriter.append("<");
@@ -173,6 +223,12 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
         }
     }
 
+    /**
+     * Write provenance data to file.
+     * 
+     * @param content
+     * @throws InsertExecutorException
+     */
     private void writeProvenance(String content) throws InsertExecutorException {
         if (provenanceWriter == null) {
             content = FileUtils.removeInitialBOMXml(content);
@@ -186,6 +242,12 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
         }
     }
 
+    /**
+     * Write payload chunk to file.
+     * 
+     * @param content
+     * @throws InsertExecutorException
+     */
     private void writePayload(String content) throws InsertExecutorException {
         if (payloadWriter == null) {
             content = FileUtils.removeInitialBOMXml(content);
@@ -199,6 +261,13 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
         }
     }
 
+    /**
+     * Create file for writing.
+     * 
+     * @param name
+     * @return BufferedWriter
+     * @throws InsertExecutorException
+     */
     private BufferedWriter createFile(String name) throws InsertExecutorException {
         try {
             FileOutputStream fos = new FileOutputStream(name);
@@ -210,6 +279,11 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
         }
     }
 
+    /**
+     * Close all files and commit changes to state objects.
+     * 
+     * @see cz.cuni.mff.odcleanstore.comlib.soap.SoapMethodExecutor#endParsing()
+     */
     @Override
     public void endParsing() throws InsertExecutorException {
         ComlibUtils.closeQuietly(metadataWriter);
@@ -232,7 +306,7 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
      * Calculates an MD5 hash of the given string value.
      * 
      * @param pattern
-     * @return
+     * @return hash
      * @throws NoSuchAlgorithmException
      */
     static String calculateHash(String password, String salt) throws NoSuchAlgorithmException {
@@ -259,6 +333,9 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
         return result;
     }
 
+    /**
+     * Revert active import on error.
+     */
     void cleanOnError() {
         if (!isActive) {
             return;
@@ -268,6 +345,9 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
         revertImport(uuidStr);
     }
 
+    /**
+     * Recovery on startup for possibly crashed service. 
+     */
     static void recoveryOnStartup() {
         String[] uuids = null;
         while (true) {
@@ -298,6 +378,11 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
         LOG.info("InputWS - Recovery on startup successfully ended");
     }
 
+    /**
+     * Revert import for uuid.
+     * 
+     * @param uuid
+     */
     static synchronized void revertImport(String uuid) {
         while (true) {
             try {
@@ -318,6 +403,12 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
         }
     }
 
+    /**
+     * Delete input files for given graph uuid.
+     * 
+     * @param uuid graoph uuid
+     * @return success
+     */
     static boolean deleteInputFiles(String uuid) {
         boolean retVal = true;
         try {
@@ -334,6 +425,12 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
         }
     }
 
+    /**
+     * Delete input file.
+     * 
+     * @param file file for deleting
+     * @return success
+     */
     private static boolean deleteFile(File file) {
         try {
             if (!file.delete() && file.exists()) {

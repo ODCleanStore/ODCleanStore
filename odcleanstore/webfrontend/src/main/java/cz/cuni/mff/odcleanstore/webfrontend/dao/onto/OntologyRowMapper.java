@@ -9,7 +9,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.dao.CustomRowMapper;
 /**
  * The Ontology Row Mapper.
  * 
- * @author Tomáš Soukup
+ * @author Tomas Soukup
  *
  */
 public class OntologyRowMapper extends CustomRowMapper<Ontology>

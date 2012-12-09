@@ -15,6 +15,8 @@ import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.Service;
 
 /**
+ * Service for importing input data for odcs.
+ * 
  * @author Petr Jerman
  */
 public final class InputWSService extends Service {
@@ -24,11 +26,19 @@ public final class InputWSService extends Service {
 	private InputWSHttpServer server;
 	private ScheduledThreadPoolExecutor executor;
 
+	/**
+	 * Create InputWSService instance. 
+	 * 
+	 * @param engine
+	 */
 	public InputWSService(Engine engine) {
 		super(engine, "InputWSService");
 		executor = new ScheduledThreadPoolExecutor(8);
 	}
 
+	/**
+	 * @see cz.cuni.mff.odcleanstore.engine.Service#getServiceStateInfo()
+	 */
 	@Override
 	public String getServiceStateInfo() {
 		Date lastRecoveryDate = InsertExecutor.getLastActiveWaitingForRecoveryDate();
@@ -43,6 +53,11 @@ public final class InputWSService extends Service {
 		return String.format("InputWS is not running, has %s state", getServiceState().toString());
 	}
 
+	/**
+	 * Bind http(s) server.
+	 * 
+	 * @see cz.cuni.mff.odcleanstore.engine.Service#initialize()
+	 */
 	@Override
 	protected void initialize() throws Exception {
 
@@ -63,6 +78,10 @@ public final class InputWSService extends Service {
 		server.start(executor);
 	}
 
+	/**
+	 * Recovery input graphs and set http(s) server to accept incoming requests in own thread.
+	 * @see cz.cuni.mff.odcleanstore.engine.Service#execute()
+	 */
 	@Override
 	protected void execute() throws Exception {
 		executor.execute(new Runnable() {
@@ -73,6 +92,11 @@ public final class InputWSService extends Service {
 		});
 	}
 
+	/**
+	 * Stop http(s) server.
+	 * 
+	 * @see cz.cuni.mff.odcleanstore.engine.Service#shutdown()
+	 */
 	@Override
 	public void shutdown() throws Exception {
 		if (server != null) {
@@ -80,6 +104,9 @@ public final class InputWSService extends Service {
 		}
 	}
 
+	/**
+	 * Recovery input graphs and set http(s) server to accept incoming requests.
+	 */
 	private void executeInternal() {
 		InsertExecutor.recoveryOnStartup();
 		server.setAvailable(true);

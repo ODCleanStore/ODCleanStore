@@ -1,0 +1,3 @@
+SET AUTOCOMMIT ON;
+
+

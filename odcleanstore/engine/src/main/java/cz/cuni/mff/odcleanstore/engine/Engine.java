@@ -18,6 +18,8 @@ import cz.cuni.mff.odcleanstore.engine.pipeline.PipelineService;
 import cz.cuni.mff.odcleanstore.shared.FileUtils;
 
 /**
+ * Main class for running services.
+ * 
  * @author Petr Jerman
  */
 public final class Engine {
@@ -53,6 +55,11 @@ public final class Engine {
     private Engine() {
     }
 
+    /**
+     * Check java version. 
+     * 
+     * @throws EngineException
+     */
     private void checkJavaVersion() throws EngineException {
         String version = System.getProperty("java.version");
         int pos = 0, count = 0;
@@ -76,6 +83,12 @@ public final class Engine {
         }
     }
     
+    /**
+     * Load odcs configuration.
+     * 
+     * @param args engine command parameters
+     * @throws Exception
+     */
     private void loadConfiguration(String[] args) throws Exception {
             if (args.length > 0) {
                 ConfigLoader.loadConfig(args[0]);
@@ -86,6 +99,9 @@ public final class Engine {
             dirtyDBImportExportDir =  ConfigLoader.getConfig().getEngineGroup().getDirtyImportExportDir();
     }
     
+    /**
+     * Set JVM shutdown hook.
+     */
     private void setShutdownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
@@ -95,6 +111,12 @@ public final class Engine {
         });
     }
 
+    /**
+     * Initialize engine.
+     * 
+     * @param args engine command parameters
+     * @throws Exception
+     */
     private void init(String[] args) throws Exception {
         checkJavaVersion();
         checkLoggingConfiguration();
@@ -113,6 +135,11 @@ public final class Engine {
         pipelineService = new PipelineService(this);
     }
 
+    /**
+     * Run engine.
+     * 
+     * @param arg engine command parameters
+     */
     private void run(String[] args) {
         try {
             LOG.info("Engine initializing");
@@ -146,6 +173,9 @@ public final class Engine {
         }
     }
 
+    /**
+     * Shutdown engine with all services.
+     */
     private void shutdown() {
         try {
             synchronized (shutdownLock) {
@@ -189,6 +219,12 @@ public final class Engine {
         }
     }
 
+    /**
+     * Information from service about state changes.
+     * 
+     * @param service service with state changes
+     * @param oldState previous service state
+     */
     void onServiceStateChanged(Service service, ServiceState oldState) {
         if (oldState.isNewOrInitializing() && !service.getServiceState().isNewOrInitializing()) {
             synchronized (startupLock) {
@@ -207,6 +243,12 @@ public final class Engine {
         }
     }
 
+    /**
+     * Wait for run decision on startup.
+     * 
+     * @return run decision for engine
+     * @throws InterruptedException
+     */
     boolean waitForCanRunDecision() throws InterruptedException {
         synchronized (startupLock) {
             if (isAnyServiceNewOrInitializing()) {
@@ -247,12 +289,18 @@ public final class Engine {
         return engine; 
     }
 
+    /**
+     * Signal pipeline about graph for input.
+     */
     public void signalToPipelineService() {
         if (engine != null && engine.pipelineService != null) {
             engine.pipelineService.notifyAboutGraphForPipeline();
         }
     }
         
+    /**
+     * @return engine uuid
+     */
     public String getEngineUuid() {
         return ConfigLoader.getConfig().getEngineGroup().getEngineUuid().toString();
     }
@@ -280,7 +328,6 @@ public final class Engine {
     /**
      * @return Path for import and export files of dirty db instance.
      * @throws EngineException 
-     * @throws ConnectionException 
      */
     public String getDirtyDBImportExportDir() throws EngineException {
         VirtuosoConnectionWrapper con = null;
@@ -298,6 +345,11 @@ public final class Engine {
         }
     }
     
+    /**
+     * Update all service status to database.
+     * 
+     * @param stateDescription description of engine state
+     */
     private void updateEngineStatusToDb() {
     	if (shutdownIsInitiated) {
     		return;
@@ -312,7 +364,7 @@ public final class Engine {
     	sb.append("\n");
    		sb.append(outputWSService.getServiceStateInfo());
     	} catch (Exception e){
-    		LOG.warn("Getting dervice state info before updating engine state to db error");
+    		LOG.warn("Getting service state info before updating engine state to db error");
     	}
     	
     	if (sb != null) {
@@ -320,6 +372,11 @@ public final class Engine {
     	}
     }
  
+    /**
+     * Update status to database.
+     * 
+     * @param stateDescription description of engine state
+     */
     private void updateEngineStatusToDb(String stateDescription) {
     	DbOdcsContext context = null;
     	try {

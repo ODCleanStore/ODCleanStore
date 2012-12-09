@@ -3,6 +3,12 @@ package cz.cuni.mff.odcleanstore.webfrontend.dao;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.RulesGroupEntity;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.users.UserDao;
 
+/**
+ * Abstract DAO for groups of rules (OI/QA/DN).
+ * @author Jan Michelfeit
+ *
+ * @param <T>
+ */
 public abstract class AbstractRulesGroupDao<T extends RulesGroupEntity> extends DaoForAuthorableEntity<T>
 {
 	private static final long serialVersionUID = 1L;

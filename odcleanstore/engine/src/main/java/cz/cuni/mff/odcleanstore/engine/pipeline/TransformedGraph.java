@@ -9,6 +9,8 @@ import cz.cuni.mff.odcleanstore.transformer.TransformedGraphException;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 
 /**
+ * Container for all necessary information about a transformed graph for a custom transformer.
+ * 
  *  @author Petr Jerman
  */
 public final class TransformedGraph implements cz.cuni.mff.odcleanstore.transformer.TransformedGraph {
@@ -26,10 +28,16 @@ public final class TransformedGraph implements cz.cuni.mff.odcleanstore.transfor
         this.graphStatus = graphStatus;
     }
     
+    /**
+* 	Deactivate object, calling deactivated object method caused exception. 
+     */
     void deactivate() {
         this.graphStatus = null;
     }
     
+    /**
+     * @see cz.cuni.mff.odcleanstore.transformer.TransformedGraph#getGraphName()
+     */
     @Override
     public String getGraphName() {
         PipelineGraphStatus graphStatus = this.graphStatus;
@@ -40,6 +48,9 @@ public final class TransformedGraph implements cz.cuni.mff.odcleanstore.transfor
         return graphStatus.getNamedGraphsPrefix() + ODCSInternal.dataGraphUriInfix + graphStatus.getUuid();
     }
 
+    /**
+     * @see cz.cuni.mff.odcleanstore.transformer.TransformedGraph#getGraphId()
+     */
     @Override
     public String getGraphId() {
         PipelineGraphStatus graphStatus = this.graphStatus;
@@ -50,6 +61,9 @@ public final class TransformedGraph implements cz.cuni.mff.odcleanstore.transfor
         return graphStatus.getUuid();
     }
 
+    /**
+     * @see cz.cuni.mff.odcleanstore.transformer.TransformedGraph#getMetadataGraphName()
+     */
     @Override
     public String getMetadataGraphName() {
         PipelineGraphStatus graphStatus = this.graphStatus;
@@ -60,6 +74,9 @@ public final class TransformedGraph implements cz.cuni.mff.odcleanstore.transfor
         return graphStatus.getNamedGraphsPrefix() + ODCSInternal.metadataGraphUriInfix + graphStatus.getUuid();
     }
 
+    /**
+     * @see cz.cuni.mff.odcleanstore.transformer.TransformedGraph#getProvenanceMetadataGraphName()
+     */
     @Override
     public String getProvenanceMetadataGraphName() {
         PipelineGraphStatus graphStatus = this.graphStatus;
@@ -70,6 +87,9 @@ public final class TransformedGraph implements cz.cuni.mff.odcleanstore.transfor
         return graphStatus.getNamedGraphsPrefix() + ODCSInternal.provenanceMetadataGraphUriInfix + graphStatus.getUuid();
     }
 
+    /**
+     * @see cz.cuni.mff.odcleanstore.transformer.TransformedGraph#getAttachedGraphNames()
+     */
     @Override
     public Collection<String> getAttachedGraphNames() {
         PipelineGraphStatus graphStatus = this.graphStatus;
@@ -80,6 +100,9 @@ public final class TransformedGraph implements cz.cuni.mff.odcleanstore.transfor
         return graphStatus.getAttachedGraphs();
     }
 
+    /**
+     * @see cz.cuni.mff.odcleanstore.transformer.TransformedGraph#addAttachedGraph(java.lang.String)
+     */
     @Override
     public void addAttachedGraph(String attachedGraphName) throws TransformedGraphException {
         PipelineGraphStatus graphStatus = this.graphStatus;
@@ -95,6 +118,9 @@ public final class TransformedGraph implements cz.cuni.mff.odcleanstore.transfor
         }
     }
 
+    /**
+     * @see cz.cuni.mff.odcleanstore.transformer.TransformedGraph#deleteGraph()
+     */
     @Override
     public void deleteGraph() throws TransformedGraphException {
         PipelineGraphStatus graphStatus = this.graphStatus;
@@ -105,6 +131,9 @@ public final class TransformedGraph implements cz.cuni.mff.odcleanstore.transfor
         graphStatus.markForDeleting();
     }
 
+    /**
+     * @see cz.cuni.mff.odcleanstore.transformer.TransformedGraph#isDeleted()
+     */
     @Override
     public boolean isDeleted() {
         PipelineGraphStatus graphStatus = this.graphStatus;

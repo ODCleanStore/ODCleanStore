@@ -11,33 +11,44 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import cz.cuni.mff.odcleanstore.installer.ui.WizardFrame;
-import cz.cuni.mff.odcleanstore.installer.ui.WizardStep;
+import cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardFrame;
+import cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardStep;
 import cz.cuni.mff.odcleanstore.installer.utils.AwtUtils;
 import cz.cuni.mff.odcleanstore.installer.utils.FileUtils;
 import cz.cuni.mff.odcleanstore.installer.utils.FileUtils.DirectoryException;
 
-public class GetEngineDirectoryStep extends WizardStep {
+/**
+ * A step for getting destination engine directory from user.
+ * 
+ * @author Petr Jerman
+ */
+public class GetEngineDirectoryStep extends InstallationWizardStep {
 
 	private JPanel panel;
 	private JLabel jlbDirectory;
 	private JTextField jtfDirectory;
 	private JButton jbDirectory;
 
-	protected GetEngineDirectoryStep(WizardFrame wizardFrame) {
+	/**
+	 * Create instance for getting destination engine directory from user. 
+	 * 
+	 * @param wizardFrame parent frame wizard
+	 */
+	protected GetEngineDirectoryStep(InstallationWizardFrame wizardFrame) {
 		super(wizardFrame);
 	}
 
+	/**
+	 * @see cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardStep#getStepTitle()
+	 */
 	@Override
 	public String getStepTitle() {
 		return "setting the engine directory";
 	}
 
-	@Override
-	public String getNextNavigationButtonText() {
-		return "Validate and possibly create engine directory";
-	}
-
+	/**
+	 * @see cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardStep#getFormPanel()
+	 */
 	@Override
 	public JPanel getFormPanel()  {
 
@@ -56,6 +67,11 @@ public class GetEngineDirectoryStep extends WizardStep {
 		return panel;
 	}
 
+	/**
+	 * Validate engine destination directory from user.
+	 * 
+	 * @see cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardStep#onNext()
+	 */
 	@Override
 	public boolean onNext() {
 		String dirName = jtfDirectory.getText();
@@ -93,6 +109,9 @@ public class GetEngineDirectoryStep extends WizardStep {
 		return true;
 	}
 
+	/**
+	 * @see cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardStep#onFormEvent(java.awt.event.ActionEvent)
+	 */
 	@Override
 	public void onFormEvent(ActionEvent arg) {
 		if (arg.getSource() == jbDirectory) {
@@ -109,6 +128,9 @@ public class GetEngineDirectoryStep extends WizardStep {
 		}
 	}
 
+	/**
+	 * @return engine directory
+	 */
 	public File getEngineDirectory() {
 		return new File(jtfDirectory.getText());
 	}

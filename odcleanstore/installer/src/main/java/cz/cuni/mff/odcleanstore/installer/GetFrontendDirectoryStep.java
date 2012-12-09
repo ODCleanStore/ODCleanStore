@@ -11,40 +11,51 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import cz.cuni.mff.odcleanstore.installer.ui.WizardFrame;
-import cz.cuni.mff.odcleanstore.installer.ui.WizardStep;
+import cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardFrame;
+import cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardStep;
 import cz.cuni.mff.odcleanstore.installer.utils.AwtUtils;
 import cz.cuni.mff.odcleanstore.installer.utils.FileUtils;
 import cz.cuni.mff.odcleanstore.installer.utils.FileUtils.DirectoryException;
 
-public class GetFrontendDirectoryStep extends WizardStep {
+/**
+ * A step for getting odcleanstore front end destination directory from user.
+ * 
+ * @author Petr Jerman
+ */
+public class GetFrontendDirectoryStep extends InstallationWizardStep {
 
 	private JPanel panel;
 	private JLabel jlbDirectory;
 	private JTextField jtfDirectory;
 	private JButton jbDirectory;
 
-	protected GetFrontendDirectoryStep(WizardFrame wizardFrame) {
+	/**
+	 * Create instance for getting odcleanstore front end destination directory from user.
+	 * 
+	 * @param wizardFrame parent wizard frame
+	 */
+	protected GetFrontendDirectoryStep(InstallationWizardFrame wizardFrame) {
 		super(wizardFrame);
 	}
 
+	/**
+	 * @see cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardStep#getStepTitle()
+	 */
 	@Override
 	public String getStepTitle() {
-		return "setting the front end directory";
+		return "setting the administration frontend directory";
 	}
 
-	@Override
-	public String getNextNavigationButtonText() {
-		return "Validate and possibly create front end directory";
-	}
-
+	/**
+	 * @see cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardStep#getFormPanel()
+	 */
 	@Override
 	public JPanel getFormPanel()  {
 
 		panel = new JPanel();
 		panel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-		jlbDirectory = new JLabel("Front end directory:");
+		jlbDirectory = new JLabel("Administration frontend directory:");
 		panel.add(jlbDirectory);
 		jtfDirectory = new JTextField(53);
 		panel.add(jtfDirectory);
@@ -56,43 +67,51 @@ public class GetFrontendDirectoryStep extends WizardStep {
 		return panel;
 	}
 
+	/**
+	 * Validate odcleanstore front end destination directory from user.
+	 * 
+	 * @see cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardStep#onNext()
+	 */
 	@Override
 	public boolean onNext() {
 		String dirName = jtfDirectory.getText();
 		if (dirName.isEmpty()) {
-			getWizardFrame().showWarningDialog("Front end directory is empty - enter it", "Error");
+			getWizardFrame().showWarningDialog("Administration frontend directory is empty - enter it", "Error");
 			return false;
 		}
 
 		File file = new File(dirName);
 		if (!file.exists()) {
 			String message = String.format("Create directory %s?", file.getAbsolutePath());
-			if (getWizardFrame().showConfirmDialog(message, "Creating not existing front end directory")) {
+			if (getWizardFrame().showConfirmDialog(message, "Creating not existing administration frontend directory")) {
 				try {
 					FileUtils.satisfyDirectory(dirName);
 					if (!file.exists()) {
 						String messageError = String.format("Error creating %s directory.", file.getAbsolutePath());
-						getWizardFrame().showWarningDialog(messageError, "Creating not existing front end directory");
+						getWizardFrame().showWarningDialog(messageError, "Creating not existing administration frontend directory");
 						return false;
 					}
 				} catch (DirectoryException e) {
 					String messageError = String.format("Error creating %s directory.", file.getAbsolutePath());
-					getWizardFrame().showWarningDialog(messageError, "Creating not existing front end directory");
+					getWizardFrame().showWarningDialog(messageError, "Creating not existing administration frontend directory");
 					return false;
 				}
 			} else {
 				return false;
 			}
 		}
-		if (file.list().length > 0) {
+		/*if (file.list().length > 0) {
 			if (!getWizardFrame().showConfirmDialog("Directory is not empty,\n do you want to continue?", "warning")) {
 				return false;
 			}
-		}
+		}*/
 
 		return true;
 	}
 
+	/**
+	 * @see cz.cuni.mff.odcleanstore.installer.ui.InstallationWizardStep#onFormEvent(java.awt.event.ActionEvent)
+	 */
 	@Override
 	public void onFormEvent(ActionEvent arg) {
 		if (arg.getSource() == jbDirectory) {
@@ -109,6 +128,9 @@ public class GetFrontendDirectoryStep extends WizardStep {
 		}
 	}
 
+	/**
+	 * @return front end destination directory
+	 */
 	public File getFrontendDirectory() {
 		return new File(jtfDirectory.getText());
 	}

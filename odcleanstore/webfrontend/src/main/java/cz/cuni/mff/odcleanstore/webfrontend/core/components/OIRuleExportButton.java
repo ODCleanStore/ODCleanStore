@@ -17,6 +17,11 @@ import cz.cuni.mff.odcleanstore.linker.rules.SilkRule;
 import cz.cuni.mff.odcleanstore.shared.RDFPrefixesLoader;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
 
+/**
+ * Button for exporting OI rules.
+ * 
+ * @author Tomas Soukup
+ */
 public class OIRuleExportButton extends Button 
 {
 	private static final long serialVersionUID = 1L;
@@ -24,6 +29,10 @@ public class OIRuleExportButton extends Button
 	
 	private OIRule rule;
 	
+	/**
+	 * @param rule
+	 * @param compName
+	 */
 	public OIRuleExportButton(OIRule rule, String compName)
 	{
 		super(compName);

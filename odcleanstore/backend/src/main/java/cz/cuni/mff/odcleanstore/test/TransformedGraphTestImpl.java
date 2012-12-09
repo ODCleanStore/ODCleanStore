@@ -5,8 +5,11 @@ import cz.cuni.mff.odcleanstore.transformer.TransformedGraphException;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.UUID;
 
+/**
+ * Transformed graph mock object.
+ * @author Tomas Soukup
+ */
 public class TransformedGraphTestImpl implements TransformedGraph {
 
 	private String graphName;

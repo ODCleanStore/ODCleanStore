@@ -21,6 +21,12 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.UploadButton;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.oi.OIRulesGroupDao;
 import cz.cuni.mff.odcleanstore.webfrontend.pages.LimitedEditingPage;
 
+/**
+ * Policy creator can debug OI rules on this page.
+ * He can upload input RDF data from a file, 
+ * run OI with rules from selected group and see its results on following page. 
+ * @author Tomas Soukup
+ */
 @AuthorizeInstantiation({ Role.PIC })
 public class OIDebugPage extends LimitedEditingPage 
 {	
@@ -29,6 +35,9 @@ public class OIDebugPage extends LimitedEditingPage
 	
 	private String rdfInput;
 	
+	/**
+	 * @param groupId ID of the group of OI rules to debug
+	 */
 	public OIDebugPage(Integer groupId)
 	{
 		super(

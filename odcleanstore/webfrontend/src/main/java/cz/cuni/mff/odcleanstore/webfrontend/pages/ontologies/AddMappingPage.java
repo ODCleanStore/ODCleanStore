@@ -22,6 +22,11 @@ import cz.cuni.mff.odcleanstore.webfrontend.core.components.DetachableAutoComple
 import cz.cuni.mff.odcleanstore.webfrontend.dao.onto.RelationTypeDao;
 import cz.cuni.mff.odcleanstore.webfrontend.validators.JenaURIValidator;
 
+/**
+ * Ontology creator can add new mappings between previously choseon ontologies on this page.
+ * He does so by inputting source URI, target URI and relation type into auto-complete fields.
+ * @author Tomas Soukup
+ */
 @AuthorizeInstantiation({ Role.ONC })
 public class AddMappingPage extends MappingsListPage 
 {	
@@ -30,6 +35,10 @@ public class AddMappingPage extends MappingsListPage
 	
 	private RelationTypeDao relationTypeDao;
 
+	/**
+	 * @param sourceOntology ontology stored in our database
+	 * @param targetOntoGraphName graphName of target ontology, can be null, which represents external ontology
+	 */
 	public AddMappingPage(Ontology sourceOntology, String targetOntoGraphName) 
 	{
 		super(

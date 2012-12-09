@@ -1,6 +1,3 @@
-/**
- * 
- */
 package cz.cuni.mff.odcleanstore.installer.utils;
 
 import java.io.File;
@@ -11,12 +8,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * Utility methods for working with files.
- * @author jermanp
+ * Helpers for working with files and directories.
+ * 
+ * @author Petr Jerman
  */
 @SuppressWarnings("serial")
 public final class FileUtils {
 	
+	/** buffer for copying files. */
 	private static final byte[] BUFFER = new byte[4096 * 1024];
 	
     /** Disable constructor for utility class. */
@@ -33,7 +32,15 @@ public final class FileUtils {
             super(cause);
         }
     }
-
+   
+	/**
+	 * Copy folder fileas and directories recursive to subdirectories.
+	 * 
+	 * @param src source folder
+	 * @param dst destination folder
+	 * @param afterStep callback called after each file copy operation
+	 * @throws IOException
+	 */
 	public static void copyFolder(File src, File dst, Runnable afterStep) throws IOException {
 
 		if (src.isDirectory()) {
@@ -70,11 +77,26 @@ public final class FileUtils {
 			}
 		}
 	}
-    
+	
+    /**
+     * Satisfy presence of directory relative to working directory.
+     * 
+     * @param dirName directory name 
+     * @return canonical path of directory
+     * @throws DirectoryException
+     */
     public static String satisfyDirectory(String dirName) throws DirectoryException {
         return satisfyDirectory(dirName, ".");
     }
 
+    /**
+     * Satisfy presence of directory relative to base.
+     *      
+     * @param dirName directory name
+     * @param baseForRelativePath relative base for directory name
+     * @return canonical path of directory
+     * @throws DirectoryException
+     */
     public static String satisfyDirectory(String dirName, String baseForRelativePath) throws DirectoryException {
         try {
             File file = createFileObject(dirName, baseForRelativePath);
@@ -92,6 +114,13 @@ public final class FileUtils {
         }
     }
 
+    /**
+     * Create file object for both absolute and relative path.
+     * 
+     * @param fileName file name
+     * @param baseForRelativePath relative base for relative file name
+     * @return file object
+     */
     private static File createFileObject(String fileName, String baseForRelativePath) {
         File file = new File(fileName);
         if (!file.isAbsolute()) {
@@ -101,6 +130,11 @@ public final class FileUtils {
         return file;
     }
 
+    /**
+     * Ssatisfy existency of parent directory.
+     * 
+     * @param file file for testing
+     */
     private static void satisfyParentDirectoryExist(File file) {
         File parent = file.getParentFile();
         if (parent != null) {
@@ -111,6 +145,14 @@ public final class FileUtils {
         }
     }
 
+    /**
+     * Check directory presence and reading and writing capabilities.
+     * 
+     * @param file file for checking
+     * @return canonical name of file
+     * @throws DirectoryException
+     * @throws IOException
+     */
     private static String checkDirectoryAndReturnCanonicalPath(File file) throws DirectoryException, IOException {
         String canonicalPath = file.getCanonicalPath();
 

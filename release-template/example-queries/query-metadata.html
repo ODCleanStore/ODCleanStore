@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8" />
+  <title>ODCleanStore - metadata query</title>
+ </head>
+ <body> 
+  <h2>ODCleanStore - metadata query</h2>
+  <form method="get" action="http://localhost:8087/metadata">
+    <table>
+     <tr><td>Server address:</td><td><input type="text" value="localhost:8087" onChange="this.form.action='http://' + this.value + '/metadata';" /></td><td>&nbsp;</td></tr>
+     <tr><td>Named graph URI:</td><td><input style="width:500px;" type="text" name="uri" value="http://opendata.cz/infrastructure/odcleanstore/data/fbc0f90b-79f4-4264-9201-89e3e90fe218" /></td><td>&nbsp;</td></tr>
+	 <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+	 <tr><td>Output format:</td><td>
+	  <select name="format">
+	   <option value="html" selected="selected">HTML</option>
+	   <option value="trig">TriG</option>
+	   <option value="rdfxml">RDF/XML</option>
+	  </select></td><td>&nbsp;</td></tr>
+     <tr><td>&nbsp;</td><td><input type="submit" value="Submit" /></td></tr>
+     </table>
+  </form>
+  <p>If you cannot connect to the server, make sure you have ODCleanStore Engine running.</p>
+ </body>
+</html>
