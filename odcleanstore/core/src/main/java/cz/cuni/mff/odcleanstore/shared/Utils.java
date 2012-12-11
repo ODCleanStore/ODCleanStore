@@ -174,6 +174,15 @@ public final class Utils {
     public static String getVirtuosoURIForBlankNode(Node bNode) {
         return "nodeID://" + bNode.getBlankNodeLabel();
     }
+    
+    /**
+     * Converts an object or null refrence to a string (null is converted to the empty string).
+     * @param obj object to stringify
+     * @return string representation of obj
+     */
+    public static String toStringNullProof(Object obj) {
+        return obj == null ? "" : obj.toString();
+    }
         
     /** Disable constructor for a utility class. */
     private Utils() {
