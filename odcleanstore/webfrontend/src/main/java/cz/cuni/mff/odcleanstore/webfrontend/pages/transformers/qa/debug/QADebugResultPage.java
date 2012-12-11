@@ -60,7 +60,7 @@ public class QADebugResultPage extends FrontendPage
 					protected void populateItem(ListItem<QualityAssessmentRule> item) {
 						QualityAssessmentRule rule = item.getModelObject();
 						
-						item.add(new Label("description", rule.getDescription()));
+						item.add(new Label("label", rule.getLabel()));
 						
 						item.add(new RoundedNumberLabel("coefficient", rule.getCoefficient()));
 						

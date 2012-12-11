@@ -104,7 +104,7 @@ public class DNDebugResultPage extends FrontendPage
 							(
 								DNRuleDetailPage.class,
 								"showDNRuleDetailPage",
-								record.getRule().getDescription(),
+								record.getRule().getLabel(),
 								record.getRule().getId()
 							)
 						);			
