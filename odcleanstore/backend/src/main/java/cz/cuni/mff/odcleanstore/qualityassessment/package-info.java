@@ -1,4 +1,4 @@
 /**
- * The Quality Assessment transformer rules, rule querying and generation.
+ * The Quality Assessment transformer (public interface).
  */
-package cz.cuni.mff.odcleanstore.qualityassessment.rules;
+package cz.cuni.mff.odcleanstore.qualityassessment;
