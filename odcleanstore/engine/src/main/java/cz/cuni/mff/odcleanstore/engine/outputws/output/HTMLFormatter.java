@@ -183,27 +183,27 @@ public class HTMLFormatter extends ResultFormatterBase {
                 switch (queryResult.getQueryType()) {
                 case KEYWORD:
                     writer.write("Keyword query for <code>");
-                    writer.write(queryResult.getQuery());
+                    writer.write(Utils.toStringNullProof(queryResult.getQuery()));
                     writer.write("</code>.");
                     break;
                 case URI:
                     writer.write("URI query for &lt;");
-                    writer.write(queryResult.getQuery());
+                    writer.write(Utils.toStringNullProof(queryResult.getQuery()));
                     writer.write("&gt;.");
                     break;
                 case METADATA:
                     writer.write("Metadata query for named graph &lt;");
-                    writer.write(queryResult.getQuery());
+                    writer.write(Utils.toStringNullProof(queryResult.getQuery()));
                     writer.write("&gt;.");
                     break;
                 case NAMED_GRAPH:
                     writer.write("Named graph query for &lt;");
-                    writer.write(queryResult.getQuery());
+                    writer.write(Utils.toStringNullProof(queryResult.getQuery()));
                     writer.write("&gt;.");
                     break;
                 default:
                     writer.write("Query <code>");
-                    writer.write(queryResult.getQuery());
+                    writer.write(Utils.toStringNullProof(queryResult.getQuery()));
                     writer.write("</code>.");
                 }
             }
@@ -252,7 +252,7 @@ public class HTMLFormatter extends ResultFormatterBase {
                 }
                 writer.write("</td><td>");
                 if (metadata.getScore() != null) {
-                    writer.write(metadata.getScore().toString());
+                    writer.write(Utils.toStringNullProof(metadata.getScore()));
                 }
                 writer.write("</td><td>");
                 List<String> licenseList = metadata.getLicences();
@@ -262,7 +262,7 @@ public class HTMLFormatter extends ResultFormatterBase {
                         if (!isFirst) {
                             writer.write(", ");
                         }
-                        writer.write(license);
+                        writer.write(Utils.toStringNullProof(license));
                         isFirst = false;
                     }
                 }
@@ -323,7 +323,7 @@ public class HTMLFormatter extends ResultFormatterBase {
                 }
                 
             } else {
-                writer.write(node.toString());
+                writer.write(Utils.toStringNullProof(node));
             }
         }
         
@@ -645,9 +645,11 @@ public class HTMLFormatter extends ResultFormatterBase {
             for (QualityAssessmentRule rule : qaRules) {
                 writeOpeningTr(writer, ++row);
                 writer.write("<td>");
-                writer.write(rule.getDescription());
+                writer.write(Utils.toStringNullProof(rule.getLabel()));
                 writer.write("</td><td>");
-                writer.write(String.format(Locale.ROOT, "%.5f", rule.getCoefficient()));
+                if (rule.getCoefficient() != null) {
+                    writer.write(String.format(Locale.ROOT, "%.5f", rule.getCoefficient()));
+                }
                 writer.write("</td></tr>\n");
             }
             writer.write(" </table>\n");
