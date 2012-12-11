@@ -88,6 +88,8 @@ table
 form
 {
 	margin: 10px 0px;
+	border: 1px dotted lightblue;
+    padding: 3px;
 }
 
 label
