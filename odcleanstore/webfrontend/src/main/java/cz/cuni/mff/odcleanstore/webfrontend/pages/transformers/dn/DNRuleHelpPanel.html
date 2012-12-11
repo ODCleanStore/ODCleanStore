@@ -1,17 +1,17 @@
 <wicket:panel>
 
-	<h1>Data Normalization rule</h1>
+	<h1>Data Normalization Rule</h1>
 
 	<wicket:link>
-		<p>The detail page of a group serves the user as means of specification of individual rules contained in the selected group. Each rule is essentially a sequence of SPARUL<sup><a href="#SPARUL">1</a></sup> Inserts and/or Deletes. New rule represents an empty sequence upon its creation.</p>
+		<p>The detail page of a group serves the user as means of specification of individual rules contained in the selected group. Each rule is essentially a sequence of SPARUL<sup><a href="#SPARUL">1</a></sup> Inserts and/or Deletes, called rule components. New rule represents an empty sequence of components upon its creation.</p>
 
 		<p>Similarly as with the rules themselves the detail page of a rule allows the user to construct any arbitrary sequence of INSERT's, DELETE's and/or MODIFY's. Components of the rule (members of the sequence) can be added by specifying their type (either INSERT, DELETE or MODIFY), modification (SPARUL snippet stripped off of initial MODIFY / INSERT INTO / DELETE FROM clauses); e.g.,</p>
 
 		<p class="centered">{?s ?p1 ?o2} WHERE {GRAPH $$graph$$ {?s ?p1 ?o1. ?o1 ?p2 ?o2.}}</p>
 
-		<p>where $$graph$$ is a place holder for name of the graph being currently processed (Can be only used in GRAPH pattern). Expectedly triples (<em>?s ?p1 ?o2</em> in the example) are inserted into (deleted from) the current graph when the type of the component is INSERT (DELETE). Effects are immediate in respect to consecutive applications of other components of the same rule or other rules to the graph.</p>
+		<p>where $$graph$$ is a place holder for name of the graph being currently processed (Can be only used in a GRAPH pattern). Expectedly triples (<em>?s ?p1 ?o2</em> in the example) are inserted into (deleted from) the current graph when the type of the component is INSERT (DELETE). Effects are immediate in respect to consecutive applications of other components of the same rule or other rules to the graph.</p>
 		
-		<p>Use of the placeholder is necessary only when subqueries are present in the query. In the above example it was used just for illustration.</p>
+		<p>Use of the $$graph$$ placeholder is necessary only when subqueries are present in the query. In the above example it was used just for illustration.</p>
 		
 		<hr />
 		
