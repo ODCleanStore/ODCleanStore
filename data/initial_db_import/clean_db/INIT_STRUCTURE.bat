@@ -18,6 +18,6 @@ isql %1:%2 %3 %4 05_enable_fulltext_index.sql
 GOTO END
 
 :ERR
-ECHO USAGE: ALL.bat host port username password
+ECHO USAGE: INIT_STRUCTURE.bat host port username password
 
 :END
