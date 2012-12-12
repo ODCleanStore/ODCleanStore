@@ -3,7 +3,7 @@ INSERT INTO DB.ODCLEANSTORE.QA_RULES_GROUPS (label, description) VALUES (n'test 
 insert into DB.ODCLEANSTORE.QA_RULES_UNCOMMITTED (groupId, label, filter, coefficient, description) 
 values (
 	(SELECT id FROM DB.ODCLEANSTORE.QA_RULES_GROUPS WHERE label = n'test group'), 
-	'invalid procurement reference', 
+	n'invalid procurement reference', 
 	n'{{?s <http://purl.org/procurement#referenceNumber> ?o} FILTER (bif:regexp_like(?o, \'[a-zA-Z]\'))}', 
 	0.9, 
 	n'PROCUREMENT REFERENCE NUMBER CONSISTS OF UNANTICIPATED CHARACTERS'
@@ -12,7 +12,7 @@ values (
 insert into DB.ODCLEANSTORE.QA_RULES_UNCOMMITTED (groupId, label, filter, coefficient, description) 
 values (
 	(SELECT id FROM DB.ODCLEANSTORE.QA_RULES_GROUPS WHERE label = n'test group'), 
-	'invalid procedure type', 
+	n'invalid procedure type', 
 	n'{{?s <http://purl.org/procurement#procedureType> ?o}} GROUP BY ?g ?s HAVING count(?o) > 1', 
 	0.75, 
 	n'PROCEDURE TYPE AMBIGUOUS'
@@ -21,7 +21,7 @@ values (
 insert into DB.ODCLEANSTORE.QA_RULES_UNCOMMITTED (groupId, label, filter, coefficient, description) 
 values (
 	(SELECT id FROM DB.ODCLEANSTORE.QA_RULES_GROUPS WHERE label = n'test group'), 
-	'invalid tender completion date', 
+	n'invalid tender completion date', 
 	n'{{?s <http://purl.org/procurement#tenderDeadline> ?d; <http://purl.org/procurement#endDate> ?e} FILTER (?e > ?d)}', 
 	0.9, 
 	n'TENDER COMPLETION DATE EXCEEDED ITS DEADLINE'
@@ -30,7 +30,7 @@ values (
 insert into DB.ODCLEANSTORE.QA_RULES_UNCOMMITTED (groupId, label, filter, coefficient, description) 
 values (
 	(SELECT id FROM DB.ODCLEANSTORE.QA_RULES_GROUPS WHERE label = n'test group'), 
-	'invalid list of tenders', 
+	n'invalid list of tenders', 
 	n'{{?s <http://purl.org/procurement#numberOfTenders> ?n. ?s <http://purl.org/procurement#tender> ?t}} GROUP BY ?g ?s ?n HAVING count(?t) != ?n', 
 	0.9, 
 	n'LIST OF TENDERS HAS DIFFERENT SIZE FROM WHAT WAS EXPECTED BY \'numberOfTenders\' PROPERTY'
@@ -39,7 +39,7 @@ values (
 insert into DB.ODCLEANSTORE.QA_RULES_UNCOMMITTED (groupId, label, filter, coefficient, description) 
 values (
 	(SELECT id FROM DB.ODCLEANSTORE.QA_RULES_GROUPS WHERE label = n'test group'), 
-	'invalid procurement contant person', 
+	n'invalid procurement contant person', 
 	n'{{?s <http://purl.org/procurement#contactPerson> ?c}} GROUP BY ?g HAVING count(?c) != 1', 
 	0.8, 
 	n'PROCUREMENT CONTACT PERSON MISSING'
@@ -48,7 +48,7 @@ values (
 insert into DB.ODCLEANSTORE.QA_RULES_UNCOMMITTED (groupId, label, filter, coefficient, description) 
 values (
 	(SELECT id FROM DB.ODCLEANSTORE.QA_RULES_GROUPS WHERE label = n'test group'), 
-	'invalid procurement', 
+	n'invalid procurement', 
 	n'{{?s <http://purl.org/procurement#lot> ?c; <http://purl.org/procurement#tender> ?t}}', 
 	0.8, 
 	n'PROCUREMENT BROKEN INTO SEVERAL CONTRACTS CANNOT HAVE DIRECT TENDERS'
@@ -57,7 +57,7 @@ values (
 insert into DB.ODCLEANSTORE.QA_RULES_UNCOMMITTED (groupId, label, filter, coefficient, description) 
 values (
 	(SELECT id FROM DB.ODCLEANSTORE.QA_RULES_GROUPS WHERE label = n'test group'), 
-	'invalid procurement costs', 
+	n'invalid procurement costs', 
 	n'{{?s <http://purl.org/procurement#estimatedPrice> ?p1; <http://purl.org/procurement#actualPrice> ?p2. ?p1 <http://purl.org/goodrelations/v1#hasCurrencyValue> ?v1. ?p2 <http://purl.org/goodrelations/v1#hasCurrencyValue> ?v2} FILTER (2 * ?v1 < ?v2)}', 
 	0.8, 
 	n'PROCUREMENT ACTUAL COSTS ARE ABOVE TWICE THE ESTIMATE'
@@ -66,7 +66,7 @@ values (
 insert into DB.ODCLEANSTORE.QA_RULES_UNCOMMITTED (groupId, label, filter, coefficient, description) 
 values (
 	(SELECT id FROM DB.ODCLEANSTORE.QA_RULES_GROUPS WHERE label = n'test group'), 
-	'invalid procedure type', 
+	n'invalid procedure type', 
 	n'{{?s <http://purl.org/procurement#procedureType> <http://purl.org/procurement#Open>; <http://purl.org/procurement#estimatedPrice> ?p. ?p <http://purl.org/goodrelations/v1#hasCurrencyValue> ?v.} FILTER (?v < 50000 OR ?v > 3000000)}', 
 	0.8, 
 	n'PROCEDURE TYPE IS INCOMPATIBLE WITH THE ESTIMATED PRICE'
@@ -75,7 +75,7 @@ values (
 insert into DB.ODCLEANSTORE.QA_RULES_UNCOMMITTED (groupId, label, filter, coefficient, description) 
 values (
 	(SELECT id FROM DB.ODCLEANSTORE.QA_RULES_GROUPS WHERE label = n'test group'), 
-	'invalid tender', 
+	n'invalid tender', 
 	n'{{?s <http://purl.org/procurement#awardDate> ?a; <http://purl.org/procurement#tenderDeadline> ?d.} FILTER (?d > ?a)}', 
 	0.8, 
 	n'TENDER AWARDED BEFORE APPLICATION DEADLINE'
