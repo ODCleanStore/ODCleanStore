@@ -147,7 +147,7 @@ The architecture, and in particular the way editing of pipelines and rules  in \
 \begin{itemize}
 	\item Data sent to Input Webservice are expected to be reasonably small. \odcs is designed to technically handle even very large data, however, for example results of \QA may not be relevant for a large graph because a small mistake in several values would decrease the \QA score for the whole large dataset. Motivation for this assumption is based on planned integration with project Strigil (see related work in Chapter \ref{chap:relatedWork}).
 	\item Pipeline creators understand the data for which their pipelines are created but not necessarily understand data for pipelines created by other users. For this reason, editing is limited to an author of a pipeline so that a pipeline creator's pipelines cannot be broken by other users without his knowledge.
-	\item The team of people working with a deployed \odcs may be decentralized and open, for example students using a shared instance for their own projects. For that reason the system should be robust, permissions should be reasonably limited, a single user shouldn't be able to block the whole system and there should be a possibility to correct wrong configuration for administrators.
+	\item The team of people working with a deployed \odcs may be decentralized and open, for example students using a shared instance for their own projects. For that reason, the system should be robust, permissions should be reasonably limited, a single user shouldn't be able to block the whole system and there should be a possibility to correct wrong configuration for administrators.
 	\item We expect that pipeline creators will usually be  data producers  using the Input Webservice at the same time. These users need some technical knowledge -- at least they should understand RDF and SPARQL. On the other hand, data consumers need not be technically skilled or understand RDF, even though it is benefitial. Data for these users may be presented in the HTML output of Output Webservice or through a third-party interface.
 \end{itemize}
 
@@ -189,7 +189,7 @@ The assignment of the project impose several additional requirements. This secti
 
 \reqparagraph{The application will involve graphical user interface enabling management of all kinds of policies etc.} \FE enables management of all relevant settings. In addition, several user roles are supported and user accounts can be managed from \FE.
 
-\reqparagraph{The application will run at least on Windows 7, Windows Server 2008, Linux.} \odcs requires Java Runtime Environment and Virtuoso installation, both supported on all of the listed platforms. \odcs has been tested on Windows 7, Windows Server 2008 and Debian distribution of Linux.
+\reqparagraph{The application will run at least on Windows 7, Windows Server 2008, Linux.} \odcs requires Java Runtime Environment and Virtuoso installation, both supported on all of the listed platforms. \odcs has been tested on Windows XP, Windows 7, Windows Server 2008 and Debian and Gentoo distributions of Linux.
 
 \reqparagraph{Application will be freely available under Apache Software License.} \odcs is published under the required license (see \refadminmanual) and source codes available at a public repository at SourceForge.net
 
@@ -1644,7 +1644,7 @@ The project was developed according to the classical waterfall model.
 
 We started with the initial analysis and specification of main functionalities  during the first two months, approximately. We devoted a lot of time to estabilishing goals of the project and finding real use-cases because the assignment of the project was not very specific in this point. The most important use case was integration with project Strigil for processing of data about public contracts scraped from web pages and XLS documents. Other use cases included student projects at the Faculty of Mathematics and Physics. 
 
-After the initial period, we divided responsibilities over the main functional units and started researching available tools and technologies and building a prototype. The output of this phase was our choice of technologies (most motably Virtuoso database and Silk), a basic working prototype and an outline of software architecture. The prototype provided us with a proof-of-concept and helped us to realistically estimate the scope of features that could  be implemented in the given timeframe. 
+After the initial period, we divided responsibilities over the main functional units and started researching available tools and technologies and building a prototype. The output of this phase was our choice of technologies (most notably Virtuoso database and Silk), a basic working prototype and an outline of software architecture. The prototype provided us with a proof-of-concept and helped us to realistically estimate the scope of features that could  be implemented in the given timeframe. 
 
 After that, we started working on the actual implementation, which was the longest phase lasting approximately 4-5 months. We started by defining interfaces between components, building the components and finally integrating them. In order to avoid pitfalls of the waterfall model, we maintained a working prototype during development and whenever a major functionality was finished, it was integrated to the prototype and evaluated. This helped us to get feedback, re-evaluate use cases and continuously test our results.
 
@@ -1657,14 +1657,14 @@ The last two months were devoted to parallel testing, documentation writing and 
 	\label{fig:linesOfCode}
 \end{figure}
 
-\figurename \ref{fig:linesOfCode} presents the number of lines of code in our repository in time of the development. The graph clearly shows rapid development of a prototype in May 2012 and the even distribution of our work afterwards which is the result of good planning and unrelenting effort.
+\figurename~\ref{fig:linesOfCode} presents the number of lines of code in our repository in time of the development. The graph clearly shows rapid development of a prototype in May 2012 and the even distribution of our work afterwards which is the result of good planning and unrelenting effort.
 
 \section*{Organization}
 Since the very beginning of the project, we held regular weekly meetings and used several tools to facilitate management of the project. We estabilished an internal mailing list, a project page at SourceForge with a wiki tool for working documents, a public and private repository, an issue tracker and a testing server.
 
-The exact process was flexibly adjusted to the current project phase and circumstances. During the analysis phase,  we held weekly personal meetings and used our wiki to present research results, track ideas and discuss suggested solutions. During the development phase, we held regular meetings either in person or over the internet once or twice a week. A member of the team would be typically assigned a task, write specification which would be discussed by the other team members, implement the task, and the result would go through the process of code review, integration and eventually release. In the final phases, we prefered immediate contact in our mailing list to regular meetings and employed the issue tracker.
+The exact process was flexibly adjusted to the current project phase and circumstances. During the analysis phase,  we held weekly personal meetings and used our wiki to present research results, track ideas and discuss suggested solutions. During the development phase, we held regular meetings either in person or over the internet once or twice a week. A member of the team would be typically assigned a task, write specification which would be discussed by the other team members, implement the task, and the result would go through the process of code review, integration and, eventually, release. In the final phases, we prefered immediate contact in our mailing list to regular meetings and employed the issue tracker.
 
-An immensely important things were regular releases during the development of the project. Since we had several oportunities to present our efforts at various meetings at conferences, we were pushed to finish integrated pieces of work, integrate them to the working prototype, debug them and publish. In addition, it provided us a valuable feedback.
+Regular releases during the development of the project were immensely important. Since we had several oportunities to present our efforts at various meetings and conferences, we were pushed to finish pieces of work, integrate them to our working prototype, debug them and publish. In addition, it provided us a valuable feedback.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Glossary}
