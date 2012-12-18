@@ -1,3 +1,1 @@
 SET AUTOCOMMIT ON;
-
-
