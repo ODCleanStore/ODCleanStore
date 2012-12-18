@@ -105,7 +105,10 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 				logger.debug("label: " + item.getLabel());
 				logger.debug("description: " + item.getDescription());
 				logger.debug("graphName" + item.getGraphName());
-				
+
+				// to be able to drop a graph in Virtuoso, it has to be explicitly created before
+				createGraph(item.getGraphName());
+
 				GraphLoader graphLoader = new GraphLoader(EnumDatabaseInstance.CLEAN);
 				graphLoader.importGraph(item.getDefinition(), item.getGraphName());
 
@@ -145,7 +148,21 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 			throw new RuntimeException(e);
 		}
 	}
-	
+
+	/**
+	 * 
+	 * @param graphName
+	 * @throws Exception
+	 */
+	private void createGraph(String graphName) throws Exception
+	{
+		String query = "SPARQL CREATE SILENT GRAPH ??";
+
+		Object[] params = { graphName };
+
+		jdbcUpdate(query, params);
+	}
+
 	/**
 	 * 
 	 * @param item
@@ -196,6 +213,10 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 		String query = "SPARQL CLEAR GRAPH ??";
 
 		Object[] params = { graphName };
+
+		jdbcUpdate(query, params);
+		
+		query = "SPARQL DROP SILENT GRAPH ??";
 
 		jdbcUpdate(query, params);
 	}
