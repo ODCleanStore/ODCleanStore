@@ -292,12 +292,13 @@ public class LinkerDao {
 	 * 
 	 * @param groupName name of group to be deleted
 	 * @param db database instance (clean/dirty)
+	 * @param isSilent when set to false and group does not exist, exception is raised
 	 * @throws ConnectionException
 	 * @throws QueryException
 	 */
-	public void deleteGraphGroup(String groupName, EnumDatabaseInstance db) 
+	public void deleteGraphGroup(String groupName, EnumDatabaseInstance db, boolean isSilent) 
 			throws ConnectionException, QueryException {
-		String query = "DB.DBA.RDF_GRAPH_GROUP_DROP(?, 0)";
+		String query = "DB.DBA.RDF_GRAPH_GROUP_DROP(?, ?)";
 		VirtuosoConnectionWrapper connection = null;
 		try {
 			if (EnumDatabaseInstance.CLEAN.equals(db)) {
@@ -305,7 +306,7 @@ public class LinkerDao {
 			} else {
 				connection = VirtuosoConnectionWrapper.createConnection(dirtyDBCredentials);
 			}
-			connection.execute(query, groupName);
+			connection.execute(query, groupName, isSilent ? 1 : 0);
 		} finally {
 			if (connection != null) {
 				connection.closeQuietly();

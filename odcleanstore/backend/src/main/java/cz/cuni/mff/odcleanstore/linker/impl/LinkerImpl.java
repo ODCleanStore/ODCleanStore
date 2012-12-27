@@ -445,29 +445,37 @@ public class LinkerImpl implements Linker {
 	private String createDirtyGraphGroup(TransformationContext context, TransformedGraph graph) 
 			throws ConnectionException, QueryException {
 		String groupName = graph.getGraphName() + "WithAttached";
+		LinkerDao dao = LinkerDao.getInstance(
+				context.getCleanDatabaseCredentials(), context.getDirtyDatabaseCredentials());
+		
+		LOG.info("Deleting temporary graph group with attached graphs in dirty DB (if it extists): {}", groupName);
+		dao.deleteGraphGroup(groupName, EnumDatabaseInstance.DIRTY, true);
+		
 		LOG.info("Creating temporary graph group with attached graphs in dirty DB: {}", groupName);
 		Set<String> graphNames = new HashSet<String>(graph.getAttachedGraphNames());
 		graphNames.add(graph.getGraphName());
-		LinkerDao dao = LinkerDao.getInstance(
-				context.getCleanDatabaseCredentials(), context.getDirtyDatabaseCredentials());
 		dao.createGraphGroup(groupName, graphNames, EnumDatabaseInstance.DIRTY);
 		return groupName;
 	}
 	
-	private void deleteGraphGroup(TransformationContext context, String groupName, EnumDatabaseInstance db) 
+	private void deleteGraphGroup(TransformationContext context, String groupName, EnumDatabaseInstance db)
 			throws ConnectionException, QueryException {
 		LOG.info("Deleting temporary graph group from {} DB: {}", db.toString(), groupName);
 		LinkerDao dao = LinkerDao.getInstance(
 				context.getCleanDatabaseCredentials(), context.getDirtyDatabaseCredentials());
-		dao.deleteGraphGroup(groupName, db);
+		dao.deleteGraphGroup(groupName, db, false);
 	}
 	
 	private String createCleanGraphGroup(TransformationContext context, TransformedGraph graph) 
 			throws ConnectionException, QueryException {
 		String groupName = graph.getGraphName() + "Group";
-		LOG.info("Creating temporary graph group without processed graph in clean DB: {}", groupName);
 		LinkerDao dao = LinkerDao.getInstance(
 				context.getCleanDatabaseCredentials(), context.getDirtyDatabaseCredentials());
+		
+		LOG.info("Deleting temporary graph group without processed graph in clean DB (if it exists): {}", groupName);
+		dao.deleteGraphGroup(groupName, EnumDatabaseInstance.CLEAN, true);
+		
+		LOG.info("Creating temporary graph group without processed graph in clean DB: {}", groupName);	
 		Set<String> graphNames = dao.getAllGraphNames();
 		graphNames.removeAll(graph.getAttachedGraphNames());
 		graphNames.remove(graph.getGraphName());
