@@ -123,3 +123,4 @@ SPARQL INSERT INTO <http://odcs.mff.cuni.cz/namedGraph/qe-test/germany/metadata/
 	<http://odcs.mff.cuni.cz/namedGraph/qe-test/germany/dbpedia>	<http://opendata.cz/infrastructure/odcleanstore/score>	"0.9"^^<http://www.w3.org/2001/XMLSchema#double>.
 	<http://odcs.mff.cuni.cz/namedGraph/qe-test/germany/dbpedia>	<http://opendata.cz/infrastructure/odcleanstore/source>	<http://dbpedia.org/page/Germany>.
 };
+

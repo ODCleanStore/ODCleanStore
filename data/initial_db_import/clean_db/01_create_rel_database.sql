@@ -631,3 +631,4 @@ INSERT INTO DB.ODCLEANSTORE.RELATION_TYPES (uri) VALUES (n'http://www.w3.org/200
 INSERT INTO DB.ODCLEANSTORE.RELATION_TYPES (uri) VALUES (n'http://www.w3.org/2002/07/owl#equivalentProperty');
 INSERT INTO DB.ODCLEANSTORE.RELATION_TYPES (uri) VALUES (n'http://www.w3.org/2000/01/rdf-schema#subClassOf');
 INSERT INTO DB.ODCLEANSTORE.RELATION_TYPES (uri) VALUES (n'http://www.w3.org/2000/01/rdf-schema#subPropertyOf');
+
