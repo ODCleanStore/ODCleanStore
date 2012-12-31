@@ -9,6 +9,10 @@
 	<artifactId>odcs-simpletransformer</artifactId>
 	<packaging>jar</packaging>
 	
+	<properties>
+		<odcs-core-version>${project.version}</odcs-core-version>
+	</properties>
+	
 	<parent>
 		<groupId>cz.cuni.mff.odcleanstore</groupId>
 		<artifactId>odcs</artifactId>
@@ -16,13 +20,13 @@
 	</parent>
 
 	<name>ODCleanStore - Simple Transformer</name>
-	<description>TO BE ADDED</description>
+	<description>Example project demonstrating how a custom transformer can be implemented.</description>
 
 	<dependencies>
 		<dependency>
 			<groupId>cz.cuni.mff.odcleanstore</groupId>
 			<artifactId>odcs-core</artifactId>
-			<version>1.0.0</version>
+			<version>${odcs-core-version}</version>
 		</dependency>
 	</dependencies>
 
@@ -31,7 +35,7 @@
 			<dependency>
 				<groupId>cz.cuni.mff.odcleanstore</groupId>
 				<artifactId>odcs-core</artifactId>
-				<version>1.0.0</version>
+				<version>${odcs-core-version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

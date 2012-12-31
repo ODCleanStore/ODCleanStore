@@ -7,6 +7,10 @@
 
 	<artifactId>odcs-simplescraper</artifactId>
 	<packaging>jar</packaging>
+	
+	<properties>
+		<odcs-inputclient-version>${project.version}</odcs-inputclient-version>
+	</properties>
 
 	<parent>
 		<groupId>cz.cuni.mff.odcleanstore</groupId>
@@ -21,7 +25,7 @@
 		<dependency>
 			<groupId>cz.cuni.mff.odcleanstore</groupId>
 			<artifactId>odcs-inputclient</artifactId>
-			<version>1.0.0</version>
+			<version>${odcs-inputclient-version}</version>
 			<type>jar</type>
 		</dependency>
 	</dependencies>
@@ -31,7 +35,7 @@
 			<dependency>
 				<groupId>cz.cuni.mff.odcleanstore</groupId>
 				<artifactId>odcs-inputclient</artifactId>
-				<version>1.0.0</version>
+				<version>${odcs-inputclient-version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -64,6 +68,7 @@
 					</descriptorRefs>
 				</configuration>
 			</plugin>
+			
 		</plugins>
 	</build>
 </project>

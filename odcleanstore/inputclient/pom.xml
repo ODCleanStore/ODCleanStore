@@ -8,6 +8,10 @@
 	<artifactId>odcs-inputclient</artifactId>
 	<packaging>jar</packaging>
 
+	<properties>
+		<odcs-comlib-version>${project.version}</odcs-comlib-version>
+	</properties>
+
 	<parent>
 		<groupId>cz.cuni.mff.odcleanstore</groupId>
 		<artifactId>odcs</artifactId>
@@ -21,7 +25,7 @@
 		<dependency>
 			<groupId>cz.cuni.mff.odcleanstore</groupId>
 			<artifactId>odcs-comlib</artifactId>
-			<version>1.0.0</version>
+			<version>${odcs-comlib-version}</version>
 		</dependency>
 	</dependencies>
 
@@ -30,7 +34,7 @@
 			<dependency>
 				<groupId>cz.cuni.mff.odcleanstore</groupId>
 				<artifactId>odcs-comlib</artifactId>
-				<version>1.0.0</version>
+				<version>${odcs-comlib-version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
