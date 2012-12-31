@@ -36,5 +36,3 @@ CREATE PROCEDURE dump_graph_ttl (
     }
 };
 
-
-
