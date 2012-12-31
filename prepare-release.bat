@@ -5,8 +5,8 @@ mkdir release
 
 ::  Build maven project
 cd odcleanstore
-mvn clean install javadoc:aggregate -P javadoc
-:: mvn clean install -Dmaven.test.skip=true
+cmd /c mvn clean install javadoc:aggregate -P javadoc
+:: cmd /c mvn clean install -Dmaven.test.skip=true
 
 cd ..
 
