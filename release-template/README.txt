@@ -1,4 +1,4 @@
-This is an ODCleanStore release 1.0.0.
+This is an ODCleanStore release 1.0.1.
 
 For more information about ODCleanStore, please see the official documentation
 in doc/ subdirectory or visit
@@ -26,33 +26,33 @@ manual.
 
 -----------------------------------------
 
-Alternatively, you may try to install ODCleanStore manually. 
-Manual installation is intended for experienced users and developers, however,
-and is not officially supported.
+Alternatively, you may try to install ODCleanStore manually. Manual 
+installation is intended for experienced users and developers, however,
+and is not officially supported. When you decide to use the installer, you may 
+skip this section and continue with section "Running ODCleanStore".
 
 1) Prepare prerequisities of installation described in installation manual the
    same way you would with the official installer.
    
 2) Import clean database: 
-   Execute queries in NUMBERED files in database/clean_db/*.sql over the clean 
-   database instance in the indicated order. Alternatively, queries in ALL.sql
-   can be executed INSTEAD of the numbered files. Note that the SQL scripts 
-   contain some testing data in addition to what the installer imports to the
-   database.
-    
-   Queries can be executed using the isql utility (make sure it is the 
-   Virtuoso's isql utility!):
-   > isql -S 1111
+   Execute script init_structure.bat (init_structure.sh) in database/clean_db/ 
+   passing connection information to the clean database instance. Before 
+   importing, make sure you have the Viruoso's isql binary in your PATH.
+   Typically, the script can be executed as follows:
    
-   Note: Using the isql utility is the preferred way to execute the queries.
+   > init_structure.bat localhost 1111 dba dba
+
+   To import some sample data, you can also execute import_test_data.bat 
+   (import_test_data.sh).
+   Note: Using the script is the preferred way to execute the queries.
    Executing the queries through Virtuoso Conductor may fail.
    
 3) Import dirty database:
-   Execute queries in NUMBERED files in database/dirty_db/*.sql over the dirty
-   database instance in the indicated order.
+   Execute script init_structure.bat (init_structure.sh) in database/dirty_db/ 
+   passing connection information to the dirty database instance.
+   Typically, the script can be executed as follows:
    
-   Queries can be executed using the isql utility:
-   > isql -S 1112
+   > init_structure.bat localhost 1112 dba dba
 
 4) You may need to stop and start again the Virtuoso service for clean database 
    so that all queries take effect.
@@ -63,10 +63,8 @@ and is not officially supported.
                   database instance
      db.dirty.* - JDBC and SPARQL connection settings for the dirty
                   database instance
-     
-6) Run run-engine.cmd or run-engine.sh, respectively (and leave the window open).
 
-7) Set correct absolute path to odcs.ini configuration file (step 5) in
+6) Set correct absolute path to odcs.ini configuration file (step 5) in
    administration frontend webarchive. Scripts update-war-path.cmd and 
    update-war-path.sh in the bin/ subdirectory set the path to location of 
    odcs.ini within the release directory.
@@ -74,18 +72,22 @@ and is not officially supported.
    Alternatively, the path to odcs.ini configuration file can be set manually 
    using utility /bin/frontend-config.jar
    
-   > java -jar bin/frontend-config.jar bin/webapp/odcs-webfrontend-<version>.war <absolute path to odcs.ini>
+   > java -jar bin/frontend-config.jar bin/webapp/odcs-webfrontend.war <absolute path to odcs.ini>
    
    or by manually editting the path in file 
    WEB-INF/classes/config/application.properties inside the .war archive.
    
+     
+7) Run run-engine.cmd or run-engine.sh, respectively, from the bin/ subdirectory
+   (and leave the window open).
+   
 8) In order to use administration web interface, deploy the web archive 
-   bin/webapp/odcs-webfrontend-<version>.war to your web server.
+   bin/webapp/odcs-webfrontend.war to your web server.
    
    In Tomcat, for example, this can be done by adding the following to <Host> 
    section of server.xml:  
 
-   <Context path="" docBase="{path to odcs-webfrontend-<version>.war}"></Context>
+   <Context path="" docBase="{path to odcs-webfrontend.war}"></Context>
 
 Now your ODCleanStore installation should be up and running.
 
@@ -147,8 +149,9 @@ Upgrading
 
 In order to upgrade from versions 0.3.2 and higher:
 
-1) Replace relevant binaries from /bin directory with their new versions and redeploy 
-   web archive from /bin/webapp.
+1) Replace relevant binaries in the installation directory with their new 
+   versions from the /bin directory and redeploy the web archive from 
+   /bin/webapp.
    
 2) Configuration in /config/odcs.ini may not be backward compatible. Use the new 
    version of configuration file and adjust it manually.
@@ -157,5 +160,7 @@ In order to upgrade from versions 0.3.2 and higher:
    /database/clean_db/update_db_scripts
    /database/dirty_db/update_db_scripts
    
-   To upgrade from version 0.3.2 to 0.3.4, for example, run both scripts
-   update_to_0.3.3.sql and update_to_0.3.4.sql.            
+   executed in the indicated order. To upgrade from version 0.3.2 to 0.3.4, 
+   for example, run all scripts from subdirectories 
+   /database/clean_db/update_db_scripts/0.3.3/ and 
+   /database/clean_db/update_db_scripts/0.3.4/.
