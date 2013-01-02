@@ -1,5 +1,5 @@
 \include{header}
-\newcommand{\version}{1.0.0}
+\newcommand{\version}{1.0.1}
 \newcommand{\documentname}{\refusermanual}
 
 \hypersetup{pdftitle=ODCleanStore -- \documentname}
@@ -424,7 +424,7 @@ The \emph{Graphs} subsection captures the content of the graph database. The tab
 \section{Output Webservice}
 \label{sec:outputWSMgmt}
 
-The output webservice configuration covers default policies for data aggregation. See section \ref{sec:outputW
+The output webservice configuration covers default policies for data aggregation. See section \ref{sec:outputWS}.
 
 The configuration specifies one global behaviour and then it offers the user to override that behaviour for specific properties.
 
@@ -490,7 +490,7 @@ This section is reachable with \emph{My Account} button below the main menu afte
 		\hline
 		required & JAR path & Path to a Java Archive containing the {transformer} declaration.\\
 		\hline
-		required & Full classname & Name of the class implementing the {transformer}.
+		required & Full classname & Name of the class implementing the {transformer}. Note that it isn't possible to edit this value at a later time.
 	}
 
 	If \emph{JAR path} is set to \quot{.} then it is handled as a special case and \emph{Full classname} is treated as a built-in transformer.

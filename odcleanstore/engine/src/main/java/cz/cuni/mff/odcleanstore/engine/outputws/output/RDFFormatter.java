@@ -31,39 +31,39 @@ import java.util.List;
  * @author Jan Michelfeit
  */
 public abstract class RDFFormatter extends ResultFormatterBase {
-    /** {@ ODCS#totalResults} as a {@link Node}. */
+    /** {@link ODCS#totalResults} as a {@link Node}. */
     protected static final Node TOTAL_RESULTS_PROPERTY = Node.createURI(ODCS.totalResults);
-    /** {@ RDF#type} as a {@link Node}. */
+    /** {@link RDF#type} as a {@link Node}. */
     protected static final Node TYPE_PROPERTY = Node.createURI(RDF.type);
-    /** {@ DC#title} as a {@link Node}. */
+    /** {@link DC#title} as a {@link Node}. */
     protected static final Node TITLE_PROPERTY = Node.createURI(DC.title);
-    /** {@ DC#date} as a {@link Node}. */
+    /** {@link DC#date} as a {@link Node}. */
     protected static final Node DATE_PROPERTY = Node.createURI(DC.date);
-    /** {@ ODCS#query} as a {@link Node}. */
+    /** {@link ODCS#query} as a {@link Node}. */
     protected static final Node QUERY_PROPERTY = Node.createURI(ODCS.query);
-    /** {@ ODCS#score} as a {@link Node}. */
+    /** {@link ODCS#score} as a {@link Node}. */
     protected static final Node SCORE_PROPERTY = Node.createURI(ODCS.score);
-    /** {@ ODCS#publisherScore} as a {@link Node}. */
+    /** {@link ODCS#publisherScore} as a {@link Node}. */
     protected static final Node PUBLISHER_SCORE_PROPERTY = Node.createURI(ODCS.publisherScore);
-    /** {@ W3P#source} as a {@link Node}. */
+    /** {@link W3P#source} as a {@link Node}. */
     protected static final Node SOURCE_PROPERTY = Node.createURI(W3P.source);
-    /** {@ W3P#insertedAt} as a {@link Node}. */
+    /** {@link W3P#insertedAt} as a {@link Node}. */
     protected static final Node INSERTED_AT_PROPERTY = Node.createURI(W3P.insertedAt);
-    /** {@ W3P#publishedBy} as a {@link Node}. */
+    /** {@link W3P#publishedBy} as a {@link Node}. */
     protected static final Node PUBLISHED_BY_PROPERTY = Node.createURI(W3P.publishedBy);
     /** {@link ODCS#updateTag} as a {@link Node}. */
     protected static final Node UPDATE_TAG_PROPERTY = Node.createURI(ODCS.updateTag);
-    /** {@ DC#license} as a {@link Node}. */
+    /** {@link DC#license} as a {@link Node}. */
     protected static final Node LICENSE_PROPERTY = Node.createURI(DC.license);
-    /** {@ DC#description} as a {@link Node}. */
+    /** {@link DC#description} as a {@link Node}. */
     protected static final Node DESCRIPTION_PROPERTY = Node.createURI(DC.description);
-    /** {@ ODCS#violatedQARule} as a {@link Node}. */
+    /** {@link ODCS#violatedQARule} as a {@link Node}. */
     protected static final Node VIOLATED_QA_RULE_PROPERTY = Node.createURI(ODCS.violatedQARule);
-    /** {@ ODCS#coefficient} as a {@link Node}. */
+    /** {@link ODCS#coefficient} as a {@link Node}. */
     protected static final Node COEFFICIENT_PROPERTY = Node.createURI(ODCS.coefficient);
-    /** {@ ODCS#QARule} as a {@link Node}. */
+    /** {@link ODCS#QARule} as a {@link Node}. */
     protected static final Node QARULE_CLASS = Node.createURI(ODCS.QARule);
-    /** {@ ODCS#queryResponse} as a {@link Node}. */
+    /** {@link ODCS#queryResponse} as a {@link Node}. */
     protected static final Node QUERY_RESPONSE_CLASS = Node.createURI(ODCS.queryResponse);
     
     /** Configuration of the output webservice from the global configuration file. */
