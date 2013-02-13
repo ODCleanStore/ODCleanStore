@@ -9,7 +9,7 @@ import cz.cuni.mff.odcleanstore.qualityassessment.QualityAssessor;
 import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRule;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRulesModel;
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
@@ -421,7 +421,7 @@ public class QualityAssessorImpl implements QualityAssessor, Serializable {
 			Iterator<String> iterator = trace.iterator();
 
 			while (iterator.hasNext()) {
-				String escapedTrace = Utils.escapeSPARQLLiteral(iterator.next());
+				String escapedTrace = ODCSUtils.escapeSPARQLLiteral(iterator.next());
 
 				final String storeNewScoreTrace = String.format(Locale.ROOT, storeNewScoreTraceQueryFormat,
 						metadataGraph,

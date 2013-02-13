@@ -11,7 +11,7 @@ import cz.cuni.mff.odcleanstore.queryexecution.EnumQueryError;
 import cz.cuni.mff.odcleanstore.queryexecution.MetadataQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
 import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 
@@ -59,7 +59,7 @@ public class MetadataQueryExecutorResource extends QueryExecutorResourceBase {
         long qaStartTime = System.currentTimeMillis();
         Config config = ConfigLoader.getConfig();
         GraphScoreWithTrace qaResult = null;
-        String graphUuid = Utils.extractUUID(namedGraphURI);
+        String graphUuid = ODCSUtils.extractUUID(namedGraphURI);
         if (graphUuid != null && !namedGraphURI.startsWith(ODCSInternal.hiddenGraphPrefix)) {
             JDBCConnectionCredentials connectionCredentials =
                     config.getQueryExecutionGroup().getCleanDBJDBCConnectionCredentials();

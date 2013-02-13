@@ -24,7 +24,7 @@ import cz.cuni.mff.odcleanstore.engine.db.model.Credentials;
 import cz.cuni.mff.odcleanstore.engine.db.model.DbOdcsContext;
 import cz.cuni.mff.odcleanstore.engine.db.model.DbOdcsException;
 import cz.cuni.mff.odcleanstore.shared.FileUtils;
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 
@@ -88,7 +88,7 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
         } else if (name.equals("dataBaseUrl")) {
             writeMetadata(ODCS.dataBaseUrl, "<" + content + ">");
         } else if (name.equals("updateTag")) {
-            writeMetadata(ODCS.updateTag, "'" + Utils.escapeSPARQLLiteral(content) + "'");
+            writeMetadata(ODCS.updateTag, "'" + ODCSUtils.escapeSPARQLLiteral(content) + "'");
         } else if (name.equals("user")) {
             user(content);
         } else if (name.equals("password")) {
@@ -199,7 +199,7 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
 
         writeMetadata(ODCS.metadataGraph, "<" + namedGraphsPrefix + ODCSInternal.metadataGraphUriInfix + uuid + ">");
         writeMetadata(ODCS.insertedAt, FormatHelper.getTypedW3CDTFCurrent());
-        writeMetadata(ODCS.insertedBy, "'" + Utils.escapeSPARQLLiteral(user) + "'");
+        writeMetadata(ODCS.insertedBy, "'" + ODCSUtils.escapeSPARQLLiteral(user) + "'");
     }
 
     /**

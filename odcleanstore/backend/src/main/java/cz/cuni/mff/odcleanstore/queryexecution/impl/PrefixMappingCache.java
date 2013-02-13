@@ -7,7 +7,7 @@ import cz.cuni.mff.odcleanstore.queryexecution.EnumQueryError;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
 import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
 import cz.cuni.mff.odcleanstore.shared.RDFPrefixesLoader;
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +20,7 @@ import java.util.Map;
  */
 public class PrefixMappingCache extends CacheHolderBase<PrefixMapping> {
     /** Lifetime of the cached value in milliseconds. */
-    private static final long CACHE_LIFETIME = 10 * Utils.TIME_UNIT_60 * Utils.MILLISECONDS;
+    private static final long CACHE_LIFETIME = 10 * ODCSUtils.TIME_UNIT_60 * ODCSUtils.MILLISECONDS;
 
     /** Database connection settings. */
     private final JDBCConnectionCredentials connectionCredentials;

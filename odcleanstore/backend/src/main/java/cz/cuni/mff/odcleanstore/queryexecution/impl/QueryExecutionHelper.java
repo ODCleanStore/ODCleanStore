@@ -3,7 +3,7 @@ package cz.cuni.mff.odcleanstore.queryexecution.impl;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationType;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -102,7 +102,7 @@ public final class QueryExecutionHelper {
         Map<String, EnumAggregationType> newPropertyAggregations = new TreeMap<String, EnumAggregationType>();
         for (Entry<String, EnumAggregationType> entry : aggregationSpec.getPropertyAggregations().entrySet()) {
             String property = entry.getKey();
-            if (Utils.isPrefixedName(property)) {
+            if (ODCSUtils.isPrefixedName(property)) {
                 newPropertyAggregations.put(prefixMapping.expandPrefix(property), entry.getValue());
             } else {
                 newPropertyAggregations.put(property, entry.getValue());
@@ -113,7 +113,7 @@ public final class QueryExecutionHelper {
         Map<String, Boolean> newPropertyMultivalue = new TreeMap<String, Boolean>();
         for (Entry<String, Boolean> entry : aggregationSpec.getPropertyMultivalue().entrySet()) {
             String property = entry.getKey();
-            if (Utils.isPrefixedName(property)) {
+            if (ODCSUtils.isPrefixedName(property)) {
                 newPropertyMultivalue.put(prefixMapping.expandPrefix(property), entry.getValue());
             } else {
                 newPropertyMultivalue.put(property, entry.getValue());

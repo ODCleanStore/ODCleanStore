@@ -13,7 +13,7 @@ import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.queryexecution.impl.QueryExecutionHelper;
 import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
@@ -324,13 +324,13 @@ import java.util.TreeSet;
     protected void checkValidSettings() throws QueryExecutionException {
         // Check that settings contain valid URIs
         for (String property : aggregationSpec.getPropertyAggregations().keySet()) {
-            if (!Utils.isValidIRI(property)) {
+            if (!ODCSUtils.isValidIRI(property)) {
                 throw new QueryExecutionException(EnumQueryError.AGGREGATION_SETTINGS_INVALID, ErrorCodes.QE_INPUT_FORMAT_ERR,
                         "'" + property + "' is not a valid URI.");
             }
         }
         for (String property : aggregationSpec.getPropertyMultivalue().keySet()) {
-            if (!Utils.isValidIRI(property)) {
+            if (!ODCSUtils.isValidIRI(property)) {
                 throw new QueryExecutionException(EnumQueryError.AGGREGATION_SETTINGS_INVALID, ErrorCodes.QE_INPUT_FORMAT_ERR,
                         "'" + property + "' is not a valid URI.");
             }

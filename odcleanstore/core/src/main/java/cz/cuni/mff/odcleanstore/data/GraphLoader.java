@@ -6,7 +6,7 @@ import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.shared.FileUtils;
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +53,7 @@ public class GraphLoader {
             connection.setQueryTimeout(0);
 
             tmpFile = GraphLoaderUtils.getImportExportTmpFile(connection, databaseInstance);
-            outputWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpFile), Utils.DEFAULT_ENCODING));
+            outputWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpFile), ODCSUtils.DEFAULT_ENCODING));
             outputWriter.write(src);
             outputWriter.close();
             

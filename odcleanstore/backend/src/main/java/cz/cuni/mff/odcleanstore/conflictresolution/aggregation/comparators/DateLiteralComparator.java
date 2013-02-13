@@ -3,7 +3,7 @@ package cz.cuni.mff.odcleanstore.conflictresolution.aggregation.comparators;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.AggregationUtils;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.EnumLiteralType;
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 
 import com.hp.hpl.jena.graph.Node;
 
@@ -26,6 +26,6 @@ public class DateLiteralComparator implements AggregationComparator {
     public int compare(Quad quad1, Quad quad2, NamedGraphMetadataMap metadata) {
         Calendar value1 = AggregationUtils.convertToCalendarSilent(quad1.getObject());
         Calendar value2 = AggregationUtils.convertToCalendarSilent(quad2.getObject());
-        return Utils.nullProofCompare(value1, value2);
+        return ODCSUtils.nullProofCompare(value1, value2);
     }
 }

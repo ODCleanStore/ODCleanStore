@@ -11,7 +11,7 @@ import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.MetadataQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryResultBase;
 import cz.cuni.mff.odcleanstore.queryexecution.impl.PrefixMapping;
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 
 import com.hp.hpl.jena.datatypes.RDFDatatype;
 import com.hp.hpl.jena.graph.Node;
@@ -45,7 +45,7 @@ import java.util.Map.Entry;
  */
 public class HTMLFormatter extends ResultFormatterBase {
     
-    private static final String ENCODING = Utils.DEFAULT_ENCODING;
+    private static final String ENCODING = ODCSUtils.DEFAULT_ENCODING;
 
     private static final String[] PROPAGATED_QUERY_PARAMS = {
             QueryExecutorResourceBase.DEFAULT_AGGREGATION_PARAM,
@@ -183,27 +183,27 @@ public class HTMLFormatter extends ResultFormatterBase {
                 switch (queryResult.getQueryType()) {
                 case KEYWORD:
                     writer.write("Keyword query for <code>");
-                    writer.write(Utils.toStringNullProof(queryResult.getQuery()));
+                    writer.write(ODCSUtils.toStringNullProof(queryResult.getQuery()));
                     writer.write("</code>.");
                     break;
                 case URI:
                     writer.write("URI query for &lt;");
-                    writer.write(Utils.toStringNullProof(queryResult.getQuery()));
+                    writer.write(ODCSUtils.toStringNullProof(queryResult.getQuery()));
                     writer.write("&gt;.");
                     break;
                 case METADATA:
                     writer.write("Metadata query for named graph &lt;");
-                    writer.write(Utils.toStringNullProof(queryResult.getQuery()));
+                    writer.write(ODCSUtils.toStringNullProof(queryResult.getQuery()));
                     writer.write("&gt;.");
                     break;
                 case NAMED_GRAPH:
                     writer.write("Named graph query for &lt;");
-                    writer.write(Utils.toStringNullProof(queryResult.getQuery()));
+                    writer.write(ODCSUtils.toStringNullProof(queryResult.getQuery()));
                     writer.write("&gt;.");
                     break;
                 default:
                     writer.write("Query <code>");
-                    writer.write(Utils.toStringNullProof(queryResult.getQuery()));
+                    writer.write(ODCSUtils.toStringNullProof(queryResult.getQuery()));
                     writer.write("</code>.");
                 }
             }
@@ -252,7 +252,7 @@ public class HTMLFormatter extends ResultFormatterBase {
                 }
                 writer.write("</td><td>");
                 if (metadata.getScore() != null) {
-                    writer.write(Utils.toStringNullProof(metadata.getScore()));
+                    writer.write(ODCSUtils.toStringNullProof(metadata.getScore()));
                 }
                 writer.write("</td><td>");
                 List<String> licenseList = metadata.getLicences();
@@ -262,7 +262,7 @@ public class HTMLFormatter extends ResultFormatterBase {
                         if (!isFirst) {
                             writer.write(", ");
                         }
-                        writer.write(Utils.toStringNullProof(license));
+                        writer.write(ODCSUtils.toStringNullProof(license));
                         isFirst = false;
                     }
                 }
@@ -312,7 +312,7 @@ public class HTMLFormatter extends ResultFormatterBase {
                     writeRelativeLink(writer, getRequestForKeyword(node.getLiteralLexicalForm()), text, "Keyword query");
                 }
             } else if (node.isBlank()) {
-                String uri = Utils.getVirtuosoURIForBlankNode(node);
+                String uri = ODCSUtils.getVirtuosoURIForBlankNode(node);
                 assert queryResult.getQuery() != null;
                 if (queryResult.getQuery().equals(uri)) {
                     writer.write("<em>");
@@ -323,7 +323,7 @@ public class HTMLFormatter extends ResultFormatterBase {
                 }
                 
             } else {
-                writer.write(Utils.toStringNullProof(node));
+                writer.write(ODCSUtils.toStringNullProof(node));
             }
         }
         
@@ -333,7 +333,7 @@ public class HTMLFormatter extends ResultFormatterBase {
          * @return uri with namespace shortened to prefix if possible
          */
         protected String getPrefixedURI(String uri) {
-            if (Utils.isNullOrEmpty(uri)) {
+            if (ODCSUtils.isNullOrEmpty(uri)) {
                 return uri;
             }
             int namespacePartLength = Math.max(uri.lastIndexOf('/'), uri.lastIndexOf('#')) + 1; // use a simple heuristic
@@ -359,7 +359,7 @@ public class HTMLFormatter extends ResultFormatterBase {
             result.append('"');
             result.append(literalNode.getLiteralLexicalForm());
             result.append('"');
-            if (!Utils.isNullOrEmpty(lang)) {
+            if (!ODCSUtils.isNullOrEmpty(lang)) {
                 result.append("@").append(lang);
             }
             if (dtype != null) {
@@ -645,7 +645,7 @@ public class HTMLFormatter extends ResultFormatterBase {
             for (QualityAssessmentRule rule : qaRules) {
                 writeOpeningTr(writer, ++row);
                 writer.write("<td>");
-                writer.write(Utils.toStringNullProof(rule.getLabel()));
+                writer.write(ODCSUtils.toStringNullProof(rule.getLabel()));
                 writer.write("</td><td>");
                 if (rule.getCoefficient() != null) {
                     writer.write(String.format(Locale.ROOT, "%.5f", rule.getCoefficient()));

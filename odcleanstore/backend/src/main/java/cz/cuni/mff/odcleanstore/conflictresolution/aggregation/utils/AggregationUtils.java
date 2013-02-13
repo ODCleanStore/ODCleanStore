@@ -2,7 +2,7 @@ package cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 
 import com.hp.hpl.jena.datatypes.DatatypeFormatException;
@@ -57,7 +57,7 @@ public final class AggregationUtils {
         }
         LiteralLabel literal = node.getLiteral();
         String datatypeURI = literal.getDatatypeURI();
-        if (Utils.isNullOrEmpty(datatypeURI)) {
+        if (ODCSUtils.isNullOrEmpty(datatypeURI)) {
             return isUntypedNumericLiteral(literal)
                     ? EnumLiteralType.NUMERIC
                     : EnumLiteralType.OTHER;
@@ -189,7 +189,7 @@ public final class AggregationUtils {
         NamedGraphMetadata metadata2 = metadata.getMetadata(quad2.getGraphName());
         Date insertedAt1 = metadata1 != null ? metadata1.getInsertedAt() : null;
         Date insertedAt2 = metadata2 != null ? metadata2.getInsertedAt() : null;
-        return Utils.nullProofCompare(insertedAt1, insertedAt2);
+        return ODCSUtils.nullProofCompare(insertedAt1, insertedAt2);
     }
 
     /**

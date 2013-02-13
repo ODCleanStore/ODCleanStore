@@ -2,7 +2,7 @@ package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 
 import de.fuberlin.wiwiss.ng4j.Quad;
 
@@ -44,7 +44,7 @@ import java.util.TreeSet;
         // Compare by update tag
         String updateTag1 = (metadata1 != null) ? metadata1.getUpdateTag() : null;
         String updateTag2 = (metadata2 != null) ? metadata2.getUpdateTag() : null;
-        int updateTagComparison = Utils.nullProofCompare(updateTag1, updateTag2);
+        int updateTagComparison = ODCSUtils.nullProofCompare(updateTag1, updateTag2);
         if (updateTagComparison != 0) {
             return updateTagComparison;
         }
@@ -60,7 +60,7 @@ import java.util.TreeSet;
         // Compare by stored time in *descending order*
         Date stored1 = (metadata1 != null) ? metadata1.getInsertedAt() : null;
         Date stored2 = (metadata2 != null) ? metadata2.getInsertedAt() : null;
-        return Utils.nullProofCompare(stored2, stored1); // switched arguments
+        return ODCSUtils.nullProofCompare(stored2, stored1); // switched arguments
     }
 
     private int nullProofSetCompare(Set<String> set1, Set<String> set2) {
@@ -81,7 +81,7 @@ import java.util.TreeSet;
         } else if (set1.size() - set2.size() != 0) {
             return set1.size() - set2.size();
         } else if (set1.size() == 1) {
-            return Utils.nullProofCompare(set1.iterator().next(), set2.iterator().next());
+            return ODCSUtils.nullProofCompare(set1.iterator().next(), set2.iterator().next());
         } else { // hopefully, we won't typically get here
             SortedSet<String> sortedSet1 = (set1 instanceof SortedSet<?>)
                     ? (SortedSet<String>) set1
@@ -92,7 +92,7 @@ import java.util.TreeSet;
             Iterator<String> it1 = sortedSet1.iterator();
             Iterator<String> it2 = sortedSet2.iterator();
             while (it1.hasNext()) {
-                int comparison = Utils.nullProofCompare(it1.next(), it2.next());
+                int comparison = ODCSUtils.nullProofCompare(it1.next(), it2.next());
                 if (comparison != 0) {
                     return comparison;
                 }

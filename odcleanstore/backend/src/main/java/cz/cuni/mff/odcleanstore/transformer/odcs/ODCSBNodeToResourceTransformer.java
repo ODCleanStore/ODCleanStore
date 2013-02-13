@@ -3,7 +3,7 @@ package cz.cuni.mff.odcleanstore.transformer.odcs;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.Transformer;
@@ -56,7 +56,7 @@ public class ODCSBNodeToResourceTransformer implements Transformer {
 
         if (prefix == null) {
             prefix = defaultUriPrefix;
-        } else if (!Utils.isValidIRI(prefix)) {
+        } else if (!ODCSUtils.isValidIRI(prefix)) {
             LOG.warn("Invalid URI <{}> passed as {} to ODCSBNodeToResourceTransformer - must be a valid URI",
                     prefix, URI_PREFIX_KEY);
             prefix = defaultUriPrefix;

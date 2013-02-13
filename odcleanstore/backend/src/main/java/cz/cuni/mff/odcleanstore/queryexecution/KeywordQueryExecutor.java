@@ -10,7 +10,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolution
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 
 import com.hp.hpl.jena.graph.Node;
@@ -477,14 +477,14 @@ import java.util.regex.Pattern;
             if (subject.isURI()) {
                 resources.add(subject.getURI());
             } else if (subject.isBlank()) {
-                resources.add(Utils.getVirtuosoURIForBlankNode(subject));
+                resources.add(ODCSUtils.getVirtuosoURIForBlankNode(subject));
             }
 
             Node predicate = quad.getPredicate();
             if (predicate.isURI()) {
                 resources.add(predicate.getURI());
             } else if (predicate.isBlank()) {
-                resources.add(Utils.getVirtuosoURIForBlankNode(predicate));
+                resources.add(ODCSUtils.getVirtuosoURIForBlankNode(predicate));
             }
         }
 

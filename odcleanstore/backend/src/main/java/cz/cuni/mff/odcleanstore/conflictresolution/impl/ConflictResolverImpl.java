@@ -11,7 +11,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationMethod
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationMethodFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationNotImplementedException;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.graph.Node;
@@ -254,7 +254,7 @@ public class ConflictResolverImpl implements ConflictResolver {
                 NamedGraphMetadata quadMetadata = metadata.getMetadata(quad.getGraphName());
                 if (lastMetadata != null
                         && quadMetadata != null
-                        && Utils.nullProofEquals(quadMetadata.getUpdateTag(), lastMetadata.getUpdateTag()) // (3) holds
+                        && ODCSUtils.nullProofEquals(quadMetadata.getUpdateTag(), lastMetadata.getUpdateTag()) // (3) holds
                         && quadMetadata.getInsertedAt() != null
                         && lastMetadata.getInsertedAt() != null
                         && quadMetadata.getInsertedAt().before(lastMetadata.getInsertedAt()) // (2) holds
@@ -296,7 +296,7 @@ public class ConflictResolverImpl implements ConflictResolver {
             if (metadata.getInsertedAt() == null | metadata.getInsertedBy() == null | metadata.getSources() == null) {
                 // If any of the tested properties is null, the named graph cannot be marked as an update
                 continue;
-            } else if (!Utils.isNullOrEmpty(metadata.getUpdateTag()) && updateTags.contains(metadata.getUpdateTag())) {
+            } else if (!ODCSUtils.isNullOrEmpty(metadata.getUpdateTag()) && updateTags.contains(metadata.getUpdateTag())) {
                 // Occurrence of named graphs sharing the same update tag
                 return true;
             } else if (sourceHashesSet.contains(metadata.getSources().hashCode())) {

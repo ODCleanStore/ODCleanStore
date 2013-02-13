@@ -3,7 +3,7 @@ package cz.cuni.mff.odcleanstore.connection;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +43,7 @@ public final class VirtuosoConnectionWrapper {
             throws ConnectionException {
 
         try {
-            Class.forName(Utils.JDBC_DRIVER);
+            Class.forName(ODCSUtils.JDBC_DRIVER);
         } catch (ClassNotFoundException e) {
             throw new ConnectionException("Couldn't load Virtuoso jdbc driver", e);
         }

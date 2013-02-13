@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
  *
  * @author Jan Michelfeit
  */
-public final class Utils {
+public final class ODCSUtils {
     /* Simplified patterns for IRIs and prefixed names  based on
      * specification at http://www.w3.org/TR/rdf-sparql-query/#QSynIRI
      */
@@ -28,7 +28,9 @@ public final class Utils {
     private static final Pattern IRI_PATTERN = Pattern.compile("^[^<>\"{}|^`\\x00-\\x20']*$");
     private static final Pattern PREFIXED_NAME_PATTERN =
             Pattern.compile("^(" + PN_PREFIX_PATTERN + ")?:(" + PN_LOCAL_PATTERN + ")?$");
-    
+//    private static final Pattern VAR_PATTERN =
+//            Pattern.compile("^\\?([" + PN_CHARS_U + "] | [0-9])([" + PN_CHARS_U + "] | [0-9] | \\xB7)*$");
+
     private static final Pattern UUID_PATTERN = 
             Pattern.compile("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
 
@@ -122,7 +124,7 @@ public final class Utils {
      * @return the UUID part or null if it the named graph doesn't have the correct format
      */
     public static String extractUUID(String namedGraphURI) {
-        if (Utils.isNullOrEmpty(namedGraphURI)) {
+        if (ODCSUtils.isNullOrEmpty(namedGraphURI)) {
             return null;
         }
         Matcher matcher = UUID_PATTERN.matcher(namedGraphURI);
@@ -185,6 +187,6 @@ public final class Utils {
     }
         
     /** Disable constructor for a utility class. */
-    private Utils() {
+    private ODCSUtils() {
     }
 }

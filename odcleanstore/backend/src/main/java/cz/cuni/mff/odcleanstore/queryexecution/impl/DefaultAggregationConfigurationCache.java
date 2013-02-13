@@ -6,7 +6,7 @@ import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.queryexecution.EnumQueryError;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
 import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 
 /**
  * Provides access to default aggregation settings, caching the value.
@@ -15,7 +15,7 @@ import cz.cuni.mff.odcleanstore.shared.Utils;
  */
 public class DefaultAggregationConfigurationCache extends CacheHolderBase<AggregationSpec> {
     /** Lifetime of the cached value in milliseconds. */
-    private static final long CACHE_LIFETIME = 5 * Utils.TIME_UNIT_60 * Utils.MILLISECONDS;
+    private static final long CACHE_LIFETIME = 5 * ODCSUtils.TIME_UNIT_60 * ODCSUtils.MILLISECONDS;
 
     /** Database connection settings. */
     private final JDBCConnectionCredentials connectionCredentials;

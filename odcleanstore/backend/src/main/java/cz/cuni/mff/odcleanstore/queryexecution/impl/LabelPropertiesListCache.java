@@ -7,7 +7,7 @@ import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.queryexecution.EnumQueryError;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
 import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +25,7 @@ public class LabelPropertiesListCache extends CacheHolderBase<String> {
     private static final Logger LOG = LoggerFactory.getLogger(LabelPropertiesListCache.class);
 
     /** Lifetime of the cached value in milliseconds. */
-    private static final long CACHE_LIFETIME = 5 * Utils.TIME_UNIT_60 * Utils.MILLISECONDS;
+    private static final long CACHE_LIFETIME = 5 * ODCSUtils.TIME_UNIT_60 * ODCSUtils.MILLISECONDS;
 
     /** Database connection settings. */
     private final JDBCConnectionCredentials connectionCredentials;
@@ -58,7 +58,7 @@ public class LabelPropertiesListCache extends CacheHolderBase<String> {
             PrefixMapping prefixMapping = prefixMappingCache.getCachedValue();
             while (resultSet.next()) {
                 String property = resultSet.getNString(1);
-                if (Utils.isPrefixedName(property)) {
+                if (ODCSUtils.isPrefixedName(property)) {
                     labelProperties.add(prefixMapping.expandPrefix(property));
                 } else {
                     labelProperties.add(property);
@@ -68,7 +68,7 @@ public class LabelPropertiesListCache extends CacheHolderBase<String> {
             int propertyCount = 0;
             StringBuilder sb = new StringBuilder();
             for (String property : labelProperties) {
-                if (!Utils.isValidIRI(property)) {
+                if (!ODCSUtils.isValidIRI(property)) {
                     continue;
                 }
                 propertyCount++;

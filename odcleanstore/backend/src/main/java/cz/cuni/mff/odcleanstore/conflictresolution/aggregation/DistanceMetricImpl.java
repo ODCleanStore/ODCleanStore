@@ -4,7 +4,7 @@ import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.AggregationUtils;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.EnumLiteralType;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.LevenshteinDistance;
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDateTime;
@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
     private static final double ERROR_DISTANCE = MAX_DISTANCE;
 
     /** Number of seconds in a day. */
-    private static final int SECONDS_IN_DAY = (int) (Utils.DAY_HOURS * Utils.TIME_UNIT_60 * Utils.TIME_UNIT_60);
+    private static final int SECONDS_IN_DAY = (int) (ODCSUtils.DAY_HOURS * ODCSUtils.TIME_UNIT_60 * ODCSUtils.TIME_UNIT_60);
 
     /** Global configuration values for conflict resolution. */
     private final ConflictResolutionConfig globalConfig;
@@ -223,7 +223,7 @@ import org.slf4j.LoggerFactory;
                     return ERROR_DISTANCE;
                 }
                 double differenceInSeconds = Math.abs(primaryValueTime.asCalendar().getTimeInMillis()
-                        - comparedValueTime.asCalendar().getTimeInMillis()) / Utils.MILLISECONDS;
+                        - comparedValueTime.asCalendar().getTimeInMillis()) / ODCSUtils.MILLISECONDS;
                 double result = (MAX_DISTANCE - MIN_DISTANCE)
                         * differenceInSeconds / globalConfig.getMaxDateDifference();
                 result = Math.min(result, MAX_DISTANCE);

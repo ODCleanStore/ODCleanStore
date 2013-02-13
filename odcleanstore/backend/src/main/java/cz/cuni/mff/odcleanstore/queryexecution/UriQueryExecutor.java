@@ -10,7 +10,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolution
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 
@@ -229,7 +229,7 @@ import java.util.Set;
             throw new QueryExecutionException(EnumQueryError.QUERY_TOO_LONG, ErrorCodes.QE_INPUT_FORMAT_ERR,
                     "The requested URI is longer than " + MAX_URI_LENGTH + " characters.");
         }
-        if (!Utils.isValidIRI(uri)) {
+        if (!ODCSUtils.isValidIRI(uri)) {
             throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, ErrorCodes.QE_INPUT_FORMAT_ERR,
                     "The query is not a valid URI.");
         }
@@ -314,21 +314,21 @@ import java.util.Set;
             if (subject.isURI()) {
                 resources.add(subject.getURI());
             } else if (subject.isBlank()) {
-                resources.add(Utils.getVirtuosoURIForBlankNode(subject));
+                resources.add(ODCSUtils.getVirtuosoURIForBlankNode(subject));
             }
 
             Node predicate = quad.getPredicate();
             if (predicate.isURI()) {
                 resources.add(predicate.getURI());
             } else if (predicate.isBlank()) {
-                resources.add(Utils.getVirtuosoURIForBlankNode(predicate));
+                resources.add(ODCSUtils.getVirtuosoURIForBlankNode(predicate));
             }
 
             Node object = quad.getObject();
             if (object.isURI()) {
                 resources.add(object.getURI());
             } else if (object.isBlank()) {
-                resources.add(Utils.getVirtuosoURIForBlankNode(object));
+                resources.add(ODCSUtils.getVirtuosoURIForBlankNode(object));
             }
         }
         resources.remove(uri);

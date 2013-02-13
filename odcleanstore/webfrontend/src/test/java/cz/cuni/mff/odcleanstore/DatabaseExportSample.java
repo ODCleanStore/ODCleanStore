@@ -9,14 +9,14 @@ import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.database.QueryDataSet;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
 
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 
 public class DatabaseExportSample
 {
     public static void main(String[] args) throws Exception
     {
         // database connection
-        Class driverClass = Class.forName(Utils.JDBC_DRIVER);
+        Class driverClass = Class.forName(ODCSUtils.JDBC_DRIVER);
         
         Connection jdbcConnection = DriverManager.getConnection
         (

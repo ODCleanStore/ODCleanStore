@@ -13,7 +13,7 @@ import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 
 public abstract class DaoTest
 {
@@ -29,7 +29,7 @@ public abstract class DaoTest
 	{
 		ctx = new FileSystemXmlApplicationContext(TEST_SPRING_CONFIG_LOCATION);
 
-		Class.forName(Utils.JDBC_DRIVER);
+		Class.forName(ODCSUtils.JDBC_DRIVER);
 		
 		jdbcConnection = DriverManager.getConnection
 		(

@@ -1,6 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo.dn;
 
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 
 /**
  * A compiler to translate replace template instances into raw rules.
@@ -35,15 +35,15 @@ public class DNReplaceTemplateInstanceCompiler
 		
 		// 2. Create components.
 		//
-		String property = Utils.escapeSPARQLLiteral(instance.getPropertyName());
+		String property = ODCSUtils.escapeSPARQLLiteral(instance.getPropertyName());
 		
-		if (!Utils.isPrefixedName(property)) {
+		if (!ODCSUtils.isPrefixedName(property)) {
 			property = "<" + property + ">";
 		}
 		
-		String pattern = Utils.escapeSPARQLLiteral(instance.getPattern());
+		String pattern = ODCSUtils.escapeSPARQLLiteral(instance.getPattern());
 
-		String replacement = Utils.escapeSPARQLLiteral(instance.getReplacement());
+		String replacement = ODCSUtils.escapeSPARQLLiteral(instance.getReplacement());
 
 		String modification = String.format
 		(

@@ -9,7 +9,7 @@ import cz.cuni.mff.odcleanstore.queryexecution.impl.LabelPropertiesListCache;
 import cz.cuni.mff.odcleanstore.queryexecution.impl.PrefixMappingCache;
 import cz.cuni.mff.odcleanstore.queryexecution.impl.QueryExecutionHelper;
 import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 
 import org.slf4j.Logger;
@@ -116,7 +116,7 @@ public class QueryExecution {
         }
 
         String trimmedURI = uri.trim();
-        String expandedURI = Utils.isPrefixedName(trimmedURI)
+        String expandedURI = ODCSUtils.isPrefixedName(trimmedURI)
                 ? prefixMappingCache.getCachedValue().expandPrefix(trimmedURI)
                 : trimmedURI;
         AggregationSpec expandedAggregationSpec = QueryExecutionHelper.expandPropertyNames(
@@ -152,7 +152,7 @@ public class QueryExecution {
         }
 
         String trimmedURI = namedGraphURI.trim();
-        String expandedURI = Utils.isPrefixedName(trimmedURI)
+        String expandedURI = ODCSUtils.isPrefixedName(trimmedURI)
                 ? prefixMappingCache.getCachedValue().expandPrefix(trimmedURI)
                 : trimmedURI;
         AggregationSpec expandedAggregationSpec = QueryExecutionHelper.expandPropertyNames(
@@ -185,7 +185,7 @@ public class QueryExecution {
         }
 
         String trimmedURI = namedGraphURI.trim();
-        String expandedNamedGraphURI = Utils.isPrefixedName(trimmedURI)
+        String expandedNamedGraphURI = ODCSUtils.isPrefixedName(trimmedURI)
                 ? prefixMappingCache.getCachedValue().expandPrefix(trimmedURI)
                 : trimmedURI;
         MetadataQueryExecutor queryExecutor = new MetadataQueryExecutor(
