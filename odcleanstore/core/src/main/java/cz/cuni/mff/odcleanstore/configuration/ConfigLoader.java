@@ -1,11 +1,11 @@
 package cz.cuni.mff.odcleanstore.configuration;
 
-import java.io.File;
+import cz.cuni.mff.odcleanstore.configuration.exceptions.ConfigurationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cz.cuni.mff.odcleanstore.configuration.exceptions.ConfigurationException;
+import java.io.File;
 
 /**
  * A globally accessible singleton Config instance.
@@ -48,7 +48,7 @@ public final class ConfigLoader {
 
     /**
      * Returns the parsed configuration instance. <strong>Make sure to have
-     * called {@load #loadConfig} prior to calling this method!</strong>
+     * called {@link #loadConfig} prior to calling this method!</strong>
      *
      * @return
      */
@@ -58,6 +58,15 @@ public final class ConfigLoader {
         }
 
         return config;
+    }
+    
+    
+    /**
+     * Returns whether the configuration has been loaded already.
+     * @return true if the {@link #loadConfig()} has been called.
+     */
+    public static boolean isConfigLoaded() {
+        return config != null;
     }
     
     /** Disable constructor for a utility class. */

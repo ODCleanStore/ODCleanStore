@@ -54,8 +54,8 @@ public final class VirtuosoConnectionWrapper {
                     connectionCredentials.getUsername(),
                     connectionCredentials.getPassword());
             VirtuosoConnectionWrapper wrapper = new VirtuosoConnectionWrapper(connection);
-            // disable log by default in order to prevent log size problems; transactions don't work much with SPARQL anyway 
-            wrapper.adjustTransactionLevel(EnumLogLevel.AUTOCOMMIT); 
+            // disable log by default in order to prevent log size problems; transactions don't work much with SPARQL anyway
+            wrapper.adjustTransactionLevel(EnumLogLevel.AUTOCOMMIT);
             return wrapper;
         } catch (SQLException e) {
             throw new ConnectionException(e);
@@ -63,8 +63,8 @@ public final class VirtuosoConnectionWrapper {
     }
 
     /** Database connection. */
-    private Connection connection;
-    
+    private final Connection connection;
+
     /** Last logging level set by {@link #adjustTransactionLevel(EnumLogLevel)}. */
     private EnumLogLevel lastLogLevel = null;
 
@@ -81,7 +81,9 @@ public final class VirtuosoConnectionWrapper {
      */
     private VirtuosoConnectionWrapper(Connection connection) {
         this.connection = connection;
-        queryTimeout = ConfigLoader.getConfig().getBackendGroup().getQueryTimeout();
+        if (ConfigLoader.isConfigLoaded()) {
+            queryTimeout = ConfigLoader.getConfig().getBackendGroup().getQueryTimeout();
+        }
     }
 
     /**
@@ -266,9 +268,9 @@ public final class VirtuosoConnectionWrapper {
             CallableStatement statement = connection.prepareCall(
                     String.format(Locale.ROOT, "log_enable(%d, 1)", logLevel.getBits()));
             statement.execute();
-            
+
             connection.setAutoCommit(logLevel.getAutocommit());
-            
+
             EnumLogLevel oldLogLevel = lastLogLevel;
             lastLogLevel = logLevel;
             return oldLogLevel;
@@ -362,18 +364,18 @@ public final class VirtuosoConnectionWrapper {
      * @param relativeBase relative URI base for payload
      * @throws QueryException query error
      */
-    public void insertRdfXmlFromFile(File rdfXmlFile, String graphName, String relativeBase) 
+    public void insertRdfXmlFromFile(File rdfXmlFile, String graphName, String relativeBase)
             throws QueryException, ConnectionException {
         // Adjust transaction level - important, see Virtuoso manual, section 10.7
         EnumLogLevel originalLogLevel = adjustTransactionLevel(EnumLogLevel.AUTOCOMMIT);
-        
+
         String base = (relativeBase == null) ? "" : relativeBase;
         String escapedFileName = rdfXmlFile.getAbsolutePath().replace('\\', '/');
         String statement = "{call DB.DBA.RDF_LOAD_RDFXML("
                 + "file_to_string_output('" + escapedFileName + "'), '" + base + "', '" + graphName + "')}";
 
         executeCall(statement);
-        
+
         if (originalLogLevel != null && originalLogLevel != EnumLogLevel.AUTOCOMMIT) {
             adjustTransactionLevel(originalLogLevel);
         }
@@ -391,14 +393,14 @@ public final class VirtuosoConnectionWrapper {
             throws QueryException, ConnectionException {
         // Adjust transaction level - important, see Virtuoso manual, section 10.7
         EnumLogLevel originalLogLevel = adjustTransactionLevel(EnumLogLevel.AUTOCOMMIT);
-        
+
         String base = (relativeBase == null) ? "" : relativeBase;
         String escapedFileName = ttlFile.getAbsolutePath().replace('\\', '/');
         String statement = "{call DB.DBA.TTLP(file_to_string_output("
                 + "'" + escapedFileName + "'), '" + base + "', '" + graphName + "', " + TTL_FLAGS + ")}";
 
         executeCall(statement);
-        
+
         if (originalLogLevel != null && originalLogLevel != EnumLogLevel.AUTOCOMMIT) {
             adjustTransactionLevel(originalLogLevel);
         }
