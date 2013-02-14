@@ -225,7 +225,7 @@
         <module name="ArrayTypeStyle"/>
         <!--<module name="FinalParameters"/>-->
         <module name="TodoComment">
-		    <property name="format" value="todo:|TODO:|@todo|FIXME"/>
+		    <property name="format" value="todo:|TODO:|@todo|@TODO|FIXME"/>
 		</module>
         <module name="UpperEll"/>
 
