@@ -6,7 +6,7 @@ import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.queryexecution.EnumQueryError;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
-import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
+import cz.cuni.mff.odcleanstore.shared.ODCSErrorCodes;
 import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 
 import org.slf4j.Logger;
@@ -81,7 +81,7 @@ public class LabelPropertiesListCache extends CacheHolderBase<String> {
             if (propertyCount == 0) {
                 throw new QueryExecutionException(
                         EnumQueryError.QUERY_EXECUTION_SETTINGS_INVALID,
-                        ErrorCodes.QE_LABEL_PROPS_EMPTY_ERR,
+                        ODCSErrorCodes.QE_LABEL_PROPS_EMPTY_ERR,
                         "There must be at least one valid label property defined");
             }
 
@@ -89,10 +89,10 @@ public class LabelPropertiesListCache extends CacheHolderBase<String> {
 
         } catch (DatabaseException e) {
             throw new QueryExecutionException(
-                    EnumQueryError.DATABASE_ERROR, ErrorCodes.QE_LABEL_PROPS_DB_ERR, "Database error", e);
+                    EnumQueryError.DATABASE_ERROR, ODCSErrorCodes.QE_LABEL_PROPS_DB_ERR, "Database error", e);
         } catch (SQLException e) {
             throw new QueryExecutionException(
-                    EnumQueryError.DATABASE_ERROR, ErrorCodes.QE_LABEL_PROPS_DB_ERR, "Database error", e);
+                    EnumQueryError.DATABASE_ERROR, ODCSErrorCodes.QE_LABEL_PROPS_DB_ERR, "Database error", e);
         } finally {
             if (resultSet != null) {
                 resultSet.closeQuietly();

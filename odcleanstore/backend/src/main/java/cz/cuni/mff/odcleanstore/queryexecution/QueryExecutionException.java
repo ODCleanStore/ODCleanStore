@@ -61,7 +61,7 @@ public class QueryExecutionException extends ODCleanStoreException {
 
     /**
      * Return the error code of the error.
-     * @see cz.cuni.mff.odcleanstore.shared.ErrorCodes
+     * @see cz.cuni.mff.odcleanstore.shared.ODCSErrorCodes
      * @return error code or null
      */
     public Integer getErrorCode() {

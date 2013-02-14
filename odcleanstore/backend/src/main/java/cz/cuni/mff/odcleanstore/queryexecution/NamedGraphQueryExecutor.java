@@ -9,7 +9,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
-import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
+import cz.cuni.mff.odcleanstore.shared.ODCSErrorCodes;
 import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
@@ -127,11 +127,11 @@ import java.util.Set;
 
         // Check that the URI is valid (must not be empty or null, should match '<' ([^<>"{}|^`\]-[#x00-#x20])* '>' )
         if (uri.length() > MAX_URI_LENGTH) {
-            throw new QueryExecutionException(EnumQueryError.QUERY_TOO_LONG, ErrorCodes.QE_INPUT_FORMAT_ERR,
+            throw new QueryExecutionException(EnumQueryError.QUERY_TOO_LONG, ODCSErrorCodes.QE_INPUT_FORMAT_ERR,
                     "The requested URI is longer than " + MAX_URI_LENGTH + " characters.");
         }
         if (!ODCSUtils.isValidIRI(uri)) {
-            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, ErrorCodes.QE_INPUT_FORMAT_ERR,
+            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, ODCSErrorCodes.QE_INPUT_FORMAT_ERR,
                     "The query is not a valid URI.");
         }
 
@@ -155,11 +155,11 @@ import java.util.Set;
         } catch (ConflictResolutionException e) {
             throw new QueryExecutionException(
                     EnumQueryError.CONFLICT_RESOLUTION_ERROR,
-                    ErrorCodes.QE_CR_ERR,
+                    ODCSErrorCodes.QE_CR_ERR,
                     "Internal error during conflict resolution",
                     e);
         } catch (DatabaseException e) {
-            throw new QueryExecutionException(EnumQueryError.DATABASE_ERROR, ErrorCodes.QE_DATABASE_ERR, "Database error", e);
+            throw new QueryExecutionException(EnumQueryError.DATABASE_ERROR, ODCSErrorCodes.QE_DATABASE_ERR, "Database error", e);
         } finally {
             closeConnectionQuietly();
         }

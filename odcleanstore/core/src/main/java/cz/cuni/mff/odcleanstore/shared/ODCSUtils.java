@@ -3,6 +3,10 @@ package cz.cuni.mff.odcleanstore.shared;
 import com.hp.hpl.jena.graph.Node;
 
 import java.text.Normalizer;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -184,6 +188,40 @@ public final class ODCSUtils {
      */
     public static String toStringNullProof(Object obj) {
         return obj == null ? "" : obj.toString();
+    }
+    
+    /**
+     * Add a value to the set given in parameter and return modified set; if set is null, create new instance.
+     * @param value value to add to the set
+     * @param set set to add to or null
+     * @return set containing the given value
+     * @param <T> item type
+     */
+    public static <T> Set<T> addToSetNullProof(T value, Set<T> set) {
+        Set<T> result = set;
+        if (result == null) {
+            result = new HashSet<T>();
+        }
+        result.add(value);
+        return result;
+    }
+    
+    /**
+     * Add a value to the list given in parameter and return modified list; if list is null, create new instance.
+     * New Lists are instances of ArrayList.
+     * @param value value to add to the list
+     * @param list list to add to or null
+     * @return list containing the given value
+     * @param <T> item type
+     */
+    public static <T> List<T> addToListNullProof(T value, List<T> list) {
+        final int defaultListSize = 1;
+        List<T> result = list;
+        if (result == null) {
+            result = new ArrayList<T>(defaultListSize);
+        }
+        result.add(value);
+        return result;
     }
         
     /** Disable constructor for a utility class. */

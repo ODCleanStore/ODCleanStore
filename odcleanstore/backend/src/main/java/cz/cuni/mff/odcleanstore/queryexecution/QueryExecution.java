@@ -8,7 +8,7 @@ import cz.cuni.mff.odcleanstore.queryexecution.impl.DefaultAggregationConfigurat
 import cz.cuni.mff.odcleanstore.queryexecution.impl.LabelPropertiesListCache;
 import cz.cuni.mff.odcleanstore.queryexecution.impl.PrefixMappingCache;
 import cz.cuni.mff.odcleanstore.queryexecution.impl.QueryExecutionHelper;
-import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
+import cz.cuni.mff.odcleanstore.shared.ODCSErrorCodes;
 import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 
@@ -77,7 +77,7 @@ public class QueryExecution {
             throws QueryExecutionException {
 
         if (keywords == null) {
-            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, ErrorCodes.QE_INPUT_EMPTY_ERR,
+            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, ODCSErrorCodes.QE_INPUT_EMPTY_ERR,
                     "Keywords must not be empty");
         } else if (constraints == null || aggregationSpec == null) {
             throw new IllegalArgumentException();
@@ -109,7 +109,7 @@ public class QueryExecution {
             throws QueryExecutionException {
 
         if (uri == null) {
-            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, ErrorCodes.QE_INPUT_EMPTY_ERR,
+            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, ODCSErrorCodes.QE_INPUT_EMPTY_ERR,
                     "URI must not be empty");
         } else if (constraints == null || aggregationSpec == null) {
             throw new IllegalArgumentException();
@@ -145,7 +145,7 @@ public class QueryExecution {
             throws QueryExecutionException {
 
         if (namedGraphURI == null) {
-            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, ErrorCodes.QE_INPUT_EMPTY_ERR,
+            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, ODCSErrorCodes.QE_INPUT_EMPTY_ERR,
                     "Named graph URI must not be empty");
         } else if (constraints == null || aggregationSpec == null) {
             throw new IllegalArgumentException();
@@ -180,7 +180,7 @@ public class QueryExecution {
      */
     public MetadataQueryResult findNamedGraphMetadata(String namedGraphURI) throws QueryExecutionException {
         if (namedGraphURI == null) {
-            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, ErrorCodes.QE_INPUT_EMPTY_ERR,
+            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, ODCSErrorCodes.QE_INPUT_EMPTY_ERR,
                     "Named graph URI must not be empty");
         }
 

@@ -28,7 +28,7 @@ public class NamedGraphMetadataMap {
     public NamedGraphMetadata getMetadata(Node namedGraph) {
         return metadataMap.get(namedGraph.getURI());
     }
-    
+
     /**
      * Returns metadata for a given named graph URI.
      * @param namedGraphURI URI of a named graph
@@ -63,5 +63,10 @@ public class NamedGraphMetadataMap {
      */
     public void clear() {
         this.metadataMap.clear();
+    }
+
+    @Override
+    public String toString() {
+        return this.metadataMap.toString();
     }
 }

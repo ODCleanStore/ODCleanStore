@@ -7,10 +7,10 @@ package cz.cuni.mff.odcleanstore.shared;
  *
  * @author Jan Michelfeit
  */
-public final class ErrorCodes {
+public final class ODCSErrorCodes {
     
     /** Disable constructor for a utility class. */
-    private ErrorCodes() {
+    private ODCSErrorCodes() {
     }
 
     public static final int QE_DEFAULT_CONFIG_ERR = 10;
