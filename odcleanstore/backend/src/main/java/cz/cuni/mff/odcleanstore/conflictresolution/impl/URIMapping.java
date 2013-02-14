@@ -6,7 +6,7 @@ import com.hp.hpl.jena.graph.Node;
  * Mapping of an URI to another URI.
  * @author Jan Michelfeit
  */
-/*package*/interface URIMapping {
+public interface URIMapping {
     /**
      * Returns a mapping to a canonical URI for the selected URI.
      * If URI has no defined mapping or is mapped to itself, returns null.

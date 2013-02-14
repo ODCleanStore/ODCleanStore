@@ -29,7 +29,7 @@ import java.util.TreeMap;
  *
  * @author Jan Michelfeit
  */
-/*package*/class URIMappingImpl implements URIMapping {
+public class URIMappingImpl implements URIMapping {
     private static final Logger LOG = LoggerFactory.getLogger(URIMappingImpl.class);
 
     /** Set of URIs preferred as canonical URIs. */
@@ -99,6 +99,16 @@ import java.util.TreeMap;
             String objectURI = triple.getObject().getURI();
             dfuUnion(subjectURI, objectURI);
         }
+    }
+
+    /**
+     * Add an owl:sameAs mapping for two URIs given as strings.
+     * @see #addLinks(Iterator)
+     * @param subjectURI subject of a triple with the owl:sameAs predicate
+     * @param objectURI object of a triple with the owl:sameAs predicate
+     */
+    public void addLink(String subjectURI, String objectURI) {
+        dfuUnion(subjectURI, objectURI);
     }
 
     @Override
