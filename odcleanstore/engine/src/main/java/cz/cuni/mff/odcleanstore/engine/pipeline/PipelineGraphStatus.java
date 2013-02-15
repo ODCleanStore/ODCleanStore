@@ -375,22 +375,43 @@ public final class PipelineGraphStatus {
      * @throws PipelineGraphStatusException
      */
     void addAttachedGraph(String name) throws PipelineGraphStatusException {
+        if (attachedGraphs.contains(name)) {
+            return;
+        }
+        
         DbOdcsContextTransactional context = null;
+        DbOdcsContextSparql contextSparql = null;
         try {
-            if (attachedGraphs.contains(name)) {
-                return;
-            }
             context = new DbOdcsContextTransactional();
+            contextSparql = new DbOdcsContextSparql();
+            
             context.insertAttachedGraph(graph.id, name);
+            contextSparql.insertAttachedGraphLink(
+                    getNamedGraphsPrefix() + ODCSInternal.metadataGraphUriInfix + getUuid(),
+                    getNamedGraphsPrefix() + ODCSInternal.dataGraphUriInfix + getUuid(),
+                    name);
+
             context.commit();
-            attachedGraphs.add(name);
         } catch (Exception e) {
+            if (context != null) {
+                try {
+
+                    context.rollback();
+                } catch (Exception e2) {
+                    // do nothing
+                }
+            }
             throw new PipelineGraphStatusException(format(ERROR_ADD_ATTACHED_GRAPH), e);
         } finally {
             if (context != null) {
                 context.closeQuietly();
             }
+            if (contextSparql != null) {
+                contextSparql.closeQuietly();
+            }
         }
+
+        attachedGraphs.add(name);
     }
 
     /**
