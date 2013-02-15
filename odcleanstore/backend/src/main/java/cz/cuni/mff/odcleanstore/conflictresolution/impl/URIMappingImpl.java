@@ -37,17 +37,7 @@ public class URIMappingImpl implements URIMapping {
 
     /**
      * Map representing the DFU data structure.
-     * The key->value pairs are resource URI -> parent resource URI.
-     * If the value (parent URI) is null, the key is the root of the respective
-     * subtree. If uriDFUParent doesn't contain an URI, the meaning is the same
-     * as if the parent is null.
-     *
-     * Ther root of each subtree is the canonical URI for the particular
-     * component.
-     *
-     * Invariant: If an URI present in uriDFUParent is in {@link #preferredURIs},
-     * it is eighter the root of a DFU subtree (and thus a canonical URI) or its
-     * respective root is from preferredURIs.
+     * @see #getUriDFUParent()
      */
     private Map<String, String> uriDFUParent;
 
@@ -135,6 +125,8 @@ public class URIMappingImpl implements URIMapping {
      * Returns the URI at the root of a subtree in DFU for the argument, i.e.
      * the respective canonical URI.
      * For URI not contained in DFU returns the URI itself.
+     * Note that this method may modify values in the DFU map, however,
+     * it doesn't perform any additions or deletions and thus opened iterators should stay valid.
      * @param uri an RDF resource URI
      * @return a canonical URI
      */
@@ -169,6 +161,33 @@ public class URIMappingImpl implements URIMapping {
                 uriDFUParent.put(root1, root2);
             }
         }
+    }
+
+    /**
+     * Returns the set of URIs preferred as canonical URIs.
+     * @return URIs preferred as canonical URIs
+     */
+    protected Set<String> getPreferredURIs() {
+        return preferredURIs;
+    }
+
+    /**
+     * Map representing the DFU data structure.
+     * The key->value pairs are resource URI -> parent resource URI.
+     * If the value (parent URI) is null, the key is the root of the respective
+     * subtree. If uriDFUParent doesn't contain an URI, the meaning is the same
+     * as if the parent is null.
+     *
+     * The root of each subtree is the canonical URI for the particular
+     * component.
+     *
+     * Invariant: If an URI present in uriDFUParent is in {@link #preferredURIs},
+     * it is either the root of a DFU subtree (and thus a canonical URI) or its
+     * respective root is from preferredURIs.
+     * @return map representing the DFU data structure
+     */
+    protected Map<String, String> getUriDFUParent() {
+        return uriDFUParent;
     }
 
 }
