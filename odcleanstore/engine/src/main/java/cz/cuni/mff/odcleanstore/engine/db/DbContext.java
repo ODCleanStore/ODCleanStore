@@ -1,9 +1,5 @@
 package cz.cuni.mff.odcleanstore.engine.db;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
-import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
@@ -17,7 +13,7 @@ import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
  */
 public abstract class DbContext {
     
-    private static final String ERROR_CLOSED_CONNECTION = "Attempt to closed connection";
+    protected static final String ERROR_CLOSED_CONNECTION = "Attempt to closed connection";
     
     private VirtuosoConnectionWrapper connection = null;
 
@@ -33,8 +29,10 @@ public abstract class DbContext {
      */
     protected void setConnection(JDBCConnectionCredentials connectionCredentials) throws ConnectionException {
         connection = VirtuosoConnectionWrapper.createConnection(connectionCredentials);
-        connection.adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL);
-        connection.adjustTransactionIsolationLevel(Connection.TRANSACTION_SERIALIZABLE);
+    }
+    
+    protected VirtuosoConnectionWrapper getConnection() {
+        return connection;
     }
     
     /**
@@ -43,7 +41,6 @@ public abstract class DbContext {
     public void closeQuietly() {
         if (connection != null) {
             try {
-                connection.rollback();
                 connection.close();
             } catch (Throwable e) {
                 // do nothing
@@ -52,36 +49,6 @@ public abstract class DbContext {
         }
     }
 
-    /**
-     * Commit changes.
-     * 
-     * @throws ConnectionException
-     * @throws DbTransactionException - Exception for transactions abort
-     */
-    public void commit() throws ConnectionException, DbTransactionException {
-        if (connection == null) {
-            throw new ConnectionException(ERROR_CLOSED_CONNECTION);
-        }
-        try {
-            connection.commit();
-        } catch (SQLException e) {
-            throw new DbTransactionException("");
-        }
-    }
-    
-    /**
-     * Rollback changes.
-     * 
-     * @throws ConnectionException
-     * @throws SQLException
-     */
-    public void rollback() throws ConnectionException, SQLException {
-        if (connection == null) {
-            throw new ConnectionException(ERROR_CLOSED_CONNECTION);
-        }
-        connection.rollback();
-    }
-    
     /**
      * Select query.
      * @param query

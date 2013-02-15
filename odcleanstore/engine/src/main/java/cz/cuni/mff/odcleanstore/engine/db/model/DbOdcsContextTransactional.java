@@ -1,30 +1,31 @@
 package cz.cuni.mff.odcleanstore.engine.db.model;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ModelException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
-import cz.cuni.mff.odcleanstore.engine.db.DbContext;
+import cz.cuni.mff.odcleanstore.engine.db.DbContextTransactional;
 import cz.cuni.mff.odcleanstore.model.EnumGraphState;
 import cz.cuni.mff.odcleanstore.model.EnumPipelineErrorType;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+
 /**
- * Class for executing Engine queries to the relational database.
+ * Class for executing Engine queries to the relational database in transactions.
  * 
  * @see SQL
  * @author Petr Jerman
  */
-public class DbOdcsContext extends DbContext {
+public class DbOdcsContextTransactional extends DbContextTransactional {
 
-    private static final String ERROR_CREATE_ODCS_CONTEXT = "Error during creating DbOdcsContext";
+    private static final String ERROR_CREATE_ODCS_CONTEXT = "Error during creating "
+            + DbOdcsContextTransactional.class.getSimpleName();
 
-    public DbOdcsContext() throws DbOdcsException {
+    public DbOdcsContextTransactional() throws DbOdcsException {
         try {
             setConnection(ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
             execute(SQL.USE_ODCS_SCHEMA);

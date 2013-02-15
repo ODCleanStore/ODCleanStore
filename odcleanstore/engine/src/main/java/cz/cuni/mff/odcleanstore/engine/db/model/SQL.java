@@ -1,15 +1,16 @@
 package cz.cuni.mff.odcleanstore.engine.db.model;
 
-import java.util.Locale;
-
 import cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl;
 import cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl;
 import cz.cuni.mff.odcleanstore.model.EnumGraphState;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
+
+import java.util.Locale;
 
 /**
  * Class containing Engine queries to the relational database.
- * @see DbOdcsContext
+ * @see DbOdcsContextTransactional
  * @author Petr Jerman
  */
 /*package*/final class SQL {
@@ -241,8 +242,18 @@ import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
             " INSERT"
                     + " INTO ODCLEANSTORE.EN_WORKING_ADDED_GRAPHS(graphId, name)"
                     + " VALUES(?,?)");
-
+    
     static final String ERROR_INSERT_ATTACHED_GRAPH = "Error during inserting attached graph";
+    
+    /**
+     * Insert name of attached graph to given graphId.
+     * @param first graphId
+     * @param second graph name
+     */
+    static final String INSERT_ATTACHED_GRAPH_LINK = 
+            "SPARQL INSERT INTO <%1$s> { <%2$s> <" + ODCS.attachedGraph + "> <%3$s>}";
+
+    static final String ERROR_INSERT_ATTACHED_GRAPH_LINK = "Error during inserting odcs:attachedGraph link";
 
     /**
      * Delete all attached graphs for given graphId.

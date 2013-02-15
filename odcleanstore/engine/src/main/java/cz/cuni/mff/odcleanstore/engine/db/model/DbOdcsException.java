@@ -4,7 +4,7 @@ import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 
 /**
  * Exception thrown when executing a query to relational database.
- * @see DbOdcsContext
+ * @see DbOdcsContextTransactional
  * @author Petr Jerman
  */
 public class DbOdcsException extends ODCleanStoreException {

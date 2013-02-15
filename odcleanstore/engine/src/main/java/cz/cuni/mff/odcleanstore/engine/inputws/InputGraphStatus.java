@@ -1,7 +1,7 @@
 package cz.cuni.mff.odcleanstore.engine.inputws;
 
 import cz.cuni.mff.odcleanstore.engine.Engine;
-import cz.cuni.mff.odcleanstore.engine.db.model.DbOdcsContext;
+import cz.cuni.mff.odcleanstore.engine.db.model.DbOdcsContextTransactional;
 import cz.cuni.mff.odcleanstore.engine.db.model.Pipeline;
 
 import java.util.HashSet;
@@ -24,9 +24,9 @@ public final class InputGraphStatus {
      * @throws InputGraphStatusException
      */
     String[] getAllImportingGraphUuids() throws InputGraphStatusException {
-        DbOdcsContext context = null;
+        DbOdcsContextTransactional context = null;
         try {
-            context = new DbOdcsContext();
+            context = new DbOdcsContextTransactional();
             return context.selectAllImportingGraphsForEngine(Engine.getCurrent().getEngineUuid());
         } catch (Exception e) {
             throw new InputGraphStatusException("Error during getting all importing graph uuids", e);
@@ -44,9 +44,9 @@ public final class InputGraphStatus {
      * @throws InputGraphStatusException
      */
     static void deleteImportingGraph(String uuid) throws InputGraphStatusException {
-        DbOdcsContext context = null;
+        DbOdcsContextTransactional context = null;
         try {
-            context = new DbOdcsContext();
+            context = new DbOdcsContextTransactional();
             context.deleteImportingGraph(uuid);
         } catch (Exception e) {
             throw new InputGraphStatusException("Error during deleteting importing graph uuid", e);
@@ -70,14 +70,14 @@ public final class InputGraphStatus {
     synchronized void beginImport(String uuid, String namedGraphsPrefix, String pipelineName)
             throws InputGraphStatusException {
 
-        DbOdcsContext context = null;
+        DbOdcsContextTransactional context = null;
         try {
             if (importingGraphs.contains(uuid)) {
                 String message = String.format("Graph %s is already importing", uuid);
                 throw new InputGraphStatusException(message, InputWSErrorEnumeration.SERVICE_BUSY);
             }
             
-            context = new DbOdcsContext();
+            context = new DbOdcsContextTransactional();
             
             if (context.isGraphUuidInSystem(uuid)) {
                 String message = String.format("Graph %s is already imported", uuid);
@@ -122,9 +122,9 @@ public final class InputGraphStatus {
      * @throws InputGraphStatusException
      */
     synchronized void revertImport(String uuid) throws InputGraphStatusException {
-        DbOdcsContext context = null;
+        DbOdcsContextTransactional context = null;
         try {
-            context = new DbOdcsContext();
+            context = new DbOdcsContextTransactional();
             context.deleteImportingGraph(uuid);
             context.commit();
             importingGraphs.remove(uuid);
@@ -145,9 +145,9 @@ public final class InputGraphStatus {
      * @throws InputGraphStatusException
      */
     synchronized void commitImport(String uuid) throws InputGraphStatusException {
-        DbOdcsContext context = null;
+        DbOdcsContextTransactional context = null;
         try {
-            context = new DbOdcsContext();
+            context = new DbOdcsContextTransactional();
             context.updateImportingGraphStateToQueued(uuid);
             context.commit();
             importingGraphs.remove(uuid);

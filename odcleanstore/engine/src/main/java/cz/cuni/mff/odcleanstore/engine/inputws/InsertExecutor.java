@@ -21,7 +21,7 @@ import cz.cuni.mff.odcleanstore.engine.Engine;
 import cz.cuni.mff.odcleanstore.engine.EngineException;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
 import cz.cuni.mff.odcleanstore.engine.db.model.Credentials;
-import cz.cuni.mff.odcleanstore.engine.db.model.DbOdcsContext;
+import cz.cuni.mff.odcleanstore.engine.db.model.DbOdcsContextTransactional;
 import cz.cuni.mff.odcleanstore.engine.db.model.DbOdcsException;
 import cz.cuni.mff.odcleanstore.shared.FileUtils;
 import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
@@ -118,10 +118,10 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
      */
     private void password(String content) throws InsertExecutorException {
 
-        DbOdcsContext context = null;
+        DbOdcsContextTransactional context = null;
         Credentials credential = null;
         try {
-            context = new DbOdcsContext();
+            context = new DbOdcsContextTransactional();
             credential = context.selectScraperCredentials(user);
         } catch (DbOdcsException e) {
             throw new InsertExecutorException(e);
