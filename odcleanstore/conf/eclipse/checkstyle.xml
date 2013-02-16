@@ -224,9 +224,9 @@
         <!-- See http://checkstyle.sf.net/config_misc.html -->
         <module name="ArrayTypeStyle"/>
         <!--<module name="FinalParameters"/>-->
-        <module name="TodoComment">
+        <!--<module name="TodoComment">
 		    <property name="format" value="todo:|TODO:|@todo|@TODO|FIXME"/>
-		</module>
+		</module>-->
         <module name="UpperEll"/>
 
     </module>
