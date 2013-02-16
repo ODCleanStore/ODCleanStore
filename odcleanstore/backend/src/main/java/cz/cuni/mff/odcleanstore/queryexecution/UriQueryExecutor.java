@@ -51,7 +51,6 @@ import java.util.Set;
      * The query must be formatted with these arguments: (1) URI, (2) graph filter clause, (3) limit
      *
      * TODO: it seemed to perform faster with OPTIONAL clauses for time and score - check it
-     * TODO: explore using REDUCED instead of DISTINCT
      */
     private static final String URI_OCCURENCES_QUERY = "SPARQL"
             + "\n DEFINE input:same-as \"yes\""

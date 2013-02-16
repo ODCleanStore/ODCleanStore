@@ -3,7 +3,7 @@ package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 import com.hp.hpl.jena.graph.Node;
 
 /**
- * Mapping of an URI to another URI.
+ * Mapping of an URI to its equivalent URI (canonical URI).
  * @author Jan Michelfeit
  */
 public interface URIMapping {

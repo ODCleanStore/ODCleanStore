@@ -64,16 +64,6 @@ public class ConflictResolverSpec {
         this(namedGraphURIPrefix, new AggregationSpec(), new AggregationSpec());
     }
 
-    /* /**
-     * Initialize this specification of conflict resolution settings with the given aggregation
-     * settings.
-     * @param namedGraphURIPrefix prefix of named graphs where resolved triples are placed
-     * @param aggregationSpec aggregation settings to use
-     * /
-    public ConflictResolverSpec(String namedGraphURIPrefix, AggregationSpec aggregationSpec) {
-        this(namedGraphURIPrefix, aggregationSpec, new AggregationSpec());
-    }*/
-
     /**
      * Initialize this specification of conflict resolution settings with the given aggregation
      * settings.
