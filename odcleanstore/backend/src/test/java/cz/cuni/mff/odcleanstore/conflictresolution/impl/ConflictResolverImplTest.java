@@ -197,7 +197,9 @@ public class ConflictResolverImplTest {
                 newVersionQuad.getObject().getURI(),
                 OWL.sameAs,
                 sameNamedGraphQuad.getObject().getURI()));
-        spec.setSameAsLinks(sameAsLinks.iterator());
+        URIMappingImpl uriMapping = new URIMappingImpl();
+        uriMapping.addLinks(sameAsLinks.iterator());
+        spec.setURIMapping(uriMapping);
         ConflictResolverImpl instance = new ConflictResolverImpl(spec, TestUtils.createConflictResolutionConfigMock());
 
         // Test results

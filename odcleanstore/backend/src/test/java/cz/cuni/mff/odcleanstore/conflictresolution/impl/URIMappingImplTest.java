@@ -1,7 +1,6 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
 import cz.cuni.mff.odcleanstore.TestUtils;
-import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.UnexpectedPredicateException;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 
 import com.hp.hpl.jena.graph.Node;
@@ -44,7 +43,7 @@ public class URIMappingImplTest {
     }
 
     @Test
-    public void testNonEmptyMapping1() throws UnexpectedPredicateException {
+    public void testNonEmptyMapping1() {
         String uri1 = TestUtils.getUniqueURI();
         String uri2 = TestUtils.getUniqueURI();
         String uri3 = TestUtils.getUniqueURI();
@@ -68,7 +67,7 @@ public class URIMappingImplTest {
     }
 
     @Test
-    public void testNonEmptyMapping2() throws UnexpectedPredicateException {
+    public void testNonEmptyMapping2() {
         String rootURI = TestUtils.getUniqueURI();
         String uri1 = TestUtils.getUniqueURI();
         String uri2 = TestUtils.getUniqueURI();
@@ -93,7 +92,7 @@ public class URIMappingImplTest {
     }
 
     @Test
-    public void testCycleMapping() throws UnexpectedPredicateException {
+    public void testCycleMapping() {
         String uri1 = TestUtils.getUniqueURI();
         String uri2 = TestUtils.getUniqueURI();
         String uri3 = TestUtils.getUniqueURI();
@@ -115,7 +114,7 @@ public class URIMappingImplTest {
     }
 
     @Test
-    public void testPreferredURIs() throws UnexpectedPredicateException {
+    public void testPreferredURIs() {
         String uri1 = TestUtils.getUniqueURI();
         String uri2 = TestUtils.getUniqueURI();
         String uri3 = TestUtils.getUniqueURI();

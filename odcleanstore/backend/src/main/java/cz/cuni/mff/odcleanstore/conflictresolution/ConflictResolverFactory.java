@@ -2,6 +2,8 @@ package cz.cuni.mff.odcleanstore.conflictresolution;
 
 import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.ConflictResolverImpl;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.URIMapping;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.URIMappingImpl;
 
 import com.hp.hpl.jena.graph.Triple;
 
@@ -58,6 +60,45 @@ public class ConflictResolverFactory {
      * The default returned implementation is not thread-safe.
      * @param aggregationSpec aggregation settings; these have preference over those given in the constructor
      * @param metadata metadata about named graphs of resolved quads
+     * @return a ConflictResolver instance
+     */
+    public ConflictResolver createResolver(
+            AggregationSpec aggregationSpec,
+            NamedGraphMetadataMap metadata) {
+
+        ConflictResolverSpec crSpec =
+                new ConflictResolverSpec(resultGraphPrefix, aggregationSpec, defaultAggregationSpec);
+        crSpec.setNamedGraphMetadata(metadata);
+        return new ConflictResolverImpl(crSpec, globalConfig);
+    }
+
+    /**
+     * Return a new instance of ConflictResolver.
+     * The default returned implementation is not thread-safe.
+     * @param aggregationSpec aggregation settings; these have preference over those given in the constructor
+     * @param metadata metadata about named graphs of resolved quads
+     * @param uriMapping mapping of URIs to their canonical URI (based on owl:sameAs links)
+     * @param preferredURIs set of URIs preferred as canonical URIs
+     * @return a ConflictResolver instance
+     */
+    public ConflictResolver createResolver(
+            AggregationSpec aggregationSpec,
+            NamedGraphMetadataMap metadata,
+            URIMapping uriMapping) {
+
+        ConflictResolverSpec crSpec =
+                new ConflictResolverSpec(resultGraphPrefix, aggregationSpec, defaultAggregationSpec);
+        crSpec.setNamedGraphMetadata(metadata);
+        crSpec.setURIMapping(uriMapping);
+
+        return new ConflictResolverImpl(crSpec, globalConfig);
+    }
+
+    /**
+     * Return a new instance of ConflictResolver.
+     * The default returned implementation is not thread-safe.
+     * @param aggregationSpec aggregation settings; these have preference over those given in the constructor
+     * @param metadata metadata about named graphs of resolved quads
      * @param sameAsLinks collection of owl:sameAs links to be considered during the conflict resolution process
      * @param preferredURIs set of URIs preferred as canonical URIs
      * @return a ConflictResolver instance
@@ -68,12 +109,8 @@ public class ConflictResolverFactory {
             Iterator<Triple> sameAsLinks,
             Set<String> preferredURIs) {
 
-        ConflictResolverSpec crSpec =
-                new ConflictResolverSpec(resultGraphPrefix, aggregationSpec, defaultAggregationSpec);
-        crSpec.setNamedGraphMetadata(metadata);
-        crSpec.setSameAsLinks(sameAsLinks);
-        crSpec.setPreferredURIs(preferredURIs);
-
-        return new ConflictResolverImpl(crSpec, globalConfig);
+        URIMappingImpl uriMapping = new URIMappingImpl(preferredURIs);
+        uriMapping.addLinks(sameAsLinks);
+        return createResolver(aggregationSpec, metadata, uriMapping);
     }
 }

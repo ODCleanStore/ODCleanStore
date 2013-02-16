@@ -15,7 +15,6 @@ import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
 
 import de.fuberlin.wiwiss.ng4j.Quad;
 
@@ -112,17 +111,13 @@ public class ConflictResolverImpl implements ConflictResolver {
         LOG.info("Resolving conflicts among {} quads.", quads.size());
         long startTime = System.currentTimeMillis();
 
-        // Prepare owl:sameAs mappings
-        URIMappingImpl uriMappings = new URIMappingImpl(crSpec.getPreferredURIs());
-        uriMappings.addLinks(getSameAsLinks(quads));
-
         // Prepare effective aggregation settings based on main settings, default settings and owl:sameAs mappings
-        AggregationSpec effectiveAggregationSpec = getEffectiveAggregationSpec(uriMappings);
+        AggregationSpec effectiveAggregationSpec = getEffectiveAggregationSpec(crSpec.getURIMapping());
 
         // Apply owl:sameAs mappings to quads, group quads to conflict clusters
         ResolveQuadCollection quadsToResolve = new ResolveQuadCollection();
         quadsToResolve.addQuads(quads);
-        quadsToResolve.applyMapping(uriMappings);
+        quadsToResolve.applyMapping(crSpec.getURIMapping());
 
         // Get metadata:
         NamedGraphMetadataMap metadata = getNamedGraphMetadata(quads);
@@ -317,21 +312,6 @@ public class ConflictResolverImpl implements ConflictResolver {
      */
     private Collection<CRQuad> createResultCollection() {
         return new LinkedList<CRQuad>();
-    }
-
-    /**
-     * Returns an iterator over owl:sameAs links (expressed as {@link Quad Quads})
-     * according to {@linkplain ConflictResolverSpec conflict resolution settings}.
-     * @param data graph of triples where conflicts are to be resolved
-     * @return an iterator over owl:sameAs links
-     */
-    private Iterator<Triple> getSameAsLinks(Iterable<? extends Quad> data) {
-        Iterator<Triple> specSameAsLinks = crSpec.getSameAsLinks();
-        if (specSameAsLinks != null) {
-            return specSameAsLinks;
-        } else {
-            return new SameAsLinkIterator(data);
-        }
     }
 
     /**

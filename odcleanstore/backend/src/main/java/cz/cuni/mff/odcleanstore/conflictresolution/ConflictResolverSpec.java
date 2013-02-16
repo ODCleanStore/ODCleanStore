@@ -1,10 +1,8 @@
 package cz.cuni.mff.odcleanstore.conflictresolution;
 
-import com.hp.hpl.jena.graph.Triple;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.URIMapping;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Set;
+import com.hp.hpl.jena.graph.Node;
 
 /**
  * Encapsulates settings for the conflict resolution process.
@@ -12,17 +10,26 @@ import java.util.Set;
  * @author Jan Michelfeit
  */
 public class ConflictResolverSpec {
+    /**
+     * An empty URIMapping (i.e. mapping each URI to itself).
+     */
+    private static final URIMapping EMPTY_URI_MAPPING = new URIMapping() {
+        @Override
+        public Node mapURI(Node uri) {
+            return null;
+        }
+
+        @Override
+        public String getCanonicalURI(String uri) {
+            return uri;
+        }
+    };
+
     /** Prefix of URIs of named graphs where resolved triples are placed. */
     private String namedGraphURIPrefix;
 
-    /** Set of URIs preferred as canonical URIs (used during implicit conflict resolution). */
-    private Set<String> preferredURIs;
-
-    /**
-     * Collection of owl:sameAs links to be considered during the conflict resolution process.
-     * If null, sameAsLinks are to be read from the data to resolve.
-     */
-    private Iterator<Triple> sameAsLinks;
+    /** Mapping of URIs to their canonical URI equivalent. */
+    private URIMapping uriMapping;
 
     /**
      * Metadata about named graphs where the input triples for the conflict resolution
@@ -50,9 +57,8 @@ public class ConflictResolverSpec {
      * Initialize default settings.
      */
     {
-        sameAsLinks = null;
+        uriMapping = EMPTY_URI_MAPPING;
         namedGraphMetadata = null;
-        preferredURIs = Collections.emptySet();
     }
 
     /**
@@ -101,42 +107,22 @@ public class ConflictResolverSpec {
     }
 
     /**
-     * Return set of URIs preferred as canonical URIs (used during implicit
-     * conflict resolution) for this specification.
-     * @return set of preferred URIs
+     * Returns mapping of URIs to their canonical URI equivalent.
+     * @return mapping of URIs to their canonical URI
      */
-    public final Set<String> getPreferredURIs() {
-        return preferredURIs;
+    public final URIMapping getURIMapping() {
+        return uriMapping;
     }
 
     /**
-     * Set URIs preferred as canonical URIs (used during implicit conflict
-     * resolution) for this specification.
-     * @param preferredURIs the new set of preferred URIs
+     * Sets mapping of URIs to their canonical URI equivalent.
+     * @param uriMapping mapping of URIs to their canonical URI
      */
-    public final void setPreferredURIs(Set<String> preferredURIs) {
-        if (preferredURIs == null) {
-            throw new IllegalArgumentException("Set of preffered URIs cannot be null");
+    public final void setURIMapping(URIMapping uriMapping) {
+        if (uriMapping == null) {
+            throw new IllegalArgumentException("URI mapping cannot be null");
         }
-        this.preferredURIs = preferredURIs;
-    }
-
-    /**
-     * Return owl:sameAs links to be considered during the conflict resolution process for this specification.
-     * @return collection of triples with owl:sameAs predicate or null
-     */
-    public final Iterator<Triple> getSameAsLinks() {
-        return sameAsLinks;
-    }
-
-    /**
-     * Set collection of owl:sameAs links to be considered during the conflict resolution
-     * process for this specification.
-     * If set to null, sameAsLinks are to be read from the data to resolve.
-     * @param sameAsLinks a collection of triples with owl:sameAs predicate or null
-     */
-    public final void setSameAsLinks(Iterator<Triple> sameAsLinks) {
-        this.sameAsLinks = sameAsLinks;
+        this.uriMapping = uriMapping;
     }
 
     /**

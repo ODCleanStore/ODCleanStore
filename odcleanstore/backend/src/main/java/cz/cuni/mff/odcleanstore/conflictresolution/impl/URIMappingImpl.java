@@ -1,6 +1,5 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.UnexpectedPredicateException;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 
 import com.hp.hpl.jena.graph.Node;
@@ -68,16 +67,14 @@ public class URIMappingImpl implements URIMapping {
     /**
      * Adds owl:sameAs mappings as RDF triples.
      * @param sameAsLinks iterator over triples with owl:sameAs as a predicate
-     * @throws UnexpectedPredicateException thrown if any of the triples has
-     *         a predicate different from owl:sameAs
      */
-    public void addLinks(Iterator<Triple> sameAsLinks) throws UnexpectedPredicateException {
+    public void addLinks(Iterator<Triple> sameAsLinks) {
         while (sameAsLinks.hasNext()) {
             Triple triple = sameAsLinks.next();
             if (!triple.getPredicate().hasURI(OWL.sameAs)) {
-                LOG.error("A triple with predicate {} passed as a sameAs link",
+                LOG.warn("A triple with predicate {} passed as an owl:sameAs link",
                         triple.getPredicate().getURI());
-                throw new UnexpectedPredicateException(triple.getPredicate().getURI(), OWL.sameAs);
+                continue;
             }
             if (!triple.getSubject().isURI() || !triple.getObject().isURI()) {
                 // Ignore sameAs links between everything but URI resources; see owl:sameAs syntax
