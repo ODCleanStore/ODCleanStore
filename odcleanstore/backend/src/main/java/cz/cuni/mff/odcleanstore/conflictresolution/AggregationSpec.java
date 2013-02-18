@@ -12,7 +12,7 @@ public class AggregationSpec {
     /**
      * The default multivalue setting used when no value (or null) is set by {@link #setDefaultMultivalue(boolean)}.
      */
-    public static final boolean IMPLICIT_MULTIVALUE = false;
+    public static final boolean IMPLICIT_MULTIVALUE = true;
 
     /**
      * The default aggregation method used when no value (or null) is set by

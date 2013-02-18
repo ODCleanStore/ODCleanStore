@@ -176,13 +176,14 @@ public class SelectedValueAggregationTest {
 
         NamedGraphMetadataMap metadataMap = new NamedGraphMetadataMap();
         ConflictResolutionConfig globalConfig = TestUtils.createConflictResolutionConfigMock();
+        AggregationSpec aggregationSpec = new AggregationSpec();
+        aggregationSpec.setDefaultMultivalue(false);
         SelectedValueAggregation instance =
                 new SelectedValueAggregationImpl(
-                        new AggregationSpec(),
+                        aggregationSpec,
                         URI_GENERATOR,
                         new DistanceMetricImpl(globalConfig),
                         globalConfig);
-
 
         double calculatedValueDouble = instance.computeQualitySelected(
                 doubleQuad1,
