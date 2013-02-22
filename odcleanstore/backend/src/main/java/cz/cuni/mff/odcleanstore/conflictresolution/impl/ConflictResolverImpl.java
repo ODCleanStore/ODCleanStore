@@ -108,7 +108,7 @@ public class ConflictResolverImpl implements ConflictResolver {
      */
     @Override
     public Collection<CRQuad> resolveConflicts(Collection<Quad> quads) throws ConflictResolutionException {
-        LOG.info("Resolving conflicts among {} quads.", quads.size());
+        LOG.debug("Resolving conflicts among {} quads.", quads.size());
         long startTime = System.currentTimeMillis();
 
         // Prepare effective aggregation settings based on main settings, default settings and owl:sameAs mappings
