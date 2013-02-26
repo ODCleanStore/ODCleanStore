@@ -24,14 +24,15 @@ public final class ODCSUtils {
     private static final String PN_CHARS_BASE = "A-Za-z\\xC0-\\xFF";
     private static final String PN_CHARS_U = PN_CHARS_BASE + "_";
     private static final String PN_CHARS = PN_CHARS_U + "\\-0-9\\xB7";
-    private static final String PN_PREFIX_PATTERN =
+    private static final String PN_PREFIX =
             "[" + PN_CHARS_BASE + "](?:[" + PN_CHARS + ".]*[" + PN_CHARS + "])?";
-    private static final String PN_LOCAL_PATTERN =
+    private static final String PN_LOCAL =
             "[" + PN_CHARS_U + "0-9](?:[" + PN_CHARS + ".]*[" + PN_CHARS + "])?";
 
+    private static final Pattern PREFIX_PATTERN = Pattern.compile("^" + PN_PREFIX + "$");
     private static final Pattern IRI_PATTERN = Pattern.compile("^[^<>\"{}|^`\\x00-\\x20']*$");
     private static final Pattern PREFIXED_NAME_PATTERN =
-            Pattern.compile("^(" + PN_PREFIX_PATTERN + ")?:(" + PN_LOCAL_PATTERN + ")?$");
+            Pattern.compile("^(" + PN_PREFIX + ")?:(" + PN_LOCAL + ")?$");
 //    private static final Pattern VAR_PATTERN =
 //            Pattern.compile("^\\?([" + PN_CHARS_U + "] | [0-9])([" + PN_CHARS_U + "] | [0-9] | \\xB7)*$");
 
@@ -102,7 +103,7 @@ public final class ODCSUtils {
     public static boolean isValidIRI(String uri) {
         return !uri.isEmpty() && IRI_PATTERN.matcher(uri).matches();
     }
-
+    
     /**
      * Checks whether the given URI is a prefixed name.
      * See http://www.w3.org/TR/rdf-sparql-query/#QSynIRI.
@@ -111,6 +112,16 @@ public final class ODCSUtils {
      */
     public static boolean isPrefixedName(String uri) {
         return !uri.isEmpty() && PREFIXED_NAME_PATTERN.matcher(uri).matches();
+    }
+
+    /**
+     * Checks whether the given string is a valid namespace prefix.
+     * See http://www.w3.org/TR/rdf-sparql-query/#QSynIRI
+     * @param prefix the string to check
+     * @return true iff the given string is a valid namespace prefix
+     */
+    public static boolean isValidNamespacePrefix(String prefix) {
+        return !prefix.isEmpty() && PREFIX_PATTERN.matcher(prefix).matches();
     }
     
     /**

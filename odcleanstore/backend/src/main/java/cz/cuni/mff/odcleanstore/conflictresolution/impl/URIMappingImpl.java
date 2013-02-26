@@ -51,12 +51,12 @@ public class URIMappingImpl implements URIMapping {
      * Creates an URIMappingImpl instance with no preferred URIs.
      */
     public URIMappingImpl() {
-        this.preferredURIs = Collections.emptySet();
+        this(Collections.<String>emptySet());
     }
 
     /**
      * Creates an URIMappingImpl instance with the selected preferred URIs.
-     * @param preferredURIs set of URIs preferred as canonical URIs or null
+     * @param preferredURIs set of URIs preferred as canonical URIs; can be null
      */
     public URIMappingImpl(Set<String> preferredURIs) {
         this.preferredURIs = (preferredURIs != null)
