@@ -1,7 +1,9 @@
 /**
  * 
  */
-package cz.cuni.mff.odcleanstore.shared;
+package cz.cuni.mff.odcleanstore.shared.util;
+
+import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 
 import java.io.File;
 import java.io.IOException;

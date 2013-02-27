@@ -1,5 +1,21 @@
 package cz.cuni.mff.odcleanstore.engine.inputws;
 
+import cz.cuni.mff.odcleanstore.comlib.ComlibUtils;
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.engine.Engine;
+import cz.cuni.mff.odcleanstore.engine.EngineException;
+import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
+import cz.cuni.mff.odcleanstore.engine.db.model.Credentials;
+import cz.cuni.mff.odcleanstore.engine.db.model.DbOdcsContextTransactional;
+import cz.cuni.mff.odcleanstore.engine.db.model.DbOdcsException;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
+import cz.cuni.mff.odcleanstore.shared.util.FileUtils;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -11,22 +27,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.UUID;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import cz.cuni.mff.odcleanstore.comlib.ComlibUtils;
-import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
-import cz.cuni.mff.odcleanstore.engine.Engine;
-import cz.cuni.mff.odcleanstore.engine.EngineException;
-import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
-import cz.cuni.mff.odcleanstore.engine.db.model.Credentials;
-import cz.cuni.mff.odcleanstore.engine.db.model.DbOdcsContextTransactional;
-import cz.cuni.mff.odcleanstore.engine.db.model.DbOdcsException;
-import cz.cuni.mff.odcleanstore.shared.FileUtils;
-import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
-import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
-import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 
 /**
  * Class for executing insert inputws soap message.

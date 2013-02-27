@@ -1,6 +1,9 @@
 package cz.cuni.mff.odcleanstore.data;
 
-/** Type of database instance. */
+/**
+ * Type of database instance.
+ * @author Jan Michelfeit
+ */
 public enum EnumDatabaseInstance {
     /** Clean db instance. */
     CLEAN,
