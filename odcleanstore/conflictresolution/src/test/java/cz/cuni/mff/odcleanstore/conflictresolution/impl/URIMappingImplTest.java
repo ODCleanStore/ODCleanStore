@@ -1,17 +1,17 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
-import cz.cuni.mff.odcleanstore.TestUtils;
-import cz.cuni.mff.odcleanstore.vocabulary.OWL;
-
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
+import java.util.Collections;
+import java.util.LinkedList;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.util.Collections;
-import java.util.LinkedList;
+import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.Triple;
+
+import cz.cuni.mff.odcleanstore.conflictresolution.CRTestUtils;
+import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 
 /**
  *
@@ -23,7 +23,7 @@ public class URIMappingImplTest {
     @BeforeClass
     public static void setUpClass() throws Exception {
         sameAsPredicate = Node.createURI(OWL.sameAs);
-        TestUtils.resetURICounter();
+        CRTestUtils.resetURICounter();
     }
 
     private String getAndTestMappedURI(String uri, URIMapping mapping) {
@@ -38,16 +38,16 @@ public class URIMappingImplTest {
     public void testEmptyMapping() {
         URIMappingImpl instance = new URIMappingImpl();
         String expResult = null;
-        Node result = instance.mapURI(Node.createURI(TestUtils.getUniqueURI()));
+        Node result = instance.mapURI(Node.createURI(CRTestUtils.getUniqueURI()));
         Assert.assertEquals(expResult, result);
     }
 
     @Test
     public void testNonEmptyMapping1() {
-        String uri1 = TestUtils.getUniqueURI();
-        String uri2 = TestUtils.getUniqueURI();
-        String uri3 = TestUtils.getUniqueURI();
-        String uri4 = TestUtils.getUniqueURI();
+        String uri1 = CRTestUtils.getUniqueURI();
+        String uri2 = CRTestUtils.getUniqueURI();
+        String uri3 = CRTestUtils.getUniqueURI();
+        String uri4 = CRTestUtils.getUniqueURI();
 
         LinkedList<Triple> sameAsLinks = new LinkedList<Triple>();
         sameAsLinks.add(new Triple(Node.createURI(uri1), sameAsPredicate, Node.createURI(uri2)));
@@ -68,10 +68,10 @@ public class URIMappingImplTest {
 
     @Test
     public void testNonEmptyMapping2() {
-        String rootURI = TestUtils.getUniqueURI();
-        String uri1 = TestUtils.getUniqueURI();
-        String uri2 = TestUtils.getUniqueURI();
-        String uri3 = TestUtils.getUniqueURI();
+        String rootURI = CRTestUtils.getUniqueURI();
+        String uri1 = CRTestUtils.getUniqueURI();
+        String uri2 = CRTestUtils.getUniqueURI();
+        String uri3 = CRTestUtils.getUniqueURI();
 
         LinkedList<Triple> sameAsLinks = new LinkedList<Triple>();
         sameAsLinks.add(new Triple(Node.createURI(rootURI), sameAsPredicate, Node.createURI(uri1)));
@@ -93,9 +93,9 @@ public class URIMappingImplTest {
 
     @Test
     public void testCycleMapping() {
-        String uri1 = TestUtils.getUniqueURI();
-        String uri2 = TestUtils.getUniqueURI();
-        String uri3 = TestUtils.getUniqueURI();
+        String uri1 = CRTestUtils.getUniqueURI();
+        String uri2 = CRTestUtils.getUniqueURI();
+        String uri3 = CRTestUtils.getUniqueURI();
 
         LinkedList<Triple> sameAsLinks = new LinkedList<Triple>();
         sameAsLinks.add(new Triple(Node.createURI(uri1), sameAsPredicate, Node.createURI(uri2)));
@@ -115,9 +115,9 @@ public class URIMappingImplTest {
 
     @Test
     public void testPreferredURIs() {
-        String uri1 = TestUtils.getUniqueURI();
-        String uri2 = TestUtils.getUniqueURI();
-        String uri3 = TestUtils.getUniqueURI();
+        String uri1 = CRTestUtils.getUniqueURI();
+        String uri2 = CRTestUtils.getUniqueURI();
+        String uri3 = CRTestUtils.getUniqueURI();
 
         LinkedList<Triple> sameAsLinks = new LinkedList<Triple>();
         sameAsLinks.add(new Triple(Node.createURI(uri1), sameAsPredicate, Node.createURI(uri2)));

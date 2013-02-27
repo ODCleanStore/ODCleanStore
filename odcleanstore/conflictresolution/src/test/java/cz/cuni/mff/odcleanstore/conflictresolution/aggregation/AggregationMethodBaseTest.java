@@ -1,23 +1,22 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
-import cz.cuni.mff.odcleanstore.TestUtils;
-import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
-import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
-import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
-import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
-
-import com.hp.hpl.jena.graph.Node;
-
-import de.fuberlin.wiwiss.ng4j.Quad;
-
-import org.junit.Assert;
-import org.junit.Test;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import com.hp.hpl.jena.graph.Node;
+
+import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
+import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
+import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
+import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
+import cz.cuni.mff.odcleanstore.conflictresolution.CRTestUtils;
+import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
+import de.fuberlin.wiwiss.ng4j.Quad;
 
 public class AggregationMethodBaseTest {
     private static final String URI_PREFIX = "http://example.com/test/";
@@ -54,30 +53,30 @@ public class AggregationMethodBaseTest {
     @Test
     public void testSourceNamedGraphsForObject() {
         Collection<Quad> conflictingQuads = new LinkedList<Quad>();
-        String subjectURI = TestUtils.getUniqueURI();
-        String predicateURI = TestUtils.getUniqueURI();
-        String testedObjectURI = TestUtils.getUniqueURI();
-        String namedGraphA = TestUtils.getUniqueURI();
-        String namedGraphB = TestUtils.getUniqueURI();
+        String subjectURI = CRTestUtils.getUniqueURI();
+        String predicateURI = CRTestUtils.getUniqueURI();
+        String testedObjectURI = CRTestUtils.getUniqueURI();
+        String namedGraphA = CRTestUtils.getUniqueURI();
+        String namedGraphB = CRTestUtils.getUniqueURI();
 
-        Quad quadA1 = TestUtils.createQuad(subjectURI, predicateURI,
+        Quad quadA1 = CRTestUtils.createQuad(subjectURI, predicateURI,
                 testedObjectURI, namedGraphA);
-        Quad quadA2 = TestUtils.createQuad(subjectURI, predicateURI,
+        Quad quadA2 = CRTestUtils.createQuad(subjectURI, predicateURI,
                 testedObjectURI, namedGraphA);
-        Quad quadB = TestUtils.createQuad(subjectURI, predicateURI,
+        Quad quadB = CRTestUtils.createQuad(subjectURI, predicateURI,
                 testedObjectURI, namedGraphB);
 
         conflictingQuads.add(quadA1);
-        conflictingQuads.add(TestUtils.createQuad(
-                subjectURI, predicateURI, TestUtils.getUniqueURI()));
+        conflictingQuads.add(CRTestUtils.createQuad(
+                subjectURI, predicateURI, CRTestUtils.getUniqueURI()));
         conflictingQuads.add(quadA2);
-        conflictingQuads.add(TestUtils.createQuad(
-                subjectURI, predicateURI, TestUtils.getUniqueURI()));
+        conflictingQuads.add(CRTestUtils.createQuad(
+                subjectURI, predicateURI, CRTestUtils.getUniqueURI()));
         conflictingQuads.add(quadB);
-        conflictingQuads.add(TestUtils.createQuad(
-                subjectURI, predicateURI, TestUtils.getUniqueURI()));
+        conflictingQuads.add(CRTestUtils.createQuad(
+                subjectURI, predicateURI, CRTestUtils.getUniqueURI()));
 
-        ConflictResolutionConfig globalConfig = TestUtils.createConflictResolutionConfigMock();
+        ConflictResolutionConfig globalConfig = CRTestUtils.createConflictResolutionConfigMock();
         AggregationMethodBase instance = new AggregationMethodBaseImpl(
                 new AggregationSpec(),
                 URI_GENERATOR,

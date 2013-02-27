@@ -1,19 +1,18 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
-import cz.cuni.mff.odcleanstore.TestUtils;
-
-import com.hp.hpl.jena.graph.Node;
-
-import de.fuberlin.wiwiss.ng4j.Quad;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
+import com.hp.hpl.jena.graph.Node;
+
+import cz.cuni.mff.odcleanstore.conflictresolution.CRTestUtils;
+import de.fuberlin.wiwiss.ng4j.Quad;
 
 /**
  *
@@ -22,8 +21,8 @@ import java.util.LinkedList;
 public class ResolveQuadCollectionTest {
 
     private static class SingleUriMapping implements URIMapping {
-        private Node what;
-        private Node mapTo;
+        private final Node what;
+        private final Node mapTo;
 
         public SingleUriMapping(String what, String mapTo) {
             this.what = Node.createURI(what);
@@ -51,7 +50,7 @@ public class ResolveQuadCollectionTest {
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-        TestUtils.resetURICounter();
+        CRTestUtils.resetURICounter();
     }
 
     @Test
@@ -61,7 +60,7 @@ public class ResolveQuadCollectionTest {
 
         LinkedList<Quad> quadList = new LinkedList<Quad>();
         for (int i = 0; i < quadCount; i++) {
-            quadList.add(TestUtils.createQuad());
+            quadList.add(CRTestUtils.createQuad());
         }
         Collection<Quad> quadGraph = new ArrayList<Quad>((quadList));
         instance.addQuads(quadGraph);
@@ -72,7 +71,7 @@ public class ResolveQuadCollectionTest {
             Collection<Quad> cluster = clusterIterator.next();
             Assert.assertTrue(cluster.size() == 1);
             Quad containedQuad = cluster.iterator().next();
-            Assert.assertTrue(TestUtils.inCollection(containedQuad, quadList));
+            Assert.assertTrue(CRTestUtils.inCollection(containedQuad, quadList));
             clusterCount++;
         }
         Assert.assertTrue(clusterCount == quadCount);
@@ -80,14 +79,14 @@ public class ResolveQuadCollectionTest {
 
     @Test
     public void testApplyMapping() {
-        final String subjectURI = TestUtils.getUniqueURI();
-        final String predicateURI = TestUtils.getUniqueURI();
-        final String objectURI = TestUtils.getUniqueURI();
-        final String namedGraph = TestUtils.getUniqueURI();
-        final String mappedSubjectURI = TestUtils.getUniqueURI();
+        final String subjectURI = CRTestUtils.getUniqueURI();
+        final String predicateURI = CRTestUtils.getUniqueURI();
+        final String objectURI = CRTestUtils.getUniqueURI();
+        final String namedGraph = CRTestUtils.getUniqueURI();
+        final String mappedSubjectURI = CRTestUtils.getUniqueURI();
 
         LinkedList<Quad> quadList = new LinkedList<Quad>();
-        quadList.add(TestUtils.createQuad(
+        quadList.add(CRTestUtils.createQuad(
                 subjectURI,
                 predicateURI,
                 objectURI,
@@ -103,36 +102,36 @@ public class ResolveQuadCollectionTest {
         Collection<Quad> cluster = clusterIterator.next();
         Assert.assertTrue(cluster.size() == 1);
         Quad containedQuad = cluster.iterator().next();
-        Quad expectedQuad = TestUtils.createQuad(
+        Quad expectedQuad = CRTestUtils.createQuad(
                 mappedSubjectURI,
                 predicateURI,
                 objectURI,
                 namedGraph);
-        Assert.assertTrue(TestUtils.quadsEquals(containedQuad, expectedQuad));
+        Assert.assertTrue(CRTestUtils.quadsEquals(containedQuad, expectedQuad));
 
         Assert.assertFalse(clusterIterator.hasNext());
     }
 
     @Test
     public void testConflictingQuads() {
-        final String subjectURI = TestUtils.getUniqueURI();
-        final String predicateURI = TestUtils.getUniqueURI();
-        final String objectURI1 = TestUtils.getUniqueURI();
-        final String objectURI2 = TestUtils.getUniqueURI();
-        final String mappedSubjectURI = TestUtils.getUniqueURI();
-        Quad conflictingQuad1 = TestUtils.createQuad(
+        final String subjectURI = CRTestUtils.getUniqueURI();
+        final String predicateURI = CRTestUtils.getUniqueURI();
+        final String objectURI1 = CRTestUtils.getUniqueURI();
+        final String objectURI2 = CRTestUtils.getUniqueURI();
+        final String mappedSubjectURI = CRTestUtils.getUniqueURI();
+        Quad conflictingQuad1 = CRTestUtils.createQuad(
                 subjectURI,
                 predicateURI,
                 objectURI1);
-        Quad mappedConflictingQuad1 = TestUtils.createQuad(
+        Quad mappedConflictingQuad1 = CRTestUtils.createQuad(
                 mappedSubjectURI,
                 predicateURI,
                 objectURI1);
-        Quad conflictingQuad2 = TestUtils.createQuad(
+        Quad conflictingQuad2 = CRTestUtils.createQuad(
                 mappedSubjectURI,
                 predicateURI,
                 objectURI2);
-        Quad otherQuad = TestUtils.createQuad();
+        Quad otherQuad = CRTestUtils.createQuad();
 
         LinkedList<Quad> quadList = new LinkedList<Quad>();
         quadList.add(conflictingQuad1);
@@ -164,12 +163,12 @@ public class ResolveQuadCollectionTest {
         // Test cluster { otherQuad }
         Assert.assertNotNull(otherCluster);
         Assert.assertTrue(otherCluster.size() == 1);
-        TestUtils.inCollection(otherQuad, otherCluster);
+        CRTestUtils.inCollection(otherQuad, otherCluster);
 
         // Test cluster {conflictingQuad2, mappedConflictingQuad1}
         Assert.assertNotNull(conflictingCluster);
         Assert.assertTrue(conflictingCluster.size() == 2);
-        TestUtils.inCollection(mappedConflictingQuad1, conflictingCluster);
-        TestUtils.inCollection(conflictingQuad2, conflictingCluster);
+        CRTestUtils.inCollection(mappedConflictingQuad1, conflictingCluster);
+        CRTestUtils.inCollection(conflictingQuad2, conflictingCluster);
     }
 }

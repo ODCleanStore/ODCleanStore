@@ -1,15 +1,14 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
-import cz.cuni.mff.odcleanstore.TestUtils;
-import cz.cuni.mff.odcleanstore.vocabulary.OWL;
-
-import de.fuberlin.wiwiss.ng4j.Quad;
+import java.util.LinkedList;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.util.LinkedList;
+import cz.cuni.mff.odcleanstore.conflictresolution.CRTestUtils;
+import cz.cuni.mff.odcleanstore.vocabulary.OWL;
+import de.fuberlin.wiwiss.ng4j.Quad;
 
 /**
  *
@@ -19,18 +18,18 @@ public class SameAsLinkIteratorTest {
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-        TestUtils.resetURICounter();
+        CRTestUtils.resetURICounter();
     }
 
     @Test
     public void testIterator() {
         LinkedList<Quad> triples = new LinkedList<Quad>();
-        String uri1 = TestUtils.getUniqueURI();
-        String uri2 = TestUtils.getUniqueURI();
+        String uri1 = CRTestUtils.getUniqueURI();
+        String uri2 = CRTestUtils.getUniqueURI();
 
-        triples.add(TestUtils.createQuad(uri1, OWL.sameAs, TestUtils.getUniqueURI()));
-        triples.add(TestUtils.createQuad());
-        triples.add(TestUtils.createQuad(uri2, OWL.sameAs, TestUtils.getUniqueURI()));
+        triples.add(CRTestUtils.createQuad(uri1, OWL.sameAs, CRTestUtils.getUniqueURI()));
+        triples.add(CRTestUtils.createQuad());
+        triples.add(CRTestUtils.createQuad(uri2, OWL.sameAs, CRTestUtils.getUniqueURI()));
 
         SameAsLinkIterator sameAsIterator = new SameAsLinkIterator(triples);
         Assert.assertTrue(sameAsIterator.hasNext());

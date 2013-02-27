@@ -1,13 +1,12 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
-import cz.cuni.mff.odcleanstore.TestUtils;
-import cz.cuni.mff.odcleanstore.conflictresolution.impl.NodeComparator;
+import org.junit.Assert;
+import org.junit.Test;
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.rdf.model.AnonId;
 
-import org.junit.Assert;
-import org.junit.Test;
+import cz.cuni.mff.odcleanstore.conflictresolution.CRTestUtils;
 
 /**
  *
@@ -18,7 +17,7 @@ public class NodeComparatorTest {
     public void testCompareEquals() {
         int expectedResult = 0;
 
-        String uri = TestUtils.getUniqueURI();
+        String uri = CRTestUtils.getUniqueURI();
         Node uriNode1 = Node.createURI(uri);
         Node uriNode2 = Node.createURI(uri);
         int uriComparison = NodeComparator.compare(uriNode1, uriNode2);
@@ -31,7 +30,7 @@ public class NodeComparatorTest {
                 .compare(literalNode1, literalNode2);
         Assert.assertEquals(expectedResult, literalComparison);
 
-        AnonId anonId = new AnonId(TestUtils.getUniqueURI());
+        AnonId anonId = new AnonId(CRTestUtils.getUniqueURI());
         Node blankNode1 = Node.createAnon(anonId);
         Node blankNode2 = Node.createAnon(anonId);
         int blankNodeComparison = NodeComparator.compare(blankNode1, blankNode2);
@@ -40,9 +39,9 @@ public class NodeComparatorTest {
 
     @Test
     public void testCompareDifferentTypes() {
-        Node uriNode = Node.createURI(TestUtils.getUniqueURI());
+        Node uriNode = Node.createURI(CRTestUtils.getUniqueURI());
         Node literalNode = Node.createLiteral("value");
-        Node anonNode = Node.createAnon(new AnonId(TestUtils.getUniqueURI()));
+        Node anonNode = Node.createAnon(new AnonId(CRTestUtils.getUniqueURI()));
 
         int result1 = NodeComparator.compare(uriNode, literalNode);
         Assert.assertTrue(result1 != 0);
@@ -56,8 +55,8 @@ public class NodeComparatorTest {
 
     @Test
     public void testCompareDifferentValues() {
-        Node uriNode1 = Node.createURI(TestUtils.getUniqueURI());
-        Node uriNode2 = Node.createURI(TestUtils.getUniqueURI());
+        Node uriNode1 = Node.createURI(CRTestUtils.getUniqueURI());
+        Node uriNode2 = Node.createURI(CRTestUtils.getUniqueURI());
         int uriResult = NodeComparator.compare(uriNode1, uriNode2);
         Assert.assertTrue(uriResult != 0);
 
@@ -67,8 +66,8 @@ public class NodeComparatorTest {
                 NodeComparator.compare(literalNode1, literalNode2);
         Assert.assertTrue(literalResult != 0);
 
-        Node blankNode1 = Node.createAnon(new AnonId(TestUtils.getUniqueURI()));
-        Node blankNode2 = Node.createAnon(new AnonId(TestUtils.getUniqueURI()));
+        Node blankNode1 = Node.createAnon(new AnonId(CRTestUtils.getUniqueURI()));
+        Node blankNode2 = Node.createAnon(new AnonId(CRTestUtils.getUniqueURI()));
         int blankNodeResult = NodeComparator.compare(blankNode1, blankNode2);
         Assert.assertTrue(blankNodeResult != 0);
     }

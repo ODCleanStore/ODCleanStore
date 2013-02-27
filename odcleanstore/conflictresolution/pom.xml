@@ -6,12 +6,11 @@
 	
 	<modelVersion>4.0.0</modelVersion>
 	
-	<artifactId>odcs-backend</artifactId>
+	<artifactId>odcs-conflictresolution</artifactId>
 	<packaging>jar</packaging>
   
 	<properties>
 		<odcs-core-version>${project.version}</odcs-core-version>
-		<odcs-conflictresolution-version>${project.version}</odcs-conflictresolution-version>
 	</properties>
 
 	<parent>
@@ -20,19 +19,14 @@
 		<version>1.0-SNAPSHOT</version>
 	</parent>
 
-	<name>ODCleanStore - Backend</name>
-	<description>Backend components of ODCleanStore - Conflict Resolution, Query Execution, Object Identification, Quality Assessment and Data Normalization</description>
+	<name>ODCleanStore - Conflict Resolution</name>
+	<description>The Conflict Resolution component of ODCleanStore</description>
 	
 	<dependencies>
 		<dependency>
 			<groupId>cz.cuni.mff.odcleanstore</groupId>
 			<artifactId>odcs-core</artifactId>
 			<version>${odcs-core-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>cz.cuni.mff.odcleanstore</groupId>
-			<artifactId>odcs-conflictresolution</artifactId>
-			<version>${odcs-conflictresolution-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -60,11 +54,6 @@
 					<groupId>org.slf4j</groupId>
 				</exclusion>
 			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>de.fuberlin.wiwiss.silk</groupId>
-			<artifactId>silk-singlemachine</artifactId>
-			<version>2.5.3</version>
 		</dependency>
 	</dependencies>
 

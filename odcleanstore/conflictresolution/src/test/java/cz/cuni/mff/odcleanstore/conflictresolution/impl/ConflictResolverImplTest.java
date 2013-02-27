@@ -1,26 +1,25 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
-import cz.cuni.mff.odcleanstore.TestUtils;
-import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
-import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverSpec;
-import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationType;
-import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
-import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
-import cz.cuni.mff.odcleanstore.vocabulary.OWL;
-
-import de.fuberlin.wiwiss.ng4j.Quad;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
+import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
+import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverSpec;
+import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationType;
+import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
+import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
+import cz.cuni.mff.odcleanstore.conflictresolution.CRTestUtils;
+import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
+import cz.cuni.mff.odcleanstore.vocabulary.OWL;
+import de.fuberlin.wiwiss.ng4j.Quad;
 
 /**
  * @author Jan Michelfeit
@@ -38,38 +37,38 @@ public class ConflictResolverImplTest {
 
     @BeforeClass
     public static void beforeClass() {
-        String subject = TestUtils.getUniqueURI();
-        String predicate = TestUtils.getUniqueURI();
-        String updatedQuadObject = TestUtils.getUniqueURI();
-        oldVersionQuad = TestUtils.createQuad(
+        String subject = CRTestUtils.getUniqueURI();
+        String predicate = CRTestUtils.getUniqueURI();
+        String updatedQuadObject = CRTestUtils.getUniqueURI();
+        oldVersionQuad = CRTestUtils.createQuad(
                 subject,
                 predicate,
                 updatedQuadObject,
-                TestUtils.getUniqueURI());
-        newVersionQuad = TestUtils.createQuad(
+                CRTestUtils.getUniqueURI());
+        newVersionQuad = CRTestUtils.createQuad(
                 subject,
                 predicate,
                 updatedQuadObject,
-                TestUtils.getUniqueURI());
-        otherQuad = TestUtils.createQuad(
+                CRTestUtils.getUniqueURI());
+        otherQuad = CRTestUtils.createQuad(
                 subject,
                 predicate,
-                TestUtils.getUniqueURI(),
-                TestUtils.getUniqueURI());
+                CRTestUtils.getUniqueURI(),
+                CRTestUtils.getUniqueURI());
     }
 
     @Before
     public void beforeTest() {
         metadata = new NamedGraphMetadataMap();
-        updatedQuadDataSource = TestUtils.getUniqueURI();
-        String insertedBy = TestUtils.getUniqueURI();
+        updatedQuadDataSource = CRTestUtils.getUniqueURI();
+        String insertedBy = CRTestUtils.getUniqueURI();
 
 
         Calendar date = Calendar.getInstance();
         NamedGraphMetadata otherQuadMetadata =
                 new NamedGraphMetadata(otherQuad.getGraphName().getURI());
         // otherQuadMetadata.setScore();
-        otherQuadMetadata.setSources(Collections.singleton(TestUtils.getUniqueURI()));
+        otherQuadMetadata.setSources(Collections.singleton(CRTestUtils.getUniqueURI()));
         otherQuadMetadata.setInsertedAt(date.getTime());
         otherQuadMetadata.setInsertedBy(insertedBy);
         metadata.addMetadata(otherQuadMetadata);
@@ -92,7 +91,7 @@ public class ConflictResolverImplTest {
         newVersionMetadata.setInsertedBy(insertedBy);
         metadata.addMetadata(newVersionMetadata);
 
-        spec = new ConflictResolverSpec(TestUtils.getUniqueURI());
+        spec = new ConflictResolverSpec(CRTestUtils.getUniqueURI());
         spec.getAggregationSpec().setDefaultAggregation(EnumAggregationType.NONE);
         spec.setNamedGraphMetadata(metadata);
     }
@@ -106,7 +105,7 @@ public class ConflictResolverImplTest {
         conflictingQuads.add(newVersionQuad);
 
         // Create class instance
-        ConflictResolverImpl instance = new ConflictResolverImpl(spec, TestUtils.createConflictResolutionConfigMock());
+        ConflictResolverImpl instance = new ConflictResolverImpl(spec, CRTestUtils.createConflictResolutionConfigMock());
 
         // Test results
         Collection<CRQuad> aggregationResult =
@@ -137,7 +136,7 @@ public class ConflictResolverImplTest {
     public void testFilterOldVersionsDifferentSources() throws ODCleanStoreException {
         // A triple identical to newVersionQuad, but using
         // otherQuad's named graph gives it a different source
-        Quad similarQuad = TestUtils.createQuad(
+        Quad similarQuad = CRTestUtils.createQuad(
                 newVersionQuad.getSubject().getURI(),
                 newVersionQuad.getPredicate().getURI(),
                 newVersionQuad.getObject().getURI(),
@@ -147,7 +146,7 @@ public class ConflictResolverImplTest {
         conflictingQuads.add(similarQuad);
 
         // Create class instance
-        ConflictResolverImpl instance = new ConflictResolverImpl(spec, TestUtils.createConflictResolutionConfigMock());
+        ConflictResolverImpl instance = new ConflictResolverImpl(spec, CRTestUtils.createConflictResolutionConfigMock());
 
         // Test results
         Collection<CRQuad> aggregationResult =
@@ -160,17 +159,17 @@ public class ConflictResolverImplTest {
     public void testFilterOldVersionsDifferentObjects() throws ODCleanStoreException {
         // A triple that would be filtered out if it had the same object
         // as newVersionQuad, but a different object makes it stay
-        Quad oldVersionDiferentObjectQuad = TestUtils.createQuad(
+        Quad oldVersionDiferentObjectQuad = CRTestUtils.createQuad(
                 newVersionQuad.getSubject().getURI(),
                 newVersionQuad.getPredicate().getURI(),
-                TestUtils.getUniqueURI(),
+                CRTestUtils.getUniqueURI(),
                 oldVersionQuad.getGraphName().getURI());
         Collection<Quad> conflictingQuads = new LinkedList<Quad>();
         conflictingQuads.add(newVersionQuad);
         conflictingQuads.add(oldVersionDiferentObjectQuad);
 
         // Create class instance
-        ConflictResolverImpl instance = new ConflictResolverImpl(spec, TestUtils.createConflictResolutionConfigMock());
+        ConflictResolverImpl instance = new ConflictResolverImpl(spec, CRTestUtils.createConflictResolutionConfigMock());
 
         // Test results
         Collection<CRQuad> aggregationResult =
@@ -182,10 +181,10 @@ public class ConflictResolverImplTest {
     @Test
     public void testFilterOldVersionsSameNamedGraphs() throws ODCleanStoreException {
         // Prepare test data
-        Quad sameNamedGraphQuad = TestUtils.createQuad(
+        Quad sameNamedGraphQuad = CRTestUtils.createQuad(
                 newVersionQuad.getSubject().getURI(),
                 newVersionQuad.getPredicate().getURI(),
-                TestUtils.getUniqueURI(),
+                CRTestUtils.getUniqueURI(),
                 newVersionQuad.getGraphName().getURI());
         Collection<Quad> conflictingQuads = new LinkedList<de.fuberlin.wiwiss.ng4j.Quad>();
         conflictingQuads.add(newVersionQuad);
@@ -193,14 +192,14 @@ public class ConflictResolverImplTest {
         conflictingQuads.add(sameNamedGraphQuad);
 
         // Create class instance
-        Collection<com.hp.hpl.jena.graph.Triple> sameAsLinks = Collections.singleton(TestUtils.createTriple(
+        Collection<com.hp.hpl.jena.graph.Triple> sameAsLinks = Collections.singleton(CRTestUtils.createTriple(
                 newVersionQuad.getObject().getURI(),
                 OWL.sameAs,
                 sameNamedGraphQuad.getObject().getURI()));
         URIMappingImpl uriMapping = new URIMappingImpl();
         uriMapping.addLinks(sameAsLinks.iterator());
         spec.setURIMapping(uriMapping);
-        ConflictResolverImpl instance = new ConflictResolverImpl(spec, TestUtils.createConflictResolutionConfigMock());
+        ConflictResolverImpl instance = new ConflictResolverImpl(spec, CRTestUtils.createConflictResolutionConfigMock());
 
         // Test results
         Collection<CRQuad> aggregationResult =
