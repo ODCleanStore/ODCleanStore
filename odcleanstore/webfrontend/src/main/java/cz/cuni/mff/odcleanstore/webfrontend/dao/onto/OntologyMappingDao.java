@@ -9,6 +9,7 @@ import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.data.EnumDatabaseInstance;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.onto.Mapping;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.Dao;
@@ -24,7 +25,7 @@ public class OntologyMappingDao extends Dao
 	private static final long serialVersionUID = 1L;
 	protected static Logger logger = Logger.getLogger(OntologyMappingDao.class);
 	
-	private ParameterizedRowMapper<Mapping> rowMapper;
+	private final ParameterizedRowMapper<Mapping> rowMapper;
 	
 	/**
 	 * 
@@ -60,9 +61,11 @@ public class OntologyMappingDao extends Dao
 		logger.info("Adding ontology mapping: " + mapping.getSourceUri() + " " + mapping.getRelationType() + " "
 		+ mapping.getTargetUri() + " into graph: " + graphName);
 		
-		String query = "SPARQL INSERT INTO <" + graphName + "> {`iri(??)` `iri(??)` `iri(??)`}";
+		String mappingQuery = "SPARQL INSERT INTO <" + graphName + "> {`iri(??)` `iri(??)` `iri(??)`}";
+		executeMappingQuery(mappingQuery, mapping);
 		
-		executeMappingQuery(query, mapping);
+		String metadataQuery = "SPARQL INSERT INTO <" + graphName + "> {<" + graphName + "> <" + ODCS.generatedGraph + "> 1}";
+		executeMappingQuery(metadataQuery, null);
 	}
 	
 	/**
@@ -81,7 +84,7 @@ public class OntologyMappingDao extends Dao
 	public List<Mapping> loadAll(Integer ontologyId)
 	{		
 		String query = "SPARQL SELECT ?sourceUri ?relationType ?targetUri FROM <" + createGraphName(ontologyId) + "> "
-				+ "WHERE {?sourceUri ?relationType ?targetUri}";
+				+ "WHERE {?sourceUri ?relationType ?targetUri FILTER (?relationType != <" + ODCS.generatedGraph + ">)}";
 		
 		return jdbcQuery(query, rowMapper);
 	}
