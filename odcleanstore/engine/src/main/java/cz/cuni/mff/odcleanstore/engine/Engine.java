@@ -1,21 +1,21 @@
 package cz.cuni.mff.odcleanstore.engine;
 
-import java.io.File;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
+import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
+import cz.cuni.mff.odcleanstore.engine.db.model.DbOdcsContextTransactional;
+import cz.cuni.mff.odcleanstore.engine.inputws.InputWSService;
+import cz.cuni.mff.odcleanstore.engine.outputws.OutputWSService;
+import cz.cuni.mff.odcleanstore.engine.pipeline.PipelineService;
+import cz.cuni.mff.odcleanstore.shared.util.FileUtils;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
-import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
-import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
-import cz.cuni.mff.odcleanstore.engine.db.model.DbOdcsContext;
-import cz.cuni.mff.odcleanstore.engine.inputws.InputWSService;
-import cz.cuni.mff.odcleanstore.engine.outputws.OutputWSService;
-import cz.cuni.mff.odcleanstore.engine.pipeline.PipelineService;
-import cz.cuni.mff.odcleanstore.shared.FileUtils;
+import java.io.File;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Main class for running services.
@@ -378,9 +378,9 @@ public final class Engine {
      * @param stateDescription description of engine state
      */
     private void updateEngineStatusToDb(String stateDescription) {
-    	DbOdcsContext context = null;
+    	DbOdcsContextTransactional context = null;
     	try {
-    		context = new DbOdcsContext();
+    		context = new DbOdcsContextTransactional();
     		context.updateEngineState(getEngineUuid(), stateDescription);
     		context.commit();
     	} catch(Exception e) {

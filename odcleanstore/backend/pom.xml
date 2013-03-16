@@ -11,6 +11,7 @@
   
 	<properties>
 		<odcs-core-version>${project.version}</odcs-core-version>
+		<odcs-conflictresolution-version>${project.version}</odcs-conflictresolution-version>
 	</properties>
 
 	<parent>
@@ -27,6 +28,11 @@
 			<groupId>cz.cuni.mff.odcleanstore</groupId>
 			<artifactId>odcs-core</artifactId>
 			<version>${odcs-core-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>cz.cuni.mff.odcleanstore</groupId>
+			<artifactId>odcs-conflictresolution</artifactId>
+			<version>${odcs-conflictresolution-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>

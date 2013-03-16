@@ -1,6 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo.dn;
 
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 
 /**
  * A compiler to translate rename template instances into raw rules.
@@ -34,15 +34,15 @@ public class DNRenameTemplateInstanceCompiler
 
 		// 2. Create components.
 		//
-		String sourceProperty = Utils.escapeSPARQLLiteral(instance.getSourcePropertyName());
+		String sourceProperty = ODCSUtils.escapeSPARQLLiteral(instance.getSourcePropertyName());
 		
-		if (!Utils.isPrefixedName(sourceProperty)) {
+		if (!ODCSUtils.isPrefixedName(sourceProperty)) {
 			sourceProperty = "<" + sourceProperty + ">";
 		}
 		
-		String targetProperty = Utils.escapeSPARQLLiteral(instance.getTargetPropertyName());
+		String targetProperty = ODCSUtils.escapeSPARQLLiteral(instance.getTargetPropertyName());
 		
-		if (!Utils.isPrefixedName(targetProperty)) {
+		if (!ODCSUtils.isPrefixedName(targetProperty)) {
 			targetProperty = "<" + targetProperty + ">";
 		}
 

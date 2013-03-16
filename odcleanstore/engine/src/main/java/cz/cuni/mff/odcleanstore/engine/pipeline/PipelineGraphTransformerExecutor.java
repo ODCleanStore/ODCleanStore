@@ -1,12 +1,5 @@
 package cz.cuni.mff.odcleanstore.engine.pipeline;
 
-import java.io.File;
-import java.net.URL;
-import java.net.URLClassLoader;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cz.cuni.mff.odcleanstore.datanormalization.impl.DataNormalizerImpl;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
 import cz.cuni.mff.odcleanstore.engine.db.model.PipelineCommand;
@@ -14,13 +7,20 @@ import cz.cuni.mff.odcleanstore.linker.impl.LinkerImpl;
 import cz.cuni.mff.odcleanstore.log4j.RollingFileAppender;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAggregatorImpl;
 import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
-import cz.cuni.mff.odcleanstore.shared.FileUtils;
+import cz.cuni.mff.odcleanstore.shared.util.FileUtils;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.Transformer;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 import cz.cuni.mff.odcleanstore.transformer.odcs.ODCSBNodeToResourceTransformer;
 import cz.cuni.mff.odcleanstore.transformer.odcs.ODCSLatestUpdateMarkerTransformer;
 import cz.cuni.mff.odcleanstore.transformer.odcs.ODCSPropertyFilterTransformer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.net.URL;
+import java.net.URLClassLoader;
 
 /**
  * Class executing the pipeline of transformers for a given graph.

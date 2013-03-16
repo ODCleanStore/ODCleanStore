@@ -4,7 +4,7 @@ import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
@@ -191,9 +191,9 @@ public class ODCSLatestUpdateMarkerTransformer implements Transformer {
                     .append(',');
         }
         sourcesQueryPart.deleteCharAt(sourcesQueryPart.length() - 1); // remove last separator; sources cannot be empty
-        String insertedByEscaped = Utils.escapeSPARQLLiteral(insertedBy);
+        String insertedByEscaped = ODCSUtils.escapeSPARQLLiteral(insertedBy);
         if (updateTag != null) {
-            String updateTagFilter = "?updateTag = '" + Utils.escapeSPARQLLiteral(updateTag) + "'";
+            String updateTagFilter = "?updateTag = '" + ODCSUtils.escapeSPARQLLiteral(updateTag) + "'";
             String query = String.format(Locale.ROOT, GET_MARKERS_QUERY,
                     sourcesQueryPart, insertedByEscaped, updateTagFilter, sources.size());
             return cleanConnection.executeSelect(query);

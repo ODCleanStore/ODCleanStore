@@ -5,8 +5,8 @@ import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.queryexecution.EnumQueryError;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
-import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSErrorCodes;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 
 /**
  * Provides access to default aggregation settings, caching the value.
@@ -15,7 +15,7 @@ import cz.cuni.mff.odcleanstore.shared.Utils;
  */
 public class DefaultAggregationConfigurationCache extends CacheHolderBase<AggregationSpec> {
     /** Lifetime of the cached value in milliseconds. */
-    private static final long CACHE_LIFETIME = 5 * Utils.TIME_UNIT_60 * Utils.MILLISECONDS;
+    private static final long CACHE_LIFETIME = 5 * ODCSUtils.TIME_UNIT_60 * ODCSUtils.MILLISECONDS;
 
     /** Database connection settings. */
     private final JDBCConnectionCredentials connectionCredentials;
@@ -44,7 +44,7 @@ public class DefaultAggregationConfigurationCache extends CacheHolderBase<Aggreg
         } catch (DatabaseException e) {
             throw new QueryExecutionException(
                     EnumQueryError.DATABASE_ERROR,
-                    ErrorCodes.QE_DEFAULT_CONFIG_DB_ERR,
+                    ODCSErrorCodes.QE_DEFAULT_CONFIG_DB_ERR,
                     "Database error",
                     e);
         }
@@ -53,7 +53,7 @@ public class DefaultAggregationConfigurationCache extends CacheHolderBase<Aggreg
         } catch (QueryExecutionException e) {
             throw new QueryExecutionException(
                     EnumQueryError.DEFAULT_AGGREGATION_SETTINGS_INVALID,
-                    ErrorCodes.QE_DEFAULT_CONFIG_PREFIX_ERR,
+                    ODCSErrorCodes.QE_DEFAULT_CONFIG_PREFIX_ERR,
                     "Unkown prefix used in default aggregation settings",
                     e);
         }

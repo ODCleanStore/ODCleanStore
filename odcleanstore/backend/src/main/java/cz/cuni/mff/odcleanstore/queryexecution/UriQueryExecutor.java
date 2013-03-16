@@ -9,8 +9,8 @@ import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
-import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSErrorCodes;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 
@@ -51,7 +51,6 @@ import java.util.Set;
      * The query must be formatted with these arguments: (1) URI, (2) graph filter clause, (3) limit
      *
      * TODO: it seemed to perform faster with OPTIONAL clauses for time and score - check it
-     * TODO: explore using REDUCED instead of DISTINCT
      */
     private static final String URI_OCCURENCES_QUERY = "SPARQL"
             + "\n DEFINE input:same-as \"yes\""
@@ -84,7 +83,6 @@ import java.util.Set;
 
     /**
      * SPARQL query that gets metadata for named graphs containing result quads.
-     * Source is the only required value, others can be null.
      * For the reason why UNIONs and subqueries are used, see {@link #URI_OCCURENCES_QUERY}.
      *
      * OPTIONAL clauses for fetching ?graph properties are necessary (probably due to Virtuoso inference processing).
@@ -191,7 +189,6 @@ import java.util.Set;
             //+ "\n     }"
             + "\n   }"
             + "\n   %4$s"
-            //+ "\n   FILTER (bound(?source))"
             + "\n }"
             + "\n LIMIT %5$d";
 
@@ -226,11 +223,11 @@ import java.util.Set;
 
         // Check that the URI is valid (must not be empty or null, should match '<' ([^<>"{}|^`\]-[#x00-#x20])* '>' )
         if (uri.length() > MAX_URI_LENGTH) {
-            throw new QueryExecutionException(EnumQueryError.QUERY_TOO_LONG, ErrorCodes.QE_INPUT_FORMAT_ERR,
+            throw new QueryExecutionException(EnumQueryError.QUERY_TOO_LONG, ODCSErrorCodes.QE_INPUT_FORMAT_ERR,
                     "The requested URI is longer than " + MAX_URI_LENGTH + " characters.");
         }
-        if (!Utils.isValidIRI(uri)) {
-            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, ErrorCodes.QE_INPUT_FORMAT_ERR,
+        if (!ODCSUtils.isValidIRI(uri)) {
+            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, ODCSErrorCodes.QE_INPUT_FORMAT_ERR,
                     "The query is not a valid URI.");
         }
 
@@ -256,11 +253,11 @@ import java.util.Set;
         } catch (ConflictResolutionException e) {
             throw new QueryExecutionException(
                     EnumQueryError.CONFLICT_RESOLUTION_ERROR,
-                    ErrorCodes.QE_CR_ERR,
+                    ODCSErrorCodes.QE_CR_ERR,
                     "Internal error during conflict resolution",
                     e);
         } catch (DatabaseException e) {
-            throw new QueryExecutionException(EnumQueryError.DATABASE_ERROR, ErrorCodes.QE_DATABASE_ERR, "Database error", e);
+            throw new QueryExecutionException(EnumQueryError.DATABASE_ERROR, ODCSErrorCodes.QE_DATABASE_ERR, "Database error", e);
         } finally {
             closeConnectionQuietly();
         }
@@ -314,21 +311,21 @@ import java.util.Set;
             if (subject.isURI()) {
                 resources.add(subject.getURI());
             } else if (subject.isBlank()) {
-                resources.add(Utils.getVirtuosoURIForBlankNode(subject));
+                resources.add(ODCSUtils.getVirtuosoURIForBlankNode(subject));
             }
 
             Node predicate = quad.getPredicate();
             if (predicate.isURI()) {
                 resources.add(predicate.getURI());
             } else if (predicate.isBlank()) {
-                resources.add(Utils.getVirtuosoURIForBlankNode(predicate));
+                resources.add(ODCSUtils.getVirtuosoURIForBlankNode(predicate));
             }
 
             Node object = quad.getObject();
             if (object.isURI()) {
                 resources.add(object.getURI());
             } else if (object.isBlank()) {
-                resources.add(Utils.getVirtuosoURIForBlankNode(object));
+                resources.add(ODCSUtils.getVirtuosoURIForBlankNode(object));
             }
         }
         resources.remove(uri);

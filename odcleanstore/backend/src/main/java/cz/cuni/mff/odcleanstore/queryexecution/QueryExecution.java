@@ -8,8 +8,8 @@ import cz.cuni.mff.odcleanstore.queryexecution.impl.DefaultAggregationConfigurat
 import cz.cuni.mff.odcleanstore.queryexecution.impl.LabelPropertiesListCache;
 import cz.cuni.mff.odcleanstore.queryexecution.impl.PrefixMappingCache;
 import cz.cuni.mff.odcleanstore.queryexecution.impl.QueryExecutionHelper;
-import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSErrorCodes;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 
 import org.slf4j.Logger;
@@ -77,7 +77,7 @@ public class QueryExecution {
             throws QueryExecutionException {
 
         if (keywords == null) {
-            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, ErrorCodes.QE_INPUT_EMPTY_ERR,
+            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, ODCSErrorCodes.QE_INPUT_EMPTY_ERR,
                     "Keywords must not be empty");
         } else if (constraints == null || aggregationSpec == null) {
             throw new IllegalArgumentException();
@@ -109,14 +109,14 @@ public class QueryExecution {
             throws QueryExecutionException {
 
         if (uri == null) {
-            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, ErrorCodes.QE_INPUT_EMPTY_ERR,
+            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, ODCSErrorCodes.QE_INPUT_EMPTY_ERR,
                     "URI must not be empty");
         } else if (constraints == null || aggregationSpec == null) {
             throw new IllegalArgumentException();
         }
 
         String trimmedURI = uri.trim();
-        String expandedURI = Utils.isPrefixedName(trimmedURI)
+        String expandedURI = ODCSUtils.isPrefixedName(trimmedURI)
                 ? prefixMappingCache.getCachedValue().expandPrefix(trimmedURI)
                 : trimmedURI;
         AggregationSpec expandedAggregationSpec = QueryExecutionHelper.expandPropertyNames(
@@ -145,14 +145,14 @@ public class QueryExecution {
             throws QueryExecutionException {
 
         if (namedGraphURI == null) {
-            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, ErrorCodes.QE_INPUT_EMPTY_ERR,
+            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, ODCSErrorCodes.QE_INPUT_EMPTY_ERR,
                     "Named graph URI must not be empty");
         } else if (constraints == null || aggregationSpec == null) {
             throw new IllegalArgumentException();
         }
 
         String trimmedURI = namedGraphURI.trim();
-        String expandedURI = Utils.isPrefixedName(trimmedURI)
+        String expandedURI = ODCSUtils.isPrefixedName(trimmedURI)
                 ? prefixMappingCache.getCachedValue().expandPrefix(trimmedURI)
                 : trimmedURI;
         AggregationSpec expandedAggregationSpec = QueryExecutionHelper.expandPropertyNames(
@@ -180,12 +180,12 @@ public class QueryExecution {
      */
     public MetadataQueryResult findNamedGraphMetadata(String namedGraphURI) throws QueryExecutionException {
         if (namedGraphURI == null) {
-            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, ErrorCodes.QE_INPUT_EMPTY_ERR,
+            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, ODCSErrorCodes.QE_INPUT_EMPTY_ERR,
                     "Named graph URI must not be empty");
         }
 
         String trimmedURI = namedGraphURI.trim();
-        String expandedNamedGraphURI = Utils.isPrefixedName(trimmedURI)
+        String expandedNamedGraphURI = ODCSUtils.isPrefixedName(trimmedURI)
                 ? prefixMappingCache.getCachedValue().expandPrefix(trimmedURI)
                 : trimmedURI;
         MetadataQueryExecutor queryExecutor = new MetadataQueryExecutor(

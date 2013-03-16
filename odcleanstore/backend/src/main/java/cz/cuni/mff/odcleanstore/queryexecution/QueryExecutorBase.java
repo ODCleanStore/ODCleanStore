@@ -12,8 +12,8 @@ import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.queryexecution.impl.QueryExecutionHelper;
-import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSErrorCodes;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * The base class of query executors.
@@ -58,9 +57,8 @@ import java.util.TreeSet;
     public static final int MAX_URI_LENGTH = 1024;
 
     /**
-     * (Debug) Only named graph having URI starting with this prefix can be included in query result.
-     * If the value is null, there is now restriction on named graph URIs.
-     * This constant is only for debugging purposes and should be null in production environment.
+     * Only named graph having URI not starting with this prefix can be included in query result.
+     * @see ODCSInternal#hiddenGraphPrefix
      */
     protected static final String ENGINE_TEMP_GRAPH_PREFIX = ODCSInternal.hiddenGraphPrefix;
 
@@ -118,13 +116,13 @@ import java.util.TreeSet;
      * SPARQL snippet restricting a variable to start with the given string.
      * Must be formatted with a string argument.
      */
-    private static final String PREFIX_FILTER_CLAUSE = " FILTER (bif:starts_with(str(?%s), '%s'))";
+    private static final String PREFIX_FILTER_CLAUSE = " FILTER (bif:starts_with(str(?%s), '%s')) ";
 
     /**
      * SPARQL snippet restricting a variable NOT to start with the given string.
      * Must be formatted with a string argument.
      */
-    private static final String PREFIX_FILTER_CLAUSE_NEGATIVE = " FILTER (!bif:starts_with(str(?%s), '%s'))";
+    private static final String PREFIX_FILTER_CLAUSE_NEGATIVE = " FILTER (!bif:starts_with(str(?%s), '%s')) ";
 
     /**
      * SPARQL query for retrieving all synonyms (i.e. resources connected by an owl:sameAs path) of a given URI.
@@ -324,14 +322,14 @@ import java.util.TreeSet;
     protected void checkValidSettings() throws QueryExecutionException {
         // Check that settings contain valid URIs
         for (String property : aggregationSpec.getPropertyAggregations().keySet()) {
-            if (!Utils.isValidIRI(property)) {
-                throw new QueryExecutionException(EnumQueryError.AGGREGATION_SETTINGS_INVALID, ErrorCodes.QE_INPUT_FORMAT_ERR,
+            if (!ODCSUtils.isValidIRI(property)) {
+                throw new QueryExecutionException(EnumQueryError.AGGREGATION_SETTINGS_INVALID, ODCSErrorCodes.QE_INPUT_FORMAT_ERR,
                         "'" + property + "' is not a valid URI.");
             }
         }
         for (String property : aggregationSpec.getPropertyMultivalue().keySet()) {
-            if (!Utils.isValidIRI(property)) {
-                throw new QueryExecutionException(EnumQueryError.AGGREGATION_SETTINGS_INVALID, ErrorCodes.QE_INPUT_FORMAT_ERR,
+            if (!ODCSUtils.isValidIRI(property)) {
+                throw new QueryExecutionException(EnumQueryError.AGGREGATION_SETTINGS_INVALID, ODCSErrorCodes.QE_INPUT_FORMAT_ERR,
                         "'" + property + "' is not a valid URI.");
             }
         }
@@ -340,7 +338,7 @@ import java.util.TreeSet;
         int settingsPropertyCount = aggregationSpec.getPropertyAggregations().size()
                 + aggregationSpec.getPropertyMultivalue().size();
         if (settingsPropertyCount > MAX_PROPERTY_SETTINGS_SIZE) {
-            throw new QueryExecutionException(EnumQueryError.QUERY_TOO_LONG, ErrorCodes.QE_INPUT_FORMAT_ERR,
+            throw new QueryExecutionException(EnumQueryError.QUERY_TOO_LONG, ODCSErrorCodes.QE_INPUT_FORMAT_ERR,
                     "Too many explicit property settings.");
         }
 
@@ -421,7 +419,7 @@ import java.util.TreeSet;
 
                     if (ODCS.source.equals(property)) {
                         String object = resultSet.getString(valueIndex);
-                        graphMetadata.setSources(addToSetNullProof(object, graphMetadata.getSources()));
+                        graphMetadata.setSources(ODCSUtils.addToSetNullProof(object, graphMetadata.getSources()));
                     } else if (ODCS.score.equals(property)) {
                         Double score = resultSet.getDouble(valueIndex);
                         graphMetadata.setScore(score);
@@ -433,10 +431,10 @@ import java.util.TreeSet;
                         graphMetadata.setInsertedBy(insertedBy);
                     } else if (ODCS.publishedBy.equals(property)) {
                         String object = resultSet.getString(valueIndex);
-                        graphMetadata.setPublishers(addToListNullProof(object, graphMetadata.getPublishers()));
+                        graphMetadata.setPublishers(ODCSUtils.addToListNullProof(object, graphMetadata.getPublishers()));
                     } else if (ODCS.license.equals(property)) {
                         String object = resultSet.getString(valueIndex);
-                        graphMetadata.setLicences(addToListNullProof(object, graphMetadata.getLicences()));
+                        graphMetadata.setLicences(ODCSUtils.addToListNullProof(object, graphMetadata.getLicences()));
                     } else if (ODCS.updateTag.equals(property)) {
                         String updateTag = resultSet.getString(valueIndex);
                         graphMetadata.setUpdateTag(updateTag);
@@ -582,39 +580,6 @@ import java.util.TreeSet;
         }
         LOG.debug("Query Execution: {} in {} ms", "getLabelsForResources()", System.currentTimeMillis() - startTime);
         return addToCollection;
-    }
-
-    /**
-     * Add a value to the set given in parameter and return modified set; if set is null, create new instance.
-     * @param value value to add to the set
-     * @param set set to add to or null
-     * @return set containing the given value
-     * @param <T> item type
-     */
-    private <T> Set<T> addToSetNullProof(T value, Set<T> set) {
-        Set<T> result = set;
-        if (result == null) {
-            result = new TreeSet<T>();
-        }
-        result.add(value);
-        return result;
-    }
-
-    /**
-     * Add a value to the list given in parameter and return modified list; if list is null, create new instance.
-     * @param value value to add to the list
-     * @param list list to add to or null
-     * @return list containing the given value
-     * @param <T> item type
-     */
-    private <T> List<T> addToListNullProof(T value, List<T> list) {
-        final int defaultListSize = 1;
-        List<T> result = list;
-        if (result == null) {
-            result = new ArrayList<T>(defaultListSize);
-        }
-        result.add(value);
-        return result;
     }
 
     /**

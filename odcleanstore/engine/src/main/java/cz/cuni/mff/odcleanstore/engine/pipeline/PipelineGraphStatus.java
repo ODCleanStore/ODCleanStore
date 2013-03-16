@@ -1,17 +1,19 @@
 package cz.cuni.mff.odcleanstore.engine.pipeline;
 
-import java.util.Date;
-import java.util.HashSet;
-
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
 import cz.cuni.mff.odcleanstore.engine.db.DbTransactionException;
-import cz.cuni.mff.odcleanstore.engine.db.model.DbOdcsContext;
+import cz.cuni.mff.odcleanstore.engine.db.model.DbOdcsContextSparql;
+import cz.cuni.mff.odcleanstore.engine.db.model.DbOdcsContextTransactional;
 import cz.cuni.mff.odcleanstore.engine.db.model.Graph;
 import cz.cuni.mff.odcleanstore.engine.db.model.GroupRule;
 import cz.cuni.mff.odcleanstore.engine.db.model.Pipeline;
 import cz.cuni.mff.odcleanstore.engine.db.model.PipelineCommand;
 import cz.cuni.mff.odcleanstore.model.EnumGraphState;
 import cz.cuni.mff.odcleanstore.model.EnumPipelineErrorType;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
+
+import java.util.Date;
+import java.util.HashSet;
 
 /**
  * Class for obtaining, representing and manipulating a graph to be processed.
@@ -58,9 +60,9 @@ public final class PipelineGraphStatus {
      */
     static PipelineGraphStatus getNextGraphForPipeline(String engineUuid) throws PipelineGraphStatusException {
         synchronized (lockForGetNextGraphForPipeline) {
-            DbOdcsContext context = null;
+            DbOdcsContextTransactional context = null;
             try {
-                context = new DbOdcsContext();
+                context = new DbOdcsContextTransactional();
                 while (true) {
                     Graph graph = context.selectOldestEngineWorkingGraph(engineUuid);
                     if (graph == null) {
@@ -123,7 +125,7 @@ public final class PipelineGraphStatus {
      * @param dbGraph graph representation object
      * @throws Exception
      */
-    private PipelineGraphStatus(DbOdcsContext context, Graph dbGraph) throws Exception {
+    private PipelineGraphStatus(DbOdcsContextTransactional context, Graph dbGraph) throws Exception {
         this.graph = dbGraph;
         this.isInCleanDbBeforeProcessing = dbGraph.isInCleanDb;
         this.attachedGraphs = context.selectAttachedGraphs(dbGraph.id);
@@ -261,10 +263,10 @@ public final class PipelineGraphStatus {
      * @throws PipelineGraphStatusException
      */
     EnumGraphState setNoDirtyState(EnumGraphState state) throws PipelineGraphStatusException {
-        DbOdcsContext context = null;
+        DbOdcsContextTransactional context = null;
         assert state != EnumGraphState.DIRTY;
         try {
-            context = new DbOdcsContext();
+            context = new DbOdcsContextTransactional();
             
             boolean isResetPipelineState = context.selectResetPipelineRequest(graph.id);
 
@@ -329,9 +331,9 @@ public final class PipelineGraphStatus {
      * @throws PipelineGraphStatusException
      */
     void setDirtyState(EnumPipelineErrorType pipelineErrorType, String message) throws PipelineGraphStatusException {
-        DbOdcsContext context = null;
+        DbOdcsContextTransactional context = null;
         try {
-            context = new DbOdcsContext();
+            context = new DbOdcsContextTransactional();
             context.insertGraphInError(graph.id, pipelineErrorType, message);
             context.updateState(graph.id, EnumGraphState.DIRTY);
             context.commit();
@@ -351,9 +353,9 @@ public final class PipelineGraphStatus {
      * @throws PipelineGraphStatusException
      */
     void checkResetPipelineRequest() throws PipelineGraphStatusException {
-        DbOdcsContext context = null;
+        DbOdcsContextTransactional context = null;
         try {
-            context = new DbOdcsContext();
+            context = new DbOdcsContextTransactional();
             if (context.selectResetPipelineRequest(graph.id)) {
                 graph.resetPipelineRequest = true;
                 throw new PipelineGraphStatusException(format(ERROR_RESETPIPELINESTATE_DETECTED));
@@ -373,33 +375,54 @@ public final class PipelineGraphStatus {
      * @throws PipelineGraphStatusException
      */
     void addAttachedGraph(String name) throws PipelineGraphStatusException {
-        DbOdcsContext context = null;
+        if (attachedGraphs.contains(name)) {
+            return;
+        }
+        
+        DbOdcsContextTransactional context = null;
+        DbOdcsContextSparql contextSparql = null;
         try {
-            if (attachedGraphs.contains(name)) {
-                return;
-            }
-            context = new DbOdcsContext();
+            context = new DbOdcsContextTransactional();
+            contextSparql = new DbOdcsContextSparql();
+            
             context.insertAttachedGraph(graph.id, name);
+            contextSparql.insertAttachedGraphLink(
+                    getNamedGraphsPrefix() + ODCSInternal.metadataGraphUriInfix + getUuid(),
+                    getNamedGraphsPrefix() + ODCSInternal.dataGraphUriInfix + getUuid(),
+                    name);
+
             context.commit();
-            attachedGraphs.add(name);
         } catch (Exception e) {
+            if (context != null) {
+                try {
+
+                    context.rollback();
+                } catch (Exception e2) {
+                    // do nothing
+                }
+            }
             throw new PipelineGraphStatusException(format(ERROR_ADD_ATTACHED_GRAPH), e);
         } finally {
             if (context != null) {
                 context.closeQuietly();
             }
+            if (contextSparql != null) {
+                contextSparql.closeQuietly();
+            }
         }
+
+        attachedGraphs.add(name);
     }
 
     /**
-     * Delete information of  attached graphs to executed graph from database.
+     * Delete information of attached graphs to executed graph from database.
      * 
      * @throws PipelineGraphStatusException
      */
     void deleteAttachedGraphs() throws PipelineGraphStatusException {
-        DbOdcsContext context = null;
+        DbOdcsContextTransactional context = null;
         try {
-            context = new DbOdcsContext();
+            context = new DbOdcsContextTransactional();
             context.deleteAttachedGraphs(graph.id);
             context.commit();
             attachedGraphs.clear();

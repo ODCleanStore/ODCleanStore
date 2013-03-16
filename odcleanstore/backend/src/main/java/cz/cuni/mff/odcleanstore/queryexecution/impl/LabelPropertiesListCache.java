@@ -6,8 +6,8 @@ import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.queryexecution.EnumQueryError;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
-import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSErrorCodes;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +25,7 @@ public class LabelPropertiesListCache extends CacheHolderBase<String> {
     private static final Logger LOG = LoggerFactory.getLogger(LabelPropertiesListCache.class);
 
     /** Lifetime of the cached value in milliseconds. */
-    private static final long CACHE_LIFETIME = 5 * Utils.TIME_UNIT_60 * Utils.MILLISECONDS;
+    private static final long CACHE_LIFETIME = 5 * ODCSUtils.TIME_UNIT_60 * ODCSUtils.MILLISECONDS;
 
     /** Database connection settings. */
     private final JDBCConnectionCredentials connectionCredentials;
@@ -58,7 +58,7 @@ public class LabelPropertiesListCache extends CacheHolderBase<String> {
             PrefixMapping prefixMapping = prefixMappingCache.getCachedValue();
             while (resultSet.next()) {
                 String property = resultSet.getNString(1);
-                if (Utils.isPrefixedName(property)) {
+                if (ODCSUtils.isPrefixedName(property)) {
                     labelProperties.add(prefixMapping.expandPrefix(property));
                 } else {
                     labelProperties.add(property);
@@ -68,7 +68,7 @@ public class LabelPropertiesListCache extends CacheHolderBase<String> {
             int propertyCount = 0;
             StringBuilder sb = new StringBuilder();
             for (String property : labelProperties) {
-                if (!Utils.isValidIRI(property)) {
+                if (!ODCSUtils.isValidIRI(property)) {
                     continue;
                 }
                 propertyCount++;
@@ -81,7 +81,7 @@ public class LabelPropertiesListCache extends CacheHolderBase<String> {
             if (propertyCount == 0) {
                 throw new QueryExecutionException(
                         EnumQueryError.QUERY_EXECUTION_SETTINGS_INVALID,
-                        ErrorCodes.QE_LABEL_PROPS_EMPTY_ERR,
+                        ODCSErrorCodes.QE_LABEL_PROPS_EMPTY_ERR,
                         "There must be at least one valid label property defined");
             }
 
@@ -89,10 +89,10 @@ public class LabelPropertiesListCache extends CacheHolderBase<String> {
 
         } catch (DatabaseException e) {
             throw new QueryExecutionException(
-                    EnumQueryError.DATABASE_ERROR, ErrorCodes.QE_LABEL_PROPS_DB_ERR, "Database error", e);
+                    EnumQueryError.DATABASE_ERROR, ODCSErrorCodes.QE_LABEL_PROPS_DB_ERR, "Database error", e);
         } catch (SQLException e) {
             throw new QueryExecutionException(
-                    EnumQueryError.DATABASE_ERROR, ErrorCodes.QE_LABEL_PROPS_DB_ERR, "Database error", e);
+                    EnumQueryError.DATABASE_ERROR, ODCSErrorCodes.QE_LABEL_PROPS_DB_ERR, "Database error", e);
         } finally {
             if (resultSet != null) {
                 resultSet.closeQuietly();

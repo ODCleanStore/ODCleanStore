@@ -10,29 +10,29 @@ import org.junit.Test;
 public class UtilsTest {
     @Test
     public void testIsValidIRI() {
-        Assert.assertTrue(Utils.isValidIRI("http://example.com"));
-        Assert.assertTrue(Utils.isValidIRI("abc:def"));
+        Assert.assertTrue(ODCSUtils.isValidIRI("http://example.com"));
+        Assert.assertTrue(ODCSUtils.isValidIRI("abc:def"));
 
-        Assert.assertFalse(Utils.isValidIRI(""));
-        Assert.assertFalse(Utils.isValidIRI("http://exam ple.com"));
-        Assert.assertFalse(Utils.isValidIRI("http://exam`ple.com"));
-        Assert.assertFalse(Utils.isValidIRI("<http://example.com>"));
-        Assert.assertFalse(Utils.isValidIRI(" http://example.com "));
+        Assert.assertFalse(ODCSUtils.isValidIRI(""));
+        Assert.assertFalse(ODCSUtils.isValidIRI("http://exam ple.com"));
+        Assert.assertFalse(ODCSUtils.isValidIRI("http://exam`ple.com"));
+        Assert.assertFalse(ODCSUtils.isValidIRI("<http://example.com>"));
+        Assert.assertFalse(ODCSUtils.isValidIRI(" http://example.com "));
     }
 
     @Test
     public void testIsPrefixedName() {
-        Assert.assertTrue(Utils.isPrefixedName("abc:def"));
-        Assert.assertTrue(Utils.isPrefixedName("abc:0123def"));
-        Assert.assertTrue(Utils.isPrefixedName("abc:"));
-        Assert.assertTrue(Utils.isPrefixedName(":def"));
-        Assert.assertTrue(Utils.isPrefixedName(":"));
+        Assert.assertTrue(ODCSUtils.isPrefixedName("abc:def"));
+        Assert.assertTrue(ODCSUtils.isPrefixedName("abc:0123def"));
+        Assert.assertTrue(ODCSUtils.isPrefixedName("abc:"));
+        Assert.assertTrue(ODCSUtils.isPrefixedName(":def"));
+        Assert.assertTrue(ODCSUtils.isPrefixedName(":"));
 
-        Assert.assertFalse(Utils.isPrefixedName(""));
-        Assert.assertFalse(Utils.isPrefixedName("abcdef"));
-        Assert.assertFalse(Utils.isPrefixedName("abc.:def"));
-        Assert.assertFalse(Utils.isPrefixedName("abc:def."));
-        Assert.assertFalse(Utils.isPrefixedName(" abc:def "));
+        Assert.assertFalse(ODCSUtils.isPrefixedName(""));
+        Assert.assertFalse(ODCSUtils.isPrefixedName("abcdef"));
+        Assert.assertFalse(ODCSUtils.isPrefixedName("abc.:def"));
+        Assert.assertFalse(ODCSUtils.isPrefixedName("abc:def."));
+        Assert.assertFalse(ODCSUtils.isPrefixedName(" abc:def "));
     }
 
 }

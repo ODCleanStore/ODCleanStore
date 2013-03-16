@@ -1,6 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo.dn;
 
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 
 /**
  * A compiler to translate filter template instances into raw rules.
@@ -37,13 +37,13 @@ public class DNFilterTemplateInstanceCompiler
 		//
 		String property = instance.getPropertyName();
 		
-		if (!Utils.isPrefixedName(property)) {
+		if (!ODCSUtils.isPrefixedName(property)) {
 			property = "<" + property + ">";
 		}
 		
-		property = Utils.escapeSPARQLLiteral(property);
+		property = ODCSUtils.escapeSPARQLLiteral(property);
 		
-		String pattern = Utils.escapeSPARQLLiteral(instance.getPattern());
+		String pattern = ODCSUtils.escapeSPARQLLiteral(instance.getPattern());
 
 		String modification = String.format
 		(

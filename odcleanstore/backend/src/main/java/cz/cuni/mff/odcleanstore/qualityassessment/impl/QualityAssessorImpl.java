@@ -9,7 +9,7 @@ import cz.cuni.mff.odcleanstore.qualityassessment.QualityAssessor;
 import cz.cuni.mff.odcleanstore.qualityassessment.exceptions.QualityAssessmentException;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRule;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRulesModel;
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
@@ -36,407 +36,432 @@ import java.util.Locale;
  *
  * Depending on the situation selects implementation of quality assessment
  * and delegates the work to that implementation.
- * 
+ *
  * @author Jakub Daniel
  */
 public class QualityAssessorImpl implements QualityAssessor, Serializable {
-	public static class GraphScoreWithTraceImpl implements GraphScoreWithTrace {
-		private static final long serialVersionUID = 1L;
+    /**
+     * @see GraphScoreWithTrace
+     */
+    public static class GraphScoreWithTraceImpl implements GraphScoreWithTrace {
+        private static final long serialVersionUID = 1L;
 
-		private String graphName;
-		private Double score;
-		private List<QualityAssessmentRule> trace;
+        private String graphName;
+        private Double score;
+        private List<QualityAssessmentRule> trace;
 
-		public GraphScoreWithTraceImpl(Double score, List<QualityAssessmentRule> trace) {
-			this.score = score;
-			this.trace = trace;
-		}
+        public GraphScoreWithTraceImpl(Double score, List<QualityAssessmentRule> trace) {
+            this.score = score;
+            this.trace = trace;
+        }
 
-		public String getGraphName() {
-			return graphName;
-		}
+        @Override
+        public String getGraphName() {
+            return graphName;
+        }
 
-		public void setGraphName(String graphName) {
-			this.graphName = graphName;
-		}
+        @Override
+        public void setGraphName(String graphName) {
+            this.graphName = graphName;
+        }
 
-		public Double getScore() {
-			return score;
-		}
+        @Override
+        public Double getScore() {
+            return score;
+        }
 
-		public List<QualityAssessmentRule> getTrace() {
-			return trace;
-		}
-	}
+        @Override
+        public List<QualityAssessmentRule> getTrace() {
+            return trace;
+        }
+    }
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	/**
-	 * SPARQL queries for Quality Assessor transformation of input graph and metadata graph
-	 */
-	private final static String dropOldScoreQueryFormat = "SPARQL DELETE FROM <%s> {<%s>" +
-			"<" + ODCS.score + "> " +
-			"?s} WHERE {<%s> " +
-			"<" + ODCS.score + "> ?s}";
-	private final static String dropOldScoreTraceQueryFormat = "SPARQL DELETE FROM <%s> {<%s> " +
-			"<" + ODCS.scoreTrace + "> " +
-			"?s} WHERE {<%s>" +
-			"<" + ODCS.scoreTrace + "> ?s}";
-	private final static String storeNewScoreQueryFormat =  "SPARQL INSERT DATA INTO <%s> {<%s> " +
-			"<" + ODCS.score + "> \"%f\"^^<" + XMLSchema.doubleType + ">}";
-	private final static String storeNewScoreTraceQueryFormat = "SPARQL INSERT DATA INTO <%s> {<%s> " +
-			"<" + ODCS.scoreTrace + "> " +
-			"'%s'^^<" + XMLSchema.stringType + ">}";
+    /**
+     * SPARQL queries for Quality Assessor transformation of input graph and metadata graph.
+     */
+    private static final String DROP_OLD_SCORE_QUERY_FORMAT = "SPARQL DELETE FROM <%s> {<%s>"
+            + "<" + ODCS.score + "> "
+            + "?s} WHERE {<%s> "
+            + "<" + ODCS.score + "> ?s}";
+    private static final String DROP_OLD_SCORE_TRACE_QUERY_FORMAT = "SPARQL DELETE FROM <%s> {<%s> "
+            + "<" + ODCS.scoreTrace + "> "
+            + "?s} WHERE {<%s>"
+            + "<" + ODCS.scoreTrace + "> ?s}";
+    private static final String STORE_NEW_SCORE_QUERY_FORMAT = "SPARQL INSERT DATA INTO <%s> {<%s> "
+            + "<" + ODCS.score + "> \"%f\"^^<" + XMLSchema.doubleType + ">}";
+    private static final String STORE_NEW_SCORE_TRACE_QUERY_FORMAT = "SPARQL INSERT DATA INTO <%s> {<%s> "
+            + "<" + ODCS.scoreTrace + "> "
+            + "'%s'^^<" + XMLSchema.stringType + ">}";
 
-	private static final Logger LOG = LoggerFactory.getLogger(QualityAssessorImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(QualityAssessorImpl.class);
 
-	private TransformedGraph inputGraph;
-	private TransformationContext context;
+    private TransformedGraph inputGraph;
+    private TransformationContext context;
 
-	private Integer[] groupIds;
-	private String[] groupLabels;
+    private Integer[] groupIds;
+    private String[] groupLabels;
 
-	private Collection<QualityAssessmentRule> rules;
+    private Collection<QualityAssessmentRule> rules;
 
-	private Double score;
-	private List<String> trace;
-	private Integer violations;
+    private Double score;
+    private List<String> trace;
+    private Integer violations;
 
-	public QualityAssessorImpl (Integer... groupIds) {
-		this.groupIds = groupIds;
-	}
+    public QualityAssessorImpl(Integer... groupIds) {
+        this.groupIds = groupIds;
+    }
 
-	public QualityAssessorImpl (String... groupLabels) {
-		this.groupLabels = groupLabels;
-	}
+    public QualityAssessorImpl(String... groupLabels) {
+        this.groupLabels = groupLabels;
+    }
 
-	/**
-	 * Connection to dirty database (needed in all cases to work on a new graph or a copy of an existing one)
-	 */
-	private VirtuosoConnectionWrapper dirtyConnection;
+    /**
+     * Connection to dirty database (needed in all cases to work on a new graph or a copy of an existing one).
+     */
+    private VirtuosoConnectionWrapper dirtyConnection;
 
-	private VirtuosoConnectionWrapper getDirtyConnection () throws DatabaseException {
+    private VirtuosoConnectionWrapper getDirtyConnection() throws DatabaseException {
         if (dirtyConnection == null) {
-        	dirtyConnection = VirtuosoConnectionWrapper.createConnection(context.getDirtyDatabaseCredentials());
-       	}
-		return dirtyConnection;
-	}
+            dirtyConnection = VirtuosoConnectionWrapper.createConnection(context.getDirtyDatabaseCredentials());
+        }
+        return dirtyConnection;
+    }
 
-	private void closeDirtyConnection() {
-		try {
-			if (dirtyConnection != null) {
-				dirtyConnection.close();
-			}
-		} catch (DatabaseException e) {
-		} finally {
-			dirtyConnection = null;
-		}
-	}
+    private void closeDirtyConnection() {
+        try {
+            if (dirtyConnection != null) {
+                dirtyConnection.close();
+            }
+        } catch (DatabaseException e) {
+            // do nothing
+        } finally {
+            dirtyConnection = null;
+        }
+    }
 
-	private static TransformedGraph prepareInputGraph (
-	        final String name, final String metadataName, final String provenanceMetadataName) {
-		return new TransformedGraph() {
+    private static TransformedGraph prepareInputGraph(
+            final String name, final String metadataName, final String provenanceMetadataName) {
+        return new TransformedGraph() {
 
-			@Override
-			public String getGraphName() {
-				return name;
-			}
-			@Override
-			public String getGraphId() {
-				return null;
-			}
-			@Override
-			public String getMetadataGraphName() {
-				return metadataName;
-			}
-			@Override
-			public String getProvenanceMetadataGraphName() {
-			    return provenanceMetadataName;
-			}
-			@Override
-			public Collection<String> getAttachedGraphNames() {
-				return null;
-			}
-			@Override
-			public void addAttachedGraph(String attachedGraphName)
-					throws TransformedGraphException {
-			}
-			@Override
-			public void deleteGraph() throws TransformedGraphException {
-			}
-			@Override
-			public boolean isDeleted() {
-				return false;
-			}
-		};
-	}
+            @Override
+            public String getGraphName() {
+                return name;
+            }
 
-	private static TransformationContext prepareContext (final JDBCConnectionCredentials clean, final JDBCConnectionCredentials dirty) {
-		return new TransformationContext() {
-			@Override
-			public JDBCConnectionCredentials getDirtyDatabaseCredentials() {
-				return dirty;
-			}
-			@Override
-			public JDBCConnectionCredentials getCleanDatabaseCredentials() {
-				return clean;
-			}
-			@Override
-			public String getTransformerConfiguration() {
-				return null;
-			}
-			@Override
-			public File getTransformerDirectory() {
-				return null;
-			}
-			@Override
-			public EnumTransformationType getTransformationType() {
-				return null;
-			}
-		};
-	}
+            @Override
+            public String getGraphId() {
+                return null;
+            }
 
-	public List<GraphScoreWithTrace> debugRules(
-			HashMap<String, String> graphs,
-	        TransformationContext context,
-	        TableVersion tableVersion)
-			throws TransformerException {
+            @Override
+            public String getMetadataGraphName() {
+                return metadataName;
+            }
 
-		try {
-			Collection<String> originalGraphs = graphs.keySet();
-			List<GraphScoreWithTrace> result = new ArrayList<GraphScoreWithTrace>();
+            @Override
+            public String getProvenanceMetadataGraphName() {
+                return provenanceMetadataName;
+            }
 
-			Iterator<String> it = originalGraphs.iterator();
+            @Override
+            public Collection<String> getAttachedGraphNames() {
+                return null;
+            }
 
-			while (it.hasNext()) {
-				String originalName = it.next();
-				String temporaryName = graphs.get(originalName);
+            @Override
+            public void addAttachedGraph(String attachedGraphName)
+                    throws TransformedGraphException {
+            }
 
-				GraphScoreWithTrace subResult = getGraphScoreWithTrace(temporaryName,
-						context.getCleanDatabaseCredentials(),
-						context.getDirtyDatabaseCredentials(),
-						tableVersion);
-				subResult.setGraphName(originalName);
+            @Override
+            public void deleteGraph() throws TransformedGraphException {
+            }
 
-				result.add(subResult);
-			}
+            @Override
+            public boolean isDeleted() {
+                return false;
+            }
+        };
+    }
 
-			return result;
-		} catch (Exception e) {
-			LOG.error("Debugging of Quality Assessment rules failed: " + e.getMessage());
+    private static TransformationContext prepareContext(final JDBCConnectionCredentials clean,
+            final JDBCConnectionCredentials dirty) {
+        return new TransformationContext() {
+            @Override
+            public JDBCConnectionCredentials getDirtyDatabaseCredentials() {
+                return dirty;
+            }
 
-			throw new TransformerException(e);
-		}
-	}
+            @Override
+            public JDBCConnectionCredentials getCleanDatabaseCredentials() {
+                return clean;
+            }
 
-	@Override
-	public void transformGraph(TransformedGraph inputGraph,
-			TransformationContext context) throws TransformerException {
+            @Override
+            public String getTransformerConfiguration() {
+                return null;
+            }
 
-		/**
-		 * The graph is copied into dirty database along with its metadata graph
-		 * the updated copies are then used to overwrite the originals in clean
-		 * database. This is why both methods (transformExistingGraph,
-		 * transformNewGraph) do not differ in Quality Assessment.
-		 */
-		this.inputGraph = inputGraph;
-		this.context = context;
+            @Override
+            public File getTransformerDirectory() {
+                return null;
+            }
 
-		/**
-		 * Start from scratch
-		 */
-		score = 1.0;
-		trace = new ArrayList<String>();
-		violations = 0;
+            @Override
+            public EnumTransformationType getTransformationType() {
+                return null;
+            }
+        };
+    }
 
-		try
-		{
-			loadRules();
-			applyRules(null);
+    @Override
+    public List<GraphScoreWithTrace> debugRules(
+            HashMap<String, String> graphs,
+            TransformationContext context,
+            TableVersion tableVersion)
+            throws TransformerException {
 
-			storeResults();
-		} catch (QualityAssessmentException e) {
-			throw new TransformerException(e);
-		} finally {
-			closeDirtyConnection();
-		}
+        try {
+            Collection<String> originalGraphs = graphs.keySet();
+            List<GraphScoreWithTrace> result = new ArrayList<GraphScoreWithTrace>();
 
-		LOG.info(String.format(Locale.ROOT, "Quality Assessment done for graph %s, %d rules tested, %d violations, score %f",
-				inputGraph.getGraphName(), rules.size(), violations, score));
-	}
+            Iterator<String> it = originalGraphs.iterator();
 
-	//Queries for clean graphs
-	public GraphScoreWithTrace getGraphScoreWithTrace (final String graphName,
-			final JDBCConnectionCredentials clean)
-					throws TransformerException {
-		return getGraphScoreWithTrace(graphName, clean, clean, TableVersion.COMMITTED);
-	}
+            while (it.hasNext()) {
+                String originalName = it.next();
+                String temporaryName = graphs.get(originalName);
 
-	//General version for rule debugging etc.
-	public GraphScoreWithTrace getGraphScoreWithTrace (final String graphName,
-			final JDBCConnectionCredentials clean,
-			final JDBCConnectionCredentials source,
-			final TableVersion tableVersion)
-		throws TransformerException {
+                GraphScoreWithTrace subResult = getGraphScoreWithTrace(temporaryName,
+                        context.getCleanDatabaseCredentials(),
+                        context.getDirtyDatabaseCredentials(),
+                        tableVersion);
+                subResult.setGraphName(originalName);
 
-		this.inputGraph = prepareInputGraph(graphName, null, null);
+                result.add(subResult);
+            }
 
-		this.context = prepareContext(clean, source);
+            return result;
+        } catch (Exception e) {
+            LOG.error("Debugging of Quality Assessment rules failed: " + e.getMessage());
 
-		/**
-		 * Start from scratch
-		 */
-		score = 1.0;
-		trace = new ArrayList<String>();
-		violations = 0;
+            throw new TransformerException(e);
+        }
+    }
 
-		List<QualityAssessmentRule> rules = new ArrayList<QualityAssessmentRule>();
+    @Override
+    public void transformGraph(TransformedGraph inputGraph,
+            TransformationContext context) throws TransformerException {
 
-		try
-		{
-			loadRules(tableVersion);
-			applyRules(rules);
-		} catch (QualityAssessmentException e) {
-			throw new TransformerException(e);
-		} finally {
-			closeDirtyConnection();
-		}
+        /**
+         * The graph is copied into dirty database along with its metadata graph
+         * the updated copies are then used to overwrite the originals in clean
+         * database. This is why both methods (transformExistingGraph,
+         * transformNewGraph) do not differ in Quality Assessment.
+         */
+        this.inputGraph = inputGraph;
+        this.context = context;
 
-		return new GraphScoreWithTraceImpl(score, rules);
-	}
+        /**
+         * Start from scratch
+         */
+        score = 1.0;
+        trace = new ArrayList<String>();
+        violations = 0;
 
-	protected void loadRules() throws QualityAssessmentException {
-		loadRules(TableVersion.COMMITTED);
-	}
+        try {
+            loadRules();
+            applyRules(null);
 
-	/**
-	 * Analyse what rules should be applied (find out what rule group is demanded)
-	 */
-	protected void loadRules(TableVersion tableVersion) throws QualityAssessmentException {
-		QualityAssessmentRulesModel model = new QualityAssessmentRulesModel(context.getCleanDatabaseCredentials(), tableVersion);
+            storeResults();
+        } catch (QualityAssessmentException e) {
+            throw new TransformerException(e);
+        } finally {
+            closeDirtyConnection();
+        }
 
-		if (groupIds != null) {
-			rules = model.getRules(groupIds);
-		} else {
-			rules = model.getRules(groupLabels);
-		}
+        LOG.info(String.format(Locale.ROOT, "Quality Assessment done for graph %s, %d rules tested, %d violations, score %f",
+                inputGraph.getGraphName(), rules.size(), violations, score));
+    }
 
-		LOG.info(String.format(Locale.ROOT, "Quality Assessment selected %d rules.", rules.size()));
-	}
+    // Queries for clean graphs
+    public GraphScoreWithTrace getGraphScoreWithTrace(final String graphName,
+            final JDBCConnectionCredentials clean)
+            throws TransformerException {
+        return getGraphScoreWithTrace(graphName, clean, clean, TableVersion.COMMITTED);
+    }
 
-	/**
-	 * Find out what rules are violated and change the score and trace accordingly.
-	 */
-	protected void applyRules(/*out*/ Collection<QualityAssessmentRule> appliedRules) throws QualityAssessmentException {
+    // General version for rule debugging etc.
+    public GraphScoreWithTrace getGraphScoreWithTrace(final String graphName,
+            final JDBCConnectionCredentials clean,
+            final JDBCConnectionCredentials source,
+            final TableVersion tableVersion)
+            throws TransformerException {
 
-		Iterator<QualityAssessmentRule> iterator = rules.iterator();
+        this.inputGraph = prepareInputGraph(graphName, null, null);
 
-		while (iterator.hasNext()) {
-			QualityAssessmentRule rule = iterator.next();
+        this.context = prepareContext(clean, source);
 
-			applyRule(rule, appliedRules);
-		}
-	}
+        /**
+         * Start from scratch
+         */
+        score = 1.0;
+        trace = new ArrayList<String>();
+        violations = 0;
 
-	/**
-	 * Applies all the selected rules on the input graph
-	 */
-	protected void applyRule(QualityAssessmentRule rule, /*out*/ Collection<QualityAssessmentRule> appliedRules) throws QualityAssessmentException {
-		String query = rule.toString(inputGraph.getGraphName());
+        List<QualityAssessmentRule> rules = new ArrayList<QualityAssessmentRule>();
 
-		WrappedResultSet results = null;
+        try {
+            loadRules(tableVersion);
+            applyRules(rules);
+        } catch (QualityAssessmentException e) {
+            throw new TransformerException(e);
+        } finally {
+            closeDirtyConnection();
+        }
 
-		/**
-		 * See if the graph matches the rules filter
-		 */
-		try
-		{
-			/**
-			 * DEBUG: Unfortunately it does not suffice to use SPARQL ASK as long as we
-			 * want to use GROUP BY, HAVING
-			 */
-			results = getDirtyConnection().executeSelect(query);
+        return new GraphScoreWithTraceImpl(score, rules);
+    }
 
-			if (results.next() && results.getInt(1) > 0) {
-				/**
-				 * If so, change the graph's score accordingly
-				 */
-				addCoefficient(rule.getCoefficient());
-				logComment(rule.getDescription());
-				++violations;
+    protected void loadRules() throws QualityAssessmentException {
+        loadRules(TableVersion.COMMITTED);
+    }
 
-				if (appliedRules != null) appliedRules.add(rule);
+    /**
+     * Analyze what rules should be applied (find out what rule group is demanded).
+     */
+    protected void loadRules(TableVersion tableVersion) throws QualityAssessmentException {
+        QualityAssessmentRulesModel model = new QualityAssessmentRulesModel(context.getCleanDatabaseCredentials(), tableVersion);
 
-				LOG.info(String.format("Rule %d matched%s", rule.getId(), rule.getLabel() != null ? "\n(" + rule.getLabel() + ")" : ""));
-			} else {
-				LOG.info(String.format("Rule %d did not match%s", rule.getId(), rule.getLabel() != null ? "\n(" + rule.getLabel() + ")" : ""));
-			}
-		} catch (DatabaseException e) {
-			LOG.error(String.format(Locale.ROOT, "Failed to apply rule %d: %s\n%s\n%s", rule.getId(), rule.getLabel() != null ? rule.getLabel() : "", query, e.getMessage()));
-			throw new QualityAssessmentException(e);
-		} catch (SQLException e) {
-			LOG.error(String.format(Locale.ROOT, "Failed to apply rule %d: %s\n%s\n%s", rule.getId(), rule.getLabel() != null ? rule.getLabel() : "", query, e.getMessage()));
-			throw new QualityAssessmentException(e);
-		} finally {
-			if (results != null) {
-				results.closeQuietly();
-			}
-		}
-	}
+        if (groupIds != null) {
+            rules = model.getRules(groupIds);
+        } else {
+            rules = model.getRules(groupLabels);
+        }
 
-	protected void logComment(String comment) {
-		trace.add(comment);
-	}
+        LOG.info(String.format(Locale.ROOT, "Quality Assessment selected %d rules.", rules.size()));
+    }
 
-	protected void addCoefficient(Double coefficient) {
-		score *= coefficient;
-	}
+    /**
+     * Find out what rules are violated and change the score and trace accordingly.
+     */
+    protected void applyRules(/*out*/Collection<QualityAssessmentRule> appliedRules) throws QualityAssessmentException {
 
-	protected void storeResults() throws QualityAssessmentException {
-		final String graph = inputGraph.getGraphName();
-		final String metadataGraph = inputGraph.getMetadataGraphName();
+        Iterator<QualityAssessmentRule> iterator = rules.iterator();
 
-		final String dropOldScore = String.format(Locale.ROOT, dropOldScoreQueryFormat,
-				metadataGraph,
-				graph,
-				graph);
-		final String dropOldScoreTrace = String.format(Locale.ROOT, dropOldScoreTraceQueryFormat,
-				metadataGraph,
-				graph,
-				graph);
-		final String storeNewScore = String.format(Locale.ROOT, storeNewScoreQueryFormat,
-				metadataGraph,
-				graph,
-				score);
+        while (iterator.hasNext()) {
+            QualityAssessmentRule rule = iterator.next();
 
-		/**
-		 * First delete old values for this particular graph in the metadata graph.
-		 * Then store the newly obtained values.
-		 */
-		try {
-			getDirtyConnection().execute(dropOldScore);
-			getDirtyConnection().execute(dropOldScoreTrace);
-			getDirtyConnection().execute(storeNewScore);
+            applyRule(rule, appliedRules);
+        }
+    }
 
-			Iterator<String> iterator = trace.iterator();
+    /**
+     * Applies all the selected rules on the input graph.
+     */
+    protected void applyRule(QualityAssessmentRule rule, /*out*/Collection<QualityAssessmentRule> appliedRules)
+            throws QualityAssessmentException {
+        String query = rule.toString(inputGraph.getGraphName());
 
-			while (iterator.hasNext()) {
-				String escapedTrace = Utils.escapeSPARQLLiteral(iterator.next());
+        WrappedResultSet results = null;
 
-				final String storeNewScoreTrace = String.format(Locale.ROOT, storeNewScoreTraceQueryFormat,
-						metadataGraph,
-						graph,
-						escapedTrace);
+        /**
+         * See if the graph matches the rules filter
+         */
+        try {
+            /**
+             * DEBUG: Unfortunately it does not suffice to use SPARQL ASK as long as we
+             * want to use GROUP BY, HAVING
+             */
+            results = getDirtyConnection().executeSelect(query);
 
-				getDirtyConnection().execute(storeNewScoreTrace);
-			}
-		} catch (DatabaseException e) {
-			//LOG.fatal(e.getMessage());
-			throw new QualityAssessmentException(e);
-		}
-	}
+            if (results.next() && results.getInt(1) > 0) {
+                /**
+                 * If so, change the graph's score accordingly
+                 */
+                addCoefficient(rule.getCoefficient());
+                logComment(rule.getDescription());
+                ++violations;
 
-	@Override
+                if (appliedRules != null) {
+                    appliedRules.add(rule);
+                }
+
+                LOG.info(String.format("Rule %d matched%s", rule.getId(), rule.getLabel() != null ? "\n(" + rule.getLabel() + ")"
+                        : ""));
+            } else {
+                LOG.info(String.format("Rule %d did not match%s", rule.getId(), rule.getLabel() != null ? "\n(" + rule.getLabel()
+                        + ")" : ""));
+            }
+        } catch (DatabaseException e) {
+            LOG.error(String.format(Locale.ROOT, "Failed to apply rule %d: %s\n%s\n%s", rule.getId(), rule.getLabel() != null
+                    ? rule.getLabel() : "", query, e.getMessage()));
+            throw new QualityAssessmentException(e);
+        } catch (SQLException e) {
+            LOG.error(String.format(Locale.ROOT, "Failed to apply rule %d: %s\n%s\n%s", rule.getId(), rule.getLabel() != null
+                    ? rule.getLabel() : "", query, e.getMessage()));
+            throw new QualityAssessmentException(e);
+        } finally {
+            if (results != null) {
+                results.closeQuietly();
+            }
+        }
+    }
+
+    protected void logComment(String comment) {
+        trace.add(comment);
+    }
+
+    protected void addCoefficient(Double coefficient) {
+        score *= coefficient;
+    }
+
+    protected void storeResults() throws QualityAssessmentException {
+        final String graph = inputGraph.getGraphName();
+        final String metadataGraph = inputGraph.getMetadataGraphName();
+
+        final String dropOldScore = String.format(Locale.ROOT, DROP_OLD_SCORE_QUERY_FORMAT,
+                metadataGraph,
+                graph,
+                graph);
+        final String dropOldScoreTrace = String.format(Locale.ROOT, DROP_OLD_SCORE_TRACE_QUERY_FORMAT,
+                metadataGraph,
+                graph,
+                graph);
+        final String storeNewScore = String.format(Locale.ROOT, STORE_NEW_SCORE_QUERY_FORMAT,
+                metadataGraph,
+                graph,
+                score);
+
+        /**
+         * First delete old values for this particular graph in the metadata graph.
+         * Then store the newly obtained values.
+         */
+        try {
+            getDirtyConnection().execute(dropOldScore);
+            getDirtyConnection().execute(dropOldScoreTrace);
+            getDirtyConnection().execute(storeNewScore);
+
+            Iterator<String> iterator = trace.iterator();
+
+            while (iterator.hasNext()) {
+                String escapedTrace = ODCSUtils.escapeSPARQLLiteral(iterator.next());
+
+                final String storeNewScoreTrace = String.format(Locale.ROOT, STORE_NEW_SCORE_TRACE_QUERY_FORMAT,
+                        metadataGraph,
+                        graph,
+                        escapedTrace);
+
+                getDirtyConnection().execute(storeNewScoreTrace);
+            }
+        } catch (DatabaseException e) {
+            // LOG.fatal(e.getMessage());
+            throw new QualityAssessmentException(e);
+        }
+    }
+
+    @Override
     public void shutdown() {
     }
 }

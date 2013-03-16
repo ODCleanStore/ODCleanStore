@@ -6,8 +6,8 @@ import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
-import cz.cuni.mff.odcleanstore.shared.ErrorCodes;
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSErrorCodes;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 
 import de.fuberlin.wiwiss.ng4j.Quad;
@@ -108,11 +108,11 @@ import java.util.Locale;
 
         // Check that the URI is valid (must not be empty or null, should match '<' ([^<>"{}|^`\]-[#x00-#x20])* '>' )
         if (namedGraphURI.length() > MAX_URI_LENGTH) {
-            throw new QueryExecutionException(EnumQueryError.QUERY_TOO_LONG, ErrorCodes.QE_INPUT_FORMAT_ERR,
+            throw new QueryExecutionException(EnumQueryError.QUERY_TOO_LONG, ODCSErrorCodes.QE_INPUT_FORMAT_ERR,
                     "The requested URI is longer than " + MAX_URI_LENGTH + " characters.");
         }
-        if (!Utils.isValidIRI(namedGraphURI)) {
-            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, ErrorCodes.QE_INPUT_FORMAT_ERR,
+        if (!ODCSUtils.isValidIRI(namedGraphURI)) {
+            throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, ODCSErrorCodes.QE_INPUT_FORMAT_ERR,
                     "The query is not a valid URI.");
         }
         if (ENGINE_TEMP_GRAPH_PREFIX != null && namedGraphURI.startsWith(ENGINE_TEMP_GRAPH_PREFIX)) {
@@ -126,7 +126,7 @@ import java.util.Locale;
             return createResult(provenanceMetadata, metadata, namedGraphURI, System.currentTimeMillis() - startTime);
         } catch (DatabaseException e) {
             throw new QueryExecutionException(
-                    EnumQueryError.DATABASE_ERROR, ErrorCodes.QE_NG_METADATA_DB_ERR, "Database error", e);
+                    EnumQueryError.DATABASE_ERROR, ODCSErrorCodes.QE_NG_METADATA_DB_ERR, "Database error", e);
         } finally {
             closeConnectionQuietly();
         }

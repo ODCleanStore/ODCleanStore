@@ -1,7 +1,7 @@
 package cz.cuni.mff.odcleanstore;
 
 import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
@@ -149,7 +149,7 @@ public final class TestUtils {
         Mockito.when(config.getNamedGraphScoreWeight()).thenReturn(0.8);
         Mockito.when(config.getPublisherScoreWeight()).thenReturn(0.2);
         Mockito.when(config.getMaxDateDifference()).thenReturn(
-                366 * Utils.DAY_HOURS * Utils.TIME_UNIT_60 * Utils.TIME_UNIT_60);
+                366 * ODCSUtils.DAY_HOURS * ODCSUtils.TIME_UNIT_60 * ODCSUtils.TIME_UNIT_60);
         return config;
     }
 }

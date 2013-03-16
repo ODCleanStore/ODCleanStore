@@ -4,9 +4,9 @@ import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.configuration.EngineConfig;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
-import cz.cuni.mff.odcleanstore.shared.FileUtils;
 import cz.cuni.mff.odcleanstore.shared.SerializationLanguage;
-import cz.cuni.mff.odcleanstore.shared.FileUtils.DirectoryException;
+import cz.cuni.mff.odcleanstore.shared.util.FileUtils;
+import cz.cuni.mff.odcleanstore.shared.util.FileUtils.DirectoryException;
 
 import java.io.File;
 import java.io.IOException;

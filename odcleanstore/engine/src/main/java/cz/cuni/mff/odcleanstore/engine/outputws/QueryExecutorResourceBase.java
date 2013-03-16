@@ -15,7 +15,7 @@ import cz.cuni.mff.odcleanstore.queryexecution.QueryExecution;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
 import cz.cuni.mff.odcleanstore.queryexecution.impl.PrefixMapping;
 import cz.cuni.mff.odcleanstore.queryexecution.impl.PrefixMappingCache;
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 
 import org.restlet.data.Form;
@@ -231,14 +231,14 @@ public abstract class QueryExecutorResourceBase extends ServerResource {
             if (param.startsWith(PROPERTY_AGGREGATION_PARAM) && param.endsWith("]")) {
                 String property = param.substring(PROPERTY_AGGREGATION_PARAM.length(), param.length() - 1);
                 String aggregationString = valuesMap.get(param);
-                if (!Utils.isNullOrEmpty(aggregationString) && !property.isEmpty()) {
+                if (!ODCSUtils.isNullOrEmpty(aggregationString) && !property.isEmpty()) {
                     EnumAggregationType aggregation = EnumAggregationType.valueOf(aggregationString); // TODO: error handling
                     propertyAggregations.put(property, aggregation);
                 }
             } else if (param.startsWith(PROPERTY_MULTIVALUE_PARAM) && param.endsWith("]")) {
                 String property = param.substring(PROPERTY_MULTIVALUE_PARAM.length(), param.length() - 1);
                 String multivalueString = valuesMap.get(param);
-                if (!Utils.isNullOrEmpty(multivalueString) && !property.isEmpty()) {
+                if (!ODCSUtils.isNullOrEmpty(multivalueString) && !property.isEmpty()) {
                     propertyMultivalue.put(property, TRUE_LITERAL.equals(multivalueString));
                 }
             }

@@ -6,7 +6,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.qualityassessment.QualityAssessor.GraphScoreWithTrace;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRule;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryResultBase;
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.DC;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
@@ -135,7 +135,7 @@ public abstract class RDFFormatter extends ResultFormatterBase {
             List<String> licenseList = graphMetadata.getLicences();
             if (licenseList != null) {
                 for (String license : licenseList) {
-                    Node licenseNode = license.startsWith("http://") && Utils.isValidIRI(license)
+                    Node licenseNode = license.startsWith("http://") && ODCSUtils.isValidIRI(license)
                             ? Node.createURI(license)
                             : Node.createLiteral(license);
                     graph.add(new Triple(namedGraphURI, LICENSE_PROPERTY, licenseNode));

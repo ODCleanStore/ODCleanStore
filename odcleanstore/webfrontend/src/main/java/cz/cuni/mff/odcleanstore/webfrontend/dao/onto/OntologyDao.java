@@ -16,7 +16,7 @@ import cz.cuni.mff.odcleanstore.datanormalization.rules.DataNormalizationRule;
 import cz.cuni.mff.odcleanstore.datanormalization.rules.DataNormalizationRulesModel;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRule;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRulesModel;
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRule;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponent;
@@ -140,7 +140,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 	{
 		try
 		{
-			return ODCSInternal.ontologyGraphUriPrefix + URLEncoder.encode(item.getLabel(), Utils.DEFAULT_ENCODING);
+			return ODCSInternal.ontologyGraphUriPrefix + URLEncoder.encode(item.getLabel(), ODCSUtils.DEFAULT_ENCODING);
 		}
 		catch (UnsupportedEncodingException e)
 		{

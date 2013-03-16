@@ -1,6 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo.dn;
 
-import cz.cuni.mff.odcleanstore.shared.Utils;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 
 /**
  * A compiler to translate concatenate template instances into raw rules.
@@ -40,13 +40,13 @@ public class DNConcatenateTemplateInstanceCompiler
 
 		// 2. Create components.
 		//
-		String property = Utils.escapeSPARQLLiteral(instance.getPropertyName());
+		String property = ODCSUtils.escapeSPARQLLiteral(instance.getPropertyName());
 		
-		if (!Utils.isPrefixedName(property)) {
+		if (!ODCSUtils.isPrefixedName(property)) {
 			property = "<" + property + ">";
 		}
 		
-		delimiter = Utils.escapeSPARQLLiteral(delimiter);
+		delimiter = ODCSUtils.escapeSPARQLLiteral(delimiter);
 		
 		String modification = String.format
 		(
