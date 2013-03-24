@@ -24,7 +24,7 @@ Release packages can be downloaded from [SourceForge](https://sourceforge.net/pr
 
 [![Download the latest version](https://raw.github.com/wiki/ODCleanStore/ODCleanStore/images/download.png)](https://sourceforge.net/projects/odcleanstore/files/latest/download?source=files)
 
-The release package contains all required binaries of ODCleanStore and utility scripts, installer, documentation and sample files. Detailed documentation can also be obtained at [SourceForge](http://sourceforge.net/projects/odcleanstore/files/manual/)
+The release package contains all required binaries of ODCleanStore and utility scripts, installer, documentation and sample files. Detailed [documentation](http://sourceforge.net/projects/odcleanstore/files/manual/) can also be obtained at SourceForge.
 
 
 
