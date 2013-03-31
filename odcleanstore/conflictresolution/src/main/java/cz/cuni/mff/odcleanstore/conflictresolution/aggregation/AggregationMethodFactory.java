@@ -4,6 +4,7 @@ import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationType;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.SimpleUriGenerator;
+import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.AggregationNotImplementedException;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 
 import java.util.HashMap;
