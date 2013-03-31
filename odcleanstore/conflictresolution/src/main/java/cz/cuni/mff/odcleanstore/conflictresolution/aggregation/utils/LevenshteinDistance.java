@@ -26,9 +26,9 @@ public final class LevenshteinDistance {
      * K-bounded Levenshtein distance with threshold {@link MAX_DISTANCE} (maximum allowed
      * distance).
      *
-     * Algorithnm was adapted from
+     * Algorithm was adapted from
      * https://github.com/jmcejuela/Levenshtein-MySQL-UDF/blob/master/levenshtein.c#L269
-     * with kind permission of its author Juan Miguel Cejuela
+     * with kind permission of its author Juan Miguel Cejuela.
      *
      * Time O(MAX_DISTANCE * L) where L = min(s1.length(), s2.length());
      * space O(MAX_DISTANCE), constant.

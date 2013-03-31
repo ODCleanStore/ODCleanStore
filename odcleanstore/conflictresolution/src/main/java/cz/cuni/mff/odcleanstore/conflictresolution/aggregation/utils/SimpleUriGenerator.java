@@ -4,12 +4,13 @@ import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 
 /**
  * Generator of unique named graph URIs.
+ * This class is not thread-safe.
  *
  * @author Jan Michelfeit
  */
 public class SimpleUriGenerator implements UniqueURIGenerator {
     /** Prefix of generated named graph URIs. */
-    private String namedGraphURIPrefix;
+    private final String namedGraphURIPrefix;
 
     /** Counter for generating unique named graph URIs. */
     private int lastNamedGraphId = 0;

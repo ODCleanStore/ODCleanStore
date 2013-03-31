@@ -1,8 +1,9 @@
 package cz.cuni.mff.odcleanstore.conflictresolution;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.impl.URIMapping;
 
 import com.hp.hpl.jena.graph.Node;
+
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.URIMapping;
 
 /**
  * Encapsulates settings for the conflict resolution process.

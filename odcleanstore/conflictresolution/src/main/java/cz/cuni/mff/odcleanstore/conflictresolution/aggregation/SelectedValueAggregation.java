@@ -1,5 +1,8 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
+import java.util.Collection;
+import java.util.Comparator;
+
 import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
@@ -7,11 +10,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.NodeComparator;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
-
 import de.fuberlin.wiwiss.ng4j.Quad;
-
-import java.util.Collection;
-import java.util.Comparator;
 
 /**
  * Base class for aggregation methods that include only triples selected from
@@ -95,7 +94,7 @@ import java.util.Comparator;
      * @see #computeQuality(Quad,Collection,Collection,Collection,NamedGraphMetadataMap)
      *
      *      In case of values selected from input quads, parameters sourceNamedGraphs and
-     *      agreeNamedGraphs of computeQuality() are identical. This is a utility function that
+     *      agreeNamedGraphs of {@link computeQuality()} are identical. This is a utility function that
      *      wraps this fact.
      *
      * @param resultQuad the quad for which quality is to be computed

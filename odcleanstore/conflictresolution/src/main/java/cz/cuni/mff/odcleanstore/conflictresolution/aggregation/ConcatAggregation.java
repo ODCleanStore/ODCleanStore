@@ -1,17 +1,16 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
+import java.util.Collection;
+import java.util.Collections;
+
+import com.hp.hpl.jena.graph.Node;
+
 import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
-
-import com.hp.hpl.jena.graph.Node;
-
 import de.fuberlin.wiwiss.ng4j.Quad;
-
-import java.util.Collection;
-import java.util.Collections;
 
 /**
  * Aggregation method that returns the concatenation of all conflicting values.
@@ -45,7 +44,7 @@ import java.util.Collections;
      *
      * @param conflictingQuads {@inheritDoc}
      * @param metadata {@inheritDoc}
-     * @return {@inheritDoc}
+     * @return {@inheritDoc} 
      */
     @Override
     public Collection<CRQuad> aggregate(Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
