@@ -1,18 +1,18 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
-import cz.cuni.mff.odcleanstore.vocabulary.OWL;
-
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.Triple;
+
+import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 
 /**
  * Data structure that handles mapping of URI resources linked with a owl:sameAs link
@@ -38,14 +38,7 @@ public class URIMappingImpl implements URIMapping {
      * Map representing the DFU data structure.
      * @see #getUriDFUParent()
      */
-    private Map<String, String> uriDFUParent;
-
-    /**
-     * Initializes DFU data structure.
-     */
-    {
-        uriDFUParent = new HashMap<String, String>();
-    }
+    private final Map<String, String> uriDFUParent;
 
     /**
      * Creates an URIMappingImpl instance with no preferred URIs.
@@ -62,6 +55,17 @@ public class URIMappingImpl implements URIMapping {
         this.preferredURIs = (preferredURIs != null)
                 ? preferredURIs
                 : Collections.<String>emptySet();
+        
+        // Initialize DFU data structure.
+        uriDFUParent = createUriMap();
+    }
+    
+    /**
+     * Factory method for the map used to keep URI mappings.
+     * @return map used to keep URI mappings
+     */
+    protected Map<String, String> createUriMap() {
+        return new HashMap<String, String>();
     }
 
     /**
