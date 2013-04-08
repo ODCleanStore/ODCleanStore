@@ -1,10 +1,10 @@
 package cz.cuni.mff.odcleanstore.conflictresolution;
 
-import com.hp.hpl.jena.graph.Node;
-
 import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
+
+import com.hp.hpl.jena.graph.Node;
 
 /**
  * Map of metadata for named graphs from the RDF store.
@@ -13,7 +13,7 @@ import java.util.TreeMap;
  */
 public class NamedGraphMetadataMap {
     /** Map containing metadata for named graphs indexed by named graph URI. */
-    private Map<String, NamedGraphMetadata> metadataMap;
+    private final Map<String, NamedGraphMetadata> metadataMap;
 
     /** Initializes an empty named graph metadata map. */
     public NamedGraphMetadataMap() {

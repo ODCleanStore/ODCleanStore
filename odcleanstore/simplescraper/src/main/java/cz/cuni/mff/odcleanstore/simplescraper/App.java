@@ -114,7 +114,7 @@ public final class App {
      */
     private static void printUsageAndExit() {
         System.out.println("Usage: java -jar simplescraper.jar"
-                + "<user> <password> <metadata property file> <RDF payload file> [<RDF provenance metadata file>]");
+                + " <user> <password> <metadata property file> <RDF payload file> [<RDF provenance metadata file>]");
         System.exit(-1);
     }
 
