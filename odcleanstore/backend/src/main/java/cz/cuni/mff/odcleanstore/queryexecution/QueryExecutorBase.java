@@ -6,6 +6,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionFactory;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
@@ -283,7 +284,7 @@ import java.util.Set;
      */
     protected VirtuosoConnectionWrapper getConnection() throws ConnectionException {
         if (connection == null) {
-            connection = VirtuosoConnectionWrapper.createConnection(connectionCredentials);
+            connection = VirtuosoConnectionFactory.createJDBCConnection(connectionCredentials);
         }
         return connection;
     }

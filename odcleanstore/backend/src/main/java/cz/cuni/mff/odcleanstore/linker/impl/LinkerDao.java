@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.linker.impl;
 
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionFactory;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
@@ -31,7 +32,7 @@ import java.util.Set;
  */
 public class LinkerDao {
 	private static final Logger LOG = LoggerFactory.getLogger(LinkerDao.class);
-	
+
 	/**
 	 * singleton instance
 	 */
@@ -41,12 +42,12 @@ public class LinkerDao {
 	 * connection credentials to the clean DB
 	 */
 	private static JDBCConnectionCredentials cleanDBCredentials;
-	
+
 	/**
 	 * connection credentials to the dirty DB
 	 */
 	private static JDBCConnectionCredentials dirtyDBCredentials;
-	
+
 	private static final int IN_COUNT_LIMIT = 500;
 
 	/**
@@ -55,7 +56,7 @@ public class LinkerDao {
 	 * @param credentials connection parameters
 	 * @throws ConnectionException
 	 */
-	private LinkerDao(JDBCConnectionCredentials cleanDBCredentials, JDBCConnectionCredentials dirtyDBCredentials) 
+	private LinkerDao(JDBCConnectionCredentials cleanDBCredentials, JDBCConnectionCredentials dirtyDBCredentials)
 			throws ConnectionException {
 		LinkerDao.cleanDBCredentials = cleanDBCredentials;
 		LinkerDao.dirtyDBCredentials = dirtyDBCredentials;
@@ -69,7 +70,7 @@ public class LinkerDao {
 	 * @return singleton instance
 	 * @throws ConnectionException
 	 */
-	public static LinkerDao getInstance(JDBCConnectionCredentials cleanDBCredentials, JDBCConnectionCredentials dirtyDBCredentials) 
+	public static LinkerDao getInstance(JDBCConnectionCredentials cleanDBCredentials, JDBCConnectionCredentials dirtyDBCredentials)
 			throws ConnectionException {
 		if (dao == null) {
 			return new LinkerDao(cleanDBCredentials, dirtyDBCredentials);
@@ -84,9 +85,9 @@ public class LinkerDao {
 	 * @return list of loaded linkage rules
 	 * @throws QueryException
 	 * @throws SQLException
-	 * @throws ConnectionException 
+	 * @throws ConnectionException
 	 */
-	public List<SilkRule> loadRules(Integer[] groups, TableVersion tableVersion) 
+	public List<SilkRule> loadRules(Integer[] groups, TableVersion tableVersion)
 			throws QueryException, ConnectionException {
 	    if (groups == null || groups.length == 0) {
 	        LOG.info("Loaded 0 linkage rules.");
@@ -98,7 +99,7 @@ public class LinkerDao {
 		WrappedResultSet resultSet = null;
 		String tableName = "DB.ODCLEANSTORE.OI_RULES" + tableVersion.getTableSuffix();
 		try {
-			connection = VirtuosoConnectionWrapper.createConnection(cleanDBCredentials);
+			connection = VirtuosoConnectionFactory.createJDBCConnection(cleanDBCredentials);
 			resultSet = connection.executeSelect(
 					"select id, label, linkType, sourceRestriction, targetRestriction, blob_to_string(linkageRule) as rule, filterThreshold, filterLimit " +
 					"from " + tableName + " where groupId in " + createInPart(groups));
@@ -116,11 +117,11 @@ public class LinkerDao {
 			if (connection != null) {
 				connection.closeQuietly();
 			}
-		}		
+		}
 		LOG.info("Loaded {} linkage rules: {}", ruleList.size(), ruleList.toString());
 		return ruleList;
 	}
-	
+
 	private SilkRule createRule(WrappedResultSet resultSet) throws SQLException {
 		SilkRule rule = new SilkRule();
 		rule.setId(resultSet.getInt("id"));
@@ -133,8 +134,8 @@ public class LinkerDao {
 		rule.setFilterLimit(resultSet.getInt("filterLimit"));
 		return rule;
 	}
-	
-	private List<Output> loadOutputs(VirtuosoConnectionWrapper connection, Integer ruleId, TableVersion tableVersion ) 
+
+	private List<Output> loadOutputs(VirtuosoConnectionWrapper connection, Integer ruleId, TableVersion tableVersion )
 			throws QueryException, SQLException {
 		List<Output> outputs = new ArrayList<Output>();
 		WrappedResultSet resultSet = null;
@@ -165,7 +166,7 @@ public class LinkerDao {
 				resultSet.closeQuietly();
 			}
 		}
-		
+
 		return outputs;
 	}
 
@@ -182,10 +183,10 @@ public class LinkerDao {
 		}
 		return result.substring(0, result.length()-1) + ")";
 	}
-	
+
 	/**
 	 * Deletes given graph from the RDF database.
-	 * 
+	 *
 	 * @param graphId ID of a graph to delete
 	 * @throws ConnectionException
 	 * @throws QueryException
@@ -194,7 +195,7 @@ public class LinkerDao {
 		LOG.info("Clearing graph: {} ", graphId);
 		VirtuosoConnectionWrapper connection = null;
 		try {
-			connection = VirtuosoConnectionWrapper.createConnection(dirtyDBCredentials);
+			connection = VirtuosoConnectionFactory.createJDBCConnection(dirtyDBCredentials);
 			connection.execute("SPARQL CLEAR GRAPH <" + graphId + ">");
 		} finally {
 			if (connection != null) {
@@ -202,10 +203,10 @@ public class LinkerDao {
 			}
 		}
 	}
-	
+
 	/**
 	 * Loads labels (rdfs:label) for given URIs.
-	 * 
+	 *
 	 * @param uriLabelMap in/out parameter, map URI:label
 	 * @throws QueryException
 	 * @throws ConnectionException
@@ -215,18 +216,18 @@ public class LinkerDao {
 			LOG.info("No URIs to load labels for.");
 			return;
 		}
-		
+
 		Iterator<String> uriIt = uriLabelMap.keySet().iterator();
 		VirtuosoConnectionWrapper connection = null;
 		WrappedResultSet resultSet = null;
 		try {
-			connection = VirtuosoConnectionWrapper.createConnection(cleanDBCredentials);
+			connection = VirtuosoConnectionFactory.createJDBCConnection(cleanDBCredentials);
 			while (uriIt.hasNext()) {
 				String uriList = createUriListString(uriIt);
-				LOG.info("Loading labels for URIs: {}", uriList);					
+				LOG.info("Loading labels for URIs: {}", uriList);
 				resultSet = connection.executeSelect(
 					"SPARQL SELECT ?uri ?label WHERE {?uri <http://www.w3.org/2000/01/rdf-schema#label> ?label " +
-					"FILTER (?uri IN " + uriList + ")}"); 
+					"FILTER (?uri IN " + uriList + ")}");
 				while (resultSet.next()) {
 					uriLabelMap.put(resultSet.getString("uri"), resultSet.getString("label"));
 				}
@@ -245,7 +246,7 @@ public class LinkerDao {
 			}
 		}
 	}
-	
+
 	private String createUriListString(Iterator<String> iterator) {
 		int count = 0;
 		String result = "(";
@@ -255,10 +256,10 @@ public class LinkerDao {
 		}
 		return result.substring(0, result.length()-2) + ")";
 	}
-		
+
 	/**
 	 * Creates a graph group (metagraph) in clean or dirty database and adds graphs to it.
-	 * 
+	 *
 	 * @param groupName name of the group to be created
 	 * @param graphNames graphs to be added to the group
 	 * @param db database instance (clean/dirty)
@@ -272,9 +273,9 @@ public class LinkerDao {
 		VirtuosoConnectionWrapper connection = null;
 		try {
 			if (EnumDatabaseInstance.CLEAN.equals(db)) {
-				connection = VirtuosoConnectionWrapper.createConnection(cleanDBCredentials);
+				connection = VirtuosoConnectionFactory.createJDBCConnection(cleanDBCredentials);
 			} else {
-				connection = VirtuosoConnectionWrapper.createConnection(dirtyDBCredentials);
+				connection = VirtuosoConnectionFactory.createJDBCConnection(dirtyDBCredentials);
 			}
 			connection.execute(createQuery, groupName);
 			for (String graphName: graphNames) {
@@ -286,25 +287,25 @@ public class LinkerDao {
 			}
 		}
 	}
-	
+
 	/**
 	 * Deletes given graph group.
-	 * 
+	 *
 	 * @param groupName name of group to be deleted
 	 * @param db database instance (clean/dirty)
 	 * @param isSilent when set to false and group does not exist, exception is raised
 	 * @throws ConnectionException
 	 * @throws QueryException
 	 */
-	public void deleteGraphGroup(String groupName, EnumDatabaseInstance db, boolean isSilent) 
+	public void deleteGraphGroup(String groupName, EnumDatabaseInstance db, boolean isSilent)
 			throws ConnectionException, QueryException {
 		String query = "DB.DBA.RDF_GRAPH_GROUP_DROP(?, ?)";
 		VirtuosoConnectionWrapper connection = null;
 		try {
 			if (EnumDatabaseInstance.CLEAN.equals(db)) {
-				connection = VirtuosoConnectionWrapper.createConnection(cleanDBCredentials);
+				connection = VirtuosoConnectionFactory.createJDBCConnection(cleanDBCredentials);
 			} else {
-				connection = VirtuosoConnectionWrapper.createConnection(dirtyDBCredentials);
+				connection = VirtuosoConnectionFactory.createJDBCConnection(dirtyDBCredentials);
 			}
 			connection.execute(query, groupName, isSilent ? 1 : 0);
 		} finally {
@@ -313,10 +314,10 @@ public class LinkerDao {
 			}
 		}
 	}
-	
+
 	/**
 	 * Load all RDF graphs' names from the clean database
-	 * 
+	 *
 	 * @return list of graphs' names
 	 * @throws QueryException
 	 * @throws ConnectionException
@@ -326,7 +327,7 @@ public class LinkerDao {
 		VirtuosoConnectionWrapper connection = null;
 		WrappedResultSet resultSet = null;
 		try {
-			connection = VirtuosoConnectionWrapper.createConnection(cleanDBCredentials);
+			connection = VirtuosoConnectionFactory.createJDBCConnection(cleanDBCredentials);
 			resultSet = connection.executeSelect(query);
 			Set<String> result = new HashSet<String>();
 			while (resultSet.next()) {

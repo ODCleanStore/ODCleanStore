@@ -2,6 +2,7 @@ package cz.cuni.mff.odcleanstore.data;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.configuration.EngineConfig;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionFactory;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
@@ -86,9 +87,9 @@ public class GraphLoader {
         EngineConfig config = ConfigLoader.getConfig().getEngineGroup();
         switch (databaseInstance) {
         case CLEAN:
-            return VirtuosoConnectionWrapper.createConnection(config.getCleanDBJDBCConnectionCredentials());
+            return VirtuosoConnectionFactory.createJDBCConnection(config.getCleanDBJDBCConnectionCredentials());
         case DIRTY:
-            return VirtuosoConnectionWrapper.createConnection(config.getDirtyDBJDBCConnectionCredentials());
+            return VirtuosoConnectionFactory.createJDBCConnection(config.getDirtyDBJDBCConnectionCredentials());
         default:
             throw new AssertionError();
         }

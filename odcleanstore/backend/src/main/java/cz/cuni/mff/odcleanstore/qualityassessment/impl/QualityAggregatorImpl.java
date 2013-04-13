@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.qualityassessment.impl;
 
 import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionFactory;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
@@ -21,11 +22,11 @@ import java.util.Locale;
 
 /**
  * Default implementation of the Quality Aggregator
- * 
+ *
  * Compute average score of all graphs known to us (stored in db, including this one)
  * and update its score in database in ODCSInternal.aggregatedPublisherScoreGraphUri
  * graph
- * 
+ *
  * @author Jakub Daniel
  *
  */
@@ -155,7 +156,7 @@ public class QualityAggregatorImpl implements QualityAggregator {
 
 	private VirtuosoConnectionWrapper getCleanConnection () throws DatabaseException {
         if (cleanConnection == null) {
-        	cleanConnection = VirtuosoConnectionWrapper.createConnection(context.getCleanDatabaseCredentials());
+        	cleanConnection = VirtuosoConnectionFactory.createJDBCConnection(context.getCleanDatabaseCredentials());
        	}
 		return cleanConnection;
 	}
@@ -173,7 +174,7 @@ public class QualityAggregatorImpl implements QualityAggregator {
 
 	private VirtuosoConnectionWrapper getDirtyConnection () throws DatabaseException {
         if (dirtyConnection == null) {
-        	dirtyConnection = VirtuosoConnectionWrapper.createConnection(context.getDirtyDatabaseCredentials());
+        	dirtyConnection = VirtuosoConnectionFactory.createJDBCConnection(context.getDirtyDatabaseCredentials());
        	}
 		return dirtyConnection;
 	}

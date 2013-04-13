@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.transformer.odcs;
 
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionFactory;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
@@ -57,7 +58,7 @@ public class ODCSPropertyFilterTransformer implements Transformer {
 
         VirtuosoConnectionWrapper connection = null;
         try {
-            connection = VirtuosoConnectionWrapper.createConnection(context.getDirtyDatabaseCredentials());
+            connection = VirtuosoConnectionFactory.createJDBCConnection(context.getDirtyDatabaseCredentials());
             String query = String.format(Locale.ROOT, DELETE_QUERY,
                     inputGraph.getGraphName(), FILTERED_PROPERTIES_LIST);
             connection.execute(query);

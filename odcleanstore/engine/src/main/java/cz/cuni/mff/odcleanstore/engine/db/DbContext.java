@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.engine.db;
 
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionFactory;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
@@ -28,7 +29,7 @@ public abstract class DbContext {
      * @throws ConnectionException
      */
     protected void setConnection(JDBCConnectionCredentials connectionCredentials) throws ConnectionException {
-        connection = VirtuosoConnectionWrapper.createConnection(connectionCredentials);
+        connection = VirtuosoConnectionFactory.createJDBCConnection(connectionCredentials);
     }
     
     protected VirtuosoConnectionWrapper getConnection() {

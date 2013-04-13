@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.datanormalization.rules;
 
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionFactory;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
@@ -83,7 +84,7 @@ public class DataNormalizationRulesModel {
 	 */
 	private VirtuosoConnectionWrapper getCleanConnection () throws DatabaseException {
         if (cleanConnection == null) {
-        	cleanConnection = VirtuosoConnectionWrapper.createConnection(endpoint);
+        	cleanConnection = VirtuosoConnectionFactory.createJDBCConnection(endpoint);
        	}
 		return cleanConnection;
 	}
@@ -265,7 +266,7 @@ public class DataNormalizationRulesModel {
 
 				ruleList.add(rule);
 			}
-			
+
 			/**
 			 * Convert numbers
 			 */
@@ -284,7 +285,7 @@ public class DataNormalizationRulesModel {
 
 				ruleList.add(rule);
 			}
-			
+
 			if (model.contains(resource, RDFS.range, XSD.integer)) {
 				DataNormalizationRule rule = new DataNormalizationIntegerRule(null, null, resource);
 
@@ -292,7 +293,7 @@ public class DataNormalizationRulesModel {
 
 				ruleList.add(rule);
 			}
-			
+
 			if (model.contains(resource, RDFS.range, XSD.xdouble) || model.contains(resource, RDFS.range, XSD.decimal)) {
 				DataNormalizationRule rule = new DataNormalizationNumberRule(null, null, resource);
 

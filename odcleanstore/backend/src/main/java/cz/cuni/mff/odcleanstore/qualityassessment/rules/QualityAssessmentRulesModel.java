@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.qualityassessment.rules;
 
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionFactory;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
@@ -35,7 +36,7 @@ import java.util.Set;
  * Rules Model.
  *
  * Facilitates queries for quality assessment rules.
- * 
+ *
  * Also used to generate rules from ontologies
  *
  * @author Jakub Daniel
@@ -73,7 +74,7 @@ public class QualityAssessmentRulesModel {
 	 */
 	private VirtuosoConnectionWrapper getCleanConnection () throws DatabaseException {
         if (cleanConnection == null) {
-        	cleanConnection = VirtuosoConnectionWrapper.createConnection(endpoint);
+        	cleanConnection = VirtuosoConnectionFactory.createJDBCConnection(endpoint);
        	}
 		return cleanConnection;
 	}
@@ -101,7 +102,7 @@ public class QualityAssessmentRulesModel {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param endpoint definition of database location and connection credentials
 	 * @param tableVersion version of rule tables to be used
 	 */
@@ -112,7 +113,7 @@ public class QualityAssessmentRulesModel {
 
 	/**
 	 * Execute a query for rules
-	 * 
+	 *
 	 * @param query the query with constraints
 	 * @param objects the variables to be binded to the query
 	 * @return collection of rules complying to the constraints of the query

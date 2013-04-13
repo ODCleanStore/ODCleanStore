@@ -17,7 +17,7 @@ import java.sql.Statement;
  */
 public class WrappedResultSet {
     /** The wrapped SQL statement. */
-    private Statement statement;
+    private final Statement statement;
 
     /** The current result set. */
     private java.sql.ResultSet resultSet;

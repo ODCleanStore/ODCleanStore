@@ -6,7 +6,7 @@ import org.apache.log4j.Logger;
 import org.apache.wicket.validation.IValidatable;
 
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
-import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionFactory;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 
@@ -51,6 +51,6 @@ public class RegexValidator extends CustomValidator
 		String query = "SPARQL SELECT (fn:replace(str(''), ??, ??)) AS ?x WHERE {?s ?p ?o} LIMIT 1";
 		Object[] param = {regexValue, replacementValue};
 
-		VirtuosoConnectionWrapper.createConnection(credentials).executeSelect(query, param).close();
+		VirtuosoConnectionFactory.createJDBCConnection(credentials).executeSelect(query, param).close();
 	}
 }
