@@ -2,13 +2,15 @@ package cz.cuni.mff.odcleanstore.engine.inputws;
 
 import cz.cuni.mff.odcleanstore.comlib.ComlibUtils;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.data.EnumDatabaseInstance;
+import cz.cuni.mff.odcleanstore.data.GraphLoaderUtils;
 import cz.cuni.mff.odcleanstore.engine.Engine;
-import cz.cuni.mff.odcleanstore.engine.EngineException;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
 import cz.cuni.mff.odcleanstore.engine.db.model.Credentials;
 import cz.cuni.mff.odcleanstore.engine.db.model.DbOdcsContextTransactional;
 import cz.cuni.mff.odcleanstore.engine.db.model.DbOdcsException;
 import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
+import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 import cz.cuni.mff.odcleanstore.shared.util.FileUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
@@ -44,7 +46,7 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
     private UUID uuid;
     private BufferedWriter metadataWriter, provenanceWriter, payloadWriter;
 
-    private String inputDirectory;
+    private File inputDirectory;
     private String dataGraphURI;
     private boolean isActive;
     private final String namedGraphsPrefix;
@@ -56,9 +58,9 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
      */
     public InsertExecutor() throws InsertExecutorException {
         try {
-            inputDirectory = Engine.getCurrent().getDirtyDBImportExportDir();
+            inputDirectory = GraphLoaderUtils.getImportExportDirectory(EnumDatabaseInstance.DIRTY);
             namedGraphsPrefix = ConfigLoader.getConfig().getInputWSGroup().getNamedGraphsPrefix().toString();
-        } catch (EngineException e) {
+        } catch (ODCleanStoreException e) {
             throw new InsertExecutorException(e);
         }
     }
@@ -195,7 +197,7 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
      * @throws InsertExecutorException
      */
     private void writeMetadataFirst() throws InsertExecutorException {
-        metadataWriter = createFile(inputDirectory + uuid + "-m.ttl");
+        metadataWriter = createFile(inputDirectory, uuid + "-m.ttl");
 
         writeMetadata(ODCS.metadataGraph, "<" + namedGraphsPrefix + ODCSInternal.metadataGraphUriInfix + uuid + ">");
         writeMetadata(ODCS.insertedAt, FormatHelper.getTypedW3CDTFCurrent());
@@ -232,8 +234,18 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
     private void writeProvenance(String content) throws InsertExecutorException {
         if (provenanceWriter == null) {
             content = FileUtils.removeInitialBOMXml(content);
-            String fileName = inputDirectory + uuid + (content.startsWith("<?xml") ? "-pvm.rdf" : "-pvm.ttl");
-            provenanceWriter = createFile(fileName);
+            String suffix;
+            switch (GraphLoaderUtils.guessLanguage(content)) {
+            case RDFXML:
+                suffix = "-pvm.rdf";
+                break;
+            case N3:
+            default:
+                suffix = "-pvm.ttl";
+                break;
+            }
+            String fileName = uuid + suffix;
+            provenanceWriter = createFile(inputDirectory, fileName);
         }
         try {
             provenanceWriter.write(content);
@@ -251,8 +263,18 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
     private void writePayload(String content) throws InsertExecutorException {
         if (payloadWriter == null) {
             content = FileUtils.removeInitialBOMXml(content);
-            String fileName = inputDirectory + uuid + (content.startsWith("<?xml") ? "-d.rdf" : "-d.ttl");
-            payloadWriter = createFile(fileName);
+            String suffix;
+            switch (GraphLoaderUtils.guessLanguage(content)) {
+            case RDFXML:
+                suffix = "-d.rdf";
+                break;
+            case N3:
+            default:
+                suffix = "-d.ttl";
+                break;
+            }
+            String fileName = uuid + suffix;
+            payloadWriter = createFile(inputDirectory, fileName);
         }
         try {
             payloadWriter.write(content);
@@ -264,13 +286,15 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
     /**
      * Create file for writing.
      * 
+     * @param directory
      * @param name
      * @return BufferedWriter
      * @throws InsertExecutorException
      */
-    private BufferedWriter createFile(String name) throws InsertExecutorException {
+    private BufferedWriter createFile(File directory, String name) throws InsertExecutorException {
         try {
-            FileOutputStream fos = new FileOutputStream(name);
+            File outputFile = new File(directory, name);
+            FileOutputStream fos = new FileOutputStream(outputFile);
             return new BufferedWriter(new OutputStreamWriter(fos, "UTF-8"));
         } catch (UnsupportedEncodingException e) {
             throw new InsertExecutorException(e);
@@ -409,10 +433,10 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
      * @param uuid graoph uuid
      * @return success
      */
-    static boolean deleteInputFiles(String uuid) {
+    private static boolean deleteInputFiles(String uuid) {
         boolean retVal = true;
         try {
-            String inputDirPath = Engine.getCurrent().getDirtyDBImportExportDir();
+            File inputDirPath = GraphLoaderUtils.getImportExportDirectory(EnumDatabaseInstance.DIRTY);
             retVal &= deleteFile(new File(inputDirPath, uuid + "-d.rdf"));
             retVal &= deleteFile(new File(inputDirPath, uuid + "-d.ttl"));
             retVal &= deleteFile(new File(inputDirPath, uuid + "-m.rdf"));

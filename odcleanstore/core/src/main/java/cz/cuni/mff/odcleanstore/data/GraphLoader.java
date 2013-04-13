@@ -52,23 +52,13 @@ public class GraphLoader {
             connection = createConnection();
             connection.setQueryTimeout(0);
 
-            tmpFile = GraphLoaderUtils.getImportExportTmpFile(connection, databaseInstance);
+            File importExportDir = GraphLoaderUtils.getImportExportDirectory(databaseInstance, connection);
+            tmpFile = File.createTempFile(GraphLoaderUtils.TMP_FILE_PREFIX, null, importExportDir);
             outputWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpFile), ODCSUtils.DEFAULT_ENCODING));
             outputWriter.write(src);
             outputWriter.close();
             
-            switch (GraphLoaderUtils.guessLanguage(src)) {
-            case RDFXML:
-                connection.insertRdfXmlFromFile(tmpFile, graphURI, "");
-                break;
-            case N3:
-                // src = FileUtils.unicodeToAscii(src);
-                // output = new OutputStreamWriter(new FileOutputStream(fullFileName), "US-ASCII")
-                connection.insertN3FromFile(tmpFile, graphURI, "");
-                break;
-            default:
-                throw new AssertionError();
-            }
+            GraphLoaderUtils.insertRdfFromFile(connection, tmpFile, GraphLoaderUtils.guessLanguage(src), graphURI, "");
         } catch (IOException e) {
             LOG.error("Error with temporary file when importing graph " + graphURI, e);
             throw new ODCleanStoreException(e);

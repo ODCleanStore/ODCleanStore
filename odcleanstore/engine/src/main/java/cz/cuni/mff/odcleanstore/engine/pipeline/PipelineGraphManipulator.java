@@ -1,14 +1,5 @@
 package cz.cuni.mff.odcleanstore.engine.pipeline;
 
-import java.io.File;
-import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.UUID;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
@@ -16,10 +7,21 @@ import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
-import cz.cuni.mff.odcleanstore.engine.Engine;
+import cz.cuni.mff.odcleanstore.data.EnumDatabaseInstance;
+import cz.cuni.mff.odcleanstore.data.GraphLoaderUtils;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
+import cz.cuni.mff.odcleanstore.shared.SerializationLanguage;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.Locale;
+import java.util.UUID;
 /**
  * RDF manipulator of current executing graph.
  *  @author Petr Jerman
@@ -42,9 +44,15 @@ final class PipelineGraphManipulator {
     private static final String ERROR_LOAD_METADATAGRAPH_FROM_FILE = 
             "loading metadatagraph (-m.ttl) into clean db from input file";
     
+    private static final String RENAME_GRAPH_QUERY = 
+            "UPDATE DB.DBA.RDF_QUAD TABLE OPTION (index RDF_QUAD_GS)"
+            + " SET g = iri_to_id (?)"
+            + " WHERE g = iri_to_id (?, 0)";
+    private static final String DROP_GRAPH_QUERY = "SPARQL DROP SILENT GRAPH <%s>";
+    
     private static final Logger LOG = LoggerFactory.getLogger(PipelineGraphManipulator.class);
     
-    private PipelineGraphStatus graphStatus;
+    private final PipelineGraphStatus graphStatus;
     
     /**
      * Create graph manipulator object for graph status object.
@@ -60,7 +68,7 @@ final class PipelineGraphManipulator {
      */
     void deleteInputFiles() {
         try {
-            String inputDirPath = Engine.getCurrent().getDirtyDBImportExportDir();
+            File inputDirPath = GraphLoaderUtils.getImportExportDirectory(EnumDatabaseInstance.DIRTY);
 
             safeDeleteFile(inputDirPath,  graphStatus.getUuid() + "-d.rdf");
             safeDeleteFile(inputDirPath,  graphStatus.getUuid() + "-d.ttl");
@@ -91,13 +99,14 @@ final class PipelineGraphManipulator {
                 try {
                     String destGraph = ODCSInternal.newGraphPrefix + graphs[i];
                     String tempFileName = generateRandomFileNameForGraph();
-                    srcFile = new File(Engine.getCurrent().getDirtyDBImportExportDir(), tempFileName);
-                    dstFile = new File(Engine.getCurrent().getCleanDBImportExportDir(), tempFileName);
+                    srcFile = new File(GraphLoaderUtils.getImportExportDirectory(EnumDatabaseInstance.DIRTY), tempFileName);
+                    dstFile = new File(GraphLoaderUtils.getImportExportDirectory(EnumDatabaseInstance.CLEAN), tempFileName);
 
                     graphStatus.checkResetPipelineRequest();
                     dirtyConnection = createDirtyConnection();
                     LOG.info(String.format("Dumping data from dirty db to ttl temporary file for graph %s", graphs[i]));
-                    dirtyConnection.exportToTTL(srcFile, graphs[i]);
+                    
+                    GraphLoaderUtils.exportToTTL(dirtyConnection, srcFile, graphs[i]);
                      
                     graphStatus.checkResetPipelineRequest();
                     // move file if neccessary
@@ -108,7 +117,8 @@ final class PipelineGraphManipulator {
                     graphStatus.checkResetPipelineRequest();
                     cleanConnection = createCleanConnection();
                     LOG.info(String.format("Loading data from ttl temporary file to clean db for graph %s", graphs[i]));
-                    cleanConnection.insertN3FromFile(dstFile, destGraph, graphs[i]);
+                    GraphLoaderUtils.insertRdfFromFile(
+                            cleanConnection, dstFile, SerializationLanguage.N3, destGraph, graphs[i]);
                 } finally {
                     if (dirtyConnection != null) {
                         dirtyConnection.closeQuietly();
@@ -199,7 +209,7 @@ final class PipelineGraphManipulator {
             cleanConnection = createCleanConnection();
             String srcGraph = (srcPrefix == null ? "" : srcPrefix) + graph;
             String dstGraph = (dstPrefix == null ? "" : dstPrefix) + graph;
-            cleanConnection.renameGraph(srcGraph, dstGraph);
+            cleanConnection.execute(RENAME_GRAPH_QUERY , dstGraph, srcGraph);
         } finally {
             if (cleanConnection != null) {
                 cleanConnection.closeQuietly();
@@ -219,7 +229,7 @@ final class PipelineGraphManipulator {
                 VirtuosoConnectionWrapper dirtyConnection = null;    
                 try {
                     dirtyConnection = createDirtyConnection();
-                    dirtyConnection.dropGraph(graphName);
+                    dirtyConnection.execute(String.format(Locale.ROOT, DROP_GRAPH_QUERY, graphName));
                 } finally {
                     if (dirtyConnection != null) {
                         dirtyConnection.closeQuietly();
@@ -300,7 +310,7 @@ final class PipelineGraphManipulator {
         try {
             cleanConnection = createCleanConnection();
             String clearedGraph = (prefix == null ? "" : prefix) + graph;
-            cleanConnection.dropGraph(clearedGraph);
+            cleanConnection.execute(String.format(Locale.ROOT, DROP_GRAPH_QUERY, clearedGraph));
         } finally {
             if (cleanConnection != null) {
                 cleanConnection.closeQuietly();
@@ -335,7 +345,7 @@ final class PipelineGraphManipulator {
      * @throws Exception
      */
     private void loadGraphsIntoDirtyDBFromInputFile() throws Exception {
-        String inputDirPath = Engine.getCurrent().getDirtyDBImportExportDir();
+        File inputDirPath = GraphLoaderUtils.getImportExportDirectory(EnumDatabaseInstance.DIRTY);
         String uuid = graphStatus.getUuid();
         
         String dataGraphURI = graphStatus.getNamedGraphsPrefix() + ODCSInternal.dataGraphUriInfix + uuid;
@@ -352,7 +362,7 @@ final class PipelineGraphManipulator {
             try {
                 LOG.info(format("Loading metadata from ttl input file"));
                 File mTTLFile = new File(inputDirPath, uuid + "-m.ttl"); 
-                con.insertN3FromFile(mTTLFile, metadataGraphURI, "");
+                GraphLoaderUtils.insertRdfFromFile(con, mTTLFile, SerializationLanguage.N3, metadataGraphURI, "");
                 
             } catch (Exception e) {
                 throw new PipelineGraphManipulatorException(format(ERROR_LOAD_METADATAGRAPH_FROM_FILE), e);
@@ -373,7 +383,8 @@ final class PipelineGraphManipulator {
             File pvmRDFFile = new File(inputDirPath, uuid + "-pvm.rdf");
             if (pvmRDFFile.exists()) {
                 LOG.info(format("Loading provenance metadata from rdfxml input file"));
-                con.insertRdfXmlFromFile(pvmRDFFile, provenanceGraphURI, dataBaseUrl);
+                GraphLoaderUtils.insertRdfFromFile(
+                        con, pvmRDFFile, SerializationLanguage.RDFXML, provenanceGraphURI, dataBaseUrl);
                 con.execute(String.format(Locale.ROOT, "SPARQL INSERT INTO GRAPH <%s> { <%s> <%s> <%s> }", 
                         metadataGraphURI, dataGraphURI, ODCS.provenanceMetadataGraph, provenanceGraphURI));
             }
@@ -382,7 +393,8 @@ final class PipelineGraphManipulator {
             File pvmTTLFile = new File(inputDirPath, uuid + "-pvm.ttl");
             if (pvmTTLFile.exists()) {
                 LOG.info(format("Loading provenance metadata from ttl input file"));
-                con.insertN3FromFile(pvmTTLFile, provenanceGraphURI, dataBaseUrl);
+                GraphLoaderUtils.insertRdfFromFile(
+                        con, pvmTTLFile, SerializationLanguage.N3, provenanceGraphURI, dataBaseUrl);
                 con.execute(String.format(Locale.ROOT, "SPARQL INSERT INTO GRAPH <%s> { <%s> <%s> <%s> }", 
                         metadataGraphURI, dataGraphURI, ODCS.provenanceMetadataGraph, provenanceGraphURI));
             }
@@ -391,7 +403,8 @@ final class PipelineGraphManipulator {
             File dRDFFile = new File(inputDirPath, uuid + "-d.rdf");
             if (dRDFFile.exists()) {
                 LOG.info(format("Loading data from rdf input file"));
-                con.insertRdfXmlFromFile(dRDFFile, dataGraphURI, dataBaseUrl);
+                GraphLoaderUtils.insertRdfFromFile(
+                        con, dRDFFile, SerializationLanguage.RDFXML, dataGraphURI, dataBaseUrl);
                 
             }
             
@@ -399,7 +412,8 @@ final class PipelineGraphManipulator {
             File dTTLFile = new File(inputDirPath, uuid + "-d.ttl");
             if (dTTLFile.exists()) {
                 LOG.info(format("Loading data from ttl input file"));
-                con.insertN3FromFile(dTTLFile, dataGraphURI, dataBaseUrl);
+                GraphLoaderUtils.insertRdfFromFile(
+                        con, dTTLFile, SerializationLanguage.N3, dataGraphURI, dataBaseUrl);
             }
         } finally {
             if (con != null) {
@@ -426,8 +440,9 @@ final class PipelineGraphManipulator {
                 VirtuosoConnectionWrapper dirtyConnection = null;
                 try {
                     String tempFileName = generateRandomFileNameForGraph();
-                    srcFile = new File(Engine.getCurrent().getCleanDBImportExportDir(), tempFileName);
-                    dstFile = new File(Engine.getCurrent().getDirtyDBImportExportDir(), tempFileName);
+                    
+                    srcFile = new File(GraphLoaderUtils.getImportExportDirectory(EnumDatabaseInstance.CLEAN), tempFileName);
+                    dstFile = new File(GraphLoaderUtils.getImportExportDirectory(EnumDatabaseInstance.DIRTY), tempFileName);
                     
                     graphStatus.checkResetPipelineRequest();
                     cleanConnection = createCleanConnection();
@@ -445,7 +460,8 @@ final class PipelineGraphManipulator {
                     graphStatus.checkResetPipelineRequest();
                     dirtyConnection = createDirtyConnection();
                     LOG.info(String.format("Loading data from ttl temporary file to dirty db for graph %s", graphName));
-                    dirtyConnection.insertN3FromFile(dstFile, graphName, graphName);
+                    GraphLoaderUtils.insertRdfFromFile(
+                            dirtyConnection, dstFile, SerializationLanguage.N3, graphName, graphName);
                 } finally {
                     if (dirtyConnection != null) {
                         dirtyConnection.closeQuietly();
@@ -492,7 +508,7 @@ final class PipelineGraphManipulator {
      * @param dirPath relative file path base
      * @param fileName file name
      */
-    private void safeDeleteFile(String dirPath, String fileName) {
+    private void safeDeleteFile(File dirPath, String fileName) {
         try {
             if (dirPath == null) {
                 LOG.debug("dirPath is null");

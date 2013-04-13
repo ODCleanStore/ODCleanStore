@@ -8,7 +8,6 @@ import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -28,9 +27,6 @@ import java.util.Locale;
  */
 public final class VirtuosoConnectionWrapper {
     private static final Logger LOG = LoggerFactory.getLogger(VirtuosoConnectionWrapper.class);
-
-    /** Flags for TTL import. */
-    public static final int TTL_FLAGS = 64; // Relax TURTLE syntax to include popular violations
 
     /**
      * Create a new connection and return its wrapper.
@@ -331,123 +327,5 @@ public final class VirtuosoConnectionWrapper {
         } catch (Throwable e) {
             // do nothing
         }
-    }
-
-    /**
-     * Rename graph in DB.DBA.RDF_QUAD.
-     * 
-     * @param srcGraphName graph
-     * @param dstGraphName graph
-     * @throws QueryException query error
-     * @throws SQLException
-     */
-    public void renameGraph(String srcGraphName, String dstGraphName) throws QueryException {
-        execute("UPDATE DB.DBA.RDF_QUAD TABLE OPTION (index RDF_QUAD_GS)"
-                + " SET g = iri_to_id (?)"
-                + " WHERE g = iri_to_id (?, 0)", dstGraphName, srcGraphName);
-    }
-
-    /**
-     * Drop graph from the database.
-     * 
-     * @param graphName name of the graph to clear
-     * @throws QueryException query error
-     */
-    public void dropGraph(String graphName) throws QueryException {
-        execute(String.format(Locale.ROOT, "SPARQL DROP SILENT GRAPH <%s>", graphName));
-    }
-
-    /**
-     * Insert RDF data from file in rdfXml format to the database.
-     * @param rdfXmlFile file with payload in RdfXml format
-     * @param graphName name of the graph to insert
-     * @param relativeBase relative URI base for payload
-     * @throws QueryException query error
-     */
-    public void insertRdfXmlFromFile(File rdfXmlFile, String graphName, String relativeBase)
-            throws QueryException, ConnectionException {
-        // Adjust transaction level - important, see Virtuoso manual, section 10.7
-        EnumLogLevel originalLogLevel = adjustTransactionLevel(EnumLogLevel.AUTOCOMMIT);
-
-        String base = (relativeBase == null) ? "" : relativeBase;
-        String escapedFileName = rdfXmlFile.getAbsolutePath().replace('\\', '/');
-        String statement = "{call DB.DBA.RDF_LOAD_RDFXML("
-                + "file_to_string_output('" + escapedFileName + "'), '" + base + "', '" + graphName + "')}";
-
-        executeCall(statement);
-
-        if (originalLogLevel != null && originalLogLevel != EnumLogLevel.AUTOCOMMIT) {
-            adjustTransactionLevel(originalLogLevel);
-        }
-    }
-
-    /**
-     * Insert RDF data from file in N3 format to the database.
-     * @param ttlFile file with payload in N3 format
-     * @param graphName name of the graph to insert
-     * @param relativeBase relative URI base for payload
-     * 
-     * @throws QueryException query error
-     */
-    public void insertN3FromFile(File ttlFile, String graphName, String relativeBase)
-            throws QueryException, ConnectionException {
-        // Adjust transaction level - important, see Virtuoso manual, section 10.7
-        EnumLogLevel originalLogLevel = adjustTransactionLevel(EnumLogLevel.AUTOCOMMIT);
-
-        String base = (relativeBase == null) ? "" : relativeBase;
-        String escapedFileName = ttlFile.getAbsolutePath().replace('\\', '/');
-        String statement = "{call DB.DBA.TTLP(file_to_string_output("
-                + "'" + escapedFileName + "'), '" + base + "', '" + graphName + "', " + TTL_FLAGS + ")}";
-
-        executeCall(statement);
-
-        if (originalLogLevel != null && originalLogLevel != EnumLogLevel.AUTOCOMMIT) {
-            adjustTransactionLevel(originalLogLevel);
-        }
-    }
-
-    /**
-     * Exports a named graph to the given file in TTL format.
-     * @param exportFile file to export to
-     * @param graphName name of the graph to insert
-     * @throws QueryException query error
-     */
-    public void exportToTTL(File exportFile, String graphName) throws QueryException {
-        String escapedFileName = exportFile.getAbsolutePath().replace('\\', '/');
-        String statement = "{CALL dump_graph_ttl('" + graphName + "', '" + escapedFileName + "')}";
-        executeCall(statement);
-    }
-
-    /**
-     * Executes callable SQL/SPARQL query.
-     * 
-     * @param query SQL/SPARQL query
-     * @throws QueryException query error
-     */
-    private void executeCall(String query) throws QueryException {
-        try {
-            CallableStatement cst = connection.prepareCall(query);
-            cst.setQueryTimeout(queryTimeout);
-            cst.execute();
-        } catch (SQLException e) {
-            throw new QueryException(e);
-        }
-    }
-
-    /**
-     * Returns Virtuoso server working directory.
-     * @return Virtuoso server working directory
-     * @throws QueryException exception
-     */
-    public String getServerRoot() throws QueryException {
-        WrappedResultSet resultSet = executeSelect("SELECT server_root()");
-        try {
-            if (resultSet.next()) {
-                return resultSet.getString(1);
-            }
-        } catch (SQLException e) {
-            throw new QueryException(e);
-        }
-        return null;
     }
 }
