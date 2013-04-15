@@ -28,9 +28,9 @@
 		</license>
 	</licenses>
 	<scm>
-		<url>http://sourceforge.net/p/odcleanstore/code/</url>
-		<connection>scm:git://git.code.sf.net/p/odcleanstore/code</connection>
-		<developerConnection>scm:ssh://git.code.sf.net/p/odcleanstore/code</developerConnection>
+		<url>https://github.com/ODCleanStore/ODCleanStore/</url>
+		<connection>scm:git://github.com/ODCleanStore/ODCleanStore.git</connection>
+		<developerConnection>scm:https://github.com/ODCleanStore/ODCleanStore.git</developerConnection>
 	</scm>
 	<developers>
 		<developer>
