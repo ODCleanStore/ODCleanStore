@@ -14,10 +14,10 @@ import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-
-import de.fuberlin.wiwiss.ng4j.Quad;
+import org.openrdf.model.BNode;
+import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
+import org.openrdf.model.Value;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,8 +52,8 @@ import java.util.Set;
      *
      * TODO: it seemed to perform faster with OPTIONAL clauses for time and score - check it
      */
-    private static final String URI_OCCURENCES_QUERY = "SPARQL"
-            + "\n DEFINE input:same-as \"yes\""
+    private static final String URI_OCCURENCES_QUERY =
+            "DEFINE input:same-as \"yes\""
             + "\n SELECT ?graph ?s ?p ?o"
             + "\n WHERE {"
             + "\n   {"
@@ -92,8 +92,8 @@ import java.util.Set;
      *
      * TODO: omit metadata for additional labels?
      */
-    private static final String METADATA_QUERY = "SPARQL"
-            + "\n DEFINE input:same-as \"yes\""
+    private static final String METADATA_QUERY =
+            "DEFINE input:same-as \"yes\""
             + "\n SELECT DISTINCT"
             + "\n   ?resGraph ?p ?o"
             + "\n WHERE {"
@@ -233,7 +233,7 @@ import java.util.Set;
 
         try {
             // Get the quads relevant for the query
-            Collection<Quad> quads = getURIOccurrences(uri);
+            Collection<Statement> quads = getURIOccurrences(uri);
             if (quads.isEmpty()) {
                 return createResult(Collections.<CRQuad>emptyList(), new NamedGraphMetadataMap(), uri,
                         System.currentTimeMillis() - startTime);
@@ -242,7 +242,7 @@ import java.util.Set;
 
             // Apply conflict resolution
             NamedGraphMetadataMap metadata = getMetadata(uri);
-            Iterator<Triple> sameAsLinks = getSameAsLinks(uri).iterator();
+            Iterator<Statement> sameAsLinks = getSameAsLinks(uri).iterator();
             Set<String> preferredURIs = getSettingsPreferredURIs();
             preferredURIs.add(uri);
             ConflictResolver conflictResolver =
@@ -291,7 +291,7 @@ import java.util.Set;
      * @return retrieved quads
      * @throws DatabaseException query error
      */
-    private Collection<Quad> getURIOccurrences(String uri) throws DatabaseException {
+    private Collection<Statement> getURIOccurrences(String uri) throws DatabaseException {
         String query = String.format(Locale.ROOT, URI_OCCURENCES_QUERY, uri, getGraphFilterClause(), maxLimit);
         return getQuadsFromQuery(query, "getURIOccurrences()");
     }
@@ -303,29 +303,29 @@ import java.util.Set;
      * @return quads parameter with added label quads
      * @throws DatabaseException query error
      */
-    private Collection<Quad> addLabels(Collection<Quad> quads, String uri) throws DatabaseException {
+    private Collection<Statement> addLabels(Collection<Statement> quads, String uri) throws DatabaseException {
         long startTime = System.currentTimeMillis();
         HashSet<String> resources = new HashSet<String>();
-        for (Quad quad : quads) {
-            Node subject = quad.getSubject();
-            if (subject.isURI()) {
-                resources.add(subject.getURI());
-            } else if (subject.isBlank()) {
-                resources.add(ODCSUtils.getVirtuosoURIForBlankNode(subject));
+        for (Statement quad : quads) {
+            Value subject = quad.getSubject();
+            if (subject instanceof URI) {
+                resources.add(subject.stringValue());
+            } else if (subject instanceof BNode) {
+                resources.add(ODCSUtils.getVirtuosoURIForBlankNode((BNode) subject));
             }
 
-            Node predicate = quad.getPredicate();
-            if (predicate.isURI()) {
-                resources.add(predicate.getURI());
-            } else if (predicate.isBlank()) {
-                resources.add(ODCSUtils.getVirtuosoURIForBlankNode(predicate));
+            Value predicate = quad.getPredicate();
+            if (predicate instanceof URI) {
+                resources.add(predicate.stringValue());
+            } else if (predicate instanceof BNode) {
+                resources.add(ODCSUtils.getVirtuosoURIForBlankNode((BNode) predicate));
             }
 
-            Node object = quad.getObject();
-            if (object.isURI()) {
-                resources.add(object.getURI());
-            } else if (object.isBlank()) {
-                resources.add(ODCSUtils.getVirtuosoURIForBlankNode(object));
+            Value object = quad.getObject();
+            if (object instanceof URI) {
+                resources.add(object.stringValue());
+            } else if (object instanceof BNode) {
+                resources.add(ODCSUtils.getVirtuosoURIForBlankNode((BNode) object));
             }
         }
         resources.remove(uri);
@@ -357,9 +357,9 @@ import java.util.Set;
      * @return collection of relevant owl:sameAs links
      * @throws DatabaseException query error
      */
-    private Collection<Triple> getSameAsLinks(String uri) throws DatabaseException {
+    private Collection<Statement> getSameAsLinks(String uri) throws DatabaseException {
         long startTime = System.currentTimeMillis();
-        Collection<Triple> sameAsTriples = new ArrayList<Triple>();
+        Collection<Statement> sameAsTriples = new ArrayList<Statement>();
         addSameAsLinksForURI(uri, sameAsTriples);
         assert aggregationSpec.getPropertyAggregations() != null;
         for (String property : aggregationSpec.getPropertyAggregations().keySet()) {

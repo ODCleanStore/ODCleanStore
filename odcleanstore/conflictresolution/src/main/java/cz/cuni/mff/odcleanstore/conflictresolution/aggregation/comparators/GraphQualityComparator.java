@@ -1,8 +1,8 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation.comparators;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
+import org.openrdf.model.Statement;
 
-import de.fuberlin.wiwiss.ng4j.Quad;
+import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 
 /**
  * Comparator of quads by the odcs:score or their named graph.
@@ -10,7 +10,7 @@ import de.fuberlin.wiwiss.ng4j.Quad;
  * @author Jan Michelfeit
  */
 public class GraphQualityComparator implements AggregationComparator {
-    private GraphQualityCalculator qualityCalculator;
+    private final GraphQualityCalculator qualityCalculator;
 
     /**
      * Creates a new instance.
@@ -21,14 +21,14 @@ public class GraphQualityComparator implements AggregationComparator {
     }
 
     @Override
-    public boolean isAggregable(Quad quad) {
+    public boolean isAggregable(Statement quad) {
         return true;
     }
 
     @Override
-    public int compare(Quad quad1, Quad quad2, NamedGraphMetadataMap metadata) {
-        double quality1 = qualityCalculator.getSourceQuality(metadata.getMetadata(quad1.getGraphName()));
-        double quality2 = qualityCalculator.getSourceQuality(metadata.getMetadata(quad2.getGraphName()));
+    public int compare(Statement quad1, Statement quad2, NamedGraphMetadataMap metadata) {
+        double quality1 = qualityCalculator.getSourceQuality(metadata.getMetadata(quad1.getContext()));
+        double quality2 = qualityCalculator.getSourceQuality(metadata.getMetadata(quad2.getContext()));
         return Double.compare(quality1, quality2);
     }
 }

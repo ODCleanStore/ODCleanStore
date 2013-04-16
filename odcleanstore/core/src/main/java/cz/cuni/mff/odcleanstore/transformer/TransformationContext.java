@@ -1,8 +1,8 @@
 package cz.cuni.mff.odcleanstore.transformer;
 
-import java.io.File;
-
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+
+import java.io.File;
 
 /**
  * Context for a custom transformer.

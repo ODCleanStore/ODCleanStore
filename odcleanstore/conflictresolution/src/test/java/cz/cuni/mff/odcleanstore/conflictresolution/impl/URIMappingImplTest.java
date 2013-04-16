@@ -6,9 +6,10 @@ import java.util.LinkedList;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
+import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
+import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.ValueFactoryImpl;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRTestUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
@@ -18,17 +19,16 @@ import cz.cuni.mff.odcleanstore.vocabulary.OWL;
  * @author Jan Michelfeit
  */
 public class URIMappingImplTest {
-    private static Node sameAsPredicate;
+    private static final ValueFactory VALUE_FACTORY = ValueFactoryImpl.getInstance();
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-        sameAsPredicate = Node.createURI(OWL.sameAs);
         CRTestUtils.resetURICounter();
     }
 
     private String getAndTestMappedURI(String uri, URIMapping mapping) {
-        Node mappedURI = mapping.mapURI(Node.createURI(uri));
-        String mappedByNode = (mappedURI == null) ? uri : mappedURI.getURI();
+        URI mappedURI = mapping.mapURI(VALUE_FACTORY.createURI(uri));
+        String mappedByNode = (mappedURI == null) ? uri : mappedURI.stringValue();
         String canonicalURI = mapping.getCanonicalURI(uri);
         Assert.assertEquals(mappedByNode, canonicalURI);
         return canonicalURI;
@@ -38,7 +38,7 @@ public class URIMappingImplTest {
     public void testEmptyMapping() {
         URIMappingImpl instance = new URIMappingImpl();
         String expResult = null;
-        Node result = instance.mapURI(Node.createURI(CRTestUtils.getUniqueURI()));
+        URI result = instance.mapURI(VALUE_FACTORY.createURI(CRTestUtils.getUniqueURI()));
         Assert.assertEquals(expResult, result);
     }
 
@@ -49,9 +49,15 @@ public class URIMappingImplTest {
         String uri3 = CRTestUtils.getUniqueURI();
         String uri4 = CRTestUtils.getUniqueURI();
 
-        LinkedList<Triple> sameAsLinks = new LinkedList<Triple>();
-        sameAsLinks.add(new Triple(Node.createURI(uri1), sameAsPredicate, Node.createURI(uri2)));
-        sameAsLinks.add(new Triple(Node.createURI(uri2), sameAsPredicate, Node.createURI(uri3)));
+        LinkedList<Statement> sameAsLinks = new LinkedList<Statement>();
+        sameAsLinks.add(CRTestUtils.createStatement(
+                uri1,
+                OWL.sameAs,
+                uri2));
+        sameAsLinks.add(CRTestUtils.createStatement(
+                uri2,
+                OWL.sameAs,
+                uri3));
 
         URIMappingImpl uriMapping = new URIMappingImpl();
         uriMapping.addLinks(sameAsLinks.iterator());
@@ -73,10 +79,19 @@ public class URIMappingImplTest {
         String uri2 = CRTestUtils.getUniqueURI();
         String uri3 = CRTestUtils.getUniqueURI();
 
-        LinkedList<Triple> sameAsLinks = new LinkedList<Triple>();
-        sameAsLinks.add(new Triple(Node.createURI(rootURI), sameAsPredicate, Node.createURI(uri1)));
-        sameAsLinks.add(new Triple(Node.createURI(rootURI), sameAsPredicate, Node.createURI(uri2)));
-        sameAsLinks.add(new Triple(Node.createURI(rootURI), sameAsPredicate, Node.createURI(uri3)));
+        LinkedList<Statement> sameAsLinks = new LinkedList<Statement>();
+        sameAsLinks.add(CRTestUtils.createStatement(
+                rootURI,
+                OWL.sameAs,
+                uri1));
+        sameAsLinks.add(CRTestUtils.createStatement(
+                rootURI,
+                OWL.sameAs,
+                uri2));
+        sameAsLinks.add(CRTestUtils.createStatement(
+                rootURI,
+                OWL.sameAs,
+                uri3));
 
         URIMappingImpl uriMapping = new URIMappingImpl();
         uriMapping.addLinks(sameAsLinks.iterator());
@@ -97,10 +112,19 @@ public class URIMappingImplTest {
         String uri2 = CRTestUtils.getUniqueURI();
         String uri3 = CRTestUtils.getUniqueURI();
 
-        LinkedList<Triple> sameAsLinks = new LinkedList<Triple>();
-        sameAsLinks.add(new Triple(Node.createURI(uri1), sameAsPredicate, Node.createURI(uri2)));
-        sameAsLinks.add(new Triple(Node.createURI(uri2), sameAsPredicate, Node.createURI(uri3)));
-        sameAsLinks.add(new Triple(Node.createURI(uri3), sameAsPredicate, Node.createURI(uri1)));
+        LinkedList<Statement> sameAsLinks = new LinkedList<Statement>();
+        sameAsLinks.add(CRTestUtils.createStatement(
+                uri1,
+                OWL.sameAs,
+                uri2));
+        sameAsLinks.add(CRTestUtils.createStatement(
+                uri2,
+                OWL.sameAs,
+                uri3));
+        sameAsLinks.add(CRTestUtils.createStatement(
+                uri3,
+                OWL.sameAs,
+                uri1));
 
         URIMappingImpl uriMapping = new URIMappingImpl();
         uriMapping.addLinks(sameAsLinks.iterator());
@@ -119,9 +143,15 @@ public class URIMappingImplTest {
         String uri2 = CRTestUtils.getUniqueURI();
         String uri3 = CRTestUtils.getUniqueURI();
 
-        LinkedList<Triple> sameAsLinks = new LinkedList<Triple>();
-        sameAsLinks.add(new Triple(Node.createURI(uri1), sameAsPredicate, Node.createURI(uri2)));
-        sameAsLinks.add(new Triple(Node.createURI(uri2), sameAsPredicate, Node.createURI(uri3)));
+        LinkedList<Statement> sameAsLinks = new LinkedList<Statement>();
+        sameAsLinks.add(CRTestUtils.createStatement(
+                uri1,
+                OWL.sameAs,
+                uri2));
+        sameAsLinks.add(CRTestUtils.createStatement(
+                uri2,
+                OWL.sameAs,
+                uri3));
 
         String mappedURI1;
 

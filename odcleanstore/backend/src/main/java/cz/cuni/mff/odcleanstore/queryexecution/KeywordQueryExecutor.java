@@ -13,10 +13,10 @@ import cz.cuni.mff.odcleanstore.shared.ODCSErrorCodes;
 import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-
-import de.fuberlin.wiwiss.ng4j.Quad;
+import org.openrdf.model.BNode;
+import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
+import org.openrdf.model.Value;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,8 +59,8 @@ import java.util.regex.Pattern;
      * TODO: Possible optimization - if query doesn't match {@link #NUMERIC_PATTERN} nor {@link #XSD_DATETIME_PATTERN},
      * than the whole exact match part can be dropped (bif:contains will work for both plain literals and xsd:string).
      */
-    private static final String KEYWORD_OCCURENCES_QUERY = "SPARQL"
-            + "\n DEFINE input:same-as \"yes\""
+    private static final String KEYWORD_OCCURENCES_QUERY =
+            "DEFINE input:same-as \"yes\""
             + "\n SELECT ?graph ?s ?p ?o"
             + "\n WHERE {"
             + "\n   {"
@@ -98,8 +98,8 @@ import java.util.regex.Pattern;
      * Must be formatted with arguments: (1) bif:contains match expressionURI, (2) exact match
      * expression, (3) graph filter clause, (4) label properties, (5) resGraph prefix filter, (6) limit
      */
-    private static final String METADATA_QUERY = "SPARQL"
-            + "\n DEFINE input:same-as \"yes\""
+    private static final String METADATA_QUERY =
+            "DEFINE input:same-as \"yes\""
             + "\n SELECT DISTINCT"
             + "\n   ?resGraph ?p ?o"
             + "\n WHERE {"
@@ -399,7 +399,7 @@ import java.util.regex.Pattern;
         }
         try {
             // Get the quads relevant for the query
-            Collection<Quad> quads = getKeywordOccurrences(containsMatchExpr, exactMatchExpr);
+            Collection<Statement> quads = getKeywordOccurrences(containsMatchExpr, exactMatchExpr);
             if (quads.isEmpty()) {
                 return createResult(Collections.<CRQuad>emptyList(), new NamedGraphMetadataMap(), canonicalQuery,
                         System.currentTimeMillis() - startTime);
@@ -408,7 +408,7 @@ import java.util.regex.Pattern;
 
             // Apply conflict resolution
             NamedGraphMetadataMap metadata = getMetadata(containsMatchExpr, exactMatchExpr);
-            Iterator<Triple> sameAsLinks = getSameAsLinks().iterator();
+            Iterator<Statement> sameAsLinks = getSameAsLinks().iterator();
             Set<String> preferredURIs = getSettingsPreferredURIs();
             ConflictResolver conflictResolver =
                     conflictResolverFactory.createResolver(aggregationSpec, metadata, sameAsLinks, preferredURIs);
@@ -457,7 +457,7 @@ import java.util.regex.Pattern;
      * @return retrieved quads
      * @throws DatabaseException query error
      */
-    private Collection<Quad> getKeywordOccurrences(String containsMatchExpr, String exactMatchExpr)
+    private Collection<Statement> getKeywordOccurrences(String containsMatchExpr, String exactMatchExpr)
             throws DatabaseException {
         String query = String.format(Locale.ROOT, KEYWORD_OCCURENCES_QUERY, containsMatchExpr, exactMatchExpr,
                 getGraphFilterClause(), maxLimit);
@@ -470,21 +470,21 @@ import java.util.regex.Pattern;
      * @return quads parameter with added label quads
      * @throws DatabaseException query error
      */
-    private Collection<Quad> addLabels(Collection<Quad> quads) throws DatabaseException {
+    private Collection<Statement> addLabels(Collection<Statement> quads) throws DatabaseException {
         HashSet<String> resources = new HashSet<String>();
-        for (Quad quad : quads) {
-            Node subject = quad.getSubject();
-            if (subject.isURI()) {
-                resources.add(subject.getURI());
-            } else if (subject.isBlank()) {
-                resources.add(ODCSUtils.getVirtuosoURIForBlankNode(subject));
+        for (Statement quad : quads) {
+            Value subject = quad.getSubject();
+            if (subject instanceof URI) {
+                resources.add(subject.stringValue());
+            } else if (subject instanceof BNode) {
+                resources.add(ODCSUtils.getVirtuosoURIForBlankNode((BNode) subject));
             }
 
-            Node predicate = quad.getPredicate();
-            if (predicate.isURI()) {
-                resources.add(predicate.getURI());
-            } else if (predicate.isBlank()) {
-                resources.add(ODCSUtils.getVirtuosoURIForBlankNode(predicate));
+            Value predicate = quad.getPredicate();
+            if (predicate instanceof URI) {
+                resources.add(predicate.stringValue());
+            } else if (predicate instanceof BNode) {
+                resources.add(ODCSUtils.getVirtuosoURIForBlankNode((BNode) predicate));
             }
         }
 
@@ -514,9 +514,9 @@ import java.util.regex.Pattern;
      * @return collection of relevant owl:sameAs links
      * @throws DatabaseException query error
      */
-    private Collection<Triple> getSameAsLinks() throws DatabaseException {
+    private Collection<Statement> getSameAsLinks() throws DatabaseException {
         long startTime = System.currentTimeMillis();
-        Collection<Triple> sameAsTriples = new ArrayList<Triple>();
+        Collection<Statement> sameAsTriples = new ArrayList<Statement>();
         assert aggregationSpec.getPropertyAggregations() != null;
         for (String property : aggregationSpec.getPropertyAggregations().keySet()) {
             addSameAsLinksForURI(property, sameAsTriples);

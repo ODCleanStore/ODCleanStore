@@ -1,9 +1,11 @@
 package cz.cuni.mff.odcleanstore.shared;
 
-import com.hp.hpl.jena.graph.Node;
+import org.openrdf.model.BNode;
+import org.openrdf.model.Value;
 
 import java.text.Normalizer;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -40,13 +42,16 @@ public final class ODCSUtils {
             Pattern.compile("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
 
     /** Milliseconds in a second. */
-    public static final long MILLISECONDS = 1000;
+    public static final long MILLISECONDS = 1000L;
     
     /** Time unit 60. */
-    public static final long TIME_UNIT_60 = 60;
+    public static final long TIME_UNIT_60 = 60L;
+    
+    /** Time unit 60. */
+    public static final int TIME_UNIT_60_INT = 60;
     
     /** Number of hours in a day. */
-    public static final long DAY_HOURS = 24;
+    public static final long DAY_HOURS = 24L;
     
     /** Jdbc driver class. */
     public static final String JDBC_DRIVER = "virtuoso.jdbc3.Driver";
@@ -76,6 +81,48 @@ public final class ODCSUtils {
             return -1;
         } else {
             assert o1 == null && o2 == null;
+            return 0;
+        }
+    }
+    
+    /**
+     * Compare two values which may be null. Null is considered less than all non-null values.
+     * @param o1 first compared value or null
+     * @param o2 second compared value or null
+     * @param comparator comparator used to perform the comparison.
+     * @param <T> type of compared values
+     * @return a negative integer, zero, or a positive integer as o1 is less than, equal to, or greater than o2
+     */
+    public static <T> int nullProofCompare(T o1, T o2, Comparator<T> comparator) {
+        if (o1 != null && o2 != null) {
+            return comparator.compare(o1, o2);
+        } else if (o1 != null) {
+            return 1;
+        } else if (o2 != null) {
+            return -1;
+        } else {
+            assert o1 == null && o2 == null;
+            return 0;
+        }
+    }
+    
+    /**
+     * Compare two strings which may be null using case-ignoring comparison.
+     * Null is considered less than all non-null values.
+     * @param s1 first compared value or null
+     * @param s2 second compared value or null
+     * @param <T> type of compared values
+     * @return a negative integer, zero, or a positive integer as o1 is less than, equal to, or greater than o2
+     */
+    public static <T> int nullProofCompareIgnoreCase(String s1, String s2) {
+        if (s1 != null && s2 != null) {
+            return s1.compareToIgnoreCase(s2);
+        } else if (s1 != null) {
+            return 1;
+        } else if (s2 != null) {
+            return -1;
+        } else {
+            assert s1 == null && s2 == null;
             return 0;
         }
     }
@@ -197,14 +244,14 @@ public final class ODCSUtils {
      * Return the URI identifying a blank node in Virtuoso.
      * @param bNode blank node
      * @return URI identifying bNode in Virtuoso
-     * @throws UnsupportedOperationException bNode is not a blank node
+     * throws UnsupportedOperationException bNode is not a blank node
      */
-    public static String getVirtuosoURIForBlankNode(Node bNode) {
-        return "nodeID://" + bNode.getBlankNodeLabel();
+    public static String getVirtuosoURIForBlankNode(BNode bNode) {
+        return "nodeID://" + bNode.getID();
     }
     
     /**
-     * Converts an object or null refrence to a string (null is converted to the empty string).
+     * Converts an object or null reference to a string (null is converted to the empty string).
      * @param obj object to stringify
      * @return string representation of obj
      */
@@ -244,6 +291,17 @@ public final class ODCSUtils {
         }
         result.add(value);
         return result;
+    }
+    
+    /**
+     * Returns {@link Value#stringValue() stringValue()} of the given {@link Value} or null if the value is null.
+     * @param value value to convert to string
+     * @return {@link Value#stringValue() stringValue()} of <code>value</code> {@link Value} or null if <code>value</code> is null
+     */
+    public static String valueToString(Value value) {
+        return value == null
+                ? null
+                : value.stringValue();
     }
         
     /** Disable constructor for a utility class. */

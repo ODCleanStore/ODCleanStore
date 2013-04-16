@@ -1,21 +1,19 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
-import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
-import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
-import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
-import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
-import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
+import java.util.Collection;
+import java.util.Collections;
 
-import com.hp.hpl.jena.graph.Node;
-
-import de.fuberlin.wiwiss.ng4j.Quad;
-
+import org.openrdf.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.Collections;
+import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
+import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
+import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
+import cz.cuni.mff.odcleanstore.conflictresolution.CRQuadImpl;
+import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
+import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
+import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 
 /**
  * Aggregation method for single quads.
@@ -61,7 +59,7 @@ import java.util.Collections;
      */
     @Override
     public Collection<CRQuad> aggregate(
-            Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
+            Collection<Statement> conflictingQuads, NamedGraphMetadataMap metadata) {
 
         if (conflictingQuads.size() != 1) {
             LOG.error("{} quads given to SingleValueAggregation.", conflictingQuads.size());
@@ -71,13 +69,16 @@ import java.util.Collections;
                             + " given.");
         }
 
-        Quad firstQuad = conflictingQuads.iterator().next();
-        Collection<String> sourceNamedGraphs =
-                Collections.singleton(firstQuad.getGraphName().getURI());
+        Statement firstQuad = conflictingQuads.iterator().next();
+        Collection<String> sourceNamedGraphs = Collections.singleton(getSourceGraphURI(firstQuad));
         double quality = computeBasicQuality(firstQuad, sourceNamedGraphs, metadata);
-        Quad resultQuad = new Quad(Node.createURI(uriGenerator.nextURI()), firstQuad.getTriple());
+        Statement resultQuad = VALUE_FACTORY.createStatement(
+                firstQuad.getSubject(),
+                firstQuad.getPredicate(),
+                firstQuad.getObject(),
+                VALUE_FACTORY.createURI(uriGenerator.nextURI()));
         Collection<CRQuad> result = createSingleResultCollection(
-                new CRQuad(resultQuad, quality, sourceNamedGraphs));
+                new CRQuadImpl(resultQuad, quality, sourceNamedGraphs));
         return result;
     }
 
@@ -88,11 +89,11 @@ import java.util.Collections;
      */
     @Override
     protected double computeBasicQuality(
-            Quad resultQuad,
+            Statement resultQuad,
             Collection<String> sourceNamedGraphs,
             NamedGraphMetadataMap metadata) {
 
-        NamedGraphMetadata resultMetadata = metadata.getMetadata(resultQuad.getGraphName());
+        NamedGraphMetadata resultMetadata = metadata.getMetadata(resultQuad.getContext());
         double resultQuality = getSourceQuality(resultMetadata);
         return resultQuality;
     }

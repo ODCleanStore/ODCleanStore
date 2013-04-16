@@ -12,23 +12,26 @@ import cz.cuni.mff.odcleanstore.data.RDFprefix;
 import cz.cuni.mff.odcleanstore.data.TableVersion;
 import cz.cuni.mff.odcleanstore.linker.Linker;
 import cz.cuni.mff.odcleanstore.linker.rules.SilkRule;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.shared.RDFPrefixesLoader;
 import cz.cuni.mff.odcleanstore.shared.SerializationLanguage;
-import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraphException;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
-import cz.cuni.mff.odcleanstore.vocabulary.RDFS;
 
-import com.hp.hpl.jena.graph.Node;
-
-import de.fuberlin.wiwiss.ng4j.NamedGraphSet;
-import de.fuberlin.wiwiss.ng4j.Quad;
-import de.fuberlin.wiwiss.ng4j.impl.GraphReaderService;
-import de.fuberlin.wiwiss.ng4j.impl.NamedGraphSetImpl;
+import org.openrdf.OpenRDFException;
+import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
+import org.openrdf.repository.Repository;
+import org.openrdf.repository.RepositoryConnection;
+import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.RepositoryResult;
+import org.openrdf.repository.sail.SailRepository;
+import org.openrdf.rio.RDFFormat;
+import org.openrdf.sail.memory.MemoryStore;
 
 import de.fuberlin.wiwiss.silk.Silk;
 
@@ -50,7 +53,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -83,8 +85,8 @@ public class LinkerImpl implements Linker {
 
 	/**
 	 * Constructor.
-	 * 
-	 * @param isFirstInPipeline flag, when set to true, linker clears existing links before creating new 
+	 *
+	 * @param isFirstInPipeline flag, when set to true, linker clears existing links before creating new
 	 * when transforming existing graph
 	 * @param groupIds list of linkage rules groups IDs, which are used transformGraph and debugRules methods
 	 */
@@ -137,14 +139,14 @@ public class LinkerImpl implements Linker {
     			Properties transformerProperties = parseProperties(context.getTransformerConfiguration());
     			boolean linkWithinGraph = isLinkWithinGraph(transformerProperties);
     			boolean linkAttachedGraphs = isLinkAttachedGraphs(transformerProperties);
-    			
+
     			String dirtyGraphName = inputGraph.getGraphName();
     			if (linkAttachedGraphs) {
     				dirtyGraphName = createDirtyGraphGroup(context, inputGraph);
     			}
-    			
+
     			inputGraph.addAttachedGraph(getLinksGraphId(inputGraph));
-    			
+
     			for (SilkRule rule: rules) {
     				LOG.info("Creating link configuration file for rule: {}", rule.toString());
     				configFile = ConfigBuilder.createLinkConfigFile(rule, prefixes, inputGraph.getGraphId(),
@@ -153,7 +155,7 @@ public class LinkerImpl implements Linker {
         			Silk.executeFile(configFile, null, Silk.DefaultThreads(), true);
         			LOG.info("Linking by one rule finished.");
     			}
-    			
+
     			if (linkAttachedGraphs) {
     				deleteGraphGroup(context, dirtyGraphName, EnumDatabaseInstance.DIRTY);
     			}
@@ -240,7 +242,7 @@ public class LinkerImpl implements Linker {
 				configFile = null;
 				deleteFile(resultFileName);
 				resultFileName = null;
-				
+
 				if (globalConfig.isLinkWithinGraph()) {
 					linkedPairs = parseLinkedPairs(resultFileNameWithin);
 					loadLabels(inputFile, linkedPairs, language);
@@ -340,38 +342,66 @@ public class LinkerImpl implements Linker {
 		return file;
 	}
 
-	private void loadLabels(File inputFile, List<LinkedPair> linkedPairs, SerializationLanguage language) {
-		NamedGraphSet graphSet = loadGraphs(inputFile, language);
-		for (LinkedPair pair: linkedPairs) {
-			Iterator<?> it = graphSet.findQuads(
-					Node.ANY, Node.createURI(pair.getFirstUri()), Node.createURI(RDFS.label), Node.ANY);
-			Quad quad;
-			if (it.hasNext()) {
-				quad = (Quad)it.next();
-				pair.setFirstLabel(quad.getObject().toString());
-			}
+    private void loadLabels(File inputFile, List<LinkedPair> linkedPairs, SerializationLanguage language)
+            throws TransformerException {
+        Repository repository = null;
+        RepositoryConnection connection = null;
+        try {
+            repository = loadRepositoryFromFile(inputFile, language);
+            connection = repository.getConnection();
 
-			it = graphSet.findQuads(
-					Node.ANY, Node.createURI(pair.getSecondUri()), Node.createURI(RDFS.label), Node.ANY);
-			if (it.hasNext()) {
-				quad = (Quad)it.next();
-				pair.setSecondLabel(quad.getObject().toString());
-			}
-		}
-	}
+            for (LinkedPair pair : linkedPairs) {
+                URI firstURI = repository.getValueFactory().createURI(pair.getFirstUri());
+                URI secondURI = repository.getValueFactory().createURI(pair.getSecondUri());
+                RepositoryResult<Statement> it = connection.getStatements(firstURI, org.openrdf.model.vocabulary.RDFS.LABEL,
+                        null, false);
+                if (it.hasNext()) {
+                    pair.setFirstLabel(it.next().getObject().stringValue());
+                }
 
-	private NamedGraphSet loadGraphs(File inputFile, SerializationLanguage language) {
-		GraphReaderService reader = new GraphReaderService();
-		reader.setLanguage(language.toString());
-		reader.setSourceFile(inputFile);
-		NamedGraphSet graphSet = new NamedGraphSetImpl();
-		reader.readInto(graphSet);
+                it = connection.getStatements(secondURI, org.openrdf.model.vocabulary.RDFS.LABEL, null, false);
+                if (it.hasNext()) {
+                    pair.setSecondLabel(it.next().getObject().stringValue());
+                }
+            }
+        } catch (RepositoryException e) {
+            throw new TransformerException(e);
+        } finally {
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+                if (repository != null) {
+                    repository.shutDown();
+                }
+            } catch (RepositoryException e) {
+                // ignore
+            }
+        }
+    }
 
-		return graphSet;
-	}
+    private Repository loadRepositoryFromFile(File inputFile, SerializationLanguage language)
+            throws TransformerException {
+        Repository repository = new SailRepository(new MemoryStore());
+        try {
+            repository.initialize();
+            RepositoryConnection connection = repository.getConnection();
+            RDFFormat format = (language == SerializationLanguage.RDFXML) ? RDFFormat.RDFXML : RDFFormat.N3;
+            try {
+                connection.add(inputFile, "", format);
+            } finally {
+                connection.close();
+            }
+        } catch (OpenRDFException e) {
+            throw new TransformerException(e);
+        } catch (java.io.IOException e) {
+            throw new TransformerException(e);
+        }
+        return repository;
+    }
 
-	private void loadLabels(JDBCConnectionCredentials cleanDBCredentials, JDBCConnectionCredentials dirtyDBCredentials,
-			List<LinkedPair> linkedPairs) throws TransformerException {
+    private void loadLabels(JDBCConnectionCredentials cleanDBCredentials, JDBCConnectionCredentials dirtyDBCredentials,
+		List<LinkedPair> linkedPairs) throws TransformerException {
 		Map<String, String> uriLabelMap = createUriLabelMap(linkedPairs);
 		LinkerDao dao;
 		try {
@@ -432,7 +462,7 @@ public class LinkerImpl implements Linker {
 			return globalConfig.isLinkWithinGraph();
 		}
 	}
-	
+
 	private boolean isLinkAttachedGraphs(Properties properties) {
 		String property = (String)properties.get(LINK_ATTACHED_GRAPHS_KEY);
 		if (property != null) {
@@ -441,23 +471,23 @@ public class LinkerImpl implements Linker {
 			return globalConfig.isLinkAttachedGraphs();
 		}
 	}
-	
-	private String createDirtyGraphGroup(TransformationContext context, TransformedGraph graph) 
+
+	private String createDirtyGraphGroup(TransformationContext context, TransformedGraph graph)
 			throws ConnectionException, QueryException {
 		String groupName = graph.getGraphName() + "WithAttached";
 		LinkerDao dao = LinkerDao.getInstance(
 				context.getCleanDatabaseCredentials(), context.getDirtyDatabaseCredentials());
-		
+
 		LOG.info("Deleting temporary graph group with attached graphs in dirty DB (if it extists): {}", groupName);
 		dao.deleteGraphGroup(groupName, EnumDatabaseInstance.DIRTY, true);
-		
+
 		LOG.info("Creating temporary graph group with attached graphs in dirty DB: {}", groupName);
 		Set<String> graphNames = new HashSet<String>(graph.getAttachedGraphNames());
 		graphNames.add(graph.getGraphName());
 		dao.createGraphGroup(groupName, graphNames, EnumDatabaseInstance.DIRTY);
 		return groupName;
 	}
-	
+
 	private void deleteGraphGroup(TransformationContext context, String groupName, EnumDatabaseInstance db)
 			throws ConnectionException, QueryException {
 		LOG.info("Deleting temporary graph group from {} DB: {}", db.toString(), groupName);
@@ -465,17 +495,17 @@ public class LinkerImpl implements Linker {
 				context.getCleanDatabaseCredentials(), context.getDirtyDatabaseCredentials());
 		dao.deleteGraphGroup(groupName, db, false);
 	}
-	
-	private String createCleanGraphGroup(TransformationContext context, TransformedGraph graph) 
+
+	private String createCleanGraphGroup(TransformationContext context, TransformedGraph graph)
 			throws ConnectionException, QueryException {
 		String groupName = graph.getGraphName() + "Group";
 		LinkerDao dao = LinkerDao.getInstance(
 				context.getCleanDatabaseCredentials(), context.getDirtyDatabaseCredentials());
-		
+
 		LOG.info("Deleting temporary graph group without processed graph in clean DB (if it exists): {}", groupName);
 		dao.deleteGraphGroup(groupName, EnumDatabaseInstance.CLEAN, true);
-		
-		LOG.info("Creating temporary graph group without processed graph in clean DB: {}", groupName);	
+
+		LOG.info("Creating temporary graph group without processed graph in clean DB: {}", groupName);
 		Set<String> graphNames = dao.getAllGraphNames();
 		graphNames.removeAll(graph.getAttachedGraphNames());
 		graphNames.remove(graph.getGraphName());

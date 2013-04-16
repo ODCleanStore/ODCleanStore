@@ -1,36 +1,34 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
-import cz.cuni.mff.odcleanstore.vocabulary.OWL;
-
-import com.hp.hpl.jena.graph.Triple;
-
-import de.fuberlin.wiwiss.ng4j.Quad;
-
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+
+import org.openrdf.model.Statement;
+
+import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 
 /**
  * Iterator over owl:sameAs quads in a collection of quads.
  *
  * @author Jan Michelfeit
  */
-/*package*/class SameAsLinkIterator implements Iterator<Triple> {
+/*package*/class SameAsLinkIterator implements Iterator<Statement> {
 
     /**
      * Next sameAs quad to be returned or null if there is none.
      */
-    private Quad nextSameAsQuad = null;
+    private Statement nextSameAsQuad = null;
 
     /**
      * Iterator over quads in input graph.
      */
-    private Iterator<? extends Quad> dataIterator;
+    private final Iterator<? extends Statement> dataIterator;
 
     /**
      * Creates a new instance of iterator over owl:sameAs quads contained in the given data.
      * @param data quads to be scanned for owl:sameAs quads
      */
-    public SameAsLinkIterator(Iterable<? extends Quad> data) {
+    public SameAsLinkIterator(Iterable<? extends Statement> data) {
         dataIterator = data.iterator();
         nextSameAsQuad = getNextSameAsQuad();
     }
@@ -41,13 +39,13 @@ import java.util.NoSuchElementException;
     }
 
     @Override
-    public Triple next() {
+    public Statement next() {
         if (nextSameAsQuad == null) {
             throw new NoSuchElementException();
         }
-        Quad result = nextSameAsQuad;
+        Statement result = nextSameAsQuad;
         nextSameAsQuad = getNextSameAsQuad();
-        return result.getTriple();
+        return result;
     }
 
     @Override
@@ -59,10 +57,10 @@ import java.util.NoSuchElementException;
      * Returns the next sameAs quad in input quads and moves the internal iterator.
      * @return a next sameAs quad or null if there are none
      */
-    private Quad getNextSameAsQuad() {
+    private Statement getNextSameAsQuad() {
         while (dataIterator.hasNext()) {
-            Quad next = dataIterator.next();
-            if (next.getPredicate().hasURI(OWL.sameAs)) {
+            Statement next = dataIterator.next();
+            if (OWL.sameAs.equals(next.getPredicate().stringValue())) {
                 return next;
             }
         }

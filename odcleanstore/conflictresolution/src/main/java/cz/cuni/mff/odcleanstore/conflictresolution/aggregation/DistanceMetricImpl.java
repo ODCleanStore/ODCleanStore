@@ -1,19 +1,21 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
+import javax.xml.datatype.DatatypeConstants;
+import javax.xml.datatype.XMLGregorianCalendar;
+
+import org.openrdf.model.BNode;
+import org.openrdf.model.Literal;
+import org.openrdf.model.URI;
+import org.openrdf.model.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.AggregationUtils;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.EnumLiteralType;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.LevenshteinDistance;
 import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
-
-import com.hp.hpl.jena.datatypes.xsd.XSDDateTime;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.impl.LiteralLabel;
-import com.hp.hpl.jena.shared.JenaException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The default implementation of a distance metric between Node instances.
@@ -36,7 +38,7 @@ import org.slf4j.LoggerFactory;
     /** Distance of {@link Node Nodes} of different types. */
     private static final double DIFFERENT_TYPE_DISTANCE = MAX_DISTANCE;
 
-    /** Distance of {@link Node Nodes} when an error (e.g. a parse error) occurs. */
+    /** Distance of {@link Node Nodes} when an error (e.g. a parse Oerror) occurs. */
     private static final double ERROR_DISTANCE = MAX_DISTANCE;
 
     /** Number of seconds in a day. */
@@ -65,15 +67,15 @@ import org.slf4j.LoggerFactory;
      * @return {@inheritDoc }
      */
     @Override
-    public double distance(Node primaryValue, Node comparedValue) {
-        if (primaryValue.getClass() != comparedValue.getClass()) {
+    public double distance(Value primaryValue, Value comparedValue) {
+        if (primaryValue.getClass() != comparedValue.getClass()) { // TODO: broken by Sesame?
             return DIFFERENT_TYPE_DISTANCE;
-        } else if (primaryValue.isURI()) {
-            return resourceDistance(primaryValue, comparedValue);
-        } else if (primaryValue.isBlank()) {
-            return blankNodeDistance(primaryValue, comparedValue);
-        } else if (primaryValue.isLiteral()) {
-            return literalDistance(primaryValue, comparedValue);
+        } else if (primaryValue instanceof URI) {
+            return resourceDistance((URI) primaryValue, (URI) comparedValue);
+        } else if (primaryValue instanceof BNode) {
+            return blankNodeDistance((BNode) primaryValue, (BNode) comparedValue);
+        } else if (primaryValue instanceof Literal) {
+            return literalDistance((Literal) primaryValue, (Literal) comparedValue);
         } else {
             LOG.warn("Distance cannot be measured on Nodes of type {}", primaryValue.getClass().getSimpleName());
             return ERROR_DISTANCE;
@@ -89,16 +91,14 @@ import org.slf4j.LoggerFactory;
      * @return a number from interval [0,1]
      *
      */
-    private double literalDistance(Node primaryNode, Node comparedNode) {
-        assert primaryNode.isLiteral() && comparedNode.isLiteral();
-
+    private double literalDistance(Literal primaryNode, Literal comparedNode) {
         EnumLiteralType primaryLiteralType = AggregationUtils.getLiteralType(primaryNode);
         EnumLiteralType comparedLiteralType = AggregationUtils.getLiteralType(comparedNode);
         EnumLiteralType comparisonType = primaryLiteralType == comparedLiteralType
                 ? primaryLiteralType
                 : EnumLiteralType.OTHER;
-        LiteralLabel primaryLiteral = primaryNode.getLiteral();
-        LiteralLabel comparedLiteral = comparedNode.getLiteral();
+        Literal primaryLiteral = (Literal) primaryNode;
+        Literal comparedLiteral = (Literal) comparedNode;
 
         double result;
         switch (comparisonType) {
@@ -129,8 +129,8 @@ import org.slf4j.LoggerFactory;
         case STRING:
         case OTHER:
             result = LevenshteinDistance.normalizedLevenshteinDistance(
-                    primaryLiteral.getLexicalForm(),
-                    comparedLiteral.getLexicalForm());
+                    primaryLiteral.stringValue(),
+                    comparedLiteral.stringValue());
             break;
         default:
             LOG.error("Unhandled literal type for comparison {}.", comparisonType);
@@ -174,29 +174,40 @@ import org.slf4j.LoggerFactory;
      * @param comparedValue second of the compared values
      * @return a number from interval [0,1]
      */
-    private double timeDistance(LiteralLabel primaryValue, LiteralLabel comparedValue) {
-        String primaryDatatypeURI = primaryValue.getDatatypeURI();
-        String comparedDatatypeURI = comparedValue.getDatatypeURI();
+    private double timeDistance(Literal primaryValue, Literal comparedValue) {
+        String primaryDatatypeURI = ODCSUtils.valueToString(primaryValue.getDatatype());
+        String comparedDatatypeURI = ODCSUtils.valueToString(comparedValue.getDatatype());
         if (XMLSchema.timeType.equals(primaryDatatypeURI) && XMLSchema.timeType.equals(comparedDatatypeURI)) {
-            try {
-                XSDDateTime primaryValueTime = AggregationUtils.getDateTimeValue(primaryValue);
-                XSDDateTime comparedValueTime = AggregationUtils.getDateTimeValue(comparedValue);
-                if (primaryValueTime == null || comparedValueTime == null) {
-                    LOG.warn("Time value '{}' or '{}' is malformed.", primaryValue, comparedValue);
-                    return ERROR_DISTANCE;
-                }
-                double difference = Math.abs(primaryValueTime.getTimePart() - comparedValueTime.getTimePart());
-                double result = difference / SECONDS_IN_DAY;
-                assert MIN_DISTANCE <= result && result <= MAX_DISTANCE;
-                return result;
-            } catch (JenaException e) {
+            XMLGregorianCalendar primaryValueTime = AggregationUtils.getDateTimeValue(primaryValue);
+            XMLGregorianCalendar comparedValueTime = AggregationUtils.getDateTimeValue(comparedValue);
+            if (primaryValueTime == null || comparedValueTime == null) {
                 LOG.warn("Time value '{}' or '{}' is malformed.", primaryValue, comparedValue);
                 return ERROR_DISTANCE;
             }
+            double difference = Math.abs(getTimePart(primaryValueTime) - getTimePart(comparedValueTime));
+            double result = difference / SECONDS_IN_DAY;
+            assert MIN_DISTANCE <= result && result <= MAX_DISTANCE;
+            return result;
         } else {
             LOG.warn("Time literals '{}' and '{}' have incompatible types.", primaryValue, comparedValue);
             return ERROR_DISTANCE;
         }
+    }
+    
+    private int getTimePart(XMLGregorianCalendar calendar) {
+        int result = 0;
+        if (calendar.getHour() != DatatypeConstants.FIELD_UNDEFINED) {
+            result += calendar.getHour();
+        }
+        result *= ODCSUtils.TIME_UNIT_60_INT;
+        if (calendar.getMinute() != DatatypeConstants.FIELD_UNDEFINED) {
+            result += calendar.getMinute();
+        }
+        result *= ODCSUtils.TIME_UNIT_60_INT;
+        if (calendar.getSecond() != DatatypeConstants.FIELD_UNDEFINED) {
+            result += calendar.getSecond();
+        }
+        return result;
     }
 
     /**
@@ -208,31 +219,26 @@ import org.slf4j.LoggerFactory;
      * @param comparedValue second of the compared values
      * @return a number from interval [0,1]
      */
-    private double dateDistance(LiteralLabel primaryValue, LiteralLabel comparedValue) {
-        String primaryDatatypeURI = primaryValue.getDatatypeURI();
-        String comparedDatatypeURI = comparedValue.getDatatypeURI();
+    private double dateDistance(Literal primaryValue, Literal comparedValue) {
+        String primaryDatatypeURI = ODCSUtils.valueToString(primaryValue.getDatatype());
+        String comparedDatatypeURI = ODCSUtils.valueToString(comparedValue.getDatatype());
         // CHECKSTYLE:OFF
         if ((XMLSchema.dateTimeType.equals(primaryDatatypeURI) || XMLSchema.dateType.equals(primaryDatatypeURI))
                 && (XMLSchema.dateTimeType.equals(comparedDatatypeURI) || XMLSchema.dateType.equals(comparedDatatypeURI))) {
             // CHECKSTYLE:ON
-            try {
-                XSDDateTime primaryValueTime = AggregationUtils.getDateTimeValue(primaryValue);
-                XSDDateTime comparedValueTime = AggregationUtils.getDateTimeValue(comparedValue);
-                if (primaryValueTime == null || comparedValueTime == null) {
-                    LOG.warn("Date value '{}' or '{}' is malformed.", primaryValue, comparedValue);
-                    return ERROR_DISTANCE;
-                }
-                double differenceInSeconds = Math.abs(primaryValueTime.asCalendar().getTimeInMillis()
-                        - comparedValueTime.asCalendar().getTimeInMillis()) / ODCSUtils.MILLISECONDS;
-                double result = (MAX_DISTANCE - MIN_DISTANCE)
-                        * differenceInSeconds / globalConfig.getMaxDateDifference();
-                result = Math.min(result, MAX_DISTANCE);
-                assert MIN_DISTANCE <= result && result <= MAX_DISTANCE;
-                return result;
-            } catch (JenaException e) {
+            XMLGregorianCalendar primaryValueTime = AggregationUtils.getDateTimeValue(primaryValue);
+            XMLGregorianCalendar comparedValueTime = AggregationUtils.getDateTimeValue(comparedValue);
+            if (primaryValueTime == null || comparedValueTime == null) {
                 LOG.warn("Date value '{}' or '{}' is malformed.", primaryValue, comparedValue);
                 return ERROR_DISTANCE;
             }
+            double differenceInSeconds = Math.abs(primaryValueTime.toGregorianCalendar().getTimeInMillis()
+                    - comparedValueTime.toGregorianCalendar().getTimeInMillis()) / ODCSUtils.MILLISECONDS;
+            double result = (MAX_DISTANCE - MIN_DISTANCE)
+                    * differenceInSeconds / globalConfig.getMaxDateDifference();
+            result = Math.min(result, MAX_DISTANCE);
+            assert MIN_DISTANCE <= result && result <= MAX_DISTANCE;
+            return result;
         } else {
             LOG.warn("Date literals '{}' and '{}' have incompatible types.", primaryValue, comparedValue);
             return ERROR_DISTANCE;
@@ -248,9 +254,8 @@ import org.slf4j.LoggerFactory;
      * @return a number from interval [0,1]
      *
      */
-    private double resourceDistance(Node primaryValue, Node comparedValue) {
-        assert primaryValue.isURI() && comparedValue.isURI();
-        if (primaryValue.sameValueAs(comparedValue)) {
+    private double resourceDistance(URI primaryValue, URI comparedValue) {
+        if (primaryValue.equals(comparedValue)) {
             return MIN_DISTANCE;
         } else {
             return DIFFERENT_RESOURCE_DISTANCE;
@@ -259,15 +264,14 @@ import org.slf4j.LoggerFactory;
 
     /**
      * Calculates a distance metric between two Node_URI instances.
-     * @see #distance(Node, Node)
+     * @see #distance(Value, Value)
      * @param primaryValue first of the compared Nodes; this Node may be considered "referential",
      *        i.e. we measure distance from this value
      * @param comparedValue second of the compared Nodes
      * @return a number from interval [0,1]
      */
-    private double blankNodeDistance(Node primaryValue, Node comparedValue) {
-        assert primaryValue.isBlank() && comparedValue.isBlank();
-        if (primaryValue.sameValueAs(comparedValue)) {
+    private double blankNodeDistance(BNode primaryValue, BNode comparedValue) {
+        if (primaryValue.equals(comparedValue)) {
             return MIN_DISTANCE;
         } else {
             return DIFFERENT_RESOURCE_DISTANCE;

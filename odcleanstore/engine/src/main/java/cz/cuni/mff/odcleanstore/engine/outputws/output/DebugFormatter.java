@@ -7,8 +7,7 @@ import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRule;
 import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.MetadataQueryResult;
 
-import de.fuberlin.wiwiss.ng4j.Quad;
-
+import org.openrdf.model.Statement;
 import org.restlet.data.MediaType;
 import org.restlet.data.Reference;
 import org.restlet.representation.Representation;
@@ -128,7 +127,7 @@ public class DebugFormatter extends ResultFormatterBase {
                     }
                 }
                 writer.write("\n\n===============================\n== Provenance metadata ==\n");
-                for (Quad quad : metadataResult.getProvenanceMetadata()) {
+                for (Statement quad : metadataResult.getProvenanceMetadata()) {
                     writer.write(quad.toString());
                     writer.write('\n');
                 }

@@ -1,17 +1,16 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
+import java.util.Collection;
+import java.util.Collections;
+
+import org.openrdf.model.Statement;
+
 import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
+import cz.cuni.mff.odcleanstore.conflictresolution.CRQuadImpl;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
-
-import com.hp.hpl.jena.graph.Node;
-
-import de.fuberlin.wiwiss.ng4j.Quad;
-
-import java.util.Collection;
-import java.util.Collections;
 
 /**
  * Aggregation method that returns all input triples unchanged.
@@ -47,20 +46,23 @@ import java.util.Collections;
      */
     @Override
     public Collection<CRQuad> aggregate(
-            Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
+            Collection<Statement> conflictingQuads, NamedGraphMetadataMap metadata) {
 
         Collection<CRQuad> result = createResultCollection();
 
-        for (Quad quad : conflictingQuads) {
-            Collection<String> sourceNamedGraphs =
-                    Collections.singletonList(quad.getGraphName().getURI());
+        for (Statement quad : conflictingQuads) {
+            Collection<String> sourceNamedGraphs = Collections.singletonList(getSourceGraphURI(quad));
             double quality = computeQualitySelected(
                     quad,
                     sourceNamedGraphs,
                     conflictingQuads,
                     metadata);
-            Quad resultQuad = new Quad(Node.createURI(uriGenerator.nextURI()), quad.getTriple());
-            result.add(new CRQuad(resultQuad, quality, sourceNamedGraphs));
+            Statement resultQuad = VALUE_FACTORY.createStatement(
+                    quad.getSubject(),
+                    quad.getPredicate(),
+                    quad.getObject(),
+                    VALUE_FACTORY.createURI(uriGenerator.nextURI()));
+            result.add(new CRQuadImpl(resultQuad, quality, sourceNamedGraphs));
         }
         return result;
     }

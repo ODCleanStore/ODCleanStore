@@ -1,18 +1,18 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.openrdf.model.Statement;
+
 import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
-
-import de.fuberlin.wiwiss.ng4j.Quad;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Base class for aggregation methods where the result is calculated from
@@ -45,7 +45,7 @@ import java.util.Set;
      * @return {@inheritDoc}
      */
     @Override
-    public abstract Collection<CRQuad> aggregate(Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata);
+    public abstract Collection<CRQuad> aggregate(Collection<Statement> conflictingQuads, NamedGraphMetadataMap metadata);
 
     /**
      * {@inheritDoc}
@@ -55,7 +55,7 @@ import java.util.Set;
      */
     @Override
     protected double computeBasicQuality(
-            Quad resultQuad,
+            Statement resultQuad,
             Collection<String> sourceNamedGraphs,
             NamedGraphMetadataMap metadata) {
 
@@ -90,9 +90,9 @@ import java.util.Set;
      * @return quality estimate of resultQuad as a number from [0,1]
      */
     protected double computeQualityNoAgree(
-            Quad resultQuad,
+            Statement resultQuad,
             Collection<String> sourceNamedGraphs,
-            Collection<Quad> conflictingQuads,
+            Collection<Statement> conflictingQuads,
             NamedGraphMetadataMap metadata) {
         return computeQuality(
                 resultQuad,
@@ -108,15 +108,15 @@ import java.util.Set;
      * @param conflictingQuads A collection of quads
      * @return a set of named graphs of all quads in conflictingQuads
      */
-    protected Collection<String> allSourceNamedGraphs(Collection<Quad> conflictingQuads) {
+    protected Collection<String> allSourceNamedGraphs(Collection<Statement> conflictingQuads) {
         if (conflictingQuads.size() == 1) {
             // A singleton collection will do for a single quad
-            return Collections.singleton(conflictingQuads.iterator().next().getGraphName().getURI());
+            return Collections.singleton(getSourceGraphURI(conflictingQuads.iterator().next()));
         }
 
         Set<String> result = new HashSet<String>(conflictingQuads.size());
-        for (Quad quad : conflictingQuads) {
-            result.add(quad.getGraphName().getURI());
+        for (Statement quad : conflictingQuads) {
+            result.add(getSourceGraphURI(quad));
         }
         return result;
     }

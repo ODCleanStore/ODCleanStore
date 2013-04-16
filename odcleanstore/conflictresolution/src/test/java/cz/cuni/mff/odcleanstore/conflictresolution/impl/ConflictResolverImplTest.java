@@ -10,16 +10,16 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.openrdf.model.Statement;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
+import cz.cuni.mff.odcleanstore.conflictresolution.CRTestUtils;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationType;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.conflictresolution.CRTestUtils;
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
-import de.fuberlin.wiwiss.ng4j.Quad;
 
 /**
  * @author Jan Michelfeit
@@ -28,9 +28,9 @@ import de.fuberlin.wiwiss.ng4j.Quad;
 public class ConflictResolverImplTest {
     private static final double EPSILON = 0.0;
 
-    private static Quad oldVersionQuad;
-    private static Quad newVersionQuad;
-    private static Quad otherQuad;
+    private static Statement oldVersionQuad;
+    private static Statement newVersionQuad;
+    private static Statement otherQuad;
     private static String updatedQuadDataSource;
     private ConflictResolverSpec spec;
     private NamedGraphMetadataMap metadata;
@@ -40,17 +40,17 @@ public class ConflictResolverImplTest {
         String subject = CRTestUtils.getUniqueURI();
         String predicate = CRTestUtils.getUniqueURI();
         String updatedQuadObject = CRTestUtils.getUniqueURI();
-        oldVersionQuad = CRTestUtils.createQuad(
+        oldVersionQuad = CRTestUtils.createStatement(
                 subject,
                 predicate,
                 updatedQuadObject,
                 CRTestUtils.getUniqueURI());
-        newVersionQuad = CRTestUtils.createQuad(
+        newVersionQuad = CRTestUtils.createStatement(
                 subject,
                 predicate,
                 updatedQuadObject,
                 CRTestUtils.getUniqueURI());
-        otherQuad = CRTestUtils.createQuad(
+        otherQuad = CRTestUtils.createStatement(
                 subject,
                 predicate,
                 CRTestUtils.getUniqueURI(),
@@ -66,7 +66,7 @@ public class ConflictResolverImplTest {
 
         Calendar date = Calendar.getInstance();
         NamedGraphMetadata otherQuadMetadata =
-                new NamedGraphMetadata(otherQuad.getGraphName().getURI());
+                new NamedGraphMetadata(otherQuad.getContext().stringValue());
         // otherQuadMetadata.setScore();
         otherQuadMetadata.setSources(Collections.singleton(CRTestUtils.getUniqueURI()));
         otherQuadMetadata.setInsertedAt(date.getTime());
@@ -75,7 +75,7 @@ public class ConflictResolverImplTest {
 
         date.add(Calendar.YEAR, 1);
         NamedGraphMetadata oldVersionMetadata =
-                new NamedGraphMetadata(oldVersionQuad.getGraphName().getURI());
+                new NamedGraphMetadata(oldVersionQuad.getContext().stringValue());
         // oldVersionMetadata.setScore();
         oldVersionMetadata.setSources(Collections.singleton(updatedQuadDataSource));
         oldVersionMetadata.setInsertedAt(date.getTime());
@@ -84,7 +84,7 @@ public class ConflictResolverImplTest {
 
         date.add(Calendar.YEAR, 1);
         NamedGraphMetadata newVersionMetadata =
-                new NamedGraphMetadata(newVersionQuad.getGraphName().getURI());
+                new NamedGraphMetadata(newVersionQuad.getContext().stringValue());
         // newVersionMetadata.setScore();
         newVersionMetadata.setSources(Collections.singleton(updatedQuadDataSource));
         newVersionMetadata.setInsertedAt(date.getTime());
@@ -99,7 +99,7 @@ public class ConflictResolverImplTest {
     @Test
     public void testFilterOldVersionsPositive() throws ODCleanStoreException {
         // Prepare test data
-        Collection<Quad> conflictingQuads = new LinkedList<Quad>();
+        Collection<Statement> conflictingQuads = new LinkedList<Statement>();
         conflictingQuads.add(oldVersionQuad);
         conflictingQuads.add(otherQuad);
         conflictingQuads.add(newVersionQuad);
@@ -109,21 +109,21 @@ public class ConflictResolverImplTest {
 
         // Test results
         Collection<CRQuad> aggregationResult =
-                instance.resolveConflicts(new ArrayList<Quad>((conflictingQuads)));
+                instance.resolveConflicts(new ArrayList<Statement>((conflictingQuads)));
         // Only newVersionQuad and otherQuad, oldVersionQuad is filtered out
         Assert.assertEquals(2, aggregationResult.size());
         double newVersionQuality = Double.NaN;
         double oldVersionQuality = Double.NaN;
         double otherQuadQuality = Double.NaN;
         for (CRQuad crQuad : aggregationResult) {
-            if (crQuad.getSourceNamedGraphURIs().contains(oldVersionQuad.getGraphName().getURI())) {
+            if (crQuad.getSourceNamedGraphURIs().contains(oldVersionQuad.getContext().stringValue())) {
                 oldVersionQuality = crQuad.getQuality();
             }
-            if (crQuad.getSourceNamedGraphURIs().contains(newVersionQuad.getGraphName().getURI())) {
+            if (crQuad.getSourceNamedGraphURIs().contains(newVersionQuad.getContext().stringValue())) {
                 newVersionQuality = crQuad.getQuality();
                 // TODO sources
             }
-            if (crQuad.getSourceNamedGraphURIs().contains(otherQuad.getGraphName().getURI())) {
+            if (crQuad.getSourceNamedGraphURIs().contains(otherQuad.getContext().stringValue())) {
                 otherQuadQuality = crQuad.getQuality();
             }
         }
@@ -136,12 +136,12 @@ public class ConflictResolverImplTest {
     public void testFilterOldVersionsDifferentSources() throws ODCleanStoreException {
         // A triple identical to newVersionQuad, but using
         // otherQuad's named graph gives it a different source
-        Quad similarQuad = CRTestUtils.createQuad(
-                newVersionQuad.getSubject().getURI(),
-                newVersionQuad.getPredicate().getURI(),
-                newVersionQuad.getObject().getURI(),
-                otherQuad.getGraphName().getURI());
-        Collection<Quad> conflictingQuads = new LinkedList<Quad>();
+        Statement similarQuad = CRTestUtils.createStatement(
+                newVersionQuad.getSubject().stringValue(),
+                newVersionQuad.getPredicate().stringValue(),
+                newVersionQuad.getObject().stringValue(),
+                otherQuad.getContext().stringValue());
+        Collection<Statement> conflictingQuads = new LinkedList<Statement>();
         conflictingQuads.add(newVersionQuad);
         conflictingQuads.add(similarQuad);
 
@@ -150,7 +150,7 @@ public class ConflictResolverImplTest {
 
         // Test results
         Collection<CRQuad> aggregationResult =
-                instance.resolveConflicts(new ArrayList<Quad>(conflictingQuads));
+                instance.resolveConflicts(new ArrayList<Statement>(conflictingQuads));
         // Neither quad was filtered out
         Assert.assertEquals(2, aggregationResult.size());
     }
@@ -159,12 +159,12 @@ public class ConflictResolverImplTest {
     public void testFilterOldVersionsDifferentObjects() throws ODCleanStoreException {
         // A triple that would be filtered out if it had the same object
         // as newVersionQuad, but a different object makes it stay
-        Quad oldVersionDiferentObjectQuad = CRTestUtils.createQuad(
-                newVersionQuad.getSubject().getURI(),
-                newVersionQuad.getPredicate().getURI(),
+        Statement oldVersionDiferentObjectQuad = CRTestUtils.createStatement(
+                newVersionQuad.getSubject().stringValue(),
+                newVersionQuad.getPredicate().stringValue(),
                 CRTestUtils.getUniqueURI(),
-                oldVersionQuad.getGraphName().getURI());
-        Collection<Quad> conflictingQuads = new LinkedList<Quad>();
+                oldVersionQuad.getContext().stringValue());
+        Collection<Statement> conflictingQuads = new LinkedList<Statement>();
         conflictingQuads.add(newVersionQuad);
         conflictingQuads.add(oldVersionDiferentObjectQuad);
 
@@ -173,7 +173,7 @@ public class ConflictResolverImplTest {
 
         // Test results
         Collection<CRQuad> aggregationResult =
-                instance.resolveConflicts(new ArrayList<Quad>((conflictingQuads)));
+                instance.resolveConflicts(new ArrayList<Statement>((conflictingQuads)));
         // Neither quad was filtered out
         Assert.assertEquals(2, aggregationResult.size());
     }
@@ -181,21 +181,21 @@ public class ConflictResolverImplTest {
     @Test
     public void testFilterOldVersionsSameNamedGraphs() throws ODCleanStoreException {
         // Prepare test data
-        Quad sameNamedGraphQuad = CRTestUtils.createQuad(
-                newVersionQuad.getSubject().getURI(),
-                newVersionQuad.getPredicate().getURI(),
+        Statement sameNamedGraphQuad = CRTestUtils.createStatement(
+                newVersionQuad.getSubject().stringValue(),
+                newVersionQuad.getPredicate().stringValue(),
                 CRTestUtils.getUniqueURI(),
-                newVersionQuad.getGraphName().getURI());
-        Collection<Quad> conflictingQuads = new LinkedList<de.fuberlin.wiwiss.ng4j.Quad>();
+                newVersionQuad.getContext().stringValue());
+        Collection<Statement> conflictingQuads = new LinkedList<Statement>();
         conflictingQuads.add(newVersionQuad);
         conflictingQuads.add(otherQuad);
         conflictingQuads.add(sameNamedGraphQuad);
 
         // Create class instance
-        Collection<com.hp.hpl.jena.graph.Triple> sameAsLinks = Collections.singleton(CRTestUtils.createTriple(
-                newVersionQuad.getObject().getURI(),
+        Collection<Statement> sameAsLinks = Collections.singleton(CRTestUtils.createStatement(
+                newVersionQuad.getObject().stringValue(),
                 OWL.sameAs,
-                sameNamedGraphQuad.getObject().getURI()));
+                sameNamedGraphQuad.getObject().stringValue()));
         URIMappingImpl uriMapping = new URIMappingImpl();
         uriMapping.addLinks(sameAsLinks.iterator());
         spec.setURIMapping(uriMapping);
@@ -203,17 +203,17 @@ public class ConflictResolverImplTest {
 
         // Test results
         Collection<CRQuad> aggregationResult =
-                instance.resolveConflicts(new ArrayList<Quad>((conflictingQuads)));
+                instance.resolveConflicts(new ArrayList<Statement>((conflictingQuads)));
         // Nothing filtered out because of versions, but CR removes duplicates
         final long expectedQuadCount = 2;
         Assert.assertEquals(expectedQuadCount, aggregationResult.size());
         double newVersionQuality = Double.NaN;
         double sameNamedGraphQuadQuality = Double.NaN;
         for (CRQuad crQuad : aggregationResult) {
-            if (crQuad.getSourceNamedGraphURIs().contains(sameNamedGraphQuad.getGraphName().getURI())) {
+            if (crQuad.getSourceNamedGraphURIs().contains(sameNamedGraphQuad.getContext().stringValue())) {
                 sameNamedGraphQuadQuality = crQuad.getQuality();
             }
-            if (crQuad.getSourceNamedGraphURIs().contains(newVersionQuad.getGraphName().getURI())) {
+            if (crQuad.getSourceNamedGraphURIs().contains(newVersionQuad.getContext().stringValue())) {
                 newVersionQuality = crQuad.getQuality();
             }
         }

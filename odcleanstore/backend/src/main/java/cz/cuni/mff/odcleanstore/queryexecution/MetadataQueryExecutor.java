@@ -10,7 +10,7 @@ import cz.cuni.mff.odcleanstore.shared.ODCSErrorCodes;
 import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 
-import de.fuberlin.wiwiss.ng4j.Quad;
+import org.openrdf.model.Statement;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,12 +40,12 @@ import java.util.Locale;
      *
      * TODO: omit metadata for additional labels?
      */
-    private static final String PROVENANCE_METADATA_QUERY = "SPARQL"
-            + "\n SELECT "
-            + "\n   ?provenanceGraph ?s ?p ?o"
+    private static final String PROVENANCE_METADATA_QUERY =
+            "SELECT "
+            + "\n   ?graph ?s ?p ?o"
             + "\n WHERE {"
-            + "\n   <%1$s> <" + ODCS.provenanceMetadataGraph + "> ?provenanceGraph."
-            + "\n   GRAPH ?provenanceGraph {"
+            + "\n   <%1$s> <" + ODCS.provenanceMetadataGraph + "> ?graph."
+            + "\n   GRAPH ?graph {"
             + "\n     ?s ?p ?o"
             + "\n   }"
             + "\n }"
@@ -59,8 +59,8 @@ import java.util.Locale;
      *
      * TODO: omit metadata for additional labels?
      */
-    private static final String ODCS_METADATA_QUERY = "SPARQL"
-            + "\n SELECT "
+    private static final String ODCS_METADATA_QUERY =
+            "SELECT "
             + "\n   <%1$s> as ?resGraph ?p ?o"
             + "\n WHERE {"
             //+ "\n   {"
@@ -116,12 +116,12 @@ import java.util.Locale;
                     "The query is not a valid URI.");
         }
         if (ENGINE_TEMP_GRAPH_PREFIX != null && namedGraphURI.startsWith(ENGINE_TEMP_GRAPH_PREFIX)) {
-           return createResult(Collections.<Quad>emptySet(), new NamedGraphMetadataMap(), namedGraphURI, 0);
+           return createResult(Collections.<Statement>emptySet(), new NamedGraphMetadataMap(), namedGraphURI, 0);
         }
 
         try {
             NamedGraphMetadataMap metadata = getODCSMetadata(namedGraphURI);
-            Collection<Quad> provenanceMetadata = getProvenanceMetadata(namedGraphURI);
+            Collection<Statement> provenanceMetadata = getProvenanceMetadata(namedGraphURI);
 
             return createResult(provenanceMetadata, metadata, namedGraphURI, System.currentTimeMillis() - startTime);
         } catch (DatabaseException e) {
@@ -140,7 +140,7 @@ import java.util.Locale;
      * @param executionTime query execution time in ms
      * @return query result holder
      */
-    private MetadataQueryResult createResult(Collection<Quad> provenanceMetadata,
+    private MetadataQueryResult createResult(Collection<Statement> provenanceMetadata,
             NamedGraphMetadataMap metadata, String query, long executionTime) {
 
         LOG.debug("Query Execution: getMetadata() in {} ms", executionTime);
@@ -157,7 +157,7 @@ import java.util.Locale;
      * @return provenance metadata placed in a single named graph
      * @throws DatabaseException query error
      */
-    private Collection<Quad> getProvenanceMetadata(String namedGraphURI) throws DatabaseException {
+    private Collection<Statement> getProvenanceMetadata(String namedGraphURI) throws DatabaseException {
         String query = String.format(Locale.ROOT, PROVENANCE_METADATA_QUERY, namedGraphURI, maxLimit);
         return getQuadsFromQuery(query, "getProvenanceMetadata()");
     }

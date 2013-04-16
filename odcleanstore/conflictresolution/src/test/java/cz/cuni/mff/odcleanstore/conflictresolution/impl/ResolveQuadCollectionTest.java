@@ -8,11 +8,12 @@ import java.util.LinkedList;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import com.hp.hpl.jena.graph.Node;
+import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
+import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.ValueFactoryImpl;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRTestUtils;
-import de.fuberlin.wiwiss.ng4j.Quad;
 
 /**
  *
@@ -21,16 +22,18 @@ import de.fuberlin.wiwiss.ng4j.Quad;
 public class ResolveQuadCollectionTest {
 
     private static class SingleUriMapping implements URIMapping {
-        private final Node what;
-        private final Node mapTo;
+        private static final ValueFactory VALUE_FACTORY = ValueFactoryImpl.getInstance();
+        
+        private final URI what;
+        private final URI mapTo;
 
         public SingleUriMapping(String what, String mapTo) {
-            this.what = Node.createURI(what);
-            this.mapTo = Node.createURI(mapTo);
+            this.what = VALUE_FACTORY.createURI(what);
+            this.mapTo = VALUE_FACTORY.createURI(mapTo);
         }
 
         @Override
-        public Node mapURI(Node uri) {
+        public URI mapURI(URI uri) {
             if (uri.equals(what)) {
                 return mapTo;
             } else {
@@ -40,8 +43,8 @@ public class ResolveQuadCollectionTest {
 
         @Override
         public String getCanonicalURI(String uri) {
-            if (uri.equals(what.getURI())) {
-                return mapTo.getURI();
+            if (uri.equals(what.stringValue())) {
+                return mapTo.stringValue();
             } else {
                 return uri;
             }
@@ -58,19 +61,19 @@ public class ResolveQuadCollectionTest {
         final int quadCount = 3;
         ResolveQuadCollection instance = new ResolveQuadCollection();
 
-        LinkedList<Quad> quadList = new LinkedList<Quad>();
+        LinkedList<Statement> quadList = new LinkedList<Statement>();
         for (int i = 0; i < quadCount; i++) {
-            quadList.add(CRTestUtils.createQuad());
+            quadList.add(CRTestUtils.createStatement());
         }
-        Collection<Quad> quadGraph = new ArrayList<Quad>((quadList));
+        Collection<Statement> quadGraph = new ArrayList<Statement>((quadList));
         instance.addQuads(quadGraph);
 
-        Iterator<Collection<Quad>> clusterIterator = instance.listConflictingQuads();
+        Iterator<Collection<Statement>> clusterIterator = instance.listConflictingQuads();
         int clusterCount = 0;
         while (clusterIterator.hasNext()) {
-            Collection<Quad> cluster = clusterIterator.next();
+            Collection<Statement> cluster = clusterIterator.next();
             Assert.assertTrue(cluster.size() == 1);
-            Quad containedQuad = cluster.iterator().next();
+            Statement containedQuad = cluster.iterator().next();
             Assert.assertTrue(CRTestUtils.inCollection(containedQuad, quadList));
             clusterCount++;
         }
@@ -85,29 +88,29 @@ public class ResolveQuadCollectionTest {
         final String namedGraph = CRTestUtils.getUniqueURI();
         final String mappedSubjectURI = CRTestUtils.getUniqueURI();
 
-        LinkedList<Quad> quadList = new LinkedList<Quad>();
-        quadList.add(CRTestUtils.createQuad(
+        LinkedList<Statement> quadList = new LinkedList<Statement>();
+        quadList.add(CRTestUtils.createStatement(
                 subjectURI,
                 predicateURI,
                 objectURI,
                 namedGraph));
-        Collection<Quad> quadGraph = new ArrayList<Quad>((quadList));
+        Collection<Statement> quadGraph = new ArrayList<Statement>((quadList));
 
         ResolveQuadCollection instance = new ResolveQuadCollection();
         instance.addQuads(quadGraph);
         instance.applyMapping(new SingleUriMapping(subjectURI, mappedSubjectURI));
 
-        Iterator<Collection<Quad>> clusterIterator = instance.listConflictingQuads();
+        Iterator<Collection<Statement>> clusterIterator = instance.listConflictingQuads();
         Assert.assertTrue(clusterIterator.hasNext());
-        Collection<Quad> cluster = clusterIterator.next();
+        Collection<Statement> cluster = clusterIterator.next();
         Assert.assertTrue(cluster.size() == 1);
-        Quad containedQuad = cluster.iterator().next();
-        Quad expectedQuad = CRTestUtils.createQuad(
+        Statement containedQuad = cluster.iterator().next();
+        Statement expectedQuad = CRTestUtils.createStatement(
                 mappedSubjectURI,
                 predicateURI,
                 objectURI,
                 namedGraph);
-        Assert.assertTrue(CRTestUtils.quadsEquals(containedQuad, expectedQuad));
+        Assert.assertTrue(CRTestUtils.statementsEqual(containedQuad, expectedQuad));
 
         Assert.assertFalse(clusterIterator.hasNext());
     }
@@ -119,25 +122,25 @@ public class ResolveQuadCollectionTest {
         final String objectURI1 = CRTestUtils.getUniqueURI();
         final String objectURI2 = CRTestUtils.getUniqueURI();
         final String mappedSubjectURI = CRTestUtils.getUniqueURI();
-        Quad conflictingQuad1 = CRTestUtils.createQuad(
+        Statement conflictingQuad1 = CRTestUtils.createStatement(
                 subjectURI,
                 predicateURI,
                 objectURI1);
-        Quad mappedConflictingQuad1 = CRTestUtils.createQuad(
+        Statement mappedConflictingQuad1 = CRTestUtils.createStatement(
                 mappedSubjectURI,
                 predicateURI,
                 objectURI1);
-        Quad conflictingQuad2 = CRTestUtils.createQuad(
+        Statement conflictingQuad2 = CRTestUtils.createStatement(
                 mappedSubjectURI,
                 predicateURI,
                 objectURI2);
-        Quad otherQuad = CRTestUtils.createQuad();
+        Statement otherQuad = CRTestUtils.createStatement();
 
-        LinkedList<Quad> quadList = new LinkedList<Quad>();
+        LinkedList<Statement> quadList = new LinkedList<Statement>();
         quadList.add(conflictingQuad1);
         quadList.add(conflictingQuad2);
         quadList.add(otherQuad);
-        Collection<Quad> quadGraph = new ArrayList<Quad>((quadList));
+        Collection<Statement> quadGraph = new ArrayList<Statement>((quadList));
 
         ResolveQuadCollection instance = new ResolveQuadCollection();
         instance.addQuads(quadGraph);
@@ -145,12 +148,12 @@ public class ResolveQuadCollectionTest {
 
         // Now instance should contain two clusters:
         // {conflictingQuad2, mappedConflictingQuad1} and { otherQuad }
-        Collection<Quad> conflictingCluster = null;
-        Collection<Quad> otherCluster = null;
+        Collection<Statement> conflictingCluster = null;
+        Collection<Statement> otherCluster = null;
 
-        Iterator<Collection<Quad>> clusterIterator = instance.listConflictingQuads();
+        Iterator<Collection<Statement>> clusterIterator = instance.listConflictingQuads();
         while (clusterIterator.hasNext()) {
-            Collection<Quad> cluster = clusterIterator.next();
+            Collection<Statement> cluster = clusterIterator.next();
             if (cluster.size() == 1) {
                 otherCluster = cluster;
             } else if (cluster.size() == 2) {
