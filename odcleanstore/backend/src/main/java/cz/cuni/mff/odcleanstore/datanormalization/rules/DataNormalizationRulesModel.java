@@ -24,8 +24,7 @@ import virtuoso.jena.driver.VirtModel;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -120,7 +119,7 @@ public class DataNormalizationRulesModel {
 	 * @throws DataNormalizationException
 	 */
 	private Collection<DataNormalizationRule> queryRules (String query, Object... objects) throws DataNormalizationException {
-		Map<Integer, DataNormalizationRule> rules = new HashMap<Integer, DataNormalizationRule>();
+		Map<Integer, DataNormalizationRule> rules = new LinkedHashMap<Integer, DataNormalizationRule>();
 
 		try {
 			WrappedResultSet results = getCleanConnection().executeSelect(query, objects);
@@ -167,7 +166,7 @@ public class DataNormalizationRulesModel {
 	 * @return a collection of the selected rules
 	 */
 	public Collection<DataNormalizationRule> getRules (Integer... groupIds) throws DataNormalizationException {
-		Set<DataNormalizationRule> rules = new HashSet<DataNormalizationRule>();
+		List<DataNormalizationRule> rules = new ArrayList<DataNormalizationRule>();
 
 		for (int i = 0; i < groupIds.length; ++i) {
 			Collection<DataNormalizationRule> groupSpecific = queryRules(String.format(ruleByGroupIdQueryFormat, tableVersion.getTableSuffix(), tableVersion.getTableSuffix()), groupIds[i]);
