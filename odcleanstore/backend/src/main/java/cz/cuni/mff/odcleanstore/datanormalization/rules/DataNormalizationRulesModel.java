@@ -48,7 +48,7 @@ public class DataNormalizationRulesModel {
 			"DB.ODCLEANSTORE.DN_RULES%s AS rules JOIN " +
 			"DB.ODCLEANSTORE.DN_RULE_COMPONENTS%s AS components ON components.ruleId = rules.id JOIN " +
 			"DB.ODCLEANSTORE.DN_RULE_COMPONENT_TYPES AS types ON components.typeId = types.id " +
-			"WHERE groupId = ?";
+			"WHERE groupId = ? ORDER BY rules.id";
 	private static final String ruleByGroupLabelQueryFormat = "SELECT rules.id AS id, " +
 			"rules.groupId AS groupId, " +
 			"types.label AS type, " +
@@ -61,7 +61,7 @@ public class DataNormalizationRulesModel {
 			"DB.ODCLEANSTORE.DN_RULES_GROUPS AS groups ON rules.groupId = groups.id JOIN " +
 			"DB.ODCLEANSTORE.DN_RULE_COMPONENTS%s AS components ON components.ruleId = rules.id JOIN " +
 			"DB.ODCLEANSTORE.DN_RULE_COMPONENT_TYPES AS types ON components.typeId = types.id " +
-			"WHERE groups.label = ?";
+			"WHERE groups.label = ? ORDER BY rules.id";
 
 	private static final String ontologyResourceQuery = "SELECT ?s WHERE {?s ?p ?o} GROUP BY ?s";
 
