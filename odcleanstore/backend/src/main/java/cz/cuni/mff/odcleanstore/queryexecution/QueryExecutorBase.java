@@ -245,6 +245,9 @@ import java.util.Set;
     /** Database connection. */
     private RepositoryConnection connection;
 
+    /** Sesame repository for representing Virtuoso clean database instance. */
+    private Repository virtuosoRepository;
+
     /**
      * Cached graph filter SPARQL snippet.
      * Depends only on settings immutable during the instance lifetime and thus can be cached.
@@ -297,7 +300,8 @@ import java.util.Set;
      */
     protected RepositoryConnection getConnection() throws ConnectionException {
         if (connection == null) {
-            Repository virtuosoRepository = new VirtuosoRepository(
+            closeConnectionQuietly(); // just in case
+            virtuosoRepository = new VirtuosoRepository(
                     connectionCredentials.getConnectionString(),
                     connectionCredentials.getUsername(),
                     connectionCredentials.getPassword());
@@ -316,13 +320,17 @@ import java.util.Set;
      * Closes an opened database connection, if any.
      */
     protected void closeConnectionQuietly() {
-        if (connection != null) {
-            try {
+        try {
+            if (connection != null) {
                 connection.close();
                 connection = null;
-            } catch (RepositoryException e) {
-                // do nothing
             }
+            if (virtuosoRepository != null) {
+                virtuosoRepository.shutDown();
+                virtuosoRepository = null;
+            }
+        } catch (RepositoryException e) {
+            // do nothing
         }
     }
 
