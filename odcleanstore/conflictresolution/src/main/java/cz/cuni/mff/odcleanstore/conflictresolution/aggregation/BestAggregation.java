@@ -1,20 +1,20 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+
+import org.openrdf.model.Statement;
+import org.openrdf.model.Value;
+
 import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
+import cz.cuni.mff.odcleanstore.conflictresolution.CRQuadImpl;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.AggregationUtils;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.ConflictResolverImpl;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
-
-import com.hp.hpl.jena.graph.Node;
-
-import de.fuberlin.wiwiss.ng4j.Quad;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 
 /**
  * Aggregation method that returns the quad with the highest (conflict resolution)
@@ -52,7 +52,7 @@ import java.util.Collection;
      * @return {@inheritDoc}
      */
     @Override
-    public Collection<CRQuad> aggregate(Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
+    public Collection<CRQuad> aggregate(Collection<Statement> conflictingQuads, NamedGraphMetadataMap metadata) {
         if (conflictingQuads.isEmpty()) {
             return createResultCollection();
         }
@@ -60,17 +60,17 @@ import java.util.Collection;
         // Sort quads by object so that we can detect identical triples; this way we don't need to call
         // sourceNamedGraphsForObject() for every quad (even though the complexity is still quadratic
         // thanks to quality computation)
-        Quad[] sortedQuads = conflictingQuads.toArray(new Quad[0]);
+        Statement[] sortedQuads = conflictingQuads.toArray(new Statement[0]);
         Arrays.sort(sortedQuads, OBJECT_NG_COMPARATOR);
 
-        Quad bestQuad = null;
+        Statement bestQuad = null;
         double bestQuadQuality = Double.NEGATIVE_INFINITY;
-        Quad lastQuad = null; // quad from the previous iteration
-        Node lastObject = null; // lastQuad's object
+        Statement lastQuad = null; // quad from the previous iteration
+        Value lastObject = null; // lastQuad's object
         ArrayList<String> sourceNamedGraphs = new ArrayList<String>(); // sources for lastQuad
-        for (Quad quad : sortedQuads) {
-            Node object = quad.getObject();
-            boolean isNewObject = !ConflictResolverImpl.crSameNodes(object, lastObject);
+        for (Statement quad : sortedQuads) {
+            Value object = quad.getObject();
+            boolean isNewObject = !ConflictResolverImpl.crSameValues(object, lastObject);
 
             if (isNewObject && lastQuad != null) {
                 // Do we have a new best quad?
@@ -90,14 +90,15 @@ import java.util.Collection;
                 lastQuad = quad;
                 lastObject = object;
                 sourceNamedGraphs.clear();
-                sourceNamedGraphs.add(quad.getGraphName().getURI());
+                sourceNamedGraphs.add(getSourceGraphURI(quad));
             } else {
                 // A quad with object identical to that of the previous quad
                 assert lastQuad != null && lastObject != null && sourceNamedGraphs.size() >= 1;
                 String lastNamedGraph = sourceNamedGraphs.get(sourceNamedGraphs.size() - 1);
                 // Avoid duplicities in sourceNamedGraphs:
-                if (!quad.getGraphName().equals(lastNamedGraph)) {
-                    sourceNamedGraphs.add(quad.getGraphName().getURI());
+                String sourceNamedGraph = getSourceGraphURI(quad);
+                if (!sourceNamedGraph.equals(lastNamedGraph)) {
+                    sourceNamedGraphs.add(sourceNamedGraph);
                 }
             }
         }
@@ -117,10 +118,14 @@ import java.util.Collection;
 
         // bestQuad is not null because conflictingQuads is not empty
         assert bestQuad != null;
-        Quad resultQuad = new Quad(Node.createURI(uriGenerator.nextURI()), bestQuad.getTriple());
+        Statement resultQuad = VALUE_FACTORY.createStatement(
+                bestQuad.getSubject(),
+                bestQuad.getPredicate(),
+                bestQuad.getObject(),
+                VALUE_FACTORY.createURI(uriGenerator.nextURI()));
         Collection<String> resultSourceNamedGraphs = sourceNamedGraphsForObject(bestQuad.getObject(), conflictingQuads);
         Collection<CRQuad> result = createSingleResultCollection(
-                new CRQuad(resultQuad, bestQuadQuality, resultSourceNamedGraphs));
+                new CRQuadImpl(resultQuad, bestQuadQuality, resultSourceNamedGraphs));
         return result;
     }
 }

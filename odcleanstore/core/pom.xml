@@ -1,132 +1,1 @@
-<?xml version="1.0" ?>
-<project
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-
-	<modelVersion>4.0.0</modelVersion>
-
-	<artifactId>odcs-core</artifactId>
-	<packaging>jar</packaging>
-
-	<parent>
-		<groupId>cz.cuni.mff.odcleanstore</groupId>
-		<artifactId>odcs</artifactId>
-		<version>1.0.2</version>
-	</parent>
-
-	<name>ODCleanStore - Core</name>
-	<description>Shared components of ODCleanStore</description>
-
-	<dependencies>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.6.4</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>jul-to-slf4j</artifactId>
-			<version>1.6.4</version>
-		</dependency>
-		<dependency>
-			<groupId>de.fuberlin.wiwss.ng4j</groupId>
-			<artifactId>ng4j</artifactId>
-			<version>0.9.4-SNAPSHOT</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>slf4j-log4j12</artifactId>
-					<groupId>org.slf4j</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>com.openlinksw</groupId>
-			<artifactId>virt_jena</artifactId>
-			<version>2.6.2</version>
-		</dependency>
-		<dependency>
-			<groupId>com.openlinksw</groupId>
-			<artifactId>virtjdbc</artifactId>
-			<version>3</version>
-		</dependency>
-	</dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.3.1</version>
-				<configuration>
-					<archive>
-						<manifest>
-							<addClasspath>true</addClasspath>
-							<classpathPrefix>lib/</classpathPrefix>
-						</manifest>
-					</archive>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<version>2.3</version>
-				<executions>
-					<execution>
-						<id>copy-dependencies</id>
-						<phase>package</phase>
-						<goals>
-							<goal>copy-dependencies</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${project.build.directory}/lib</outputDirectory>
-							<!-- the two lines below tell Maven not to include test scoped dependencies -->
-							<includeScope>runtime</includeScope>
-							<excludeScope>provided</excludeScope>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			
-		</plugins>
-		<pluginManagement>
-			<plugins>
-				<!--This plugin's configuration is used to store Eclipse m2e settings 
-					only. It has no influence on the Maven build itself. -->
-				<!-- TODO: move to parent pom -->
-				<plugin>
-					<groupId>org.eclipse.m2e</groupId>
-					<artifactId>lifecycle-mapping</artifactId>
-					<version>1.0.0</version>
-					<configuration>
-						<lifecycleMappingMetadata>
-							<pluginExecutions>
-								<!-- Fix m2e not supporting copy-dependency plugin -->
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>org.apache.maven.plugins</groupId>
-										<artifactId>maven-dependency-plugin</artifactId>
-										<versionRange>[1.0.0,)</versionRange>
-										<goals>
-											<goal>copy-dependencies</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore />
-									</action>
-								</pluginExecution>
-							</pluginExecutions>
-						</lifecycleMappingMetadata>
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-	</build>
-
-	<repositories>
-		<repository>
-			<id>melati.org</id>
-			<name>NG4J at melati.org</name>
-			<url>http://melati.org/maven2/</url>
-		</repository>
-	</repositories>
-</project>
+<?xml version="1.0" ?><project	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">	<modelVersion>4.0.0</modelVersion>	<artifactId>odcs-core</artifactId>	<packaging>jar</packaging>	<parent>		<groupId>cz.cuni.mff.odcleanstore</groupId>		<artifactId>odcs</artifactId>		<version>1.0.2</version>	</parent>	<name>ODCleanStore - Core</name>	<description>Shared components of ODCleanStore</description>	<dependencies>		<dependency>			<groupId>org.slf4j</groupId>			<artifactId>slf4j-log4j12</artifactId>			<version>1.6.4</version>		</dependency>		<dependency>			<groupId>org.slf4j</groupId>			<artifactId>jul-to-slf4j</artifactId>			<version>1.6.4</version>		</dependency>		<dependency>			<groupId>com.openlinksw</groupId>			<artifactId>virt_jena</artifactId>			<version>2.6.2</version>		</dependency>		<dependency>			<groupId>com.openlinksw</groupId>			<artifactId>virt_sesame</artifactId>			<version>2.6.10</version>		</dependency>		<dependency>			<groupId>com.openlinksw</groupId>			<artifactId>virtjdbc</artifactId>			<version>3</version>		</dependency>		<!-- Sesame dependencies -->		<dependency>            <groupId>org.openrdf.sesame</groupId>            <artifactId>sesame-model</artifactId>            <version>2.7.0-beta2</version>        </dependency>        <dependency>            <groupId>org.openrdf.sesame</groupId>            <artifactId>sesame-sail-memory</artifactId>            <version>2.7.0-beta2</version>        </dependency>	</dependencies>	<build>		<plugins>			<plugin>				<groupId>org.apache.maven.plugins</groupId>				<artifactId>maven-jar-plugin</artifactId>				<version>2.3.1</version>				<configuration>					<archive>						<manifest>							<addClasspath>true</addClasspath>							<classpathPrefix>lib/</classpathPrefix>						</manifest>					</archive>				</configuration>			</plugin>			<plugin>				<groupId>org.apache.maven.plugins</groupId>				<artifactId>maven-dependency-plugin</artifactId>				<version>2.3</version>				<executions>					<execution>						<id>copy-dependencies</id>						<phase>package</phase>						<goals>							<goal>copy-dependencies</goal>						</goals>						<configuration>							<outputDirectory>${project.build.directory}/lib</outputDirectory>							<!-- the two lines below tell Maven not to include test scoped dependencies -->							<includeScope>runtime</includeScope>							<excludeScope>provided</excludeScope>						</configuration>					</execution>				</executions>			</plugin>					</plugins>		<pluginManagement>			<plugins>				<!--This plugin's configuration is used to store Eclipse m2e settings 					only. It has no influence on the Maven build itself. -->				<!-- TODO: move to parent pom -->				<plugin>					<groupId>org.eclipse.m2e</groupId>					<artifactId>lifecycle-mapping</artifactId>					<version>1.0.0</version>					<configuration>						<lifecycleMappingMetadata>							<pluginExecutions>								<!-- Fix m2e not supporting copy-dependency plugin -->								<pluginExecution>									<pluginExecutionFilter>										<groupId>org.apache.maven.plugins</groupId>										<artifactId>maven-dependency-plugin</artifactId>										<versionRange>[1.0.0,)</versionRange>										<goals>											<goal>copy-dependencies</goal>										</goals>									</pluginExecutionFilter>									<action>										<ignore />									</action>								</pluginExecution>							</pluginExecutions>						</lifecycleMappingMetadata>					</configuration>				</plugin>			</plugins>		</pluginManagement>	</build></project>

@@ -22,7 +22,7 @@ public class InputGraphDao extends DaoForEntityWithSurrogateKey<InputGraph>
 	public static final String PIPELINES_TABLE_NAME = TABLE_NAME_PREFIX + "PIPELINES";
 	public static final String ATTACHED_ENGINES_TABLE_NAME = TABLE_NAME_PREFIX + "EN_ATTACHED_ENGINES";
 
-	private ParameterizedRowMapper<InputGraph> rowMapper;
+	private final ParameterizedRowMapper<InputGraph> rowMapper;
 
 	public InputGraphDao()
 	{
@@ -83,8 +83,10 @@ public class InputGraphDao extends DaoForEntityWithSurrogateKey<InputGraph>
 		{
 
 			connection = createVirtuosoConnectionWrapper(EnumDatabaseInstance.CLEAN);
-			tmpFile = GraphLoaderUtils.getImportExportTmpFile(connection, EnumDatabaseInstance.CLEAN);
-			connection.exportToTTL(tmpFile, graphName);
+			
+			File importExportDir = GraphLoaderUtils.getImportExportDirectory(EnumDatabaseInstance.CLEAN, connection);
+			tmpFile = File.createTempFile(GraphLoaderUtils.TMP_FILE_PREFIX, null, importExportDir);
+			GraphLoaderUtils.exportToTTL(connection, tmpFile, graphName);
 		}
 		finally
 		{

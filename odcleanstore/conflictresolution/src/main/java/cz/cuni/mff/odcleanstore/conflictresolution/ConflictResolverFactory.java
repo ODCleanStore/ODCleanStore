@@ -1,14 +1,14 @@
 package cz.cuni.mff.odcleanstore.conflictresolution;
 
+import java.util.Iterator;
+import java.util.Set;
+
+import org.openrdf.model.Statement;
+
 import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.ConflictResolverImpl;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.URIMapping;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.URIMappingImpl;
-
-import com.hp.hpl.jena.graph.Triple;
-
-import java.util.Iterator;
-import java.util.Set;
 
 /**
  * Factory class for ConflictResolver instances.
@@ -17,13 +17,13 @@ import java.util.Set;
  */
 public class ConflictResolverFactory {
     /** Default aggregation settings for conflict resolution. */
-    private AggregationSpec defaultAggregationSpec;
+    private final AggregationSpec defaultAggregationSpec;
 
     /** Configuration settings loaded from the global configuration file. */
-    private ConflictResolutionConfig globalConfig;
+    private final ConflictResolutionConfig globalConfig;
 
     /** Prefix of URIs of named graphs where resolved triples are placed. */
-    private String resultGraphPrefix;
+    private final String resultGraphPrefix;
 
 
     /**
@@ -106,7 +106,7 @@ public class ConflictResolverFactory {
     public ConflictResolver createResolver(
             AggregationSpec aggregationSpec,
             NamedGraphMetadataMap metadata,
-            Iterator<Triple> sameAsLinks,
+            Iterator<Statement> sameAsLinks,
             Set<String> preferredURIs) {
 
         URIMappingImpl uriMapping = new URIMappingImpl(preferredURIs);

@@ -1,8 +1,9 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation.comparators;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
+import org.openrdf.model.Literal;
+import org.openrdf.model.Statement;
 
-import de.fuberlin.wiwiss.ng4j.Quad;
+import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 
 /**
  * Comparator of quads by the lexical length of their object.
@@ -10,15 +11,14 @@ import de.fuberlin.wiwiss.ng4j.Quad;
  */
 public class LexicalLengthComparator implements AggregationComparator {
     @Override
-    public boolean isAggregable(Quad quad) {
-        return quad.getObject().isLiteral();
+    public boolean isAggregable(Statement quad) {
+        return quad.getObject() instanceof Literal;
     }
 
     @Override
-    public int compare(Quad quad1, Quad quad2, NamedGraphMetadataMap metadata) {
+    public int compare(Statement quad1, Statement quad2, NamedGraphMetadataMap metadata) {
         assert quad1 != null && quad2 != null;
-        assert quad1.getObject().isLiteral() && quad2.getObject().isLiteral();
-        return quad1.getObject().getLiteralLexicalForm().length()
-                - quad2.getObject().getLiteralLexicalForm().length();
+        return quad1.getObject().stringValue().length()
+                - quad2.getObject().stringValue().length();
     }
 }

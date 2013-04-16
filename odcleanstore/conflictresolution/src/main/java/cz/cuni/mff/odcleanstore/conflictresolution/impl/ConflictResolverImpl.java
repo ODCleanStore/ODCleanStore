@@ -1,5 +1,23 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import org.openrdf.model.Literal;
+import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
+import org.openrdf.model.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
@@ -7,28 +25,12 @@ import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationMethod;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationMethodFactory;
-import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationNotImplementedException;
+import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.ObjectAggregationMethod;
+import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.AggregationNotImplementedException;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
 import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
-
-import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
-import com.hp.hpl.jena.graph.Node;
-
-import de.fuberlin.wiwiss.ng4j.Quad;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
+import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 
 /**
  * Default implementation of the conflict resolution process.
@@ -67,25 +69,25 @@ public class ConflictResolverImpl implements ConflictResolver {
     /**
      * Comparison of node equality with regard to conflict resolution.
      * Behaves like {@link Node#sameValueAs(Object)} except that languages for plain string literal are not distinguished.
-     * @param node1 first compared node
-     * @param node2 second compared node
+     * @param value1 first compared node
+     * @param value2 second compared node
      * @return true if the two nodes are to be considered equal for conflict resolution
      */
-    public static boolean crSameNodes(Node node1, Node node2) {
+    public static boolean crSameValues(Value value1, Value value2) {
         if (IGNORE_LANGUAGE_TAG) {
-            if (node1 == node2) {
+            if (value1 == value2) {
                 return true;
-            } else if (node1 == null || node2 == null) {
+            } else if (value1 == null || value2 == null) {
                 return false;
-            } else if (isPlainStringLiteral(node1) && isPlainStringLiteral(node2)) {
-                String lex1 = node1.getLiteralLexicalForm();
-                String lex2 = node2.getLiteralLexicalForm();
+            } else if (isPlainStringLiteral(value1) && isPlainStringLiteral(value2)) {
+                String lex1 = value1.stringValue();
+                String lex2 = value2.stringValue();
                 return lex1.equals(lex2); // intentionally not comparing language
             } else {
-                return node1.sameValueAs(node2);
+                return value1.equals(value2); // TODO use equivalent of sameValueAs() in Jena?
             }
         } else {
-            return node1.sameValueAs(node2);
+            return value1.equals(value2);
         }
     }
 
@@ -94,9 +96,12 @@ public class ConflictResolverImpl implements ConflictResolver {
      * @param literalNode testedNode
      * @return true if the given node is an untyped literal or xsd:string literal
      */
-    private static boolean isPlainStringLiteral(Node literalNode) {
-        return literalNode.isLiteral()
-                && (literalNode.getLiteralDatatype() == null || literalNode.getLiteralDatatype().equals(XSDDatatype.XSDstring));
+    private static boolean isPlainStringLiteral(Value literalValue) {
+        if (!(literalValue instanceof Literal)) {
+            return false;
+        }
+        Literal literal = (Literal) literalValue;
+        return literal.getDatatype() == null || literal.getDatatype().stringValue().equals(XMLSchema.stringType);
     }
 
     /**
@@ -107,7 +112,7 @@ public class ConflictResolverImpl implements ConflictResolver {
      * @throws ConflictResolutionException {@inheritDoc}
      */
     @Override
-    public Collection<CRQuad> resolveConflicts(Collection<Quad> quads) throws ConflictResolutionException {
+    public Collection<CRQuad> resolveConflicts(Collection<Statement> quads) throws ConflictResolutionException {
         LOG.debug("Resolving conflicts among {} quads.", quads.size());
         long startTime = System.currentTimeMillis();
 
@@ -137,16 +142,16 @@ public class ConflictResolverImpl implements ConflictResolver {
         AggregationMethodFactory aggregationFactory =
                 new AggregationMethodFactory(effectiveAggregationSpec, crSpec.getNamedGraphPrefix(), globalConfig);
         Collection<CRQuad> result = createResultCollection();
-        Iterator<Collection<Quad>> conflictIterator = quadsToResolve.listConflictingQuads();
+        Iterator<Collection<Statement>> conflictIterator = quadsToResolve.listConflictingQuads();
         while (conflictIterator.hasNext()) {
             // Process the next set of conflicting quads independently
-            Collection<Quad> conflictCluster = conflictIterator.next();
+            Collection<Statement> conflictCluster = conflictIterator.next();
 
             if (hasOldVersions && conflictCluster.size() > 1) {
                 conflictCluster = filterOldVersions(conflictCluster, metadata, filterComparator);
             }
 
-            AggregationMethod aggregator = getAggregator(conflictCluster, aggregationFactory);
+            ObjectAggregationMethod aggregator = getAggregator(conflictCluster, aggregationFactory);
             Collection<CRQuad> aggregatedQuads = aggregator.aggregate(conflictCluster, metadata);
 
             // Add resolved quads to result
@@ -225,28 +230,28 @@ public class ConflictResolverImpl implements ConflictResolver {
      *        instance doesn't have to be created for each cluster of conflicting quads
      * @return collection of quads where duplicate old version triples are removed
      */
-    private Collection<Quad> filterOldVersions(
-            Collection<Quad> conflictingQuads,
+    private Collection<Statement> filterOldVersions(
+            Collection<Statement> conflictingQuads,
             NamedGraphMetadataMap metadata,
             ObjectUpdateSourceStoredComparator objectUpdateSourceStoredComparator) {
 
         // Sort quads by object, update tag, data sources and time (time in *reverse order*).
         // Since for every comparison we search the metadata map in
         // logarithmic time with number of graphs, sorting has time complexity O(n log n log g)
-        LinkedList<Quad> result = new LinkedList<Quad>(conflictingQuads);
+        List<Statement> result = new ArrayList<Statement>(conflictingQuads);
         Collections.sort(result, objectUpdateSourceStoredComparator);
 
         // Remove unwanted quads in one pass
-        Node lastObject = null;
-        Node lastNamedGraph = null;
-        Iterator<Quad> resultIterator = result.iterator();
+        Value lastObject = null;
+        Resource lastNamedGraph = null;
+        Iterator<Statement> resultIterator = result.iterator();
         while (resultIterator.hasNext()) {
             boolean removed = false;
-            Quad quad = resultIterator.next();
-            if (crSameNodes(quad.getObject(), lastObject) && !quad.getGraphName().sameValueAs(lastNamedGraph)) {
+            Statement quad = resultIterator.next();
+            if (crSameValues(quad.getObject(), lastObject) && !ODCSUtils.nullProofEquals(quad.getContext(), lastNamedGraph)) {
                 // (1) holds
                 NamedGraphMetadata lastMetadata = metadata.getMetadata(lastNamedGraph);
-                NamedGraphMetadata quadMetadata = metadata.getMetadata(quad.getGraphName());
+                NamedGraphMetadata quadMetadata = metadata.getMetadata(quad.getContext());
                 if (lastMetadata != null
                         && quadMetadata != null
                         && ODCSUtils.nullProofEquals(quadMetadata.getUpdateTag(), lastMetadata.getUpdateTag()) // (3) holds
@@ -259,13 +264,13 @@ public class ConflictResolverImpl implements ConflictResolver {
                         && quadMetadata.getSources().equals(lastMetadata.getSources())) { // (4) holds
                     resultIterator.remove();
                     removed = true;
-                    LOG.debug("Filtered a triple from an outdated named graph {}.", quad.getGraphName().getURI());
+                    LOG.debug("Filtered a triple from an outdated named graph {}.", quad.getContext() != null ? quad.getContext() : "");
                 }
             }
 
             if (!removed) {
                 lastObject = quad.getObject();
-                lastNamedGraph = quad.getGraphName();
+                lastNamedGraph = quad.getContext();
             }
         }
 
@@ -321,7 +326,7 @@ public class ConflictResolverImpl implements ConflictResolver {
      * @param data collection of quads where conflicts are to be resolved
      * @return named graphs' metadata
      */
-    private NamedGraphMetadataMap getNamedGraphMetadata(Collection<Quad> data) {
+    private NamedGraphMetadataMap getNamedGraphMetadata(Collection<Statement> data) {
         NamedGraphMetadataMap metadata = crSpec.getNamedGraphMetadata();
         if (metadata != null) {
             return metadata;
@@ -344,7 +349,7 @@ public class ConflictResolverImpl implements ConflictResolver {
      * @throws AggregationNotImplementedException thrown if there is no
      *         AggregationMethod implementation for the selected aggregation type
      */
-    private AggregationMethod getAggregator(Collection<Quad> quads, AggregationMethodFactory aggregationFactory)
+    private ObjectAggregationMethod getAggregator(Collection<Statement> quads, AggregationMethodFactory aggregationFactory)
             throws AggregationNotImplementedException {
 
         if (quads.size() == 1) {
@@ -364,9 +369,9 @@ public class ConflictResolverImpl implements ConflictResolver {
      *        subject and predicate)
      * @return URI of the predicate occurring in the quads
      */
-    private String getQuadsProperty(Collection<Quad> quads) {
+    private String getQuadsProperty(Collection<Statement> quads) {
         assert !quads.isEmpty() : "Collection of conflicting quads must be nonempty";
-        Quad firstQuad = quads.iterator().next();
-        return firstQuad.getPredicate().getURI();
+        Statement firstQuad = quads.iterator().next();
+        return firstQuad.getPredicate().stringValue();
     }
 }

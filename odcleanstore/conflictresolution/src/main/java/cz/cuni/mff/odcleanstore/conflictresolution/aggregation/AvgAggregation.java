@@ -1,19 +1,17 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
+import org.openrdf.model.Statement;
+
 import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
+import cz.cuni.mff.odcleanstore.conflictresolution.CRQuadImpl;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.AggregationUtils;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
-
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.impl.LiteralLabelFactory;
-
-import de.fuberlin.wiwiss.ng4j.Quad;
-
-import java.util.ArrayList;
-import java.util.Collection;
 
 /**
  * Aggregation method that returns the average of input conflicting triples.
@@ -49,24 +47,24 @@ import java.util.Collection;
      * @return {@inheritDoc}
      */
     @Override
-    public Collection<CRQuad> aggregate(Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
+    public Collection<CRQuad> aggregate(Collection<Statement> conflictingQuads, NamedGraphMetadataMap metadata) {
         Collection<CRQuad> result = createResultCollection();
-        Collection<Quad> nonAggregableQuads = null;
+        Collection<Statement> nonAggregableQuads = null;
 
         // Compute average value
         double sum = 0;
         double validNumbersCount = 0;
         Collection<String> sourceNamedGraphs = new ArrayList<String>();
 
-        for (Quad quad : conflictingQuads) {
+        for (Statement quad : conflictingQuads) {
             double numberValue = AggregationUtils.convertToDoubleSilent(quad.getObject());
             if (!Double.isNaN(numberValue)) {
                 sum += numberValue;
                 validNumbersCount++;
-                sourceNamedGraphs.add(quad.getGraphName().getURI());
+                sourceNamedGraphs.add(getSourceGraphURI(quad));
             } else {
                 if (nonAggregableQuads == null) {
-                    nonAggregableQuads = new ArrayList<Quad>();
+                    nonAggregableQuads = new ArrayList<Statement>();
                 }
                 handleNonAggregableObject(quad, conflictingQuads, metadata, result, this.getClass());
                 nonAggregableQuads.add(quad);
@@ -76,28 +74,28 @@ import java.util.Collection;
         if (validNumbersCount > 0) {
             // Get list of quads that were really aggregated;
             // optimized for the case of few non-aggregable quads
-            Collection<Quad> aggregableQuads;
+            Collection<Statement> aggregableQuads;
             if (nonAggregableQuads == null) {
                 aggregableQuads = conflictingQuads;
             } else {
-                aggregableQuads = new ArrayList<Quad>(conflictingQuads);
+                aggregableQuads = new ArrayList<Statement>(conflictingQuads);
                 aggregableQuads.removeAll(nonAggregableQuads);
             }
 
             double averageValue = sum / validNumbersCount;
-            Quad firstQuad = conflictingQuads.iterator().next();
-            Quad resultQuad = new Quad(
-                    Node.createURI(uriGenerator.nextURI()),
+            Statement firstQuad = conflictingQuads.iterator().next();
+            Statement resultQuad = VALUE_FACTORY.createStatement(
                     firstQuad.getSubject(),
                     firstQuad.getPredicate(),
-                    Node.createLiteral(LiteralLabelFactory.create(averageValue)));
+                    VALUE_FACTORY.createLiteral(averageValue),
+                    VALUE_FACTORY.createURI(uriGenerator.nextURI()));
             double quality = computeQualityNoAgree(
                     resultQuad,
                     // sourceNamedGraphsForObject(resultQuad.getObject(), conflictingQuads)
                     sourceNamedGraphs,
                     aggregableQuads,
                     metadata);
-            result.add(new CRQuad(resultQuad, quality, sourceNamedGraphs));
+            result.add(new CRQuadImpl(resultQuad, quality, sourceNamedGraphs));
         }
 
         return result;

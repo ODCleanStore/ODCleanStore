@@ -3,10 +3,11 @@ package cz.cuni.mff.odcleanstore.engine.outputws;
 import cz.cuni.mff.odcleanstore.configuration.Config;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionFactory;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
-import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
 import cz.cuni.mff.odcleanstore.qualityassessment.QualityAssessor.GraphScoreWithTrace;
+import cz.cuni.mff.odcleanstore.qualityassessment.impl.QualityAssessorImpl;
 import cz.cuni.mff.odcleanstore.queryexecution.EnumQueryError;
 import cz.cuni.mff.odcleanstore.queryexecution.MetadataQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
@@ -90,7 +91,7 @@ public class MetadataQueryExecutorResource extends QueryExecutorResourceBase {
         VirtuosoConnectionWrapper connection = null;
         WrappedResultSet resultSet = null;
         try {
-            connection = VirtuosoConnectionWrapper.createConnection(connectionCredentials);
+            connection = VirtuosoConnectionFactory.createJDBCConnection(connectionCredentials);
             resultSet = connection.executeSelect(SELECT_QA_GROUPS, uuid);
             while (resultSet.next()) {
                 result.add(resultSet.getInt(1));

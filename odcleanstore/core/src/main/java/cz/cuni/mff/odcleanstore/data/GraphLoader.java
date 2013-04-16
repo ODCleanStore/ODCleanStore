@@ -2,6 +2,7 @@ package cz.cuni.mff.odcleanstore.data;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.configuration.EngineConfig;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionFactory;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
@@ -52,23 +53,13 @@ public class GraphLoader {
             connection = createConnection();
             connection.setQueryTimeout(0);
 
-            tmpFile = GraphLoaderUtils.getImportExportTmpFile(connection, databaseInstance);
+            File importExportDir = GraphLoaderUtils.getImportExportDirectory(databaseInstance, connection);
+            tmpFile = File.createTempFile(GraphLoaderUtils.TMP_FILE_PREFIX, null, importExportDir);
             outputWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpFile), ODCSUtils.DEFAULT_ENCODING));
             outputWriter.write(src);
             outputWriter.close();
             
-            switch (GraphLoaderUtils.guessLanguage(src)) {
-            case RDFXML:
-                connection.insertRdfXmlFromFile(tmpFile, graphURI, "");
-                break;
-            case N3:
-                // src = FileUtils.unicodeToAscii(src);
-                // output = new OutputStreamWriter(new FileOutputStream(fullFileName), "US-ASCII")
-                connection.insertN3FromFile(tmpFile, graphURI, "");
-                break;
-            default:
-                throw new AssertionError();
-            }
+            GraphLoaderUtils.insertRdfFromFile(connection, tmpFile, GraphLoaderUtils.guessLanguage(src), graphURI, "");
         } catch (IOException e) {
             LOG.error("Error with temporary file when importing graph " + graphURI, e);
             throw new ODCleanStoreException(e);
@@ -96,9 +87,9 @@ public class GraphLoader {
         EngineConfig config = ConfigLoader.getConfig().getEngineGroup();
         switch (databaseInstance) {
         case CLEAN:
-            return VirtuosoConnectionWrapper.createConnection(config.getCleanDBJDBCConnectionCredentials());
+            return VirtuosoConnectionFactory.createJDBCConnection(config.getCleanDBJDBCConnectionCredentials());
         case DIRTY:
-            return VirtuosoConnectionWrapper.createConnection(config.getDirtyDBJDBCConnectionCredentials());
+            return VirtuosoConnectionFactory.createJDBCConnection(config.getDirtyDBJDBCConnectionCredentials());
         default:
             throw new AssertionError();
         }

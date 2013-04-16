@@ -9,7 +9,7 @@ import java.sql.Statement;
 // TODO: implement exception-safe resource management
 public class InitalDBScriptsRunner 
 {
-	private Connection jdbcConnection;
+	private final Connection jdbcConnection;
 	
 	public InitalDBScriptsRunner(Connection connection)
 	{

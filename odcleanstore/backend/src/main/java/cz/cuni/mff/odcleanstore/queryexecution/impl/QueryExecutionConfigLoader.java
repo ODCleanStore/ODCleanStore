@@ -4,6 +4,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationType;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionFactory;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
@@ -54,7 +55,7 @@ import java.sql.SQLException;
         VirtuosoConnectionWrapper connection = null;
         WrappedResultSet resultSet = null;
         try {
-            connection = VirtuosoConnectionWrapper.createConnection(connectionCredentials);
+            connection = VirtuosoConnectionFactory.createJDBCConnection(connectionCredentials);
 
             // Get global settings
             resultSet = connection.executeSelect(

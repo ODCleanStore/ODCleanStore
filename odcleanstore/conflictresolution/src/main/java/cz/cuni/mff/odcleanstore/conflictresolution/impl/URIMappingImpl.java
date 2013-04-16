@@ -1,18 +1,19 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
-import cz.cuni.mff.odcleanstore.vocabulary.OWL;
-
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
+import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
+import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.ValueFactoryImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 
 /**
  * Data structure that handles mapping of URI resources linked with a owl:sameAs link
@@ -30,6 +31,7 @@ import java.util.Set;
  */
 public class URIMappingImpl implements URIMapping {
     private static final Logger LOG = LoggerFactory.getLogger(URIMappingImpl.class);
+    private static final ValueFactory VALUE_FACTORY = ValueFactoryImpl.getInstance();
 
     /** Set of URIs preferred as canonical URIs. */
     private Set<String> preferredURIs = null;
@@ -38,14 +40,7 @@ public class URIMappingImpl implements URIMapping {
      * Map representing the DFU data structure.
      * @see #getUriDFUParent()
      */
-    private Map<String, String> uriDFUParent;
-
-    /**
-     * Initializes DFU data structure.
-     */
-    {
-        uriDFUParent = new HashMap<String, String>();
-    }
+    private final Map<String, String> uriDFUParent;
 
     /**
      * Creates an URIMappingImpl instance with no preferred URIs.
@@ -62,28 +57,39 @@ public class URIMappingImpl implements URIMapping {
         this.preferredURIs = (preferredURIs != null)
                 ? preferredURIs
                 : Collections.<String>emptySet();
+        
+        // Initialize DFU data structure.
+        uriDFUParent = createUriMap();
+    }
+    
+    /**
+     * Factory method for the map used to keep URI mappings.
+     * @return map used to keep URI mappings
+     */
+    protected Map<String, String> createUriMap() {
+        return new HashMap<String, String>();
     }
 
     /**
      * Adds owl:sameAs mappings as RDF triples.
      * @param sameAsLinks iterator over triples with owl:sameAs as a predicate
      */
-    public void addLinks(Iterator<Triple> sameAsLinks) {
+    public void addLinks(Iterator<Statement> sameAsLinks) {
         while (sameAsLinks.hasNext()) {
-            Triple triple = sameAsLinks.next();
-            if (!triple.getPredicate().hasURI(OWL.sameAs)) {
+            Statement triple = sameAsLinks.next();
+            if (!triple.getPredicate().stringValue().equals(OWL.sameAs)) {
                 LOG.warn("A triple with predicate {} passed as an owl:sameAs link",
-                        triple.getPredicate().getURI());
+                        triple.getPredicate().stringValue());
                 continue;
             }
-            if (!triple.getSubject().isURI() || !triple.getObject().isURI()) {
+            if (!(triple.getSubject() instanceof URI) || !(triple.getObject() instanceof URI)) {
                 // Ignore sameAs links between everything but URI resources; see owl:sameAs syntax
                 // at see http://www.w3.org/TR/2004/REC-owl-semantics-20040210/syntax.html
                 continue;
             }
 
-            String subjectURI = triple.getSubject().getURI();
-            String objectURI = triple.getObject().getURI();
+            String subjectURI = triple.getSubject().stringValue();
+            String objectURI = triple.getObject().stringValue();
             dfuUnion(subjectURI, objectURI);
         }
     }
@@ -107,15 +113,14 @@ public class URIMappingImpl implements URIMapping {
     }
 
     @Override
-    public Node mapURI(Node uriNode) {
-        assert uriNode.isURI();
-        String uri = uriNode.getURI();
+    public URI mapURI(URI uriNode) {
+        String uri = uriNode.stringValue();
         if (!uriDFUParent.containsKey(uri)) {
             return null;
         }
 
         String canonicalURI = dfuRoot(uri);
-        return canonicalURI.equals(uri) ? null : Node.createURI(canonicalURI);
+        return canonicalURI.equals(uri) ? null : VALUE_FACTORY.createURI(canonicalURI);
     }
 
     /**

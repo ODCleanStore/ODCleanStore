@@ -1,14 +1,14 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
+import java.util.Collection;
+
+import org.openrdf.model.Statement;
+
 import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
-
-import de.fuberlin.wiwiss.ng4j.Quad;
-
-import java.util.Collection;
 
 /**
  * @todo
@@ -40,7 +40,7 @@ import java.util.Collection;
      */
     @Override
     public Collection<CRQuad> aggregate(
-            Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
+            Collection<Statement> conflictingQuads, NamedGraphMetadataMap metadata) {
 
         throw new UnsupportedOperationException("Not supported yet.");
     }

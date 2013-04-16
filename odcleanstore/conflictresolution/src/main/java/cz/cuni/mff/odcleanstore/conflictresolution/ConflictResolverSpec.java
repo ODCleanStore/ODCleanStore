@@ -1,8 +1,9 @@
 package cz.cuni.mff.odcleanstore.conflictresolution;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.impl.URIMapping;
 
-import com.hp.hpl.jena.graph.Node;
+import org.openrdf.model.URI;
+
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.URIMapping;
 
 /**
  * Encapsulates settings for the conflict resolution process.
@@ -15,7 +16,7 @@ public class ConflictResolverSpec {
      */
     private static final URIMapping EMPTY_URI_MAPPING = new URIMapping() {
         @Override
-        public Node mapURI(Node uri) {
+        public URI mapURI(URI uri) {
             return null;
         }
 

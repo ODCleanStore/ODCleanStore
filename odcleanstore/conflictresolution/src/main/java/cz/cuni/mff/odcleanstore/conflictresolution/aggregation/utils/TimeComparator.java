@@ -1,9 +1,9 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils;
 
-import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
-
 import java.util.Calendar;
 import java.util.Comparator;
+
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 
 /**
  * Compares two dates objects based on the time part only.

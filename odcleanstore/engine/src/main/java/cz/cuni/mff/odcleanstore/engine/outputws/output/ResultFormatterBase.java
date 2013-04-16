@@ -2,8 +2,12 @@ package cz.cuni.mff.odcleanstore.engine.outputws.output;
 
 import cz.cuni.mff.odcleanstore.queryexecution.EnumQueryType;
 
+import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.ValueFactoryImpl;
 import org.restlet.data.CharacterSet;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
@@ -32,7 +36,22 @@ public abstract class ResultFormatterBase implements QueryResultFormatter {
     
     /** Character set for the output. */
     protected static final CharacterSet OUTPUT_CHARSET = CharacterSet.UTF_8;
+    
+    /** Value factory. */
+    protected static final ValueFactory VALUE_FACTORY = ValueFactoryImpl.getInstance();
 
+    private static final String TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+            
+    private final DateFormat timeFormat = new SimpleDateFormat(TIME_FORMAT);
+
+    /**
+     * Returns a {@link DateFormat} for formatting of time in output.
+     * @return a {@link DateFormat} instance
+     */
+    private DateFormat getTimeFormat() {
+        return timeFormat;
+    }
+    
     /**
      * Format query response title.
      * @param query query
@@ -79,6 +98,6 @@ public abstract class ResultFormatterBase implements QueryResultFormatter {
      * @return formatted date
      */
     protected String formatDate(Date date) {
-        return date.toString();
+        return getTimeFormat().format(date);
     }
 }

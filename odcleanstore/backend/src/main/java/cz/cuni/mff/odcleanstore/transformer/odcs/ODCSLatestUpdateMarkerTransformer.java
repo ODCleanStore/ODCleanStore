@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.transformer.odcs;
 
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionFactory;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
@@ -92,8 +93,8 @@ public class ODCSLatestUpdateMarkerTransformer implements Transformer {
         WrappedResultSet updatedLatestGraphs = null;
         WrappedResultSet updateTagAndUser = null;
         try {
-            cleanConnection = VirtuosoConnectionWrapper.createConnection(context.getCleanDatabaseCredentials());
-            dirtyConnection = VirtuosoConnectionWrapper.createConnection(context.getDirtyDatabaseCredentials());
+            cleanConnection = VirtuosoConnectionFactory.createJDBCConnection(context.getCleanDatabaseCredentials());
+            dirtyConnection = VirtuosoConnectionFactory.createJDBCConnection(context.getDirtyDatabaseCredentials());
 
             // Get sources
             List<String> sources = getSources(inputGraph, dirtyConnection);

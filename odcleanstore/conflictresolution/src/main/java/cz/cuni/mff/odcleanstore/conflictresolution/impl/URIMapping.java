@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
-import com.hp.hpl.jena.graph.Node;
+import org.openrdf.model.URI;
+
 
 /**
  * Mapping of an URI to its equivalent URI (canonical URI).
@@ -14,7 +15,7 @@ public interface URIMapping {
      * @return the canonical URI (an URI the uri argument maps to) or null if the canonical URI is
      *         identical to URI
      */
-    Node mapURI(Node uri);
+    URI mapURI(URI uri);
 
     /**
      * Returns the canonical URI for the given URI.

@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.qualityassessment.impl;
 
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionFactory;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
@@ -124,7 +125,7 @@ public class QualityAssessorImpl implements QualityAssessor, Serializable {
 
     private VirtuosoConnectionWrapper getDirtyConnection() throws DatabaseException {
         if (dirtyConnection == null) {
-            dirtyConnection = VirtuosoConnectionWrapper.createConnection(context.getDirtyDatabaseCredentials());
+            dirtyConnection = VirtuosoConnectionFactory.createJDBCConnection(context.getDirtyDatabaseCredentials());
         }
         return dirtyConnection;
     }

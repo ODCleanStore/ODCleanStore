@@ -6,8 +6,6 @@ import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
-import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
-import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
@@ -19,15 +17,27 @@ import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-
-import de.fuberlin.wiwiss.ng4j.Quad;
+import org.openrdf.OpenRDFException;
+import org.openrdf.model.Literal;
+import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
+import org.openrdf.model.Value;
+import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.ValueFactoryImpl;
+import org.openrdf.query.BindingSet;
+import org.openrdf.query.QueryEvaluationException;
+import org.openrdf.query.QueryLanguage;
+import org.openrdf.query.TupleQueryResult;
+import org.openrdf.repository.Repository;
+import org.openrdf.repository.RepositoryConnection;
+import org.openrdf.repository.RepositoryException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.SQLException;
+import virtuoso.sesame2.driver.VirtuosoRepository;
+
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -67,7 +77,7 @@ import java.util.Set;
      * If the value is null, there is now restriction on named graph URIs.
      * This constant is only for debugging purposes and should be null in production environment.
      */
-    private static final String GRAPH_PREFIX_FILTER = null; //"http://odcs.mff.cuni.cz/namedGraph/qe-test/";
+    private static final String GRAPH_PREFIX_FILTER = null; // "http://odcs.mff.cuni.cz/namedGraph/qe-test/";
 
     /**
      * Maximum number of properties with explicit aggregation settings.
@@ -88,10 +98,14 @@ import java.util.Set;
     private static final int MAX_QUERY_LIST_LENGTH = 25;
 
     /**
-     * A {@link Node} representing the owl:sameAs predicate.
+     * A {@link URI} representing the owl:sameAs predicate.
      */
-    protected static final Node SAME_AS_PROPERTY = Node.createURI(OWL.sameAs);
+    protected static final URI SAME_AS_PROPERTY = ValueFactoryImpl.getInstance().createURI(OWL.sameAs);
 
+    /**
+     * {@link Value} factory instance.
+     */
+    protected static final ValueFactory VALUE_FACTORY = ValueFactoryImpl.getInstance();
 
     /**
      * SPARQL snippet restricting result to ?graph having at least the given score.
@@ -128,31 +142,31 @@ import java.util.Set;
      * SPARQL query for retrieving all synonyms (i.e. resources connected by an owl:sameAs path) of a given URI.
      * Must be formatted with arguments: (1) URI, (2) maximum length of owl:sameAs path considered, (3) limit.
      * @see #MAX_SAMEAS_PATH_LENGTH
-     * TODO: ignore links from graphs hidden by Engine?
+     *      TODO: ignore links from graphs hidden by Engine?
      */
-    private static final String URI_SYNONYMS_QUERY = "SPARQL"
-                + "\n SELECT ?r ?syn"
-                + "\n WHERE {"
-                + "\n   {"
-                + "\n     SELECT ?r ?syn"
-                + "\n     WHERE {"
-                + "\n       { ?r owl:sameAs ?syn }"
-                + "\n       UNION"
-                + "\n       { ?syn owl:sameAs ?r }"
-                + "\n     }"
-                + "\n   }"
-                + "\n   OPTION (TRANSITIVE, t_in(?r), t_out(?syn), t_distinct, t_min(1), t_max(%2$d))"
-                + "\n   FILTER (?r = <%1$s>)"
-                + "\n }"
-                + "\n LIMIT %3$d";
+    private static final String URI_SYNONYMS_QUERY =
+            "SELECT ?r ?syn"
+            + "\n WHERE {"
+            + "\n   {"
+            + "\n     SELECT ?r ?syn"
+            + "\n     WHERE {"
+            + "\n       { ?r owl:sameAs ?syn }"
+            + "\n       UNION"
+            + "\n       { ?syn owl:sameAs ?r }"
+            + "\n     }"
+            + "\n   }"
+            + "\n   OPTION (TRANSITIVE, t_in(?r), t_out(?syn), t_distinct, t_min(1), t_max(%2$d))"
+            + "\n   FILTER (?r = <%1$s>)"
+            + "\n }"
+            + "\n LIMIT %3$d";
 
     /**
      * SPARQL query that gets the publisher scores for the given publishers.
      *
      * Must be formatted with arguments: (1) non-empty comma separated list of publisher URIs, (2) limit.
      */
-    private static final String PUBLISHER_SCORE_QUERY = "SPARQL"
-            + "\n SELECT"
+    private static final String PUBLISHER_SCORE_QUERY =
+            "SELECT"
             + "\n   ?publishedBy ?score"
             + "\n WHERE {"
             + "\n   ?publishedBy <" + ODCS.publisherScore + "> ?score."
@@ -165,8 +179,8 @@ import java.util.Set;
      * Must be formatted with arguments: (1) non-empty comma separated list of resource URIs, (2) list of
      * label properties, (3) ?labelGraph prefix filter, (4) limit.
      */
-    private static final String LABELS_QUERY = "SPARQL"
-            + "\n DEFINE input:same-as \"yes\""
+    private static final String LABELS_QUERY =
+            "DEFINE input:same-as \"yes\""
             + "\n SELECT ?labelGraph ?r ?labelProp ?label WHERE {{"
             + "\n SELECT DISTINCT ?labelGraph ?r ?labelProp ?label"
             + "\n WHERE {"
@@ -229,7 +243,10 @@ import java.util.Set;
     protected final QueryExecutionConfig globalConfig;
 
     /** Database connection. */
-    private VirtuosoConnectionWrapper connection;
+    private RepositoryConnection connection;
+
+    /** Sesame repository for representing Virtuoso clean database instance. */
+    private Repository virtuosoRepository;
 
     /**
      * Cached graph filter SPARQL snippet.
@@ -255,13 +272,13 @@ import java.util.Set;
      * @param conflictResolverFactory factory for ConflictResolver
      * @param labelPropertiesList list of label properties formatted as a string for use in a query
      * @param globalConfig global conflict resolution settings;
-     * values needed in globalConfig are the following:
-     * <dl>
-     * <dt>maxQueryResultSize
-     * <dd>Maximum number of triples returned by each database query (the overall result size may be larger).
-     * <dt>resultGraphPrefix
-     * <dd>Prefix of named graphs where the resulting triples are placed.
-     * </dl>
+     *        values needed in globalConfig are the following:
+     *        <dl>
+     *        <dt>maxQueryResultSize
+     *        <dd>Maximum number of triples returned by each database query (the overall result size may be larger).
+     *        <dt>resultGraphPrefix
+     *        <dd>Prefix of named graphs where the resulting triples are placed.
+     *        </dl>
      */
     protected QueryExecutorBase(JDBCConnectionCredentials connectionCredentials, QueryConstraintSpec constraints,
             AggregationSpec aggregationSpec, ConflictResolverFactory conflictResolverFactory,
@@ -281,9 +298,20 @@ import java.util.Set;
      * @return database connection
      * @throws ConnectionException database connection error
      */
-    protected VirtuosoConnectionWrapper getConnection() throws ConnectionException {
+    protected RepositoryConnection getConnection() throws ConnectionException {
         if (connection == null) {
-            connection = VirtuosoConnectionWrapper.createConnection(connectionCredentials);
+            closeConnectionQuietly(); // just in case
+            virtuosoRepository = new VirtuosoRepository(
+                    connectionCredentials.getConnectionString(),
+                    connectionCredentials.getUsername(),
+                    connectionCredentials.getPassword());
+            try {
+                virtuosoRepository.initialize();
+                connection = virtuosoRepository.getConnection();
+            } catch (RepositoryException e) {
+                throw new ConnectionException(e);
+
+            }
         }
         return connection;
     }
@@ -292,13 +320,17 @@ import java.util.Set;
      * Closes an opened database connection, if any.
      */
     protected void closeConnectionQuietly() {
-        if (connection != null) {
-            try {
+        try {
+            if (connection != null) {
                 connection.close();
                 connection = null;
-            } catch (ConnectionException e) {
-                // do nothing
             }
+            if (virtuosoRepository != null) {
+                virtuosoRepository.shutDown();
+                virtuosoRepository = null;
+            }
+        } catch (RepositoryException e) {
+            // do nothing
         }
     }
 
@@ -323,13 +355,15 @@ import java.util.Set;
         // Check that settings contain valid URIs
         for (String property : aggregationSpec.getPropertyAggregations().keySet()) {
             if (!ODCSUtils.isValidIRI(property)) {
-                throw new QueryExecutionException(EnumQueryError.AGGREGATION_SETTINGS_INVALID, ODCSErrorCodes.QE_INPUT_FORMAT_ERR,
+                throw new QueryExecutionException(EnumQueryError.AGGREGATION_SETTINGS_INVALID,
+                        ODCSErrorCodes.QE_INPUT_FORMAT_ERR,
                         "'" + property + "' is not a valid URI.");
             }
         }
         for (String property : aggregationSpec.getPropertyMultivalue().keySet()) {
             if (!ODCSUtils.isValidIRI(property)) {
-                throw new QueryExecutionException(EnumQueryError.AGGREGATION_SETTINGS_INVALID, ODCSErrorCodes.QE_INPUT_FORMAT_ERR,
+                throw new QueryExecutionException(EnumQueryError.AGGREGATION_SETTINGS_INVALID,
+                        ODCSErrorCodes.QE_INPUT_FORMAT_ERR,
                         "'" + property + "' is not a valid URI.");
             }
         }
@@ -358,30 +392,30 @@ import java.util.Set;
      * @return result of the query as a collection of quads
      * @throws DatabaseException database error
      */
-    protected Collection<Quad> getQuadsFromQuery(String sparqlQuery, String debugName) throws DatabaseException {
-        long startTime = System.currentTimeMillis();
-        WrappedResultSet resultSet = getConnection().executeSelect(sparqlQuery);
-        LOG.debug("Query Execution: {} query took {} ms", debugName, System.currentTimeMillis() - startTime);
-
+    protected Collection<Statement> getQuadsFromQuery(String sparqlQuery, String debugName) throws DatabaseException {
+        Collection<Statement> quads = new ArrayList<Statement>();
+        TupleQueryResult resultSet = null;
         try {
-            Collection<Quad> quads = new ArrayList<Quad>();
-            while (resultSet.next()) {
-                // CHECKSTYLE:OFF
-                Quad quad = new Quad(
-                        resultSet.getNode(1),
-                        resultSet.getNode(2),
-                        resultSet.getNode(3),
-                        resultSet.getNode(4));
+            long startTime = System.currentTimeMillis();
+            resultSet = getConnection().prepareTupleQuery(QueryLanguage.SPARQL, sparqlQuery).evaluate();
+            LOG.debug("Query Execution: {} query took {} ms", debugName, System.currentTimeMillis() - startTime);
+
+            while (resultSet.hasNext()) {
+                BindingSet bindingSet = resultSet.next();
+                Statement quad = VALUE_FACTORY.createStatement(
+                        (Resource) bindingSet.getValue("s"),
+                        (URI) bindingSet.getValue("p"),
+                        bindingSet.getValue("o"),
+                        (Resource) bindingSet.getValue("graph"));
                 quads.add(quad);
-                // CHECKSTYLE:ON
             }
 
             LOG.debug("Query Execution: {} in {} ms", debugName, System.currentTimeMillis() - startTime);
             return quads;
-        } catch (SQLException e) {
+        } catch (OpenRDFException e) {
             throw new QueryException(e);
         } finally {
-            resultSet.closeQuietly();
+            closeResultSetQuietly(resultSet);
         }
     }
 
@@ -396,57 +430,53 @@ import java.util.Set;
     protected NamedGraphMetadataMap getMetadataFromQuery(String sparqlQuery, String debugName)
             throws DatabaseException {
 
-        final int graphIndex = 1;
-        final int propertyIndex = 2;
-        final int valueIndex = 3;
-        long startTime = System.currentTimeMillis();
-        WrappedResultSet resultSet = getConnection().executeSelect(sparqlQuery);
-        LOG.debug("Query Execution: {} query took {} ms", debugName, System.currentTimeMillis() - startTime);
-
-        // Build the result
         NamedGraphMetadataMap metadata = new NamedGraphMetadataMap();
+        TupleQueryResult resultSet = null;
+        long startTime = System.currentTimeMillis();
         try {
-            while (resultSet.next()) {
-                String namedGraphURI = resultSet.getString(graphIndex);
+            resultSet = getConnection().prepareTupleQuery(QueryLanguage.SPARQL, sparqlQuery).evaluate();
+            LOG.debug("Query Execution: {} query took {} ms", debugName, System.currentTimeMillis() - startTime);
+
+            while (resultSet.hasNext()) {
+                BindingSet bindingSet = resultSet.next();
+                Resource namedGraphURI = (Resource) bindingSet.getValue("resGraph");
                 NamedGraphMetadata graphMetadata = metadata.getMetadata(namedGraphURI);
                 if (graphMetadata == null) {
-                    graphMetadata = new NamedGraphMetadata(namedGraphURI);
+                    graphMetadata = new NamedGraphMetadata(namedGraphURI.stringValue());
                     metadata.addMetadata(graphMetadata);
                 }
 
                 try {
-                    String property = resultSet.getString(propertyIndex);
+                    String property = ((URI) bindingSet.getValue("p")).stringValue();
 
+                    Value object = bindingSet.getValue("o");
                     if (ODCS.source.equals(property)) {
-                        String object = resultSet.getString(valueIndex);
-                        graphMetadata.setSources(ODCSUtils.addToSetNullProof(object, graphMetadata.getSources()));
-                    } else if (ODCS.score.equals(property)) {
-                        Double score = resultSet.getDouble(valueIndex);
+                        graphMetadata.setSources(ODCSUtils.addToSetNullProof(object.stringValue(), graphMetadata.getSources()));
+                    } else if (ODCS.score.equals(property) && object instanceof Literal) {
+                        double score = ((Literal) object).doubleValue();
                         graphMetadata.setScore(score);
-                    } else if (ODCS.insertedAt.equals(property)) {
-                        Date insertedAt = resultSet.getJavaDate(valueIndex);
+                    } else if (ODCS.insertedAt.equals(property) && object instanceof Literal) {
+                        Date insertedAt = ((Literal) object).calendarValue().toGregorianCalendar().getTime();
                         graphMetadata.setInsertedAt(insertedAt);
                     } else if (ODCS.insertedBy.equals(property)) {
-                        String insertedBy = resultSet.getString(valueIndex);
-                        graphMetadata.setInsertedBy(insertedBy);
+                        graphMetadata.setInsertedBy(object.stringValue());
                     } else if (ODCS.publishedBy.equals(property)) {
-                        String object = resultSet.getString(valueIndex);
-                        graphMetadata.setPublishers(ODCSUtils.addToListNullProof(object, graphMetadata.getPublishers()));
+                        graphMetadata.setPublishers(ODCSUtils.addToListNullProof(
+                                object.stringValue(), graphMetadata.getPublishers()));
                     } else if (ODCS.license.equals(property)) {
-                        String object = resultSet.getString(valueIndex);
-                        graphMetadata.setLicences(ODCSUtils.addToListNullProof(object, graphMetadata.getLicences()));
+                        graphMetadata.setLicences(ODCSUtils.addToListNullProof(
+                                object.stringValue(), graphMetadata.getLicences()));
                     } else if (ODCS.updateTag.equals(property)) {
-                        String updateTag = resultSet.getString(valueIndex);
-                        graphMetadata.setUpdateTag(updateTag);
+                        graphMetadata.setUpdateTag(object.stringValue());
                     }
-                } catch (SQLException e) {
+                } catch (IllegalArgumentException e) {
                     LOG.warn("Query Execution: invalid metadata for graph {}", namedGraphURI);
                 }
             }
-        } catch (SQLException e) {
+        } catch (OpenRDFException e) {
             throw new QueryException(e);
         } finally {
-            resultSet.closeQuietly();
+            closeResultSetQuietly(resultSet);
         }
 
         // Add publisher scores
@@ -467,9 +497,6 @@ import java.util.Set;
      * @throws DatabaseException database error
      */
     protected Map<String, Double> getPublisherScores(NamedGraphMetadataMap metadata) throws DatabaseException {
-        final int publisherIndex = 1;
-        final int scoreIndex = 2;
-
         long startTime = System.currentTimeMillis();
 
         Map<String, Double> publisherScores = new HashMap<String, Double>();
@@ -487,24 +514,29 @@ import java.util.Set;
         for (CharSequence publisherURIList : limitedURIListBuilder) {
             String query = String.format(Locale.ROOT, PUBLISHER_SCORE_QUERY, publisherURIList, maxLimit);
             long queryStartTime = System.currentTimeMillis();
-            WrappedResultSet resultSet = getConnection().executeSelect(query);
-            LOG.debug("Query Execution: getPublisherScores() query took {} ms", System.currentTimeMillis() - queryStartTime);
-
+            TupleQueryResult resultSet = null;
             try {
-                while (resultSet.next()) {
-                    String publisher = "";
+                resultSet = getConnection().prepareTupleQuery(QueryLanguage.SPARQL, query).evaluate();
+                LOG.debug("Query Execution: getPublisherScores() query took {} ms", System.currentTimeMillis() - queryStartTime);
+                while (resultSet.hasNext()) {
+                    BindingSet bindingSet = resultSet.next();
+                    String publisher = bindingSet.getValue("publishedBy").stringValue();
+                    Value scoreValue = bindingSet.getValue("score");
                     try {
-                        publisher = resultSet.getString(publisherIndex);
-                        Double score = resultSet.getDouble(scoreIndex);
-                        publisherScores.put(publisher, score);
-                    } catch (SQLException e) {
+                        if (scoreValue instanceof Literal) {
+                            double score = ((Literal) scoreValue).doubleValue();
+                            publisherScores.put(publisher, score);
+                        } else {
+                            LOG.warn("Query Execution: invalid publisher score for {}", publisher);
+                        }
+                    } catch (IllegalArgumentException e) {
                         LOG.warn("Query Execution: invalid publisher score for {}", publisher);
                     }
                 }
-            } catch (SQLException e) {
+            } catch (OpenRDFException e) {
                 throw new QueryException(e);
             } finally {
-                resultSet.closeQuietly();
+                closeResultSetQuietly(resultSet);
             }
         }
 
@@ -543,40 +575,41 @@ import java.util.Set;
      * @return collection containing contents of addToCollection plus new quads for labels
      * @throws DatabaseException database error
      */
-    protected Collection<Quad> addLabelsForResources(Collection<String> resourceURIs, Collection<Quad> addToCollection)
+    protected Collection<Statement> addLabelsForResources(Collection<String> resourceURIs, Collection<Statement> addToCollection)
             throws DatabaseException {
 
         long startTime = System.currentTimeMillis();
         Iterable<CharSequence> resourceURIListBuilder =
                 QueryExecutionHelper.getLimitedURIListBuilder(resourceURIs, MAX_QUERY_LIST_LENGTH);
 
-        WrappedResultSet resultSet = null;
+        TupleQueryResult resultSet = null;
         try {
             for (CharSequence resourceURIList : resourceURIListBuilder) {
                 String query = String.format(Locale.ROOT, LABELS_QUERY, resourceURIList, labelPropertiesList,
                         getGraphPrefixFilter("labelGraph"), maxLimit);
 
                 long queryStartTime = System.currentTimeMillis();
-                resultSet = getConnection().executeSelect(query);
+                resultSet = getConnection().prepareTupleQuery(QueryLanguage.SPARQL, query).evaluate();
                 LOG.debug("Query Execution: {} query took {} ms",
                         "getLabelsForResources()", System.currentTimeMillis() - queryStartTime);
 
-                while (resultSet.next()) {
-                    // CHECKSTYLE:OFF
-                    Quad quad = new Quad(
-                            resultSet.getNode(1),
-                            resultSet.getNode(2),
-                            resultSet.getNode(3),
-                            resultSet.getNode(4));
+                while (resultSet.hasNext()) {
+                    BindingSet bindingSet = resultSet.next();
+                    Statement quad = VALUE_FACTORY.createStatement(
+                            (Resource) bindingSet.getValue("r"),
+                            (URI) bindingSet.getValue("labelProp"),
+                            bindingSet.getValue("label"),
+                            (Resource) bindingSet.getValue("labelGraph"));
                     addToCollection.add(quad);
-                    // CHECKSTYLE:ON
                 }
 
-                resultSet.closeQuietly();
+                closeResultSetQuietly(resultSet);
+                resultSet = null;
             }
-        } catch (SQLException e) {
-            resultSet.closeQuietly();
+        } catch (OpenRDFException e) {
             throw new QueryException(e);
+        } finally {
+            closeResultSetQuietly(resultSet);
         }
         LOG.debug("Query Execution: {} in {} ms", "getLabelsForResources()", System.currentTimeMillis() - startTime);
         return addToCollection;
@@ -585,26 +618,31 @@ import java.util.Set;
     /**
      * Retrieves owl:sameAs links of the given URI to all resources that are a synonym
      * (i.e. connected by a owl:sameAs path) of the given URI. The result is added to the second argument as
-     * triples having the owl:sameAs predicate.  The maximum length of the owl:sameAs path is given by
-     *  {@link #MAX_SAMEAS_PATH_LENGTH} ({@value #MAX_SAMEAS_PATH_LENGTH}).
+     * triples having the owl:sameAs predicate. The maximum length of the owl:sameAs path is given by
+     * {@link #MAX_SAMEAS_PATH_LENGTH} ({@value #MAX_SAMEAS_PATH_LENGTH}).
      * @param uri URI for which we search for owl:sameAs synonyms
      * @param triples the resulting triples are added to this collection as
      * @throws DatabaseException database error
      */
-    protected void addSameAsLinksForURI(String uri, Collection<Triple> triples) throws DatabaseException {
-        long startTime = System.currentTimeMillis();
-        String query = String.format(Locale.ROOT, URI_SYNONYMS_QUERY, uri, MAX_SAMEAS_PATH_LENGTH, maxLimit);
-        WrappedResultSet resultSet = getConnection().executeSelect(query);
-        LOG.debug("Query Execution: getURISynonyms() query took {} ms", System.currentTimeMillis() - startTime);
+    protected void addSameAsLinksForURI(String uri, Collection<Statement> triples) throws DatabaseException {
+        TupleQueryResult resultSet = null;
         try {
-            while (resultSet.next()) {
-                Triple triple = Triple.create(resultSet.getNode(1), SAME_AS_PROPERTY, resultSet.getNode(2));
+            long startTime = System.currentTimeMillis();
+            String query = String.format(Locale.ROOT, URI_SYNONYMS_QUERY, uri, MAX_SAMEAS_PATH_LENGTH, maxLimit);
+            resultSet = getConnection().prepareTupleQuery(QueryLanguage.SPARQL, query).evaluate();
+            LOG.debug("Query Execution: getURISynonyms() query took {} ms", System.currentTimeMillis() - startTime);
+            while (resultSet.hasNext()) {
+                BindingSet bindingSet = resultSet.next();
+                Statement triple = VALUE_FACTORY.createStatement(
+                        (Resource) bindingSet.getValue("r"),
+                        SAME_AS_PROPERTY,
+                        (URI) bindingSet.getValue("syn"));
                 triples.add(triple);
             }
-        } catch (SQLException e) {
+        } catch (OpenRDFException e) {
             throw new QueryException(e);
         } finally {
-            resultSet.closeQuietly();
+            closeResultSetQuietly(resultSet);
         }
     }
 
@@ -625,5 +663,15 @@ import java.util.Set;
         preferredURIs.addAll(aggregationProperties);
         preferredURIs.addAll(multivalueProperties);
         return preferredURIs;
+    }
+
+    private void closeResultSetQuietly(TupleQueryResult resultSet) {
+        if (resultSet != null) {
+            try {
+                resultSet.close();
+            } catch (QueryEvaluationException e) {
+                // ignore
+            }
+        }
     }
 }

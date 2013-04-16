@@ -3,14 +3,15 @@
  */
 package cz.cuni.mff.odcleanstore.engine;
 
-import java.util.concurrent.ScheduledThreadPoolExecutor;
+import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionFactory;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
+import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
-import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
-import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 /**
  * Ancestor of services running in engine.
@@ -124,11 +125,11 @@ public abstract class Service implements Runnable {
                 return false;
             }
 
-            VirtuosoConnectionWrapper con = VirtuosoConnectionWrapper.createConnection(
+            VirtuosoConnectionWrapper con = VirtuosoConnectionFactory.createJDBCConnection(
                ConfigLoader.getConfig().getEngineGroup().getCleanDBJDBCConnectionCredentials());
             con.closeQuietly();
             if (includeDirty) {
-                con = VirtuosoConnectionWrapper.createConnection(
+                con = VirtuosoConnectionFactory.createJDBCConnection(
                         ConfigLoader.getConfig().getEngineGroup().getDirtyDBJDBCConnectionCredentials());
                 con.closeQuietly();
             }

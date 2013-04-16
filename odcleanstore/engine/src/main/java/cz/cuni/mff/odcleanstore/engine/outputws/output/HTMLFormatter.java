@@ -13,11 +13,11 @@ import cz.cuni.mff.odcleanstore.queryexecution.QueryResultBase;
 import cz.cuni.mff.odcleanstore.queryexecution.impl.PrefixMapping;
 import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 
-import com.hp.hpl.jena.datatypes.RDFDatatype;
-import com.hp.hpl.jena.graph.Node;
-
-import de.fuberlin.wiwiss.ng4j.Quad;
-
+import org.openrdf.model.BNode;
+import org.openrdf.model.Literal;
+import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
+import org.openrdf.model.Value;
 import org.restlet.data.MediaType;
 import org.restlet.data.Parameter;
 import org.restlet.data.Reference;
@@ -57,10 +57,10 @@ public class HTMLFormatter extends ResultFormatterBase {
     };
     
     /** Configuration of the output webservice from the global configuration file. */
-    private OutputWSConfig outputWSConfig;
+    private final OutputWSConfig outputWSConfig;
     
     /** Namespace prefix mappings. */
-    private PrefixMapping prefixMapping;
+    private final PrefixMapping prefixMapping;
 
     /**
      * Creates a new instance.
@@ -95,10 +95,10 @@ public class HTMLFormatter extends ResultFormatterBase {
         //private Reference requestReference;
         
         /** Query result. */
-        private QueryResultBase queryResult;
+        private final QueryResultBase queryResult;
         
         /** Query string with aggregation properties to append to links. */
-        private String propagatedQueryString;
+        private final String propagatedQueryString;
 
         /**
          * Initialize.
@@ -171,37 +171,40 @@ public class HTMLFormatter extends ResultFormatterBase {
                     + "\n   tr.odd td {background-color: #FFFFFF; }"
                     + "\n   a { text-decoration:none; }"
                     + "\n   a:hover {text-decoration:underline; }"
-                    + "\n </style>"
-                    + "\n <title>");
-            writer.write(queryResult.getQueryType().toString());
-            writer.write(" query</title>" 
-                    + "\n</head>"
-                    + "\n<body>" 
-                    + "\n");
-            writer.write(" <p>");
+                    + "\n </style>");
             if (queryResult.getQuery() != null) {
                 switch (queryResult.getQueryType()) {
                 case KEYWORD:
+                    writer.write("\n<title>Keyword query</title>");
+                    writer.write("\n</head>\n<body>\n <p>");
                     writer.write("Keyword query for <code>");
                     writer.write(ODCSUtils.toStringNullProof(queryResult.getQuery()));
                     writer.write("</code>.");
                     break;
                 case URI:
+                    writer.write("\n<title>URI query</title>");
+                    writer.write("\n</head>\n<body>\n <p>");
                     writer.write("URI query for &lt;");
                     writer.write(ODCSUtils.toStringNullProof(queryResult.getQuery()));
                     writer.write("&gt;.");
                     break;
                 case METADATA:
+                    writer.write("\n<title>Metadata query</title>");
+                    writer.write("\n</head>\n<body>\n <p>");
                     writer.write("Metadata query for named graph &lt;");
                     writer.write(ODCSUtils.toStringNullProof(queryResult.getQuery()));
                     writer.write("&gt;.");
                     break;
                 case NAMED_GRAPH:
+                    writer.write("\n<title>Named graph query</title>");
+                    writer.write("\n</head>\n<body>\n <p>");
                     writer.write("Named graph query for &lt;");
                     writer.write(ODCSUtils.toStringNullProof(queryResult.getQuery()));
                     writer.write("&gt;.");
                     break;
                 default:
+                    writer.write("\n<title>Query</title>");
+                    writer.write("\n</head>\n<body>\n <p>");
                     writer.write("Query <code>");
                     writer.write(ODCSUtils.toStringNullProof(queryResult.getQuery()));
                     writer.write("</code>.");
@@ -287,43 +290,43 @@ public class HTMLFormatter extends ResultFormatterBase {
         /**
          * Write a single node.
          * @param writer output writer
-         * @param node RDF node
+         * @param value RDF node
          * @throws IOException if an I/O error occurs
          */
-        protected void writeNode(Writer writer, Node node) throws IOException {
-            if (node.isURI()) {
-                String text = getPrefixedURI(node.getURI());
+        protected void writeNode(Writer writer, Value value) throws IOException {
+            if (value instanceof URI) {
+                String text = getPrefixedURI(value.stringValue());
                 assert queryResult.getQuery() != null;
-                if (queryResult.getQuery().equals(text) || queryResult.getQuery().equals(node.getURI())) {
+                if (queryResult.getQuery().equals(text) || queryResult.getQuery().equals(value.stringValue())) {
                     writer.write("<em>");
-                    writeRelativeLink(writer, getRequestForURI(node.getURI()), text, "URI query");
+                    writeRelativeLink(writer, getRequestForURI(value.stringValue()), text, "URI query");
                     writer.write("</em>");
                 } else {
-                    writeRelativeLink(writer, getRequestForURI(node.getURI()), text, "URI query");
+                    writeRelativeLink(writer, getRequestForURI(value.stringValue()), text, "URI query");
                 }
-            } else if (node.isLiteral()) {
-                String text = formatLiteral(node);
+            } else if (value instanceof Literal) {
+                String text = formatLiteral((Literal) value);
                 assert queryResult.getQuery() != null;
-                if (queryResult.getQuery().equals(node.getLiteralLexicalForm())) {
+                if (queryResult.getQuery().equals(value.stringValue())) {
                     writer.write("<em>");
-                    writeRelativeLink(writer, getRequestForKeyword(node.getLiteralLexicalForm()), text, "Keyword query");
+                    writeRelativeLink(writer, getRequestForKeyword(value.stringValue()), text, "Keyword query");
                     writer.write("</em>");                    
                 } else {
-                    writeRelativeLink(writer, getRequestForKeyword(node.getLiteralLexicalForm()), text, "Keyword query");
+                    writeRelativeLink(writer, getRequestForKeyword(value.stringValue()), text, "Keyword query");
                 }
-            } else if (node.isBlank()) {
-                String uri = ODCSUtils.getVirtuosoURIForBlankNode(node);
+            } else if (value instanceof BNode) {
+                String uri = ODCSUtils.getVirtuosoURIForBlankNode((BNode) value);
                 assert queryResult.getQuery() != null;
                 if (queryResult.getQuery().equals(uri)) {
                     writer.write("<em>");
-                    writeRelativeLink(writer, getRequestForURI(uri), "_:" + node.getBlankNodeLabel(), "URI query");
+                    writeRelativeLink(writer, getRequestForURI(uri), "_:" + value.stringValue(), "URI query");
                     writer.write("</em>");
                 } else {
-                    writeRelativeLink(writer, getRequestForURI(uri), "_:" + node.getBlankNodeLabel(), "URI query");
+                    writeRelativeLink(writer, getRequestForURI(uri), "_:" + value.stringValue(), "URI query");
                 }
                 
             } else {
-                writer.write(ODCSUtils.toStringNullProof(node));
+                writer.write(ODCSUtils.toStringNullProof(value));
             }
         }
         
@@ -347,23 +350,22 @@ public class HTMLFormatter extends ResultFormatterBase {
         
         /**
          * Format a literal value for output.
-         * @param literalNode a literal node (literalNode.isLiteral() must return true!)
+         * @param literalValue a literal node (literalNode.isLiteral() must return true!)
          * @return literal value formatted for output
          */
-        protected String formatLiteral(Node literalNode) {
-            assert literalNode.isLiteral();
+        protected String formatLiteral(Literal literalValue) {
             StringBuilder result = new StringBuilder();
-            String lang = literalNode.getLiteralLanguage();
-            RDFDatatype dtype = literalNode.getLiteralDatatype();
+            String lang = literalValue.getLanguage();
+            URI dtype = literalValue.getDatatype();
             
             result.append('"');
-            result.append(literalNode.getLiteralLexicalForm());
+            result.append(literalValue.getLabel());
             result.append('"');
             if (!ODCSUtils.isNullOrEmpty(lang)) {
                 result.append("@").append(lang);
             }
             if (dtype != null) {
-                result.append(" ^^").append(getPrefixedURI(dtype.getURI()));
+                result.append(" ^^").append(getPrefixedURI(dtype.stringValue()));
             }
             return result.toString();
         }
@@ -497,7 +499,7 @@ public class HTMLFormatter extends ResultFormatterBase {
      */
     private class BasicQueryHTMLRepresentation extends HTMLRepresentationBase {
         /** Query result. */
-        private BasicQueryResult queryResult;
+        private final BasicQueryResult queryResult;
 
         /**
          * Initialize.
@@ -558,13 +560,13 @@ public class HTMLFormatter extends ResultFormatterBase {
      */
     private class MetadataQueryHTMLRepresentation extends HTMLRepresentationBase {
         /** Result of metadata query about the requested named graph. */
-        private MetadataQueryResult metadataResult;
+        private final MetadataQueryResult metadataResult;
 
         /** Result of quality assessment over the given named graph. Can be null. */
-        private GraphScoreWithTrace qaResult;
+        private final GraphScoreWithTrace qaResult;
 
         /** Execution time of the query. */
-        private long totalTime;
+        private final long totalTime;
 
         /**
          * Initialize.
@@ -615,11 +617,11 @@ public class HTMLFormatter extends ResultFormatterBase {
          * @param quads quads to write
          * @throws IOException if an I/O error occurs
          */
-        private void writeTriples(Writer writer, Collection<Quad> quads) throws IOException {
+        private void writeTriples(Writer writer, Collection<Statement> quads) throws IOException {
             writer.write(" <table border=\"1\" cellspacing=\"0\" cellpadding=\"2\">\n");
             writer.write("  <tr><th>Subject</th><th>Predicate</th><th>Object</th></tr>\n");
             int row = 0;
-            for (Quad quad : quads) {
+            for (Statement quad : quads) {
                 writeOpeningTr(writer, ++row);
                 writer.write("<td>");
                 writeNode(writer, quad.getSubject());

@@ -8,18 +8,13 @@ import cz.cuni.mff.odcleanstore.queryexecution.MetadataQueryResult;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 
-import com.hp.hpl.jena.graph.Factory;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.graph.impl.LiteralLabelFactory;
-import com.hp.hpl.jena.shared.ReificationStyle;
-
-import de.fuberlin.wiwiss.ng4j.NamedGraph;
-import de.fuberlin.wiwiss.ng4j.NamedGraphSet;
-import de.fuberlin.wiwiss.ng4j.Quad;
-import de.fuberlin.wiwiss.ng4j.impl.NamedGraphImpl;
-import de.fuberlin.wiwiss.ng4j.impl.NamedGraphSetImpl;
-
+import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
+import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.RDFWriter;
+import org.openrdf.rio.RDFWriterFactory;
+import org.openrdf.rio.trig.TriGWriterFactory;
 import org.restlet.data.MediaType;
 import org.restlet.data.Reference;
 import org.restlet.representation.Representation;
@@ -34,14 +29,16 @@ import java.io.Writer;
  * @author Jan Michelfeit
  */
 public class TriGFormatter extends RDFFormatter {
-    /** {@ ODCS#quality} as a {@link Node}. */
-    private static final Node QUALITY_PROPERTY = Node.createURI(ODCS.quality);
-    /** {@ ODCS#sourceGraph} as a {@link Node}. */
-    private static final Node SOURCE_GRAPH_PROPERTY = Node.createURI(ODCS.sourceGraph);
-    /** {@ ODCS#result} as a {@link Node}. */
-    private static final Node RESULT_PROPERTY = Node.createURI(ODCS.result);
-    /** {@ ODCS#provenanceMetadataGraph} as a {@link Node}. */
-    private static final Node PROVENANCE_GRAPH_PROPERTY = Node.createURI(ODCS.provenanceMetadataGraph);
+    /** {@ ODCS#quality} as a {@link URI}. */
+    private static final URI QUALITY_PROPERTY = VALUE_FACTORY.createURI(ODCS.quality);
+    /** {@ ODCS#sourceGraph} as a {@link URI}. */
+    private static final URI SOURCE_GRAPH_PROPERTY = VALUE_FACTORY.createURI(ODCS.sourceGraph);
+    /** {@ ODCS#result} as a {@link URI}. */
+    private static final URI RESULT_PROPERTY = VALUE_FACTORY.createURI(ODCS.result);
+    /** {@ ODCS#provenanceMetadataGraph} as a {@link URI}. */
+    private static final URI PROVENANCE_GRAPH_PROPERTY = VALUE_FACTORY.createURI(ODCS.provenanceMetadataGraph);
+    
+    private static final RDFWriterFactory WRITER_FACTORY = new TriGWriterFactory();
 
     /**
      * Creates a new instance.
@@ -56,7 +53,14 @@ public class TriGFormatter extends RDFFormatter {
         WriterRepresentation representation = new WriterRepresentation(MediaType.APPLICATION_RDF_TRIG) {
             @Override
             public void write(Writer writer) throws IOException {
-                basicConvertToNGSet(result, requestReference).write(writer, "TRIG", "" /* baseURI */);
+                RDFWriter rdfWriter = WRITER_FACTORY.getWriter(writer);
+                try {
+                    rdfWriter.startRDF();
+                    writeBasic(rdfWriter, result, requestReference);
+                    rdfWriter.endRDF();
+                } catch (RDFHandlerException e) {
+                    throw new IOException(e);
+                }
             };
         };
         representation.setCharacterSet(OUTPUT_CHARSET);
@@ -68,43 +72,50 @@ public class TriGFormatter extends RDFFormatter {
      * @param queryResult result of a query
      * @param requestReference Representation of the requested URI
      * @return representation of crQuads and metadata as quads in a NamedGraphSet
+     * @throws RDFHandlerException writer error
      */
-    private NamedGraphSet basicConvertToNGSet(BasicQueryResult queryResult, Reference requestReference) {
-        NamedGraphSet result = new NamedGraphSetImpl();
-        NamedGraph metadataGraph = new NamedGraphImpl(
-                outputWSConfig.getResultDataURIPrefix().toString() + ODCSInternal.queryMetadataGraphUriInfix,
-                Factory.createGraphMem(ReificationStyle.Standard));
+    private void writeBasic(RDFWriter rdfWriter, BasicQueryResult queryResult, Reference requestReference)
+            throws RDFHandlerException {
+        
+        URI metadataGraphURI = VALUE_FACTORY.createURI(
+                outputWSConfig.getResultDataURIPrefix().toString() + ODCSInternal.queryMetadataGraphUriInfix);
 
-        Node requestURI = Node.createURI(requestReference.toString(true, false));
+        URI requestURI = VALUE_FACTORY.createURI(requestReference.toString(true, false));
 
         // Data and metadata about the result
         int totalResults = 0;
         for (CRQuad crQuad : queryResult.getResultQuads()) {
             totalResults++;
-            result.addQuad(crQuad.getQuad());
-            metadataGraph.add(new Triple(
-                    crQuad.getQuad().getGraphName(),
+            rdfWriter.handleStatement(crQuad.getQuad());
+            rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
+                    crQuad.getQuad().getContext(),
                     QUALITY_PROPERTY,
-                    Node.createLiteral(LiteralLabelFactory.create(crQuad.getQuality()))));
+                    VALUE_FACTORY.createLiteral(crQuad.getQuality()),
+                    metadataGraphURI));
             for (String sourceNamedGraph : crQuad.getSourceNamedGraphURIs()) {
-                metadataGraph.add(new Triple(
-                        crQuad.getQuad().getGraphName(), 
+                rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
+                        crQuad.getQuad().getContext(), 
                         SOURCE_GRAPH_PROPERTY, 
-                        Node.createURI(sourceNamedGraph)));
+                        VALUE_FACTORY.createURI(sourceNamedGraph),
+                        metadataGraphURI));
             }
-            metadataGraph.add(new Triple(requestURI, RESULT_PROPERTY, crQuad.getQuad().getGraphName()));
+            rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
+                    requestURI,
+                    RESULT_PROPERTY,
+                    crQuad.getQuad().getContext(),
+                    metadataGraphURI));
         }
 
         // Metadata of source named graphs
-        addODCSNamedGraphMetadata(queryResult.getMetadata(), metadataGraph, true);
+        writeODCSNamedGraphMetadata(rdfWriter, queryResult.getMetadata(), true, metadataGraphURI);
 
         // Metadata about the query
-        addBasicQueryMetadata(requestURI, queryResult, metadataGraph);
-        Node totalResultsLiteral = Node.createLiteral(LiteralLabelFactory.create(totalResults));
-        metadataGraph.add(new Triple(requestURI, TOTAL_RESULTS_PROPERTY, totalResultsLiteral));
-
-        result.addGraph(metadataGraph);
-        return result;
+        writeBasicQueryMetadata(rdfWriter, requestURI, queryResult, metadataGraphURI);
+        rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
+                requestURI,
+                TOTAL_RESULTS_PROPERTY,
+                VALUE_FACTORY.createLiteral(totalResults),
+                metadataGraphURI));
     }
 
     @Override
@@ -114,8 +125,14 @@ public class TriGFormatter extends RDFFormatter {
         WriterRepresentation representation = new WriterRepresentation(MediaType.APPLICATION_RDF_TRIG) {
             @Override
             public void write(Writer writer) throws IOException {
-                metadataConvertToNGSet(metadataResult, qaResult, totalTime, requestReference)
-                    .write(writer, "TRIG", "" /* baseURI */);
+                RDFWriter rdfWriter = WRITER_FACTORY.getWriter(writer);
+                try {
+                    rdfWriter.startRDF();
+                    writeMetadata(rdfWriter, metadataResult, qaResult, totalTime, requestReference);
+                    rdfWriter.endRDF();
+                } catch (RDFHandlerException e) {
+                    throw new IOException(e);
+                }
             };
         };
         representation.setCharacterSet(OUTPUT_CHARSET);
@@ -124,48 +141,49 @@ public class TriGFormatter extends RDFFormatter {
 
     /**
      * Returns a formatted representation of a metadata query result.
+     * @param rdfWriter output RDF writer
      * @param metadataResult result of metadata query about the requested named graph
      * @param qaResult result of quality assessment over the given named graph; can be null
      * @param totalTime execution time of the query
      * @param requestReference Representation of the requested URI
      * @return representation of the result as quads in a NamedGraphSet
+     * @throws RDFHandlerException 
      */
-    private NamedGraphSet metadataConvertToNGSet(MetadataQueryResult metadataResult,
-            GraphScoreWithTrace qaResult, long totalTime, Reference requestReference) {
+    private void writeMetadata(RDFWriter rdfWriter, MetadataQueryResult metadataResult,
+            GraphScoreWithTrace qaResult, long totalTime, Reference requestReference) throws RDFHandlerException {
 
-        Node namedGraphURI = Node.createURI(metadataResult.getQuery());
-
-        NamedGraphSet result = new NamedGraphSetImpl();
-        NamedGraph metadataGraph = new NamedGraphImpl(
-                outputWSConfig.getResultDataURIPrefix().toString() + ODCSInternal.queryMetadataGraphUriInfix,
-                Factory.createGraphMem(ReificationStyle.Standard));
+        URI namedGraphURI = VALUE_FACTORY.createURI(metadataResult.getQuery());
+        URI metadataGraphURI = VALUE_FACTORY.createURI(
+                outputWSConfig.getResultDataURIPrefix().toString() + ODCSInternal.queryMetadataGraphUriInfix);
 
         // Quality Assessment results
-        addQualityAssessmentResults(namedGraphURI, qaResult, metadataGraph);
+        writeQualityAssessmentResults(rdfWriter, namedGraphURI, qaResult, metadataGraphURI);
 
         // Metadata of source named graphs
-        addODCSNamedGraphMetadata(metadataResult.getMetadata(), metadataGraph, false);
+        writeODCSNamedGraphMetadata(rdfWriter, metadataResult.getMetadata(), false, metadataGraphURI);
 
         // Metadata about the query
-        Node requestURI = Node.createURI(requestReference.toString(true, false));
-        addBasicQueryMetadata(requestURI, metadataResult, metadataGraph);
+        URI requestURI = VALUE_FACTORY.createURI(requestReference.toString(true, false));
+        writeBasicQueryMetadata(rdfWriter, requestURI, metadataResult, metadataGraphURI);
 
         // Additional provenance metadata
-        if (!metadataResult.getProvenanceMetadata().isEmpty()) {
-            Node additionalProvenanceGraphURI = metadataResult.getProvenanceMetadata().iterator().next().getGraphName();
-            NamedGraph additionalProvenanceGraph = new NamedGraphImpl(
+        Resource additionalProvenanceGraphURI = metadataResult.getProvenanceMetadata().isEmpty()
+                ? null
+                : metadataResult.getProvenanceMetadata().iterator().next().getContext();
+        if (additionalProvenanceGraphURI != null) {
+            rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
+                    namedGraphURI,
+                    PROVENANCE_GRAPH_PROPERTY,
                     additionalProvenanceGraphURI,
-                    Factory.createGraphMem(ReificationStyle.Standard));
-            metadataGraph.add(new Triple(namedGraphURI, PROVENANCE_GRAPH_PROPERTY, additionalProvenanceGraphURI));
+                    metadataGraphURI));
 
-            for (Quad quad : metadataResult.getProvenanceMetadata()) {
-                additionalProvenanceGraph.add(quad.getTriple());
+            for (Statement quad : metadataResult.getProvenanceMetadata()) {
+                rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
+                        quad.getSubject(),
+                        quad.getPredicate(),
+                        quad.getObject(),
+                        additionalProvenanceGraphURI));
             }
-
-            result.addGraph(additionalProvenanceGraph);
         }
-
-        result.addGraph(metadataGraph);
-        return result;
     }
 }

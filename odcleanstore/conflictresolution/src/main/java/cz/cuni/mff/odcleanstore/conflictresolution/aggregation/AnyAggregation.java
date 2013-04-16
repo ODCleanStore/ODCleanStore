@@ -1,16 +1,15 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
+import java.util.Collection;
+
+import org.openrdf.model.Statement;
+
 import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
+import cz.cuni.mff.odcleanstore.conflictresolution.CRQuadImpl;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
-
-import com.hp.hpl.jena.graph.Node;
-
-import de.fuberlin.wiwiss.ng4j.Quad;
-
-import java.util.Collection;
 
 /**
  * Aggregation method that returns a single triple selected from input triples.
@@ -43,13 +42,13 @@ import java.util.Collection;
      * @return {@inheritDoc}
      */
     @Override
-    public Collection<CRQuad> aggregate(Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
+    public Collection<CRQuad> aggregate(Collection<Statement> conflictingQuads, NamedGraphMetadataMap metadata) {
 
         if (conflictingQuads.isEmpty()) {
             return createResultCollection();
         }
 
-        Quad firstQuad = conflictingQuads.iterator().next();
+        Statement firstQuad = conflictingQuads.iterator().next();
         Collection<String> sourceNamedGraphs = sourceNamedGraphsForObject(
                 firstQuad.getObject(),
                 conflictingQuads);
@@ -58,9 +57,13 @@ import java.util.Collection;
                 sourceNamedGraphs,
                 conflictingQuads,
                 metadata);
-        Quad resultQuad = new Quad(Node.createURI(uriGenerator.nextURI()), firstQuad.getTriple());
+        Statement resultQuad = VALUE_FACTORY.createStatement(
+                firstQuad.getSubject(),
+                firstQuad.getPredicate(),
+                firstQuad.getObject(),
+                VALUE_FACTORY.createURI(uriGenerator.nextURI())); 
         Collection<CRQuad> result = createSingleResultCollection(
-                new CRQuad(resultQuad, quality, sourceNamedGraphs));
+                new CRQuadImpl(resultQuad, quality, sourceNamedGraphs));
         return result;
     }
 }

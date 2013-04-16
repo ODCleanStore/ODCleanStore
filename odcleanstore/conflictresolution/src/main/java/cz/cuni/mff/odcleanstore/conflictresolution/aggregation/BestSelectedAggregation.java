@@ -1,18 +1,17 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
+import org.openrdf.model.Statement;
+
 import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
+import cz.cuni.mff.odcleanstore.conflictresolution.CRQuadImpl;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.comparators.AggregationComparator;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
-
-import com.hp.hpl.jena.graph.Node;
-
-import de.fuberlin.wiwiss.ng4j.Quad;
-
-import java.util.ArrayList;
-import java.util.Collection;
 
 /**
  * Base class for aggregation methods that select a single best quad based on a given comparison of quads.
@@ -44,12 +43,12 @@ import java.util.Collection;
      * @return {@inheritDoc}
      */
     @Override
-    public Collection<CRQuad> aggregate(Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
+    public Collection<CRQuad> aggregate(Collection<Statement> conflictingQuads, NamedGraphMetadataMap metadata) {
         Collection<CRQuad> result = createResultCollection();
         AggregationComparator comparator = getComparator(conflictingQuads);
-        Collection<Quad> aggregableQuads = new ArrayList<Quad>(conflictingQuads.size());
-        Quad bestQuad = null; // the best quad so far
-        for (Quad quad : conflictingQuads) {
+        Collection<Statement> aggregableQuads = new ArrayList<Statement>(conflictingQuads.size());
+        Statement bestQuad = null; // the best quad so far
+        for (Statement quad : conflictingQuads) {
             if (!comparator.isAggregable(quad)) {
                 handleNonAggregableObject(quad, conflictingQuads, metadata, result, this.getClass());
                 continue;
@@ -66,10 +65,14 @@ import java.util.Collection;
             return result;
         }
 
-        Quad resultQuad = new Quad(Node.createURI(uriGenerator.nextURI()), bestQuad.getTriple());
+        Statement resultQuad = VALUE_FACTORY.createStatement(
+                bestQuad.getSubject(),
+                bestQuad.getPredicate(),
+                bestQuad.getObject(),
+                VALUE_FACTORY.createURI(uriGenerator.nextURI()));
         Collection<String> sourceNamedGraphs = sourceNamedGraphsForObject(bestQuad.getObject(), aggregableQuads);
         double quality = computeQualitySelected(bestQuad, sourceNamedGraphs, aggregableQuads, metadata);
-        result.add(new CRQuad(resultQuad, quality, sourceNamedGraphs));
+        result.add(new CRQuadImpl(resultQuad, quality, sourceNamedGraphs));
         return result;
     }
 
@@ -78,5 +81,5 @@ import java.util.Collection;
      * @param conflictingQuads input quads to be aggregated
      * @return a comparator of quads that orders the best quad as having the highest order
      */
-    protected abstract AggregationComparator getComparator(Collection<Quad> conflictingQuads);
+    protected abstract AggregationComparator getComparator(Collection<Statement> conflictingQuads);
 }

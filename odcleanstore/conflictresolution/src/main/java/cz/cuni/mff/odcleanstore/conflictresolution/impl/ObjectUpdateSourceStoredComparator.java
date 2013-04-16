@@ -1,11 +1,5 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
-import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
-
-import de.fuberlin.wiwiss.ng4j.Quad;
-
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
@@ -13,13 +7,22 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.openrdf.model.Statement;
+import org.openrdf.model.Value;
+
+import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
+import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
+
 /**
- * Comparator of {@link Quad Quads} comparing first by objects, second
+ * Comparator of {@link Statement Statements} comparing first by objects, second
  * by update tag, third by data sources in metadata, fourth by descending stored date in metadata.
  */
-/*package*/class ObjectUpdateSourceStoredComparator implements Comparator<Quad> {
+/*package*/class ObjectUpdateSourceStoredComparator implements Comparator<Statement> {
     /** Metadata for named graphs occurring in compared quads. */
-    private NamedGraphMetadataMap namedGraphMetadata;
+    private final NamedGraphMetadataMap namedGraphMetadata;
+    
+    private static final Comparator<Value> VALUE_COMPARATOR = ValueComparator.getInstance();
 
     /**
      * @param metadata metadata for named graphs occurring in compared quads; must not be null
@@ -30,16 +33,16 @@ import java.util.TreeSet;
     }
 
     @Override
-    public int compare(Quad q1, Quad q2) {
+    public int compare(Statement q1, Statement q2) {
         // Compare by object
-        int objectComparison = NodeComparator.compare(q1.getObject(), q2.getObject());
+        int objectComparison = VALUE_COMPARATOR.compare(q1.getObject(), q2.getObject());
         if (objectComparison != 0) {
             return objectComparison;
         }
 
         // Get metadata
-        NamedGraphMetadata metadata1 = namedGraphMetadata.getMetadata(q1.getGraphName());
-        NamedGraphMetadata metadata2 = namedGraphMetadata.getMetadata(q2.getGraphName());
+        NamedGraphMetadata metadata1 = namedGraphMetadata.getMetadata(q1.getContext());
+        NamedGraphMetadata metadata2 = namedGraphMetadata.getMetadata(q2.getContext());
 
         // Compare by update tag
         String updateTag1 = (metadata1 != null) ? metadata1.getUpdateTag() : null;

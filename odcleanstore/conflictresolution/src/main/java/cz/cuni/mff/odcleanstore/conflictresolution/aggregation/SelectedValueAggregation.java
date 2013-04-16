@@ -1,17 +1,19 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
+import java.util.Collection;
+import java.util.Comparator;
+
+import org.openrdf.model.Statement;
+import org.openrdf.model.Value;
+
 import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.conflictresolution.impl.NodeComparator;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.ValueComparator;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
-
-import de.fuberlin.wiwiss.ng4j.Quad;
-
-import java.util.Collection;
-import java.util.Comparator;
 
 /**
  * Base class for aggregation methods that include only triples selected from
@@ -29,14 +31,16 @@ import java.util.Comparator;
     /**
      * Comparator of {@link Quad Quads} comparing first by objects, second by named graph.
      */
-    protected static class ObjectNamedGraphComparator implements Comparator<Quad> {
+    protected static class ObjectNamedGraphComparator implements Comparator<Statement> {
+        private static final Comparator<Value> VALUE_COMPARATOR = ValueComparator.getInstance(); 
+        
         @Override
-        public int compare(Quad q1, Quad q2) {
-            int objectComparison = NodeComparator.compare(q1.getObject(), q2.getObject());
+        public int compare(Statement q1, Statement q2) {
+            int objectComparison = VALUE_COMPARATOR.compare(q1.getObject(), q2.getObject());
             if (objectComparison != 0) {
                 return objectComparison;
             } else {
-                return NodeComparator.compare(q1.getGraphName(), q2.getGraphName());
+                return ODCSUtils.nullProofCompare(q1.getContext(), q2.getContext(), VALUE_COMPARATOR);
             }
         }
     }
@@ -65,7 +69,7 @@ import java.util.Comparator;
      * @return {@inheritDoc}
      */
     @Override
-    public abstract Collection<CRQuad> aggregate(Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata);
+    public abstract Collection<CRQuad> aggregate(Collection<Statement> conflictingQuads, NamedGraphMetadataMap metadata);
 
     /**
      * {@inheritDoc}
@@ -74,7 +78,7 @@ import java.util.Comparator;
      */
     @Override
     protected double computeBasicQuality(
-            Quad resultQuad,
+            Statement resultQuad,
             Collection<String> sourceNamedGraphs,
             NamedGraphMetadataMap metadata) {
 
@@ -95,7 +99,7 @@ import java.util.Comparator;
      * @see #computeQuality(Quad,Collection,Collection,Collection,NamedGraphMetadataMap)
      *
      *      In case of values selected from input quads, parameters sourceNamedGraphs and
-     *      agreeNamedGraphs of computeQuality() are identical. This is a utility function that
+     *      agreeNamedGraphs of {@link computeQuality()} are identical. This is a utility function that
      *      wraps this fact.
      *
      * @param resultQuad the quad for which quality is to be computed
@@ -108,9 +112,9 @@ import java.util.Comparator;
      * @return quality estimate of resultQuad as a number from [0,1]
      */
     protected double computeQualitySelected(
-            Quad resultQuad,
+            Statement resultQuad,
             Collection<String> sourceNamedGraphs,
-            Collection<Quad> conflictingQuads,
+            Collection<Statement> conflictingQuads,
             NamedGraphMetadataMap metadata) {
         return computeQuality(
                 resultQuad,

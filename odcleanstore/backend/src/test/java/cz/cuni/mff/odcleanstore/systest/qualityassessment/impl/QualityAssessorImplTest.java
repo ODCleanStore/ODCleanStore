@@ -2,6 +2,7 @@ package cz.cuni.mff.odcleanstore.systest.qualityassessment.impl;
 
 import cz.cuni.mff.odcleanstore.TestUtils;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionFactory;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
@@ -134,7 +135,7 @@ public class QualityAssessorImplTest extends TestCase {
 	public QualityAssessorImplTest (String name) throws DatabaseException {
 		super(name);
 
-		connection = VirtuosoConnectionWrapper.createConnection(sparqlEndpoint);
+		connection = VirtuosoConnectionFactory.createJDBCConnection(sparqlEndpoint);
 
 		metadataGraphName = TestUtils.getUniqueURI();
 		provenanceMetadataGraphName = TestUtils.getUniqueURI();

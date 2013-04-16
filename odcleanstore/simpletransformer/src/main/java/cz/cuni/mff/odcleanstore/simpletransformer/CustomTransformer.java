@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.simpletransformer;
 
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionFactory;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.transformer.EnumTransformationType;
@@ -59,7 +60,7 @@ public class CustomTransformer implements Transformer {
 
         VirtuosoConnectionWrapper connection = null;
         try {
-            connection = VirtuosoConnectionWrapper.createConnection(context.getDirtyDatabaseCredentials());
+            connection = VirtuosoConnectionFactory.createJDBCConnection(context.getDirtyDatabaseCredentials());
             String query = String.format(Locale.ROOT, DELETE_QUERY,
                     inputGraph.getGraphName(), FILTERED_PROPERTIES_LIST);
             connection.execute(query);

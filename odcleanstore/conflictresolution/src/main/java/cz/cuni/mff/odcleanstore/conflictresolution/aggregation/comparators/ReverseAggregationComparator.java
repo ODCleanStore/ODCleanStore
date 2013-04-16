@@ -1,15 +1,15 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation.comparators;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
+import org.openrdf.model.Statement;
 
-import de.fuberlin.wiwiss.ng4j.Quad;
+import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 
 /**
  * A comparator that wraps another comparator and reverses its ordering.
  * @author Jan Michelfeit
  */
 public class ReverseAggregationComparator implements AggregationComparator {
-    private AggregationComparator baseComparator;
+    private final AggregationComparator baseComparator;
 
     /**
      * Create a new instance.
@@ -20,11 +20,11 @@ public class ReverseAggregationComparator implements AggregationComparator {
     }
 
     @Override
-    public boolean isAggregable(Quad quad) {
+    public boolean isAggregable(Statement quad) {
         return baseComparator.isAggregable(quad);
     }
     @Override
-    public int compare(Quad quad1, Quad quad2, NamedGraphMetadataMap metadata) {
+    public int compare(Statement quad1, Statement quad2, NamedGraphMetadataMap metadata) {
         return -baseComparator.compare(quad1, quad2, metadata);
     }
 }

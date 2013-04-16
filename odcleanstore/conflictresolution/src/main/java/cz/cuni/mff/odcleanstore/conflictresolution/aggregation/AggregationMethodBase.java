@@ -6,20 +6,22 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
+import org.openrdf.model.Statement;
+import org.openrdf.model.Value;
+import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.ValueFactoryImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.hp.hpl.jena.graph.Node;
 
 import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
+import cz.cuni.mff.odcleanstore.conflictresolution.CRQuadImpl;
 import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.ConflictResolverImpl;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
-import de.fuberlin.wiwiss.ng4j.Quad;
 
 /**
  * Base class for all aggregation methods implemented in ODCleanStore.
@@ -27,9 +29,17 @@ import de.fuberlin.wiwiss.ng4j.Quad;
  *
  * @author Jan Michelfeit
  */
-/*package*/abstract class AggregationMethodBase implements AggregationMethod {
+/*package*/abstract class AggregationMethodBase implements ObjectAggregationMethod {
     private static final Logger LOG = LoggerFactory.getLogger(AggregationMethodBase.class);
 
+    protected static final ValueFactory VALUE_FACTORY = ValueFactoryImpl.getInstance();
+    
+    /**
+     * Value used as a quad's named graph if the quad's context is null.
+     * @see Statement#getContext()
+     */
+    protected static final String DEFAULT_CONTEXT = "";
+    
     /**
      * Node distance metric used in quality computation.
      * @see #computeQuality(Quad, Collection, NamedGraphMetadataMap)
@@ -91,7 +101,7 @@ import de.fuberlin.wiwiss.ng4j.Quad;
      * {@inheritDoc}
      */
     @Override
-    public abstract Collection<CRQuad> aggregate(Collection<Quad> conflictingTriples, NamedGraphMetadataMap metadata);
+    public abstract Collection<CRQuad> aggregate(Collection<Statement> conflictingTriples, NamedGraphMetadataMap metadata);
 
     /**
      * Calculated quality of a source of a named graph.
@@ -140,7 +150,7 @@ import de.fuberlin.wiwiss.ng4j.Quad;
      * @see #getSourceQuality(NamedGraphMetadata)
      */
     protected abstract double computeBasicQuality(
-            Quad resultQuad,
+            Statement resultQuad,
             Collection<String> sourceNamedGraphs,
             NamedGraphMetadataMap metadata);
 
@@ -189,10 +199,10 @@ import de.fuberlin.wiwiss.ng4j.Quad;
      * @see #AGREE_COEFFICIENT
      */
     protected double computeQuality(
-            Quad resultQuad,
+            Statement resultQuad,
             Collection<String> sourceNamedGraphs,
             Collection<String> agreeNamedGraphs,
-            Collection<Quad> conflictingQuads,
+            Collection<Statement> conflictingQuads,
             NamedGraphMetadataMap metadata) {
 
         // Compute basic score based on sourceNamedGraphs' scores
@@ -205,7 +215,7 @@ import de.fuberlin.wiwiss.ng4j.Quad;
         // }
 
         // Consider conflicting values
-        boolean isPropertyMultivalue = aggregationSpec.isPropertyMultivalue(resultQuad.getPredicate().getURI());
+        boolean isPropertyMultivalue = aggregationSpec.isPropertyMultivalue(resultQuad.getPredicate().stringValue());
         if (!isPropertyMultivalue && conflictingQuads.size() > 1) {
             // NOTE: condition conflictingQuads.size() > 1 is an optimization that relies on
             // the fact that distance(x,x) = 0 and that resultQuad is in conflictingQuads
@@ -213,8 +223,8 @@ import de.fuberlin.wiwiss.ng4j.Quad;
             // Calculated distance average weighted by the respective source qualities
             double distanceAverage = 0;
             double totalSourceQuality = 0;
-            for (Quad quad : conflictingQuads) {
-                NamedGraphMetadata quadMetadata = metadata.getMetadata(quad.getGraphName());
+            for (Statement quad : conflictingQuads) {
+                NamedGraphMetadata quadMetadata = metadata.getMetadata(quad.getContext());
                 double quadQuality = getSourceQuality(quadMetadata);
 
                 double resultDistance = distanceMetric.distance(quad.getObject(), resultQuad.getObject());
@@ -269,8 +279,8 @@ import de.fuberlin.wiwiss.ng4j.Quad;
      * @param aggregationMethod aggregation class where the aggregation error occurred
      */
     protected void handleNonAggregableObject(
-            Quad nonAggregableQuad,
-            Collection<Quad> conflictingQuads,
+            Statement nonAggregableQuad,
+            Collection<Statement> conflictingQuads,
             NamedGraphMetadataMap metadata,
             Collection<CRQuad> result,
             Class<? extends AggregationMethodBase> aggregationMethod) {
@@ -290,11 +300,15 @@ import de.fuberlin.wiwiss.ng4j.Quad;
                     sourceNamedGraphs,
                     conflictingQuads,
                     metadata);
-            Quad resultQuad = new Quad(Node.createURI(uriGenerator.nextURI()), nonAggregableQuad.getTriple());
-            result.add(new CRQuad(
+            Statement resultQuad = VALUE_FACTORY.createStatement(
+                    nonAggregableQuad.getSubject(),
+                    nonAggregableQuad.getPredicate(),
+                    nonAggregableQuad.getObject(),
+                    VALUE_FACTORY.createURI(uriGenerator.nextURI()));
+            result.add(new CRQuadImpl(
                     resultQuad,
                     quality,
-                    Collections.singleton(nonAggregableQuad.getGraphName().getURI())));
+                    Collections.singleton(getSourceGraphURI(nonAggregableQuad))));
             break;
         case IGNORE:
             // do nothing
@@ -313,16 +327,16 @@ import de.fuberlin.wiwiss.ng4j.Quad;
      * @param conflictingQuads searched quads
      * @return set of named graphs
      */
-    protected Collection<String> sourceNamedGraphsForObject(Node object, Collection<Quad> conflictingQuads) {
+    protected Collection<String> sourceNamedGraphsForObject(Value object, Collection<Statement> conflictingQuads) {
         Set<String> namedGraphs = null;
         String firstNamedGraph = null;
 
-        for (Quad quad : conflictingQuads) {
-            if (!ConflictResolverImpl.crSameNodes(object, quad.getObject())) {
+        for (Statement quad : conflictingQuads) {
+            if (!ConflictResolverImpl.crSameValues(object, quad.getObject())) {
                 continue;
             }
 
-            String newNamedGraph = quad.getGraphName().getURI();
+            String newNamedGraph = getSourceGraphURI(quad);
             // Purpose of these if-else branches is to avoid creating HashSet
             // if not necessary (only zero or one named graph in the result)
             if (firstNamedGraph == null) {
@@ -363,5 +377,15 @@ import de.fuberlin.wiwiss.ng4j.Quad;
      */
     protected Collection<CRQuad> createSingleResultCollection(CRQuad resultQuad) {
         return Collections.singletonList(resultQuad);
+    }
+    
+    /**
+     * Returns URI of the named graph of the given quad.
+     * If the context is null, returns {@value #DEFAULT_CONTEXT}.
+     * @param quad quad
+     * @return the quad's named graph (context) as a string 
+     */
+    protected String getSourceGraphURI(Statement quad) {
+        return quad.getContext() != null ? quad.getContext().stringValue() : DEFAULT_CONTEXT;
     }
 }

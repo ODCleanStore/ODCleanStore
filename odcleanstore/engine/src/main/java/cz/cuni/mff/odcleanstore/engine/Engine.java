@@ -1,19 +1,16 @@
 package cz.cuni.mff.odcleanstore.engine;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
-import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
 import cz.cuni.mff.odcleanstore.engine.db.model.DbOdcsContextTransactional;
 import cz.cuni.mff.odcleanstore.engine.inputws.InputWSService;
 import cz.cuni.mff.odcleanstore.engine.outputws.OutputWSService;
 import cz.cuni.mff.odcleanstore.engine.pipeline.PipelineService;
-import cz.cuni.mff.odcleanstore.shared.util.FileUtils;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import java.io.File;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -41,9 +38,6 @@ public final class Engine {
     private boolean shutdownIsInitiated;
     private Object startupLock;
     private Object shutdownLock;
-    
-    private String cleanDBImportExportDir;
-    private String dirtyDBImportExportDir;
     
     public static void main(String[] args) {
         if (engine == null) {
@@ -95,8 +89,6 @@ public final class Engine {
             } else {
                 ConfigLoader.loadConfig();
             }
-            cleanDBImportExportDir =  ConfigLoader.getConfig().getEngineGroup().getCleanImportExportDir();
-            dirtyDBImportExportDir =  ConfigLoader.getConfig().getEngineGroup().getDirtyImportExportDir();
     }
     
     /**
@@ -305,45 +297,7 @@ public final class Engine {
         return ConfigLoader.getConfig().getEngineGroup().getEngineUuid().toString();
     }
 
-    /**
-     * @return Path for import and export files of clean db instance.
-     * @throws EngineException 
-     */
-    public String getCleanDBImportExportDir() throws EngineException {
-        VirtuosoConnectionWrapper con = null;
-        try {
-            con = VirtuosoConnectionWrapper.createConnection(
-                    ConfigLoader.getConfig().getBackendGroup().getCleanDBJDBCConnectionCredentials());
-            String path  = FileUtils.satisfyDirectory(cleanDBImportExportDir, con.getServerRoot()) + File.separator;
-            return path.replace("\\", "/");
-        } catch (Exception e) {
-            throw new EngineException(e);
-        } finally {
-            if (con != null) {
-                con.closeQuietly();
-            }
-        }
-    }
     
-    /**
-     * @return Path for import and export files of dirty db instance.
-     * @throws EngineException 
-     */
-    public String getDirtyDBImportExportDir() throws EngineException {
-        VirtuosoConnectionWrapper con = null;
-        try {
-            con = VirtuosoConnectionWrapper.createConnection(
-                    ConfigLoader.getConfig().getBackendGroup().getDirtyDBJDBCConnectionCredentials());
-            String path =  FileUtils.satisfyDirectory(dirtyDBImportExportDir, con.getServerRoot()) + File.separator;
-            return path.replace("\\", "/");
-        } catch (Exception e) {
-            throw new EngineException(e);
-        } finally {
-            if (con != null) {
-                con.closeQuietly();
-            }
-        }
-    }
     
     /**
      * Update all service status to database.

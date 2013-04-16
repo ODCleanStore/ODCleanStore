@@ -1,5 +1,9 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
+import java.util.Collection;
+
+import org.openrdf.model.Statement;
+
 import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
@@ -7,10 +11,6 @@ import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.comparators.Aggre
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.comparators.GraphQualityCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.comparators.GraphQualityComparator;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
-
-import de.fuberlin.wiwiss.ng4j.Quad;
-
-import java.util.Collection;
 
 /**
  * Aggregation method that returns the quad with the highest total quality of the source of the quad.
@@ -44,7 +44,7 @@ import java.util.Collection;
     }
 
     @Override
-    protected AggregationComparator getComparator(Collection<Quad> conflictingQuads) {
+    protected AggregationComparator getComparator(Collection<Statement> conflictingQuads) {
         return aggregationComparator;
     }
 }

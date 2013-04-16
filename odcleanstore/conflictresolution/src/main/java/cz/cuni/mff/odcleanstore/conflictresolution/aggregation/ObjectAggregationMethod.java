@@ -1,18 +1,18 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
+import java.util.Collection;
+
+import org.openrdf.model.Statement;
+
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-
-import de.fuberlin.wiwiss.ng4j.Quad;
-
-import java.util.Collection;
 
 /**
  * A triple/quad aggregation method.
  *
  * @author Jan Michelfeit
  */
-public interface AggregationMethod {
+public interface ObjectAggregationMethod {
     /**
      * Aggregates quads in conflictingQuads into one or more result quads and
      * calculates quality estimate and source information for each of the result
@@ -31,5 +31,5 @@ public interface AggregationMethod {
      * @return aggregated quads together with quality estimate and source
      *         information for each quad
      */
-    Collection<CRQuad> aggregate(Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata);
+    Collection<CRQuad> aggregate(Collection<Statement> conflictingQuads, NamedGraphMetadataMap metadata);
 }

@@ -1,7 +1,6 @@
-package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
+package cz.cuni.mff.odcleanstore.conflictresolution.exceptions;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationType;
-import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
 
 /**
  * Exception to throw when an attempt to create an AggregationMethod of
@@ -11,6 +10,8 @@ import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolution
  * @author Jan Michelfeit
  */
 public class AggregationNotImplementedException extends ConflictResolutionException {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Constructs a new exception for the given not implemented aggregation type.
      * @param aggregationType an aggregation method that is not implemented yet

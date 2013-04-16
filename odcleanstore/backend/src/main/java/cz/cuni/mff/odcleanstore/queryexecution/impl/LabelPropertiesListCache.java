@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.queryexecution.impl;
 
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionFactory;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
@@ -53,7 +54,7 @@ public class LabelPropertiesListCache extends CacheHolderBase<String> {
         VirtuosoConnectionWrapper connection = null;
         WrappedResultSet resultSet = null;
         try {
-            connection = VirtuosoConnectionWrapper.createConnection(connectionCredentials);
+            connection = VirtuosoConnectionFactory.createJDBCConnection(connectionCredentials);
             resultSet = connection.executeSelect("SELECT property FROM DB.ODCLEANSTORE.QE_LABEL_PROPERTIES");
             PrefixMapping prefixMapping = prefixMappingCache.getCachedValue();
             while (resultSet.next()) {
