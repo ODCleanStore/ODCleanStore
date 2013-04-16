@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.datanormalization.impl;
 
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionFactory;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
@@ -56,15 +57,18 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 			this.object = o;
 		}
 
-		public String getSubject() {
+		@Override
+        public String getSubject() {
 			return subject;
 		}
 
-		public String getPredicate() {
+		@Override
+        public String getPredicate() {
 			return predicate;
 		}
 
-		public String getObject() {
+		@Override
+        public String getObject() {
 			return object;
 		}
 	}
@@ -79,19 +83,23 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 		private Collection<TripleModification> insertions = new HashSet<TripleModification>();
 		private Collection<TripleModification> deletions = new HashSet<TripleModification>();
 
-		public void addInsertion(String s, String p, String o) {
+		@Override
+        public void addInsertion(String s, String p, String o) {
 			insertions.add(new TripleModificationImpl(s, p, o));
 		}
 
-		public void addDeletion(String s, String p, String o) {
+		@Override
+        public void addDeletion(String s, String p, String o) {
 			deletions.add(new TripleModificationImpl(s, p, o));
 		}
 
-		public Collection<TripleModification> getInsertions() {
+		@Override
+        public Collection<TripleModification> getInsertions() {
 			return insertions;
 		}
 
-		public Collection<TripleModification> getDeletions() {
+		@Override
+        public Collection<TripleModification> getDeletions() {
 			return deletions;
 		}
 	}
@@ -106,7 +114,8 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 		private Map<DataNormalizationRule, RuleModification> modifications = new HashMap<DataNormalizationRule, RuleModification>();
 		private String graphName;
 
-		public void addInsertion (DataNormalizationRule rule, String s, String p, String o) {
+		@Override
+        public void addInsertion (DataNormalizationRule rule, String s, String p, String o) {
 			if (modifications.containsKey(rule)) {
 				/**
 				 * Extend an existing modification done by a certain rule
@@ -124,7 +133,8 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 			}
 		}
 
-		public void addDeletion(DataNormalizationRule rule, String s, String p, String o) {
+		@Override
+        public void addDeletion(DataNormalizationRule rule, String s, String p, String o) {
 			if (modifications.containsKey(rule)) {
 				/**
 				 * Extend an existing modification done by a certain rule
@@ -145,7 +155,8 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 		/**
 		 * @return iterator over rules that have a record of modification (either insertion or deletion or both) in the structure
 		 */
-		public Iterator<DataNormalizationRule> getRuleIterator() {
+		@Override
+        public Iterator<DataNormalizationRule> getRuleIterator() {
 			return modifications.keySet().iterator();
 		}
 
@@ -153,14 +164,16 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 		 * @param rule The rule to find modifications for (usually obtained through getRuleIterator dereferencing (.next()))
 		 * @return modifications (insertions and deletions) done by the rule
 		 */
-		public RuleModification getModificationsByRule(DataNormalizationRule rule) {
+		@Override
+        public RuleModification getModificationsByRule(DataNormalizationRule rule) {
 			return modifications.get(rule);
 		}
 
 		/**
 		 * @return name of the graph the modifications were applied to
 		 */
-		public String getGraphName() {
+		@Override
+        public String getGraphName() {
 			return graphName;
 		}
 
@@ -168,7 +181,8 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 		 * @param graphName the name of the modified graph
 		 * @return bind this modification to a concrete graph
 		 */
-		public void setGraphName(String graphName) {
+		@Override
+        public void setGraphName(String graphName) {
 			this.graphName = graphName;
 		}
 	}
@@ -244,7 +258,7 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 	 */
 	private VirtuosoConnectionWrapper getDirtyConnection () throws DatabaseException {
         if (dirtyConnection == null) {
-        	dirtyConnection = VirtuosoConnectionWrapper.createConnection(context.getDirtyDatabaseCredentials());
+        	dirtyConnection = VirtuosoConnectionFactory.createJDBCConnection(context.getDirtyDatabaseCredentials());
        	}
 		return dirtyConnection;
 	}
@@ -362,7 +376,8 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 	 * @return per graph specification of modifications
 	 * @throws TransformerException
 	 */
-	public List<GraphModification> debugRules (HashMap<String, String> graphs, TransformationContext context, TableVersion tableVersion)
+	@Override
+    public List<GraphModification> debugRules (HashMap<String, String> graphs, TransformationContext context, TableVersion tableVersion)
 			throws TransformerException {
 		try {
 			Collection<String> originalGraphs = graphs.keySet();
@@ -428,7 +443,7 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 		LOG.info("Data Normalization applied to graph {}", inputGraph.getGraphName());
 	}
 
-	
+
 
 	/**
 	 * collects modifications that are done to the given graph

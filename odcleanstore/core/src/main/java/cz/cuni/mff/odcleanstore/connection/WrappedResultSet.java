@@ -1,9 +1,5 @@
 package cz.cuni.mff.odcleanstore.connection;
 
-import com.hp.hpl.jena.graph.Node;
-
-import virtuoso.jena.driver.VirtGraph;
-
 import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.SQLException;
@@ -17,7 +13,7 @@ import java.sql.Statement;
  */
 public class WrappedResultSet {
     /** The wrapped SQL statement. */
-    private Statement statement;
+    private final Statement statement;
 
     /** The current result set. */
     private java.sql.ResultSet resultSet;
@@ -90,26 +86,6 @@ public class WrappedResultSet {
         } catch (SQLException e) {
             // ignore
         }
-    }
-
-    /**
-     * Retrieves the value of the designated column in the current row of this ResultSet object as a Node.
-     * @param columnLabel the label for the column (the name of the column or the name specified with the SQL AS clause)
-     * @return the column value; if the value is SQL NULL, the value returned is null
-     * @throws SQLException exception
-     */
-    public Node getNode(String columnLabel) throws SQLException {
-        return objectToNode(resultSet.getObject(columnLabel));
-    }
-
-    /**
-     * Retrieves the value of the designated column in the current row of this ResultSet object as a Node.
-     * @param columnIndex the first column is 1, the second is 2, ...
-     * @return the column value; if the value is SQL NULL, the value returned is null
-     * @throws SQLException exception
-     */
-    public Node getNode(int columnIndex) throws SQLException {
-        return objectToNode(resultSet.getObject(columnIndex));
     }
 
     /**
@@ -272,106 +248,5 @@ public class WrappedResultSet {
         } else {
             throw new SQLException("Cannot convert value \"%s\" to java.util.Date", o.toString());
         }
-    }
-
-    /**
-     * Converts a value object to a {@link Node} instance.
-     * The current implementation uses Virtuoso Jena provider.
-     *
-     * @param o the converted object
-     * @return a node instance
-     * @throws SQLException exception
-     */
-    private static Node objectToNode(Object o) throws SQLException {
-        return VirtGraph.Object2Node(o);
-
-        // The following code is (almost) what VirtGraph.Object2Node(o) does
-        // Since currently VirtGraph.Object2Node() is the only dependency on the Virtuoso Jena provider,
-        // the following code can replace the dependency completely. However, it appears that using the original
-        // implementation is slightly faster.
-        /*
-         Object o = ((VirtuosoResultSet)rs).getObject(column);
-
-        if (o == null || rs.wasNull()) {
-            return null;
-        }
-        else if (o instanceof VirtuosoExtendedString) {
-            VirtuosoExtendedString vs = (VirtuosoExtendedString) o;
-            if (vs.iriType == VirtuosoExtendedString.IRI && (vs.strType & 0x1) == 0x1) {
-                String uri = vs.str;
-                return Node.createURI(uri);
-            } else if (vs.iriType == VirtuosoExtendedString.BNODE) {
-                AnonId anonId = new AnonId(vs.str);
-                return Node.createAnon(anonId);
-            } else {
-                String literal = vs.str;
-                return Node.createLiteral(literal);
-            }
-        }
-        else if (o instanceof VirtuosoRdfBox) {
-            VirtuosoRdfBox rb = (VirtuosoRdfBox) o;
-            RDFDatatype datatype = rb.getType() == null
-                    ? null
-                    : TypeMapper.getInstance().getSafeTypeByName(rb.getType());
-            LiteralLabel literal = LiteralLabelFactory.create(rb.rb_box, rb.getLang(), datatype);
-            return Node.createLiteral(literal);
-        }
-        // This is not in the recommended usage at http://docs.openlinksw.com/virtuoso/VirtuosoDriverJDBC.html,
-        // however, the JDBC driver prefers Java types rather than some XML Schema datatypes.
-        // This code was reverse-engineered from VirtGraph.Object2Node() in the Virtuoso Jena Driver.
-        else if (o instanceof Integer || o instanceof Short) {
-            final String integerType = "http://www.w3.org/2001/XMLSchema#integer";
-            RDFDatatype datatype = TypeMapper.getInstance().getSafeTypeByName(integerType);
-            LiteralLabel literal = LiteralLabelFactory.create(o, null, datatype);
-            return Node.createLiteral(literal);
-        }
-        else if (o instanceof Float) {
-            final String floatType = "http://www.w3.org/2001/XMLSchema#float";
-            RDFDatatype datatype = TypeMapper.getInstance().getSafeTypeByName(floatType);
-            LiteralLabel literal = LiteralLabelFactory.create(o, null, datatype);
-            return Node.createLiteral(literal);
-        }
-        else if (o instanceof Double) {
-            final String doubleType = "http://www.w3.org/2001/XMLSchema#double";
-            RDFDatatype datatype = TypeMapper.getInstance().getSafeTypeByName(doubleType);
-            LiteralLabel literal = LiteralLabelFactory.create(o, null, datatype);
-            return Node.createLiteral(literal);
-        }
-        else if (o instanceof BigDecimal) {
-            final String decimalType = "http://www.w3.org/2001/XMLSchema#decimal";
-            RDFDatatype datatype = TypeMapper.getInstance().getSafeTypeByName(decimalType);
-            LiteralLabel literal = LiteralLabelFactory.create(o, null, datatype);
-            return Node.createLiteral(literal);
-        }
-        else if (o instanceof java.sql.Blob) {
-            final String hexBinary = "http://www.w3.org/2001/XMLSchema#hexBinary";
-            RDFDatatype datatype = TypeMapper.getInstance().getSafeTypeByName(hexBinary);
-            LiteralLabel literal = LiteralLabelFactory.create(o.toString(), null, datatype);
-            return Node.createLiteral(literal);
-        }
-        else if (o instanceof java.sql.Date) {
-            final String dateType = "http://www.w3.org/2001/XMLSchema#date";
-            RDFDatatype datatype = TypeMapper.getInstance().getSafeTypeByName(dateType);
-            LiteralLabel literal = LiteralLabelFactory.create(o.toString(), null, datatype);
-            return Node.createLiteral(literal);
-        }
-        else if (o instanceof java.sql.Timestamp) {
-            final String dateTimeType = "http://www.w3.org/2001/XMLSchema#dateTime";
-            // NOTE: in original implementation, there is a conversion in VirtGraph.Timestamp2String()
-            RDFDatatype datatype = TypeMapper.getInstance().getSafeTypeByName(dateTimeType);
-            LiteralLabel literal = LiteralLabelFactory.create(o.toString(), null, datatype);
-            return Node.createLiteral(literal);
-        }
-        else if (o instanceof java.sql.Time) {
-            final String dateTimeType = "http://www.w3.org/2001/XMLSchema#time";
-            RDFDatatype datatype = TypeMapper.getInstance().getSafeTypeByName(dateTimeType);
-            LiteralLabel literal = LiteralLabelFactory.create(o.toString(), null, datatype);
-            return Node.createLiteral(literal);
-        }
-        else {
-            String literal = rs.getString(column);
-            return Node.createLiteral(literal);
-        }
-        */
     }
 }

@@ -1,26 +1,23 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils;
 
+import java.util.Collection;
+import java.util.Date;
+import java.util.regex.Pattern;
+
+import javax.xml.datatype.XMLGregorianCalendar;
+
+import org.openrdf.model.Literal;
+import org.openrdf.model.Statement;
+import org.openrdf.model.Value;
+import org.openrdf.model.impl.CalendarLiteralImpl;
+import org.openrdf.model.impl.IntegerLiteralImpl;
+import org.openrdf.model.impl.NumericLiteralImpl;
+import org.openrdf.sail.memory.model.CalendarMemLiteral;
+
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
-
-import com.hp.hpl.jena.datatypes.DatatypeFormatException;
-import com.hp.hpl.jena.datatypes.RDFDatatype;
-import com.hp.hpl.jena.datatypes.TypeMapper;
-import com.hp.hpl.jena.datatypes.xsd.IllegalDateTimeFieldException;
-import com.hp.hpl.jena.datatypes.xsd.XSDDateTime;
-import com.hp.hpl.jena.datatypes.xsd.impl.XSDAbstractDateTimeType;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.impl.LiteralLabel;
-import com.hp.hpl.jena.shared.JenaException;
-
-import de.fuberlin.wiwiss.ng4j.Quad;
-
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.regex.Pattern;
 
 /**
  * Aggregation utility methods.
@@ -36,35 +33,35 @@ public final class AggregationUtils {
      * @param literal a literal
      * @return true iff the literal value can be converted to a number
      */
-    private static boolean isUntypedNumericLiteral(LiteralLabel literal)  {
+    private static boolean isUntypedNumericLiteral(Literal literal)  {
         /*if (literal.isWellFormedRaw() && !(literal.getValue() instanceof String)) {
             return false;
         }*/
-        return NUMERIC_PATTERN.matcher(literal.getLexicalForm()).matches();
+        return NUMERIC_PATTERN.matcher(literal.stringValue()).matches();
     }
 
 
     /**
      * Return the type of a literal node.
      * @see EnumLiteralType
-     * @param node node a literal node; if not a literal, an IllegalArgumentException is thrown
+     * @param value a literal node; if not a literal, an IllegalArgumentException is thrown
      * @return type of the given literal
      * TODO: check that it works well with real data
      */
-    public static EnumLiteralType getLiteralType(Node node) {
-        if (!node.isLiteral()) {
+    public static EnumLiteralType getLiteralType(Value value) {
+        if (!(value instanceof Literal)) {
             throw new IllegalArgumentException("The given Node must be a literal.");
         }
-        LiteralLabel literal = node.getLiteral();
-        String datatypeURI = literal.getDatatypeURI();
+        Literal literal = (Literal) value;
+        String datatypeURI = ODCSUtils.valueToString(literal.getDatatype());
         if (ODCSUtils.isNullOrEmpty(datatypeURI)) {
             return isUntypedNumericLiteral(literal)
                     ? EnumLiteralType.NUMERIC
                     : EnumLiteralType.OTHER;
-        } else if (literal.isWellFormedRaw() && literal.getValue() instanceof Number) {
-            // Optimization, test not necessary
+        } else if (literal instanceof NumericLiteralImpl || literal instanceof IntegerLiteralImpl) {
+            //Optimization, test not necessary
             return EnumLiteralType.NUMERIC;
-        } else if (literal.isWellFormed() && literal.getDatatype() instanceof XSDAbstractDateTimeType) {
+        } else if (literal instanceof CalendarLiteralImpl || literal instanceof CalendarMemLiteral) {
             // Optimization, test not necessary
             return datatypeURI.equals(XMLSchema.timeType) ? EnumLiteralType.TIME : EnumLiteralType.DATE;
         } else if (datatypeURI.equals(XMLSchema.booleanType)) {
@@ -96,16 +93,9 @@ public final class AggregationUtils {
      * @param literal a literal value
      * @return double value represented by the given literal, otherwise Double.NaN
      */
-    public static double convertToDoubleSilent(LiteralLabel literal) {
+    public static double convertToDoubleSilent(Literal literal) {
         try {
-            Object value = literal.getValue();
-            if (value instanceof Number) {
-                return ((Number) value).doubleValue();
-            } else {
-                return Double.parseDouble(literal.getLexicalForm());
-            }
-        } catch (DatatypeFormatException e) {
-            return Double.NaN;
+            return literal.doubleValue();
         } catch (NumberFormatException e) {
             return Double.NaN;
         }
@@ -114,14 +104,14 @@ public final class AggregationUtils {
     /**
      * Try to convert a literal node to the numeric value it is representing.
      * If the node is not a literal or not a numeric literal, return Double.NaN instead.
-     * @param node a {@link Node}
-     * @return double value represented by the given Node, otherwise Double.NaN
+     * @param value a {@link Value}
+     * @return double value represented by the given {@link Value}, otherwise Double.NaN
      */
-    public static double convertToDoubleSilent(Node node) {
-        if (!node.isLiteral()) {
+    public static double convertToDoubleSilent(Value value) {
+        if (!(value instanceof Literal)) {
             return Double.NaN;
         }
-        return convertToDoubleSilent(node.getLiteral());
+        return convertToDoubleSilent((Literal) value);
     }
 
     /**
@@ -130,27 +120,22 @@ public final class AggregationUtils {
      * @param literal a literal
      * @return literal converted to boolean
      */
-    public static boolean convertToBoolean(LiteralLabel literal) {
-        String lexicalForm = literal.getLexicalForm();
+    public static boolean convertToBoolean(Literal literal) {
+        String lexicalForm = literal.stringValue();
         return lexicalForm.equalsIgnoreCase("true") || lexicalForm.equals("1") || lexicalForm.equalsIgnoreCase("yes");
     }
 
     /**
-     * Try to convert a literal node representing a date/time to a Calendar instance.
+     * Try to convert a literal node representing a date/time to a {@link XMLGregorianCalendar} instance.
      * If the node is not a date/time literal, return null instead.
-     * @param node a {@link Node}
-     * @return Date value represented by the given Node or null
+     * @param value a {@link Value} to convert
+     * @return Date value represented by the given value or null
      */
-    public static Calendar convertToCalendarSilent(Node node) {
-        if (!node.isLiteral()) {
+    public static XMLGregorianCalendar convertToCalendarSilent(Value value) {
+        if (!(value instanceof Literal)) {
             return null;
         }
-        XSDDateTime value = getDateTimeValue(node.getLiteral());
-        try {
-            return value == null ? null : value.asCalendar();
-        } catch (IllegalDateTimeFieldException e) {
-            return null;
-        }
+        return getDateTimeValue((Literal) value);
     }
 
     /**
@@ -158,21 +143,12 @@ public final class AggregationUtils {
      * @param literal a literal representing date/time
      * @return the value of the literal as XSDDateTime or null
      */
-    public static XSDDateTime getDateTimeValue(LiteralLabel literal) {
-        if (literal.isWellFormed() && literal.getValue() instanceof XSDDateTime) {
-            return (XSDDateTime) literal.getValue();
-        } else if (literal.getDatatypeURI() != null) {
-            try {
-                RDFDatatype datatype = TypeMapper.getInstance().getSafeTypeByName(literal.getDatatypeURI());
-                Object value = datatype.parse(literal.getLexicalForm());
-                if (value instanceof XSDDateTime) {
-                    return (XSDDateTime) value;
-                }
-            } catch (JenaException e) {
-                return null;
-            }
+    public static XMLGregorianCalendar getDateTimeValue(Literal literal) {
+        try {
+            return literal.calendarValue();
+        } catch (IllegalArgumentException e) {
+            return null;
         }
-        return null;
     }
 
     /**
@@ -184,9 +160,9 @@ public final class AggregationUtils {
      * @return a negative integer, zero, or a positive integer as the first argument
      *      is less than, equal to, or greater than the second
      */
-    public static int compareByInsertedAt(Quad quad1, Quad quad2, NamedGraphMetadataMap metadata) {
-        NamedGraphMetadata metadata1 = metadata.getMetadata(quad1.getGraphName());
-        NamedGraphMetadata metadata2 = metadata.getMetadata(quad2.getGraphName());
+    public static int compareByInsertedAt(Statement quad1, Statement quad2, NamedGraphMetadataMap metadata) {
+        NamedGraphMetadata metadata1 = metadata.getMetadata(quad1.getContext());
+        NamedGraphMetadata metadata2 = metadata.getMetadata(quad2.getContext());
         Date insertedAt1 = metadata1 != null ? metadata1.getInsertedAt() : null;
         Date insertedAt2 = metadata2 != null ? metadata2.getInsertedAt() : null;
         return ODCSUtils.nullProofCompare(insertedAt1, insertedAt2);
@@ -199,9 +175,9 @@ public final class AggregationUtils {
      * @param quads collection of (conflicting) quads
      * @return the best comparison type or null
      */
-    public static EnumLiteralType getComparisonType(Collection<Quad> quads) {
-        for (Quad quad : quads) {
-            if (quad.getObject().isLiteral()) {
+    public static EnumLiteralType getComparisonType(Collection<Statement> quads) {
+        for (Statement quad : quads) {
+            if (quad.getObject() instanceof Literal) {
                 return AggregationUtils.getLiteralType(quad.getObject());
             }
         }

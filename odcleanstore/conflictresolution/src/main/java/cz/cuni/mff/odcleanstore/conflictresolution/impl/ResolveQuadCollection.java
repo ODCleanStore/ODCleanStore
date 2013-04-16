@@ -1,16 +1,21 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
 
-import com.hp.hpl.jena.graph.Node;
-
-import de.fuberlin.wiwiss.ng4j.Quad;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.ListIterator;
+
+import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
+import org.openrdf.model.Value;
+import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.ValueFactoryImpl;
+
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 
 /**
  * Quad container that provides access to clusters of conflicting quads with
@@ -22,12 +27,17 @@ import java.util.ListIterator;
     /**
      * A comparator used to sort quads in conflict clusters.
      */
-    private static final Comparator<Quad> CONFLICT_COMPARATOR = new QuadComparator();
+    private static final Comparator<Statement> CONFLICT_COMPARATOR = new StatementComparator();
+    
+    /**
+     * Factory for {@link Value values}.
+     */
+    private static final ValueFactory VALUE_FACTORY = ValueFactoryImpl.getInstance();
 
     /**
      * Container of quads.
      */
-    private ArrayList<Quad> quadList = new ArrayList<Quad>();
+    private final ArrayList<Statement> quadList = new ArrayList<Statement>();
 
     /**
      * Indicates whether {@link #quadList} is sorted.
@@ -40,15 +50,15 @@ import java.util.ListIterator;
      *
      * The iterator becomes invalid whenever the quad collection contained in
      * {@linkplain ResolveQuadCollection the outer class} changes.
-     * @see ConflictResolverImpl#crSameNodes(Node, Node)
+     * @see ConflictResolverImpl#crSameValues(Value, Value)
      */
-    private class ConflictingQuadsIterator implements Iterator<Collection<Quad>> {
+    private class ConflictingQuadsIterator implements Iterator<Collection<Statement>> {
         /**
          * Iterator over the sorted quad collection in the outer class.
          * Between calls to {@link #hasNext()} points before the first quad from
          * the next conflicting cluster of quads.
          */
-        private ListIterator<Quad> quadIterator;
+        private final ListIterator<Statement> quadIterator;
 
         /** Creates a new iterator instance. */
         public ConflictingQuadsIterator() {
@@ -62,18 +72,18 @@ import java.util.ListIterator;
         }
 
         @Override
-        public Collection<Quad> next() {
+        public Collection<Statement> next() {
             if (!quadListSorted) {
                 throw new IllegalStateException("Iterator invalidated.");
             }
             int fromIndex = quadIterator.nextIndex();
-            Quad first = quadIterator.next();
+            Statement first = quadIterator.next();
 
             while (quadIterator.hasNext()) {
-                Quad next = quadIterator.next();
+                Statement next = quadIterator.next();
 
-                if (!ConflictResolverImpl.crSameNodes(next.getSubject(), first.getSubject())
-                        || !ConflictResolverImpl.crSameNodes(next.getPredicate(), first.getPredicate())) {
+                if (!ConflictResolverImpl.crSameValues(next.getSubject(), first.getSubject())
+                        || !ConflictResolverImpl.crSameValues(next.getPredicate(), first.getPredicate())) {
                     // We reached the next cluster of conflicting quads
                     // -> return quadIterator so that it points before the first
                     // quad from the next cluster
@@ -95,9 +105,9 @@ import java.util.ListIterator;
      * Invalidates iterator obtained by {@link #listConflictingQuads()}
      * @param quads quads to add
      */
-    public void addQuads(Collection<Quad> quads) {
+    public void addQuads(Collection<Statement> quads) {
         quadList.ensureCapacity(quadList.size() + quads.size());
-        for (Quad quad : quads) {
+        for (Statement quad : quads) {
             quadList.add(quad);
         }
         quadListSorted = false;
@@ -111,24 +121,24 @@ import java.util.ListIterator;
     public void applyMapping(URIMapping mapping) {
         int quadCount = quadList.size();
         for (int i = 0; i < quadCount; i++) {
-            Quad quad = quadList.get(i);
+            Statement quad = quadList.get(i);
 
-            Node subject = quad.getSubject();
-            Node subjectMapping = mapURINode(subject, mapping);
-            Node predicate = quad.getPredicate();
-            Node predicateMapping = mapURINode(predicate, mapping);
-            Node object = quad.getObject();
-            Node objectMapping = mapURINode(object, mapping);
+            Resource subject = quad.getSubject();
+            Resource subjectMapping = (Resource) mapURINode(subject, mapping);
+            URI predicate = quad.getPredicate();
+            URI predicateMapping = (URI) mapURINode(predicate, mapping);
+            Value object = quad.getObject();
+            Value objectMapping = mapURINode(object, mapping);
 
             // Intentionally !=
             if (subject != subjectMapping
                     || predicate != predicateMapping
                     || object != objectMapping) {
-                Quad newQuad = new Quad(
-                        quad.getGraphName(),
+                Statement newQuad = VALUE_FACTORY.createStatement(
                         subjectMapping,
                         predicateMapping,
-                        objectMapping);
+                        objectMapping,
+                        quad.getContext());
                 quadList.set(i, newQuad);
                 quadListSorted = false;
             }
@@ -142,7 +152,7 @@ import java.util.ListIterator;
      * contained in this instance invalidates the iterator.
      * @return iterator over nonempty collections of conflicting quads
      */
-    public Iterator<Collection<Quad>> listConflictingQuads() {
+    public Iterator<Collection<Statement>> listConflictingQuads() {
         return new ConflictingQuadsIterator();
     }
 
@@ -152,14 +162,16 @@ import java.util.ListIterator;
     private void sortQuadList() {
         if (!quadListSorted) {
             // Sort quads - this is what Java sort does internally anyway
-            Quad[] quadArray = quadList.toArray(new Quad[quadList.size()]);
+            Statement[] quadArray = quadList.toArray(new Statement[quadList.size()]);
             Arrays.sort(quadArray, CONFLICT_COMPARATOR);
 
             // Copy to the sorted array to the original list, leaving out duplicates
-            ListIterator<Quad> listIt = quadList.listIterator();
+            ListIterator<Statement> listIt = quadList.listIterator();
             int i;
             for (i = 0; i < quadArray.length - 1; i++) {
-                if (!quadArray[i].equals(quadArray[i + 1])) {
+                Statement current = quadArray[i];
+                Statement next = quadArray[i + 1];
+                if (!current.equals(next) || !ODCSUtils.nullProofEquals(current.getContext(), next.getContext())) {
                     listIt.next();
                     listIt.set(quadArray[i]);
                 }
@@ -181,19 +193,19 @@ import java.util.ListIterator;
     }
 
     /**
-     * If mapping contains an URI to map for the passed {@link com.hp.hpl.jena.graph.Node_URI},
-     * returns a Node_URI with the mapped URI, otherwise returns node.
-     * @param node a Node to apply mapping to
+     * If mapping contains an URI to map for the passed {@link URI} 
+     * returns a {@link URI} with the mapped URI, otherwise returns <code>value</code>.
+     * @param value a {@link Value} to apply mapping to
      * @param mapping an URI mapping to apply
      * @return node with applied URI mapping
      */
-    private Node mapURINode(Node node, URIMapping mapping) {
-        if (node.isURI()) {
-            Node mappedURI = mapping.mapURI(node);
+    private Value mapURINode(Value value, URIMapping mapping) {
+        if (value instanceof URI) {
+            URI mappedURI = mapping.mapURI((URI) value);
             if (mappedURI != null) {
                 return mappedURI;
             }
         }
-        return node;
+        return value;
     }
 }

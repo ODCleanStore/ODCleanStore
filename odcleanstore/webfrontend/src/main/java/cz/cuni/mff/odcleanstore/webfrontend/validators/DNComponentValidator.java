@@ -6,6 +6,7 @@ import org.apache.wicket.validation.IValidatable;
 
 import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionFactory;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.datanormalization.rules.DataNormalizationRule;
 import cz.cuni.mff.odcleanstore.shared.UUIDUniqueURIGenerator;
@@ -30,8 +31,8 @@ public class DNComponentValidator extends CustomValidator {
 
 	private static final long serialVersionUID = 1L;
 	
-	private JDBCConnectionCredentials credentials;
-	private DropDownChoice<DNRuleComponentType> type;
+	private final JDBCConnectionCredentials credentials;
+	private final DropDownChoice<DNRuleComponentType> type;
 	
 	private static Logger logger = Logger.getLogger(DNComponentValidator.class);
 	
@@ -60,7 +61,7 @@ public class DNComponentValidator extends CustomValidator {
 			
 			String component = rule.getComponents(new UUIDUniqueURIGenerator(ODCSInternal.debugTempGraphUriPrefix).nextURI())[0];
 			
-			connection = VirtuosoConnectionWrapper.createConnection(credentials);
+			connection = VirtuosoConnectionFactory.createJDBCConnection(credentials);
 			connection.adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL);
 
 			connection.execute(component);

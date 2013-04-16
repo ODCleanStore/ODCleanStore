@@ -1,15 +1,15 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation.comparators;
 
+import java.util.Calendar;
+
+import org.openrdf.model.Literal;
+import org.openrdf.model.Statement;
+import org.openrdf.model.Value;
+
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.AggregationUtils;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.EnumLiteralType;
 import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
-
-import com.hp.hpl.jena.graph.Node;
-
-import de.fuberlin.wiwiss.ng4j.Quad;
-
-import java.util.Calendar;
 
 /**
  * Comparator of quads having a date literal as the object.
@@ -17,15 +17,15 @@ import java.util.Calendar;
  */
 public class DateLiteralComparator implements AggregationComparator {
     @Override
-    public boolean isAggregable(Quad quad) {
-        Node object = quad.getObject();
-        return object.isLiteral() && AggregationUtils.getLiteralType(object) == EnumLiteralType.DATE;
+    public boolean isAggregable(Statement quad) {
+        Value object = quad.getObject();
+        return object instanceof Literal && AggregationUtils.getLiteralType(object) == EnumLiteralType.DATE;
     }
 
     @Override
-    public int compare(Quad quad1, Quad quad2, NamedGraphMetadataMap metadata) {
-        Calendar value1 = AggregationUtils.convertToCalendarSilent(quad1.getObject());
-        Calendar value2 = AggregationUtils.convertToCalendarSilent(quad2.getObject());
+    public int compare(Statement quad1, Statement quad2, NamedGraphMetadataMap metadata) {
+        Calendar value1 = AggregationUtils.convertToCalendarSilent(quad1.getObject()).toGregorianCalendar();
+        Calendar value2 = AggregationUtils.convertToCalendarSilent(quad2.getObject()).toGregorianCalendar();
         return ODCSUtils.nullProofCompare(value1, value2);
     }
 }

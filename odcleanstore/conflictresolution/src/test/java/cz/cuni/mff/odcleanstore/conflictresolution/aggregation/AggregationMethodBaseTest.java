@@ -7,16 +7,15 @@ import java.util.LinkedList;
 
 import org.junit.Assert;
 import org.junit.Test;
-
-import com.hp.hpl.jena.graph.Node;
+import org.openrdf.model.Statement;
+import org.openrdf.model.impl.ValueFactoryImpl;
 
 import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
-import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRTestUtils;
+import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
-import de.fuberlin.wiwiss.ng4j.Quad;
 
 public class AggregationMethodBaseTest {
     private static final String URI_PREFIX = "http://example.com/test/";
@@ -39,12 +38,12 @@ public class AggregationMethodBaseTest {
         }
 
         @Override
-        public Collection<CRQuad> aggregate(Collection<Quad> conflictingTriples, NamedGraphMetadataMap metadata) {
+        public Collection<CRQuad> aggregate(Collection<Statement> conflictingTriples, NamedGraphMetadataMap metadata) {
             return Collections.<CRQuad>emptySet();
         }
 
         @Override
-        protected double computeBasicQuality(Quad resultQuad, Collection<String> sourceNamedGraphs,
+        protected double computeBasicQuality(Statement resultQuad, Collection<String> sourceNamedGraphs,
                 NamedGraphMetadataMap metadata) {
             return globalConfig.getScoreIfUnknown();
         }
@@ -52,28 +51,28 @@ public class AggregationMethodBaseTest {
 
     @Test
     public void testSourceNamedGraphsForObject() {
-        Collection<Quad> conflictingQuads = new LinkedList<Quad>();
+        Collection<Statement> conflictingQuads = new LinkedList<Statement>();
         String subjectURI = CRTestUtils.getUniqueURI();
         String predicateURI = CRTestUtils.getUniqueURI();
         String testedObjectURI = CRTestUtils.getUniqueURI();
         String namedGraphA = CRTestUtils.getUniqueURI();
         String namedGraphB = CRTestUtils.getUniqueURI();
 
-        Quad quadA1 = CRTestUtils.createQuad(subjectURI, predicateURI,
+        Statement quadA1 = CRTestUtils.createStatement(subjectURI, predicateURI,
                 testedObjectURI, namedGraphA);
-        Quad quadA2 = CRTestUtils.createQuad(subjectURI, predicateURI,
+        Statement quadA2 = CRTestUtils.createStatement(subjectURI, predicateURI,
                 testedObjectURI, namedGraphA);
-        Quad quadB = CRTestUtils.createQuad(subjectURI, predicateURI,
+        Statement quadB = CRTestUtils.createStatement(subjectURI, predicateURI,
                 testedObjectURI, namedGraphB);
 
         conflictingQuads.add(quadA1);
-        conflictingQuads.add(CRTestUtils.createQuad(
+        conflictingQuads.add(CRTestUtils.createStatement(
                 subjectURI, predicateURI, CRTestUtils.getUniqueURI()));
         conflictingQuads.add(quadA2);
-        conflictingQuads.add(CRTestUtils.createQuad(
+        conflictingQuads.add(CRTestUtils.createStatement(
                 subjectURI, predicateURI, CRTestUtils.getUniqueURI()));
         conflictingQuads.add(quadB);
-        conflictingQuads.add(CRTestUtils.createQuad(
+        conflictingQuads.add(CRTestUtils.createStatement(
                 subjectURI, predicateURI, CRTestUtils.getUniqueURI()));
 
         ConflictResolutionConfig globalConfig = CRTestUtils.createConflictResolutionConfigMock();
@@ -83,7 +82,7 @@ public class AggregationMethodBaseTest {
                 new DistanceMetricImpl(globalConfig),
                 globalConfig);
         Collection<String> actualResult = instance.sourceNamedGraphsForObject(
-                Node.createURI(testedObjectURI),
+                ValueFactoryImpl.getInstance().createURI(testedObjectURI),
                 conflictingQuads);
 
         String[] expectedResult = new String[] { namedGraphA, namedGraphB };

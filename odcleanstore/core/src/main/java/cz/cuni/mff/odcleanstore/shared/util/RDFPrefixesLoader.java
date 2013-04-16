@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.shared.util;
 
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionFactory;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
@@ -34,7 +35,7 @@ public final class RDFPrefixesLoader {
         VirtuosoConnectionWrapper connection = null;
         List<RDFprefix> prefixList = new ArrayList<RDFprefix>();
         try {
-            connection = VirtuosoConnectionWrapper.createConnection(connectionCredentials);
+            connection = VirtuosoConnectionFactory.createJDBCConnection(connectionCredentials);
             WrappedResultSet resultSet = connection.executeSelect("select * from DB.DBA.SYS_XML_PERSISTENT_NS_DECL");
             while (resultSet.next()) {
                 RDFprefix prefix = new RDFprefix(resultSet.getString("NS_PREFIX"), resultSet.getString("NS_URL"));

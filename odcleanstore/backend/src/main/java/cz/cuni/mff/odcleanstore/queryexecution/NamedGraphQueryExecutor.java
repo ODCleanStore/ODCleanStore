@@ -14,9 +14,7 @@ import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 
-import com.hp.hpl.jena.graph.Triple;
-
-import de.fuberlin.wiwiss.ng4j.Quad;
+import org.openrdf.model.Statement;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,8 +45,8 @@ import java.util.Set;
      *
      * The query must be formatted with these arguments: (1) URI, (2) graph filter clause, (3) limit
      */
-    private static final String NAMED_GRAPH_QUERY = "SPARQL"
-            + "\n DEFINE input:same-as \"yes\""
+    private static final String NAMED_GRAPH_QUERY =
+            "DEFINE input:same-as \"yes\""
             + "\n SELECT ?graph ?s ?p ?o"
             + "\n WHERE {"
             + "\n   {"
@@ -74,9 +72,9 @@ import java.util.Set;
      *
      * Must be formatted with arguments: (1) URI, (2) resGraph prefix filter, (3) limit
      */
-    private static final String METADATA_QUERY = "SPARQL"
+    private static final String METADATA_QUERY =
             //+ "\n DEFINE input:same-as \"yes\""
-            + "\n SELECT DISTINCT"
+            "SELECT DISTINCT"
             + "\n   <%1$s> AS ?resGraph ?p ?o"
             + "\n WHERE {"
             //+ "\n   {"
@@ -137,7 +135,7 @@ import java.util.Set;
 
         try {
             // Get the quads relevant for the query
-            Collection<Quad> quads = getNamedGraphTriples(uri);
+            Collection<Statement> quads = getNamedGraphTriples(uri);
             if (quads.isEmpty()) {
                 return createResult(Collections.<CRQuad>emptyList(), new NamedGraphMetadataMap(), uri,
                         System.currentTimeMillis() - startTime);
@@ -145,7 +143,7 @@ import java.util.Set;
 
             // Apply conflict resolution
             NamedGraphMetadataMap metadata = getMetadata(uri);
-            Iterator<Triple> sameAsLinks = getSameAsLinks().iterator();
+            Iterator<Statement> sameAsLinks = getSameAsLinks().iterator();
             Set<String> preferredURIs = getSettingsPreferredURIs();
             ConflictResolver conflictResolver =
                     conflictResolverFactory.createResolver(aggregationSpec, metadata, sameAsLinks, preferredURIs);
@@ -193,7 +191,7 @@ import java.util.Set;
      * @return retrieved quads
      * @throws DatabaseException query error
      */
-    private Collection<Quad> getNamedGraphTriples(String namedGraphURI) throws DatabaseException {
+    private Collection<Statement> getNamedGraphTriples(String namedGraphURI) throws DatabaseException {
         String query = String.format(Locale.ROOT, NAMED_GRAPH_QUERY, namedGraphURI, getGraphFilterClause(), maxLimit);
         return getQuadsFromQuery(query, "getNamedGraphTriples()");
     }
@@ -218,9 +216,9 @@ import java.util.Set;
      * @return collection of relevant owl:sameAs links
      * @throws DatabaseException query error
      */
-    private Collection<Triple> getSameAsLinks() throws DatabaseException {
+    private Collection<Statement> getSameAsLinks() throws DatabaseException {
         long startTime = System.currentTimeMillis();
-        Collection<Triple> sameAsTriples = new ArrayList<Triple>();
+        Collection<Statement> sameAsTriples = new ArrayList<Statement>();
         assert aggregationSpec.getPropertyAggregations() != null;
         for (String property : aggregationSpec.getPropertyAggregations().keySet()) {
             addSameAsLinksForURI(property, sameAsTriples);

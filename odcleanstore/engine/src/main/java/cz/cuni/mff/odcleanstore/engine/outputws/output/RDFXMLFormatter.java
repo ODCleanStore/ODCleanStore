@@ -5,16 +5,15 @@ import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.qualityassessment.QualityAssessor.GraphScoreWithTrace;
 import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.MetadataQueryResult;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.graph.impl.LiteralLabelFactory;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-
-import de.fuberlin.wiwiss.ng4j.Quad;
-
+import org.openrdf.model.Literal;
+import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
+import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.RDFWriter;
+import org.openrdf.rio.RDFWriterFactory;
+import org.openrdf.rio.rdfxml.util.RDFXMLPrettyWriterFactory;
 import org.restlet.data.MediaType;
 import org.restlet.data.Reference;
 import org.restlet.representation.Representation;
@@ -30,9 +29,8 @@ import java.io.Writer;
  * @author Jan Michelfeit
  */
 public class RDFXMLFormatter extends RDFFormatter {
-    /** Representation of RDF/XML language for serialization in Jena. */
-    private static final String SERIALIZER_LANG_RDFXML = "RDF/XML"; 
-
+    private static final RDFWriterFactory WRITER_FACTORY = new RDFXMLPrettyWriterFactory();
+    
     /**
      * Creates a new instance.
      * @param outputWSConfig configuration of the output webservice from the global configuration file
@@ -46,7 +44,14 @@ public class RDFXMLFormatter extends RDFFormatter {
         WriterRepresentation representation = new WriterRepresentation(MediaType.APPLICATION_RDF_XML) {
             @Override
             public void write(Writer writer) throws IOException {
-                basicConvertToModel(result, requestReference).write(writer, SERIALIZER_LANG_RDFXML /*, baseURI */);
+                RDFWriter rdfWriter = WRITER_FACTORY.getWriter(writer);
+                try {
+                    rdfWriter.startRDF();
+                    writeBasic(rdfWriter, result, requestReference);
+                    rdfWriter.endRDF();
+                } catch (RDFHandlerException e) {
+                    throw new IOException(e);
+                }
             };
         };
         representation.setCharacterSet(OUTPUT_CHARSET);
@@ -55,32 +60,31 @@ public class RDFXMLFormatter extends RDFFormatter {
 
     /**
      * Returns a representation of crQuads and metadata as quads in a NamedGraphSet.
+     * @param rdfWriter RDF output writer
      * @param queryResult result of a query
      * @param requestReference Representation of the requested URI
      * @return representation of crQuads and metadata as quads in a NamedGraphSet
+     * @throws RDFHandlerException writer error
      */
-    private Model basicConvertToModel(BasicQueryResult queryResult, Reference requestReference) {
-        // Graph graph = Factory.createGraphMem(ReificationStyle.Standard)
-        Model resultModel = ModelFactory.createDefaultModel();
-        Graph graph = resultModel.getGraph();
-        
+    private void writeBasic(RDFWriter rdfWriter, BasicQueryResult queryResult, Reference requestReference)
+            throws RDFHandlerException {
         // Result data
         int totalResults = 0;
         for (CRQuad crQuad : queryResult.getResultQuads()) {
             totalResults++;
-            graph.add(crQuad.getQuad().getTriple());
+            rdfWriter.handleStatement(crQuad.getQuad());
         }
 
         // Metadata of source named graphs
-        //addODCSNamedGraphMetadata(queryResult.getMetadata(), graph, true);
+        // addODCSNamedGraphMetadata(queryResult.getMetadata(), graph, true);
 
         // Metadata about the query
-        Node requestURI = Node.createURI(fixSqBrackets(requestReference.toString(true, false)));
-        addBasicQueryMetadata(requestURI, queryResult, graph);
-        Node totalResultsLiteral = Node.createLiteral(LiteralLabelFactory.create(totalResults));
-        graph.add(new Triple(requestURI, TOTAL_RESULTS_PROPERTY, totalResultsLiteral));
-
-        return resultModel;
+        URI requestURI = VALUE_FACTORY.createURI(fixSqBrackets(requestReference.toString(true, false)));
+        URI metadataGraphURI = VALUE_FACTORY.createURI(
+                outputWSConfig.getResultDataURIPrefix().toString() + ODCSInternal.queryMetadataGraphUriInfix);
+        writeBasicQueryMetadata(rdfWriter, requestURI, queryResult, metadataGraphURI);
+        Literal totalResultsLiteral = VALUE_FACTORY.createLiteral(totalResults);
+        rdfWriter.handleStatement(VALUE_FACTORY.createStatement(requestURI, TOTAL_RESULTS_PROPERTY, totalResultsLiteral));
     }
 
     @Override
@@ -90,46 +94,51 @@ public class RDFXMLFormatter extends RDFFormatter {
         WriterRepresentation representation = new WriterRepresentation(MediaType.APPLICATION_RDF_XML) {
             @Override
             public void write(Writer writer) throws IOException {
-                metadataConvertToModel(metadataResult, qaResult, totalTime, requestReference)
-                        .write(writer, SERIALIZER_LANG_RDFXML /*, baseURI */);
+                RDFWriter rdfWriter = WRITER_FACTORY.getWriter(writer);
+                try {
+                    rdfWriter.startRDF();
+                    writeMetadata(rdfWriter, metadataResult, qaResult, totalTime, requestReference);
+                    rdfWriter.endRDF();
+                } catch (RDFHandlerException e) {
+                    throw new IOException(e);
+                }
             };
         };
         representation.setCharacterSet(OUTPUT_CHARSET);
         return representation;
     }
 
-    /** 
+    /**
      * Returns a formatted representation of a metadata query result.
+     * @param rdfWriter RDF output writer
      * @param metadataResult result of metadata query about the requested named graph
      * @param qaResult result of quality assessment over the given named graph; can be null
      * @param totalTime execution time of the query
      * @param requestReference Representation of the requested URI
      * @return representation of the result as quads in a NamedGraphSet
+     * @throws RDFHandlerException writer error
      */
-    private Model metadataConvertToModel(MetadataQueryResult metadataResult,
-            GraphScoreWithTrace qaResult, long totalTime, Reference requestReference) {
+    private void writeMetadata(RDFWriter rdfWriter, MetadataQueryResult metadataResult,
+            GraphScoreWithTrace qaResult, long totalTime, Reference requestReference) throws RDFHandlerException {
 
-        Model resultModel = ModelFactory.createDefaultModel();
-        Graph graph = resultModel.getGraph();
-        
-        Node namedGraphURI = Node.createURI(metadataResult.getQuery());
+        URI namedGraphURI = VALUE_FACTORY.createURI(metadataResult.getQuery());
+        URI metadataGraphURI = VALUE_FACTORY.createURI(
+                outputWSConfig.getResultDataURIPrefix().toString() + ODCSInternal.queryMetadataGraphUriInfix);
 
         // Quality Assessment results
-        addQualityAssessmentResults(namedGraphURI, qaResult, graph);
+        writeQualityAssessmentResults(rdfWriter, namedGraphURI, qaResult, metadataGraphURI);
 
         // Metadata of source named graphs
-        addODCSNamedGraphMetadata(metadataResult.getMetadata(), graph, false);
+        writeODCSNamedGraphMetadata(rdfWriter, metadataResult.getMetadata(), false, metadataGraphURI);
 
         // Metadata about the query
-        Node requestURI = Node.createURI(fixSqBrackets(requestReference.toString(true, false)));
-        addBasicQueryMetadata(requestURI, metadataResult, graph);
+        URI requestURI = VALUE_FACTORY.createURI(fixSqBrackets(requestReference.toString(true, false)));
+        writeBasicQueryMetadata(rdfWriter, requestURI, metadataResult, metadataGraphURI);
 
         // Additional provenance metadata
-        for (Quad quad : metadataResult.getProvenanceMetadata()) {
-            graph.add(quad.getTriple());
+        for (Statement quad : metadataResult.getProvenanceMetadata()) {
+            rdfWriter.handleStatement(quad);
         }
-
-        return resultModel;
     }
     
     /**

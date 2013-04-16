@@ -3,6 +3,7 @@ package cz.cuni.mff.odcleanstore.engine.pipeline;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionFactory;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
@@ -560,7 +561,7 @@ final class PipelineGraphManipulator {
      */
     private VirtuosoConnectionWrapper createDirtyConnection() throws ConnectionException {
         JDBCConnectionCredentials credit = ConfigLoader.getConfig().getEngineGroup().getDirtyDBJDBCConnectionCredentials();
-        VirtuosoConnectionWrapper con = VirtuosoConnectionWrapper.createConnection(credit);
+        VirtuosoConnectionWrapper con = VirtuosoConnectionFactory.createJDBCConnection(credit);
         con.adjustTransactionLevel(EnumLogLevel.AUTOCOMMIT);
         con.setQueryTimeout(0);
         return con;
@@ -574,7 +575,7 @@ final class PipelineGraphManipulator {
      */
     private VirtuosoConnectionWrapper createCleanConnection() throws ConnectionException {
         JDBCConnectionCredentials credit = ConfigLoader.getConfig().getEngineGroup().getCleanDBJDBCConnectionCredentials();
-        VirtuosoConnectionWrapper con = VirtuosoConnectionWrapper.createConnection(credit);
+        VirtuosoConnectionWrapper con = VirtuosoConnectionFactory.createJDBCConnection(credit);
         con.adjustTransactionLevel(EnumLogLevel.AUTOCOMMIT);
         con.setQueryTimeout(0);
         return con;

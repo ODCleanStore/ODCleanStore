@@ -1,8 +1,8 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation.comparators;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
+import org.openrdf.model.Statement;
 
-import de.fuberlin.wiwiss.ng4j.Quad;
+import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 
 /**
  * Comparator of quads used by {@link cz.cuni.mff.odcleanstore.conflictresolution.aggregation.BestSelectedAggregation}.
@@ -14,7 +14,7 @@ public interface AggregationComparator {
      * @param quad a quad
      * @return true iff the comparison is applicable to the given quad
      */
-    boolean isAggregable(Quad quad);
+    boolean isAggregable(Statement quad);
 
     /**
      * Compares two quads for order.
@@ -25,5 +25,5 @@ public interface AggregationComparator {
      * @return a negative integer, zero, or a positive integer as the first argument
      *      is less than, equal to, or greater than the second
      */
-    int compare(Quad quad1, Quad quad2, NamedGraphMetadataMap metadata);
+    int compare(Statement quad1, Statement quad2, NamedGraphMetadataMap metadata);
 }

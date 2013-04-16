@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.transformer.odcs;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionFactory;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
@@ -67,7 +68,7 @@ public class ODCSBNodeToResourceTransformer implements Transformer {
 
         VirtuosoConnectionWrapper connection = null;
         try {
-            connection = VirtuosoConnectionWrapper.createConnection(context.getDirtyDatabaseCredentials());
+            connection = VirtuosoConnectionFactory.createJDBCConnection(context.getDirtyDatabaseCredentials());
 
             String query = String.format(Locale.ROOT, INSERT_QUERY_OBJECTS, inputGraph.getGraphName(), prefix);
             connection.execute(query);

@@ -18,6 +18,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
+import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionFactory;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.data.EnumDatabaseInstance;
@@ -392,6 +393,6 @@ public abstract class Dao implements Serializable
 	protected VirtuosoConnectionWrapper createVirtuosoConnectionWrapper(EnumDatabaseInstance dbInstance) 
 		throws ConnectionException
 	{
-			return VirtuosoConnectionWrapper.createConnection(getConnectionCredentials(dbInstance));
+			return VirtuosoConnectionFactory.createJDBCConnection(getConnectionCredentials(dbInstance));
 	}
 }

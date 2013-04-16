@@ -22,13 +22,13 @@ public class AggregationMethodFactory {
     /**
      * Registry of already created aggregation methods.
      */
-    private final Map<EnumAggregationType, AggregationMethod> methodRegistry =
-            new HashMap<EnumAggregationType, AggregationMethod>();
+    private final Map<EnumAggregationType, ObjectAggregationMethod> methodRegistry =
+            new HashMap<EnumAggregationType, ObjectAggregationMethod>();
 
     /**
      * Instance of a single value aggregation.
      */
-    private final AggregationMethod singleValueAggregation;
+    private final ObjectAggregationMethod singleValueAggregation;
 
     /**
      * Generator of URIs passed to newly created aggregations.
@@ -76,8 +76,8 @@ public class AggregationMethodFactory {
      *         AggregationMethod implementation for the selected aggregation type
      * @see EnumAggregationType
      */
-    public AggregationMethod getAggregation(EnumAggregationType type) throws AggregationNotImplementedException {
-        AggregationMethod result = methodRegistry.get(type);
+    public ObjectAggregationMethod getAggregation(EnumAggregationType type) throws AggregationNotImplementedException {
+        ObjectAggregationMethod result = methodRegistry.get(type);
         if (result == null) {
             result = createAggregation(type);
             methodRegistry.put(type, result);
@@ -93,7 +93,7 @@ public class AggregationMethodFactory {
      * @throws AggregationNotImplementedException thrown if there is no
      *         AggregationMethod implementation for the selected aggregation type
      */
-    public AggregationMethod getAggregation(String propertyURI) throws AggregationNotImplementedException {
+    public ObjectAggregationMethod getAggregation(String propertyURI) throws AggregationNotImplementedException {
         EnumAggregationType aggregationType = aggregationSpec.propertyAggregationType(propertyURI);
         return getAggregation(aggregationType);
     }
@@ -108,7 +108,7 @@ public class AggregationMethodFactory {
      * method.
      * @return an instance of AggregationMethod
      */
-    public AggregationMethod getSingleValueAggregation() {
+    public ObjectAggregationMethod getSingleValueAggregation() {
         return singleValueAggregation;
     }
 
@@ -120,7 +120,7 @@ public class AggregationMethodFactory {
      * @throws AggregationNotImplementedException thrown if there is no
      *         AggregationMethod implementation for the selected aggregation type
      */
-    protected AggregationMethod createAggregation(EnumAggregationType type) throws AggregationNotImplementedException {
+    protected ObjectAggregationMethod createAggregation(EnumAggregationType type) throws AggregationNotImplementedException {
         switch (type) {
         case ANY:
             return new AnyAggregation(aggregationSpec, uriGenerator, distanceMetric, globalConfig);
@@ -164,7 +164,7 @@ public class AggregationMethodFactory {
      * @see #getSingleValueAggregation()
      * @return a new instance of AggregationMethod
      */
-    protected AggregationMethod createSingleValueAggregation() {
+    protected ObjectAggregationMethod createSingleValueAggregation() {
         return new SingleValueAggregation(aggregationSpec, uriGenerator, distanceMetric, globalConfig);
     }
 }

@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.hp.hpl.jena.graph.Node;
+import org.openrdf.model.Resource;
 
 /**
  * Map of metadata for named graphs from the RDF store.
@@ -22,11 +22,11 @@ public class NamedGraphMetadataMap {
 
     /**
      * Returns metadata for a given named graph.
-     * @param namedGraph Node_URI with URI of the selected named graph
+     * @param namedGraph {@link Resource} with URI of the selected named graph; null represents the default named graph (context)
      * @return metadata for the selected named graph or null if metadata are unknown
      */
-    public NamedGraphMetadata getMetadata(Node namedGraph) {
-        return metadataMap.get(namedGraph.getURI());
+    public NamedGraphMetadata getMetadata(Resource namedGraph) {
+        return metadataMap.get(namedGraph == null ? null : namedGraph.stringValue());
     }
 
     /**

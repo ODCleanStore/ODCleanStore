@@ -1,10 +1,10 @@
 package cz.cuni.mff.odcleanstore.conflictresolution;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
-
-import de.fuberlin.wiwiss.ng4j.Quad;
-
 import java.util.Collection;
+
+import org.openrdf.model.Statement;
+
+import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
 
 /**
  * Conflict resolution component.
@@ -25,5 +25,5 @@ public interface ConflictResolver {
      *         resolution process occurs
      * @see CRQuad
      */
-    Collection<CRQuad> resolveConflicts(Collection<Quad> quads) throws ConflictResolutionException;
+    Collection<CRQuad> resolveConflicts(Collection<Statement> quads) throws ConflictResolutionException;
 }

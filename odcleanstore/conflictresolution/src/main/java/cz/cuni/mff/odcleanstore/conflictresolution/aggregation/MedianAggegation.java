@@ -1,26 +1,27 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.aggregation;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+
+import javax.xml.datatype.XMLGregorianCalendar;
+
+import org.openrdf.model.Literal;
+import org.openrdf.model.Statement;
+import org.openrdf.model.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
+import cz.cuni.mff.odcleanstore.conflictresolution.CRQuadImpl;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.AggregationUtils;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.EnumLiteralType;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.utils.TimeComparator;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
-
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.impl.LiteralLabelFactory;
-
-import de.fuberlin.wiwiss.ng4j.Quad;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
 
 /**
  * Aggregation method that returns the median of input conflicting triples.
@@ -65,11 +66,11 @@ import java.util.Collections;
      * @return {@inheritDoc}
      */
     @Override
-    public Collection<CRQuad> aggregate(Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
+    public Collection<CRQuad> aggregate(Collection<Statement> conflictingQuads, NamedGraphMetadataMap metadata) {
         EnumLiteralType comparisonType = AggregationUtils.getComparisonType(conflictingQuads);
         if (comparisonType == null) {
             Collection<CRQuad> result = createResultCollection();
-            for (Quad quad : conflictingQuads) {
+            for (Statement quad : conflictingQuads) {
                 handleNonAggregableObject(quad, conflictingQuads, metadata, result, this.getClass());
             }
             return result;
@@ -129,7 +130,7 @@ import java.util.Collections;
          * @param object object of an aggregated quad
          * @return object value converted to T or null if the object is non-aggregable
          */
-        protected abstract T getValue(Node object);
+        protected abstract T getValue(Value object);
 
         /**
          * Sort values in the given list.
@@ -138,24 +139,32 @@ import java.util.Collections;
         protected abstract void sortValues(ArrayList<T> values);
 
         /**
+         * Creates a {@link Literal} for value of type T.
+         * Used so that the factory for literals has information about the type of the value
+         * @param value value to convert to {@link Literal}
+         * @return value converted to {@link Literal}
+         */
+        protected abstract Literal createLiteral(T value);
+
+        /**
          * Implementation of {@link MedianAggegation#aggregate(Collection, NamedGraphMetadataMap)} for a specific
          * comparison type.
          * @param conflictingQuads see {@link MedianAggegation#aggregate(Collection, NamedGraphMetadataMap)}
          * @param metadata see {@link MedianAggegation#aggregate(Collection, NamedGraphMetadataMap)}
          * @return see {@link MedianAggegation#aggregate(Collection, NamedGraphMetadataMap)}
          */
-        public final Collection<CRQuad> aggregate(Collection<Quad> conflictingQuads, NamedGraphMetadataMap metadata) {
+        public final Collection<CRQuad> aggregate(Collection<Statement> conflictingQuads, NamedGraphMetadataMap metadata) {
             Collection<CRQuad> result = createResultCollection();
             ArrayList<T> objects = new ArrayList<T>(conflictingQuads.size());
-            Collection<Quad> aggregableQuads = new ArrayList<Quad>(conflictingQuads.size());
+            Collection<Statement> aggregableQuads = new ArrayList<Statement>(conflictingQuads.size());
             Collection<String> sourceNamedGraphs = new ArrayList<String>();
 
             // Get aggregable quads and their objects converted to double
-            for (Quad quad : conflictingQuads) {
+            for (Statement quad : conflictingQuads) {
                 T value = getValue(quad.getObject());
                 if (value != null) {
                     objects.add(value);
-                    sourceNamedGraphs.add(quad.getGraphName().getURI());
+                    sourceNamedGraphs.add(getSourceGraphURI(quad));
                     aggregableQuads.add(quad);
                 } else {
                     handleNonAggregableObject(quad, conflictingQuads, metadata, result, MedianAggegation.class);
@@ -169,22 +178,23 @@ import java.util.Collections;
                 sortValues(objects);
                 int medianPosition = objects.size() / 2;
                 T medianValue = objects.get(medianPosition);
-                Quad firstQuad = aggregableQuads.iterator().next();
-                Quad resultQuad = new Quad(
-                        Node.createURI(uriGenerator.nextURI()),
+                Statement firstQuad = aggregableQuads.iterator().next();
+                Statement resultQuad = VALUE_FACTORY.createStatement(
                         firstQuad.getSubject(),
                         firstQuad.getPredicate(),
-                        Node.createLiteral(LiteralLabelFactory.create(medianValue)));
-
+                        createLiteral(medianValue),
+                        VALUE_FACTORY.createURI(uriGenerator.nextURI())); 
                 double quality = computeQualityNoAgree(
                         resultQuad,
                         sourceNamedGraphs,
                         aggregableQuads,
                         metadata);
-                result.add(new CRQuad(resultQuad, quality, sourceNamedGraphs));
+                result.add(new CRQuadImpl(resultQuad, quality, sourceNamedGraphs));
                 return result;
             }
         }
+        
+        
     }
 
     /**
@@ -192,7 +202,7 @@ import java.util.Collections;
      */
     private final class NumericMedianAggregation extends MedianAggregationImpl<Double> {
         @Override
-        protected Double getValue(Node object) {
+        protected Double getValue(Value object) {
             Double numberValue = AggregationUtils.convertToDoubleSilent(object);
             return numberValue.isNaN() ? null : numberValue;
         }
@@ -201,6 +211,11 @@ import java.util.Collections;
         protected void sortValues(ArrayList<Double> values) {
             Collections.sort(values);
         }
+
+        @Override
+        protected Literal createLiteral(Double value) {
+            return VALUE_FACTORY.createLiteral((double) value);
+        }
     }
 
     /**
@@ -208,13 +223,18 @@ import java.util.Collections;
      */
     private final class StringMedianAggregation extends MedianAggregationImpl<String> {
         @Override
-        protected String getValue(Node object) {
-            return object.isLiteral() ? object.getLiteralLexicalForm() : null;
+        protected String getValue(Value object) {
+            return object instanceof Literal ? object.toString() : null;
         }
 
         @Override
         protected void sortValues(ArrayList<String> values) {
             Collections.sort(values, String.CASE_INSENSITIVE_ORDER);
+        }
+
+        @Override
+        protected Literal createLiteral(String value) {
+            return VALUE_FACTORY.createLiteral(value);
         }
     }
 
@@ -223,15 +243,20 @@ import java.util.Collections;
      */
     private final class BooleanMedianAggregation extends MedianAggregationImpl<Boolean> {
         @Override
-        protected Boolean getValue(Node object) {
-            return object.isLiteral()
-                    ? AggregationUtils.convertToBoolean(object.getLiteral())
+        protected Boolean getValue(Value object) {
+            return object instanceof Literal
+                    ? AggregationUtils.convertToBoolean((Literal) object)
                     : null;
         }
 
         @Override
         protected void sortValues(ArrayList<Boolean> values) {
             Collections.sort(values);
+        }
+
+        @Override
+        protected Literal createLiteral(Boolean value) {
+            return VALUE_FACTORY.createLiteral((boolean) value);
         }
     }
 
@@ -240,13 +265,19 @@ import java.util.Collections;
      */
     private final class DateMedianAggregation extends MedianAggregationImpl<Calendar> {
         @Override
-        protected Calendar getValue(Node object) {
-            return AggregationUtils.convertToCalendarSilent(object);
+        protected Calendar getValue(Value object) {
+            XMLGregorianCalendar calendar = AggregationUtils.convertToCalendarSilent(object);
+            return calendar != null ? calendar.toGregorianCalendar() : null;
         }
 
         @Override
         protected void sortValues(ArrayList<Calendar> values) {
             Collections.sort(values);
+        }
+
+        @Override
+        protected Literal createLiteral(Calendar value) {
+            return VALUE_FACTORY.createLiteral(value.getTime());
         }
     }
 
@@ -255,13 +286,20 @@ import java.util.Collections;
      */
     private final class TimeMedianAggregation extends MedianAggregationImpl<Calendar> {
         @Override
-        protected Calendar getValue(Node object) {
-            return AggregationUtils.convertToCalendarSilent(object);
+        protected Calendar getValue(Value object) {
+            XMLGregorianCalendar calendar = AggregationUtils.convertToCalendarSilent(object);
+            return calendar != null ? calendar.toGregorianCalendar() : null;
         }
 
         @Override
         protected void sortValues(ArrayList<Calendar> values) {
             Collections.sort(values, TimeComparator.getInstance());
+        }
+        
+
+        @Override
+        protected Literal createLiteral(Calendar value) {
+            return VALUE_FACTORY.createLiteral(value.getTime());
         }
     }
 }

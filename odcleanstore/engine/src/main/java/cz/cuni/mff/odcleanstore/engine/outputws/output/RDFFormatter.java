@@ -13,14 +13,11 @@ import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.vocabulary.RDF;
 import cz.cuni.mff.odcleanstore.vocabulary.W3P;
 
-import com.hp.hpl.jena.datatypes.RDFDatatype;
-import com.hp.hpl.jena.datatypes.TypeMapper;
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.graph.impl.LiteralLabel;
-import com.hp.hpl.jena.graph.impl.LiteralLabelFactory;
-import com.hp.hpl.jena.vocabulary.XSD;
+import org.openrdf.model.URI;
+import org.openrdf.model.Value;
+import org.openrdf.rio.RDFHandler;
+import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.RDFWriter;
 
 import java.util.Collection;
 import java.util.Date;
@@ -31,44 +28,44 @@ import java.util.List;
  * @author Jan Michelfeit
  */
 public abstract class RDFFormatter extends ResultFormatterBase {
-    /** {@link ODCS#totalResults} as a {@link Node}. */
-    protected static final Node TOTAL_RESULTS_PROPERTY = Node.createURI(ODCS.totalResults);
-    /** {@link RDF#type} as a {@link Node}. */
-    protected static final Node TYPE_PROPERTY = Node.createURI(RDF.type);
-    /** {@link DC#title} as a {@link Node}. */
-    protected static final Node TITLE_PROPERTY = Node.createURI(DC.title);
-    /** {@link DC#date} as a {@link Node}. */
-    protected static final Node DATE_PROPERTY = Node.createURI(DC.date);
-    /** {@link ODCS#query} as a {@link Node}. */
-    protected static final Node QUERY_PROPERTY = Node.createURI(ODCS.query);
-    /** {@link ODCS#score} as a {@link Node}. */
-    protected static final Node SCORE_PROPERTY = Node.createURI(ODCS.score);
-    /** {@link ODCS#publisherScore} as a {@link Node}. */
-    protected static final Node PUBLISHER_SCORE_PROPERTY = Node.createURI(ODCS.publisherScore);
-    /** {@link W3P#source} as a {@link Node}. */
-    protected static final Node SOURCE_PROPERTY = Node.createURI(W3P.source);
-    /** {@link W3P#insertedAt} as a {@link Node}. */
-    protected static final Node INSERTED_AT_PROPERTY = Node.createURI(W3P.insertedAt);
-    /** {@link W3P#publishedBy} as a {@link Node}. */
-    protected static final Node PUBLISHED_BY_PROPERTY = Node.createURI(W3P.publishedBy);
-    /** {@link ODCS#updateTag} as a {@link Node}. */
-    protected static final Node UPDATE_TAG_PROPERTY = Node.createURI(ODCS.updateTag);
-    /** {@link DC#license} as a {@link Node}. */
-    protected static final Node LICENSE_PROPERTY = Node.createURI(DC.license);
-    /** {@link DC#description} as a {@link Node}. */
-    protected static final Node DESCRIPTION_PROPERTY = Node.createURI(DC.description);
-    /** {@link ODCS#violatedQARule} as a {@link Node}. */
-    protected static final Node VIOLATED_QA_RULE_PROPERTY = Node.createURI(ODCS.violatedQARule);
-    /** {@link ODCS#coefficient} as a {@link Node}. */
-    protected static final Node COEFFICIENT_PROPERTY = Node.createURI(ODCS.coefficient);
-    /** {@link ODCS#QARule} as a {@link Node}. */
-    protected static final Node QARULE_CLASS = Node.createURI(ODCS.QARule);
-    /** {@link ODCS#queryResponse} as a {@link Node}. */
-    protected static final Node QUERY_RESPONSE_CLASS = Node.createURI(ODCS.queryResponse);
-    
+    /** {@link ODCS#totalResults} as a {@link URI}. */
+    protected static final URI TOTAL_RESULTS_PROPERTY = VALUE_FACTORY.createURI(ODCS.totalResults);
+    /** {@link RDF#type} as a {@link URI}. */
+    protected static final URI TYPE_PROPERTY = VALUE_FACTORY.createURI(RDF.type);
+    /** {@link DC#title} as a {@link URI}. */
+    protected static final URI TITLE_PROPERTY = VALUE_FACTORY.createURI(DC.title);
+    /** {@link DC#date} as a {@link URI}. */
+    protected static final URI DATE_PROPERTY = VALUE_FACTORY.createURI(DC.date);
+    /** {@link ODCS#query} as a {@link URI}. */
+    protected static final URI QUERY_PROPERTY = VALUE_FACTORY.createURI(ODCS.query);
+    /** {@link ODCS#score} as a {@link URI}. */
+    protected static final URI SCORE_PROPERTY = VALUE_FACTORY.createURI(ODCS.score);
+    /** {@link ODCS#publisherScore} as a {@link URI}. */
+    protected static final URI PUBLISHER_SCORE_PROPERTY = VALUE_FACTORY.createURI(ODCS.publisherScore);
+    /** {@link W3P#source} as a {@link URI}. */
+    protected static final URI SOURCE_PROPERTY = VALUE_FACTORY.createURI(W3P.source);
+    /** {@link W3P#insertedAt} as a {@link URI}. */
+    protected static final URI INSERTED_AT_PROPERTY = VALUE_FACTORY.createURI(W3P.insertedAt);
+    /** {@link W3P#publishedBy} as a {@link URI}. */
+    protected static final URI PUBLISHED_BY_PROPERTY = VALUE_FACTORY.createURI(W3P.publishedBy);
+    /** {@link ODCS#updateTag} as a {@link URI}. */
+    protected static final URI UPDATE_TAG_PROPERTY = VALUE_FACTORY.createURI(ODCS.updateTag);
+    /** {@link DC#license} as a {@link URI}. */
+    protected static final URI LICENSE_PROPERTY = VALUE_FACTORY.createURI(DC.license);
+    /** {@link DC#description} as a {@link URI}. */
+    protected static final URI DESCRIPTION_PROPERTY = VALUE_FACTORY.createURI(DC.description);
+    /** {@link ODCS#violatedQARule} as a {@link URI}. */
+    protected static final URI VIOLATED_QA_RULE_PROPERTY = VALUE_FACTORY.createURI(ODCS.violatedQARule);
+    /** {@link ODCS#coefficient} as a {@link URI}. */
+    protected static final URI COEFFICIENT_PROPERTY = VALUE_FACTORY.createURI(ODCS.coefficient);
+    /** {@link ODCS#QARule} as a {@link URI}. */
+    protected static final URI QARULE_CLASS = VALUE_FACTORY.createURI(ODCS.QARule);
+    /** {@link ODCS#queryResponse} as a {@link URI}. */
+    protected static final URI QUERY_RESPONSE_CLASS = VALUE_FACTORY.createURI(ODCS.queryResponse);
+
     /** Configuration of the output webservice from the global configuration file. */
     protected final OutputWSConfig outputWSConfig;
-    
+
     /**
      * Creates a new instance.
      * @param outputWSConfig configuration of the output webservice from the global configuration file
@@ -76,105 +73,150 @@ public abstract class RDFFormatter extends ResultFormatterBase {
     public RDFFormatter(OutputWSConfig outputWSConfig) {
         this.outputWSConfig = outputWSConfig;
     }
-    
+
     /**
      * Adds basic metadata about the query response to the given graph.
+     * @param rdfWriter RDF writer where the metadata are written
      * @param requestURI URI of the current request
      * @param queryResult query results
-     * @param graph graph where the metadata is placed
+     * @param destinationGraphURI URI of named graph where result triples are placed
+     * @throws RDFHandlerException writer error
      */
-    protected void addBasicQueryMetadata(Node requestURI, QueryResultBase queryResult, Graph graph) {
-        graph.add(new Triple(requestURI, TYPE_PROPERTY, QUERY_RESPONSE_CLASS));
+    protected void writeBasicQueryMetadata(RDFHandler rdfWriter, URI requestURI, QueryResultBase queryResult,
+            URI destinationGraphURI) throws RDFHandlerException {
+        rdfWriter.handleStatement(VALUE_FACTORY.createStatement(requestURI, TYPE_PROPERTY, QUERY_RESPONSE_CLASS));
 
         String title = formatQueryTitle(queryResult.getQuery(), queryResult.getQueryType());
-        graph.add(new Triple(requestURI, TITLE_PROPERTY, Node.createLiteral(title)));
-
-        RDFDatatype dateTimeDatatype = TypeMapper.getInstance().getSafeTypeByName(XSD.dateTime.getURI());
-        LiteralLabel nowLiteral = LiteralLabelFactory.create(new Date(), null, dateTimeDatatype);
-        graph.add(new Triple(requestURI, DATE_PROPERTY, Node.createLiteral(nowLiteral)));
-
-        graph.add(new Triple(requestURI, QUERY_PROPERTY, Node.createLiteral(queryResult.getQuery())));
+        rdfWriter.handleStatement(VALUE_FACTORY.createStatement(requestURI, TITLE_PROPERTY, VALUE_FACTORY.createLiteral(title)));
+        rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
+                requestURI,
+                DATE_PROPERTY,
+                VALUE_FACTORY.createLiteral(new Date())));
+        rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
+                requestURI,
+                QUERY_PROPERTY,
+                VALUE_FACTORY.createLiteral(queryResult.getQuery())));
     }
-    
+
     /**
      * Adds metadata from the metadata argument as triples to the given graph.
+     * @param rdfWriter RDF writer where the metadata are written
      * @param metadata metadata to be added
-     * @param graph graph where the metadata are placed
      * @param addScore indicates whether add a triple about named graph score or not
+     * @param destinationGraphURI named graph to which metadata triples will be written
+     * @throws RDFHandlerException writer error
      */
-    protected void addODCSNamedGraphMetadata(NamedGraphMetadataMap metadata, Graph graph, boolean addScore) {
+    protected void writeODCSNamedGraphMetadata(RDFWriter rdfWriter, NamedGraphMetadataMap metadata,
+            boolean addScore, URI destinationGraphURI) throws RDFHandlerException {
+        
         for (NamedGraphMetadata graphMetadata : metadata.listMetadata()) {
-            Node namedGraphURI = Node.createURI(graphMetadata.getNamedGraphURI());
+            URI namedGraphURI = VALUE_FACTORY.createURI(graphMetadata.getNamedGraphURI());
             Collection<String> dataSourceList = graphMetadata.getSources();
             if (dataSourceList != null) {
                 for (String dataSource : dataSourceList) {
-                    graph.add(new Triple(namedGraphURI, SOURCE_PROPERTY, Node.createURI(dataSource)));
+                    rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
+                            namedGraphURI,
+                            SOURCE_PROPERTY,
+                            VALUE_FACTORY.createURI(dataSource),
+                            destinationGraphURI));
                 }
             }
 
             Double score = graphMetadata.getScore();
             if (addScore && score != null) {
-                LiteralLabel literal = LiteralLabelFactory.create(score);
-                graph.add(new Triple(namedGraphURI, SCORE_PROPERTY, Node.createLiteral(literal)));
+                rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
+                        namedGraphURI,
+                        SCORE_PROPERTY,
+                        VALUE_FACTORY.createLiteral((double) score),
+                        destinationGraphURI));
             }
 
             Date storedAt = graphMetadata.getInsertedAt();
             if (storedAt != null) {
-                RDFDatatype datatype = TypeMapper.getInstance().getSafeTypeByName(XSD.dateTime.getURI());
-                LiteralLabel literal = LiteralLabelFactory.create(storedAt, null, datatype);
-                graph.add(new Triple(namedGraphURI, INSERTED_AT_PROPERTY, Node.createLiteral(literal)));
+                rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
+                        namedGraphURI,
+                        INSERTED_AT_PROPERTY,
+                        VALUE_FACTORY.createLiteral(storedAt),
+                        destinationGraphURI));
             }
 
             List<String> publisherList = graphMetadata.getPublishers();
             if (publisherList != null) {
                 for (String publisher : publisherList) {
-                    graph.add(new Triple(namedGraphURI, PUBLISHED_BY_PROPERTY, Node.createURI(publisher)));
+                    rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
+                            namedGraphURI,
+                            PUBLISHED_BY_PROPERTY,
+                            VALUE_FACTORY.createURI(publisher),
+                            destinationGraphURI));
                 }
             }
 
             List<String> licenseList = graphMetadata.getLicences();
             if (licenseList != null) {
                 for (String license : licenseList) {
-                    Node licenseNode = license.startsWith("http://") && ODCSUtils.isValidIRI(license)
-                            ? Node.createURI(license)
-                            : Node.createLiteral(license);
-                    graph.add(new Triple(namedGraphURI, LICENSE_PROPERTY, licenseNode));
+                    Value licenseNode = license.startsWith("http://") && ODCSUtils.isValidIRI(license)
+                            ? VALUE_FACTORY.createURI(license)
+                            : VALUE_FACTORY.createLiteral(license);
+                    rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
+                            namedGraphURI,
+                            LICENSE_PROPERTY,
+                            licenseNode,
+                            destinationGraphURI));
                 }
             }
 
             Double totalPublisherScore = graphMetadata.getTotalPublishersScore();
             if (totalPublisherScore != null) {
-                LiteralLabel literal = LiteralLabelFactory.create(totalPublisherScore);
-                graph.add(new Triple(namedGraphURI, PUBLISHER_SCORE_PROPERTY, Node.createLiteral(literal)));
+                rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
+                        namedGraphURI,
+                        PUBLISHER_SCORE_PROPERTY,
+                        VALUE_FACTORY.createLiteral((double) totalPublisherScore),
+                        destinationGraphURI));
             }
-            
+
             String updateTag = graphMetadata.getUpdateTag();
             if (updateTag != null) {
-                LiteralLabel literal = LiteralLabelFactory.create(updateTag);
-                graph.add(new Triple(namedGraphURI, UPDATE_TAG_PROPERTY, Node.createLiteral(literal)));
+                rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
+                        namedGraphURI,
+                        UPDATE_TAG_PROPERTY,
+                        VALUE_FACTORY.createLiteral(updateTag),
+                        destinationGraphURI));
             }
         }
     }
-    
+
     /**
      * Adds quality assessment results as triples to graph.
+     * @param rdfWriter RDF writer where the metadata are written
      * @param namedGraphURI URI on which QA was executed
      * @param qaResult results of quality assessment
-     * @param graph graph where the results are placed
+     * @param destinationGraphURI URI of named graph where result triples are placed
+     * @throws RDFHandlerException writer error
      */
-    protected void addQualityAssessmentResults(Node namedGraphURI, GraphScoreWithTrace qaResult, Graph graph) {
+    protected void writeQualityAssessmentResults(RDFWriter rdfWriter, URI namedGraphURI, GraphScoreWithTrace qaResult,
+            URI destinationGraphURI) throws RDFHandlerException {
         if (qaResult != null) {
-            LiteralLabel scoreLiteral = LiteralLabelFactory.create(qaResult.getScore());
-            graph.add(new Triple(namedGraphURI, SCORE_PROPERTY, Node.createLiteral(scoreLiteral)));
+            rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
+                    namedGraphURI,
+                    SCORE_PROPERTY,
+                    VALUE_FACTORY.createLiteral((double) qaResult.getScore())));
             for (QualityAssessmentRule qaRule : qaResult.getTrace()) {
-                Node ruleNode = Node.createURI(outputWSConfig.getResultDataURIPrefix().toString() 
+                URI ruleNode = VALUE_FACTORY.createURI(outputWSConfig.getResultDataURIPrefix().toString()
                         + ODCSInternal.queryQARuleUriInfix + qaRule.getId().toString());
-                graph.add(new Triple(namedGraphURI, VIOLATED_QA_RULE_PROPERTY, ruleNode));
-    
-                graph.add(new Triple(ruleNode, TYPE_PROPERTY, QARULE_CLASS));
-                graph.add(new Triple(ruleNode, DESCRIPTION_PROPERTY, Node.createLiteral(qaRule.getDescription())));
-                LiteralLabel coefficientLiteral = LiteralLabelFactory.create(qaRule.getCoefficient());
-                graph.add(new Triple(ruleNode, COEFFICIENT_PROPERTY, Node.createLiteral(coefficientLiteral)));
+                rdfWriter.handleStatement(VALUE_FACTORY.createStatement(namedGraphURI, VIOLATED_QA_RULE_PROPERTY, ruleNode));
+
+                rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
+                        ruleNode,
+                        TYPE_PROPERTY,
+                        QARULE_CLASS));
+                rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
+                        ruleNode,
+                        DESCRIPTION_PROPERTY,
+                        VALUE_FACTORY.createLiteral(qaRule.getDescription())));
+                rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
+                        ruleNode,
+                        COEFFICIENT_PROPERTY,
+                        VALUE_FACTORY.createLiteral((double) qaRule.getCoefficient())));
             }
         }
     }
