@@ -4,17 +4,17 @@ import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 
 /**
  * A compiler to translate rename template instances into raw rules.
- * 
+ *
  * @author Dušan Rychnovský
  *
  */
-public class DNRenameTemplateInstanceCompiler 
+public class DNRenameTemplateInstanceCompiler
 	extends DNTemplateInstanceCompiler<DNRenameTemplateInstance>
 {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * 
+	 *
 	 * @param instance
 	 */
 	@Override
@@ -22,15 +22,35 @@ public class DNRenameTemplateInstanceCompiler
 	{
 		// 1. Create rule.
 		//
-		String description = String.format
-		(
-			"Raw form of a rename rule template instance. " +
-			"Source property: %s; Target property: %s;", 
-			instance.getSourcePropertyName(), 
-			instance.getTargetPropertyName()
-		);
+		String label;
+
+		if (instance.getLabel() == null)
+		{
+			label = instance.getSourcePropertyName() + "-rename-rule";
+		}
+		else
+		{
+			label = instance.getLabel();
+		}
+
+		String description;
+
+		if (instance.getDescription() == null)
+		{
+			description = String.format
+			(
+				"Raw form of a rename rule template instance. " +
+				"Source property: %s; Target property: %s;",
+				instance.getSourcePropertyName(),
+				instance.getTargetPropertyName()
+			);
+		}
+		else
+		{
+			description = instance.getDescription();
+		}
 		
-		CompiledDNRule rule = new CompiledDNRule(instance.getGroupId(), instance.getSourcePropertyName() + "-rename-rule", description);
+		CompiledDNRule rule = new CompiledDNRule(instance.getGroupId(), label, description);
 
 		// 2. Create components.
 		//
@@ -50,7 +70,7 @@ public class DNRenameTemplateInstanceCompiler
 		(
 			"DELETE {?s %s ?o} INSERT {?s %s ?o} WHERE { ?s %s ?o}",
 			sourceProperty,
-			targetProperty, 
+			targetProperty,
 			sourceProperty
 		);
 

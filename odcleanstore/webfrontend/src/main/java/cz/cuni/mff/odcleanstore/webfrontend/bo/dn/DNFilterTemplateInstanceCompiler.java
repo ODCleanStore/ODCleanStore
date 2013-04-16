@@ -4,17 +4,17 @@ import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 
 /**
  * A compiler to translate filter template instances into raw rules.
- * 
+ *
  * @author Dušan Rychnovský
  *
  */
-public class DNFilterTemplateInstanceCompiler 
+public class DNFilterTemplateInstanceCompiler
 	extends DNTemplateInstanceCompiler<DNFilterTemplateInstance>
 {	
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * 
+	 *
 	 * @param instance
 	 */
 	@Override
@@ -22,16 +22,36 @@ public class DNFilterTemplateInstanceCompiler
 	{
 		// 1. Create rule.
 		//
-		String description = String.format
-		(
-			"Raw form of a filter rule template instance. " +
-			"Property: %s; Pattern: %s; Keep: %s;", 
-			instance.getPropertyName(), 
-			instance.getPattern(),
-			instance.getKeep().toString()
-		);
+		String label;
+
+		if (instance.getLabel() == null)
+		{
+			label = instance.getPropertyName() + "-filter-rule";
+		}
+		else
+		{
+			label = instance.getLabel();
+		}
+
+		String description;
+
+		if (instance.getDescription() == null)
+		{
+			description = String.format
+			(
+				"Raw form of a filter rule template instance. " +
+				"Property: %s; Pattern: %s; Keep: %s;",
+				instance.getPropertyName(),
+				instance.getPattern(),
+				instance.getKeep().toString()
+			);
+		}
+		else
+		{
+			description = instance.getDescription();
+		}
 		
-		CompiledDNRule rule = new CompiledDNRule(instance.getGroupId(), instance.getPropertyName() + "-filter-rule", description);
+		CompiledDNRule rule = new CompiledDNRule(instance.getGroupId(), label, description);
 
 		// 2. Create components.
 		//
@@ -47,7 +67,7 @@ public class DNFilterTemplateInstanceCompiler
 
 		String modification = String.format
 		(
-			"{?s %s ?o} WHERE { ?s %s ?o FILTER (%sfn:matches(str(?o), '%s'))}", 
+			"{?s %s ?o} WHERE { ?s %s ?o FILTER (%sfn:matches(str(?o), '%s'))}",
 			property,
 			property,
 			instance.getKeep() ? "!" : "",
@@ -56,7 +76,7 @@ public class DNFilterTemplateInstanceCompiler
 
 		String compDescription = String.format
 		(
-			"Filter out %smatching values of the property.", 
+			"Filter out %smatching values of the property.",
 			instance.getKeep() ? "non-" : ""
 		);
 		

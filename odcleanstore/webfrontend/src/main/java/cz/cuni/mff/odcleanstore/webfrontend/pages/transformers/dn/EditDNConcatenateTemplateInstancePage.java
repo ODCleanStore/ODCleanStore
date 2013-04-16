@@ -84,6 +84,12 @@ public class EditDNConcatenateTemplateInstancePage extends LimitedEditingPage
 				DNConcatenateTemplateInstance instance = this.getModelObject();
 					
 				try {
+					String oldRawLabel = dnRuleDao.load(instance.getRawRuleId()).getLabel();
+					instance.setLabel(oldRawLabel);
+
+					String oldRawDescription = dnRuleDao.load(instance.getRawRuleId()).getDescription();
+					instance.setDescription(oldRawDescription);
+  
 					dnRuleDao.delete(instance.getRawRuleId());
 
 					// note that when deleting the raw rule, the template instance

@@ -25,8 +25,7 @@ import virtuoso.jena.driver.VirtModel;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -49,7 +48,7 @@ public class DataNormalizationRulesModel {
 			"DB.ODCLEANSTORE.DN_RULES%s AS rules JOIN " +
 			"DB.ODCLEANSTORE.DN_RULE_COMPONENTS%s AS components ON components.ruleId = rules.id JOIN " +
 			"DB.ODCLEANSTORE.DN_RULE_COMPONENT_TYPES AS types ON components.typeId = types.id " +
-			"WHERE groupId = ?";
+			"WHERE groupId = ? ORDER BY rules.id";
 	private static final String ruleByGroupLabelQueryFormat = "SELECT rules.id AS id, " +
 			"rules.groupId AS groupId, " +
 			"types.label AS type, " +
@@ -62,7 +61,7 @@ public class DataNormalizationRulesModel {
 			"DB.ODCLEANSTORE.DN_RULES_GROUPS AS groups ON rules.groupId = groups.id JOIN " +
 			"DB.ODCLEANSTORE.DN_RULE_COMPONENTS%s AS components ON components.ruleId = rules.id JOIN " +
 			"DB.ODCLEANSTORE.DN_RULE_COMPONENT_TYPES AS types ON components.typeId = types.id " +
-			"WHERE groups.label = ?";
+			"WHERE groups.label = ? ORDER BY rules.id";
 
 	private static final String ontologyResourceQuery = "SELECT ?s WHERE {?s ?p ?o} GROUP BY ?s";
 
@@ -121,7 +120,7 @@ public class DataNormalizationRulesModel {
 	 * @throws DataNormalizationException
 	 */
 	private Collection<DataNormalizationRule> queryRules (String query, Object... objects) throws DataNormalizationException {
-		Map<Integer, DataNormalizationRule> rules = new HashMap<Integer, DataNormalizationRule>();
+		Map<Integer, DataNormalizationRule> rules = new LinkedHashMap<Integer, DataNormalizationRule>();
 
 		try {
 			WrappedResultSet results = getCleanConnection().executeSelect(query, objects);
@@ -168,7 +167,7 @@ public class DataNormalizationRulesModel {
 	 * @return a collection of the selected rules
 	 */
 	public Collection<DataNormalizationRule> getRules (Integer... groupIds) throws DataNormalizationException {
-		Set<DataNormalizationRule> rules = new HashSet<DataNormalizationRule>();
+		List<DataNormalizationRule> rules = new ArrayList<DataNormalizationRule>();
 
 		for (int i = 0; i < groupIds.length; ++i) {
 			Collection<DataNormalizationRule> groupSpecific = queryRules(String.format(ruleByGroupIdQueryFormat, tableVersion.getTableSuffix(), tableVersion.getTableSuffix()), groupIds[i]);
