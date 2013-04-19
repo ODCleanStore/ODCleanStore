@@ -1,11 +1,11 @@
 package cz.cuni.mff.odcleanstore.configuration;
 
+import cz.cuni.mff.odcleanstore.configuration.exceptions.ConfigurationException;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
-
-import cz.cuni.mff.odcleanstore.configuration.exceptions.ConfigurationException;
 
 /**
  * Encapsulates application configuration values.
@@ -23,16 +23,16 @@ import cz.cuni.mff.odcleanstore.configuration.exceptions.ConfigurationException;
  */
 // TODO: doplnit integracni testy pro parse cele konfigurace ze souboru
 public final class Config {
-    private BackendConfig backendConfigGroup;
-    private DataNormalizationConfig dataNormalizationGroup;
-    private QualityAssessmentConfig qualityAssessmentGroup;
-    private ObjectIdentificationConfig objectIdentificationGroup;
-    private QueryExecutionConfig queryExecutionGroup;
-    private ConflictResolutionConfig conflictResolutionGroup;
-    private OutputWSConfig outputWSGroup;
-    private InputWSConfig inputWSGroup;
-    private EngineConfig engineGroup;
-    private WebFrontendConfig webFrontendGroup;
+    private final BackendConfig backendConfigGroup;
+    private final DataNormalizationConfig dataNormalizationGroup;
+    private final QualityAssessmentConfig qualityAssessmentGroup;
+    private final ObjectIdentificationConfig objectIdentificationGroup;
+    private final QueryExecutionConfig queryExecutionGroup;
+    private final ConflictResolutionConfig conflictResolutionGroup;
+    private final OutputWSConfig outputWSGroup;
+    private final InputWSConfig inputWSGroup;
+    private final EngineConfig engineGroup;
+    private final WebFrontendConfig webFrontendGroup;
 
     /**
      * Create a new instance with the given configuration values.
@@ -78,7 +78,7 @@ public final class Config {
         QualityAssessmentConfig qualityAssessmentGroup = QualityAssessmentConfig.load(properties);
         ObjectIdentificationConfig objectIdentificationGroup = ObjectIdentificationConfig.load(properties);
         QueryExecutionConfig queryExecutionGroup = QueryExecutionConfig.load(properties);
-        ConflictResolutionConfig conflictResolutionGroup = ConflictResolutionConfig.load(properties);
+        ConflictResolutionConfig conflictResolutionGroup = ConflictResolutionConfigImpl.load(properties);
         OutputWSConfig outputWSGroup = OutputWSConfig.load(properties);
         InputWSConfig inputWSGroup = InputWSConfig.load(properties);
         EngineConfig engineConfig = EngineConfig.load(properties);

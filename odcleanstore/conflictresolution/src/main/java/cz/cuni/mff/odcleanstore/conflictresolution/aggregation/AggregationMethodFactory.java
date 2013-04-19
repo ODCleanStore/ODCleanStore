@@ -26,19 +26,9 @@ public class AggregationMethodFactory {
             new HashMap<EnumAggregationType, ObjectAggregationMethod>();
 
     /**
-     * Instance of a single value aggregation.
-     */
-    private final ObjectAggregationMethod singleValueAggregation;
-
-    /**
      * Generator of URIs passed to newly created aggregations.
      */
     private final UniqueURIGenerator uriGenerator;
-
-    /**
-     * Aggregation settings passed to newly created aggregations.
-     */
-    private final AggregationSpec aggregationSpec;
 
     /**
      * Distance metric used in quality calculation.
@@ -52,50 +42,34 @@ public class AggregationMethodFactory {
 
     /**
      * Creates a new factory with the given settings for creating new aggregations.
-     * @param aggregationSpec aggregation and quality calculation settings
      * @param resultGraphPrefix prefix of URIs of named graphs where resolved triples are placed
      * @param globalConfig global configuration values for conflict resolution
      */
     public AggregationMethodFactory(
-            AggregationSpec aggregationSpec,
             String resultGraphPrefix,
             ConflictResolutionConfig globalConfig) {
 
         this.uriGenerator = new SimpleUriGenerator(resultGraphPrefix);
-        this.aggregationSpec = aggregationSpec;
         this.globalConfig = globalConfig;
         this.distanceMetric = new DistanceMetricImpl(globalConfig);
-        this.singleValueAggregation = createSingleValueAggregation();
     }
 
     /**
      * Returns an instance of AggregationMethod implementing the selected type of aggregation.
      * @param type type of aggregation
+     * @param aggregationSpec aggregation settings
      * @return an object implementing the selected aggregation method
      * @throws AggregationNotImplementedException thrown if there is no
      *         AggregationMethod implementation for the selected aggregation type
      * @see EnumAggregationType
      */
-    public ObjectAggregationMethod getAggregation(EnumAggregationType type) throws AggregationNotImplementedException {
+    public ObjectAggregationMethod getAggregation(EnumAggregationType type, AggregationSpec aggregationSpec) throws AggregationNotImplementedException {
         ObjectAggregationMethod result = methodRegistry.get(type);
         if (result == null) {
-            result = createAggregation(type);
+            result = createAggregation(type, aggregationSpec);
             methodRegistry.put(type, result);
         }
         return result;
-    }
-
-    /**
-     * Returns an appropriate instance of AggregationMethod for the given property according to
-     * aggregation settings given in the constructor.
-     * @param propertyURI URI of a property
-     * @return an aggregation method
-     * @throws AggregationNotImplementedException thrown if there is no
-     *         AggregationMethod implementation for the selected aggregation type
-     */
-    public ObjectAggregationMethod getAggregation(String propertyURI) throws AggregationNotImplementedException {
-        EnumAggregationType aggregationType = aggregationSpec.propertyAggregationType(propertyURI);
-        return getAggregation(aggregationType);
     }
 
     /**
@@ -106,21 +80,24 @@ public class AggregationMethodFactory {
      * can be used in place of an arbitrary aggregation type on a single quad
      * and possibly provide a better performance than a specialized aggregation
      * method.
+     * @param aggregationSpec aggregation settings
      * @return an instance of AggregationMethod
      */
-    public ObjectAggregationMethod getSingleValueAggregation() {
-        return singleValueAggregation;
+    public ObjectAggregationMethod getSingleValueAggregation(AggregationSpec aggregationSpec) {
+        return createSingleValueAggregation(aggregationSpec);
     }
 
     /**
      * Create a new instance of AggregationMethod implementing the selected type of aggregation.
      * @see #getAggregation(EnumAggregationType)
-     * @param type type of aggregation
+     * @param type type of aggregation¨
+     * @param aggregationSpec aggregation settings
      * @return an new object implementing the selected aggregation method
      * @throws AggregationNotImplementedException thrown if there is no
      *         AggregationMethod implementation for the selected aggregation type
      */
-    protected ObjectAggregationMethod createAggregation(EnumAggregationType type) throws AggregationNotImplementedException {
+    protected ObjectAggregationMethod createAggregation(EnumAggregationType type, AggregationSpec aggregationSpec)
+            throws AggregationNotImplementedException {
         switch (type) {
         case ANY:
             return new AnyAggregation(aggregationSpec, uriGenerator, distanceMetric, globalConfig);
@@ -161,10 +138,11 @@ public class AggregationMethodFactory {
 
     /**
      * Creates a new instance of AggregationMethod for aggregating a single conflicting quad.
+     * @param aggregationSpec aggregation settings
      * @see #getSingleValueAggregation()
      * @return a new instance of AggregationMethod
      */
-    protected ObjectAggregationMethod createSingleValueAggregation() {
+    protected ObjectAggregationMethod createSingleValueAggregation(AggregationSpec aggregationSpec) {
         return new SingleValueAggregation(aggregationSpec, uriGenerator, distanceMetric, globalConfig);
     }
 }
