@@ -68,11 +68,12 @@ public final class AggregationUtils {
             return EnumLiteralType.BOOLEAN;
         } else if (datatypeURI.equals(XMLSchema.stringType)) {
             return EnumLiteralType.STRING;
-        } else if (datatypeURI.equals(XMLSchema.dateTimeType)
-                || datatypeURI.equals(XMLSchema.dateType)) {
-            return EnumLiteralType.DATE;
         } else if (datatypeURI.equals(XMLSchema.timeType)) {
             return EnumLiteralType.TIME;
+        } else if (datatypeURI.equals(XMLSchema.dateTimeType)
+                || datatypeURI.equals(XMLSchema.dateType)
+                || datatypeURI.equals(XMLSchema.gYear)) {
+            return EnumLiteralType.DATE;
         } else if (datatypeURI.equals(XMLSchema.integerType)
                 || datatypeURI.equals(XMLSchema.intType)
                 || datatypeURI.equals(XMLSchema.longType)

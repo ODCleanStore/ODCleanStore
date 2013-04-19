@@ -15,7 +15,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.CRTestUtils;
  *
  * @author Jan Michelfeit
  */
-public class NodeComparatorTest {
+public class ValueComparatorTest {
     private static final ValueFactory VALUE_FACTORY = ValueFactoryImpl.getInstance();
     
     @Test
