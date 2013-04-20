@@ -4,11 +4,11 @@ import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 
 /**
  * A compiler to translate concatenate template instances into raw rules.
- * 
+ *
  * @author Jakub Daniel
  *
  */
-public class DNConcatenateTemplateInstanceCompiler 
+public class DNConcatenateTemplateInstanceCompiler
 	extends DNTemplateInstanceCompiler<DNConcatenateTemplateInstance>
 {
 	private static final long serialVersionUID = 1L;
@@ -16,7 +16,7 @@ public class DNConcatenateTemplateInstanceCompiler
 	/**
 	 * Creates a rule that can be used with DataNormalizer and performs action
 	 * expected from the instance of the concatenation template
-	 * 
+	 *
 	 * @param instance filled in template for a concatenation rule
 	 */
 	@Override
@@ -28,15 +28,35 @@ public class DNConcatenateTemplateInstanceCompiler
 
 		if (delimiter == null) delimiter = "";
 
-		String description = String.format
-		(
-			"Raw form of a cancatenate rule template instance. " +
-			"Property: %s; Delimiter: '%s';", 
-			instance.getPropertyName(),
-			delimiter
-		);
+		String label;
+
+		if (instance.getLabel() == null)
+		{
+			label = instance.getPropertyName() + "-concatenate-rule";
+		}
+		else
+		{
+			label = instance.getLabel();
+		}
+
+		String description;
+
+		if (instance.getDescription() == null)
+		{
+			description = String.format
+			(
+				"Raw form of a cancatenate rule template instance. " +
+				"Property: %s; Delimiter: '%s';",
+				instance.getPropertyName(),
+				delimiter
+			);
+		}
+		else
+		{
+			description = instance.getDescription();
+		}
 		
-		CompiledDNRule rule = new CompiledDNRule(instance.getGroupId(), instance.getPropertyName() + "-concatenate-rule", description);
+		CompiledDNRule rule = new CompiledDNRule(instance.getGroupId(), label, description);
 
 		// 2. Create components.
 		//

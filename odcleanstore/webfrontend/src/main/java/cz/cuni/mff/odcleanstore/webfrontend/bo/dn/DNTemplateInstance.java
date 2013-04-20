@@ -4,7 +4,7 @@ import cz.cuni.mff.odcleanstore.webfrontend.bo.EntityWithSurrogateKey;
 
 /**
  * A generic parent of all BO's to represent template instances of DN rules.
- * 
+ *
  * @author Dušan Rychnovský
  *
  */
@@ -14,9 +14,11 @@ public abstract class DNTemplateInstance extends EntityWithSurrogateKey
 
 	private Integer groupId;
 	private Integer rawRuleId;
+	private String  label;
+	private String  description;
 	
 	/**
-	 * 
+	 *
 	 * @param id
 	 * @param groupId
 	 * @param rawRuleId
@@ -30,7 +32,7 @@ public abstract class DNTemplateInstance extends EntityWithSurrogateKey
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param groupId
 	 * @param rawRuleId
 	 */
@@ -41,7 +43,7 @@ public abstract class DNTemplateInstance extends EntityWithSurrogateKey
 	}
 	
 	/**
-	 * 
+	 *
 	 */
 	public DNTemplateInstance()
 	{
@@ -49,7 +51,7 @@ public abstract class DNTemplateInstance extends EntityWithSurrogateKey
 	}
 	
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public Integer getRawRuleId()
@@ -58,7 +60,7 @@ public abstract class DNTemplateInstance extends EntityWithSurrogateKey
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param rawRuleId
 	 */
 	public void setRawRuleId(Integer rawRuleId)
@@ -67,20 +69,40 @@ public abstract class DNTemplateInstance extends EntityWithSurrogateKey
 	}
 
 	/**
-	 * 
+	 *
 	 * @return
 	 */
-	public Integer getGroupId() 
+	public Integer getGroupId()
 	{
 		return groupId;
 	}
 
 	/**
-	 * 
+	 *
 	 * @param groupId
 	 */
-	public void setGroupId(Integer groupId) 
+	public void setGroupId(Integer groupId)
 	{
 		this.groupId = groupId;
+	}
+
+	public void setLabel(String label)
+	{
+		this.label = label;
+	}
+
+	public String getLabel()
+	{
+		return label;
+	}
+
+	public void setDescription(String description)
+	{
+		this.description = description;
+	}
+
+	public String getDescription()
+	{
+		return this.description;
 	}
 }

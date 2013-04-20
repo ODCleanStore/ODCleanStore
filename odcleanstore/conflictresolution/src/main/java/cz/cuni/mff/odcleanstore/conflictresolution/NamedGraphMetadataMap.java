@@ -1,7 +1,9 @@
 package cz.cuni.mff.odcleanstore.conflictresolution;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.openrdf.model.Resource;
@@ -67,6 +69,21 @@ public class NamedGraphMetadataMap {
 
     @Override
     public String toString() {
-        return this.metadataMap.toString();
+        Iterator<Entry<String, NamedGraphMetadata>> it = metadataMap.entrySet().iterator();
+        if (!it.hasNext()) {
+            return "{}";
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append('{');
+        while (true) {
+            Entry<String, NamedGraphMetadata> e = it.next();
+            sb.append(e.getKey());
+            sb.append('=');
+            sb.append(e.getValue());
+            if (!it.hasNext()) {
+                return sb.append('}').toString();
+            }
+            sb.append(',').append(' ').append('\n');
+        }
     }
 }

@@ -4,17 +4,17 @@ import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 
 /**
  * A compiler to translate replace template instances into raw rules.
- * 
+ *
  * @author Dušan Rychnovský
  *
  */
-public class DNReplaceTemplateInstanceCompiler 
+public class DNReplaceTemplateInstanceCompiler
 	extends DNTemplateInstanceCompiler<DNReplaceTemplateInstance>
 {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * 
+	 *
 	 * @param instance
 	 */
 	@Override
@@ -22,16 +22,36 @@ public class DNReplaceTemplateInstanceCompiler
 	{
 		// 1. Create rule.
 		//
-		String description = String.format
-		(
-			"Raw form of a replace rule template instance. " +
-			"Property: %s; Pattern: %s; Replacement: %s;", 
-			instance.getPropertyName(), 
-			instance.getPattern(), 
-			instance.getReplacement()
-		);
+		String label;
+
+		if (instance.getLabel() == null)
+		{
+			label = instance.getPropertyName() + "-replace-rule";
+		}
+		else
+		{
+			label = instance.getLabel();
+		}
+
+		String description;
+
+		if (instance.getDescription() == null)
+		{
+			description = String.format
+			(
+				"Raw form of a replace rule template instance. " +
+				"Property: %s; Pattern: %s; Replacement: %s;",
+				instance.getPropertyName(),
+				instance.getPattern(),
+				instance.getReplacement()
+			);
+		}
+		else
+		{
+			description = instance.getDescription();
+		}
 		
-		CompiledDNRule rule = new CompiledDNRule(instance.getGroupId(), instance.getPropertyName() + "-replace-rule", description);
+		CompiledDNRule rule = new CompiledDNRule(instance.getGroupId(), label, description);
 		
 		// 2. Create components.
 		//
@@ -51,15 +71,15 @@ public class DNReplaceTemplateInstanceCompiler
 			"WHERE { {SELECT ?s ?o (fn:replace(str(?o), '%s', '%s')) AS ?x WHERE {{?s %s ?o}}} FILTER (BOUND(?x))}",
 			property,
 			property,
-			pattern, 
-			replacement, 
+			pattern,
+			replacement,
 			property
 		);
 		
 		CompiledDNRuleComponent component = new CompiledDNRuleComponent
 		(
 			CompiledDNRuleComponent.TypeLabel.MODIFY,
-			modification, 
+			modification,
 			"Remove old values and add transformed values in the same step."
 		);
 

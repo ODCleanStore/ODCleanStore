@@ -14,6 +14,7 @@ import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
  * however the implementation gives no promises about the exact order of Nodes.
  *
  * @author Jan Michelfeit
+ * TODO: use LexicalValueComparator instead?
  */
 public final class ValueComparator implements Comparator<Value> {
     private static final ValueComparator INSTANCE = new ValueComparator();

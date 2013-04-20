@@ -23,6 +23,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverSpec;
+import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationType;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
 import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationMethodFactory;
@@ -52,9 +53,9 @@ public class ConflictResolverImpl implements ConflictResolver {
     private final ConflictResolverSpec crSpec;
 
     /**
-     * Global configuration values for conflict resolution.
+     * {@link ObjectAggregationMethod} factory.
      */
-    private final ConflictResolutionConfig globalConfig;
+    private final AggregationMethodFactory aggregationFactory;
 
     /**
      * Creates a new instance of conflict resolver for settings passed in crSpec.
@@ -63,7 +64,7 @@ public class ConflictResolverImpl implements ConflictResolver {
      */
     public ConflictResolverImpl(ConflictResolverSpec crSpec, ConflictResolutionConfig globalConfig) {
         this.crSpec = crSpec;
-        this.globalConfig = globalConfig;
+        this.aggregationFactory = new AggregationMethodFactory(crSpec.getNamedGraphPrefix(), globalConfig);
     }
 
     /**
@@ -139,8 +140,6 @@ public class ConflictResolverImpl implements ConflictResolver {
         }
 
         // Resolve conflicts:
-        AggregationMethodFactory aggregationFactory =
-                new AggregationMethodFactory(effectiveAggregationSpec, crSpec.getNamedGraphPrefix(), globalConfig);
         Collection<CRQuad> result = createResultCollection();
         Iterator<Collection<Statement>> conflictIterator = quadsToResolve.listConflictingQuads();
         while (conflictIterator.hasNext()) {
@@ -151,7 +150,7 @@ public class ConflictResolverImpl implements ConflictResolver {
                 conflictCluster = filterOldVersions(conflictCluster, metadata, filterComparator);
             }
 
-            ObjectAggregationMethod aggregator = getAggregator(conflictCluster, aggregationFactory);
+            ObjectAggregationMethod aggregator = getAggregator(conflictCluster, effectiveAggregationSpec, aggregationFactory);
             Collection<CRQuad> aggregatedQuads = aggregator.aggregate(conflictCluster, metadata);
 
             // Add resolved quads to result
@@ -344,22 +343,24 @@ public class ConflictResolverImpl implements ConflictResolver {
      *
      * @param quads collection of conflicting quads (i.e. having the same
      *        subject and predicate)
+     * @param aggregationSpec aggregation settigns
      * @param aggregationFactory factory for AggregationMethod
      * @return an aggregation method instance selected according to CR settings
      * @throws AggregationNotImplementedException thrown if there is no
      *         AggregationMethod implementation for the selected aggregation type
      */
-    private ObjectAggregationMethod getAggregator(Collection<Statement> quads, AggregationMethodFactory aggregationFactory)
+    private ObjectAggregationMethod getAggregator(Collection<Statement> quads, AggregationSpec aggregationSpec, AggregationMethodFactory aggregationFactory)
             throws AggregationNotImplementedException {
 
         if (quads.size() == 1) {
             // A little optimization: behavior of all aggregation method on
             // a single quad is supposed to be the same, so we can use an
             // instance optimized for single values
-            return aggregationFactory.getSingleValueAggregation();
+            return aggregationFactory.getSingleValueAggregation(aggregationSpec);
         }
         String clusterProperty = getQuadsProperty(quads);
-        return aggregationFactory.getAggregation(clusterProperty);
+        EnumAggregationType type = aggregationSpec.propertyAggregationType(clusterProperty);
+        return aggregationFactory.getAggregation(type, aggregationSpec);
     }
 
     /**

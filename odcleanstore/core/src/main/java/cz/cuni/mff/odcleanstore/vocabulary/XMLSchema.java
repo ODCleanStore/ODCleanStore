@@ -45,5 +45,7 @@ public final class XMLSchema {
     public static final String dateType = NS + "date";
 
     public static final String dateTimeType = NS + "dateTime";
+    
+    public static final String gYear = NS + "gYear";
     // CHECKSTYLE:ON
 }
