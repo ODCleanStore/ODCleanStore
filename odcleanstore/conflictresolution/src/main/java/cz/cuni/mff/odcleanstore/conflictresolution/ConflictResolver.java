@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.conflictresolution;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 import org.openrdf.model.Statement;
 
@@ -23,7 +24,14 @@ public interface ConflictResolver {
      *         conflicts, quality estimate and source named graph information.
      * @throws ConflictResolutionException thrown when an error during the conflict
      *         resolution process occurs
-     * @see CRQuad
+     * @see ResolvedStatement
      */
-    Collection<CRQuad> resolveConflicts(Collection<Statement> quads) throws ConflictResolutionException;
+    Collection<ResolvedStatement> resolveConflicts(Iterator<Statement> quads) throws ConflictResolutionException;
+
+    /**
+     * @param statements
+     * @return
+     * @throws ConflictResolutionException
+     */
+    Collection<ResolvedStatement> resolveConflicts(Collection<Statement> statements) throws ConflictResolutionException;
 }

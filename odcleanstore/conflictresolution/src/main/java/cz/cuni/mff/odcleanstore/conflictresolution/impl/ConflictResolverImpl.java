@@ -3,310 +3,174 @@ package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
-import org.openrdf.model.Literal;
+import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
-import org.openrdf.model.Value;
+import org.openrdf.model.URI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
-import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
-import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
+import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
-import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverSpec;
-import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationType;
-import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
-import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.AggregationMethodFactory;
-import cz.cuni.mff.odcleanstore.conflictresolution.aggregation.ObjectAggregationMethod;
-import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.AggregationNotImplementedException;
+import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
+import cz.cuni.mff.odcleanstore.conflictresolution.EnumCardinality;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunction;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunctionRegistry;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionStrategy;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatementFactory;
+import cz.cuni.mff.odcleanstore.conflictresolution.URIMapping;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
-import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
-import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.GrowingArray;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 
 /**
  * Default implementation of the conflict resolution process.
  * Non-static methods are not thread-safe (shared {@link #aggregationFactory}).
- *
+ * 
  * @author Jan Michelfeit
  */
 public class ConflictResolverImpl implements ConflictResolver {
     private static final Logger LOG = LoggerFactory.getLogger(ConflictResolverImpl.class);
 
-    /**
-     * If set to true, language tag is ignored when comparing literals.
-     */
-    private static final boolean IGNORE_LANGUAGE_TAG = true;
+    private static final String DEFAULT_RESOLVED_GRAPHS_URI_PREFIX = ODCS.getURI() + "CR/";
+    private static final ResolutionStrategy DEFAULT_RESOLUTION_STRATEGY = new ResolutionStrategyImpl(
+            "ALL", // TODO - constants
+            EnumCardinality.MULTIVALUE,
+            EnumAggregationErrorStrategy.RETURN_ALL);
+    private static final int EXPECTED_REDUCTION_FACTOR = 3;
 
-    /**
-     * Settings for the conflict resolution process.
-     */
-    private final ConflictResolverSpec crSpec;
+    private Model metadata = null;
+    private URIMapping uriMapping = EmptyURIMapping.getInstance();
+    private ResolvedStatementFactory resolvedStatementFactory =
+            new ResolvedStatementFactoryImpl(DEFAULT_RESOLVED_GRAPHS_URI_PREFIX);
+    private ResolutionStrategy defaultResolutionStrategy = DEFAULT_RESOLUTION_STRATEGY;
+    private Map<URI, ResolutionStrategy> predicateResolutionStrategy = Collections.emptyMap();
 
-    /**
-     * {@link ObjectAggregationMethod} factory.
-     */
-    private final AggregationMethodFactory aggregationFactory;
+    private CRContextImpl context;
 
-    /**
-     * Creates a new instance of conflict resolver for settings passed in crSpec.
-     * @param crSpec settings for the conflict resolution process
-     * @param globalConfig global configuration values for conflict resolution
-     */
-    public ConflictResolverImpl(ConflictResolverSpec crSpec, ConflictResolutionConfig globalConfig) {
-        this.crSpec = crSpec;
-        this.aggregationFactory = new AggregationMethodFactory(crSpec.getNamedGraphPrefix(), globalConfig);
+    // private StatementFilter statementFilter;
+
+    public ConflictResolverImpl() {
     }
 
-    /**
-     * Comparison of node equality with regard to conflict resolution.
-     * Behaves like {@link Node#sameValueAs(Object)} except that languages for plain string literal are not distinguished.
-     * @param value1 first compared node
-     * @param value2 second compared node
-     * @return true if the two nodes are to be considered equal for conflict resolution
-     */
-    public static boolean crSameValues(Value value1, Value value2) {
-        if (IGNORE_LANGUAGE_TAG) {
-            if (value1 == value2) {
-                return true;
-            } else if (value1 == null || value2 == null) {
-                return false;
-            } else if (isPlainStringLiteral(value1) && isPlainStringLiteral(value2)) {
-                String lex1 = value1.stringValue();
-                String lex2 = value2.stringValue();
-                return lex1.equals(lex2); // intentionally not comparing language
-            } else {
-                return value1.equals(value2); // TODO use equivalent of sameValueAs() in Jena?
-            }
-        } else {
-            return value1.equals(value2);
-        }
+    public ConflictResolverImpl(ResolutionStrategy defaultResolutionStrategy) {
+        setDefaultResolutionStrategy(defaultResolutionStrategy);
     }
 
-    /**
-     * Returns true if the given node is an untyped literal or xsd:string literal.
-     * @param literalNode testedNode
-     * @return true if the given node is an untyped literal or xsd:string literal
-     */
-    private static boolean isPlainStringLiteral(Value literalValue) {
-        if (!(literalValue instanceof Literal)) {
-            return false;
-        }
-        Literal literal = (Literal) literalValue;
-        return literal.getDatatype() == null || literal.getDatatype().stringValue().equals(XMLSchema.stringType);
+    public ConflictResolverImpl(ResolutionStrategy defaultResolutionStrategy,
+            Map<URI, ResolutionStrategy> predicateResolutionStrategy, URIMapping uriMapping) {
+        this(defaultResolutionStrategy);
+        this.predicateResolutionStrategy = predicateResolutionStrategy;
+        this.uriMapping = uriMapping;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @param quads {@inheritDoc }
-     * @return {@inheritDoc }
-     * @throws ConflictResolutionException {@inheritDoc}
-     */
+    public ConflictResolverImpl(ResolutionStrategy defaultResolutionStrategy,
+            Map<URI, ResolutionStrategy> predicateResolutionStrategy, URIMapping uriMapping, Model metadata) {
+        this(defaultResolutionStrategy, predicateResolutionStrategy, uriMapping);
+        this.metadata = metadata;
+    }
+
+    public ConflictResolverImpl(ResolutionStrategy defaultResolutionStrategy,
+            Map<URI, ResolutionStrategy> predicateResolutionStrategy, URIMapping uriMapping, Model metadata,
+            String resolvedGraphsURIPrefix) {
+        this(defaultResolutionStrategy, predicateResolutionStrategy, uriMapping, metadata);
+        resolvedStatementFactory = new ResolvedStatementFactoryImpl(resolvedGraphsURIPrefix);
+    }
+
+    public void setDefaultResolutionStrategy(ResolutionStrategy newDefaultStrategy) {
+        this.defaultResolutionStrategy = fillDefaults(newDefaultStrategy, DEFAULT_RESOLUTION_STRATEGY);
+    }
+
+    public void setPredicateResolutionStrategy(Map<URI, ResolutionStrategy> predicateResolutionStrategy) {
+        this.predicateResolutionStrategy = predicateResolutionStrategy;
+    }
+
+    public void setURIMapping(URIMapping uriMapping) {
+        this.uriMapping = uriMapping;
+    }
+
+    public void setMetadata(Model metadata) {
+        this.metadata = metadata;
+    }
+
+    public void setResolvedStatementFactory(ResolvedStatementFactory factory) {
+        this.resolvedStatementFactory = factory;
+    }
+
     @Override
-    public Collection<CRQuad> resolveConflicts(Collection<Statement> quads) throws ConflictResolutionException {
-        LOG.debug("Resolving conflicts among {} quads.", quads.size());
+    public Collection<ResolvedStatement> resolveConflicts(Iterator<Statement> statements) throws ConflictResolutionException {
+        GrowingArray<Statement> growingArray = new GrowingArray<Statement>();
+        while (statements.hasNext()) {
+            growingArray.add(statements.next());
+        }
+        return resolveConflictsInternal(growingArray.getArray());
+    }
+
+    @Override
+    public Collection<ResolvedStatement> resolveConflicts(Collection<Statement> statements) throws ConflictResolutionException {
+        return resolveConflictsInternal(statements.toArray(new Statement[0]));
+    }
+
+    protected Collection<ResolvedStatement> resolveConflictsInternal(Statement[] statements) { // TODO: throws?
+        LOG.debug("Resolving conflicts among {} quads.", statements.length);
         long startTime = System.currentTimeMillis();
 
-        // Prepare effective aggregation settings based on main settings, default settings and owl:sameAs mappings
-        AggregationSpec effectiveAggregationSpec = getEffectiveAggregationSpec(crSpec.getURIMapping());
-
-        // Apply owl:sameAs mappings to quads, group quads to conflict clusters
-        ResolveQuadCollection quadsToResolve = new ResolveQuadCollection();
-        quadsToResolve.addQuads(quads);
-        quadsToResolve.applyMapping(crSpec.getURIMapping());
-
-        // Get metadata:
-        NamedGraphMetadataMap metadata = getNamedGraphMetadata(quads);
-
-        // A little optimization - check metadata for occurrences of old versions;
-        // if there are none, there is no need to try to filter them in each
-        // conflict cluster.
-        boolean hasOldVersions = hasPotentialOldVersions(metadata);
-        ObjectUpdateSourceStoredComparator filterComparator = hasOldVersions
-                ? new ObjectUpdateSourceStoredComparator(metadata)
-                : null;
-        if (hasOldVersions) {
-            LOG.debug("Resolved data may include named graphs with multiple versions");
-        }
+        // Prepare effective resolution strategy based on per-predicate strategies, default strategy & uri mappings
+        Map<URI, ResolutionStrategy> effectiveStrategy = getEffectiveResolutionStrategy();
+        
+        // Apply owl:sameAs mappings, remove duplicities, sort into clusters of conflicting quads
+        ConflictClustersCollection conflictClusters = new ConflictClustersCollection(statements, uriMapping,
+                resolvedStatementFactory.getValueFactory());
+        initContext(conflictClusters.asModel());
 
         // Resolve conflicts:
-        Collection<CRQuad> result = createResultCollection();
-        Iterator<Collection<Statement>> conflictIterator = quadsToResolve.listConflictingQuads();
-        while (conflictIterator.hasNext()) {
-            // Process the next set of conflicting quads independently
-            Collection<Statement> conflictCluster = conflictIterator.next();
-
-            if (hasOldVersions && conflictCluster.size() > 1) {
-                conflictCluster = filterOldVersions(conflictCluster, metadata, filterComparator);
+        Collection<ResolvedStatement> result = createResultCollection(conflictClusters.size());
+        for (List<Statement> conflictCluster : conflictClusters) {
+            // Get resolution strategy
+            ResolutionStrategy resolutionStrategy = effectiveStrategy.get(getPredicate(conflictCluster));
+            if (resolutionStrategy == null) {
+                resolutionStrategy = defaultResolutionStrategy;
             }
-
-            ObjectAggregationMethod aggregator = getAggregator(conflictCluster, effectiveAggregationSpec, aggregationFactory);
-            Collection<CRQuad> aggregatedQuads = aggregator.aggregate(conflictCluster, metadata);
-
-            // Add resolved quads to result
-            result.addAll(aggregatedQuads);
+            
+            // Prepare resolution functions & context
+            ResolutionFunction resolutionFunction = getResolutionFunction(resolutionStrategy);
+            CRContext context = getContext(conflictCluster, resolutionStrategy);
+            Model conflictClusterModel = new SortedListModel(conflictCluster);
+            
+            // Resolve conflicts & append to result
+            Collection<ResolvedStatement> resolvedStatements = resolutionFunction.resolve(conflictClusterModel, context);
+            result.addAll(resolvedStatements);
         }
 
-        LOG.debug("Conflict resolution executed in {} ms", System.currentTimeMillis() - startTime);
+        LOG.debug("Conflict resolution executed in {} ms, resolved to {} quads",
+                System.currentTimeMillis() - startTime, result.size());
         return result;
     }
 
-    /**
-     * Return effective aggregation settings with URIs translated according to the given URI mapping.
-     * The result is default settings ({@link ConflictResolverSpec#getDefaultAggregationSpec()}) overridden by
-     * main settings ({@link ConflictResolverSpec#getAggregationSpec()}) with translation of property URIs.
-     * @param uriMappings URI mapping to apply
-     * @return effective aggregation settings
-     */
-    private AggregationSpec getEffectiveAggregationSpec(URIMapping uriMappings) {
-        AggregationSpec result = new AggregationSpec();
-        AggregationSpec mainSettings = crSpec.getAggregationSpec();
-        AggregationSpec defaultSettings = crSpec.getDefaultAggregationSpec();
-
-        result.setDefaultAggregation(mainSettings.getDefaultAggregation() != null
-                ? mainSettings.getDefaultAggregation()
-                : defaultSettings.getDefaultAggregation());
-        result.setDefaultMultivalue(mainSettings.getDefaultMultivalue() != null
-                ? mainSettings.getDefaultMultivalue()
-                : defaultSettings.getDefaultMultivalue());
-        result.setErrorStrategy(mainSettings.getErrorStrategy() != null
-                ? mainSettings.getErrorStrategy()
-                : defaultSettings.getErrorStrategy());
-
-        mergePropertySettings(result.getPropertyAggregations(), defaultSettings.getPropertyAggregations(), uriMappings);
-        mergePropertySettings(result.getPropertyAggregations(), mainSettings.getPropertyAggregations(), uriMappings);
-
-        mergePropertySettings(result.getPropertyMultivalue(), defaultSettings.getPropertyMultivalue(), uriMappings);
-        mergePropertySettings(result.getPropertyMultivalue(), mainSettings.getPropertyMultivalue(), uriMappings);
-        return result;
+    private void initContext(Model statementsModel) {
+        context = new CRContextImpl(statementsModel, metadata, resolvedStatementFactory);
     }
 
-    /**
-     * Merge map containing settings for properties while applying the given URI mapping to property names.
-     * @param baseSettings the map that is merge to; this argument is modified
-     * @param addedSettings the map we are merging into baseSettings; addedSettings override baseSettings
-     * @param uriMappings URI mapping to apply
-     * @param <T> type of values in the merged maps
-     */
-    private <T> void mergePropertySettings(Map<String, T> baseSettings, Map<String, T> addedSettings,
-            URIMapping uriMappings) {
-
-        for (Entry<String, T> entry : addedSettings.entrySet()) {
-            String mappedURI = uriMappings.getCanonicalURI(entry.getKey());
-            baseSettings.put(mappedURI, entry.getValue());
-        }
+    private CRContext getContext(List<Statement> conflictCluster, ResolutionStrategy resolutionStrategy) {
+        context.setSubject(getSubject(conflictCluster));
+        context.setResolutionStrategy(resolutionStrategy);
+        return context;
     }
 
-    /**
-     * Removes duplicate triples that are remaining from older versions of the
-     * same named graph.
-     * A triple from named graph A is removed iff
-     * <ul>
-     * <li>(1) it is identical to another triple from a different named graph B,</li>
-     * <li>(2) named graph A has an older stored date than named graph B,</li>
-     * <li>(3) named graphs A and B have the same update tag.</li>
-     * <li>(4) named graphs A and B have the same data sources in metadata,</li>
-     * <li>(5) named graphs A and B were inserted by the same user.</li>
-     * </ul>
-     *
-     * The current implementation has O(n log n log g) time complexity (n is number of quads, g number of graphs).
-     *
-     * @param conflictingQuads a cluster of conflicting quads (quads having
-     *        the same subject and predicate)
-     * @param metadata metadata for named graphs occurring in conflictingQuads
-     * @param objectUpdateSourceStoredComparator instance of {@link ObjectUpdateSourceStoredComparator} for
-     *        metadata related to conflictingQuads; passed as a parameter, so that a new comparator
-     *        instance doesn't have to be created for each cluster of conflicting quads
-     * @return collection of quads where duplicate old version triples are removed
-     */
-    private Collection<Statement> filterOldVersions(
-            Collection<Statement> conflictingQuads,
-            NamedGraphMetadataMap metadata,
-            ObjectUpdateSourceStoredComparator objectUpdateSourceStoredComparator) {
-
-        // Sort quads by object, update tag, data sources and time (time in *reverse order*).
-        // Since for every comparison we search the metadata map in
-        // logarithmic time with number of graphs, sorting has time complexity O(n log n log g)
-        List<Statement> result = new ArrayList<Statement>(conflictingQuads);
-        Collections.sort(result, objectUpdateSourceStoredComparator);
-
-        // Remove unwanted quads in one pass
-        Value lastObject = null;
-        Resource lastNamedGraph = null;
-        Iterator<Statement> resultIterator = result.iterator();
-        while (resultIterator.hasNext()) {
-            boolean removed = false;
-            Statement quad = resultIterator.next();
-            if (crSameValues(quad.getObject(), lastObject) && !ODCSUtils.nullProofEquals(quad.getContext(), lastNamedGraph)) {
-                // (1) holds
-                NamedGraphMetadata lastMetadata = metadata.getMetadata(lastNamedGraph);
-                NamedGraphMetadata quadMetadata = metadata.getMetadata(quad.getContext());
-                if (lastMetadata != null
-                        && quadMetadata != null
-                        && ODCSUtils.nullProofEquals(quadMetadata.getUpdateTag(), lastMetadata.getUpdateTag()) // (3) holds
-                        && quadMetadata.getInsertedAt() != null
-                        && lastMetadata.getInsertedAt() != null
-                        && quadMetadata.getInsertedAt().before(lastMetadata.getInsertedAt()) // (2) holds
-                        && quadMetadata.getInsertedBy() != null
-                        && quadMetadata.getInsertedBy().equals(lastMetadata.getInsertedBy()) // (5) holds
-                        && quadMetadata.getSources() != null
-                        && quadMetadata.getSources().equals(lastMetadata.getSources())) { // (4) holds
-                    resultIterator.remove();
-                    removed = true;
-                    LOG.debug("Filtered a triple from an outdated named graph {}.", quad.getContext() != null ? quad.getContext() : "");
-                }
-            }
-
-            if (!removed) {
-                lastObject = quad.getObject();
-                lastNamedGraph = quad.getContext();
-            }
+    Map<URI, ResolutionStrategy> getEffectiveResolutionStrategy() {
+        Map<URI, ResolutionStrategy> strategy = new HashMap<URI, ResolutionStrategy>();
+        for (Entry<URI, ResolutionStrategy> entry : predicateResolutionStrategy.entrySet()) {
+            URI mappedURI = uriMapping.mapURI(entry.getKey());
+            strategy.put(mappedURI, fillDefaults(entry.getValue(), defaultResolutionStrategy));
         }
-
-        return result;
-    }
-
-    /**
-     * Check whether metadata contain two named graphs where one may be an updated of the other.
-     * This is a only a heuristic based on source metadata.
-     * @see #filterOldVersions(Collection, NamedGraphMetadataMap, ObjectUpdateSourceStoredComparator)
-     *
-     * @param metadataMap named graph metadata to analyze
-     * @return true iff metadata contain two named graphs where one is
-     *         an update of the other
-     */
-    private boolean hasPotentialOldVersions(NamedGraphMetadataMap metadataMap) {
-        Collection<NamedGraphMetadata> metadataCollection = metadataMap.listMetadata();
-        Set<Integer> sourceHashesSet = new HashSet<Integer>(metadataCollection.size());
-        Set<String> updateTags = new HashSet<String>();
-
-        for (NamedGraphMetadata metadata : metadataCollection) {
-            assert metadata != null;
-            if (metadata.getInsertedAt() == null | metadata.getInsertedBy() == null | metadata.getSources() == null) {
-                // If any of the tested properties is null, the named graph cannot be marked as an update
-                continue;
-            } else if (!ODCSUtils.isNullOrEmpty(metadata.getUpdateTag()) && updateTags.contains(metadata.getUpdateTag())) {
-                // Occurrence of named graphs sharing the same update tag
-                return true;
-            } else if (sourceHashesSet.contains(metadata.getSources().hashCode())) {
-                // Occurrence of named graphs sharing a common data source (heuristic based on hashCode())
-                return true;
-            } else {
-                sourceHashesSet.add(metadata.getSources().hashCode());
-                updateTags.add(metadata.getUpdateTag()); // null-proof
-            }
-        }
-        return false;
+        return strategy;
     }
 
     /**
@@ -314,65 +178,48 @@ public class ConflictResolverImpl implements ConflictResolver {
      * of conflict resolution.
      * @return an empty collection
      */
-    private Collection<CRQuad> createResultCollection() {
-        return new LinkedList<CRQuad>();
+    private Collection<ResolvedStatement> createResultCollection(int inputSize) {
+        return new ArrayList<ResolvedStatement>(inputSize / EXPECTED_REDUCTION_FACTOR);
     }
 
-    /**
-     * Returns named graph metadata from {@linkplain ConflictResolverSpec conflict resolution
-     * settings}.
-     * If no metadata are specified, tries to read them from RDF data to resolve.
-     * @param data collection of quads where conflicts are to be resolved
-     * @return named graphs' metadata
-     */
-    private NamedGraphMetadataMap getNamedGraphMetadata(Collection<Statement> data) {
-        NamedGraphMetadataMap metadata = crSpec.getNamedGraphMetadata();
-        if (metadata != null) {
-            return metadata;
-        } else {
-            return NamedGraphMetadataReader.readFromRDF(data.iterator());
-        }
+    private ResolutionFunction getResolutionFunction(ResolutionStrategy resolutionStrategy) {
+        // TODO
+        // if (quads.size() == 1) {
+        // // A little optimization: behavior of all aggregation method on
+        // // a single quad is supposed to be the same, so we can use an
+        // // instance optimized for single values
+        // return aggregationFactory.getSingleValueAggregation(aggregationSpec);
+        // }
+        return ResolutionFunctionRegistry.get(resolutionStrategy.getResolutionFunctionName());
     }
 
-    /**
-     * Get an AggregationMethod instance for a set of conflicting quads according
-     * to {@linkplain ConflictResolverSpec conflict resolution settings}.
-     *
-     * Implementation note: As an optimization, for collections containing
-     * a single quad returns instance of {@link SingleValueAggregation}.
-     *
-     * @param quads collection of conflicting quads (i.e. having the same
-     *        subject and predicate)
-     * @param aggregationSpec aggregation settigns
-     * @param aggregationFactory factory for AggregationMethod
-     * @return an aggregation method instance selected according to CR settings
-     * @throws AggregationNotImplementedException thrown if there is no
-     *         AggregationMethod implementation for the selected aggregation type
-     */
-    private ObjectAggregationMethod getAggregator(Collection<Statement> quads, AggregationSpec aggregationSpec, AggregationMethodFactory aggregationFactory)
-            throws AggregationNotImplementedException {
-
-        if (quads.size() == 1) {
-            // A little optimization: behavior of all aggregation method on
-            // a single quad is supposed to be the same, so we can use an
-            // instance optimized for single values
-            return aggregationFactory.getSingleValueAggregation(aggregationSpec);
-        }
-        String clusterProperty = getQuadsProperty(quads);
-        EnumAggregationType type = aggregationSpec.propertyAggregationType(clusterProperty);
-        return aggregationFactory.getAggregation(type, aggregationSpec);
+    private Resource getSubject(List<Statement> conflictCluster) {
+        assert !conflictCluster.isEmpty();
+        return conflictCluster.get(0).getSubject();
     }
 
-    /**
-     * Returns URI of the predicate used in a collection of conflicting quads.
-     * Asserts that all quads in the collection have the same predicate.
-     * @param quads collection of conflicting quads (i.e. having the same
-     *        subject and predicate)
-     * @return URI of the predicate occurring in the quads
-     */
-    private String getQuadsProperty(Collection<Statement> quads) {
-        assert !quads.isEmpty() : "Collection of conflicting quads must be nonempty";
-        Statement firstQuad = quads.iterator().next();
-        return firstQuad.getPredicate().stringValue();
+    private URI getPredicate(List<Statement> conflictCluster) {
+        assert !conflictCluster.isEmpty();
+        return conflictCluster.get(0).getPredicate();
+    }
+    
+    private ResolutionStrategy fillDefaults(ResolutionStrategy strategy, ResolutionStrategy defaultStrategy) {
+        String resolutionFunctionName = (strategy.getResolutionFunctionName() == null)
+                ? defaultStrategy.getResolutionFunctionName()
+                : strategy.getResolutionFunctionName();
+        EnumCardinality cardinality = (strategy.getCardinality() == null)
+                ? defaultStrategy.getCardinality()
+                : strategy.getCardinality();
+        EnumAggregationErrorStrategy aggregationErrorStrategy = (strategy.getAggregationErrorStrategy() == null)
+                ? defaultStrategy.getAggregationErrorStrategy()
+                : strategy.getAggregationErrorStrategy();
+        Map<String, String> params = (strategy.getParams() == null)
+                ? defaultStrategy.getParams()
+                : strategy.getParams(); 
+        return new ResolutionStrategyImpl(
+                resolutionFunctionName, 
+                cardinality,
+                aggregationErrorStrategy, 
+                params);
     }
 }

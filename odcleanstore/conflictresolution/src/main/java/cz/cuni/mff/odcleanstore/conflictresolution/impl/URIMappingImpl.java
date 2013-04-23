@@ -13,6 +13,7 @@ import org.openrdf.model.impl.ValueFactoryImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cz.cuni.mff.odcleanstore.conflictresolution.URIMapping;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 
 /**
@@ -116,12 +117,12 @@ public class URIMappingImpl implements URIMapping {
     public URI mapURI(URI uriNode) {
         String uri = uriNode.stringValue();
         if (!uriDFUParent.containsKey(uri)) {
-            return null;
+            return uriNode;
         }
 
         String canonicalURI = dfuRoot(uri);
         return canonicalURI.equals(uri) ? null : VALUE_FACTORY.createURI(canonicalURI);
-    }
+    } 
 
     /**
      * Returns the URI at the root of a subtree in DFU for the argument, i.e.

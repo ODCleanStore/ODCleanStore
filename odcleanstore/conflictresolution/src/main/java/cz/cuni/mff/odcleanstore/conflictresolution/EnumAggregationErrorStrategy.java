@@ -5,7 +5,7 @@ package cz.cuni.mff.odcleanstore.conflictresolution;
  * 
  * @author Jan Michelfeit
  */
-public enum EnumAggregationErrorStrategy {
+public enum EnumAggregationErrorStrategy { // TODO rename
     /** Discard value. */
     IGNORE,
 
