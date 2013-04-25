@@ -3,11 +3,9 @@
  */
 package cz.cuni.mff.odcleanstore.conflictresolution.resolution;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
@@ -17,7 +15,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConfidenceCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.comparators.ObjectComparator;
-import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.CRUtils;
+import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ObjectClusterIterator;
 
 /**
  * @author Jan Michelfeit
@@ -53,31 +51,13 @@ public class BestResolution extends DecidingResolutionFunction {
         double bestConfidence = Double.NEGATIVE_INFINITY;
 
         // cluster means a sequence of statements with the same object
-        Iterator<Statement> clusterStart = sortedStatements.iterator();
-        Statement lastStatement = null;
-        int clusterSize = 0;
-        for (Statement statement : sortedStatements) {
-            if (clusterSize > 0 && !CRUtils.sameValues(statement.getObject(), lastStatement.getObject())) {
-                // beginning of new cluster, add the previous to the result
-                Collection<Resource> sources = getSources(clusterStart, clusterSize);
-                double confidence = getConfidence(lastStatement.getObject(), statements, sources, crContext);
-                if (confidence > bestConfidence) {
-                    bestStatement = lastStatement;
-                    bestConfidence = confidence;
-                    bestStatementSources = sources;
-                }
-                clusterSize = 0;
-            }
-
-            clusterSize++;
-            lastStatement = statement;
-        }
-        if (clusterSize > 0) {
-            // don't forget last cluster
-            Collection<Resource> sources = getSources(clusterStart, clusterSize);
-            double confidence = getConfidence(lastStatement.getObject(), statements, sources, crContext);
+        ObjectClusterIterator it = new ObjectClusterIterator(sortedStatements);
+        while (it.hasNext()) {
+            Statement statement = it.next();
+            Collection<Resource> sources = it.peekSources();
+            double confidence = getConfidence(statement.getObject(), statements, sources, crContext);
             if (confidence > bestConfidence) {
-                bestStatement = lastStatement;
+                bestStatement = statement;
                 bestConfidence = confidence;
                 bestStatementSources = sources;
             }
@@ -94,17 +74,5 @@ public class BestResolution extends DecidingResolutionFunction {
                 bestConfidence,
                 bestStatementSources);
         return Collections.singleton(resolvedStatement);
-    }
-
-    private Collection<Resource> getSources(Iterator<Statement> clusterIt, int clusterSize) {
-        if (clusterSize == 1) {
-            return Collections.singleton(clusterIt.next().getContext());
-        } else {
-            Collection<Resource> sources = new ArrayList<Resource>(clusterSize);
-            for (int i = 0; i < clusterSize; i++) {
-                sources.add(clusterIt.next().getContext());
-            }
-            return sources;
-        }
     }
 }

@@ -7,12 +7,15 @@ import org.openrdf.model.Resource;
 import org.openrdf.model.Value;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.DistanceMeasure;
-import cz.cuni.mff.odcleanstore.conflictresolution.confidence.ConflictConfidenceCalculator;
 
 /**
  * @author Jan Michelfeit
  */
 public abstract class MediatingConfidenceCalculator extends ConflictConfidenceCalculator {
+    public MediatingConfidenceCalculator(DistanceMeasure distanceMeasure, SourceConfidenceCalculator sourceConfidenceCalculator) {
+        super(distanceMeasure, sourceConfidenceCalculator);
+    }
+    
     public MediatingConfidenceCalculator(DistanceMeasure distanceMeasure) {
         super(distanceMeasure);
     }

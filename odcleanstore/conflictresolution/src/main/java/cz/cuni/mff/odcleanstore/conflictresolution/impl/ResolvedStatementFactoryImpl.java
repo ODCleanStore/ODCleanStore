@@ -31,7 +31,7 @@ public class ResolvedStatementFactoryImpl implements ResolvedStatementFactory {
 
     @Override
     public ResolvedStatement create(Resource subject, URI predicate, Value object, double confidence, Collection<Resource> sourceGraphNames) {
-        URI context = uriGenerator.nextURI();
+        URI context = valueFactory.createURI(uriGenerator.nextURI());
         Statement statement = valueFactory.createStatement(subject, predicate, object, context);
         return new ResolvedStatementImpl(statement, confidence, sourceGraphNames);
     }

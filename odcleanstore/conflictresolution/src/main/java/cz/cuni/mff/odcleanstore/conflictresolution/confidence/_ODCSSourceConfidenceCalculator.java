@@ -12,18 +12,26 @@ import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 /**
  * @author Jan Michelfeit
  */
-/*package*/ final class ODCSConfidenceCalculatorUtils {
-    private static final Logger LOG = LoggerFactory.getLogger(ODCSConfidenceCalculatorUtils.class);
-
+public class _ODCSSourceConfidenceCalculator implements SourceConfidenceCalculator {
+    private static final Logger LOG = LoggerFactory.getLogger(_ODCSSourceConfidenceCalculator.class);
     private static final URI sourceScoreProperty = ValueFactoryImpl.getInstance().createURI(ODCS.score);
     private static final URI publisherScoreProperty = ValueFactoryImpl.getInstance().createURI(ODCS.publisherScore);
     private static final URI publisherProperty = ValueFactoryImpl.getInstance().createURI(ODCS.publishedBy);
 
-    public static double sourceConfidence(Resource source, Model metadata, double defaultScore, double publisherScoreWeight) {
+    protected final double defaultScore;
+    protected final double publisherScoreWeight;
+
+    public _ODCSSourceConfidenceCalculator(double defaultScore, double publisherScoreWeight) {
+        this.publisherScoreWeight = publisherScoreWeight;
+        this.defaultScore = defaultScore;
+    }
+
+    @Override
+    public double sourceConfidence(Resource source, Model metadata) {
         if (source == null) {
             return defaultScore;
         }
-        
+
         Double sourceScore;
         try {
             sourceScore = metadata.filter(source, sourceScoreProperty, null).objectLiteral().doubleValue();
@@ -51,8 +59,5 @@ import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
             LOG.debug("No source or publisher score present, using default score for source {}", source);
             return defaultScore;
         }
-    }
-    
-    private ODCSConfidenceCalculatorUtils() {
     }
 }

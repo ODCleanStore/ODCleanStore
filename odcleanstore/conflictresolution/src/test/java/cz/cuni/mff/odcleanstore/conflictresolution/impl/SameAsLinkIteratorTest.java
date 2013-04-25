@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.openrdf.model.Statement;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRTestUtils;
+import cz.cuni.mff.odcleanstore.crold.impl.SameAsLinkIterator;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 
 /**

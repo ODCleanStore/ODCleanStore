@@ -41,13 +41,7 @@ public class SortedListModel extends AbstractModel implements Model {
     private final int size;
 
     public SortedListModel(List<Statement> sortedStatements) {
-        this(sortedStatements, 0, sortedStatements.size());
-    }
-
-    // TODO: sort here?
-    public SortedListModel(List<Statement> sortedStatements, int from, int toExclusive) {
         if (!(sortedStatements instanceof RandomAccess)) {
-         // TODO either remove or propagate to caller
             throw new IllegalArgumentException("SortedListModel requires an RandomAccess list"); 
         }
         this.statements = sortedStatements;

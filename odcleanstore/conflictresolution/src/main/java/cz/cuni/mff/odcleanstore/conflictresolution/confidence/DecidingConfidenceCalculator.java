@@ -9,13 +9,17 @@ import org.openrdf.model.Value;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.DistanceMeasure;
-import cz.cuni.mff.odcleanstore.conflictresolution.confidence.ConflictConfidenceCalculator;
 
 /**
  * @author Jan Michelfeit
  */
 public abstract class DecidingConfidenceCalculator extends ConflictConfidenceCalculator {
     protected final double agreeCoeficient;
+    
+    public DecidingConfidenceCalculator(DistanceMeasure distanceMeasure, double agreeCoeficient,  SourceConfidenceCalculator sourceConfidenceCalculator) {
+        super(distanceMeasure, sourceConfidenceCalculator);
+        this.agreeCoeficient = agreeCoeficient;
+    }
     
     public DecidingConfidenceCalculator(DistanceMeasure distanceMeasure, double agreeCoeficient) {
         super(distanceMeasure);

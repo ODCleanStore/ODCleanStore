@@ -6,15 +6,18 @@ package cz.cuni.mff.odcleanstore.conflictresolution.resolution;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Set;
 
 import org.openrdf.model.Literal;
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
+import org.openrdf.model.Value;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConfidenceCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.CRUtils;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ResolutionFunctionUtils;
 
 /**
@@ -36,19 +39,21 @@ public class AvgResolution extends MediatingResolutionFunction {
         // Compute average value
         double sum = 0;
         double validCount = 0;
-        Collection<Resource> sources = new ArrayList<Resource>(statements.size() / 2);
         Statement lastAggregableStatement = null;
+        Value lastObject = null;
         for (Statement statement : statements) {
             double numberValue = ResolutionFunctionUtils.convertToDoubleSilent(statement.getObject());
             if (!Double.isNaN(numberValue)) {
                 sum += numberValue;
                 validCount++;
-                sources.add(statement.getContext());
                 lastAggregableStatement = statement;
-            } else {
+            } else if (!CRUtils.sameValues(statement.getObject(), lastObject)){
                 handleNonAggregableStatement(statement, statements, crContext, result);
             }
+            lastObject = statement.getObject();
         }
+        
+        Set<Resource> sources = getAllSources(statements);
         
         if (validCount > 0) {
             double averageValue = sum / validCount;

@@ -11,10 +11,13 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.impl.ValueFactoryImpl;
 
 import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
-import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
-import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
+import cz.cuni.mff.odcleanstore.conflictresolution.DistanceMeasure;
+import cz.cuni.mff.odcleanstore.conflictresolution._AggregationSpec;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRTestUtils;
-import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
+import cz.cuni.mff.odcleanstore.conflictresolution._NamedGraphMetadataMap;
+import cz.cuni.mff.odcleanstore.crold.aggregation.AggregationMethodBase;
+import cz.cuni.mff.odcleanstore.crold.aggregation.DistanceMetricImpl;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 
 public class AggregationMethodBaseTest {
@@ -30,21 +33,21 @@ public class AggregationMethodBaseTest {
 
     private static class AggregationMethodBaseImpl extends AggregationMethodBase {
         public AggregationMethodBaseImpl(
-                AggregationSpec aggregationSpec,
+                _AggregationSpec aggregationSpec,
                 UniqueURIGenerator uriGenerator,
-                DistanceMetric distanceMetric,
+                DistanceMeasure distanceMetric,
                 ConflictResolutionConfig globalConfig) {
             super(aggregationSpec, uriGenerator, distanceMetric, globalConfig);
         }
 
         @Override
-        public Collection<CRQuad> aggregate(Collection<Statement> conflictingTriples, NamedGraphMetadataMap metadata) {
-            return Collections.<CRQuad>emptySet();
+        public Collection<ResolvedStatement> aggregate(Collection<Statement> conflictingTriples, _NamedGraphMetadataMap metadata) {
+            return Collections.<ResolvedStatement>emptySet();
         }
 
         @Override
         protected double computeBasicQuality(Statement resultQuad, Collection<String> sourceNamedGraphs,
-                NamedGraphMetadataMap metadata) {
+                _NamedGraphMetadataMap metadata) {
             return globalConfig.getScoreIfUnknown();
         }
     }
@@ -77,7 +80,7 @@ public class AggregationMethodBaseTest {
 
         ConflictResolutionConfig globalConfig = CRTestUtils.createConflictResolutionConfigMock();
         AggregationMethodBase instance = new AggregationMethodBaseImpl(
-                new AggregationSpec(),
+                new _AggregationSpec(),
                 URI_GENERATOR,
                 new DistanceMetricImpl(globalConfig),
                 globalConfig);

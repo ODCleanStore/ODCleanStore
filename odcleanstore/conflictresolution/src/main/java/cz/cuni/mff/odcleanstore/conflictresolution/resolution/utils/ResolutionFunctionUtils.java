@@ -1,22 +1,17 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils;
 
 import java.util.Collection;
-import java.util.Comparator;
-import java.util.Iterator;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openrdf.model.Literal;
 import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
 import org.openrdf.model.Value;
-import org.openrdf.model.impl.CalendarLiteralImpl;
-import org.openrdf.model.impl.IntegerLiteralImpl;
-import org.openrdf.model.impl.NumericLiteralImpl;
-import org.openrdf.sail.memory.model.CalendarMemLiteral;
-
-import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
-import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
+import org.openrdf.model.vocabulary.XMLSchema;
 
 /**
  * Aggregation utility methods.
@@ -26,6 +21,31 @@ import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 public final class ResolutionFunctionUtils {
     //private static final Logger LOG = LoggerFactory.getLogger(Utils.class);
     private static final Pattern NUMERIC_PATTERN = Pattern.compile("^[+-]?[0-9]*\\.?[0-9]+$");
+    
+    private static final Map<URI, EnumLiteralType> LITERAL_TYPES_MAP;
+    
+    static {
+        LITERAL_TYPES_MAP = new HashMap<URI, EnumLiteralType>();
+        LITERAL_TYPES_MAP.put(XMLSchema.BOOLEAN, EnumLiteralType.BOOLEAN);
+        LITERAL_TYPES_MAP.put(XMLSchema.STRING, EnumLiteralType.STRING);
+        LITERAL_TYPES_MAP.put(XMLSchema.TIME, EnumLiteralType.TIME);
+        LITERAL_TYPES_MAP.put(XMLSchema.DATE, EnumLiteralType.DATE_TIME);
+        LITERAL_TYPES_MAP.put(XMLSchema.DATETIME, EnumLiteralType.DATE_TIME);
+        LITERAL_TYPES_MAP.put(XMLSchema.GYEARMONTH, EnumLiteralType.DATE_TIME);
+        LITERAL_TYPES_MAP.put(XMLSchema.GYEAR, EnumLiteralType.DATE_TIME);
+        LITERAL_TYPES_MAP.put(XMLSchema.INT, EnumLiteralType.NUMERIC);
+        LITERAL_TYPES_MAP.put(XMLSchema.INTEGER, EnumLiteralType.NUMERIC);
+        LITERAL_TYPES_MAP.put(XMLSchema.LONG, EnumLiteralType.NUMERIC);
+        LITERAL_TYPES_MAP.put(XMLSchema.DECIMAL, EnumLiteralType.NUMERIC);
+        LITERAL_TYPES_MAP.put(XMLSchema.FLOAT, EnumLiteralType.NUMERIC);
+        LITERAL_TYPES_MAP.put(XMLSchema.DOUBLE, EnumLiteralType.NUMERIC);
+        LITERAL_TYPES_MAP.put(XMLSchema.BYTE, EnumLiteralType.NUMERIC);
+        LITERAL_TYPES_MAP.put(XMLSchema.SHORT, EnumLiteralType.NUMERIC);
+        LITERAL_TYPES_MAP.put(XMLSchema.UNSIGNED_BYTE, EnumLiteralType.NUMERIC);
+        LITERAL_TYPES_MAP.put(XMLSchema.UNSIGNED_INT, EnumLiteralType.NUMERIC);
+        LITERAL_TYPES_MAP.put(XMLSchema.UNSIGNED_LONG, EnumLiteralType.NUMERIC);
+        LITERAL_TYPES_MAP.put(XMLSchema.UNSIGNED_SHORT, EnumLiteralType.NUMERIC);
+    }
 
     /**
      * Checks if the given literal can be converted to a number (regardless of its datatype).
@@ -33,28 +53,8 @@ public final class ResolutionFunctionUtils {
      * @return true iff the literal value can be converted to a number
      */
     private static boolean isUntypedNumericLiteral(Literal literal)  {
-        /*if (literal.isWellFormedRaw() && !(literal.getValue() instanceof String)) {
-            return false;
-        }*/
         return NUMERIC_PATTERN.matcher(literal.stringValue()).matches();
     }
-
-    public static boolean isSorted(Collection<Statement> statements, Comparator<Statement> comparator) {
-        Iterator<Statement> it = statements.iterator();
-        if (!it.hasNext()) {
-            return true;
-        }
-        Statement previousStatement = it.next();
-        while (it.hasNext()) {
-            Statement statement = it.next();
-            if (comparator.compare(previousStatement, statement) > 0) {
-                return false;
-            }
-            previousStatement = statement;
-        }
-        return true;
-    }
-    
 
     /**
      * Return the type of a literal node.
@@ -63,44 +63,15 @@ public final class ResolutionFunctionUtils {
      * @return type of the given literal
      * TODO: check that it works well with real data
      */
-    public static EnumLiteralType getLiteralType(Value value) {
-        if (!(value instanceof Literal)) {
-            throw new IllegalArgumentException("The given Node must be a literal.");
-        }
-        Literal literal = (Literal) value;
-        String datatypeURI = ODCSUtils.valueToString(literal.getDatatype());
-        if (ODCSUtils.isNullOrEmpty(datatypeURI)) {
+    public static EnumLiteralType getLiteralType(Literal literal) {
+        URI datatype = literal.getDatatype();
+        if (datatype == null || datatype.stringValue().isEmpty()) {
             return isUntypedNumericLiteral(literal)
                     ? EnumLiteralType.NUMERIC
-                    : EnumLiteralType.OTHER;
-        } else if (literal instanceof NumericLiteralImpl || literal instanceof IntegerLiteralImpl) {
-            //Optimization, test not necessary
-            return EnumLiteralType.NUMERIC;
-        } else if (literal instanceof CalendarLiteralImpl || literal instanceof CalendarMemLiteral) {
-            // Optimization, test not necessary
-            return datatypeURI.equals(XMLSchema.timeType) ? EnumLiteralType.TIME : EnumLiteralType.DATE;
-        } else if (datatypeURI.equals(XMLSchema.booleanType)) {
-            return EnumLiteralType.BOOLEAN;
-        } else if (datatypeURI.equals(XMLSchema.stringType)) {
-            return EnumLiteralType.STRING;
-        } else if (datatypeURI.equals(XMLSchema.timeType)) {
-            return EnumLiteralType.TIME;
-        } else if (datatypeURI.equals(XMLSchema.dateTimeType)
-                || datatypeURI.equals(XMLSchema.dateType)
-                || datatypeURI.equals(XMLSchema.gYear)) {
-            return EnumLiteralType.DATE;
-        } else if (datatypeURI.equals(XMLSchema.integerType)
-                || datatypeURI.equals(XMLSchema.intType)
-                || datatypeURI.equals(XMLSchema.longType)
-                || datatypeURI.equals(XMLSchema.decimalType)
-                || datatypeURI.equals(XMLSchema.floatType)
-                || datatypeURI.equals(XMLSchema.doubleType)) {
-            return EnumLiteralType.NUMERIC;
-        } else {
-            return isUntypedNumericLiteral(literal)
-                    ? EnumLiteralType.NUMERIC
-                    : EnumLiteralType.OTHER;
+                    : EnumLiteralType.STRING; // plain string
         }
+        EnumLiteralType lookedUpType = LITERAL_TYPES_MAP.get(datatype);
+        return lookedUpType != null ? lookedUpType : EnumLiteralType.OTHER;
     }
 
     /**
@@ -140,6 +111,13 @@ public final class ResolutionFunctionUtils {
         String lexicalForm = literal.stringValue();
         return lexicalForm.equalsIgnoreCase("true") || lexicalForm.equals("1") || lexicalForm.equalsIgnoreCase("yes");
     }
+    
+    public static boolean convertToBoolean(Value value) {
+        if (!(value instanceof Literal)) {
+            return false;
+        }
+        return convertToBoolean((Literal) value);
+    }
 
     /**
      * Try to convert a literal node representing a date/time to a {@link XMLGregorianCalendar} instance.
@@ -151,7 +129,7 @@ public final class ResolutionFunctionUtils {
         if (!(value instanceof Literal)) {
             return null;
         }
-        return getDateTimeValue((Literal) value);
+        return convertToCalendarSilent((Literal) value);
     }
 
     /**
@@ -159,7 +137,7 @@ public final class ResolutionFunctionUtils {
      * @param literal a literal representing date/time
      * @return the value of the literal as XSDDateTime or null
      */
-    public static XMLGregorianCalendar getDateTimeValue(Literal literal) { // TODO
+    public static XMLGregorianCalendar convertToCalendarSilent(Literal literal) { // TODO
         try {
             return literal.calendarValue();
         } catch (IllegalArgumentException e) {
@@ -171,16 +149,37 @@ public final class ResolutionFunctionUtils {
      * Returns the literal comparison type for objects of the given quads.
      * If quads contain a quad with a literal object, then returns the type of this  literal, otherwise
      * the comparison cannot be determined and returns null.
-     * @param quads collection of (conflicting) quads
+     * @param statements collection of (conflicting) statements
      * @return the best comparison type or null
      */
-    public static EnumLiteralType getComparisonType(Collection<Statement> quads) {
-        for (Statement quad : quads) {
-            if (quad.getObject() instanceof Literal) {
-                return getLiteralType(quad.getObject());
+    public static EnumLiteralType getComparisonType(Collection<Statement> statements) {
+        // Use a heuristic:
+        // - if no literal object is present, return null
+        // - if only one type of literals is present, return this type
+        // - if more than one type is present, remember the first two types encountered
+        //   - as soon as one of these two types has two or more votes more than the other, return it
+        //   - otherwise return the type with more votes or the first encountered type on equality
+        EnumLiteralType firstGuess = null;
+        int firstGuessCount = 0;
+        EnumLiteralType secondGuess = null;
+        int secondGuessCount = 0;
+        for (Statement statement : statements) {
+            if (statement.getObject() instanceof Literal) {
+                EnumLiteralType type = getLiteralType((Literal) statement.getObject());
+                if (firstGuess == null || firstGuess == type) {
+                    firstGuess = type;
+                    firstGuessCount++;
+                } else if (secondGuess == null || secondGuess == type) {
+                    firstGuess = type;
+                    firstGuessCount++;
+                }
+                int voteDifference = firstGuessCount - secondGuessCount;
+                if (voteDifference >= 2 || voteDifference <= -2) {
+                    break;
+                }
             }
         }
-        return null;
+        return firstGuessCount > secondGuessCount ? firstGuess : secondGuess;
     }
 
     /** Disable constructor for a utility class. */

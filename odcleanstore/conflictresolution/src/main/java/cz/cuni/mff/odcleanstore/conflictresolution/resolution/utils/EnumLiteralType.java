@@ -13,7 +13,7 @@ public enum EnumLiteralType {
     NUMERIC,
 
     /** Date type. */
-    DATE,
+    DATE_TIME,
 
     /** Time type. */
     TIME,

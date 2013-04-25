@@ -116,7 +116,7 @@ public class DistanceMeasureImpl implements DistanceMeasure {
         case TIME:
             result = timeDistance(primaryLiteral, comparedLiteral);
             break;
-        case DATE:
+        case DATE_TIME:
             result = dateDistance(primaryLiteral, comparedLiteral);
             break;
         case BOOLEAN:
@@ -176,8 +176,8 @@ public class DistanceMeasureImpl implements DistanceMeasure {
         String primaryDatatypeURI = ODCSUtils.valueToString(primaryValue.getDatatype());
         String comparedDatatypeURI = ODCSUtils.valueToString(comparedValue.getDatatype());
         if (XMLSchema.timeType.equals(primaryDatatypeURI) && XMLSchema.timeType.equals(comparedDatatypeURI)) {
-            XMLGregorianCalendar primaryValueTime = ResolutionFunctionUtils.getDateTimeValue(primaryValue);
-            XMLGregorianCalendar comparedValueTime = ResolutionFunctionUtils.getDateTimeValue(comparedValue);
+            XMLGregorianCalendar primaryValueTime = ResolutionFunctionUtils.convertToCalendarSilent(primaryValue);
+            XMLGregorianCalendar comparedValueTime = ResolutionFunctionUtils.convertToCalendarSilent(comparedValue);
             if (primaryValueTime == null || comparedValueTime == null) {
                 LOG.warn("Time value '{}' or '{}' is malformed.", primaryValue, comparedValue);
                 return ERROR_DISTANCE;
@@ -224,8 +224,8 @@ public class DistanceMeasureImpl implements DistanceMeasure {
         if ((XMLSchema.dateTimeType.equals(primaryDatatypeURI) || XMLSchema.dateType.equals(primaryDatatypeURI))
                 && (XMLSchema.dateTimeType.equals(comparedDatatypeURI) || XMLSchema.dateType.equals(comparedDatatypeURI))) {
             // CHECKSTYLE:ON
-            XMLGregorianCalendar primaryValueTime = ResolutionFunctionUtils.getDateTimeValue(primaryValue);
-            XMLGregorianCalendar comparedValueTime = ResolutionFunctionUtils.getDateTimeValue(comparedValue);
+            XMLGregorianCalendar primaryValueTime = ResolutionFunctionUtils.convertToCalendarSilent(primaryValue);
+            XMLGregorianCalendar comparedValueTime = ResolutionFunctionUtils.convertToCalendarSilent(comparedValue);
             if (primaryValueTime == null || comparedValueTime == null) {
                 LOG.warn("Date value '{}' or '{}' is malformed.", primaryValue, comparedValue);
                 return ERROR_DISTANCE;

@@ -1,9 +1,5 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils;
 
-import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.ValueFactoryImpl;
-
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 
 /**
@@ -13,13 +9,17 @@ import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
  * @author Jan Michelfeit
  */
 public class SimpleUriGenerator implements UniqueURIGenerator {
-    private static final ValueFactory VALUE_FACTORY = ValueFactoryImpl.getInstance();
+    //private static final ValueFactory VALUE_FACTORY = ValueFactoryImpl.getInstance();
     
     /** Prefix of generated named graph URIs. */
     private final String namedGraphURIPrefix;
 
     /** Counter for generating unique named graph URIs. */
     private long lastNamedGraphId = 0;
+    
+    private /*synchronized*/ long getNextId() {
+        return ++lastNamedGraphId;
+    }
 
     /**
      * Crate a new instance generating URIs with the specified prefix.
@@ -30,8 +30,7 @@ public class SimpleUriGenerator implements UniqueURIGenerator {
     }
 
     @Override
-    public URI nextURI() {
-        ++lastNamedGraphId;
-        return VALUE_FACTORY.createURI(namedGraphURIPrefix + lastNamedGraphId);
+    public String nextURI() {
+        return namedGraphURIPrefix + getNextId();
     }
 }

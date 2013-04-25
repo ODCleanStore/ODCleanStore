@@ -20,18 +20,26 @@ import cz.cuni.mff.odcleanstore.conflictresolution.EnumCardinality;
  */
 public abstract class ConflictConfidenceCalculator implements ConfidenceCalculator {
     private final DistanceMeasure distanceMeasure;
+    private final SourceConfidenceCalculator sourceConfidenceCalculator;
+    
+    public ConflictConfidenceCalculator(DistanceMeasure distanceMeasure, SourceConfidenceCalculator sourceConfidenceCalculator) {
+        this.distanceMeasure = distanceMeasure;
+        this.sourceConfidenceCalculator = sourceConfidenceCalculator; 
+    }
     
     public ConflictConfidenceCalculator(DistanceMeasure distanceMeasure) {
-        this.distanceMeasure = distanceMeasure;
+        this(distanceMeasure, new DummySourceConfidenceCalculator());
     }
     
     protected DistanceMeasure getDistanceMeasure() {
         return distanceMeasure;
     }
     
-    protected abstract double valueConfidence(Value value, Collection<Resource> sources, Model metadata);
+    protected double sourceConfidence(Resource source, Model metadata) {
+        return sourceConfidenceCalculator.sourceConfidence(source, metadata);
+    }
     
-    protected abstract double sourceConfidence(Resource source, Model metadata);
+    protected abstract double valueConfidence(Value value, Collection<Resource> sources, Model metadata);
     
     @Override
     public double getConfidence(Value value, Collection<Statement> conflictingStatements, Collection<Resource> sources, CRContext context) {
@@ -54,7 +62,7 @@ public abstract class ConflictConfidenceCalculator implements ConfidenceCalculat
              double distanceAverage = 0;
              double totalSourcesConfidence = 0;
              for (Statement statement : conflictingStatements) {
-                 double sourceConfidence = sourceConfidence(statement.getContext(), context.getMetadata());
+                 double sourceConfidence = sourceConfidenceCalculator.sourceConfidence(statement.getContext(), context.getMetadata());
                  double distance = distanceMeasure.distance(value, getValue(statement));
                  distanceAverage += sourceConfidence * distance;
                  totalSourcesConfidence += sourceConfidence;

@@ -12,12 +12,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openrdf.model.Statement;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRTestUtils;
-import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverSpec;
-import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationType;
-import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
-import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
+import cz.cuni.mff.odcleanstore.conflictresolution._ConflictResolverSpec;
+import cz.cuni.mff.odcleanstore.conflictresolution._EnumAggregationType;
+import cz.cuni.mff.odcleanstore.conflictresolution._NamedGraphMetadata;
+import cz.cuni.mff.odcleanstore.conflictresolution._NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 
@@ -32,8 +32,8 @@ public class ConflictResolverImplTest {
     private static Statement newVersionQuad;
     private static Statement otherQuad;
     private static String updatedQuadDataSource;
-    private ConflictResolverSpec spec;
-    private NamedGraphMetadataMap metadata;
+    private _ConflictResolverSpec spec;
+    private _NamedGraphMetadataMap metadata;
 
     @BeforeClass
     public static void beforeClass() {
@@ -59,14 +59,14 @@ public class ConflictResolverImplTest {
 
     @Before
     public void beforeTest() {
-        metadata = new NamedGraphMetadataMap();
+        metadata = new _NamedGraphMetadataMap();
         updatedQuadDataSource = CRTestUtils.getUniqueURI();
         String insertedBy = CRTestUtils.getUniqueURI();
 
 
         Calendar date = Calendar.getInstance();
-        NamedGraphMetadata otherQuadMetadata =
-                new NamedGraphMetadata(otherQuad.getContext().stringValue());
+        _NamedGraphMetadata otherQuadMetadata =
+                new _NamedGraphMetadata(otherQuad.getContext().stringValue());
         // otherQuadMetadata.setScore();
         otherQuadMetadata.setSources(Collections.singleton(CRTestUtils.getUniqueURI()));
         otherQuadMetadata.setInsertedAt(date.getTime());
@@ -74,8 +74,8 @@ public class ConflictResolverImplTest {
         metadata.addMetadata(otherQuadMetadata);
 
         date.add(Calendar.YEAR, 1);
-        NamedGraphMetadata oldVersionMetadata =
-                new NamedGraphMetadata(oldVersionQuad.getContext().stringValue());
+        _NamedGraphMetadata oldVersionMetadata =
+                new _NamedGraphMetadata(oldVersionQuad.getContext().stringValue());
         // oldVersionMetadata.setScore();
         oldVersionMetadata.setSources(Collections.singleton(updatedQuadDataSource));
         oldVersionMetadata.setInsertedAt(date.getTime());
@@ -83,16 +83,16 @@ public class ConflictResolverImplTest {
         metadata.addMetadata(oldVersionMetadata);
 
         date.add(Calendar.YEAR, 1);
-        NamedGraphMetadata newVersionMetadata =
-                new NamedGraphMetadata(newVersionQuad.getContext().stringValue());
+        _NamedGraphMetadata newVersionMetadata =
+                new _NamedGraphMetadata(newVersionQuad.getContext().stringValue());
         // newVersionMetadata.setScore();
         newVersionMetadata.setSources(Collections.singleton(updatedQuadDataSource));
         newVersionMetadata.setInsertedAt(date.getTime());
         newVersionMetadata.setInsertedBy(insertedBy);
         metadata.addMetadata(newVersionMetadata);
 
-        spec = new ConflictResolverSpec(CRTestUtils.getUniqueURI());
-        spec.getAggregationSpec().setDefaultAggregation(EnumAggregationType.NONE);
+        spec = new _ConflictResolverSpec(CRTestUtils.getUniqueURI());
+        spec.getAggregationSpec().setDefaultAggregation(_EnumAggregationType.NONE);
         spec.setNamedGraphMetadata(metadata);
     }
 
@@ -108,23 +108,23 @@ public class ConflictResolverImplTest {
         ConflictResolverImpl instance = new ConflictResolverImpl(spec, CRTestUtils.createConflictResolutionConfigMock());
 
         // Test results
-        Collection<CRQuad> aggregationResult =
+        Collection<ResolvedStatement> aggregationResult =
                 instance.resolveConflicts(new ArrayList<Statement>((conflictingQuads)));
         // Only newVersionQuad and otherQuad, oldVersionQuad is filtered out
         Assert.assertEquals(2, aggregationResult.size());
         double newVersionQuality = Double.NaN;
         double oldVersionQuality = Double.NaN;
         double otherQuadQuality = Double.NaN;
-        for (CRQuad crQuad : aggregationResult) {
-            if (crQuad.getSourceNamedGraphURIs().contains(oldVersionQuad.getContext().stringValue())) {
-                oldVersionQuality = crQuad.getQuality();
+        for (ResolvedStatement crQuad : aggregationResult) {
+            if (crQuad.getSourceGraphNames().contains(oldVersionQuad.getContext().stringValue())) {
+                oldVersionQuality = crQuad.getConfidence();
             }
-            if (crQuad.getSourceNamedGraphURIs().contains(newVersionQuad.getContext().stringValue())) {
-                newVersionQuality = crQuad.getQuality();
+            if (crQuad.getSourceGraphNames().contains(newVersionQuad.getContext().stringValue())) {
+                newVersionQuality = crQuad.getConfidence();
                 // TODO sources
             }
-            if (crQuad.getSourceNamedGraphURIs().contains(otherQuad.getContext().stringValue())) {
-                otherQuadQuality = crQuad.getQuality();
+            if (crQuad.getSourceGraphNames().contains(otherQuad.getContext().stringValue())) {
+                otherQuadQuality = crQuad.getConfidence();
             }
         }
         Assert.assertEquals(Double.NaN, oldVersionQuality, EPSILON);
@@ -149,7 +149,7 @@ public class ConflictResolverImplTest {
         ConflictResolverImpl instance = new ConflictResolverImpl(spec, CRTestUtils.createConflictResolutionConfigMock());
 
         // Test results
-        Collection<CRQuad> aggregationResult =
+        Collection<ResolvedStatement> aggregationResult =
                 instance.resolveConflicts(new ArrayList<Statement>(conflictingQuads));
         // Neither quad was filtered out
         Assert.assertEquals(2, aggregationResult.size());
@@ -172,7 +172,7 @@ public class ConflictResolverImplTest {
         ConflictResolverImpl instance = new ConflictResolverImpl(spec, CRTestUtils.createConflictResolutionConfigMock());
 
         // Test results
-        Collection<CRQuad> aggregationResult =
+        Collection<ResolvedStatement> aggregationResult =
                 instance.resolveConflicts(new ArrayList<Statement>((conflictingQuads)));
         // Neither quad was filtered out
         Assert.assertEquals(2, aggregationResult.size());
@@ -202,19 +202,19 @@ public class ConflictResolverImplTest {
         ConflictResolverImpl instance = new ConflictResolverImpl(spec, CRTestUtils.createConflictResolutionConfigMock());
 
         // Test results
-        Collection<CRQuad> aggregationResult =
+        Collection<ResolvedStatement> aggregationResult =
                 instance.resolveConflicts(new ArrayList<Statement>((conflictingQuads)));
         // Nothing filtered out because of versions, but CR removes duplicates
         final long expectedQuadCount = 2;
         Assert.assertEquals(expectedQuadCount, aggregationResult.size());
         double newVersionQuality = Double.NaN;
         double sameNamedGraphQuadQuality = Double.NaN;
-        for (CRQuad crQuad : aggregationResult) {
-            if (crQuad.getSourceNamedGraphURIs().contains(sameNamedGraphQuad.getContext().stringValue())) {
-                sameNamedGraphQuadQuality = crQuad.getQuality();
+        for (ResolvedStatement crQuad : aggregationResult) {
+            if (crQuad.getSourceGraphNames().contains(sameNamedGraphQuad.getContext().stringValue())) {
+                sameNamedGraphQuadQuality = crQuad.getConfidence();
             }
-            if (crQuad.getSourceNamedGraphURIs().contains(newVersionQuad.getContext().stringValue())) {
-                newVersionQuality = crQuad.getQuality();
+            if (crQuad.getSourceGraphNames().contains(newVersionQuad.getContext().stringValue())) {
+                newVersionQuality = crQuad.getConfidence();
             }
         }
         Assert.assertEquals(newVersionQuality, sameNamedGraphQuadQuality, EPSILON);
