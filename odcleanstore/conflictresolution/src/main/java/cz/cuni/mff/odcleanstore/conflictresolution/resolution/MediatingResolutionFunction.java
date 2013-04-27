@@ -10,13 +10,13 @@ import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.ConfidenceCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.confidence.MediatingConfidenceCalculator;
 
 /**
  * @author Jan Michelfeit
  */
 public abstract class MediatingResolutionFunction extends ResolutionFunctionBase {
-    protected MediatingResolutionFunction(ConfidenceCalculator confidenceCalculator) {
+    protected MediatingResolutionFunction(MediatingConfidenceCalculator confidenceCalculator) {
         super(confidenceCalculator);
     }
 

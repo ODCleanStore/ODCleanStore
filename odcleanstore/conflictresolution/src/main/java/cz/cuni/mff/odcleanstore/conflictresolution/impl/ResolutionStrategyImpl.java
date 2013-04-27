@@ -75,4 +75,13 @@ public class ResolutionStrategyImpl implements ResolutionStrategy {
     public void setParams(Map<String, String> params) {
         this.params = Collections.unmodifiableMap(params);
     }
+    
+    @Override
+    public String toString() {
+        return "(resolutionFunction=" + resolutionFunctionName 
+        		+ "; cardinality=" + cardinality
+        		+ "; errorStrategy=" + aggregationErrorStrategy
+        		+ "; params=" + params
+        		+ ")";
+    }
 }

@@ -17,9 +17,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
-import cz.cuni.mff.odcleanstore.conflictresolution.ConfidenceCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunction;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
+import cz.cuni.mff.odcleanstore.conflictresolution.confidence.ConfidenceCalculator;
 
 /**
  * @author Jan Michelfeit

@@ -11,7 +11,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ResolutionFu
  * Comparator of quads having a numeric literal as the object.
  * The object must be a literal of type EnumLiteralType.NUMERIC.
  */
-public class NumericLiteralComparator implements LiteralComparator {
+public class NumericLiteralComparator implements BestSelectedLiteralComparator {
     private static final NumericLiteralComparator INSTANCE = new NumericLiteralComparator();
 
     public static final NumericLiteralComparator getInstance() {
@@ -27,7 +27,7 @@ public class NumericLiteralComparator implements LiteralComparator {
     }
 
     @Override
-    public int compare(Value object1, Value object2) {
+    public int compare(Value object1, Value object2, CRContext crContext) {
         double value1 = ResolutionFunctionUtils.convertToDoubleSilent(object1);
         double value2 = ResolutionFunctionUtils.convertToDoubleSilent(object2);
         return Double.compare(value1, value2);

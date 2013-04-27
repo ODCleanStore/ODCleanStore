@@ -1,7 +1,7 @@
 /**
  * 
  */
-package cz.cuni.mff.odcleanstore.conflictresolution.confidence;
+package cz.cuni.mff.odcleanstore.conflictresolution.confidence.impl;
 
 import java.util.Collection;
 
@@ -11,9 +11,12 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
-import cz.cuni.mff.odcleanstore.conflictresolution.ConfidenceCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.DistanceMeasure;
 import cz.cuni.mff.odcleanstore.conflictresolution.EnumCardinality;
+import cz.cuni.mff.odcleanstore.conflictresolution.confidence.ConfidenceCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.confidence.DummySourceConfidenceCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.confidence.SourceConfidenceCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.DistanceMeasureImpl;
 
 /**
  * @author Jan Michelfeit
@@ -22,13 +25,17 @@ public abstract class ConflictConfidenceCalculator implements ConfidenceCalculat
     private final DistanceMeasure distanceMeasure;
     private final SourceConfidenceCalculator sourceConfidenceCalculator;
     
-    public ConflictConfidenceCalculator(DistanceMeasure distanceMeasure, SourceConfidenceCalculator sourceConfidenceCalculator) {
+    public ConflictConfidenceCalculator(SourceConfidenceCalculator sourceConfidenceCalculator, DistanceMeasure distanceMeasure) {
         this.distanceMeasure = distanceMeasure;
         this.sourceConfidenceCalculator = sourceConfidenceCalculator; 
     }
     
-    public ConflictConfidenceCalculator(DistanceMeasure distanceMeasure) {
-        this(distanceMeasure, new DummySourceConfidenceCalculator());
+    public ConflictConfidenceCalculator(SourceConfidenceCalculator sourceConfidenceCalculator) {
+        this(sourceConfidenceCalculator, new DistanceMeasureImpl());
+    }
+    
+    public ConflictConfidenceCalculator() {
+        this(new DummySourceConfidenceCalculator());
     }
     
     protected DistanceMeasure getDistanceMeasure() {

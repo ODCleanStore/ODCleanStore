@@ -1,13 +1,15 @@
 /**
  * 
  */
-package cz.cuni.mff.odcleanstore.conflictresolution;
+package cz.cuni.mff.odcleanstore.conflictresolution.confidence;
 
 import java.util.Collection;
 
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
+
+import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 
 /**
  * @author Jan Michelfeit

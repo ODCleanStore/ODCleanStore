@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.conflictresolution.confidence;
+package cz.cuni.mff.odcleanstore.conflictresolution.confidence.impl;
 
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
@@ -7,6 +7,7 @@ import org.openrdf.model.impl.ValueFactoryImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cz.cuni.mff.odcleanstore.conflictresolution.confidence.SourceConfidenceCalculator;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 
 /**

@@ -27,6 +27,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatementFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.URIMapping;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.EmptyMetadataModel;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.GrowingArray;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 
@@ -51,45 +52,54 @@ public class ConflictResolverImpl implements ConflictResolver {
     private ResolvedStatementFactory resolvedStatementFactory =
             new ResolvedStatementFactoryImpl(DEFAULT_RESOLVED_GRAPHS_URI_PREFIX);
     private ResolutionStrategy defaultResolutionStrategy = DEFAULT_RESOLUTION_STRATEGY;
-    private Map<URI, ResolutionStrategy> predicateResolutionStrategy = Collections.emptyMap();
-
+    private Map<URI, ResolutionStrategy> propertyResolutionStrategy = Collections.emptyMap();
+    private ResolutionFunctionRegistry resolutionFunctionRegistry;
+    
     private CRContextImpl context;
 
     // private StatementFilter statementFilter;
 
     public ConflictResolverImpl() {
+        this(ResolutionFunctionRegistry.createInitialized());
+    }
+    
+    public ConflictResolverImpl(ResolutionFunctionRegistry resolutionFunctionRegistry) {
+        this.resolutionFunctionRegistry = resolutionFunctionRegistry;
     }
 
-    public ConflictResolverImpl(ResolutionStrategy defaultResolutionStrategy) {
+    public ConflictResolverImpl(ResolutionFunctionRegistry resolutionFunctionRegistry, ResolutionStrategy defaultResolutionStrategy) {
+        this(resolutionFunctionRegistry);
         setDefaultResolutionStrategy(defaultResolutionStrategy);
     }
 
-    public ConflictResolverImpl(ResolutionStrategy defaultResolutionStrategy,
-            Map<URI, ResolutionStrategy> predicateResolutionStrategy, URIMapping uriMapping) {
-        this(defaultResolutionStrategy);
-        this.predicateResolutionStrategy = predicateResolutionStrategy;
+    public ConflictResolverImpl(ResolutionFunctionRegistry resolutionFunctionRegistry, ResolutionStrategy defaultResolutionStrategy,
+            Map<URI, ResolutionStrategy> propertyResolutionStrategy, URIMapping uriMapping) {
+        this(resolutionFunctionRegistry, defaultResolutionStrategy);
+        this.propertyResolutionStrategy = propertyResolutionStrategy;
         this.uriMapping = uriMapping;
     }
 
-    public ConflictResolverImpl(ResolutionStrategy defaultResolutionStrategy,
-            Map<URI, ResolutionStrategy> predicateResolutionStrategy, URIMapping uriMapping, Model metadata) {
-        this(defaultResolutionStrategy, predicateResolutionStrategy, uriMapping);
+    public ConflictResolverImpl(ResolutionFunctionRegistry resolutionFunctionRegistry, ResolutionStrategy defaultResolutionStrategy,
+            Map<URI, ResolutionStrategy> propertyResolutionStrategy, URIMapping uriMapping, Model metadata) {
+        this(resolutionFunctionRegistry, defaultResolutionStrategy, propertyResolutionStrategy, uriMapping);
         this.metadata = metadata;
     }
 
-    public ConflictResolverImpl(ResolutionStrategy defaultResolutionStrategy,
-            Map<URI, ResolutionStrategy> predicateResolutionStrategy, URIMapping uriMapping, Model metadata,
+    public ConflictResolverImpl(ResolutionFunctionRegistry resolutionFunctionRegistry, ResolutionStrategy defaultResolutionStrategy,
+            Map<URI, ResolutionStrategy> propertyResolutionStrategy, URIMapping uriMapping, Model metadata,
             String resolvedGraphsURIPrefix) {
-        this(defaultResolutionStrategy, predicateResolutionStrategy, uriMapping, metadata);
-        resolvedStatementFactory = new ResolvedStatementFactoryImpl(resolvedGraphsURIPrefix);
+        this(resolutionFunctionRegistry, defaultResolutionStrategy, propertyResolutionStrategy, uriMapping, metadata);
+        if (resolvedGraphsURIPrefix != null) {
+            resolvedStatementFactory = new ResolvedStatementFactoryImpl(resolvedGraphsURIPrefix);
+        }
     }
 
     public void setDefaultResolutionStrategy(ResolutionStrategy newDefaultStrategy) {
         this.defaultResolutionStrategy = fillDefaults(newDefaultStrategy, DEFAULT_RESOLUTION_STRATEGY);
     }
 
-    public void setPredicateResolutionStrategy(Map<URI, ResolutionStrategy> predicateResolutionStrategy) {
-        this.predicateResolutionStrategy = predicateResolutionStrategy;
+    public void setpropertyResolutionStrategy(Map<URI, ResolutionStrategy> propertyResolutionStrategy) {
+        this.propertyResolutionStrategy = propertyResolutionStrategy;
     }
 
     public void setURIMapping(URIMapping uriMapping) {
@@ -104,6 +114,10 @@ public class ConflictResolverImpl implements ConflictResolver {
         this.resolvedStatementFactory = factory;
     }
 
+    public void setResolutionFunctionRegistry(ResolutionFunctionRegistry resolutionFunctionRegistry) {
+        this.resolutionFunctionRegistry = resolutionFunctionRegistry;
+    }
+    
     @Override
     public Collection<ResolvedStatement> resolveConflicts(Iterator<Statement> statements) throws ConflictResolutionException {
         GrowingArray<Statement> growingArray = new GrowingArray<Statement>();
@@ -155,7 +169,8 @@ public class ConflictResolverImpl implements ConflictResolver {
     }
 
     private void initContext(Model statementsModel) {
-        context = new CRContextImpl(statementsModel, metadata, resolvedStatementFactory);
+        Model metadataModel = metadata != null ? metadata : new EmptyMetadataModel(); 
+        context = new CRContextImpl(statementsModel, metadataModel, resolvedStatementFactory);
     }
 
     private CRContext getContext(List<Statement> conflictCluster, ResolutionStrategy resolutionStrategy) {
@@ -166,7 +181,7 @@ public class ConflictResolverImpl implements ConflictResolver {
 
     Map<URI, ResolutionStrategy> getEffectiveResolutionStrategy() {
         Map<URI, ResolutionStrategy> strategy = new HashMap<URI, ResolutionStrategy>();
-        for (Entry<URI, ResolutionStrategy> entry : predicateResolutionStrategy.entrySet()) {
+        for (Entry<URI, ResolutionStrategy> entry : propertyResolutionStrategy.entrySet()) {
             URI mappedURI = uriMapping.mapURI(entry.getKey());
             strategy.put(mappedURI, fillDefaults(entry.getValue(), defaultResolutionStrategy));
         }
@@ -183,14 +198,7 @@ public class ConflictResolverImpl implements ConflictResolver {
     }
 
     private ResolutionFunction getResolutionFunction(ResolutionStrategy resolutionStrategy) {
-        // TODO
-        // if (quads.size() == 1) {
-        // // A little optimization: behavior of all aggregation method on
-        // // a single quad is supposed to be the same, so we can use an
-        // // instance optimized for single values
-        // return aggregationFactory.getSingleValueAggregation(aggregationSpec);
-        // }
-        return ResolutionFunctionRegistry.get(resolutionStrategy.getResolutionFunctionName());
+        return resolutionFunctionRegistry.get(resolutionStrategy.getResolutionFunctionName());
     }
 
     private Resource getSubject(List<Statement> conflictCluster) {

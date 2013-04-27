@@ -18,9 +18,9 @@ import org.openrdf.model.impl.AbstractModel;
 /**
  * @author Jan Michelfeit
  */
-public class _EmptyMetadataModel extends AbstractModel {
+public class EmptyMetadataModel extends AbstractModel {
     private static final long serialVersionUID = 1L;
-    private static final _EmptyMetadataModel instance = new _EmptyMetadataModel();
+    private static final EmptyMetadataModel instance = new EmptyMetadataModel();
     
     private final Set<Statement> emptySet = Collections.emptySet();
     private final Set<Namespace> emptyNamespaces = Collections.emptySet();

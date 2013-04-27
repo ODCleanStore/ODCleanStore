@@ -19,7 +19,7 @@ public class EmptyURIMapping implements URIMapping {
     
     @Override
     public URI mapURI(URI uri) {
-        return null;
+        return uri;
     }
 
     @Override

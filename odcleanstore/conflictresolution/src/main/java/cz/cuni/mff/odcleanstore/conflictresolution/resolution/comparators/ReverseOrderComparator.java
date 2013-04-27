@@ -8,14 +8,14 @@ import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
  * A comparator that wraps another comparator and reverses its ordering.
  * @author Jan Michelfeit
  */
-public class ReverseOrderComparator implements LiteralComparator {
-    private final LiteralComparator baseComparator;
+public class ReverseOrderComparator implements BestSelectedLiteralComparator {
+    private final BestSelectedComparator<Value> baseComparator;
 
     /**
      * Create a new instance.
      * @param baseComparator comparator that gives the reverse ordering of this instance
      */
-    public ReverseOrderComparator(LiteralComparator baseComparator) {
+    public ReverseOrderComparator(BestSelectedComparator<Value> baseComparator) {
         this.baseComparator = baseComparator;
     }
 
@@ -25,7 +25,7 @@ public class ReverseOrderComparator implements LiteralComparator {
     }
 
     @Override
-    public int compare(Value object1, Value object2) {
-        return -baseComparator.compare(object1, object2);
+    public int compare(Value o1, Value o2, CRContext crContext) {
+        return -baseComparator.compare(o1, o2, crContext);
     }
 }

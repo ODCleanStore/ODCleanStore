@@ -12,15 +12,20 @@ import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
-import cz.cuni.mff.odcleanstore.conflictresolution.ConfidenceCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
+import cz.cuni.mff.odcleanstore.conflictresolution.confidence.DecidingConfidenceCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ObjectClusterIterator;
 
 /**
  * @author Jan Michelfeit
  */
 public class AllResolution extends DecidingResolutionFunction {
-    protected AllResolution(ConfidenceCalculator confidenceCalculator) {
+    private  static final String FUNCTION_NAME = "ALL";
+    public static String getName() {
+        return FUNCTION_NAME;
+    }
+    
+    public AllResolution(DecidingConfidenceCalculator confidenceCalculator) {
         super(confidenceCalculator);
     }
 

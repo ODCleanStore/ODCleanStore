@@ -6,22 +6,27 @@ package cz.cuni.mff.odcleanstore.conflictresolution.resolution;
 import org.openrdf.model.Model;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
-import cz.cuni.mff.odcleanstore.conflictresolution.ConfidenceCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.confidence.DecidingConfidenceCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.resolution.comparators.BestSelectedLiteralComparator;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.comparators.LexicalLengthComparator;
-import cz.cuni.mff.odcleanstore.conflictresolution.resolution.comparators.LiteralComparator;
 
 /**
  * @author Jan Michelfeit
  */
-public class LongestResolution extends BestSelectedResolutionBase {
-    private static final LiteralComparator COMPARATOR = new LexicalLengthComparator();
+public class LongestResolution extends BestSelectedObjectResolutionBase {
+    private  static final String FUNCTION_NAME = "LONGEST";
+    public static String getName() {
+        return FUNCTION_NAME;
+    }
+    
+    private static final BestSelectedLiteralComparator COMPARATOR = new LexicalLengthComparator();
 
-    public LongestResolution(ConfidenceCalculator confidenceCalculator) {
+    public LongestResolution(DecidingConfidenceCalculator confidenceCalculator) {
         super(confidenceCalculator);
     }
 
     @Override
-    protected LiteralComparator getComparator(Model statements, CRContext crContext) {
+    protected BestSelectedLiteralComparator getComparator(Model statements, CRContext crContext) {
         return COMPARATOR;
     }
 }

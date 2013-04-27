@@ -16,15 +16,15 @@ import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.EnumLiteralT
 public final class LiteralComparatorFactory {
     private static final Logger LOG = LoggerFactory.getLogger(LiteralComparatorFactory.class);
 
-    private static Map<EnumLiteralType, LiteralComparator> reverseComparators =
-            new HashMap<EnumLiteralType, LiteralComparator>(EnumLiteralType.values().length);
+    private static Map<EnumLiteralType, BestSelectedLiteralComparator> reverseComparators =
+            new HashMap<EnumLiteralType, BestSelectedLiteralComparator>(EnumLiteralType.values().length);
 
     /**
      * Returns a new instance of comparator best suitable for the given literal type.
      * @param literalType a literal type
      * @return a comparator instance
      */
-    public static LiteralComparator getComparator(EnumLiteralType literalType) {
+    public static BestSelectedLiteralComparator getComparator(EnumLiteralType literalType) {
         switch (literalType) {
         case BOOLEAN:
             return BooleanLiteralComparator.getInstance();
@@ -49,8 +49,8 @@ public final class LiteralComparatorFactory {
      * @param literalType a literal type
      * @return an instance of comparator sorting in the reverse order
      */
-    public static LiteralComparator getReverseComparator(EnumLiteralType literalType) {
-        LiteralComparator comparator = reverseComparators.get(literalType);
+    public static BestSelectedLiteralComparator getReverseComparator(EnumLiteralType literalType) {
+        BestSelectedLiteralComparator comparator = reverseComparators.get(literalType);
         if (comparator == null) {
             comparator = new ReverseOrderComparator(getComparator(literalType));
             reverseComparators.put(literalType, comparator);

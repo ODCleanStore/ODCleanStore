@@ -10,7 +10,7 @@ import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
  * Comparator of quads by the lexical form of their object.
  * The object must be a literal
  */
-public class StringLiteralComparator implements LiteralComparator {
+public class StringLiteralComparator implements BestSelectedLiteralComparator {
     private static final StringLiteralComparator INSTANCE = new StringLiteralComparator();
 
     public static final StringLiteralComparator getInstance() {
@@ -23,7 +23,7 @@ public class StringLiteralComparator implements LiteralComparator {
     }
 
     @Override
-    public int compare(Value object1, Value object2) {
+    public int compare(Value object1, Value object2, CRContext crContext) {
         return ODCSUtils.nullProofCompare(object1.stringValue(), object2.stringValue());
     }
 }

@@ -7,7 +7,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 /**
  * Comparator of quads by the lexical length of their object.
  */
-public class LexicalLengthComparator implements LiteralComparator {
+public class LexicalLengthComparator implements BestSelectedLiteralComparator {
     private static final LexicalLengthComparator INSTANCE = new LexicalLengthComparator();
 
     public static final LexicalLengthComparator getInstance() {
@@ -20,7 +20,7 @@ public class LexicalLengthComparator implements LiteralComparator {
     }
 
     @Override
-    public int compare(Value object1, Value object2) {
+    public int compare(Value object1, Value object2, CRContext crContext) {
         return object1.stringValue().length()
                 - object2.stringValue().length();
     }

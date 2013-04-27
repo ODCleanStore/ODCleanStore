@@ -13,18 +13,24 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
-import cz.cuni.mff.odcleanstore.conflictresolution.ConfidenceCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
+import cz.cuni.mff.odcleanstore.conflictresolution.confidence.MediatingConfidenceCalculator;
+
 
 /**
  * @author Jan Michelfeit
  */
 public class ConcatResolution extends MediatingResolutionFunction {
+    private  static final String FUNCTION_NAME = "CONCAT";
+    public static String getName() {
+        return FUNCTION_NAME;
+    }
+    
     public static final String SEPARATOR_PARAM_NAME = "separator";
     public static final String DEFAULT_SEPARATOR = "; ";
     
     
-    protected ConcatResolution(ConfidenceCalculator confidenceCalculator) {
+    public ConcatResolution(MediatingConfidenceCalculator confidenceCalculator) {
         super(confidenceCalculator);
     }
 

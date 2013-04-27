@@ -10,8 +10,8 @@ import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
-import cz.cuni.mff.odcleanstore.conflictresolution.ConfidenceCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
+import cz.cuni.mff.odcleanstore.conflictresolution.confidence.DecidingConfidenceCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.comparators.ObjectComparator;
 
 /**
@@ -21,9 +21,14 @@ import cz.cuni.mff.odcleanstore.conflictresolution.impl.comparators.ObjectCompar
  * @author Jan Michelfeit
  */
 public class NoneResolution extends DecidingResolutionFunction {
+    private  static final String FUNCTION_NAME = "NONE";
+    public static String getName() {
+        return FUNCTION_NAME;
+    }
+    
     protected static final Comparator<Statement> OBJECT_COMPARATOR = new ObjectComparator();
     
-    protected NoneResolution(ConfidenceCalculator confidenceCalculator) {
+    public NoneResolution(DecidingConfidenceCalculator confidenceCalculator) {
         super(confidenceCalculator);
     } 
     

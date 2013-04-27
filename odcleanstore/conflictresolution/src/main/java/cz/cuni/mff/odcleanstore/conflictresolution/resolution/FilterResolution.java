@@ -15,10 +15,10 @@ import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
-import cz.cuni.mff.odcleanstore.conflictresolution.ConfidenceCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
+import cz.cuni.mff.odcleanstore.conflictresolution.confidence.DecidingConfidenceCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.resolution.comparators.BestSelectedLiteralComparator;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.comparators.LiteralComparatorFactory;
-import cz.cuni.mff.odcleanstore.conflictresolution.resolution.comparators.LiteralComparator;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.EnumLiteralType;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ObjectClusterIterator;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ResolutionFunctionUtils;
@@ -27,10 +27,15 @@ import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ResolutionFu
  * @author Jan Michelfeit
  */
 public class FilterResolution extends DecidingResolutionFunction {
+    private  static final String FUNCTION_NAME = "FILTER";
+    public static String getName() {
+        return FUNCTION_NAME;
+    }
+    
     private static final String MAX_PARAM_NAME = "max";
     private static final String MIN_PARAM_NAME = "min";
     
-    protected FilterResolution(ConfidenceCalculator confidenceCalculator) {
+    public FilterResolution(DecidingConfidenceCalculator confidenceCalculator) {
         super(confidenceCalculator);
     }
 
@@ -60,11 +65,11 @@ public class FilterResolution extends DecidingResolutionFunction {
             }
 
             EnumLiteralType literalType = ResolutionFunctionUtils.getLiteralType((Literal) statement.getObject());
-            LiteralComparator comparator = LiteralComparatorFactory.getComparator(literalType);
-            if (min != null && comparator.compare(statement.getObject(), min) < 0) {
+            BestSelectedLiteralComparator comparator = LiteralComparatorFactory.getComparator(literalType);
+            if (min != null && comparator.compare(statement.getObject(), min, crContext) < 0) {
                 continue; // less than minimum, filter out
             }
-            if (max != null && comparator.compare(statement.getObject(), max) > 0) {
+            if (max != null && comparator.compare(statement.getObject(), max, crContext) > 0) {
                 continue; // more than maximum, filter out
             }
             Collection<Resource> sources = it.peekSources();

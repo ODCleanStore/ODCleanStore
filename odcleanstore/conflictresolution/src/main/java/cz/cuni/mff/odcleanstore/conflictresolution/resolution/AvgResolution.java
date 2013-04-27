@@ -15,8 +15,8 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
-import cz.cuni.mff.odcleanstore.conflictresolution.ConfidenceCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
+import cz.cuni.mff.odcleanstore.conflictresolution.confidence.MediatingConfidenceCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.CRUtils;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ResolutionFunctionUtils;
 
@@ -24,7 +24,12 @@ import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ResolutionFu
  * @author Jan Michelfeit
  */
 public class AvgResolution extends MediatingResolutionFunction {
-    protected AvgResolution(ConfidenceCalculator confidenceCalculator) {
+    private  static final String FUNCTION_NAME = "AVG";
+    public static String getName() {
+        return FUNCTION_NAME;
+    }
+    
+    public AvgResolution(MediatingConfidenceCalculator confidenceCalculator) {
         super(confidenceCalculator);
     }
 

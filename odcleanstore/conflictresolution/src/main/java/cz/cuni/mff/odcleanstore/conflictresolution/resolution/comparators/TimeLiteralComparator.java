@@ -14,7 +14,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.XMLGregorian
  * Comparator of quads having a time literal as the object.
  * The object must be a literal of type EnumLiteralType.TIME.
  */
-public class TimeLiteralComparator implements LiteralComparator {
+public class TimeLiteralComparator implements BestSelectedLiteralComparator {
     private static final TimeLiteralComparator INSTANCE = new TimeLiteralComparator();
 
     public static final TimeLiteralComparator getInstance() {
@@ -30,7 +30,7 @@ public class TimeLiteralComparator implements LiteralComparator {
     }
 
     @Override
-    public int compare(Value object1, Value object2) {
+    public int compare(Value object1, Value object2, CRContext crContext) {
         XMLGregorianCalendar value1 = ResolutionFunctionUtils.convertToCalendarSilent(object1);
         XMLGregorianCalendar value2 = ResolutionFunctionUtils.convertToCalendarSilent(object2);
         return XMLGregorianCalendarComparator.getInstance().compare(value1, value2);

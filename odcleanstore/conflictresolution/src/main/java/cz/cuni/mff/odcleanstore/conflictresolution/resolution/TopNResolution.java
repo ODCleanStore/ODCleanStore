@@ -16,14 +16,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
-import cz.cuni.mff.odcleanstore.conflictresolution.ConfidenceCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
+import cz.cuni.mff.odcleanstore.conflictresolution.confidence.DecidingConfidenceCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ObjectClusterIterator;
 
 /**
  * @author Jan Michelfeit
  */
 public class TopNResolution extends DecidingResolutionFunction {
+    private  static final String FUNCTION_NAME = "TOPN";
+    public static String getName() {
+        return FUNCTION_NAME;
+    }
+    
     private static final Logger LOG = LoggerFactory.getLogger(TopNResolution.class);
     public static final String COUNT_PARAM_NAME = "n";
     public static final int DEFAULT_COUNT = 1;
@@ -34,7 +39,7 @@ public class TopNResolution extends DecidingResolutionFunction {
         }
     };
 
-    public TopNResolution(ConfidenceCalculator confidenceCalculator) {
+    public TopNResolution(DecidingConfidenceCalculator confidenceCalculator) {
         super(confidenceCalculator);
     }
 

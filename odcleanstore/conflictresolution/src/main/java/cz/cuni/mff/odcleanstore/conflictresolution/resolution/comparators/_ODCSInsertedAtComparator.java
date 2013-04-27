@@ -7,7 +7,7 @@ import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 /**
  * @author Jan Michelfeit
  */
-public class _ODCSInsertedAtComparator extends SourceMetadataComparator {
+public class _ODCSInsertedAtComparator extends MetadataValueComparator {
     public _ODCSInsertedAtComparator() {
         super(ValueFactoryImpl.getInstance().createURI(ODCS.insertedAt));
     }

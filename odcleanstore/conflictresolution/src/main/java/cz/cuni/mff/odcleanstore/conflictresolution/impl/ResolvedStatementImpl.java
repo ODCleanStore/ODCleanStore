@@ -69,6 +69,9 @@ public class ResolvedStatementImpl implements ResolvedStatement {
      */
     @Override
     public String toString() {
-        return statement.toString() + " " + Double.toString(confidence);
+        return "(" + statement.toString()
+                + "; " + Double.toString(confidence)
+                + "; " + sourceGraphNames
+                + ")";
     }
 }

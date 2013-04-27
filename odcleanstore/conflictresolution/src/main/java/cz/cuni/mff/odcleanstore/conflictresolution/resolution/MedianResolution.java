@@ -22,8 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
-import cz.cuni.mff.odcleanstore.conflictresolution.ConfidenceCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
+import cz.cuni.mff.odcleanstore.conflictresolution.confidence.MediatingConfidenceCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.EnumLiteralType;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ResolutionFunctionUtils;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.TimeComparator;
@@ -31,11 +31,16 @@ import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.TimeComparat
 /**
  * @author Jan Michelfeit
  */
-public class MedianResolution extends DecidingResolutionFunction {
+public class MedianResolution extends MediatingResolutionFunction {
+    private  static final String FUNCTION_NAME = "MEDIAN";
+    public static String getName() {
+        return FUNCTION_NAME;
+    }
+    
     private static final Logger LOG = LoggerFactory.getLogger(MedianResolution.class);
     private static final int INITIAL_RESULT_CAPACITY = 5; // expect few non-aggregable statements
 
-    protected MedianResolution(ConfidenceCalculator confidenceCalculator) {
+    public MedianResolution(MediatingConfidenceCalculator confidenceCalculator) {
         super(confidenceCalculator);
     }
 
