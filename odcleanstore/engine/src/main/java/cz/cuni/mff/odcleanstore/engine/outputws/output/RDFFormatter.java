@@ -71,6 +71,7 @@ public abstract class RDFFormatter extends ResultFormatterBase {
         METADATA_PROPERTY_MAPPINGS.put(METADATA_PUBLISHED_BY_PROPERTY, PUBLISHED_BY_PROPERTY);
         METADATA_PROPERTY_MAPPINGS.put(METADATA_PUBLISHER_SCORE_PROPERTY, PUBLISHER_SCORE_PROPERTY);
         METADATA_PROPERTY_MAPPINGS.put(METADATA_LICENCES_PROPERTY, LICENSE_PROPERTY);
+        METADATA_PROPERTY_MAPPINGS.put(METADATA_UPDATE_TAG_PROPERTY, UPDATE_TAG_PROPERTY);
     }
     
 
@@ -123,7 +124,7 @@ public abstract class RDFFormatter extends ResultFormatterBase {
         for (Statement statement : metadata) {
             URI predicate = METADATA_PROPERTY_MAPPINGS.get(statement.getPredicate());
             if (predicate == null) {
-                predicate = statement.getPredicate();
+                continue;
             }
             
             rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
