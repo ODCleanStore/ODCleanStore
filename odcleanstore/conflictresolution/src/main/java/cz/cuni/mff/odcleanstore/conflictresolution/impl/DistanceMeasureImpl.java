@@ -33,7 +33,7 @@ public class DistanceMeasureImpl implements DistanceMeasure {
 
     /** Maximum distance between two {@link Value Values}. */
     private static final double MAX_DISTANCE = 1;
-
+    
     /** Distance value for URI resources with different URIs. */
     private static final double DIFFERENT_RESOURCE_DISTANCE = MAX_DISTANCE;
 
@@ -46,16 +46,22 @@ public class DistanceMeasureImpl implements DistanceMeasure {
     /** Number of seconds in a day. */
     private static final int SECONDS_IN_DAY = (int) (ODCSUtils.DAY_HOURS * ODCSUtils.TIME_UNIT_60 * ODCSUtils.TIME_UNIT_60);
 
+    /** Default minimum difference between two dates to consider them completely different  in seconds.. */ 
+    private static final long DEFAULT_MAX_DATE_DIFFERENCE = 366 * SECONDS_IN_DAY;
+
+    /** Minimum difference between two dates to consider them completely different  in seconds. */
+    private final Long maxDateDifference;
+    
+    public DistanceMeasureImpl() {
+        this(DEFAULT_MAX_DATE_DIFFERENCE);
+    }
+    
     /**
      * Creates a new instance.
-     * @param globalConfig global configuration values for conflict resolution;
-     * values needed in globalConfig are the following:
-     * <dl>
-     * <dt>getMaxDateDifference
-     * <dd>Difference between two dates when their distance is equal to MAX_DISTANCE in seconds.
-     * </dl>
+     * @param Minimum difference between two dates to consider them completely different  in seconds. 
      */
-    public DistanceMeasureImpl() {
+    public DistanceMeasureImpl(Long maxDataDifference) {
+        this.maxDateDifference = maxDataDifference;
     }
 
     /**
@@ -233,7 +239,7 @@ public class DistanceMeasureImpl implements DistanceMeasure {
             double differenceInSeconds = Math.abs(primaryValueTime.toGregorianCalendar().getTimeInMillis()
                     - comparedValueTime.toGregorianCalendar().getTimeInMillis()) / ODCSUtils.MILLISECONDS;
             double result = (MAX_DISTANCE - MIN_DISTANCE)
-                    * differenceInSeconds / (366 * 24 * 60 * 60); // TODO!!
+                    * differenceInSeconds / maxDateDifference;
             result = Math.min(result, MAX_DISTANCE);
             assert MIN_DISTANCE <= result && result <= MAX_DISTANCE;
             return result;
