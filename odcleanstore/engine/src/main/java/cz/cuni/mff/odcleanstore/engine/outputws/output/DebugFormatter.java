@@ -1,12 +1,13 @@
 package cz.cuni.mff.odcleanstore.engine.outputws.output;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
-import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
 import cz.cuni.mff.odcleanstore.qualityassessment.QualityAssessor.GraphScoreWithTrace;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRule;
 import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.MetadataQueryResult;
 
+import org.openrdf.model.Model;
+import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.restlet.data.MediaType;
 import org.restlet.data.Reference;
@@ -15,7 +16,6 @@ import org.restlet.representation.WriterRepresentation;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Collection;
 
 /**
  * Returns a simple representation of the query result for debugging purposes.
@@ -31,47 +31,24 @@ public class DebugFormatter extends ResultFormatterBase {
                 writer.write("Query executed in ");
                 writer.write(formatExecutionTime(result.getExecutionTime()));
                 writer.write("\n\n===============================\n== Query results ==\n");
-                for (CRQuad crQuad : result.getResultQuads()) {
-                    writer.write(crQuad.getQuad().toString());
+                for (ResolvedStatement crQuad : result.getResultQuads()) {
+                    writer.write(crQuad.getStatement().toString());
                     writer.write("\n\tQuality: ");
-                    writer.write(formatScore(crQuad.getQuality()));
+                    writer.write(formatScore(crQuad.getConfidence()));
                     writer.write("; Sources: ");
                     boolean first = true;
-                    for (String sourceURI : crQuad.getSourceNamedGraphURIs()) {
+                    for (Resource sourceURI : crQuad.getSourceGraphNames()) {
                         if (!first) {
                             writer.write(", ");
                         }
                         first = false;
-                        writer.write(sourceURI);
+                        writer.write(sourceURI.stringValue());
                     }
                     writer.write('\n');
                 }
 
                 writer.write("\n===============================\n== Metadata ==\n");
-                for (NamedGraphMetadata metadata : result.getMetadata().listMetadata()) {
-                    writer.write(metadata.getNamedGraphURI());
-                    writer.write('\n');
-                    if (metadata.getSources() != null) {
-                        writer.write("\tSource: ");
-                        writer.write(formatCollection(metadata.getSources()));
-                        writer.write('\n');
-                    }
-                    if (metadata.getInsertedAt() != null) {
-                        writer.write("\tInserted at: ");
-                        writer.write(formatDate(metadata.getInsertedAt()));
-                        writer.write('\n');
-                    }
-                    if (metadata.getScore() != null) {
-                        writer.write("\tGraph score: ");
-                        writer.write(metadata.getScore().toString());
-                        writer.write('\n');
-                    }
-                    if (metadata.getUpdateTag() != null) {
-                        writer.write("\tUpdate tage: ");
-                        writer.write(metadata.getUpdateTag().toString());
-                        writer.write('\n');
-                    }
-                }
+                writeMetadata(writer, result.getMetadata());
             }
         };
         representation.setCharacterSet(OUTPUT_CHARSET);
@@ -102,30 +79,8 @@ public class DebugFormatter extends ResultFormatterBase {
                 }
 
                 writer.write("\n\n===============================\n== Metadata ==\n");
-                for (NamedGraphMetadata metadata : metadataResult.getMetadata().listMetadata()) {
-                    writer.write(metadata.getNamedGraphURI());
-                    writer.write('\n');
-                    if (metadata.getSources() != null) {
-                        writer.write("\tSource: ");
-                        writer.write(formatCollection(metadata.getSources()));
-                        writer.write('\n');
-                    }
-                    if (metadata.getInsertedAt() != null) {
-                        writer.write("\tInserted at: ");
-                        writer.write(formatDate(metadata.getInsertedAt()));
-                        writer.write('\n');
-                    }
-                    if (metadata.getScore() != null) {
-                        writer.write("\tGraph score: ");
-                        writer.write(metadata.getScore().toString());
-                        writer.write('\n');
-                    }
-                    if (metadata.getUpdateTag() != null) {
-                        writer.write("\tUpdate tag: ");
-                        writer.write(metadata.getUpdateTag().toString());
-                        writer.write('\n');
-                    }
-                }
+                writeMetadata(writer, metadataResult.getMetadata());
+
                 writer.write("\n\n===============================\n== Provenance metadata ==\n");
                 for (Statement quad : metadataResult.getProvenanceMetadata()) {
                     writer.write(quad.toString());
@@ -138,16 +93,51 @@ public class DebugFormatter extends ResultFormatterBase {
         return representation;
     }
     
-    private <T> String formatCollection(Collection<T> collection) {
-        if (collection == null || collection.isEmpty()) {
+    private void writeMetadata(Writer writer, Model metadata) throws IOException {
+        for (Resource namedGraph : metadata.subjects()) {
+            Model sources = metadata.filter(namedGraph, METADATA_SCORE_PROPERTY, null);
+            if (!sources.isEmpty()) {
+                writer.write("\tSource: ");
+                writer.write(formatObjects(sources));
+                writer.write('\n');
+            }
+            Model insertedAt = metadata.filter(namedGraph, METADATA_INSERTED_AT_PROPERTY, null);
+            if (!insertedAt.isEmpty()) {
+                writer.write("\tInserted at: ");
+                writer.write(formatDate(insertedAt.iterator().next().getObject()));
+                writer.write('\n');
+            }
+            Model score = metadata.filter(namedGraph, METADATA_SCORE_PROPERTY, null);
+            if (!score.isEmpty()) {
+                writer.write("\tGraph score: ");
+                writer.write(formatScore(score.iterator().next().getObject()));
+                writer.write('\n');
+            }
+            Model updateTag = metadata.filter(namedGraph, METADATA_UPDATE_TAG_PROPERTY, null);
+            if (!updateTag.isEmpty()) {
+                writer.write("\tUpdate tags: ");
+                writer.write(updateTag.iterator().next().getObject().stringValue());
+                writer.write('\n');
+            }
+            Model licences = metadata.filter(namedGraph, METADATA_LICENCES_PROPERTY, null);
+            if (!licences.isEmpty()) {
+                writer.write("\tLicences: ");
+                writer.write(formatObjects(licences));
+                writer.write('\n');
+            }
+        }
+    }
+    
+    private String formatObjects(Model model) {
+        if (model == null || model.isEmpty()) {
             return "";
-        } else if (collection.size() == 1) {
-            return collection.iterator().next().toString();
+        } else if (model.size() == 1) {
+            return model.iterator().next().getObject().toString();
         } else {
             final String separator = ", ";
             StringBuilder result = new StringBuilder();
-            for (T value : collection) {
-                result.append(value.toString());
+            for (Statement value : model) {
+                result.append(value.getObject().toString());
                 result.append(separator);
             }
             return result.substring(0, result.length() - separator.length());

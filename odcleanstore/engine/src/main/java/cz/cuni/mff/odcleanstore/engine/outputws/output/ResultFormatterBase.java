@@ -1,7 +1,11 @@
 package cz.cuni.mff.odcleanstore.engine.outputws.output;
 
 import cz.cuni.mff.odcleanstore.queryexecution.EnumQueryType;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 
+import org.openrdf.model.Literal;
+import org.openrdf.model.URI;
+import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.restlet.data.CharacterSet;
@@ -41,9 +45,24 @@ public abstract class ResultFormatterBase implements QueryResultFormatter {
     protected static final ValueFactory VALUE_FACTORY = ValueFactoryImpl.getInstance();
 
     private static final String TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
-            
-    private final DateFormat timeFormat = new SimpleDateFormat(TIME_FORMAT);
+    
+    /** {@link ODCS#source} as URI. */
+    protected static final URI METADATA_SOURCE_PROPERTY = VALUE_FACTORY.createURI(ODCS.source);
+    /** {@link ODCS#insertedAt} as URI. */
+    protected static final URI METADATA_INSERTED_AT_PROPERTY = VALUE_FACTORY.createURI(ODCS.insertedAt);
+    /** {@link ODCS#score} as URI. */
+    protected static final URI METADATA_SCORE_PROPERTY = VALUE_FACTORY.createURI(ODCS.score);
+    /** {@link ODCS#license} as URI. */
+    protected static final URI METADATA_LICENCES_PROPERTY = VALUE_FACTORY.createURI(ODCS.license);
+    /** {@link ODCS#updateTag} as URI. */
+    protected static final URI METADATA_UPDATE_TAG_PROPERTY = VALUE_FACTORY.createURI(ODCS.updateTag);
+    /** {@link ODCS#publishedBy} as URI. */
+    protected static final URI METADATA_PUBLISHED_BY_PROPERTY = VALUE_FACTORY.createURI(ODCS.publishedBy);
+    /** {@link ODCS#publisherScore} as URI. */
+    protected static final URI METADATA_PUBLISHER_SCORE_PROPERTY = VALUE_FACTORY.createURI(ODCS.publisherScore);
 
+    private final DateFormat timeFormat = new SimpleDateFormat(TIME_FORMAT);
+    
     /**
      * Returns a {@link DateFormat} for formatting of time in output.
      * @return a {@link DateFormat} instance
@@ -90,14 +109,47 @@ public abstract class ResultFormatterBase implements QueryResultFormatter {
     protected String formatScore(double score) {
         return String.format(Locale.ROOT, "%.5f", score);
     }
+    
+    /**
+     * Format score to a readable string.
+     * @param value Value representing a double literal
+     * @return formatted date
+     */
+    protected String formatScore(Value value) {
+        if (!(value instanceof Literal)) {
+            return "";
+        }
+        try {
+            double score = ((Literal) value).doubleValue();
+            return formatScore(score);
+        } catch (IllegalArgumentException e) {
+            return "";
+        }
+    }
 
     /**
      * Format a date a readable string.
-     * Note: If implementation changes, don't forget to keep it thread-safe.
      * @param date date
      * @return formatted date
      */
     protected String formatDate(Date date) {
         return getTimeFormat().format(date);
+    }
+    
+    /**
+     * Format a date a readable string.
+     * @param value Value representing a date literal
+     * @return formatted date
+     */
+    protected String formatDate(Value value) {
+        if (!(value instanceof Literal)) {
+            return "";
+        }
+        try {
+            Date date = ((Literal) value).calendarValue().toGregorianCalendar().getTime();
+            return formatDate(date);
+        } catch (IllegalArgumentException e) {
+            return "";
+        }
     }
 }

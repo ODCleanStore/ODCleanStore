@@ -1,27 +1,25 @@
 package cz.cuni.mff.odcleanstore.engine.outputws.output;
 
 import cz.cuni.mff.odcleanstore.configuration.OutputWSConfig;
-import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
-import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
 import cz.cuni.mff.odcleanstore.qualityassessment.QualityAssessor.GraphScoreWithTrace;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRule;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryResultBase;
-import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.DC;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.vocabulary.RDF;
 import cz.cuni.mff.odcleanstore.vocabulary.W3P;
 
+import org.openrdf.model.Model;
+import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
-import org.openrdf.model.Value;
 import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFWriter;
 
-import java.util.Collection;
 import java.util.Date;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * An abstract base class for formatters having a serialized form of RDF as their output.
@@ -62,6 +60,19 @@ public abstract class RDFFormatter extends ResultFormatterBase {
     protected static final URI QARULE_CLASS = VALUE_FACTORY.createURI(ODCS.QARule);
     /** {@link ODCS#queryResponse} as a {@link URI}. */
     protected static final URI QUERY_RESPONSE_CLASS = VALUE_FACTORY.createURI(ODCS.queryResponse);
+    
+    private static final Map<URI, URI> METADATA_PROPERTY_MAPPINGS;
+    
+    static {
+        METADATA_PROPERTY_MAPPINGS = new HashMap<URI, URI>();
+        METADATA_PROPERTY_MAPPINGS.put(METADATA_SOURCE_PROPERTY, SOURCE_PROPERTY);
+        METADATA_PROPERTY_MAPPINGS.put(METADATA_SCORE_PROPERTY, SCORE_PROPERTY);
+        METADATA_PROPERTY_MAPPINGS.put(METADATA_INSERTED_AT_PROPERTY, INSERTED_AT_PROPERTY);
+        METADATA_PROPERTY_MAPPINGS.put(METADATA_PUBLISHED_BY_PROPERTY, PUBLISHED_BY_PROPERTY);
+        METADATA_PROPERTY_MAPPINGS.put(METADATA_PUBLISHER_SCORE_PROPERTY, PUBLISHER_SCORE_PROPERTY);
+        METADATA_PROPERTY_MAPPINGS.put(METADATA_LICENCES_PROPERTY, LICENSE_PROPERTY);
+    }
+    
 
     /** Configuration of the output webservice from the global configuration file. */
     protected final OutputWSConfig outputWSConfig;
@@ -106,82 +117,20 @@ public abstract class RDFFormatter extends ResultFormatterBase {
      * @param destinationGraphURI named graph to which metadata triples will be written
      * @throws RDFHandlerException writer error
      */
-    protected void writeODCSNamedGraphMetadata(RDFWriter rdfWriter, NamedGraphMetadataMap metadata,
+    protected void writeODCSNamedGraphMetadata(RDFWriter rdfWriter, Model metadata,
             boolean addScore, URI destinationGraphURI) throws RDFHandlerException {
         
-        for (NamedGraphMetadata graphMetadata : metadata.listMetadata()) {
-            URI namedGraphURI = VALUE_FACTORY.createURI(graphMetadata.getNamedGraphURI());
-            Collection<String> dataSourceList = graphMetadata.getSources();
-            if (dataSourceList != null) {
-                for (String dataSource : dataSourceList) {
-                    rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
-                            namedGraphURI,
-                            SOURCE_PROPERTY,
-                            VALUE_FACTORY.createURI(dataSource),
-                            destinationGraphURI));
-                }
+        for (Statement statement : metadata) {
+            URI predicate = METADATA_PROPERTY_MAPPINGS.get(statement.getPredicate());
+            if (predicate == null) {
+                predicate = statement.getPredicate();
             }
-
-            Double score = graphMetadata.getScore();
-            if (addScore && score != null) {
-                rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
-                        namedGraphURI,
-                        SCORE_PROPERTY,
-                        VALUE_FACTORY.createLiteral((double) score),
-                        destinationGraphURI));
-            }
-
-            Date storedAt = graphMetadata.getInsertedAt();
-            if (storedAt != null) {
-                rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
-                        namedGraphURI,
-                        INSERTED_AT_PROPERTY,
-                        VALUE_FACTORY.createLiteral(storedAt),
-                        destinationGraphURI));
-            }
-
-            List<String> publisherList = graphMetadata.getPublishers();
-            if (publisherList != null) {
-                for (String publisher : publisherList) {
-                    rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
-                            namedGraphURI,
-                            PUBLISHED_BY_PROPERTY,
-                            VALUE_FACTORY.createURI(publisher),
-                            destinationGraphURI));
-                }
-            }
-
-            List<String> licenseList = graphMetadata.getLicences();
-            if (licenseList != null) {
-                for (String license : licenseList) {
-                    Value licenseNode = license.startsWith("http://") && ODCSUtils.isValidIRI(license)
-                            ? VALUE_FACTORY.createURI(license)
-                            : VALUE_FACTORY.createLiteral(license);
-                    rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
-                            namedGraphURI,
-                            LICENSE_PROPERTY,
-                            licenseNode,
-                            destinationGraphURI));
-                }
-            }
-
-            Double totalPublisherScore = graphMetadata.getTotalPublishersScore();
-            if (totalPublisherScore != null) {
-                rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
-                        namedGraphURI,
-                        PUBLISHER_SCORE_PROPERTY,
-                        VALUE_FACTORY.createLiteral((double) totalPublisherScore),
-                        destinationGraphURI));
-            }
-
-            String updateTag = graphMetadata.getUpdateTag();
-            if (updateTag != null) {
-                rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
-                        namedGraphURI,
-                        UPDATE_TAG_PROPERTY,
-                        VALUE_FACTORY.createLiteral(updateTag),
-                        destinationGraphURI));
-            }
+            
+            rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
+                    statement.getSubject(),
+                    predicate,
+                    statement.getObject(),
+                    destinationGraphURI));
         }
     }
 

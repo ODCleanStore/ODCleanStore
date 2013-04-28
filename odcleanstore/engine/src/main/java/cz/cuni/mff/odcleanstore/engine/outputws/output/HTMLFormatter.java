@@ -1,9 +1,7 @@
 package cz.cuni.mff.odcleanstore.engine.outputws.output;
 
 import cz.cuni.mff.odcleanstore.configuration.OutputWSConfig;
-import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
-import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
-import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
 import cz.cuni.mff.odcleanstore.engine.outputws.QueryExecutorResourceBase;
 import cz.cuni.mff.odcleanstore.qualityassessment.QualityAssessor.GraphScoreWithTrace;
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRule;
@@ -15,6 +13,8 @@ import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 
 import org.openrdf.model.BNode;
 import org.openrdf.model.Literal;
+import org.openrdf.model.Model;
+import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
@@ -31,7 +31,6 @@ import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -224,54 +223,58 @@ public class HTMLFormatter extends ResultFormatterBase {
          * @param metadataMap metadata for graphs in the result
          * @throws IOException if an I/O error occurs
          */
-        protected void writeMetadata(Writer writer, NamedGraphMetadataMap metadataMap) throws IOException {
+        protected void writeMetadata(Writer writer, Model metadata) throws IOException {
             writer.write(" <table border=\"1\" cellspacing=\"0\" cellpadding=\"2\">\n");
             writer.write("  <tr><th>Named graph</th><th>Data source</th><th>Inserted at</th>"
                     + "<th>Graph score</th><th>License</th><th>Update tag</th></tr>");
             int row = 0;
-            for (NamedGraphMetadata metadata : metadataMap.listMetadata()) {
+            for (Resource namedGraph : metadata.subjects()) {
                 writeOpeningTr(writer, ++row);
                 writer.write("<td>");
                 writeRelativeLink(
                         writer, 
-                        getRequestForMetadata(metadata.getNamedGraphURI()),
-                        getPrefixedURI(metadata.getNamedGraphURI()),
+                        getRequestForMetadata(namedGraph.stringValue()),
+                        getPrefixedURI(namedGraph.stringValue()),
                         "Metadata query");
                 writer.write("</td><td>");
-                Collection<String> sourceList = metadata.getSources();
-                if (sourceList != null) {
+                Model sources = metadata.filter(namedGraph, METADATA_SCORE_PROPERTY, null);
+                if (!sources.isEmpty()) {
                     boolean isFirst = true;
-                    for (String source : sourceList) {
+                    for (Statement statement : sources) {
                         if (!isFirst) {
                             writer.write(", ");
                         }
+                        String source = statement.getObject().stringValue();
                         writeAbsoluteLink(writer, source, source);
                         isFirst = false;
                     }
                 }
                 writer.write("</td><td>");
-                if (metadata.getInsertedAt() != null) {
-                    writer.write(formatDate(metadata.getInsertedAt()));
+                Model insertedAt = metadata.filter(namedGraph, METADATA_INSERTED_AT_PROPERTY, null);
+                if (!insertedAt.isEmpty()) {
+                    writer.write(formatDate(insertedAt.iterator().next().getObject()));
                 }
                 writer.write("</td><td>");
-                if (metadata.getScore() != null) {
-                    writer.write(ODCSUtils.toStringNullProof(metadata.getScore()));
+                Model score = metadata.filter(namedGraph, METADATA_SCORE_PROPERTY, null);
+                if (!score.isEmpty()) {
+                    writer.write(formatScore(score.iterator().next().getObject()));
                 }
                 writer.write("</td><td>");
-                List<String> licenseList = metadata.getLicences();
-                if (licenseList != null) {
+                Model licences = metadata.filter(namedGraph, METADATA_LICENCES_PROPERTY, null);
+                if (!licences.isEmpty()) {
                     boolean isFirst = true;
-                    for (String license : licenseList) {
+                    for (Statement statement : licences) {
                         if (!isFirst) {
                             writer.write(", ");
                         }
-                        writer.write(ODCSUtils.toStringNullProof(license));
+                        writer.write(statement.getObject().stringValue());
                         isFirst = false;
                     }
                 }
                 writer.write("</td><td>");
-                if (metadata.getUpdateTag() != null) {
-                    writer.write(metadata.getUpdateTag());
+                Model updateTag = metadata.filter(namedGraph, METADATA_UPDATE_TAG_PROPERTY, null);
+                if (!updateTag.isEmpty()) {
+                    writer.write(updateTag.iterator().next().getObject().stringValue());
                 }
                 writer.write("</td></tr>\n");
             }
@@ -530,24 +533,25 @@ public class HTMLFormatter extends ResultFormatterBase {
             writer.write("  <tr><th>Subject</th><th>Predicate</th><th>Object</th>"
                     + "<th>Quality</th><th>Source named graphs</th></tr>\n");
             int row = 0;
-            for (CRQuad crQuad : queryResult.getResultQuads()) {
+            for (ResolvedStatement resolvedStatement : queryResult.getResultQuads()) {
                 writeOpeningTr(writer, ++row);
                 writer.write("<td>");
-                writeNode(writer, crQuad.getQuad().getSubject());
+                writeNode(writer, resolvedStatement.getStatement().getSubject());
                 writer.write("</td><td>");
-                writer.write(getPrefixedURI(crQuad.getQuad().getPredicate().toString()));
+                writer.write(getPrefixedURI(resolvedStatement.getStatement().getPredicate().toString()));
                 writer.write("</td><td>");
-                writeNode(writer, crQuad.getQuad().getObject());
+                writeNode(writer, resolvedStatement.getStatement().getObject());
                 writer.write("</td><td>");
-                writer.write(String.format(Locale.ROOT, "%.5f", crQuad.getQuality()));
+                writer.write(String.format(Locale.ROOT, "%.5f", resolvedStatement.getConfidence()));
                 writer.write("</td><td>");
                 boolean first = true;
-                for (String sourceURI : crQuad.getSourceNamedGraphURIs()) {
+                for (Resource sourceURI : resolvedStatement.getSourceGraphNames()) {
                     if (!first) {
                         writer.write(", ");
                     }
                     first = false;
-                    writeRelativeLink(writer, getRequestForNamedGraph(sourceURI), getPrefixedURI(sourceURI), "Named graph query");
+                    writeRelativeLink(writer, getRequestForNamedGraph(sourceURI.stringValue()), 
+                            getPrefixedURI(sourceURI.stringValue()), "Named graph query");
                 }
                 writer.write("</td></tr>\n");
             }
