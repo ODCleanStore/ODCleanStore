@@ -6,6 +6,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunctionRegistry;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
+import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ResolutionFunctionNotRegisteredException;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.EmptyMetadataModel;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
@@ -416,6 +417,12 @@ import java.util.regex.Pattern;
             Collection<ResolvedStatement> resolvedQuads = conflictResolver.resolveConflicts(quads);
 
             return createResult(resolvedQuads, metadata, canonicalQuery, System.currentTimeMillis() - startTime);
+        } catch (ResolutionFunctionNotRegisteredException e) {
+            throw new QueryExecutionException(
+                    EnumQueryError.UNKNOWN_RESOLUTION_FUNCTION,
+                    ODCSErrorCodes.QE_CR_UNKNOWN_RESOLUTION,
+                    "Unknown resolution function '" + e.getResolutionFunctionName() + "' in resolution policy",
+                    e);
         } catch (ConflictResolutionException e) {
             throw new QueryExecutionException(
                     EnumQueryError.CONFLICT_RESOLUTION_ERROR,

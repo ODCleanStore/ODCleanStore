@@ -28,5 +28,6 @@ public final class ODCSErrorCodes {
     public static final int QE_NG_METADATA_DB_ERR = 22;
     public static final int QE_PREFIX_MAPPING_UNKNOWN_ERR = 23;
     public static final int QE_PREFIX_MAPPING_DB_ERR = 24;
+    public static final int QE_CR_UNKNOWN_RESOLUTION = 25;
     
 }

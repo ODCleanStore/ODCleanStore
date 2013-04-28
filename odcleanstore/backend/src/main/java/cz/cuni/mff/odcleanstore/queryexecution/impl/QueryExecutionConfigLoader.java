@@ -134,15 +134,7 @@ import java.util.Map;
         if (DEFAULT_VALUE.equals(value)) {
             return null;
         }
-        // try {
-            return value;
-        // } catch (IllegalArgumentException e) {
-        // LOG.error("Invalid value {} in database for aggregation method.", value);
-        // throw new QueryExecutionException(EnumQueryError.DEFAULT_AGGREGATION_SETTINGS_INVALID,
-        // ODCSErrorCodes.QE_DEFAULT_CONFIG_AGGREGATION_ERR,
-        // "Invalid value of aggregation type '" + value + "' in the database",
-        // e);
-        // }
+        return value;
     }
 
     /**
