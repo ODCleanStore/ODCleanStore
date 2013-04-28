@@ -10,15 +10,15 @@ import org.openrdf.model.Statement;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.confidence.DecidingConfidenceCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.comparators.BestSelectedComparator;
-import cz.cuni.mff.odcleanstore.conflictresolution.resolution.comparators._ODCSInsertedAtComparator;
+import cz.cuni.mff.odcleanstore.conflictresolution.resolution.comparators.ODCSInsertedAtComparator;
 
 /**
  * @author Jan Michelfeit
  */
-public class _ODCSLatestResolution extends BestSelectedResolutionBase<Resource> {
-    private static final BestSelectedComparator<Resource> COMPARATOR = new _ODCSInsertedAtComparator();
+public class ODCSLatestResolution extends BestSelectedResolutionBase<Resource> {
+    private static final BestSelectedComparator<Resource> COMPARATOR = new ODCSInsertedAtComparator();
 
-    public _ODCSLatestResolution(DecidingConfidenceCalculator confidenceCalculator) {
+    public ODCSLatestResolution(DecidingConfidenceCalculator confidenceCalculator) {
         super(confidenceCalculator);
     }
 
