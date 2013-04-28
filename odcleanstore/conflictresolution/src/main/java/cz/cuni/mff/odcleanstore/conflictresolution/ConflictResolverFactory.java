@@ -96,16 +96,16 @@ public class ConflictResolverFactory {
             return this;
         }
         
-        public ConflictResolverBuilder setPreferredCanonicalURIs(Set<String> preferredURIs) {
-            this.preferredURIs = preferredURIs;
-            return this;
-        }
-        
         public ConflictResolverBuilder setURIMapping(URIMapping uriMapping) {
             if (!sameAsLinks.isEmpty()) {
                 throw new IllegalStateException("Cannot set URIMapping after addSameAsLink() was called");
             }
             this.uriMapping = uriMapping;
+            return this;
+        }
+        
+        public ConflictResolverBuilder setPreferredCanonicalURIs(Set<String> preferredURIs) {
+            this.preferredURIs = preferredURIs;
             return this;
         }
         

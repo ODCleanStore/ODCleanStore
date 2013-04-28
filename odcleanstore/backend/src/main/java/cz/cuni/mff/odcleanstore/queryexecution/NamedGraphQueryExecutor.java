@@ -3,7 +3,6 @@ package cz.cuni.mff.odcleanstore.queryexecution;
 import cz.cuni.mff.odcleanstore.configuration.QueryExecutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolutionPolicy;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
-import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.EmptyMetadataModel;
@@ -102,15 +101,13 @@ import java.util.Set;
      * @param constraints constraints on triples returned in the result
      * @param conflictResolutionPolicy conflict resolution strategies for conflict resolution;
      *        property names must not contain prefixed names
-     * @param conflictResolverFactory factory for ConflictResolver
      * @param labelPropertiesList list of label properties formatted as a string for use in a query
      * @param globalConfig global conflict resolution settings
      */
     public NamedGraphQueryExecutor(JDBCConnectionCredentials connectionCredentials, QueryConstraintSpec constraints,
-            ConflictResolutionPolicy conflictResolutionPolicy, ConflictResolverFactory conflictResolverFactory,
-            String labelPropertiesList, QueryExecutionConfig globalConfig) {
-        super(connectionCredentials, constraints, conflictResolutionPolicy, conflictResolverFactory,
-                labelPropertiesList, globalConfig);
+            ConflictResolutionPolicy conflictResolutionPolicy, String labelPropertiesList,
+            QueryExecutionConfig globalConfig) {
+        super(connectionCredentials, constraints, conflictResolutionPolicy, labelPropertiesList, globalConfig);
     }
 
     /**
@@ -147,8 +144,8 @@ import java.util.Set;
             Model metadata = getMetadata(uri);
             Iterator<Statement> sameAsLinks = getSameAsLinks().iterator();
             Set<String> preferredURIs = getSettingsPreferredURIs();
-            ConflictResolver conflictResolver =
-                    conflictResolverFactory.createResolver(conflictResolutionPolicy, metadata, sameAsLinks, preferredURIs);
+            ConflictResolver conflictResolver = createConflictResolver(
+                    conflictResolutionPolicy, metadata, sameAsLinks, preferredURIs);
             Collection<ResolvedStatement> resolvedQuads = conflictResolver.resolveConflicts(quads);
 
             return createResult(resolvedQuads, metadata, uri, System.currentTimeMillis() - startTime);

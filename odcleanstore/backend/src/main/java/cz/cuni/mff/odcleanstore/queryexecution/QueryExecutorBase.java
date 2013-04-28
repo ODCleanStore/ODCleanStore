@@ -2,13 +2,14 @@ package cz.cuni.mff.odcleanstore.queryexecution;
 
 import cz.cuni.mff.odcleanstore.configuration.QueryExecutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolutionPolicy;
+import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
-import cz.cuni.mff.odcleanstore.queryexecution.impl.QueryExecutionHelper;
 import cz.cuni.mff.odcleanstore.shared.ODCSErrorCodes;
+import cz.cuni.mff.odcleanstore.shared.util.LimitedURIListBuilder;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
@@ -42,6 +43,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 
@@ -254,9 +256,6 @@ import java.util.Set;
     /** Conflict resolution strategies for conflict resolution. */
     protected final ConflictResolutionPolicy conflictResolutionPolicy;
 
-    /** Factory for ConflictResolver instances. */
-    protected final ConflictResolverFactory conflictResolverFactory;
-
     /** Maximum number of triples returned by each database query (the overall result size may be larger). */
     protected final Long maxLimit;
 
@@ -266,7 +265,6 @@ import java.util.Set;
      * @param constraints constraints on triples returned in the result
      * @param conflictResolutionPolicy conflict resolution strategies for conflict resolution;
      *        property names must not contain prefixed names
-     * @param conflictResolverFactory factory for ConflictResolver
      * @param labelPropertiesList list of label properties formatted as a string for use in a query
      * @param globalConfig global conflict resolution settings;
      *        values needed in globalConfig are the following:
@@ -278,12 +276,11 @@ import java.util.Set;
      *        </dl>
      */
     protected QueryExecutorBase(JDBCConnectionCredentials connectionCredentials, QueryConstraintSpec constraints,
-            ConflictResolutionPolicy conflictResolutionPolicy, ConflictResolverFactory conflictResolverFactory,
-            String labelPropertiesList, QueryExecutionConfig globalConfig) {
+            ConflictResolutionPolicy conflictResolutionPolicy, String labelPropertiesList,
+            QueryExecutionConfig globalConfig) {
         this.connectionCredentials = connectionCredentials;
         this.constraints = constraints;
         this.conflictResolutionPolicy = conflictResolutionPolicy;
-        this.conflictResolverFactory = conflictResolverFactory;
         this.globalConfig = globalConfig;
         this.maxLimit = globalConfig.getMaxQueryResultSize();
         this.labelPropertiesList = labelPropertiesList;
@@ -449,8 +446,7 @@ import java.util.Set;
             }
         }
 
-        Iterable<CharSequence> limitedURIListBuilder =
-                QueryExecutionHelper.getLimitedURIListBuilder(publishers, MAX_QUERY_LIST_LENGTH);
+        Iterable<CharSequence> limitedURIListBuilder = new LimitedURIListBuilder(publishers, MAX_QUERY_LIST_LENGTH);
         for (CharSequence publisherURIList : limitedURIListBuilder) {
             String query = String.format(Locale.ROOT, PUBLISHER_SCORE_QUERY, publisherURIList, maxLimit);
             long queryStartTime = System.currentTimeMillis();
@@ -485,8 +481,7 @@ import java.util.Set;
             throws DatabaseException {
 
         long startTime = System.currentTimeMillis();
-        Iterable<CharSequence> resourceURIListBuilder =
-                QueryExecutionHelper.getLimitedURIListBuilder(resourceURIs, MAX_QUERY_LIST_LENGTH);
+        Iterable<CharSequence> resourceURIListBuilder = new LimitedURIListBuilder(resourceURIs, MAX_QUERY_LIST_LENGTH);
 
         TupleQueryResult resultSet = null;
         try {
@@ -550,6 +545,27 @@ import java.util.Set;
         } finally {
             closeResultSetQuietly(resultSet);
         }
+    }
+
+    /**
+     * Creates a new instance of ConflictResolver using the correct default settings.
+     * @param conflictResolutionPolicy conflict resolution strategies
+     * @param metadata metadata model
+     * @param sameAsLinks statements with owl:sameAs as predicate
+     * @param preferredURIs URIs preferred as canonical URIs
+     * @return a new ConflictResolver instance
+     */
+    protected ConflictResolver createConflictResolver(ConflictResolutionPolicy conflictResolutionPolicy,
+            Model metadata, Iterator<Statement> sameAsLinks, Set<String> preferredURIs) {
+        String resultGraphPrefix =
+                globalConfig.getResultDataURIPrefix().toString() + ODCSInternal.queryResultGraphUriInfix;
+        return ConflictResolverFactory.configure()
+                .setConflictResolutionPolicy(conflictResolutionPolicy)
+                .setResolvedGraphsURIPrefix(resultGraphPrefix)
+                .setMetadata(metadata)
+                .setPreferredCanonicalURIs(preferredURIs)
+                .addSameAsLinks(sameAsLinks)
+                .create();
     }
 
     /**

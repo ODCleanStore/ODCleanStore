@@ -1,6 +1,6 @@
 package cz.cuni.mff.odcleanstore.queryexecution.impl;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
+import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolutionPolicy;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.queryexecution.EnumQueryError;
@@ -13,7 +13,7 @@ import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
  * This class is thread-safe.
  * @author Jan Michelfeit
  */
-public class DefaultAggregationConfigurationCache extends CacheHolderBase<AggregationSpec> {
+public class DefaultAggregationConfigurationCache extends CacheHolderBase<ConflictResolutionPolicy> {
     /** Lifetime of the cached value in milliseconds. */
     private static final long CACHE_LIFETIME = 5 * ODCSUtils.TIME_UNIT_60 * ODCSUtils.MILLISECONDS;
 
@@ -37,19 +37,16 @@ public class DefaultAggregationConfigurationCache extends CacheHolderBase<Aggreg
     }
 
     @Override
-    protected AggregationSpec loadCachedValue() throws QueryExecutionException {
-        AggregationSpec defaultSettings = null;
+    protected ConflictResolutionPolicy loadCachedValue() throws QueryExecutionException {
         try {
-            defaultSettings = new QueryExecutionConfigLoader(connectionCredentials).getDefaultSettings();
+            QueryExecutionConfigLoader configLoader = new QueryExecutionConfigLoader(connectionCredentials);
+            return configLoader.getDefaultSettings(prefixMappingCache.getCachedValue());
         } catch (DatabaseException e) {
             throw new QueryExecutionException(
                     EnumQueryError.DATABASE_ERROR,
                     ODCSErrorCodes.QE_DEFAULT_CONFIG_DB_ERR,
                     "Database error",
                     e);
-        }
-        try {
-            return QueryExecutionHelper.expandPropertyNames(defaultSettings, prefixMappingCache.getCachedValue());
         } catch (QueryExecutionException e) {
             throw new QueryExecutionException(
                     EnumQueryError.DEFAULT_AGGREGATION_SETTINGS_INVALID,

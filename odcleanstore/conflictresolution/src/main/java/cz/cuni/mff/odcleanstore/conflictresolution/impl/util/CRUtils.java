@@ -3,10 +3,16 @@
  */
 package cz.cuni.mff.odcleanstore.conflictresolution.impl.util;
 
+import java.util.Map;
+
 import org.openrdf.model.Literal;
 import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 
+import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
+import cz.cuni.mff.odcleanstore.conflictresolution.EnumCardinality;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionStrategy;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.ResolutionStrategyImpl;
 import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 
@@ -63,6 +69,27 @@ public final class CRUtils {
         }
         Literal literal = (Literal) value;
         return literal.getDatatype() == null || literal.getDatatype().stringValue().equals(XMLSchema.stringType);
+    }
+    
+    public static ResolutionStrategy mergeresolutionStrategies(ResolutionStrategy baseStrategy, ResolutionStrategy mergedStrategy) {
+        if (baseStrategy == null) {
+            return mergedStrategy;
+        } else if (mergedStrategy == null) {
+            return baseStrategy;
+        }
+        String resolutionFunctionName = baseStrategy.getResolutionFunctionName() != null
+                ? baseStrategy.getResolutionFunctionName()
+                : mergedStrategy.getResolutionFunctionName();
+        EnumCardinality cardinality = baseStrategy.getCardinality() != null
+                ? baseStrategy.getCardinality()
+                : mergedStrategy.getCardinality();
+        EnumAggregationErrorStrategy errorStrategy = baseStrategy.getAggregationErrorStrategy() != null
+                ? baseStrategy.getAggregationErrorStrategy()
+                : mergedStrategy.getAggregationErrorStrategy();
+        Map<String, String> params = baseStrategy.getParams() != null || baseStrategy.getParams().isEmpty()
+                ? baseStrategy.getParams()
+                : mergedStrategy.getParams();
+        return new ResolutionStrategyImpl(resolutionFunctionName, cardinality, errorStrategy, params);
     }
 
     private CRUtils() {

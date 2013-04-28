@@ -2,7 +2,6 @@ package cz.cuni.mff.odcleanstore.queryexecution;
 
 import cz.cuni.mff.odcleanstore.configuration.QueryExecutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolutionPolicy;
-import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.ConflictResolutionPolicyImpl;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.EmptyMetadataModel;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
@@ -83,17 +82,15 @@ import java.util.Locale;
     /**
      * Creates a new instance of NamedGraphMetadataQueryExecutor.
      * @param connectionCredentials connection settings for the SPARQL endpoint that will be queried
-     * @param conflictResolverFactory factory for ConflictResolver
      * @param labelPropertiesList list of label properties formatted as a string for use in a query
      * @param globalConfig global conflict resolution settings
      */
     public MetadataQueryExecutor(
             JDBCConnectionCredentials connectionCredentials,
-            ConflictResolverFactory conflictResolverFactory,
             String labelPropertiesList,
             QueryExecutionConfig globalConfig) {
 
-        super(connectionCredentials, EMPTY_QUERY_CONSTRAINT_SPEC, EMPTY_CONFLICT_RESOLUTION_POLICY, conflictResolverFactory,
+        super(connectionCredentials, EMPTY_QUERY_CONSTRAINT_SPEC, EMPTY_CONFLICT_RESOLUTION_POLICY,
                 labelPropertiesList, globalConfig);
     }
 
