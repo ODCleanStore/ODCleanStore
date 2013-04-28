@@ -1,13 +1,12 @@
 package cz.cuni.mff.odcleanstore.queryexecution;
 
 import cz.cuni.mff.odcleanstore.configuration.Config;
-import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
+import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolutionPolicy;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.queryexecution.impl.DefaultAggregationConfigurationCache;
 import cz.cuni.mff.odcleanstore.queryexecution.impl.LabelPropertiesListCache;
 import cz.cuni.mff.odcleanstore.queryexecution.impl.PrefixMappingCache;
-import cz.cuni.mff.odcleanstore.queryexecution.impl.QueryExecutionHelper;
 import cz.cuni.mff.odcleanstore.shared.ODCSErrorCodes;
 import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
@@ -69,26 +68,24 @@ public class QueryExecution {
      *
      * @param keywords searched keywords (separated by whitespace)
      * @param constraints constraints on triples returned in the result
-     * @param aggregationSpec aggregation settings for conflict resolution; may contain properties as  prefixed names
+     * @param conflictResolutionPolicy conflict resolution strategies for conflict resolution
      * @return result of the query as RDF quads
      * @throws QueryExecutionException exception
      */
-    public BasicQueryResult findKeyword(String keywords, QueryConstraintSpec constraints, AggregationSpec aggregationSpec)
-            throws QueryExecutionException {
+    public BasicQueryResult findKeyword(String keywords, QueryConstraintSpec constraints,
+            ConflictResolutionPolicy conflictResolutionPolicy) throws QueryExecutionException {
 
         if (keywords == null) {
             throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, ODCSErrorCodes.QE_INPUT_EMPTY_ERR,
                     "Keywords must not be empty");
-        } else if (constraints == null || aggregationSpec == null) {
+        } else if (constraints == null || conflictResolutionPolicy == null) {
             throw new IllegalArgumentException();
         }
 
-        AggregationSpec expandedAggregationSpec = QueryExecutionHelper.expandPropertyNames(
-                aggregationSpec, prefixMappingCache.getCachedValue());
         KeywordQueryExecutor queryExecutor = new KeywordQueryExecutor(
                 connectionCredentials,
                 constraints,
-                expandedAggregationSpec,
+                conflictResolutionPolicy,
                 createConflictResolverFactory(),
                 labelPropertiesListCache.getCachedValue(),
                 globalConfig.getQueryExecutionGroup());
@@ -101,17 +98,17 @@ public class QueryExecution {
      *
      * @param uri searched URI; may be a prefixed name
      * @param constraints constraints on triples returned in the result
-     * @param aggregationSpec aggregation settings for conflict resolution; may contain properties as  prefixed names
+     * @param conflictResolutionPolicy conflict resolution strategies
      * @return result of the query as RDF quads
      * @throws QueryExecutionException exception
      */
-    public BasicQueryResult findURI(String uri, QueryConstraintSpec constraints, AggregationSpec aggregationSpec)
-            throws QueryExecutionException {
+    public BasicQueryResult findURI(String uri, QueryConstraintSpec constraints,
+            ConflictResolutionPolicy conflictResolutionPolicy) throws QueryExecutionException {
 
         if (uri == null) {
             throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, ODCSErrorCodes.QE_INPUT_EMPTY_ERR,
                     "URI must not be empty");
-        } else if (constraints == null || aggregationSpec == null) {
+        } else if (constraints == null || conflictResolutionPolicy == null) {
             throw new IllegalArgumentException();
         }
 
@@ -119,12 +116,10 @@ public class QueryExecution {
         String expandedURI = ODCSUtils.isPrefixedName(trimmedURI)
                 ? prefixMappingCache.getCachedValue().expandPrefix(trimmedURI)
                 : trimmedURI;
-        AggregationSpec expandedAggregationSpec = QueryExecutionHelper.expandPropertyNames(
-                aggregationSpec, prefixMappingCache.getCachedValue());
         UriQueryExecutor queryExecutor = new UriQueryExecutor(
                 connectionCredentials,
                 constraints,
-                expandedAggregationSpec,
+                conflictResolutionPolicy,
                 createConflictResolverFactory(),
                 labelPropertiesListCache.getCachedValue(),
                 globalConfig.getQueryExecutionGroup());
@@ -137,17 +132,17 @@ public class QueryExecution {
      *
      * @param namedGraphURI URI of the requested named graph; may be a prefixed name
      * @param constraints constraints on triples returned in the result
-     * @param aggregationSpec aggregation settings for conflict resolution; may contain properties as prefixed names
+     * @param conflictResolutionPolicy conflict resolution strategies
      * @return result of the query as RDF quads
      * @throws QueryExecutionException exception
      */
-    public BasicQueryResult findNamedGraph(String namedGraphURI, QueryConstraintSpec constraints, AggregationSpec aggregationSpec)
-            throws QueryExecutionException {
+    public BasicQueryResult findNamedGraph(String namedGraphURI, QueryConstraintSpec constraints,
+            ConflictResolutionPolicy conflictResolutionPolicy) throws QueryExecutionException {
 
         if (namedGraphURI == null) {
             throw new QueryExecutionException(EnumQueryError.INVALID_QUERY_FORMAT, ODCSErrorCodes.QE_INPUT_EMPTY_ERR,
                     "Named graph URI must not be empty");
-        } else if (constraints == null || aggregationSpec == null) {
+        } else if (constraints == null || conflictResolutionPolicy == null) {
             throw new IllegalArgumentException();
         }
 
@@ -155,12 +150,10 @@ public class QueryExecution {
         String expandedURI = ODCSUtils.isPrefixedName(trimmedURI)
                 ? prefixMappingCache.getCachedValue().expandPrefix(trimmedURI)
                 : trimmedURI;
-        AggregationSpec expandedAggregationSpec = QueryExecutionHelper.expandPropertyNames(
-                aggregationSpec, prefixMappingCache.getCachedValue());
         NamedGraphQueryExecutor queryExecutor = new NamedGraphQueryExecutor(
                 connectionCredentials,
                 constraints,
-                expandedAggregationSpec,
+                conflictResolutionPolicy,
                 createConflictResolverFactory(),
                 labelPropertiesListCache.getCachedValue(),
                 globalConfig.getQueryExecutionGroup());

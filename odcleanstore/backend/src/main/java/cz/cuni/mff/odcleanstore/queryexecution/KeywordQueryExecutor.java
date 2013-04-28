@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.queryexecution;
 
 import cz.cuni.mff.odcleanstore.configuration.QueryExecutionConfig;
+import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolutionPolicy;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
@@ -356,16 +357,16 @@ import java.util.regex.Pattern;
      * Creates a new instance of KeywordQueryExecutor.
      * @param connectionCredentials connection settings for the SPARQL endpoint that will be queried
      * @param constraints constraints on triples returned in the result
-     * @param aggregationSpec aggregation settings for conflict resolution;
+     * @param conflictResolutionPolicy aggregation settings for conflict resolution;
      *        property names must not contain prefixed names
      * @param conflictResolverFactory factory for ConflictResolver
      * @param labelPropertiesList list of label properties formatted as a string for use in a query
      * @param globalConfig global conflict resolution settings
      */
     public KeywordQueryExecutor(JDBCConnectionCredentials connectionCredentials, QueryConstraintSpec constraints,
-            AggregationSpec aggregationSpec, ConflictResolverFactory conflictResolverFactory,
+            ConflictResolutionPolicy conflictResolutionPolicy, ConflictResolverFactory conflictResolverFactory,
             String labelPropertiesList, QueryExecutionConfig globalConfig) {
-        super(connectionCredentials, constraints, aggregationSpec, conflictResolverFactory,
+        super(connectionCredentials, constraints, conflictResolutionPolicy, conflictResolverFactory,
                 labelPropertiesList, globalConfig);
     }
 
@@ -411,7 +412,7 @@ import java.util.regex.Pattern;
             Iterator<Statement> sameAsLinks = getSameAsLinks().iterator();
             Set<String> preferredURIs = getSettingsPreferredURIs();
             ConflictResolver conflictResolver =
-                    conflictResolverFactory.createResolver(aggregationSpec, metadata, sameAsLinks, preferredURIs);
+                    conflictResolverFactory.createResolver(conflictResolutionPolicy, metadata, sameAsLinks, preferredURIs);
             Collection<ResolvedStatement> resolvedQuads = conflictResolver.resolveConflicts(quads);
 
             return createResult(resolvedQuads, metadata, canonicalQuery, System.currentTimeMillis() - startTime);
@@ -445,7 +446,7 @@ import java.util.regex.Pattern;
         LOG.debug("Query Execution: findKeyword() in {} ms", executionTime);
         // Format and return result
         BasicQueryResult queryResult = new BasicQueryResult(resultQuads, metadata, query, EnumQueryType.KEYWORD, constraints,
-                aggregationSpec);
+                conflictResolutionPolicy);
         queryResult.setExecutionTime(executionTime);
         return queryResult;
     }
@@ -517,13 +518,8 @@ import java.util.regex.Pattern;
     private Collection<Statement> getSameAsLinks() throws DatabaseException {
         long startTime = System.currentTimeMillis();
         Collection<Statement> sameAsTriples = new ArrayList<Statement>();
-        assert aggregationSpec.getPropertyAggregations() != null;
-        for (String property : aggregationSpec.getPropertyAggregations().keySet()) {
-            addSameAsLinksForURI(property, sameAsTriples);
-        }
-        assert aggregationSpec.getPropertyMultivalue() != null;
-        for (String property : aggregationSpec.getPropertyMultivalue().keySet()) {
-            addSameAsLinksForURI(property, sameAsTriples);
+        for (URI property : conflictResolutionPolicy.getPropertyResolutionStrategies().keySet()) {
+            addSameAsLinksForURI(property.stringValue(), sameAsTriples);
         }
         LOG.debug("Query Execution: {} in {} ms", "getSameAsLinks()", System.currentTimeMillis() - startTime);
         return sameAsTriples;

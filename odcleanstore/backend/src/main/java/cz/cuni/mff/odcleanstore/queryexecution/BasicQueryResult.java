@@ -1,5 +1,6 @@
 package cz.cuni.mff.odcleanstore.queryexecution;
 
+import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolutionPolicy;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
 
 import org.openrdf.model.Model;
@@ -22,7 +23,7 @@ public class BasicQueryResult extends QueryResultBase {
     private QueryConstraintSpec queryConstraints;
 
     /** Aggregation settings for conflict resolution. */
-    private AggregationSpec aggregationSpec;
+    private ConflictResolutionPolicy conflictResolutionPolicy;
 
     /**
      * Initializes a new instance.
@@ -31,7 +32,7 @@ public class BasicQueryResult extends QueryResultBase {
      * @param query the query string
      * @param queryType type of the query
      * @param queryConstraints constraints on triples returned in the result
-     * @param aggregationSpec aggregation settings used during conflict resolution
+     * @param conflictResolutionPolicy conflict resolution policy
      */
     public BasicQueryResult(
             Collection<ResolvedStatement> resultQuads,
@@ -39,13 +40,13 @@ public class BasicQueryResult extends QueryResultBase {
             String query,
             EnumQueryType queryType,
             QueryConstraintSpec queryConstraints,
-            AggregationSpec aggregationSpec) {
+            ConflictResolutionPolicy conflictResolutionPolicy) {
 
         super(query, queryType);
         this.resultQuads = resultQuads;
         this.metadata = metadata;
         this.queryConstraints = queryConstraints;
-        this.aggregationSpec = aggregationSpec;
+        this.conflictResolutionPolicy = conflictResolutionPolicy;
     }
 
     /**
@@ -73,11 +74,11 @@ public class BasicQueryResult extends QueryResultBase {
     }
 
     /**
-     * Returns aggregation settings used in conflict resolution.
-     * @return aggregation settings
+     * Returns conflict resolution strategies.
+     * @return conflict resolution strategies
      */
-    public AggregationSpec getAggregationSpec() {
-        return aggregationSpec;
+    public ConflictResolutionPolicy getConflictResolutionPolicy() {
+        return conflictResolutionPolicy;
     }
 
 }

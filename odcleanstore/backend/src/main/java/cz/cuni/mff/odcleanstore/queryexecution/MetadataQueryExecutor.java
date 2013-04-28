@@ -1,7 +1,9 @@
 package cz.cuni.mff.odcleanstore.queryexecution;
 
 import cz.cuni.mff.odcleanstore.configuration.QueryExecutionConfig;
+import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolutionPolicy;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.ConflictResolutionPolicyImpl;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.EmptyMetadataModel;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
@@ -31,7 +33,7 @@ import java.util.Locale;
     private static final Logger LOG = LoggerFactory.getLogger(MetadataQueryExecutor.class);
 
     private static final QueryConstraintSpec EMPTY_QUERY_CONSTRAINT_SPEC = new QueryConstraintSpec();
-    private static final AggregationSpec EMPTY_AGGREGATION_SPEC = new AggregationSpec();
+    private static final ConflictResolutionPolicy EMPTY_CONFLICT_RESOLUTION_POLICY = new ConflictResolutionPolicyImpl();
 
     /**
      * SPARQL query that gets provenance metadata for the given named graph.
@@ -91,7 +93,7 @@ import java.util.Locale;
             String labelPropertiesList,
             QueryExecutionConfig globalConfig) {
 
-        super(connectionCredentials, EMPTY_QUERY_CONSTRAINT_SPEC, EMPTY_AGGREGATION_SPEC, conflictResolverFactory,
+        super(connectionCredentials, EMPTY_QUERY_CONSTRAINT_SPEC, EMPTY_CONFLICT_RESOLUTION_POLICY, conflictResolverFactory,
                 labelPropertiesList, globalConfig);
     }
 

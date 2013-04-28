@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.queryexecution;
 
 import cz.cuni.mff.odcleanstore.configuration.QueryExecutionConfig;
+import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolutionPolicy;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
@@ -8,7 +9,6 @@ import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.queryexecution.impl.QueryExecutionHelper;
 import cz.cuni.mff.odcleanstore.shared.ODCSErrorCodes;
-import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
@@ -20,7 +20,6 @@ import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
-import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.TreeModel;
 import org.openrdf.model.impl.ValueFactoryImpl;
@@ -42,10 +41,8 @@ import virtuoso.sesame2.driver.VirtuosoRepository;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -103,7 +100,7 @@ import java.util.Set;
     private static final URI PUBLISHED_BY_PROPERTY = ValueFactoryImpl.getInstance().createURI(ODCS.publishedBy);
 
     /**
-     * {@link Value} factory instance.
+     * Value factory instance.
      */
     protected static final ValueFactory VALUE_FACTORY = ValueFactoryImpl.getInstance();
 
@@ -254,8 +251,8 @@ import java.util.Set;
      */
     private CharSequence graphFilterClause;
 
-    /** Aggregation settings for conflict resolution. Overrides {@link #defaultAggregationSpec}. */
-    protected final AggregationSpec aggregationSpec;
+    /** Conflict resolution strategies for conflict resolution. */
+    protected final ConflictResolutionPolicy conflictResolutionPolicy;
 
     /** Factory for ConflictResolver instances. */
     protected final ConflictResolverFactory conflictResolverFactory;
@@ -267,7 +264,7 @@ import java.util.Set;
      * Creates a new instance of QueryExecutorBase.
      * @param connectionCredentials connection settings for the SPARQL endpoint that will be queried
      * @param constraints constraints on triples returned in the result
-     * @param aggregationSpec aggregation settings for conflict resolution;
+     * @param conflictResolutionPolicy conflict resolution strategies for conflict resolution;
      *        property names must not contain prefixed names
      * @param conflictResolverFactory factory for ConflictResolver
      * @param labelPropertiesList list of label properties formatted as a string for use in a query
@@ -281,11 +278,11 @@ import java.util.Set;
      *        </dl>
      */
     protected QueryExecutorBase(JDBCConnectionCredentials connectionCredentials, QueryConstraintSpec constraints,
-            AggregationSpec aggregationSpec, ConflictResolverFactory conflictResolverFactory,
+            ConflictResolutionPolicy conflictResolutionPolicy, ConflictResolverFactory conflictResolverFactory,
             String labelPropertiesList, QueryExecutionConfig globalConfig) {
         this.connectionCredentials = connectionCredentials;
         this.constraints = constraints;
-        this.aggregationSpec = aggregationSpec;
+        this.conflictResolutionPolicy = conflictResolutionPolicy;
         this.conflictResolverFactory = conflictResolverFactory;
         this.globalConfig = globalConfig;
         this.maxLimit = globalConfig.getMaxQueryResultSize();
@@ -352,25 +349,8 @@ import java.util.Set;
      * @throws QueryExecutionException aggregation settings or query constraints are invalid
      */
     protected void checkValidSettings() throws QueryExecutionException {
-        // Check that settings contain valid URIs
-        for (String property : aggregationSpec.getPropertyAggregations().keySet()) {
-            if (!ODCSUtils.isValidIRI(property)) {
-                throw new QueryExecutionException(EnumQueryError.AGGREGATION_SETTINGS_INVALID,
-                        ODCSErrorCodes.QE_INPUT_FORMAT_ERR,
-                        "'" + property + "' is not a valid URI.");
-            }
-        }
-        for (String property : aggregationSpec.getPropertyMultivalue().keySet()) {
-            if (!ODCSUtils.isValidIRI(property)) {
-                throw new QueryExecutionException(EnumQueryError.AGGREGATION_SETTINGS_INVALID,
-                        ODCSErrorCodes.QE_INPUT_FORMAT_ERR,
-                        "'" + property + "' is not a valid URI.");
-            }
-        }
-
         // Check that the size of settings is reasonable - the query size may depend on it
-        int settingsPropertyCount = aggregationSpec.getPropertyAggregations().size()
-                + aggregationSpec.getPropertyMultivalue().size();
+        int settingsPropertyCount = conflictResolutionPolicy.getPropertyResolutionStrategies().size();
         if (settingsPropertyCount > MAX_PROPERTY_SETTINGS_SIZE) {
             throw new QueryExecutionException(EnumQueryError.QUERY_TOO_LONG, ODCSErrorCodes.QE_INPUT_FORMAT_ERR,
                     "Too many explicit property settings.");
@@ -457,10 +437,9 @@ import java.util.Set;
     /**
      * Retrieve scores of publishers for all publishers occurring in given metadata.
      * @param metadata metadata retrieved for a query
-     * @return map of publishers' scores
      * @throws DatabaseException database error
      */
-    protected Map<String, Double> addPublisherScores(Model metadata) throws DatabaseException {
+    protected void addPublisherScores(Model metadata) throws DatabaseException {
         long startTime = System.currentTimeMillis();
 
         Set<String> publishers = new HashSet<String>();
@@ -579,16 +558,10 @@ import java.util.Set;
      * @return preferred URIs
      */
     protected Set<String> getSettingsPreferredURIs() {
-        Set<String> aggregationProperties = aggregationSpec.getPropertyAggregations() == null
-                ? Collections.<String>emptySet()
-                : aggregationSpec.getPropertyAggregations().keySet();
-        Set<String> multivalueProperties = aggregationSpec.getPropertyMultivalue() == null
-                ? Collections.<String>emptySet()
-                : aggregationSpec.getPropertyMultivalue().keySet();
-        Set<String> preferredURIs = new HashSet<String>(
-                aggregationProperties.size() + multivalueProperties.size() + 1); // +1 for URI added in some types of queries
-        preferredURIs.addAll(aggregationProperties);
-        preferredURIs.addAll(multivalueProperties);
+        Set<String> preferredURIs = new HashSet<String>(conflictResolutionPolicy.getPropertyResolutionStrategies().size());
+        for (URI uri : conflictResolutionPolicy.getPropertyResolutionStrategies().keySet()) {
+            preferredURIs.add(uri.stringValue());
+        }
         return preferredURIs;
     }
 
