@@ -1,12 +1,11 @@
 package cz.cuni.mff.odcleanstore.queryexecution;
 
 import cz.cuni.mff.odcleanstore.configuration.QueryExecutionConfig;
-import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
-import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
-import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.EmptyMetadataModel;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.shared.ODCSErrorCodes;
@@ -14,6 +13,7 @@ import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 
 import org.openrdf.model.BNode;
+import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
@@ -100,8 +100,8 @@ import java.util.regex.Pattern;
      */
     private static final String METADATA_QUERY =
             "DEFINE input:same-as \"yes\""
-            + "\n SELECT DISTINCT"
-            + "\n   ?resGraph ?p ?o"
+            + "\n CONSTRUCT"
+            + "\n   { ?resGraph ?p ?o }"
             + "\n WHERE {"
             + "\n   {"
             + "\n     {"
@@ -394,25 +394,25 @@ import java.util.regex.Pattern;
         String exactMatchExpr = buildExactMatchExpr(keywordsQuery);
         if (containsMatchExpr.isEmpty() || exactMatchExpr.isEmpty()) {
             // No valid keywords
-            return createResult(Collections.<CRQuad>emptyList(), new NamedGraphMetadataMap(), canonicalQuery,
+            return createResult(Collections.<ResolvedStatement>emptyList(), new EmptyMetadataModel(), canonicalQuery,
                     System.currentTimeMillis() - startTime);
         }
         try {
             // Get the quads relevant for the query
             Collection<Statement> quads = getKeywordOccurrences(containsMatchExpr, exactMatchExpr);
             if (quads.isEmpty()) {
-                return createResult(Collections.<CRQuad>emptyList(), new NamedGraphMetadataMap(), canonicalQuery,
+                return createResult(Collections.<ResolvedStatement>emptyList(), new EmptyMetadataModel(), canonicalQuery,
                         System.currentTimeMillis() - startTime);
             }
             quads = addLabels(quads);
 
             // Apply conflict resolution
-            NamedGraphMetadataMap metadata = getMetadata(containsMatchExpr, exactMatchExpr);
+            Model metadata = getMetadata(containsMatchExpr, exactMatchExpr);
             Iterator<Statement> sameAsLinks = getSameAsLinks().iterator();
             Set<String> preferredURIs = getSettingsPreferredURIs();
             ConflictResolver conflictResolver =
                     conflictResolverFactory.createResolver(aggregationSpec, metadata, sameAsLinks, preferredURIs);
-            Collection<CRQuad> resolvedQuads = conflictResolver.resolveConflicts(quads);
+            Collection<ResolvedStatement> resolvedQuads = conflictResolver.resolveConflicts(quads);
 
             return createResult(resolvedQuads, metadata, canonicalQuery, System.currentTimeMillis() - startTime);
         } catch (ConflictResolutionException e) {
@@ -437,8 +437,8 @@ import java.util.regex.Pattern;
      * @return query result holder
      */
     private BasicQueryResult createResult(
-            Collection<CRQuad> resultQuads,
-            NamedGraphMetadataMap metadata,
+            Collection<ResolvedStatement> resultQuads,
+            Model metadata,
             String query,
             long executionTime) {
 
@@ -498,7 +498,7 @@ import java.util.regex.Pattern;
      * @return metadata of result named graphs
      * @throws DatabaseException query error
      */
-    private NamedGraphMetadataMap getMetadata(String containsMatchExpr, String exactMatchExpr)
+    private Model getMetadata(String containsMatchExpr, String exactMatchExpr)
             throws DatabaseException {
         String query = String.format(Locale.ROOT, METADATA_QUERY, containsMatchExpr, exactMatchExpr,
                 getGraphFilterClause(), labelPropertiesList, getGraphPrefixFilter("resGraph"),

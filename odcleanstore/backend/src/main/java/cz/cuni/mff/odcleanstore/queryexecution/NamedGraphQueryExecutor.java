@@ -1,12 +1,11 @@
 package cz.cuni.mff.odcleanstore.queryexecution;
 
 import cz.cuni.mff.odcleanstore.configuration.QueryExecutionConfig;
-import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
-import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
-import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.EmptyMetadataModel;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.shared.ODCSErrorCodes;
@@ -14,6 +13,7 @@ import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 
+import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 
 import org.slf4j.Logger;
@@ -74,8 +74,8 @@ import java.util.Set;
      */
     private static final String METADATA_QUERY =
             //+ "\n DEFINE input:same-as \"yes\""
-            "SELECT DISTINCT"
-            + "\n   <%1$s> AS ?resGraph ?p ?o"
+            "CONSTRUCT "
+            + "\n   { <%1$s> ?p ?o }"
             + "\n WHERE {"
             //+ "\n   {"
             + "\n     <%1$s> <" + ODCS.metadataGraph + "> ?metadataGraph"
@@ -137,17 +137,17 @@ import java.util.Set;
             // Get the quads relevant for the query
             Collection<Statement> quads = getNamedGraphTriples(uri);
             if (quads.isEmpty()) {
-                return createResult(Collections.<CRQuad>emptyList(), new NamedGraphMetadataMap(), uri,
+                return createResult(Collections.<ResolvedStatement>emptyList(), new EmptyMetadataModel(), uri,
                         System.currentTimeMillis() - startTime);
             }
 
             // Apply conflict resolution
-            NamedGraphMetadataMap metadata = getMetadata(uri);
+            Model metadata = getMetadata(uri);
             Iterator<Statement> sameAsLinks = getSameAsLinks().iterator();
             Set<String> preferredURIs = getSettingsPreferredURIs();
             ConflictResolver conflictResolver =
                     conflictResolverFactory.createResolver(aggregationSpec, metadata, sameAsLinks, preferredURIs);
-            Collection<CRQuad> resolvedQuads = conflictResolver.resolveConflicts(quads);
+            Collection<ResolvedStatement> resolvedQuads = conflictResolver.resolveConflicts(quads);
 
             return createResult(resolvedQuads, metadata, uri, System.currentTimeMillis() - startTime);
         } catch (ConflictResolutionException e) {
@@ -172,8 +172,8 @@ import java.util.Set;
      * @return query result holder
      */
     private BasicQueryResult createResult(
-            Collection<CRQuad> resultQuads,
-            NamedGraphMetadataMap metadata,
+            Collection<ResolvedStatement> resultQuads,
+            Model metadata,
             String query,
             long executionTime) {
 
@@ -202,7 +202,7 @@ import java.util.Set;
      * @return metadata of result named graphs
      * @throws DatabaseException query error
      */
-    private NamedGraphMetadataMap getMetadata(String namedGraphURI) throws DatabaseException {
+    private Model getMetadata(String namedGraphURI) throws DatabaseException {
         String query = String.format(Locale.ROOT, METADATA_QUERY, namedGraphURI,
                 getGraphPrefixFilter("resGraph"), maxLimit);
         return getMetadataFromQuery(query, "getMetadata()");
