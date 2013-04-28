@@ -95,7 +95,7 @@ public class DebugFormatter extends ResultFormatterBase {
     
     private void writeMetadata(Writer writer, Model metadata) throws IOException {
         for (Resource namedGraph : metadata.subjects()) {
-            Model sources = metadata.filter(namedGraph, METADATA_SCORE_PROPERTY, null);
+            Model sources = metadata.filter(namedGraph, METADATA_SOURCE_PROPERTY, null);
             if (!sources.isEmpty()) {
                 writer.write("\tSource: ");
                 writer.write(formatObjects(sources));

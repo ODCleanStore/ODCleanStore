@@ -357,17 +357,18 @@ import java.util.regex.Pattern;
      * Creates a new instance of KeywordQueryExecutor.
      * @param connectionCredentials connection settings for the SPARQL endpoint that will be queried
      * @param constraints constraints on triples returned in the result
-     * @param conflictResolutionPolicy aggregation settings for conflict resolution;
-     *        property names must not contain prefixed names
+     * @param conflictResolutionPolicy conflict resolution strategies for conflict resolution;
+     * @param defaultResolutionPolicy default conflict resolution strategies defined by administrator
      * @param resolutionFunctionRegistry factory for resolution functions
      * @param labelPropertiesList list of label properties formatted as a string for use in a query
      * @param globalConfig global conflict resolution settings
      */
     public KeywordQueryExecutor(JDBCConnectionCredentials connectionCredentials, QueryConstraintSpec constraints,
-            ConflictResolutionPolicy conflictResolutionPolicy, ResolutionFunctionRegistry resolutionFunctionRegistry,
-            String labelPropertiesList,  QueryExecutionConfig globalConfig) {
-        super(connectionCredentials, constraints, conflictResolutionPolicy, resolutionFunctionRegistry,
-                labelPropertiesList, globalConfig);
+            ConflictResolutionPolicy conflictResolutionPolicy, ConflictResolutionPolicy defaultResolutionPolicy,
+            ResolutionFunctionRegistry resolutionFunctionRegistry, String labelPropertiesList,
+            QueryExecutionConfig globalConfig) {
+        super(connectionCredentials, constraints, conflictResolutionPolicy, defaultResolutionPolicy,
+                resolutionFunctionRegistry, labelPropertiesList, globalConfig);
     }
 
     /**
@@ -411,8 +412,7 @@ import java.util.regex.Pattern;
             Model metadata = getMetadata(containsMatchExpr, exactMatchExpr);
             Iterator<Statement> sameAsLinks = getSameAsLinks().iterator();
             Set<String> preferredURIs = getSettingsPreferredURIs();
-            ConflictResolver conflictResolver = createConflictResolver(
-                    conflictResolutionPolicy, metadata, sameAsLinks, preferredURIs);
+            ConflictResolver conflictResolver = createConflictResolver(metadata, sameAsLinks, preferredURIs);
             Collection<ResolvedStatement> resolvedQuads = conflictResolver.resolveConflicts(quads);
 
             return createResult(resolvedQuads, metadata, canonicalQuery, System.currentTimeMillis() - startTime);
@@ -519,6 +519,9 @@ import java.util.regex.Pattern;
         long startTime = System.currentTimeMillis();
         Collection<Statement> sameAsTriples = new ArrayList<Statement>();
         for (URI property : conflictResolutionPolicy.getPropertyResolutionStrategies().keySet()) {
+            addSameAsLinksForURI(property.stringValue(), sameAsTriples);
+        }
+        for (URI property : defaultResolutionPolicy.getPropertyResolutionStrategies().keySet()) {
             addSameAsLinksForURI(property.stringValue(), sameAsTriples);
         }
         LOG.debug("Query Execution: {} in {} ms", "getSameAsLinks()", System.currentTimeMillis() - startTime);

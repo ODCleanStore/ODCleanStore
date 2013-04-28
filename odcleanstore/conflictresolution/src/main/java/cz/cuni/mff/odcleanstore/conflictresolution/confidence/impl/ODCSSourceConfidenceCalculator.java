@@ -56,7 +56,7 @@ public class ODCSSourceConfidenceCalculator implements SourceConfidenceCalculato
         }
     }
     
-    private double getAveragePublisherScore(Model metadata, Resource source) {
+    private Double getAveragePublisherScore(Model metadata, Resource source) {
         double averageScore = 0;
         int publishersCount = 0;
         

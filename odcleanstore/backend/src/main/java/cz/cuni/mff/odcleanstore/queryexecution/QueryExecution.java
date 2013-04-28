@@ -5,12 +5,9 @@ import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolutionPolicy;
 import cz.cuni.mff.odcleanstore.conflictresolution.DistanceMeasure;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunctionRegistry;
-import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.confidence.SourceConfidenceCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.confidence.impl.ODCSSourceConfidenceCalculator;
-import cz.cuni.mff.odcleanstore.conflictresolution.impl.ConflictResolutionPolicyImpl;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.DistanceMeasureImpl;
-import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.CRUtils;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.queryexecution.impl.DefaultAggregationConfigurationCache;
 import cz.cuni.mff.odcleanstore.queryexecution.impl.LabelPropertiesListCache;
@@ -18,14 +15,8 @@ import cz.cuni.mff.odcleanstore.queryexecution.impl.PrefixMappingCache;
 import cz.cuni.mff.odcleanstore.shared.ODCSErrorCodes;
 import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 
-import org.openrdf.model.URI;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * Access point (facade) of the Query Execution component.
@@ -102,7 +93,8 @@ public class QueryExecution {
         KeywordQueryExecutor queryExecutor = new KeywordQueryExecutor(
                 connectionCredentials,
                 constraints,
-                getMergedConflictResolutionPolicy(conflictResolutionPolicy),
+                conflictResolutionPolicy,
+                expandedDefaultConfigurationCache.getCachedValue(),
                 resolutionFunctionRegistry,
                 labelPropertiesListCache.getCachedValue(),
                 globalConfig.getQueryExecutionGroup());
@@ -136,7 +128,8 @@ public class QueryExecution {
         UriQueryExecutor queryExecutor = new UriQueryExecutor(
                 connectionCredentials,
                 constraints,
-                getMergedConflictResolutionPolicy(conflictResolutionPolicy),
+                conflictResolutionPolicy,
+                expandedDefaultConfigurationCache.getCachedValue(),
                 resolutionFunctionRegistry,
                 labelPropertiesListCache.getCachedValue(),
                 globalConfig.getQueryExecutionGroup());
@@ -170,7 +163,8 @@ public class QueryExecution {
         NamedGraphQueryExecutor queryExecutor = new NamedGraphQueryExecutor(
                 connectionCredentials,
                 constraints,
-                getMergedConflictResolutionPolicy(conflictResolutionPolicy),
+                conflictResolutionPolicy,
+                expandedDefaultConfigurationCache.getCachedValue(),
                 resolutionFunctionRegistry,
                 labelPropertiesListCache.getCachedValue(),
                 globalConfig.getQueryExecutionGroup());
@@ -204,30 +198,6 @@ public class QueryExecution {
                 labelPropertiesListCache.getCachedValue(),
                 globalConfig.getQueryExecutionGroup());
         return queryExecutor.getMetadata(expandedNamedGraphURI);
-    }
-
-    private ConflictResolutionPolicy getMergedConflictResolutionPolicy(ConflictResolutionPolicy conflictResolutionPolicy)
-            throws QueryExecutionException {
-        ConflictResolutionPolicy defaultResolutionPolicy = expandedDefaultConfigurationCache.getCachedValue();
-        return mergePolicies(conflictResolutionPolicy, defaultResolutionPolicy);
-    }
-
-    private ConflictResolutionPolicy mergePolicies(ConflictResolutionPolicy conflictResolutionPolicy,
-            ConflictResolutionPolicy defaultResolutionPolicy) {
-        ResolutionStrategy mergedDefaultStrategy = CRUtils.mergeresolutionStrategies(
-                conflictResolutionPolicy.getDefaultResolutionStrategy(),
-                defaultResolutionPolicy.getDefaultResolutionStrategy());
-
-        Map<URI, ResolutionStrategy> mergedPropertyStrategies = new HashMap<URI, ResolutionStrategy>(
-                conflictResolutionPolicy.getPropertyResolutionStrategies());
-        for (Entry<URI, ResolutionStrategy> entry : defaultResolutionPolicy.getPropertyResolutionStrategies().entrySet()) {
-            ResolutionStrategy mergedStrategy = CRUtils.mergeresolutionStrategies(
-                    mergedPropertyStrategies.get(entry.getKey()),
-                    entry.getValue());
-            mergedPropertyStrategies.put(entry.getKey(), mergedStrategy);
-        }
-
-        return new ConflictResolutionPolicyImpl(mergedDefaultStrategy, mergedPropertyStrategies);
     }
 
     /**

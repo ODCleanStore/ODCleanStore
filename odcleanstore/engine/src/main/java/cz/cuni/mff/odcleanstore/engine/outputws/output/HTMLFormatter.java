@@ -237,7 +237,7 @@ public class HTMLFormatter extends ResultFormatterBase {
                         getPrefixedURI(namedGraph.stringValue()),
                         "Metadata query");
                 writer.write("</td><td>");
-                Model sources = metadata.filter(namedGraph, METADATA_SCORE_PROPERTY, null);
+                Model sources = metadata.filter(namedGraph, METADATA_SOURCE_PROPERTY, null);
                 if (!sources.isEmpty()) {
                     boolean isFirst = true;
                     for (Statement statement : sources) {

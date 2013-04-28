@@ -5,6 +5,9 @@ import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolutionPolicy;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunctionRegistry;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionStrategy;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.ConflictResolutionPolicyImpl;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.CRUtils;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
@@ -43,9 +46,12 @@ import virtuoso.sesame2.driver.VirtuosoRepository;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -257,6 +263,9 @@ import java.util.Set;
     /** Conflict resolution strategies for conflict resolution. */
     protected final ConflictResolutionPolicy conflictResolutionPolicy;
 
+    /** Default conflict resolution strategies defined by administrator. */
+    protected final ConflictResolutionPolicy defaultResolutionPolicy;
+
     /** Maximum number of triples returned by each database query (the overall result size may be larger). */
     protected final Long maxLimit;
 
@@ -268,7 +277,8 @@ import java.util.Set;
      * @param connectionCredentials connection settings for the SPARQL endpoint that will be queried
      * @param constraints constraints on triples returned in the result
      * @param conflictResolutionPolicy conflict resolution strategies for conflict resolution;
-     *        property names must not contain prefixed names
+     * @param defaultResolutionPolicy default conflict resolution strategies defined by administrator
+     * @param defaultResolutionPolicy
      * @param resolutionFunctionRegistry factory for resolution functions
      * @param labelPropertiesList list of label properties formatted as a string for use in a query
      * @param globalConfig global conflict resolution settings;
@@ -281,11 +291,13 @@ import java.util.Set;
      *        </dl>
      */
     protected QueryExecutorBase(JDBCConnectionCredentials connectionCredentials, QueryConstraintSpec constraints,
-            ConflictResolutionPolicy conflictResolutionPolicy, ResolutionFunctionRegistry resolutionFunctionRegistry,
-            String labelPropertiesList, QueryExecutionConfig globalConfig) {
+            ConflictResolutionPolicy conflictResolutionPolicy, ConflictResolutionPolicy defaultResolutionPolicy,
+            ResolutionFunctionRegistry resolutionFunctionRegistry, String labelPropertiesList,
+            QueryExecutionConfig globalConfig) {
         this.connectionCredentials = connectionCredentials;
         this.constraints = constraints;
         this.conflictResolutionPolicy = conflictResolutionPolicy;
+        this.defaultResolutionPolicy = defaultResolutionPolicy;
         this.globalConfig = globalConfig;
         this.maxLimit = globalConfig.getMaxQueryResultSize();
         this.labelPropertiesList = labelPropertiesList;
@@ -555,19 +567,18 @@ import java.util.Set;
 
     /**
      * Creates a new instance of ConflictResolver using the correct default settings.
-     * @param conflictResolutionPolicy conflict resolution strategies
      * @param metadata metadata model
      * @param sameAsLinks statements with owl:sameAs as predicate
      * @param preferredURIs URIs preferred as canonical URIs
      * @return a new ConflictResolver instance
      */
-    protected ConflictResolver createConflictResolver(ConflictResolutionPolicy conflictResolutionPolicy,
+    protected ConflictResolver createConflictResolver(
             Model metadata, Iterator<Statement> sameAsLinks, Set<String> preferredURIs) {
         String resultGraphPrefix =
                 globalConfig.getResultDataURIPrefix().toString() + ODCSInternal.queryResultGraphUriInfix;
         return ConflictResolverFactory.configure()
                 .setResolutionFunctionRegistry(resolutionFunctionRegistry)
-                .setConflictResolutionPolicy(conflictResolutionPolicy)
+                .setConflictResolutionPolicy(mergePolicies(conflictResolutionPolicy, defaultResolutionPolicy))
                 .setResolvedGraphsURIPrefix(resultGraphPrefix)
                 .setMetadata(metadata)
                 .setPreferredCanonicalURIs(preferredURIs)
@@ -586,6 +597,24 @@ import java.util.Set;
             preferredURIs.add(uri.stringValue());
         }
         return preferredURIs;
+    }
+
+    private static ConflictResolutionPolicy mergePolicies(ConflictResolutionPolicy conflictResolutionPolicy,
+            ConflictResolutionPolicy defaultResolutionPolicy) {
+        ResolutionStrategy mergedDefaultStrategy = CRUtils.mergeresolutionStrategies(
+                conflictResolutionPolicy.getDefaultResolutionStrategy(),
+                defaultResolutionPolicy.getDefaultResolutionStrategy());
+
+        Map<URI, ResolutionStrategy> mergedPropertyStrategies = new HashMap<URI, ResolutionStrategy>(
+                conflictResolutionPolicy.getPropertyResolutionStrategies());
+        for (Entry<URI, ResolutionStrategy> entry : defaultResolutionPolicy.getPropertyResolutionStrategies().entrySet()) {
+            ResolutionStrategy mergedStrategy = CRUtils.mergeresolutionStrategies(
+                    mergedPropertyStrategies.get(entry.getKey()),
+                    entry.getValue());
+            mergedPropertyStrategies.put(entry.getKey(), mergedStrategy);
+        }
+
+        return new ConflictResolutionPolicyImpl(mergedDefaultStrategy, mergedPropertyStrategies);
     }
 
     private void closeResultSetQuietly(QueryResult<?> resultSet) {

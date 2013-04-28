@@ -197,16 +197,18 @@ import java.util.Set;
      * Creates a new instance of UriQueryExecutor.
      * @param connectionCredentials connection settings for the SPARQL endpoint that will be queried
      * @param constraints constraints on triples returned in the result
-     * @param conflictResolutionPolicy conflict resolution policies
+     * @param conflictResolutionPolicy conflict resolution strategies for conflict resolution;
+     * @param defaultResolutionPolicy default conflict resolution strategies defined by administrator
      * @param resolutionFunctionRegistry factory for resolution functions
      * @param labelPropertiesList list of label properties formatted as a string for use in a query
      * @param globalConfig global conflict resolution settings
      */
     public UriQueryExecutor(JDBCConnectionCredentials connectionCredentials, QueryConstraintSpec constraints,
-            ConflictResolutionPolicy conflictResolutionPolicy, ResolutionFunctionRegistry resolutionFunctionRegistry,
-            String labelPropertiesList, QueryExecutionConfig globalConfig) {
-        super(connectionCredentials, constraints, conflictResolutionPolicy, resolutionFunctionRegistry,
-                labelPropertiesList, globalConfig);
+            ConflictResolutionPolicy conflictResolutionPolicy, ConflictResolutionPolicy defaultResolutionPolicy,
+            ResolutionFunctionRegistry resolutionFunctionRegistry, String labelPropertiesList,
+            QueryExecutionConfig globalConfig) {
+        super(connectionCredentials, constraints, conflictResolutionPolicy, defaultResolutionPolicy,
+                resolutionFunctionRegistry, labelPropertiesList, globalConfig);
     }
 
     /**
@@ -245,8 +247,7 @@ import java.util.Set;
             Iterator<Statement> sameAsLinks = getSameAsLinks(uri).iterator();
             Set<String> preferredURIs = getSettingsPreferredURIs();
             preferredURIs.add(uri);
-            ConflictResolver conflictResolver = createConflictResolver(
-                    conflictResolutionPolicy, metadata, sameAsLinks, preferredURIs);
+            ConflictResolver conflictResolver = createConflictResolver(metadata, sameAsLinks, preferredURIs);
             Collection<ResolvedStatement> resolvedQuads = conflictResolver.resolveConflicts(quads);
 
             return createResult(resolvedQuads, metadata, uri, System.currentTimeMillis() - startTime);
@@ -362,6 +363,9 @@ import java.util.Set;
         Collection<Statement> sameAsTriples = new ArrayList<Statement>();
         addSameAsLinksForURI(uri, sameAsTriples);
         for (URI property : conflictResolutionPolicy.getPropertyResolutionStrategies().keySet()) {
+            addSameAsLinksForURI(property.stringValue(), sameAsTriples);
+        }
+        for (URI property : defaultResolutionPolicy.getPropertyResolutionStrategies().keySet()) {
             addSameAsLinksForURI(property.stringValue(), sameAsTriples);
         }
         LOG.debug("Query Execution: getSameAsLinks() in {} ms ({} links)",

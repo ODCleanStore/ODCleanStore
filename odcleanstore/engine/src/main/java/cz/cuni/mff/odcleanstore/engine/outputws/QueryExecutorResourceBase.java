@@ -243,7 +243,7 @@ public abstract class QueryExecutorResourceBase extends ServerResource {
                 String property = param.substring(PROPERTY_MULTIVALUE_PARAM.length(), param.length() - 1);
                 String multivalueString = valuesMap.get(param);
                 if (!ODCSUtils.isNullOrEmpty(multivalueString) && !property.isEmpty()) {
-                    EnumCardinality cardinality = TRUE_LITERAL.equals(defaultMultivalue)
+                    EnumCardinality cardinality = TRUE_LITERAL.equals(multivalueString)
                             ? EnumCardinality.MULTIVALUE : EnumCardinality.SINGLEVALUE;
                     getOrCreateStrategy(property, propertyStrategies).setCardinality(cardinality);
                 }

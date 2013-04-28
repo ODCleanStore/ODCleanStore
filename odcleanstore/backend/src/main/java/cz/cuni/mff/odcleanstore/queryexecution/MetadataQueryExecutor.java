@@ -92,7 +92,7 @@ import java.util.Locale;
             String labelPropertiesList, QueryExecutionConfig globalConfig) {
 
         super(connectionCredentials, EMPTY_QUERY_CONSTRAINT_SPEC, EMPTY_CONFLICT_RESOLUTION_POLICY,
-                resolutionFunctionRegistry, labelPropertiesList, globalConfig);
+                EMPTY_CONFLICT_RESOLUTION_POLICY, resolutionFunctionRegistry, labelPropertiesList, globalConfig);
     }
 
     /**
