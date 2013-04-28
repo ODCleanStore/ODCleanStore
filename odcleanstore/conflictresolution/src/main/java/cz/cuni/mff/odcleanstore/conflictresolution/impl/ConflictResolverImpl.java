@@ -27,8 +27,10 @@ import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatementFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.URIMapping;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
+import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ResolutionFunctionNotRegisteredException;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.EmptyMetadataModel;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.GrowingArray;
+import cz.cuni.mff.odcleanstore.conflictresolution.resolution.AllResolution;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 
 /**
@@ -42,7 +44,7 @@ public class ConflictResolverImpl implements ConflictResolver {
 
     private static final String DEFAULT_RESOLVED_GRAPHS_URI_PREFIX = ODCS.getURI() + "CR/";
     private static final ResolutionStrategy DEFAULT_RESOLUTION_STRATEGY = new ResolutionStrategyImpl(
-            "ALL", // TODO - constants
+            AllResolution.getName(),
             EnumCardinality.MULTIVALUE,
             EnumAggregationErrorStrategy.RETURN_ALL);
     private static final int EXPECTED_REDUCTION_FACTOR = 3;
@@ -132,7 +134,7 @@ public class ConflictResolverImpl implements ConflictResolver {
         return resolveConflictsInternal(statements.toArray(new Statement[0]));
     }
 
-    protected Collection<ResolvedStatement> resolveConflictsInternal(Statement[] statements) { // TODO: throws?
+    protected Collection<ResolvedStatement> resolveConflictsInternal(Statement[] statements) throws ConflictResolutionException {
         LOG.debug("Resolving conflicts among {} quads.", statements.length);
         long startTime = System.currentTimeMillis();
 
@@ -197,7 +199,7 @@ public class ConflictResolverImpl implements ConflictResolver {
         return new ArrayList<ResolvedStatement>(inputSize / EXPECTED_REDUCTION_FACTOR);
     }
 
-    private ResolutionFunction getResolutionFunction(ResolutionStrategy resolutionStrategy) {
+    private ResolutionFunction getResolutionFunction(ResolutionStrategy resolutionStrategy) throws ResolutionFunctionNotRegisteredException {
         return resolutionFunctionRegistry.get(resolutionStrategy.getResolutionFunctionName());
     }
 

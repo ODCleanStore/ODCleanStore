@@ -4,6 +4,4 @@ public enum EnumCardinality {
     MULTIVALUE,
 
     SINGLEVALUE
-    
-    // TODO: SET in future?
 }

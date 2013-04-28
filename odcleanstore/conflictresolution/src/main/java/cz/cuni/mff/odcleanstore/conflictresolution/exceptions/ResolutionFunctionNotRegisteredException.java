@@ -7,7 +7,7 @@ package cz.cuni.mff.odcleanstore.conflictresolution.exceptions;
  *
  * @author Jan Michelfeit
  */
-public class ResolutionFunctionNotRegisteredException extends RuntimeException {
+public class ResolutionFunctionNotRegisteredException extends ConflictResolutionException {
     private static final long serialVersionUID = 1L;
     
     private final String resolutionFunctionName;
