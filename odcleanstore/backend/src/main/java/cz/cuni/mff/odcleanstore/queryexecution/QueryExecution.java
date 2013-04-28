@@ -1,9 +1,15 @@
 package cz.cuni.mff.odcleanstore.queryexecution;
 
 import cz.cuni.mff.odcleanstore.configuration.Config;
+import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolutionPolicy;
+import cz.cuni.mff.odcleanstore.conflictresolution.DistanceMeasure;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunctionRegistry;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionStrategy;
+import cz.cuni.mff.odcleanstore.conflictresolution.confidence.SourceConfidenceCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.confidence.impl.ODCSSourceConfidenceCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.ConflictResolutionPolicyImpl;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.DistanceMeasureImpl;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.CRUtils;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.queryexecution.impl.DefaultAggregationConfigurationCache;
@@ -48,6 +54,9 @@ public class QueryExecution {
     /** Properties designating a human-readable label formatted to a string for use in a SPARQL query, with caching. */
     protected LabelPropertiesListCache labelPropertiesListCache;
 
+    private final ResolutionFunctionRegistry resolutionFunctionRegistry;
+
+
     /**
      * Container for QE & CR configuration loaded from the global configuration file.
      */
@@ -66,6 +75,7 @@ public class QueryExecution {
         this.labelPropertiesListCache = new LabelPropertiesListCache(connectionCredentials, prefixMappingCache);
         this.expandedDefaultConfigurationCache =
                 new DefaultAggregationConfigurationCache(connectionCredentials, prefixMappingCache);
+        this.resolutionFunctionRegistry = createResolutionFunctionRegistry(globalConfig.getConflictResolutionGroup());
     }
 
     /**
@@ -93,6 +103,7 @@ public class QueryExecution {
                 connectionCredentials,
                 constraints,
                 getMergedConflictResolutionPolicy(conflictResolutionPolicy),
+                resolutionFunctionRegistry,
                 labelPropertiesListCache.getCachedValue(),
                 globalConfig.getQueryExecutionGroup());
         return queryExecutor.findKeyword(keywords);
@@ -126,6 +137,7 @@ public class QueryExecution {
                 connectionCredentials,
                 constraints,
                 getMergedConflictResolutionPolicy(conflictResolutionPolicy),
+                resolutionFunctionRegistry,
                 labelPropertiesListCache.getCachedValue(),
                 globalConfig.getQueryExecutionGroup());
         return queryExecutor.findURI(expandedURI);
@@ -159,6 +171,7 @@ public class QueryExecution {
                 connectionCredentials,
                 constraints,
                 getMergedConflictResolutionPolicy(conflictResolutionPolicy),
+                resolutionFunctionRegistry,
                 labelPropertiesListCache.getCachedValue(),
                 globalConfig.getQueryExecutionGroup());
         return queryExecutor.getNamedGraph(expandedURI);
@@ -187,6 +200,7 @@ public class QueryExecution {
                 : trimmedURI;
         MetadataQueryExecutor queryExecutor = new MetadataQueryExecutor(
                 connectionCredentials,
+                resolutionFunctionRegistry,
                 labelPropertiesListCache.getCachedValue(),
                 globalConfig.getQueryExecutionGroup());
         return queryExecutor.getMetadata(expandedNamedGraphURI);
@@ -214,5 +228,23 @@ public class QueryExecution {
         }
 
         return new ConflictResolutionPolicyImpl(mergedDefaultStrategy, mergedPropertyStrategies);
+    }
+
+    /**
+     * Returns factory for for conflict resolution functions.
+     * @return resolution function registry initialized with default resolutions functions according to CR configuration.
+     */
+    private static ResolutionFunctionRegistry createResolutionFunctionRegistry(ConflictResolutionConfig crConfig) {
+        DistanceMeasure distanceMeasure = new DistanceMeasureImpl(crConfig.getMaxDateDifference());
+        double publisherScoreWeight = crConfig.getPublisherScoreWeight()
+                / (crConfig.getPublisherScoreWeight() + crConfig.getNamedGraphScoreWeight());
+        SourceConfidenceCalculator sourceConfidenceCalculator = new ODCSSourceConfidenceCalculator(
+                crConfig.getScoreIfUnknown(),
+                publisherScoreWeight);
+        ResolutionFunctionRegistry registry = ResolutionFunctionRegistry.createInitializedWithParams(
+                sourceConfidenceCalculator,
+                crConfig.getAgreeCoeficient(),
+                distanceMeasure);
+        return registry;
     }
 }

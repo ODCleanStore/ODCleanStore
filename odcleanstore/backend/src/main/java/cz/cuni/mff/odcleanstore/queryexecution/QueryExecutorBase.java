@@ -4,6 +4,7 @@ import cz.cuni.mff.odcleanstore.configuration.QueryExecutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolutionPolicy;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunctionRegistry;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
@@ -259,12 +260,16 @@ import java.util.Set;
     /** Maximum number of triples returned by each database query (the overall result size may be larger). */
     protected final Long maxLimit;
 
+    /** Factory for resolution functions. */
+    private final ResolutionFunctionRegistry resolutionFunctionRegistry;
+
     /**
      * Creates a new instance of QueryExecutorBase.
      * @param connectionCredentials connection settings for the SPARQL endpoint that will be queried
      * @param constraints constraints on triples returned in the result
      * @param conflictResolutionPolicy conflict resolution strategies for conflict resolution;
      *        property names must not contain prefixed names
+     * @param resolutionFunctionRegistry factory for resolution functions
      * @param labelPropertiesList list of label properties formatted as a string for use in a query
      * @param globalConfig global conflict resolution settings;
      *        values needed in globalConfig are the following:
@@ -276,14 +281,15 @@ import java.util.Set;
      *        </dl>
      */
     protected QueryExecutorBase(JDBCConnectionCredentials connectionCredentials, QueryConstraintSpec constraints,
-            ConflictResolutionPolicy conflictResolutionPolicy, String labelPropertiesList,
-            QueryExecutionConfig globalConfig) {
+            ConflictResolutionPolicy conflictResolutionPolicy, ResolutionFunctionRegistry resolutionFunctionRegistry,
+            String labelPropertiesList, QueryExecutionConfig globalConfig) {
         this.connectionCredentials = connectionCredentials;
         this.constraints = constraints;
         this.conflictResolutionPolicy = conflictResolutionPolicy;
         this.globalConfig = globalConfig;
         this.maxLimit = globalConfig.getMaxQueryResultSize();
         this.labelPropertiesList = labelPropertiesList;
+        this.resolutionFunctionRegistry = resolutionFunctionRegistry;
     }
 
     /**
@@ -560,6 +566,7 @@ import java.util.Set;
         String resultGraphPrefix =
                 globalConfig.getResultDataURIPrefix().toString() + ODCSInternal.queryResultGraphUriInfix;
         return ConflictResolverFactory.configure()
+                .setResolutionFunctionRegistry(resolutionFunctionRegistry)
                 .setConflictResolutionPolicy(conflictResolutionPolicy)
                 .setResolvedGraphsURIPrefix(resultGraphPrefix)
                 .setMetadata(metadata)

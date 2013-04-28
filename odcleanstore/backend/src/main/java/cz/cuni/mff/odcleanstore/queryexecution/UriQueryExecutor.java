@@ -3,6 +3,7 @@ package cz.cuni.mff.odcleanstore.queryexecution;
 import cz.cuni.mff.odcleanstore.configuration.QueryExecutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolutionPolicy;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunctionRegistry;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.EmptyMetadataModel;
@@ -197,13 +198,15 @@ import java.util.Set;
      * @param connectionCredentials connection settings for the SPARQL endpoint that will be queried
      * @param constraints constraints on triples returned in the result
      * @param conflictResolutionPolicy conflict resolution policies
+     * @param resolutionFunctionRegistry factory for resolution functions
      * @param labelPropertiesList list of label properties formatted as a string for use in a query
      * @param globalConfig global conflict resolution settings
      */
     public UriQueryExecutor(JDBCConnectionCredentials connectionCredentials, QueryConstraintSpec constraints,
-            ConflictResolutionPolicy conflictResolutionPolicy, String labelPropertiesList,
-            QueryExecutionConfig globalConfig) {
-        super(connectionCredentials, constraints, conflictResolutionPolicy, labelPropertiesList, globalConfig);
+            ConflictResolutionPolicy conflictResolutionPolicy, ResolutionFunctionRegistry resolutionFunctionRegistry,
+            String labelPropertiesList, QueryExecutionConfig globalConfig) {
+        super(connectionCredentials, constraints, conflictResolutionPolicy, resolutionFunctionRegistry,
+                labelPropertiesList, globalConfig);
     }
 
     /**
