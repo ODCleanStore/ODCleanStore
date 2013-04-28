@@ -16,6 +16,11 @@ import cz.cuni.mff.odcleanstore.conflictresolution.resolution.comparators.ODCSIn
  * @author Jan Michelfeit
  */
 public class ODCSLatestResolution extends BestSelectedResolutionBase<Resource> {
+    private  static final String FUNCTION_NAME = "LATEST";
+    public static String getName() {
+        return FUNCTION_NAME;
+    }
+    
     private static final BestSelectedComparator<Resource> COMPARATOR = new ODCSInsertedAtComparator();
 
     public ODCSLatestResolution(DecidingConfidenceCalculator confidenceCalculator) {

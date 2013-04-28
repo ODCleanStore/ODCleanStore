@@ -26,6 +26,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.resolution.MedianResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.MinResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.MinSourceMetadataValueResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.NoneResolution;
+import cz.cuni.mff.odcleanstore.conflictresolution.resolution.ODCSLatestResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.ShortestResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.TopNResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.VoteResolution;
@@ -88,6 +89,9 @@ public class ResolutionFunctionRegistry { // TODO interface?
         registry.register(AvgResolution.getName(), new AvgResolution(mediatingConflictConfidence));
         registry.register(ConcatResolution.getName(), new ConcatResolution(mediatingConflictConfidence));
         registry.register(MedianResolution.getName(), new MedianResolution(simpleMediatingConfidence));
+        
+        // ODCS-specific resolution functions
+        registry.register(ODCSLatestResolution.getName(), new ODCSLatestResolution(decidingConflictConfidence));
         
         return registry;
     }
