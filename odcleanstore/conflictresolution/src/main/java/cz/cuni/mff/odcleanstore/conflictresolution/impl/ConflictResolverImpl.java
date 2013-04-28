@@ -2,7 +2,6 @@ package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -17,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
+import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolutionPolicy;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
 import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.EnumCardinality;
@@ -53,8 +53,7 @@ public class ConflictResolverImpl implements ConflictResolver {
     private URIMapping uriMapping = EmptyURIMapping.getInstance();
     private ResolvedStatementFactory resolvedStatementFactory =
             new ResolvedStatementFactoryImpl(DEFAULT_RESOLVED_GRAPHS_URI_PREFIX);
-    private ResolutionStrategy defaultResolutionStrategy = DEFAULT_RESOLUTION_STRATEGY;
-    private Map<URI, ResolutionStrategy> propertyResolutionStrategy = Collections.emptyMap();
+    private ConflictResolutionPolicy conflictResolutionPolicy;
     private ResolutionFunctionRegistry resolutionFunctionRegistry;
     
     private CRContextImpl context;
@@ -69,39 +68,34 @@ public class ConflictResolverImpl implements ConflictResolver {
         this.resolutionFunctionRegistry = resolutionFunctionRegistry;
     }
 
-    public ConflictResolverImpl(ResolutionFunctionRegistry resolutionFunctionRegistry, ResolutionStrategy defaultResolutionStrategy) {
+    public ConflictResolverImpl(ResolutionFunctionRegistry resolutionFunctionRegistry, ConflictResolutionPolicy conflictResolutionPolicy) {
         this(resolutionFunctionRegistry);
-        setDefaultResolutionStrategy(defaultResolutionStrategy);
+        this.conflictResolutionPolicy = conflictResolutionPolicy;
     }
 
-    public ConflictResolverImpl(ResolutionFunctionRegistry resolutionFunctionRegistry, ResolutionStrategy defaultResolutionStrategy,
-            Map<URI, ResolutionStrategy> propertyResolutionStrategy, URIMapping uriMapping) {
-        this(resolutionFunctionRegistry, defaultResolutionStrategy);
-        this.propertyResolutionStrategy = propertyResolutionStrategy;
+    public ConflictResolverImpl(ResolutionFunctionRegistry resolutionFunctionRegistry,
+            ConflictResolutionPolicy conflictResolutionPolicy, URIMapping uriMapping) {
+        this(resolutionFunctionRegistry, conflictResolutionPolicy);
         this.uriMapping = uriMapping;
     }
 
-    public ConflictResolverImpl(ResolutionFunctionRegistry resolutionFunctionRegistry, ResolutionStrategy defaultResolutionStrategy,
-            Map<URI, ResolutionStrategy> propertyResolutionStrategy, URIMapping uriMapping, Model metadata) {
-        this(resolutionFunctionRegistry, defaultResolutionStrategy, propertyResolutionStrategy, uriMapping);
+    public ConflictResolverImpl(ResolutionFunctionRegistry resolutionFunctionRegistry, 
+            ConflictResolutionPolicy conflictResolutionPolicy, URIMapping uriMapping, Model metadata) {
+        this(resolutionFunctionRegistry, conflictResolutionPolicy, uriMapping);
         this.metadata = metadata;
     }
 
-    public ConflictResolverImpl(ResolutionFunctionRegistry resolutionFunctionRegistry, ResolutionStrategy defaultResolutionStrategy,
-            Map<URI, ResolutionStrategy> propertyResolutionStrategy, URIMapping uriMapping, Model metadata,
+    public ConflictResolverImpl(ResolutionFunctionRegistry resolutionFunctionRegistry,
+            ConflictResolutionPolicy conflictResolutionPolicy, URIMapping uriMapping, Model metadata,
             String resolvedGraphsURIPrefix) {
-        this(resolutionFunctionRegistry, defaultResolutionStrategy, propertyResolutionStrategy, uriMapping, metadata);
+        this(resolutionFunctionRegistry, conflictResolutionPolicy, uriMapping, metadata);
         if (resolvedGraphsURIPrefix != null) {
             resolvedStatementFactory = new ResolvedStatementFactoryImpl(resolvedGraphsURIPrefix);
         }
     }
 
-    public void setDefaultResolutionStrategy(ResolutionStrategy newDefaultStrategy) {
-        this.defaultResolutionStrategy = fillDefaults(newDefaultStrategy, DEFAULT_RESOLUTION_STRATEGY);
-    }
-
-    public void setpropertyResolutionStrategy(Map<URI, ResolutionStrategy> propertyResolutionStrategy) {
-        this.propertyResolutionStrategy = propertyResolutionStrategy;
+    public void setConflictResolutionPolicy(ConflictResolutionPolicy conflictResolutionPolicy) {
+        this.conflictResolutionPolicy = conflictResolutionPolicy;
     }
 
     public void setURIMapping(URIMapping uriMapping) {
@@ -139,7 +133,7 @@ public class ConflictResolverImpl implements ConflictResolver {
         long startTime = System.currentTimeMillis();
 
         // Prepare effective resolution strategy based on per-predicate strategies, default strategy & uri mappings
-        Map<URI, ResolutionStrategy> effectiveStrategy = getEffectiveResolutionStrategy();
+        ConflictResolutionPolicy effectiveResolutionPolicy = getEffectiveResolutionPolicy();
         
         // Apply owl:sameAs mappings, remove duplicities, sort into clusters of conflicting quads
         ConflictClustersCollection conflictClusters = new ConflictClustersCollection(statements, uriMapping,
@@ -150,9 +144,10 @@ public class ConflictResolverImpl implements ConflictResolver {
         Collection<ResolvedStatement> result = createResultCollection(conflictClusters.size());
         for (List<Statement> conflictCluster : conflictClusters) {
             // Get resolution strategy
-            ResolutionStrategy resolutionStrategy = effectiveStrategy.get(getPredicate(conflictCluster));
+            URI predicate = getPredicate(conflictCluster);
+            ResolutionStrategy resolutionStrategy = effectiveResolutionPolicy.getPropertyResolutionStrategies().get(predicate);
             if (resolutionStrategy == null) {
-                resolutionStrategy = defaultResolutionStrategy;
+                resolutionStrategy = effectiveResolutionPolicy.getDefaultResolutionStrategy();
             }
             
             // Prepare resolution functions & context
@@ -181,13 +176,22 @@ public class ConflictResolverImpl implements ConflictResolver {
         return context;
     }
 
-    Map<URI, ResolutionStrategy> getEffectiveResolutionStrategy() {
-        Map<URI, ResolutionStrategy> strategy = new HashMap<URI, ResolutionStrategy>();
-        for (Entry<URI, ResolutionStrategy> entry : propertyResolutionStrategy.entrySet()) {
+    ConflictResolutionPolicy getEffectiveResolutionPolicy() {
+        ConflictResolutionPolicyImpl result = new ConflictResolutionPolicyImpl();
+        
+        ResolutionStrategy effectiveDefaultStrategy = conflictResolutionPolicy.getDefaultResolutionStrategy() != null
+                ? conflictResolutionPolicy.getDefaultResolutionStrategy()
+                : DEFAULT_RESOLUTION_STRATEGY;
+        result.setDefaultResolutionStrategy(effectiveDefaultStrategy);
+        
+        Map<URI, ResolutionStrategy> effectivePropertyStrategies = new HashMap<URI, ResolutionStrategy>();
+        for (Entry<URI, ResolutionStrategy> entry : conflictResolutionPolicy.getPropertyResolutionStrategies().entrySet()) {
             URI mappedURI = uriMapping.mapURI(entry.getKey());
-            strategy.put(mappedURI, fillDefaults(entry.getValue(), defaultResolutionStrategy));
+            ResolutionStrategy strategy = fillDefaults(entry.getValue(), effectiveDefaultStrategy);
+            effectivePropertyStrategies.put(mappedURI, strategy);
         }
-        return strategy;
+        result.setPropertyResolutionStrategy(effectivePropertyStrategies);
+        return result;
     }
 
     /**

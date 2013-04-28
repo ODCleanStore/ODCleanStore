@@ -34,13 +34,13 @@ import cz.cuni.mff.odcleanstore.conflictresolution.resolution.WeightedVoteResolu
 /**
  * @author Jan Michelfeit
  */
-public class ResolutionFunctionRegistry {
+public class ResolutionFunctionRegistry { // TODO interface?
     private final Map<String, ResolutionFunction> functions = new HashMap<String, ResolutionFunction>();
 
     public ResolutionFunction get(String functionName) throws ResolutionFunctionNotRegisteredException {
         ResolutionFunction result = functions.get(functionName);
         if (result == null) {
-            throw new ResolutionFunctionNotRegisteredException(functionName); // TODO: unchecked?
+            throw new ResolutionFunctionNotRegisteredException(functionName);
         }
         return result;
     }
