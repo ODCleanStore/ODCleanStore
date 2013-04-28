@@ -161,6 +161,9 @@ public class SortedListModel extends AbstractModel implements Model {
     private Iterator<Statement> matchPattern(Resource subject, URI predicate, Value object, Resource context) {
         Statement searchStatement = createSearchStatement(subject, predicate, object, context);
         int startIndex = Collections.binarySearch(statements, searchStatement, SPOG_COMPARATOR);
+        if (startIndex < 0) {
+            startIndex = -startIndex - 1;
+        }
         return new FilterStatementIterator(startIndex, subject, predicate, object, context);
     }
     

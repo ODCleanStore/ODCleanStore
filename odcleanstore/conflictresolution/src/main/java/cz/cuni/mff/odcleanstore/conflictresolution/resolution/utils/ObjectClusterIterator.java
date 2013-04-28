@@ -25,7 +25,7 @@ public class ObjectClusterIterator implements Iterator<Statement> {
     
     public ObjectClusterIterator(Iterable<Statement> sortedStatements) {
         this.statementIt = sortedStatements.iterator();
-        this.statementIt = sortedStatements.iterator();
+        this.clusterStartIt = sortedStatements.iterator();
     }
     
     public Collection<Resource> peekSources() {

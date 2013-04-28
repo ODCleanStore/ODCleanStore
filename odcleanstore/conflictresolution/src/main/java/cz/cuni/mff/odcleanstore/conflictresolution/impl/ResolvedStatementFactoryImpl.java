@@ -10,6 +10,7 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.ValueFactoryImpl;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatementFactory;
@@ -20,8 +21,7 @@ import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
  * @author Jan Michelfeit
  */
 public class ResolvedStatementFactoryImpl implements ResolvedStatementFactory {
-    
-    private ValueFactory valueFactory;
+    private static ValueFactory VALUE_FACTORY = ValueFactoryImpl.getInstance(); 
     
     private final UniqueURIGenerator uriGenerator;
     
@@ -31,14 +31,14 @@ public class ResolvedStatementFactoryImpl implements ResolvedStatementFactory {
 
     @Override
     public ResolvedStatement create(Resource subject, URI predicate, Value object, double confidence, Collection<Resource> sourceGraphNames) {
-        URI context = valueFactory.createURI(uriGenerator.nextURI());
-        Statement statement = valueFactory.createStatement(subject, predicate, object, context);
+        URI context = VALUE_FACTORY.createURI(uriGenerator.nextURI());
+        Statement statement = VALUE_FACTORY.createStatement(subject, predicate, object, context);
         return new ResolvedStatementImpl(statement, confidence, sourceGraphNames);
     }
     
     @Override
     public ValueFactory getValueFactory() {
-        return valueFactory;
+        return VALUE_FACTORY;
     }
 
 }

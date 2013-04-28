@@ -201,7 +201,7 @@ public class ConflictClustersCollection extends AbstractCollection<List<Statemen
                     break;
                 }
             }
-            return new SubList(fromIndex, cursor + 1);
+            return new SubList(fromIndex, cursor);
         }
 
         private boolean hasNextStatement() {
