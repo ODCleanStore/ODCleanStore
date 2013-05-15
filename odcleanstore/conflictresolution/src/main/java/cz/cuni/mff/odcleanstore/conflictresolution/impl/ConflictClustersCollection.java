@@ -71,7 +71,8 @@ public class ConflictClustersCollection extends AbstractCollection<List<Statemen
     private void initialize() {
         if (!isInitialized) {
             applyUriMapping();
-            sortAndMakeUnique();
+            sort();
+            makeUnique();
             isInitialized = true;
         }
     }
@@ -115,11 +116,12 @@ public class ConflictClustersCollection extends AbstractCollection<List<Statemen
         }
         return value;
     }
-
-    private void sortAndMakeUnique() {
+    
+    private void sort() {
         Arrays.sort(statements, ORDER_COMPARATOR);
-
-        // Copy the sorted array to the original list, leaving out duplicates
+    }
+    
+    private void makeUnique() {
         int lastIdx = 0;
         for (int currIdx = 1; currIdx < statements.length; currIdx++) { // intentionally start from 1
             Statement previous = statements[lastIdx];

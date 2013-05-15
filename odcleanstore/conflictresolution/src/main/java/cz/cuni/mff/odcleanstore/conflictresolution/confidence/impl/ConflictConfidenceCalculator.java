@@ -54,11 +54,6 @@ public abstract class ConflictConfidenceCalculator implements ConfidenceCalculat
          
          double resultConfidence = valueConfidence;
 
-         // Usually, the quality is positive, skip the check
-         // if (resultQuality == 0) {
-         // return resultQuality; // BUNO
-         // }
-
          // Consider conflicting values
          if (context.getResolutionStrategy().getCardinality() == EnumCardinality.SINGLEVALUE 
                  && conflictingStatements.size() > 1) {

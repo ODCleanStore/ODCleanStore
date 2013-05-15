@@ -28,6 +28,13 @@ public class ConflictResolverFactory {
         return new ConflictResolverImpl();
     }
 
+    public static ConflictResolver create(ResolutionFunctionRegistry resolutionFunctionRegistry,
+            ConflictResolutionPolicy conflictResolutionPolicy, URIMapping uriMapping, Model metadata,
+            String resolvedGraphsURIPrefix) {
+        return new ConflictResolverImpl(resolutionFunctionRegistry, conflictResolutionPolicy, uriMapping,
+                metadata, resolvedGraphsURIPrefix);
+    }
+
     public static ConflictResolverBuilder configure() {
         return new ConflictResolverBuilder();
     }
@@ -41,7 +48,7 @@ public class ConflictResolverFactory {
             this.uri2 = uri2;
         }
     }
-    
+
     public static class ConflictResolverBuilder {
         private ConflictResolutionPolicy conflictResolutionPolicy = new ConflictResolutionPolicyImpl();
         private Set<String> preferredURIs = Collections.emptySet();
@@ -63,7 +70,7 @@ public class ConflictResolverFactory {
         private ResolutionFunctionRegistry getActualResolutionFunctionRegistry() {
             return resolutionFunctionRegistry != null
                     ? resolutionFunctionRegistry
-                    : ResolutionFunctionRegistry.createInitialized(); 
+                    : ResolutionFunctionRegistry.createInitialized();
         }
 
         private URIMapping getActualURIMapping() {
@@ -81,21 +88,21 @@ public class ConflictResolverFactory {
             this.conflictResolutionPolicy = conflictResolutionPolicy;
             return this;
         }
-        
+
         public ConflictResolverBuilder setDefaultResolutionStrategy(ResolutionStrategy resolutionStrategy) {
             this.conflictResolutionPolicy = new ConflictResolutionPolicyImpl(
                     resolutionStrategy,
                     conflictResolutionPolicy.getPropertyResolutionStrategies());
             return this;
         }
-        
+
         public ConflictResolverBuilder setPropertyResolutionStrategies(Map<URI, ResolutionStrategy> propertyResolutionStrategies) {
             this.conflictResolutionPolicy = new ConflictResolutionPolicyImpl(
                     conflictResolutionPolicy.getDefaultResolutionStrategy(),
                     propertyResolutionStrategies);
             return this;
         }
-        
+
         public ConflictResolverBuilder setURIMapping(URIMapping uriMapping) {
             if (!sameAsLinks.isEmpty()) {
                 throw new IllegalStateException("Cannot set URIMapping after addSameAsLink() was called");
@@ -103,12 +110,12 @@ public class ConflictResolverFactory {
             this.uriMapping = uriMapping;
             return this;
         }
-        
+
         public ConflictResolverBuilder setPreferredCanonicalURIs(Set<String> preferredURIs) {
             this.preferredURIs = preferredURIs;
             return this;
         }
-        
+
         public ConflictResolverBuilder addSameAsLinks(Iterator<Statement> sameAsLinks) {
             if (uriMapping != null) {
                 throw new IllegalStateException("Cannot add more owl:sameAs links after setURIMapping() was called");
@@ -134,22 +141,22 @@ public class ConflictResolverFactory {
             sameAsLinks.add(new URIPair(uri1, uri2));
             return this;
         }
-        
+
         public ConflictResolverBuilder addLink(URI uri1, URI uri2) {
             sameAsLinks.add(new URIPair(uri1.stringValue(), uri2.stringValue()));
             return this;
         }
-        
+
         public ConflictResolverBuilder setMetadata(Model metadata) {
             this.metadata = metadata;
             return this;
         }
-        
+
         public ConflictResolverBuilder setResolvedGraphsURIPrefix(String prefix) {
             this.resolvedGraphsURIPrefix = prefix;
             return this;
         }
-        
+
         public ConflictResolverBuilder setResolutionFunctionRegistry(ResolutionFunctionRegistry registry) {
             this.resolutionFunctionRegistry = registry;
             return this;
