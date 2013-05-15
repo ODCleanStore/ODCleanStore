@@ -28,6 +28,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.resolution.MinSourceMetadataV
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.NoneResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.ODCSLatestResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.ShortestResolution;
+import cz.cuni.mff.odcleanstore.conflictresolution.resolution.SumResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.TopNResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.VoteResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.WeightedVoteResolution;
@@ -35,7 +36,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.resolution.WeightedVoteResolu
 /**
  * @author Jan Michelfeit
  */
-public class ResolutionFunctionRegistry { // TODO interface?
+public class ResolutionFunctionRegistry { // TODO interface!!
     private final Map<String, ResolutionFunction> functions = new HashMap<String, ResolutionFunction>();
 
     public ResolutionFunction get(String functionName) throws ResolutionFunctionNotRegisteredException {
@@ -87,6 +88,7 @@ public class ResolutionFunctionRegistry { // TODO interface?
         MediatingConfidenceCalculator mediatingConflictConfidence = new MediatingConflictConfidenceCalculator(sourceConfidenceCalculator, distanceMeasure);
         SimpleMediatingConfidenceCalculator simpleMediatingConfidence = new SimpleMediatingConfidenceCalculator(sourceConfidenceCalculator);
         registry.register(AvgResolution.getName(), new AvgResolution(mediatingConflictConfidence));
+        registry.register(SumResolution.getName(), new SumResolution(mediatingConflictConfidence));
         registry.register(ConcatResolution.getName(), new ConcatResolution(mediatingConflictConfidence));
         registry.register(MedianResolution.getName(), new MedianResolution(simpleMediatingConfidence));
         
