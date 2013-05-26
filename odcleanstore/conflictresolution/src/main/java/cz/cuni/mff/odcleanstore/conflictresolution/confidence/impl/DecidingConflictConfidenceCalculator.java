@@ -59,16 +59,21 @@ public class DecidingConflictConfidenceCalculator extends ConflictConfidenceCalc
          if (sources.size() > 1) {
              Model metadata = context.getMetadata();
              double sourcesConfidenceSum = 0;
-             for (Resource source :sources) {
-                 sourcesConfidenceSum += sourceConfidence(source, metadata);
+             double maxConfidence = 0;
+             for (Resource source : sources) {
+                 double sourceConfidence = sourceConfidence(source, metadata);
+                 sourcesConfidenceSum += sourceConfidence;
+                 if (sourceConfidence > maxConfidence) {
+                     maxConfidence = sourceConfidence;
+                 }
              }
-             double agreeCoef = (sourcesConfidenceSum - confidence) / agreeCoeficient;
-             if (agreeCoef > 1) {
-                 agreeCoef = 1;
-             } else if (agreeCoef < 0) {
-                 agreeCoef = 0;
+             double supportFactor = (sourcesConfidenceSum - maxConfidence) / agreeCoeficient;
+             if (supportFactor > 1) {
+                 supportFactor = 1;
+             } else if (supportFactor < 0) {
+                 supportFactor = 0;
              }
-             confidence += (1 - confidence) * agreeCoef;
+             confidence += (1 - confidence) * supportFactor;
          }
 
          return confidence;
