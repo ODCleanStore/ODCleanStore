@@ -30,6 +30,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.resolution.ODCSLatestResoluti
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.ShortestResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.SumResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.TopNResolution;
+import cz.cuni.mff.odcleanstore.conflictresolution.resolution.TresholdResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.VoteResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.WeightedVoteResolution;
 
@@ -81,6 +82,7 @@ public class ResolutionFunctionRegistry { // TODO interface!!
         registry.register(NoneResolution.getName(), new NoneResolution(decidingConflictConfidence));
         registry.register(ShortestResolution.getName(), new ShortestResolution(decidingConflictConfidence));
         registry.register(TopNResolution.getName(), new TopNResolution(decidingConflictConfidence));
+        registry.register(TresholdResolution.getName(), new TresholdResolution(decidingConflictConfidence));
         registry.register(VoteResolution.getName(), new VoteResolution(decidingConflictConfidence));
         registry.register(WeightedVoteResolution.getName(), new WeightedVoteResolution(decidingConflictConfidence, sourceConfidenceCalculator));
 
