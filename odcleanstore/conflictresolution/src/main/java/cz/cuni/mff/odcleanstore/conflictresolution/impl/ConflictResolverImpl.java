@@ -61,7 +61,7 @@ public class ConflictResolverImpl implements ConflictResolver {
     // private StatementFilter statementFilter;
 
     public ConflictResolverImpl() {
-        this(ResolutionFunctionRegistry.createInitialized());
+        this(ResolutionFunctionRegistryImpl.createInitialized());
     }
     
     public ConflictResolverImpl(ResolutionFunctionRegistry resolutionFunctionRegistry) {

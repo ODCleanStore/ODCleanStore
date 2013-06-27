@@ -16,6 +16,7 @@ import org.openrdf.model.URI;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.ConflictResolutionPolicyImpl;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.ConflictResolverImpl;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.ResolutionFunctionRegistryImpl;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.URIMappingImpl;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.EmptyMetadataModel;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
@@ -73,7 +74,7 @@ public class ConflictResolverFactory {
         private ResolutionFunctionRegistry getActualResolutionFunctionRegistry() {
             return resolutionFunctionRegistry != null
                     ? resolutionFunctionRegistry
-                    : ResolutionFunctionRegistry.createInitialized();
+                    : ResolutionFunctionRegistryImpl.createInitialized();
         }
 
         private URIMapping getActualURIMapping() {
