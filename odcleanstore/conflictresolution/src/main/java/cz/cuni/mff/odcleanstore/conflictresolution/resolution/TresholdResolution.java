@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
-import cz.cuni.mff.odcleanstore.conflictresolution.confidence.DecidingConfidenceCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ObjectClusterIterator;
 
 /**
@@ -32,8 +32,8 @@ public class TresholdResolution extends DecidingResolutionFunction {
     public static final String TRESHOLD_PARAM_NAME = "treshold";
     public static final double DEFAULT_TRESHOLD = 0;
     
-    public TresholdResolution(DecidingConfidenceCalculator confidenceCalculator) {
-        super(confidenceCalculator);
+    public TresholdResolution(DecidingFQualityCalculator fQualityCalculator) {
+        super(fQualityCalculator);
     }
 
     @Override
@@ -51,22 +51,22 @@ public class TresholdResolution extends DecidingResolutionFunction {
         while (it.hasNext()) {
             Statement statement = it.next();
             Collection<Resource> sources = it.peekSources();
-            double confidence = getConfidence(statement.getObject(), statements, sources, crContext);
-            if (confidence > treshold) {
-                addResolvedStatement(statement, confidence, sources, crContext, result);
+            double fQuality = getFQuality(statement.getObject(), statements, sources, crContext);
+            if (fQuality > treshold) {
+                addResolvedStatement(statement, fQuality, sources, crContext, result);
             }
         }
 
         return result;
     }
 
-    private void addResolvedStatement(Statement statement, double confidence, Collection<Resource> sources,
+    private void addResolvedStatement(Statement statement, double fQuality, Collection<Resource> sources,
             CRContext crContext, Collection<ResolvedStatement> result) {
         result.add(crContext.getResolvedStatementFactory().create(
                 statement.getSubject(),
                 statement.getPredicate(),
                 statement.getObject(),
-                confidence,
+                fQuality,
                 sources));
     }
     

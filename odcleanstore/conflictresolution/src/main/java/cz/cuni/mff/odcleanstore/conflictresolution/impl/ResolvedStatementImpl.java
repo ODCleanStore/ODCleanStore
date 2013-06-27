@@ -17,22 +17,22 @@ public class ResolvedStatementImpl implements ResolvedStatement {
     private final Statement statement;
 
     /** Quality estimate of the triple. */
-    private final double confidence;
+    private final double quality;
 
     /** Collection of URIs of named graphs the triple is derived from. */
     private final Collection<Resource> sourceGraphNames;
 
     /**
      * @param statement an RDF quad to wrap; must not be null
-     * @param confidence quality estimate of the wrapped quad
+     * @param quality quality estimate of the wrapped quad
      * @param sourceGraphNames collection of named graphs the quad is derived from;
      *        must not be null
      */
-    public ResolvedStatementImpl(Statement statement, double confidence, Collection<Resource> sourceGraphNames) {
+    public ResolvedStatementImpl(Statement statement, double quality, Collection<Resource> sourceGraphNames) {
         assert statement != null;
         assert sourceGraphNames != null;
         this.statement = statement;
-        this.confidence = confidence;
+        this.quality = quality;
         this.sourceGraphNames = sourceGraphNames;
     }
 
@@ -50,8 +50,8 @@ public class ResolvedStatementImpl implements ResolvedStatement {
      * @return quality estimate of the quad
      */
     @Override
-    public final double getConfidence() {
-        return confidence;
+    public final double getQuality() {
+        return quality;
     }
 
     /**
@@ -70,7 +70,7 @@ public class ResolvedStatementImpl implements ResolvedStatement {
     @Override
     public String toString() {
         return "(" + statement.toString()
-                + "; " + Double.toString(confidence)
+                + "; " + Double.toString(quality)
                 + "; " + sourceGraphNames
                 + ")";
     }

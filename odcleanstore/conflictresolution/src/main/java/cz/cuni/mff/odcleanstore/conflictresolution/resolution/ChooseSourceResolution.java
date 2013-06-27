@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
-import cz.cuni.mff.odcleanstore.conflictresolution.confidence.DecidingConfidenceCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ObjectClusterIterator;
 
 /**
@@ -31,8 +31,8 @@ public class ChooseSourceResolution extends DecidingResolutionFunction {
         return FUNCTION_NAME;
     }
     
-    public ChooseSourceResolution(DecidingConfidenceCalculator confidenceCalculator) {
-        super(confidenceCalculator);
+    public ChooseSourceResolution(DecidingFQualityCalculator fQualityCalculator) {
+        super(fQualityCalculator);
     }
     
     @Override
@@ -66,7 +66,7 @@ public class ChooseSourceResolution extends DecidingResolutionFunction {
                 statement.getSubject(),
                 statement.getPredicate(),
                 statement.getObject(),
-                getConfidence(statement.getObject(), statements, sources, crContext),
+                getFQuality(statement.getObject(), statements, sources, crContext),
                 sources));
     }
 

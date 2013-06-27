@@ -13,8 +13,8 @@ import org.openrdf.model.Statement;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
-import cz.cuni.mff.odcleanstore.conflictresolution.confidence.DecidingConfidenceCalculator;
-import cz.cuni.mff.odcleanstore.conflictresolution.impl.comparators.ObjectComparator;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.ObjectComparator;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ObjectClusterIterator;
 
 /**
@@ -28,8 +28,8 @@ public class BestResolution extends DecidingResolutionFunction {
     
     protected static final Comparator<Statement> OBJECT_COMPARATOR = new ObjectComparator();
     
-    public BestResolution(DecidingConfidenceCalculator confidenceCalculator) {
-        super(confidenceCalculator);
+    public BestResolution(DecidingFQualityCalculator fQualityCalculator) {
+        super(fQualityCalculator);
     } 
     
     @Override
@@ -42,17 +42,17 @@ public class BestResolution extends DecidingResolutionFunction {
 
         Statement bestStatement = null;
         Collection<Resource> bestStatementSources = null;
-        double bestConfidence = Double.NEGATIVE_INFINITY;
+        double bestQuality = Double.NEGATIVE_INFINITY;
 
         // cluster means a sequence of statements with the same object
         ObjectClusterIterator it = new ObjectClusterIterator(sortedStatements);
         while (it.hasNext()) {
             Statement statement = it.next();
             Collection<Resource> sources = it.peekSources();
-            double confidence = getConfidence(statement.getObject(), statements, sources, crContext);
-            if (confidence > bestConfidence) {
+            double quality = getFQuality(statement.getObject(), statements, sources, crContext);
+            if (quality > bestQuality) {
                 bestStatement = statement;
-                bestConfidence = confidence;
+                bestQuality = quality;
                 bestStatementSources = sources;
             }
         }
@@ -65,7 +65,7 @@ public class BestResolution extends DecidingResolutionFunction {
                 bestStatement.getSubject(),
                 bestStatement.getPredicate(),
                 bestStatement.getObject(),
-                bestConfidence,
+                bestQuality,
                 bestStatementSources);
         return Collections.singleton(resolvedStatement);
     }

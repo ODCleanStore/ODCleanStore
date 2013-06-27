@@ -3,21 +3,22 @@ package cz.cuni.mff.odcleanstore.conflictresolution;
 import java.util.HashMap;
 import java.util.Map;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.confidence.DecidingConfidenceCalculator;
-import cz.cuni.mff.odcleanstore.conflictresolution.confidence.DummySourceConfidenceCalculator;
-import cz.cuni.mff.odcleanstore.conflictresolution.confidence.MediatingConfidenceCalculator;
-import cz.cuni.mff.odcleanstore.conflictresolution.confidence.SourceConfidenceCalculator;
-import cz.cuni.mff.odcleanstore.conflictresolution.confidence.impl.DecidingConflictConfidenceCalculator;
-import cz.cuni.mff.odcleanstore.conflictresolution.confidence.impl.MediatingConflictConfidenceCalculator;
-import cz.cuni.mff.odcleanstore.conflictresolution.confidence.impl.SimpleMediatingConfidenceCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ResolutionFunctionNotRegisteredException;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.DistanceMeasureImpl;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.DummySourceQualityCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.MediatingFQualityCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.SourceQualityCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.impl.DecidingConflictFQualityCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.impl.MediatingModeratingFQualityCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.impl.MediatingScatteringFQualityCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.AllResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.AnyResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.AvgResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.BestResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.BestSourceResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.CertainResolution;
+import cz.cuni.mff.odcleanstore.conflictresolution.resolution.ChooseSourceResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.ConcatResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.FilterResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.LongestResolution;
@@ -28,7 +29,6 @@ import cz.cuni.mff.odcleanstore.conflictresolution.resolution.MinResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.MinSourceMetadataValueResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.NoneResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.ODCSLatestResolution;
-import cz.cuni.mff.odcleanstore.conflictresolution.resolution.ChooseSourceResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.ShortestResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.SumResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.TopNResolution;
@@ -39,7 +39,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.resolution.WeightedVoteResolu
 /**
  * @author Jan Michelfeit
  */
-public class ResolutionFunctionRegistry { // TODO interface!!
+public class ResolutionFunctionRegistry {
     private final Map<String, ResolutionFunction> functions = new HashMap<String, ResolutionFunction>();
 
     public ResolutionFunction get(String functionName) throws ResolutionFunctionNotRegisteredException {
@@ -55,51 +55,51 @@ public class ResolutionFunctionRegistry { // TODO interface!!
     }
     
     public static ResolutionFunctionRegistry createInitialized() {
-        return createInitializedWithParams(new DummySourceConfidenceCalculator(), DecidingConflictConfidenceCalculator.DEFAULT_AGREE_COEFICIENT, new DistanceMeasureImpl());
+        return createInitializedWithParams(new DummySourceQualityCalculator(), DecidingConflictFQualityCalculator.DEFAULT_AGREE_COEFICIENT, new DistanceMeasureImpl());
     }
     
-    public static ResolutionFunctionRegistry createInitializedWithParams(SourceConfidenceCalculator sourceConfidenceCalculator) {
-        return createInitializedWithParams(sourceConfidenceCalculator, DecidingConflictConfidenceCalculator.DEFAULT_AGREE_COEFICIENT, new DistanceMeasureImpl());
+    public static ResolutionFunctionRegistry createInitializedWithParams(SourceQualityCalculator sourceQualityCalculator) {
+        return createInitializedWithParams(sourceQualityCalculator, DecidingConflictFQualityCalculator.DEFAULT_AGREE_COEFICIENT, new DistanceMeasureImpl());
     }
     
-    public static ResolutionFunctionRegistry createInitializedWithParams(SourceConfidenceCalculator sourceConfidenceCalculator, double agreeCoefficient) {
-        return createInitializedWithParams(sourceConfidenceCalculator, agreeCoefficient, new DistanceMeasureImpl());
+    public static ResolutionFunctionRegistry createInitializedWithParams(SourceQualityCalculator sourceQualityCalculator, double agreeCoefficient) {
+        return createInitializedWithParams(sourceQualityCalculator, agreeCoefficient, new DistanceMeasureImpl());
     }
     
-    public static ResolutionFunctionRegistry createInitializedWithParams(SourceConfidenceCalculator sourceConfidenceCalculator, double agreeCoefficient, DistanceMeasure distanceMeasure) {
+    public static ResolutionFunctionRegistry createInitializedWithParams(SourceQualityCalculator sourceQualityCalculator, double agreeCoefficient, DistanceMeasure distanceMeasure) {
         ResolutionFunctionRegistry registry = new ResolutionFunctionRegistry();
         
         // Deciding resolution functions
-        DecidingConfidenceCalculator decidingConflictConfidence = new DecidingConflictConfidenceCalculator(sourceConfidenceCalculator, agreeCoefficient, distanceMeasure);
-        registry.register(AllResolution.getName(), new AllResolution(decidingConflictConfidence));
-        registry.register(AnyResolution.getName(), new AnyResolution(decidingConflictConfidence));
-        registry.register(BestResolution.getName(), new BestResolution(decidingConflictConfidence));
-        registry.register(BestSourceResolution.getName(), new BestSourceResolution(decidingConflictConfidence, sourceConfidenceCalculator));
-        registry.register(CertainResolution.getName(), new CertainResolution(decidingConflictConfidence));
-        registry.register(FilterResolution.getName(), new FilterResolution(decidingConflictConfidence));
-        registry.register(LongestResolution.getName(), new LongestResolution(decidingConflictConfidence));
-        registry.register(MaxResolution.getName(), new MaxResolution(decidingConflictConfidence));
-        registry.register(MaxSourceMetadataValueResolution.getName(), new MaxSourceMetadataValueResolution(decidingConflictConfidence));
-        registry.register(MinResolution.getName(), new MinResolution(decidingConflictConfidence));
-        registry.register(MinSourceMetadataValueResolution.getName(), new MinSourceMetadataValueResolution(decidingConflictConfidence));
-        registry.register(NoneResolution.getName(), new NoneResolution(decidingConflictConfidence));
-        registry.register(ChooseSourceResolution.getName(), new ChooseSourceResolution(decidingConflictConfidence));
-        registry.register(ShortestResolution.getName(), new ShortestResolution(decidingConflictConfidence));
-        registry.register(TopNResolution.getName(), new TopNResolution(decidingConflictConfidence));
-        registry.register(TresholdResolution.getName(), new TresholdResolution(decidingConflictConfidence));
-        registry.register(VoteResolution.getName(), new VoteResolution(decidingConflictConfidence));
-        registry.register(WeightedVoteResolution.getName(), new WeightedVoteResolution(decidingConflictConfidence, sourceConfidenceCalculator));
+        DecidingFQualityCalculator decidingConflictFQuality = new DecidingConflictFQualityCalculator(sourceQualityCalculator, agreeCoefficient, distanceMeasure);
+        registry.register(AllResolution.getName(), new AllResolution(decidingConflictFQuality));
+        registry.register(AnyResolution.getName(), new AnyResolution(decidingConflictFQuality));
+        registry.register(BestResolution.getName(), new BestResolution(decidingConflictFQuality));
+        registry.register(BestSourceResolution.getName(), new BestSourceResolution(decidingConflictFQuality, sourceQualityCalculator));
+        registry.register(CertainResolution.getName(), new CertainResolution(decidingConflictFQuality));
+        registry.register(FilterResolution.getName(), new FilterResolution(decidingConflictFQuality));
+        registry.register(LongestResolution.getName(), new LongestResolution(decidingConflictFQuality));
+        registry.register(MaxResolution.getName(), new MaxResolution(decidingConflictFQuality));
+        registry.register(MaxSourceMetadataValueResolution.getName(), new MaxSourceMetadataValueResolution(decidingConflictFQuality));
+        registry.register(MinResolution.getName(), new MinResolution(decidingConflictFQuality));
+        registry.register(MinSourceMetadataValueResolution.getName(), new MinSourceMetadataValueResolution(decidingConflictFQuality));
+        registry.register(NoneResolution.getName(), new NoneResolution(decidingConflictFQuality));
+        registry.register(ChooseSourceResolution.getName(), new ChooseSourceResolution(decidingConflictFQuality));
+        registry.register(ShortestResolution.getName(), new ShortestResolution(decidingConflictFQuality));
+        registry.register(TopNResolution.getName(), new TopNResolution(decidingConflictFQuality));
+        registry.register(TresholdResolution.getName(), new TresholdResolution(decidingConflictFQuality));
+        registry.register(VoteResolution.getName(), new VoteResolution(decidingConflictFQuality));
+        registry.register(WeightedVoteResolution.getName(), new WeightedVoteResolution(decidingConflictFQuality, sourceQualityCalculator));
 
         // Mediating resolution functions
-        MediatingConfidenceCalculator mediatingConflictConfidence = new MediatingConflictConfidenceCalculator(sourceConfidenceCalculator, distanceMeasure);
-        SimpleMediatingConfidenceCalculator simpleMediatingConfidence = new SimpleMediatingConfidenceCalculator(sourceConfidenceCalculator);
-        registry.register(AvgResolution.getName(), new AvgResolution(mediatingConflictConfidence));
-        registry.register(SumResolution.getName(), new SumResolution(mediatingConflictConfidence));
-        registry.register(ConcatResolution.getName(), new ConcatResolution(mediatingConflictConfidence)); // TODO: simple?
-        registry.register(MedianResolution.getName(), new MedianResolution(simpleMediatingConfidence));
+        MediatingFQualityCalculator mediatingModeratingFQuality = new MediatingModeratingFQualityCalculator(sourceQualityCalculator, distanceMeasure);
+        MediatingScatteringFQualityCalculator scatteringMediatingFQuality = new MediatingScatteringFQualityCalculator(sourceQualityCalculator);
+        registry.register(AvgResolution.getName(), new AvgResolution(mediatingModeratingFQuality));
+        registry.register(SumResolution.getName(), new SumResolution(mediatingModeratingFQuality));
+        registry.register(ConcatResolution.getName(), new ConcatResolution(scatteringMediatingFQuality));
+        registry.register(MedianResolution.getName(), new MedianResolution(scatteringMediatingFQuality));
         
         // ODCS-specific resolution functions
-        registry.register(ODCSLatestResolution.getName(), new ODCSLatestResolution(decidingConflictConfidence));
+        registry.register(ODCSLatestResolution.getName(), new ODCSLatestResolution(decidingConflictFQuality));
         
         return registry;
     }

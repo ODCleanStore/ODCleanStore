@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
-import cz.cuni.mff.odcleanstore.conflictresolution.confidence.DecidingConfidenceCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.comparators.BestSelectedComparator;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.comparators.MetadataValueComparator;
 
@@ -27,8 +27,8 @@ public class MaxSourceMetadataValueResolution extends BestSelectedResolutionBase
         return FUNCTION_NAME;
     }
     
-    public MaxSourceMetadataValueResolution(DecidingConfidenceCalculator confidenceCalculator) {
-        super(confidenceCalculator);
+    public MaxSourceMetadataValueResolution(DecidingFQualityCalculator fQualityCalculator) {
+        super(fQualityCalculator);
     }
     
     @Override

@@ -22,7 +22,7 @@ public interface ResolvedStatement {
      * Return quality of the wrapped quad.
      * @return quality estimate of the quad
      */
-    double getConfidence();
+    double getQuality();
 
     /**
      * Collection of URIs of named graphs the triple is derived from.

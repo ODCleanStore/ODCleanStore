@@ -542,7 +542,7 @@ public class HTMLFormatter extends ResultFormatterBase {
                 writer.write("</td><td>");
                 writeNode(writer, resolvedStatement.getStatement().getObject());
                 writer.write("</td><td>");
-                writer.write(String.format(Locale.ROOT, "%.5f", resolvedStatement.getConfidence()));
+                writer.write(String.format(Locale.ROOT, "%.5f", resolvedStatement.getQuality()));
                 writer.write("</td><td>");
                 boolean first = true;
                 for (Resource sourceURI : resolvedStatement.getSourceGraphNames()) {

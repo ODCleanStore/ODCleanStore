@@ -5,9 +5,9 @@ import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolutionPolicy;
 import cz.cuni.mff.odcleanstore.conflictresolution.DistanceMeasure;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunctionRegistry;
-import cz.cuni.mff.odcleanstore.conflictresolution.confidence.SourceConfidenceCalculator;
-import cz.cuni.mff.odcleanstore.conflictresolution.confidence.impl.ODCSSourceConfidenceCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.DistanceMeasureImpl;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.SourceQualityCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.impl.ODCSSourceQualityCalculator;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.queryexecution.impl.DefaultAggregationConfigurationCache;
 import cz.cuni.mff.odcleanstore.queryexecution.impl.LabelPropertiesListCache;
@@ -208,7 +208,7 @@ public class QueryExecution {
         DistanceMeasure distanceMeasure = new DistanceMeasureImpl(crConfig.getMaxDateDifference());
         double publisherScoreWeight = crConfig.getPublisherScoreWeight()
                 / (crConfig.getPublisherScoreWeight() + crConfig.getNamedGraphScoreWeight());
-        SourceConfidenceCalculator sourceConfidenceCalculator = new ODCSSourceConfidenceCalculator(
+        SourceQualityCalculator sourceConfidenceCalculator = new ODCSSourceQualityCalculator(
                 crConfig.getScoreIfUnknown(),
                 publisherScoreWeight);
         ResolutionFunctionRegistry registry = ResolutionFunctionRegistry.createInitializedWithParams(

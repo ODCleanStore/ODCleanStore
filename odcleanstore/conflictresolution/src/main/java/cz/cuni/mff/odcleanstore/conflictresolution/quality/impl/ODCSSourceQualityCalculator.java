@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.conflictresolution.confidence.impl;
+package cz.cuni.mff.odcleanstore.conflictresolution.quality.impl;
 
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
@@ -9,14 +9,14 @@ import org.openrdf.model.impl.ValueFactoryImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.confidence.SourceConfidenceCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.SourceQualityCalculator;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 
 /**
  * @author Jan Michelfeit
  */
-public class ODCSSourceConfidenceCalculator implements SourceConfidenceCalculator {
-    private static final Logger LOG = LoggerFactory.getLogger(ODCSSourceConfidenceCalculator.class);
+public class ODCSSourceQualityCalculator implements SourceQualityCalculator {
+    private static final Logger LOG = LoggerFactory.getLogger(ODCSSourceQualityCalculator.class);
     private static final URI sourceScoreProperty = ValueFactoryImpl.getInstance().createURI(ODCS.score);
     private static final URI publisherScoreProperty = ValueFactoryImpl.getInstance().createURI(ODCS.publisherScore);
     private static final URI publisherProperty = ValueFactoryImpl.getInstance().createURI(ODCS.publishedBy);
@@ -24,13 +24,13 @@ public class ODCSSourceConfidenceCalculator implements SourceConfidenceCalculato
     protected final double defaultScore;
     protected final double publisherScoreWeight;
 
-    public ODCSSourceConfidenceCalculator(double defaultScore, double publisherScoreWeight) {
+    public ODCSSourceQualityCalculator(double defaultScore, double publisherScoreWeight) {
         this.publisherScoreWeight = publisherScoreWeight;
         this.defaultScore = defaultScore;
     }
 
     @Override
-    public double sourceConfidence(Resource source, Model metadata) {
+    public double getSourceQuality(Resource source, Model metadata) {
         if (source == null) {
             return defaultScore;
         }

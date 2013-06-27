@@ -6,7 +6,6 @@ import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunctionRegistry;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionStrategy;
-import cz.cuni.mff.odcleanstore.conflictresolution.impl.ConflictResolutionPolicyImpl;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.CRUtils;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
@@ -576,9 +575,25 @@ import java.util.Set;
             Model metadata, Iterator<Statement> sameAsLinks, Set<String> preferredURIs) {
         String resultGraphPrefix =
                 globalConfig.getResultDataURIPrefix().toString() + ODCSInternal.queryResultGraphUriInfix;
+
+        // Merge user and admin CR policies
+        ResolutionStrategy mergedDefaultStrategy = CRUtils.mergeresolutionStrategies(
+                conflictResolutionPolicy.getDefaultResolutionStrategy(),
+                defaultResolutionPolicy.getDefaultResolutionStrategy());
+
+        Map<URI, ResolutionStrategy> mergedPropertyStrategies = new HashMap<URI, ResolutionStrategy>(
+                conflictResolutionPolicy.getPropertyResolutionStrategies());
+        for (Entry<URI, ResolutionStrategy> entry : defaultResolutionPolicy.getPropertyResolutionStrategies().entrySet()) {
+            ResolutionStrategy mergedStrategy = CRUtils.mergeresolutionStrategies(
+                    mergedPropertyStrategies.get(entry.getKey()),
+                    entry.getValue());
+            mergedPropertyStrategies.put(entry.getKey(), mergedStrategy);
+        }
+
         return ConflictResolverFactory.configure()
                 .setResolutionFunctionRegistry(resolutionFunctionRegistry)
-                .setConflictResolutionPolicy(mergePolicies(conflictResolutionPolicy, defaultResolutionPolicy))
+                .setDefaultResolutionStrategy(mergedDefaultStrategy)
+                .setPropertyResolutionStrategies(mergedPropertyStrategies)
                 .setResolvedGraphsURIPrefix(resultGraphPrefix)
                 .setMetadata(metadata)
                 .setPreferredCanonicalURIs(preferredURIs)
@@ -597,24 +612,6 @@ import java.util.Set;
             preferredURIs.add(uri.stringValue());
         }
         return preferredURIs;
-    }
-
-    private static ConflictResolutionPolicy mergePolicies(ConflictResolutionPolicy conflictResolutionPolicy,
-            ConflictResolutionPolicy defaultResolutionPolicy) {
-        ResolutionStrategy mergedDefaultStrategy = CRUtils.mergeresolutionStrategies(
-                conflictResolutionPolicy.getDefaultResolutionStrategy(),
-                defaultResolutionPolicy.getDefaultResolutionStrategy());
-
-        Map<URI, ResolutionStrategy> mergedPropertyStrategies = new HashMap<URI, ResolutionStrategy>(
-                conflictResolutionPolicy.getPropertyResolutionStrategies());
-        for (Entry<URI, ResolutionStrategy> entry : defaultResolutionPolicy.getPropertyResolutionStrategies().entrySet()) {
-            ResolutionStrategy mergedStrategy = CRUtils.mergeresolutionStrategies(
-                    mergedPropertyStrategies.get(entry.getKey()),
-                    entry.getValue());
-            mergedPropertyStrategies.put(entry.getKey(), mergedStrategy);
-        }
-
-        return new ConflictResolutionPolicyImpl(mergedDefaultStrategy, mergedPropertyStrategies);
     }
 
     private void closeResultSetQuietly(QueryResult<?> resultSet) {

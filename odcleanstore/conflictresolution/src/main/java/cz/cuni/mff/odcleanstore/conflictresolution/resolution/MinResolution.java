@@ -6,7 +6,7 @@ package cz.cuni.mff.odcleanstore.conflictresolution.resolution;
 import org.openrdf.model.Model;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
-import cz.cuni.mff.odcleanstore.conflictresolution.confidence.DecidingConfidenceCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.comparators.BestSelectedLiteralComparator;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.comparators.LiteralComparatorFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.EnumLiteralType;
@@ -21,8 +21,8 @@ public class MinResolution extends BestSelectedObjectResolutionBase {
         return FUNCTION_NAME;
     }
     
-    public MinResolution(DecidingConfidenceCalculator confidenceCalculator) {
-        super(confidenceCalculator);
+    public MinResolution(DecidingFQualityCalculator fQualityCalculator) {
+        super(fQualityCalculator);
     }
 
     @Override

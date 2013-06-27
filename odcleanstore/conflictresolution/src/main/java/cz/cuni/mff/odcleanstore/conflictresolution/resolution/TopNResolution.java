@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
-import cz.cuni.mff.odcleanstore.conflictresolution.confidence.DecidingConfidenceCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ObjectClusterIterator;
 
 /**
@@ -32,15 +32,15 @@ public class TopNResolution extends DecidingResolutionFunction {
     private static final Logger LOG = LoggerFactory.getLogger(TopNResolution.class);
     public static final String COUNT_PARAM_NAME = "n";
     public static final int DEFAULT_COUNT = 1;
-    private static final Comparator<ResolvedStatement> CONFIDENCE_COMPARATOR = new Comparator<ResolvedStatement>() {
+    private static final Comparator<ResolvedStatement> FQUALITY_COMPARATOR = new Comparator<ResolvedStatement>() {
         @Override
         public int compare(ResolvedStatement o1, ResolvedStatement o2) {
-            return Double.compare(o1.getConfidence(), o2.getConfidence());
+            return Double.compare(o1.getQuality(), o2.getQuality());
         }
     };
 
-    public TopNResolution(DecidingConfidenceCalculator confidenceCalculator) {
-        super(confidenceCalculator);
+    public TopNResolution(DecidingFQualityCalculator fQualityCalculator) {
+        super(fQualityCalculator);
     }
 
     @Override
@@ -52,32 +52,32 @@ public class TopNResolution extends DecidingResolutionFunction {
         int count = getCountParam(crContext.getResolutionStrategy().getParams());
         Collection<Statement> sortedStatements = statements;
 
-        PriorityQueue<ResolvedStatement> bestStatements = new PriorityQueue<ResolvedStatement>(count, CONFIDENCE_COMPARATOR);
+        PriorityQueue<ResolvedStatement> bestStatements = new PriorityQueue<ResolvedStatement>(count, FQUALITY_COMPARATOR);
 
         // cluster means a sequence of statements with the same object
         ObjectClusterIterator it = new ObjectClusterIterator(sortedStatements);
         while (it.hasNext()) {
             Statement statement = it.next();
             Collection<Resource> sources = it.peekSources();
-            double confidence = getConfidence(statement.getObject(), statements, sources, crContext);
+            double fQuality = getFQuality(statement.getObject(), statements, sources, crContext);
             if (bestStatements.size() < count) {
-                bestStatements.add(createResolvedStatement(statement, confidence, sources, crContext));
-            } else if (confidence > bestStatements.peek().getConfidence()) {
+                bestStatements.add(createResolvedStatement(statement, fQuality, sources, crContext));
+            } else if (fQuality > bestStatements.peek().getQuality()) {
                 bestStatements.poll();
-                bestStatements.add(createResolvedStatement(statement, confidence, sources, crContext));
+                bestStatements.add(createResolvedStatement(statement, fQuality, sources, crContext));
             }
         }
 
         return bestStatements;
     }
 
-    private ResolvedStatement createResolvedStatement(Statement statement, double confidence, Collection<Resource> sources,
+    private ResolvedStatement createResolvedStatement(Statement statement, double fQuality, Collection<Resource> sources,
             CRContext crContext) {
         return crContext.getResolvedStatementFactory().create(
                 statement.getSubject(),
                 statement.getPredicate(),
                 statement.getPredicate(),
-                confidence,
+                fQuality,
                 sources);
     }
 

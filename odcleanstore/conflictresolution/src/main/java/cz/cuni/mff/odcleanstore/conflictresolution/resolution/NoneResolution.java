@@ -11,8 +11,8 @@ import org.openrdf.model.Statement;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
-import cz.cuni.mff.odcleanstore.conflictresolution.confidence.DecidingConfidenceCalculator;
-import cz.cuni.mff.odcleanstore.conflictresolution.impl.comparators.ObjectComparator;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.ObjectComparator;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalculator;
 
 /**
  * Aggregation method that returns all input triples unchanged.
@@ -28,8 +28,8 @@ public class NoneResolution extends DecidingResolutionFunction {
     
     protected static final Comparator<Statement> OBJECT_COMPARATOR = new ObjectComparator();
     
-    public NoneResolution(DecidingConfidenceCalculator confidenceCalculator) {
-        super(confidenceCalculator);
+    public NoneResolution(DecidingFQualityCalculator fQualityCalculator) {
+        super(fQualityCalculator);
     } 
     
     @Override
@@ -38,7 +38,7 @@ public class NoneResolution extends DecidingResolutionFunction {
         
         for (Statement statement : statements) {
             Collection<Resource> source = Collections.singleton(statement.getContext());
-            double confidence = getConfidence(
+            double fQuality = getFQuality(
                     statement.getObject(), 
                     statements, 
                     source, 
@@ -47,7 +47,7 @@ public class NoneResolution extends DecidingResolutionFunction {
                     statement.getSubject(), 
                     statement.getPredicate(),
                     statement.getObject(),
-                    confidence,
+                    fQuality,
                     source);
             result.add(resolvedStatement);
         }

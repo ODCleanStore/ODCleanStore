@@ -13,7 +13,7 @@ import org.openrdf.model.Statement;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
-import cz.cuni.mff.odcleanstore.conflictresolution.confidence.DecidingConfidenceCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ObjectClusterIterator;
 
 /**
@@ -25,8 +25,8 @@ public class AllResolution extends DecidingResolutionFunction {
         return FUNCTION_NAME;
     }
     
-    public AllResolution(DecidingConfidenceCalculator confidenceCalculator) {
-        super(confidenceCalculator);
+    public AllResolution(DecidingFQualityCalculator fQualityCalculator) {
+        super(fQualityCalculator);
     }
 
     @Override
@@ -55,7 +55,7 @@ public class AllResolution extends DecidingResolutionFunction {
                 statement.getSubject(),
                 statement.getPredicate(),
                 statement.getObject(),
-                getConfidence(statement.getObject(), statements, sources, crContext),
+                getFQuality(statement.getObject(), statements, sources, crContext),
                 sources));
     }
 

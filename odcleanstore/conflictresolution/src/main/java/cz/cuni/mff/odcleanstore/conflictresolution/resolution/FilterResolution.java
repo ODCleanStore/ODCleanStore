@@ -16,7 +16,7 @@ import org.openrdf.model.ValueFactory;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
-import cz.cuni.mff.odcleanstore.conflictresolution.confidence.DecidingConfidenceCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.comparators.BestSelectedLiteralComparator;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.comparators.LiteralComparatorFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.EnumLiteralType;
@@ -35,8 +35,8 @@ public class FilterResolution extends DecidingResolutionFunction {
     private static final String MAX_PARAM_NAME = "max";
     private static final String MIN_PARAM_NAME = "min";
     
-    public FilterResolution(DecidingConfidenceCalculator confidenceCalculator) {
-        super(confidenceCalculator);
+    public FilterResolution(DecidingFQualityCalculator fQualityCalculator) {
+        super(fQualityCalculator);
     }
 
     @Override
@@ -85,7 +85,7 @@ public class FilterResolution extends DecidingResolutionFunction {
                 statement.getSubject(),
                 statement.getPredicate(),
                 statement.getObject(),
-                getConfidence(statement.getObject(), statements, sources, crContext),
+                getFQuality(statement.getObject(), statements, sources, crContext),
                 sources));
     }
 }

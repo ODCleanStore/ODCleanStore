@@ -34,7 +34,7 @@ public class DebugFormatter extends ResultFormatterBase {
                 for (ResolvedStatement crQuad : result.getResultQuads()) {
                     writer.write(crQuad.getStatement().toString());
                     writer.write("\n\tQuality: ");
-                    writer.write(formatScore(crQuad.getConfidence()));
+                    writer.write(formatScore(crQuad.getQuality()));
                     writer.write("; Sources: ");
                     boolean first = true;
                     for (Resource sourceURI : crQuad.getSourceGraphNames()) {

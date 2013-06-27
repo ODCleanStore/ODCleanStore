@@ -15,8 +15,8 @@ import org.openrdf.model.Value;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
-import cz.cuni.mff.odcleanstore.conflictresolution.confidence.DecidingConfidenceCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.CRUtils;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.comparators.BestSelectedComparator;
 
 /**
@@ -25,8 +25,8 @@ import cz.cuni.mff.odcleanstore.conflictresolution.resolution.comparators.BestSe
 public abstract class BestSelectedResolutionBase<T> extends DecidingResolutionFunction {
     private static final int INITIAL_RESULT_CAPACITY = 5; // expect few non-aggregable statements
     
-    protected BestSelectedResolutionBase(DecidingConfidenceCalculator confidenceCalculator) {
-        super(confidenceCalculator);
+    protected BestSelectedResolutionBase(DecidingFQualityCalculator fQualityCalculator) {
+        super(fQualityCalculator);
     }
 
     @Override
@@ -61,12 +61,12 @@ public abstract class BestSelectedResolutionBase<T> extends DecidingResolutionFu
         }
         
         Set<Resource> sources = filterSources(bestStatement, statements);
-        double confidence = getConfidence(bestStatement.getObject(), statements, sources, crContext);
+        double fQuality = getFQuality(bestStatement.getObject(), statements, sources, crContext);
         ResolvedStatement resolvedStatement = crContext.getResolvedStatementFactory().create(
                 bestStatement.getSubject(),
                 bestStatement.getPredicate(),
                 bestStatement.getObject(),
-                confidence,
+                fQuality,
                 sources);
         result.add(resolvedStatement);
         return result;

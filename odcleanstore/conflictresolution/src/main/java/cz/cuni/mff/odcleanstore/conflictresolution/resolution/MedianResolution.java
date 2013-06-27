@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
-import cz.cuni.mff.odcleanstore.conflictresolution.confidence.MediatingConfidenceCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.MediatingFQualityCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.EnumLiteralType;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ResolutionFunctionUtils;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.TimeComparator;
@@ -40,8 +40,8 @@ public class MedianResolution extends MediatingResolutionFunction {
     private static final Logger LOG = LoggerFactory.getLogger(MedianResolution.class);
     private static final int INITIAL_RESULT_CAPACITY = 5; // expect few non-aggregable statements
 
-    public MedianResolution(MediatingConfidenceCalculator confidenceCalculator) {
-        super(confidenceCalculator);
+    public MedianResolution(MediatingFQualityCalculator fQualityCalculator) {
+        super(fQualityCalculator);
     }
 
     @Override
@@ -52,12 +52,12 @@ public class MedianResolution extends MediatingResolutionFunction {
         } else if (statements.size() == 1) {
             Statement first = statements.iterator().next();
             Set<Resource> sources = filterSources(first, statements);
-            double confidence = getConfidence(first.getObject(), statements, sources, crContext);
+            double fQuality = getFQuality(first.getObject(), statements, sources, crContext);
             ResolvedStatement resolvedStatement = crContext.getResolvedStatementFactory().create(
                     first.getSubject(),
                     first.getPredicate(),
                     first.getObject(),
-                    confidence,
+                    fQuality,
                     sources);
             return Collections.singleton(resolvedStatement);
         }
@@ -163,12 +163,12 @@ public class MedianResolution extends MediatingResolutionFunction {
                 T medianValue = objects.get(medianPosition);
                 Value object = createLiteral(medianValue, crContext.getResolvedStatementFactory().getValueFactory());
 
-                double confidence = getConfidence(object, statements, sources, crContext);
+                double fQuality = getFQuality(object, statements, sources, crContext);
                 ResolvedStatement resolvedStatement = crContext.getResolvedStatementFactory().create(
                         lastConvertible.getSubject(),
                         lastConvertible.getPredicate(),
                         object,
-                        confidence,
+                        fQuality,
                         sources);
                 result.add(resolvedStatement);
                 return result;

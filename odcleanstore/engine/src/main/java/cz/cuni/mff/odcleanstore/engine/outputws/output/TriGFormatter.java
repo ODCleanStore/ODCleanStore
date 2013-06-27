@@ -90,7 +90,7 @@ public class TriGFormatter extends RDFFormatter {
             rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
                     resolvedStatement.getStatement().getContext(),
                     QUALITY_PROPERTY,
-                    VALUE_FACTORY.createLiteral(resolvedStatement.getConfidence()),
+                    VALUE_FACTORY.createLiteral(resolvedStatement.getQuality()),
                     metadataGraphURI));
             for (Resource sourceNamedGraph : resolvedStatement.getSourceGraphNames()) {
                 rdfWriter.handleStatement(VALUE_FACTORY.createStatement(

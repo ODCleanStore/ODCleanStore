@@ -14,7 +14,7 @@ import org.openrdf.model.Value;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
-import cz.cuni.mff.odcleanstore.conflictresolution.confidence.MediatingConfidenceCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.MediatingFQualityCalculator;
 
 
 /**
@@ -30,8 +30,8 @@ public class ConcatResolution extends MediatingResolutionFunction {
     public static final String DEFAULT_SEPARATOR = "; ";
     
     
-    public ConcatResolution(MediatingConfidenceCalculator confidenceCalculator) {
-        super(confidenceCalculator);
+    public ConcatResolution(MediatingFQualityCalculator fQualityCalculator) {
+        super(fQualityCalculator);
     }
 
     @Override
@@ -58,12 +58,12 @@ public class ConcatResolution extends MediatingResolutionFunction {
         Value object = crContext.getResolvedStatementFactory().getValueFactory().createLiteral(resultValue.toString());
         Statement firstStatement = statements.iterator().next();
         Set<Resource> sources = getAllSources(statements);
-        double confidence = getConfidence(object, statements, sources, crContext);
+        double fQuality = getFQuality(object, statements, sources, crContext);
         ResolvedStatement resolvedStatement = crContext.getResolvedStatementFactory().create(
                 firstStatement.getSubject(),
                 firstStatement.getPredicate(),
                 object,
-                confidence,
+                fQuality,
                 sources);
         return Collections.singleton(resolvedStatement);
     }

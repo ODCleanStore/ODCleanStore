@@ -38,6 +38,8 @@ public class ConflictResolverFactory {
     public static ConflictResolverBuilder configure() {
         return new ConflictResolverBuilder();
     }
+    
+    //public static 
 
     private static class URIPair {
         final String uri1;
@@ -50,7 +52,8 @@ public class ConflictResolverFactory {
     }
 
     public static class ConflictResolverBuilder {
-        private ConflictResolutionPolicy conflictResolutionPolicy = new ConflictResolutionPolicyImpl();
+        private ResolutionStrategy defaultResolutionStrategy = null;
+        private Map<URI, ResolutionStrategy> propertyResolutionStrategies = Collections.<URI, ResolutionStrategy>emptyMap();
         private Set<String> preferredURIs = Collections.emptySet();
         private URIMapping uriMapping = null;
         private Model metadata = null;
@@ -61,7 +64,7 @@ public class ConflictResolverFactory {
         public ConflictResolver create() {
             return new ConflictResolverImpl(
                     getActualResolutionFunctionRegistry(),
-                    conflictResolutionPolicy,
+                    new ConflictResolutionPolicyImpl(defaultResolutionStrategy, propertyResolutionStrategies),
                     getActualURIMapping(),
                     (metadata != null ? metadata : new EmptyMetadataModel()),
                     resolvedGraphsURIPrefix);
@@ -84,22 +87,13 @@ public class ConflictResolverFactory {
             return actualURIMapping;
         }
 
-        public ConflictResolverBuilder setConflictResolutionPolicy(ConflictResolutionPolicy conflictResolutionPolicy) {
-            this.conflictResolutionPolicy = conflictResolutionPolicy;
-            return this;
-        }
-
         public ConflictResolverBuilder setDefaultResolutionStrategy(ResolutionStrategy resolutionStrategy) {
-            this.conflictResolutionPolicy = new ConflictResolutionPolicyImpl(
-                    resolutionStrategy,
-                    conflictResolutionPolicy.getPropertyResolutionStrategies());
+            this.defaultResolutionStrategy = resolutionStrategy;
             return this;
         }
 
         public ConflictResolverBuilder setPropertyResolutionStrategies(Map<URI, ResolutionStrategy> propertyResolutionStrategies) {
-            this.conflictResolutionPolicy = new ConflictResolutionPolicyImpl(
-                    conflictResolutionPolicy.getDefaultResolutionStrategy(),
-                    propertyResolutionStrategies);
+            this.propertyResolutionStrategies = propertyResolutionStrategies;
             return this;
         }
 

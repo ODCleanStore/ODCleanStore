@@ -16,8 +16,8 @@ import org.openrdf.model.Value;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
-import cz.cuni.mff.odcleanstore.conflictresolution.confidence.MediatingConfidenceCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.CRUtils;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.MediatingFQualityCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ResolutionFunctionUtils;
 
 /**
@@ -29,8 +29,8 @@ public class AvgResolution extends MediatingResolutionFunction {
         return FUNCTION_NAME;
     }
     
-    public AvgResolution(MediatingConfidenceCalculator confidenceCalculator) {
-        super(confidenceCalculator);
+    public AvgResolution(MediatingFQualityCalculator fQualityCalculator) {
+        super(fQualityCalculator);
     }
 
     @Override
@@ -63,12 +63,12 @@ public class AvgResolution extends MediatingResolutionFunction {
         if (validCount > 0) {
             double averageValue = sum / validCount;
             Literal averageLiteral = crContext.getResolvedStatementFactory().getValueFactory().createLiteral(averageValue);
-            double confidence = getConfidence(averageLiteral, statements, sources, crContext);
+            double fQuality = getFQuality(averageLiteral, statements, sources, crContext);
             ResolvedStatement resolvedStatement = crContext.getResolvedStatementFactory().create(
                     lastAggregableStatement.getSubject(),
                     lastAggregableStatement.getPredicate(),
                     averageLiteral,
-                    confidence,
+                    fQuality,
                     sources);
             result.add(resolvedStatement);
         }

@@ -14,6 +14,6 @@ import org.openrdf.model.ValueFactory;
  * @author Jan Michelfeit
  */
 public interface ResolvedStatementFactory {
-    ResolvedStatement create(Resource subject, URI predicate, Value object, double confidence, Collection<Resource> sources);
+    ResolvedStatement create(Resource subject, URI predicate, Value object, double fQuality, Collection<Resource> sources);
     ValueFactory getValueFactory();
 }

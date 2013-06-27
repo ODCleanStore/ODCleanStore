@@ -8,7 +8,7 @@ import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
-import cz.cuni.mff.odcleanstore.conflictresolution.confidence.DecidingConfidenceCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.comparators.BestSelectedComparator;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.comparators.ODCSInsertedAtComparator;
 
@@ -23,8 +23,8 @@ public class ODCSLatestResolution extends BestSelectedResolutionBase<Resource> {
     
     private static final BestSelectedComparator<Resource> COMPARATOR = new ODCSInsertedAtComparator();
 
-    public ODCSLatestResolution(DecidingConfidenceCalculator confidenceCalculator) {
-        super(confidenceCalculator);
+    public ODCSLatestResolution(DecidingFQualityCalculator fQualityCalculator) {
+        super(fQualityCalculator);
     }
 
     @Override

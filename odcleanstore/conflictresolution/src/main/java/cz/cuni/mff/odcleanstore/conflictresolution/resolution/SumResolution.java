@@ -16,8 +16,8 @@ import org.openrdf.model.Value;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
-import cz.cuni.mff.odcleanstore.conflictresolution.confidence.MediatingConfidenceCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.CRUtils;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.MediatingFQualityCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ResolutionFunctionUtils;
 
 /**
@@ -29,8 +29,8 @@ public class SumResolution extends MediatingResolutionFunction {
         return FUNCTION_NAME;
     }
     
-    public SumResolution(MediatingConfidenceCalculator confidenceCalculator) {
-        super(confidenceCalculator);
+    public SumResolution(MediatingFQualityCalculator fQualityCalculator) {
+        super(fQualityCalculator);
     }
 
     @Override
@@ -59,12 +59,12 @@ public class SumResolution extends MediatingResolutionFunction {
         Set<Resource> sources = getAllSources(statements);
 
         Literal sumLiteral = crContext.getResolvedStatementFactory().getValueFactory().createLiteral(sum);
-        double confidence = getConfidence(sumLiteral, statements, sources, crContext);
+        double fQuality = getFQuality(sumLiteral, statements, sources, crContext);
         ResolvedStatement resolvedStatement = crContext.getResolvedStatementFactory().create(
                 lastAggregableStatement.getSubject(),
                 lastAggregableStatement.getPredicate(),
                 sumLiteral,
-                confidence,
+                fQuality,
                 sources);
         result.add(resolvedStatement);
 

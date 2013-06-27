@@ -13,7 +13,7 @@ import org.openrdf.model.Statement;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
-import cz.cuni.mff.odcleanstore.conflictresolution.confidence.DecidingConfidenceCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalculator;
 
 /**
  * @author Jan Michelfeit
@@ -24,8 +24,8 @@ public class AnyResolution extends DecidingResolutionFunction {
         return FUNCTION_NAME;
     }
     
-    public AnyResolution(DecidingConfidenceCalculator confidenceCalculator) {
-        super(confidenceCalculator);
+    public AnyResolution(DecidingFQualityCalculator fQualityCalculator) {
+        super(fQualityCalculator);
     }
 
     @Override
@@ -36,12 +36,12 @@ public class AnyResolution extends DecidingResolutionFunction {
      
         Statement first = statements.iterator().next();
         Set<Resource> sources = filterSources(first, statements);
-        double confidence = getConfidence(first.getObject(), statements, sources, crContext);
+        double fQuality = getFQuality(first.getObject(), statements, sources, crContext);
         ResolvedStatement resolvedStatement = crContext.getResolvedStatementFactory().create(
                 first.getSubject(),
                 first.getPredicate(),
                 first.getObject(),
-                confidence,
+                fQuality,
                 sources);
         return Collections.singleton(resolvedStatement);
     }

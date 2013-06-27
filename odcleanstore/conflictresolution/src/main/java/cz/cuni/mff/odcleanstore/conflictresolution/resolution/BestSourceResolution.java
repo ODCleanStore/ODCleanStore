@@ -13,8 +13,8 @@ import org.openrdf.model.Statement;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
-import cz.cuni.mff.odcleanstore.conflictresolution.confidence.DecidingConfidenceCalculator;
-import cz.cuni.mff.odcleanstore.conflictresolution.confidence.SourceConfidenceCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.SourceQualityCalculator;
 
 /**
  * @author Jan Michelfeit
@@ -25,26 +25,26 @@ public class BestSourceResolution extends DecidingResolutionFunction {
         return FUNCTION_NAME;
     }
     
-    private final SourceConfidenceCalculator sourceConfidenceCalculator;
+    private final SourceQualityCalculator sourceQualityCalculator;
     
-    public BestSourceResolution(DecidingConfidenceCalculator confidenceCalculator, SourceConfidenceCalculator sourceConfidenceCalculator) {
-        super(confidenceCalculator);
-        this.sourceConfidenceCalculator = sourceConfidenceCalculator;
+    public BestSourceResolution(DecidingFQualityCalculator fQualityCalculator, SourceQualityCalculator sourceQualityCalculator) {
+        super(fQualityCalculator);
+        this.sourceQualityCalculator = sourceQualityCalculator;
     } 
 
     @Override
     public Collection<ResolvedStatement> resolve(Model statements, CRContext crContext) {
         Statement bestStatement = null;
-        double bestSourceConfidence = Double.NEGATIVE_INFINITY;
+        double bestSourceQuality = Double.NEGATIVE_INFINITY;
         for (Statement statement : statements) {
             if (bestStatement == null) {
                 bestStatement = statement;
                 continue;
             }
-            double confidence = sourceConfidenceCalculator.sourceConfidence(statement.getContext(), crContext.getMetadata());
-            if (confidence > bestSourceConfidence) {
+            double quality = sourceQualityCalculator.getSourceQuality(statement.getContext(), crContext.getMetadata());
+            if (quality > bestSourceQuality) {
                 bestStatement = statement;
-                bestSourceConfidence = confidence;
+                bestSourceQuality = quality;
             }
         }
         
@@ -53,12 +53,12 @@ public class BestSourceResolution extends DecidingResolutionFunction {
         }
         
         Set<Resource> sources = filterSources(bestStatement, statements);
-        double confidence = getConfidence(bestStatement.getObject(), statements, sources, crContext);
+        double fQuality = getFQuality(bestStatement.getObject(), statements, sources, crContext);
         ResolvedStatement resolvedStatement = crContext.getResolvedStatementFactory().create(
                 bestStatement.getSubject(),
                 bestStatement.getPredicate(),
                 bestStatement.getObject(),
-                confidence,
+                fQuality,
                 sources);
         return Collections.singleton(resolvedStatement);
     }        

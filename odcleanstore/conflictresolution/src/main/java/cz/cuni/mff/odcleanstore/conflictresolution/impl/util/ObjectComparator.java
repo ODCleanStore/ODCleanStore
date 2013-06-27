@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.conflictresolution.impl.comparators;
+package cz.cuni.mff.odcleanstore.conflictresolution.impl.util;
 
 import java.util.Comparator;
 

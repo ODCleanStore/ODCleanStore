@@ -20,8 +20,8 @@ import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.URIMapping;
-import cz.cuni.mff.odcleanstore.conflictresolution.impl.comparators.SpogComparator;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.CRUtils;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.SpogComparator;
 
 /**
  * @author Jan Michelfeit

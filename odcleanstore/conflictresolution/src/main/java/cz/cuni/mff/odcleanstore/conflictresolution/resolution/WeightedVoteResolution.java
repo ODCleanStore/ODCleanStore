@@ -13,9 +13,9 @@ import org.openrdf.model.Statement;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
-import cz.cuni.mff.odcleanstore.conflictresolution.confidence.DecidingConfidenceCalculator;
-import cz.cuni.mff.odcleanstore.conflictresolution.confidence.SourceConfidenceCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.CRUtils;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.SourceQualityCalculator;
 
 /**
  * @author Jan Michelfeit
@@ -26,11 +26,11 @@ public class WeightedVoteResolution extends DecidingResolutionFunction {
         return FUNCTION_NAME;
     }
     
-    private final SourceConfidenceCalculator sourceConfidenceCalculator;
+    private final SourceQualityCalculator sourceQualityCalculator;
     
-    public WeightedVoteResolution(DecidingConfidenceCalculator confidenceCalculator, SourceConfidenceCalculator sourceConfidenceCalculator) {
-        super(confidenceCalculator);
-        this.sourceConfidenceCalculator = sourceConfidenceCalculator;
+    public WeightedVoteResolution(DecidingFQualityCalculator fQualityCalculator, SourceQualityCalculator sourceQualityCalculator) {
+        super(fQualityCalculator);
+        this.sourceQualityCalculator = sourceQualityCalculator;
     } 
     
     @Override
@@ -56,7 +56,7 @@ public class WeightedVoteResolution extends DecidingResolutionFunction {
                 }
                 votes = 0;
             }
-            votes += sourceConfidenceCalculator.sourceConfidence(statement.getContext(), crContext.getMetadata());
+            votes += sourceQualityCalculator.getSourceQuality(statement.getContext(), crContext.getMetadata());
             lastStatement = statement;
         }
         if (votes > mostVotes) {
@@ -69,12 +69,12 @@ public class WeightedVoteResolution extends DecidingResolutionFunction {
         }
         
         Set<Resource> sources = filterSources(bestStatement, statements);
-        double confidence = getConfidence(bestStatement.getObject(), statements, sources, crContext);
+        double quality = getFQuality(bestStatement.getObject(), statements, sources, crContext);
         ResolvedStatement resolvedStatement = crContext.getResolvedStatementFactory().create(
                 bestStatement.getSubject(),
                 bestStatement.getPredicate(),
                 bestStatement.getObject(),
-                confidence,
+                quality,
                 sources);
         return Collections.singleton(resolvedStatement);
     }

@@ -3,7 +3,7 @@
  */
 package cz.cuni.mff.odcleanstore.conflictresolution.resolution;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.confidence.DecidingConfidenceCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalculator;
 
 
 
@@ -11,7 +11,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.confidence.DecidingConfidence
  * @author Jan Michelfeit
  */
 public abstract class DecidingResolutionFunction extends ResolutionFunctionBase {
-    protected DecidingResolutionFunction(DecidingConfidenceCalculator confidenceCalculator) {
-        super(confidenceCalculator);
+    protected DecidingResolutionFunction(DecidingFQualityCalculator fQualityCalculator) {
+        super(fQualityCalculator);
     }
 }

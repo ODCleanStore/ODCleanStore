@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunction;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
-import cz.cuni.mff.odcleanstore.conflictresolution.confidence.ConfidenceCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.FQualityCalculator;
 
 /**
  * @author Jan Michelfeit
@@ -27,21 +27,21 @@ import cz.cuni.mff.odcleanstore.conflictresolution.confidence.ConfidenceCalculat
 public abstract class ResolutionFunctionBase implements ResolutionFunction {
     private static final Logger LOG = LoggerFactory.getLogger(ResolutionFunctionBase.class);
     
-    protected final ConfidenceCalculator confidenceCalculator;
+    protected final FQualityCalculator fQualityCalculator;
 
-    protected ResolutionFunctionBase(ConfidenceCalculator confidenceCalculator) {
-        if (confidenceCalculator == null) {
+    protected ResolutionFunctionBase(FQualityCalculator fQualityCalculator) {
+        if (fQualityCalculator == null) {
             throw new IllegalArgumentException();
         }
-        this.confidenceCalculator = confidenceCalculator;
+        this.fQualityCalculator = fQualityCalculator;
     }
     
-    protected ConfidenceCalculator getConfidenceCalculator() {
-        return confidenceCalculator;
+    protected FQualityCalculator getFQualityCalculator() {
+        return fQualityCalculator;
     }
     
-    protected double getConfidence(Value value, Collection<Statement> conflictingStatements, Collection<Resource> sources, CRContext crContext) {
-        return confidenceCalculator.getConfidence(value, conflictingStatements, sources, crContext);
+    protected double getFQuality(Value value, Collection<Statement> conflictingStatements, Collection<Resource> sources, CRContext crContext) {
+        return fQualityCalculator.getFQuality(value, conflictingStatements, sources, crContext);
     }
     
     protected final Set<Resource> filterSources(Statement statement, Model conflictingStatements) {
@@ -78,7 +78,7 @@ public abstract class ResolutionFunctionBase implements ResolutionFunction {
         switch (crContext.getResolutionStrategy().getAggregationErrorStrategy()) {
         case RETURN_ALL:
             Collection<Resource> sources = filterSources(nonAggregableStatement, conflictingStatements);
-            double confidence = getConfidence(
+            double fQuality = getFQuality(
                     nonAggregableStatement.getObject(), 
                     conflictingStatements, 
                     sources, 
@@ -87,7 +87,7 @@ public abstract class ResolutionFunctionBase implements ResolutionFunction {
                     nonAggregableStatement.getSubject(), 
                     nonAggregableStatement.getPredicate(),
                     nonAggregableStatement.getObject(),
-                    confidence,
+                    fQuality,
                     sources);
             result.add(resolvedStatement);
             break;
