@@ -17,6 +17,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.resolution.AnyResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.AvgResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.BestResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.BestSourceResolution;
+import cz.cuni.mff.odcleanstore.conflictresolution.resolution.CertainResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.ConcatResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.FilterResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.LongestResolution;
@@ -27,6 +28,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.resolution.MinResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.MinSourceMetadataValueResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.NoneResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.ODCSLatestResolution;
+import cz.cuni.mff.odcleanstore.conflictresolution.resolution.ChooseSourceResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.ShortestResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.SumResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.TopNResolution;
@@ -73,6 +75,7 @@ public class ResolutionFunctionRegistry { // TODO interface!!
         registry.register(AnyResolution.getName(), new AnyResolution(decidingConflictConfidence));
         registry.register(BestResolution.getName(), new BestResolution(decidingConflictConfidence));
         registry.register(BestSourceResolution.getName(), new BestSourceResolution(decidingConflictConfidence, sourceConfidenceCalculator));
+        registry.register(CertainResolution.getName(), new CertainResolution(decidingConflictConfidence));
         registry.register(FilterResolution.getName(), new FilterResolution(decidingConflictConfidence));
         registry.register(LongestResolution.getName(), new LongestResolution(decidingConflictConfidence));
         registry.register(MaxResolution.getName(), new MaxResolution(decidingConflictConfidence));
@@ -80,6 +83,7 @@ public class ResolutionFunctionRegistry { // TODO interface!!
         registry.register(MinResolution.getName(), new MinResolution(decidingConflictConfidence));
         registry.register(MinSourceMetadataValueResolution.getName(), new MinSourceMetadataValueResolution(decidingConflictConfidence));
         registry.register(NoneResolution.getName(), new NoneResolution(decidingConflictConfidence));
+        registry.register(ChooseSourceResolution.getName(), new ChooseSourceResolution(decidingConflictConfidence));
         registry.register(ShortestResolution.getName(), new ShortestResolution(decidingConflictConfidence));
         registry.register(TopNResolution.getName(), new TopNResolution(decidingConflictConfidence));
         registry.register(TresholdResolution.getName(), new TresholdResolution(decidingConflictConfidence));
@@ -91,7 +95,7 @@ public class ResolutionFunctionRegistry { // TODO interface!!
         SimpleMediatingConfidenceCalculator simpleMediatingConfidence = new SimpleMediatingConfidenceCalculator(sourceConfidenceCalculator);
         registry.register(AvgResolution.getName(), new AvgResolution(mediatingConflictConfidence));
         registry.register(SumResolution.getName(), new SumResolution(mediatingConflictConfidence));
-        registry.register(ConcatResolution.getName(), new ConcatResolution(mediatingConflictConfidence));
+        registry.register(ConcatResolution.getName(), new ConcatResolution(mediatingConflictConfidence)); // TODO: simple?
         registry.register(MedianResolution.getName(), new MedianResolution(simpleMediatingConfidence));
         
         // ODCS-specific resolution functions

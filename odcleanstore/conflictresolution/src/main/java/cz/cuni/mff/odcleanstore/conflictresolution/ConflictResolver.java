@@ -26,7 +26,7 @@ public interface ConflictResolver {
      *         resolution process occurs
      * @see ResolvedStatement
      */
-    Collection<ResolvedStatement> resolveConflicts(Iterator<Statement> quads) throws ConflictResolutionException;
+    Collection<ResolvedStatement> resolveConflicts(Iterator<Statement> statements) throws ConflictResolutionException;
 
     /**
      * @param statements
