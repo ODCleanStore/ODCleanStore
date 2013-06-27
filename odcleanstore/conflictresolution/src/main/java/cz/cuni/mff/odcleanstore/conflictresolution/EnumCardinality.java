@@ -1,7 +1,7 @@
 package cz.cuni.mff.odcleanstore.conflictresolution;
 
 public enum EnumCardinality {
-    MULTIVALUE,
+    MANYVALUED,
 
-    SINGLEVALUE
+    SINGLEVALUED
 }

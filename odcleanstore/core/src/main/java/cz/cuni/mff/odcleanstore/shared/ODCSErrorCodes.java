@@ -15,7 +15,7 @@ public final class ODCSErrorCodes {
 
     public static final int QE_DEFAULT_CONFIG_ERR = 10;
     public static final int QE_DEFAULT_CONFIG_DB_ERR = 11;
-    public static final int QE_DEFAULT_CONFIG_MULTIVALUE_ERR = 12;
+    public static final int QE_DEFAULT_CONFIG_MANYVALUED_ERR = 12;
     public static final int QE_DEFAULT_CONFIG_ES_ERR = 13;
     public static final int QE_DEFAULT_CONFIG_AGGREGATION_ERR = 14; 
     public static final Integer QE_DEFAULT_CONFIG_PREFIX_ERR = 15;

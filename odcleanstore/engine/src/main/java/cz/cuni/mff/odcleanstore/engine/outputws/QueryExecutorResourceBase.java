@@ -222,7 +222,7 @@ public abstract class QueryExecutorResourceBase extends ServerResource {
         String defaultMultivalue = getFormValue(DEFAULT_MULTIVALUE_PARAM);
         if (defaultMultivalue != null && !defaultMultivalue.isEmpty()) {
             defaultResolutionStrategy.setCardinality(TRUE_LITERAL.equals(defaultMultivalue)
-                    ? EnumCardinality.MULTIVALUE : EnumCardinality.SINGLEVALUE);
+                    ? EnumCardinality.MANYVALUED : EnumCardinality.SINGLEVALUED);
         }
         String errorStrategy = getFormValue(ERROR_STRATEGY_PARAM);
         if (errorStrategy != null && !errorStrategy.isEmpty()) {
@@ -244,7 +244,7 @@ public abstract class QueryExecutorResourceBase extends ServerResource {
                 String multivalueString = valuesMap.get(param);
                 if (!ODCSUtils.isNullOrEmpty(multivalueString) && !property.isEmpty()) {
                     EnumCardinality cardinality = TRUE_LITERAL.equals(multivalueString)
-                            ? EnumCardinality.MULTIVALUE : EnumCardinality.SINGLEVALUE;
+                            ? EnumCardinality.MANYVALUED : EnumCardinality.SINGLEVALUED;
                     getOrCreateStrategy(property, propertyStrategies).setCardinality(cardinality);
                 }
             }

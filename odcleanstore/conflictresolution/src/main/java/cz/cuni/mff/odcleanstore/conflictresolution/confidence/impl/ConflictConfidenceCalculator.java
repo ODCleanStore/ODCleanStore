@@ -55,7 +55,7 @@ public abstract class ConflictConfidenceCalculator implements ConfidenceCalculat
          double resultConfidence = valueConfidence;
 
          // Consider conflicting values
-         if (context.getResolutionStrategy().getCardinality() == EnumCardinality.SINGLEVALUE 
+         if (context.getResolutionStrategy().getCardinality() == EnumCardinality.SINGLEVALUED 
                  && conflictingStatements.size() > 1) {
              // NOTE: condition conflictingValues.size() > 1 is an optimization that relies on
              // the fact that distance(x,x) = 0 and that value is among conflictingQuads

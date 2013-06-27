@@ -12,7 +12,7 @@ import java.util.Map;
 public interface ResolutionStrategy {
     String getResolutionFunctionName();
     
-    EnumCardinality getCardinality(); // TODO - rename?
+    EnumCardinality getCardinality();
     
     EnumAggregationErrorStrategy getAggregationErrorStrategy();
     

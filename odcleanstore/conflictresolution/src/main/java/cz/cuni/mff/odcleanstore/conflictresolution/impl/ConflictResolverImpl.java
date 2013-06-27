@@ -45,7 +45,7 @@ public class ConflictResolverImpl implements ConflictResolver {
     private static final String DEFAULT_RESOLVED_GRAPHS_URI_PREFIX = ODCS.getURI() + "CR/";
     private static final ResolutionStrategy DEFAULT_RESOLUTION_STRATEGY = new ResolutionStrategyImpl(
             AllResolution.getName(),
-            EnumCardinality.MULTIVALUE,
+            EnumCardinality.MANYVALUED,
             EnumAggregationErrorStrategy.RETURN_ALL);
     private static final int EXPECTED_REDUCTION_FACTOR = 3;
 
