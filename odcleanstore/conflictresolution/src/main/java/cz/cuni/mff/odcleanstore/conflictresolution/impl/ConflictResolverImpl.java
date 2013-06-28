@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolutionPolicy;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
+import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.EnumCardinality;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunction;
@@ -61,7 +62,7 @@ public class ConflictResolverImpl implements ConflictResolver {
     // private StatementFilter statementFilter;
 
     public ConflictResolverImpl() {
-        this(ResolutionFunctionRegistryImpl.createInitialized());
+        this(ConflictResolverFactory.createInitializedResolutionFunctionRegistry());
     }
     
     public ConflictResolverImpl(ResolutionFunctionRegistry resolutionFunctionRegistry) {

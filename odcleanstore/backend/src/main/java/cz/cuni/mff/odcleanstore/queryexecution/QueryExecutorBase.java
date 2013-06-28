@@ -590,7 +590,7 @@ import java.util.Set;
             mergedPropertyStrategies.put(entry.getKey(), mergedStrategy);
         }
 
-        return ConflictResolverFactory.configure()
+        return ConflictResolverFactory.configureResolver()
                 .setResolutionFunctionRegistry(resolutionFunctionRegistry)
                 .setDefaultResolutionStrategy(mergedDefaultStrategy)
                 .setPropertyResolutionStrategies(mergedPropertyStrategies)

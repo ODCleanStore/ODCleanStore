@@ -3,10 +3,10 @@ package cz.cuni.mff.odcleanstore.queryexecution;
 import cz.cuni.mff.odcleanstore.configuration.Config;
 import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolutionPolicy;
+import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.DistanceMeasure;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunctionRegistry;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.DistanceMeasureImpl;
-import cz.cuni.mff.odcleanstore.conflictresolution.impl.ResolutionFunctionRegistryImpl;
 import cz.cuni.mff.odcleanstore.conflictresolution.quality.SourceQualityCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.quality.impl.ODCSSourceQualityCalculator;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
@@ -212,7 +212,7 @@ public class QueryExecution {
         SourceQualityCalculator sourceConfidenceCalculator = new ODCSSourceQualityCalculator(
                 crConfig.getScoreIfUnknown(),
                 publisherScoreWeight);
-        ResolutionFunctionRegistry registry = ResolutionFunctionRegistryImpl.createInitializedWithParams(
+        ResolutionFunctionRegistry registry = ConflictResolverFactory.createInitializedResolutionFunctionRegistry(
                 sourceConfidenceCalculator,
                 crConfig.getAgreeCoeficient(),
                 distanceMeasure);
