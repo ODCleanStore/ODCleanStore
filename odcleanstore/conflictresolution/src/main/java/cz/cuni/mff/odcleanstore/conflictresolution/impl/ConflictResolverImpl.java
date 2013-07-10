@@ -177,11 +177,11 @@ public class ConflictResolverImpl implements ConflictResolver {
         return context;
     }
 
-    ConflictResolutionPolicy getEffectiveResolutionPolicy() {
+    private ConflictResolutionPolicy getEffectiveResolutionPolicy() {
         ConflictResolutionPolicyImpl result = new ConflictResolutionPolicyImpl();
         
         ResolutionStrategy effectiveDefaultStrategy = conflictResolutionPolicy.getDefaultResolutionStrategy() != null
-                ? conflictResolutionPolicy.getDefaultResolutionStrategy()
+                ? fillDefaults(conflictResolutionPolicy.getDefaultResolutionStrategy(), DEFAULT_RESOLUTION_STRATEGY)
                 : DEFAULT_RESOLUTION_STRATEGY;
         result.setDefaultResolutionStrategy(effectiveDefaultStrategy);
         
@@ -219,18 +219,34 @@ public class ConflictResolverImpl implements ConflictResolver {
     }
     
     private ResolutionStrategy fillDefaults(ResolutionStrategy strategy, ResolutionStrategy defaultStrategy) {
-        String resolutionFunctionName = (strategy.getResolutionFunctionName() == null)
-                ? defaultStrategy.getResolutionFunctionName()
-                : strategy.getResolutionFunctionName();
-        EnumCardinality cardinality = (strategy.getCardinality() == null)
-                ? defaultStrategy.getCardinality()
-                : strategy.getCardinality();
-        EnumAggregationErrorStrategy aggregationErrorStrategy = (strategy.getAggregationErrorStrategy() == null)
-                ? defaultStrategy.getAggregationErrorStrategy()
-                : strategy.getAggregationErrorStrategy();
-        Map<String, String> params = (strategy.getParams() == null)
-                ? defaultStrategy.getParams()
-                : strategy.getParams(); 
+        if (strategy == null) {
+            return defaultStrategy;
+        }
+        
+        String resolutionFunctionName;
+        EnumCardinality cardinality;
+        EnumAggregationErrorStrategy aggregationErrorStrategy;
+        
+        Map<String, String> params;
+        if (strategy.getResolutionFunctionName() == null) {
+            resolutionFunctionName = defaultStrategy.getResolutionFunctionName();
+            params = defaultStrategy.getParams();
+        } else {
+            resolutionFunctionName = strategy.getResolutionFunctionName();
+            params = strategy.getParams();
+        }
+        
+        if (strategy.getCardinality() == null) {
+            cardinality = defaultStrategy.getCardinality();
+        } else {
+            cardinality = strategy.getCardinality();
+        }
+        
+        if (strategy.getAggregationErrorStrategy() == null) {
+            aggregationErrorStrategy = defaultStrategy.getAggregationErrorStrategy();
+        } else {
+            aggregationErrorStrategy = strategy.getAggregationErrorStrategy();
+        }
         return new ResolutionStrategyImpl(
                 resolutionFunctionName, 
                 cardinality,
