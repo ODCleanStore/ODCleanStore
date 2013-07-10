@@ -122,6 +122,12 @@ public class ConflictClustersCollection extends AbstractCollection<List<Statemen
     }
     
     private void makeUnique() {
+        if (statements.length == 0) {
+            // Must be handled as a special case, otherwise this.size gets initialized to 1
+            this.size = 0;
+            return;
+        }
+        
         int lastIdx = 0;
         for (int currIdx = 1; currIdx < statements.length; currIdx++) { // intentionally start from 1
             Statement previous = statements[lastIdx];
