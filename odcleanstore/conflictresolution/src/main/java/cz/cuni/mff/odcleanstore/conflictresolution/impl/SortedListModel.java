@@ -214,7 +214,7 @@ public class SortedListModel extends AbstractModel implements Model {
                 throw new NoSuchElementException();
             }
             Statement result = statements.get(index);
-            index = findNext(index);
+            index = findNext(index + 1);
             return result;
         }
 
@@ -230,7 +230,7 @@ public class SortedListModel extends AbstractModel implements Model {
                     return size; // since the array is sorted, we know no more values can be beyond this point
                 }
                 boolean wildcard = subject == null;
-                if (predicate != null && !predicate.equals(statement.getObject())) {
+                if (predicate != null && !predicate.equals(statement.getPredicate())) {
                     if (wildcard) {
                         continue;
                     } else {
@@ -238,7 +238,7 @@ public class SortedListModel extends AbstractModel implements Model {
                     }
                 } 
                 wildcard = wildcard || predicate == null;
-                if (object != null && !object.equals(statement.getPredicate())) {
+                if (object != null && !object.equals(statement.getObject())) {
                     if (wildcard) {
                         continue;
                     } else {
