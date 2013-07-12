@@ -9,8 +9,7 @@ import org.slf4j.LoggerFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.EnumLiteralType;
 
 /**
- * A factory for AggregationComparators comparing quads by the literal in place of the object.
- * Implemented as flyweight - instances of comparators are cached (and created on demand).
+ * A factory for {@link BestSelectedLiteralComparator}s comparing by the type of literals to compare.
  * @author Jan Michelfeit
  */
 public final class LiteralComparatorFactory {

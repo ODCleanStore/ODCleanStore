@@ -9,10 +9,12 @@ import org.openrdf.model.Value;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 
 /**
+ * A dummy implementation of {@link FQualityCalculator} returning always {@value #VALUE_QUALITY}.
  * @author Jan Michelfeit
  */
 public class DummyFQualityCalculator implements FQualityCalculator, MediatingFQualityCalculator,
         DecidingFQualityCalculator {
+    /** The value always returned by {@link #getFQuality()}. */ 
     public static final double VALUE_QUALITY = 1;
 
     @Override

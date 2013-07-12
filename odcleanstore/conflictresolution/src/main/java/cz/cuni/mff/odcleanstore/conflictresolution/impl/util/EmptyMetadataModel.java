@@ -16,17 +16,23 @@ import org.openrdf.model.Value;
 import org.openrdf.model.impl.AbstractModel;
 
 /**
+ * An empty read-only implementation of {@link Model}.
+ * Data manipulation methods throw {@link UnsupportedOperationException}.
  * @author Jan Michelfeit
  */
 public class EmptyMetadataModel extends AbstractModel {
     private static final long serialVersionUID = 1L;
-    private static final EmptyMetadataModel instance = new EmptyMetadataModel();
+    private static final EmptyMetadataModel INSTANCE = new EmptyMetadataModel();
     
     private final Set<Statement> emptySet = Collections.emptySet();
     private final Set<Namespace> emptyNamespaces = Collections.emptySet();
     
+    /**
+     * Returns shared default instance of this class.
+     * @return shared default instance of this class
+     */
     public static Model getInstance() {
-        return instance;
+        return INSTANCE;
     }
 
     @Override
@@ -86,8 +92,7 @@ public class EmptyMetadataModel extends AbstractModel {
 
     @Override
     public void removeTermIteration(Iterator<Statement> iter, Resource subj, URI pred, Value obj,
-            Resource... contexts)
-    {
+            Resource... contexts) {
         // remove nothing
     }
 

@@ -16,17 +16,37 @@ import cz.cuni.mff.odcleanstore.conflictresolution.resolution.comparators.BestSe
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.comparators.MetadataValueComparator;
 
 /**
+ * Returns the statement with minimum value of the given property of its source.
+ * The property is given in required
+ * {@link cz.cuni.mff.odcleanstore.conflictresolution.ResolutionStrategy#getParams() parameter} 
+ * {@value #PREDICATE_PARAM_NAME}. The value of the property is then obtained from metadata given
+ * in the conflict resolution context.
  * @author Jan Michelfeit
  */
 public class MinSourceMetadataValueResolution extends BestSelectedResolutionBase<Resource> {
     private static final Logger LOG = LoggerFactory.getLogger(MinSourceMetadataValueResolution.class);
     private  static final String FUNCTION_NAME = "MIN_SOURCE_METADATA";
+    
+    /**
+     * Returns a string identifier of this resolution function ({@value #FUNCTION_NAME}) - can be used to 
+     * retrieve the resolution function from the default initialized 
+     * {@link cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunctionRegistry}.
+     * @see cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory#createInitializedResolutionFunctionRegistry()
+     * @return string identifier of this resolution function
+     */
     public static String getName() {
         return FUNCTION_NAME;
     }
     
+    /** Name of parameter specifying the property of source to be compared. */
     public static final String PREDICATE_PARAM_NAME = "predicate";
     
+    /**
+     * Creates a new instance.
+     * @param fQualityCalculator calculator of F-quality to be used for estimation of 
+     *      produced {@link cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement result quads} 
+     *      (see {@link cz.cuni.mff.odcleanstore.conflictresolution.quality.FQualityCalculator}) 
+     */
     public MinSourceMetadataValueResolution(DecidingFQualityCalculator fQualityCalculator) {
         super(fQualityCalculator);
     }
@@ -58,6 +78,7 @@ public class MinSourceMetadataValueResolution extends BestSelectedResolutionBase
         }
     }
     
+    /** Comparator ordering in the reverse order as {@link MetadataValueComparator}.*/
     private class ReverseMetadataValueComparator extends MetadataValueComparator {
         public ReverseMetadataValueComparator(URI predicateURI) {
             super(predicateURI);

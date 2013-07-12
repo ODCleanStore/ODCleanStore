@@ -24,8 +24,6 @@ import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
  * @author Jan Michelfeit
  */
 public class DistanceMeasureImpl implements DistanceMeasure {
-    // TODO: refactor
-    
     private static final Logger LOG = LoggerFactory.getLogger(DistanceMeasureImpl.class);
 
     /** Minimum distance between two {@link Value Values} indicating equal nodes. */
@@ -52,16 +50,19 @@ public class DistanceMeasureImpl implements DistanceMeasure {
     /** Minimum difference between two dates to consider them completely different  in seconds. */
     private final Long maxDateDifference;
     
+    /**
+     * Creates a new instance.
+     */
     public DistanceMeasureImpl() {
         this(DEFAULT_MAX_DATE_DIFFERENCE);
     }
     
     /**
      * Creates a new instance.
-     * @param Minimum difference between two dates to consider them completely different  in seconds. 
+     * @param maxDateDifference minimum difference between two dates to consider them completely different in seconds 
      */
-    public DistanceMeasureImpl(Long maxDataDifference) {
-        this.maxDateDifference = maxDataDifference;
+    public DistanceMeasureImpl(Long maxDateDifference) {
+        this.maxDateDifference = maxDateDifference;
     }
 
     /**

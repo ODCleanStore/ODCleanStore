@@ -14,6 +14,10 @@ import org.openrdf.model.Statement;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.CRUtils;
 
 /**
+ * Iterates over clusters of subsequent quads (statements) sharing the same object.
+ * Method {@link #next()} returns the last quad in each cluster and {@link #peekSources()}
+ * returns the collection of named graphs of all quads in the cluster where the last quad
+ * returned by {@link #next()} belongs.
  * @author Jan Michelfeit
  */
 public class ObjectClusterIterator implements Iterator<Statement> {
@@ -23,11 +27,19 @@ public class ObjectClusterIterator implements Iterator<Statement> {
     private Statement lastStatement = null;
     private Collection<Resource> lastSources = null;
     
+    /**
+     * @param sortedStatements iterable over spog-sorted quads (statements)
+     */
     public ObjectClusterIterator(Iterable<Statement> sortedStatements) {
         this.statementIt = sortedStatements.iterator();
         this.clusterStartIt = sortedStatements.iterator();
     }
     
+    /**
+     * Returns all names of source graphs or quads having the same object as the last statement
+     * returned by {@link #next()}.
+     * @return collection of source graph names
+     */
     public Collection<Resource> peekSources() {
         return lastSources; // TODO: make lazy?
     }
@@ -37,6 +49,10 @@ public class ObjectClusterIterator implements Iterator<Statement> {
         return clusterSize > 0 || statementIt.hasNext(); 
     }
     
+    /**
+     * Returns the last statement in the next cluster of subsequent statements sharing the same object.
+     * {@inheritDoc}
+     */
     @Override
     public Statement next() {
         while (statementIt.hasNext()) {
@@ -62,6 +78,7 @@ public class ObjectClusterIterator implements Iterator<Statement> {
         return null;
     }
     
+    /** Not supported. */
     @Override
     public void remove() {
         new UnsupportedOperationException(); 

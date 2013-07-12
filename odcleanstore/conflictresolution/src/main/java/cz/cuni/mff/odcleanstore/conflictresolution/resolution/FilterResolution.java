@@ -24,10 +24,22 @@ import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ObjectCluste
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ResolutionFunctionUtils;
 
 /**
+ * Resolution function returning quads whose object is in the given range of minimum and maximum values.
+ * The minimum and maximum is given in optional
+ * {@link cz.cuni.mff.odcleanstore.conflictresolution.ResolutionStrategy#getParams() parameters} 
+ * {@value #MAX_PARAM_NAME} and {@value #MIN_PARAM_NAME}.
  * @author Jan Michelfeit
  */
 public class FilterResolution extends DecidingResolutionFunction {
     private  static final String FUNCTION_NAME = "FILTER";
+    
+    /**
+     * Returns a string identifier of this resolution function ({@value #FUNCTION_NAME}) - can be used to 
+     * retrieve the resolution function from the default initialized 
+     * {@link cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunctionRegistry}.
+     * @see cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory#createInitializedResolutionFunctionRegistry()
+     * @return string identifier of this resolution function
+     */
     public static String getName() {
         return FUNCTION_NAME;
     }
@@ -35,6 +47,12 @@ public class FilterResolution extends DecidingResolutionFunction {
     private static final String MAX_PARAM_NAME = "max";
     private static final String MIN_PARAM_NAME = "min";
     
+    /**
+     * Creates a new instance.
+     * @param fQualityCalculator calculator of F-quality to be used for estimation of 
+     *      produced {@link ResolvedStatement result quads} 
+     *      (see {@link cz.cuni.mff.odcleanstore.conflictresolution.quality.FQualityCalculator}) 
+     */
     public FilterResolution(DecidingFQualityCalculator fQualityCalculator) {
         super(fQualityCalculator);
     }

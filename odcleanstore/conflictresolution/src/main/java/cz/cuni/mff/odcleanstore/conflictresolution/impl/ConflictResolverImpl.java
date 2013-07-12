@@ -29,15 +29,16 @@ import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatementFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.URIMapping;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ResolutionFunctionNotRegisteredException;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.CRUtils;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.EmptyMetadataModel;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.GrowingArray;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.AllResolution;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 
 /**
- * Default implementation of the conflict resolution process.
- * Non-static methods are not thread-safe (shared {@link #aggregationFactory}).
- * 
+ * Implementation of the RDF conflict resolution algorithm.
+ * URIs are translated according to given URI mappings and conflict resolved by
+ * application of conflict resolution functions according to resolution settings. 
  * @author Jan Michelfeit
  */
 public class ConflictResolverImpl implements ConflictResolver {
@@ -61,31 +62,67 @@ public class ConflictResolverImpl implements ConflictResolver {
 
     // private StatementFilter statementFilter;
 
+    /**
+     * Creates a new instance with default resolution function registry and default settings for conflict
+     * resolution.
+     */
     public ConflictResolverImpl() {
         this(ConflictResolverFactory.createInitializedResolutionFunctionRegistry());
     }
     
+    /**
+     * Creates a new instance with the given resolution function registry and defaults for other conflict 
+     * resolution settings.
+     * @param resolutionFunctionRegistry registry for obtaining conflict resolution function implementations
+     */
     public ConflictResolverImpl(ResolutionFunctionRegistry resolutionFunctionRegistry) {
         this.resolutionFunctionRegistry = resolutionFunctionRegistry;
     }
 
-    public ConflictResolverImpl(ResolutionFunctionRegistry resolutionFunctionRegistry, ConflictResolutionPolicy conflictResolutionPolicy) {
+    /**
+     * Creates a new instance with the given settings and no URI mappings.
+     * @param resolutionFunctionRegistry registry for obtaining conflict resolution function implementations
+     * @param conflictResolutionPolicy conflict resolution parameters
+     */
+    public ConflictResolverImpl(ResolutionFunctionRegistry resolutionFunctionRegistry,
+            ConflictResolutionPolicy conflictResolutionPolicy) {
         this(resolutionFunctionRegistry);
         this.conflictResolutionPolicy = conflictResolutionPolicy;
     }
 
+    /**
+     * Creates a new instance with the given settings.
+     * @param resolutionFunctionRegistry registry for obtaining conflict resolution function implementations
+     * @param conflictResolutionPolicy conflict resolution parameters
+     * @param uriMapping mapping of URIs to their canonical URI (based on owl:sameAs links)
+     */
     public ConflictResolverImpl(ResolutionFunctionRegistry resolutionFunctionRegistry,
             ConflictResolutionPolicy conflictResolutionPolicy, URIMapping uriMapping) {
         this(resolutionFunctionRegistry, conflictResolutionPolicy);
         this.uriMapping = uriMapping;
     }
 
+    /**
+     * Creates a new instance with the given settings.
+     * @param resolutionFunctionRegistry registry for obtaining conflict resolution function implementations
+     * @param conflictResolutionPolicy conflict resolution parameters
+     * @param uriMapping mapping of URIs to their canonical URI (based on owl:sameAs links)
+     * @param metadata additional metadata for use by resolution functions (e.g. source quality etc.)
+     */
     public ConflictResolverImpl(ResolutionFunctionRegistry resolutionFunctionRegistry, 
             ConflictResolutionPolicy conflictResolutionPolicy, URIMapping uriMapping, Model metadata) {
         this(resolutionFunctionRegistry, conflictResolutionPolicy, uriMapping);
         this.metadata = metadata;
     }
 
+    /**
+     * Creates a new instance with the given settings.
+     * @param resolutionFunctionRegistry registry for obtaining conflict resolution function implementations
+     * @param conflictResolutionPolicy conflict resolution parameters
+     * @param uriMapping mapping of URIs to their canonical URI (based on owl:sameAs links)
+     * @param metadata additional metadata for use by resolution functions (e.g. source quality etc.)
+     * @param resolvedGraphsURIPrefix prefix of graph names where resolved quads are placed
+     */
     public ConflictResolverImpl(ResolutionFunctionRegistry resolutionFunctionRegistry,
             ConflictResolutionPolicy conflictResolutionPolicy, URIMapping uriMapping, Model metadata,
             String resolvedGraphsURIPrefix) {
@@ -95,22 +132,42 @@ public class ConflictResolverImpl implements ConflictResolver {
         }
     }
 
+    /**
+     * Sets conflict resolution settings.
+     * @param conflictResolutionPolicy conflict resolution settings
+     */
     public void setConflictResolutionPolicy(ConflictResolutionPolicy conflictResolutionPolicy) {
         this.conflictResolutionPolicy = conflictResolutionPolicy;
     }
 
+    /**
+     * Sets URI mapping to use.
+     * @param uriMapping canonical URI mapping
+     */
     public void setURIMapping(URIMapping uriMapping) {
         this.uriMapping = uriMapping;
     }
 
+    /**
+     * Sets additional metadata available for resolution.
+     * @param metadata metadata as RDF model
+     */
     public void setMetadata(Model metadata) {
         this.metadata = metadata;
     }
 
+    /**
+     * Sets factory for resolved statements produced as output of conflict resolution.
+     * @param factory resolved statement factory
+     */
     public void setResolvedStatementFactory(ResolvedStatementFactory factory) {
         this.resolvedStatementFactory = factory;
     }
 
+    /**
+     * Sets registry with resolution function implementations. 
+     * @param resolutionFunctionRegistry registry for obtaining conflict resolution function implementations
+     */
     public void setResolutionFunctionRegistry(ResolutionFunctionRegistry resolutionFunctionRegistry) {
         this.resolutionFunctionRegistry = resolutionFunctionRegistry;
     }
@@ -129,6 +186,12 @@ public class ConflictResolverImpl implements ConflictResolver {
         return resolveConflictsInternal(statements.toArray(new Statement[0]));
     }
 
+    /**
+     * The internal implementation of the conflict resolution algorithm.
+     * @param statements RDF quads to be resolved; NOTE that this array will by modified by the function
+     * @return resolved quads (see {@link #resolveConflicts(Collection)})
+     * @throws ConflictResolutionException conflict resolution error
+     */
     protected Collection<ResolvedStatement> resolveConflictsInternal(Statement[] statements) throws ConflictResolutionException {
         LOG.debug("Resolving conflicts among {} quads.", statements.length);
         long startTime = System.currentTimeMillis();
@@ -181,14 +244,15 @@ public class ConflictResolverImpl implements ConflictResolver {
         ConflictResolutionPolicyImpl result = new ConflictResolutionPolicyImpl();
         
         ResolutionStrategy effectiveDefaultStrategy = conflictResolutionPolicy.getDefaultResolutionStrategy() != null
-                ? fillDefaults(conflictResolutionPolicy.getDefaultResolutionStrategy(), DEFAULT_RESOLUTION_STRATEGY)
+                ? CRUtils.fillResolutionStrategyDefaults(conflictResolutionPolicy.getDefaultResolutionStrategy(),
+                        DEFAULT_RESOLUTION_STRATEGY)
                 : DEFAULT_RESOLUTION_STRATEGY;
         result.setDefaultResolutionStrategy(effectiveDefaultStrategy);
         
         Map<URI, ResolutionStrategy> effectivePropertyStrategies = new HashMap<URI, ResolutionStrategy>();
         for (Entry<URI, ResolutionStrategy> entry : conflictResolutionPolicy.getPropertyResolutionStrategies().entrySet()) {
             URI mappedURI = uriMapping.mapURI(entry.getKey());
-            ResolutionStrategy strategy = fillDefaults(entry.getValue(), effectiveDefaultStrategy);
+            ResolutionStrategy strategy = CRUtils.fillResolutionStrategyDefaults(entry.getValue(), effectiveDefaultStrategy);
             effectivePropertyStrategies.put(mappedURI, strategy);
         }
         result.setPropertyResolutionStrategy(effectivePropertyStrategies);
@@ -204,7 +268,9 @@ public class ConflictResolverImpl implements ConflictResolver {
         return new ArrayList<ResolvedStatement>(inputSize / EXPECTED_REDUCTION_FACTOR);
     }
 
-    private ResolutionFunction getResolutionFunction(ResolutionStrategy resolutionStrategy) throws ResolutionFunctionNotRegisteredException {
+    private ResolutionFunction getResolutionFunction(ResolutionStrategy resolutionStrategy) 
+            throws ResolutionFunctionNotRegisteredException {
+        
         return resolutionFunctionRegistry.get(resolutionStrategy.getResolutionFunctionName());
     }
 
@@ -216,41 +282,5 @@ public class ConflictResolverImpl implements ConflictResolver {
     private URI getPredicate(List<Statement> conflictCluster) {
         assert !conflictCluster.isEmpty();
         return conflictCluster.get(0).getPredicate();
-    }
-    
-    private ResolutionStrategy fillDefaults(ResolutionStrategy strategy, ResolutionStrategy defaultStrategy) {
-        if (strategy == null) {
-            return defaultStrategy;
-        }
-        
-        String resolutionFunctionName;
-        EnumCardinality cardinality;
-        EnumAggregationErrorStrategy aggregationErrorStrategy;
-        
-        Map<String, String> params;
-        if (strategy.getResolutionFunctionName() == null) {
-            resolutionFunctionName = defaultStrategy.getResolutionFunctionName();
-            params = defaultStrategy.getParams();
-        } else {
-            resolutionFunctionName = strategy.getResolutionFunctionName();
-            params = strategy.getParams();
-        }
-        
-        if (strategy.getCardinality() == null) {
-            cardinality = defaultStrategy.getCardinality();
-        } else {
-            cardinality = strategy.getCardinality();
-        }
-        
-        if (strategy.getAggregationErrorStrategy() == null) {
-            aggregationErrorStrategy = defaultStrategy.getAggregationErrorStrategy();
-        } else {
-            aggregationErrorStrategy = strategy.getAggregationErrorStrategy();
-        }
-        return new ResolutionStrategyImpl(
-                resolutionFunctionName, 
-                cardinality,
-                aggregationErrorStrategy, 
-                params);
     }
 }

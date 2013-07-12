@@ -8,6 +8,8 @@ import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunctionRegistry;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ResolutionFunctionNotRegisteredException;
 
 /**
+ * Basic implementation of {@link ResolutionFunctionRegistry}.
+ * Resolution function implementations can be added by their identifier using {@link #register()}.
  * @author Jan Michelfeit
  */
 public class ResolutionFunctionRegistryImpl implements ResolutionFunctionRegistry {

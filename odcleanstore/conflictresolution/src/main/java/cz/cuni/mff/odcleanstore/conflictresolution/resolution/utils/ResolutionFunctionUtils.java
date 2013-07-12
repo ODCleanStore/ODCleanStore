@@ -14,7 +14,7 @@ import org.openrdf.model.Value;
 import org.openrdf.model.vocabulary.XMLSchema;
 
 /**
- * Aggregation utility methods.
+ * Various utility methods for conflict resolution function implementations.
  *
  * @author Jan Michelfeit
  */
@@ -59,7 +59,7 @@ public final class ResolutionFunctionUtils {
     /**
      * Return the type of a literal node.
      * @see EnumLiteralType
-     * @param value a literal node; if not a literal, an IllegalArgumentException is thrown
+     * @param literal a literal node; if not a literal, an IllegalArgumentException is thrown
      * @return type of the given literal
      * TODO: check that it works well with real data
      */
@@ -112,6 +112,13 @@ public final class ResolutionFunctionUtils {
         return lexicalForm.equalsIgnoreCase("true") || lexicalForm.equals("1") || lexicalForm.equalsIgnoreCase("yes");
     }
     
+    /**
+     * Convert the given {@link Value} to a boolean value.
+     * Only literals with lexical form "true", "1" or "yes" are considered true, 
+     * everything else (including {@link URI URIs} etc.) is false.
+     * @param value an RDF node
+     * @return literal converted to boolean
+     */
     public static boolean convertToBoolean(Value value) {
         if (!(value instanceof Literal)) {
             return false;
@@ -174,7 +181,8 @@ public final class ResolutionFunctionUtils {
                     firstGuessCount++;
                 }
                 int voteDifference = firstGuessCount - secondGuessCount;
-                if (voteDifference >= 2 || voteDifference <= -2) {
+                final int voteTreshold = 2;
+                if (voteDifference >= voteTreshold || voteDifference <= -voteTreshold) {
                     break;
                 }
             }

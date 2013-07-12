@@ -24,6 +24,12 @@ import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.CRUtils;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.SpogComparator;
 
 /**
+ * Provides view on the given statements as a collection of conflict clusters or as an RDF model.
+ * Conflict cluster is a set of quads sharing the same subject and predicate.
+ * Each conflict cluster is represented as a list of {@link Statement quads}.
+ * 
+ * URI mapping is applied to the statements wrapped by this object, they are sorted, and duplicities removed
+ * in order to identify conflict clusters.
  * @author Jan Michelfeit
  */
 public class ConflictClustersCollection extends AbstractCollection<List<Statement>> implements Collection<List<Statement>> {
@@ -35,13 +41,25 @@ public class ConflictClustersCollection extends AbstractCollection<List<Statemen
     private int size;
     private boolean isInitialized = false;
     private Model model;
-   
+
+    /**
+     * Creates a new instance wrapping the given statements.
+     * NOTE that the statements array will be modified!
+     * @param statements array of RDF quads; this array will be modified when methods are called on this object!
+     *        (URI mapping is applied, statements sorted and duplicities removed)
+     * @param uriMapping mapping of URIs to their canonical URI
+     * @param valueFactory a {@link ValueFactory} instance
+     */
     public ConflictClustersCollection(Statement[] statements, URIMapping uriMapping, ValueFactory valueFactory) {
         this.statements = statements;
         this.valueFactory = valueFactory;
         this.uriMapping = uriMapping;
     }
 
+    /**
+     * Returns number of unique wrapped quads after application of URI mapping.
+     * @return number of unique wrapped quads after application of URI mapping
+     */
     @Override
     public int size() {
         if (!isInitialized) {
@@ -49,7 +67,12 @@ public class ConflictClustersCollection extends AbstractCollection<List<Statemen
         }
         return size;
     }
-    
+
+    /**
+     * Returns an iterator over conflict clusters.
+     * Each conflict cluster is represented as a list of {@link Statement quads}.
+     * @return iterator over conflict clusters
+     */
     @Override
     public Iterator<List<Statement>> iterator() {
         if (!isInitialized) {
@@ -58,6 +81,10 @@ public class ConflictClustersCollection extends AbstractCollection<List<Statemen
         return new ConflictClusterIterator();
     }
 
+    /**
+     * Provides a view on the wrapped statements as a {@link Model}.
+     * @return an RDF model backed by the statements wrapped by this object
+     */
     public Model asModel() {
         if (!isInitialized) {
             initialize();
@@ -116,18 +143,18 @@ public class ConflictClustersCollection extends AbstractCollection<List<Statemen
         }
         return value;
     }
-    
+
     private void sort() {
         Arrays.sort(statements, ORDER_COMPARATOR);
     }
-    
+
     private void makeUnique() {
         if (statements.length == 0) {
             // Must be handled as a special case, otherwise this.size gets initialized to 1
             this.size = 0;
             return;
         }
-        
+
         int lastIdx = 0;
         for (int currIdx = 1; currIdx < statements.length; currIdx++) { // intentionally start from 1
             Statement previous = statements[lastIdx];
@@ -145,11 +172,15 @@ public class ConflictClustersCollection extends AbstractCollection<List<Statemen
             statements[i] = null; // release for GC
         }
     }
-    
+
+    /**
+     * Sublist of wrapped statements determined by start and end index into {@link ConflictClustersCollection#statements}
+     * representing one conflict cluster.
+     */
     private class SubList extends AbstractList<Statement> implements RandomAccess {
-        int from;
-        int to;
-        
+        private int from;
+        private int to;
+
         SubList(int from, int toExclusive) {
             this.from = from;
             this.to = toExclusive;
@@ -162,22 +193,26 @@ public class ConflictClustersCollection extends AbstractCollection<List<Statemen
             // }
             return statements[from + index];
         }
-        
+
         @Override
         public int size() {
             return to - from;
         }
-        
+
         @Override
         public int indexOf(Object obj) {
             if (obj == null) {
-                for (int i = from; i < to; i++)
-                    if (statements[i] == null)
+                for (int i = from; i < to; i++) {
+                    if (statements[i] == null) {
                         return i;
+                    }
+                }
             } else {
-                for (int i = from; i < to; i++)
-                    if (obj.equals(statements[i]))
+                for (int i = from; i < to; i++) {
+                    if (obj.equals(statements[i])) {
                         return i;
+                    }
+                }
             }
             return -1;
         }
@@ -187,10 +222,14 @@ public class ConflictClustersCollection extends AbstractCollection<List<Statemen
             return indexOf(obj) != -1;
         }
     }
-    
+
+    /**
+     * Iterator over conflict clusters backed by {@link ConflictClustersCollection#statements}.
+     * Expects {@link ConflictClustersCollection#statements} to be sp-sorted.
+     */
     private class ConflictClusterIterator implements Iterator<List<Statement>> {
         private int cursor = 0;
-        
+
         @Override
         public boolean hasNext() {
             return hasNextStatement();

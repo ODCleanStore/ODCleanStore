@@ -18,18 +18,41 @@ import cz.cuni.mff.odcleanstore.conflictresolution.quality.MediatingFQualityCalc
 
 
 /**
+ * Returns a statement whose object is a concatenation of all object values present in the quads to be resolved.
+ * The separator is given in optional
+ * {@link cz.cuni.mff.odcleanstore.conflictresolution.ResolutionStrategy#getParams() parameter} 
+ * {@value #SEPARATOR_PARAM_NAME}.
  * @author Jan Michelfeit
  */
 public class ConcatResolution extends MediatingResolutionFunction {
     private  static final String FUNCTION_NAME = "CONCAT";
+    
+    /**
+     * Returns a string identifier of this resolution function ({@value #FUNCTION_NAME}) - can be used to 
+     * retrieve the resolution function from the default initialized 
+     * {@link cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunctionRegistry}.
+     * @see cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory#createInitializedResolutionFunctionRegistry()
+     * @return string identifier of this resolution function
+     */
     public static String getName() {
         return FUNCTION_NAME;
     }
     
+    /** 
+     * Name of the {@link cz.cuni.mff.odcleanstore.conflictresolution.ResolutionStrategy#getParams() parameter} 
+     * specifying the separator of concatenated values.
+     */
     public static final String SEPARATOR_PARAM_NAME = "separator";
+    
+    /** Default separator of concatenated values. */
     public static final String DEFAULT_SEPARATOR = "; ";
     
-    
+    /**
+     * Creates a new instance.
+     * @param fQualityCalculator calculator of F-quality to be used for estimation of 
+     *      produced {@link ResolvedStatement result quads} 
+     *      (see {@link cz.cuni.mff.odcleanstore.conflictresolution.quality.FQualityCalculator}) 
+     */
     public ConcatResolution(MediatingFQualityCalculator fQualityCalculator) {
         super(fQualityCalculator);
     }

@@ -13,14 +13,29 @@ import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.EnumLiteralT
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ResolutionFunctionUtils;
 
 /**
+ * Select the statement with the maximum value as its object.
  * @author Jan Michelfeit
  */
 public class MaxResolution extends BestSelectedObjectResolutionBase {
     private  static final String FUNCTION_NAME = "MAX";
+    
+    /**
+     * Returns a string identifier of this resolution function ({@value #FUNCTION_NAME}) - can be used to 
+     * retrieve the resolution function from the default initialized 
+     * {@link cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunctionRegistry}.
+     * @see cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory#createInitializedResolutionFunctionRegistry()
+     * @return string identifier of this resolution function
+     */
     public static String getName() {
         return FUNCTION_NAME;
     }
     
+    /**
+     * Creates a new instance.
+     * @param fQualityCalculator calculator of F-quality to be used for estimation of 
+     *      produced {@link cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement result quads} 
+     *      (see {@link cz.cuni.mff.odcleanstore.conflictresolution.quality.FQualityCalculator}) 
+     */
     public MaxResolution(DecidingFQualityCalculator fQualityCalculator) {
         super(fQualityCalculator);
     }

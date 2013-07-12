@@ -5,7 +5,7 @@ import java.util.Comparator;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 /**
- * Compares two dates objects based on the time part only.
+ * Compares two dates in Gregorian calendar objects.
  * Implemented as singleton.
  * @author Jan Michelfeit
  */

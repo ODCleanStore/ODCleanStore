@@ -20,11 +20,19 @@ import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalcu
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.comparators.BestSelectedComparator;
 
 /**
+ * Base class for deciding resolution functions which select a single value based on a simple comparison of some values.
+ * @param <T> type of compared values
  * @author Jan Michelfeit
  */
 public abstract class BestSelectedResolutionBase<T> extends DecidingResolutionFunction {
     private static final int INITIAL_RESULT_CAPACITY = 5; // expect few non-aggregable statements
     
+    /**
+     * Creates a new instance.
+     * @param fQualityCalculator calculator of F-quality to be used for estimation of 
+     *      produced {@link ResolvedStatement result quads} 
+     *      (see {@link cz.cuni.mff.odcleanstore.conflictresolution.quality.FQualityCalculator}) 
+     */
     protected BestSelectedResolutionBase(DecidingFQualityCalculator fQualityCalculator) {
         super(fQualityCalculator);
     }
@@ -74,11 +82,17 @@ public abstract class BestSelectedResolutionBase<T> extends DecidingResolutionFu
 
     /**
      * Returns a comparator of quads that orders the best quad as having the highest order.
-     * @param crContext TODO
-     * @param conflictingQuads input quads to be aggregated
-     * @return a comparator of quads that orders the best quad as having the highest order
+     * @param statements statements to be resolved
+     * @param crContext context of conflict resolution
+     * @return a comparator of values that orders the best quad as having the highest order
      */
     protected abstract BestSelectedComparator<T> getComparator(Model statements, CRContext crContext);
     
+    /**
+     * Returns the value to be compared for the given quad (e.g. its object).
+     * @param statement statement to be compared
+     * @param crContext conflict resolution context
+     * @return value to be compared
+     */
     protected abstract T getComparedValue(Statement statement, CRContext crContext);
 }

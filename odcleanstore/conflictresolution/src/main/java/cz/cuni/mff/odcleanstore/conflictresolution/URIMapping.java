@@ -4,15 +4,17 @@ import org.openrdf.model.URI;
 
 
 /**
- * Mapping of an URI to its equivalent URI (canonical URI).
+ * Mapping of an URI to its equivalent canonical URI.
+ * A canonical URI is single URI selected for each (weakly)
+ * connected component of the owl:sameAs links graph for the URIs.
  * @author Jan Michelfeit
  */
 public interface URIMapping {
     /**
      * Returns a mapping to a canonical URI for the selected URI.
      * If URI has no defined mapping or is mapped to itself, returns <code>uri</code>.
-     * @param uri a Node_URI instance to map
-     * @return the canonical URI (an URI the uri argument maps to)
+     * @param uri the URI to map
+     * @return the canonical URI <code>uri</code> maps to
      */
     URI mapURI(URI uri);
 

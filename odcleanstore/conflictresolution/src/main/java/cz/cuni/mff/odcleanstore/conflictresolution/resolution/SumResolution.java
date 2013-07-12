@@ -21,14 +21,30 @@ import cz.cuni.mff.odcleanstore.conflictresolution.quality.MediatingFQualityCalc
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ResolutionFunctionUtils;
 
 /**
+ * Returns statement with the sum of all values in place of objects of quads to be resolved. 
+ * Only quads with numeric literal as object can be aggregated by this function.
  * @author Jan Michelfeit
  */
 public class SumResolution extends MediatingResolutionFunction {
     private  static final String FUNCTION_NAME = "SUM";
+    
+    /**
+     * Returns a string identifier of this resolution function ({@value #FUNCTION_NAME}) - can be used to 
+     * retrieve the resolution function from the default initialized 
+     * {@link cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunctionRegistry}.
+     * @see cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory#createInitializedResolutionFunctionRegistry()
+     * @return string identifier of this resolution function
+     */
     public static String getName() {
         return FUNCTION_NAME;
     }
     
+    /**
+     * Creates a new instance.
+     * @param fQualityCalculator calculator of F-quality to be used for estimation of 
+     *      produced {@link ResolvedStatement result quads} 
+     *      (see {@link cz.cuni.mff.odcleanstore.conflictresolution.quality.FQualityCalculator}) 
+     */
     public SumResolution(MediatingFQualityCalculator fQualityCalculator) {
         super(fQualityCalculator);
     }

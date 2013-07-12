@@ -577,14 +577,14 @@ import java.util.Set;
                 globalConfig.getResultDataURIPrefix().toString() + ODCSInternal.queryResultGraphUriInfix;
 
         // Merge user and admin CR policies
-        ResolutionStrategy mergedDefaultStrategy = CRUtils.mergeresolutionStrategies(
+        ResolutionStrategy mergedDefaultStrategy = CRUtils.fillResolutionStrategyDefaults(
                 conflictResolutionPolicy.getDefaultResolutionStrategy(),
                 defaultResolutionPolicy.getDefaultResolutionStrategy());
 
         Map<URI, ResolutionStrategy> mergedPropertyStrategies = new HashMap<URI, ResolutionStrategy>(
                 conflictResolutionPolicy.getPropertyResolutionStrategies());
         for (Entry<URI, ResolutionStrategy> entry : defaultResolutionPolicy.getPropertyResolutionStrategies().entrySet()) {
-            ResolutionStrategy mergedStrategy = CRUtils.mergeresolutionStrategies(
+            ResolutionStrategy mergedStrategy = CRUtils.fillResolutionStrategyDefaults(
                     mergedPropertyStrategies.get(entry.getKey()),
                     entry.getValue());
             mergedPropertyStrategies.put(entry.getKey(), mergedStrategy);

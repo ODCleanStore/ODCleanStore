@@ -17,11 +17,18 @@ import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.EnumLiteralT
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ResolutionFunctionUtils;
 
 /**
+ * Comparator of named graph by a value of their property, given in the constructor, in given metadata.
+ * I.e. for two named graphs ?g1, ?g2, the comparator would compare values ?v1, ?v2 such that triples
+ * ?g1 &lt;predicateURI&gt; ?v1 and ?g2 &lt;predicateURI&gt; ?v2 are present in the metadata.
+ * If there are multiple values for the predicate, only the first value returned by metadata model will be used.
  * @author Jan Michelfeit
  */
 public class MetadataValueComparator implements BestSelectedComparator<Resource> {
     private URI predicateURI;
     
+    /**
+     * @param predicateURI the property whose values will be compared for the compared named graphs
+     */
     public MetadataValueComparator(URI predicateURI) {
         this.predicateURI = predicateURI;
     }

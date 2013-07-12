@@ -8,12 +8,17 @@ import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.EnumLiteralT
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ResolutionFunctionUtils;
 
 /**
- * Comparator of quads having a numeric literal as the object.
- * The object must be a literal of type EnumLiteralType.NUMERIC.
+ * Comparator of numeric literals
+ * (of type {@link EnumLiteralType#NUMERIC - see {@link ResolutionFunctionUtils#getLiteralType(Literal)}).
+ * @author Jan Michelfeit
  */
 public class NumericLiteralComparator implements BestSelectedLiteralComparator {
     private static final NumericLiteralComparator INSTANCE = new NumericLiteralComparator();
 
+    /**
+     * Returns the shared default instance of this class.
+     * @return instance of this class
+     */
     public static final NumericLiteralComparator getInstance() {
         return INSTANCE;
     }

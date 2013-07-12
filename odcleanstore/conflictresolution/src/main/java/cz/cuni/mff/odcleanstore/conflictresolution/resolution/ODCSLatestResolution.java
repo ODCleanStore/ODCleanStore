@@ -13,16 +13,32 @@ import cz.cuni.mff.odcleanstore.conflictresolution.resolution.comparators.BestSe
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.comparators.ODCSInsertedAtComparator;
 
 /**
+ * Returns the statement with the latest insertion date to ODCleanStore.
+ * @see {@link ODCSInsertedAtComparator}
  * @author Jan Michelfeit
  */
 public class ODCSLatestResolution extends BestSelectedResolutionBase<Resource> {
     private  static final String FUNCTION_NAME = "LATEST";
+    
+    /**
+     * Returns a string identifier of this resolution function ({@value #FUNCTION_NAME}) - can be used to 
+     * retrieve the resolution function from the default initialized 
+     * {@link cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunctionRegistry}.
+     * @see cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory#createInitializedResolutionFunctionRegistry()
+     * @return string identifier of this resolution function
+     */
     public static String getName() {
         return FUNCTION_NAME;
     }
     
     private static final BestSelectedComparator<Resource> COMPARATOR = new ODCSInsertedAtComparator();
 
+    /**
+     * Creates a new instance.
+     * @param fQualityCalculator calculator of F-quality to be used for estimation of 
+     *      produced {@link cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement result quads} 
+     *      (see {@link cz.cuni.mff.odcleanstore.conflictresolution.quality.FQualityCalculator}) 
+     */
     public ODCSLatestResolution(DecidingFQualityCalculator fQualityCalculator) {
         super(fQualityCalculator);
     }

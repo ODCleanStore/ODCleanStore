@@ -17,6 +17,7 @@ import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 
 /**
+ * Utility class for the Conflict Resolution component.
  * @author Jan Michelfeit
  */
 public final class CRUtils {
@@ -51,6 +52,12 @@ public final class CRUtils {
         }
     }
     
+    /**
+     * Compares two quads (statements) for equality including named graphs (contexts).
+     * @param statement1 first quad to compare
+     * @param statement2 second quad to compare
+     * @return true iff subjects, predicates, objects and contexts equal, respectively
+     */
     public static boolean statementsEqual(Statement statement1, Statement statement2) {
         return sameValues(statement1.getObject(), statement2.getObject())
                 && statement1.getSubject().equals(statement2.getSubject())
@@ -71,27 +78,53 @@ public final class CRUtils {
         return literal.getDatatype() == null || literal.getDatatype().stringValue().equals(XMLSchema.stringType);
     }
     
-    public static ResolutionStrategy mergeresolutionStrategies(ResolutionStrategy baseStrategy, ResolutionStrategy mergedStrategy) {
-        if (baseStrategy == null) {
-            return mergedStrategy;
-        } else if (mergedStrategy == null) {
-            return baseStrategy;
+    /**
+     * Returns a resolution strategy identical to <code>strategy</code> except that any missing values
+     * in <code>strategy</code> are filled in from <code>defaultStrategy</code>.
+     * @param strategy base resolution strategy
+     * @param defaultStrategy default resolution strategy
+     * @return conflict resolution strategy
+     */
+    public static ResolutionStrategy fillResolutionStrategyDefaults(ResolutionStrategy strategy,
+            ResolutionStrategy defaultStrategy) {
+        
+        if (strategy == null) {
+            return defaultStrategy;
+        } else if (defaultStrategy == null) {
+            return strategy;
         }
-        String resolutionFunctionName = baseStrategy.getResolutionFunctionName() != null
-                ? baseStrategy.getResolutionFunctionName()
-                : mergedStrategy.getResolutionFunctionName();
-        EnumCardinality cardinality = baseStrategy.getCardinality() != null
-                ? baseStrategy.getCardinality()
-                : mergedStrategy.getCardinality();
-        EnumAggregationErrorStrategy errorStrategy = baseStrategy.getAggregationErrorStrategy() != null
-                ? baseStrategy.getAggregationErrorStrategy()
-                : mergedStrategy.getAggregationErrorStrategy();
-        Map<String, String> params = baseStrategy.getParams() != null || baseStrategy.getParams().isEmpty()
-                ? baseStrategy.getParams()
-                : mergedStrategy.getParams();
-        return new ResolutionStrategyImpl(resolutionFunctionName, cardinality, errorStrategy, params);
-    }
 
+        String resolutionFunctionName;
+        EnumCardinality cardinality;
+        EnumAggregationErrorStrategy aggregationErrorStrategy;
+        Map<String, String> params;
+
+        if (strategy.getResolutionFunctionName() == null) {
+            resolutionFunctionName = defaultStrategy.getResolutionFunctionName();
+            params = defaultStrategy.getParams();
+        } else {
+            resolutionFunctionName = strategy.getResolutionFunctionName();
+            params = strategy.getParams();
+        }
+
+        if (strategy.getCardinality() == null) {
+            cardinality = defaultStrategy.getCardinality();
+        } else {
+            cardinality = strategy.getCardinality();
+        }
+
+        if (strategy.getAggregationErrorStrategy() == null) {
+            aggregationErrorStrategy = defaultStrategy.getAggregationErrorStrategy();
+        } else {
+            aggregationErrorStrategy = strategy.getAggregationErrorStrategy();
+        }
+        return new ResolutionStrategyImpl(
+                resolutionFunctionName,
+                cardinality,
+                aggregationErrorStrategy,
+                params);
+    }
+    
     private CRUtils() {
     }
 }

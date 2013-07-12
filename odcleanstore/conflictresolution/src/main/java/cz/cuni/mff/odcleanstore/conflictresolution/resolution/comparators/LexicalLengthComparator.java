@@ -5,11 +5,16 @@ import org.openrdf.model.Value;
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 
 /**
- * Comparator of quads by the lexical length of their object.
+ * Comparator of literals by the length of their lexical representation.
+ * @author Jan Michelfeit
  */
 public class LexicalLengthComparator implements BestSelectedLiteralComparator {
     private static final LexicalLengthComparator INSTANCE = new LexicalLengthComparator();
 
+    /**
+     * Returns the shared default instance of this class.
+     * @return instance of this class
+     */
     public static final LexicalLengthComparator getInstance() {
         return INSTANCE;
     }

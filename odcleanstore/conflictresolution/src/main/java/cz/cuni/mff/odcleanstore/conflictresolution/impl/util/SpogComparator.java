@@ -5,11 +5,20 @@ import java.util.Comparator;
 import org.openrdf.model.Statement;
 import org.openrdf.model.util.LexicalValueComparator;
 
-// TODO guarantee null is least
+/**
+ * Lexicographical comparator of {@link Statement quads} by subject, predicate, object and named graph (in this order).
+ * The comparison is internally done by {@link LexicalValueComparator}.
+ * @see LexicalValueComparator
+ * @author Jan Michelfeit
+ */
 public class SpogComparator implements Comparator<Statement> {
     private static final LexicalValueComparator COMPARATOR = new LexicalValueComparator();
     private static Comparator<Statement> instance = new SpogComparator();
 
+    /**
+     * Returns the default shared instance of this class.
+     * @return the default shared instance of this class
+     */
     public static Comparator<Statement> getInstance() {
         return instance;
     }

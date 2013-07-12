@@ -16,17 +16,38 @@ import cz.cuni.mff.odcleanstore.conflictresolution.resolution.comparators.BestSe
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.comparators.MetadataValueComparator;
 
 /**
+ * Returns the statement with maximum value of the given property of its source.
+ * The property is given in required
+ * {@link cz.cuni.mff.odcleanstore.conflictresolution.ResolutionStrategy#getParams() parameter} 
+ * {@value #PREDICATE_PARAM_NAME}. The value of the property is then obtained from metadata given
+ * in the conflict resolution context.
  * @author Jan Michelfeit
  */
 public class MaxSourceMetadataValueResolution extends BestSelectedResolutionBase<Resource> {
     private static final Logger LOG = LoggerFactory.getLogger(MaxSourceMetadataValueResolution.class);
     
+    /** Name of parameter specifying the property of source to be compared. */
     public static final String PREDICATE_PARAM_NAME = "predicate";
+    
     private static final String FUNCTION_NAME = "MAX_SOURCE_METADATA";
+    
+    /**
+     * Returns a string identifier of this resolution function ({@value #FUNCTION_NAME}) - can be used to 
+     * retrieve the resolution function from the default initialized 
+     * {@link cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunctionRegistry}.
+     * @see cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory#createInitializedResolutionFunctionRegistry()
+     * @return string identifier of this resolution function
+     */
     public static String getName() {
         return FUNCTION_NAME;
     }
     
+    /**
+     * Creates a new instance.
+     * @param fQualityCalculator calculator of F-quality to be used for estimation of 
+     *      produced {@link cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement result quads} 
+     *      (see {@link cz.cuni.mff.odcleanstore.conflictresolution.quality.FQualityCalculator}) 
+     */
     public MaxSourceMetadataValueResolution(DecidingFQualityCalculator fQualityCalculator) {
         super(fQualityCalculator);
     }

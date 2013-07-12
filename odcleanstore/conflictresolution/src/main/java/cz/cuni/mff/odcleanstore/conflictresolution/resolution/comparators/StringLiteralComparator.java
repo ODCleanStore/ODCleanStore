@@ -7,12 +7,16 @@ import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 
 /**
- * Comparator of quads by the lexical form of their object.
- * The object must be a literal
+ * Comparator of RDF nodes by the lexical form of their object.
+ * @author Jan Michelfeit
  */
 public class StringLiteralComparator implements BestSelectedLiteralComparator {
     private static final StringLiteralComparator INSTANCE = new StringLiteralComparator();
 
+    /**
+     * Returns the shared default instance of this class.
+     * @return instance of this class
+     */
     public static final StringLiteralComparator getInstance() {
         return INSTANCE;
     }

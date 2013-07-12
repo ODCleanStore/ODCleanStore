@@ -1,9 +1,11 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils;
 
 /**
- * Implementation of the Levenshtein distance between to strings.
+ * Implementation of a K-bounded (and normalized K-bounded) Levenshtein distance between two strings.
+ * @author Jan Michelfeit
  */
 public final class LevenshteinDistance {
+    /** Normalization factor for Levenshtein distance - strings with Levenshtein distance >= MAX_DISTANCE is always 1. */
     public static final int MAX_DISTANCE = 128;
 
     /**

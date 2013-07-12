@@ -7,12 +7,16 @@ import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ResolutionFunctionUtils;
 
 /**
- * Comparator of quads having a boolean literal as the object.
- * The object must be a literal.
+ * Comparator of boolean literals.
+ * @author Jan Michelfeit
  */
 public class BooleanLiteralComparator implements BestSelectedLiteralComparator {
     private static final BooleanLiteralComparator INSTANCE = new BooleanLiteralComparator();
     
+    /**
+     * Returns the shared default instance of this class.
+     * @return instance of this class
+     */
     public static final BooleanLiteralComparator getInstance() {
         return INSTANCE;
     }

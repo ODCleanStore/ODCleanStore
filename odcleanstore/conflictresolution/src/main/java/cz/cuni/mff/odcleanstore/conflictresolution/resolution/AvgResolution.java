@@ -21,14 +21,30 @@ import cz.cuni.mff.odcleanstore.conflictresolution.quality.MediatingFQualityCalc
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ResolutionFunctionUtils;
 
 /**
+ * Calculates average value of object values of quads to be resolved and returns it in the result.
+ * Only quads with numeric literal as object can be aggregated by this function.
  * @author Jan Michelfeit
  */
 public class AvgResolution extends MediatingResolutionFunction {
     private  static final String FUNCTION_NAME = "AVG";
+    
+    /**
+     * Returns a string identifier of this resolution function ({@value #FUNCTION_NAME}) - can be used to 
+     * retrieve the resolution function from the default initialized 
+     * {@link cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunctionRegistry}.
+     * @see cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory#createInitializedResolutionFunctionRegistry()
+     * @return string identifier of this resolution function
+     */
     public static String getName() {
         return FUNCTION_NAME;
     }
     
+    /**
+     * Creates a new instance.
+     * @param fQualityCalculator calculator of F-quality to be used for estimation of 
+     *      produced {@link ResolvedStatement result quads} 
+     *      (see {@link cz.cuni.mff.odcleanstore.conflictresolution.quality.FQualityCalculator}) 
+     */
     public AvgResolution(MediatingFQualityCalculator fQualityCalculator) {
         super(fQualityCalculator);
     }
@@ -52,7 +68,7 @@ public class AvgResolution extends MediatingResolutionFunction {
                 sum += numberValue;
                 validCount++;
                 lastAggregableStatement = statement;
-            } else if (!CRUtils.sameValues(statement.getObject(), lastObject)){
+            } else if (!CRUtils.sameValues(statement.getObject(), lastObject)) {
                 handleNonAggregableStatement(statement, statements, crContext, result);
             }
             lastObject = statement.getObject();

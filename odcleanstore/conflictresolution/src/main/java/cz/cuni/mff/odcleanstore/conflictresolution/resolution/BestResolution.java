@@ -18,16 +18,33 @@ import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalcu
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ObjectClusterIterator;
 
 /**
+ * Resolution function which selects the quad with the highest F-Quality score
+ * as calculated by the used {@link cz.cuni.mff.odcleanstore.conflictresolution.quality.FQualityCalculator}.
  * @author Jan Michelfeit
  */
 public class BestResolution extends DecidingResolutionFunction {
     private  static final String FUNCTION_NAME = "BEST";
+    
+    /**
+     * Returns a string identifier of this resolution function ({@value #FUNCTION_NAME}) - can be used to 
+     * retrieve the resolution function from the default initialized 
+     * {@link cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunctionRegistry}.
+     * @see cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory#createInitializedResolutionFunctionRegistry()
+     * @return string identifier of this resolution function
+     */
     public static String getName() {
         return FUNCTION_NAME;
     }
     
+    /** Instance of comparator by objects. */
     protected static final Comparator<Statement> OBJECT_COMPARATOR = new ObjectComparator();
     
+    /**
+     * Creates a new instance.
+     * @param fQualityCalculator calculator of F-quality to be used for estimation of 
+     *      produced {@link ResolvedStatement result quads} 
+     *      (see {@link cz.cuni.mff.odcleanstore.conflictresolution.quality.FQualityCalculator}) 
+     */
     public BestResolution(DecidingFQualityCalculator fQualityCalculator) {
         super(fQualityCalculator);
     } 

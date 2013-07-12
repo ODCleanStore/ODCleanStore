@@ -3,7 +3,8 @@ package cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils;
 import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
 
 /**
- * Generator of unique named graph URIs.
+ * Generator of unique named graph URIs. Each URI is composed of the prefix given in the constructor
+ * and a numeric value incremented every time {@link #nextURI()} is called.
  * This class is not thread-safe.
  *
  * @author Jan Michelfeit

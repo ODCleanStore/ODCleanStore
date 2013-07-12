@@ -17,14 +17,30 @@ import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalcu
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ObjectClusterIterator;
 
 /**
+ * Implementation of the ALL resolution function - returns all input values.
+ * Only quads differing only in their named graph are grouped together.
  * @author Jan Michelfeit
  */
 public class AllResolution extends DecidingResolutionFunction {
     private  static final String FUNCTION_NAME = "ALL";
+    
+    /**
+     * Returns a string identifier of this resolution function ({@value #FUNCTION_NAME}) - can be used to 
+     * retrieve the resolution function from the default initialized 
+     * {@link cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunctionRegistry}.
+     * @see cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory#createInitializedResolutionFunctionRegistry()
+     * @return string identifier of this resolution function
+     */
     public static String getName() {
         return FUNCTION_NAME;
     }
     
+    /**
+     * Creates a new instance.
+     * @param fQualityCalculator calculator of F-quality to be used for estimation of 
+     *      produced {@link ResolvedStatement result quads}
+     *      (see {@link cz.cuni.mff.odcleanstore.conflictresolution.quality.FQualityCalculator}) 
+     */
     public AllResolution(DecidingFQualityCalculator fQualityCalculator) {
         super(fQualityCalculator);
     }

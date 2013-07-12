@@ -1,4 +1,4 @@
 /**
- * Implementations of various conflict resolution methods.
+ * Implementations of conflict resolution functions.
  */
 package cz.cuni.mff.odcleanstore.conflictresolution.resolution;

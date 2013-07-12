@@ -20,17 +20,39 @@ import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalcu
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ObjectClusterIterator;
 
 /**
+ * Returns quads which have the source given as parameter among their source named graphs.
+ * The preferred sources is given in required
+ * {@link cz.cuni.mff.odcleanstore.conflictresolution.ResolutionStrategy#getParams() parameter} 
+ * {@value #SOURCE_PARAM_NAME}.
  * @author Jan Michelfeit
  */
 public class ChooseSourceResolution extends DecidingResolutionFunction {
     private static final Logger LOG = LoggerFactory.getLogger(ChooseSourceResolution.class);
     
+    /** 
+     * Name of the {@link cz.cuni.mff.odcleanstore.conflictresolution.ResolutionStrategy#getParams() parameter} 
+     * specifying the preferred source.
+     */
     public static final String SOURCE_PARAM_NAME = "source";
     private static final String FUNCTION_NAME = "CHOOSE_SOURCE";
+    
+    /**
+     * Returns a string identifier of this resolution function ({@value #FUNCTION_NAME}) - can be used to 
+     * retrieve the resolution function from the default initialized 
+     * {@link cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunctionRegistry}.
+     * @see cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory#createInitializedResolutionFunctionRegistry()
+     * @return string identifier of this resolution function
+     */
     public static String getName() {
         return FUNCTION_NAME;
     }
     
+    /**
+     * Creates a new instance.
+     * @param fQualityCalculator calculator of F-quality to be used for estimation of 
+     *      produced {@link ResolvedStatement result quads} 
+     *      (see {@link cz.cuni.mff.odcleanstore.conflictresolution.quality.FQualityCalculator}) 
+     */
     public ChooseSourceResolution(DecidingFQualityCalculator fQualityCalculator) {
         super(fQualityCalculator);
     }

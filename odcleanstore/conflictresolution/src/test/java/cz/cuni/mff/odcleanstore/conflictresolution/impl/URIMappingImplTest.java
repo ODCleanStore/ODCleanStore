@@ -38,7 +38,7 @@ public class URIMappingImplTest {
     @Test
     public void testEmptyMapping() {
         URIMappingImpl instance = new URIMappingImpl();
-        URI uri = VALUE_FACTORY.createURI(CRTestUtils.getUniqueURI());
+        URI uri = VALUE_FACTORY.createURI(CRTestUtils.getUniqueURIString());
         URI expResult = uri;
         URI result = instance.mapURI(uri);
         Assert.assertEquals(expResult, result);
@@ -46,10 +46,10 @@ public class URIMappingImplTest {
 
     @Test
     public void testNonEmptyMapping1() {
-        String uri1 = CRTestUtils.getUniqueURI();
-        String uri2 = CRTestUtils.getUniqueURI();
-        String uri3 = CRTestUtils.getUniqueURI();
-        String uri4 = CRTestUtils.getUniqueURI();
+        String uri1 = CRTestUtils.getUniqueURIString();
+        String uri2 = CRTestUtils.getUniqueURIString();
+        String uri3 = CRTestUtils.getUniqueURIString();
+        String uri4 = CRTestUtils.getUniqueURIString();
 
         LinkedList<Statement> sameAsLinks = new LinkedList<Statement>();
         sameAsLinks.add(CRTestUtils.createStatement(
@@ -76,10 +76,10 @@ public class URIMappingImplTest {
 
     @Test
     public void testNonEmptyMapping2() {
-        String rootURI = CRTestUtils.getUniqueURI();
-        String uri1 = CRTestUtils.getUniqueURI();
-        String uri2 = CRTestUtils.getUniqueURI();
-        String uri3 = CRTestUtils.getUniqueURI();
+        String rootURI = CRTestUtils.getUniqueURIString();
+        String uri1 = CRTestUtils.getUniqueURIString();
+        String uri2 = CRTestUtils.getUniqueURIString();
+        String uri3 = CRTestUtils.getUniqueURIString();
 
         LinkedList<Statement> sameAsLinks = new LinkedList<Statement>();
         sameAsLinks.add(CRTestUtils.createStatement(
@@ -110,9 +110,9 @@ public class URIMappingImplTest {
 
     @Test
     public void testCycleMapping() {
-        String uri1 = CRTestUtils.getUniqueURI();
-        String uri2 = CRTestUtils.getUniqueURI();
-        String uri3 = CRTestUtils.getUniqueURI();
+        String uri1 = CRTestUtils.getUniqueURIString();
+        String uri2 = CRTestUtils.getUniqueURIString();
+        String uri3 = CRTestUtils.getUniqueURIString();
 
         LinkedList<Statement> sameAsLinks = new LinkedList<Statement>();
         sameAsLinks.add(CRTestUtils.createStatement(
@@ -141,9 +141,9 @@ public class URIMappingImplTest {
 
     @Test
     public void testPreferredURIs() {
-        String uri1 = CRTestUtils.getUniqueURI();
-        String uri2 = CRTestUtils.getUniqueURI();
-        String uri3 = CRTestUtils.getUniqueURI();
+        String uri1 = CRTestUtils.getUniqueURIString();
+        String uri2 = CRTestUtils.getUniqueURIString();
+        String uri3 = CRTestUtils.getUniqueURIString();
 
         LinkedList<Statement> sameAsLinks = new LinkedList<Statement>();
         sameAsLinks.add(CRTestUtils.createStatement(

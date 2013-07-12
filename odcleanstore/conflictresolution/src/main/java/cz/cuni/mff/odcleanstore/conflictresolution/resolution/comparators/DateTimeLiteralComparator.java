@@ -11,12 +11,16 @@ import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ResolutionFu
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.XMLGregorianCalendarComparator;
 
 /**
- * Comparator of quads having a time literal as the object.
- * The object must be a literal of type EnumLiteralType.TIME.
+ * Comparator of literals representing a date and/or time (see {@link ResolutionFunctionUtils#getLiteralType(Literal)}).
+ * @author Jan Michelfeit
  */
 public class DateTimeLiteralComparator implements BestSelectedLiteralComparator {
     private static final DateTimeLiteralComparator INSTANCE = new DateTimeLiteralComparator();
 
+    /**
+     * Returns the shared default instance of this class.
+     * @return instance of this class
+     */
     public static final DateTimeLiteralComparator getInstance() {
         return INSTANCE;
     }

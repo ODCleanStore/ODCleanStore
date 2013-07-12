@@ -26,20 +26,34 @@ import org.openrdf.model.util.LexicalValueComparator;
 import org.openrdf.model.util.PatternIterator;
 
 /**
+ * Implementation of RDF {@link Model} backed by a spog-sorted list of statements.
+ * The implementation is read-only and any data updating methods will throw {@link UnsupportedOperationException}.
+ * The implementation ensures logarithmic time in size of the list for queries right-padded with
+ * wildcards as the filtering as implemented with a binary search of the sorted list.
+ * 
+ * E.g. query <code>model.filter(subject, predicate, null)</code> is guaranteed to be logarithmic while
+ * query <code>model.filter(subject, null, predicate, null)</code> is not (in this case, 
+ * it would be logarithmic in size of list plus linear in number of statements having the given subject).
  * @author Jan Michelfeit
  */
 public class SortedListModel extends AbstractModel implements Model {
     private static final long serialVersionUID = 1L;
 
-    protected static final Resource[] NULL_CONTEXT = new Resource[] { null };
-    protected static final ValueFactory VALUE_FACTORY = ValueFactoryImpl.getInstance();
-    private static Comparator<Statement> SPOG_COMPARATOR = new SpogComparator();
+    private static final ValueFactory VALUE_FACTORY = ValueFactoryImpl.getInstance();
+    private static final Comparator<Statement> SPOG_COMPARATOR = new SpogComparator();
     private static final URI BEFORE = new URIImpl("urn:from");
     private static final Set<Namespace> NAMESPACES = Collections.emptySet();
 
     private final List<Statement> statements;
     private final int size;
 
+    /**
+     * Creates a new instance backed by the given list of statements.
+     * @param sortedStatements list of statements to be viewed as the model;
+     *      the statements MUST be spog-sorted (i.e. lexicographically by subject, predicate, object and named graph)
+     *      and the list MUST allow random access indicated by interface {@link RandomAccess} (otherwise an 
+     *      exception is thrown)
+     */
     public SortedListModel(List<Statement> sortedStatements) {
         if (!(sortedStatements instanceof RandomAccess)) {
             throw new IllegalArgumentException("SortedListModel requires an RandomAccess list"); 
@@ -188,6 +202,10 @@ public class SortedListModel extends AbstractModel implements Model {
         return VALUE_FACTORY.createStatement(subject, predicate, object, context);
     }
 
+    /**
+     * Filtering iterator over underlying quads which starts iterating at the given position
+     * and iterates only over quads matching the pattern given in the constructor.
+     */
     private class FilterStatementIterator implements Iterator<Statement> {
         private int index;
         private final Resource subject;
@@ -195,6 +213,13 @@ public class SortedListModel extends AbstractModel implements Model {
         private final Value object;
         private final Resource context;
 
+        /**
+         * @param from index into {@link SortedListModel#statements} where to start iterating
+         * @param subject subject pattern (value or null as wildcard)
+         * @param predicate predicate pattern (value or null as wildcard)
+         * @param object object pattern (value or null as wildcard)
+         * @param context context pattern (value or null as wildcard)
+         */
         public FilterStatementIterator(int from, Resource subject, URI predicate, Value object, Resource context) {
             this.subject = subject;
             this.predicate = predicate;
@@ -259,16 +284,24 @@ public class SortedListModel extends AbstractModel implements Model {
         }
     }
 
+    /**
+     * Comparator of {@link Statement Statements} comparing lexicographically by subject, predicate, object
+     * and named graph.
+     * Special value {@link SortedListModel#BEFORE} is considered as the least value.
+     */
     private static class SpogComparator implements Comparator<Statement> {
         private final LexicalValueComparator comparator = new LexicalValueComparator();
 
         protected int compareValue(Value o1, Value o2) {
-            if (o1 == o2)
+            if (o1 == o2) {
                 return 0;
-            if (o1 == BEFORE)
+            }
+            if (o1 == BEFORE) {
                 return -1;
-            if (o2 == BEFORE)
+            }
+            if (o2 == BEFORE) {
                 return 1;
+            }
             return comparator.compare(o1, o2);
         }
 
@@ -293,7 +326,10 @@ public class SortedListModel extends AbstractModel implements Model {
         }
     }
 
-    private static abstract class FilteredSortedArrayModel extends FilteredModel {
+    /**
+     * An immutable subclass of {@link FilteredModel}.
+     */
+    private abstract static class FilteredSortedArrayModel extends FilteredModel {
         private static final long serialVersionUID = 1L;
 
         public FilteredSortedArrayModel(AbstractModel model, Resource subj, URI pred, Value obj, Resource[] contexts) {

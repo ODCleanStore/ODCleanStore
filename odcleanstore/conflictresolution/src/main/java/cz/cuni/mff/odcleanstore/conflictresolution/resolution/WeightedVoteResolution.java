@@ -18,17 +18,35 @@ import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalcu
 import cz.cuni.mff.odcleanstore.conflictresolution.quality.SourceQualityCalculator;
 
 /**
+ * Returns statement with object which is the most often occurring object value, weighted by quality scores of 
+ * the respective sources. 
  * @author Jan Michelfeit
  */
 public class WeightedVoteResolution extends DecidingResolutionFunction {
     private  static final String FUNCTION_NAME = "WEIGHTED_VOTE";
+    
+    /**
+     * Returns a string identifier of this resolution function ({@value #FUNCTION_NAME}) - can be used to 
+     * retrieve the resolution function from the default initialized 
+     * {@link cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunctionRegistry}.
+     * @see cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory#createInitializedResolutionFunctionRegistry()
+     * @return string identifier of this resolution function
+     */
     public static String getName() {
         return FUNCTION_NAME;
     }
     
     private final SourceQualityCalculator sourceQualityCalculator;
     
-    public WeightedVoteResolution(DecidingFQualityCalculator fQualityCalculator, SourceQualityCalculator sourceQualityCalculator) {
+    /**
+     * Creates a new instance.
+     * @param fQualityCalculator calculator of F-quality to be used for estimation of
+     *        produced {@link ResolvedStatement result quads} (see
+     *        {@link cz.cuni.mff.odcleanstore.conflictresolution.quality.FQualityCalculator})
+     * @param sourceQualityCalculator calculator of quality score of quad source named graphs
+     */
+    public WeightedVoteResolution(DecidingFQualityCalculator fQualityCalculator, 
+            SourceQualityCalculator sourceQualityCalculator) {
         super(fQualityCalculator);
         this.sourceQualityCalculator = sourceQualityCalculator;
     } 

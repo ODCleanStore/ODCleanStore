@@ -3,11 +3,10 @@
  */
 package cz.cuni.mff.odcleanstore.conflictresolution.resolution;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Map;
-import java.util.PriorityQueue;
 
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
@@ -21,14 +20,14 @@ import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalcu
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ObjectClusterIterator;
 
 /**
- * Returns N best statements (see {@link BestResolution}).
- * The preferred sources is given in optional
+ * Returns statements with F-quality higher than the given threshold.
+ * The thhreshold is given in optional
  * {@link cz.cuni.mff.odcleanstore.conflictresolution.ResolutionStrategy#getParams() parameter} 
- * {@value #SOURCE_PARAM_NAME} (by default returns {@value #DEFAULT_COUNT} value).
+ * {@value #SOURCE_PARAM_NAME}.
  * @author Jan Michelfeit
  */
-public class TopNResolution extends DecidingResolutionFunction {
-    private  static final String FUNCTION_NAME = "TOPN";
+public class ThresholdResolution extends DecidingResolutionFunction {
+    private  static final String FUNCTION_NAME = "THRESHOLD";
     
     /**
      * Returns a string identifier of this resolution function ({@value #FUNCTION_NAME}) - can be used to 
@@ -41,30 +40,24 @@ public class TopNResolution extends DecidingResolutionFunction {
         return FUNCTION_NAME;
     }
     
-    private static final Logger LOG = LoggerFactory.getLogger(TopNResolution.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ThresholdResolution.class);
     
     /** 
      * Name of the {@link cz.cuni.mff.odcleanstore.conflictresolution.ResolutionStrategy#getParams() parameter} 
-     * specifying the number of quads to return.
+     * specifying the F-quality threshold.
      */
-    public static final String COUNT_PARAM_NAME = "n";
+    public static final String THRESHOLD_PARAM_NAME = "threshold";
     
-    /** Default number of quads to return. */
-    public static final int DEFAULT_COUNT = 1;
-    private static final Comparator<ResolvedStatement> FQUALITY_COMPARATOR = new Comparator<ResolvedStatement>() {
-        @Override
-        public int compare(ResolvedStatement o1, ResolvedStatement o2) {
-            return Double.compare(o1.getQuality(), o2.getQuality());
-        }
-    };
-
+    /** Default threshold value. */
+    public static final double DEFAULT_THRESHOLD = 0;
+    
     /**
      * Creates a new instance.
      * @param fQualityCalculator calculator of F-quality to be used for estimation of 
      *      produced {@link ResolvedStatement result quads} 
      *      (see {@link cz.cuni.mff.odcleanstore.conflictresolution.quality.FQualityCalculator}) 
      */
-    public TopNResolution(DecidingFQualityCalculator fQualityCalculator) {
+    public ThresholdResolution(DecidingFQualityCalculator fQualityCalculator) {
         super(fQualityCalculator);
     }
 
@@ -74,54 +67,49 @@ public class TopNResolution extends DecidingResolutionFunction {
             return Collections.emptySet();
         }
 
-        int count = getCountParam(crContext.getResolutionStrategy().getParams());
+        double threshold = getThresholdParam(crContext.getResolutionStrategy().getParams());
         Collection<Statement> sortedStatements = statements;
-
-        PriorityQueue<ResolvedStatement> bestStatements = new PriorityQueue<ResolvedStatement>(count, FQUALITY_COMPARATOR);
-
+        Collection<ResolvedStatement> result = new ArrayList<ResolvedStatement>(statements.size());
+        
         // cluster means a sequence of statements with the same object
         ObjectClusterIterator it = new ObjectClusterIterator(sortedStatements);
         while (it.hasNext()) {
             Statement statement = it.next();
             Collection<Resource> sources = it.peekSources();
             double fQuality = getFQuality(statement.getObject(), statements, sources, crContext);
-            if (bestStatements.size() < count) {
-                bestStatements.add(createResolvedStatement(statement, fQuality, sources, crContext));
-            } else if (fQuality > bestStatements.peek().getQuality()) {
-                bestStatements.poll();
-                bestStatements.add(createResolvedStatement(statement, fQuality, sources, crContext));
+            if (fQuality > threshold) {
+                addResolvedStatement(statement, fQuality, sources, crContext, result);
             }
         }
 
-        return bestStatements;
+        return result;
     }
 
-    private ResolvedStatement createResolvedStatement(Statement statement, double fQuality, Collection<Resource> sources,
-            CRContext crContext) {
-        return crContext.getResolvedStatementFactory().create(
+    private void addResolvedStatement(Statement statement, double fQuality, Collection<Resource> sources,
+            CRContext crContext, Collection<ResolvedStatement> result) {
+        result.add(crContext.getResolvedStatementFactory().create(
                 statement.getSubject(),
                 statement.getPredicate(),
-                statement.getPredicate(),
+                statement.getObject(),
                 fQuality,
-                sources);
+                sources));
     }
-
-    private int getCountParam(Map<String, String> params) {
-        String countParam = params.get(COUNT_PARAM_NAME);
-        if (countParam == null) {
-            return DEFAULT_COUNT;
+    
+    private double getThresholdParam(Map<String, String> params) {
+        String thresholdParam = params.get(THRESHOLD_PARAM_NAME);
+        if (thresholdParam == null) {
+            return DEFAULT_THRESHOLD;
         }
-        int count;
+        double threshold;
         try {
-            count = Integer.parseInt(countParam);
+            threshold = Double.parseDouble(thresholdParam);
         } catch (NumberFormatException e) {
-            LOG.warn("Invalid value of parameter '{}': {}", COUNT_PARAM_NAME, countParam);
-            return DEFAULT_COUNT;
+            LOG.warn("Invalid value of parameter '{}': {}", THRESHOLD_PARAM_NAME, thresholdParam);
+            return DEFAULT_THRESHOLD;
         }
-        if (count < 1) {
-            LOG.warn("Value of parameter '{}' must be positive, {} given", COUNT_PARAM_NAME, count);
-            return DEFAULT_COUNT;
+        if (0 < threshold || threshold > 1) {
+            LOG.warn("Value of parameter '{}' should be from interval [0;1], {} given", THRESHOLD_PARAM_NAME, threshold);
         }
-        return count;
+        return threshold;
     }
 }

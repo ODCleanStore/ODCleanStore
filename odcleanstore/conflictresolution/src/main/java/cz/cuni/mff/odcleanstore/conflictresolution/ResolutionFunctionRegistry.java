@@ -12,19 +12,18 @@ public interface ResolutionFunctionRegistry {
      * If no function of such name has been registered, throws an exception.
      * @param functionName name (string identifier) of the resolution function
      * @return implementation of the resolution function of the given name
-     * @throws ResolutionFunctionNotRegisteredException no function of the given name
-     *      is registered
+     * @throws ResolutionFunctionNotRegisteredException no function of the given name is registered
      */
-    public ResolutionFunction get(String functionName) throws ResolutionFunctionNotRegisteredException;
-    
+    ResolutionFunction get(String functionName) throws ResolutionFunctionNotRegisteredException;
+
     /**
      * Registers a conflict resolution function implementation with a given name.
      * Registering a function with the same name twice overrides the implementation of the function with
      * this name.
-     * The function implementations should support being reused multiple times 
+     * The function implementations should support being reused multiple times
      * (i.e. the resolved() method can be called repeatedly).
      * @param functionName name of the resolution function
      * @param resolutionFunction implementation of the resolution function
      */
-    public void register(String functionName, ResolutionFunction resolutionFunction);
+    void register(String functionName, ResolutionFunction resolutionFunction);
 }

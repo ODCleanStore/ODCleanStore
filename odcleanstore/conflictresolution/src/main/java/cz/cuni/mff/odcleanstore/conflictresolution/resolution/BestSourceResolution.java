@@ -17,16 +17,33 @@ import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalcu
 import cz.cuni.mff.odcleanstore.conflictresolution.quality.SourceQualityCalculator;
 
 /**
+ * Resolution function selecting a quad with the best quality score of its source named graph.
+ * In case of tie, the first quad is selected.
  * @author Jan Michelfeit
  */
 public class BestSourceResolution extends DecidingResolutionFunction {
     private  static final String FUNCTION_NAME = "BEST_SOURCE";
+    
+    /**
+     * Returns a string identifier of this resolution function ({@value #FUNCTION_NAME}) - can be used to 
+     * retrieve the resolution function from the default initialized 
+     * {@link cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunctionRegistry}.
+     * @see cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory#createInitializedResolutionFunctionRegistry()
+     * @return string identifier of this resolution function
+     */
     public static String getName() {
         return FUNCTION_NAME;
     }
     
     private final SourceQualityCalculator sourceQualityCalculator;
     
+    /**
+     * Creates a new instance.
+     * @param fQualityCalculator calculator of F-quality to be used for estimation of 
+     *      produced {@link ResolvedStatement result quads} 
+     *      (see {@link cz.cuni.mff.odcleanstore.conflictresolution.quality.FQualityCalculator})
+     * @param sourceQualityCalculator calculator of quality score of quad source named graphs 
+     */
     public BestSourceResolution(DecidingFQualityCalculator fQualityCalculator, SourceQualityCalculator sourceQualityCalculator) {
         super(fQualityCalculator);
         this.sourceQualityCalculator = sourceQualityCalculator;
