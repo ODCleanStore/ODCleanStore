@@ -1,4 +1,4 @@
-This is an ODCleanStore release 1.0.1.
+This is an ODCleanStore release 1.1.0.
 
 For more information about ODCleanStore, please see the official documentation
 in doc/ subdirectory or visit

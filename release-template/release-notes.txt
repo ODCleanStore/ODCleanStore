@@ -4,6 +4,19 @@ For more information about ODCleanStore, please visit
   or refer to the official documentation in doc/ subdirectory.
 
 =========================================
+What is new in ODCleanStore release 1.1
+=========================================
+
+1.1.0
+-----
+New features:
+* Completely reworked Conflict Resolver implementation - improved extensibility, improved interface
+  
+Fixes & improvements:
+* Relative transformer working directory paths are relative to Engine's working directory
+* Fixed numeric keyword queries
+
+=========================================
 What is new in ODCleanStore release 1.0
 =========================================
 
