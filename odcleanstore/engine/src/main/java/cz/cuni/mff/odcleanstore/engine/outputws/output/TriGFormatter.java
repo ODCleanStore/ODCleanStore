@@ -1,7 +1,7 @@
 package cz.cuni.mff.odcleanstore.engine.outputws.output;
 
 import cz.cuni.mff.odcleanstore.configuration.OutputWSConfig;
-import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
 import cz.cuni.mff.odcleanstore.qualityassessment.QualityAssessor.GraphScoreWithTrace;
 import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.MetadataQueryResult;
@@ -84,25 +84,25 @@ public class TriGFormatter extends RDFFormatter {
 
         // Data and metadata about the result
         int totalResults = 0;
-        for (CRQuad crQuad : queryResult.getResultQuads()) {
+        for (ResolvedStatement resolvedStatement : queryResult.getResultQuads()) {
             totalResults++;
-            rdfWriter.handleStatement(crQuad.getQuad());
+            rdfWriter.handleStatement(resolvedStatement.getStatement());
             rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
-                    crQuad.getQuad().getContext(),
+                    resolvedStatement.getStatement().getContext(),
                     QUALITY_PROPERTY,
-                    VALUE_FACTORY.createLiteral(crQuad.getQuality()),
+                    VALUE_FACTORY.createLiteral(resolvedStatement.getQuality()),
                     metadataGraphURI));
-            for (String sourceNamedGraph : crQuad.getSourceNamedGraphURIs()) {
+            for (Resource sourceNamedGraph : resolvedStatement.getSourceGraphNames()) {
                 rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
-                        crQuad.getQuad().getContext(), 
+                        resolvedStatement.getStatement().getContext(), 
                         SOURCE_GRAPH_PROPERTY, 
-                        VALUE_FACTORY.createURI(sourceNamedGraph),
+                        sourceNamedGraph,
                         metadataGraphURI));
             }
             rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
                     requestURI,
                     RESULT_PROPERTY,
-                    crQuad.getQuad().getContext(),
+                    resolvedStatement.getStatement().getContext(),
                     metadataGraphURI));
         }
 

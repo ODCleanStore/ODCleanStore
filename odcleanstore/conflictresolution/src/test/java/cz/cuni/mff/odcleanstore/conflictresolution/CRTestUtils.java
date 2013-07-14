@@ -1,13 +1,13 @@
 package cz.cuni.mff.odcleanstore.conflictresolution;
 
 import java.util.Collection;
+import java.util.Iterator;
 
-import org.mockito.Mockito;
 import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
 
-import cz.cuni.mff.odcleanstore.configuration.ConflictResolutionConfig;
 import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 
 /**
@@ -24,13 +24,18 @@ public final class CRTestUtils {
 
     private static long uriCounter = 0;
 
-    /** Returns a URI unique within a test run. @return URI */
-    public static String getUniqueURI() {
+    /** Returns a URI unique within a test run. @return URI as a string */
+    public static String getUniqueURIString() {
         uriCounter++;
         return "http://example.com/" + Long.toString(uriCounter);
     }
+    
+    /** Returns a URI unique within a test run. @return URI */
+    public static URI getUniqueURI() {
+        return VALUE_FACTORY.createURI(getUniqueURIString());
+    }
 
-    /** Resets the URI counter used by {@link #getUniqueURI()}. */
+    /** Resets the URI counter used by {@link #getUniqueURIString()}. */
     public static void resetURICounter() {
         uriCounter = 0;
     }
@@ -47,16 +52,31 @@ public final class CRTestUtils {
                 VALUE_FACTORY.createURI(subjectURI),
                 VALUE_FACTORY.createURI(predicateURI),
                 VALUE_FACTORY.createURI(objectURI),
-                VALUE_FACTORY.createURI(getUniqueURI()));
+                VALUE_FACTORY.createURI(getUniqueURIString()));
+    }
+    
+    /**
+     * Create a new quad with the given subject, predicate and object with a unique named graph URI.
+     * @param subjectURI subject URI
+     * @param predicateURI predicate URI
+     * @param objectURI object URI
+     * @return quad
+     */
+    public static Statement createStatement(URI subjectURI, URI predicateURI, URI objectURI) {
+        return VALUE_FACTORY.createStatement(
+                (subjectURI),
+                (predicateURI),
+                (objectURI),
+                (getUniqueURI()));
     }
     
     /** Create a new unique quad. @return quad */
     public static Statement createStatement() {
         return VALUE_FACTORY.createStatement(
-                VALUE_FACTORY.createURI(getUniqueURI()),
-                VALUE_FACTORY.createURI(getUniqueURI()),
-                VALUE_FACTORY.createURI(getUniqueURI()),
-                VALUE_FACTORY.createURI(getUniqueURI()));
+                VALUE_FACTORY.createURI(getUniqueURIString()),
+                VALUE_FACTORY.createURI(getUniqueURIString()),
+                VALUE_FACTORY.createURI(getUniqueURIString()),
+                VALUE_FACTORY.createURI(getUniqueURIString()));
     }
     
     /**
@@ -103,19 +123,18 @@ public final class CRTestUtils {
         }
         return false;
     }
-
+    
     /**
-     * Creates a mock of ConflictResolutionConfig
-     * @return a ConflictResolutionConfig mock
+     * Returns number of items the given iterator iterates over.
+     * @param it iterator
+     * @return number of items in the iteration
      */
-    public static ConflictResolutionConfig createConflictResolutionConfigMock() {
-        ConflictResolutionConfig config = Mockito.mock(ConflictResolutionConfig.class);
-        Mockito.when(config.getAgreeCoeficient()).thenReturn(4d);
-        Mockito.when(config.getScoreIfUnknown()).thenReturn(1d);
-        Mockito.when(config.getNamedGraphScoreWeight()).thenReturn(0.8);
-        Mockito.when(config.getPublisherScoreWeight()).thenReturn(0.2);
-        Mockito.when(config.getMaxDateDifference()).thenReturn(
-                366 * ODCSUtils.DAY_HOURS * ODCSUtils.TIME_UNIT_60 * ODCSUtils.TIME_UNIT_60);
-        return config;
+    public static int countIteratorItems(Iterator<?> it) {
+        int result = 0;
+        while (it.hasNext()) {
+            it.next();
+            result++;
+        }
+        return result;
     }
 }

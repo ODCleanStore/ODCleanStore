@@ -3,6 +3,7 @@ package cz.cuni.mff.odcleanstore.queryexecution.impl;
 import cz.cuni.mff.odcleanstore.queryexecution.EnumQueryError;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
 import cz.cuni.mff.odcleanstore.shared.ODCSErrorCodes;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -56,6 +57,9 @@ import java.util.Map.Entry;
      * @throws QueryExecutionException used prefix has no mapping
      */
     public String expandPrefix(String prefixedName) throws QueryExecutionException {
+        if (!ODCSUtils.isPrefixedName(prefixedName)) {
+            return prefixedName;
+        }
         int colon = prefixedName.indexOf(':');
         if (colon < 0) {
             return prefixedName;

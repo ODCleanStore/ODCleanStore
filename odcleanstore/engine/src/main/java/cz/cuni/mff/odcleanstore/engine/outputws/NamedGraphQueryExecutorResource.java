@@ -1,7 +1,7 @@
 package cz.cuni.mff.odcleanstore.engine.outputws;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
-import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
+import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolutionPolicy;
 import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryConstraintSpec;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
@@ -21,8 +21,9 @@ public class NamedGraphQueryExecutorResource extends QueryExecutorResourceBase {
     @Override
     protected Representation execute() throws QueryExecutionException, ResultEmptyException {
         String namedGraphURI = getFormValue("uri");
-        AggregationSpec aggregationSpec = getAggregationSpec();
-        BasicQueryResult result = getQueryExecution().findNamedGraph(namedGraphURI, new QueryConstraintSpec(), aggregationSpec);
+        ConflictResolutionPolicy conflictResolutionPolicy = getConflictResolutionPolicy();
+        BasicQueryResult result = getQueryExecution().findNamedGraph(
+                namedGraphURI, new QueryConstraintSpec(), conflictResolutionPolicy);
 
         if (result == null) {
             LOG.error("Query result is empty");

@@ -1,17 +1,18 @@
 package cz.cuni.mff.odcleanstore.queryexecution;
 
 import cz.cuni.mff.odcleanstore.configuration.QueryExecutionConfig;
-import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
+import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolutionPolicy;
+import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
-import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadata;
-import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunctionRegistry;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionStrategy;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.CRUtils;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
-import cz.cuni.mff.odcleanstore.queryexecution.impl.QueryExecutionHelper;
 import cz.cuni.mff.odcleanstore.shared.ODCSErrorCodes;
-import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
+import cz.cuni.mff.odcleanstore.shared.util.LimitedURIListBuilder;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
@@ -19,15 +20,18 @@ import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Literal;
+import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
-import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.TreeModel;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.query.BindingSet;
+import org.openrdf.query.GraphQueryResult;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryLanguage;
+import org.openrdf.query.QueryResult;
 import org.openrdf.query.TupleQueryResult;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
@@ -41,13 +45,12 @@ import virtuoso.sesame2.driver.VirtuosoRepository;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -102,8 +105,10 @@ import java.util.Set;
      */
     protected static final URI SAME_AS_PROPERTY = ValueFactoryImpl.getInstance().createURI(OWL.sameAs);
 
+    private static final URI PUBLISHED_BY_PROPERTY = ValueFactoryImpl.getInstance().createURI(ODCS.publishedBy);
+
     /**
-     * {@link Value} factory instance.
+     * Value factory instance.
      */
     protected static final ValueFactory VALUE_FACTORY = ValueFactoryImpl.getInstance();
 
@@ -166,8 +171,8 @@ import java.util.Set;
      * Must be formatted with arguments: (1) non-empty comma separated list of publisher URIs, (2) limit.
      */
     private static final String PUBLISHER_SCORE_QUERY =
-            "SELECT"
-            + "\n   ?publishedBy ?score"
+            "CONSTRUCT"
+            + "\n   { ?publishedBy <" + ODCS.publisherScore + "> ?score }"
             + "\n WHERE {"
             + "\n   ?publishedBy <" + ODCS.publisherScore + "> ?score."
             + "\n   FILTER (?publishedBy IN (%1$s))"
@@ -254,22 +259,26 @@ import java.util.Set;
      */
     private CharSequence graphFilterClause;
 
-    /** Aggregation settings for conflict resolution. Overrides {@link #defaultAggregationSpec}. */
-    protected final AggregationSpec aggregationSpec;
+    /** Conflict resolution strategies for conflict resolution. */
+    protected final ConflictResolutionPolicy conflictResolutionPolicy;
 
-    /** Factory for ConflictResolver instances. */
-    protected final ConflictResolverFactory conflictResolverFactory;
+    /** Default conflict resolution strategies defined by administrator. */
+    protected final ConflictResolutionPolicy defaultResolutionPolicy;
 
     /** Maximum number of triples returned by each database query (the overall result size may be larger). */
     protected final Long maxLimit;
+
+    /** Factory for resolution functions. */
+    private final ResolutionFunctionRegistry resolutionFunctionRegistry;
 
     /**
      * Creates a new instance of QueryExecutorBase.
      * @param connectionCredentials connection settings for the SPARQL endpoint that will be queried
      * @param constraints constraints on triples returned in the result
-     * @param aggregationSpec aggregation settings for conflict resolution;
-     *        property names must not contain prefixed names
-     * @param conflictResolverFactory factory for ConflictResolver
+     * @param conflictResolutionPolicy conflict resolution strategies for conflict resolution;
+     * @param defaultResolutionPolicy default conflict resolution strategies defined by administrator
+     * @param defaultResolutionPolicy
+     * @param resolutionFunctionRegistry factory for resolution functions
      * @param labelPropertiesList list of label properties formatted as a string for use in a query
      * @param globalConfig global conflict resolution settings;
      *        values needed in globalConfig are the following:
@@ -281,15 +290,17 @@ import java.util.Set;
      *        </dl>
      */
     protected QueryExecutorBase(JDBCConnectionCredentials connectionCredentials, QueryConstraintSpec constraints,
-            AggregationSpec aggregationSpec, ConflictResolverFactory conflictResolverFactory,
-            String labelPropertiesList, QueryExecutionConfig globalConfig) {
+            ConflictResolutionPolicy conflictResolutionPolicy, ConflictResolutionPolicy defaultResolutionPolicy,
+            ResolutionFunctionRegistry resolutionFunctionRegistry, String labelPropertiesList,
+            QueryExecutionConfig globalConfig) {
         this.connectionCredentials = connectionCredentials;
         this.constraints = constraints;
-        this.aggregationSpec = aggregationSpec;
-        this.conflictResolverFactory = conflictResolverFactory;
+        this.conflictResolutionPolicy = conflictResolutionPolicy;
+        this.defaultResolutionPolicy = defaultResolutionPolicy;
         this.globalConfig = globalConfig;
         this.maxLimit = globalConfig.getMaxQueryResultSize();
         this.labelPropertiesList = labelPropertiesList;
+        this.resolutionFunctionRegistry = resolutionFunctionRegistry;
     }
 
     /**
@@ -352,25 +363,8 @@ import java.util.Set;
      * @throws QueryExecutionException aggregation settings or query constraints are invalid
      */
     protected void checkValidSettings() throws QueryExecutionException {
-        // Check that settings contain valid URIs
-        for (String property : aggregationSpec.getPropertyAggregations().keySet()) {
-            if (!ODCSUtils.isValidIRI(property)) {
-                throw new QueryExecutionException(EnumQueryError.AGGREGATION_SETTINGS_INVALID,
-                        ODCSErrorCodes.QE_INPUT_FORMAT_ERR,
-                        "'" + property + "' is not a valid URI.");
-            }
-        }
-        for (String property : aggregationSpec.getPropertyMultivalue().keySet()) {
-            if (!ODCSUtils.isValidIRI(property)) {
-                throw new QueryExecutionException(EnumQueryError.AGGREGATION_SETTINGS_INVALID,
-                        ODCSErrorCodes.QE_INPUT_FORMAT_ERR,
-                        "'" + property + "' is not a valid URI.");
-            }
-        }
-
         // Check that the size of settings is reasonable - the query size may depend on it
-        int settingsPropertyCount = aggregationSpec.getPropertyAggregations().size()
-                + aggregationSpec.getPropertyMultivalue().size();
+        int settingsPropertyCount = conflictResolutionPolicy.getPropertyResolutionStrategies().size();
         if (settingsPropertyCount > MAX_PROPERTY_SETTINGS_SIZE) {
             throw new QueryExecutionException(EnumQueryError.QUERY_TOO_LONG, ODCSErrorCodes.QE_INPUT_FORMAT_ERR,
                     "Too many explicit property settings.");
@@ -427,51 +421,19 @@ import java.util.Set;
      * @return map of named graph metadata
      * @throws DatabaseException database error
      */
-    protected NamedGraphMetadataMap getMetadataFromQuery(String sparqlQuery, String debugName)
+    protected Model getMetadataFromQuery(String sparqlQuery, String debugName)
             throws DatabaseException {
 
-        NamedGraphMetadataMap metadata = new NamedGraphMetadataMap();
-        TupleQueryResult resultSet = null;
+        Model metadata = new TreeModel();
+        GraphQueryResult resultSet = null;
         long startTime = System.currentTimeMillis();
         try {
-            resultSet = getConnection().prepareTupleQuery(QueryLanguage.SPARQL, sparqlQuery).evaluate();
+            resultSet = getConnection().prepareGraphQuery(QueryLanguage.SPARQL, sparqlQuery).evaluate();
             LOG.debug("Query Execution: {} query took {} ms", debugName, System.currentTimeMillis() - startTime);
 
             while (resultSet.hasNext()) {
-                BindingSet bindingSet = resultSet.next();
-                Resource namedGraphURI = (Resource) bindingSet.getValue("resGraph");
-                NamedGraphMetadata graphMetadata = metadata.getMetadata(namedGraphURI);
-                if (graphMetadata == null) {
-                    graphMetadata = new NamedGraphMetadata(namedGraphURI.stringValue());
-                    metadata.addMetadata(graphMetadata);
-                }
-
-                try {
-                    String property = ((URI) bindingSet.getValue("p")).stringValue();
-
-                    Value object = bindingSet.getValue("o");
-                    if (ODCS.source.equals(property)) {
-                        graphMetadata.setSources(ODCSUtils.addToSetNullProof(object.stringValue(), graphMetadata.getSources()));
-                    } else if (ODCS.score.equals(property) && object instanceof Literal) {
-                        double score = ((Literal) object).doubleValue();
-                        graphMetadata.setScore(score);
-                    } else if (ODCS.insertedAt.equals(property) && object instanceof Literal) {
-                        Date insertedAt = ((Literal) object).calendarValue().toGregorianCalendar().getTime();
-                        graphMetadata.setInsertedAt(insertedAt);
-                    } else if (ODCS.insertedBy.equals(property)) {
-                        graphMetadata.setInsertedBy(object.stringValue());
-                    } else if (ODCS.publishedBy.equals(property)) {
-                        graphMetadata.setPublishers(ODCSUtils.addToListNullProof(
-                                object.stringValue(), graphMetadata.getPublishers()));
-                    } else if (ODCS.license.equals(property)) {
-                        graphMetadata.setLicences(ODCSUtils.addToListNullProof(
-                                object.stringValue(), graphMetadata.getLicences()));
-                    } else if (ODCS.updateTag.equals(property)) {
-                        graphMetadata.setUpdateTag(object.stringValue());
-                    }
-                } catch (IllegalArgumentException e) {
-                    LOG.warn("Query Execution: invalid metadata for graph {}", namedGraphURI);
-                }
+                Statement statement = resultSet.next();
+                metadata.add(statement);
             }
         } catch (OpenRDFException e) {
             throw new QueryException(e);
@@ -480,11 +442,7 @@ import java.util.Set;
         }
 
         // Add publisher scores
-        Map<String, Double> publisherScores = getPublisherScores(metadata);
-        for (NamedGraphMetadata ngMetadata : metadata.listMetadata()) {
-            Double publisherScore = calculatePublisherScore(ngMetadata, publisherScores);
-            ngMetadata.setTotalPublishersScore(publisherScore);
-        }
+        addPublisherScores(metadata);
 
         LOG.debug("Query Execution: {} in {} ms", debugName, System.currentTimeMillis() - startTime);
         return metadata;
@@ -493,44 +451,30 @@ import java.util.Set;
     /**
      * Retrieve scores of publishers for all publishers occurring in given metadata.
      * @param metadata metadata retrieved for a query
-     * @return map of publishers' scores
      * @throws DatabaseException database error
      */
-    protected Map<String, Double> getPublisherScores(NamedGraphMetadataMap metadata) throws DatabaseException {
+    protected void addPublisherScores(Model metadata) throws DatabaseException {
         long startTime = System.currentTimeMillis();
 
-        Map<String, Double> publisherScores = new HashMap<String, Double>();
-        for (NamedGraphMetadata ngMetadata : metadata.listMetadata()) {
-            List<String> publishers = ngMetadata.getPublishers();
-            if (publishers != null) {
-                for (String publisher : publishers) {
-                    publisherScores.put(publisher, null);
-                }
+        Set<String> publishers = new HashSet<String>();
+        for (Statement statement : metadata.filter(null, PUBLISHED_BY_PROPERTY, null)) {
+            if (statement.getObject() instanceof URI) {
+                publishers.add(statement.getObject().stringValue());
             }
         }
 
-        Iterable<CharSequence> limitedURIListBuilder =
-                QueryExecutionHelper.getLimitedURIListBuilder(publisherScores.keySet(), MAX_QUERY_LIST_LENGTH);
+        Iterable<CharSequence> limitedURIListBuilder = new LimitedURIListBuilder(publishers, MAX_QUERY_LIST_LENGTH);
         for (CharSequence publisherURIList : limitedURIListBuilder) {
             String query = String.format(Locale.ROOT, PUBLISHER_SCORE_QUERY, publisherURIList, maxLimit);
             long queryStartTime = System.currentTimeMillis();
-            TupleQueryResult resultSet = null;
+            GraphQueryResult resultSet = null;
             try {
-                resultSet = getConnection().prepareTupleQuery(QueryLanguage.SPARQL, query).evaluate();
-                LOG.debug("Query Execution: getPublisherScores() query took {} ms", System.currentTimeMillis() - queryStartTime);
+                resultSet = getConnection().prepareGraphQuery(QueryLanguage.SPARQL, query).evaluate();
+                LOG.debug("Query Execution: addPublisherScores() query took {} ms", System.currentTimeMillis() - queryStartTime);
                 while (resultSet.hasNext()) {
-                    BindingSet bindingSet = resultSet.next();
-                    String publisher = bindingSet.getValue("publishedBy").stringValue();
-                    Value scoreValue = bindingSet.getValue("score");
-                    try {
-                        if (scoreValue instanceof Literal) {
-                            double score = ((Literal) scoreValue).doubleValue();
-                            publisherScores.put(publisher, score);
-                        } else {
-                            LOG.warn("Query Execution: invalid publisher score for {}", publisher);
-                        }
-                    } catch (IllegalArgumentException e) {
-                        LOG.warn("Query Execution: invalid publisher score for {}", publisher);
+                    Statement statement = resultSet.next();
+                    if (statement.getObject() instanceof Literal) {
+                        metadata.add(statement);
                     }
                 }
             } catch (OpenRDFException e) {
@@ -540,32 +484,7 @@ import java.util.Set;
             }
         }
 
-        LOG.debug("Query Execution: getPublisherScores() took {} ms", System.currentTimeMillis() - startTime);
-        return publisherScores;
-    }
-
-    /**
-     * Calculates effective average publisher score - returns average of publisher scores or
-     * null if there is none.
-     * @param metadata named graph metadata; must not be null
-     * @param publisherScores map of publisher scores
-     * @return effective publisher score or null if unknown
-     */
-    protected Double calculatePublisherScore(final NamedGraphMetadata metadata, final Map<String, Double> publisherScores) {
-        List<String> publishers = metadata.getPublishers();
-        if (publishers == null) {
-            return null;
-        }
-        double result = 0;
-        int count = 0;
-        for (String publisher : publishers) {
-            Double score = publisherScores.get(publisher);
-            if (score != null) {
-                result += score;
-                count++;
-            }
-        }
-        return (count > 0) ? result / count : null;
+        LOG.debug("Query Execution: addPublisherScores() took {} ms", System.currentTimeMillis() - startTime);
     }
 
     /**
@@ -579,8 +498,7 @@ import java.util.Set;
             throws DatabaseException {
 
         long startTime = System.currentTimeMillis();
-        Iterable<CharSequence> resourceURIListBuilder =
-                QueryExecutionHelper.getLimitedURIListBuilder(resourceURIs, MAX_QUERY_LIST_LENGTH);
+        Iterable<CharSequence> resourceURIListBuilder = new LimitedURIListBuilder(resourceURIs, MAX_QUERY_LIST_LENGTH);
 
         TupleQueryResult resultSet = null;
         try {
@@ -647,25 +565,56 @@ import java.util.Set;
     }
 
     /**
+     * Creates a new instance of ConflictResolver using the correct default settings.
+     * @param metadata metadata model
+     * @param sameAsLinks statements with owl:sameAs as predicate
+     * @param preferredURIs URIs preferred as canonical URIs
+     * @return a new ConflictResolver instance
+     */
+    protected ConflictResolver createConflictResolver(
+            Model metadata, Iterator<Statement> sameAsLinks, Set<String> preferredURIs) {
+        String resultGraphPrefix =
+                globalConfig.getResultDataURIPrefix().toString() + ODCSInternal.queryResultGraphUriInfix;
+
+        // Merge user and admin CR policies
+        ResolutionStrategy mergedDefaultStrategy = CRUtils.fillResolutionStrategyDefaults(
+                conflictResolutionPolicy.getDefaultResolutionStrategy(),
+                defaultResolutionPolicy.getDefaultResolutionStrategy());
+
+        Map<URI, ResolutionStrategy> mergedPropertyStrategies = new HashMap<URI, ResolutionStrategy>(
+                conflictResolutionPolicy.getPropertyResolutionStrategies());
+        for (Entry<URI, ResolutionStrategy> entry : defaultResolutionPolicy.getPropertyResolutionStrategies().entrySet()) {
+            ResolutionStrategy mergedStrategy = CRUtils.fillResolutionStrategyDefaults(
+                    mergedPropertyStrategies.get(entry.getKey()),
+                    entry.getValue());
+            mergedPropertyStrategies.put(entry.getKey(), mergedStrategy);
+        }
+
+        return ConflictResolverFactory.configureResolver()
+                .setResolutionFunctionRegistry(resolutionFunctionRegistry)
+                .setDefaultResolutionStrategy(mergedDefaultStrategy)
+                .setPropertyResolutionStrategies(mergedPropertyStrategies)
+                .setResolvedGraphsURIPrefix(resultGraphPrefix)
+                .setMetadata(metadata)
+                .setPreferredCanonicalURIs(preferredURIs)
+                .addSameAsLinks(sameAsLinks)
+                .create();
+    }
+
+    /**
      * Returns preferred URIs for the result based on aggregation settings.
      * These include the properties explicitly listed in aggregation settings.
      * @return preferred URIs
      */
     protected Set<String> getSettingsPreferredURIs() {
-        Set<String> aggregationProperties = aggregationSpec.getPropertyAggregations() == null
-                ? Collections.<String>emptySet()
-                : aggregationSpec.getPropertyAggregations().keySet();
-        Set<String> multivalueProperties = aggregationSpec.getPropertyMultivalue() == null
-                ? Collections.<String>emptySet()
-                : aggregationSpec.getPropertyMultivalue().keySet();
-        Set<String> preferredURIs = new HashSet<String>(
-                aggregationProperties.size() + multivalueProperties.size() + 1); // +1 for URI added in some types of queries
-        preferredURIs.addAll(aggregationProperties);
-        preferredURIs.addAll(multivalueProperties);
+        Set<String> preferredURIs = new HashSet<String>(conflictResolutionPolicy.getPropertyResolutionStrategies().size());
+        for (URI uri : conflictResolutionPolicy.getPropertyResolutionStrategies().keySet()) {
+            preferredURIs.add(uri.stringValue());
+        }
         return preferredURIs;
     }
 
-    private void closeResultSetQuietly(TupleQueryResult resultSet) {
+    private void closeResultSetQuietly(QueryResult<?> resultSet) {
         if (resultSet != null) {
             try {
                 resultSet.close();

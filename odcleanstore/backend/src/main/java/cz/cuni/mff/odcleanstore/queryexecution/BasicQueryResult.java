@@ -1,8 +1,9 @@
 package cz.cuni.mff.odcleanstore.queryexecution;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
-import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
-import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
+import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolutionPolicy;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
+
+import org.openrdf.model.Model;
 
 import java.util.Collection;
 
@@ -12,17 +13,17 @@ import java.util.Collection;
  * @author Jan Michelfeit
  */
 public class BasicQueryResult extends QueryResultBase {
-    /** The result of the query as CRQuads. */
-    private Collection<CRQuad> resultQuads;
+    /** The result of the query as {@link ResolvedStatement ResolvedStatements}. */
+    private Collection<ResolvedStatement> resultQuads;
 
     /** Provenance metadata for {@link #resultQuads}. */
-    private NamedGraphMetadataMap metadata;
+    private Model metadata;
 
     /** Constraints on triples returned in the result. */
     private QueryConstraintSpec queryConstraints;
 
     /** Aggregation settings for conflict resolution. */
-    private AggregationSpec aggregationSpec;
+    private ConflictResolutionPolicy conflictResolutionPolicy;
 
     /**
      * Initializes a new instance.
@@ -31,28 +32,28 @@ public class BasicQueryResult extends QueryResultBase {
      * @param query the query string
      * @param queryType type of the query
      * @param queryConstraints constraints on triples returned in the result
-     * @param aggregationSpec aggregation settings used during conflict resolution
+     * @param conflictResolutionPolicy conflict resolution policy
      */
     public BasicQueryResult(
-            Collection<CRQuad> resultQuads,
-            NamedGraphMetadataMap metadata,
+            Collection<ResolvedStatement> resultQuads,
+            Model metadata,
             String query,
             EnumQueryType queryType,
             QueryConstraintSpec queryConstraints,
-            AggregationSpec aggregationSpec) {
+            ConflictResolutionPolicy conflictResolutionPolicy) {
 
         super(query, queryType);
         this.resultQuads = resultQuads;
         this.metadata = metadata;
         this.queryConstraints = queryConstraints;
-        this.aggregationSpec = aggregationSpec;
+        this.conflictResolutionPolicy = conflictResolutionPolicy;
     }
 
     /**
-     * Returns the result of the query as {@link CRQuad CRQuads}.
+     * Returns the result of the query as {@link ResolvedStatement ResolvedStatements}.
      * @return quads forming the result of the query
      */
-    public Collection<CRQuad> getResultQuads() {
+    public Collection<ResolvedStatement> getResultQuads() {
         return resultQuads;
     }
 
@@ -60,7 +61,7 @@ public class BasicQueryResult extends QueryResultBase {
      * Returns provenance metadata for quads returned by {@link #getResultQuads()}.
      * @return  metadata
      */
-    public NamedGraphMetadataMap getMetadata() {
+    public Model getMetadata() {
         return metadata;
     }
 
@@ -73,11 +74,11 @@ public class BasicQueryResult extends QueryResultBase {
     }
 
     /**
-     * Returns aggregation settings used in conflict resolution.
-     * @return aggregation settings
+     * Returns conflict resolution strategies.
+     * @return conflict resolution strategies
      */
-    public AggregationSpec getAggregationSpec() {
-        return aggregationSpec;
+    public ConflictResolutionPolicy getConflictResolutionPolicy() {
+        return conflictResolutionPolicy;
     }
 
 }

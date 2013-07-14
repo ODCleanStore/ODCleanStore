@@ -13,19 +13,18 @@ import org.openrdf.model.impl.ValueFactoryImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cz.cuni.mff.odcleanstore.conflictresolution.URIMapping;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 
 /**
  * Data structure that handles mapping of URI resources linked with a owl:sameAs link
  * (even transitively).
- * Maintains a mapping of all subjects and objects URIs in triples passed by addLinks()
+ * Maintains a mapping of all subject and object URIs in triples passed by addLinks()
  * to a "canonical URI". A canonical URI is single URI selected for each (weakly)
- * connected component of the owl:sameAs links graph. owl:sameAs links for
- * Nodes other then Node_URI are ignored.
- * This is the fundamental component of implicit conflict resolution.
+ * connected component of the owl:sameAs links graph. owl:sameAs links between
+ * {@link org.openrdf.model.Value RDF nodes} other then {@link URI} are ignored.
  *
- * The implementation is based on DFU (disjoint find and union) data structure
- * with path compression.
+ * The implementation is based on a disjoint-set data structure (DFU) with path compression.
  *
  * @author Jan Michelfeit
  */
@@ -43,14 +42,14 @@ public class URIMappingImpl implements URIMapping {
     private final Map<String, String> uriDFUParent;
 
     /**
-     * Creates an URIMappingImpl instance with no preferred URIs.
+     * Creates an instance with no preferred URIs.
      */
     public URIMappingImpl() {
         this(Collections.<String>emptySet());
     }
 
     /**
-     * Creates an URIMappingImpl instance with the selected preferred URIs.
+     * Creates an instance with the selected preferred URIs.
      * @param preferredURIs set of URIs preferred as canonical URIs; can be null
      */
     public URIMappingImpl(Set<String> preferredURIs) {
@@ -116,12 +115,12 @@ public class URIMappingImpl implements URIMapping {
     public URI mapURI(URI uriNode) {
         String uri = uriNode.stringValue();
         if (!uriDFUParent.containsKey(uri)) {
-            return null;
+            return uriNode;
         }
 
         String canonicalURI = dfuRoot(uri);
         return canonicalURI.equals(uri) ? null : VALUE_FACTORY.createURI(canonicalURI);
-    }
+    } 
 
     /**
      * Returns the URI at the root of a subtree in DFU for the argument, i.e.
@@ -174,7 +173,7 @@ public class URIMappingImpl implements URIMapping {
     }
 
     /**
-     * Map representing the DFU data structure.
+     * Map representing the disjoint-set data structure.
      * The key->value pairs are resource URI -> parent resource URI.
      * If the value (parent URI) is null, the key is the root of the respective
      * subtree. If uriDFUParent doesn't contain an URI, the meaning is the same

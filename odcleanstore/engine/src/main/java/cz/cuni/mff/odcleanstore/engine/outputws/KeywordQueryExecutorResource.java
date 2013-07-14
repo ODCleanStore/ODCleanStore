@@ -1,7 +1,7 @@
 package cz.cuni.mff.odcleanstore.engine.outputws;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
-import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
+import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolutionPolicy;
 import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryConstraintSpec;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
@@ -20,8 +20,9 @@ public class KeywordQueryExecutorResource extends QueryExecutorResourceBase {
     @Override
     protected Representation execute() throws QueryExecutionException, ResultEmptyException {
         String keyword = getFormValue("kw");
-        AggregationSpec aggregationSpec = getAggregationSpec();
-        final BasicQueryResult result = getQueryExecution().findKeyword(keyword, new QueryConstraintSpec(), aggregationSpec);
+        ConflictResolutionPolicy conflictResolutionPolicy = getConflictResolutionPolicy();
+        final BasicQueryResult result = getQueryExecution().findKeyword(
+                keyword, new QueryConstraintSpec(), conflictResolutionPolicy);
 
         if (result == null) {
             LOG.error("Query result is empty");

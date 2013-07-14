@@ -1,7 +1,6 @@
 package cz.cuni.mff.odcleanstore.queryexecution;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
-
+import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 
 import java.util.Collection;
@@ -16,7 +15,7 @@ public class MetadataQueryResult extends QueryResultBase {
     private Collection<Statement> provenanceMetadata;
 
     /** ODCS metadata. */
-    private NamedGraphMetadataMap metadata;
+    private Model metadata;
 
     /**
      * Initializes a new instance.
@@ -27,7 +26,7 @@ public class MetadataQueryResult extends QueryResultBase {
      */
     public MetadataQueryResult(
             Collection<Statement> provenanceMetadata,
-            NamedGraphMetadataMap metadata,
+            Model metadata,
             String query,
             EnumQueryType queryType) {
 
@@ -48,7 +47,7 @@ public class MetadataQueryResult extends QueryResultBase {
      * Returns ODCS metadata.
      * @return  metadata
      */
-    public NamedGraphMetadataMap getMetadata() {
+    public Model getMetadata() {
         return metadata;
     }
 }

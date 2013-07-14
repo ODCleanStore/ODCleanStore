@@ -3,9 +3,12 @@ package cz.cuni.mff.odcleanstore.engine.outputws;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
 import cz.cuni.mff.odcleanstore.configuration.OutputWSConfig;
-import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
+import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolutionPolicy;
 import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
-import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationType;
+import cz.cuni.mff.odcleanstore.conflictresolution.EnumCardinality;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionStrategy;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.ConflictResolutionPolicyImpl;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.ResolutionStrategyImpl;
 import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
 import cz.cuni.mff.odcleanstore.engine.outputws.output.HTMLFormatter;
 import cz.cuni.mff.odcleanstore.engine.outputws.output.QueryResultFormatter;
@@ -18,6 +21,8 @@ import cz.cuni.mff.odcleanstore.queryexecution.impl.PrefixMappingCache;
 import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 
+import org.openrdf.model.URI;
+import org.openrdf.model.impl.ValueFactoryImpl;
 import org.restlet.data.Form;
 import org.restlet.data.Reference;
 import org.restlet.data.Status;
@@ -29,9 +34,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.TreeMap;
 
 /**
  *  @author Petr Jerman
@@ -208,43 +213,54 @@ public abstract class QueryExecutorResourceBase extends ServerResource {
      * Reads parameters given to the output webservice and build an AggregationSpec object according to it.
      * @return aggregation settings given to the output webservice
      */
-    protected AggregationSpec getAggregationSpec() {
-        AggregationSpec aggregationSpec = new AggregationSpec();
-        Map<String, EnumAggregationType> propertyAggregations = new TreeMap<String, EnumAggregationType>();
-        Map<String, Boolean> propertyMultivalue = new TreeMap<String, Boolean>();
-
-        String defaultAggregation = getFormValue(DEFAULT_AGGREGATION_PARAM);
-        if (defaultAggregation != null && !defaultAggregation.isEmpty()) {
-            aggregationSpec.setDefaultAggregation(EnumAggregationType.valueOf(defaultAggregation));
+    protected ConflictResolutionPolicy getConflictResolutionPolicy() {
+        ResolutionStrategyImpl defaultResolutionStrategy = new ResolutionStrategyImpl();
+        String defaultFunctionName = getFormValue(DEFAULT_AGGREGATION_PARAM);
+        if (defaultFunctionName != null && !defaultFunctionName.isEmpty()) {
+            defaultResolutionStrategy.setResolutionFunctionName(defaultFunctionName);
         }
         String defaultMultivalue = getFormValue(DEFAULT_MULTIVALUE_PARAM);
         if (defaultMultivalue != null && !defaultMultivalue.isEmpty()) {
-            aggregationSpec.setDefaultMultivalue(TRUE_LITERAL.equals(defaultMultivalue));
+            defaultResolutionStrategy.setCardinality(TRUE_LITERAL.equals(defaultMultivalue)
+                    ? EnumCardinality.MANYVALUED : EnumCardinality.SINGLEVALUED);
         }
         String errorStrategy = getFormValue(ERROR_STRATEGY_PARAM);
         if (errorStrategy != null && !errorStrategy.isEmpty()) {
-            aggregationSpec.setErrorStrategy(EnumAggregationErrorStrategy.valueOf(errorStrategy));
+            defaultResolutionStrategy.setAggregationErrorStrategy(EnumAggregationErrorStrategy.valueOf(errorStrategy));
         }
 
         Map<String, String> valuesMap = getValuesMap();
+        Map<URI, ResolutionStrategy> propertyStrategies = new HashMap<URI, ResolutionStrategy>();
+
         for (String param : valuesMap.keySet()) {
             if (param.startsWith(PROPERTY_AGGREGATION_PARAM) && param.endsWith("]")) {
                 String property = param.substring(PROPERTY_AGGREGATION_PARAM.length(), param.length() - 1);
-                String aggregationString = valuesMap.get(param);
-                if (!ODCSUtils.isNullOrEmpty(aggregationString) && !property.isEmpty()) {
-                    EnumAggregationType aggregation = EnumAggregationType.valueOf(aggregationString); // TODO: error handling
-                    propertyAggregations.put(property, aggregation);
+                String resolutionFunctionName = valuesMap.get(param); // TODO check validity
+                if (!ODCSUtils.isNullOrEmpty(resolutionFunctionName) && !property.isEmpty()) {
+                    getOrCreateStrategy(property, propertyStrategies).setResolutionFunctionName(resolutionFunctionName);
                 }
             } else if (param.startsWith(PROPERTY_MULTIVALUE_PARAM) && param.endsWith("]")) {
                 String property = param.substring(PROPERTY_MULTIVALUE_PARAM.length(), param.length() - 1);
                 String multivalueString = valuesMap.get(param);
                 if (!ODCSUtils.isNullOrEmpty(multivalueString) && !property.isEmpty()) {
-                    propertyMultivalue.put(property, TRUE_LITERAL.equals(multivalueString));
+                    EnumCardinality cardinality = TRUE_LITERAL.equals(multivalueString)
+                            ? EnumCardinality.MANYVALUED : EnumCardinality.SINGLEVALUED;
+                    getOrCreateStrategy(property, propertyStrategies).setCardinality(cardinality);
                 }
             }
         }
-        aggregationSpec.setPropertyAggregations(propertyAggregations);
-        aggregationSpec.setPropertyMultivalue(propertyMultivalue);
-        return aggregationSpec;
+        
+        return new ConflictResolutionPolicyImpl(defaultResolutionStrategy, propertyStrategies);
+    }
+    
+    private ResolutionStrategyImpl getOrCreateStrategy(
+            String property, Map<URI, ResolutionStrategy> propertyResolutionStrategies) {
+        URI propertyURI = ValueFactoryImpl.getInstance().createURI(property);
+        ResolutionStrategy strategy = propertyResolutionStrategies.get(propertyURI);
+        if (strategy == null) {
+            strategy = new ResolutionStrategyImpl();
+            propertyResolutionStrategies.put(propertyURI, strategy);
+        }
+        return (ResolutionStrategyImpl) strategy;
     }
 }

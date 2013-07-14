@@ -15,7 +15,7 @@ public final class ODCSErrorCodes {
 
     public static final int QE_DEFAULT_CONFIG_ERR = 10;
     public static final int QE_DEFAULT_CONFIG_DB_ERR = 11;
-    public static final int QE_DEFAULT_CONFIG_MULTIVALUE_ERR = 12;
+    public static final int QE_DEFAULT_CONFIG_MANYVALUED_ERR = 12;
     public static final int QE_DEFAULT_CONFIG_ES_ERR = 13;
     public static final int QE_DEFAULT_CONFIG_AGGREGATION_ERR = 14; 
     public static final Integer QE_DEFAULT_CONFIG_PREFIX_ERR = 15;
@@ -28,5 +28,6 @@ public final class ODCSErrorCodes {
     public static final int QE_NG_METADATA_DB_ERR = 22;
     public static final int QE_PREFIX_MAPPING_UNKNOWN_ERR = 23;
     public static final int QE_PREFIX_MAPPING_DB_ERR = 24;
+    public static final int QE_CR_UNKNOWN_RESOLUTION = 25;
     
 }

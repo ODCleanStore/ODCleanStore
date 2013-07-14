@@ -1,12 +1,13 @@
 package cz.cuni.mff.odcleanstore.queryexecution;
 
 import cz.cuni.mff.odcleanstore.configuration.QueryExecutionConfig;
-import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
-import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
+import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolutionPolicy;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
-import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
-import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunctionRegistry;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
+import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ResolutionFunctionNotRegisteredException;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.EmptyMetadataModel;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.shared.ODCSErrorCodes;
@@ -14,7 +15,9 @@ import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 
+import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,8 +77,8 @@ import java.util.Set;
      */
     private static final String METADATA_QUERY =
             //+ "\n DEFINE input:same-as \"yes\""
-            "SELECT DISTINCT"
-            + "\n   <%1$s> AS ?resGraph ?p ?o"
+            "CONSTRUCT "
+            + "\n   { <%1$s> ?p ?o }"
             + "\n WHERE {"
             //+ "\n   {"
             + "\n     <%1$s> <" + ODCS.metadataGraph + "> ?metadataGraph"
@@ -98,17 +101,19 @@ import java.util.Set;
      * Creates a new instance.
      * @param connectionCredentials connection settings for the SPARQL endpoint that will be queried
      * @param constraints constraints on triples returned in the result
-     * @param aggregationSpec aggregation settings for conflict resolution;
-     *        property names must not contain prefixed names
-     * @param conflictResolverFactory factory for ConflictResolver
+     * @param conflictResolutionPolicy conflict resolution strategies for conflict resolution;
+     * @param defaultResolutionPolicy default conflict resolution strategies defined by administrator
+     * @param conflictResolutionPolicy2
+     * @param resolutionFunctionRegistry factory for resolution functions
      * @param labelPropertiesList list of label properties formatted as a string for use in a query
      * @param globalConfig global conflict resolution settings
      */
     public NamedGraphQueryExecutor(JDBCConnectionCredentials connectionCredentials, QueryConstraintSpec constraints,
-            AggregationSpec aggregationSpec, ConflictResolverFactory conflictResolverFactory,
-            String labelPropertiesList, QueryExecutionConfig globalConfig) {
-        super(connectionCredentials, constraints, aggregationSpec, conflictResolverFactory,
-                labelPropertiesList, globalConfig);
+            ConflictResolutionPolicy conflictResolutionPolicy, ConflictResolutionPolicy defaultResolutionPolicy,
+            ResolutionFunctionRegistry resolutionFunctionRegistry, String labelPropertiesList,
+            QueryExecutionConfig globalConfig) {
+        super(connectionCredentials, constraints, conflictResolutionPolicy, defaultResolutionPolicy,
+                resolutionFunctionRegistry, labelPropertiesList, globalConfig);
     }
 
     /**
@@ -137,19 +142,24 @@ import java.util.Set;
             // Get the quads relevant for the query
             Collection<Statement> quads = getNamedGraphTriples(uri);
             if (quads.isEmpty()) {
-                return createResult(Collections.<CRQuad>emptyList(), new NamedGraphMetadataMap(), uri,
+                return createResult(Collections.<ResolvedStatement>emptyList(), new EmptyMetadataModel(), uri,
                         System.currentTimeMillis() - startTime);
             }
 
             // Apply conflict resolution
-            NamedGraphMetadataMap metadata = getMetadata(uri);
+            Model metadata = getMetadata(uri);
             Iterator<Statement> sameAsLinks = getSameAsLinks().iterator();
             Set<String> preferredURIs = getSettingsPreferredURIs();
-            ConflictResolver conflictResolver =
-                    conflictResolverFactory.createResolver(aggregationSpec, metadata, sameAsLinks, preferredURIs);
-            Collection<CRQuad> resolvedQuads = conflictResolver.resolveConflicts(quads);
+            ConflictResolver conflictResolver = createConflictResolver(metadata, sameAsLinks, preferredURIs);
+            Collection<ResolvedStatement> resolvedQuads = conflictResolver.resolveConflicts(quads);
 
             return createResult(resolvedQuads, metadata, uri, System.currentTimeMillis() - startTime);
+        } catch (ResolutionFunctionNotRegisteredException e) {
+            throw new QueryExecutionException(
+                    EnumQueryError.UNKNOWN_RESOLUTION_FUNCTION,
+                    ODCSErrorCodes.QE_CR_UNKNOWN_RESOLUTION,
+                    "Unknown resolution function '" + e.getResolutionFunctionName() + "' in resolution policy",
+                    e);
         } catch (ConflictResolutionException e) {
             throw new QueryExecutionException(
                     EnumQueryError.CONFLICT_RESOLUTION_ERROR,
@@ -172,15 +182,15 @@ import java.util.Set;
      * @return query result holder
      */
     private BasicQueryResult createResult(
-            Collection<CRQuad> resultQuads,
-            NamedGraphMetadataMap metadata,
+            Collection<ResolvedStatement> resultQuads,
+            Model metadata,
             String query,
             long executionTime) {
 
         LOG.debug("Query Execution: getNamedGraph() in {} ms", executionTime);
         // Format and return result
         BasicQueryResult queryResult = new BasicQueryResult(resultQuads, metadata, query, EnumQueryType.NAMED_GRAPH,
-                constraints, aggregationSpec);
+                constraints, conflictResolutionPolicy);
         queryResult.setExecutionTime(executionTime);
         return queryResult;
     }
@@ -202,7 +212,7 @@ import java.util.Set;
      * @return metadata of result named graphs
      * @throws DatabaseException query error
      */
-    private NamedGraphMetadataMap getMetadata(String namedGraphURI) throws DatabaseException {
+    private Model getMetadata(String namedGraphURI) throws DatabaseException {
         String query = String.format(Locale.ROOT, METADATA_QUERY, namedGraphURI,
                 getGraphPrefixFilter("resGraph"), maxLimit);
         return getMetadataFromQuery(query, "getMetadata()");
@@ -219,13 +229,11 @@ import java.util.Set;
     private Collection<Statement> getSameAsLinks() throws DatabaseException {
         long startTime = System.currentTimeMillis();
         Collection<Statement> sameAsTriples = new ArrayList<Statement>();
-        assert aggregationSpec.getPropertyAggregations() != null;
-        for (String property : aggregationSpec.getPropertyAggregations().keySet()) {
-            addSameAsLinksForURI(property, sameAsTriples);
+        for (URI property : conflictResolutionPolicy.getPropertyResolutionStrategies().keySet()) {
+            addSameAsLinksForURI(property.stringValue(), sameAsTriples);
         }
-        assert aggregationSpec.getPropertyMultivalue() != null;
-        for (String property : aggregationSpec.getPropertyMultivalue().keySet()) {
-            addSameAsLinksForURI(property, sameAsTriples);
+        for (URI property : defaultResolutionPolicy.getPropertyResolutionStrategies().keySet()) {
+            addSameAsLinksForURI(property.stringValue(), sameAsTriples);
         }
         LOG.debug("Query Execution: getSameAsLinks() in {} ms ({} links)",
                 System.currentTimeMillis() - startTime, sameAsTriples.size());

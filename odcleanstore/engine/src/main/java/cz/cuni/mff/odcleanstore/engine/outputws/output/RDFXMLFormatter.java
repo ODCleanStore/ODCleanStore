@@ -1,7 +1,7 @@
 package cz.cuni.mff.odcleanstore.engine.outputws.output;
 
 import cz.cuni.mff.odcleanstore.configuration.OutputWSConfig;
-import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
 import cz.cuni.mff.odcleanstore.qualityassessment.QualityAssessor.GraphScoreWithTrace;
 import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.MetadataQueryResult;
@@ -70,9 +70,9 @@ public class RDFXMLFormatter extends RDFFormatter {
             throws RDFHandlerException {
         // Result data
         int totalResults = 0;
-        for (CRQuad crQuad : queryResult.getResultQuads()) {
+        for (ResolvedStatement resolvedStatement : queryResult.getResultQuads()) {
             totalResults++;
-            rdfWriter.handleStatement(crQuad.getQuad());
+            rdfWriter.handleStatement(resolvedStatement.getStatement());
         }
 
         // Metadata of source named graphs

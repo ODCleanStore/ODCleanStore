@@ -1,15 +1,17 @@
 package cz.cuni.mff.odcleanstore.queryexecution;
 
 import cz.cuni.mff.odcleanstore.configuration.QueryExecutionConfig;
-import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
-import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
-import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
+import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolutionPolicy;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunctionRegistry;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.ConflictResolutionPolicyImpl;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.EmptyMetadataModel;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.shared.ODCSErrorCodes;
 import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 
+import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 
 import org.slf4j.Logger;
@@ -31,7 +33,7 @@ import java.util.Locale;
     private static final Logger LOG = LoggerFactory.getLogger(MetadataQueryExecutor.class);
 
     private static final QueryConstraintSpec EMPTY_QUERY_CONSTRAINT_SPEC = new QueryConstraintSpec();
-    private static final AggregationSpec EMPTY_AGGREGATION_SPEC = new AggregationSpec();
+    private static final ConflictResolutionPolicy EMPTY_CONFLICT_RESOLUTION_POLICY = new ConflictResolutionPolicyImpl();
 
     /**
      * SPARQL query that gets provenance metadata for the given named graph.
@@ -60,8 +62,8 @@ import java.util.Locale;
      * TODO: omit metadata for additional labels?
      */
     private static final String ODCS_METADATA_QUERY =
-            "SELECT "
-            + "\n   <%1$s> as ?resGraph ?p ?o"
+            "CONSTRUCT "
+            + "\n   { <%1$s> ?p ?o }"
             + "\n WHERE {"
             //+ "\n   {"
             + "\n     <%1$s> <" + ODCS.metadataGraph + "> ?metadataGraph"
@@ -81,18 +83,16 @@ import java.util.Locale;
     /**
      * Creates a new instance of NamedGraphMetadataQueryExecutor.
      * @param connectionCredentials connection settings for the SPARQL endpoint that will be queried
-     * @param conflictResolverFactory factory for ConflictResolver
+     * @param resolutionFunctionRegistry factory for conflict resolution functions
      * @param labelPropertiesList list of label properties formatted as a string for use in a query
      * @param globalConfig global conflict resolution settings
      */
     public MetadataQueryExecutor(
-            JDBCConnectionCredentials connectionCredentials,
-            ConflictResolverFactory conflictResolverFactory,
-            String labelPropertiesList,
-            QueryExecutionConfig globalConfig) {
+            JDBCConnectionCredentials connectionCredentials, ResolutionFunctionRegistry resolutionFunctionRegistry,
+            String labelPropertiesList, QueryExecutionConfig globalConfig) {
 
-        super(connectionCredentials, EMPTY_QUERY_CONSTRAINT_SPEC, EMPTY_AGGREGATION_SPEC, conflictResolverFactory,
-                labelPropertiesList, globalConfig);
+        super(connectionCredentials, EMPTY_QUERY_CONSTRAINT_SPEC, EMPTY_CONFLICT_RESOLUTION_POLICY,
+                EMPTY_CONFLICT_RESOLUTION_POLICY, resolutionFunctionRegistry, labelPropertiesList, globalConfig);
     }
 
     /**
@@ -116,11 +116,11 @@ import java.util.Locale;
                     "The query is not a valid URI.");
         }
         if (ENGINE_TEMP_GRAPH_PREFIX != null && namedGraphURI.startsWith(ENGINE_TEMP_GRAPH_PREFIX)) {
-           return createResult(Collections.<Statement>emptySet(), new NamedGraphMetadataMap(), namedGraphURI, 0);
+           return createResult(Collections.<Statement>emptySet(), new EmptyMetadataModel(), namedGraphURI, 0);
         }
 
         try {
-            NamedGraphMetadataMap metadata = getODCSMetadata(namedGraphURI);
+            Model metadata = getODCSMetadata(namedGraphURI);
             Collection<Statement> provenanceMetadata = getProvenanceMetadata(namedGraphURI);
 
             return createResult(provenanceMetadata, metadata, namedGraphURI, System.currentTimeMillis() - startTime);
@@ -141,7 +141,7 @@ import java.util.Locale;
      * @return query result holder
      */
     private MetadataQueryResult createResult(Collection<Statement> provenanceMetadata,
-            NamedGraphMetadataMap metadata, String query, long executionTime) {
+            Model metadata, String query, long executionTime) {
 
         LOG.debug("Query Execution: getMetadata() in {} ms", executionTime);
         // Format and return result
@@ -168,7 +168,7 @@ import java.util.Locale;
      * @return metadata of the requested named graph
      * @throws DatabaseException query error
      */
-    private NamedGraphMetadataMap getODCSMetadata(String namedGraphURI) throws DatabaseException {
+    private Model getODCSMetadata(String namedGraphURI) throws DatabaseException {
         String query = String.format(Locale.ROOT, ODCS_METADATA_QUERY, namedGraphURI, maxLimit);
         return getMetadataFromQuery(query, "getODCSMetadata()");
     }

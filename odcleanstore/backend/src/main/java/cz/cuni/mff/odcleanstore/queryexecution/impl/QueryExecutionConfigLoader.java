@@ -1,8 +1,11 @@
 package cz.cuni.mff.odcleanstore.queryexecution.impl;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
+import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolutionPolicy;
 import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
-import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationType;
+import cz.cuni.mff.odcleanstore.conflictresolution.EnumCardinality;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionStrategy;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.ConflictResolutionPolicyImpl;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.ResolutionStrategyImpl;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionFactory;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
@@ -12,11 +15,17 @@ import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
 import cz.cuni.mff.odcleanstore.queryexecution.EnumQueryError;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
 import cz.cuni.mff.odcleanstore.shared.ODCSErrorCodes;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
+
+import org.openrdf.model.URI;
+import org.openrdf.model.impl.ValueFactoryImpl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * DAO class that loads default aggregation settings for use in
@@ -28,8 +37,8 @@ import java.sql.SQLException;
     private static final Logger LOG = LoggerFactory.getLogger(QueryExecutionConfigLoader.class);
 
     private static final String DEFAULT_VALUE = "DEFAULT";
-    private static final String MULTIVALUE_TRUE = "YES";
-    private static final String MULTIVALUE_FALSE = "NO";
+    private static final String MANYVALUED_TRUE = "YES";
+    private static final String MANYVALUED_FALSE = "NO";
 
     /** Database connection settings. */
     private final JDBCConnectionCredentials connectionCredentials;
@@ -45,29 +54,31 @@ import java.sql.SQLException;
     /**
      * Retrieves the default aggregation settings from the database and returns them as an instance
      * of {@link AggregationSpec}.
+     * @param prefixMapping namespace prefix mappings
      * @return default aggregation settings
      * @throws DatabaseException database error
      * @throws QueryExecutionException invalid settings in the database
      */
-    public AggregationSpec getDefaultSettings() throws DatabaseException, QueryExecutionException {
-        AggregationSpec defaultSettings = new AggregationSpec();
-
+    public ConflictResolutionPolicy getDefaultSettings(PrefixMapping prefixMapping)
+            throws DatabaseException, QueryExecutionException {
         VirtuosoConnectionWrapper connection = null;
         WrappedResultSet resultSet = null;
         try {
             connection = VirtuosoConnectionFactory.createJDBCConnection(connectionCredentials);
 
             // Get global settings
+            ResolutionStrategy defaultStrategy;
             resultSet = connection.executeSelect(
-                    "SELECT es.label AS errorStrategy, mt.label as multivalue, at.label AS aggregation"
+                    "SELECT es.label AS errorStrategy, mt.label as manyvalued, at.label AS aggregation"
                     + "\n FROM DB.ODCLEANSTORE.CR_SETTINGS AS s"
                     + "\n JOIN DB.ODCLEANSTORE.CR_ERROR_STRATEGIES AS es ON (s.defaultErrorStrategyId = es.id)"
                     + "\n JOIN DB.ODCLEANSTORE.CR_AGGREGATION_TYPES AS at ON (s.defaultAggregationTypeId = at.id)"
                     + "\n JOIN DB.ODCLEANSTORE.CR_MULTIVALUE_TYPES AS mt ON (s.defaultMultivalueTypeId = mt.id)");
             if (resultSet.next()) {
-                defaultSettings.setDefaultAggregation(parseAggregationType(resultSet.getString("aggregation")));
-                defaultSettings.setDefaultMultivalue(parseMultivalue(resultSet.getString("multivalue")));
-                defaultSettings.setErrorStrategy(parseErrorStrategy(resultSet.getString("errorStrategy")));
+                defaultStrategy = new ResolutionStrategyImpl(
+                        parseAggregationType(resultSet.getString("aggregation")),
+                        parseCardinality(resultSet.getString("manyvalued")),
+                        parseErrorStrategy(resultSet.getString("errorStrategy")));
             } else {
                 throw new QueryExecutionException(
                         EnumQueryError.DEFAULT_AGGREGATION_SETTINGS_INVALID,
@@ -78,24 +89,29 @@ import java.sql.SQLException;
             resultSet = null;
 
             // Get property-level settings
-            resultSet = connection.executeSelect("SELECT p.property, mt.label as multivalue, at.label AS aggregation"
+            Map<URI, ResolutionStrategy> propertyStrategies = new HashMap<URI, ResolutionStrategy>();
+            resultSet = connection.executeSelect("SELECT p.property, mt.label as manyvalued, at.label AS aggregation"
                     + "\n FROM DB.ODCLEANSTORE.CR_PROPERTIES AS p"
                     + "\n JOIN DB.ODCLEANSTORE.CR_AGGREGATION_TYPES AS at ON (p.aggregationTypeId = at.id)"
                     + "\n JOIN DB.ODCLEANSTORE.CR_MULTIVALUE_TYPES AS mt ON (p.multivalueTypeId = mt.id)");
 
             while (resultSet.next()) {
                 String property = resultSet.getString("property");
-                EnumAggregationType propertyAggregation = parseAggregationType(resultSet.getString("aggregation"));
-                if (propertyAggregation != null) {
-                    defaultSettings.getPropertyAggregations().put(property, propertyAggregation);
+                ResolutionStrategyImpl strategy = new ResolutionStrategyImpl();
+                String resolutionFunctionName = parseAggregationType(resultSet.getString("aggregation"));
+                if (!ODCSUtils.isNullOrEmpty(resolutionFunctionName)) {
+                    strategy.setResolutionFunctionName(resolutionFunctionName);
                 }
-                Boolean propertyMultivalue = parseMultivalue(resultSet.getString("multivalue"));
-                if (propertyMultivalue != null) {
-                    defaultSettings.getPropertyMultivalue().put(property, propertyMultivalue);
+                EnumCardinality cardinality = parseCardinality(resultSet.getString("manyvalued"));
+                if (cardinality != null) {
+                    strategy.setCardinality(cardinality);
                 }
+
+                String expandedProperty = prefixMapping.expandPrefix(property);
+                propertyStrategies.put(ValueFactoryImpl.getInstance().createURI(expandedProperty), strategy);
             }
 
-            return defaultSettings;
+            return new ConflictResolutionPolicyImpl(defaultStrategy, propertyStrategies);
         } catch (SQLException e) {
             throw new QueryException(e);
         } finally {
@@ -112,21 +128,13 @@ import java.sql.SQLException;
      * Parse the given value to an EnumAggregationType.
      * @param value aggregation method name
      * @return aggregation type; null means propagate default value
-     * @throws QueryExecutionException  the given value does not represent an aggregation type
+     * @throws QueryExecutionException the given value does not represent an aggregation type
      */
-    private EnumAggregationType parseAggregationType(String value) throws QueryExecutionException {
+    private String parseAggregationType(String value) throws QueryExecutionException {
         if (DEFAULT_VALUE.equals(value)) {
             return null;
         }
-        try {
-            return EnumAggregationType.valueOf(value);
-        } catch (IllegalArgumentException e) {
-            LOG.error("Invalid value {} in database for aggregation method.", value);
-            throw new QueryExecutionException(EnumQueryError.DEFAULT_AGGREGATION_SETTINGS_INVALID,
-                    ODCSErrorCodes.QE_DEFAULT_CONFIG_AGGREGATION_ERR,
-                    "Invalid value of aggregation type '" + value + "' in the database",
-                    e);
-        }
+        return value;
     }
 
     /**
@@ -149,21 +157,21 @@ import java.sql.SQLException;
 
     /**
      * Parse the given value to a boolean.
-     * @param value value of a multivalue setting from the database
+     * @param value value of a manyvalued setting from the database
      * @return true iff represents true in the database; null means propagate default value
-     * @throws QueryExecutionException the given value is not valid for multivalue
+     * @throws QueryExecutionException the given value is not valid for manyvalued
      */
-    private Boolean parseMultivalue(String value) throws QueryExecutionException {
-        if (MULTIVALUE_TRUE.equals(value)) {
-            return true;
-        } else if (MULTIVALUE_FALSE.equals(value)) {
-            return false;
+    private EnumCardinality parseCardinality(String value) throws QueryExecutionException {
+        if (MANYVALUED_TRUE.equals(value)) {
+            return EnumCardinality.MANYVALUED;
+        } else if (MANYVALUED_FALSE.equals(value)) {
+            return EnumCardinality.SINGLEVALUED;
         } else if (DEFAULT_VALUE.equals(value)) {
             return null;
         } else {
             throw new QueryExecutionException(EnumQueryError.DEFAULT_AGGREGATION_SETTINGS_INVALID,
-                    ODCSErrorCodes.QE_DEFAULT_CONFIG_MULTIVALUE_ERR,
-                    "Invalid value for multivalue '" + value + "' in the database");
+                    ODCSErrorCodes.QE_DEFAULT_CONFIG_MANYVALUED_ERR,
+                    "Invalid value for manyvalued '" + value + "' in the database");
         }
     }
 }

@@ -1,12 +1,13 @@
 package cz.cuni.mff.odcleanstore.queryexecution;
 
 import cz.cuni.mff.odcleanstore.configuration.QueryExecutionConfig;
-import cz.cuni.mff.odcleanstore.conflictresolution.AggregationSpec;
-import cz.cuni.mff.odcleanstore.conflictresolution.CRQuad;
+import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolutionPolicy;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
-import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
-import cz.cuni.mff.odcleanstore.conflictresolution.NamedGraphMetadataMap;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunctionRegistry;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
+import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ResolutionFunctionNotRegisteredException;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.EmptyMetadataModel;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.shared.ODCSErrorCodes;
@@ -14,6 +15,7 @@ import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 
 import org.openrdf.model.BNode;
+import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
@@ -100,8 +102,8 @@ import java.util.regex.Pattern;
      */
     private static final String METADATA_QUERY =
             "DEFINE input:same-as \"yes\""
-            + "\n SELECT DISTINCT"
-            + "\n   ?resGraph ?p ?o"
+            + "\n CONSTRUCT"
+            + "\n   { ?resGraph ?p ?o }"
             + "\n WHERE {"
             + "\n   {"
             + "\n     {"
@@ -356,17 +358,18 @@ import java.util.regex.Pattern;
      * Creates a new instance of KeywordQueryExecutor.
      * @param connectionCredentials connection settings for the SPARQL endpoint that will be queried
      * @param constraints constraints on triples returned in the result
-     * @param aggregationSpec aggregation settings for conflict resolution;
-     *        property names must not contain prefixed names
-     * @param conflictResolverFactory factory for ConflictResolver
+     * @param conflictResolutionPolicy conflict resolution strategies for conflict resolution;
+     * @param defaultResolutionPolicy default conflict resolution strategies defined by administrator
+     * @param resolutionFunctionRegistry factory for resolution functions
      * @param labelPropertiesList list of label properties formatted as a string for use in a query
      * @param globalConfig global conflict resolution settings
      */
     public KeywordQueryExecutor(JDBCConnectionCredentials connectionCredentials, QueryConstraintSpec constraints,
-            AggregationSpec aggregationSpec, ConflictResolverFactory conflictResolverFactory,
-            String labelPropertiesList, QueryExecutionConfig globalConfig) {
-        super(connectionCredentials, constraints, aggregationSpec, conflictResolverFactory,
-                labelPropertiesList, globalConfig);
+            ConflictResolutionPolicy conflictResolutionPolicy, ConflictResolutionPolicy defaultResolutionPolicy,
+            ResolutionFunctionRegistry resolutionFunctionRegistry, String labelPropertiesList,
+            QueryExecutionConfig globalConfig) {
+        super(connectionCredentials, constraints, conflictResolutionPolicy, defaultResolutionPolicy,
+                resolutionFunctionRegistry, labelPropertiesList, globalConfig);
     }
 
     /**
@@ -394,27 +397,32 @@ import java.util.regex.Pattern;
         String exactMatchExpr = buildExactMatchExpr(keywordsQuery);
         if (containsMatchExpr.isEmpty() || exactMatchExpr.isEmpty()) {
             // No valid keywords
-            return createResult(Collections.<CRQuad>emptyList(), new NamedGraphMetadataMap(), canonicalQuery,
+            return createResult(Collections.<ResolvedStatement>emptyList(), new EmptyMetadataModel(), canonicalQuery,
                     System.currentTimeMillis() - startTime);
         }
         try {
             // Get the quads relevant for the query
             Collection<Statement> quads = getKeywordOccurrences(containsMatchExpr, exactMatchExpr);
             if (quads.isEmpty()) {
-                return createResult(Collections.<CRQuad>emptyList(), new NamedGraphMetadataMap(), canonicalQuery,
+                return createResult(Collections.<ResolvedStatement>emptyList(), new EmptyMetadataModel(), canonicalQuery,
                         System.currentTimeMillis() - startTime);
             }
             quads = addLabels(quads);
 
             // Apply conflict resolution
-            NamedGraphMetadataMap metadata = getMetadata(containsMatchExpr, exactMatchExpr);
+            Model metadata = getMetadata(containsMatchExpr, exactMatchExpr);
             Iterator<Statement> sameAsLinks = getSameAsLinks().iterator();
             Set<String> preferredURIs = getSettingsPreferredURIs();
-            ConflictResolver conflictResolver =
-                    conflictResolverFactory.createResolver(aggregationSpec, metadata, sameAsLinks, preferredURIs);
-            Collection<CRQuad> resolvedQuads = conflictResolver.resolveConflicts(quads);
+            ConflictResolver conflictResolver = createConflictResolver(metadata, sameAsLinks, preferredURIs);
+            Collection<ResolvedStatement> resolvedQuads = conflictResolver.resolveConflicts(quads);
 
             return createResult(resolvedQuads, metadata, canonicalQuery, System.currentTimeMillis() - startTime);
+        } catch (ResolutionFunctionNotRegisteredException e) {
+            throw new QueryExecutionException(
+                    EnumQueryError.UNKNOWN_RESOLUTION_FUNCTION,
+                    ODCSErrorCodes.QE_CR_UNKNOWN_RESOLUTION,
+                    "Unknown resolution function '" + e.getResolutionFunctionName() + "' in resolution policy",
+                    e);
         } catch (ConflictResolutionException e) {
             throw new QueryExecutionException(
                     EnumQueryError.CONFLICT_RESOLUTION_ERROR,
@@ -437,15 +445,15 @@ import java.util.regex.Pattern;
      * @return query result holder
      */
     private BasicQueryResult createResult(
-            Collection<CRQuad> resultQuads,
-            NamedGraphMetadataMap metadata,
+            Collection<ResolvedStatement> resultQuads,
+            Model metadata,
             String query,
             long executionTime) {
 
         LOG.debug("Query Execution: findKeyword() in {} ms", executionTime);
         // Format and return result
         BasicQueryResult queryResult = new BasicQueryResult(resultQuads, metadata, query, EnumQueryType.KEYWORD, constraints,
-                aggregationSpec);
+                conflictResolutionPolicy);
         queryResult.setExecutionTime(executionTime);
         return queryResult;
     }
@@ -498,7 +506,7 @@ import java.util.regex.Pattern;
      * @return metadata of result named graphs
      * @throws DatabaseException query error
      */
-    private NamedGraphMetadataMap getMetadata(String containsMatchExpr, String exactMatchExpr)
+    private Model getMetadata(String containsMatchExpr, String exactMatchExpr)
             throws DatabaseException {
         String query = String.format(Locale.ROOT, METADATA_QUERY, containsMatchExpr, exactMatchExpr,
                 getGraphFilterClause(), labelPropertiesList, getGraphPrefixFilter("resGraph"),
@@ -517,13 +525,11 @@ import java.util.regex.Pattern;
     private Collection<Statement> getSameAsLinks() throws DatabaseException {
         long startTime = System.currentTimeMillis();
         Collection<Statement> sameAsTriples = new ArrayList<Statement>();
-        assert aggregationSpec.getPropertyAggregations() != null;
-        for (String property : aggregationSpec.getPropertyAggregations().keySet()) {
-            addSameAsLinksForURI(property, sameAsTriples);
+        for (URI property : conflictResolutionPolicy.getPropertyResolutionStrategies().keySet()) {
+            addSameAsLinksForURI(property.stringValue(), sameAsTriples);
         }
-        assert aggregationSpec.getPropertyMultivalue() != null;
-        for (String property : aggregationSpec.getPropertyMultivalue().keySet()) {
-            addSameAsLinksForURI(property, sameAsTriples);
+        for (URI property : defaultResolutionPolicy.getPropertyResolutionStrategies().keySet()) {
+            addSameAsLinksForURI(property.stringValue(), sameAsTriples);
         }
         LOG.debug("Query Execution: {} in {} ms", "getSameAsLinks()", System.currentTimeMillis() - startTime);
         return sameAsTriples;
