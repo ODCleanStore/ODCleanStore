@@ -44,8 +44,11 @@ import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 public class ConflictResolverImpl implements ConflictResolver {
     private static final Logger LOG = LoggerFactory.getLogger(ConflictResolverImpl.class);
 
-    private static final String DEFAULT_RESOLVED_GRAPHS_URI_PREFIX = ODCS.getURI() + "CR/";
-    private static final ResolutionStrategy DEFAULT_RESOLUTION_STRATEGY = new ResolutionStrategyImpl(
+    /** Default prefix of graph names where resolved quads are placed. */ 
+    public static final String DEFAULT_RESOLVED_GRAPHS_URI_PREFIX = ODCS.getURI() + "CR/";
+    
+    /** Default conflict resolution strategy. */
+    public static final ResolutionStrategy DEFAULT_RESOLUTION_STRATEGY = new ResolutionStrategyImpl(
             AllResolution.getName(),
             EnumCardinality.MANYVALUED,
             EnumAggregationErrorStrategy.RETURN_ALL);
