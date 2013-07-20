@@ -16,6 +16,12 @@ Fixes & improvements:
 * Relative transformer working directory paths are relative to Engine's working directory
 * Fixed numeric keyword queries
 
+1.1.1
+-----
+Fixes & improvements:
+* Fixed quality calculation performance
+* Improved code extensibility
+
 =========================================
 What is new in ODCleanStore release 1.0
 =========================================
