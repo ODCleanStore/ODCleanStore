@@ -95,5 +95,24 @@ public class EmptyMetadataModel extends AbstractModel {
             Resource... contexts) {
         // remove nothing
     }
+    
+    @Override
+    public Set<Value> objects() {
+        return Collections.emptySet(); 
+    }
+    
+    @Override
+    public Set<URI> predicates() {
+        return Collections.emptySet();
+    }
+    
+    @Override
+    public Set<Resource> subjects() {
+        return Collections.emptySet(); 
+    }
 
+    @Override
+    public Set<Resource> contexts() {
+        return Collections.emptySet();
+    }
 }
