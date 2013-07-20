@@ -156,20 +156,32 @@ public class URIMappingImpl implements URIMapping {
         String root1 = dfuRoot(uri1);
         String root2 = dfuRoot(uri2);
         if (!root1.equals(root2)) {
-            if (preferredURIs.contains(root1)) {
+            String canonicalURI = chooseCanonicalURI(root1, root2);
+            if (canonicalURI == root1) { // intentionally ==
                 uriDFUParent.put(root2, root1);
             } else {
                 uriDFUParent.put(root1, root2);
             }
         }
     }
+    
+    /**
+     * Returns true if the given URI is a preferred canonical URI.
+     * @param uri URI to check
+     * @return true if the given URI is a preferred canonical URI
+     */
+    protected boolean isPreferredURI(String uri) {
+        return preferredURIs.contains(uri);
+    }
 
     /**
-     * Returns the set of URIs preferred as canonical URIs.
-     * @return URIs preferred as canonical URIs
+     * Chooses the preferred canonical URI from two options.
+     * @param uri1 first candidate for canonical URI
+     * @param uri2 second candidate for canonical URI
+     * @return either uri1 or uri2 (must be exactly one of these two objects)
      */
-    protected Set<String> getPreferredURIs() {
-        return preferredURIs;
+    protected String chooseCanonicalURI(String uri1, String uri2) {
+        return isPreferredURI(uri1) ? uri1 : uri2;
     }
 
     /**

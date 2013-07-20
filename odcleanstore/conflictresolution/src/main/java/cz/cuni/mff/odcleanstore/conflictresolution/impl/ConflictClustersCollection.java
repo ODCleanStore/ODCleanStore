@@ -54,6 +54,7 @@ public class ConflictClustersCollection extends AbstractCollection<List<Statemen
         this.statements = statements;
         this.valueFactory = valueFactory;
         this.uriMapping = uriMapping;
+        this.size = statements.length;
     }
 
     /**
@@ -104,7 +105,8 @@ public class ConflictClustersCollection extends AbstractCollection<List<Statemen
         }
     }
 
-    private void applyUriMapping() {
+    /** Apply URI mapping - translates all URIs occurring in the wrapped statements to their canonical equivalent. */
+    protected void applyUriMapping() {
         int statementCount = statements.length;
         for (int i = 0; i < statementCount; i++) {
             Statement statement = statements[i];
@@ -134,10 +136,10 @@ public class ConflictClustersCollection extends AbstractCollection<List<Statemen
      * If mapping contains an URI to map for the passed {@link URI} returns a {@link URI} with the mapped URI, otherwise returns
      * <code>value</code>.
      * @param value a {@link Value} to apply mapping to
-     * @param mapping an URI mapping to apply
+     * @param uriMapping an URI mapping to apply
      * @return node with applied URI mapping
      */
-    private Value mapURINode(Value value, URIMapping uriMapping) {
+    protected final Value mapURINode(Value value, URIMapping uriMapping) {
         if (value instanceof URI) {
             return uriMapping.mapURI((URI) value);
         }
@@ -148,7 +150,8 @@ public class ConflictClustersCollection extends AbstractCollection<List<Statemen
         Arrays.sort(statements, ORDER_COMPARATOR);
     }
 
-    private void makeUnique() {
+    /** Removes identical quads. Expects the quads to be spog-sorted in advance. */
+    protected void makeUnique() {
         if (statements.length == 0) {
             // Must be handled as a special case, otherwise this.size gets initialized to 1
             this.size = 0;
@@ -177,10 +180,15 @@ public class ConflictClustersCollection extends AbstractCollection<List<Statemen
      * Sublist of wrapped statements determined by start and end index into {@link ConflictClustersCollection#statements}
      * representing one conflict cluster.
      */
-    private class SubList extends AbstractList<Statement> implements RandomAccess {
+    protected class SubList extends AbstractList<Statement> implements RandomAccess {
         private int from;
         private int to;
 
+        /**
+         * @param from index of the first item represented by this sublist into {@link ConflictClustersCollection#statements}.
+         * @param toExclusive index past the last item represented by this sublist into 
+         *      {@link ConflictClustersCollection#statements}.
+         */
         SubList(int from, int toExclusive) {
             this.from = from;
             this.to = toExclusive;
@@ -227,7 +235,7 @@ public class ConflictClustersCollection extends AbstractCollection<List<Statemen
      * Iterator over conflict clusters backed by {@link ConflictClustersCollection#statements}.
      * Expects {@link ConflictClustersCollection#statements} to be sp-sorted.
      */
-    private class ConflictClusterIterator implements Iterator<List<Statement>> {
+    protected class ConflictClusterIterator implements Iterator<List<Statement>> {
         private int cursor = 0;
 
         @Override

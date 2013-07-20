@@ -1,5 +1,8 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.quality.impl;
 
+import java.util.Iterator;
+
+import org.openrdf.model.Literal;
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -55,13 +58,7 @@ public class ODCSSourceQualityCalculator implements SourceQualityCalculator {
             return defaultSourceGraphQuality;
         }
 
-        Double sourceScore;
-        try {
-            sourceScore = metadata.filter(source, SOURCE_SCORE_PROPERTY, null).objectLiteral().doubleValue();
-        } catch (Exception e) { // ModelException, NumbefFormatException
-            sourceScore = null;
-        }
-
+        Double sourceScore = getObjectDouble(metadata, source, SOURCE_SCORE_PROPERTY);
         Double publisherScore = getAveragePublisherScore(metadata, source);
 
         if (publisherScore != null && sourceScore != null) {
@@ -75,28 +72,43 @@ public class ODCSSourceQualityCalculator implements SourceQualityCalculator {
             return defaultSourceGraphQuality;
         }
     }
-    
+  
     private Double getAveragePublisherScore(Model metadata, Resource source) {
         double averageScore = 0;
         int publishersCount = 0;
         
         Model publishers = metadata.filter(source, PUBLISHER_PROPERTY, null);
         for (Statement statement : publishers) {
-            try {
                 Value publisher = statement.getObject();
                 if (!(publisher instanceof Resource)) {
                     continue;
                 }
-                averageScore += metadata.filter((Resource) publisher, PUBLISHER_SCORE_PROPERTY, null)
-                        .objectLiteral().doubleValue();
+                Double objectDouble = getObjectDouble(metadata, (Resource) publisher, PUBLISHER_SCORE_PROPERTY);
+                if (objectDouble == null) {
+                    continue;
+                }
+                averageScore += objectDouble;
                 publishersCount++;
-            } catch (Exception e) { // ModelException, NumbefFormatException
-                continue;
-            }
         }
 
         return publishersCount > 0
                 ? averageScore / publishersCount
                 : null;
+    }
+    
+    private Double getObjectDouble(Model metadata, Resource source, URI sourceScoreProperty) {
+        Iterator<Statement> statementIt = metadata.filter(source, SOURCE_SCORE_PROPERTY, null).iterator();
+        while (statementIt.hasNext()) {
+            Value object = statementIt.next().getObject();
+            if (object instanceof Literal) {
+                Literal objectLiteral = (Literal) object;
+                try {
+                    return objectLiteral.doubleValue();
+                } catch (NumberFormatException e) {
+                    // try next statement
+                }
+            }
+        }
+        return null;
     }
 }
