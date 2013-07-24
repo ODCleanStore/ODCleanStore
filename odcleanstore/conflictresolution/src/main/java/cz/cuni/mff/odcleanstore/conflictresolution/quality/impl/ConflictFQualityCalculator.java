@@ -54,7 +54,7 @@ public abstract class ConflictFQualityCalculator implements FQualityCalculator {
 
     /**
      * Creates a new instance with the default Implementation of {@link DistanceMeasure} and source quality 
-     * score considered to be always {@value DummySourceQualityCalculator#SOURCE_QUALITY}.
+     * score considered to be always {@value DummySourceQualityCalculator#DEFAULT_SOURCE_QUALITY}.
      */
     public ConflictFQualityCalculator() {
         this(new DummySourceQualityCalculator());
