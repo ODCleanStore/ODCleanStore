@@ -22,8 +22,9 @@ import org.openrdf.model.impl.AbstractModel;
 import org.openrdf.model.impl.FilteredModel;
 import org.openrdf.model.impl.URIImpl;
 import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.model.util.LexicalValueComparator;
 import org.openrdf.model.util.PatternIterator;
+
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.ValueComparator;
 
 /**
  * Implementation of RDF {@link Model} backed by a spog-sorted list of statements.
@@ -290,7 +291,7 @@ public class SortedListModel extends AbstractModel implements Model {
      * Special value {@link SortedListModel#BEFORE} is considered as the least value.
      */
     private static class SpogComparator implements Comparator<Statement> {
-        private final LexicalValueComparator comparator = new LexicalValueComparator();
+        private final Comparator<Value> comparator = new ValueComparator();
 
         protected int compareValue(Value o1, Value o2) {
             if (o1 == o2) {
