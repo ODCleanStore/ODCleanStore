@@ -3,15 +3,15 @@ package cz.cuni.mff.odcleanstore.conflictresolution.impl.util;
 import java.util.Comparator;
 
 import org.openrdf.model.Statement;
-import org.openrdf.model.util.LexicalValueComparator;
+import org.openrdf.model.Value;
 
 /**
  * Comparator of statements by object.
- * The comparison is done by {@link LexicalValueComparator}.
+ * The comparison is done by {@link ValueComparator}.
  * @author Jan Michelfeit
  */
 public class ObjectComparator implements Comparator<Statement> {
-    private static final LexicalValueComparator COMPARATOR = new LexicalValueComparator();
+    private static final Comparator<Value> COMPARATOR = new ValueComparator();
     private static Comparator<Statement> instance = new ObjectComparator();
 
     /**

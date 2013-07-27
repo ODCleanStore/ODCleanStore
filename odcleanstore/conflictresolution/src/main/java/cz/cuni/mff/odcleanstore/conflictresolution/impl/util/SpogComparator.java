@@ -3,16 +3,15 @@ package cz.cuni.mff.odcleanstore.conflictresolution.impl.util;
 import java.util.Comparator;
 
 import org.openrdf.model.Statement;
-import org.openrdf.model.util.LexicalValueComparator;
+import org.openrdf.model.Value;
 
 /**
  * Lexicographical comparator of {@link Statement quads} by subject, predicate, object and named graph (in this order).
- * The comparison is internally done by {@link LexicalValueComparator}.
- * @see LexicalValueComparator
+ * The comparison is internally done by {@link ValueComparator}.
  * @author Jan Michelfeit
  */
 public class SpogComparator implements Comparator<Statement> {
-    private static final LexicalValueComparator COMPARATOR = new LexicalValueComparator();
+    private static final Comparator<Value> COMPARATOR = new ValueComparator();
     private static Comparator<Statement> instance = new SpogComparator();
 
     /**
