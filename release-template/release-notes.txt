@@ -22,6 +22,11 @@ Fixes & improvements:
 * Fixed quality calculation performance
 * Improved code extensibility
 
+1.1.2
+-----
+Fixes & improvements:
+* Conflict Resolution - comparison of RDF nodes more suitable for conflict resolution
+
 =========================================
 What is new in ODCleanStore release 1.0
 =========================================
