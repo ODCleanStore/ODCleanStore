@@ -196,8 +196,11 @@ public class ConflictResolverImpl implements ConflictResolver {
      * @throws ConflictResolutionException conflict resolution error
      */
     protected Collection<ResolvedStatement> resolveConflictsInternal(Statement[] statements) throws ConflictResolutionException {
-        LOG.debug("Resolving conflicts among {} quads.", statements.length);
-        long startTime = System.currentTimeMillis();
+        long startTime = 0;
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Resolving conflicts among {} quads.", statements.length);
+            startTime = System.currentTimeMillis();
+        }
 
         // Prepare effective resolution strategy based on per-predicate strategies, default strategy & uri mappings
         ConflictResolutionPolicy effectiveResolutionPolicy = getEffectiveResolutionPolicy();
@@ -227,8 +230,10 @@ public class ConflictResolverImpl implements ConflictResolver {
             result.addAll(resolvedStatements);
         }
 
-        LOG.debug("Conflict resolution executed in {} ms, resolved to {} quads",
-                System.currentTimeMillis() - startTime, result.size());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Conflict resolution executed in {} ms, resolved to {} quads",
+                    System.currentTimeMillis() - startTime, result.size());
+        }
         return result;
     }
 
