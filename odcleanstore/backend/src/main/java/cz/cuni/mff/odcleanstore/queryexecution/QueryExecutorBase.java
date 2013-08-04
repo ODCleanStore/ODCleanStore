@@ -15,8 +15,6 @@ import cz.cuni.mff.odcleanstore.shared.ODCSErrorCodes;
 import cz.cuni.mff.odcleanstore.shared.util.LimitedURIListBuilder;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
-import cz.cuni.mff.odcleanstore.vocabulary.OWL;
-import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Literal;
@@ -27,6 +25,8 @@ import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.TreeModel;
 import org.openrdf.model.impl.ValueFactoryImpl;
+import org.openrdf.model.vocabulary.OWL;
+import org.openrdf.model.vocabulary.XMLSchema;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.GraphQueryResult;
 import org.openrdf.query.QueryEvaluationException;
@@ -71,9 +71,9 @@ import java.util.Set;
 
     /**
      * Only named graph having URI not starting with this prefix can be included in query result.
-     * @see ODCSInternal#hiddenGraphPrefix
+     * @see ODCSInternal#HIDDEN_GRAPH_PREFIX
      */
-    protected static final String ENGINE_TEMP_GRAPH_PREFIX = ODCSInternal.hiddenGraphPrefix;
+    protected static final String ENGINE_TEMP_GRAPH_PREFIX = ODCSInternal.HIDDEN_GRAPH_PREFIX;
 
     /**
      * (Debug) Only named graph having URI starting with this prefix can be included in query result.
@@ -101,13 +101,6 @@ import java.util.Set;
     private static final int MAX_QUERY_LIST_LENGTH = 25;
 
     /**
-     * A {@link URI} representing the owl:sameAs predicate.
-     */
-    protected static final URI SAME_AS_PROPERTY = ValueFactoryImpl.getInstance().createURI(OWL.sameAs);
-
-    private static final URI PUBLISHED_BY_PROPERTY = ValueFactoryImpl.getInstance().createURI(ODCS.publishedBy);
-
-    /**
      * Value factory instance.
      */
     protected static final ValueFactory VALUE_FACTORY = ValueFactoryImpl.getInstance();
@@ -118,7 +111,7 @@ import java.util.Set;
      * (probably due to Virtuoso inference processing).
      * Must be formatted with the score as an argument.
      */
-    private static final String SCORE_FILTER_CLAUSE = " OPTIONAL { ?graph <" + ODCS.score + "> ?_score }"
+    private static final String SCORE_FILTER_CLAUSE = " OPTIONAL { ?graph <" + ODCS.SCORE + "> ?_score }"
             + " FILTER(?_score >= %f)";
 
     /**
@@ -128,8 +121,8 @@ import java.util.Set;
      * Must be formatted with the date given as an argument.
      */
     private static final String INSERTED_AT_FILTER_CLAUSE = " OPTIONAL"
-            + " { ?graph <" + ODCS.insertedAt + "> ?_insertedAt }"
-            + " FILTER(?_insertedAt >= \"%s\"^^<" + XMLSchema.dateTimeType + ">)";
+            + " { ?graph <" + ODCS.INSERTED_AT + "> ?_insertedAt }"
+            + " FILTER(?_insertedAt >= \"%s\"^^<" + XMLSchema.DATETIME + ">)";
 
     /**
      * SPARQL snippet restricting a variable to start with the given string.
@@ -172,9 +165,9 @@ import java.util.Set;
      */
     private static final String PUBLISHER_SCORE_QUERY =
             "CONSTRUCT"
-            + "\n   { ?publishedBy <" + ODCS.publisherScore + "> ?score }"
+            + "\n   { ?publishedBy <" + ODCS.PUBLISHER_SCORE + "> ?score }"
             + "\n WHERE {"
-            + "\n   ?publishedBy <" + ODCS.publisherScore + "> ?score."
+            + "\n   ?publishedBy <" + ODCS.PUBLISHER_SCORE + "> ?score."
             + "\n   FILTER (?publishedBy IN (%1$s))"
             + "\n }"
             + "\n LIMIT %2$d";
@@ -457,7 +450,7 @@ import java.util.Set;
         long startTime = System.currentTimeMillis();
 
         Set<String> publishers = new HashSet<String>();
-        for (Statement statement : metadata.filter(null, PUBLISHED_BY_PROPERTY, null)) {
+        for (Statement statement : metadata.filter(null, ODCS.PUBLISHED_BY, null)) {
             if (statement.getObject() instanceof URI) {
                 publishers.add(statement.getObject().stringValue());
             }
@@ -553,7 +546,7 @@ import java.util.Set;
                 BindingSet bindingSet = resultSet.next();
                 Statement triple = VALUE_FACTORY.createStatement(
                         (Resource) bindingSet.getValue("r"),
-                        SAME_AS_PROPERTY,
+                        OWL.SAMEAS,
                         (URI) bindingSet.getValue("syn"));
                 triples.add(triple);
             }
@@ -574,7 +567,7 @@ import java.util.Set;
     protected ConflictResolver createConflictResolver(
             Model metadata, Iterator<Statement> sameAsLinks, Set<String> preferredURIs) {
         String resultGraphPrefix =
-                globalConfig.getResultDataURIPrefix().toString() + ODCSInternal.queryResultGraphUriInfix;
+                globalConfig.getResultDataURIPrefix().toString() + ODCSInternal.QUERY_RESULT_GRAPH_URI_INFIX;
 
         // Merge user and admin CR policies
         ResolutionStrategy mergedDefaultStrategy = CRUtils.fillResolutionStrategyDefaults(

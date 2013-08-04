@@ -38,14 +38,14 @@ public class ODCSLatestUpdateMarkerTransformer implements Transformer {
     private static final Logger LOG = LoggerFactory.getLogger(ODCSLatestUpdateMarkerTransformer.class);
 
     private static final String INSERT_MARKER_QUERY = "SPARQL INSERT INTO <%1$s> "
-            + "\n { <%2$s> <" + ODCS.isLatestUpdate + "> 1}";
+            + "\n { <%2$s> <" + ODCS.IS_LATEST_UPDATE + "> 1}";
 
     /**
      * SPARQL query for obtaining all sources of the given graph.
      * Format with arguments: (1) metadata graph, (2) data graph
      */
     private static final String GET_SOURCES_QUERY = "SPARQL SELECT ?source FROM <%1$s>"
-            + "\n WHERE { <%2$s> <" + ODCS.source + "> ?source. FILTER isIRI(?source). }";
+            + "\n WHERE { <%2$s> <" + ODCS.SOURCE + "> ?source. FILTER isIRI(?source). }";
 
     /**
      * SPARQL query for obtaining update tag of the given graph.
@@ -53,8 +53,8 @@ public class ODCSLatestUpdateMarkerTransformer implements Transformer {
      */
     private static final String GET_UPDATE_TAG_USER_QUERY = "SPARQL SELECT ?updateTag ?insertedBy FROM <%1$s>"
             + "\n WHERE {"
-            + "\n   <%2$s> <" + ODCS.insertedBy + "> ?insertedBy. "
-            + "\n   OPTIONAL { <%2$s> <" + ODCS.updateTag + "> ?updateTag. } "
+            + "\n   <%2$s> <" + ODCS.INSERTED_BY + "> ?insertedBy. "
+            + "\n   OPTIONAL { <%2$s> <" + ODCS.UPDATE_TAG + "> ?updateTag. } "
             + "\n }";
 
     /**
@@ -64,12 +64,12 @@ public class ODCSLatestUpdateMarkerTransformer implements Transformer {
      */
     private static final String GET_MARKERS_QUERY = "SPARQL SELECT ?graph ?metadataGraph"
             + "\n WHERE {"
-            + "\n   ?graph <" + ODCS.source + "> %1$s."
-            + "\n   ?graph <" + ODCS.source + "> ?source."
-            + "\n   ?graph <" + ODCS.insertedBy + "> '%2$s'."
-            + "\n   ?graph <" + ODCS.metadataGraph + "> ?metadataGraph."
-            + "\n   ?graph <" + ODCS.isLatestUpdate + "> 1."
-            + "\n   OPTIONAL { ?graph <" + ODCS.updateTag + "> ?updateTag }."
+            + "\n   ?graph <" + ODCS.SOURCE + "> %1$s."
+            + "\n   ?graph <" + ODCS.SOURCE + "> ?source."
+            + "\n   ?graph <" + ODCS.INSERTED_BY + "> '%2$s'."
+            + "\n   ?graph <" + ODCS.METADATA_GRAPH + "> ?metadataGraph."
+            + "\n   ?graph <" + ODCS.IS_LATEST_UPDATE + "> 1."
+            + "\n   OPTIONAL { ?graph <" + ODCS.UPDATE_TAG + "> ?updateTag }."
             + "\n   FILTER (%3$s)."
             + "\n }"
             + "\n GROUP BY ?graph ?metadataGraph"
@@ -79,7 +79,7 @@ public class ODCSLatestUpdateMarkerTransformer implements Transformer {
      * SPARQL query for removing the isLatestUpdate marker.
      * Format with arguments: (1) metadata graph, (2) data graph
      */
-    private static final String DELETE_MARKER_QUERY = "SPARQL DELETE FROM <%1$s>  {<%2$s>  <" + ODCS.isLatestUpdate + "> 1}";
+    private static final String DELETE_MARKER_QUERY = "SPARQL DELETE FROM <%1$s>  {<%2$s>  <" + ODCS.IS_LATEST_UPDATE + "> 1}";
 
     @Override
     public void transformGraph(TransformedGraph inputGraph, TransformationContext context) throws TransformerException {

@@ -5,6 +5,7 @@ import cz.cuni.mff.odcleanstore.qualityassessment.QualityAssessor.GraphScoreWith
 import cz.cuni.mff.odcleanstore.qualityassessment.rules.QualityAssessmentRule;
 import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.MetadataQueryResult;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
@@ -95,31 +96,31 @@ public class DebugFormatter extends ResultFormatterBase {
     
     private void writeMetadata(Writer writer, Model metadata) throws IOException {
         for (Resource namedGraph : metadata.subjects()) {
-            Model sources = metadata.filter(namedGraph, METADATA_SOURCE_PROPERTY, null);
+            Model sources = metadata.filter(namedGraph, ODCS.SOURCE, null);
             if (!sources.isEmpty()) {
                 writer.write("\tSource: ");
                 writer.write(formatObjects(sources));
                 writer.write('\n');
             }
-            Model insertedAt = metadata.filter(namedGraph, METADATA_INSERTED_AT_PROPERTY, null);
+            Model insertedAt = metadata.filter(namedGraph, ODCS.INSERTED_AT, null);
             if (!insertedAt.isEmpty()) {
                 writer.write("\tInserted at: ");
                 writer.write(formatDate(insertedAt.iterator().next().getObject()));
                 writer.write('\n');
             }
-            Model score = metadata.filter(namedGraph, METADATA_SCORE_PROPERTY, null);
+            Model score = metadata.filter(namedGraph, ODCS.SCORE, null);
             if (!score.isEmpty()) {
                 writer.write("\tGraph score: ");
                 writer.write(formatScore(score.iterator().next().getObject()));
                 writer.write('\n');
             }
-            Model updateTag = metadata.filter(namedGraph, METADATA_UPDATE_TAG_PROPERTY, null);
+            Model updateTag = metadata.filter(namedGraph, ODCS.UPDATE_TAG, null);
             if (!updateTag.isEmpty()) {
                 writer.write("\tUpdate tags: ");
                 writer.write(updateTag.iterator().next().getObject().stringValue());
                 writer.write('\n');
             }
-            Model licences = metadata.filter(namedGraph, METADATA_LICENCES_PROPERTY, null);
+            Model licences = metadata.filter(namedGraph, ODCS.LICENSE, null);
             if (!licences.isEmpty()) {
                 writer.write("\tLicences: ");
                 writer.write(formatObjects(licences));

@@ -5,10 +5,10 @@ import org.junit.Test;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
+import org.openrdf.model.vocabulary.XMLSchema;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRTestUtils;
 import cz.cuni.mff.odcleanstore.conflictresolution.DistanceMeasure;
-import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 
 public class DistanceMeasureImplTest {
     private static final double DELTA = 0.0;
@@ -94,17 +94,17 @@ public class DistanceMeasureImplTest {
     public void testDateDistance() {
         DistanceMeasure instance = new DistanceMeasureImpl();
 
-        Value node1 = VALUE_FACTORY.createLiteral("2002-10-10", VALUE_FACTORY.createURI(XMLSchema.dateType));
-        Value node2 = VALUE_FACTORY.createLiteral("2002-10-10", VALUE_FACTORY.createURI(XMLSchema.dateType));
+        Value node1 = VALUE_FACTORY.createLiteral("2002-10-10", XMLSchema.DATE);
+        Value node2 = VALUE_FACTORY.createLiteral("2002-10-10", XMLSchema.DATE);
         double distance = instance.distance(node1, node2);
         Assert.assertEquals(MIN_DISTANCE, distance, DELTA);
 
-        Value node3 = VALUE_FACTORY.createLiteral("2000-10-10", VALUE_FACTORY.createURI(XMLSchema.dateType));
+        Value node3 = VALUE_FACTORY.createLiteral("2000-10-10", XMLSchema.DATE);
         distance = instance.distance(node1, node3);
         Assert.assertTrue(distance > MIN_DISTANCE);
         Assert.assertTrue(distance <= MAX_DISTANCE);
 
-        Value node4 = VALUE_FACTORY.createLiteral("2002-10-10T00:00:00+00:00", VALUE_FACTORY.createURI(XMLSchema.dateTimeType));
+        Value node4 = VALUE_FACTORY.createLiteral("2002-10-10T00:00:00+00:00", XMLSchema.DATETIME);
         distance = instance.distance(node1, node4);
         Assert.assertTrue(distance > MIN_DISTANCE);
         Assert.assertTrue(distance < MAX_DISTANCE); // intentionally <
@@ -114,17 +114,17 @@ public class DistanceMeasureImplTest {
     public void testDateTimeDistance() {
         DistanceMeasure instance = new DistanceMeasureImpl();
 
-        Value node1 = VALUE_FACTORY.createLiteral("2002-10-10T17:10:00+00:00", VALUE_FACTORY.createURI(XMLSchema.dateTimeType));
-        Value node2 = VALUE_FACTORY.createLiteral("2002-10-10T17:10:00Z", VALUE_FACTORY.createURI(XMLSchema.dateTimeType));
+        Value node1 = VALUE_FACTORY.createLiteral("2002-10-10T17:10:00+00:00", XMLSchema.DATETIME);
+        Value node2 = VALUE_FACTORY.createLiteral("2002-10-10T17:10:00Z", XMLSchema.DATETIME);
         double distance = instance.distance(node1, node2);
         Assert.assertEquals(MIN_DISTANCE, distance, DELTA);
 
-        Value node3 = VALUE_FACTORY.createLiteral("2002-10-10T17:10:01+00:00", VALUE_FACTORY.createURI(XMLSchema.dateTimeType));
+        Value node3 = VALUE_FACTORY.createLiteral("2002-10-10T17:10:01+00:00", XMLSchema.DATETIME);
         distance = instance.distance(node1, node3);
         Assert.assertTrue(distance > MIN_DISTANCE);
         Assert.assertTrue(distance <= MAX_DISTANCE);
 
-        Value node4 = VALUE_FACTORY.createLiteral("0002-10-10T17:10:00+00:00", VALUE_FACTORY.createURI(XMLSchema.dateTimeType));
+        Value node4 = VALUE_FACTORY.createLiteral("0002-10-10T17:10:00+00:00", XMLSchema.DATETIME);
         distance = instance.distance(node1, node4);
         Assert.assertTrue(distance > MIN_DISTANCE);
         Assert.assertTrue(distance <= MAX_DISTANCE);
@@ -134,12 +134,12 @@ public class DistanceMeasureImplTest {
     public void testTimeDistance() {
         DistanceMeasure instance = new DistanceMeasureImpl();
 
-        Value node1 = VALUE_FACTORY.createLiteral("17:10:00+00:00", VALUE_FACTORY.createURI(XMLSchema.timeType));
-        Value node2 = VALUE_FACTORY.createLiteral("17:10:00Z", VALUE_FACTORY.createURI(XMLSchema.timeType));
+        Value node1 = VALUE_FACTORY.createLiteral("17:10:00+00:00", XMLSchema.TIME);
+        Value node2 = VALUE_FACTORY.createLiteral("17:10:00Z", XMLSchema.TIME);
         double distance = instance.distance(node1, node2);
         Assert.assertEquals(MIN_DISTANCE, distance, DELTA);
 
-        Value node3 = VALUE_FACTORY.createLiteral("10:10:00+00:00", VALUE_FACTORY.createURI(XMLSchema.timeType));
+        Value node3 = VALUE_FACTORY.createLiteral("10:10:00+00:00", XMLSchema.TIME);
         distance = instance.distance(node1, node3);
         Assert.assertTrue(distance > MIN_DISTANCE);
         Assert.assertTrue(distance <= MAX_DISTANCE);

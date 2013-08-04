@@ -10,11 +10,11 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
+import org.openrdf.model.vocabulary.OWL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.URIMapping;
-import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 
 /**
  * Data structure that handles mapping of URI resources linked with a owl:sameAs link
@@ -76,7 +76,7 @@ public class URIMappingImpl implements URIMapping {
     public void addLinks(Iterator<Statement> sameAsLinks) {
         while (sameAsLinks.hasNext()) {
             Statement triple = sameAsLinks.next();
-            if (!triple.getPredicate().stringValue().equals(OWL.sameAs)) {
+            if (!OWL.SAMEAS.equals(triple.getPredicate())) {
                 LOG.warn("A triple with predicate {} passed as an owl:sameAs link",
                         triple.getPredicate().stringValue());
                 continue;

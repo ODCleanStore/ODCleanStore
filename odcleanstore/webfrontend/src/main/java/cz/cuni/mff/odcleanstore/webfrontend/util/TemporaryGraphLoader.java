@@ -50,7 +50,7 @@ public class TemporaryGraphLoader
 	}
 	
 	public TemporaryGraphLoader() {
-		this.graphNameGenerator = new UUIDUniqueURIGenerator(ODCSInternal.debugTempGraphUriPrefix);		
+		this.graphNameGenerator = new UUIDUniqueURIGenerator(ODCSInternal.DEBUG_TEMP_GRAPH_URI_PREFIX);		
 	}
 	
 	/**

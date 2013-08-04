@@ -10,6 +10,7 @@ import cz.cuni.mff.odcleanstore.queryexecution.MetadataQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryResultBase;
 import cz.cuni.mff.odcleanstore.queryexecution.impl.PrefixMapping;
 import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 
 import org.openrdf.model.BNode;
 import org.openrdf.model.Literal;
@@ -237,7 +238,7 @@ public class HTMLFormatter extends ResultFormatterBase {
                         getPrefixedURI(namedGraph.stringValue()),
                         "Metadata query");
                 writer.write("</td><td>");
-                Model sources = metadata.filter(namedGraph, METADATA_SOURCE_PROPERTY, null);
+                Model sources = metadata.filter(namedGraph, ODCS.SOURCE, null);
                 if (!sources.isEmpty()) {
                     boolean isFirst = true;
                     for (Statement statement : sources) {
@@ -250,17 +251,17 @@ public class HTMLFormatter extends ResultFormatterBase {
                     }
                 }
                 writer.write("</td><td>");
-                Model insertedAt = metadata.filter(namedGraph, METADATA_INSERTED_AT_PROPERTY, null);
+                Model insertedAt = metadata.filter(namedGraph, ODCS.INSERTED_AT, null);
                 if (!insertedAt.isEmpty()) {
                     writer.write(formatDate(insertedAt.iterator().next().getObject()));
                 }
                 writer.write("</td><td>");
-                Model score = metadata.filter(namedGraph, METADATA_SCORE_PROPERTY, null);
+                Model score = metadata.filter(namedGraph, ODCS.SCORE, null);
                 if (!score.isEmpty()) {
                     writer.write(formatScore(score.iterator().next().getObject()));
                 }
                 writer.write("</td><td>");
-                Model licences = metadata.filter(namedGraph, METADATA_LICENCES_PROPERTY, null);
+                Model licences = metadata.filter(namedGraph, ODCS.LICENSE, null);
                 if (!licences.isEmpty()) {
                     boolean isFirst = true;
                     for (Statement statement : licences) {
@@ -272,7 +273,7 @@ public class HTMLFormatter extends ResultFormatterBase {
                     }
                 }
                 writer.write("</td><td>");
-                Model updateTag = metadata.filter(namedGraph, METADATA_UPDATE_TAG_PROPERTY, null);
+                Model updateTag = metadata.filter(namedGraph, ODCS.UPDATE_TAG, null);
                 if (!updateTag.isEmpty()) {
                     writer.write(updateTag.iterator().next().getObject().stringValue());
                 }

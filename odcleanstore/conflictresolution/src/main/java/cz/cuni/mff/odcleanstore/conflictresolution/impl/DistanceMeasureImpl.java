@@ -7,6 +7,7 @@ import org.openrdf.model.BNode;
 import org.openrdf.model.Literal;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
+import org.openrdf.model.vocabulary.XMLSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +16,6 @@ import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.EnumLiteralT
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.LevenshteinDistance;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ResolutionFunctionUtils;
 import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
-import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 
 /**
  * The default implementation of a distance metric between Node instances.
@@ -180,9 +180,7 @@ public class DistanceMeasureImpl implements DistanceMeasure {
      * @return a number from interval [0,1]
      */
     private double timeDistance(Literal primaryValue, Literal comparedValue) {
-        String primaryDatatypeURI = ODCSUtils.valueToString(primaryValue.getDatatype());
-        String comparedDatatypeURI = ODCSUtils.valueToString(comparedValue.getDatatype());
-        if (XMLSchema.timeType.equals(primaryDatatypeURI) && XMLSchema.timeType.equals(comparedDatatypeURI)) {
+        if (XMLSchema.TIME.equals(primaryValue.getDatatype()) && XMLSchema.TIME.equals(comparedValue.getDatatype())) {
             XMLGregorianCalendar primaryValueTime = ResolutionFunctionUtils.convertToCalendarSilent(primaryValue);
             XMLGregorianCalendar comparedValueTime = ResolutionFunctionUtils.convertToCalendarSilent(comparedValue);
             if (primaryValueTime == null || comparedValueTime == null) {
@@ -225,11 +223,9 @@ public class DistanceMeasureImpl implements DistanceMeasure {
      * @return a number from interval [0,1]
      */
     private double dateDistance(Literal primaryValue, Literal comparedValue) {
-        String primaryDatatypeURI = ODCSUtils.valueToString(primaryValue.getDatatype());
-        String comparedDatatypeURI = ODCSUtils.valueToString(comparedValue.getDatatype());
         // CHECKSTYLE:OFF
-        if ((XMLSchema.dateTimeType.equals(primaryDatatypeURI) || XMLSchema.dateType.equals(primaryDatatypeURI))
-                && (XMLSchema.dateTimeType.equals(comparedDatatypeURI) || XMLSchema.dateType.equals(comparedDatatypeURI))) {
+        if ((XMLSchema.DATETIME.equals(primaryValue.getDatatype()) || XMLSchema.DATE.equals(primaryValue.getDatatype()))
+                && (XMLSchema.DATETIME.equals(comparedValue.getDatatype()) || XMLSchema.DATE.equals(comparedValue.getDatatype()))) {
             // CHECKSTYLE:ON
             XMLGregorianCalendar primaryValueTime = ResolutionFunctionUtils.convertToCalendarSilent(primaryValue);
             XMLGregorianCalendar comparedValueTime = ResolutionFunctionUtils.convertToCalendarSilent(comparedValue);

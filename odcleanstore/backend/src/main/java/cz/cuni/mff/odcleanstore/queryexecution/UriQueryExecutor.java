@@ -13,13 +13,13 @@ import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.shared.ODCSErrorCodes;
 import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
-import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 
 import org.openrdf.model.BNode;
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
+import org.openrdf.model.vocabulary.OWL;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +65,7 @@ import java.util.Set;
             + "\n         GRAPH ?graph {"
             + "\n           ?s ?p ?o."
             + "\n           FILTER (?s = <%1$s>)"
-            + "\n           FILTER (?p != <" + OWL.sameAs + ">)"
+            + "\n           FILTER (?p != <" + OWL.SAMEAS + ">)"
             + "\n         }"
             + "\n         %2$s"
             + "\n       }"
@@ -74,7 +74,7 @@ import java.util.Set;
             + "\n         GRAPH ?graph {"
             + "\n           ?s ?p ?o."
             + "\n           FILTER (?o = <%1$s>)"
-            + "\n           FILTER (?p != <" + OWL.sameAs + ">)"
+            + "\n           FILTER (?p != <" + OWL.SAMEAS + ">)"
             + "\n         }"
             + "\n         %2$s"
             + "\n       }"
@@ -107,7 +107,7 @@ import java.util.Set;
             + "\n           GRAPH ?graph {"
             + "\n              ?s ?p ?o."
             + "\n              FILTER (?s = <%1$s>)"
-            + "\n              FILTER (?p != <" + OWL.sameAs + ">)"
+            + "\n              FILTER (?p != <" + OWL.SAMEAS + ">)"
             + "\n           }"
             + "\n           %2$s"
             + "\n         }"
@@ -116,7 +116,7 @@ import java.util.Set;
             + "\n           GRAPH ?graph {"
             + "\n              ?s ?p ?o."
             + "\n              FILTER (?o = <%1$s>)"
-            + "\n              FILTER (?p != <" + OWL.sameAs + ">)"
+            + "\n              FILTER (?p != <" + OWL.SAMEAS + ">)"
             + "\n           }"
             + "\n           %2$s"
             + "\n         }"
@@ -136,7 +136,7 @@ import java.util.Set;
             + "\n                 FILTER (?s = <%1$s>)"
             + "\n               }"
             + "\n               %2$s"
-            + "\n               FILTER (!isLITERAL(?r) && ?p != <" + OWL.sameAs + ">)"
+            + "\n               FILTER (!isLITERAL(?r) && ?p != <" + OWL.SAMEAS + ">)"
             + "\n             }"
             + "\n             UNION"
             + "\n             {"
@@ -153,7 +153,7 @@ import java.util.Set;
             + "\n                 FILTER (?o = <%1$s>)"
             + "\n               }"
             + "\n               %2$s"
-            + "\n               FILTER (?p != <" + OWL.sameAs + ">)"
+            + "\n               FILTER (?p != <" + OWL.SAMEAS + ">)"
             + "\n             }"
             + "\n             UNION"
             + "\n             {"
@@ -178,7 +178,7 @@ import java.util.Set;
             + "\n   }"
             + "\n   {"
             //+ "\n     {"
-            + "\n       ?resGraph <" + ODCS.metadataGraph + "> ?metadataGraph"
+            + "\n       ?resGraph <" + ODCS.METADATA_GRAPH + "> ?metadataGraph"
             + "\n       GRAPH ?metadataGraph {"
             + "\n         ?resGraph ?p ?o"
             + "\n       }"
@@ -337,7 +337,7 @@ import java.util.Set;
             }
         }
         resources.remove(uri);
-        resources.remove(OWL.sameAs);
+        resources.remove(OWL.SAMEAS.stringValue());
         LOG.debug("Query Execution: addLabels() for {} resources (found in {} ms)",
                 resources.size(), System.currentTimeMillis() - startTime);
 

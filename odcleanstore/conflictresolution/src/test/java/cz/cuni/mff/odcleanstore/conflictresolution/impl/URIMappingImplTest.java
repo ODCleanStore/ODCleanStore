@@ -10,10 +10,10 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
+import org.openrdf.model.vocabulary.OWL;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRTestUtils;
 import cz.cuni.mff.odcleanstore.conflictresolution.URIMapping;
-import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 
 /**
  *
@@ -54,11 +54,11 @@ public class URIMappingImplTest {
         LinkedList<Statement> sameAsLinks = new LinkedList<Statement>();
         sameAsLinks.add(CRTestUtils.createStatement(
                 uri1,
-                OWL.sameAs,
+                OWL.SAMEAS.stringValue(),
                 uri2));
         sameAsLinks.add(CRTestUtils.createStatement(
                 uri2,
-                OWL.sameAs,
+                OWL.SAMEAS.stringValue(),
                 uri3));
 
         URIMappingImpl uriMapping = new URIMappingImpl();
@@ -84,15 +84,15 @@ public class URIMappingImplTest {
         LinkedList<Statement> sameAsLinks = new LinkedList<Statement>();
         sameAsLinks.add(CRTestUtils.createStatement(
                 rootURI,
-                OWL.sameAs,
+                OWL.SAMEAS.stringValue(),
                 uri1));
         sameAsLinks.add(CRTestUtils.createStatement(
                 rootURI,
-                OWL.sameAs,
+                OWL.SAMEAS.stringValue(),
                 uri2));
         sameAsLinks.add(CRTestUtils.createStatement(
                 rootURI,
-                OWL.sameAs,
+                OWL.SAMEAS.stringValue(),
                 uri3));
 
         URIMappingImpl uriMapping = new URIMappingImpl();
@@ -117,15 +117,15 @@ public class URIMappingImplTest {
         LinkedList<Statement> sameAsLinks = new LinkedList<Statement>();
         sameAsLinks.add(CRTestUtils.createStatement(
                 uri1,
-                OWL.sameAs,
+                OWL.SAMEAS.stringValue(),
                 uri2));
         sameAsLinks.add(CRTestUtils.createStatement(
                 uri2,
-                OWL.sameAs,
+                OWL.SAMEAS.stringValue(),
                 uri3));
         sameAsLinks.add(CRTestUtils.createStatement(
                 uri3,
-                OWL.sameAs,
+                OWL.SAMEAS.stringValue(),
                 uri1));
 
         URIMappingImpl uriMapping = new URIMappingImpl();
@@ -148,11 +148,11 @@ public class URIMappingImplTest {
         LinkedList<Statement> sameAsLinks = new LinkedList<Statement>();
         sameAsLinks.add(CRTestUtils.createStatement(
                 uri1,
-                OWL.sameAs,
+                OWL.SAMEAS.stringValue(),
                 uri2));
         sameAsLinks.add(CRTestUtils.createStatement(
                 uri2,
-                OWL.sameAs,
+                OWL.SAMEAS.stringValue(),
                 uri3));
 
         String mappedURI1;

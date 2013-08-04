@@ -8,7 +8,6 @@ import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
-import org.openrdf.model.impl.ValueFactoryImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,9 +29,6 @@ import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
  */
 public class ODCSSourceQualityCalculator implements SourceQualityCalculator {
     private static final Logger LOG = LoggerFactory.getLogger(ODCSSourceQualityCalculator.class);
-    private static final URI SOURCE_SCORE_PROPERTY = ValueFactoryImpl.getInstance().createURI(ODCS.score);
-    private static final URI PUBLISHER_SCORE_PROPERTY = ValueFactoryImpl.getInstance().createURI(ODCS.publisherScore);
-    private static final URI PUBLISHER_PROPERTY = ValueFactoryImpl.getInstance().createURI(ODCS.publishedBy);
 
     /** Default quality score to be returned when no relevant metadata are available for a source. */ 
     protected final double defaultSourceGraphQuality;
@@ -58,7 +54,7 @@ public class ODCSSourceQualityCalculator implements SourceQualityCalculator {
             return defaultSourceGraphQuality;
         }
 
-        Double sourceScore = getObjectDouble(metadata, source, SOURCE_SCORE_PROPERTY);
+        Double sourceScore = getObjectDouble(metadata, source, ODCS.SCORE);
         Double publisherScore = getAveragePublisherScore(metadata, source);
 
         if (publisherScore != null && sourceScore != null) {
@@ -77,13 +73,13 @@ public class ODCSSourceQualityCalculator implements SourceQualityCalculator {
         double averageScore = 0;
         int publishersCount = 0;
         
-        Model publishers = metadata.filter(source, PUBLISHER_PROPERTY, null);
+        Model publishers = metadata.filter(source, ODCS.PUBLISHED_BY, null);
         for (Statement statement : publishers) {
                 Value publisher = statement.getObject();
                 if (!(publisher instanceof Resource)) {
                     continue;
                 }
-                Double objectDouble = getObjectDouble(metadata, (Resource) publisher, PUBLISHER_SCORE_PROPERTY);
+                Double objectDouble = getObjectDouble(metadata, (Resource) publisher, ODCS.PUBLISHER_SCORE);
                 if (objectDouble == null) {
                     continue;
                 }
@@ -97,7 +93,7 @@ public class ODCSSourceQualityCalculator implements SourceQualityCalculator {
     }
     
     private Double getObjectDouble(Model metadata, Resource source, URI sourceScoreProperty) {
-        Iterator<Statement> statementIt = metadata.filter(source, SOURCE_SCORE_PROPERTY, null).iterator();
+        Iterator<Statement> statementIt = metadata.filter(source, ODCS.SCORE, null).iterator();
         while (statementIt.hasNext()) {
             Value object = statementIt.next().getObject();
             if (object instanceof Literal) {

@@ -140,7 +140,7 @@ public class OntologyDao extends DaoForEntityWithSurrogateKey<Ontology>
 	{
 		try
 		{
-			return ODCSInternal.ontologyGraphUriPrefix + URLEncoder.encode(item.getLabel(), ODCSUtils.DEFAULT_ENCODING);
+			return ODCSInternal.ONTOLOGY_GRAPH_URI_PREFIX + URLEncoder.encode(item.getLabel(), ODCSUtils.DEFAULT_ENCODING);
 		}
 		catch (UnsupportedEncodingException e)
 		{

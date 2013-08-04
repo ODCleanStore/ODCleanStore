@@ -17,7 +17,8 @@ import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.TransformedGraphException;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
-import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
+
+import org.openrdf.model.vocabulary.XMLSchema;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,18 +84,18 @@ public class QualityAssessorImpl implements QualityAssessor, Serializable {
      * SPARQL queries for Quality Assessor transformation of input graph and metadata graph.
      */
     private static final String DROP_OLD_SCORE_QUERY_FORMAT = "SPARQL DELETE FROM <%s> {<%s>"
-            + "<" + ODCS.score + "> "
+            + "<" + ODCS.SCORE + "> "
             + "?s} WHERE {<%s> "
-            + "<" + ODCS.score + "> ?s}";
+            + "<" + ODCS.SCORE + "> ?s}";
     private static final String DROP_OLD_SCORE_TRACE_QUERY_FORMAT = "SPARQL DELETE FROM <%s> {<%s> "
-            + "<" + ODCS.scoreTrace + "> "
+            + "<" + ODCS.SCORE_TRACE + "> "
             + "?s} WHERE {<%s>"
-            + "<" + ODCS.scoreTrace + "> ?s}";
+            + "<" + ODCS.SCORE_TRACE + "> ?s}";
     private static final String STORE_NEW_SCORE_QUERY_FORMAT = "SPARQL INSERT DATA INTO <%s> {<%s> "
-            + "<" + ODCS.score + "> \"%f\"^^<" + XMLSchema.doubleType + ">}";
+            + "<" + ODCS.SCORE + "> \"%f\"^^<" + XMLSchema.DOUBLE + ">}";
     private static final String STORE_NEW_SCORE_TRACE_QUERY_FORMAT = "SPARQL INSERT DATA INTO <%s> {<%s> "
-            + "<" + ODCS.scoreTrace + "> "
-            + "'%s'^^<" + XMLSchema.stringType + ">}";
+            + "<" + ODCS.SCORE_TRACE + "> "
+            + "'%s'^^<" + XMLSchema.STRING + ">}";
 
     private static final Logger LOG = LoggerFactory.getLogger(QualityAssessorImpl.class);
 

@@ -29,15 +29,6 @@ import java.io.Writer;
  * @author Jan Michelfeit
  */
 public class TriGFormatter extends RDFFormatter {
-    /** {@ ODCS#quality} as a {@link URI}. */
-    private static final URI QUALITY_PROPERTY = VALUE_FACTORY.createURI(ODCS.quality);
-    /** {@ ODCS#sourceGraph} as a {@link URI}. */
-    private static final URI SOURCE_GRAPH_PROPERTY = VALUE_FACTORY.createURI(ODCS.sourceGraph);
-    /** {@ ODCS#result} as a {@link URI}. */
-    private static final URI RESULT_PROPERTY = VALUE_FACTORY.createURI(ODCS.result);
-    /** {@ ODCS#provenanceMetadataGraph} as a {@link URI}. */
-    private static final URI PROVENANCE_GRAPH_PROPERTY = VALUE_FACTORY.createURI(ODCS.provenanceMetadataGraph);
-    
     private static final RDFWriterFactory WRITER_FACTORY = new TriGWriterFactory();
 
     /**
@@ -78,7 +69,7 @@ public class TriGFormatter extends RDFFormatter {
             throws RDFHandlerException {
         
         URI metadataGraphURI = VALUE_FACTORY.createURI(
-                outputWSConfig.getResultDataURIPrefix().toString() + ODCSInternal.queryMetadataGraphUriInfix);
+                outputWSConfig.getResultDataURIPrefix().toString() + ODCSInternal.QUERY_METADATA_GRAPH_URI_INFIX);
 
         URI requestURI = VALUE_FACTORY.createURI(requestReference.toString(true, false));
 
@@ -89,19 +80,19 @@ public class TriGFormatter extends RDFFormatter {
             rdfWriter.handleStatement(resolvedStatement.getStatement());
             rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
                     resolvedStatement.getStatement().getContext(),
-                    QUALITY_PROPERTY,
+                    ODCS.QUALITY,
                     VALUE_FACTORY.createLiteral(resolvedStatement.getQuality()),
                     metadataGraphURI));
             for (Resource sourceNamedGraph : resolvedStatement.getSourceGraphNames()) {
                 rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
                         resolvedStatement.getStatement().getContext(), 
-                        SOURCE_GRAPH_PROPERTY, 
+                        ODCS.SOURCE_GRAPH, 
                         sourceNamedGraph,
                         metadataGraphURI));
             }
             rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
                     requestURI,
-                    RESULT_PROPERTY,
+                    ODCS.RESULT,
                     resolvedStatement.getStatement().getContext(),
                     metadataGraphURI));
         }
@@ -113,7 +104,7 @@ public class TriGFormatter extends RDFFormatter {
         writeBasicQueryMetadata(rdfWriter, requestURI, queryResult, metadataGraphURI);
         rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
                 requestURI,
-                TOTAL_RESULTS_PROPERTY,
+                ODCS.TOTAL_RESULTS,
                 VALUE_FACTORY.createLiteral(totalResults),
                 metadataGraphURI));
     }
@@ -154,7 +145,7 @@ public class TriGFormatter extends RDFFormatter {
 
         URI namedGraphURI = VALUE_FACTORY.createURI(metadataResult.getQuery());
         URI metadataGraphURI = VALUE_FACTORY.createURI(
-                outputWSConfig.getResultDataURIPrefix().toString() + ODCSInternal.queryMetadataGraphUriInfix);
+                outputWSConfig.getResultDataURIPrefix().toString() + ODCSInternal.QUERY_METADATA_GRAPH_URI_INFIX);
 
         // Quality Assessment results
         writeQualityAssessmentResults(rdfWriter, namedGraphURI, qaResult, metadataGraphURI);
@@ -173,7 +164,7 @@ public class TriGFormatter extends RDFFormatter {
         if (additionalProvenanceGraphURI != null) {
             rdfWriter.handleStatement(VALUE_FACTORY.createStatement(
                     namedGraphURI,
-                    PROVENANCE_GRAPH_PROPERTY,
+                    ODCS.PROVENANCE_METADATA_GRAPH,
                     additionalProvenanceGraphURI,
                     metadataGraphURI));
 

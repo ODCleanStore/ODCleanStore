@@ -13,11 +13,11 @@ import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.shared.ODCSErrorCodes;
 import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
-import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.vocabulary.OWL;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +58,7 @@ import java.util.Set;
             + "\n       GRAPH ?graph {"
             + "\n         ?s ?p ?o."
             + "\n         FILTER (?graph = <%1$s>)"
-            + "\n         FILTER (?p != <" + OWL.sameAs + ">)"
+            + "\n         FILTER (?p != <" + OWL.SAMEAS + ">)"
             + "\n       }"
             + "\n       %2$s"
             + "\n     }"
@@ -81,7 +81,7 @@ import java.util.Set;
             + "\n   { <%1$s> ?p ?o }"
             + "\n WHERE {"
             //+ "\n   {"
-            + "\n     <%1$s> <" + ODCS.metadataGraph + "> ?metadataGraph"
+            + "\n     <%1$s> <" + ODCS.METADATA_GRAPH + "> ?metadataGraph"
             + "\n     GRAPH ?metadataGraph {"
             + "\n       <%1$s> ?p ?o"
             + "\n     }"

@@ -201,7 +201,7 @@ public class LinkerImpl implements Linker {
 	}
 
 	private String getLinksGraphId(TransformedGraph inputGraph) {
-		return ODCSInternal.generatedLinksGraphUriPrefix + inputGraph.getGraphId();
+		return ODCSInternal.GENERATED_LINKS_GRAPH_URI_PREFIX + inputGraph.getGraphId();
 	}
 
 	/* (non-Javadoc)

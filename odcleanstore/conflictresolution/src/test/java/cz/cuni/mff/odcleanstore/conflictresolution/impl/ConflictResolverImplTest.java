@@ -12,17 +12,12 @@ import org.openrdf.model.impl.TreeModel;
 import org.openrdf.model.impl.ValueFactoryImpl;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRTestUtils;
-import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionStrategy;
-import cz.cuni.mff.odcleanstore.conflictresolution.resolution.NoneResolution;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 
 public class ConflictResolverImplTest {
     private static final ValueFactory VALUE_FACTORY = ValueFactoryImpl.getInstance();
-    private static final double EPSILON = 0.0;
+    //private static final double EPSILON = 0.0;
 
-    private static final URI SOURCE_PROPERTY = ValueFactoryImpl.getInstance().createURI(ODCS.source);
-    private static final URI INSERTED_AT_PROPERTY = ValueFactoryImpl.getInstance().createURI(ODCS.insertedAt);
-    private static final URI INSERTED_BY_PROPERTY = ValueFactoryImpl.getInstance().createURI(ODCS.insertedBy);
     // private static final URI SOURCE_SCORE_PROPERTY = ValueFactoryImpl.getInstance().createURI(ODCS.score);
     // private static final URI PUBLISHER_SCORE_PROPERTY = ValueFactoryImpl.getInstance().createURI(ODCS.publisherScore);
     // private static final URI PUBLISHER_PROPERTY = ValueFactoryImpl.getInstance().createURI(ODCS.publishedBy);
@@ -31,7 +26,7 @@ public class ConflictResolverImplTest {
     private static Statement newVersionQuad;
     private static Statement otherQuad;
     private static URI updatedQuadDataSource;
-    private static ResolutionStrategy NONE_RESOLUTION_STRATEGY = new ResolutionStrategyImpl(NoneResolution.getName());
+    //private static ResolutionStrategy NONE_RESOLUTION_STRATEGY = new ResolutionStrategyImpl(NoneResolution.getName());
     private Model metadata;
 
     @BeforeClass
@@ -63,19 +58,19 @@ public class ConflictResolverImplTest {
         URI insertedBy = CRTestUtils.getUniqueURI();
 
         Calendar date = Calendar.getInstance();
-        metadata.add(otherQuad.getContext(), SOURCE_PROPERTY, CRTestUtils.getUniqueURI());
-        metadata.add(otherQuad.getContext(), INSERTED_AT_PROPERTY, VALUE_FACTORY.createLiteral(date.getTime()));
-        metadata.add(otherQuad.getContext(), INSERTED_BY_PROPERTY, insertedBy);
+        metadata.add(otherQuad.getContext(), ODCS.SOURCE, CRTestUtils.getUniqueURI());
+        metadata.add(otherQuad.getContext(), ODCS.INSERTED_AT, VALUE_FACTORY.createLiteral(date.getTime()));
+        metadata.add(otherQuad.getContext(), ODCS.INSERTED_BY, insertedBy);
 
         date.add(Calendar.YEAR, 1);
-        metadata.add(oldVersionQuad.getContext(), SOURCE_PROPERTY, updatedQuadDataSource);
-        metadata.add(oldVersionQuad.getContext(), INSERTED_AT_PROPERTY, VALUE_FACTORY.createLiteral(date.getTime()));
-        metadata.add(oldVersionQuad.getContext(), INSERTED_BY_PROPERTY, insertedBy);
+        metadata.add(oldVersionQuad.getContext(), ODCS.SOURCE, updatedQuadDataSource);
+        metadata.add(oldVersionQuad.getContext(), ODCS.INSERTED_AT, VALUE_FACTORY.createLiteral(date.getTime()));
+        metadata.add(oldVersionQuad.getContext(), ODCS.INSERTED_BY, insertedBy);
 
         date.add(Calendar.YEAR, 1);
-        metadata.add(newVersionQuad.getContext(), SOURCE_PROPERTY, updatedQuadDataSource);
-        metadata.add(newVersionQuad.getContext(), INSERTED_AT_PROPERTY, VALUE_FACTORY.createLiteral(date.getTime()));
-        metadata.add(newVersionQuad.getContext(), INSERTED_BY_PROPERTY, insertedBy);
+        metadata.add(newVersionQuad.getContext(), ODCS.SOURCE, updatedQuadDataSource);
+        metadata.add(newVersionQuad.getContext(), ODCS.INSERTED_AT, VALUE_FACTORY.createLiteral(date.getTime()));
+        metadata.add(newVersionQuad.getContext(), ODCS.INSERTED_BY, insertedBy);
     }
 
 //    @Test

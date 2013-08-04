@@ -64,7 +64,7 @@ public class OntologyMappingDao extends Dao
 		String mappingQuery = "SPARQL INSERT INTO <" + graphName + "> {`iri(??)` `iri(??)` `iri(??)`}";
 		executeMappingQuery(mappingQuery, mapping);
 		
-		String metadataQuery = "SPARQL INSERT INTO <" + graphName + "> {<" + graphName + "> <" + ODCS.generatedGraph + "> 1}";
+		String metadataQuery = "SPARQL INSERT INTO <" + graphName + "> {<" + graphName + "> <" + ODCS.GENERATED_GRAPH + "> 1}";
 		executeMappingQuery(metadataQuery, null);
 	}
 	
@@ -74,7 +74,7 @@ public class OntologyMappingDao extends Dao
 	 */
 	public static String createGraphName(Integer ontologyId)
 	{
-		return ODCSInternal.ontologyMappingsGraphUriPrefix + ontologyId;
+		return ODCSInternal.ONTOLOGY_MAPPINGS_GRAPH_URI_PREFIX + ontologyId;
 	}
 	
 	/**
@@ -84,7 +84,7 @@ public class OntologyMappingDao extends Dao
 	public List<Mapping> loadAll(Integer ontologyId)
 	{		
 		String query = "SPARQL SELECT ?sourceUri ?relationType ?targetUri FROM <" + createGraphName(ontologyId) + "> "
-				+ "WHERE {?sourceUri ?relationType ?targetUri FILTER (?relationType != <" + ODCS.generatedGraph + ">)}";
+				+ "WHERE {?sourceUri ?relationType ?targetUri FILTER (?relationType != <" + ODCS.GENERATED_GRAPH + ">)}";
 		
 		return jdbcQuery(query, rowMapper);
 	}

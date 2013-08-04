@@ -357,7 +357,7 @@ public class QualityAssessorImplTest extends TestCase {
 		/**
 		 * Determine the ambiguity of score
 		 */
-		result = connection.executeSelect("SPARQL SELECT COUNT(?score) AS ?count FROM <" + metadataGraphName + "> WHERE {<" + graphName + "> <" + ODCS.score + "> ?score}");
+		result = connection.executeSelect("SPARQL SELECT COUNT(?score) AS ?count FROM <" + metadataGraphName + "> WHERE {<" + graphName + "> <" + ODCS.SCORE + "> ?score}");
 		result.next();
 
 		Integer count = result.getInt("count");
@@ -367,7 +367,7 @@ public class QualityAssessorImplTest extends TestCase {
 		/**
 		 * Determine the score
 		 */
-		result = connection.executeSelect("SPARQL SELECT ?score FROM <" + metadataGraphName + "> WHERE {<" + graphName + "> <" + ODCS.score + "> ?score}");
+		result = connection.executeSelect("SPARQL SELECT ?score FROM <" + metadataGraphName + "> WHERE {<" + graphName + "> <" + ODCS.SCORE + "> ?score}");
 		result.next();
 
 		Double score = result.getDouble("score");
@@ -377,7 +377,7 @@ public class QualityAssessorImplTest extends TestCase {
 		/**
 		 * Drop this information
 		 */
-		connection.execute("SPARQL DELETE FROM <" + metadataGraphName + "> {<" + graphName + "> <" + ODCS.score + "> ?score} WHERE {<" + graphName + "> <" + ODCS.score + "> ?score}");
+		connection.execute("SPARQL DELETE FROM <" + metadataGraphName + "> {<" + graphName + "> <" + ODCS.SCORE + "> ?score} WHERE {<" + graphName + "> <" + ODCS.SCORE + "> ?score}");
 	}
 
 	private void checkGraphScoreTrace(String graphName, String... trace) throws Exception {
@@ -391,7 +391,7 @@ public class QualityAssessorImplTest extends TestCase {
 			/**
 			 * Determine the presence of score trace
 			 */
-			result = connection.executeSelect("SPARQL SELECT COUNT(?scoreTrace) AS ?count FROM <" + metadataGraphName + "> WHERE {{<" + graphName + "> <" + ODCS.scoreTrace + "> ?scoreTrace} FILTER (?scoreTrace = '" + escapedTrace + "'^^xsd:string)}");
+			result = connection.executeSelect("SPARQL SELECT COUNT(?scoreTrace) AS ?count FROM <" + metadataGraphName + "> WHERE {{<" + graphName + "> <" + ODCS.SCORE_TRACE + "> ?scoreTrace} FILTER (?scoreTrace = '" + escapedTrace + "'^^xsd:string)}");
 			result.next();
 
 			Integer count = result.getInt("count");
@@ -401,7 +401,7 @@ public class QualityAssessorImplTest extends TestCase {
 			/**
 			 * Drop this information
 			 */
-			connection.execute("SPARQL DELETE FROM <" + metadataGraphName + "> {<" + graphName + "> <" + ODCS.scoreTrace + "> '" + escapedTrace + "'^^xsd:string}");
+			connection.execute("SPARQL DELETE FROM <" + metadataGraphName + "> {<" + graphName + "> <" + ODCS.SCORE_TRACE + "> '" + escapedTrace + "'^^xsd:string}");
 		}
 	}
 
@@ -427,7 +427,7 @@ public class QualityAssessorImplTest extends TestCase {
 			checkGraphScoreTrace(graph.name, trace);
 		}
 
-		WrappedResultSet remaining = connection.executeSelect("SPARQL SELECT * FROM <" + metadataGraphName + "> WHERE {{?s ?p ?o} FILTER (?p != <" + ODCS.publishedBy + ">)}");
+		WrappedResultSet remaining = connection.executeSelect("SPARQL SELECT * FROM <" + metadataGraphName + "> WHERE {{?s ?p ?o} FILTER (?p != <" + ODCS.PUBLISHED_BY + ">)}");
 
 		Assert.assertFalse(remaining.next());
 	}
