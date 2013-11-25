@@ -1,12 +1,17 @@
 package cz.cuni.mff.odcleanstore.shared;
 
 import org.openrdf.model.BNode;
+import org.openrdf.model.Model;
+import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -302,6 +307,23 @@ public final class ODCSUtils {
         return value == null
                 ? null
                 : value.stringValue();
+    }
+    
+    /**
+     * Searches model for triples having the given subject and predicate and returns the object
+     * of first such triple, or null if there is no such triple.
+     * @param subject subject of searched triples
+     * @param predicate predicated of searched triples
+     * @param model RDF model to search
+     * @return object of the first matching triple in model or null if there is none
+     */
+    public static Value getSingleObjectValue(Resource subject, URI predicate, Model model) {
+        Iterator<Statement> modelIt = model.filter(subject, predicate, null).iterator();
+        if (modelIt.hasNext()) {
+            return modelIt.next().getObject();
+        } else {
+            return null;
+        }
     }
         
     /** Disable constructor for a utility class. */

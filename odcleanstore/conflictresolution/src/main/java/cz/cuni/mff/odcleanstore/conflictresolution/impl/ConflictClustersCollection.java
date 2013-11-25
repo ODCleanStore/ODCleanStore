@@ -71,7 +71,8 @@ public class ConflictClustersCollection extends AbstractCollection<List<Statemen
 
     /**
      * Returns an iterator over conflict clusters.
-     * Each conflict cluster is represented as a list of {@link Statement quads}.
+     * Each conflict cluster is represented as a list of {@link Statement quads}; quads
+     * in the list are guaranteed to be spog-sorted.
      * @return iterator over conflict clusters
      */
     @Override

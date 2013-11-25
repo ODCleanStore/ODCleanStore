@@ -47,8 +47,8 @@ import cz.cuni.mff.odcleanstore.conflictresolution.resolution.NoneResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.ODCSLatestResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.ShortestResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.SumResolution;
-import cz.cuni.mff.odcleanstore.conflictresolution.resolution.TopNResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.ThresholdResolution;
+import cz.cuni.mff.odcleanstore.conflictresolution.resolution.TopNResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.VoteResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.WeightedVoteResolution;
 
@@ -207,6 +207,7 @@ public final class ConflictResolverFactory {
         private String resolvedGraphsURIPrefix = null;
         private ResolutionFunctionRegistry resolutionFunctionRegistry = null;
         private final List<URIPair> sameAsLinks = new ArrayList<URIPair>();
+        private ConflictClusterFilter conflictClusterFilter;
 
         /**
          * Returns a conflict resolver instance configured with the settings set on this builder instance so far. 
@@ -218,7 +219,8 @@ public final class ConflictResolverFactory {
                     new ConflictResolutionPolicyImpl(defaultResolutionStrategy, propertyResolutionStrategies),
                     getActualURIMapping(),
                     (metadata != null ? metadata : new EmptyMetadataModel()),
-                    resolvedGraphsURIPrefix);
+                    resolvedGraphsURIPrefix,
+                    conflictClusterFilter);
         }
 
         private ResolutionFunctionRegistry getActualResolutionFunctionRegistry() {
@@ -367,6 +369,16 @@ public final class ConflictResolverFactory {
          */
         public ConflictResolverBuilder setResolutionFunctionRegistry(ResolutionFunctionRegistry registry) {
             this.resolutionFunctionRegistry = registry;
+            return this;
+        }
+        
+        /**
+         * Sets an additional filter for quads in a conflict cluster.
+         * @param conflictClusterFilter additional filter for quads in a conflict cluster
+         * @return this builder (can be used for configuration in a fluent way)
+         */
+        public ConflictResolverBuilder setConflictClusterFilter(ConflictClusterFilter conflictClusterFilter) {
+            this.conflictClusterFilter = conflictClusterFilter;
             return this;
         }
     }

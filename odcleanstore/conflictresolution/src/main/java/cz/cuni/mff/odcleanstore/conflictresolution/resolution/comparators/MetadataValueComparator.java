@@ -3,18 +3,15 @@
  */
 package cz.cuni.mff.odcleanstore.conflictresolution.resolution.comparators;
 
-import java.util.Iterator;
-
 import org.openrdf.model.Literal;
-import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.EnumLiteralType;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ResolutionFunctionUtils;
+import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 
 /**
  * Comparator of named graph by a value of their property, given in the constructor, in given metadata.
@@ -39,14 +36,14 @@ public class MetadataValueComparator implements BestSelectedComparator<Resource>
             return false;
         }
 
-        Value metadataValue = getMetadataValue(context, predicateURI, crContext.getMetadata());
+        Value metadataValue = ODCSUtils.getSingleObjectValue(context, predicateURI, crContext.getMetadata());
         return metadataValue != null && metadataValue instanceof Literal;
     }
 
     @Override
     public int compare(Resource context1, Resource context2, CRContext crContext) {
-        Value metadataValue1 = getMetadataValue(context1, predicateURI, crContext.getMetadata());
-        Value metadataValue2 = getMetadataValue(context2, predicateURI, crContext.getMetadata());
+        Value metadataValue1 = ODCSUtils.getSingleObjectValue(context1, predicateURI, crContext.getMetadata());
+        Value metadataValue2 = ODCSUtils.getSingleObjectValue(context2, predicateURI, crContext.getMetadata());
 
         // Check if the metadata is present
         if (metadataValue1 == metadataValue2) {
@@ -70,15 +67,6 @@ public class MetadataValueComparator implements BestSelectedComparator<Resource>
             return comparator.compare(metadataValue1, metadataValue2, crContext);
         } else {
             return Boolean.compare(accept1, accept2);
-        }
-    }
-    
-    private Value getMetadataValue(Resource context, URI predicateURI, Model metadata) {
-        Iterator<Statement> metadataIt = metadata.filter(context, predicateURI, null).iterator();
-        if (metadataIt.hasNext()) {
-            return metadataIt.next().getObject();
-        } else {
-            return null;
         }
     }
 }
