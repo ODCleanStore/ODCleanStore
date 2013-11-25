@@ -180,7 +180,7 @@ import java.util.regex.Pattern;
             + "\n   }"
             + "\n   {"
             //+ "\n     {"
-            + "\n       ?resGraph <" + ODCS.metadataGraph + "> ?metadataGraph"
+            + "\n       ?resGraph <" + ODCS.METADATA_GRAPH + "> ?metadataGraph"
             + "\n       GRAPH ?metadataGraph {"
             + "\n         ?resGraph ?p ?o"
             + "\n       }"

@@ -24,9 +24,22 @@ import java.util.Locale;
 public class ODCSPropertyFilterTransformer implements Transformer {
     private static final Logger LOG = LoggerFactory.getLogger(ODCSPropertyFilterTransformer.class);
 
-    private static final String[] FILTERED_PROPERTIES = new String[] { ODCS.score, ODCS.publisherScore, ODCS.scoreTrace,
-            ODCS.metadataGraph, ODCS.provenanceMetadataGraph, ODCS.sourceGraph, ODCS.insertedAt, ODCS.insertedBy,
-            ODCS.source, ODCS.publishedBy, ODCS.license, ODCS.updateTag, ODCS.isLatestUpdate, ODCS.generatedGraph };
+    private static final String[] FILTERED_PROPERTIES = new String[] {
+            ODCS.SCORE.stringValue(),
+            ODCS.PUBLISHER_SCORE.stringValue(),
+            ODCS.SCORE_TRACE.stringValue(),
+            ODCS.METADATA_GRAPH.stringValue(),
+            ODCS.PROVENANCE_METADATA_GRAPH.stringValue(),
+            ODCS.SOURCE_GRAPH.stringValue(),
+            ODCS.INSERTED_AT.stringValue(),
+            ODCS.INSERTED_BY.stringValue(),
+            ODCS.SOURCE.stringValue(),
+            ODCS.PUBLISHED_BY.stringValue(),
+            ODCS.LICENSE.stringValue(),
+            ODCS.UPDATE_TAG.stringValue(),
+            ODCS.IS_LATEST_UPDATE.stringValue(),
+            ODCS.GENERATED_GRAPH.stringValue()
+    };
 
     private static final String FILTERED_PROPERTIES_LIST;
 

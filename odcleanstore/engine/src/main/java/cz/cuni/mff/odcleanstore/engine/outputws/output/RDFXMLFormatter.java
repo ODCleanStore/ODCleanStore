@@ -5,6 +5,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
 import cz.cuni.mff.odcleanstore.qualityassessment.QualityAssessor.GraphScoreWithTrace;
 import cz.cuni.mff.odcleanstore.queryexecution.BasicQueryResult;
 import cz.cuni.mff.odcleanstore.queryexecution.MetadataQueryResult;
+import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 
 import org.openrdf.model.Literal;
@@ -81,10 +82,10 @@ public class RDFXMLFormatter extends RDFFormatter {
         // Metadata about the query
         URI requestURI = VALUE_FACTORY.createURI(fixSqBrackets(requestReference.toString(true, false)));
         URI metadataGraphURI = VALUE_FACTORY.createURI(
-                outputWSConfig.getResultDataURIPrefix().toString() + ODCSInternal.queryMetadataGraphUriInfix);
+                outputWSConfig.getResultDataURIPrefix().toString() + ODCSInternal.QUERY_METADATA_GRAPH_URI_INFIX);
         writeBasicQueryMetadata(rdfWriter, requestURI, queryResult, metadataGraphURI);
         Literal totalResultsLiteral = VALUE_FACTORY.createLiteral(totalResults);
-        rdfWriter.handleStatement(VALUE_FACTORY.createStatement(requestURI, TOTAL_RESULTS_PROPERTY, totalResultsLiteral));
+        rdfWriter.handleStatement(VALUE_FACTORY.createStatement(requestURI, ODCS.TOTAL_RESULTS, totalResultsLiteral));
     }
 
     @Override
@@ -123,7 +124,7 @@ public class RDFXMLFormatter extends RDFFormatter {
 
         URI namedGraphURI = VALUE_FACTORY.createURI(metadataResult.getQuery());
         URI metadataGraphURI = VALUE_FACTORY.createURI(
-                outputWSConfig.getResultDataURIPrefix().toString() + ODCSInternal.queryMetadataGraphUriInfix);
+                outputWSConfig.getResultDataURIPrefix().toString() + ODCSInternal.QUERY_METADATA_GRAPH_URI_INFIX);
 
         // Quality Assessment results
         writeQualityAssessmentResults(rdfWriter, namedGraphURI, qaResult, metadataGraphURI);

@@ -26,7 +26,7 @@ public class DataNormalizationDateRule extends DataNormalizationRule {
 				"Convert " + property.getLocalName() + " into " + XSD.date.getLocalName(),
 				
 				"MODIFY",
-				String.format(Locale.ROOT, convertedDatePropertyValueFormat, property.getURI(), property.getURI(), XPathFunctions.dateFunction, property.getURI()),
+				String.format(Locale.ROOT, convertedDatePropertyValueFormat, property.getURI(), property.getURI(), XPathFunctions.DATE_FUNCTION.stringValue(), property.getURI()),
 				"Convert " + XSD.date.getLocalName() + " value for the property " + property.getURI());
 	}
 }

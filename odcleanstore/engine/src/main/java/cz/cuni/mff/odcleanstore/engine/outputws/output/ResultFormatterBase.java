@@ -1,10 +1,8 @@
 package cz.cuni.mff.odcleanstore.engine.outputws.output;
 
 import cz.cuni.mff.odcleanstore.queryexecution.EnumQueryType;
-import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 
 import org.openrdf.model.Literal;
-import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
@@ -46,21 +44,6 @@ public abstract class ResultFormatterBase implements QueryResultFormatter {
 
     private static final String TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
     
-    /** {@link ODCS#source} as URI. */
-    protected static final URI METADATA_SOURCE_PROPERTY = VALUE_FACTORY.createURI(ODCS.source);
-    /** {@link ODCS#insertedAt} as URI. */
-    protected static final URI METADATA_INSERTED_AT_PROPERTY = VALUE_FACTORY.createURI(ODCS.insertedAt);
-    /** {@link ODCS#score} as URI. */
-    protected static final URI METADATA_SCORE_PROPERTY = VALUE_FACTORY.createURI(ODCS.score);
-    /** {@link ODCS#license} as URI. */
-    protected static final URI METADATA_LICENCES_PROPERTY = VALUE_FACTORY.createURI(ODCS.license);
-    /** {@link ODCS#updateTag} as URI. */
-    protected static final URI METADATA_UPDATE_TAG_PROPERTY = VALUE_FACTORY.createURI(ODCS.updateTag);
-    /** {@link ODCS#publishedBy} as URI. */
-    protected static final URI METADATA_PUBLISHED_BY_PROPERTY = VALUE_FACTORY.createURI(ODCS.publishedBy);
-    /** {@link ODCS#publisherScore} as URI. */
-    protected static final URI METADATA_PUBLISHER_SCORE_PROPERTY = VALUE_FACTORY.createURI(ODCS.publisherScore);
-
     private final DateFormat timeFormat = new SimpleDateFormat(TIME_FORMAT);
     
     /**

@@ -75,7 +75,7 @@ public class InputGraphDao extends DaoForEntityWithSurrogateKey<InputGraph>
 	public File getContentFile(Integer graphId) throws Exception
 	{
 		InputGraph inputGraph = load(graphId);
-		String graphName = inputGraph.getNamedGraphsPrefix() + ODCSInternal.dataGraphUriInfix + inputGraph.UUID;
+		String graphName = inputGraph.getNamedGraphsPrefix() + ODCSInternal.DATA_GRAPH_URI_INFIX + inputGraph.UUID;
 
 		VirtuosoConnectionWrapper connection = null;
 		File tmpFile = null;

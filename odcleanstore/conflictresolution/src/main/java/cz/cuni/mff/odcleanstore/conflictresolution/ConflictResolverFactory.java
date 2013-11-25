@@ -13,6 +13,7 @@ import java.util.Set;
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.vocabulary.OWL;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.ConflictResolutionPolicyImpl;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.ConflictResolverImpl;
@@ -50,7 +51,6 @@ import cz.cuni.mff.odcleanstore.conflictresolution.resolution.TopNResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.ThresholdResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.VoteResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.WeightedVoteResolution;
-import cz.cuni.mff.odcleanstore.vocabulary.OWL;
 
 /**
  * Factory and builder class for {@link ConflictResolver} instances.
@@ -300,7 +300,7 @@ public final class ConflictResolverFactory {
             }
             while (sameAsLinks.hasNext()) {
                 Statement triple = sameAsLinks.next();
-                if (!triple.getPredicate().stringValue().equals(OWL.sameAs)) {
+                if (!OWL.SAMEAS.equals(triple.getPredicate())) {
                     continue;
                 }
                 if (!(triple.getSubject() instanceof URI) || !(triple.getObject() instanceof URI)) {

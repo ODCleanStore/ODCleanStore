@@ -61,7 +61,7 @@ public class MetadataQueryExecutorResource extends QueryExecutorResourceBase {
         Config config = ConfigLoader.getConfig();
         GraphScoreWithTrace qaResult = null;
         String graphUuid = ODCSUtils.extractUUID(namedGraphURI);
-        if (graphUuid != null && !namedGraphURI.startsWith(ODCSInternal.hiddenGraphPrefix)) {
+        if (graphUuid != null && !namedGraphURI.startsWith(ODCSInternal.HIDDEN_GRAPH_PREFIX)) {
             JDBCConnectionCredentials connectionCredentials =
                     config.getQueryExecutionGroup().getCleanDBJDBCConnectionCredentials();
             Integer[] qaGroupIDs = qaRuleGroupsForGraph(graphUuid, connectionCredentials);

@@ -393,7 +393,7 @@ public class DataNormalizerImpl implements DataNormalizer, Serializable {
 			 * In case we need to know what changed we need to create copies of the graph to compare them after
 			 * the rule was applied
 			 */
-			UniqueURIGenerator generator = new UUIDUniqueURIGenerator(ODCSInternal.debugTempGraphUriPrefix + this.getClass().getSimpleName() + "/diff/");
+			UniqueURIGenerator generator = new UUIDUniqueURIGenerator(ODCSInternal.DEBUG_TEMP_GRAPH_URI_PREFIX + this.getClass().getSimpleName() + "/diff/");
 
 			original = generator.nextURI();
 			modified = generator.nextURI();

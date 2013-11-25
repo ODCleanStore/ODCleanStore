@@ -387,8 +387,8 @@ public final class PipelineGraphStatus {
             
             context.insertAttachedGraph(graph.id, name);
             contextSparql.insertAttachedGraphLink(
-                    getNamedGraphsPrefix() + ODCSInternal.metadataGraphUriInfix + getUuid(),
-                    getNamedGraphsPrefix() + ODCSInternal.dataGraphUriInfix + getUuid(),
+                    getNamedGraphsPrefix() + ODCSInternal.METADATA_GRAPH_URI_INFIX + getUuid(),
+                    getNamedGraphsPrefix() + ODCSInternal.DATA_GRAPH_URI_INFIX + getUuid(),
                     name);
 
             context.commit();

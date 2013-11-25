@@ -15,6 +15,7 @@ import cz.cuni.mff.odcleanstore.shared.util.FileUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 
+import org.openrdf.model.URI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,15 +83,15 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
         } else if (name.equals("provenance")) {
             writeProvenance(content);
         } else if (name.equals("publishedBy")) {
-            writeMetadata(ODCS.publishedBy, "<" + content + ">");
+            writeMetadata(ODCS.PUBLISHED_BY, "<" + content + ">");
         } else if (name.equals("source")) {
-            writeMetadata(ODCS.source, "<" + content + ">");
+            writeMetadata(ODCS.SOURCE, "<" + content + ">");
         } else if (name.equals("license")) {
-            writeMetadata(ODCS.license, "<" + content + ">");
+            writeMetadata(ODCS.LICENSE, "<" + content + ">");
         } else if (name.equals("dataBaseUrl")) {
-            writeMetadata(ODCS.dataBaseUrl, "<" + content + ">");
+            writeMetadata(ODCS.DATA_BASE_URL, "<" + content + ">");
         } else if (name.equals("updateTag")) {
-            writeMetadata(ODCS.updateTag, "'" + ODCSUtils.escapeSPARQLLiteral(content) + "'");
+            writeMetadata(ODCS.UPDATE_TAG, "'" + ODCSUtils.escapeSPARQLLiteral(content) + "'");
         } else if (name.equals("user")) {
             user(content);
         } else if (name.equals("password")) {
@@ -186,7 +187,7 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
         
         LOG.info("InputWS - Incoming request for graph {} accepted", uuid);
         isActive = true;
-        dataGraphURI =  namedGraphsPrefix + ODCSInternal.dataGraphUriInfix + uuid;
+        dataGraphURI =  namedGraphsPrefix + ODCSInternal.DATA_GRAPH_URI_INFIX + uuid;
         writeMetadataFirst();
     }
 
@@ -199,9 +200,9 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
     private void writeMetadataFirst() throws InsertExecutorException {
         metadataWriter = createFile(inputDirectory, uuid + "-m.ttl");
 
-        writeMetadata(ODCS.metadataGraph, "<" + namedGraphsPrefix + ODCSInternal.metadataGraphUriInfix + uuid + ">");
-        writeMetadata(ODCS.insertedAt, FormatHelper.getTypedW3CDTFCurrent());
-        writeMetadata(ODCS.insertedBy, "'" + ODCSUtils.escapeSPARQLLiteral(user) + "'");
+        writeMetadata(ODCS.METADATA_GRAPH, "<" + namedGraphsPrefix + ODCSInternal.METADATA_GRAPH_URI_INFIX + uuid + ">");
+        writeMetadata(ODCS.INSERTED_AT, FormatHelper.getTypedW3CDTFCurrent());
+        writeMetadata(ODCS.INSERTED_BY, "'" + ODCSUtils.escapeSPARQLLiteral(user) + "'");
     }
 
     /**
@@ -211,12 +212,12 @@ public class InsertExecutor extends SoapInsertMethodExecutor {
      * @param object
      * @throws InsertExecutorException
      */
-    private void writeMetadata(String predicate, String object) throws InsertExecutorException {
+    private void writeMetadata(URI predicate, String object) throws InsertExecutorException {
         try {
             metadataWriter.append("<");
             metadataWriter.append(dataGraphURI);
             metadataWriter.append("> <");
-            metadataWriter.append(predicate);
+            metadataWriter.append(predicate.stringValue());
             metadataWriter.append("> ");
             metadataWriter.append(object);
             metadataWriter.append(" .\r\n");

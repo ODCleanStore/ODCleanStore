@@ -3,11 +3,11 @@
  */
 package cz.cuni.mff.odcleanstore.engine.common;
 
+import org.openrdf.model.vocabulary.XMLSchema;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
-
-import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
 
 /**
  * 
@@ -41,7 +41,7 @@ public final class FormatHelper {
         result.append(':');
         result.append(formattedDate, formattedDate.length() - 2, formattedDate.length());
         result.append("\"^^<");
-        result.append(XMLSchema.dateTimeType);
+        result.append(XMLSchema.DATETIME.stringValue());
         result.append('>');
         return result.toString();
     }

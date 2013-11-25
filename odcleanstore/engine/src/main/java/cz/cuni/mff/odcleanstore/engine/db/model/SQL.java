@@ -251,7 +251,7 @@ import java.util.Locale;
      * @param second graph name
      */
     static final String INSERT_ATTACHED_GRAPH_LINK = 
-            "SPARQL INSERT INTO <%1$s> { <%2$s> <" + ODCS.attachedGraph + "> <%3$s>}";
+            "SPARQL INSERT INTO <%1$s> { <%2$s> <" + ODCS.ATTACHED_GRAPH + "> <%3$s>}";
 
     static final String ERROR_INSERT_ATTACHED_GRAPH_LINK = "Error during inserting odcs:attachedGraph link";
 

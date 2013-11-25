@@ -98,7 +98,7 @@ final class PipelineGraphManipulator {
                 File srcFile = null;
                 File dstFile = null;
                 try {
-                    String destGraph = ODCSInternal.newGraphPrefix + graphs[i];
+                    String destGraph = ODCSInternal.NEW_GRAPH_PREFIX + graphs[i];
                     String tempFileName = generateRandomFileNameForGraph();
                     srcFile = new File(GraphLoaderUtils.getImportExportDirectory(EnumDatabaseInstance.DIRTY), tempFileName);
                     dstFile = new File(GraphLoaderUtils.getImportExportDirectory(EnumDatabaseInstance.CLEAN), tempFileName);
@@ -153,7 +153,7 @@ final class PipelineGraphManipulator {
      * @throws PipelineGraphManipulatorException
      */
     void renameGraphsToOldGraphsInCleanDB() throws PipelineGraphManipulatorException {
-        renameGraphsInCleanDB(null , ODCSInternal.oldGraphPrefix, ERROR_RENAMING_OLD_GRAPHS_IN_CLEANDB, false); 
+        renameGraphsInCleanDB(null , ODCSInternal.OLD_GRAPH_PREFIX, ERROR_RENAMING_OLD_GRAPHS_IN_CLEANDB, false); 
     }
     
     /**
@@ -162,7 +162,7 @@ final class PipelineGraphManipulator {
      * @throws PipelineGraphManipulatorException
      */
     void renameNewGraphsToGraphsInCleanDB()  throws PipelineGraphManipulatorException {
-        renameGraphsInCleanDB(ODCSInternal.newGraphPrefix,  null, ERROR_RENAMING_NEW_GRAPHS_IN_CLEANDB, true);
+        renameGraphsInCleanDB(ODCSInternal.NEW_GRAPH_PREFIX,  null, ERROR_RENAMING_NEW_GRAPHS_IN_CLEANDB, true);
     }
 
     /**
@@ -248,7 +248,7 @@ final class PipelineGraphManipulator {
      * @throws PipelineGraphManipulatorException
      */
     void clearOldGraphsInCleanDB() throws PipelineGraphManipulatorException {
-        clearGraphsInCleanDB(ODCSInternal.oldGraphPrefix, ERROR_CLEAR_OLD_GRAPHS_IN_CLEANDB, false);
+        clearGraphsInCleanDB(ODCSInternal.OLD_GRAPH_PREFIX, ERROR_CLEAR_OLD_GRAPHS_IN_CLEANDB, false);
     }
 
     /**
@@ -257,7 +257,7 @@ final class PipelineGraphManipulator {
      * @throws PipelineGraphManipulatorException
      */
     void clearNewGraphsInCleanDB() throws PipelineGraphManipulatorException {
-        clearGraphsInCleanDB(ODCSInternal.newGraphPrefix, ERROR_CLEAR_NEW_GRAPHS_IN_CLEANDB, false);
+        clearGraphsInCleanDB(ODCSInternal.NEW_GRAPH_PREFIX, ERROR_CLEAR_NEW_GRAPHS_IN_CLEANDB, false);
     }
     
     /**
@@ -349,9 +349,9 @@ final class PipelineGraphManipulator {
         File inputDirPath = GraphLoaderUtils.getImportExportDirectory(EnumDatabaseInstance.DIRTY);
         String uuid = graphStatus.getUuid();
         
-        String dataGraphURI = graphStatus.getNamedGraphsPrefix() + ODCSInternal.dataGraphUriInfix + uuid;
-        String metadataGraphURI = graphStatus.getNamedGraphsPrefix() + ODCSInternal.metadataGraphUriInfix + uuid;
-        String provenanceGraphURI = graphStatus.getNamedGraphsPrefix() + ODCSInternal.provenanceMetadataGraphUriInfix + uuid;
+        String dataGraphURI = graphStatus.getNamedGraphsPrefix() + ODCSInternal.DATA_GRAPH_URI_INFIX + uuid;
+        String metadataGraphURI = graphStatus.getNamedGraphsPrefix() + ODCSInternal.METADATA_GRAPH_URI_INFIX + uuid;
+        String provenanceGraphURI = graphStatus.getNamedGraphsPrefix() + ODCSInternal.PROVENANCE_METADATA_GRAPH_URI_INFIX + uuid;
         
         String dataBaseUrl = null;
             
@@ -373,7 +373,7 @@ final class PipelineGraphManipulator {
             try {
                 WrappedResultSet rs = con.executeSelect(String.format(Locale.ROOT,
                         "SPARQL SELECT ?o WHERE { GRAPH <%s> {<%s> <%s> ?o}}",
-                        metadataGraphURI, dataGraphURI, ODCS.dataBaseUrl));
+                        metadataGraphURI, dataGraphURI, ODCS.DATA_BASE_URL.stringValue()));
                 rs.next();
                 dataBaseUrl = rs.getString(1);
             } catch (Exception e) {
@@ -387,7 +387,7 @@ final class PipelineGraphManipulator {
                 GraphLoaderUtils.insertRdfFromFile(
                         con, pvmRDFFile, SerializationLanguage.RDFXML, provenanceGraphURI, dataBaseUrl);
                 con.execute(String.format(Locale.ROOT, "SPARQL INSERT INTO GRAPH <%s> { <%s> <%s> <%s> }", 
-                        metadataGraphURI, dataGraphURI, ODCS.provenanceMetadataGraph, provenanceGraphURI));
+                        metadataGraphURI, dataGraphURI, ODCS.PROVENANCE_METADATA_GRAPH.stringValue(), provenanceGraphURI));
             }
             
             graphStatus.checkResetPipelineRequest();
@@ -397,7 +397,7 @@ final class PipelineGraphManipulator {
                 GraphLoaderUtils.insertRdfFromFile(
                         con, pvmTTLFile, SerializationLanguage.N3, provenanceGraphURI, dataBaseUrl);
                 con.execute(String.format(Locale.ROOT, "SPARQL INSERT INTO GRAPH <%s> { <%s> <%s> <%s> }", 
-                        metadataGraphURI, dataGraphURI, ODCS.provenanceMetadataGraph, provenanceGraphURI));
+                        metadataGraphURI, dataGraphURI, ODCS.PROVENANCE_METADATA_GRAPH.stringValue(), provenanceGraphURI));
             }
             
             graphStatus.checkResetPipelineRequest();
@@ -497,9 +497,9 @@ final class PipelineGraphManipulator {
         String uuid = graphStatus.getUuid();
         
         ArrayList<String> graphs = new ArrayList<String>();
-        graphs.add(graphStatus.getNamedGraphsPrefix() + ODCSInternal.dataGraphUriInfix + uuid);
-        graphs.add(graphStatus.getNamedGraphsPrefix() + ODCSInternal.metadataGraphUriInfix + uuid);
-        graphs.add(graphStatus.getNamedGraphsPrefix() + ODCSInternal.provenanceMetadataGraphUriInfix + uuid);
+        graphs.add(graphStatus.getNamedGraphsPrefix() + ODCSInternal.DATA_GRAPH_URI_INFIX + uuid);
+        graphs.add(graphStatus.getNamedGraphsPrefix() + ODCSInternal.METADATA_GRAPH_URI_INFIX + uuid);
+        graphs.add(graphStatus.getNamedGraphsPrefix() + ODCSInternal.PROVENANCE_METADATA_GRAPH_URI_INFIX + uuid);
         graphs.addAll(graphStatus.getAttachedGraphs());
         return graphs.toArray(new String[0]);
     }

@@ -45,7 +45,7 @@ public class ConflictResolverImpl implements ConflictResolver {
     private static final Logger LOG = LoggerFactory.getLogger(ConflictResolverImpl.class);
 
     /** Default prefix of graph names where resolved quads are placed. */ 
-    public static final String DEFAULT_RESOLVED_GRAPHS_URI_PREFIX = ODCS.getURI() + "CR/";
+    public static final String DEFAULT_RESOLVED_GRAPHS_URI_PREFIX = ODCS.NAMESPACE + "CR/";
     
     /** Default conflict resolution strategy. */
     public static final ResolutionStrategy DEFAULT_RESOLUTION_STRATEGY = new ResolutionStrategyImpl(

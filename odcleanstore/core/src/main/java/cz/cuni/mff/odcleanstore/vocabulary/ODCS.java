@@ -1,5 +1,11 @@
 package cz.cuni.mff.odcleanstore.vocabulary;
 
+import org.openrdf.model.Namespace;
+import org.openrdf.model.URI;
+import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.NamespaceImpl;
+import org.openrdf.model.impl.ValueFactoryImpl;
+
 /**
  * Vocabulary definitions of ODCleanStore-specific properties and classes.
  *
@@ -7,146 +13,171 @@ package cz.cuni.mff.odcleanstore.vocabulary;
  */
 public final class ODCS {
     /** The namespace of the vocabulary as a string. */
-    private static final String NS = "http://opendata.cz/infrastructure/odcleanstore/";
+    public static final String NAMESPACE = "http://opendata.cz/infrastructure/odcleanstore/";
+    
+    /**
+     * Recommended prefix for the ODCS namespace.
+     */
+    public static final String PREFIX = "odcs";
 
     /**
-     * Returns the namespace of the vocabulary.
-     * @return namespace of the vocabulary as a string
+     * An immutable {@link Namespace} constant that represents the ODCS namespace.
      */
-    public static String getURI() {
-        return NS;
-    }
+    public static final Namespace NS = new NamespaceImpl(PREFIX, NAMESPACE);
 
     /** Disable constructor for a utility class. */
     private ODCS() {
     }
 
     /* Vocabulary properties: */
-
-    // CHECKSTYLE:OFF
-
     /**
      * Property linking a named graph to its quality assessment score.
      */
-    public static final String score = NS + "score";
+    public static final URI SCORE;
     
     /**
      * Property linking a named graph to its quality assessment score trace.
      */
-    public static final String scoreTrace = NS + "scoreTrace";
+    public static final URI SCORE_TRACE;
 
     /**
      * Property linking a publisher to its aggregated score.
      */
-    public static final String publisherScore = NS + "publisherScore";
+    public static final URI PUBLISHER_SCORE;
 
     /**
      * Property linking a named graph to its conflict resolution quality estimate.
      */
-    public static final String quality = NS + "quality";
+    public static final URI QUALITY;
     
     /**
      * Property linking a data graph to its metadata graph. 
      */
-    public static final String metadataGraph = NS + "metadataGraph";
+    public static final URI METADATA_GRAPH;
     
     /**
      * Property linking a data graph to its provenance metadata graph. 
      */
-    public static final String provenanceMetadataGraph = 
-    		NS + "provenanceMetadataGraph";
+    public static final URI PROVENANCE_METADATA_GRAPH;
     
     /**
      * Property linking a data graph to its attached graphs added by transformers. 
      */
-    public static final String attachedGraph = NS + "attachedGraph";
+    public static final URI ATTACHED_GRAPH;
     
     /**
      * Class of resources describing a result of a query. 
      */
-    public static final String queryResponse = NS + "QueryResponse";
+    public static final URI QUERY_RESPONSE;
     
     /**
      * A query over the output webservice. 
      */
-    public static final String query = NS + "query";
+    public static final URI QUERY;
     
     /**
      * Property linking an instance of odcs:QueryResponse to named graphs containing a result triple. 
      */
-    public static final String result = NS + "result";
+    public static final URI RESULT;
     
     /**
      * Number of quads in a query result. 
      */
-    public static final String totalResults = NS + "totalResults";
+    public static final URI TOTAL_RESULTS;
     
     /**
      * Property linking a data graph to a Quality Assessment rule it violates. 
      */
-    public static final String violatedQARule = NS + "violatedQARule";
+    public static final URI VIOLATED_QA_RULE;
     
     /**
      * Coefficient of a Quality Assessment rule.
      */
-    public static final String coefficient = NS + "coefficient";
+    public static final URI COEFFICIENT;
 
     /**
      * Property linking a query result triple (the named graph it is placed in, respectively) to
      * named graphs the triple was selected or calculated from.
      */
-    public static final String sourceGraph = NS + "sourceGraph";
+    public static final URI SOURCE_GRAPH;
     
     /**
      * @see W3P#insertedAt
      */
-    public static final String insertedAt = NS + "insertedAt";
+    public static final URI INSERTED_AT;
     
     /**
      * @see W3P#insertedBy
      */
-    public static final String insertedBy = NS + "insertedBy";
+    public static final URI INSERTED_BY;
     
     /**
      * @see W3P#publishedBy
      */
-    public static final String publishedBy = NS + "publishedBy";
+    public static final URI PUBLISHED_BY;
 
     /**
      * @see W3P#source
      */
-    public static final String source = NS + "source";
+    public static final URI SOURCE;
     
     /**
-     * @see DC#license
+     * @see org.openrdf.model.vocabulary.DCTERMS#LICENSE
      */
-    public static final String license = NS + "license";
+    public static final URI LICENSE;
     
     /**
      * Class of resources describing a Quality Assessment rule. 
      */
-    public static final String QARule = NS + "QARule";
+    public static final URI QA_RULE;
     
     /**
      * Base for relative URI in input data. 
      */
-    public static final String dataBaseUrl = NS + "dataBaseUrl";
+    public static final URI DATA_BASE_URL;
     
     /**
      * Update tag identifier for stored named graphs. 
      */
-    public static final String updateTag = NS + "updateTag";
+    public static final URI UPDATE_TAG;
     
     /**
      * Property marking the latest version of an inserted named graph. Range is 
      */
-    public static final String isLatestUpdate = NS + "isLatestUpdate";
+    public static final URI IS_LATEST_UPDATE;
     
     /**
      * Property marking named graphs generated by ODCS (e.g. named graph with ontology mappings).
      * The value should be always 1
      */
-    public static final String generatedGraph = NS + "generatedGraph";
+    public static final URI GENERATED_GRAPH;
     
-    // CHECKSTYLE:ON
+    static {
+        ValueFactory factory = ValueFactoryImpl.getInstance();
+
+        SCORE = factory.createURI(ODCS.NAMESPACE, "score");
+        SCORE_TRACE = factory.createURI(ODCS.NAMESPACE, "scoreTrace");
+        PUBLISHER_SCORE = factory.createURI(ODCS.NAMESPACE, "publisherScore");
+        QUALITY = factory.createURI(ODCS.NAMESPACE, "quality");
+        METADATA_GRAPH = factory.createURI(ODCS.NAMESPACE, "metadataGraph");
+        PROVENANCE_METADATA_GRAPH = factory.createURI(ODCS.NAMESPACE, "provenanceMetadataGraph");
+        ATTACHED_GRAPH = factory.createURI(ODCS.NAMESPACE, "attachedGraph");
+        QUERY_RESPONSE = factory.createURI(ODCS.NAMESPACE, "QueryResponse");
+        QUERY = factory.createURI(ODCS.NAMESPACE, "query");
+        RESULT = factory.createURI(ODCS.NAMESPACE, "result");
+        TOTAL_RESULTS = factory.createURI(ODCS.NAMESPACE, "totalResults");
+        VIOLATED_QA_RULE = factory.createURI(ODCS.NAMESPACE, "violatedQARule");
+        COEFFICIENT = factory.createURI(ODCS.NAMESPACE, "coefficient");
+        SOURCE_GRAPH = factory.createURI(ODCS.NAMESPACE, "sourceGraph");
+        INSERTED_AT = factory.createURI(ODCS.NAMESPACE, "insertedAt");
+        INSERTED_BY = factory.createURI(ODCS.NAMESPACE, "insertedBy");
+        PUBLISHED_BY = factory.createURI(ODCS.NAMESPACE, "publishedBy");
+        SOURCE = factory.createURI(ODCS.NAMESPACE, "source");
+        LICENSE = factory.createURI(ODCS.NAMESPACE, "license");
+        QA_RULE = factory.createURI(ODCS.NAMESPACE, "QARule");
+        DATA_BASE_URL = factory.createURI(ODCS.NAMESPACE, "dataBaseUrl");
+        UPDATE_TAG = factory.createURI(ODCS.NAMESPACE, "updateTag");
+        IS_LATEST_UPDATE = factory.createURI(ODCS.NAMESPACE, "isLatestUpdate");
+        GENERATED_GRAPH = factory.createURI(ODCS.NAMESPACE, "generatedGraph");
+    }
 }

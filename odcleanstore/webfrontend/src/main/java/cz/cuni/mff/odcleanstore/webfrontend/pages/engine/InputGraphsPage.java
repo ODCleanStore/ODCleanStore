@@ -86,7 +86,7 @@ public class InputGraphsPage extends FrontendPage
 
 				item.setModel(new CompoundPropertyModel<InputGraph>(inputGraph));
 
-				String uri = inputGraph.getNamedGraphsPrefix() + ODCSInternal.dataGraphUriInfix + inputGraph.getUUID();
+				String uri = inputGraph.getNamedGraphsPrefix() + ODCSInternal.DATA_GRAPH_URI_INFIX + inputGraph.getUUID();
 				String infoLink = "";
 				try {
 					infoLink =

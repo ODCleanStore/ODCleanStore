@@ -12,7 +12,8 @@ import cz.cuni.mff.odcleanstore.transformer.TransformedGraph;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
-import cz.cuni.mff.odcleanstore.vocabulary.XMLSchema;
+
+import org.openrdf.model.vocabulary.XMLSchema;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,12 +34,12 @@ import java.util.Locale;
 public class QualityAggregatorImpl implements QualityAggregator {
 	private static final Logger LOG = LoggerFactory.getLogger(QualityAggregatorImpl.class);
 
-	private final static String dropOutdatedQueryFormat = "SPARQL DELETE FROM <%s> {?publisher <" + ODCS.publisherScore + "> ?score} WHERE {?publisher <" + ODCS.publisherScore + "> ?score. FILTER (?publisher = <%s>)}";
-	private final static String computeSumUpdatedQueryFormat = "SPARQL SELECT SUM(?score) WHERE {?graph <" + ODCS.score + "> ?score; <" + ODCS.publishedBy + "> <%s>}";
-	private final static String computeCountUpdatedQueryFormat = "SPARQL SELECT COUNT(?score) WHERE {?graph <" + ODCS.score + "> ?score; <" + ODCS.publishedBy + "> <%s>}";
-	private final static String storeUpdatedQueryFormat = "SPARQL INSERT DATA INTO <%s> {<%s> <" + ODCS.publisherScore + "> \"%f\"^^<" + XMLSchema.doubleType + ">}";
-	private final static String graphPublisherQueryFormat = "SPARQL SELECT ?publisher FROM <%s> WHERE {<%s> <" + ODCS.publishedBy + "> ?publisher}";
-	private final static String graphScoreQueryFormat = "SPARQL SELECT ?score FROM <%s> WHERE {<%s> <" + ODCS.score + "> ?score}";
+	private final static String dropOutdatedQueryFormat = "SPARQL DELETE FROM <%s> {?publisher <" + ODCS.PUBLISHER_SCORE + "> ?score} WHERE {?publisher <" + ODCS.PUBLISHER_SCORE + "> ?score. FILTER (?publisher = <%s>)}";
+	private final static String computeSumUpdatedQueryFormat = "SPARQL SELECT SUM(?score) WHERE {?graph <" + ODCS.SCORE + "> ?score; <" + ODCS.PUBLISHED_BY + "> <%s>}";
+	private final static String computeCountUpdatedQueryFormat = "SPARQL SELECT COUNT(?score) WHERE {?graph <" + ODCS.SCORE + "> ?score; <" + ODCS.PUBLISHED_BY + "> <%s>}";
+	private final static String storeUpdatedQueryFormat = "SPARQL INSERT DATA INTO <%s> {<%s> <" + ODCS.PUBLISHER_SCORE + "> \"%f\"^^<" + XMLSchema.DOUBLE + ">}";
+	private final static String graphPublisherQueryFormat = "SPARQL SELECT ?publisher FROM <%s> WHERE {<%s> <" + ODCS.PUBLISHED_BY + "> ?publisher}";
+	private final static String graphScoreQueryFormat = "SPARQL SELECT ?score FROM <%s> WHERE {<%s> <" + ODCS.SCORE + "> ?score}";
 
 	private TransformationContext context;
 
@@ -129,10 +130,10 @@ public class QualityAggregatorImpl implements QualityAggregator {
 
 					getCleanConnection().adjustTransactionLevel(EnumLogLevel.TRANSACTION_LEVEL);
 
-					final String dropOutdated = String.format(Locale.ROOT, dropOutdatedQueryFormat, ODCSInternal.aggregatedPublisherScoreGraphUri, publisher);
+					final String dropOutdated = String.format(Locale.ROOT, dropOutdatedQueryFormat, ODCSInternal.AGGREGATED_PUBLISHER_SCORE_GRAPH_URI, publisher);
 					getCleanConnection().execute(dropOutdated);
 
-					final String storeUpdated = String.format(Locale.ROOT, storeUpdatedQueryFormat, ODCSInternal.aggregatedPublisherScoreGraphUri, publisher, score);
+					final String storeUpdated = String.format(Locale.ROOT, storeUpdatedQueryFormat, ODCSInternal.AGGREGATED_PUBLISHER_SCORE_GRAPH_URI, publisher, score);
 					getCleanConnection().execute(storeUpdated);
 
 					getCleanConnection().commit();

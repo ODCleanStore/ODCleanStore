@@ -1,7 +1,5 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.resolution.comparators;
 
-import org.openrdf.model.impl.ValueFactoryImpl;
-
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 
 /**
@@ -12,6 +10,6 @@ import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 public class ODCSInsertedAtComparator extends MetadataValueComparator {
     /** Creates a new instance. */
     public ODCSInsertedAtComparator() {
-        super(ValueFactoryImpl.getInstance().createURI(ODCS.insertedAt));
+        super(ODCS.INSERTED_AT);
     }
 }

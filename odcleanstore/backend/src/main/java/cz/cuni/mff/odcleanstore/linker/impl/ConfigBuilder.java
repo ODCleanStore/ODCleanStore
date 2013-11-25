@@ -542,7 +542,7 @@ public class ConfigBuilder {
 			outputElement.appendChild(createParam(doc, CONFIG_XML_URI,
 					config.getDirtyDBSparqlConnectionCredentials().getUrl().toString()));
 			outputElement.appendChild(createParam(doc, CONFIG_XML_GRAPH_URI,
-			        ODCSInternal.generatedLinksGraphUriPrefix + graphId));
+			        ODCSInternal.GENERATED_LINKS_GRAPH_URI_PREFIX + graphId));
 		}
 		return outputElement;
 	}
