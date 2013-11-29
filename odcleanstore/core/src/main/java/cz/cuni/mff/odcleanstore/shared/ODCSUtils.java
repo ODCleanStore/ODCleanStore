@@ -301,7 +301,8 @@ public final class ODCSUtils {
     /**
      * Returns {@link Value#stringValue() stringValue()} of the given {@link Value} or null if the value is null.
      * @param value value to convert to string
-     * @return {@link Value#stringValue() stringValue()} of <code>value</code> {@link Value} or null if <code>value</code> is null
+     * @return {@link Value#stringValue() stringValue()} of <code>value</code> {@link Value} or null if <code>value</code> 
+     *      is null
      */
     public static String valueToString(Value value) {
         return value == null

@@ -11,6 +11,7 @@
   
 	<properties>
 		<odcs-core-version>${project.version}</odcs-core-version>
+		<odcs-shared-version>${project.version}</odcs-shared-version>
 		<odcs-conflictresolution-version>${project.version}</odcs-conflictresolution-version>
 	</properties>
 
@@ -29,6 +30,11 @@
 			<artifactId>odcs-core</artifactId>
 			<version>${odcs-core-version}</version>
 		</dependency>
+		<dependency>
+            <groupId>cz.cuni.mff.odcleanstore</groupId>
+            <artifactId>odcs-shared</artifactId>
+            <version>${odcs-shared-version}</version>
+        </dependency>
 		<dependency>
 			<groupId>cz.cuni.mff.odcleanstore</groupId>
 			<artifactId>odcs-conflictresolution</artifactId>
