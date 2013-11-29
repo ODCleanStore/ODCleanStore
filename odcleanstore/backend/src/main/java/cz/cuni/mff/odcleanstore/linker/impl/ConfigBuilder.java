@@ -2,13 +2,13 @@ package cz.cuni.mff.odcleanstore.linker.impl;
 
 import cz.cuni.mff.odcleanstore.configuration.ObjectIdentificationConfig;
 import cz.cuni.mff.odcleanstore.connection.SparqlEndpointConnectionCredentials;
-import cz.cuni.mff.odcleanstore.data.RDFprefix;
 import cz.cuni.mff.odcleanstore.linker.exceptions.InvalidLinkageRuleException;
 import cz.cuni.mff.odcleanstore.linker.rules.FileOutput;
 import cz.cuni.mff.odcleanstore.linker.rules.Output;
 import cz.cuni.mff.odcleanstore.linker.rules.OutputType;
 import cz.cuni.mff.odcleanstore.linker.rules.SilkRule;
 import cz.cuni.mff.odcleanstore.shared.SerializationLanguage;
+import cz.cuni.mff.odcleanstore.shared.util.RDFprefix;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;

@@ -240,15 +240,14 @@ public final class ODCSUtils {
         return escapedValue;
     }
     
-    /**
+     /**
      * Return the URI identifying a blank node in Virtuoso.
-     * @param bNode blank node
+     * @param blankNodeId blank node id
      * @return URI identifying bNode in Virtuoso
-     * throws UnsupportedOperationException bNode is not a blank node
      */
-    public static String getVirtuosoURIForBlankNode(BNode bNode) {
-        return "nodeID://" + bNode.getID();
-    }
+     public static String getVirtuosoURIForBlankNode(BNode blankNodeId) {
+         return "nodeID://" + blankNodeId;
+     }
     
     /**
      * Converts an object or null reference to a string (null is converted to the empty string).
@@ -296,14 +295,15 @@ public final class ODCSUtils {
     /**
      * Returns {@link Value#stringValue() stringValue()} of the given {@link Value} or null if the value is null.
      * @param value value to convert to string
-     * @return {@link Value#stringValue() stringValue()} of <code>value</code> {@link Value} or null if <code>value</code> is null
+     * @return {@link Value#stringValue() stringValue()} of <code>value</code> {@link Value} or null if <code>value</code> 
+     *      is null
      */
     public static String valueToString(Value value) {
         return value == null
                 ? null
                 : value.stringValue();
     }
-        
+
     /** Disable constructor for a utility class. */
     private ODCSUtils() {
     }
