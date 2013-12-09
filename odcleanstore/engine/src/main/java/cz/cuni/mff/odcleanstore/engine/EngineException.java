@@ -1,6 +1,6 @@
 package cz.cuni.mff.odcleanstore.engine;
 
-import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
+import cz.cuni.mff.odcleanstore.core.ODCleanStoreException;
 
 /**
  * A exception arising from Engine code.

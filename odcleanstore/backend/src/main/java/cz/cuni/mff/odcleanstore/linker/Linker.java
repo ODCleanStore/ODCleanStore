@@ -1,8 +1,8 @@
 package cz.cuni.mff.odcleanstore.linker;
 
+import cz.cuni.mff.odcleanstore.core.SerializationLanguage;
 import cz.cuni.mff.odcleanstore.data.TableVersion;
 import cz.cuni.mff.odcleanstore.linker.impl.DebugResult;
-import cz.cuni.mff.odcleanstore.shared.SerializationLanguage;
 import cz.cuni.mff.odcleanstore.transformer.TransformationContext;
 import cz.cuni.mff.odcleanstore.transformer.Transformer;
 import cz.cuni.mff.odcleanstore.transformer.TransformerException;

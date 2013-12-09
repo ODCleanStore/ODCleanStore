@@ -1,6 +1,6 @@
 package cz.cuni.mff.odcleanstore.datanormalization.exceptions;
 
-import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
+import cz.cuni.mff.odcleanstore.core.ODCleanStoreException;
 
 /**
  * Exception specific to data normalization related transformations, rule querying or rule generation.

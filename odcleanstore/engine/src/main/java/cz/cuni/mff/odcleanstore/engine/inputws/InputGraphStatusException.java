@@ -3,7 +3,7 @@
  */
 package cz.cuni.mff.odcleanstore.engine.inputws;
 
-import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
+import cz.cuni.mff.odcleanstore.core.ODCleanStoreException;
 
 /**
  * Exception arriving from InputGraphStatus class.

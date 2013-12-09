@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.shared;
+package cz.cuni.mff.odcleanstore.core;
 
 import org.openrdf.model.BNode;
 import org.openrdf.model.Model;

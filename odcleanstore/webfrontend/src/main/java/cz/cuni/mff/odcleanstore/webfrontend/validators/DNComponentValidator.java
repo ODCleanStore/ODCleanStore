@@ -8,8 +8,8 @@ import cz.cuni.mff.odcleanstore.connection.EnumLogLevel;
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionFactory;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
+import cz.cuni.mff.odcleanstore.core.UUIDUniqueURIGenerator;
 import cz.cuni.mff.odcleanstore.datanormalization.rules.DataNormalizationRule;
-import cz.cuni.mff.odcleanstore.shared.UUIDUniqueURIGenerator;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.dn.DNRuleComponentType;
 

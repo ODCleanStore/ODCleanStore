@@ -15,7 +15,7 @@ import org.openrdf.model.impl.ValueFactoryImpl;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatementFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.SimpleUriGenerator;
-import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
+import cz.cuni.mff.odcleanstore.core.UniqueURIGenerator;
 
 /**
  * Basic implementation of {@link ResolvedStatementFactory} placing resolved quads in

@@ -1,6 +1,6 @@
 package cz.cuni.mff.odcleanstore.queryexecution;
 
-import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
+import cz.cuni.mff.odcleanstore.core.ODCleanStoreException;
 
 /**
  * Exception during Query Execution.

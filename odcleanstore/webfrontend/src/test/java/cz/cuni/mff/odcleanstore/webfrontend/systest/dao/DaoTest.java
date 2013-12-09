@@ -13,7 +13,7 @@ import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
-import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
+import cz.cuni.mff.odcleanstore.core.ODCSUtils;
 
 public abstract class DaoTest
 {

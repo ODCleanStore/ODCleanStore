@@ -1,6 +1,6 @@
 package cz.cuni.mff.odcleanstore.engine.db;
 
-import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
+import cz.cuni.mff.odcleanstore.core.ODCleanStoreException;
 
 /**
  * Database transaction error.

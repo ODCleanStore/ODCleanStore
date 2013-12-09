@@ -1,6 +1,6 @@
 package cz.cuni.mff.odcleanstore.linker.exceptions;
 
-import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
+import cz.cuni.mff.odcleanstore.core.ODCleanStoreException;
 
 /**
  * Invalid linkage rule.

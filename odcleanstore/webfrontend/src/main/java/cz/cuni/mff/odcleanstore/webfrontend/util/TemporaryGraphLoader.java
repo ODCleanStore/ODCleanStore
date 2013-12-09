@@ -2,9 +2,9 @@ package cz.cuni.mff.odcleanstore.webfrontend.util;
 
 import org.apache.log4j.Logger;
 
+import cz.cuni.mff.odcleanstore.core.UUIDUniqueURIGenerator;
 import cz.cuni.mff.odcleanstore.data.EnumDatabaseInstance;
 import cz.cuni.mff.odcleanstore.data.GraphLoader;
-import cz.cuni.mff.odcleanstore.shared.UUIDUniqueURIGenerator;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;
 import cz.cuni.mff.odcleanstore.webfrontend.core.ODCSWebFrontendApplication;
 import cz.cuni.mff.odcleanstore.webfrontend.dao.en.TemporaryGraphsDao;

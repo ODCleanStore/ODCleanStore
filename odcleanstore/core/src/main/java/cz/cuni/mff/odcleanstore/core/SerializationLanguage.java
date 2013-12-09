@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.shared;
+package cz.cuni.mff.odcleanstore.core;
 
 /**
  * Type of serialization of input data.

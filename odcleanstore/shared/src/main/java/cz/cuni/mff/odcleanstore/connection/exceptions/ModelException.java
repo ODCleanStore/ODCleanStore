@@ -1,6 +1,6 @@
 package cz.cuni.mff.odcleanstore.connection.exceptions;
 
-import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
+import cz.cuni.mff.odcleanstore.core.ODCleanStoreException;
 
 /**
  * Error related to database model.
