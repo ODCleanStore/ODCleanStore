@@ -287,20 +287,25 @@ public class ConflictResolverImpl implements ConflictResolver {
     }
 
     private ConflictResolutionPolicy getEffectiveResolutionPolicy() {
-        ConflictResolutionPolicyImpl result = new ConflictResolutionPolicyImpl();
-        
-        ResolutionStrategy effectiveDefaultStrategy = conflictResolutionPolicy.getDefaultResolutionStrategy() != null
-                ? CRUtils.fillResolutionStrategyDefaults(conflictResolutionPolicy.getDefaultResolutionStrategy(),
-                        DEFAULT_RESOLUTION_STRATEGY)
-                : DEFAULT_RESOLUTION_STRATEGY;
-        result.setDefaultResolutionStrategy(effectiveDefaultStrategy);
-        
+        ResolutionStrategy effectiveDefaultStrategy = DEFAULT_RESOLUTION_STRATEGY;
         Map<URI, ResolutionStrategy> effectivePropertyStrategies = new HashMap<URI, ResolutionStrategy>();
-        for (Entry<URI, ResolutionStrategy> entry : conflictResolutionPolicy.getPropertyResolutionStrategies().entrySet()) {
-            URI mappedURI = uriMapping.mapURI(entry.getKey());
-            ResolutionStrategy strategy = CRUtils.fillResolutionStrategyDefaults(entry.getValue(), effectiveDefaultStrategy);
-            effectivePropertyStrategies.put(mappedURI, strategy);
+
+        if (conflictResolutionPolicy != null && conflictResolutionPolicy.getDefaultResolutionStrategy() != null) {
+            effectiveDefaultStrategy = CRUtils.fillResolutionStrategyDefaults(
+                    conflictResolutionPolicy.getDefaultResolutionStrategy(),
+                    DEFAULT_RESOLUTION_STRATEGY);
         }
+        
+        if (conflictResolutionPolicy != null && conflictResolutionPolicy.getPropertyResolutionStrategies() != null) {
+            for (Entry<URI, ResolutionStrategy> entry : conflictResolutionPolicy.getPropertyResolutionStrategies().entrySet()) {
+                URI mappedURI = uriMapping.mapURI(entry.getKey());
+                ResolutionStrategy strategy = CRUtils.fillResolutionStrategyDefaults(entry.getValue(), effectiveDefaultStrategy);
+                effectivePropertyStrategies.put(mappedURI, strategy);
+            }
+        }
+        
+        ConflictResolutionPolicyImpl result = new ConflictResolutionPolicyImpl();
+        result.setDefaultResolutionStrategy(effectiveDefaultStrategy);
         result.setPropertyResolutionStrategy(effectivePropertyStrategies);
         return result;
     }
