@@ -256,6 +256,23 @@ public final class ODCSUtils {
     }
     
     /**
+     * Returns an URI representing the given node or null if it is not a resource.
+     * For blank nodes returns the Virtuoso blank node identifier.
+     * This function only works in conjunction with Virtuoso database.
+     * @param value RDF node
+     * @return URI representing
+     */
+    public static String getVirtuosoNodeURI(Value value) {
+        if (value instanceof URI) {
+            return value.stringValue();
+        } else if (value instanceof BNode) {
+            return ODCSUtils.getVirtuosoURIForBlankNode((BNode) value);
+        } else {
+            return null;
+        }
+    }
+    
+    /**
      * Converts an object or null reference to a string (null is converted to the empty string).
      * @param obj object to stringify
      * @return string representation of obj
