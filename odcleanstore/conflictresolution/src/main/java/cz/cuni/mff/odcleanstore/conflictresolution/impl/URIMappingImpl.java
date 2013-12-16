@@ -11,8 +11,6 @@ import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.OWL;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.URIMapping;
 
@@ -29,7 +27,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.URIMapping;
  * @author Jan Michelfeit
  */
 public class URIMappingImpl implements URIMapping {
-    private static final Logger LOG = LoggerFactory.getLogger(URIMappingImpl.class);
+    //private static final Logger LOG = LoggerFactory.getLogger(URIMappingImpl.class);
     private static final ValueFactory VALUE_FACTORY = ValueFactoryImpl.getInstance();
 
     /** Set of URIs preferred as canonical URIs. */
@@ -77,8 +75,8 @@ public class URIMappingImpl implements URIMapping {
         while (sameAsLinks.hasNext()) {
             Statement triple = sameAsLinks.next();
             if (!OWL.SAMEAS.equals(triple.getPredicate())) {
-                LOG.warn("A triple with predicate {} passed as an owl:sameAs link",
-                        triple.getPredicate().stringValue());
+                //LOG.warn("A triple with predicate {} passed as an owl:sameAs link",
+                //        triple.getPredicate().stringValue());
                 continue;
             }
             if (!(triple.getSubject() instanceof URI) || !(triple.getObject() instanceof URI)) {
