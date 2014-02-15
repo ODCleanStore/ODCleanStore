@@ -28,4 +28,9 @@ public class ResolutionFunctionRegistryImpl implements ResolutionFunctionRegistr
     public void register(String functionName, ResolutionFunction resolutionFunction) {
         functions.put(functionName, resolutionFunction);
     }
+    
+    @Override
+    public Iterable<String> listRegisteredFunctions() {
+        return functions.keySet();
+    }
 }

@@ -26,4 +26,10 @@ public interface ResolutionFunctionRegistry {
      * @param resolutionFunction implementation of the resolution function
      */
     void register(String functionName, ResolutionFunction resolutionFunction);
+    
+    /**
+     * Lists conflict resolution functions registered with {@link #register(String, ResolutionFunction)}.
+     * @return list of resolution function names
+     */
+    Iterable<String> listRegisteredFunctions();
 }

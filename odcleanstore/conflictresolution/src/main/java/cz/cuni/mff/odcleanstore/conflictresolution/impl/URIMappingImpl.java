@@ -179,7 +179,7 @@ public class URIMappingImpl implements URIMapping {
      * @return either uri1 or uri2 (must be exactly one of these two objects)
      */
     protected String chooseCanonicalURI(String uri1, String uri2) {
-        return isPreferredURI(uri1) ? uri1 : uri2;
+        return isPreferredURI(uri2) ? uri2 : uri1;
     }
 
     /**
