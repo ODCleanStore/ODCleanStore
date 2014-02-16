@@ -74,21 +74,29 @@ public class URIMappingImpl implements URIMapping {
     public void addLinks(Iterator<Statement> sameAsLinks) {
         while (sameAsLinks.hasNext()) {
             Statement triple = sameAsLinks.next();
-            if (!OWL.SAMEAS.equals(triple.getPredicate())) {
-                //LOG.warn("A triple with predicate {} passed as an owl:sameAs link",
-                //        triple.getPredicate().stringValue());
-                continue;
-            }
-            if (!(triple.getSubject() instanceof URI) || !(triple.getObject() instanceof URI)) {
-                // Ignore sameAs links between everything but URI resources; see owl:sameAs syntax
-                // at see http://www.w3.org/TR/2004/REC-owl-semantics-20040210/syntax.html
-                continue;
-            }
-
-            String subjectURI = triple.getSubject().stringValue();
-            String objectURI = triple.getObject().stringValue();
-            dfuUnion(subjectURI, objectURI);
+            addLink(triple);
         }
+    }
+    
+    /**
+     * Adds owl:sameAs mappings as an RDF triples.
+     * @param link statement with URI mapping
+     */
+    public void addLink(Statement link) {
+        if (!OWL.SAMEAS.equals(link.getPredicate())) {
+            // LOG.warn("A triple with predicate {} passed as an owl:sameAs link",
+            // triple.getPredicate().stringValue());
+            return;
+        }
+        if (!(link.getSubject() instanceof URI) || !(link.getObject() instanceof URI)) {
+            // Ignore sameAs links between everything but URI resources; see owl:sameAs syntax
+            // at see http://www.w3.org/TR/2004/REC-owl-semantics-20040210/syntax.html
+            return;
+        }
+
+        String subjectURI = link.getSubject().stringValue();
+        String objectURI = link.getObject().stringValue();
+        dfuUnion(subjectURI, objectURI);
     }
 
     /**
