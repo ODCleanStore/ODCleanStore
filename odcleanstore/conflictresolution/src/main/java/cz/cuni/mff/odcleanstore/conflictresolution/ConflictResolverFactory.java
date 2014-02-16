@@ -28,6 +28,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.quality.SourceQualityCalculat
 import cz.cuni.mff.odcleanstore.conflictresolution.quality.impl.DecidingConflictFQualityCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.quality.impl.MediatingModeratingFQualityCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.quality.impl.MediatingScatteringFQualityCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.resolution.AllBestResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.AllResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.AnyResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.AvgResolution;
@@ -146,6 +147,7 @@ public final class ConflictResolverFactory {
         DecidingFQualityCalculator decidingCalculator = new DecidingConflictFQualityCalculator(sourceQualityCalculator,
                 agreeCoefficient, distanceMeasure);
         registry.register(AllResolution.getName(), new AllResolution(decidingCalculator));
+        registry.register(AllBestResolution.getName(), new AllBestResolution(decidingCalculator));
         registry.register(AnyResolution.getName(), new AnyResolution(decidingCalculator));
         registry.register(BestResolution.getName(), new BestResolution(decidingCalculator));
         registry.register(BestSourceResolution.getName(), new BestSourceResolution(decidingCalculator, sourceQualityCalculator));

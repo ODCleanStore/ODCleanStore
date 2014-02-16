@@ -43,6 +43,11 @@ public class ResolvedStatementFactoryImpl implements ResolvedStatementFactory {
         Statement statement = VALUE_FACTORY.createStatement(subject, predicate, object, context);
         return new ResolvedStatementImpl(statement, quality, sourceGraphNames);
     }
+    
+    @Override
+    public ResolvedStatement create(Statement triple, double fQuality, Collection<Resource> sources) {
+        return this.create(triple.getSubject(), triple.getPredicate(),  triple.getObject(), fQuality, sources);
+    }
 
     @Override
     public ValueFactory getValueFactory() {

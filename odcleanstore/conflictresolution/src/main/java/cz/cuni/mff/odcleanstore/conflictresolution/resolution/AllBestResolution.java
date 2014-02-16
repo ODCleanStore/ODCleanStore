@@ -3,6 +3,7 @@
  */
 package cz.cuni.mff.odcleanstore.conflictresolution.resolution;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -18,12 +19,12 @@ import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalcu
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ObjectClusterIterator;
 
 /**
- * Resolution function which selects the quad with the highest F-Quality score
- * as calculated by the used {@link cz.cuni.mff.odcleanstore.conflictresolution.quality.FQualityCalculator}.
+ * Resolution function which selects the quad(s) with the highest F-Quality score. 
+ * If there is more than one such value, returns all of values with the highest score. 
  * @author Jan Michelfeit
  */
-public class BestResolution extends DecidingResolutionFunction {
-    private  static final String FUNCTION_NAME = "BEST";
+public class AllBestResolution extends DecidingResolutionFunction {
+    private  static final String FUNCTION_NAME = "ALLBEST";
     
     /**
      * Returns a string identifier of this resolution function ({@value #FUNCTION_NAME}) - can be used to 
@@ -45,7 +46,7 @@ public class BestResolution extends DecidingResolutionFunction {
      *      produced {@link ResolvedStatement result quads} 
      *      (see {@link cz.cuni.mff.odcleanstore.conflictresolution.quality.FQualityCalculator}) 
      */
-    public BestResolution(DecidingFQualityCalculator fQualityCalculator) {
+    public AllBestResolution(DecidingFQualityCalculator fQualityCalculator) {
         super(fQualityCalculator);
     } 
     
@@ -57,8 +58,7 @@ public class BestResolution extends DecidingResolutionFunction {
         
         Collection<Statement> sortedStatements = statements;
 
-        Statement bestStatement = null;
-        Collection<Resource> bestStatementSources = null;
+        Collection<ResolvedStatement> bestStatements = new ArrayList<ResolvedStatement>();
         double bestQuality = Double.NEGATIVE_INFINITY;
 
         // cluster means a sequence of statements with the same object
@@ -68,20 +68,14 @@ public class BestResolution extends DecidingResolutionFunction {
             Collection<Resource> sources = it.peekSources();
             double quality = getFQuality(statement.getObject(), statements, sources, crContext);
             if (quality > bestQuality) {
-                bestStatement = statement;
                 bestQuality = quality;
-                bestStatementSources = sources;
+                bestStatements.clear();
+                bestStatements.add(crContext.getResolvedStatementFactory().create(statement, bestQuality, sources));
+            } else if (quality == bestQuality) {
+                bestStatements.add(crContext.getResolvedStatementFactory().create(statement, bestQuality, sources));
             }
         }
 
-        if (bestStatement == null) {
-            return Collections.emptySet();
-        }
-
-        ResolvedStatement resolvedStatement = crContext.getResolvedStatementFactory().create(
-                bestStatement,
-                bestQuality,
-                bestStatementSources);
-        return Collections.singleton(resolvedStatement);
+        return bestStatements;
     }
 }

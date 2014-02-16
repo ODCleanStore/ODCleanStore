@@ -6,6 +6,7 @@ package cz.cuni.mff.odcleanstore.conflictresolution;
 import java.util.Collection;
 
 import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
@@ -25,6 +26,15 @@ public interface ResolvedStatementFactory {
      * @return resolved quad
      */
     ResolvedStatement create(Resource subject, URI predicate, Value object, double fQuality, Collection<Resource> sources);
+    
+    /**
+     * Returns a new {@link ResolvedStatement resolved quad} for the given RDF triple to be wrapped.
+     * @param triple wrapped RDF triple
+     * @param fQuality quality ("F-quality") of the wrapped triple
+     * @param sources set of named graph URIs of graphs the wrapped triple was selected or derived from.
+     * @return resolved quad
+     */
+    ResolvedStatement create(Statement triple, double fQuality, Collection<Resource> sources);
     
     /**
      * Returns a {@link Value RDF node} factory associated with this resolved quad factory.
