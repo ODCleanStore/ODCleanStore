@@ -212,7 +212,7 @@ public class ConflictResolverImpl implements ConflictResolver {
 
     @Override
     public Collection<ResolvedStatement> resolveConflicts(Collection<Statement> statements) throws ConflictResolutionException {
-        return resolveConflictsInternal(statements.toArray(new Statement[0]));
+        return resolveConflictsInternal(statements.toArray(new Statement[statements.size()]));
     }
 
     /**

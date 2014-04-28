@@ -63,9 +63,7 @@ public class ConflictClustersCollection extends AbstractCollection<List<Statemen
      */
     @Override
     public int size() {
-        if (!isInitialized) {
-            initialize();
-        }
+        checkInitialized();
         return size;
     }
 
@@ -77,9 +75,7 @@ public class ConflictClustersCollection extends AbstractCollection<List<Statemen
      */
     @Override
     public Iterator<List<Statement>> iterator() {
-        if (!isInitialized) {
-            initialize();
-        }
+        checkInitialized();
         return new ConflictClusterIterator();
     }
 
@@ -88,13 +84,17 @@ public class ConflictClustersCollection extends AbstractCollection<List<Statemen
      * @return an RDF model backed by the statements wrapped by this object
      */
     public Model asModel() {
-        if (!isInitialized) {
-            initialize();
-        }
+        checkInitialized();
         if (model == null) {
             model = new SortedListModel(new SubList(0, size));
         }
         return model;
+    }
+
+    private void checkInitialized() {
+        if (!isInitialized) {
+            initialize();
+        }
     }
 
     private void initialize() {

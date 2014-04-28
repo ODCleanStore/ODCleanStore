@@ -77,7 +77,18 @@ public final class CRUtils {
             return -1;
         } else if (value2 == null) {
             return 1;
-        } 
+        }
+
+        // URIs
+        boolean isURI1 = value1 instanceof URI;
+        boolean isURI2 = value2 instanceof URI;
+        if (isURI1 && isURI2) {
+            return value1.stringValue().compareTo(value2.stringValue());
+        } else if (isURI1) {
+            return -1;
+        } else if (isURI2) {
+            return 1;
+        }
         
         // Literals
         boolean isLiteral1 = value1 instanceof Literal;
@@ -89,17 +100,6 @@ public final class CRUtils {
         } else if (isLiteral2) {
             return 1;
         } 
-        
-        // URIs
-        boolean isURI1 = value1 instanceof URI;
-        boolean isURI2 = value2 instanceof URI;
-        if (isURI1 && isURI2) {
-            return value1.stringValue().compareTo(value2.stringValue());
-        } else if (isURI1) {
-            return 1;
-        } else if (isURI2) {
-            return -1;
-        }
         
         // BNodes
         return value1.stringValue().compareTo(value2.stringValue());
