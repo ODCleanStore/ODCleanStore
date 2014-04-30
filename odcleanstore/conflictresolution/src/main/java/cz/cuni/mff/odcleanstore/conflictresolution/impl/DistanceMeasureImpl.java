@@ -15,7 +15,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.DistanceMeasure;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.EnumLiteralType;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.LevenshteinDistance;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ResolutionFunctionUtils;
-import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
+import cz.cuni.mff.odcleanstore.core.ODCSUtils;
 
 /**
  * The default implementation of a distance metric between Node instances.

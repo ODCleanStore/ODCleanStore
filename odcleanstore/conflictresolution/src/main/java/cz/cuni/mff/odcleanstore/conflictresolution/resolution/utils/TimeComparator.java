@@ -3,7 +3,7 @@ package cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils;
 import java.util.Calendar;
 import java.util.Comparator;
 
-import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
+import cz.cuni.mff.odcleanstore.core.ODCSUtils;
 
 /**
  * Compares two dates objects based on the time part only.

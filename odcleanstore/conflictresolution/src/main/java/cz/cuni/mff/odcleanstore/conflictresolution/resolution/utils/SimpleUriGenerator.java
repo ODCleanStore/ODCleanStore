@@ -1,6 +1,6 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils;
 
-import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
+import cz.cuni.mff.odcleanstore.core.UniqueURIGenerator;
 
 /**
  * Generator of unique named graph URIs. Each URI is composed of the prefix given in the constructor

@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.shared;
+package cz.cuni.mff.odcleanstore.core;
 
 /**
  * A base class of all exceptions arising from ODCleanStore code.

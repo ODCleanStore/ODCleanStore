@@ -2,6 +2,8 @@ package cz.cuni.mff.odcleanstore.engine.inputws;
 
 import cz.cuni.mff.odcleanstore.comlib.ComlibUtils;
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.core.ODCSUtils;
+import cz.cuni.mff.odcleanstore.core.ODCleanStoreException;
 import cz.cuni.mff.odcleanstore.data.EnumDatabaseInstance;
 import cz.cuni.mff.odcleanstore.data.GraphLoaderUtils;
 import cz.cuni.mff.odcleanstore.engine.Engine;
@@ -9,8 +11,6 @@ import cz.cuni.mff.odcleanstore.engine.common.FormatHelper;
 import cz.cuni.mff.odcleanstore.engine.db.model.Credentials;
 import cz.cuni.mff.odcleanstore.engine.db.model.DbOdcsContextTransactional;
 import cz.cuni.mff.odcleanstore.engine.db.model.DbOdcsException;
-import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
-import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 import cz.cuni.mff.odcleanstore.shared.util.FileUtils;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCSInternal;

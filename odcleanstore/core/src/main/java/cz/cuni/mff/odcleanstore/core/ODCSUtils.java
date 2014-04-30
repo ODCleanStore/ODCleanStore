@@ -1,12 +1,17 @@
-package cz.cuni.mff.odcleanstore.shared;
+package cz.cuni.mff.odcleanstore.core;
 
 import org.openrdf.model.BNode;
+import org.openrdf.model.Model;
+import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -251,6 +256,23 @@ public final class ODCSUtils {
     }
     
     /**
+     * Returns an URI representing the given node or null if it is not a resource.
+     * For blank nodes returns the Virtuoso blank node identifier.
+     * This function only works in conjunction with Virtuoso database.
+     * @param value RDF node
+     * @return URI representing
+     */
+    public static String getVirtuosoNodeURI(Value value) {
+        if (value instanceof URI) {
+            return value.stringValue();
+        } else if (value instanceof BNode) {
+            return ODCSUtils.getVirtuosoURIForBlankNode((BNode) value);
+        } else {
+            return null;
+        }
+    }
+    
+    /**
      * Converts an object or null reference to a string (null is converted to the empty string).
      * @param obj object to stringify
      * @return string representation of obj
@@ -296,12 +318,30 @@ public final class ODCSUtils {
     /**
      * Returns {@link Value#stringValue() stringValue()} of the given {@link Value} or null if the value is null.
      * @param value value to convert to string
-     * @return {@link Value#stringValue() stringValue()} of <code>value</code> {@link Value} or null if <code>value</code> is null
+     * @return {@link Value#stringValue() stringValue()} of <code>value</code> {@link Value} or null if <code>value</code> 
+     *      is null
      */
     public static String valueToString(Value value) {
         return value == null
                 ? null
                 : value.stringValue();
+    }
+    
+    /**
+     * Searches model for triples having the given subject and predicate and returns the object
+     * of first such triple, or null if there is no such triple.
+     * @param subject subject of searched triples
+     * @param predicate predicated of searched triples
+     * @param model RDF model to search
+     * @return object of the first matching triple in model or null if there is none
+     */
+    public static Value getSingleObjectValue(Resource subject, URI predicate, Model model) {
+        Iterator<Statement> modelIt = model.filter(subject, predicate, null).iterator();
+        if (modelIt.hasNext()) {
+            return modelIt.next().getObject();
+        } else {
+            return null;
+        }
     }
         
     /** Disable constructor for a utility class. */

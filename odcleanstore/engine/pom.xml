@@ -7,11 +7,12 @@
 
 	<artifactId>odcs-engine</artifactId>
 	<packaging>jar</packaging>
-	
+
 	<properties>
 		<odcs-backend-version>${project.version}</odcs-backend-version>
 		<odcs-comlib-version>${project.version}</odcs-comlib-version>
 		<odcs-core-version>${project.version}</odcs-core-version>
+		<odcs-shared-version>${project.version}</odcs-shared-version>
 	</properties>
 
 	<parent>
@@ -51,6 +52,16 @@
 			<groupId>cz.cuni.mff.odcleanstore</groupId>
 			<artifactId>odcs-core</artifactId>
 			<version>${odcs-core-version}</version>
+		</dependency>
+		<dependency>
+            <groupId>cz.cuni.mff.odcleanstore</groupId>
+            <artifactId>odcs-shared</artifactId>
+            <version>${odcs-shared-version}</version>
+        </dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jul-to-slf4j</artifactId>
+			<version>1.6.4</version>
 		</dependency>
 		<dependency>
 			<groupId>cz.cuni.mff.odcleanstore</groupId>
@@ -126,7 +137,7 @@
 					</execution>
 				</executions>
 			</plugin>
-			
+
 		</plugins>
 		<pluginManagement>
 			<plugins>

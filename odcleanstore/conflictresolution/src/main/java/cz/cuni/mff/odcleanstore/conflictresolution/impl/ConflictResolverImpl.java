@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
+import cz.cuni.mff.odcleanstore.conflictresolution.ConflictClusterFilter;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolutionPolicy;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
@@ -60,6 +61,7 @@ public class ConflictResolverImpl implements ConflictResolver {
             new ResolvedStatementFactoryImpl(DEFAULT_RESOLVED_GRAPHS_URI_PREFIX);
     private ConflictResolutionPolicy conflictResolutionPolicy;
     private ResolutionFunctionRegistry resolutionFunctionRegistry;
+    private ConflictClusterFilter conflictClusterFilter;
     
     private CRContextImpl context;
 
@@ -134,6 +136,22 @@ public class ConflictResolverImpl implements ConflictResolver {
             resolvedStatementFactory = new ResolvedStatementFactoryImpl(resolvedGraphsURIPrefix);
         }
     }
+    
+    /**
+     * Creates a new instance with the given settings.
+     * @param resolutionFunctionRegistry registry for obtaining conflict resolution function implementations
+     * @param conflictResolutionPolicy conflict resolution parameters
+     * @param uriMapping mapping of URIs to their canonical URI (based on owl:sameAs links)
+     * @param metadata additional metadata for use by resolution functions (e.g. source quality etc.)
+     * @param resolvedGraphsURIPrefix prefix of graph names where resolved quads are placed
+     * @param conflictClusterFilter additional filter for quads in a conflict cluster
+     */
+    public ConflictResolverImpl(ResolutionFunctionRegistry resolutionFunctionRegistry,
+            ConflictResolutionPolicy conflictResolutionPolicy, URIMapping uriMapping, Model metadata,
+            String resolvedGraphsURIPrefix, ConflictClusterFilter conflictClusterFilter) {
+        this(resolutionFunctionRegistry, conflictResolutionPolicy, uriMapping, metadata, resolvedGraphsURIPrefix);
+        this.conflictClusterFilter = conflictClusterFilter;
+    }
 
     /**
      * Sets conflict resolution settings.
@@ -175,6 +193,14 @@ public class ConflictResolverImpl implements ConflictResolver {
         this.resolutionFunctionRegistry = resolutionFunctionRegistry;
     }
     
+    /**
+     * Sets additional filter for quads in a conflict cluster. 
+     * @param conflictClusterFilter  additional filter for quads in a conflict cluster.
+     */
+    public void setConflictClusterFilter(ConflictClusterFilter conflictClusterFilter) {
+        this.conflictClusterFilter = conflictClusterFilter;
+    }
+    
     @Override
     public Collection<ResolvedStatement> resolveConflicts(Iterator<Statement> statements) throws ConflictResolutionException {
         GrowingArray<Statement> growingArray = new GrowingArray<Statement>();
@@ -186,7 +212,7 @@ public class ConflictResolverImpl implements ConflictResolver {
 
     @Override
     public Collection<ResolvedStatement> resolveConflicts(Collection<Statement> statements) throws ConflictResolutionException {
-        return resolveConflictsInternal(statements.toArray(new Statement[0]));
+        return resolveConflictsInternal(statements.toArray(new Statement[statements.size()]));
     }
 
     /**
@@ -213,6 +239,10 @@ public class ConflictResolverImpl implements ConflictResolver {
         // Resolve conflicts:
         Collection<ResolvedStatement> result = createResultCollection(conflictClusters.size());
         for (List<Statement> conflictCluster : conflictClusters) {
+            if (conflictCluster.isEmpty()) {
+                continue;
+            }
+            
             // Get resolution strategy
             URI predicate = getPredicate(conflictCluster);
             ResolutionStrategy resolutionStrategy = effectiveResolutionPolicy.getPropertyResolutionStrategies().get(predicate);
@@ -223,9 +253,17 @@ public class ConflictResolverImpl implements ConflictResolver {
             // Prepare resolution functions & context
             ResolutionFunction resolutionFunction = getResolutionFunction(resolutionStrategy);
             CRContext context = getContext(conflictCluster, resolutionStrategy);
-            Model conflictClusterModel = new SortedListModel(conflictCluster);
+            
+            // Apply additional filtering
+            if (conflictClusterFilter != null) {
+                conflictCluster = conflictClusterFilter.filter(conflictCluster, context);
+                if (conflictCluster.isEmpty()) {
+                    continue;
+                }
+            }
             
             // Resolve conflicts & append to result
+            Model conflictClusterModel = new SortedListModel(conflictCluster);
             Collection<ResolvedStatement> resolvedStatements = resolutionFunction.resolve(conflictClusterModel, context);
             result.addAll(resolvedStatements);
         }
@@ -249,20 +287,25 @@ public class ConflictResolverImpl implements ConflictResolver {
     }
 
     private ConflictResolutionPolicy getEffectiveResolutionPolicy() {
-        ConflictResolutionPolicyImpl result = new ConflictResolutionPolicyImpl();
-        
-        ResolutionStrategy effectiveDefaultStrategy = conflictResolutionPolicy.getDefaultResolutionStrategy() != null
-                ? CRUtils.fillResolutionStrategyDefaults(conflictResolutionPolicy.getDefaultResolutionStrategy(),
-                        DEFAULT_RESOLUTION_STRATEGY)
-                : DEFAULT_RESOLUTION_STRATEGY;
-        result.setDefaultResolutionStrategy(effectiveDefaultStrategy);
-        
+        ResolutionStrategy effectiveDefaultStrategy = DEFAULT_RESOLUTION_STRATEGY;
         Map<URI, ResolutionStrategy> effectivePropertyStrategies = new HashMap<URI, ResolutionStrategy>();
-        for (Entry<URI, ResolutionStrategy> entry : conflictResolutionPolicy.getPropertyResolutionStrategies().entrySet()) {
-            URI mappedURI = uriMapping.mapURI(entry.getKey());
-            ResolutionStrategy strategy = CRUtils.fillResolutionStrategyDefaults(entry.getValue(), effectiveDefaultStrategy);
-            effectivePropertyStrategies.put(mappedURI, strategy);
+
+        if (conflictResolutionPolicy != null && conflictResolutionPolicy.getDefaultResolutionStrategy() != null) {
+            effectiveDefaultStrategy = CRUtils.fillResolutionStrategyDefaults(
+                    conflictResolutionPolicy.getDefaultResolutionStrategy(),
+                    DEFAULT_RESOLUTION_STRATEGY);
         }
+        
+        if (conflictResolutionPolicy != null && conflictResolutionPolicy.getPropertyResolutionStrategies() != null) {
+            for (Entry<URI, ResolutionStrategy> entry : conflictResolutionPolicy.getPropertyResolutionStrategies().entrySet()) {
+                URI mappedURI = uriMapping.mapURI(entry.getKey());
+                ResolutionStrategy strategy = CRUtils.fillResolutionStrategyDefaults(entry.getValue(), effectiveDefaultStrategy);
+                effectivePropertyStrategies.put(mappedURI, strategy);
+            }
+        }
+        
+        ConflictResolutionPolicyImpl result = new ConflictResolutionPolicyImpl();
+        result.setDefaultResolutionStrategy(effectiveDefaultStrategy);
         result.setPropertyResolutionStrategy(effectivePropertyStrategies);
         return result;
     }

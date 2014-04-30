@@ -61,7 +61,7 @@ public class QualityAssessmentRule implements Serializable {
 	public Double getCoefficient() {
 		return coefficient;
 	}
-	
+
 	public String getLabel() {
 		return label;
 	}
@@ -69,11 +69,11 @@ public class QualityAssessmentRule implements Serializable {
 	public String getDescription() {
 		return description;
 	}
-	
+
 	public void setId(Integer id) {
 		this.id = id;
 	}
-	
+
 	public void setGroupId(Integer groupId) {
 		this.groupId = groupId;
 	}
@@ -85,7 +85,7 @@ public class QualityAssessmentRule implements Serializable {
 	public void setCoefficient(Double coefficient) {
 		this.coefficient = coefficient;
 	}
-	
+
 	public void setLabel(String label) {
 		this.label = label;
 	}

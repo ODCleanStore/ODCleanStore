@@ -1,5 +1,7 @@
 package cz.cuni.mff.odcleanstore.shared;
 
+import cz.cuni.mff.odcleanstore.core.ODCSUtils;
+
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -11,8 +11,6 @@ import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.OWL;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import cz.cuni.mff.odcleanstore.conflictresolution.URIMapping;
 
@@ -29,7 +27,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.URIMapping;
  * @author Jan Michelfeit
  */
 public class URIMappingImpl implements URIMapping {
-    private static final Logger LOG = LoggerFactory.getLogger(URIMappingImpl.class);
+    //private static final Logger LOG = LoggerFactory.getLogger(URIMappingImpl.class);
     private static final ValueFactory VALUE_FACTORY = ValueFactoryImpl.getInstance();
 
     /** Set of URIs preferred as canonical URIs. */
@@ -76,21 +74,29 @@ public class URIMappingImpl implements URIMapping {
     public void addLinks(Iterator<Statement> sameAsLinks) {
         while (sameAsLinks.hasNext()) {
             Statement triple = sameAsLinks.next();
-            if (!OWL.SAMEAS.equals(triple.getPredicate())) {
-                LOG.warn("A triple with predicate {} passed as an owl:sameAs link",
-                        triple.getPredicate().stringValue());
-                continue;
-            }
-            if (!(triple.getSubject() instanceof URI) || !(triple.getObject() instanceof URI)) {
-                // Ignore sameAs links between everything but URI resources; see owl:sameAs syntax
-                // at see http://www.w3.org/TR/2004/REC-owl-semantics-20040210/syntax.html
-                continue;
-            }
-
-            String subjectURI = triple.getSubject().stringValue();
-            String objectURI = triple.getObject().stringValue();
-            dfuUnion(subjectURI, objectURI);
+            addLink(triple);
         }
+    }
+    
+    /**
+     * Adds owl:sameAs mappings as an RDF triples.
+     * @param link statement with URI mapping
+     */
+    public void addLink(Statement link) {
+        if (!OWL.SAMEAS.equals(link.getPredicate())) {
+            // LOG.warn("A triple with predicate {} passed as an owl:sameAs link",
+            // triple.getPredicate().stringValue());
+            return;
+        }
+        if (!(link.getSubject() instanceof URI) || !(link.getObject() instanceof URI)) {
+            // Ignore sameAs links between everything but URI resources; see owl:sameAs syntax
+            // at see http://www.w3.org/TR/2004/REC-owl-semantics-20040210/syntax.html
+            return;
+        }
+
+        String subjectURI = link.getSubject().stringValue();
+        String objectURI = link.getObject().stringValue();
+        dfuUnion(subjectURI, objectURI);
     }
 
     /**
@@ -181,7 +187,7 @@ public class URIMappingImpl implements URIMapping {
      * @return either uri1 or uri2 (must be exactly one of these two objects)
      */
     protected String chooseCanonicalURI(String uri1, String uri2) {
-        return isPreferredURI(uri1) ? uri1 : uri2;
+        return isPreferredURI(uri2) ? uri2 : uri1;
     }
 
     /**

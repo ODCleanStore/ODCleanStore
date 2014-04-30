@@ -4,7 +4,7 @@
 package cz.cuni.mff.odcleanstore.connection;
 
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
-import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
+import cz.cuni.mff.odcleanstore.core.ODCSUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

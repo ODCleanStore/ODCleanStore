@@ -13,6 +13,7 @@ public final class ODCSErrorCodes {
     private ODCSErrorCodes() {
     }
 
+    // CHECKSTYLE:OFF
     public static final int QE_DEFAULT_CONFIG_ERR = 10;
     public static final int QE_DEFAULT_CONFIG_DB_ERR = 11;
     public static final int QE_DEFAULT_CONFIG_MANYVALUED_ERR = 12;
@@ -29,5 +30,5 @@ public final class ODCSErrorCodes {
     public static final int QE_PREFIX_MAPPING_UNKNOWN_ERR = 23;
     public static final int QE_PREFIX_MAPPING_DB_ERR = 24;
     public static final int QE_CR_UNKNOWN_RESOLUTION = 25;
-    
+    // CHECKSTYLE:ON
 }

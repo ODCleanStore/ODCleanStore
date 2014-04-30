@@ -1,6 +1,7 @@
 package cz.cuni.mff.odcleanstore.queryexecution;
 
 import cz.cuni.mff.odcleanstore.configuration.QueryExecutionConfig;
+import cz.cuni.mff.odcleanstore.conflictresolution.ConflictClusterFilter;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolutionPolicy;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
@@ -11,6 +12,7 @@ import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.exceptions.ConnectionException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
+import cz.cuni.mff.odcleanstore.queryexecution.impl.ODCSUpdateConflictClusterFilter;
 import cz.cuni.mff.odcleanstore.shared.ODCSErrorCodes;
 import cz.cuni.mff.odcleanstore.shared.util.LimitedURIListBuilder;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
@@ -104,6 +106,11 @@ import java.util.Set;
      * Value factory instance.
      */
     protected static final ValueFactory VALUE_FACTORY = ValueFactoryImpl.getInstance();
+
+    /**
+     * An {@link ODCSUpdateConflictClusterFilter} instance.
+     */
+    protected static final ConflictClusterFilter CONFLICT_CLUSTER_FILTER = new ODCSUpdateConflictClusterFilter();
 
     /**
      * SPARQL snippet restricting result to ?graph having at least the given score.
@@ -591,6 +598,7 @@ import java.util.Set;
                 .setMetadata(metadata)
                 .setPreferredCanonicalURIs(preferredURIs)
                 .addSameAsLinks(sameAsLinks)
+                .setConflictClusterFilter(CONFLICT_CLUSTER_FILTER)
                 .create();
     }
 

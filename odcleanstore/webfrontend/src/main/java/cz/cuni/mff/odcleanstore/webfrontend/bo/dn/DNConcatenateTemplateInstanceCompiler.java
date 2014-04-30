@@ -1,6 +1,6 @@
 package cz.cuni.mff.odcleanstore.webfrontend.bo.dn;
 
-import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
+import cz.cuni.mff.odcleanstore.core.ODCSUtils;
 
 /**
  * A compiler to translate concatenate template instances into raw rules.

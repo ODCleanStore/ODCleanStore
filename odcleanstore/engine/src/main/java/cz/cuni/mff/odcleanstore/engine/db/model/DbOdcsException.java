@@ -1,6 +1,6 @@
 package cz.cuni.mff.odcleanstore.engine.db.model;
 
-import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
+import cz.cuni.mff.odcleanstore.core.ODCleanStoreException;
 
 /**
  * Exception thrown when executing a query to relational database.

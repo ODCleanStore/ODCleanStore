@@ -1,10 +1,10 @@
 package cz.cuni.mff.odcleanstore.qualityassessment.exceptions;
 
-import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
+import cz.cuni.mff.odcleanstore.core.ODCleanStoreException;
 
 /**
  * Exception specific to Quality Assessment transformations and rule querying and rule generation
- * 
+ *
  * @author Jakub Daniel
  */
 public class QualityAssessmentException extends ODCleanStoreException {

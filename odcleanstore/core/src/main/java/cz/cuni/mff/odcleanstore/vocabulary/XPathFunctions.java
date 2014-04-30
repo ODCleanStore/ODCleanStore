@@ -19,8 +19,13 @@ public final class XPathFunctions {
     }
 
     /* Vocabulary properties: */
+    /** Boolean function. */
     public static final URI BOOLEAN_FUNCTION;
+    
+    /** Date function. */
     public static final URI DATE_FUNCTION;
+    
+    /** String function. */
     public static final URI STRING_FUNCTION;
     
     static {

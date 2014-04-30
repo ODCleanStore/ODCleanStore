@@ -3,7 +3,7 @@
  */
 package cz.cuni.mff.odcleanstore.transformer;
 
-import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
+import cz.cuni.mff.odcleanstore.core.ODCleanStoreException;
 
 /**
  * Exception thrown by Transformers during a named graph processing.

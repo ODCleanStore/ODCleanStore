@@ -63,22 +63,19 @@ public class ConflictClustersCollection extends AbstractCollection<List<Statemen
      */
     @Override
     public int size() {
-        if (!isInitialized) {
-            initialize();
-        }
+        checkInitialized();
         return size;
     }
 
     /**
      * Returns an iterator over conflict clusters.
-     * Each conflict cluster is represented as a list of {@link Statement quads}.
+     * Each conflict cluster is represented as a list of {@link Statement quads}; quads
+     * in the list are guaranteed to be spog-sorted.
      * @return iterator over conflict clusters
      */
     @Override
     public Iterator<List<Statement>> iterator() {
-        if (!isInitialized) {
-            initialize();
-        }
+        checkInitialized();
         return new ConflictClusterIterator();
     }
 
@@ -87,13 +84,17 @@ public class ConflictClustersCollection extends AbstractCollection<List<Statemen
      * @return an RDF model backed by the statements wrapped by this object
      */
     public Model asModel() {
-        if (!isInitialized) {
-            initialize();
-        }
+        checkInitialized();
         if (model == null) {
             model = new SortedListModel(new SubList(0, size));
         }
         return model;
+    }
+
+    private void checkInitialized() {
+        if (!isInitialized) {
+            initialize();
+        }
     }
 
     private void initialize() {

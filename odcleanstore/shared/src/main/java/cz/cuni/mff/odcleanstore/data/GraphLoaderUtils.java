@@ -9,8 +9,8 @@ import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
-import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
-import cz.cuni.mff.odcleanstore.shared.SerializationLanguage;
+import cz.cuni.mff.odcleanstore.core.ODCleanStoreException;
+import cz.cuni.mff.odcleanstore.core.SerializationLanguage;
 import cz.cuni.mff.odcleanstore.shared.util.FileUtils;
 import cz.cuni.mff.odcleanstore.shared.util.FileUtils.DirectoryException;
 

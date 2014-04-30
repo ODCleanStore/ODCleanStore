@@ -28,6 +28,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.quality.SourceQualityCalculat
 import cz.cuni.mff.odcleanstore.conflictresolution.quality.impl.DecidingConflictFQualityCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.quality.impl.MediatingModeratingFQualityCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.quality.impl.MediatingScatteringFQualityCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.resolution.AllBestResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.AllResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.AnyResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.AvgResolution;
@@ -47,8 +48,8 @@ import cz.cuni.mff.odcleanstore.conflictresolution.resolution.NoneResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.ODCSLatestResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.ShortestResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.SumResolution;
-import cz.cuni.mff.odcleanstore.conflictresolution.resolution.TopNResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.ThresholdResolution;
+import cz.cuni.mff.odcleanstore.conflictresolution.resolution.TopNResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.VoteResolution;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.WeightedVoteResolution;
 
@@ -146,6 +147,7 @@ public final class ConflictResolverFactory {
         DecidingFQualityCalculator decidingCalculator = new DecidingConflictFQualityCalculator(sourceQualityCalculator,
                 agreeCoefficient, distanceMeasure);
         registry.register(AllResolution.getName(), new AllResolution(decidingCalculator));
+        registry.register(AllBestResolution.getName(), new AllBestResolution(decidingCalculator));
         registry.register(AnyResolution.getName(), new AnyResolution(decidingCalculator));
         registry.register(BestResolution.getName(), new BestResolution(decidingCalculator));
         registry.register(BestSourceResolution.getName(), new BestSourceResolution(decidingCalculator, sourceQualityCalculator));
@@ -207,6 +209,7 @@ public final class ConflictResolverFactory {
         private String resolvedGraphsURIPrefix = null;
         private ResolutionFunctionRegistry resolutionFunctionRegistry = null;
         private final List<URIPair> sameAsLinks = new ArrayList<URIPair>();
+        private ConflictClusterFilter conflictClusterFilter;
 
         /**
          * Returns a conflict resolver instance configured with the settings set on this builder instance so far. 
@@ -218,7 +221,8 @@ public final class ConflictResolverFactory {
                     new ConflictResolutionPolicyImpl(defaultResolutionStrategy, propertyResolutionStrategies),
                     getActualURIMapping(),
                     (metadata != null ? metadata : new EmptyMetadataModel()),
-                    resolvedGraphsURIPrefix);
+                    resolvedGraphsURIPrefix,
+                    conflictClusterFilter);
         }
 
         private ResolutionFunctionRegistry getActualResolutionFunctionRegistry() {
@@ -367,6 +371,16 @@ public final class ConflictResolverFactory {
          */
         public ConflictResolverBuilder setResolutionFunctionRegistry(ResolutionFunctionRegistry registry) {
             this.resolutionFunctionRegistry = registry;
+            return this;
+        }
+        
+        /**
+         * Sets an additional filter for quads in a conflict cluster.
+         * @param conflictClusterFilter additional filter for quads in a conflict cluster
+         * @return this builder (can be used for configuration in a fluent way)
+         */
+        public ConflictResolverBuilder setConflictClusterFilter(ConflictClusterFilter conflictClusterFilter) {
+            this.conflictClusterFilter = conflictClusterFilter;
             return this;
         }
     }

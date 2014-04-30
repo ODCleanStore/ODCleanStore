@@ -1,7 +1,7 @@
 package cz.cuni.mff.odcleanstore.engine.pipeline;
 
+import cz.cuni.mff.odcleanstore.core.ODCleanStoreException;
 import cz.cuni.mff.odcleanstore.engine.db.model.PipelineCommand;
-import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
 
 /**
  * A exception arising from PipelineGraphTransformerExecutor class.

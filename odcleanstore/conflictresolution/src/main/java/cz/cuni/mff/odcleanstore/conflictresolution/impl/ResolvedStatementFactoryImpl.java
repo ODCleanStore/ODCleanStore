@@ -15,7 +15,7 @@ import org.openrdf.model.impl.ValueFactoryImpl;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatementFactory;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.SimpleUriGenerator;
-import cz.cuni.mff.odcleanstore.shared.UniqueURIGenerator;
+import cz.cuni.mff.odcleanstore.core.UniqueURIGenerator;
 
 /**
  * Basic implementation of {@link ResolvedStatementFactory} placing resolved quads in
@@ -42,6 +42,11 @@ public class ResolvedStatementFactoryImpl implements ResolvedStatementFactory {
         URI context = VALUE_FACTORY.createURI(uriGenerator.nextURI());
         Statement statement = VALUE_FACTORY.createStatement(subject, predicate, object, context);
         return new ResolvedStatementImpl(statement, quality, sourceGraphNames);
+    }
+    
+    @Override
+    public ResolvedStatement create(Statement triple, double fQuality, Collection<Resource> sources) {
+        return this.create(triple.getSubject(), triple.getPredicate(),  triple.getObject(), fQuality, sources);
     }
 
     @Override

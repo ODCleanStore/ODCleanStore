@@ -79,9 +79,7 @@ public class BestResolution extends DecidingResolutionFunction {
         }
 
         ResolvedStatement resolvedStatement = crContext.getResolvedStatementFactory().create(
-                bestStatement.getSubject(),
-                bestStatement.getPredicate(),
-                bestStatement.getObject(),
+                bestStatement,
                 bestQuality,
                 bestStatementSources);
         return Collections.singleton(resolvedStatement);

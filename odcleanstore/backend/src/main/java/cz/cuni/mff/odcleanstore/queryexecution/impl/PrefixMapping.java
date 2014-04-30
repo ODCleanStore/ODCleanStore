@@ -1,9 +1,9 @@
 package cz.cuni.mff.odcleanstore.queryexecution.impl;
 
+import cz.cuni.mff.odcleanstore.core.ODCSUtils;
 import cz.cuni.mff.odcleanstore.queryexecution.EnumQueryError;
 import cz.cuni.mff.odcleanstore.queryexecution.QueryExecutionException;
 import cz.cuni.mff.odcleanstore.shared.ODCSErrorCodes;
-import cz.cuni.mff.odcleanstore.shared.ODCSUtils;
 
 import java.util.HashMap;
 import java.util.Map;

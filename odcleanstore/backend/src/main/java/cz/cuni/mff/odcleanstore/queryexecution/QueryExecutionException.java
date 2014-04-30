@@ -1,6 +1,6 @@
 package cz.cuni.mff.odcleanstore.queryexecution;
 
-import cz.cuni.mff.odcleanstore.shared.ODCleanStoreException;
+import cz.cuni.mff.odcleanstore.core.ODCleanStoreException;
 
 /**
  * Exception during Query Execution.
@@ -61,7 +61,7 @@ public class QueryExecutionException extends ODCleanStoreException {
 
     /**
      * Return the error code of the error.
-     * @see cz.cuni.mff.odcleanstore.shared.ODCSErrorCodes
+     * @see cz.cuni.mff.odcleanstore.shared.util.ODCSErrorCodes
      * @return error code or null
      */
     public Integer getErrorCode() {
