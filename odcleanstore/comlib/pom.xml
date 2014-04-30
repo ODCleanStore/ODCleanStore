@@ -24,12 +24,4 @@
 			</resource>
 		</resources>
 	</build>
-	
-	<dependencies>
-	    <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jul-to-slf4j</artifactId>
-            <version>1.6.4</version>
-        </dependency>
-	</dependencies>
 </project>

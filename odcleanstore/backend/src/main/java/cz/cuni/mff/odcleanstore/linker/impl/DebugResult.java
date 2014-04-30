@@ -5,15 +5,15 @@ import java.util.List;
 
 public class DebugResult implements Serializable {
 	private static final long serialVersionUID = 1L;
-
+	
 	private String ruleLabel;
 	private List<LinkedPair> links;
-
+	
 	public DebugResult(String ruleLabel, List<LinkedPair> links) {
 		this.ruleLabel = ruleLabel;
 		this.links = links;
 	}
-
+	
 	public String getRuleLabel() {
 		return ruleLabel;
 	}

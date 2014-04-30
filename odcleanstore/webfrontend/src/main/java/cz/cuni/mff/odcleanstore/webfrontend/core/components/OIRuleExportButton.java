@@ -10,11 +10,11 @@ import org.apache.wicket.request.IRequestHandler;
 import org.apache.wicket.request.http.WebResponse;
 
 import cz.cuni.mff.odcleanstore.configuration.ConfigLoader;
+import cz.cuni.mff.odcleanstore.data.RDFprefix;
 import cz.cuni.mff.odcleanstore.linker.impl.ConfigBuilder;
 import cz.cuni.mff.odcleanstore.linker.rules.Output;
 import cz.cuni.mff.odcleanstore.linker.rules.SilkRule;
-import cz.cuni.mff.odcleanstore.shared.util.RDFPrefixesLoader;
-import cz.cuni.mff.odcleanstore.shared.util.RDFprefix;
+import cz.cuni.mff.odcleanstore.shared.RDFPrefixesLoader;
 import cz.cuni.mff.odcleanstore.webfrontend.bo.oi.OIRule;
 
 /**

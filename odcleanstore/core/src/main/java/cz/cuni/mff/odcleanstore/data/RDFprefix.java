@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.shared.util;
+package cz.cuni.mff.odcleanstore.data;
 
 /**
  * RDF prefix representation.

@@ -1,4 +1,4 @@
-package cz.cuni.mff.odcleanstore.shared.util;
+package cz.cuni.mff.odcleanstore.shared;
 
 import cz.cuni.mff.odcleanstore.connection.JDBCConnectionCredentials;
 import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionFactory;
@@ -6,6 +6,7 @@ import cz.cuni.mff.odcleanstore.connection.VirtuosoConnectionWrapper;
 import cz.cuni.mff.odcleanstore.connection.WrappedResultSet;
 import cz.cuni.mff.odcleanstore.connection.exceptions.DatabaseException;
 import cz.cuni.mff.odcleanstore.connection.exceptions.QueryException;
+import cz.cuni.mff.odcleanstore.data.RDFprefix;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
