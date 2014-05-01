@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.GrowingStatementArray;
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -32,7 +33,6 @@ import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolution
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ResolutionFunctionNotRegisteredException;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.CRUtils;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.EmptyMetadataModel;
-import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.GrowingArray;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.AllResolution;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
 
@@ -203,7 +203,7 @@ public class ConflictResolverImpl implements ConflictResolver {
     
     @Override
     public Collection<ResolvedStatement> resolveConflicts(Iterator<Statement> statements) throws ConflictResolutionException {
-        GrowingArray<Statement> growingArray = new GrowingArray<Statement>();
+        GrowingStatementArray growingArray = new GrowingStatementArray();
         while (statements.hasNext()) {
             growingArray.add(statements.next());
         }

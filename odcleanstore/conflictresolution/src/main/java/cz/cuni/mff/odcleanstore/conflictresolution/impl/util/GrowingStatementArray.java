@@ -3,15 +3,16 @@
  */
 package cz.cuni.mff.odcleanstore.conflictresolution.impl.util;
 
+import org.openrdf.model.Statement;
+
 import java.util.Arrays;
 
 /**
  * A wrapper for an array growing as needed in the same way as {@link java.util.ArrayList}. 
  * Custom implementation is used because {@link java.util.ArrayList} doesn't allow access to internal storage array.
- * @param <T> type of array elements
  * @author Jan Michelfeit
  */
-public class GrowingArray<T> {
+public class GrowingStatementArray {
     /** See {@link #MAX_ARRAY_SIZE}. */
     private static final int MEMORY_RESERVE = 8;
     
@@ -19,7 +20,7 @@ public class GrowingArray<T> {
     
     /** The maximum size of array to allocate - see {@link java.util.ArrayList} for explanation. */
     private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - MEMORY_RESERVE;
-    private T[] arr;
+    private Statement[] arr;
     private int size;
 
     /** 
@@ -27,14 +28,14 @@ public class GrowingArray<T> {
      * @param initialCapacity initial capacity of the underlying array
      */
     @SuppressWarnings("unchecked")
-    public GrowingArray(int initialCapacity) {
-        this.arr = (T[]) new Object[initialCapacity];
+    public GrowingStatementArray(int initialCapacity) {
+        this.arr = new Statement[initialCapacity];
     }
 
     /**
      * Creates a new instance.
      */
-    public GrowingArray() {
+    public GrowingStatementArray() {
         this(DEFAULT_INITIAL_CAPACITY);
     }
 
@@ -42,7 +43,7 @@ public class GrowingArray<T> {
      * Adds an element to the end of the array, resizing the array if neccesary.
      * @param element element to insert
      */
-    public void add(T element) {
+    public void add(Statement element) {
         ensureSize(size + 1);
         arr[size++] = element;
     }
@@ -51,8 +52,16 @@ public class GrowingArray<T> {
      * Returns the underlying array containing stored elements.
      * @return the wrapped underlying array
      */
-    public T[] getArray() {
+    public Statement[] getArray() {
         return arr;
+    }
+
+    /**
+     * Returns number of items added to the array.
+     * @return n
+     */
+    public int size() {
+        return size;
     }
 
     private void ensureSize(int minSize) {
@@ -63,6 +72,11 @@ public class GrowingArray<T> {
             throw new OutOfMemoryError(); // overflow
         }
         int oldCapacity = arr.length;
+        int newCapacity = computeNewCapacity(minSize, oldCapacity);
+        arr = Arrays.copyOf(arr, newCapacity);
+    }
+
+    protected int computeNewCapacity(int minSize, int oldCapacity) {
         int newCapacity = oldCapacity + (oldCapacity >> 1);
         if (newCapacity - minSize < 0) {
             newCapacity = minSize;
@@ -70,7 +84,6 @@ public class GrowingArray<T> {
         if (newCapacity - MAX_ARRAY_SIZE > 0) {
             newCapacity = (minSize > MAX_ARRAY_SIZE) ? Integer.MAX_VALUE : MAX_ARRAY_SIZE;
         }
-
-        arr = Arrays.copyOf(arr, newCapacity);
+        return newCapacity;
     }
 }
