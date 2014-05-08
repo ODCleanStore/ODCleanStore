@@ -73,9 +73,7 @@ public class DistanceMeasureImpl implements DistanceMeasure {
      */
     @Override
     public double distance(Value value1, Value value2) {
-        if (value1.getClass() != value2.getClass()) { // TODO: broken by Sesame?
-            return DIFFERENT_TYPE_DISTANCE;
-        } else if (value1 instanceof URI) {
+        if (value1 instanceof URI) {
             return resourceDistance((URI) value1, (URI) value2);
         } else if (value1 instanceof BNode) {
             return blankNodeDistance((BNode) value1, (BNode) value2);
