@@ -153,7 +153,7 @@ public final class ODCSUtils {
      * @return true iff the given string is a valid IRI
      */
     public static boolean isValidIRI(String uri) {
-        return !uri.isEmpty() && IRI_PATTERN.matcher(uri).matches();
+        return !uri.isEmpty() && IRI_PATTERN.matcher(uri).matches() && uri.indexOf(':') >= 0;
     }
     
     /**
