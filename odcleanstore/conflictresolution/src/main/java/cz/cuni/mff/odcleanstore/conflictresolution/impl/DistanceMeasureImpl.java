@@ -74,10 +74,19 @@ public class DistanceMeasureImpl implements DistanceMeasure {
     @Override
     public double distance(Value value1, Value value2) {
         if (value1 instanceof URI) {
+            if (!(value2 instanceof URI)) {
+                return DIFFERENT_TYPE_DISTANCE;
+            }
             return resourceDistance((URI) value1, (URI) value2);
         } else if (value1 instanceof BNode) {
+            if (!(value2 instanceof BNode)) {
+                return DIFFERENT_TYPE_DISTANCE;
+            }
             return blankNodeDistance((BNode) value1, (BNode) value2);
         } else if (value1 instanceof Literal) {
+            if (!(value2 instanceof Literal)) {
+                return DIFFERENT_TYPE_DISTANCE;
+            }
             return literalDistance((Literal) value1, (Literal) value2);
         } else {
             LOG.warn("Distance cannot be measured on Nodes of type {}", value1.getClass().getSimpleName());
