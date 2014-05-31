@@ -139,4 +139,44 @@ public class ResolutionStrategyImpl implements ResolutionStrategy {
                 + "; params=" + params
                 + ")";
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ResolutionStrategyImpl that = (ResolutionStrategyImpl) o;
+
+        if (aggregationErrorStrategy != that.aggregationErrorStrategy) {
+            return false;
+        }
+        if (cardinality != that.cardinality) {
+            return false;
+        }
+        if (dependsOn != null ? !dependsOn.equals(that.dependsOn) : that.dependsOn != null) {
+            return false;
+        }
+        if (params != null ? !params.equals(that.params) : that.params != null) {
+            return false;
+        }
+        if (resolutionFunctionName != null ? !resolutionFunctionName.equals(that.resolutionFunctionName) : that.resolutionFunctionName != null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = resolutionFunctionName != null ? resolutionFunctionName.hashCode() : 0;
+        result = 31 * result + (cardinality != null ? cardinality.hashCode() : 0);
+        result = 31 * result + (aggregationErrorStrategy != null ? aggregationErrorStrategy.hashCode() : 0);
+        result = 31 * result + (params != null ? params.hashCode() : 0);
+        result = 31 * result + (dependsOn != null ? dependsOn.hashCode() : 0);
+        return result;
+    }
 }
