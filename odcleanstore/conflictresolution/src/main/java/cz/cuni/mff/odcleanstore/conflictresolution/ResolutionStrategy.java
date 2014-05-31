@@ -3,6 +3,8 @@
  */
 package cz.cuni.mff.odcleanstore.conflictresolution;
 
+import org.openrdf.model.URI;
+
 import java.util.Map;
 
 /**
@@ -39,4 +41,11 @@ public interface ResolutionStrategy {
      * @return map of parameters as key -> value
      */
     Map<String, String> getParams();
+
+    /**
+     * Indicates functional dependency of values in this conflict cluster on values for another property.
+     * @return URI of property this conflict cluster (its property, respectively) depends on;
+     *      null indicates no dependency
+     */
+    URI getDependsOn();
 }

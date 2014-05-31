@@ -3,12 +3,13 @@
  */
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
-import java.util.Collections;
-import java.util.Map;
-
 import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.EnumCardinality;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionStrategy;
+import org.openrdf.model.URI;
+
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * Basic implementation of {@link ResolutionStrategy}.
@@ -19,6 +20,7 @@ public class ResolutionStrategyImpl implements ResolutionStrategy {
     private EnumCardinality cardinality;
     private EnumAggregationErrorStrategy aggregationErrorStrategy;
     private Map<String, String> params;
+    private URI dependsOn = null;
 
     /**
      * Creates a new instance with no settings specified
@@ -84,6 +86,11 @@ public class ResolutionStrategyImpl implements ResolutionStrategy {
         return params;
     }
 
+    @Override
+    public URI getDependsOn() {
+        return dependsOn;
+    }
+
     /**
      * Sets value for {@link #getResolutionFunctionName()}.
      * @param resolutionFunctionName resolution function name
@@ -106,6 +113,14 @@ public class ResolutionStrategyImpl implements ResolutionStrategy {
      */
     public void setAggregationErrorStrategy(EnumAggregationErrorStrategy aggregationErrorStrategy) {
         this.aggregationErrorStrategy = aggregationErrorStrategy;
+    }
+
+    /**
+     * Sets value for {@link #getDependsOn()}.
+     * @param dependsOn property on which we depend
+     */
+    public void setDependsOn(URI dependsOn) {
+        this.dependsOn = dependsOn;
     }
 
     /**
