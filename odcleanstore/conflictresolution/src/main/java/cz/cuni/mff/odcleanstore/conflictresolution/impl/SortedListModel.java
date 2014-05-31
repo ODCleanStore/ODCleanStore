@@ -3,28 +3,15 @@
  */
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.RandomAccess;
-import java.util.Set;
-
-import org.openrdf.model.Model;
-import org.openrdf.model.Namespace;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.ValueComparator;
+import org.openrdf.model.*;
 import org.openrdf.model.impl.AbstractModel;
 import org.openrdf.model.impl.FilteredModel;
 import org.openrdf.model.impl.URIImpl;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.util.PatternIterator;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.ValueComparator;
+import java.util.*;
 
 /**
  * Implementation of RDF {@link Model} backed by a spog-sorted list of statements.
@@ -35,7 +22,6 @@ import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.ValueComparator;
  * E.g. query <code>model.filter(subject, predicate, null)</code> is guaranteed to be logarithmic while
  * query <code>model.filter(subject, null, predicate, null)</code> is not (in this case, 
  * it would be logarithmic in size of list plus linear in number of statements having the given subject).
- * @author Jan Michelfeit
  */
 public class SortedListModel extends AbstractModel implements Model {
     private static final long serialVersionUID = 1L;
@@ -51,7 +37,8 @@ public class SortedListModel extends AbstractModel implements Model {
     /**
      * Creates a new instance backed by the given list of statements.
      * @param sortedStatements list of statements to be viewed as the model;
-     *      the statements MUST be spog-sorted (i.e. lexicographically by subject, predicate, object and named graph)
+     *      the statements MUST be spog-sorted (i.e. lexicographically by subject, predicate, object and named graph),
+     *      statements MUST be unique,
      *      and the list MUST allow random access indicated by interface {@link RandomAccess} (otherwise an 
      *      exception is thrown)
      */

@@ -1,18 +1,17 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.resolution;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-
-import org.openrdf.model.Model;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.ObjectComparator;
 import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalculator;
+import org.openrdf.model.Model;
+import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * Resolution function returning all input quads.
@@ -54,9 +53,8 @@ public class NoneResolution extends DecidingResolutionFunction {
         for (Statement statement : statements) {
             Collection<Resource> source = Collections.singleton(statement.getContext());
             double fQuality = getFQuality(
-                    statement.getObject(), 
-                    statements, 
-                    source, 
+                    statement.getObject(),
+                    source,
                     crContext);
             ResolvedStatement resolvedStatement = crContext.getResolvedStatementFactory().create(
                     statement.getSubject(), 

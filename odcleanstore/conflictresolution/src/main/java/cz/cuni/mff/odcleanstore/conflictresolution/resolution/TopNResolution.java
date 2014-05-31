@@ -3,22 +3,17 @@
  */
 package cz.cuni.mff.odcleanstore.conflictresolution.resolution;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.PriorityQueue;
-
+import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ObjectClusterIterator;
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
-import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
-import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalculator;
-import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ObjectClusterIterator;
+import java.util.*;
 
 /**
  * Returns N best statements (see {@link BestResolution}).
@@ -84,7 +79,7 @@ public class TopNResolution extends DecidingResolutionFunction {
         while (it.hasNext()) {
             Statement statement = it.next();
             Collection<Resource> sources = it.peekSources();
-            double fQuality = getFQuality(statement.getObject(), statements, sources, crContext);
+            double fQuality = getFQuality(statement.getObject(), sources, crContext);
             if (bestStatements.size() < count) {
                 bestStatements.add(createResolvedStatement(statement, fQuality, sources, crContext));
             } else if (fQuality > bestStatements.peek().getQuality()) {

@@ -3,18 +3,17 @@
  */
 package cz.cuni.mff.odcleanstore.conflictresolution.resolution;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
-
-import org.openrdf.model.Model;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
 import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.quality.SourceQualityCalculator;
+import org.openrdf.model.Model;
+import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
 
 /**
  * Resolution function selecting a quad with the best quality score of its source named graph.
@@ -70,7 +69,7 @@ public class BestSourceResolution extends DecidingResolutionFunction {
         }
         
         Set<Resource> sources = filterSources(bestStatement, statements);
-        double fQuality = getFQuality(bestStatement.getObject(), statements, sources, crContext);
+        double fQuality = getFQuality(bestStatement.getObject(), sources, crContext);
         ResolvedStatement resolvedStatement = crContext.getResolvedStatementFactory().create(
                 bestStatement.getSubject(),
                 bestStatement.getPredicate(),

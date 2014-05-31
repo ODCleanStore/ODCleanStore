@@ -4,6 +4,9 @@
 package cz.cuni.mff.odcleanstore.conflictresolution;
 
 import org.openrdf.model.Model;
+import org.openrdf.model.Statement;
+
+import java.util.Collection;
 
 /**
  * Object representing context for application of a conflict resolution function.
@@ -18,12 +21,11 @@ public interface CRContext {
     Model getMetadata();
     
     /**
-     * RDF quads related to the quads being resolved.
-     * At least all quads with the same subject are guaranteed to be contained in the model 
-     * @return context quads as an RDF model
+     * Conflicting RDF quads to be considered during quality calculation.
+     * @return conflicting RDF quads as an RDF model
      */
-    Model getContextStatements();
-    
+    Collection<Statement> getConflictingStatements();
+
     /**
      * Get conflict resolution settings for the current set of quads being resolved.
      * @return effective conflict resolution settings

@@ -3,22 +3,17 @@
  */
 package cz.cuni.mff.odcleanstore.conflictresolution.resolution;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
-
-import org.openrdf.model.Literal;
-import org.openrdf.model.Model;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.Value;
-
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.CRUtils;
 import cz.cuni.mff.odcleanstore.conflictresolution.quality.MediatingFQualityCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ResolutionFunctionUtils;
+import org.openrdf.model.*;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
 
 /**
  * Calculates average value of object values of quads to be resolved and returns it in the result.
@@ -79,7 +74,7 @@ public class AvgResolution extends MediatingResolutionFunction {
         if (validCount > 0) {
             double averageValue = sum / validCount;
             Literal averageLiteral = crContext.getResolvedStatementFactory().getValueFactory().createLiteral(averageValue);
-            double fQuality = getFQuality(averageLiteral, statements, sources, crContext);
+            double fQuality = getFQuality(averageLiteral, sources, crContext);
             ResolvedStatement resolvedStatement = crContext.getResolvedStatementFactory().create(
                     lastAggregableStatement.getSubject(),
                     lastAggregableStatement.getPredicate(),

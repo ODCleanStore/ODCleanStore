@@ -3,22 +3,17 @@
  */
 package cz.cuni.mff.odcleanstore.conflictresolution.resolution;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
-
-import org.openrdf.model.Literal;
-import org.openrdf.model.Model;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.Value;
-
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.CRUtils;
 import cz.cuni.mff.odcleanstore.conflictresolution.quality.MediatingFQualityCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ResolutionFunctionUtils;
+import org.openrdf.model.*;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
 
 /**
  * Returns statement with the sum of all values in place of objects of quads to be resolved. 
@@ -75,7 +70,7 @@ public class SumResolution extends MediatingResolutionFunction {
         Set<Resource> sources = getAllSources(statements);
 
         Literal sumLiteral = crContext.getResolvedStatementFactory().getValueFactory().createLiteral(sum);
-        double fQuality = getFQuality(sumLiteral, statements, sources, crContext);
+        double fQuality = getFQuality(sumLiteral, sources, crContext);
         ResolvedStatement resolvedStatement = crContext.getResolvedStatementFactory().create(
                 lastAggregableStatement.getSubject(),
                 lastAggregableStatement.getPredicate(),

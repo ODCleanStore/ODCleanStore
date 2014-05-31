@@ -3,12 +3,10 @@
  */
 package cz.cuni.mff.odcleanstore.conflictresolution.resolution;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Set;
-
+import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunction;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.FQualityCalculator;
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -16,10 +14,7 @@ import org.openrdf.model.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
-import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunction;
-import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
-import cz.cuni.mff.odcleanstore.conflictresolution.quality.FQualityCalculator;
+import java.util.*;
 
 /**
  * Base class for conflict resolution function implementations.
@@ -54,15 +49,15 @@ public abstract class ResolutionFunctionBase implements ResolutionFunction {
     
     /**
      * Returns the F-quality for the given value in the current conflict resolution context. 
-     * @param value estimated value - object of the statement to be estimated 
-     * @param conflictingStatements other statements that are (potentially) conflicting with the statement to be estimated
+     * @param value estimated value - object of the statement to be estimated
      * @param sources collection of sources (their named graph URIs) claiming the given value
      * @param crContext context of conflict resolution
      * @return F-quality of <code>value</code> (or its corresponding {@link ResolvedStatement resolved quad}, respectively)
      */
-    protected double getFQuality(Value value, Collection<Statement> conflictingStatements, 
+    protected double getFQuality(Value value,
             Collection<Resource> sources, CRContext crContext) {
-        return fQualityCalculator.getFQuality(value, conflictingStatements, sources, crContext);
+
+        return fQualityCalculator.getFQuality(value, crContext.getConflictingStatements(), sources, crContext);
     }
     
     /**
@@ -100,13 +95,13 @@ public abstract class ResolutionFunctionBase implements ResolutionFunction {
      * Handle a statement which cannot be aggregated by the chosen resolution function, depending on
      * {@link cz.cuni.mff.odcleanstore.conflictresolution.ResolutionStrategy#getAggregationErrorStrategy()}.
      * @param nonAggregableStatement the statement to be handled
-     * @param conflictingStatements potentially conflicting statements
+     * @param statements potentially conflicting statements
      * @param crContext context of conflict resolution
      * @param result result container where the statement can be added to
      */
     protected void handleNonAggregableStatement(
             Statement nonAggregableStatement,
-            Model conflictingStatements,
+            Model statements,
             CRContext crContext,
             Collection<ResolvedStatement> result) {
 
@@ -115,11 +110,10 @@ public abstract class ResolutionFunctionBase implements ResolutionFunction {
 
         switch (crContext.getResolutionStrategy().getAggregationErrorStrategy()) {
         case RETURN_ALL:
-            Collection<Resource> sources = filterSources(nonAggregableStatement, conflictingStatements);
+            Collection<Resource> sources = filterSources(nonAggregableStatement, statements);
             double fQuality = getFQuality(
-                    nonAggregableStatement.getObject(), 
-                    conflictingStatements, 
-                    sources, 
+                    nonAggregableStatement.getObject(),
+                    sources,
                     crContext);
             ResolvedStatement resolvedStatement = crContext.getResolvedStatementFactory().create(
                     nonAggregableStatement.getSubject(), 

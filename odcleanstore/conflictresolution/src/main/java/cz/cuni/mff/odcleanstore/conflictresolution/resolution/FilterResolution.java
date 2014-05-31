@@ -3,17 +3,6 @@
  */
 package cz.cuni.mff.odcleanstore.conflictresolution.resolution;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-
-import org.openrdf.model.Literal;
-import org.openrdf.model.Model;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
 import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalculator;
@@ -22,6 +11,11 @@ import cz.cuni.mff.odcleanstore.conflictresolution.resolution.comparators.Litera
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.EnumLiteralType;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ObjectClusterIterator;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ResolutionFunctionUtils;
+import org.openrdf.model.*;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Resolution function returning quads whose object is in the given range of minimum and maximum values.
@@ -103,7 +97,7 @@ public class FilterResolution extends DecidingResolutionFunction {
                 statement.getSubject(),
                 statement.getPredicate(),
                 statement.getObject(),
-                getFQuality(statement.getObject(), statements, sources, crContext),
+                getFQuality(statement.getObject(), sources, crContext),
                 sources));
     }
 }
