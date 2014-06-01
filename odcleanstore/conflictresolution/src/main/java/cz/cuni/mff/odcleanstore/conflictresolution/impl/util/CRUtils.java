@@ -202,11 +202,8 @@ public final class CRUtils {
             aggregationErrorStrategy = strategy.getAggregationErrorStrategy();
         }
 
-        if (strategy.getDependsOn() == null) {
-            dependsOn = defaultStrategy.getDependsOn();
-        } else {
-            dependsOn = strategy.getDependsOn();
-        }
+        // it doesn't make good sense to inherit this property from default
+        dependsOn = strategy.getDependsOn();
 
         return new ResolutionStrategyImpl(
                 resolutionFunctionName,
