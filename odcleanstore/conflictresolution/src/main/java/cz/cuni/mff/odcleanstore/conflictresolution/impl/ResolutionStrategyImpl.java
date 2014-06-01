@@ -27,7 +27,7 @@ public class ResolutionStrategyImpl implements ResolutionStrategy {
      * ({@link cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver} default will be used).
      */
     public ResolutionStrategyImpl() {
-        this(null, null, null, Collections.<String, String>emptyMap());
+        this(null, null, null, Collections.<String, String>emptyMap(), null);
     }
 
     /**
@@ -35,7 +35,7 @@ public class ResolutionStrategyImpl implements ResolutionStrategy {
      * @param resolutionFunctionName name of the conflict resolution function to be used
      */
     public ResolutionStrategyImpl(String resolutionFunctionName) {
-        this(resolutionFunctionName, null, null, Collections.<String, String>emptyMap());
+        this(resolutionFunctionName, null, null, Collections.<String, String>emptyMap(), null);
     }
 
     /**
@@ -47,7 +47,7 @@ public class ResolutionStrategyImpl implements ResolutionStrategy {
      */
     public ResolutionStrategyImpl(String resolutionFunctionName, EnumCardinality cardinality,
             EnumAggregationErrorStrategy aggregationErrorStrategy) {
-        this(resolutionFunctionName, cardinality, aggregationErrorStrategy, Collections.<String, String>emptyMap());
+        this(resolutionFunctionName, cardinality, aggregationErrorStrategy, Collections.<String, String>emptyMap(), null);
     }
 
     /**
@@ -55,14 +55,16 @@ public class ResolutionStrategyImpl implements ResolutionStrategy {
      * @param resolutionFunctionName name of the conflict resolution function to be used
      * @param cardinality cardinality of the property appearing in the conflict cluster
      * @param aggregationErrorStrategy type of strategy to use when an aggregation by resolution
-     *        function cannot be applied to a value
+ *        function cannot be applied to a value
      * @param params additional parameters for the used conflict resolution function.
+     * @param dependsOn property on which we depend
      */
     public ResolutionStrategyImpl(String resolutionFunctionName, EnumCardinality cardinality,
-            EnumAggregationErrorStrategy aggregationErrorStrategy, Map<String, String> params) {
+            EnumAggregationErrorStrategy aggregationErrorStrategy, Map<String, String> params, URI dependsOn) {
         this.resolutionFunctionName = resolutionFunctionName;
         this.cardinality = cardinality;
         this.aggregationErrorStrategy = aggregationErrorStrategy;
+        this.dependsOn = dependsOn;
         setParams(params);
     }
 

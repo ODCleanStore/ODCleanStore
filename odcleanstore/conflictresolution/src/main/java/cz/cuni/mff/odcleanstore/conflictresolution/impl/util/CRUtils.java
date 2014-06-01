@@ -3,18 +3,17 @@
  */
 package cz.cuni.mff.odcleanstore.conflictresolution.impl.util;
 
-import java.util.Map;
-
-import org.openrdf.model.Literal;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-
 import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.EnumCardinality;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.ResolutionStrategyImpl;
 import cz.cuni.mff.odcleanstore.core.ODCSUtils;
+import org.openrdf.model.Literal;
+import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
+import org.openrdf.model.Value;
+
+import java.util.Map;
 
 /**
  * Utility class for the Conflict Resolution component.
@@ -181,6 +180,7 @@ public final class CRUtils {
         EnumCardinality cardinality;
         EnumAggregationErrorStrategy aggregationErrorStrategy;
         Map<String, String> params;
+        URI dependsOn;
 
         if (strategy.getResolutionFunctionName() == null) {
             resolutionFunctionName = defaultStrategy.getResolutionFunctionName();
@@ -201,11 +201,19 @@ public final class CRUtils {
         } else {
             aggregationErrorStrategy = strategy.getAggregationErrorStrategy();
         }
+
+        if (strategy.getDependsOn() == null) {
+            dependsOn = defaultStrategy.getDependsOn();
+        } else {
+            dependsOn = strategy.getDependsOn();
+        }
+
         return new ResolutionStrategyImpl(
                 resolutionFunctionName,
                 cardinality,
                 aggregationErrorStrategy,
-                params);
+                params,
+                dependsOn);
     }
     
     private CRUtils() {
