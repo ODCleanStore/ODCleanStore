@@ -7,6 +7,7 @@ import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunction;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
 import cz.cuni.mff.odcleanstore.conflictresolution.quality.FQualityCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.SmallContextsSet;
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -14,7 +15,9 @@ import org.openrdf.model.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * Base class for conflict resolution function implementations.
@@ -69,28 +72,12 @@ public abstract class ResolutionFunctionBase implements ResolutionFunction {
      */
     protected final Set<Resource> filterSources(Statement statement, Model conflictingStatements) {
         Iterator<Statement> matchingStatements = conflictingStatements.filter(
-                statement.getSubject(), 
-                statement.getPredicate(), 
+                statement.getSubject(),
+                statement.getPredicate(),
                 statement.getObject()).iterator();
-        
-        if (!matchingStatements.hasNext()) {
-            return Collections.emptySet();
-        }
-        Resource firstSource = matchingStatements.next().getContext();
-        if (!matchingStatements.hasNext()) {
-            return Collections.singleton(firstSource);
-        }
-        
-        // We can use array list, because statements in Model are unique
-        final int initialCapacity = 4;
-        Set<Resource> sources = new ArrayListSet<Resource>(initialCapacity); 
-        sources.add(firstSource);
-        while (matchingStatements.hasNext()) {
-            sources.add(matchingStatements.next().getContext());
-        }
-        return sources;
+        return SmallContextsSet.fromIterator(matchingStatements);
     }
-    
+
     /**
      * Handle a statement which cannot be aggregated by the chosen resolution function, depending on
      * {@link cz.cuni.mff.odcleanstore.conflictresolution.ResolutionStrategy#getAggregationErrorStrategy()}.
@@ -128,22 +115,5 @@ public abstract class ResolutionFunctionBase implements ResolutionFunction {
         default:
             LOG.warn("Unhandled aggregation error strategy {}", crContext.getResolutionStrategy().getAggregationErrorStrategy());
         }
-    }
-    
-    /**
-     * {@link Set} implemented with {@link ArrayList}.
-     * @param <T> type of elements
-     */
-    private class ArrayListSet<T> extends ArrayList<T> implements Set<T> {
-        private static final long serialVersionUID = 1L;
-
-        /**
-        * Constructs an empty list with the specified initial capacity.
-        *
-        * @param  initialCapacity  the initial capacity of the list
-        */
-       public ArrayListSet(int initialCapacity) {
-           super(initialCapacity);
-       }
     }
 }
