@@ -1,15 +1,16 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunction;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunctionRegistry;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ResolutionFunctionNotRegisteredException;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * Basic implementation of {@link ResolutionFunctionRegistry}.
- * Resolution function implementations can be added by their identifier using {@link #register()}.
+ * Resolution function implementations can be added by their identifier using
+ * {@link #register(String, cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunction)} ()}.
  * This class is thread-safe.
  * @author Jan Michelfeit
  */

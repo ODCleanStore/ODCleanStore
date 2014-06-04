@@ -4,7 +4,9 @@
 package cz.cuni.mff.odcleanstore.conflictresolution;
 
 import org.openrdf.model.Model;
+import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
 
 import java.util.Collection;
 
@@ -37,4 +39,14 @@ public interface CRContext {
      * @return factory for resolved statements.
      */
     ResolvedStatementFactory getResolvedStatementFactory();
+
+    /**
+     * Returns the canonical version of the subject of the current conflict cluster.
+     */
+    Resource getCanonicalSubject();
+
+    /**
+     * Returns the canonical version of the property of the current conflict cluster.
+     */
+    URI getCanonicalProperty();
 }

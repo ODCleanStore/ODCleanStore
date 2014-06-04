@@ -8,7 +8,7 @@ import org.openrdf.model.Resource;
  * @author Jan Michelfeit
  */
 public class DummySourceQualityCalculator implements SourceQualityCalculator {
-    /** The default returned value by {@link #getSourceQuality()}. */
+    /** The default returned value by {@link #getSourceQuality(org.openrdf.model.Resource, org.openrdf.model.Model)}. */
     public static final double DEFAULT_SOURCE_QUALITY = 0.5;
     
     private final double sourceQuality;

@@ -1,6 +1,18 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.*;
+import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
+import cz.cuni.mff.odcleanstore.conflictresolution.ConflictClusterFilter;
+import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolutionPolicy;
+import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolver;
+import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolverFactory;
+import cz.cuni.mff.odcleanstore.conflictresolution.EnumAggregationErrorStrategy;
+import cz.cuni.mff.odcleanstore.conflictresolution.EnumCardinality;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunction;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionFunctionRegistry;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionStrategy;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatementFactory;
+import cz.cuni.mff.odcleanstore.conflictresolution.URIMapping;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ResolutionFunctionNotRegisteredException;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.CRUtils;
@@ -14,7 +26,12 @@ import org.openrdf.model.URI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 /**
@@ -230,7 +247,7 @@ public class ConflictResolverImpl implements ConflictResolver {
             
             // Prepare resolution functions & context
             ResolutionFunction resolutionFunction = getResolutionFunction(resolutionStrategy);
-            CRContext context = getContext(conflictCluster, resolutionStrategy);
+            CRContext context = getContext(conflictCluster, resolutionStrategy, getSubject(conflictCluster), predicate);
             
             // Apply additional filtering
             if (conflictClusterFilter != null) {
@@ -253,8 +270,8 @@ public class ConflictResolverImpl implements ConflictResolver {
         return result;
     }
 
-    private CRContext getContext(List<Statement> conflictCluster, ResolutionStrategy resolutionStrategy) {
-        return new CRContextImpl(conflictCluster, metadata, resolutionStrategy, resolvedStatementFactory);
+    private CRContext getContext(List<Statement> conflictCluster, ResolutionStrategy resolutionStrategy, Resource subject, URI predicate) {
+        return new CRContextImpl(conflictCluster, metadata, resolutionStrategy, resolvedStatementFactory, subject, predicate);
     }
 
     private ConflictResolutionPolicy getEffectiveResolutionPolicy() {
