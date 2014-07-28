@@ -3,21 +3,20 @@
  */
 package cz.cuni.mff.odcleanstore.conflictresolution.resolution;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
-
-import org.openrdf.model.Model;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.Value;
-
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.CRUtils;
 import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.comparators.BestSelectedComparator;
+import org.openrdf.model.Model;
+import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
+import org.openrdf.model.Value;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
 
 /**
  * Base class for deciding resolution functions which select a single value based on a simple comparison of some values.
@@ -69,7 +68,7 @@ public abstract class BestSelectedResolutionBase<T> extends DecidingResolutionFu
         }
         
         Set<Resource> sources = filterSources(bestStatement, statements);
-        double fQuality = getFQuality(bestStatement.getObject(), statements, sources, crContext);
+        double fQuality = getFQuality(bestStatement.getObject(), sources, crContext);
         ResolvedStatement resolvedStatement = crContext.getResolvedStatementFactory().create(
                 bestStatement.getSubject(),
                 bestStatement.getPredicate(),

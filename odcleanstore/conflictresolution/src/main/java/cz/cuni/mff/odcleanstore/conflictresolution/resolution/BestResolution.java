@@ -3,19 +3,18 @@
  */
 package cz.cuni.mff.odcleanstore.conflictresolution.resolution;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-
-import org.openrdf.model.Model;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.ObjectComparator;
 import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ObjectClusterIterator;
+import org.openrdf.model.Model;
+import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * Resolution function which selects the quad with the highest F-Quality score
@@ -66,7 +65,7 @@ public class BestResolution extends DecidingResolutionFunction {
         while (it.hasNext()) {
             Statement statement = it.next();
             Collection<Resource> sources = it.peekSources();
-            double quality = getFQuality(statement.getObject(), statements, sources, crContext);
+            double quality = getFQuality(statement.getObject(), sources, crContext);
             if (quality > bestQuality) {
                 bestStatement = statement;
                 bestQuality = quality;

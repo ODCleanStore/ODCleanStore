@@ -3,52 +3,44 @@
  */
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
-import org.openrdf.model.Model;
-import org.openrdf.model.Resource;
-
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolutionStrategy;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatementFactory;
+import org.openrdf.model.Model;
+import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
+
+import java.util.Collection;
 
 /**
  * Basic implementation of {@link CRContext}.
  * @author Jan Michelfeit
  */
 public class CRContextImpl implements CRContext {
+    private final Collection<Statement> conflictingStatements;
     private final Model metadata;
-    private final Model statementsModel;
-    private ResolutionStrategy resolutionStrategy;
+    private final ResolutionStrategy resolutionStrategy;
+    private final Resource canonicalSubject;
+    private final URI canonicalProperty;
     private final ResolvedStatementFactory resolvedStatementFactory;
-    private Resource subject;
-    
+
     /**
-     * @param statementsModel RDF quads related to the quads being resolved.
+     * @param conflictingStatements conflicting RDF quads
      * @param metadata metadata related to the quads being resolved
+     * @param resolutionStrategy conflict resolution strategy
      * @param resolvedStatementFactory factory for resolved statements
      */
-    public CRContextImpl(Model statementsModel, Model metadata, ResolvedStatementFactory resolvedStatementFactory) {
-        this.statementsModel = statementsModel;
+    public CRContextImpl(Collection<Statement> conflictingStatements, Model metadata, ResolutionStrategy resolutionStrategy,
+            ResolvedStatementFactory resolvedStatementFactory, Resource canonicalSubject, URI canonicalProperty) {
+        this.conflictingStatements = conflictingStatements;
         this.metadata = metadata;
         this.resolvedStatementFactory = resolvedStatementFactory;
-    }
-    
-    /**
-     * Sets subject for the conflict cluster being resolved.
-     * Setting the subject limits result of {@link #getContextStatements()} to return
-     * only quads with this subject.
-     * @param subject conflict cluster subject
-     */
-    public void setSubject(Resource subject) {
-        this.subject = subject;
-    }
-    /**
-     * Sets conflict resolution settings for the current set of quads being resolved. 
-     * @param resolutionStrategy conflict resolution strategys
-     */
-    public void setResolutionStrategy(ResolutionStrategy resolutionStrategy) {
         this.resolutionStrategy = resolutionStrategy;
+        this.canonicalSubject = canonicalSubject;
+        this.canonicalProperty = canonicalProperty;
     }
-    
+
     @Override
     public ResolvedStatementFactory getResolvedStatementFactory() {
         return resolvedStatementFactory;
@@ -60,12 +52,22 @@ public class CRContextImpl implements CRContext {
     }
     
     @Override
-    public Model getContextStatements() { 
-        return statementsModel.filter(subject, null, null);
+    public Collection<Statement> getConflictingStatements() {
+        return conflictingStatements;
     }
     
     @Override
     public ResolutionStrategy getResolutionStrategy() {
         return resolutionStrategy;
+    }
+
+    @Override
+    public Resource getCanonicalSubject() {
+        return canonicalSubject;
+    }
+
+    @Override
+    public URI getCanonicalProperty() {
+        return canonicalProperty;
     }
 }

@@ -3,18 +3,17 @@
  */
 package cz.cuni.mff.odcleanstore.conflictresolution.resolution;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
-
+import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.MediatingFQualityCalculator;
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
-import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
-import cz.cuni.mff.odcleanstore.conflictresolution.quality.MediatingFQualityCalculator;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
 
 
 /**
@@ -81,7 +80,7 @@ public class ConcatResolution extends MediatingResolutionFunction {
         Value object = crContext.getResolvedStatementFactory().getValueFactory().createLiteral(resultValue.toString());
         Statement firstStatement = statements.iterator().next();
         Set<Resource> sources = getAllSources(statements);
-        double fQuality = getFQuality(object, statements, sources, crContext);
+        double fQuality = getFQuality(object, sources, crContext);
         ResolvedStatement resolvedStatement = crContext.getResolvedStatementFactory().create(
                 firstStatement.getSubject(),
                 firstStatement.getPredicate(),

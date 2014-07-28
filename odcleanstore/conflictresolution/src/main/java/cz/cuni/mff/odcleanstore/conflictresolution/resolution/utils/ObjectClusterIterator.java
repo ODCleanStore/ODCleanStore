@@ -3,15 +3,13 @@
  */
 package cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.CRUtils;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.CRUtils;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 
 /**
  * Iterates over clusters of subsequent quads (statements) sharing the same object.
@@ -88,11 +86,7 @@ public class ObjectClusterIterator implements Iterator<Statement> {
         if (clusterSize == 1) {
             return Collections.singleton(clusterIt.next().getContext());
         } else {
-            Collection<Resource> sources = new ArrayList<Resource>(clusterSize);
-            for (int i = 0; i < clusterSize; i++) {
-                sources.add(clusterIt.next().getContext());
-            }
-            return sources;
+            return SmallContextsSet.fromIterator(new FixedSizeIterator(clusterIt, clusterSize));
         }
     }
 }

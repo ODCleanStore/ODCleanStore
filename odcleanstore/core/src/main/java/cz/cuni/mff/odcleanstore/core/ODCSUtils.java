@@ -1,19 +1,9 @@
 package cz.cuni.mff.odcleanstore.core;
 
-import org.openrdf.model.BNode;
-import org.openrdf.model.Model;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
+import org.openrdf.model.*;
 
 import java.text.Normalizer;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,8 +16,8 @@ import java.util.regex.Pattern;
  */
 public final class ODCSUtils {
     /* Simplified patterns for IRIs and prefixed names  based on
-     * specification at http://www.w3.org/TR/rdf-sparql-query/#QSynIRI
-     */
+         * specification at http://www.w3.org/TR/rdf-sparql-query/#QSynIRI
+         */
     private static final String PN_CHARS_BASE = "A-Za-z\\xC0-\\xFF";
     private static final String PN_CHARS_U = PN_CHARS_BASE + "_";
     private static final String PN_CHARS = PN_CHARS_U + "\\-0-9\\xB7";
@@ -43,30 +33,31 @@ public final class ODCSUtils {
     private static final Pattern VAR_PATTERN =
             Pattern.compile("^([" + PN_CHARS_U + "]|[0-9])([" + PN_CHARS_U + "]|[0-9]|\\xB7)*$");
 
-    private static final Pattern UUID_PATTERN = 
+    private static final Pattern UUID_PATTERN =
             Pattern.compile("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
+
+    private static final String VIRTUOSO_BNODE_PREFIX = "nodeID://";
 
     /** Milliseconds in a second. */
     public static final long MILLISECONDS = 1000L;
-    
+
     /** Time unit 60. */
     public static final long TIME_UNIT_60 = 60L;
-    
+
     /** Time unit 60. */
     public static final int TIME_UNIT_60_INT = 60;
-    
+
     /** Number of hours in a day. */
     public static final long DAY_HOURS = 24L;
-    
+
     /** Jdbc driver class. */
     public static final String JDBC_DRIVER = "virtuoso.jdbc3.Driver";
-    
+
     /** Default encoding - UTF-8. */
     public static final String DEFAULT_ENCODING = "UTF-8";
-    
-    /** Pattern matching characters to be removed from a literal when being escaped for a SPARQL query. */ 
+
+    /** Pattern matching characters to be removed from a literal when being escaped for a SPARQL query. */
     public static final Pattern ESCAPE_LITERAL_CHARS_TO_REMOVE = Pattern.compile("[\\x00-\\x09\\x0E-\\x1F]");
-    
     /** Pattern matching characters to be escaped in a literal when being escaped for a SPARQL query. */
     public static final Pattern ESCAPE_LITERAL_CHARS_TO_ESCAPE = Pattern.compile("([\"'`\\\\])");
 
@@ -153,7 +144,7 @@ public final class ODCSUtils {
      * @return true iff the given string is a valid IRI
      */
     public static boolean isValidIRI(String uri) {
-        return !uri.isEmpty() && IRI_PATTERN.matcher(uri).matches();
+        return !uri.isEmpty() && IRI_PATTERN.matcher(uri).matches() && uri.indexOf(':') >= 0;
     }
     
     /**
@@ -256,22 +247,26 @@ public final class ODCSUtils {
     }
     
     /**
-     * Returns an URI representing the given node or null if it is not a resource.
-     * For blank nodes returns the Virtuoso blank node identifier.
-     * This function only works in conjunction with Virtuoso database.
+     * Returns an URI representing the given node or null if it is not a {@link org.openrdf.model.Resource}.
+     * For Virtuoso blank nodes (id starting with {@value #VIRTUOSO_BNODE_PREFIX}) returns the Virtuoso identifier.
      * @param value RDF node
-     * @return URI representing
+     * @return URI representing the blank node for use in a SPARQL query or null if no such URI exists
+     *      ({@code value} is a literal or non-Virtuoso blank node).
      */
-    public static String getVirtuosoNodeURI(Value value) {
+    public static String getNodeUri(Value value) {
         if (value instanceof URI) {
             return value.stringValue();
-        } else if (value instanceof BNode) {
-            return ODCSUtils.getVirtuosoURIForBlankNode((BNode) value);
+        } else if (isVirtuosoBlankNode(value)) {
+            return value.stringValue();
         } else {
             return null;
         }
     }
-    
+
+    public static boolean isVirtuosoBlankNode(Value value) {
+        return (value instanceof BNode) && value.stringValue().startsWith(VIRTUOSO_BNODE_PREFIX);
+    }
+
     /**
      * Converts an object or null reference to a string (null is converted to the empty string).
      * @param obj object to stringify

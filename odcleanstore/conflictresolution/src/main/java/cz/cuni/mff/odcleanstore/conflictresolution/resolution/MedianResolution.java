@@ -3,30 +3,18 @@
  */
 package cz.cuni.mff.odcleanstore.conflictresolution.resolution;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.xml.datatype.XMLGregorianCalendar;
-
-import org.openrdf.model.Literal;
-import org.openrdf.model.Model;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
 import cz.cuni.mff.odcleanstore.conflictresolution.quality.MediatingFQualityCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.EnumLiteralType;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ResolutionFunctionUtils;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.TimeComparator;
+import org.openrdf.model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.util.*;
 
 /**
  * Chooses the statement with median value of its object among objects of all quads to be resolved.
@@ -67,7 +55,7 @@ public class MedianResolution extends MediatingResolutionFunction {
         } else if (statements.size() == 1) {
             Statement first = statements.iterator().next();
             Set<Resource> sources = filterSources(first, statements);
-            double fQuality = getFQuality(first.getObject(), statements, sources, crContext);
+            double fQuality = getFQuality(first.getObject(), sources, crContext);
             ResolvedStatement resolvedStatement = crContext.getResolvedStatementFactory().create(
                     first.getSubject(),
                     first.getPredicate(),
@@ -178,7 +166,7 @@ public class MedianResolution extends MediatingResolutionFunction {
                 T medianValue = objects.get(medianPosition);
                 Value object = createLiteral(medianValue, crContext.getResolvedStatementFactory().getValueFactory());
 
-                double fQuality = getFQuality(object, statements, sources, crContext);
+                double fQuality = getFQuality(object, sources, crContext);
                 ResolvedStatement resolvedStatement = crContext.getResolvedStatementFactory().create(
                         lastConvertible.getSubject(),
                         lastConvertible.getPredicate(),

@@ -1,20 +1,5 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.openrdf.model.Model;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictClusterFilter;
 import cz.cuni.mff.odcleanstore.conflictresolution.ConflictResolutionPolicy;
@@ -31,10 +16,23 @@ import cz.cuni.mff.odcleanstore.conflictresolution.URIMapping;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ConflictResolutionException;
 import cz.cuni.mff.odcleanstore.conflictresolution.exceptions.ResolutionFunctionNotRegisteredException;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.CRUtils;
-import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.EmptyMetadataModel;
-import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.GrowingArray;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.GrowingStatementArray;
 import cz.cuni.mff.odcleanstore.conflictresolution.resolution.AllResolution;
 import cz.cuni.mff.odcleanstore.vocabulary.ODCS;
+import org.openrdf.model.Model;
+import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Implementation of the RDF conflict resolution algorithm.
@@ -63,8 +61,6 @@ public class ConflictResolverImpl implements ConflictResolver {
     private ResolutionFunctionRegistry resolutionFunctionRegistry;
     private ConflictClusterFilter conflictClusterFilter;
     
-    private CRContextImpl context;
-
     // private StatementFilter statementFilter;
 
     /**
@@ -203,7 +199,7 @@ public class ConflictResolverImpl implements ConflictResolver {
     
     @Override
     public Collection<ResolvedStatement> resolveConflicts(Iterator<Statement> statements) throws ConflictResolutionException {
-        GrowingArray<Statement> growingArray = new GrowingArray<Statement>();
+        GrowingStatementArray growingArray = new GrowingStatementArray();
         while (statements.hasNext()) {
             growingArray.add(statements.next());
         }
@@ -234,7 +230,6 @@ public class ConflictResolverImpl implements ConflictResolver {
         // Apply owl:sameAs mappings, remove duplicities, sort into clusters of conflicting quads
         ConflictClustersCollection conflictClusters = new ConflictClustersCollection(statements, uriMapping,
                 resolvedStatementFactory.getValueFactory());
-        initContext(conflictClusters.asModel());
 
         // Resolve conflicts:
         Collection<ResolvedStatement> result = createResultCollection(conflictClusters.size());
@@ -252,7 +247,7 @@ public class ConflictResolverImpl implements ConflictResolver {
             
             // Prepare resolution functions & context
             ResolutionFunction resolutionFunction = getResolutionFunction(resolutionStrategy);
-            CRContext context = getContext(conflictCluster, resolutionStrategy);
+            CRContext context = getContext(conflictCluster, resolutionStrategy, getSubject(conflictCluster), predicate);
             
             // Apply additional filtering
             if (conflictClusterFilter != null) {
@@ -275,15 +270,8 @@ public class ConflictResolverImpl implements ConflictResolver {
         return result;
     }
 
-    private void initContext(Model statementsModel) {
-        Model metadataModel = metadata != null ? metadata : new EmptyMetadataModel(); 
-        context = new CRContextImpl(statementsModel, metadataModel, resolvedStatementFactory);
-    }
-
-    private CRContext getContext(List<Statement> conflictCluster, ResolutionStrategy resolutionStrategy) {
-        context.setSubject(getSubject(conflictCluster));
-        context.setResolutionStrategy(resolutionStrategy);
-        return context;
+    private CRContext getContext(List<Statement> conflictCluster, ResolutionStrategy resolutionStrategy, Resource subject, URI predicate) {
+        return new CRContextImpl(conflictCluster, metadata, resolutionStrategy, resolvedStatementFactory, subject, predicate);
     }
 
     private ConflictResolutionPolicy getEffectiveResolutionPolicy() {

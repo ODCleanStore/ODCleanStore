@@ -3,17 +3,16 @@
  */
 package cz.cuni.mff.odcleanstore.conflictresolution.resolution;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
-
+import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalculator;
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
-import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
-import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalculator;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
 
 /**
  * Resolution function returning an arbitrary quad selected from the input. 
@@ -52,7 +51,7 @@ public class AnyResolution extends DecidingResolutionFunction {
      
         Statement first = statements.iterator().next();
         Set<Resource> sources = filterSources(first, statements);
-        double fQuality = getFQuality(first.getObject(), statements, sources, crContext);
+        double fQuality = getFQuality(first.getObject(), sources, crContext);
         ResolvedStatement resolvedStatement = crContext.getResolvedStatementFactory().create(
                 first.getSubject(),
                 first.getPredicate(),

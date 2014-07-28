@@ -1,11 +1,11 @@
 package cz.cuni.mff.odcleanstore.conflictresolution.impl;
 
-import java.util.Collection;
-
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
+import java.util.Collection;
+import java.util.Objects;
 
 /**
  * Immutable implementation of {@link ResolvedStatement}.
@@ -73,5 +73,44 @@ public class ResolvedStatementImpl implements ResolvedStatement {
                 + "; " + Double.toString(quality)
                 + "; " + sourceGraphNames
                 + ")";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ResolvedStatementImpl that = (ResolvedStatementImpl) o;
+
+        if (Double.compare(that.quality, quality) != 0) {
+            return false;
+        }
+        if (!statement.equals(that.statement)) {
+            return false;
+        }
+        if (!Objects.equals(statement.getContext(), that.statement.getContext())) {
+            return false;
+        }
+        if (!sourceGraphNames.equals(that.sourceGraphNames)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = statement.hashCode();
+        result = 31 * result + (statement.getContext() == null ? 0 : statement.getContext().hashCode());
+        temp = Double.doubleToLongBits(quality);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + sourceGraphNames.hashCode();
+        return result;
     }
 }

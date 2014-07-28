@@ -3,20 +3,20 @@
  */
 package cz.cuni.mff.odcleanstore.conflictresolution.resolution;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-
+import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
+import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.CRUtils;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.SmallContextsSet;
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
-import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
-import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.CRUtils;
-import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalculator;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * Returns empty result if multiple distinct objects are present in data to be resolved,
@@ -65,12 +65,9 @@ public class CertainResolution extends DecidingResolutionFunction {
             statementCount++;
         }
         
-        HashSet<Resource> sources = new HashSet<Resource>(statementCount); 
-        for (Statement statement : statements) {
-            sources.add(statement.getContext());
-        }
+        Set<Resource> sources = SmallContextsSet.fromIterator(statements.iterator());
         
-        double fQuality = getFQuality(firstObject, statements, sources, crContext);
+        double fQuality = getFQuality(firstObject, sources, crContext);
         ResolvedStatement resolvedStatement = crContext.getResolvedStatementFactory().create(
                 firstStatement.getSubject(),
                 firstStatement.getPredicate(),

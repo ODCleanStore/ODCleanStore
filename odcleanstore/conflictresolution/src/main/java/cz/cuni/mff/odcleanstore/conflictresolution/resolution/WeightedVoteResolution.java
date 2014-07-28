@@ -3,19 +3,18 @@
  */
 package cz.cuni.mff.odcleanstore.conflictresolution.resolution;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
-
-import org.openrdf.model.Model;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-
 import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
 import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
 import cz.cuni.mff.odcleanstore.conflictresolution.impl.util.CRUtils;
 import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalculator;
 import cz.cuni.mff.odcleanstore.conflictresolution.quality.SourceQualityCalculator;
+import org.openrdf.model.Model;
+import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
 
 /**
  * Returns statement with object which is the most often occurring object value, weighted by quality scores of 
@@ -87,7 +86,7 @@ public class WeightedVoteResolution extends DecidingResolutionFunction {
         }
         
         Set<Resource> sources = filterSources(bestStatement, statements);
-        double quality = getFQuality(bestStatement.getObject(), statements, sources, crContext);
+        double quality = getFQuality(bestStatement.getObject(), sources, crContext);
         ResolvedStatement resolvedStatement = crContext.getResolvedStatementFactory().create(
                 bestStatement.getSubject(),
                 bestStatement.getPredicate(),

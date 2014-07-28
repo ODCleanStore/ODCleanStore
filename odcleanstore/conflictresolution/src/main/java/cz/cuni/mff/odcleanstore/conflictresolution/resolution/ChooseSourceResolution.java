@@ -3,10 +3,10 @@
  */
 package cz.cuni.mff.odcleanstore.conflictresolution.resolution;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-
+import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
+import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
+import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalculator;
+import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ObjectClusterIterator;
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -14,10 +14,9 @@ import org.openrdf.model.URI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cz.cuni.mff.odcleanstore.conflictresolution.CRContext;
-import cz.cuni.mff.odcleanstore.conflictresolution.ResolvedStatement;
-import cz.cuni.mff.odcleanstore.conflictresolution.quality.DecidingFQualityCalculator;
-import cz.cuni.mff.odcleanstore.conflictresolution.resolution.utils.ObjectClusterIterator;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Returns quads which have the source given as parameter among their source named graphs.
@@ -88,7 +87,7 @@ public class ChooseSourceResolution extends DecidingResolutionFunction {
                 statement.getSubject(),
                 statement.getPredicate(),
                 statement.getObject(),
-                getFQuality(statement.getObject(), statements, sources, crContext),
+                getFQuality(statement.getObject(), sources, crContext),
                 sources));
     }
 
