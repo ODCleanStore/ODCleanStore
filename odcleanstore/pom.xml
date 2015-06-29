@@ -1,247 +1,256 @@
 <?xml version="1.0" ?>
 <project
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-	xmlns="http://maven.apache.org/POM/4.0.0" 
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	
-	<modelVersion>4.0.0</modelVersion>
-	
-	<groupId>cz.cuni.mff.odcleanstore</groupId>
-	<artifactId>odcs</artifactId>
-	<version>1.1.5-SNAPSHOT</version>
-	<packaging>pom</packaging>
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+        xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-	<name>ODCleanStore</name>
-	<description>ODCleanStore is a data store and an integration platform for RDF data. 
-		Incoming data are procesed, scored and linked to other data.
-		Users can query over the stored data using a webservice and obtain aggregated and
-		integrated views on the data together with provenance information, according to 
-		aggregation policies given by the user.
-	</description>
-	
-	<url>http://sourceforge.net/p/odcleanstore/home/Home/</url>
-	<licenses>
-		<license>
-			<name>The Apache Software License, Version 2.0</name>
-			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-			<distribution>repo</distribution>
-		</license>
-	</licenses>
-	<scm>
-		<url>https://github.com/ODCleanStore/ODCleanStore/</url>
-		<connection>scm:git://github.com/ODCleanStore/ODCleanStore.git</connection>
-		<developerConnection>scm:https://github.com/ODCleanStore/ODCleanStore.git</developerConnection>
-	</scm>
-	<developers>
-		<developer>
-			<id>jm</id>
-			<name>Jan Michelfeit</name>
-			<!--<email></email>-->
-			<roles>
-				<role>developer</role>
-			</roles>
-		</developer>
-		<developer>
-			<id>dr</id>
-			<name>Dušan Rychnovský</name>
-			<!--<email></email>-->
-			<roles>
-				<role>developer</role>
-			</roles>
-		</developer>
-		<developer>
-			<id>pj</id>
-			<name>Petr Jerman</name>
-			<!--<email></email>-->
-			<roles>
-				<role>developer</role>
-			</roles>
-		</developer>
-		<developer>
-			<id>jd</id>
-			<name>Jakub Daniel</name>
-			<!--<email></email>-->
-			<roles>
-				<role>developer</role>
-			</roles>
-		</developer>
-		<developer>
-			<id>ts</id>
-			<name>Tomáš Soukup</name>
-			<!--<email></email>-->
-			<roles>
-				<role>developer</role>
-			</roles>
-		</developer>
-	</developers>
-	<contributors>
-		<contributor>
-			<name>Tomáš Knap</name>
-			<email>knap@ksi.mff.cuni.cz</email>
-			<roles>
-				<role>project supervisor</role>
-			</roles>
-			<url>http://www.ksi.mff.cuni.cz/~knap</url>
-			<organization>Faculty of Mathematics and Physics, Charles University in Prague</organization>
-		</contributor>
-	</contributors>
-	
-	<modules>
-		<module>core</module>
-		<module>shared</module>
-		<module>conflictresolution</module>
-		<module>backend</module>
-		<module>inputclient</module>
-		<module>engine</module>
-		<module>webfrontend</module>
-		<module>simplescraper</module>
-		<module>simpletransformer</module>
-		<module>comlib</module>
-		<module>installer</module>
-	</modules>
+    <modelVersion>4.0.0</modelVersion>
 
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <groupId>cz.cuni.mff.odcleanstore</groupId>
+    <artifactId>odcs</artifactId>
+    <version>1.1.5-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>ODCleanStore</name>
+    <description>ODCleanStore is a data store and an integration platform for RDF data.
+        Incoming data are procesed, scored and linked to other data.
+        Users can query over the stored data using a webservice and obtain aggregated and
+        integrated views on the data together with provenance information, according to
+        aggregation policies given by the user.
+    </description>
+
+    <url>http://sourceforge.net/p/odcleanstore/home/Home/</url>
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <scm>
+        <url>https://github.com/ODCleanStore/ODCleanStore/</url>
+        <connection>scm:git://github.com/ODCleanStore/ODCleanStore.git</connection>
+        <developerConnection>scm:https://github.com/ODCleanStore/ODCleanStore.git</developerConnection>
+    </scm>
+    <developers>
+        <developer>
+            <id>jm</id>
+            <name>Jan Michelfeit</name>
+            <!--<email></email>-->
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>dr</id>
+            <name>Dušan Rychnovský</name>
+            <!--<email></email>-->
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>pj</id>
+            <name>Petr Jerman</name>
+            <!--<email></email>-->
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>jd</id>
+            <name>Jakub Daniel</name>
+            <!--<email></email>-->
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>ts</id>
+            <name>Tomáš Soukup</name>
+            <!--<email></email>-->
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+    </developers>
+    <contributors>
+        <contributor>
+            <name>Tomáš Knap</name>
+            <email>knap@ksi.mff.cuni.cz</email>
+            <roles>
+                <role>project supervisor</role>
+            </roles>
+            <url>http://www.ksi.mff.cuni.cz/~knap</url>
+            <organization>Faculty of Mathematics and Physics, Charles University in Prague</organization>
+        </contributor>
+    </contributors>
+
+    <modules>
+        <module>core</module>
+        <module>shared</module>
+        <module>conflictresolution</module>
+        <module>backend</module>
+        <module>inputclient</module>
+        <module>engine</module>
+        <module>webfrontend</module>
+        <module>simplescraper</module>
+        <module>simpletransformer</module>
+        <module>comlib</module>
+        <module>installer</module>
+    </modules>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-	<repositories>
-		<repository>
-			<id>odcleanstore</id>
-			<url>http://gd.projekty.ms.mff.cuni.cz:9123/nexus/content/groups/public/</url>
-		</repository>
-		<repository>
-			<id>odcleanstore-thirdpary</id>
-			<url>http://gd.projekty.ms.mff.cuni.cz:9123/nexus/content/repositories/thirdparty/</url>
-		</repository>
-	</repositories>
-	
-	<distributionManagement>
-		<repository>
-			<id>odcleanstore</id>
-			<url>http://gd.projekty.ms.mff.cuni.cz:9123/nexus/content/repositories/releases/</url>
-		</repository>
-		<snapshotRepository>
-			<id>odcleanstore</id>
-			<url>http://gd.projekty.ms.mff.cuni.cz:9123/nexus/content/repositories/snapshots/</url>
-		</snapshotRepository>
-	</distributionManagement>
-	
-	<build>
-		<plugins>
-			<!--
-				A plugin to set the Java compiler version to 1.6.
-			-->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.1</version>
-				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
-				</configuration>
-			</plugin>
+    <repositories>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>odcs-libs-release</id>
+            <name>libs-release</name>
+            <url>http://odcs.xrg.cz:8080/artifactory/libs-release-local</url>
+        </repository>
+        <repository>
+            <snapshots/>
+            <id>odcs-libs-snapshot</id>
+            <name>libs-snapshot</name>
+            <url>http://odcs.xrg.cz:8080/artifactory/libs-snapshot-local</url>
+        </repository>
+    </repositories>
 
-			<!--
-				A configuration to allow only unit tests during the standard test phase.
-			-->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.12</version>
-				<configuration>
-					<excludes>
-						<exclude>**/systest/**</exclude>
-					</excludes>
-				</configuration>
-			</plugin>
-			
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.9</version>
-				<configuration>
-				  <overview>${basedir}/javadoc-overview.html</overview>
-				</configuration>
-			  </plugin>
-		</plugins>
-	</build>
-		
-	<dependencies>
-		<!--
-			Dependencies to allow unit testing.
-		-->
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.8.2</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-all</artifactId>
-			<version>1.9.0</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
-	
-	<profiles>
+    <distributionManagement>
+        <repository>
+            <id>odcs.xrg.cz</id>
+            <name>odcs.xrg.cz-releases</name>
+            <url>http://odcs.xrg.cz:8080/artifactory/libs-release-local</url>
+        </repository>
 
-		<profile>
-			<id>systest</id>
-			
-			<build>
-				<plugins>
-				
-					<!--
-						A configuration to allow only integration/system tests when run 
-						under the "systest" profile.
-					-->
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-surefire-plugin</artifactId>
-						<version>2.12</version>
-						<configuration>
-							<excludes>
-								<exclude>none</exclude>
-							</excludes>
-							<includes>
-								<include>**/Test*.java</include>
-								<include>**/*Test.java</include>
-								<include>**/*TestCase.java</include>
-								<include>**/systest/**</include>
-							</includes>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
+        <snapshotRepository>
+            <id>odcs.xrg.cz</id>
+            <name>odcs.xrg.cz-snapshots</name>
+            <url>http://odcs.xrg.cz:8080/artifactory/libs-snapshot-local</url>
+        </snapshotRepository>
+    </distributionManagement>
 
-		<profile>
-			<id>javadoc</id>
-			
-			<build>
-				<plugins>
-				
-					<!--
-						A plugin to allow javadoc generation.
-						Use the "mvn javadoc:javadoc" command to generate javadoc documentation.
-					-->
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-javadoc-plugin</artifactId>
-						<version>2.8.1</version>
-						<executions>
-							<execution>
-								<id>attach-javadocs</id>
-								<goals>
-									<goal>jar</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		
-	</profiles>
+    <build>
+        <plugins>
+            <!--
+                A plugin to set the Java compiler version to 1.6.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.1</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+
+            <!--
+                A configuration to allow only unit tests during the standard test phase.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.12</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/systest/**</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.9</version>
+                <configuration>
+                    <overview>${basedir}/javadoc-overview.html</overview>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <!--
+            Dependencies to allow unit testing.
+        -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.9.0</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <profiles>
+
+        <profile>
+            <id>systest</id>
+
+            <build>
+                <plugins>
+
+                    <!--
+                        A configuration to allow only integration/system tests when run
+                        under the "systest" profile.
+                    -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.12</version>
+                        <configuration>
+                            <excludes>
+                                <exclude>none</exclude>
+                            </excludes>
+                            <includes>
+                                <include>**/Test*.java</include>
+                                <include>**/*Test.java</include>
+                                <include>**/*TestCase.java</include>
+                                <include>**/systest/**</include>
+                            </includes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>javadoc</id>
+
+            <build>
+                <plugins>
+
+                    <!--
+                        A plugin to allow javadoc generation.
+                        Use the "mvn javadoc:javadoc" command to generate javadoc documentation.
+                    -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.8.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+    </profiles>
 </project>
