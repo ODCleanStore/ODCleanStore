@@ -34,5 +34,10 @@ More information about how ODCleanStore works can be found on GitHub wiki pages 
 ODCleanStore is published as Open Source under [Apache License Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html)
 
 ## Credits
-ODCleanStore is developed at the Charles University in Prague, Faculty of Mathematics and Physics as part of the OpenData.cz initiative and the LOD2 project.
+ODCleanStore is developed at the Charles University in Prague, Faculty of Mathematics and Physics as part of the OpenData.cz initiative.
+
+Projekt "Inteligentní knihovna - INTLIB" (TA02010182)
+je spolufinancován [Technologickou agenturou České republiky](http://tacr.cz/).
+![](https://www.tacr.cz/templates/shape5_vertex/images/tacr_eng.png)
+        
 
