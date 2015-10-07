@@ -3,7 +3,7 @@ ODCleanStore
 
 In short, ODCleanStore is a server application for management of Linked Data - it stores data in RDF, processes them and provides integrated views on the data.
 
-_Note: The project is currently migrating to GitHub, please have patientce until we're done._
+_Note: The project was migrated to [GitHub](https://github.com/ODCleanStore/ODCleanStore)._
 
 ## Downloads
 
